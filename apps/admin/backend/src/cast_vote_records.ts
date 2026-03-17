@@ -25,6 +25,7 @@ import {
   getGroupIdFromBallotStyleId,
   getPrecinctById,
   Id,
+  MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -206,7 +207,8 @@ export async function listCastVoteRecordExportsOnUsbDrive(
  * system settings.
  */
 export function determineCvrContestTags({
-  store,
+  adminAdjudicationReasons,
+  markThresholds,
   electionDefinition,
   cvrId,
   isHmpb,
@@ -214,7 +216,8 @@ export function determineCvrContestTags({
   writeIns,
   markScores,
 }: {
-  store: Store;
+  adminAdjudicationReasons: AdjudicationReason[];
+  markThresholds: MarkThresholds;
   electionDefinition: ElectionDefinition;
   cvrId: Id;
   isHmpb: boolean;
@@ -222,9 +225,6 @@ export function determineCvrContestTags({
   writeIns: CastVoteRecordWriteIn[];
   markScores?: MarkScores;
 }): CvrContestTag[] {
-  const electionId = assertDefined(store.getCurrentElectionId());
-  const { adminAdjudicationReasons, markThresholds } =
-    store.getSystemSettings(electionId);
   const shouldTagMarginalMarks = adminAdjudicationReasons.includes(
     AdjudicationReason.MarginalMark
   );
@@ -299,16 +299,14 @@ export function determineCvrContestTags({
  * Returns a cvr tag for a given cvr based on system settings.
  * */
 export function determineCvrTag({
-  store,
+  adminAdjudicationReasons,
   cvrId,
   votes,
 }: {
-  store: Store;
+  adminAdjudicationReasons: AdjudicationReason[];
   cvrId: Id;
   votes: Tabulation.Votes;
 }): CvrTag | undefined {
-  const electionId = assertDefined(store.getCurrentElectionId());
-  const { adminAdjudicationReasons } = store.getSystemSettings(electionId);
   const shouldTagBlankBallots = adminAdjudicationReasons.includes(
     AdjudicationReason.BlankBallot
   );
@@ -374,6 +372,9 @@ export async function importCastVoteRecords(
       wasExistingFile: true,
     });
   }
+
+  const { adminAdjudicationReasons, markThresholds } =
+    store.getSystemSettings(electionId);
 
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
@@ -506,7 +507,8 @@ export async function importCastVoteRecords(
 
       if (isCastVoteRecordNew) {
         const castVoteRecordContestTags = determineCvrContestTags({
-          store,
+          adminAdjudicationReasons,
+          markThresholds,
           electionDefinition,
           cvrId: castVoteRecordId,
           isHmpb,
@@ -515,7 +517,7 @@ export async function importCastVoteRecords(
           markScores,
         });
         const castVoteRecordTag = determineCvrTag({
-          store,
+          adminAdjudicationReasons,
           cvrId: castVoteRecordId,
           votes,
         });

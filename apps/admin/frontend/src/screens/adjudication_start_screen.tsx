@@ -1,13 +1,6 @@
 import { useContext } from 'react';
 
-import {
-  Callout,
-  Caption,
-  Font,
-  LinkButton,
-  Loading,
-  P,
-} from '@votingworks/ui';
+import { Callout, Caption, Font, LinkButton, Loading } from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
@@ -18,21 +11,12 @@ import {
 import { routerPaths } from '../router_paths';
 
 export function AdjudicationStartScreen(): JSX.Element {
-  const { electionDefinition, isOfficialResults } = useContext(AppContext);
+  const { isOfficialResults } = useContext(AppContext);
 
   const adjudicationQueueMetadataQuery =
     getBallotAdjudicationQueueMetadata.useQuery();
 
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
-
-  const election = electionDefinition?.election;
-  if (!election) {
-    return (
-      <NavigationScreen title="Adjudication">
-        <P>Election must be defined.</P>
-      </NavigationScreen>
-    );
-  }
 
   if (
     !adjudicationQueueMetadataQuery.isSuccess ||
@@ -49,7 +33,7 @@ export function AdjudicationStartScreen(): JSX.Element {
   function renderCallout() {
     if (isOfficialResults) {
       return (
-        <Callout icon="Info" color="neutral" style={{ marginBottom: '1rem' }}>
+        <Callout icon="Info" color="neutral">
           Adjudication is disabled because results were marked as official.
         </Callout>
       );
@@ -60,7 +44,7 @@ export function AdjudicationStartScreen(): JSX.Element {
       castVoteRecordFilesQuery.data.length === 0
     ) {
       return (
-        <Callout icon="Info" color="neutral" style={{ marginBottom: '1rem' }}>
+        <Callout icon="Info" color="neutral">
           Load CVRs to begin adjudication.
         </Callout>
       );
@@ -68,7 +52,7 @@ export function AdjudicationStartScreen(): JSX.Element {
 
     if (queryMetadata.totalTally === 0) {
       return (
-        <Callout icon="Info" color="neutral" style={{ marginBottom: '1rem' }}>
+        <Callout icon="Info" color="neutral">
           No ballots flagged for adjudication.
         </Callout>
       );

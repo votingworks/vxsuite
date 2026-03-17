@@ -43,6 +43,7 @@ import {
   BallotStyleGroupId,
   BallotStyleGroup,
   getContests,
+  SheetOf,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -1245,9 +1246,8 @@ export class Store implements BaseStore {
   /**
    * Returns the images and layouts for both sides of a ballot.
    */
-  getBallotImagesAndLayouts({ cvrId }: { cvrId: Id }): Array<{
+  getBallotImagesAndLayouts({ cvrId }: { cvrId: Id }): SheetOf<{
     image: Buffer;
-    side: Side;
     layout?: BallotPageLayout;
   }> {
     const rows = this.client.all(
@@ -1260,6 +1260,8 @@ export class Store implements BaseStore {
       join cvrs c on c.id = bi.cvr_id
       join elections e on e.id = c.election_id
       where bi.cvr_id = ?
+      order by
+        case bi.side when 'front' then 0 when 'back' then 1 end
       `,
       cvrId
     ) as Array<{
@@ -1268,15 +1270,24 @@ export class Store implements BaseStore {
       electionDefinitionId: string;
     }>;
 
-    return rows.map((row) => ({
+    assert(rows.length === 2);
+    const frontRow = assertDefined(rows[0]);
+    const backRow = assertDefined(rows[1]);
+
+    const parseRow = (row: {
+      layout?: string;
+      side: Side;
+      electionDefinitionId: string;
+    }): { image: Buffer; layout?: BallotPageLayout } => ({
       image: readFileSync(
         this.getBallotImageFilePath(row.electionDefinitionId, cvrId, row.side)
       ),
-      side: row.side,
       layout: row.layout
         ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
         : undefined,
-    }));
+    });
+
+    return [parseRow(frontRow), parseRow(backRow)];
   }
 
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
@@ -1950,8 +1961,8 @@ export class Store implements BaseStore {
     })
       .filter((contest) => cvrContestIds.has(contest.id))
       .map((contest) => {
-        const tag: CvrContestTag | null =
-          tagsByContestId.get(contest.id) ?? null;
+        const tag: CvrContestTag | undefined =
+          tagsByContestId.get(contest.id) ?? undefined;
 
         const contestVotes = votes[contest.id] ?? [];
         const contestMarkScores = markScores?.[contest.id];
@@ -1962,10 +1973,10 @@ export class Store implements BaseStore {
           const key = `${contest.id}:${option.id}`;
           const initialVote = contestVotes.includes(option.id);
 
-          const voteAdjudication: VoteAdjudication | null =
-            adjudicationsByKey.get(key) ?? null;
+          const voteAdjudication: VoteAdjudication | undefined =
+            adjudicationsByKey.get(key) ?? undefined;
 
-          const writeInRecord = writeInsByKey.get(key) ?? null;
+          const writeInRecord = writeInsByKey.get(key) ?? undefined;
 
           const score = contestMarkScores?.[option.id];
           const hasMarginalMark =
@@ -2761,8 +2772,8 @@ export class Store implements BaseStore {
   addCvrContestTag({
     cvrId,
     contestId,
+    source,
     isResolved = false,
-    isUndetected = false,
     hasOvervote = false,
     hasUndervote = false,
     hasWriteIn = false,
@@ -2774,8 +2785,8 @@ export class Store implements BaseStore {
         insert into cvr_contest_tags (
           cvr_id,
           contest_id,
+          source,
           is_resolved,
-          is_undetected,
           has_overvote,
           has_undervote,
           has_write_in,
@@ -2785,8 +2796,8 @@ export class Store implements BaseStore {
       `,
       cvrId,
       contestId,
+      source,
       asSqliteBool(isResolved),
-      asSqliteBool(isUndetected),
       asSqliteBool(hasOvervote),
       asSqliteBool(hasUndervote),
       asSqliteBool(hasWriteIn),
@@ -2809,8 +2820,8 @@ export class Store implements BaseStore {
               select
                 cvr_id as cvrId,
                 contest_id as contestId,
+                source,
                 is_resolved as isResolved,
-                is_undetected as isUndetected,
                 has_overvote as hasOvervote,
                 has_undervote as hasUndervote,
                 has_write_in as hasWriteIn,
@@ -2829,8 +2840,8 @@ export class Store implements BaseStore {
               select
                 cvr_id as cvrId,
                 contest_id as contestId,
+                source,
                 is_resolved as isResolved,
-                is_undetected as isUndetected,
                 has_overvote as hasOvervote,
                 has_undervote as hasUndervote,
                 has_write_in as hasWriteIn,
@@ -2845,8 +2856,8 @@ export class Store implements BaseStore {
     ) as Array<{
       cvrId: Id;
       contestId: ContestId;
+      source: 'scanner' | 'user';
       isResolved: SqliteBool;
-      isUndetected: SqliteBool;
       hasOvervote: SqliteBool;
       hasUndervote: SqliteBool;
       hasWriteIn: SqliteBool;
@@ -2856,8 +2867,8 @@ export class Store implements BaseStore {
 
     return rows.map((row) => ({
       ...row,
+      source: row.source,
       isResolved: fromSqliteBool(row.isResolved),
-      isUndetected: fromSqliteBool(row.isUndetected),
       hasOvervote: fromSqliteBool(row.hasOvervote),
       hasUndervote: fromSqliteBool(row.hasUndervote),
       hasWriteIn: fromSqliteBool(row.hasWriteIn),
@@ -2919,7 +2930,7 @@ export class Store implements BaseStore {
     );
   }
 
-  getCvrTag({ cvrId }: { cvrId: Id }): CvrTag | null {
+  getCvrTag({ cvrId }: { cvrId: Id }): CvrTag | undefined {
     const row = this.client.one(
       `
         select
@@ -2944,7 +2955,7 @@ export class Store implements BaseStore {
           isResolved: fromSqliteBool(row.isResolved),
           isBlankBallot: fromSqliteBool(row.isBlankBallot),
         }
-      : null;
+      : undefined;
   }
 
   resolveCvrTag({ cvrId }: { cvrId: Id }): void {

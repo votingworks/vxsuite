@@ -216,7 +216,7 @@ export function makeInitialState(
       : option.initialVote;
 
     if (option.hasMarginalMark) {
-      assert(contestAdjudicationData.tag !== null);
+      assert(contestAdjudicationData.tag !== undefined);
       optionState.marginalMarkStatus = contestAdjudicationData.tag.isResolved
         ? 'resolved'
         : 'pending';

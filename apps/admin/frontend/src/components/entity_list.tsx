@@ -5,8 +5,7 @@ import { Caption as CaptionBase, DesktopPalette, Font } from '@votingworks/ui';
 const Box = styled.ul.attrs({ role: 'listbox' })`
   --entity-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${DesktopPalette.Gray30};
-  --entity-list-title-size: 1.25rem;
-  --entity-list-title-padding-y: 0.75rem;
+  --entity-list-title-size: 1.125rem;
 
   display: flex;
   flex-direction: column;
@@ -22,22 +21,21 @@ const Box = styled.ul.attrs({ role: 'listbox' })`
 `;
 
 const Header = styled.div`
-  background-color: ${(p) => p.theme.colors.containerLow};
+  background-color: ${(p) => p.theme.colors.container};
   border-bottom: var(--entity-list-border);
-  border-bottom-width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
+  border-bottom-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
   font-size: var(--entity-list-title-size);
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   line-height: 1;
   margin: 0;
-  padding: var(--entity-list-title-padding-y) 1rem;
+  padding: 0.5rem 0.75rem;
   position: sticky;
   top: 0;
   white-space: nowrap;
 
   :not(:first-child) {
     border-top: var(--entity-list-border);
-    margin: 0;
-    top: -${(p) => p.theme.sizes.bordersRem.hairline}rem;
+    border-top-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
   }
 `;
 
@@ -60,12 +58,16 @@ const ItemContainer = styled.li<{ hasWarning: boolean }>`
   display: flex;
   gap: 0.5rem;
   margin: 0;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   transition-duration: 100ms;
   transition-property: background, border, box-shadow, color;
   transition-timing-function: ease-out;
 
   ${(p) => p.hasWarning && `background-color: ${DesktopPalette.Orange5};`}
+
+  :last-child {
+    border-bottom: none;
+  }
 
   :focus,
   :hover {

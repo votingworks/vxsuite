@@ -356,7 +356,7 @@ export function adjudicateCvrContest(
         cvrId,
         contestId,
         isResolved: true,
-        isUndetected: true,
+        source: 'user',
         hasUnmarkedWriteIn,
         hasMarginalMark,
         hasOvervote: adjudicatedVoteCount > votesAllowed,

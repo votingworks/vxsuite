@@ -352,8 +352,8 @@ export interface ContestOptionAdjudicationData {
   definition: ContestOption;
   initialVote: boolean;
   hasMarginalMark: boolean;
-  voteAdjudication: VoteAdjudication | null;
-  writeInRecord: WriteInRecord | null;
+  voteAdjudication?: VoteAdjudication;
+  writeInRecord?: WriteInRecord;
 }
 
 /**
@@ -361,8 +361,8 @@ export interface ContestOptionAdjudicationData {
  */
 export interface ContestAdjudicationData {
   contestId: ContestId;
-  tag: CvrContestTag | null;
   options: ContestOptionAdjudicationData[];
+  tag?: CvrContestTag;
 }
 
 /**
@@ -370,7 +370,7 @@ export interface ContestAdjudicationData {
  */
 export interface BallotAdjudicationData {
   cvrId: Id;
-  tag: CvrTag | null;
+  tag?: CvrTag;
   contests: ContestAdjudicationData[];
 }
 
@@ -476,9 +476,9 @@ export interface CvrContestTag {
   cvrId: Id;
   contestId: ContestId;
   isResolved: boolean;
-  // isUndetected is true when the tag is created by a user action,
-  // not automatically by the system detecting an adjudication need.
-  isUndetected: boolean;
+  // source indicates whether the tag was created automatically by the scanner
+  // detecting an adjudication need or by a user action during adjudication
+  source: 'scanner' | 'user';
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;
@@ -500,9 +500,9 @@ export type WriteInAdjudicationAction =
  */
 export interface HmpbBallotPageImage {
   readonly type: 'hmpb';
-  readonly imageUrl: string | null;
   readonly ballotCoordinates: Rect;
   readonly layout: BallotPageLayout;
+  readonly imageUrl?: string;
 }
 
 /**
@@ -510,8 +510,8 @@ export interface HmpbBallotPageImage {
  */
 export interface BmdBallotPageImage {
   readonly type: 'bmd';
-  readonly imageUrl: string | null;
   readonly ballotCoordinates: Rect;
+  readonly imageUrl?: string;
 }
 
 /**

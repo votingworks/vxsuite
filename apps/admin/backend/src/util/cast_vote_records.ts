@@ -85,7 +85,7 @@ export class CvrContestTagList {
       cvrId: this.cvrId,
       contestId,
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
     };
     this.byContestId.set(contestId, newContestTag);
     return newContestTag;

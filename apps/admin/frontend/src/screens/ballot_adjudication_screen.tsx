@@ -5,6 +5,7 @@ import {
   AdjudicationReason,
   ContestId,
   Election,
+  Id,
   Side,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
@@ -157,22 +158,49 @@ function isContestTagOnlyUndervote(tag: CvrContestTag) {
   );
 }
 
-export function BallotAdjudicationScreen(): JSX.Element {
-  // Queries and mutations
-  const { electionDefinition } = useContext(AppContext);
-  const election = assertDefined(electionDefinition?.election);
-  const history = useHistory();
-  const resolveBallotTagsMutation = resolveBallotTags.useMutation();
+export function BallotAdjudicationScreenWrapper(): JSX.Element {
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
   const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
 
-  const [maybeCvrQueueIndex, setMaybeCvrQueueIndex] = useState<number>();
-  const isQueueReady =
-    maybeCvrQueueIndex !== undefined && ballotQueueQuery.data !== undefined;
-  const maybeCurrentCvrId = isQueueReady
-    ? ballotQueueQuery.data[maybeCvrQueueIndex]
-    : undefined;
+  if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
+    return (
+      <Screen>
+        <Main flexRow>
+          <Loading isFullscreen />
+        </Main>
+      </Screen>
+    );
+  }
 
+  const queue = ballotQueueQuery.data;
+  const nextCvrId = nextCvrIdQuery.data;
+  const initialQueueIndex = nextCvrId
+    ? Math.max(0, queue.indexOf(nextCvrId))
+    : 0;
+
+  return (
+    <BallotAdjudicationScreen
+      queue={queue}
+      initialQueueIndex={initialQueueIndex}
+    />
+  );
+}
+
+interface BallotAdjudicationScreenProps {
+  queue: Id[];
+  initialQueueIndex: number;
+}
+
+function BallotAdjudicationScreen({
+  queue,
+  initialQueueIndex,
+}: BallotAdjudicationScreenProps): JSX.Element {
+  const { electionDefinition } = useContext(AppContext);
+  const election = assertDefined(electionDefinition?.election);
+  const history = useHistory();
+
+  const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
+  const currentCvrId = queue[queueIndex];
   const [selectedSide, setSelectedSide] = useState<Side>('front');
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
@@ -182,45 +210,28 @@ export function BallotAdjudicationScreen(): JSX.Element {
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const ballotAdjudicationDataQuery = getBallotAdjudicationData.useQuery(
-    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId } : undefined
-  );
-  const ballotImagesQuery = getBallotImages.useQuery(
-    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId } : undefined
-  );
+  const ballotAdjudicationDataQuery = getBallotAdjudicationData.useQuery({
+    cvrId: currentCvrId,
+  });
+  const ballotImagesQuery = getBallotImages.useQuery({
+    cvrId: currentCvrId,
+  });
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
+  const resolveBallotTagsMutation = resolveBallotTags.useMutation();
 
   // Prefetch the next and previous ballot images
   const prefetchImageViews = getBallotImages.usePrefetch();
   useEffect(() => {
-    if (!ballotQueueQuery.isSuccess || maybeCvrQueueIndex === undefined) return;
-    const nextCvrId = ballotQueueQuery.data[maybeCvrQueueIndex + 1];
+    const nextCvrId = queue[queueIndex + 1];
     if (nextCvrId) {
       void prefetchImageViews({ cvrId: nextCvrId });
     }
-    const prevCvrId = ballotQueueQuery.data[maybeCvrQueueIndex - 1];
+    const prevCvrId = queue[queueIndex - 1];
     if (prevCvrId) {
       void prefetchImageViews({ cvrId: prevCvrId });
     }
-  }, [maybeCvrQueueIndex, ballotQueueQuery, prefetchImageViews]);
-
-  // Open to first pending cvr when queue data is loaded
-  useEffect(() => {
-    if (
-      maybeCvrQueueIndex === undefined &&
-      ballotQueueQuery.isSuccess &&
-      nextCvrIdQuery.isSuccess
-    ) {
-      const cvrQueue = ballotQueueQuery.data;
-      const cvrId = nextCvrIdQuery.data;
-      if (cvrId) {
-        setMaybeCvrQueueIndex(cvrQueue.indexOf(cvrId));
-      } else {
-        setMaybeCvrQueueIndex(0);
-      }
-    }
-  }, [nextCvrIdQuery, ballotQueueQuery, maybeCvrQueueIndex]);
+  }, [queueIndex, queue, prefetchImageViews]);
 
   // Default to back side if the first pending contest is on the back
   useEffect(() => {
@@ -247,7 +258,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
       setSelectedSide('front');
     }
   }, [
-    maybeCurrentCvrId,
+    currentCvrId,
     ballotAdjudicationDataQuery.isSuccess,
     ballotAdjudicationDataQuery.data,
     ballotImagesQuery.isSuccess,
@@ -258,10 +269,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
   if (
     !ballotAdjudicationDataQuery.isSuccess ||
     !ballotImagesQuery.isSuccess ||
-    !ballotQueueQuery.isSuccess ||
     !writeInCandidatesQuery.isSuccess ||
-    !systemSettingsQuery.isSuccess ||
-    maybeCvrQueueIndex === undefined
+    !systemSettingsQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -272,12 +281,10 @@ export function BallotAdjudicationScreen(): JSX.Element {
     );
   }
 
-  const queue = ballotQueueQuery.data;
-  const queueIndex = maybeCvrQueueIndex;
   const onFirstBallot = queueIndex <= 0;
   const onLastBallot = queueIndex >= queue.length - 1;
 
-  const cvrId = assertDefined(maybeCurrentCvrId);
+  const cvrId = currentCvrId;
   const cvrTag = ballotAdjudicationDataQuery.data.tag;
   const ballotImages = ballotImagesQuery.data;
   const { front, back } = ballotImages;
@@ -289,7 +296,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
   const writeInCandidateNamesById = new Map(
     writeInCandidatesQuery.data.map((c) => [c.id, c.name])
   );
-  const showUndervoteTransitions =
+  const showUndervoteStatus =
     systemSettingsQuery.data.adminAdjudicationReasons.includes(
       AdjudicationReason.Undervote
     );
@@ -310,7 +317,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
 
   function onBack(): void {
     if (!onFirstBallot) {
-      setMaybeCvrQueueIndex(queueIndex - 1);
+      setQueueIndex(queueIndex - 1);
     }
   }
 
@@ -318,7 +325,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
     if (onLastBallot) {
       history.push(routerPaths.adjudication);
     } else {
-      setMaybeCvrQueueIndex(queueIndex + 1);
+      setQueueIndex(queueIndex + 1);
     }
   }
 
@@ -334,7 +341,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
     if (onLastBallot) {
       history.push(routerPaths.adjudication);
     } else {
-      setMaybeCvrQueueIndex(queueIndex + 1);
+      setQueueIndex(queueIndex + 1);
     }
   }
 
@@ -447,7 +454,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
             onSelect={(contestId) => setSelectedContestId(contestId)}
             onSelectSide={setSelectedSide}
             selectedSide={selectedSide}
-            showUndervoteTransitions={showUndervoteTransitions}
+            showUndervoteStatus={showUndervoteStatus}
             writeInCandidateNamesById={writeInCandidateNamesById}
           />
           <PanelFooter>
@@ -462,17 +469,17 @@ export function BallotAdjudicationScreen(): JSX.Element {
                 disabled={hasUnresolvedWriteIns}
                 variant={allResolved ? 'primary' : 'neutral'}
               >
-                {onLastBallot ? 'Finish' : 'Accept'}
+                Accept
               </PrimaryNavButton>
               <SecondaryNavButton onPress={onSkip} rightIcon="Next">
-                {onLastBallot ? 'Exit' : 'Skip'}
+                Skip
               </SecondaryNavButton>
               <SecondaryNavButton
                 disabled={onFirstBallot}
                 icon="Previous"
                 onPress={onBack}
               >
-                Prev
+                Back
               </SecondaryNavButton>
             </FooterNav>
           </PanelFooter>

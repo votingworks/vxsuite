@@ -75,6 +75,8 @@ export function addMockCvrFileToStore({
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));
+  const { adminAdjudicationReasons, markThresholds } =
+    store.getSystemSettings(electionId);
   const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
@@ -136,7 +138,8 @@ export function addMockCvrFileToStore({
       }
 
       for (const tag of determineCvrContestTags({
-        store,
+        adminAdjudicationReasons,
+        markThresholds,
         cvrId,
         writeIns,
         isHmpb,

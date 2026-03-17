@@ -1,6 +1,5 @@
-import { Id, Rect } from '@votingworks/types';
-import { loadImageData, toDataUrl } from '@votingworks/image-utils';
-import { assertDefined } from '@votingworks/basics';
+import { Id, mapSheet, Rect } from '@votingworks/types';
+import { loadImageMetadata } from '@votingworks/image-utils';
 import { Store } from '../store';
 import { BallotImages, BallotPageImage } from '../types';
 import { rootDebug } from './debug';
@@ -20,31 +19,25 @@ export async function getBallotImages({
   debug('getting ballot images for cvr %s...', cvrId);
   const imagesAndLayouts = store.getBallotImagesAndLayouts({ cvrId });
 
-  let front: BallotPageImage | undefined;
-  let back: BallotPageImage | undefined;
-
-  for (const { image, layout, side } of imagesAndLayouts) {
-    const imageData = await loadImageData(image);
-    const imageUrl = imageData.isOk()
-      ? toDataUrl(imageData.ok(), 'image/jpeg')
-      : null;
-    const ballotCoordinates: Rect = {
-      x: 0,
-      y: 0,
-      width: imageData.isOk() ? imageData.ok().width : 0,
-      height: imageData.isOk() ? imageData.ok().height : 0,
-    };
-    const pageImage: BallotPageImage = layout
-      ? { type: 'hmpb', imageUrl, ballotCoordinates, layout }
-      : { type: 'bmd', imageUrl, ballotCoordinates };
-
-    if (side === 'front') {
-      front = pageImage;
-    } else {
-      back = pageImage;
+  const [front, back] = await mapSheet(
+    imagesAndLayouts,
+    async ({ image, layout }): Promise<BallotPageImage> => {
+      const metadata = await loadImageMetadata(image);
+      const imageUrl = metadata.isOk()
+        ? `data:${metadata.ok().type};base64,${image.toString('base64')}`
+        : undefined;
+      const ballotCoordinates: Rect = {
+        x: 0,
+        y: 0,
+        width: metadata.ok()?.width ?? 0,
+        height: metadata.ok()?.height ?? 0,
+      };
+      return layout
+        ? { type: 'hmpb', imageUrl, ballotCoordinates, layout }
+        : { type: 'bmd', imageUrl, ballotCoordinates };
     }
-  }
+  );
 
   debug('retrieved ballot images for cvr %s', cvrId);
-  return { cvrId, front: assertDefined(front), back: assertDefined(back) };
+  return { cvrId, front, back };
 }

@@ -39,7 +39,7 @@ import { VotingMethodBallotCountReport } from '../screens/reporting/voting_metho
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen';
-import { BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
+import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);

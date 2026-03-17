@@ -87,17 +87,13 @@ const BaseRow = styled.div`
   padding: ${DEFAULT_PADDING};
 `;
 
-const BallotHeader = styled(BaseRow)`
+const ContestHeader = styled(BaseRow)`
   background: ${(p) => p.theme.colors.inverseBackground};
   color: ${(p) => p.theme.colors.onInverse};
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   min-height: 4rem;
   flex-shrink: 0;
-
-  button {
-    flex-wrap: nowrap;
-    font-weight: 600;
-  }
 `;
 
 const BallotVoteCount = styled(BaseRow)`
@@ -108,7 +104,6 @@ const BallotVoteCount = styled(BaseRow)`
 `;
 
 const BallotFooter = styled(BaseRow)`
-  flex-direction: column;
   justify-content: start;
   align-items: stretch;
   gap: 0.5rem;
@@ -135,12 +130,6 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
-const ContestTitleDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-`;
-
 const CompactH1 = styled(H1)`
   font-size: 1.125rem;
   margin: 0;
@@ -163,8 +152,8 @@ const Label = styled.span`
   font-weight: 500;
 `;
 
-const PrimaryNavButton = styled(Button)`
-  flex-grow: 1;
+const NavButton = styled(Button)`
+  flex: 1;
 `;
 
 function renderContestOptionButtonCaption({
@@ -331,7 +320,7 @@ export function ContestAdjudicationScreen({
   const isUndervote = isStateReady ? voteCount < seatCount : false;
 
   const allowSaveWithoutChanges =
-    tag !== null &&
+    tag !== undefined &&
     (tag.hasOvervote || tag.hasUndervote) &&
     !tag.isResolved &&
     allAdjudicationsCompleted;
@@ -404,7 +393,7 @@ export function ContestAdjudicationScreen({
     }
   }
 
-  function onExit(): void {
+  function onCancel(): void {
     if (isModified && !showDiscardChangesModal) {
       setShowDiscardChangesModal(true);
       return;
@@ -438,21 +427,10 @@ export function ContestAdjudicationScreen({
         </BallotPanel>
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}
-          <BallotHeader>
-            <ContestTitleDiv>
-              <CompactH2>{getContestDistrictName(election, contest)}</CompactH2>
-              <CompactH1>{contest.title}</CompactH1>
-            </ContestTitleDiv>
-            <Button
-              fill="outlined"
-              icon="ListUnordered"
-              onPress={onExit}
-              variant="inverseNeutral"
-              style={{ padding: '0.3rem .75rem', fontSize: '.8rem' }}
-            >
-              Overview
-            </Button>
-          </BallotHeader>
+          <ContestHeader>
+            <CompactH2>{getContestDistrictName(election, contest)}</CompactH2>
+            <CompactH1>{contest.title}</CompactH1>
+          </ContestHeader>
           <BallotVoteCount>
             <MediumText>
               Votes cast:{' '}
@@ -614,7 +592,10 @@ export function ContestAdjudicationScreen({
             </ContestOptionButtonList>
           )}
           <BallotFooter>
-            <PrimaryNavButton
+            <NavButton onPress={onCancel} variant="neutral">
+              Cancel
+            </NavButton>
+            <NavButton
               disabled={
                 !allAdjudicationsCompleted ||
                 (!isModified && !allowSaveWithoutChanges)
@@ -624,7 +605,7 @@ export function ContestAdjudicationScreen({
               variant="primary"
             >
               Confirm
-            </PrimaryNavButton>
+            </NavButton>
           </BallotFooter>
         </AdjudicationPanel>
         {doubleVoteAlert && (
