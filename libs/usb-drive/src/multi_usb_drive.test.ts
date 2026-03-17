@@ -1021,6 +1021,48 @@ describe('autoMount', () => {
     }
   });
 
+  test('logs timeout failure when mount exec succeeds but mountpoint never registers', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const unmountedPartitionDisk = makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      });
+
+      // exec succeeds but the partition never shows a mountpoint
+      mockDrives = [unmountedPartitionDisk];
+      execMock.mockResolvedValue({ stdout: '', stderr: '' });
+
+      const logger = mockLogger({ fn: vi.fn });
+      const multiUsbDrive = detectMultiUsbDrive(logger);
+
+      // Advance past MOUNT_TIMEOUT_MS (5000ms) to exhaust the polling loop
+      await vi.advanceTimersByTimeAsync(5200);
+
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.UsbDriveMountInit,
+        expect.any(String)
+      );
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.UsbDriveMounted,
+        expect.any(String),
+        expect.objectContaining({ disposition: 'failure' })
+      );
+
+      multiUsbDrive.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test('does not auto-mount while a drive action is in progress', async () => {
     mockDrives = [makeDisk()];
     const logger = mockLogger({ fn: vi.fn });
