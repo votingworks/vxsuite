@@ -71,13 +71,34 @@ test('bad_format error when partition is mounted as FAT16', () => {
   ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
 });
 
-test('no_drive when partition is unmounted', () => {
+test('no_drive when partition is unmounted as FAT32', () => {
   expect(
-    getUsbDriveStatus([makeDrive([makePartition({ type: 'unmounted' })])])
+    getUsbDriveStatus([
+      makeDrive([makePartition({ type: 'unmounted' }, 'vfat', 'FAT32')]),
+    ])
   ).toEqual({ status: 'no_drive' });
 });
 
-test('bad_format error when partition is unmounted with non-vfat filesystem', () => {
+test('bad_format error when partition is mounted with missing filesystem info', () => {
+  expect(
+    getUsbDriveStatus([
+      makeDrive([
+        makePartition({
+          type: 'mounted',
+          mountPoint: '/media/vx/usb-drive-sdb1',
+        }),
+      ]),
+    ])
+  ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
+});
+
+test('bad_format error when partition is unmounted with missing filesystem info', () => {
+  expect(
+    getUsbDriveStatus([makeDrive([makePartition({ type: 'unmounted' })])])
+  ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
+});
+
+test('bad_format error when partition is unmounted as NTFS', () => {
   expect(
     getUsbDriveStatus([
       makeDrive([makePartition({ type: 'unmounted' }, 'ntfs')]),
