@@ -123,8 +123,8 @@ describe('getDrives', () => {
           {
             devPath: '/dev/sdb1',
             mountpoint: undefined,
-            fstype: 'vfat',
-            fsver: 'FAT32',
+            fstype: 'exfat',
+            fsver: '1.0',
             label: undefined,
           },
         ],
@@ -639,8 +639,8 @@ describe('formatDrive', () => {
           {
             devPath: '/dev/sdb1',
             mountpoint: undefined,
-            fstype: 'vfat',
-            fsver: 'FAT32',
+            fstype: 'exfat',
+            fsver: '1.0',
             label: 'MY-DRIVE',
           },
         ],
@@ -826,10 +826,8 @@ describe('autoMount', () => {
     await vi.waitFor(
       () => {
         const drives = multiUsbDrive.getDrives();
-        return (
-          drives.length === 1 &&
-          drives[0]?.partitions[0]?.mount.type === 'mounted'
-        );
+        expect(drives.length).toEqual(1);
+        expect(drives[0]?.partitions[0]?.mount.type).toEqual('mounted');
       },
       { timeout: 2000 }
     );
