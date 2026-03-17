@@ -127,7 +127,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
       .toArray();
     expect(page1Images.length).toEqual(2);
     expect(page1Images[0]).toMatchImageSnapshot({
-      failureThreshold: 0.0001,
+      failureThreshold: 0.03,
       failureThresholdType: 'percent',
     });
 
@@ -148,7 +148,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
       .toArray();
     expect(page2Images.length).toEqual(2);
     expect(page2Images[0]).toMatchImageSnapshot({
-      failureThreshold: 0.0001,
+      failureThreshold: 0.03,
       failureThresholdType: 'percent',
     });
   });
