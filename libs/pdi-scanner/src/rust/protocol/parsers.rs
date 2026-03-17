@@ -10,13 +10,11 @@ use nom::{
     sequence::{delimited, tuple, Tuple},
     IResult,
 };
-use serde::Serialize;
-
 use super::{
     packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
     types::{
         BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
-        Resolution, Side,
+        Register, RegisterIndex, Resolution, Side,
     },
     Outgoing, Settings, Status, Version,
 };
@@ -1322,32 +1320,6 @@ simple_request!(turn_array_light_source_off_request, b"6");
 simple_request!(eject_escrow_document_request, b"7");
 simple_request!(rescan_document_held_in_escrow_position_request, b"[");
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[must_use]
-pub struct RegisterIndex(u8);
-
-impl RegisterIndex {
-    const MAX_REGISTER_INDEX: u8 = 63;
-
-    #[must_use]
-    pub const fn new(index: u8) -> Option<Self> {
-        if index > Self::MAX_REGISTER_INDEX {
-            return None;
-        }
-
-        Some(Self(index))
-    }
-
-    pub(crate) const fn new_unchecked(index: u8) -> Self {
-        Self(index)
-    }
-
-    #[must_use]
-    pub const fn get(&self) -> u8 {
-        self.0
-    }
-}
-
 fn register_index(input: &[u8]) -> IResult<&[u8], RegisterIndex> {
     map_res(tuple((hex_digit, hex_byte)), |(r0, r1_and_2)| {
         match (r0, RegisterIndex::new(r1_and_2)) {
@@ -1358,28 +1330,6 @@ fn register_index(input: &[u8]) -> IResult<&[u8], RegisterIndex> {
             ))),
         }
     })(input)
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[must_use]
-pub struct Register {
-    index: RegisterIndex,
-    value: u32,
-}
-
-impl Register {
-    pub const fn new(index: RegisterIndex, value: u32) -> Self {
-        Self { index, value }
-    }
-
-    pub const fn index(&self) -> RegisterIndex {
-        self.index
-    }
-
-    #[must_use]
-    pub const fn value(&self) -> u32 {
-        self.value
-    }
 }
 
 simple_request!(save_registers_to_flash_request, b"}");

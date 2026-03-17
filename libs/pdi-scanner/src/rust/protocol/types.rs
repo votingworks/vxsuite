@@ -2,6 +2,54 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer, Serialize};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[must_use]
+pub struct RegisterIndex(u8);
+
+impl RegisterIndex {
+    const MAX_REGISTER_INDEX: u8 = 63;
+
+    #[must_use]
+    pub const fn new(index: u8) -> Option<Self> {
+        if index > Self::MAX_REGISTER_INDEX {
+            return None;
+        }
+
+        Some(Self(index))
+    }
+
+    pub(crate) const fn new_unchecked(index: u8) -> Self {
+        Self(index)
+    }
+
+    #[must_use]
+    pub const fn get(&self) -> u8 {
+        self.0
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[must_use]
+pub struct Register {
+    index: RegisterIndex,
+    value: u32,
+}
+
+impl Register {
+    pub const fn new(index: RegisterIndex, value: u32) -> Self {
+        Self { index, value }
+    }
+
+    pub const fn index(&self) -> RegisterIndex {
+        self.index
+    }
+
+    #[must_use]
+    pub const fn value(&self) -> u32 {
+        self.value
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Resolution {
     /// 400 DPI for Pagescan 5

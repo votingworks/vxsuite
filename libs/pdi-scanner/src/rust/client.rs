@@ -6,12 +6,9 @@ use tokio::{
 };
 
 use crate::{
-    protocol::{
-        parsers::RegisterIndex,
-        types::{
-            AutoRunOutAtEndOfScanBehavior, BootEjectMotion, Direction, DoubleFeedDetectionMode,
-            EjectPauseMode, FeederMode, PickOnCommandMode, Side,
-        },
+    protocol::types::{
+        AutoRunOutAtEndOfScanBehavior, BootEjectMotion, Direction, DoubleFeedDetectionMode,
+        EjectPauseMode, FeederMode, PickOnCommandMode, RegisterIndex, Side,
     },
     Error, Result,
 };

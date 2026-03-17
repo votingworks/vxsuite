@@ -2,12 +2,11 @@ use std::{fmt::Debug, time::Duration};
 
 use serde::Serialize;
 
-use crate::protocol::parsers::{Register, RegisterIndex};
-
 use super::{
     parsers,
     types::{
         BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
+        Register, RegisterIndex,
         Resolution, Settings, Side, Status, Version,
     },
 };
