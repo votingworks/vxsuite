@@ -16,12 +16,12 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import type { MachineConfig } from '@votingworks/admin-backend';
-import {
-  mockUsbDriveStatus,
-  SystemCallContextProvider,
-  TestErrorBoundary,
-} from '@votingworks/ui';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
+import type {
+  UsbDriveInfo,
+  UsbDriveStatus,
+  UsbPartitionMount,
+} from '@votingworks/usb-drive';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp } from '../src/config/types';
@@ -42,12 +42,41 @@ export interface RenderInAppContextParams {
   electionDefinition?: ElectionDefinition | null;
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
+  /** @deprecated Use usbDrives instead */
   usbDriveStatus?: UsbDriveStatus;
+  usbDrives?: UsbDriveInfo[];
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
   hasPrinterAttached?: boolean;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
+}
+
+function mockUsbDriveStatusToUsbDrives(status: UsbDriveStatus): UsbDriveInfo[] {
+  if (status.status === 'no_drive') return [];
+  const partitionMount: UsbPartitionMount =
+    status.status === 'mounted'
+      ? { type: 'mounted', mountPoint: status.mountPoint }
+      : status.status === 'ejected'
+      ? { type: 'ejected' }
+      : { type: 'unmounted' };
+  return [
+    {
+      devPath: '/dev/sdb',
+      vendor: undefined,
+      model: undefined,
+      serial: undefined,
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mount: partitionMount,
+          label: undefined,
+          fstype: status.status === 'error' ? 'ntfs' : 'vfat',
+          fsver: status.status === 'error' ? undefined : 'FAT32',
+        },
+      ],
+    },
+  ];
 }
 
 export function renderRootElement(
@@ -86,7 +115,8 @@ export function renderInAppContext(
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
-    usbDriveStatus = mockUsbDriveStatus('no_drive'),
+    usbDriveStatus,
+    usbDrives: usbDrivesProp,
     auth = electionDefinition
       ? {
           status: 'logged_in',
@@ -107,6 +137,9 @@ export function renderInAppContext(
     queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
+  const usbDrives =
+    usbDrivesProp ??
+    (usbDriveStatus ? mockUsbDriveStatusToUsbDrives(usbDriveStatus) : []);
   return renderRootElement(
     <AppContext.Provider
       value={{
@@ -114,7 +147,7 @@ export function renderInAppContext(
           electionDefinition === null ? undefined : electionDefinition,
         configuredAt,
         isOfficialResults,
-        usbDriveStatus,
+        usbDrives,
         auth,
         machineConfig,
         electionPackageHash: 'test-election-package-hash',

@@ -20,7 +20,7 @@ beforeEach(() => {
     now: new Date('2022-06-22T12:00:00.000'),
   });
   apiMock = createApiMock();
-  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetUsbDrives('mounted');
 });
 
 afterEach(() => {

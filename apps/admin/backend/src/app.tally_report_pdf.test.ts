@@ -17,7 +17,7 @@ import { assert, err } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -84,7 +84,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
 }: {
   apiClient: Client<Api>;
   mockPrinterHandler: MemoryPrinterHandler;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockMultiUsbDrive;
   reportSpec: TallyReportSpec;
   customSnapshotIdentifier: string;
 }) {
@@ -102,7 +102,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     customSnapshotIdentifier,
   });
 
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
   const filename = mockFileName('pdf');
   const exportResult = await apiClient.exportTallyReportPdf({
     ...reportSpec,
@@ -397,7 +397,7 @@ test('tally report logging', async () => {
   };
 
   // successful file export
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
   const validFilename = mockFileName('pdf');
   const validExportResult = await apiClient.exportTallyReportPdf({
     ...MOCK_REPORT_SPEC,

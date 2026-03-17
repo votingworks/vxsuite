@@ -27,7 +27,7 @@ test('renders without crashing', async () => {
     electionDefinition: readElectionTwoPartyPrimaryDefinition(),
   });
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetUsbDrives('mounted');
   renderRootElement(
     <BrowserRouter>
       <Route path="/" render={() => <AppRoot />} />

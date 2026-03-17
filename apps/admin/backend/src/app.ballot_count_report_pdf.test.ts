@@ -14,7 +14,7 @@ import { assert, err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { Client } from '@votingworks/grout';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -81,7 +81,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
 }: {
   apiClient: Client<Api>;
   mockPrinterHandler: MemoryPrinterHandler;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockMultiUsbDrive;
   reportSpec: BallotCountReportSpec;
   customSnapshotIdentifier: string;
 }) {
@@ -99,7 +99,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     failureThreshold: 0.0001,
   });
 
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
   const filename = mockFileName('pdf');
   const exportResult = await apiClient.exportBallotCountReportPdf({
     ...reportSpec,
@@ -286,7 +286,7 @@ test('ballot count report logging', async () => {
   };
 
   // successful file export
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
   const validFilename = mockFileName('pdf');
   const validExportResult = await apiClient.exportBallotCountReportPdf({
     ...MOCK_REPORT_SPEC,

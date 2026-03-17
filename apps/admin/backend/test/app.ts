@@ -26,7 +26,7 @@ import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import {
@@ -154,13 +154,13 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = createMockMultiUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
   const app = buildApp({
     auth,
     workspace,
     logger,
-    usbDrive: mockUsbDrive.usbDrive,
+    multiUsbDrive: mockUsbDrive.multiUsbDrive,
     printer: mockPrinterHandler.printer,
   });
   // port 0 will bind to a random, free port assigned by the OS

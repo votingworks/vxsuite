@@ -25,6 +25,7 @@ import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ejectUsbDrive, logOut } from '../api';
+import { getUsbDriveStatus } from '../utils/get_usb_drive_status';
 import { NavItem, Sidebar } from './sidebar';
 
 interface Props {
@@ -85,7 +86,8 @@ export function NavigationScreen({
   parentRoutes,
   noPadding,
 }: Props): JSX.Element {
-  const { usbDriveStatus, auth } = useContext(AppContext);
+  const { usbDrives, auth } = useContext(AppContext);
+  const usbDriveStatus = getUsbDriveStatus(usbDrives);
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
@@ -113,7 +115,13 @@ export function NavigationScreen({
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
                 <UsbControllerButton
-                  usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+                  usbDriveEject={() => {
+                    if ('devPath' in usbDriveStatus) {
+                      ejectUsbDriveMutation.mutate({
+                        driveDevPath: usbDriveStatus.devPath,
+                      });
+                    }
+                  }}
                   usbDriveStatus={usbDriveStatus}
                   usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
                 />

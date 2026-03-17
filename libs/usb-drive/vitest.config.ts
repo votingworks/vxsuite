@@ -1,4 +1,4 @@
-import { defineConfig } from '../../vitest.config.shared.mjs';
+import { defineConfig } from '../../vitest.config.shared.mts';
 
 export default defineConfig({
   test: {

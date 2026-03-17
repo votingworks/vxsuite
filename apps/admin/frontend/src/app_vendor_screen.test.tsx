@@ -29,7 +29,7 @@ beforeEach(() => {
     reason: 'machine_locked',
   });
   apiMock.setPrinterStatus();
-  apiMock.expectGetUsbDriveStatus('no_drive');
+  apiMock.expectGetUsbDrives('no_drive');
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.setDiskSpaceSummary();

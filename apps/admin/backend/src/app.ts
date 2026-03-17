@@ -63,8 +63,9 @@ import {
 import {
   ListDirectoryOnUsbDriveError,
   listDirectoryOnUsbDrive,
-  UsbDrive,
-  UsbDriveStatus,
+  MultiUsbDrive,
+  UsbDriveInfo,
+  createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
 import {
@@ -163,16 +164,22 @@ function buildApi({
   auth,
   workspace,
   logger,
-  usbDrive,
+  multiUsbDrive,
   printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
-  usbDrive: UsbDrive;
+  multiUsbDrive: MultiUsbDrive;
   printer: Printer;
 }) {
   const { store } = workspace;
+
+  const usbDriveAdapter = createUsbDriveAdapter(
+    multiUsbDrive,
+    // return the first drive
+    (drives) => drives[0]?.devPath
+  );
 
   function convertFrontendFilter(
     filter: Admin.FrontendReportingFilter
@@ -279,15 +286,17 @@ function buildApi({
       return qrCodeValue;
     },
 
-    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
-      return usbDrive.status();
+    getUsbDrives(): UsbDriveInfo[] {
+      return multiUsbDrive.getDrives();
     },
 
-    async ejectUsbDrive(): Promise<void> {
-      return usbDrive.eject();
+    async ejectUsbDrive(input: { driveDevPath: string }): Promise<void> {
+      return await multiUsbDrive.ejectDrive(input.driveDevPath);
     },
 
-    async formatUsbDrive(): Promise<Result<void, Error>> {
+    async formatUsbDrive(input: {
+      driveDevPath: string;
+    }): Promise<Result<void, Error>> {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
@@ -298,7 +307,7 @@ function buildApi({
       }
 
       try {
-        await usbDrive.format();
+        await multiUsbDrive.formatDrive(input.driveDevPath);
         return ok();
       } catch (error) {
         return err(error as Error);
@@ -307,7 +316,7 @@ function buildApi({
 
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.logAsCurrentRole(LogEventId.SaveElectionPackageInit);
-      const exporter = buildExporter(usbDrive);
+      const exporter = buildExporter(usbDriveAdapter);
 
       const electionRecord = getCurrentElectionRecord(workspace);
       assert(electionRecord);
@@ -385,7 +394,7 @@ function buildApi({
     > {
       const potentialElectionPackages: FileSystemEntry[] = [];
 
-      for await (const result of listDirectoryOnUsbDrive(usbDrive, '', {
+      for await (const result of listDirectoryOnUsbDrive(usbDriveAdapter, '', {
         depth: 3,
         excludeHidden: true,
       })) {
@@ -548,7 +557,7 @@ function buildApi({
       const { electionDefinition } = electionRecord;
 
       const listResult = await listCastVoteRecordExportsOnUsbDrive(
-        usbDrive,
+        usbDriveAdapter,
         electionDefinition
       );
       if (listResult.isErr()) {
@@ -984,7 +993,7 @@ function buildApi({
       return await exportTallyReportPdf({
         store,
         allTallyReportResults: await getTallyReportResults(input),
-        usbDrive,
+        usbDrive: usbDriveAdapter,
         logger,
         ...input,
       });
@@ -999,7 +1008,7 @@ function buildApi({
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
-      const exporter = buildExporter(usbDrive);
+      const exporter = buildExporter(usbDriveAdapter);
       const reportsDirectoryPath =
         generateReportsDirectoryPath(electionDefinition);
       const exportFileResult = await exporter.exportDataToUsbDrive(
@@ -1053,7 +1062,7 @@ function buildApi({
 
       debug('exporting CDF election results report JSON file: %o', input);
 
-      const exporter = buildExporter(usbDrive);
+      const exporter = buildExporter(usbDriveAdapter);
       const reportsDirectoryPath =
         generateReportsDirectoryPath(electionDefinition);
       const exportFileResult = await exporter.exportDataToUsbDrive(
@@ -1125,7 +1134,7 @@ function buildApi({
       return exportBallotCountReportPdf({
         store,
         allCardCounts: getCardCounts(input),
-        usbDrive,
+        usbDrive: usbDriveAdapter,
         logger,
         ...input,
       });
@@ -1140,7 +1149,7 @@ function buildApi({
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
-      const exporter = buildExporter(usbDrive);
+      const exporter = buildExporter(usbDriveAdapter);
       const reportsDirectoryPath =
         generateReportsDirectoryPath(electionDefinition);
       const exportFileResult = await exporter.exportDataToUsbDrive(
@@ -1194,7 +1203,7 @@ function buildApi({
       return exportWriteInAdjudicationReportPdf({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
-        usbDrive,
+        usbDrive: usbDriveAdapter,
         logger,
         ...input,
       });
@@ -1223,13 +1232,13 @@ function buildApi({
       return saveReadinessReport({
         workspace,
         printer,
-        usbDrive,
+        usbDrive: usbDriveAdapter,
         logger,
       });
     },
 
     ...createSystemCallApi({
-      usbDrive,
+      usbDrive: usbDriveAdapter,
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
@@ -1250,17 +1259,17 @@ export function buildApp({
   auth,
   workspace,
   logger,
-  usbDrive,
+  multiUsbDrive,
   printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
-  usbDrive: UsbDrive;
+  multiUsbDrive: MultiUsbDrive;
   printer: Printer;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usbDrive, printer });
+  const api = buildApi({ auth, workspace, logger, multiUsbDrive, printer });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

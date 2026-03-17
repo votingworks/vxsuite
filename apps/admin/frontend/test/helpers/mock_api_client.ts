@@ -50,9 +50,40 @@ import {
   Tabulation,
   DEV_MACHINE_ID,
 } from '@votingworks/types';
-import { mockUsbDriveStatus } from '@votingworks/ui';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveInfo, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Mock, vi } from 'vitest';
+
+const MOCK_DISK_DEV_PATH = '/dev/sdb';
+const MOCK_PARTITION_DEV_PATH = '/dev/sdb1';
+const MOCK_MOUNT_POINT = '/media/vx/usb-drive-sdb1';
+
+function usbDriveStatusToMockDrives(
+  status: UsbDriveStatus['status']
+): UsbDriveInfo[] {
+  if (status === 'no_drive') return [];
+  return [
+    {
+      devPath: MOCK_DISK_DEV_PATH,
+      vendor: undefined,
+      model: undefined,
+      serial: undefined,
+      partitions: [
+        {
+          devPath: MOCK_PARTITION_DEV_PATH,
+          mount:
+            status === 'mounted'
+              ? { type: 'mounted', mountPoint: MOCK_MOUNT_POINT }
+              : status === 'ejected'
+              ? { type: 'ejected' }
+              : { type: 'unmounted' },
+          label: undefined,
+          fstype: status === 'error' ? 'ntfs' : 'vfat',
+          fsver: status === 'error' ? undefined : 'FAT32',
+        },
+      ],
+    },
+  ];
+}
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -241,18 +272,22 @@ export function createApiMock(
       });
     },
 
-    expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
-      apiClient.getUsbDriveStatus
-        .expectRepeatedCallsWith()
-        .resolves(mockUsbDriveStatus(status));
+    expectGetUsbDrives(
+      statusOrDrives: UsbDriveStatus['status'] | UsbDriveInfo[] = []
+    ): void {
+      const drives =
+        typeof statusOrDrives === 'string'
+          ? usbDriveStatusToMockDrives(statusOrDrives)
+          : statusOrDrives;
+      apiClient.getUsbDrives.expectRepeatedCallsWith().resolves(drives);
     },
 
-    expectEjectUsbDrive(): void {
-      apiClient.ejectUsbDrive.expectCallWith().resolves();
+    expectEjectUsbDrive(driveDevPath = '/dev/sdb'): void {
+      apiClient.ejectUsbDrive.expectCallWith({ driveDevPath }).resolves();
     },
 
-    expectFormatUsbDrive(): void {
-      apiClient.formatUsbDrive.expectCallWith().resolves(ok());
+    expectFormatUsbDrive(driveDevPath = '/dev/sdb'): void {
+      apiClient.formatUsbDrive.expectCallWith({ driveDevPath }).resolves(ok());
     },
 
     expectGetCurrentElectionMetadata(

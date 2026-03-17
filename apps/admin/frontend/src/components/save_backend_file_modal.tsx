@@ -11,6 +11,7 @@ import { Button, Modal, P, Font, ModalWidth } from '@votingworks/ui';
 import { MutationStatus } from '@tanstack/react-query';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
+import { getUsbDriveStatus } from '../utils/get_usb_drive_status';
 
 export interface SaveBackendFileModalProps {
   saveFileStatus: MutationStatus;
@@ -42,7 +43,8 @@ export function SaveBackendFileModal({
   fileType,
   filename,
 }: SaveBackendFileModalProps): JSX.Element {
-  const { usbDriveStatus, auth } = useContext(AppContext);
+  const { usbDrives, auth } = useContext(AppContext);
+  const usbDriveStatus = getUsbDriveStatus(usbDrives);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
   function onClose() {

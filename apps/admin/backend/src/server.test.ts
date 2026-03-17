@@ -8,7 +8,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { testDetectDevices } from '@votingworks/backend';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
@@ -34,9 +34,9 @@ test('starts with default logger and port', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const app = buildApp({ auth, workspace, logger, multiUsbDrive, printer });
 
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -57,9 +57,9 @@ test('start with config options', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const app = buildApp({ auth, workspace, logger, multiUsbDrive, printer });
 
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -84,9 +84,9 @@ test('errors on start with no workspace', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const app = buildApp({ auth, workspace, logger, multiUsbDrive, printer });
 
   // start up the server
   try {
@@ -122,9 +122,9 @@ test('logs device attach/un-attach events', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const app = buildApp({ auth, workspace, logger, multiUsbDrive, printer });
 
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -148,9 +148,9 @@ test('logs when no election results data present at startup', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const app = buildApp({ auth, workspace, logger, multiUsbDrive, printer });
 
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -188,9 +188,9 @@ test('logs when there is stored election results data present at startup', async
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const app = buildApp({ auth, workspace, logger, multiUsbDrive, printer });
 
   // Add CVRs to db
   const { castVoteRecordExport } =

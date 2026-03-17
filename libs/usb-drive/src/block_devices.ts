@@ -2,6 +2,7 @@ import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
+import { Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
 
 const debug = makeDebug('usb-drive');
@@ -9,11 +10,11 @@ const debug = makeDebug('usb-drive');
 export interface BlockDeviceInfo {
   name: string;
   path: string;
-  mountpoint: string | null;
-  fstype: string | null;
-  fsver: string | null;
-  label: string | null;
-  type: string;
+  mountpoint?: string;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
+  type: 'disk' | 'part';
 }
 
 // All block device info comes from two sources that don't require privileged
@@ -41,14 +42,17 @@ function parseMountpoints(mountsContent: string): Map<string, string> {
 interface UsbBlockDevice {
   devname: string;
   devtype: 'disk' | 'partition';
-  fstype: string | null;
-  fsver: string | null;
-  label: string | null;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
+  vendor?: string;
+  model?: string;
+  serial?: string;
 }
 
-function get(block: string, key: string): string | null {
+function get(block: string, key: string): Optional<string> {
   const match = block.match(new RegExp(`^E: ${key}=(.+)$`, 'm'));
-  return match?.[1] ?? null;
+  return match?.[1];
 }
 
 function parseExportDb(output: string): UsbBlockDevice[] {
@@ -71,6 +75,9 @@ function parseExportDb(output: string): UsbBlockDevice[] {
       fstype: get(block, 'ID_FS_TYPE'),
       fsver: get(block, 'ID_FS_VERSION'),
       label: get(block, 'ID_FS_LABEL'),
+      vendor: get(block, 'ID_VENDOR'),
+      model: get(block, 'ID_MODEL'),
+      serial: get(block, 'ID_SERIAL_SHORT'),
     });
   }
 
@@ -86,6 +93,28 @@ function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
     (!blockDeviceInfo.mountpoint ||
       blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR))
   );
+}
+
+function isPartitionOfDisk(
+  partitionDevname: string,
+  diskDevname: string
+): boolean {
+  if (!partitionDevname.startsWith(diskDevname)) {
+    return false;
+  }
+
+  const suffix = partitionDevname.slice(diskDevname.length);
+
+  // Common Linux partition naming patterns:
+  // - /dev/sda1   (disk: /dev/sda, suffix: "1")
+  // - /dev/sda10  (disk: /dev/sda, suffix: "10")
+  // - /dev/nvme0n1p1 (disk: /dev/nvme0n1, suffix: "p1")
+  // - /dev/mmcblk0p1 (disk: /dev/mmcblk0, suffix: "p1")
+  if (suffix.length === 0) {
+    return false;
+  }
+
+  return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
 }
 
 /**
@@ -113,25 +142,6 @@ export async function getUsbDriveDeviceInfo(): Promise<
     return undefined;
   }
 
-  function isPartitionOfDisk(partitionDevname: string, diskDevname: string): boolean {
-    if (!partitionDevname.startsWith(diskDevname)) {
-      return false;
-    }
-
-    const suffix = partitionDevname.slice(diskDevname.length);
-
-    // Common Linux partition naming patterns:
-    // - /dev/sda1   (disk: /dev/sda, suffix: "1")
-    // - /dev/sda10  (disk: /dev/sda, suffix: "10")
-    // - /dev/nvme0n1p1 (disk: /dev/nvme0n1, suffix: "p1")
-    // - /dev/mmcblk0p1 (disk: /dev/mmcblk0, suffix: "p1")
-    if (suffix.length === 0) {
-      return false;
-    }
-
-    return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
-  }
-
   // Prefer partitions over their parent disks: skip disk entries that have
   // at least one partition in the udev database.
   const candidates = usbBlockDevices.filter(
@@ -149,7 +159,7 @@ export async function getUsbDriveDeviceInfo(): Promise<
     name: basename(d.devname),
     path: d.devname,
     type: d.devtype === 'partition' ? 'part' : 'disk',
-    mountpoint: mountpoints.get(d.devname) ?? null,
+    mountpoint: mountpoints.get(d.devname),
     fstype: d.fstype,
     fsver: d.fsver,
     label: d.label,
@@ -165,37 +175,169 @@ export async function getUsbDriveDeviceInfo(): Promise<
   return dataUsbDrive;
 }
 
-export interface UsbDriveMonitor {
-  getDeviceInfo(): BlockDeviceInfo | undefined;
-  refresh(): Promise<void>;
+export interface UsbPartitionDeviceInfo {
+  devPath: string;
+  mountpoint?: string;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
+}
+
+export interface UsbDiskDeviceInfo {
+  devPath: string;
+  vendor?: string;
+  model?: string;
+  serial?: string;
+  partitions: UsbPartitionDeviceInfo[];
+}
+
+/**
+ * Returns all USB block devices as a structured disk → partitions hierarchy.
+ * Includes vendor/model/serial parsed from udev for each disk. Applies the
+ * same `isDataUsbDrive` filter as `getUsbDriveDeviceInfo`.
+ */
+export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
+  const [exportDbOutput, mountsContent] = await Promise.all([
+    exec('udevadm', ['info', '--export-db'])
+      .then(({ stdout }) => stdout)
+      .catch(() => ''),
+    fs.readFile('/proc/mounts', 'utf-8').catch(() => ''),
+  ]);
+
+  const usbBlockDevices = parseExportDb(exportDbOutput);
+  if (usbBlockDevices.length === 0) {
+    debug('No USB block devices found in udev database');
+    return [];
+  }
+
+  const mountpoints = parseMountpoints(mountsContent);
+
+  const diskDevices = usbBlockDevices.filter((d) => d.devtype === 'disk');
+  const partitionDevices = usbBlockDevices.filter(
+    (d) => d.devtype === 'partition'
+  );
+
+  const result: UsbDiskDeviceInfo[] = [];
+
+  for (const disk of diskDevices) {
+    const diskInfo: BlockDeviceInfo = {
+      name: basename(disk.devname),
+      path: disk.devname,
+      type: 'disk',
+      mountpoint: mountpoints.get(disk.devname),
+      fstype: disk.fstype,
+      fsver: disk.fsver,
+      label: disk.label,
+    };
+
+    const diskPartitions = partitionDevices.filter((p) =>
+      isPartitionOfDisk(p.devname, disk.devname)
+    );
+
+    if (diskPartitions.length > 0) {
+      // Drive has partitions — only include valid data partitions
+      const validPartitions: UsbPartitionDeviceInfo[] = diskPartitions
+        .map(
+          (p): BlockDeviceInfo => ({
+            name: basename(p.devname),
+            path: p.devname,
+            type: 'part',
+            mountpoint: mountpoints.get(p.devname),
+            fstype: p.fstype,
+            fsver: p.fsver,
+            label: p.label,
+          })
+        )
+        .filter(isDataUsbDrive)
+        .map((p) => ({
+          devPath: p.path,
+          mountpoint: p.mountpoint,
+          fstype: p.fstype,
+          fsver: p.fsver,
+          label: p.label,
+        }));
+
+      // Skip entirely if no partitions qualify — e.g. a non-/media mount.
+      // Returning an empty-partition disk would look like an unformatted drive.
+      if (validPartitions.length === 0) continue;
+
+      result.push({
+        devPath: disk.devname,
+        vendor: disk.vendor,
+        model: disk.model,
+        serial: disk.serial,
+        partitions: validPartitions,
+      });
+    } else if (isDataUsbDrive(diskInfo)) {
+      // Unformatted drive (no partitions) — include it with empty partitions
+      result.push({
+        devPath: disk.devname,
+        vendor: disk.vendor,
+        model: disk.model,
+        serial: disk.serial,
+        partitions: [],
+      });
+    }
+  }
+
+  // Handle partitions whose parent disk has no udev entry. This is unusual but
+  // observed with some USB card readers where only the partition (not the parent
+  // disk) appears in the udev database. For each such orphan partition, derive
+  // the disk path by stripping the partition suffix and synthesize a disk entry.
+  const diskDevPaths = new Set(diskDevices.map((d) => d.devname));
+  for (const partition of partitionDevices) {
+    const diskDevPath = partition.devname.replace(/(p\d+|\d+)$/, '');
+    if (diskDevPaths.has(diskDevPath)) continue;
+
+    const partitionInfo: BlockDeviceInfo = {
+      name: basename(partition.devname),
+      path: partition.devname,
+      type: 'part',
+      mountpoint: mountpoints.get(partition.devname),
+      fstype: partition.fstype,
+      fsver: partition.fsver,
+      label: partition.label,
+    };
+    if (!isDataUsbDrive(partitionInfo)) continue;
+
+    result.push({
+      devPath: diskDevPath,
+      vendor: undefined,
+      model: undefined,
+      serial: undefined,
+      partitions: [
+        {
+          devPath: partition.devname,
+          mountpoint: partitionInfo.mountpoint,
+          fstype: partition.fstype,
+          fsver: partition.fsver,
+          label: partition.label,
+        },
+      ],
+    });
+  }
+
+  debug(`Found ${result.length} USB drive(s)`);
+  return result;
+}
+
+export interface BlockDeviceChangeWatcher {
   stop(): void;
 }
 
 const MONITOR_DEBOUNCE_MS = 50;
 const MONITOR_RESTART_DELAY_MS = 1_000;
 
-export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
-  let cachedDeviceInfo: BlockDeviceInfo | undefined;
-  let isFirstRefresh = true;
+export function createBlockDeviceChangeWatcher(
+  onDeviceChange: () => void
+): BlockDeviceChangeWatcher {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let monitorProcess: ChildProcess | undefined;
   let stopped = false;
 
-  async function doRefresh(): Promise<void> {
-    const newDeviceInfo = await getUsbDriveDeviceInfo();
-    const stateChanged =
-      isFirstRefresh ||
-      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
-    isFirstRefresh = false;
-    cachedDeviceInfo = newDeviceInfo;
-    if (stateChanged) {
-      onRefresh?.();
-    }
-  }
-
-  function scheduleRefresh(): void {
+  function scheduleChange(): void {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => void doRefresh(), MONITOR_DEBOUNCE_MS);
+    debounceTimer = setTimeout(onDeviceChange, MONITOR_DEBOUNCE_MS);
   }
 
   function startMonitor(): void {
@@ -206,7 +348,7 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
       '--subsystem-match=block',
     ]);
     monitorProcess = proc;
-    proc.stdout.on('data', scheduleRefresh);
+    proc.stdout.on('data', scheduleChange);
     // Handle spawn errors (e.g. binary not found) so they don't go unhandled.
     // The 'exit'/'close' event will fire after 'error' and trigger a restart.
     proc.on('error', (err) => {
@@ -220,8 +362,42 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
     });
   }
 
-  void doRefresh();
   startMonitor();
+
+  return {
+    stop(): void {
+      stopped = true;
+      clearTimeout(debounceTimer);
+      monitorProcess?.kill();
+    },
+  };
+}
+
+export interface UsbDriveMonitor {
+  getDeviceInfo(): BlockDeviceInfo | undefined;
+  refresh(): Promise<void>;
+  stop(): void;
+}
+
+export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
+  let cachedDeviceInfo: BlockDeviceInfo | undefined;
+  let isFirstRefresh = true;
+
+  async function doRefresh(): Promise<void> {
+    const newDeviceInfo = await getUsbDriveDeviceInfo();
+    const stateChanged =
+      isFirstRefresh ||
+      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
+    isFirstRefresh = false;
+    cachedDeviceInfo = newDeviceInfo;
+    if (stateChanged) {
+      onRefresh?.();
+    }
+  }
+
+  const watcher = createBlockDeviceChangeWatcher(() => void doRefresh());
+
+  void doRefresh();
 
   return {
     getDeviceInfo: () => cachedDeviceInfo,
@@ -231,9 +407,7 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
     },
 
     stop(): void {
-      stopped = true;
-      clearTimeout(debounceTimer);
-      monitorProcess?.kill();
+      watcher.stop();
     },
   };
 }

@@ -136,9 +136,9 @@ function SelectElectionPackage({
 }
 
 export function UnconfiguredScreen(): JSX.Element {
-  const { usbDriveStatus } = useContext(AppContext);
+  const { usbDrives } = useContext(AppContext);
   const listPotentialElectionPackagesOnUsbDriveQuery =
-    listPotentialElectionPackagesOnUsbDrive.useQuery(usbDriveStatus);
+    listPotentialElectionPackagesOnUsbDrive.useQuery(usbDrives);
   if (!listPotentialElectionPackagesOnUsbDriveQuery.isSuccess) {
     return (
       <NavigationScreen>

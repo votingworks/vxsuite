@@ -15,6 +15,7 @@ import type { ExportDataError } from '@votingworks/admin-backend';
 
 import { ejectUsbDrive, saveElectionPackageToUsb } from '../api';
 import { AppContext } from '../contexts/app_context';
+import { getUsbDriveStatus } from '../utils/get_usb_drive_status';
 
 type SaveState =
   | { state: 'unsaved' }
@@ -29,7 +30,8 @@ const ErrorMessages: Record<ExportDataError['type'], string> = {
 };
 
 export function ExportElectionPackageModalButton(): JSX.Element {
-  const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
+  const { electionDefinition, usbDrives, auth } = useContext(AppContext);
+  const usbDriveStatus = getUsbDriveStatus(usbDrives);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const saveElectionPackageToUsbMutation =
@@ -110,12 +112,16 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       break;
 
     case 'saved': {
-      if (usbDriveStatus.status !== 'ejected') {
+      if ('devPath' in usbDriveStatus) {
         actions = (
           <React.Fragment>
             <UsbControllerButton
               primary
-              usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+              usbDriveEject={() =>
+                ejectUsbDriveMutation.mutate({
+                  driveDevPath: usbDriveStatus.devPath,
+                })
+              }
               usbDriveStatus={usbDriveStatus}
               usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
             />

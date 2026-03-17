@@ -87,7 +87,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
     'You may now eject the USB drive. Use the saved election package on the USB drive to configure VxSuite components.'
   );
 
-  apiMock.expectEjectUsbDrive();
+  apiMock.expectEjectUsbDrive('/dev/sdb');
   userEvent.click(screen.getButton('Eject USB'));
 
   userEvent.click(screen.getButton('Close'));

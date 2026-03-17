@@ -8,7 +8,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -33,9 +33,9 @@ async function getParsedExport({
   mockUsbDrive,
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockMultiUsbDrive;
 }): Promise<ReturnType<typeof parseCsv>> {
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filename,

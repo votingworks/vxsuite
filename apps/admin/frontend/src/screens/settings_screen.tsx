@@ -4,6 +4,7 @@ import {
   CurrentDateAndTime,
   ExportLogsButton,
   FormatUsbButton,
+  FormatUsbButtonProps,
   FullScreenMessage,
   H2,
   Main,
@@ -14,6 +15,7 @@ import {
   ToggleUsbPortsButton,
   useSystemCallApi,
 } from '@votingworks/ui';
+import { ok } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -23,12 +25,25 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { formatUsbDrive, logOut, setMachineMode, useApiClient } from '../api';
+import { getUsbDriveStatus } from '../utils/get_usb_drive_status';
 
 export function SettingsScreen(): JSX.Element | null {
-  const { auth, electionDefinition, usbDriveStatus } = useContext(AppContext);
+  const { auth, electionDefinition, usbDrives } = useContext(AppContext);
+  const usbDriveStatus = getUsbDriveStatus(usbDrives);
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
-  const formatUsbDriveMutation = formatUsbDrive.useMutation();
+  const formatUsbDriveMutationRaw = formatUsbDrive.useMutation();
+  const formatUsbDriveMutation: FormatUsbButtonProps['formatUsbDriveMutation'] =
+    {
+      mutateAsync: async () => {
+        if ('devPath' in usbDriveStatus) {
+          return formatUsbDriveMutationRaw.mutateAsync({
+            driveDevPath: usbDriveStatus.devPath,
+          });
+        }
+        return ok();
+      },
+    };
   const setMachineModeMutation = setMachineMode.useMutation();
   const isMultiStationEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN

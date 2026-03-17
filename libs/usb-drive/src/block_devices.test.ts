@@ -3,8 +3,11 @@ import { promises as fs } from 'node:fs';
 import { mockChildProcess } from '@votingworks/test-utils';
 import {
   BlockDeviceInfo,
+  createBlockDeviceChangeWatcher,
   createUsbDriveMonitor,
+  getAllUsbDrives,
   getUsbDriveDeviceInfo,
+  UsbDiskDeviceInfo,
 } from './block_devices';
 import { exec, spawn } from './exec';
 
@@ -45,9 +48,12 @@ function exportDbEntry(info: {
   devname: string;
   devtype?: 'disk' | 'partition';
   idBus?: string;
-  fstype?: string | null;
-  fsver?: string | null;
-  label?: string | null;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
+  vendor?: string;
+  model?: string;
+  serial?: string;
 }): string {
   const {
     devname,
@@ -56,6 +62,9 @@ function exportDbEntry(info: {
     fstype,
     fsver,
     label,
+    vendor,
+    model,
+    serial,
   } = info;
   const lines = [
     `E: DEVNAME=${devname}`,
@@ -66,6 +75,9 @@ function exportDbEntry(info: {
   if (fstype) lines.push(`E: ID_FS_TYPE=${fstype}`);
   if (fsver) lines.push(`E: ID_FS_VERSION=${fsver}`);
   if (label) lines.push(`E: ID_FS_LABEL=${label}`);
+  if (vendor) lines.push(`E: ID_VENDOR=${vendor}`);
+  if (model) lines.push(`E: ID_MODEL=${model}`);
+  if (serial) lines.push(`E: ID_SERIAL_SHORT=${serial}`);
   return lines.join('\n');
 }
 
@@ -141,7 +153,7 @@ describe('getUsbDriveDeviceInfo', () => {
     const result = await getUsbDriveDeviceInfo();
 
     expect(result).toEqual(
-      expect.objectContaining({ name: 'sdb1', mountpoint: null })
+      expect.objectContaining({ name: 'sdb1', mountpoint: undefined })
     );
   });
 
@@ -229,13 +241,13 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
+      mountpoint: undefined,
+      fstype: undefined,
+      fsver: undefined,
+      label: undefined,
       type: 'disk',
     });
   });
@@ -259,10 +271,10 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb1',
       path: '/dev/sdb1',
-      mountpoint: null,
+      mountpoint: undefined,
       fstype: 'vfat',
       fsver: 'FAT32',
       label: 'VxUSB-HGMZG',
@@ -287,10 +299,10 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'nvme0n1p1',
       path: '/dev/nvme0n1p1',
-      mountpoint: null,
+      mountpoint: undefined,
       fstype: 'vfat',
       fsver: 'FAT32',
       label: 'VxUSB-ABCDE',
@@ -317,13 +329,13 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
+      mountpoint: undefined,
+      fstype: undefined,
+      fsver: undefined,
+      label: undefined,
       type: 'disk',
     });
   });
@@ -349,13 +361,13 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
+      mountpoint: undefined,
+      fstype: undefined,
+      fsver: undefined,
+      label: undefined,
       type: 'disk',
     });
   });
@@ -381,7 +393,7 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdc1',
       path: '/dev/sdc1',
       mountpoint: '/media/usb-drive-sdc1',
@@ -602,5 +614,360 @@ describe('createUsbDriveMonitor', () => {
     expect(() => proc.emit('error', new Error('spawn ENOENT'))).not.toThrow();
 
     monitor.stop();
+  });
+});
+
+describe('getAllUsbDrives', () => {
+  test('returns empty array when no USB block devices found', async () => {
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
+
+    expect(await getAllUsbDrives()).toEqual([]);
+  });
+
+  test('returns empty array when udevadm fails', async () => {
+    execMock.mockRejectedValueOnce(new Error('udevadm failed'));
+    readFileMock.mockResolvedValueOnce('');
+
+    expect(await getAllUsbDrives()).toEqual([]);
+  });
+
+  test('returns disk with its partitions', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({
+          devname: '/dev/sdb',
+          devtype: 'disk',
+          vendor: 'SanDisk',
+          model: 'Ultra',
+          serial: 'ABC123',
+        }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/vx/usb-drive-sdb1' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual([
+      {
+        devPath: '/dev/sdb',
+        vendor: 'SanDisk',
+        model: 'Ultra',
+        serial: 'ABC123',
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: '/media/vx/usb-drive-sdb1',
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
+  test('returns disk with empty partitions array when unformatted', async () => {
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([{ devname: '/dev/sdb', devtype: 'disk' }])
+    );
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        devPath: '/dev/sdb',
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [],
+      },
+    ]);
+  });
+
+  test('returns multiple disks', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-11111',
+        }),
+        exportDbEntry({ devname: '/dev/sdc', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdc1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-22222',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ devPath: '/dev/sdb' });
+    expect(result[1]).toMatchObject({ devPath: '/dev/sdc' });
+  });
+
+  test('excludes disk whose only partition is LVM', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'LVM2_member',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getAllUsbDrives();
+
+    // Disk has partitions but none are valid data partitions — skip entirely
+    // rather than returning an empty-partition disk that looks unformatted.
+    expect(result).toEqual([]);
+  });
+
+  test('excludes disks mounted outside /media', async () => {
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([{ devname: '/dev/sdb', devtype: 'disk' }])
+    );
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Disk mounted outside /media is not a valid data drive
+    expect(result).toEqual([]);
+  });
+
+  test('excludes disk whose partitions are all mounted outside /media', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Partition mounted outside /media — skip the disk entirely rather than
+    // returning an empty-partition disk that looks like an unformatted drive.
+    expect(result).toEqual([]);
+  });
+
+  test('includes partition with no parent disk entry in udev', async () => {
+    // Some USB card readers expose only a partition entry (not a parent disk)
+    // in the udev database.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-ABCDE',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/vx/usb-drive-sdb1' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        devPath: '/dev/sdb',
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: '/media/vx/usb-drive-sdb1',
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
+  test('excludes orphan partition with no parent disk that fails isDataUsbDrive', async () => {
+    // Some USB card readers expose only a partition entry (not a parent disk)
+    // in the udev database. If the partition is mounted outside /media, it
+    // should be excluded entirely.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Partition mounted outside /media is not a valid data drive
+    expect(result).toEqual([]);
+  });
+
+  test('treats drive as unmounted when /proc/mounts is unreadable', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockRejectedValueOnce(new Error('/proc/mounts unreadable'));
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.partitions[0]).toMatchObject({ mountpoint: undefined });
+  });
+});
+
+describe('createBlockDeviceChangeWatcher', () => {
+  test('calls onDeviceChange when udevadm stdout fires (debounced)', async () => {
+    vi.useFakeTimers();
+
+    const proc = mockChildProcess();
+    spawnMock.mockReturnValue(proc);
+
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange);
+
+    proc.stdout.append('UDEV event 1');
+    proc.stdout.append('UDEV event 2');
+    proc.stdout.append('UDEV event 3');
+
+    // No callback yet — debounce timer hasn't fired
+    expect(onDeviceChange).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(50);
+
+    // Exactly one callback (debounced)
+    expect(onDeviceChange).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+    watcher.stop();
+  });
+
+  test('stop() kills the subprocess and prevents restart', async () => {
+    vi.useFakeTimers();
+
+    const proc = mockChildProcess();
+    const killSpy = vi.spyOn(proc, 'kill');
+    spawnMock.mockReturnValue(proc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    watcher.stop();
+
+    expect(killSpy).toHaveBeenCalled();
+
+    proc.emit('exit');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  test('restarts subprocess after exit', async () => {
+    vi.useFakeTimers();
+
+    const firstProc = mockChildProcess();
+    const secondProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc).mockReturnValueOnce(secondProc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    firstProc.emit('exit');
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
+    watcher.stop();
+  });
+
+  test('handles subprocess spawn error without crashing', () => {
+    const proc = mockChildProcess();
+    spawnMock.mockReturnValue(proc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+
+    expect(() => proc.emit('error', new Error('spawn ENOENT'))).not.toThrow();
+
+    watcher.stop();
+  });
+
+  test('stop() prevents scheduled restart from spawning', async () => {
+    vi.useFakeTimers();
+
+    const firstProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    firstProc.emit('exit');
+    watcher.stop();
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 });

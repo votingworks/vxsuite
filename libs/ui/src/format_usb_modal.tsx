@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { assert, Result, throwIllegalValue } from '@votingworks/basics';
+import { Result, throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Font, P } from './typography';
@@ -13,13 +12,14 @@ type FlowState =
   | { stage: 'done' }
   | { stage: 'error'; message: string };
 
-function FormatUsbFlow({
+export interface FormatUsbModalProps extends FormatUsbButtonProps {
+  onClose: () => void;
+}
+export function FormatUsbModal({
   onClose,
   usbDriveStatus,
   formatUsbDriveMutation,
 }: FormatUsbModalProps): JSX.Element {
-  assert(usbDriveStatus.status !== 'no_drive');
-
   const [state, setState] = useState<FlowState>({ stage: 'confirm' });
 
   const formatUsbDriveMutateAsync = formatUsbDriveMutation.mutateAsync;
@@ -34,6 +34,22 @@ function FormatUsbFlow({
   }, [formatUsbDriveMutateAsync]);
 
   const { stage } = state;
+
+  // Show "no drive" screen only when we haven't started formatting yet.
+  // During and after formatting, keep showing the flow even if the drive
+  // status transiently reports no_drive (e.g. while partitions are being
+  // reformatted) to prevent flickering and loss of the done/error state.
+  if (stage === 'confirm' && usbDriveStatus.status === 'no_drive') {
+    return (
+      <Modal
+        title="No USB Drive Detected"
+        content={<P>Insert a USB drive you would like to format.</P>}
+        onOverlayClick={onClose}
+        actions={<Button onPress={onClose}>Cancel</Button>}
+      />
+    );
+  }
+
   switch (stage) {
     case 'confirm':
       return (
@@ -111,34 +127,11 @@ function FormatUsbFlow({
   }
 }
 
-export interface FormatUsbModalProps extends FormatUsbButtonProps {
-  onClose: () => void;
-}
-export function FormatUsbModal(props: FormatUsbModalProps): JSX.Element {
-  const { usbDriveStatus, onClose } = props;
-
-  if (usbDriveStatus.status === 'no_drive') {
-    return (
-      <Modal
-        title="No USB Drive Detected"
-        content={<P>Insert a USB drive you would like to format.</P>}
-        onOverlayClick={onClose}
-        actions={<Button onPress={onClose}>Cancel</Button>}
-      />
-    );
-  }
-
-  return <FormatUsbFlow {...props} />;
-}
-
 export interface FormatUsbButtonProps {
   usbDriveStatus: UsbDriveStatus;
-  formatUsbDriveMutation: UseMutationResult<
-    Result<void, Error>,
-    unknown,
-    void,
-    unknown
-  >;
+  formatUsbDriveMutation: {
+    mutateAsync: () => Promise<Result<void, Error>>;
+  };
 }
 
 export function FormatUsbButton(props: FormatUsbButtonProps): JSX.Element {
