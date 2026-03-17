@@ -107,6 +107,21 @@ pnpm --filter @votingworks/<package-name> lint
 pnpm --filter @votingworks/<package-name> lint:fix
 ```
 
+### Type Checking
+
+Use `tsgo` (not `tsc`) for type checking:
+
+```sh
+# Type-check a specific package
+pnpm --filter @votingworks/<package-name> exec tsgo --noEmit
+
+# Build (includes type checking) a package and its dependencies
+pnpm --filter @votingworks/<package-name>... build
+```
+
+Do NOT use `tsc` — this repo uses `tsgo` for all TypeScript compilation and type
+checking, including in CI.
+
 ### Development Servers
 
 ```sh
@@ -235,8 +250,8 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
 - **Domain types over primitives** — use domain types like `ContestId`,
   `PrecinctId`, etc. instead of plain `string`
 - **Prefer existing utilities** — use utility functions from
-  `@votingworks/basics` (e.g. `range`, `iter`, `groupBy`) rather than verbose
-  JS idioms (e.g. `Array.from`)
+  `@votingworks/basics` (e.g. `range`, `iter`, `groupBy`) rather than verbose JS
+  idioms (e.g. `Array.from`)
 - **Readonly** — mark properties as `readonly` when they aren't reassigned
 - **React** — functional components only, with hooks; components return
   `JSX.Element`
