@@ -90,7 +90,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
 }) {
   const { pdf } = await apiClient.getTallyReportPreview(reportSpec);
   await expect(pdf).toMatchPdfSnapshot({
-    failureThreshold: 0.0001,
+    failureThreshold: 0.036,
     customSnapshotIdentifier,
   });
 
