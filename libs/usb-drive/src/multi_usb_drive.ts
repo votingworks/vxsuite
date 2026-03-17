@@ -161,6 +161,7 @@ export function detectMultiUsbDrive(
     diskDevPath: string,
     partitionDevPath: string
   ): Promise<void> {
+    await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
     try {
       await mountPartition(partitionDevPath);
       // Poll for mount point to register
@@ -173,8 +174,30 @@ export function detectMultiUsbDrive(
         if (updated?.mountpoint) break;
         await sleep(MOUNT_RETRY_INTERVAL_MS);
       }
+      const foundMountPoint = cachedDrives
+        .find((d) => d.devPath === diskDevPath)
+        ?.partitions.find((p) => p.devPath === partitionDevPath)
+        ?.mountpoint;
+      if (foundMountPoint) {
+        await logger.logAsCurrentRole(LogEventId.UsbDriveMounted, {
+          disposition: 'success',
+          message: `USB drive partition ${partitionDevPath} successfully auto-mounted at ${foundMountPoint}.`,
+        });
+      } else {
+        await logger.logAsCurrentRole(LogEventId.UsbDriveMounted, {
+          disposition: 'failure',
+          message: `Timed out waiting for USB drive partition ${partitionDevPath} to mount.`,
+          result: 'USB drive partition not mounted.',
+        });
+      }
     } catch (error) {
       debug(`auto-mount failed for ${partitionDevPath}: ${error}`);
+      await logger.logAsCurrentRole(LogEventId.UsbDriveMounted, {
+        disposition: 'failure',
+        message: `Auto-mount failed for USB drive partition ${partitionDevPath}.`,
+        error: (error as Error).message,
+        result: 'USB drive partition not mounted.',
+      });
     } finally {
       partitionAction.delete(partitionDevPath);
       onChange?.();
