@@ -18,7 +18,7 @@ export function getUsbDriveStatus(
   }
   const { mount, fstype, fsver } = partition;
   function isBadFormat(): boolean {
-    return !!fstype && !(fstype === 'vfat' && fsver === 'FAT32');
+    return !(fstype === 'vfat' && fsver === 'FAT32');
   }
   switch (mount.type) {
     case 'mounted':
