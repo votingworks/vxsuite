@@ -1104,7 +1104,7 @@ function buildMachine({
                   ).unsafeUnwrap();
                 },
                 onError: {
-                  target: '#error',
+                  target: 'done',
                   actions: assign({ error: (_, event) => event.data }),
                 },
               },
@@ -1124,7 +1124,7 @@ function buildMachine({
                   ).unsafeUnwrap();
                 },
                 onError: {
-                  target: '#error',
+                  target: 'done',
                   actions: assign({ error: (_, event) => event.data }),
                 },
               },
@@ -1174,7 +1174,7 @@ function buildMachine({
                   (await scannerClient.calibrateImageSensors()).unsafeUnwrap();
                 },
                 onError: {
-                  target: '#error',
+                  target: 'done',
                   actions: assign({ error: (_, event) => event.data }),
                 },
               },
