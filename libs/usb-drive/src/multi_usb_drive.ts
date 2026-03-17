@@ -97,6 +97,7 @@ export function detectMultiUsbDrive(
 ): MultiUsbDrive {
   const { onChange } = options ?? {};
 
+  let stopped = false;
   let cachedDrives: UsbDiskDeviceInfo[] = [];
 
   // Per-drive eject state: cleared when the drive is no longer detected.
@@ -165,7 +166,7 @@ export function detectMultiUsbDrive(
       await mountPartition(partitionDevPath);
       // Poll for mount point to register
       const start = Date.now();
-      while (Date.now() - start < MOUNT_TIMEOUT_MS) {
+      while (!stopped && Date.now() - start < MOUNT_TIMEOUT_MS) {
         await doRefresh();
         const updated = cachedDrives
           .find((d) => d.devPath === diskDevPath)
@@ -177,11 +178,14 @@ export function detectMultiUsbDrive(
       debug(`auto-mount failed for ${partitionDevPath}: ${error}`);
     } finally {
       partitionAction.delete(partitionDevPath);
-      onChange?.();
+      if (!stopped) {
+        onChange?.();
+      }
     }
   }
 
   function doAutoMount(disk: UsbDiskDeviceInfo): void {
+    if (stopped) return;
     if (ejectState.has(disk.devPath)) return;
     if (driveAction.get(disk.devPath)) return;
 
@@ -197,6 +201,7 @@ export function detectMultiUsbDrive(
   }
 
   async function doRefresh(): Promise<void> {
+    if (stopped) return;
     const newDrives = await getAllUsbDrives();
 
     // Clear eject state for drives that have been physically removed
@@ -351,6 +356,7 @@ export function detectMultiUsbDrive(
     },
 
     stop(): void {
+      stopped = true;
       watcher.stop();
     },
   };
