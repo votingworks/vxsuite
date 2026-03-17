@@ -443,7 +443,10 @@ async fn main() -> color_eyre::Result<()> {
                                 }
                             }
                             (Some(client), Command::SetBootEjectMotion { boot_eject_motion }) => {
-                                match timeout(Duration::from_secs(1), client.set_boot_eject_motion(boot_eject_motion)).await {
+                                // set_boot_eject_motion performs multiple
+                                // round-trips (read, unlock, write, lock,
+                                // save, reboot), so use a longer timeout.
+                                match timeout(Duration::from_secs(5), client.set_boot_eject_motion(boot_eject_motion)).await {
                                     Ok(Ok(())) => send_response(Response::Ok)?,
                                     Ok(Err(e)) => send_error_response(&e)?,
                                     Err(_) => send_error_response(&Error::RecvTimeout)?,
