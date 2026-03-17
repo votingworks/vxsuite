@@ -1922,9 +1922,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      usb:
-        specifier: 2.15.0
-        version: 2.15.0
       uuid:
         specifier: 9.0.1
         version: 9.0.1
