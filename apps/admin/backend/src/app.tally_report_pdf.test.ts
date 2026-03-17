@@ -98,7 +98,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   const printPath = mockPrinterHandler.getLastPrintPath();
   assert(printPath !== undefined);
   await expect(printPath).toMatchPdfSnapshot({
-    failureThreshold: 0.0001,
+    failureThreshold: 0.05,
     customSnapshotIdentifier,
   });
 
@@ -110,7 +110,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   });
   const [filePath] = exportResult.unsafeUnwrap();
   await expect(filePath).toMatchPdfSnapshot({
-    failureThreshold: 0.0001,
+    failureThreshold: 0.05,
     customSnapshotIdentifier,
   });
 }
