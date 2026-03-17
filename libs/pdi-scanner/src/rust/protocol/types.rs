@@ -111,6 +111,28 @@ pub enum EjectMotion {
     ToFrontAndRescan,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[repr(u32)]
+pub enum BootEjectMotion {
+    ToRear = 0b00,
+    ToFront = 0b01,
+    None = 0b10,
+}
+
+impl TryFrom<u32> for BootEjectMotion {
+    type Error = String;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            value if value == Self::ToRear as u32 => Self::ToRear,
+            value if value == Self::ToFront as u32 => Self::ToFront,
+            value if value == Self::None as u32 => Self::None,
+            value => return Err(format!("Invalid boot eject motion value: {value}")),
+        })
+    }
+}
+
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Version {
     pub product_id: String,

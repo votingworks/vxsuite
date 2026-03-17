@@ -10,6 +10,7 @@ use nom::{
     sequence::{delimited, tuple, Tuple},
     IResult,
 };
+use serde::Serialize;
 
 use super::{
     packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
@@ -106,6 +107,13 @@ pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
                 Outgoing::RescanDocumentHeldInEscrowPositionRequest,
                 rescan_document_held_in_escrow_position_request,
             ),
+        )),
+        alt((
+            value(
+                Outgoing::SaveRegistersToFlashRequest,
+                save_registers_to_flash_request,
+            ),
+            value(Outgoing::RebootRequest, reboot_request),
         )),
     ))(input)
 }
@@ -378,6 +386,14 @@ fn any_response(input: &[u8]) -> IResult<&[u8], Incoming> {
         map(
             get_double_feed_detection_threshold_value_response,
             Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse,
+        ),
+        map(
+            read_register_data_response,
+            Incoming::ReadRegisterDataResponse,
+        ),
+        map(
+            write_register_data_response,
+            Incoming::WriteRegisterDataResponse,
         ),
     ))(input)
 }
@@ -757,6 +773,29 @@ pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
 /// Returns an error if the input does not start with two hexadecimal digits.
 pub fn hex_byte(input: &[u8]) -> IResult<&[u8], u8> {
     map(tuple((hex_digit, hex_digit)), |(hi, lo)| (hi << 4) | lo)(input)
+}
+
+/// Parses eight bytes of input as a single u32 in hexadecimal notation in big
+/// endian order.
+///
+/// # Example
+///
+/// ```
+/// use pdi_scanner::protocol::parsers::hex_u32_be;
+///
+/// assert_eq!(hex_u32_be(b"00000000"), Ok((&b""[..], 0)));
+/// assert_eq!(hex_u32_be(b"0f000000"), Ok((&b""[..], 0x0f000000)));
+/// assert_eq!(hex_u32_be(b"ffffffff"), Ok((&b""[..], 0xffffffff)));
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if the input does not have 8 hexadecimal characters.
+pub fn hex_u32_be(input: &[u8]) -> IResult<&[u8], u32> {
+    map(
+        tuple((hex_byte, hex_byte, hex_byte, hex_byte)),
+        |(b0, b1, b2, b3)| u32::from_be_bytes([b0, b1, b2, b3]),
+    )(input)
 }
 
 simple_request!(enable_crc_checking_request, b"\x1BK");
@@ -1282,6 +1321,121 @@ simple_request!(turn_array_light_source_on_request, b"5");
 simple_request!(turn_array_light_source_off_request, b"6");
 simple_request!(eject_escrow_document_request, b"7");
 simple_request!(rescan_document_held_in_escrow_position_request, b"[");
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[must_use]
+pub struct RegisterIndex(u8);
+
+impl RegisterIndex {
+    const MAX_REGISTER_INDEX: u8 = 63;
+
+    #[must_use]
+    pub const fn new(index: u8) -> Option<Self> {
+        if index > Self::MAX_REGISTER_INDEX {
+            return None;
+        }
+
+        Some(Self(index))
+    }
+
+    pub(crate) const fn new_unchecked(index: u8) -> Self {
+        Self(index)
+    }
+
+    #[must_use]
+    pub const fn get(&self) -> u8 {
+        self.0
+    }
+}
+
+fn register_index(input: &[u8]) -> IResult<&[u8], RegisterIndex> {
+    map_res(tuple((hex_digit, hex_byte)), |(r0, r1_and_2)| {
+        match (r0, RegisterIndex::new(r1_and_2)) {
+            (0, Some(index)) => Ok(index),
+            _ => Err(nom::Err::Failure(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Verify,
+            ))),
+        }
+    })(input)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[must_use]
+pub struct Register {
+    index: RegisterIndex,
+    value: u32,
+}
+
+impl Register {
+    pub const fn new(index: RegisterIndex, value: u32) -> Self {
+        Self { index, value }
+    }
+
+    pub const fn index(&self) -> RegisterIndex {
+        self.index
+    }
+
+    #[must_use]
+    pub const fn value(&self) -> u32 {
+        self.value
+    }
+}
+
+simple_request!(save_registers_to_flash_request, b"}");
+simple_request!(reboot_request, b"0");
+
+/// Parses a request to get the data in the register with the given index.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format or the register
+/// value is out of bounds.
+pub fn get_register_data_request(input: &[u8]) -> IResult<&[u8], RegisterIndex> {
+    map(
+        packet_with_crc((tag(b"<"), register_index)),
+        |(_, index)| index,
+    )(input)
+}
+
+/// Parses a response to a request for register data by index.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format or the
+/// register value is out of bounds.
+pub fn read_register_data_response(input: &[u8]) -> IResult<&[u8], Register> {
+    map(
+        packet((tag(b"<"), register_index, hex_u32_be)),
+        |(_, index, value)| Register::new(index, value),
+    )(input)
+}
+
+/// Parses a response to a request to write register data by index.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format or the
+/// register value is out of bounds.
+pub fn write_register_data_response(input: &[u8]) -> IResult<&[u8], Register> {
+    map(
+        packet((tag(b">"), register_index, hex_u32_be)),
+        |(_, index, value)| Register::new(index, value),
+    )(input)
+}
+
+/// Parses a request to write data to a register at a given index.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format or the
+/// register value is out of bounds.
+pub fn write_data_to_register_request(input: &[u8]) -> IResult<&[u8], Register> {
+    map(
+        packet_with_crc((tag(b">"), register_index, hex_u32_be)),
+        |(_, index, value)| Register::new(index, value),
+    )(input)
+}
 
 /// Parses any outgoing message of one byte or more.
 ///

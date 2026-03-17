@@ -2,6 +2,8 @@ use std::{fmt::Debug, time::Duration};
 
 use serde::Serialize;
 
+use crate::protocol::parsers::{Register, RegisterIndex};
+
 use super::{
     parsers,
     types::{
@@ -596,6 +598,30 @@ pub enum Outgoing {
     /// Requests the double feed detection threshold value (`n3a90`).
     GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
 
+    /// Requests the value of the register at the given index.
+    ReadRegisterDataRequest(RegisterIndex),
+
+    /// Requests the data be written to the register at the given index.
+    WriteRegisterDataRequest(RegisterIndex, u32),
+
+    /// Saves all registers to flash memory so they persist across reboots.
+    ///
+    /// `ASCII character } = (7DH)`
+    ///
+    /// # Response
+    ///
+    /// None.
+    SaveRegistersToFlashRequest,
+
+    /// Reboots the scanner. The scanner will disconnect and reconnect.
+    ///
+    /// `ASCII character 0 = (30H)`
+    ///
+    /// # Response
+    ///
+    /// The scanner may send a `#34` event before disconnecting.
+    RebootRequest,
+
     RawPacket(Vec<u8>),
 }
 
@@ -823,6 +849,32 @@ impl Outgoing {
                 Command::new(b"n3a90"),
                 parsers::get_double_feed_detection_double_sheet_threshold_value_request
             ),
+            Self::ReadRegisterDataRequest(register_index) => checked!(
+                Command::new(b"<").with_data(format!("{:03x}", register_index.get()).as_bytes()),
+                parsers::get_register_data_request
+            ),
+            Self::WriteRegisterDataRequest(register_index, value) => checked!(
+                Command::new(b">")
+                    .with_data(format!("{:03x}{:08x}", register_index.get(), value).as_bytes()),
+                |input| -> nom::IResult<&[u8], Register> {
+                    if let Ok((&[], register)) = parsers::write_data_to_register_request(input) {
+                        if register.index() == *register_index && register.value() == *value {
+                            return Ok((&[], register));
+                        }
+                    }
+
+                    Err(nom::Err::Failure(nom::error::Error::new(
+                        input,
+                        nom::error::ErrorKind::Verify,
+                    )))
+                }
+            ),
+            Self::SaveRegistersToFlashRequest => {
+                checked!(Command::new(b"}"), parsers::save_registers_to_flash_request)
+            }
+            Self::RebootRequest => {
+                checked!(Command::new(b"0"), parsers::reboot_request)
+            }
             Self::RawPacket(data) => checked!(Command::new(data), parsers::raw_outgoing),
         }
     }
@@ -1095,6 +1147,12 @@ pub enum Incoming {
     /// threshold value.
     GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(u16),
 
+    /// Response to the `<XXX` command to get the value of register XXX.
+    ReadRegisterDataResponse(Register),
+
+    /// Response to a request to write data to the register at the given index.
+    WriteRegisterDataResponse(Register),
+
     ScannerOkayEvent,
     DocumentJamEvent,
     CalibrationNeededEvent,
@@ -1247,9 +1305,9 @@ impl Incoming {
             | Self::GetDoubleFeedDetectionLedIntensityResponse(_)
             | Self::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(_)
             | Self::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(_)
-            | Self::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(_) => {
-                IncomingType::Response
-            }
+            | Self::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(_)
+            | Self::ReadRegisterDataResponse(_)
+            | Self::WriteRegisterDataResponse(_) => IncomingType::Response,
 
             Self::ImageData(_) => IncomingType::ImageData,
             Self::Unknown(_) => IncomingType::Unknown,

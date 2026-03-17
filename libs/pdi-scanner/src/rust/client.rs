@@ -6,9 +6,12 @@ use tokio::{
 };
 
 use crate::{
-    protocol::types::{
-        AutoRunOutAtEndOfScanBehavior, Direction, DoubleFeedDetectionMode, EjectPauseMode,
-        FeederMode, PickOnCommandMode, Side,
+    protocol::{
+        parsers::RegisterIndex,
+        types::{
+            AutoRunOutAtEndOfScanBehavior, BootEjectMotion, Direction, DoubleFeedDetectionMode,
+            EjectPauseMode, FeederMode, PickOnCommandMode, Side,
+        },
     },
     Error, Result,
 };
@@ -140,6 +143,144 @@ impl<T> Client<T> {
             packet => Err(packet),
         })
         .await
+    }
+
+    /// Reads the data in the register with the given index.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the register index is out of bounds
+    /// or if a communication error occurs.
+    pub async fn read_register_data(&mut self, register_index: RegisterIndex) -> Result<u32> {
+        self.send(Outgoing::ReadRegisterDataRequest(register_index))
+            .await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::ReadRegisterDataResponse(register) if register.index() == register_index => {
+                Ok(register.value())
+            }
+            packet => Err(packet),
+        })
+        .await
+    }
+
+    /// Register 9 stores information about MSD and eject at boot settings:
+    ///
+    /// - Bit 3 is used for MSD installed (0 = not installed, 1 = installed).
+    /// - Bits 8-9 are used for eject at boot (0 = eject to rear, 1 = eject to front, 2 = no eject).
+    ///
+    /// Other bits are unknown at this time and should not be modified.
+    const MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX: RegisterIndex =
+        RegisterIndex::new_unchecked(9);
+
+    const EJECT_AT_BOOT_SHIFT: u32 = 8;
+    const EJECT_AT_BOOT_MASK: u32 = 0b11 << Self::EJECT_AT_BOOT_SHIFT;
+
+    /// Gets the current eject at boot setting for the scanner.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs or if
+    /// the scanner returns an invalid value.
+    pub async fn get_boot_eject_motion(&mut self) -> Result<BootEjectMotion> {
+        let current_value = self
+            .read_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX)
+            .await?;
+        let eject_at_boot_value =
+            (current_value & Self::EJECT_AT_BOOT_MASK) >> Self::EJECT_AT_BOOT_SHIFT;
+        BootEjectMotion::try_from(eject_at_boot_value).map_err(Error::ValidateRequest)
+    }
+
+    /// Configures the eject at boot behavior for the scanner.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_boot_eject_motion(&mut self, eject_motion: BootEjectMotion) -> Result<()> {
+        let current_value = self
+            .read_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX)
+            .await?;
+        let new_value = (current_value & !Self::EJECT_AT_BOOT_MASK)
+            | ((eject_motion as u32) << Self::EJECT_AT_BOOT_SHIFT);
+        self.unlock_register_writing().await?;
+        self.write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
+            .await?;
+        self.lock_register_writing().await?;
+        self.save_registers_to_flash().await?;
+        self.reboot().await?;
+        Ok(())
+    }
+
+    /// Saves all registers to flash memory so they persist across reboots.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn save_registers_to_flash(&mut self) -> Result<()> {
+        self.send(Outgoing::SaveRegistersToFlashRequest).await
+    }
+
+    /// Reboots the scanner. The scanner will disconnect after this call.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn reboot(&mut self) -> Result<()> {
+        self.send(Outgoing::RebootRequest).await
+    }
+
+    /// Writes data to the register with the given index.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the register index is out of bounds
+    /// or if a communication error occurs.
+    pub async fn write_register_data(
+        &mut self,
+        register_index: RegisterIndex,
+        value: u32,
+    ) -> Result<()> {
+        self.send(Outgoing::WriteRegisterDataRequest(register_index, value))
+            .await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::WriteRegisterDataResponse(register)
+                if register.index() == register_index && register.value() == value =>
+            {
+                Ok(())
+            }
+            _ => Err(packet),
+        })
+        .await?;
+        Ok(())
+    }
+
+    /// Register 63 (0x3f) is the last register and can be written to in order
+    /// to lock or unlock writing to other registers.
+    const LOCK_REGISTER_INDEX: RegisterIndex = RegisterIndex::new_unchecked(63);
+
+    /// Magic value to send to unlock register writing.
+    const UNLOCK_REGISTER_CODE: u32 = 0x0B99_BE7E;
+
+    /// Magic value to send to lock register writing.
+    const LOCK_REGISTER_CODE: u32 = 0x0000_0000;
+
+    /// Locks registers, preventing them from being written to.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn lock_register_writing(&mut self) -> Result<()> {
+        self.write_register_data(Self::LOCK_REGISTER_INDEX, Self::LOCK_REGISTER_CODE)
+            .await
+    }
+
+    /// Unlocks register writing, allowing them to be written to.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn unlock_register_writing(&mut self) -> Result<()> {
+        self.write_register_data(Self::LOCK_REGISTER_INDEX, Self::UNLOCK_REGISTER_CODE)
+            .await
     }
 
     /// Gets the firmware version of the scanner.
