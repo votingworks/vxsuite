@@ -208,7 +208,6 @@ impl<T> Client<T> {
         self.lock_register_writing().await?;
         result?;
         self.save_registers_to_flash().await?;
-        self.reboot().await?;
         Ok(())
     }
 
