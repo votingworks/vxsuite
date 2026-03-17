@@ -1,5 +1,13 @@
 use std::{str::from_utf8, time::Duration};
 
+use super::{
+    packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
+    types::{
+        BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
+        Register, RegisterIndex, Resolution, Side,
+    },
+    Outgoing, Settings, Status, Version,
+};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while_m_n},
@@ -9,14 +17,6 @@ use nom::{
     number::complete::{le_u16, le_u8},
     sequence::{delimited, tuple, Tuple},
     IResult,
-};
-use super::{
-    packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
-    types::{
-        BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
-        Register, RegisterIndex, Resolution, Side,
-    },
-    Outgoing, Settings, Status, Version,
 };
 
 /// Creates a simple request parser with no payload.
@@ -112,6 +112,10 @@ pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
                 save_registers_to_flash_request,
             ),
             value(Outgoing::RebootRequest, reboot_request),
+            map(get_register_data_request, Outgoing::ReadRegisterDataRequest),
+            map(write_data_to_register_request, |r| {
+                Outgoing::WriteRegisterDataRequest(r.index(), r.value())
+            }),
         )),
     ))(input)
 }

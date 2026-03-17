@@ -6,8 +6,7 @@ use super::{
     parsers,
     types::{
         BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
-        Register, RegisterIndex,
-        Resolution, Settings, Side, Status, Version,
+        Register, RegisterIndex, Resolution, Settings, Side, Status, Version,
     },
 };
 
