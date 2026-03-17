@@ -10,6 +10,7 @@ use crate::{
         AutoRunOutAtEndOfScanBehavior, Direction, DoubleFeedDetectionMode, EjectPauseMode,
         FeederMode, PickOnCommandMode, Side,
     },
+    scanner::Scanner,
     Error, Result,
 };
 
@@ -983,6 +984,17 @@ impl<T> Client<T> {
         self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
 
         Ok(())
+    }
+}
+
+impl Client<Scanner> {
+    /// Disconnects from the scanner, stopping the background task and
+    /// releasing the USB interface. Waits for full cleanup before returning.
+    /// Consumes self to prevent reuse of a disconnected client.
+    pub async fn disconnect(mut self) {
+        if let Some(scanner) = self.scanner_handle.take() {
+            scanner.disconnect().await;
+        }
     }
 }
 

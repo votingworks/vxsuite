@@ -110,8 +110,9 @@ export function VoterScreen({
   } as const;
 
   switch (scannerStatus.state) {
-    // This state should pass quickly, so we don't show a message
+    // These states should pass quickly, so we don't show a message
     case 'connecting':
+    case 'resetting':
       return null;
     // When a user (e.g. poll worker) removes their card, there may be a slight
     // delay between when the auth status changes and the scanner returns to

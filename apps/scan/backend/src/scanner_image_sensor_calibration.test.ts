@@ -7,8 +7,6 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { Result, deferred } from '@votingworks/basics';
-import { ScannerError } from '@votingworks/pdi-scanner';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { withApp } from '../test/helpers/scanner_helpers';
 import { delays } from './scanner';
@@ -164,14 +162,17 @@ test('error with calibration command', async () => {
       mockScanner.client.calibrateImageSensors.mockRejectedValue(
         new Error('some error')
       );
-      const deferredConnect = deferred<Result<void, ScannerError>>();
-      mockScanner.client.connect.mockReturnValueOnce(deferredConnect.promise);
 
       // Initiate image sensor calibration
       await apiClient.beginImageSensorCalibration();
       await waitForStatus(apiClient, {
-        state: 'unrecoverable_error',
+        state: 'calibrating_image_sensors.done',
+        error: 'client_error',
       });
+
+      // End calibration — should return to paused
+      await apiClient.endImageSensorCalibration();
+      await waitForStatus(apiClient, { state: 'paused' });
     }
   );
 });

@@ -16,6 +16,7 @@ export const PRECINCT_SCANNER_STATES = [
   'jammed',
   'cover_open',
   'both_sides_have_paper',
+  'resetting',
   'unrecoverable_error',
   'paused',
   'calibrating_double_feed_detection.double_sheet',

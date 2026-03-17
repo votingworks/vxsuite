@@ -55,6 +55,7 @@ import { isReadyToScan } from './app_flow';
 import { interpret } from './interpret';
 import { InterpretationResult, PrecinctScannerStateMachine } from './types';
 import { rootDebug } from './util/debug';
+import { getCurrentTime } from './util/get_current_time';
 import { Workspace } from './util/workspace';
 import { constructAuthMachineState } from './util/auth';
 import { Store } from './store';
@@ -320,11 +321,14 @@ async function runScannerDiagnostic(
   );
 }
 
+export const RESET_COOLDOWN_MS = 30_000;
+
 interface Context {
   scanImages?: SheetOf<ImageData>;
   interpretation?: InterpretationResult;
   error?: ScannerError | PrecinctScannerError | Error;
   rootListenerRef?: ActorRef<Event>;
+  lastResetTimestamp?: number;
 }
 
 type Event =
@@ -1100,7 +1104,7 @@ function buildMachine({
                   ).unsafeUnwrap();
                 },
                 onError: {
-                  target: '#error',
+                  target: 'done',
                   actions: assign({ error: (_, event) => event.data }),
                 },
               },
@@ -1120,7 +1124,7 @@ function buildMachine({
                   ).unsafeUnwrap();
                 },
                 onError: {
-                  target: '#error',
+                  target: 'done',
                   actions: assign({ error: (_, event) => event.data }),
                 },
               },
@@ -1170,7 +1174,7 @@ function buildMachine({
                   (await scannerClient.calibrateImageSensors()).unsafeUnwrap();
                 },
                 onError: {
-                  target: '#error',
+                  target: 'done',
                   actions: assign({ error: (_, event) => event.data }),
                 },
               },
@@ -1260,8 +1264,45 @@ function buildMachine({
                 context.error.code === 'disconnected',
               target: '#disconnected',
             },
+            {
+              cond: (context) =>
+                context.lastResetTimestamp === undefined ||
+                getCurrentTime() - context.lastResetTimestamp >
+                  RESET_COOLDOWN_MS,
+              target: '#resetting',
+            },
             { target: '#unrecoverableError' },
           ],
+        },
+
+        resetting: {
+          id: 'resetting',
+          initial: 'disconnecting',
+          states: {
+            disconnecting: {
+              invoke: {
+                src: async () => {
+                  (await scannerClient.disconnect()).unsafeUnwrap();
+                },
+                onDone: 'reconnecting',
+                onError: '#unrecoverableError',
+              },
+            },
+            reconnecting: {
+              invoke: {
+                src: async () => (await scannerClient.connect()).unsafeUnwrap(),
+                onDone: {
+                  target: '#checkingInitialStatus',
+                  actions: assign({
+                    lastResetTimestamp: () => getCurrentTime(),
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    error: (_context: Context) => undefined,
+                  }),
+                },
+                onError: '#unrecoverableError',
+              },
+            },
+          },
         },
 
         unrecoverableError: { id: 'unrecoverableError' },
@@ -1551,6 +1592,8 @@ export function createPrecinctScannerStateMachine({
             return 'jammed';
           case state.matches('coverOpen'):
             return 'cover_open';
+          case state.matches('resetting'):
+            return 'resetting';
           /* istanbul ignore next - state transitions too quickly to test - @preserve */
           case state.matches('error'):
           case state.matches('unrecoverableError'):
