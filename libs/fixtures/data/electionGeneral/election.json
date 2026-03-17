@@ -1310,5 +1310,37 @@
       "hmpbVotingComplete": "Has completado la votación.",
       "hmpbWriteIn": "Candidato por escrito"
     }
-  }
+  },
+  "pollingPlaces": [
+    {
+      "id": "23-polling-place",
+      "name": "Center Springfield",
+      "precincts": {
+        "23": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "21-polling-place",
+      "name": "North Springfield",
+      "precincts": {
+        "21": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "20-polling-place",
+      "name": "South Springfield",
+      "precincts": {
+        "20": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ]
 }

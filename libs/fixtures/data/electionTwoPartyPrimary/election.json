@@ -280,5 +280,27 @@
       },
       "stateName": "State of Sample"
     }
-  }
+  },
+  "pollingPlaces": [
+    {
+      "id": "precinct-1-polling-place",
+      "name": "Precinct 1",
+      "precincts": {
+        "precinct-1": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-2-polling-place",
+      "name": "Precinct 2",
+      "precincts": {
+        "precinct-2": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ]
 }
