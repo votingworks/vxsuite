@@ -728,7 +728,7 @@ describe('getAllUsbDrives', () => {
     expect(result[1]).toMatchObject({ devPath: '/dev/sdc' });
   });
 
-  test('excludes LVM partitions from partitions list', async () => {
+  test('excludes disk whose only partition is LVM', async () => {
     execMock.mockResolvedValueOnce({
       stdout: [
         exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
@@ -744,12 +744,9 @@ describe('getAllUsbDrives', () => {
 
     const result = await getAllUsbDrives();
 
-    // Disk is included but LVM partition is excluded
-    expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({
-      devPath: '/dev/sdb',
-      partitions: [],
-    });
+    // Disk has partitions but none are valid data partitions — skip entirely
+    // rather than returning an empty-partition disk that looks unformatted.
+    expect(result).toEqual([]);
   });
 
   test('excludes disks mounted outside /media', async () => {
@@ -765,6 +762,97 @@ describe('getAllUsbDrives', () => {
     const result = await getAllUsbDrives();
 
     // Disk mounted outside /media is not a valid data drive
+    expect(result).toEqual([]);
+  });
+
+  test('excludes disk whose partitions are all mounted outside /media', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Partition mounted outside /media — skip the disk entirely rather than
+    // returning an empty-partition disk that looks like an unformatted drive.
+    expect(result).toEqual([]);
+  });
+
+  test('includes partition with no parent disk entry in udev', async () => {
+    // Some USB card readers expose only a partition entry (not a parent disk)
+    // in the udev database.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-ABCDE',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/vx/usb-drive-sdb1' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        devPath: '/dev/sdb',
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: '/media/vx/usb-drive-sdb1',
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
+  test('excludes orphan partition with no parent disk that fails isDataUsbDrive', async () => {
+    // Some USB card readers expose only a partition entry (not a parent disk)
+    // in the udev database. If the partition is mounted outside /media, it
+    // should be excluded entirely.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Partition mounted outside /media is not a valid data drive
     expect(result).toEqual([]);
   });
 
