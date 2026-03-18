@@ -165,7 +165,7 @@ test('polling places CRUD', async () => {
   ]);
 });
 
-test('polling place updates on precinct creation/deletion', async () => {
+test('polling place updates on precinct creation/update/deletion', async () => {
   const user = nonVxUser;
   const jurisdiction = user.jurisdictions[1];
   expectEditingEnabled(jurisdiction, true);
@@ -234,6 +234,24 @@ test('polling place updates on precinct creation/deletion', async () => {
 
   expect(await api.listPollingPlaces({ electionId })).toEqual([
     // Alphabetically sorted:
+    customPlace1,
+    placeFromPrecinct1,
+    placeFromPrecinct2,
+  ]);
+
+  // Updating a precinct maintains polling place links:
+
+  expect(
+    await api.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        ...precincts[0],
+        name: 'Precinct 1 (Updated)',
+      },
+    })
+  ).toEqual(ok());
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
     customPlace1,
     placeFromPrecinct1,
     placeFromPrecinct2,
