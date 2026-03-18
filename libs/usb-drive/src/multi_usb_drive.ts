@@ -177,6 +177,7 @@ export function detectMultiUsbDrive(
   const { onChange } = options ?? {};
 
   let stopped = false;
+  let isFirstRefresh = true;
   let cachedDrives: UsbDiskDeviceInfo[] = [];
 
   // Per-drive eject state: cleared when the drive is no longer detected.
@@ -319,13 +320,19 @@ export function detectMultiUsbDrive(
       }
     }
 
+    const stateChanged =
+      isFirstRefresh ||
+      JSON.stringify(newDrives) !== JSON.stringify(cachedDrives);
+    isFirstRefresh = false;
     cachedDrives = newDrives;
 
     for (const disk of newDrives) {
       doAutoMount(disk);
     }
 
-    onChange?.();
+    if (stateChanged) {
+      onChange?.();
+    }
   }
 
   const watcher = createBlockDeviceChangeWatcher(() => void doRefresh());

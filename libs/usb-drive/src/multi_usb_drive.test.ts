@@ -186,14 +186,23 @@ describe('refresh', () => {
     multiUsbDrive.stop();
   });
 
-  test('calls onChange callback on each refresh', async () => {
+  test('calls onChange on first refresh and when state changes, but not on no-op refreshes', async () => {
     const logger = mockLogger({ fn: vi.fn });
     const onChange = vi.fn();
     const multiUsbDrive = detectMultiUsbDrive(logger, { onChange });
 
+    // Initial refresh fires onChange (first refresh always fires)
     await multiUsbDrive.refresh();
+    expect(onChange).toHaveBeenCalledTimes(1); // factory doRefresh (first=true)
 
-    expect(onChange).toHaveBeenCalledTimes(2); // initial + explicit refresh
+    // Refresh with same state — should NOT fire onChange
+    await multiUsbDrive.refresh();
+    expect(onChange).toHaveBeenCalledTimes(1);
+
+    // Refresh with new state — should fire onChange
+    mockDrives = [makeDisk()];
+    await multiUsbDrive.refresh();
+    expect(onChange).toHaveBeenCalledTimes(2);
 
     multiUsbDrive.stop();
   });
