@@ -283,6 +283,16 @@ async function insertPrecinct(
     electionId,
     precinct.name
   );
+
+  await insertPrecinctDistrictsOrSplits(client, precinct);
+}
+
+async function insertPrecinctDistrictsOrSplits(
+  client: Client,
+  precinct: Precinct
+) {
+  await assertWithinTransaction(client);
+
   if (hasSplits(precinct)) {
     if (
       uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
@@ -1679,21 +1689,31 @@ export class Store {
     try {
       await this.db.withClient((client) =>
         client.withTransaction(async () => {
-          // It's safe to delete and re-insert the precinct because:
-          // 1. The IDs of precincts/splits are stable
-          // 2. Precincts/splits are leaf nodes. There are no other tables with
-          // foreign keys that reference precincts/splits, so we don't need to
-          // worry about ON DELETE triggers.
           const { rowCount } = await client.query(
             `
-            delete from precincts
-            where id = $1 and election_id = $2
-          `,
+              update precincts set name = $1
+              where
+                id = $2
+                and election_id = $3
+            `,
+            precinct.name,
             precinct.id,
             electionId
           );
           assert(rowCount === 1, 'Precinct not found');
-          await insertPrecinct(client, electionId, precinct);
+
+          await client.query(
+            `delete from districts_precincts where precinct_id = $1`,
+            precinct.id
+          );
+
+          await client.query(
+            `delete from precinct_splits where precinct_id = $1`,
+            precinct.id
+          );
+
+          await insertPrecinctDistrictsOrSplits(client, precinct);
+
           return true;
         })
       );
