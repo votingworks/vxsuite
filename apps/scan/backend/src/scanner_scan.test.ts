@@ -1,4 +1,4 @@
-import { err, typedAs } from '@votingworks/basics';
+import { err, ok, typedAs } from '@votingworks/basics';
 import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
