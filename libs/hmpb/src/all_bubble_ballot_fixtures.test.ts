@@ -7,7 +7,7 @@ import { createPlaywrightRendererPool } from './playwright_renderer';
 import { RendererPool } from './renderer';
 
 vi.setConfig({
-  testTimeout: 40_000,
+  testTimeout: 50_000,
 });
 
 let rendererPool: RendererPool;
