@@ -23,6 +23,7 @@ import {
   DiagnosticRecord,
   DiagnosticType,
   PageInterpretation,
+  pollingPlaceFromElection,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -399,9 +400,28 @@ export function buildApi(
       });
     },
 
+    setPollingPlaceId(input: { id: string }): void {
+      const { electionDefinition } = assertDefined(
+        store.getElectionRecord(),
+        'Cannot set polling place without an election.'
+      );
+
+      const { election } = electionDefinition;
+      const { name } = pollingPlaceFromElection(election, input.id);
+
+      store.setPollingPlaceId(input.id);
+      store.setBallotsPrintedCount(0);
+
+      void logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the polling place for the machine to ${name}`,
+      });
+    },
+
     getElectionState(): ElectionState {
       return {
         precinctSelection: store.getPrecinctSelection(),
+        pollingPlaceId: store.getPollingPlaceId(),
         ballotsPrintedCount: store.getBallotsPrintedCount(),
         isTestMode: store.getTestMode(),
         pollsState: store.getPollsState(),

@@ -9,6 +9,7 @@ import {
   DiagnosticOutcome,
   doesPollsStateSupportLiveReporting,
   BallotCastingMode,
+  pollingPlaceFromElection,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -226,6 +227,7 @@ export function buildApi({
         electionPackageHash: electionRecord?.electionPackageHash,
         systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
         precinctSelection: store.getPrecinctSelection(),
+        pollingPlaceId: store.getPollingPlaceId(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
         ballotCastingMode: store.getBallotCastingMode(),
@@ -273,6 +275,28 @@ export function buildApi({
           electionDefinition.election.precincts,
           input.precinctSelection
         )}`,
+      });
+    },
+
+    setPollingPlaceId(input: { id: string }): void {
+      const { electionDefinition } = assertDefined(
+        store.getElectionRecord(),
+        'Cannot set polling place without an election.'
+      );
+      assert(
+        store.getBallotsCounted() === 0,
+        'Attempt to change precinct selection after ballots have been cast'
+      );
+
+      const { election } = electionDefinition;
+      const { name } = pollingPlaceFromElection(election, input.id);
+
+      store.setPollingPlaceId(input.id);
+      workspace.resetElectionSession();
+
+      void logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the polling place for the machine to ${name}`,
       });
     },
 

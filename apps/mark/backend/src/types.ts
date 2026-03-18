@@ -13,6 +13,7 @@ export interface MachineConfig {
 
 export interface ElectionState {
   precinctSelection?: PrecinctSelection;
+  pollingPlaceId?: string;
   ballotsPrintedCount: number;
   isTestMode: boolean;
   pollsState: PollsState;
