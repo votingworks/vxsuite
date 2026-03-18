@@ -16,6 +16,8 @@ import {
   pollingPlaceBallotStyles,
   pollingPlaceContests,
   pollingPlaceFromElection,
+  PollingPlaceGroups,
+  pollingPlaceGroups,
   pollingPlaceMembers,
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
@@ -167,6 +169,38 @@ test('pollingPlacesGenerateFromPrecincts', () => {
       precincts: { p2: { type: 'whole' } },
     },
   ]);
+});
+
+test('pollingPlaceGroups', () => {
+  const absenteePlace = mockPollingPlace({
+    id: 'absentee1',
+    type: 'absentee',
+  });
+  const earlyVotingPlace = mockPollingPlace({
+    id: 'early1',
+    type: 'early_voting',
+  });
+  const electionDayPlace1 = mockPollingPlace({
+    id: 'electionDay1',
+    type: 'election_day',
+  });
+  const electionDayPlace2 = mockPollingPlace({
+    id: 'electionDay2',
+    type: 'election_day',
+  });
+
+  expect(
+    pollingPlaceGroups([
+      electionDayPlace2,
+      earlyVotingPlace,
+      absenteePlace,
+      electionDayPlace1,
+    ])
+  ).toEqual<PollingPlaceGroups>({
+    absentee: [absenteePlace],
+    early_voting: [earlyVotingPlace],
+    election_day: [electionDayPlace2, electionDayPlace1], // Should retain order
+  });
 });
 
 test('pollingPlaceMembers', () => {
