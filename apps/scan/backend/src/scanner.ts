@@ -1277,6 +1277,11 @@ function buildMachine({
 
         resetting: {
           id: 'resetting',
+          // Prevent any further events from interrupting the reset
+          on: {
+            SCANNER_EVENT: {},
+            SCANNER_ERROR: {},
+          },
           initial: 'disconnecting',
           states: {
             disconnecting: {
