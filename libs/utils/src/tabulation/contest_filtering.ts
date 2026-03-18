@@ -11,10 +11,7 @@ import {
   getPartyIdsWithContests,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import {
-  createElectionMetadataLookupFunction,
-  getContestById,
-} from './lookups';
+import { createElectionMetadataLookupFunction } from './lookups';
 
 /**
  * Contests appear on ballots or not based on the district the contest is
@@ -89,8 +86,8 @@ export function mapContestIdsToContests(
   electionDefinition: ElectionDefinition,
   contestIds: Set<ContestId>
 ): AnyContest[] {
-  return [...contestIds].map((contestId) =>
-    getContestById(electionDefinition, contestId)
+  return electionDefinition.election.contests.filter((c) =>
+    contestIds.has(c.id)
   );
 }
 
@@ -125,14 +122,7 @@ export function getContestsForPrecinctAndElection(
   const lookupPrecinctToContestId = buildPrecinctContestIdsLookup(election);
   const contestIds = lookupPrecinctToContestId[precinctSelection.precinctId];
 
-  const lookupContestIdToContest: Record<ContestId, AnyContest> = {};
-  for (const contest of election.contests) {
-    lookupContestIdToContest[contest.id] = contest;
-  }
-
-  return Array.from(assertDefined(contestIds))
-    .map((id) => lookupContestIdToContest[id])
-    .filter((c): c is AnyContest => c !== undefined);
+  return election.contests.filter((c) => assertDefined(contestIds).has(c.id));
 }
 
 export interface PartyWithContests {

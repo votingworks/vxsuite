@@ -5,7 +5,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { find } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import {
   doesContestAppearOnPartyBallot,
   getContestIdsForBallotStyle,
@@ -91,35 +91,57 @@ test('getContestIdsForPrecinct', () => {
 test('getContestsForPrecinct', () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  expect(
-    getContestsForPrecinct(
-      electionDefinition,
-      singlePrecinctSelectionFor('precinct-c1-w2')
-    ).map((c) => c.id)
-  ).toEqual([
+  const contestsForPrecinct = getContestsForPrecinct(
+    electionDefinition,
+    singlePrecinctSelectionFor('precinct-c1-w2')
+  );
+  expect(contestsForPrecinct.map((c) => c.id)).toEqual([
     'county-leader-mammal',
-    'congressional-1-mammal',
-    'water-2-fishing',
     'county-leader-fish',
+    'congressional-1-mammal',
     'congressional-1-fish',
+    'water-2-fishing',
   ]);
+
+  // Verify that getContestsForPrecinct preserves the global contest order
+  let lastContestIndex = -1;
+  for (const contest of contestsForPrecinct) {
+    const contestIndexInGlobalOrder =
+      electionDefinition.election.contests.findIndex(
+        (c) => c.id === contest.id
+      );
+    assert(contestIndexInGlobalOrder !== -1);
+    expect(contestIndexInGlobalOrder).toBeGreaterThan(lastContestIndex);
+    lastContestIndex = contestIndexInGlobalOrder;
+  }
 });
 
 test('getContestsForPrecinctAndElection', () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  expect(
-    getContestsForPrecinctAndElection(
-      electionDefinition.election,
-      singlePrecinctSelectionFor('precinct-c1-w2')
-    ).map((c) => c.id)
-  ).toEqual([
+  const contestsForPrecinct = getContestsForPrecinctAndElection(
+    electionDefinition.election,
+    singlePrecinctSelectionFor('precinct-c1-w2')
+  );
+  expect(contestsForPrecinct.map((c) => c.id)).toEqual([
     'county-leader-mammal',
-    'congressional-1-mammal',
-    'water-2-fishing',
     'county-leader-fish',
+    'congressional-1-mammal',
     'congressional-1-fish',
+    'water-2-fishing',
   ]);
+
+  // Verify that getContestsForPrecinctAndElection preserves the global contest order
+  let lastContestIndex = -1;
+  for (const contest of contestsForPrecinct) {
+    const contestIndexInGlobalOrder =
+      electionDefinition.election.contests.findIndex(
+        (c) => c.id === contest.id
+      );
+    assert(contestIndexInGlobalOrder !== -1);
+    expect(contestIndexInGlobalOrder).toBeGreaterThan(lastContestIndex);
+    lastContestIndex = contestIndexInGlobalOrder;
+  }
 });
 
 describe('groupContestsByParty', () => {
