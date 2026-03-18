@@ -321,37 +321,23 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
   return result;
 }
 
-export interface UsbDriveMonitor {
-  getDeviceInfo(): BlockDeviceInfo | undefined;
-  refresh(): Promise<void>;
+export interface BlockDeviceChangeWatcher {
   stop(): void;
 }
 
 const MONITOR_DEBOUNCE_MS = 50;
 const MONITOR_RESTART_DELAY_MS = 1_000;
 
-export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
-  let cachedDeviceInfo: BlockDeviceInfo | undefined;
-  let isFirstRefresh = true;
+export function createBlockDeviceChangeWatcher(
+  onDeviceChange: () => void
+): BlockDeviceChangeWatcher {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let monitorProcess: ChildProcess | undefined;
   let stopped = false;
 
-  async function doRefresh(): Promise<void> {
-    const newDeviceInfo = await getUsbDriveDeviceInfo();
-    const stateChanged =
-      isFirstRefresh ||
-      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
-    isFirstRefresh = false;
-    cachedDeviceInfo = newDeviceInfo;
-    if (stateChanged) {
-      onRefresh?.();
-    }
-  }
-
-  function scheduleRefresh(): void {
+  function scheduleChange(): void {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => void doRefresh(), MONITOR_DEBOUNCE_MS);
+    debounceTimer = setTimeout(onDeviceChange, MONITOR_DEBOUNCE_MS);
   }
 
   function startMonitor(): void {
@@ -362,7 +348,7 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
       '--subsystem-match=block',
     ]);
     monitorProcess = proc;
-    proc.stdout.on('data', scheduleRefresh);
+    proc.stdout.on('data', scheduleChange);
     // Handle spawn errors (e.g. binary not found) so they don't go unhandled.
     // The 'exit'/'close' event will fire after 'error' and trigger a restart.
     proc.on('error', (err) => {
@@ -376,8 +362,42 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
     });
   }
 
-  void doRefresh();
   startMonitor();
+
+  return {
+    stop(): void {
+      stopped = true;
+      clearTimeout(debounceTimer);
+      monitorProcess?.kill();
+    },
+  };
+}
+
+export interface UsbDriveMonitor {
+  getDeviceInfo(): BlockDeviceInfo | undefined;
+  refresh(): Promise<void>;
+  stop(): void;
+}
+
+export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
+  let cachedDeviceInfo: BlockDeviceInfo | undefined;
+  let isFirstRefresh = true;
+
+  async function doRefresh(): Promise<void> {
+    const newDeviceInfo = await getUsbDriveDeviceInfo();
+    const stateChanged =
+      isFirstRefresh ||
+      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
+    isFirstRefresh = false;
+    cachedDeviceInfo = newDeviceInfo;
+    if (stateChanged) {
+      onRefresh?.();
+    }
+  }
+
+  const watcher = createBlockDeviceChangeWatcher(() => void doRefresh());
+
+  void doRefresh();
 
   return {
     getDeviceInfo: () => cachedDeviceInfo,
@@ -387,9 +407,7 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
     },
 
     stop(): void {
-      stopped = true;
-      clearTimeout(debounceTimer);
-      monitorProcess?.kill();
+      watcher.stop();
     },
   };
 }

@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { mockChildProcess } from '@votingworks/test-utils';
 import {
   BlockDeviceInfo,
+  createBlockDeviceChangeWatcher,
   createUsbDriveMonitor,
   getAllUsbDrives,
   getUsbDriveDeviceInfo,
@@ -876,5 +877,97 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]?.partitions[0]).toMatchObject({ mountpoint: undefined });
+  });
+});
+
+describe('createBlockDeviceChangeWatcher', () => {
+  test('calls onDeviceChange when udevadm stdout fires (debounced)', async () => {
+    vi.useFakeTimers();
+
+    const proc = mockChildProcess();
+    spawnMock.mockReturnValue(proc);
+
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange);
+
+    proc.stdout.append('UDEV event 1');
+    proc.stdout.append('UDEV event 2');
+    proc.stdout.append('UDEV event 3');
+
+    // No callback yet — debounce timer hasn't fired
+    expect(onDeviceChange).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(50);
+
+    // Exactly one callback (debounced)
+    expect(onDeviceChange).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+    watcher.stop();
+  });
+
+  test('stop() kills the subprocess and prevents restart', async () => {
+    vi.useFakeTimers();
+
+    const proc = mockChildProcess();
+    const killSpy = vi.spyOn(proc, 'kill');
+    spawnMock.mockReturnValue(proc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    watcher.stop();
+
+    expect(killSpy).toHaveBeenCalled();
+
+    proc.emit('exit');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  test('restarts subprocess after exit', async () => {
+    vi.useFakeTimers();
+
+    const firstProc = mockChildProcess();
+    const secondProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc).mockReturnValueOnce(secondProc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    firstProc.emit('exit');
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
+    watcher.stop();
+  });
+
+  test('handles subprocess spawn error without crashing', () => {
+    const proc = mockChildProcess();
+    spawnMock.mockReturnValue(proc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+
+    expect(() => proc.emit('error', new Error('spawn ENOENT'))).not.toThrow();
+
+    watcher.stop();
+  });
+
+  test('stop() prevents scheduled restart from spawning', async () => {
+    vi.useFakeTimers();
+
+    const firstProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    firstProc.emit('exit');
+    watcher.stop();
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 });
