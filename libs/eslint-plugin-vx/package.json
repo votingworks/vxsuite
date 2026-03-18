@@ -27,7 +27,6 @@
     "test:run": "vitest run",
     "test:watch": "vitest"
   },
-  "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/utils": "6.7.0",
@@ -47,10 +46,11 @@
     "@types/node": "20.17.31",
     "@types/react": "18.3.3",
     "@typescript-eslint/rule-tester": "^6.7.0",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "eslint-plugin-vitest": "^0.5.4",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
-    "vitest": "^3.1.1"
-  }
+    "vitest": "^3.1.4"
+  },
+  "packageManager": "pnpm@8.15.5"
 }

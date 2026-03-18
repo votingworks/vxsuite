@@ -40,7 +40,7 @@
     "zod": "3.25.42"
   },
   "devDependencies": {
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/fast-text-encoding": "^1.0.1",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
@@ -48,7 +48,7 @@
     "@types/randombytes": "^2.0.0",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
@@ -57,7 +57,7 @@
     "is-ci-cli": "2.2.0",
     "node-fetch": "^2.6.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.4"
   },
   "packageManager": "pnpm@8.15.5"
 }

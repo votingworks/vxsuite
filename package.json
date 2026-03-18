@@ -50,7 +50,7 @@
     "stylelint": "^15.10.2",
     "stylelint-config-standard": "^34.0.0",
     "typescript": "5.8.3",
-    "vitest": "^2.1.8"
+    "vitest": "^3.1.4"
   },
   "engines": {
     "node": "20.16.0"

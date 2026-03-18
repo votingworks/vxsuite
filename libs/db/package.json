@@ -1,9 +1,9 @@
 {
   "name": "@votingworks/db",
-  "private": true,
-  "license": "GPL-3.0-only",
   "version": "0.0.0",
+  "private": true,
   "description": "Database utils for VxSuite",
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -22,7 +22,6 @@
     "test:run": "vitest run",
     "test:watch": "vitest"
   },
-  "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
@@ -31,14 +30,15 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "7.6.3",
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/node": "20.17.31",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "tmp": "^0.2.1",
-    "vitest": "^3.1.1"
-  }
+    "vitest": "^3.1.4"
+  },
+  "packageManager": "pnpm@8.15.5"
 }

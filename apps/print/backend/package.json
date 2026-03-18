@@ -50,12 +50,12 @@
     "node-fetch": "^2.6.0",
     "react": "18.3.1",
     "styled-components": "^5.3.11",
-    "vitest": "^3.1.1",
+    "vitest": "^3.1.4",
     "zod": "3.25.42"
   },
   "devDependencies": {
     "@testing-library/react": "^15.0.7",
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/express": "4.17.14",
     "@types/fs-extra": "11.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
@@ -63,7 +63,7 @@
     "@types/node-fetch": "^2.6.0",
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
