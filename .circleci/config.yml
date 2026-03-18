@@ -1361,19 +1361,31 @@ jobs:
       - run:
           name: Check Formatting
           command: |
-            cargo fmt --check
+            (cd . && cargo fmt --check)
+            (cd libs/ballot-interpreter && cargo fmt --check)
+            (cd libs/types-rs && cargo fmt --check)
+            (cd libs/pdi-scanner && cargo fmt --check)
       - run:
           name: Build
           command: |
-            cargo build
+            cargo build --manifest-path ./Cargo.toml
+            cargo build --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo build --manifest-path libs/types-rs/Cargo.toml
+            cargo build --manifest-path libs/pdi-scanner/Cargo.toml
       - run:
           name: Lint
           command: |
-            cargo clippy
+            cargo clippy --manifest-path ./Cargo.toml
+            cargo clippy --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo clippy --manifest-path libs/types-rs/Cargo.toml
+            cargo clippy --manifest-path libs/pdi-scanner/Cargo.toml
       - run:
           name: Test
           command: |
-            cargo test
+            cargo test --manifest-path ./Cargo.toml
+            cargo test --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo test --manifest-path libs/types-rs/Cargo.toml
+            cargo test --manifest-path libs/pdi-scanner/Cargo.toml
 
 
   shellcheck:
@@ -1508,13 +1520,13 @@ commands:
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
           paths:
             - /root/.cargo

@@ -2,6 +2,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { relative } from 'node:path';
 import { IO } from '../types';
 import { validateMonorepo, ValidationIssue } from './validation';
+import * as cargo from './validation/cargo';
 import * as circleci from './validation/circleci';
 import * as pkgs from './validation/packages';
 import * as tsconfig from './validation/tsconfig';
@@ -87,6 +88,17 @@ export async function main({ stderr }: IO): Promise<number> {
             issue.configPath
           )}: configuration is outdated. To resolve, run pnpm -w generate-circleci-config and commit the results.\n`
         );
+        break;
+
+      case cargo.ValidationIssueKind.MismatchedCargoDependencyVersion:
+        stderr.write(
+          `Mismatched Cargo dependency versions for "${issue.dependencyName}":\n`
+        );
+        for (const prop of issue.properties) {
+          stderr.write(
+            `  ${prop.cargoTomlPath}: ${prop.section}.${prop.name} = ${prop.version}\n`
+          );
+        }
         break;
 
       default:

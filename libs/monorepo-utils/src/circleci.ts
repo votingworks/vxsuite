@@ -108,7 +108,32 @@ function generateTestJobForNodeJsPackage(
   return lines;
 }
 
+// Rust crates are split across independent Cargo workspaces:
+// - Root workspace (daemons/logging): Cargo.toml
+// - ballot-interpreter: libs/ballot-interpreter/Cargo.toml (types-rs is a path dep)
+// - types-rs: libs/types-rs/Cargo.toml
+// - pdi-scanner: libs/pdi-scanner/Cargo.toml
+const RUST_WORKSPACE_DIRS = [
+  '.',
+  'libs/ballot-interpreter',
+  'libs/types-rs',
+  'libs/pdi-scanner',
+];
+
 function generateTestJobForRustCrates(): string[] {
+  function cargoCommandLines(command: string): string[] {
+    return RUST_WORKSPACE_DIRS.map(
+      (dir) => `          ${command} --manifest-path ${dir}/Cargo.toml`
+    );
+  }
+
+  // cargo fmt doesn't support --manifest-path reliably, so use cd
+  function cargoFmtCommandLines(): string[] {
+    return RUST_WORKSPACE_DIRS.map(
+      (dir) => `          (cd ${dir} && cargo fmt --check)`
+    );
+  }
+
   return [
     `${RUST_CRATES_JOB_ID}:`,
     // Executors are either nodejs or nodejs-browser. Both have Rust deps installed.
@@ -120,19 +145,19 @@ function generateTestJobForRustCrates(): string[] {
     `    - run:`,
     `        name: Check Formatting`,
     `        command: |`,
-    `          cargo fmt --check`,
+    ...cargoFmtCommandLines(),
     `    - run:`,
     `        name: Build`,
     `        command: |`,
-    `          cargo build`,
+    ...cargoCommandLines('cargo build'),
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
-    `          cargo clippy`,
+    ...cargoCommandLines('cargo clippy'),
     `    - run:`,
     `        name: Test`,
     `        command: |`,
-    `          cargo test`,
+    ...cargoCommandLines('cargo test'),
   ];
 }
 
@@ -235,16 +260,14 @@ function generateCircleCiFilteredAppConfigForPackage(
     '      - restore_cache:',
     '          name: Restore Cargo Cache',
     '          key:',
-    '            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum',
-    '            "Cargo.lock" }}',
+    '            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}',
     '      - run:',
     '          name: Install Rust Dependencies',
     '          command: pnpm --recursive install:rust-addon',
     '      - save_cache:',
     '          name: Save Cargo Cache',
     '          key:',
-    '            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum',
-    '            "Cargo.lock" }}',
+    '            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}',
     '          paths:',
     '            - /root/.cargo',
     '',
@@ -408,14 +431,14 @@ commands:
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
           paths:
             - /root/.cargo
 `.trim();

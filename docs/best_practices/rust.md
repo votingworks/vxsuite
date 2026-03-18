@@ -33,6 +33,48 @@ the [IDE Setup](#ide-setup) section for more information.
 We use [`cargo`](https://doc.rust-lang.org/cargo/) to manage our Rust
 dependencies and build our projects.
 
+### Workspace Layout
+
+The Rust crates are split across independent Cargo workspaces so that
+rust-analyzer only loads the crates relevant to what you're working on:
+
+| Workspace              | Directory                  | Crates                                                                                                                    |
+| ---------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Root (daemons/logging) | `/`                        | `vx-logging`, `logging-utils`, `daemon-utils`, `controllerd`, `fai100-controllerd`, `patinputd`, `barcode-scanner-daemon` |
+| ballot-interpreter     | `libs/ballot-interpreter/` | `ballot-interpreter` (+ `types-rs` as a path dep)                                                                         |
+| pdi-scanner            | `libs/pdi-scanner/`        | `pdi-scanner`                                                                                                             |
+| types-rs               | `libs/types-rs/`           | `types-rs`                                                                                                                |
+
+**Run cargo commands from the workspace directory for the crate you're working
+on**, not from the repo root. Running `cargo test` from the repo root only tests
+the daemon/logging crates.
+
+```sh
+# If working on ballot-interpreter:
+cd libs/ballot-interpreter
+cargo test
+
+# If working on pdi-scanner:
+cd libs/pdi-scanner
+cargo test
+
+# If working on daemon crates:
+cargo test  # from repo root
+```
+
+Each sub-workspace has its own `Cargo.lock` and `target/` directory.
+`cargo clean` from the repo root does not clean sub-workspaces.
+
+### Adding Dependencies
+
+For **daemon/logging crates** (root workspace): add to
+`[workspace.dependencies]` in the root `Cargo.toml` and reference with
+`workspace = true` in the crate's `Cargo.toml`.
+
+For **ballot-interpreter, pdi-scanner, or types-rs**: add dependencies with
+explicit versions directly in that crate's `Cargo.toml` (these workspaces don't
+share a `[workspace.dependencies]` section).
+
 ### IDE Setup
 
 We recommend using [Visual Studio Code](https://code.visualstudio.com/) with the
@@ -40,9 +82,13 @@ We recommend using [Visual Studio Code](https://code.visualstudio.com/) with the
 This should provide you with most of the features you need, including code
 completion, formatting, and linting.
 
+rust-analyzer auto-discovers the workspace from the file you open. If you open a
+file in `libs/ballot-interpreter/`, it loads only that workspace. If you open a
+file in `libs/logging/`, it loads the root (daemon/logging) workspace.
+
 ### Formatting
 
-We use `cargo fmt` to format our code. You can run it manually like this:
+We use `cargo fmt` to format our code. Run it from the workspace directory:
 
 ```sh
 cargo fmt
@@ -53,7 +99,7 @@ when you save a file.
 
 ### Linting
 
-We use `clippy` to lint our code. You can run it manually like this:
+We use `clippy` to lint our code. Run it from the workspace directory:
 
 ```sh
 cargo clippy
@@ -61,7 +107,7 @@ cargo clippy
 
 ### Testing
 
-We use `cargo test` to run our tests. You can run it manually like this:
+We use `cargo test` to run our tests. Run it from the workspace directory:
 
 ```sh
 cargo test
@@ -75,7 +121,7 @@ Install the `bacon` tool:
 cargo install bacon
 ```
 
-Then run it in the root of the project:
+Then run it from the workspace directory for the crate you're working on:
 
 ```sh
 bacon        # watches and runs `cargo check`

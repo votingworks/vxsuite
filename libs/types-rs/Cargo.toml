@@ -1,19 +1,35 @@
+[workspace]
+resolver = "2"
+
+[workspace.package]
+license = "GPL-3.0-only"
+
+[workspace.lints.rust]
+dead_code = "deny"
+unused_assignments = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+
 [package]
 name = "types-rs"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bitstream-io = { workspace = true }
-hex = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-static_assertions = { workspace = true }
-thiserror = { workspace = true }
-rayon = { workspace = true }
+bitstream-io = "4.0.0"
+hex = "0.4.3"
+serde = { version = "1.0.150", features = ["derive"] }
+serde_json = "1.0.89"
+static_assertions = "1.1.0"
+thiserror = "1.0.50"
+rayon = "1.5.3"
 
 [dev-dependencies]
-proptest = { workspace = true }
+proptest = "1.0.0"
 
 [lints]
 workspace = true

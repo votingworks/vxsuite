@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
+import * as cargo from './cargo';
 import * as circleci from './circleci';
 import * as pkgs from './packages';
 import * as tsconfig from './tsconfig';
@@ -7,7 +8,8 @@ import * as tsconfig from './tsconfig';
 export type ValidationIssue =
   | pkgs.ValidationIssue
   | tsconfig.ValidationIssue
-  | circleci.ValidationIssue;
+  | circleci.ValidationIssue
+  | cargo.ValidationIssue;
 
 export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const root = join(__dirname, '../../../..');
@@ -35,4 +37,5 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   });
   yield* tsconfig.checkConfig(workspacePackages);
   yield* circleci.checkConfig(workspacePackages);
+  yield* cargo.checkConfig(root);
 }
