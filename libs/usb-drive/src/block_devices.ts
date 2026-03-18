@@ -117,64 +117,6 @@ function isPartitionOfDisk(
   return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
 }
 
-/**
- * Returns the device info for the USB drive, if it's a removable data drive.
- * Returns info for both partitioned drives (type 'part') and unpartitioned
- * drives (type 'disk'). Callers should use the type to determine whether the
- * drive needs to be formatted before use.
- *
- * NOTE: Only a single USB drive is supported. When multiple USB drives are
- * present, the first one enumerated is returned.
- */
-export async function getUsbDriveDeviceInfo(): Promise<
-  BlockDeviceInfo | undefined
-> {
-  const [exportDbOutput, mountsContent] = await Promise.all([
-    exec('udevadm', ['info', '--export-db'])
-      .then(({ stdout }) => stdout)
-      .catch(() => ''),
-    fs.readFile('/proc/mounts', 'utf-8').catch(() => ''),
-  ]);
-
-  const usbBlockDevices = parseExportDb(exportDbOutput);
-  if (usbBlockDevices.length === 0) {
-    debug('No USB block devices found in udev database');
-    return undefined;
-  }
-
-  // Prefer partitions over their parent disks: skip disk entries that have
-  // at least one partition in the udev database.
-  const candidates = usbBlockDevices.filter(
-    (d) =>
-      d.devtype === 'partition' ||
-      !usbBlockDevices.some(
-        (p) =>
-          p.devtype === 'partition' && isPartitionOfDisk(p.devname, d.devname)
-      )
-  );
-
-  const mountpoints = parseMountpoints(mountsContent);
-
-  const deviceInfos: BlockDeviceInfo[] = candidates.map((d) => ({
-    name: basename(d.devname),
-    path: d.devname,
-    type: d.devtype === 'partition' ? 'part' : 'disk',
-    mountpoint: mountpoints.get(d.devname),
-    fstype: d.fstype,
-    fsver: d.fsver,
-    label: d.label,
-  }));
-
-  const dataUsbDrive = deviceInfos.find(isDataUsbDrive);
-  if (!dataUsbDrive) {
-    debug('USB block device(s) found, but none are usable data drives');
-    return undefined;
-  }
-
-  debug(`Detected USB drive at ${dataUsbDrive.path}`);
-  return dataUsbDrive;
-}
-
 export interface UsbPartitionDeviceInfo {
   devPath: string;
   mountpoint?: string;
@@ -369,45 +311,6 @@ export function createBlockDeviceChangeWatcher(
       stopped = true;
       clearTimeout(debounceTimer);
       monitorProcess?.kill();
-    },
-  };
-}
-
-export interface UsbDriveMonitor {
-  getDeviceInfo(): BlockDeviceInfo | undefined;
-  refresh(): Promise<void>;
-  stop(): void;
-}
-
-export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
-  let cachedDeviceInfo: BlockDeviceInfo | undefined;
-  let isFirstRefresh = true;
-
-  async function doRefresh(): Promise<void> {
-    const newDeviceInfo = await getUsbDriveDeviceInfo();
-    const stateChanged =
-      isFirstRefresh ||
-      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
-    isFirstRefresh = false;
-    cachedDeviceInfo = newDeviceInfo;
-    if (stateChanged) {
-      onRefresh?.();
-    }
-  }
-
-  const watcher = createBlockDeviceChangeWatcher(() => void doRefresh());
-
-  void doRefresh();
-
-  return {
-    getDeviceInfo: () => cachedDeviceInfo,
-
-    async refresh(): Promise<void> {
-      await doRefresh();
-    },
-
-    stop(): void {
-      watcher.stop();
     },
   };
 }
