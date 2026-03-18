@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
-import { assert, deferred, err, find, mapObject } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  deferred,
+  err,
+  find,
+  mapObject,
+} from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   systemSettings,
@@ -455,6 +462,28 @@ test('setting precinct', async () => {
     {
       disposition: 'success',
       message: 'User set the precinct for the machine to North Lincoln',
+    }
+  );
+});
+
+test('set polling place', async () => {
+  expect((await apiClient.getElectionState()).pollingPlaceId).toBeUndefined();
+
+  const electionDef = electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDef;
+  await setUpUsbAndConfigureElection(electionDef);
+
+  expect((await apiClient.getElectionState()).pollingPlaceId).toBeUndefined();
+
+  const place = assertDefined(election.pollingPlaces?.[0]);
+  await apiClient.setPollingPlaceId({ id: place.id });
+  await expectElectionState({ pollingPlaceId: place.id });
+
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.PrecinctConfigurationChanged,
+    {
+      disposition: 'success',
+      message: `User set the polling place for the machine to ${place.name}`,
     }
   );
 });

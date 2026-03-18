@@ -33,6 +33,7 @@ import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import { expect, test, vi } from 'vitest';
 
+import { assertDefined } from '@votingworks/basics';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -279,6 +280,28 @@ test('get/set precinct selection', () => {
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   store.setPrecinctSelection(precinctSelection);
   expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
+});
+
+test('get/set polling place', () => {
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const { election, electionData } = fixtures.readElectionDefinition();
+  const pollingPlace = assertDefined(election.pollingPlaces)[0];
+
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  expect(store.getPollingPlaceId()).toBeUndefined();
+
+  // Should throw if machine is unconfigured:
+  expect(() => store.setPollingPlaceId(pollingPlace.id)).toThrow();
+
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  expect(store.getPollingPlaceId()).toBeUndefined();
+
+  store.setPollingPlaceId(pollingPlace.id);
+  expect(store.getPollingPlaceId()).toEqual(pollingPlace.id);
 });
 
 test('get/set polls state', () => {

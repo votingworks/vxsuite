@@ -363,6 +363,39 @@ test('setting precinct', async () => {
   );
 });
 
+test('set polling place', async () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+
+  expect(await apiClient.getPollingPlaceId()).toBeNull();
+
+  await configureMachine({
+    apiClient,
+    auth,
+    ballots,
+    electionDefinition,
+    mockUsbDrive,
+  });
+
+  expect(await apiClient.getPollingPlaceId()).toBeNull();
+
+  const place = assertDefined(electionDefinition.election.pollingPlaces?.[0]);
+  await apiClient.setPollingPlaceId({ id: place.id });
+  expect(await apiClient.getPollingPlaceId()).toEqual(place.id);
+
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.PrecinctConfigurationChanged,
+    {
+      disposition: 'success',
+      message: `User set the polling place for the machine to ${place.name}`,
+    }
+  );
+});
+
 test('mode toggling', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
