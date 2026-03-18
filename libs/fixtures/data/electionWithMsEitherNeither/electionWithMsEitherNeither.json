@@ -556,11 +556,139 @@
       "electionTitle": "Example Primary Election",
       "partyFullName": { "0": "Mammal Party", "1": "Fish Party" },
       "partyName": { "0": "Mammal", "1": "Fish" },
-      "precinctName": {
-        "precinct-1": "Precinct 1",
-        "precinct-2": "Precinct 2"
-      },
       "stateName": "State of Sample"
     }
-  }
+  },
+  "pollingPlaces": [
+    {
+      "id": "6522-polling-place",
+      "name": "District 5",
+      "precincts": {
+        "6522": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6524-polling-place",
+      "name": "Chester",
+      "precincts": {
+        "6524": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6525-polling-place",
+      "name": "East Weir",
+      "precincts": {
+        "6525": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6526-polling-place",
+      "name": "French Camp",
+      "precincts": {
+        "6526": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6527-polling-place",
+      "name": "Fentress",
+      "precincts": {
+        "6527": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6528-polling-place",
+      "name": "Hebron",
+      "precincts": {
+        "6528": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6529-polling-place",
+      "name": "Kenego",
+      "precincts": {
+        "6529": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6532-polling-place",
+      "name": "Panhandle",
+      "precincts": {
+        "6532": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6534-polling-place",
+      "name": "Reform",
+      "precincts": {
+        "6534": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6536-polling-place",
+      "name": "Sherwood",
+      "precincts": {
+        "6536": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6537-polling-place",
+      "name": "Southwest Ackerman",
+      "precincts": {
+        "6537": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6538-polling-place",
+      "name": "Bywy",
+      "precincts": {
+        "6538": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "6539-polling-place",
+      "name": "West Weir",
+      "precincts": {
+        "6539": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ]
 }

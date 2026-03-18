@@ -548,5 +548,47 @@
   "ballotLayout": {
     "paperSize": "letter",
     "metadataEncoding": "qr-code"
-  }
+  },
+  "pollingPlaces": [
+    {
+      "id": "23-polling-place",
+      "name": "North Lincoln",
+      "precincts": {
+        "23": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "22-polling-place",
+      "name": "South Lincoln",
+      "precincts": {
+        "22": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "21-polling-place",
+      "name": "East Lincoln",
+      "precincts": {
+        "21": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "20-polling-place",
+      "name": "West Lincoln",
+      "precincts": {
+        "20": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ]
 }

@@ -99,6 +99,12 @@
         "0": "Mammal",
         "1": "Fish"
       },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "Precinct 1",
+        "precinct-c1-w1-2-polling-place": "Precinct 2",
+        "precinct-c1-w2-polling-place": "Precinct 3",
+        "precinct-c2-polling-place": "Precinct 4"
+      },
       "precinctName": {
         "precinct-c1-w1-1": "Precinct 1",
         "precinct-c1-w1-2": "Precinct 2",
@@ -195,6 +201,12 @@
       "partyName": {
         "0": "哺乳动物",
         "1": "鱼"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "第1选区",
+        "precinct-c1-w1-2-polling-place": "第2选区",
+        "precinct-c1-w2-polling-place": "第三选区",
+        "precinct-c2-polling-place": "第四区"
       },
       "precinctName": {
         "precinct-c1-w1-1": "第1选区",
@@ -293,6 +305,12 @@
         "0": "哺乳動物",
         "1": "魚"
       },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "第1選區",
+        "precinct-c1-w1-2-polling-place": "第2選區",
+        "precinct-c1-w2-polling-place": "第三選區",
+        "precinct-c2-polling-place": "第四區"
+      },
       "precinctName": {
         "precinct-c1-w1-1": "第1選區",
         "precinct-c1-w1-2": "第2選區",
@@ -389,6 +407,12 @@
       "partyName": {
         "0": "Mamífero",
         "1": "Pez"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "Distrito Electoral 1",
+        "precinct-c1-w1-2-polling-place": "Distrito Electoral 2",
+        "precinct-c1-w2-polling-place": "Precinto 3",
+        "precinct-c2-polling-place": "Precinto 4"
       },
       "precinctName": {
         "precinct-c1-w1-1": "Distrito Electoral 1",
@@ -5163,6 +5187,48 @@
       "name": "Fish",
       "fullName": "Fish Party",
       "abbrev": "F"
+    }
+  ],
+  "pollingPlaces": [
+    {
+      "id": "precinct-c1-w1-1-polling-place",
+      "name": "Precinct 1",
+      "precincts": {
+        "precinct-c1-w1-1": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-c1-w1-2-polling-place",
+      "name": "Precinct 2",
+      "precincts": {
+        "precinct-c1-w1-2": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-c1-w2-polling-place",
+      "name": "Precinct 3",
+      "precincts": {
+        "precinct-c1-w2": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-c2-polling-place",
+      "name": "Precinct 4",
+      "precincts": {
+        "precinct-c2": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
     }
   ],
   "precincts": [

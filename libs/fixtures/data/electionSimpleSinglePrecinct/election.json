@@ -105,5 +105,17 @@
   "additionalHashInput": {
     "precinctSplitSeals": {},
     "precinctSplitSignatureImages": {}
-  }
+  },
+  "pollingPlaces": [
+    {
+      "id": "pndwzzge1ysv-polling-place",
+      "name": "Town Hall",
+      "precincts": {
+        "pndwzzge1ysv": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ]
 }

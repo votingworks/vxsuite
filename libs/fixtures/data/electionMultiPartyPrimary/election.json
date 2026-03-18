@@ -556,6 +556,13 @@
         "5": "Labor",
         "6": "Independent"
       },
+      "pollingPlaceName": {
+        "precinct-1-polling-place": "Precinct 1",
+        "precinct-2-polling-place": "Precinct 2",
+        "precinct-3-polling-place": "Precinct 3",
+        "precinct-4-polling-place": "Precinct 4",
+        "precinct-5-polling-place": "Precinct 5"
+      },
       "precinctName": {
         "precinct-1": "Precinct 1",
         "precinct-2": "Precinct 2",
@@ -565,5 +572,57 @@
       },
       "stateName": "State of Sample"
     }
-  }
+  },
+  "pollingPlaces": [
+    {
+      "id": "precinct-1-polling-place",
+      "name": "Precinct 1",
+      "precincts": {
+        "precinct-1": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-2-polling-place",
+      "name": "Precinct 2",
+      "precincts": {
+        "precinct-2": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-3-polling-place",
+      "name": "Precinct 3",
+      "precincts": {
+        "precinct-3": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-4-polling-place",
+      "name": "Precinct 4",
+      "precincts": {
+        "precinct-4": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-5-polling-place",
+      "name": "Precinct 5",
+      "precincts": {
+        "precinct-5": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ]
 }

@@ -78,6 +78,6 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(electionStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(electionStrings[LanguageCode.ENGLISH])).toHaveLength(15);
+    expect(Object.keys(electionStrings[LanguageCode.ENGLISH])).toHaveLength(16);
   });
 });
