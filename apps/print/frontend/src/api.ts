@@ -110,6 +110,7 @@ export const configureElectionPackageFromUsb = {
   },
 } as const;
 
+// [TODO] Remove after migration to polling places.
 export const getPrecinctSelection = {
   queryKey(): QueryKey {
     return ['getPrecinctSelection'];
@@ -120,6 +121,7 @@ export const getPrecinctSelection = {
   },
 } as const;
 
+// [TODO] Remove after migration to polling places.
 export const setPrecinctSelection = {
   useMutation() {
     const apiClient = useApiClient();
@@ -127,6 +129,30 @@ export const setPrecinctSelection = {
     return useMutation(apiClient.setPrecinctSelection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+      },
+    });
+  },
+} as const;
+
+/* istanbul ignore next - WIP - @preserve */
+export const getPollingPlaceId = {
+  queryKey(): QueryKey {
+    return ['getPollingPlaceId'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPollingPlaceId());
+  },
+} as const;
+
+/* istanbul ignore next - WIP - @preserve */
+export const setPollingPlaceId = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollingPlaceId, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPollingPlaceId.queryKey());
       },
     });
   },

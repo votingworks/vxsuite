@@ -226,6 +226,7 @@ export const unconfigureElection = {
   },
 } as const;
 
+// [TODO] Remove after migration to polling places.
 export const setPrecinctSelection = {
   useMutation() {
     const apiClient = useApiClient();
@@ -236,6 +237,24 @@ export const setPrecinctSelection = {
 
         // Changing the precinct selection after polls open resets polls to closed
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
+      },
+    });
+  },
+} as const;
+
+/* istanbul ignore next - WIP - @preserve */
+export const setPollingPlaceId = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollingPlaceId, {
+      async onSuccess() {
+        await Promise.all([
+          queryClient.invalidateQueries(getConfig.queryKey()),
+
+          // Changing the polling place after polls open resets polls to closed
+          queryClient.invalidateQueries(getPollsInfo.queryKey()),
+        ]);
       },
     });
   },
