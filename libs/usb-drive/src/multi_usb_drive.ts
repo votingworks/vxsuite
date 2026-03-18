@@ -255,8 +255,8 @@ export function detectMultiUsbDrive(
     diskDevPath: string,
     partitionDevPath: string
   ): Promise<void> {
-    await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
     try {
+      await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
       await mountPartition(partitionDevPath);
       // Poll for mount point to register
       const start = Date.now();
