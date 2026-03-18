@@ -204,8 +204,11 @@ export function detectMultiUsbDrive(
     }
 
     if (dAction === 'formatting') {
-      // All partitions appear as unmounted during formatting
-      return { type: 'unmounted' };
+      // Report as ejected during formatting for backward compatibility — the
+      // old single-drive UsbDrive reported 'ejected' while formatting, and
+      // the adapter maps 'unmounted' to 'no_drive' which would confuse
+      // consumers expecting 'ejected'.
+      return { type: 'ejected' };
     }
 
     if (partitionAction.getTask(partition.devPath) === 'mounting') {

@@ -659,7 +659,7 @@ describe('formatDrive', () => {
     multiUsbDrive.stop();
   });
 
-  test('shows partitions as unmounted during format', async () => {
+  test('shows partitions as ejected during format', async () => {
     mockDrives = [makeDisk()];
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive(logger);
@@ -675,7 +675,7 @@ describe('formatDrive', () => {
     const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
 
     expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'unmounted',
+      type: 'ejected',
     });
 
     formatOperation.resolve({ stdout: '', stderr: '' });
