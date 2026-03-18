@@ -126,6 +126,11 @@ class KeyedTaskRunner<Key, Task> {
     const d = deferred<void>();
     this.deferreds.set(key, d);
 
+    // Defer execution so the task label is guaranteed to be set before any
+    // action code runs. Without this, a direct `async` call would execute
+    // synchronously up to its first `await`, which could complete the action
+    // and clear the task before `perform` returns — making the task
+    // unobservable to the caller.
     process.nextTick(async () => {
       let error: unknown;
       try {
