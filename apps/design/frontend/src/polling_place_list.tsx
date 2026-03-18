@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { throwIllegalValue } from '@votingworks/basics';
 import { Callout } from '@votingworks/ui';
-import { PollingPlace } from '@votingworks/types';
+import { PollingPlace, pollingPlaceGroups } from '@votingworks/types';
 
 import { Column } from './layout';
 import { EntityList } from './entity_list';
@@ -22,33 +21,7 @@ export function PollingPlaceList(
   props: PollingPlaceListProps
 ): React.ReactNode {
   const { onSelect, places, selectedId } = props;
-
-  const groups = React.useMemo(() => {
-    const absentee: PollingPlace[] = [];
-    const earlyVoting: PollingPlace[] = [];
-    const electionDay: PollingPlace[] = [];
-
-    for (const place of places) {
-      switch (place.type) {
-        case 'absentee':
-          absentee.push(place);
-          break;
-
-        case 'early_voting':
-          earlyVoting.push(place);
-          break;
-
-        case 'election_day':
-          electionDay.push(place);
-          break;
-
-        default:
-          throwIllegalValue(place.type);
-      }
-    }
-
-    return { absentee, earlyVoting, electionDay };
-  }, [places]);
+  const groups = React.useMemo(() => pollingPlaceGroups(places), [places]);
 
   return (
     <EntityList.Box>
@@ -68,13 +41,13 @@ export function PollingPlaceList(
       <Sublist
         title="Early Voting"
         onSelect={onSelect}
-        places={groups.earlyVoting}
+        places={groups.early_voting}
         selectedId={selectedId}
       />
       <Sublist
         title="Election Day"
         onSelect={onSelect}
-        places={groups.electionDay}
+        places={groups.election_day}
         selectedId={selectedId}
       />
     </EntityList.Box>

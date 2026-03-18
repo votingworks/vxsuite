@@ -76,6 +76,39 @@ export function pollingPlacesGenerateFromPrecincts(
   );
 }
 
+export type PollingPlaceGroups = Record<PollingPlaceType, PollingPlace[]>;
+
+export function pollingPlaceGroups(
+  places: readonly PollingPlace[]
+): PollingPlaceGroups {
+  const groups: PollingPlaceGroups = {
+    absentee: [],
+    early_voting: [],
+    election_day: [],
+  };
+
+  for (const place of places) {
+    switch (place.type) {
+      case 'absentee':
+        groups.absentee.push(place);
+        break;
+
+      case 'early_voting':
+        groups.early_voting.push(place);
+        break;
+
+      case 'election_day':
+        groups.election_day.push(place);
+        break;
+
+      default:
+        throwIllegalValue(place.type);
+    }
+  }
+
+  return groups;
+}
+
 /**
  * All precincts and/or splits in the given election covered by the given
  * polling place.
