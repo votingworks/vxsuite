@@ -101,6 +101,7 @@ export function pollingPlaceGroups(
         groups.election_day.push(place);
         break;
 
+      /* istanbul ignore next - @preserve */
       default:
         throwIllegalValue(place.type);
     }
