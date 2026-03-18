@@ -189,7 +189,10 @@ async function mount(
 
 type Action = 'mounting' | 'ejecting' | 'formatting';
 
-export function detectUsbDrive(logger: Logger, onRefresh?: () => void): UsbDrive {
+export function detectUsbDrive(
+  logger: Logger,
+  onRefresh?: () => void
+): UsbDrive {
   // Mock USB drives for development and integration tests
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
     return new MockFileUsbDrive();
@@ -307,7 +310,7 @@ export function detectUsbDrive(logger: Logger, onRefresh?: () => void): UsbDrive
             await unmountUsbDrive(deviceInfo.mountpoint);
           }
 
-          const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
+          const label = generateVxUsbLabel(deviceInfo.label);
           debug(
             `formatting USB drive at ${deviceInfo.path} with label ${label}`
           );

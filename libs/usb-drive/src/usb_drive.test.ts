@@ -73,7 +73,6 @@ function mockBlockDeviceInfo(
   return {
     name: 'sdb1',
     path: '/dev/sdb1',
-    mountpoint: '/media/usb-drive-sdb1',
     fstype: 'vfat',
     fsver: 'FAT32',
     label: 'VxUSB-00000',
@@ -134,7 +133,7 @@ describe('status', () => {
     const usbDrive = detectUsbDrive(logger);
 
     // device is initially unmounted
-    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({});
 
     // mock mount script
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
@@ -203,11 +202,9 @@ describe('status', () => {
     mockMonitorDeviceInfo = mockBlockDeviceInfo({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
       type: 'disk',
+      fstype: undefined,
+      fsver: undefined,
     });
 
     await expect(usbDrive.status()).resolves.toEqual({
@@ -220,7 +217,7 @@ describe('status', () => {
     const logger = mockLogger({ fn: vi.fn });
     const usbDrive = detectUsbDrive(logger);
 
-    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({});
 
     // mock mount script failing
     execMock.mockRejectedValueOnce(new Error('Failed'));
@@ -247,7 +244,7 @@ describe('status', () => {
     const usbDrive = detectUsbDrive(logger);
 
     // mock an unmounted drive that is not found after mounting
-    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({});
 
     // refresh never updates to a mountpoint
     mockMonitorRefresh.mockResolvedValue(undefined);
@@ -294,7 +291,7 @@ describe('status', () => {
     const ejectPromise = usbDrive.eject();
 
     // Update monitor to show drive unmounted (didEject is still false)
-    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({});
 
     // status() reaches the auto-mount branch but getActionLock('mounting')
     // returns false because ejecting is in progress
@@ -313,7 +310,7 @@ describe('status', () => {
     const logger = mockLogger({ fn: vi.fn });
     const usbDrive = detectUsbDrive(logger);
 
-    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({});
 
     // refresh never updates mountpoint (mount times out)
     mockMonitorRefresh.mockResolvedValue(undefined);
@@ -358,7 +355,7 @@ describe('eject', () => {
     const logger = mockLogger({ fn: vi.fn });
     const usbDrive = detectUsbDrive(logger);
 
-    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({});
 
     await expect(usbDrive.eject()).resolves.toBeUndefined();
   });
@@ -376,7 +373,7 @@ describe('eject', () => {
       mountpoint: '/media/usb-drive-sdb1',
     });
     mockMonitorRefresh.mockImplementationOnce(() => {
-      mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+      mockMonitorDeviceInfo = mockBlockDeviceInfo({});
     });
 
     // mock unmount script
@@ -486,7 +483,7 @@ describe('format', () => {
       mountpoint: '/media/usb-drive-sdb1',
     });
     mockMonitorRefresh.mockImplementationOnce(() => {
-      mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+      mockMonitorDeviceInfo = mockBlockDeviceInfo({});
     });
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // mock unmount script
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // mock format script
@@ -528,11 +525,10 @@ describe('format', () => {
 
     mockMonitorDeviceInfo = mockBlockDeviceInfo({
       fstype: 'exfat',
-      mountpoint: null,
       label: 'DATA',
     });
     mockMonitorRefresh.mockImplementationOnce(() => {
-      mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+      mockMonitorDeviceInfo = mockBlockDeviceInfo({});
     });
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // mock format script
 
@@ -556,17 +552,12 @@ describe('format', () => {
     mockMonitorDeviceInfo = mockBlockDeviceInfo({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
       type: 'disk',
     });
     mockMonitorRefresh.mockImplementationOnce(() => {
       mockMonitorDeviceInfo = mockBlockDeviceInfo({
         name: 'sdb',
         path: '/dev/sdb',
-        mountpoint: null,
         type: 'disk',
       });
     });
@@ -595,8 +586,6 @@ describe('format', () => {
     // mock drive that is unknown format
     mockMonitorDeviceInfo = mockBlockDeviceInfo({
       fstype: 'unknown',
-      mountpoint: null,
-      label: null,
     });
     execMock.mockRejectedValueOnce(new Error('Command: failed')); // mock format script
 
@@ -627,7 +616,7 @@ describe('format', () => {
       mountpoint: '/media/usb-drive-sdb1',
     });
     mockMonitorRefresh.mockImplementationOnce(() => {
-      mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+      mockMonitorDeviceInfo = mockBlockDeviceInfo({});
     });
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // mock unmount script
     const { promise: formatScriptPromise, resolve: formatScriptResolve } =
@@ -664,11 +653,10 @@ describe('format', () => {
     // mock drive that is bad format, then unmounted
     mockMonitorDeviceInfo = mockBlockDeviceInfo({
       fstype: 'exfat',
-      mountpoint: null,
       label: 'DATA',
     });
     mockMonitorRefresh.mockImplementationOnce(() => {
-      mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+      mockMonitorDeviceInfo = mockBlockDeviceInfo({});
     });
     const { promise: formatScriptPromise, resolve: formatScriptResolve } =
       deferred<{
