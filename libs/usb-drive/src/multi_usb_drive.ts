@@ -338,8 +338,10 @@ export function detectMultiUsbDrive(
     }
   }
 
-  const watcher = createBlockDeviceChangeWatcher(() => void doRefresh());
-  void doRefresh();
+  const watcher = createBlockDeviceChangeWatcher(() => {
+    void doRefresh().catch((e) => debug(`background refresh failed: ${e}`));
+  });
+  void doRefresh().catch((e) => debug(`initial refresh failed: ${e}`));
 
   return {
     getDrives(): UsbDriveInfo[] {
