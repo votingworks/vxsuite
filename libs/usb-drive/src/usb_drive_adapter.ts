@@ -61,9 +61,17 @@ export function createUsbDriveAdapter(
         });
       }
 
-      // mount.type === 'ejected', 'unmounted', or 'unmounting'
-      if (mount.type === 'ejected' || mount.type === 'unmounting') {
-        debug('adapter: partition is ejected/unmounting, returning ejected');
+      if (mount.type === 'unmounting') {
+        debug('adapter: partition is unmounting, returning mounted');
+        return Promise.resolve({
+          status: 'mounted',
+          mountPoint: mount.mountPoint,
+        });
+      }
+
+      // mount.type === 'ejected' or 'unmounted'
+      if (mount.type === 'ejected') {
+        debug('adapter: partition is ejected, returning ejected');
         return Promise.resolve({ status: 'ejected' });
       }
 

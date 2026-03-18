@@ -150,6 +150,32 @@ describe('createUsbDriveAdapter', () => {
 
       assertComplete();
     });
+
+    test('returns mounted when partition is unmounting', async () => {
+      const { multiUsbDrive } = createMockMultiUsbDrive();
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      multiUsbDrive.getDrives.reset();
+
+      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
+        makeDriveInfo({
+          partitions: [
+            {
+              devPath: '/dev/sdb1',
+              fstype: 'vfat',
+              fsver: 'FAT32',
+              mount: {
+                type: 'unmounting',
+                mountPoint: '/media/vx/usb-drive-sdb1',
+              },
+            },
+          ],
+        }),
+      ]);
+      expect(await adapter.status()).toEqual({
+        status: 'mounted',
+        mountPoint: '/media/vx/usb-drive-sdb1',
+      });
+    });
   });
 
   describe('eject', () => {
