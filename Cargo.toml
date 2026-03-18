@@ -32,7 +32,7 @@ ctrlc = "3.4.2"
 divan = "0.1.15"
 flate2 = "1.1.1"
 hex = "0.4.3"
-image = "0.25.0"
+image = { version = "0.25.0", default-features = false, features = ["png", "jpeg", "rayon"] }
 itertools = "0.12.1"
 libc = "0.2.153"
 log = "0.4.17"
