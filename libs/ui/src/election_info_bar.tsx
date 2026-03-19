@@ -12,9 +12,7 @@ import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';
 import { electionStrings, PrecinctSelectionName } from './ui_strings';
 
-export const InfoBar = styled.div<{ inverse?: boolean }>`
-  background: ${(p) => p.inverse && p.theme.colors.inverseBackground};
-  color: ${(p) => p.inverse && p.theme.colors.onInverse};
+export const InfoBar = styled.div`
   align-content: flex-end;
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
@@ -150,7 +148,6 @@ export interface ElectionInfoBarProps {
   codeVersion?: string;
   machineId?: string;
   precinctSelection?: PrecinctSelection;
-  inverse?: boolean;
 }
 
 export function ElectionInfoBar({
@@ -160,15 +157,13 @@ export function ElectionInfoBar({
   codeVersion,
   machineId,
   precinctSelection,
-  inverse,
 }: ElectionInfoBarProps): JSX.Element {
   return (
-    <InfoBar data-testid="electionInfoBar" inverse={inverse}>
+    <InfoBar data-testid="electionInfoBar">
       {electionDefinition && (
         <ElectionInfo
           electionDefinition={electionDefinition}
           precinctSelection={precinctSelection}
-          inverse={inverse}
         />
       )}
       <SystemInfo
@@ -198,7 +193,7 @@ export function VerticalElectionInfoBar({
   machineId,
   precinctSelection,
   inverse,
-}: ElectionInfoBarProps): JSX.Element {
+}: ElectionInfoBarProps & { inverse?: boolean }): JSX.Element {
   if (!electionDefinition) {
     return (
       <VerticalBar inverse={inverse}>
