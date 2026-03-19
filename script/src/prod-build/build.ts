@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { WORKSPACE_ROOT } from './globals';
 import { execSync } from './utils/exec_sync';
@@ -10,7 +11,7 @@ export function inBuildDir(path: string, buildRoot: string): string {
 }
 
 function npmPackageArchiveFilename(pkgRoot: string): string {
-  const pkg = require(join(pkgRoot, 'package'));
+  const pkg = JSON.parse(readFileSync(join(pkgRoot, 'package.json'), 'utf-8'));
 
   return `${pkg.name
     .replace(/^@/, '')
