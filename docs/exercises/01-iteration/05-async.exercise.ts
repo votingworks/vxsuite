@@ -9,8 +9,8 @@
 
 import { lines } from '@votingworks/basics';
 import { readFile } from 'node:fs/promises';
-import { TODO } from '../src/todo';
-import { run } from '../src/example';
+import { TODO } from '../src/todo.js';
+import { run } from '../src/example.js';
 
 async function countNonBlankLines(path: string): Promise<number> {
   TODO();

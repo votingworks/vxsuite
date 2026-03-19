@@ -9,15 +9,15 @@ import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
-import { screen } from '../test/react_testing_library';
+import { screen } from '../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   createMockVoter,
-} from '../test/mock_api_client';
-import { renderInAppContext } from '../test/render_in_app_context';
-import { VoterRegistrationScreen } from './voter_registration_screen';
-import { getMockElectionManagerAuth } from '../test/auth';
+} from '../test/mock_api_client.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
+import { VoterRegistrationScreen } from './voter_registration_screen.js';
+import { getMockElectionManagerAuth } from '../test/auth.js';
 
 let apiMock: ApiMock;
 

@@ -1,7 +1,7 @@
 import { basename, join } from 'node:path';
 import { existsSync, readdirSync } from 'node:fs';
 import { iter, Optional } from '@votingworks/basics';
-import { PnpmPackageInfo } from './types';
+import { PnpmPackageInfo } from './types.js';
 
 function jobIdForPackage(pkg: PnpmPackageInfo): string {
   return `test-${pkg.relativePath.replace(/\//g, '-')}`;

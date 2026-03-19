@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 
-import { Svg } from './svg';
+import { Svg } from './svg.js';
 
 export type BallotFeedLocation = 'bottom' | 'top';
 

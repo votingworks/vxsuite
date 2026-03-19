@@ -4,8 +4,8 @@ import { UseQueryResult } from '@tanstack/react-query';
 import {
   useExternalStateChangeListener,
   useQueryChangeListener,
-} from './use_change_listener';
-import { renderHook } from '../../test/react_testing_library';
+} from './use_change_listener.js';
+import { renderHook } from '../../test/react_testing_library.js';
 
 describe('useExternalStateChangeListener', () => {
   test('calls the onChange function when the state changes', () => {

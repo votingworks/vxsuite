@@ -52,29 +52,29 @@ import {
   updateCardlessVoterBallotStyle,
   unconfigureMachine,
   useApiClient,
-} from './api';
+} from './api.js';
 
-import { handleKeyboardEvent } from './lib/assistive_technology';
-import { AdminScreen } from './pages/admin_screen';
-import { InsertCardScreen } from './pages/insert_card_screen';
-import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { UnconfiguredScreen } from './pages/unconfigured_screen';
-import { SystemAdministratorScreen } from './pages/system_administrator_screen';
-import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
-import { JammedPage } from './pages/jammed_page';
-import { JamClearedPage } from './pages/jam_cleared_page';
-import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
-import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page';
-import { PaperReloadedPage } from './pages/paper_reloaded_page';
-import { CastingBallotPage } from './pages/casting_ballot_page';
-import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
-import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
-import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
-import { VoterFlow } from './voter_flow';
-import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
-import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
-import { UnrecoverableErrorPage } from './pages/unrecoverable_error_page';
-import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
+import { handleKeyboardEvent } from './lib/assistive_technology.js';
+import { AdminScreen } from './pages/admin_screen.js';
+import { InsertCardScreen } from './pages/insert_card_screen.js';
+import { PollWorkerScreen } from './pages/poll_worker_screen.js';
+import { UnconfiguredScreen } from './pages/unconfigured_screen.js';
+import { SystemAdministratorScreen } from './pages/system_administrator_screen.js';
+import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper.js';
+import { JammedPage } from './pages/jammed_page.js';
+import { JamClearedPage } from './pages/jam_cleared_page.js';
+import { BallotInvalidatedPage } from './pages/ballot_invalidated_page.js';
+import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page.js';
+import { PaperReloadedPage } from './pages/paper_reloaded_page.js';
+import { CastingBallotPage } from './pages/casting_ballot_page.js';
+import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page.js';
+import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page.js';
+import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page.js';
+import { VoterFlow } from './voter_flow.js';
+import { NoPaperHandlerPage } from './pages/no_paper_handler_page.js';
+import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen.js';
+import { UnrecoverableErrorPage } from './pages/unrecoverable_error_page.js';
+import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen.js';
 
 /**
  * These states require the poll worker to stay logged in until the voter

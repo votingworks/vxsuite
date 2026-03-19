@@ -4,17 +4,17 @@ import {
   screen,
   waitFor,
   render as genericRender,
-} from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
+} from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
 import {
   TEST_UI_STRING_TRANSLATIONS,
   testUiStrings,
-} from '../../test/test_ui_strings';
+} from '../../test/test_ui_strings.js';
 import {
   BackendLanguageContextProvider,
   DEFAULT_I18NEXT_NAMESPACE,
   DEFAULT_LANGUAGE_CODE,
-} from './language_context';
+} from './language_context.js';
 
 function setUp() {
   const testContext = newTestContext();

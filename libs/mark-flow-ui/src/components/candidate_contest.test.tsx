@@ -26,10 +26,10 @@ import {
   VirtualKeyboardProps,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { screen, within, render, act } from '../../test/react_testing_library';
-import { CandidateContest } from './candidate_contest';
-import { UpdateVoteFunction } from '../config/types';
-import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
+import { screen, within, render, act } from '../../test/react_testing_library.js';
+import { CandidateContest } from './candidate_contest.js';
+import { UpdateVoteFunction } from '../config/types.js';
+import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals.js';
 
 vi.mock('@votingworks/ui', async () => {
   const ui = await vi.importActual('@votingworks/ui');

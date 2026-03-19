@@ -4,7 +4,7 @@ import {
   MockPaperHandlerStatus,
   isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
-import { buildMockPaperHandlerApi } from './mock_paper_handler_api';
+import { buildMockPaperHandlerApi } from './mock_paper_handler_api.js';
 
 vi.mock(import('@votingworks/custom-paper-handler'), async (importActual) => ({
   ...(await importActual()),

@@ -2,7 +2,7 @@ import React from 'react';
 import { readElection } from '@votingworks/fs';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
-import { renderToPdf } from '../src';
+import { renderToPdf } from '../src/index.js';
 
 export async function main(args: readonly string[]): Promise<void> {
   if (args.length !== 2) {

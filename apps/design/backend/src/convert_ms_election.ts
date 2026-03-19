@@ -20,7 +20,7 @@ import {
   safeParseVxfElection,
 } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
-import { splitCandidateName } from './utils';
+import { splitCandidateName } from './utils.js';
 
 const seal = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1008 1008">
   <circle cx="504" cy="504" r="504" fill="#fff"/>

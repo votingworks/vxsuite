@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 import {
   MARK_RESULTS_OFFICIAL_BUTTON_TEXT,
   MarkResultsOfficialButton,
-} from './mark_official_button';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen, within } from '../../test/react_testing_library';
+} from './mark_official_button.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { screen, within } from '../../test/react_testing_library.js';
 
 let apiMock: ApiMock;
 

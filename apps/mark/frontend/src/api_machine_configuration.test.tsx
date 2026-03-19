@@ -2,15 +2,15 @@ import { afterAll, expect, test, vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { renderHook } from '../test/react_testing_library';
+import { renderHook } from '../test/react_testing_library.js';
 import {
   ApiClient,
   configureElectionPackageFromUsb,
   createApiClient,
   uiStringsApi,
   unconfigureMachine,
-} from './api';
-import { ApiProvider } from './api_provider';
+} from './api.js';
+import { ApiProvider } from './api_provider.js';
 
 const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {

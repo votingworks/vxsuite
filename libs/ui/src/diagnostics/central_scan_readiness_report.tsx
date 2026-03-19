@@ -2,21 +2,21 @@ import { ThemeProvider } from 'styled-components';
 import {
   CentralScannerSection,
   CentralScannerSectionProps,
-} from './central_scanner_section';
-import { makeTheme } from '../themes/make_theme';
-import { PrintedReport } from '../reports/layout';
-import { ReadinessReportHeader } from './report_header';
+} from './central_scanner_section.js';
+import { makeTheme } from '../themes/make_theme.js';
+import { PrintedReport } from '../reports/layout.js';
+import { ReadinessReportHeader } from './report_header.js';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
-} from './configuration_section';
-import { ReportContents } from './components';
-import { BatterySection, BatterySectionProps } from './battery_section';
-import { StorageSection, StorageSectionProps } from './storage_section';
+} from './configuration_section.js';
+import { ReportContents } from './components.js';
+import { BatterySection, BatterySectionProps } from './battery_section.js';
+import { StorageSection, StorageSectionProps } from './storage_section.js';
 import {
   UninterruptiblePowerSupplySection,
   UpsSectionProps,
-} from './uninterruptible_power_supply_section';
+} from './uninterruptible_power_supply_section.js';
 
 type ReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &

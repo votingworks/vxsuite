@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
-import * as cargo from './cargo';
-import * as circleci from './circleci';
-import * as pkgs from './packages';
-import * as tsconfig from './tsconfig';
+import * as cargo from './cargo.js';
+import * as circleci from './circleci.js';
+import * as pkgs from './packages.js';
+import * as tsconfig from './tsconfig.js';
 
 export type ValidationIssue =
   | pkgs.ValidationIssue

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
-import { EarlyVotingCallout } from './early_voting_callout';
-import { DesktopPalette, TouchscreenPalette } from './themes/make_theme';
+import { render, screen } from '../test/react_testing_library.js';
+import { EarlyVotingCallout } from './early_voting_callout.js';
+import { DesktopPalette, TouchscreenPalette } from './themes/make_theme.js';
 
 test('EarlyVotingCallout touch', () => {
   const { container } = render(<EarlyVotingCallout viewMode="touch" />);

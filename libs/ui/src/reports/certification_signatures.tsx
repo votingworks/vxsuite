@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Font } from '../typography';
-import { Box } from './layout';
+import { Font } from '../typography.js';
+import { Box } from './layout.js';
 
 const CertificationSignaturesContainer = styled(Box)`
   margin-top: 1em;

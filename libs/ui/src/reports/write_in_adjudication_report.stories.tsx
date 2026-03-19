@@ -5,8 +5,8 @@ import { safeParseElectionDefinition } from '@votingworks/types';
 import {
   WriteInAdjudicationReport,
   WriteInAdjudicationReportProps,
-} from './write_in_adjudication_report';
-import { PrintedReportPreview } from './layout';
+} from './write_in_adjudication_report.js';
+import { PrintedReportPreview } from './layout.js';
 
 const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
   electionTwoPartyPrimaryData

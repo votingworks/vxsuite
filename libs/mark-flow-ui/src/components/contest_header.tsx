@@ -11,7 +11,7 @@ import {
   electionStrings,
 } from '@votingworks/ui';
 import { Contest, District } from '@votingworks/types';
-import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests';
+import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests.js';
 
 export interface ContestHeaderProps {
   breadcrumbs?: BreadcrumbMetadata;

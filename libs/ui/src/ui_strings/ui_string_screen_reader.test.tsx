@@ -1,14 +1,14 @@
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { act, screen, waitFor } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
-import { ClipParams, PlayAudioClips } from './play_audio_clips';
-import { AppStringKey, appStrings } from './app_strings';
-import { AudioOnly } from './audio_only';
-import { LanguageOverride } from './language_override';
-import { Button } from '../button';
-import { AudioVolume } from './audio_volume';
+import { act, screen, waitFor } from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
+import { ClipParams, PlayAudioClips } from './play_audio_clips.js';
+import { AppStringKey, appStrings } from './app_strings.js';
+import { AudioOnly } from './audio_only.js';
+import { LanguageOverride } from './language_override.js';
+import { Button } from '../button.js';
+import { AudioVolume } from './audio_volume.js';
 
 vi.mock(import('./play_audio_clips.js'), async (importActual) => ({
   ...(await importActual()),

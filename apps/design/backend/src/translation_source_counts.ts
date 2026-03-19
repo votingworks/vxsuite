@@ -1,4 +1,4 @@
-import { rootDebug } from './debug';
+import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('translation');
 

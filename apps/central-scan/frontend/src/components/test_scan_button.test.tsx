@@ -2,11 +2,11 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import { ScanDiagnosticOutcome } from '@votingworks/central-scan-backend';
-import { ApiMock, createApiMock } from '../../test/api';
-import { mockStatus } from '../../test/fixtures';
-import { screen } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { TestScanButton } from './test_scan_button';
+import { ApiMock, createApiMock } from '../../test/api.js';
+import { mockStatus } from '../../test/fixtures.js';
+import { screen } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { TestScanButton } from './test_scan_button.js';
 
 let apiMock: ApiMock;
 

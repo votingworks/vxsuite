@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { PrintCalibration } from '@votingworks/mark-backend';
 import { Button, buttonStyles, Font } from '@votingworks/ui';
 
-import * as api from '../api';
+import * as api from '../api.js';
 
 const Container = styled.div`
   align-items: center;

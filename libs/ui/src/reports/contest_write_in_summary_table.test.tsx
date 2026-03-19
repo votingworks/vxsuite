@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen, within } from '../../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library.js';
 
-import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
+import { ContestWriteInSummaryTable } from './contest_write_in_summary_table.js';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 

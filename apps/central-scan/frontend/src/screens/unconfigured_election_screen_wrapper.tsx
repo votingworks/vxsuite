@@ -6,8 +6,8 @@ import { assert } from '@votingworks/basics';
 import {
   configureFromElectionPackageOnUsbDrive,
   getUsbDriveStatus,
-} from '../api';
-import { NavigationScreen } from '../navigation_screen';
+} from '../api.js';
+import { NavigationScreen } from '../navigation_screen.js';
 
 interface Props {
   isElectionManagerAuth: boolean;

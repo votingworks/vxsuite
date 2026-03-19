@@ -3,8 +3,8 @@ import util from 'node:util';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { createWorkspace } from '../src/workspace';
-import { WORKSPACE } from '../src/globals';
+import { createWorkspace } from '../src/workspace.js';
+import { WORKSPACE } from '../src/globals.js';
 
 const USAGE = `Usage: pnpm list-user-jurisdictions <email address>`;
 

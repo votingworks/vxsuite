@@ -1,7 +1,7 @@
 import { test, vi } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
-import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
+import { render, screen } from '../../test/react_testing_library.js';
+import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen.js';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button.js';
 
 vi.mock(import('../components/deactivate_voter_session_button.js'));
 

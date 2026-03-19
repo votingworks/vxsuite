@@ -10,7 +10,7 @@ import {
   createQueryClient,
   systemCallApi,
   uiStringsApi,
-} from './api';
+} from './api.js';
 
 export function ApiProvider({
   queryClient = createQueryClient(),

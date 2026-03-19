@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { ThemeConsumer } from 'styled-components';
 import { UiTheme } from '@votingworks/types';
 import { mockUseAudioControls } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import { VoterSettings } from '.';
 
 const mockAudioControls = mockUseAudioControls(vi.fn);

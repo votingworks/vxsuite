@@ -3,8 +3,8 @@ import {
   GoogleCloudTranslator,
 } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
-import { FileStorageClient } from '../file_storage_client';
-import { Workspace } from '../workspace';
+import { FileStorageClient } from '../file_storage_client.js';
+import { Workspace } from '../workspace.js';
 
 export interface WorkerContext {
   fileStorageClient: FileStorageClient;

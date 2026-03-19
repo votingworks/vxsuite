@@ -9,9 +9,9 @@
 // Hint: what does `iter` return? What methods does it have?
 
 import { iter } from '@votingworks/basics';
-import { TODO } from '../src/todo';
-import { run } from '../src/example';
-import { collecting } from '../src/collecting';
+import { TODO } from '../src/todo.js';
+import { run } from '../src/example.js';
+import { collecting } from '../src/collecting.js';
 
 function filterNullish<T>(iterable: Iterable<T>): Array<NonNullable<T>> {
   TODO();

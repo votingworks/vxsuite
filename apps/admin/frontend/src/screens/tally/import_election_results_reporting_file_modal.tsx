@@ -13,8 +13,8 @@ import type {
   ManualResultsVotingMethod,
 } from '@votingworks/admin-backend';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { AppContext } from '../../contexts/app_context';
-import { importElectionResultsReportingFile } from '../../api';
+import { AppContext } from '../../contexts/app_context.js';
+import { importElectionResultsReportingFile } from '../../api.js';
 
 const Content = styled.div`
   overflow: hidden;

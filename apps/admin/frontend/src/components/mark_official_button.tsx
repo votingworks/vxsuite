@@ -5,8 +5,8 @@ import {
   getManualResultsMetadata,
   markResultsOfficial,
   revertResultsToUnofficial,
-} from '../api';
-import { AppContext } from '../contexts/app_context';
+} from '../api.js';
+import { AppContext } from '../contexts/app_context.js';
 
 export const MARK_RESULTS_OFFICIAL_BUTTON_TEXT =
   'Mark Election Results as Official';

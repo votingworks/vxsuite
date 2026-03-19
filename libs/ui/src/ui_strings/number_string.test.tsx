@@ -5,10 +5,10 @@ import {
   act,
   render as renderWithoutContext,
   screen,
-} from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
-import { NumberString } from './number_string';
-import { UiStringAudioDataAttributeName } from './with_audio';
+} from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
+import { NumberString } from './number_string.js';
+import { UiStringAudioDataAttributeName } from './with_audio.js';
 
 test('formats based on current language code', async () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext({

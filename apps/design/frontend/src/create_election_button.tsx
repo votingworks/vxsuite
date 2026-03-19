@@ -3,8 +3,8 @@ import { P, Button, Modal, ButtonVariant, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import type { Jurisdiction } from '@votingworks/design-backend';
-import { generateId } from './utils';
-import * as api from './api';
+import { generateId } from './utils.js';
+import * as api from './api.js';
 
 function CreateElectionModalForm({
   jurisdictions,

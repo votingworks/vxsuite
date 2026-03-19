@@ -3,15 +3,15 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import React from 'react';
-import { electionDefinition } from '../test/helpers/election';
-import { render, screen } from '../test/react_testing_library';
-import { App } from './app';
-import { createApiMock, ApiMock } from '../test/helpers/mock_api_client';
-import { JammedPage } from './pages/jammed_page';
-import { JamClearedPage } from './pages/jam_cleared_page';
-import { BallotContext } from './contexts/ballot_context';
-import { StartScreen } from './pages/start_screen';
-import { JAM_CLEARED_STATES } from './pages/replace_jammed_sheet_screen';
+import { electionDefinition } from '../test/helpers/election.js';
+import { render, screen } from '../test/react_testing_library.js';
+import { App } from './app.js';
+import { createApiMock, ApiMock } from '../test/helpers/mock_api_client.js';
+import { JammedPage } from './pages/jammed_page.js';
+import { JamClearedPage } from './pages/jam_cleared_page.js';
+import { BallotContext } from './contexts/ballot_context.js';
+import { StartScreen } from './pages/start_screen.js';
+import { JAM_CLEARED_STATES } from './pages/replace_jammed_sheet_screen.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

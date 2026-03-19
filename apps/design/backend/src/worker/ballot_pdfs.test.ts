@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { convertPdfToGrayscale } from '@votingworks/hmpb';
 
-import { normalizeBallotColorModeForPrinting } from './ballot_pdfs';
+import { normalizeBallotColorModeForPrinting } from './ballot_pdfs.js';
 
 vi.mock(import('@votingworks/hmpb'), async (importActual) => ({
   ...(await importActual()),

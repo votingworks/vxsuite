@@ -11,9 +11,9 @@ import {
   organizationUser,
   supportUser,
   user,
-} from '../test/api_helpers';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { App } from './app';
+} from '../test/api_helpers.js';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { App } from './app.js';
 
 let apiMock: MockApiClient;
 

@@ -6,12 +6,12 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { AccessibilityMode } from '@votingworks/ui';
-import { CandidateContest } from './candidate_contest';
-import { MsEitherNeitherContest } from './ms_either_neither_contest';
-import { YesNoContest } from './yes_no_contest';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { UpdateVoteFunction } from '../config/types';
-import { BreadcrumbMetadata } from './contest_header';
+import { CandidateContest } from './candidate_contest.js';
+import { MsEitherNeitherContest } from './ms_either_neither_contest.js';
+import { YesNoContest } from './yes_no_contest.js';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { UpdateVoteFunction } from '../config/types.js';
+import { BreadcrumbMetadata } from './contest_header.js';
 
 export interface ContestProps {
   /**

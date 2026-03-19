@@ -7,11 +7,11 @@ import {
   LowDiskSpaceWarning,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
-import { AppRoot } from './app_root';
-import { ApiClient, createApiClient, createQueryClient } from './api';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
-import { ApiProvider } from './api_provider';
-import { MarkAppBase } from './mark_app_base';
+import { AppRoot } from './app_root.js';
+import { ApiClient, createApiClient, createQueryClient } from './api.js';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
+import { ApiProvider } from './api_provider.js';
+import { MarkAppBase } from './mark_app_base.js';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();

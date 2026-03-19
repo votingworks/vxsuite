@@ -45,23 +45,23 @@ import {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
-import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
+import { getMachineConfig } from './machine_config.js';
+import { Workspace } from './util/workspace.js';
 import {
   PaperHandlerStateMachine,
   AcceptedPaperType,
   SimpleServerStatus,
   buildMockPaperHandlerApi,
-} from './custom-paper-handler';
-import { BmdModelNumber, ElectionState, PrintBallotProps } from './types';
+} from './custom-paper-handler/index.js';
+import { BmdModelNumber, ElectionState, PrintBallotProps } from './types.js';
 import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,
-} from './util/hardware';
-import { saveReadinessReport } from './readiness_report';
-import { renderBallot } from './util/render_ballot';
-import { ElectionRecord, Store } from './store';
-import { constructAuthMachineState } from './util/auth';
+} from './util/hardware.js';
+import { saveReadinessReport } from './readiness_report.js';
+import { renderBallot } from './util/render_ballot.js';
+import { ElectionRecord, Store } from './store.js';
+import { constructAuthMachineState } from './util/auth.js';
 
 function addDiagnosticRecordAndLog(
   store: Store,

@@ -51,13 +51,13 @@ import { sha256 } from 'js-sha256';
 import {
   createElectionPackageZipArchive,
   mockElectionPackageFileTree,
-} from './test_utils';
+} from './test_utils.js';
 import {
   ElectionPackageWithFileContents,
   readElectionPackageFromBuffer,
   readElectionPackageFromFile,
   readSignedElectionPackageFromUsb,
-} from './election_package_io';
+} from './election_package_io.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

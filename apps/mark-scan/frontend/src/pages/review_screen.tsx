@@ -3,8 +3,8 @@ import { useContext } from 'react';
 import { ReviewPage } from '@votingworks/mark-flow-ui';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { BallotContext } from '../contexts/ballot_context';
-import { useVoterHelpScreen } from './use_voter_help_screen';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { useVoterHelpScreen } from './use_voter_help_screen.js';
 
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();

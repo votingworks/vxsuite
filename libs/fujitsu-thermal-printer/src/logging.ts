@@ -1,6 +1,6 @@
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { deepEqual } from '@votingworks/basics';
-import { PrinterStatus } from './types';
+import { PrinterStatus } from './types.js';
 
 export function logPrinterStatusIfChanged(
   logger: BaseLogger,

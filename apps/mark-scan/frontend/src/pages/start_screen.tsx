@@ -3,8 +3,8 @@ import { useHistory } from 'react-router-dom';
 
 import { StartPage } from '@votingworks/mark-flow-ui';
 import { AssistiveTechInstructions, appStrings } from '@votingworks/ui';
-import { BallotContext } from '../contexts/ballot_context';
-import { useVoterHelpScreen } from './use_voter_help_screen';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { useVoterHelpScreen } from './use_voter_help_screen.js';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();

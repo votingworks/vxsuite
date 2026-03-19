@@ -12,18 +12,18 @@ import {
   provideApi,
   jurisdiction2,
   organizationUser,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   blankElectionRecord,
   electionListing,
   generalElectionRecord,
-} from '../test/fixtures';
-import { render, screen, within } from '../test/react_testing_library';
-import { CloneElectionButton } from './clone_election_button';
-import { generateId } from './utils';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import * as api from './api';
+} from '../test/fixtures.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { CloneElectionButton } from './clone_election_button.js';
+import { generateId } from './utils.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import * as api from './api.js';
 
 vi.mock(import('./utils.js'), async (importActual) => ({
   ...(await importActual()),

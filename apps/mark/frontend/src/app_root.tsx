@@ -60,20 +60,20 @@ import {
   useApiClient,
   getBarcodeConnected,
   getPatInputConnected,
-} from './api';
+} from './api.js';
 
-import { Ballot } from './components/ballot';
-import * as GLOBALS from './config/globals';
-import { BallotContext } from './contexts/ballot_context';
-import { AdminScreen } from './pages/admin_screen';
-import { InsertCardScreen } from './pages/insert_card_screen';
-import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { SetupPrinterPage } from './pages/setup_printer_page';
-import { UnconfiguredScreen } from './pages/unconfigured_screen';
-import { SystemAdministratorScreen } from './pages/system_administrator_screen';
-import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
-import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
-import { InternalConnectionProblemScreen } from './pages/internal_connection_problem_screen';
+import { Ballot } from './components/ballot.js';
+import * as GLOBALS from './config/globals.js';
+import { BallotContext } from './contexts/ballot_context.js';
+import { AdminScreen } from './pages/admin_screen.js';
+import { InsertCardScreen } from './pages/insert_card_screen.js';
+import { PollWorkerScreen } from './pages/poll_worker_screen.js';
+import { SetupPrinterPage } from './pages/setup_printer_page.js';
+import { UnconfiguredScreen } from './pages/unconfigured_screen.js';
+import { SystemAdministratorScreen } from './pages/system_administrator_screen.js';
+import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper.js';
+import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen.js';
+import { InternalConnectionProblemScreen } from './pages/internal_connection_problem_screen.js';
 
 export interface VotingState {
   votes?: VotesDict;

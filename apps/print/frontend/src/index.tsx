@@ -2,7 +2,7 @@ import './polyfills';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { assert } from '@votingworks/basics';
-import { App } from './app';
+import { App } from './app.js';
 
 const rootElement = document.getElementById('root');
 assert(rootElement);

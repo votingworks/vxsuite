@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import {
   WithScrollButtons,
   WithScrollButtonsProps,
-} from './with_scroll_buttons';
-import { H1 } from './typography';
-import { Card } from './card';
+} from './with_scroll_buttons.js';
+import { H1 } from './typography.js';
+import { Card } from './card.js';
 
 const loremIpsum = new LoremIpsum();
 

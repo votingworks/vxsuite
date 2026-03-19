@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { Lines } from './lines';
+import { Lines } from './lines.js';
 
 test('emits nothing with no input', () => {
   const onLine = vi.fn();

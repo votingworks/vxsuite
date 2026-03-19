@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { screen, waitFor } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
+import { screen, waitFor } from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
 
 test('includes both language and audio contexts', async () => {
   const { getAudioContext, getLanguageContext, mockApiClient, render } =

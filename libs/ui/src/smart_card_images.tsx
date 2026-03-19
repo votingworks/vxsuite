@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Svg } from './svg';
+import { Svg } from './svg.js';
 
 const directionTransforms = {
   down: undefined,

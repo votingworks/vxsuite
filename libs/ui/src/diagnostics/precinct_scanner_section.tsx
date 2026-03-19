@@ -3,8 +3,8 @@ import {
   PrecinctScannerMachineStatus,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { H2, P } from '../typography';
-import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { H2, P } from '../typography.js';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';
 
 export interface PrecinctScannerSectionProps {
   scannerStatus: PrecinctScannerMachineStatus;

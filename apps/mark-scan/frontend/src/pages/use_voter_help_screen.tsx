@@ -11,7 +11,7 @@ import {
   VoterHelpScreenP as P,
 } from '@votingworks/ui';
 
-import { getIsPatDeviceConnected, getSystemSettings } from '../api';
+import { getIsPatDeviceConnected, getSystemSettings } from '../api.js';
 
 type ScreenType =
   | 'StartScreen'

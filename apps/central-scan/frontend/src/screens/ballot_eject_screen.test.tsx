@@ -12,10 +12,10 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { screen } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { BallotEjectScreen } from './ballot_eject_screen';
-import { createApiMock, ApiMock } from '../../test/api';
+import { screen } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { BallotEjectScreen } from './ballot_eject_screen.js';
+import { createApiMock, ApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 

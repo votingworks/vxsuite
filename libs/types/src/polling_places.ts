@@ -8,7 +8,7 @@ import {
   PollingPlaceType,
   Precinct,
   PrecinctOrSplit,
-} from './election';
+} from './election.js';
 
 export function pollingPlaceBallotStyles(
   election: Election,

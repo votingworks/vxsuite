@@ -24,15 +24,15 @@ import {
 } from '@votingworks/types';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createMockFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
-import { Store } from './store';
-import { buildApi } from './app';
-import { createWorkspace, Workspace } from './util/workspace';
+import { Store } from './store.js';
+import { buildApi } from './app.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
 import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
-} from '../test/helpers/shared_helpers';
-import { Player as AudioPlayer } from './audio/player';
-import { AudioCard } from './audio/card';
+} from '../test/helpers/shared_helpers.js';
+import { Player as AudioPlayer } from './audio/player.js';
+import { AudioCard } from './audio/card.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

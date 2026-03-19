@@ -10,10 +10,10 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { Application } from 'express';
-import { start } from './server';
-import { createWorkspace, Workspace } from './util/workspace';
-import { PORT } from './globals';
-import { buildApp } from './app';
+import { start } from './server.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { PORT } from './globals.js';
+import { buildApp } from './app.js';
 
 vi.mock('./app');
 let workspace!: Workspace;

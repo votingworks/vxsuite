@@ -1,9 +1,9 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { screen } from '../../test/react_testing_library';
-import { ToggleAudioButton } from './toggle_audio_button';
-import { newTestContext } from '../../test/test_context';
-import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in';
+import { screen } from '../../test/react_testing_library.js';
+import { ToggleAudioButton } from './toggle_audio_button.js';
+import { newTestContext } from '../../test/test_context.js';
+import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in.js';
 
 vi.mock(import('../hooks/use_headphones_plugged_in.js'));
 

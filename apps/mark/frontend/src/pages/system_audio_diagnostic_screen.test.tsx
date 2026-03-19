@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
-import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen';
+} from '../../test/helpers/mock_api_client.js';
+import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen.js';
 
 let apiMock: ApiMock;
 let onComplete: () => void;

@@ -15,7 +15,7 @@ import {
 import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
-import { getContestsForPrecinctAndElection } from './contest_filtering';
+import { getContestsForPrecinctAndElection } from './contest_filtering.js';
 
 const MAX_UINT16 = 0xffff;
 

@@ -26,10 +26,10 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 
-import { setUpBarcodeActivation } from './activation';
-import { createWorkspace, Workspace } from '../util/workspace';
-import { getUserRole } from '../util/auth';
-import { BarcodeReader } from './types';
+import { setUpBarcodeActivation } from './activation.js';
+import { createWorkspace, Workspace } from '../util/workspace.js';
+import { getUserRole } from '../util/auth.js';
+import { BarcodeReader } from './types.js';
 
 // Mock the Client class to avoid actually starting worker threads
 type MockBarcodeClient = EventEmitter<{

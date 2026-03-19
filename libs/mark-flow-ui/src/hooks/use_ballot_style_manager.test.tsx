@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { useBallotStyleManager } from '..';
-import { act, renderHook } from '../../test/react_testing_library';
+import { act, renderHook } from '../../test/react_testing_library.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

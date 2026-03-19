@@ -9,8 +9,8 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
-import { ManualResultsIdentifier } from './types';
+} from '../test/app.js';
+import { ManualResultsIdentifier } from './types.js';
 
 beforeEach(() => {
   vi.clearAllMocks();

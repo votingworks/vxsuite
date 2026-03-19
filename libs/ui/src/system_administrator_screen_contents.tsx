@@ -3,13 +3,13 @@ import { isVxDev } from '@votingworks/utils';
 
 import styled from 'styled-components';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Button } from './button';
-import { UnconfigureMachineButton } from './unconfigure_machine_button';
-import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
-import { P } from './typography';
-import { SetClockButton } from './set_clock';
-import { ExportLogsButton } from './export_logs_modal';
-import { ToggleUsbPortsButton } from './toggle_usb_ports_button';
+import { Button } from './button.js';
+import { UnconfigureMachineButton } from './unconfigure_machine_button.js';
+import { ResetPollsToPausedButton } from './reset_polls_to_paused_button.js';
+import { P } from './typography.js';
+import { SetClockButton } from './set_clock.js';
+import { ExportLogsButton } from './export_logs_modal.js';
+import { ToggleUsbPortsButton } from './toggle_usb_ports_button.js';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;

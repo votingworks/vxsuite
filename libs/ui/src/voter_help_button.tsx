@@ -1,5 +1,5 @@
-import { Button } from './button';
-import { appStrings } from './ui_strings';
+import { Button } from './button.js';
+import { appStrings } from './ui_strings/index.js';
 
 export function VoterHelpButton({
   disabled,

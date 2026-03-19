@@ -11,14 +11,14 @@ import { PDFDocument } from 'pdf-lib';
 
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { PartyAbbreviation } from '@votingworks/types';
-import { LocalWorkspace } from './types';
+import { LocalWorkspace } from './types.js';
 import {
   CertificationPage,
   CoverPage,
   VoterChecklist,
   VoterChecklistHeader,
-} from './voter_checklist';
-import { LocalStore } from './local_store';
+} from './voter_checklist.js';
+import { LocalStore } from './local_store.js';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
 

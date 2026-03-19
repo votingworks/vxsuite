@@ -11,7 +11,7 @@ import {
   CastVoteRecordReportWithoutMetadataSchema,
   safeParseJson,
 } from '@votingworks/types';
-import { decryptAes256 } from '../../src/cryptography';
+import { decryptAes256 } from '../../src/cryptography.js';
 
 const usageMessage =
   'Usage: decrypt-cvr-ballot-audit-ids input-cvr-directory secret-key-file output-directory';

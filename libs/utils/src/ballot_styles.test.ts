@@ -26,7 +26,7 @@ import {
   getRelatedBallotStyle,
   determinePartyId,
   ballotStyleHasPrecinctOrSplit,
-} from './ballot_styles';
+} from './ballot_styles.js';
 
 const electionGeneral = readElectionGeneral();
 

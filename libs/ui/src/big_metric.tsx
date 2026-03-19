@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { H1 } from './typography';
-import { LabelledText } from './labelled_text';
-import { NumberString } from './ui_strings';
+import { H1 } from './typography.js';
+import { LabelledText } from './labelled_text.js';
+import { NumberString } from './ui_strings/index.js';
 
 /** Props for {@link BigMetric}. */
 export interface BigMetricProps {

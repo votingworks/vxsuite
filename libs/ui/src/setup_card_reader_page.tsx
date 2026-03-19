@@ -1,7 +1,7 @@
-import { ERROR_SCREEN_MESSAGES } from './error_boundary';
-import { Main } from './main';
-import { Screen } from './screen';
-import { Caption, H1, P } from './typography';
+import { ERROR_SCREEN_MESSAGES } from './error_boundary.js';
+import { Main } from './main.js';
+import { Screen } from './screen.js';
+import { Caption, H1, P } from './typography.js';
 
 export function SetupCardReaderPage(): JSX.Element {
   return (

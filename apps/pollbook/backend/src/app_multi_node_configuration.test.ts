@@ -16,17 +16,17 @@ import {
   mockLoggedOut,
   setupUnconfiguredPollbooksOnNetwork,
   withManyApps,
-} from '../test/app';
+} from '../test/app.js';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
-} from './pollbook_package';
-import { PollbookConnectionStatus } from './types';
+} from './pollbook_package.js';
+import { PollbookConnectionStatus } from './types.js';
 import {
   NETWORK_POLLING_INTERVAL,
   UNCONFIGURE_LOCKOUT_TIMEOUT,
-} from './globals';
-import { mockPollbookPackageZip } from '../test/pollbook_package';
+} from './globals.js';
+import { mockPollbookPackageZip } from '../test/pollbook_package.js';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 const singlePrecinctElectionDefinition =

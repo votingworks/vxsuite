@@ -11,12 +11,12 @@ import {
   areContestResultsValid,
   getBallotStyleGroup,
 } from '@votingworks/utils';
-import { Store } from '../store';
+import { Store } from '../store.js';
 import {
   ManualResultsRecord,
   ManualResultsValidationError,
   ManualResultsVotingMethod,
-} from '../types';
+} from '../types.js';
 
 /**
  * The manual results entry form allows creating new write-in candidates. These

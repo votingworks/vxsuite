@@ -24,11 +24,11 @@ import {
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Store } from './store';
-import { createWorkspace, Workspace } from './util/workspace';
-import { Api, buildApi } from './app';
-import { buildMockLogger } from '../test/app_helpers';
-import { MockBarcodeClient } from './barcodes/mock_client';
+import { Store } from './store.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { Api, buildApi } from './app.js';
+import { buildMockLogger } from '../test/app_helpers.js';
+import { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

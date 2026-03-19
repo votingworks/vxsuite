@@ -3,10 +3,10 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
-import { UsbDrive } from './types';
-import { MockFileUsbDrive } from './mocks/file_usb_drive';
-import { detectMultiUsbDrive } from './multi_usb_drive';
-import { createUsbDriveAdapter } from './usb_drive_adapter';
+import { UsbDrive } from './types.js';
+import { MockFileUsbDrive } from './mocks/file_usb_drive.js';
+import { detectMultiUsbDrive } from './multi_usb_drive.js';
+import { createUsbDriveAdapter } from './usb_drive_adapter.js';
 
 export function detectUsbDrive(
   logger: Logger,

@@ -10,7 +10,7 @@ import {
 import { useContext } from 'react';
 import styled from 'styled-components';
 
-import { AppContext } from '../contexts/app_context';
+import { AppContext } from '../contexts/app_context.js';
 
 const LockedImage = styled.img`
   margin-right: auto;

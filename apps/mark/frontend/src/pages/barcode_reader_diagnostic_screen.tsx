@@ -5,7 +5,7 @@ import {
   addDiagnosticRecord,
   clearLastBarcodeScan,
   getMostRecentBarcodeScan,
-} from '../api';
+} from '../api.js';
 
 interface BarcodeReaderDiagnosticScreenProps {
   onComplete: () => void;

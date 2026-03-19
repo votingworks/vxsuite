@@ -1,14 +1,14 @@
 import { afterAll, describe, expect, test, vi } from 'vitest';
 import { v4 as uuid } from 'uuid';
 import { ElectionId } from '@votingworks/types';
-import { testSetupHelpers } from '../test/helpers';
+import { testSetupHelpers } from '../test/helpers.js';
 import {
   organizations,
   jurisdictions,
   users,
   nonVxUser,
   nonVxJurisdiction,
-} from '../test/mocks';
+} from '../test/mocks.js';
 
 const { setupApp, cleanup } = testSetupHelpers();
 

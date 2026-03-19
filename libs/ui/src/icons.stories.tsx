@@ -1,8 +1,8 @@
 import { Meta } from '@storybook/react';
 import styled from 'styled-components';
 
-import { ICON_COLORS, IconComponent, IconProps, Icons } from './icons';
-import { H1, H5, P } from './typography';
+import { ICON_COLORS, IconComponent, IconProps, Icons } from './icons.js';
+import { H1, H5, P } from './typography.js';
 
 const meta: Meta<IconComponent> = {
   title: 'libs-ui/Icons',

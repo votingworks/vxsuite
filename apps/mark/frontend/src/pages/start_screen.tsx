@@ -2,7 +2,7 @@ import { StartPage } from '@votingworks/mark-flow-ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { appStrings } from '@votingworks/ui';
-import { BallotContext } from '../contexts/ballot_context';
+import { BallotContext } from '../contexts/ballot_context.js';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();

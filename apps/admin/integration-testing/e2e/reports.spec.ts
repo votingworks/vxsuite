@@ -24,13 +24,13 @@ import {
   logInAsElectionManager,
   logInAsSystemAdministrator,
   logOut,
-} from './support/auth';
+} from './support/auth.js';
 import {
   PAGE_SCROLL_DELTA_Y,
   pdfToText,
   replaceLineBreaks,
   replaceReportDates,
-} from './support/pdf';
+} from './support/pdf.js';
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);

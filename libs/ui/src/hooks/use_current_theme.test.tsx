@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { DefaultTheme } from 'styled-components';
-import { render } from '../../test/react_testing_library';
-import { useCurrentTheme } from './use_current_theme';
+import { render } from '../../test/react_testing_library.js';
+import { useCurrentTheme } from './use_current_theme.js';
 
 test('useCurrentTheme', () => {
   let currentTheme: DefaultTheme | null = null;

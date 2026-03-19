@@ -2,10 +2,10 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
-import { screen } from '../../../test/react_testing_library';
-import { TallyScreen } from './tally_screen';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { screen } from '../../../test/react_testing_library.js';
+import { TallyScreen } from './tally_screen.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

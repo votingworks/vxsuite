@@ -6,8 +6,8 @@ import {
 import { BallotType, getBallotStyle, getContests } from '@votingworks/types';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
-import { generateCvrs } from './generate_cvrs';
-import { IMAGE_URI_REGEX } from './utils';
+import { generateCvrs } from './generate_cvrs.js';
+import { IMAGE_URI_REGEX } from './utils.js';
 
 test('produces well-formed cast vote records with all contests in HMPB (gridlayouts) case', async () => {
   const electionDefinition =

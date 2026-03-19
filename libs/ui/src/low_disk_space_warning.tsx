@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
 
-import { Button } from './button';
-import { Icons } from './icons';
-import { Modal } from './modal';
-import { useSystemCallApi } from './system_call_api';
-import { P } from './typography';
+import { Button } from './button.js';
+import { Icons } from './icons.js';
+import { Modal } from './modal.js';
+import { useSystemCallApi } from './system_call_api.js';
+import { P } from './typography.js';
 
 export function LowDiskSpaceWarning(): JSX.Element | null {
   const systemCallApi = useSystemCallApi();

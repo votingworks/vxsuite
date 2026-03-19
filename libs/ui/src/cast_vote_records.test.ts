@@ -5,7 +5,7 @@ import {
   ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
 
-import { userReadableMessageFromExportError } from './cast_vote_records';
+import { userReadableMessageFromExportError } from './cast_vote_records.js';
 
 test.each<{
   error: ExportCastVoteRecordsToUsbDriveError;

@@ -12,12 +12,12 @@ import {
 import { MachineConfig } from '@votingworks/mark-scan-backend';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { render as testRender } from './react_testing_library';
+import { render as testRender } from './react_testing_library.js';
 
-import { BallotContext } from '../src/contexts/ballot_context';
-import { mockMachineConfig } from './helpers/mock_machine_config';
-import { ApiMock, createApiMock } from './helpers/mock_api_client';
-import { ApiProvider } from '../src/api_provider';
+import { BallotContext } from '../src/contexts/ballot_context.js';
+import { mockMachineConfig } from './helpers/mock_machine_config.js';
+import { ApiMock, createApiMock } from './helpers/mock_api_client.js';
+import { ApiProvider } from '../src/api_provider.js';
 
 export function render(
   component: React.ReactNode,

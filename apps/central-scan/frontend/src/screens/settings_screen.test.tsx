@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { screen, within } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { SettingsScreenProps, SettingsScreen } from './settings_screen';
-import { ApiMock, createApiMock } from '../../test/api';
+import { screen, within } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { SettingsScreenProps, SettingsScreen } from './settings_screen.js';
+import { ApiMock, createApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 

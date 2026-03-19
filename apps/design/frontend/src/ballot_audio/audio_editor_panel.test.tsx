@@ -7,14 +7,14 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 
-import { AudioEditor, AudioEditorProps } from './audio_editor';
+import { AudioEditor, AudioEditorProps } from './audio_editor.js';
 import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../../test/api_helpers';
-import { AudioEditorPanel, AudioEditorPanelProps } from './audio_editor_panel';
-import { render, screen } from '../../test/react_testing_library';
+} from '../../test/api_helpers.js';
+import { AudioEditorPanel, AudioEditorPanelProps } from './audio_editor_panel.js';
+import { render, screen } from '../../test/react_testing_library.js';
 
 vi.mock('./audio_editor.js');
 

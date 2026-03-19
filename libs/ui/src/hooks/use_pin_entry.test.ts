@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { usePinEntry } from './use_pin_entry';
-import { PinLength } from '../utils/pin_length';
+import { usePinEntry } from './use_pin_entry.js';
+import { PinLength } from '../utils/pin_length.js';
 
 test('defaults', () => {
   const pinEntry = renderHook(() =>

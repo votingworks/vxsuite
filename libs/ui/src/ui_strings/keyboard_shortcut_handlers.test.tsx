@@ -6,10 +6,10 @@ import {
   mockUseAudioControls,
   TestLanguageCode,
 } from '@votingworks/test-utils';
-import { newTestContext } from '../../test/test_context';
-import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
-import { useCurrentLanguage } from '../hooks/use_current_language';
+import { newTestContext } from '../../test/test_context.js';
+import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers.js';
+import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
 import { Keybinding } from '..';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;

@@ -14,12 +14,12 @@ import {
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getMockStateRootDir } from '@votingworks/utils';
-import { logPrinterStatusIfChanged } from '../logging';
+import { logPrinterStatusIfChanged } from '../logging.js';
 import {
   FujitsuThermalPrinterInterface,
   PrintResult,
   PrinterStatus,
-} from '../types';
+} from '../types.js';
 
 export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
 // libs/fujitsu-thermal-printer/src/mocks/ is 4 levels below the repo root

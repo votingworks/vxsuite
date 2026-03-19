@@ -14,23 +14,23 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen, within } from '../test/react_testing_library';
-import * as GLOBALS from './config/globals';
+import { render, screen, within } from '../test/react_testing_library.js';
+import * as GLOBALS from './config/globals.js';
 
-import { App } from './app';
+import { App } from './app.js';
 
-import { withMarkup } from '../test/helpers/with_markup';
+import { withMarkup } from '../test/helpers/with_markup.js';
 
-import { advanceTimersAndPromises } from '../test/helpers/timers';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
 import {
   presidentContest,
   countyCommissionersContest,
   measure102Contest,
   voterContests,
-} from '../test/helpers/election';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { configureFromUsbThenRemove } from '../test/helpers/election_package';
+} from '../test/helpers/election.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { configureFromUsbThenRemove } from '../test/helpers/election_package.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

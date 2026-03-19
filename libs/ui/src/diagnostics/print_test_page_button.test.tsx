@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import {
   PrintTestPageButton,
   TEST_PAGE_PRINT_DELAY_SECONDS,
-} from './print_test_page_button';
+} from './print_test_page_button.js';
 
 const printTestPage = vi.fn();
 const logTestPrintOutcome = vi.fn();

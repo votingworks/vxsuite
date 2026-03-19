@@ -2,8 +2,8 @@ import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { VendorScreen } from './vendor_screen';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { VendorScreen } from './vendor_screen.js';
 
 let mockApiClient: {
   generateSignedHashValidationQrCodeValue: Mock;

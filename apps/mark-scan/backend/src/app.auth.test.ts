@@ -18,9 +18,9 @@ import {
 } from '@votingworks/utils';
 
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { configureApp, createApp } from '../test/app_helpers';
-import { Api } from './app';
-import { PaperHandlerStateMachine } from './custom-paper-handler';
+import { configureApp, createApp } from '../test/app_helpers.js';
+import { Api } from './app.js';
+import { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'mark-scan';

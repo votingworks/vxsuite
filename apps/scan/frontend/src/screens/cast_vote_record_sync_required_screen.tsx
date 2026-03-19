@@ -10,9 +10,9 @@ import {
   appStrings,
 } from '@votingworks/ui';
 
-import { exportCastVoteRecordsToUsbDrive } from '../api';
-import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
-import { ScreenMainCenterChild } from '../components/layout';
+import { exportCastVoteRecordsToUsbDrive } from '../api.js';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
+import { ScreenMainCenterChild } from '../components/layout.js';
 
 const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPT =
   'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +

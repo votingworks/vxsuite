@@ -14,13 +14,13 @@ import {
 } from '@votingworks/types';
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Callout } from './callout';
-import { H1, H2, H3, P } from './typography';
-import { Button } from './button';
-import { Modal } from './modal';
-import { Icons } from './icons';
-import { CardIllustration } from './card_illustration';
-import { InsertCardImage, RotateCardImage } from './smart_card_images';
+import { Callout } from './callout.js';
+import { H1, H2, H3, P } from './typography.js';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { Icons } from './icons.js';
+import { CardIllustration } from './card_illustration.js';
+import { InsertCardImage, RotateCardImage } from './smart_card_images.js';
 
 const SmartCardsScreenButtonList = styled.div`
   display: flex;

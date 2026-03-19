@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { countObjectLeaves, getObjectLeaves } from './objects';
+import { countObjectLeaves, getObjectLeaves } from './objects.js';
 
 const testObject: unknown = {
   a: 1,

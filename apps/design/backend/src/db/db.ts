@@ -9,8 +9,8 @@ import {
 } from '@votingworks/logging';
 import makeDebug from 'debug';
 import * as pg from 'pg';
-import { Client } from './client';
-import { databaseUrl, NODE_ENV } from '../globals';
+import { Client } from './client.js';
+import { databaseUrl, NODE_ENV } from '../globals.js';
 
 const debug = makeDebug('pg-client');
 

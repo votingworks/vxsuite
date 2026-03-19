@@ -2,8 +2,8 @@ import { assert, lines } from '@votingworks/basics';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { getAbsoluteRootPath } from './dependencies';
-import { PnpmPackageInfo, PackageJson } from './types';
+import { getAbsoluteRootPath } from './dependencies.js';
+import { PnpmPackageInfo, PackageJson } from './types.js';
 
 /**
  * Read a JSON file, returning `undefined` if the file does not exist.

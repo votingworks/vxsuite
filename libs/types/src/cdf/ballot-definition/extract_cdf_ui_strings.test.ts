@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
-import { extractCdfUiStrings } from './convert';
-import * as BallotDefinition from './index';
-import { testCdfBallotDefinition } from './fixtures';
-import { ElectionStringKey } from '../../ui_string_translations';
-import { LanguageCode } from '../../language_code';
+import { extractCdfUiStrings } from './convert.js';
+import * as BallotDefinition from './index.js';
+import { testCdfBallotDefinition } from './fixtures.js';
+import { ElectionStringKey } from '../../ui_string_translations.js';
+import { LanguageCode } from '../../language_code.js';
 
 function buildInternationalizedText(
   values: Record<string, string>

@@ -7,10 +7,10 @@ import { CandidateContest, Election, YesNoContest } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { screen, within, render } from '../../test/react_testing_library';
-import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests';
-import { Review } from './review';
-import { WriteInCandidateName } from './write_in_candidate_name';
+import { screen, within, render } from '../../test/react_testing_library.js';
+import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests.js';
+import { Review } from './review.js';
+import { WriteInCandidateName } from './write_in_candidate_name.js';
 
 vi.mock('./write_in_candidate_name');
 

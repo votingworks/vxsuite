@@ -9,7 +9,7 @@ import Select, {
 } from 'react-select';
 import { useTheme } from 'styled-components';
 import React from 'react';
-import { Button } from './button';
+import { Button } from './button.js';
 
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>

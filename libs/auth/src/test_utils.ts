@@ -4,11 +4,11 @@ import {
 } from '@votingworks/types';
 import type { Mocked, vi } from 'vitest';
 
-import { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api';
+import { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api.js';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
-} from './inserted_smart_card_auth_api';
+} from './inserted_smart_card_auth_api.js';
 
 /**
  * Builds a mock dipped smart card auth instance for application-level tests

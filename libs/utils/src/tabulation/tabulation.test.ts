@@ -47,7 +47,7 @@ import {
   areContestResultsValid,
   combineAndDecodeCompressedElectionResults,
   getScannedBallotCountForSheet,
-} from './tabulation';
+} from './tabulation.js';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -55,12 +55,12 @@ import {
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
   getOriginalSnapshot,
-} from '../cast_vote_records';
-import { compressAndEncodeTally } from './compressed_tallies';
+} from '../cast_vote_records.js';
+import { compressAndEncodeTally } from './compressed_tallies.js';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '../precinct_selection';
+} from '../precinct_selection.js';
 
 function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR

@@ -17,10 +17,10 @@ import {
 } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
-import { NavigationScreen } from '../components/navigation_screen';
-import { AppContext } from '../contexts/app_context';
-import { getCastVoteRecordFiles, getAdjudicationQueueMetadata } from '../api';
-import { routerPaths } from '../router_paths';
+import { NavigationScreen } from '../components/navigation_screen.js';
+import { AppContext } from '../contexts/app_context.js';
+import { getCastVoteRecordFiles, getAdjudicationQueueMetadata } from '../api.js';
+import { routerPaths } from '../router_paths.js';
 
 const ContentWrapper = styled.div`
   display: inline-block;

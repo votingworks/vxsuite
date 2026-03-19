@@ -10,8 +10,8 @@ import {
   ReceiptMetadataProps,
   ReceiptMetadata,
   ReceiptIcon,
-} from './receipt_helpers';
-import { getCurrentTime } from '../get_current_time';
+} from './receipt_helpers.js';
+import { getCurrentTime } from '../get_current_time.js';
 
 export function UndoCheckInReceipt({
   voter,

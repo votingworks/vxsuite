@@ -2,7 +2,7 @@ import { Election } from '@votingworks/types';
 import { ImageData } from 'canvas';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import { InterpretedBallotCard, InterpretError, TimingMarks } from './types';
+import { InterpretedBallotCard, InterpretError, TimingMarks } from './types.js';
 
 const addon = (() => {
   // NOTE: this only works because the build output can get to the root of the

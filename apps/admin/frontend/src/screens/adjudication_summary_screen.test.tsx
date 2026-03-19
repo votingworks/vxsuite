@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
-import { act, screen, within } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { AdjudicationSummaryScreen } from './adjudication_summary_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
+import { act, screen, within } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { AdjudicationSummaryScreen } from './adjudication_summary_screen.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data.js';
 
 vi.setConfig({
   testTimeout: 20000,

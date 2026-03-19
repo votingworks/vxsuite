@@ -4,7 +4,7 @@ import { stderr } from 'node:process';
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { asyncDisposable } from '@votingworks/test-utils';
 import { Browser, chromium } from 'playwright';
-import { DONE_MARKER_ID } from './preview/browser_preview';
+import { DONE_MARKER_ID } from './preview/browser_preview.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 

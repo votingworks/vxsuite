@@ -10,13 +10,13 @@ import {
   render,
   screen,
   within,
-} from '../test/react_testing_library';
-import { App } from './app';
+} from '../test/react_testing_library.js';
+import { App } from './app.js';
 
-import { withMarkup } from '../test/helpers/with_markup';
-import { advanceTimersAndPromises } from '../test/helpers/timers';
+import { withMarkup } from '../test/helpers/with_markup.js';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

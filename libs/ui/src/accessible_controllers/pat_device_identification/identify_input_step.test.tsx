@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { IdentifyInputStep, InputBehavior } from './identify_input_step';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { IdentifyInputStep, InputBehavior } from './identify_input_step.js';
 
 const testSpecs: Array<{
   desiredInput: InputBehavior;

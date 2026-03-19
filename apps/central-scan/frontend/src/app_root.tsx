@@ -17,13 +17,13 @@ import {
 } from '@votingworks/ui';
 import { BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
-import { AppContext, AppContextInterface } from './contexts/app_context';
+import { AppContext, AppContextInterface } from './contexts/app_context.js';
 
-import { ScanBallotsScreen } from './screens/scan_ballots_screen';
-import { BallotEjectScreen } from './screens/ballot_eject_screen';
-import { SettingsScreen } from './screens/settings_screen';
+import { ScanBallotsScreen } from './screens/scan_ballots_screen.js';
+import { BallotEjectScreen } from './screens/ballot_eject_screen.js';
+import { SettingsScreen } from './screens/settings_screen.js';
 
-import { MachineLockedScreen } from './screens/machine_locked_screen';
+import { MachineLockedScreen } from './screens/machine_locked_screen.js';
 import {
   checkPin,
   getAuthStatus,
@@ -35,10 +35,10 @@ import {
   logOut,
   unconfigure,
   useApiClient,
-} from './api';
-import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
-import { SystemAdministratorSettingsScreen } from './screens/system_administrator_settings_screen';
-import { DiagnosticsScreen } from './screens/diagnostics_screen';
+} from './api.js';
+import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper.js';
+import { SystemAdministratorSettingsScreen } from './screens/system_administrator_settings_screen.js';
+import { DiagnosticsScreen } from './screens/diagnostics_screen.js';
 
 export interface AppRootProps {
   logger: BaseLogger;

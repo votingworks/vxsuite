@@ -1,8 +1,8 @@
 /* eslint-disable vx/gts-jsdoc */
 import { isIntegrationTest } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { execFile } from '../exec';
-import { NODE_ENV } from '../scan_globals';
+import { execFile } from '../exec.js';
+import { NODE_ENV } from '../scan_globals.js';
 
 const SCRIPT_PATH = '/vx/code/app-scripts/set-usb-port-status.sh';
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { safeParseJson } from './generic';
-import { UiStringAudioClipSchema } from './ui_string_audio_clips';
+import { safeParseJson } from './generic.js';
+import { UiStringAudioClipSchema } from './ui_string_audio_clips.js';
 
 test('valid structure', () => {
   const result = safeParseJson(

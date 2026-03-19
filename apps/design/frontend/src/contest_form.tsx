@@ -39,21 +39,21 @@ import {
   updateContest,
   deleteContest,
   getStateFeatures,
-} from './api';
+} from './api.js';
 import {
   FormFixed,
   FormBody,
   FormErrorContainer,
   FormFooter,
   FormTitle,
-} from './form_fixed';
-import { InputGroup, Row, FieldName, Column } from './layout';
-import { routes } from './routes';
-import { TooltipContainer, Tooltip } from './tooltip';
-import { generateId, replaceAtIndex } from './utils';
-import { InputWithAudio } from './ballot_audio/input_with_audio';
-import { AudioLinkButton } from './ballot_audio/audio_link_button';
-import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio';
+} from './form_fixed.js';
+import { InputGroup, Row, FieldName, Column } from './layout.js';
+import { routes } from './routes.js';
+import { TooltipContainer, Tooltip } from './tooltip.js';
+import { generateId, replaceAtIndex } from './utils.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
+import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio.js';
 
 const Form = styled(FormFixed)`
   .search-select,

@@ -12,13 +12,13 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   statusNoPaper,
-} from '../test/helpers/mock_api_client';
-import { App, AppProps } from './app';
+} from '../test/helpers/mock_api_client.js';
+import { App, AppProps } from './app.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

@@ -2,7 +2,7 @@ import { Caption, Icons, P } from '@votingworks/ui';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import React from 'react';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button.js';
 
 export const JAM_CLEARED_STATES = [
   'accepting_paper_after_jam',

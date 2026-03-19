@@ -7,7 +7,7 @@ import {
   getPrecinctSelectionName,
   maybeGetPrecinctIdFromSelection,
   singlePrecinctSelectionFor,
-} from './precinct_selection';
+} from './precinct_selection.js';
 
 const electionGeneral = readElectionGeneral();
 

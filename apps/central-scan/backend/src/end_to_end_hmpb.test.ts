@@ -23,8 +23,8 @@ import {
 import { readFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { expect, test, vi } from 'vitest';
-import { mockElectionManagerAuth } from '../test/helpers/auth';
-import { withApp } from '../test/helpers/setup_app';
+import { mockElectionManagerAuth } from '../test/helpers/auth.js';
+import { withApp } from '../test/helpers/setup_app.js';
 
 // we need more time for ballot interpretation
 vi.setConfig({

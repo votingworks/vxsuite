@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Button } from './button';
-import { Icons } from './icons';
+import { Button } from './button.js';
+import { Icons } from './icons.js';
 
 export const NumberPadContainer = styled.div`
   display: flex;

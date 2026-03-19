@@ -2,14 +2,14 @@ import React from 'react';
 
 import { assertDefined, Optional } from '@votingworks/basics';
 
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
-import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate';
+import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate.js';
 import {
   AudioVolume,
   DEFAULT_AUDIO_VOLUME,
   getAudioGainRatio,
-} from './audio_volume';
-import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in';
+} from './audio_volume.js';
+import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in.js';
 
 export const DEFAULT_AUDIO_ENABLED_STATE = true;
 

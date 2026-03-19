@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { AppStringKey, AudioOnly, ReadOnLoad, appStrings } from '../ui_strings';
-import { Keybinding } from '../keybindings';
-import { Screen } from '../screen';
-import { Main } from '../main';
-import { useAudioControls } from '../hooks/use_audio_controls';
-import { H1 } from '../typography';
+import { AppStringKey, AudioOnly, ReadOnLoad, appStrings } from '../ui_strings/index.js';
+import { Keybinding } from '../keybindings.js';
+import { Screen } from '../screen.js';
+import { Main } from '../main.js';
+import { useAudioControls } from '../hooks/use_audio_controls.js';
+import { H1 } from '../typography.js';
 
 export type AccessibleControllerType = 'mark' | 'markScan';
 

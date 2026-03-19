@@ -16,15 +16,15 @@ import {
   PatDeviceContextProvider,
   useAccessibleControllerHelpTrigger,
 } from '@votingworks/ui';
-import { Ballot } from './components/ballot';
-import { ValidateBallotPage } from './pages/validate_ballot_page';
-import { BallotContext } from './contexts/ballot_context';
-import * as api from './api';
-import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper';
+import { Ballot } from './components/ballot.js';
+import { ValidateBallotPage } from './pages/validate_ballot_page.js';
+import { BallotContext } from './contexts/ballot_context.js';
+import * as api from './api.js';
+import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper.js';
 import {
   BallotReinsertionFlow,
   isBallotReinsertionState,
-} from './ballot_reinsertion_flow';
+} from './ballot_reinsertion_flow.js';
 
 export interface VoterFlowProps {
   contests: ContestsWithMsEitherNeither;

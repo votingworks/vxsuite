@@ -6,9 +6,9 @@
 // Hint: what does `iter` return? What methods does it have?
 
 import { iter } from '@votingworks/basics';
-import { run } from '../src/example';
-import { TODO } from '../src/todo';
-import { collecting } from '../src/collecting';
+import { run } from '../src/example.js';
+import { TODO } from '../src/todo.js';
+import { collecting } from '../src/collecting.js';
 
 function convertCelsiusToFahrenheit(celsius: number): number {
   return celsius * (9 / 5) + 32;

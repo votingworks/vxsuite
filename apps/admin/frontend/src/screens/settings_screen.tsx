@@ -22,15 +22,15 @@ import {
   isFeatureFlagEnabled,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { AppContext } from '../contexts/app_context';
-import { NavigationScreen } from '../components/navigation_screen';
+import { AppContext } from '../contexts/app_context.js';
+import { NavigationScreen } from '../components/navigation_screen.js';
 import {
   formatUsbDrive,
   getNetworkStatus,
   logOut,
   setMachineMode,
   useApiClient,
-} from '../api';
+} from '../api.js';
 
 export function SettingsScreen(): JSX.Element | null {
   const { auth, electionDefinition, usbDriveStatus } = useContext(AppContext);

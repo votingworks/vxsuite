@@ -32,11 +32,11 @@ import {
   MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { ok } from '@votingworks/basics';
-import { Api, buildApp } from '../src/app';
-import { createWorkspace, Workspace } from '../src/util/workspace';
-import { getUserRole } from '../src/util/auth';
-import { Player as AudioPlayer } from '../src/audio/player';
-import { MockBarcodeClient } from '../src/barcodes/mock_client';
+import { Api, buildApp } from '../src/app.js';
+import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { getUserRole } from '../src/util/auth.js';
+import { Player as AudioPlayer } from '../src/audio/player.js';
+import { MockBarcodeClient } from '../src/barcodes/mock_client.js';
 
 interface MockAppContents {
   apiClient: grout.Client<Api>;

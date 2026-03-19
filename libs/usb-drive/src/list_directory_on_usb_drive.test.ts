@@ -4,9 +4,9 @@ import * as fs from 'node:fs/promises';
 import { FileSystemEntryType } from '@votingworks/fs';
 import { err, iter, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { listDirectoryOnUsbDrive } from './list_directory_on_usb_drive';
-import { createMockUsbDrive } from './mocks/memory_usb_drive';
-import { UsbDriveStatus } from './types';
+import { listDirectoryOnUsbDrive } from './list_directory_on_usb_drive.js';
+import { createMockUsbDrive } from './mocks/memory_usb_drive.js';
+import { UsbDriveStatus } from './types.js';
 
 describe('listDirectoryOnUsbDrive', () => {
   test('happy path', async () => {

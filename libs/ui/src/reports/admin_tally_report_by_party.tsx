@@ -3,8 +3,8 @@ import React from 'react';
 
 import { unique } from '@votingworks/basics';
 import { CachedElectionLookups, getEmptyCardCounts } from '@votingworks/utils';
-import { AdminTallyReport } from './admin_tally_report';
-import { LabeledScannerBatch } from './utils';
+import { AdminTallyReport } from './admin_tally_report.js';
+import { LabeledScannerBatch } from './utils.js';
 
 export interface AdminTallyReportByPartyProps {
   electionDefinition: ElectionDefinition;

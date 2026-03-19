@@ -20,12 +20,12 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { makeMockScanner } from '../test/util/mocks';
-import { Api, buildCentralScannerApp } from './app';
-import { Importer } from './importer';
-import { start } from './server';
-import { createWorkspace, Workspace } from './util/workspace';
-import { buildMockLogger } from '../test/helpers/setup_app';
+import { makeMockScanner } from '../test/util/mocks.js';
+import { Api, buildCentralScannerApp } from './app.js';
+import { Importer } from './importer.js';
+import { start } from './server.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { buildMockLogger } from '../test/helpers/setup_app.js';
 
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;

@@ -5,7 +5,7 @@ import {
   isSubsetCdfSchema,
   validateSchema,
   validateSchemaDraft04,
-} from './cdf_schema_utils';
+} from './cdf_schema_utils.js';
 
 test('validateSchema', () => {
   validateSchema({ definitions: { A: { type: 'string' } } });

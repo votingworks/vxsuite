@@ -2,9 +2,9 @@ import { useContext, useEffect, useRef } from 'react';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert } from '@votingworks/basics';
 import { useCurrentLanguage } from '@votingworks/ui';
-import { BallotContext } from '../contexts/ballot_context';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
-import { printBallot } from '../api';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
+import { printBallot } from '../api.js';
 
 export function PrintPage(): JSX.Element {
   const { ballotStyleId, precinctId, votes, resetBallot } =

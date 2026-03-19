@@ -11,7 +11,7 @@ import {
   getPartyIdsWithContests,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { createElectionMetadataLookupFunction } from './lookups';
+import { createElectionMetadataLookupFunction } from './lookups.js';
 
 /**
  * Contests appear on ballots or not based on the district the contest is

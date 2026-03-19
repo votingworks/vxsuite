@@ -13,15 +13,15 @@ import {
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { BaseLogger } from '@votingworks/logging';
-import { HlcTimestamp } from '../src/hybrid_logical_clock';
-import { Store } from '../src/store';
+import { HlcTimestamp } from '../src/hybrid_logical_clock.js';
+import { Store } from '../src/store.js';
 import {
   VoterCheckInEvent,
   UndoVoterCheckInEvent,
   EventType,
   PollbookEventBase,
-} from '../src/types';
-import { PeerStore } from '../src/peer_store';
+} from '../src/types.js';
+import { PeerStore } from '../src/peer_store.js';
 
 interface OptionalMockVoterParams {
   middleName?: string;

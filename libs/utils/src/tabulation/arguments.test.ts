@@ -5,7 +5,7 @@ import {
   groupBySupportsZeroSplits,
   isFilterEmpty,
   isGroupByEmpty,
-} from './arguments';
+} from './arguments.js';
 
 test('combineGroupSpecifierAndFilter', () => {
   const testCases: Array<

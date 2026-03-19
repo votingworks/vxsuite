@@ -16,11 +16,11 @@ import styled from 'styled-components';
 import { iter } from '@votingworks/basics';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { format } from '@votingworks/utils';
-import { DeleteBatchModal } from '../components/delete_batch_modal';
-import { NavigationScreen } from '../navigation_screen';
-import { ExportResultsModal } from '../components/export_results_modal';
-import { ScanButton } from '../components/scan_button';
-import { clearBallotData } from '../api';
+import { DeleteBatchModal } from '../components/delete_batch_modal.js';
+import { NavigationScreen } from '../navigation_screen.js';
+import { ExportResultsModal } from '../components/export_results_modal.js';
+import { ScanButton } from '../components/scan_button.js';
+import { clearBallotData } from '../api.js';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');

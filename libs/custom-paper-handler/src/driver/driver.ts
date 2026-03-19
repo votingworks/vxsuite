@@ -32,11 +32,11 @@ import {
   Uint16,
   Uint16toUint8,
   Uint8,
-} from '../bits';
+} from '../bits.js';
 import {
   parseScannerCapability,
   ScannerCapability,
-} from './scanner_capability';
+} from './scanner_capability.js';
 import {
   getDefaultConfig,
   getScannerConfigCoderValues,
@@ -46,7 +46,7 @@ import {
   ScanDirection,
   ScanLight,
   ScannerConfig,
-} from './scanner_config';
+} from './scanner_config.js';
 import {
   getBitsPerPixelForScanType,
   INT_16_MAX,
@@ -62,7 +62,7 @@ import {
   RealTimeRequestIds,
   SCAN_HEADER_LENGTH_BYTES,
   UINT_16_MAX,
-} from './constants';
+} from './constants.js';
 import {
   AcknowledgementResponse,
   ConfigureScannerCommand,
@@ -96,9 +96,9 @@ import {
   SetRelativePrintPositionCommand,
   SetRelativeVerticalPrintPositionCommand,
   TransferOutRealTimeRequest,
-} from './coders';
-import { PaperHandlerDriverInterface } from './driver_interface';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
+} from './coders.js';
+import { PaperHandlerDriverInterface } from './driver_interface.js';
+import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 
 const serverDebug = makeDebug('mark-scan:custom-paper-handler:driver');
 

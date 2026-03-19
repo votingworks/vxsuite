@@ -19,8 +19,8 @@ import {
   SummaryBallotLayoutRenderer,
   SummaryBallotPageLayout,
   computeSummaryBallotLayoutWithRendering,
-} from './summary_ballot_layout';
-import { renderToPdf } from './render';
+} from './summary_ballot_layout.js';
+import { renderToPdf } from './render.js';
 
 describe('SummaryBallotLayoutRenderer', () => {
   test('computes single page for small election', async () => {

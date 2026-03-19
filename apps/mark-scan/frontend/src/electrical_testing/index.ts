@@ -1,1 +1,1 @@
-export { App as ElectricalTestingApp } from './app';
+export { App as ElectricalTestingApp } from './app.js';

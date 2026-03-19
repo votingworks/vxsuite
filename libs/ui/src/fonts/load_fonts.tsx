@@ -3,7 +3,7 @@
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
   ROBOTO_ITALIC_FONT_DECLARATIONS,
-} from './roboto';
+} from './roboto.js';
 
 const VX_FONTS_NODE_ID = 'vx-font-declarations';
 

@@ -11,14 +11,14 @@ import { Button, H1, H2, H6, Icons, Main, P, Screen } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import React, { useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import { BallotSheetImage } from '../components/ballot_sheet_image';
-import { AppContext } from '../contexts/app_context';
-import { Header } from '../navigation_screen';
+import { BallotSheetImage } from '../components/ballot_sheet_image.js';
+import { AppContext } from '../contexts/app_context.js';
+import { Header } from '../navigation_screen.js';
 import {
   continueScanning,
   getNextReviewSheet,
   getSystemSettings,
-} from '../api';
+} from '../api.js';
 
 const AdjudicationHeader = styled(Header)`
   position: static;

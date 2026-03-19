@@ -4,16 +4,16 @@ import { err } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { render, waitFor } from '../../test/react_testing_library';
+import { render, waitFor } from '../../test/react_testing_library.js';
 import {
   ExportResultsModal,
   ExportResultsModalProps,
-} from './export_results_modal';
+} from './export_results_modal.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { relative } from 'node:path';
-import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
+import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm.js';
 
 test('getWorkspacePackagePaths', () => {
   expect(getWorkspacePackagePaths(import.meta.dirname)).toEqual(

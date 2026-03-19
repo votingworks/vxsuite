@@ -15,10 +15,10 @@ import {
 import { join } from 'node:path';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { BallotStyleGroupId, DippedSmartCardAuth } from '@votingworks/types';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
-import { screen, waitFor } from '../../../test/react_testing_library';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal.js';
+import { screen, waitFor } from '../../../test/react_testing_library.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

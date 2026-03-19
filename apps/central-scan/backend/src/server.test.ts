@@ -6,12 +6,12 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'node:http';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace } from './util/workspace';
-import { buildMockLogger } from '../test/helpers/setup_app';
-import { makeMockScanner } from '../test/util/mocks';
-import { Importer } from './importer';
-import { buildCentralScannerApp } from './app';
-import { start } from './server';
+import { createWorkspace } from './util/workspace.js';
+import { buildMockLogger } from '../test/helpers/setup_app.js';
+import { makeMockScanner } from '../test/util/mocks.js';
+import { Importer } from './importer.js';
+import { buildCentralScannerApp } from './app.js';
+import { start } from './server.js';
 
 test('logs device attach/un-attach events', () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);

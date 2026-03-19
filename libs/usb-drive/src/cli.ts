@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 import { LogSource, Logger } from '@votingworks/logging';
-import { detectUsbDrive } from './usb_drive';
-import { UsbDrive } from './types';
+import { detectUsbDrive } from './usb_drive.js';
+import { UsbDrive } from './types.js';
 
 async function printStatus(usbDrive: UsbDrive, stdout: NodeJS.WriteStream) {
   const status = await usbDrive.status();

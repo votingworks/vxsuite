@@ -1,6 +1,6 @@
 import { createGlobalStyle, css } from 'styled-components';
 import { isTouchscreen } from '@votingworks/types';
-import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
+import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family.js';
 import { NORMALIZE_CSS } from './normalize.css';
 
 // TODO(kofi): Move to ./ui_strings/audio_only.tsx once all relevant code is

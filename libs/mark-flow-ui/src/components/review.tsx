@@ -34,11 +34,11 @@ import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
   YesNoContestResultInterface,
-} from '../config/types';
+} from '../config/types.js';
 
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { WriteInCandidateName } from './write_in_candidate_name';
-import { numVotesRemaining } from '../utils/vote';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { WriteInCandidateName } from './write_in_candidate_name.js';
+import { numVotesRemaining } from '../utils/vote.js';
 
 const Contest = styled.div`
   display: block;

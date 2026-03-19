@@ -9,10 +9,10 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   withApp,
-} from '../test/app';
-import { mockPollbookPackageFileTree } from '../test/pollbook_package';
-import { CONFIGURATION_POLLING_INTERVAL } from './globals';
-import { parseValidStreetsFromCsvString } from './pollbook_package';
+} from '../test/app.js';
+import { mockPollbookPackageFileTree } from '../test/pollbook_package.js';
+import { CONFIGURATION_POLLING_INTERVAL } from './globals.js';
+import { parseValidStreetsFromCsvString } from './pollbook_package.js';
 
 const singlePrecinctElectionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
@@ -28,7 +28,7 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 
 vi.mock(
   './globals.js',
-  async (importActual): Promise<typeof import('./globals')> => ({
+  async (importActual): Promise<typeof import('./globals.js')> => ({
     ...(await importActual()),
     get NODE_ENV(): 'production' | 'test' {
       return mockNodeEnv;

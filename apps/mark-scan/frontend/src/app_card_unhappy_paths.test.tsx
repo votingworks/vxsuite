@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { App } from './app';
+import { App } from './app.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

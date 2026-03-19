@@ -7,9 +7,9 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { App } from './app';
-import { ElectricalTestingApp } from './electrical_testing';
-import { PreviewApp } from './preview_app';
+import { App } from './app.js';
+import { ElectricalTestingApp } from './electrical_testing/index.js';
+import { PreviewApp } from './preview_app.js';
 
 const rootElement = document.getElementById('root');
 assert(rootElement);

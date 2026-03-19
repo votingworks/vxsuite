@@ -1,9 +1,9 @@
 import React from 'react';
 import getDeepValue from 'lodash.get';
 
-import { useAudioContext } from './audio_context';
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
+import { useAudioContext } from './audio_context.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
 
 export enum UiStringAudioDataAttributeName {
   I18N_KEY = 'data-i18n-key',

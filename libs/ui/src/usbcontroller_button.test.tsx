@@ -5,10 +5,10 @@ import {
   fireEvent,
   render,
   RenderOptions,
-} from '../test/react_testing_library';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
+} from '../test/react_testing_library.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 
-import { UsbControllerButton } from './usbcontroller_button';
+import { UsbControllerButton } from './usbcontroller_button.js';
 
 beforeAll(() => {
   vi.useFakeTimers({

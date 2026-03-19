@@ -6,9 +6,9 @@ import {
 } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
-import { GoogleCloudTranslatorWithDbCache } from './translator';
-import { TestStore } from '../test/test_store';
-import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
+import { GoogleCloudTranslatorWithDbCache } from './translator.js';
+import { TestStore } from '../test/test_store.js';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);

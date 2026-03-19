@@ -12,7 +12,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { Workspace } from './workspace';
+import { Workspace } from './workspace.js';
 
 /* istanbul ignore next - @preserve */
 export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {

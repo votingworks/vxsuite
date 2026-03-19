@@ -11,15 +11,15 @@ import {
   DEV_MACHINE_ID,
 } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFilePath } from '../test/utils.js';
 import {
   ArtifactToExport,
   ArtifactToImport,
   authenticateArtifactUsingSignatureFile,
   prepareSignatureFile,
   SIGNATURE_FILE_EXTENSION,
-} from './artifact_authentication';
-import { ArtifactAuthenticationConfig } from './config';
+} from './artifact_authentication.js';
+import { ArtifactAuthenticationConfig } from './config.js';
 
 vi.mock(
   '@votingworks/types',

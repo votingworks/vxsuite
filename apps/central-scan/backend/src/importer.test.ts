@@ -2,9 +2,9 @@ import { expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createImageData } from 'canvas';
-import { Importer } from './importer';
-import { createWorkspace } from './util/workspace';
-import { makeMockScanner } from '../test/util/mocks';
+import { Importer } from './importer.js';
+import { createWorkspace } from './util/workspace.js';
+import { makeMockScanner } from '../test/util/mocks.js';
 
 test('no election is configured', async () => {
   const workspace = createWorkspace(

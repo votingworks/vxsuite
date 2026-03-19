@@ -7,7 +7,7 @@ import { Readable } from 'node:stream';
 import { createReadStream, lstatSync } from 'node:fs';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { splitToFiles } from './split';
+import { splitToFiles } from './split.js';
 
 /**
  * The largest file size that can be exported to a USB drive formatted as FAT32.

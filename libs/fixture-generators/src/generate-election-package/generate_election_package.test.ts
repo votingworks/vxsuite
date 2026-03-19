@@ -23,7 +23,7 @@ import {
   hmpbStringsCatalog,
   layOutMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
-import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
+import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache.js';
 
 vi.setConfig({
   testTimeout: 120_000,

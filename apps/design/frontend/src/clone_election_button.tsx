@@ -13,8 +13,8 @@ import type {
   ElectionListing,
   Jurisdiction,
 } from '@votingworks/design-backend';
-import * as api from './api';
-import { Tooltip, TooltipContainer } from './tooltip';
+import * as api from './api.js';
+import { Tooltip, TooltipContainer } from './tooltip.js';
 
 function CloneElectionModalForm({
   jurisdictions,

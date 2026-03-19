@@ -7,15 +7,15 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../test/react_testing_library';
-import * as GLOBALS from './config/globals';
+import { render, screen } from '../test/react_testing_library.js';
+import * as GLOBALS from './config/globals.js';
 
-import { App } from './app';
+import { App } from './app.js';
 
-import { presidentContest, voterContests } from '../test/helpers/election';
-import { withMarkup } from '../test/helpers/with_markup';
-import { advanceTimersAndPromises } from '../test/helpers/timers';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { presidentContest, voterContests } from '../test/helpers/election.js';
+import { withMarkup } from '../test/helpers/with_markup.js';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

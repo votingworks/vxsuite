@@ -18,9 +18,9 @@ import {
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
-import { isGroupByEmpty } from './arguments';
-import { getGroupedBallotStyles } from '../ballot_styles';
-import { decodeAndReadCompressedTally } from './compressed_tallies';
+import { isGroupByEmpty } from './arguments.js';
+import { getGroupedBallotStyles } from '../ballot_styles.js';
+import { decodeAndReadCompressedTally } from './compressed_tallies.js';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest

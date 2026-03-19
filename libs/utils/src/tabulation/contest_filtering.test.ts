@@ -13,8 +13,8 @@ import {
   getContestsForPrecinct,
   getContestsForPrecinctAndElection,
   groupContestsByParty,
-} from './contest_filtering';
-import { singlePrecinctSelectionFor } from '../precinct_selection';
+} from './contest_filtering.js';
+import { singlePrecinctSelectionFor } from '../precinct_selection.js';
 
 describe('doesContestAppearOnPartyBallot', () => {
   test('in a primary election', () => {

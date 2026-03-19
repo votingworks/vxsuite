@@ -7,10 +7,10 @@ import { createMemoryHistory } from 'history';
 import { sleep } from '@votingworks/basics';
 import { StateFeaturesConfig } from '@votingworks/design-backend';
 
-import { act, render, screen } from '../../test/react_testing_library';
-import { AudioLinkButton } from './audio_link_button';
-import { createMockApiClient, provideApi } from '../../test/api_helpers';
-import { electionParamRoutes, routes } from '../routes';
+import { act, render, screen } from '../../test/react_testing_library.js';
+import { AudioLinkButton } from './audio_link_button.js';
+import { createMockApiClient, provideApi } from '../../test/api_helpers.js';
+import { electionParamRoutes, routes } from '../routes.js';
 
 const electionId = 'election-1';
 

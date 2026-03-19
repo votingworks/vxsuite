@@ -13,7 +13,7 @@ import { buildIntegrationTestHelper } from '@votingworks/test-utils';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
-} from './support/auth';
+} from './support/auth.js';
 
 const MARKED_BALLOT_PATH = resolve(
   import.meta.dirname,

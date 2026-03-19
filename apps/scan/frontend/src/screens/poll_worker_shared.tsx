@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import {
   CenteredScreenProps,
   ScreenMainCenterChild,
-} from '../components/layout';
+} from '../components/layout.js';
 
 export function Screen(
   props: Omit<

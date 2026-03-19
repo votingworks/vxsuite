@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { err } from '@votingworks/basics';
 import { makeTemporaryPath } from '@votingworks/fixtures';
-import { open } from './open_file';
+import { open } from './open_file.js';
 
 test('file open error', async () => {
   const path = makeTemporaryPath();

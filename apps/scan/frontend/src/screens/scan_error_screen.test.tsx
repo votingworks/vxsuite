@@ -1,12 +1,12 @@
 import { beforeEach, afterEach, test } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { ScanErrorScreen } from './scan_error_screen';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ScanErrorScreen } from './scan_error_screen.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

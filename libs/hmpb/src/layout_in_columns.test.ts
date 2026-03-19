@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { iter } from '@votingworks/basics';
-import { layOutInColumns } from './layout_in_columns';
+import { layOutInColumns } from './layout_in_columns.js';
 
 const a1 = { id: 'a', height: 1 } as const;
 const b1 = { id: 'b', height: 1 } as const;

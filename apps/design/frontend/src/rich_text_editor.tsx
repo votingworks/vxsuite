@@ -32,8 +32,8 @@ import {
 import styled from 'styled-components';
 import React, { useState } from 'react';
 import { Buffer } from 'node:buffer';
-import { ImageInputButton } from './image_input';
-import { NormalizeParams } from './image_normalization';
+import { ImageInputButton } from './image_input.js';
+import { NormalizeParams } from './image_normalization.js';
 
 const ControlGroup = styled.div`
   display: flex;

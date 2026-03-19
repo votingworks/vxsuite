@@ -10,16 +10,16 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { useHistory } from 'react-router-dom';
-import { act, fireEvent, render, screen } from '../test/react_testing_library';
-import { App } from './app';
+import { act, fireEvent, render, screen } from '../test/react_testing_library.js';
+import { App } from './app.js';
 
 import {
   advanceTimers,
   advanceTimersAndPromises,
-} from '../test/helpers/timers';
+} from '../test/helpers/timers.js';
 
-import { singleSeatContestWithWriteIn } from '../test/helpers/election';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { singleSeatContestWithWriteIn } from '../test/helpers/election.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

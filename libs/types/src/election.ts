@@ -9,7 +9,7 @@ import {
   Iso8601Timestamp,
   Iso8601TimestampSchema,
   DateWithoutTimeSchema,
-} from './generic';
+} from './generic.js';
 import {
   Offset,
   OffsetSchema,
@@ -19,11 +19,11 @@ import {
   RectSchema,
   Size,
   SizeSchema,
-} from './geometry';
+} from './geometry.js';
 import {
   UiStringsPackage,
   UiStringsPackageSchema,
-} from './ui_string_translations';
+} from './ui_string_translations.js';
 
 // Generic
 function* findDuplicateIds<T extends { id: unknown }>(

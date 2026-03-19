@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, StyledComponent } from 'styled-components';
-import { Icons } from '../icons';
-import { appStrings } from '../ui_strings';
-import { DELETE_KEY, SPACE_BAR_KEY } from './virtual_keyboard';
-import { Key } from './common';
-import { ScanPanelRow } from './scan_panels/scan_panel_row';
-import { KeyButton } from './scan_panels/key_button';
-import { ScanPanel, ScanPanelRenderOption } from './scan_panels/scan_panel';
-import { Button, buttonStyles, gapStyles } from '../button';
+import { Icons } from '../icons.js';
+import { appStrings } from '../ui_strings/index.js';
+import { DELETE_KEY, SPACE_BAR_KEY } from './virtual_keyboard.js';
+import { Key } from './common.js';
+import { ScanPanelRow } from './scan_panels/scan_panel_row.js';
+import { KeyButton } from './scan_panels/key_button.js';
+import { ScanPanel, ScanPanelRenderOption } from './scan_panels/scan_panel.js';
+import { Button, buttonStyles, gapStyles } from '../button.js';
 
 const Keyboard = styled.div`
   display: flex;

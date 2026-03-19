@@ -10,15 +10,15 @@ import {
   createElection,
   loadElection,
   cloneElection,
-} from './api';
-import { Column, Row } from './layout';
-import { Header, NavScreen } from './nav_screen';
-import { CreateElectionButton } from './create_election_button';
-import { useTitle } from './hooks/use_title';
-import { routes } from './routes';
-import { CloneElectionButton } from './clone_election_button';
-import { LoadElectionButton } from './load_election_button';
-import { FilterInput } from './filter_input';
+} from './api.js';
+import { Column, Row } from './layout.js';
+import { Header, NavScreen } from './nav_screen.js';
+import { CreateElectionButton } from './create_election_button.js';
+import { useTitle } from './hooks/use_title.js';
+import { routes } from './routes.js';
+import { CloneElectionButton } from './clone_election_button.js';
+import { LoadElectionButton } from './load_election_button.js';
+import { FilterInput } from './filter_input.js';
 
 export const ElectionRow = styled.tr`
   & td {

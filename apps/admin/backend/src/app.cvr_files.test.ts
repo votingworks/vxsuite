@@ -36,12 +36,12 @@ import {
   configureMachine,
   mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
-} from '../test/app';
+} from '../test/app.js';
 import {
   ListCastVoteRecordExportsOnUsbDriveResult,
   listCastVoteRecordExportsOnUsbDrive,
-} from './cast_vote_records';
-import { CvrFileImportInfo } from './types';
+} from './cast_vote_records.js';
+import { CvrFileImportInfo } from './types.js';
 
 const electionTwoPartyPrimaryDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();

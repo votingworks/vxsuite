@@ -12,10 +12,10 @@ import {
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { renderToPdf } from '@votingworks/printing';
-import { ServerContext } from './context';
-import { constructAuthMachineState } from '../util/auth';
-import { getMachineConfig } from '../machine_config';
-import { TestPrintPage } from './test_print_page';
+import { ServerContext } from './context.js';
+import { constructAuthMachineState } from '../util/auth.js';
+import { getMachineConfig } from '../machine_config.js';
+import { TestPrintPage } from './test_print_page.js';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PRINTER_TEST_INTERVAL_SECONDS = 5 * 60; // 5 minutes

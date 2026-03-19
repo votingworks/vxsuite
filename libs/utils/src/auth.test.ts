@@ -15,7 +15,7 @@ import {
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
-} from './auth';
+} from './auth.js';
 
 const vendorAuthStatus: {
   dipped: DippedSmartCardAuth.VendorLoggedIn;

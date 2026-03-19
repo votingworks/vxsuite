@@ -8,7 +8,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { ScannerBatch } from '../types';
+import { ScannerBatch } from '../types.js';
 
 const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
 

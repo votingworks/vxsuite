@@ -10,7 +10,7 @@ import {
   SpeechSynthesizer,
   convertHtmlToAudioCues,
 } from '@votingworks/backend';
-import { Workspace } from './workspace';
+import { Workspace } from './workspace.js';
 
 export type DataUrl = string;
 

@@ -12,9 +12,9 @@ import {
 import { MachineConfig } from '@votingworks/mark-backend';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { render as testRender } from './react_testing_library';
-import { BallotContext } from '../src/contexts/ballot_context';
-import { mockMachineConfig } from './helpers/mock_machine_config';
+import { render as testRender } from './react_testing_library.js';
+import { BallotContext } from '../src/contexts/ballot_context.js';
+import { mockMachineConfig } from './helpers/mock_machine_config.js';
 
 export function render(
   component: React.ReactNode,

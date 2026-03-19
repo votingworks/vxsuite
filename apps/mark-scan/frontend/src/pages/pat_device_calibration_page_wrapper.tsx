@@ -1,6 +1,6 @@
 import { VoterScreen } from '@votingworks/mark-flow-ui';
 import { PatDeviceCalibrationPage } from '@votingworks/ui';
-import { setPatDeviceIsCalibrated } from '../api';
+import { setPatDeviceIsCalibrated } from '../api.js';
 
 export interface PatDeviceCalibrationPageWrapperProps {
   isDiagnostic?: boolean;

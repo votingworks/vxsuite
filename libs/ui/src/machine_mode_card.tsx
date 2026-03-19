@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { ColorString } from '@votingworks/types';
-import { Card } from './card';
+import { Card } from './card.js';
 
 interface MachineModeCardTouchProps {
   borderColor: ColorString;

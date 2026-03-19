@@ -17,14 +17,14 @@ import {
   mockUserFeatures,
   provideApi,
   user,
-} from '../test/api_helpers';
-import { electionInfoFromElection } from '../test/fixtures';
-import { render, screen, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { makeIdFactory } from '../test/id_helpers';
-import { PartiesScreen } from './parties_screen';
-import { PartyAudioPanel } from './party_audio_panel';
+} from '../test/api_helpers.js';
+import { electionInfoFromElection } from '../test/fixtures.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { makeIdFactory } from '../test/id_helpers.js';
+import { PartiesScreen } from './parties_screen.js';
+import { PartyAudioPanel } from './party_audio_panel.js';
 
 vi.mock('./party_audio_panel.js');
 const MockAudioPanel = vi.mocked(PartyAudioPanel);

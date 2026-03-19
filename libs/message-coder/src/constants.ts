@@ -1,4 +1,4 @@
-import { Uint16, Uint2, Uint24, Uint32, Uint4, Uint8 } from './types';
+import { Uint16, Uint2, Uint24, Uint32, Uint4, Uint8 } from './types.js';
 
 /**
  * Minimum uint2 value.

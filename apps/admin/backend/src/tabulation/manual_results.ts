@@ -10,8 +10,8 @@ import {
   ManualResultsFilter,
   ManualResultsIdentifier,
   ManualResultsRecord,
-} from '../types';
-import { Store } from '../store';
+} from '../types.js';
+import { Store } from '../store.js';
 
 function getManualResultsGroupSpecifier(
   manualResultsIdentifier: ManualResultsIdentifier,

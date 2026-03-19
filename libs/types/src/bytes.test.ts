@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { asHexString, isByte } from './byte';
+import { asHexString, isByte } from './byte.js';
 
 test('isByte', () => {
   expect(isByte(0)).toEqual(true);

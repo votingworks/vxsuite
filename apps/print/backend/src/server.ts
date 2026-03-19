@@ -5,11 +5,11 @@ import { detectUsbDrive } from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { startCpuMetricsLogging } from '@votingworks/backend';
-import { buildApp } from './app';
-import { PORT } from './globals';
-import { Workspace } from './util/workspace';
-import { getDefaultAuth, getUserRole } from './util/auth';
-import { AppContext } from './context';
+import { buildApp } from './app.js';
+import { PORT } from './globals.js';
+import { Workspace } from './util/workspace.js';
+import { getDefaultAuth, getUserRole } from './util/auth.js';
+import { AppContext } from './context.js';
 
 export interface StartOptions {
   auth?: DippedSmartCardAuthApi;

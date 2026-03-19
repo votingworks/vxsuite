@@ -2,9 +2,9 @@ import styled from 'styled-components';
 
 import { appStrings } from '@votingworks/ui';
 import { SizeMode } from '@votingworks/types';
-import { ContestList } from './contest_list';
-import { useLayoutConfig } from './use_layout_config_hook';
-import { MisvoteWarningsProps } from './types';
+import { ContestList } from './contest_list.js';
+import { useLayoutConfig } from './use_layout_config_hook.js';
+import { MisvoteWarningsProps } from './types.js';
 
 interface ContainerProps {
   numCardsPerRow: number;

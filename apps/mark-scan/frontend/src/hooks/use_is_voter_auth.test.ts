@@ -2,12 +2,12 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { advancePromises } from '@votingworks/test-utils';
-import { useIsVoterAuth } from './use_is_voter_auth';
+import { useIsVoterAuth } from './use_is_voter_auth.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

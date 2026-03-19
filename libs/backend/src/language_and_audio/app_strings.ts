@@ -11,8 +11,8 @@ import {
 } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
-import { GoogleCloudTranslator } from './translator';
-import { setUiString } from './utils';
+import { GoogleCloudTranslator } from './translator.js';
+import { setUiString } from './utils.js';
 
 /**
  * Creates a package of all translated app strings for the given code machine version,

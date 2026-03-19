@@ -18,12 +18,12 @@ import {
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
-import { start } from './server';
-import { createWorkspace } from './util/workspace';
-import { PORT } from './globals';
-import { importCastVoteRecords } from './cast_vote_records';
-import { writeMachineMode } from './machine_mode';
-import { startHostNetworking, startClientNetworking } from './networking';
+import { start } from './server.js';
+import { createWorkspace } from './util/workspace.js';
+import { PORT } from './globals.js';
+import { importCastVoteRecords } from './cast_vote_records.js';
+import { writeMachineMode } from './machine_mode.js';
+import { startHostNetworking, startClientNetworking } from './networking.js';
 
 // Mock modules that start() creates or calls internally
 const featureFlagMock = getFeatureFlagMock();
@@ -60,7 +60,7 @@ vi.mock('@votingworks/dev-dock-backend', () => ({
   useDevDockRouter: vi.fn(),
 }));
 
-vi.mock('./networking', () => ({
+vi.mock('./networking.js', () => ({
   startHostNetworking: vi.fn(),
   startClientNetworking: vi.fn(),
 }));

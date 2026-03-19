@@ -13,12 +13,12 @@ import { format } from '@votingworks/utils';
 import React from 'react';
 import { iter, range } from '@votingworks/basics';
 import { Election, Precinct, Voter } from '@votingworks/types';
-import { VoterGroup } from './types';
+import { VoterGroup } from './types.js';
 import {
   ExternalToInternalPrecinctIdMapping,
   getExternalPrecinctIdMappingFromElection,
-} from './pollbook_package';
-import { padWithZeroes } from './strings';
+} from './pollbook_package.js';
+import { padWithZeroes } from './strings.js';
 
 const ROWS_PER_PAGE = 16;
 

@@ -9,15 +9,15 @@ import {
   getByText as domGetByText,
   getByTestId as domGetByTestId,
   screen,
-} from '../../../test/react_testing_library';
-import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+} from '../../../test/react_testing_library.js';
+import { ImportCvrFilesModal } from './import_cvrfiles_modal.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
 import {
   mockCastVoteRecordFileMetadata,
   mockCastVoteRecordFileRecord,
   mockCastVoteRecordImportInfo,
-} from '../../../test/api_mock_data';
+} from '../../../test/api_mock_data.js';
 
 let apiMock: ApiMock;
 

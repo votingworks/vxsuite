@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest';
-import { splitStreetNumberDetails } from './address_input_group';
+import { splitStreetNumberDetails } from './address_input_group.js';
 
 interface TestCase {
   description: string;

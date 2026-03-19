@@ -9,8 +9,8 @@ import {
   NavLink,
   NavList,
   NavListItem,
-} from './left_nav';
-import { render, screen } from '../test/react_testing_library';
+} from './left_nav.js';
+import { render, screen } from '../test/react_testing_library.js';
 
 test('LeftNav renders a list of nav items in a sidebar', () => {
   const history = createMemoryHistory();

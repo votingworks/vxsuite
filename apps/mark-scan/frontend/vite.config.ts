@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { join } from 'node:path';
 import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
-import setupProxy from './prodserver/setupProxy';
+import setupProxy from './prodserver/setupProxy.js';
 const require = createRequire(import.meta.url);
 
 export default defineConfig((env) => {

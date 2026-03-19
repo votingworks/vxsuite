@@ -2,7 +2,7 @@ import { ensureDirSync } from 'fs-extra';
 import { join } from 'node:path';
 
 import { BaseLogger } from '@votingworks/logging';
-import { Store } from './store';
+import { Store } from './store.js';
 
 export interface Workspace {
   assetDirectoryPath: string;

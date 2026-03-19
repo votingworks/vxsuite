@@ -1,4 +1,4 @@
-import { deepEqual } from './equality';
+import { deepEqual } from './equality.js';
 
 /**
  * Returns an array with duplicate values removed.

@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
-import { LogEventId, LogEventType, LogSource } from './log_event_enums';
-import { BaseLogger, CLIENT_SIDE_LOG_SOURCES } from './base_logger';
-import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types';
+import { LogEventId, LogEventType, LogSource } from './log_event_enums.js';
+import { BaseLogger, CLIENT_SIDE_LOG_SOURCES } from './base_logger.js';
+import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types.js';
 
 vi.useFakeTimers();
 

@@ -2,12 +2,12 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   SystemAdministratorNavScreen,
   systemAdministratorRoutes,
-} from './nav_screen';
-import { SmartCardsScreen } from './smart_cards_screen';
-import { SettingsScreen } from './settings_screen';
-import { ElectionScreen } from './election_screen';
-import { UnconfiguredSystemAdminScreen } from './unconfigured_screen';
-import { getElection } from './api';
+} from './nav_screen.js';
+import { SmartCardsScreen } from './smart_cards_screen.js';
+import { SettingsScreen } from './settings_screen.js';
+import { ElectionScreen } from './election_screen.js';
+import { UnconfiguredSystemAdminScreen } from './unconfigured_screen.js';
+import { getElection } from './api.js';
 
 function SystemAdminSettingsScreen(): JSX.Element | null {
   return (

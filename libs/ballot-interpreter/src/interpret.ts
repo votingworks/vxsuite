@@ -57,8 +57,8 @@ import { join } from 'node:path';
 import {
   getAllPossibleAdjudicationReasons,
   getAllPossibleAdjudicationReasonsForBmdVotes,
-} from './adjudication_reasons';
-import { interpret as interpretVxBmdBallotSheet } from './summary-ballot';
+} from './adjudication_reasons.js';
+import { interpret as interpretVxBmdBallotSheet } from './summary-ballot/index.js';
 import {
   Geometry,
   InterpretedBallotCard,
@@ -70,10 +70,10 @@ import {
   ScoredBubbleMark,
   ScoredBubbleMarks,
   ScoredPositionArea,
-} from './bubble-ballot-ts';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
-import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation';
+} from './bubble-ballot-ts/index.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
+import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation.js';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
 

@@ -21,7 +21,7 @@ import {
   PrecinctSelection,
   TtsEditKey,
 } from '@votingworks/types';
-import { generateId } from './utils';
+import { generateId } from './utils.js';
 
 export const BACKGROUND_TASK_POLLING_INTERVAL_MS = 1_000;
 export const VXQR_REFETCH_INTERVAL_MS = 1_000;

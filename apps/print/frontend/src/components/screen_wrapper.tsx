@@ -12,13 +12,13 @@ import {
   Main,
 } from '@votingworks/ui';
 
-import { Toolbar } from './toolbar';
-import { routeMap } from '../routes';
+import { Toolbar } from './toolbar.js';
+import { routeMap } from '../routes.js';
 import {
   getElectionRecord,
   getMachineConfig,
   getPrecinctSelection,
-} from '../api';
+} from '../api.js';
 
 export function ScreenWrapper({
   children,

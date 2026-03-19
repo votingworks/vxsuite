@@ -24,8 +24,8 @@ import {
   users,
   nonVxUser,
   nhJurisdiction,
-} from '../test/mocks';
-import { testSetupHelpers } from '../test/helpers';
+} from '../test/mocks.js';
+import { testSetupHelpers } from '../test/helpers.js';
 
 const nhUser = nonVxUser;
 const signatureSvg = readFileSync('./test/mockSignature.svg').toString();

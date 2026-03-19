@@ -15,27 +15,27 @@ import {
   createApiClient,
   createQueryClient,
   getUser,
-} from './api';
+} from './api.js';
 import {
   createUnauthenticatedApiClient,
   UnauthenticatedApiClient,
   UnauthenticatedApiClientContext,
-} from './public_api';
-import { electionParamRoutes, routes, resultsRoutes } from './routes';
-import { ElectionInfoScreen } from './election_info_screen';
-import { ContestsScreen } from './contests_screen';
-import { BallotsScreen } from './ballots_screen';
-import { SystemSettingsScreen } from './system_settings_screen';
-import { ExportScreen } from './export_screen';
-import { ErrorScreen } from './error_screen';
-import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
-import { LiveReportsScreen } from './live_reports_screen';
-import { ConvertResultsScreen } from './convert_results_screen';
-import { PartiesScreen } from './parties_screen';
-import { DistrictsScreen } from './districts_screen';
-import { PrecinctsScreen } from './precincts_screen';
-import { HomeScreen } from './home_screen';
-import { DownloadsScreen } from './downloads_screen';
+} from './public_api.js';
+import { electionParamRoutes, routes, resultsRoutes } from './routes.js';
+import { ElectionInfoScreen } from './election_info_screen.js';
+import { ContestsScreen } from './contests_screen.js';
+import { BallotsScreen } from './ballots_screen.js';
+import { SystemSettingsScreen } from './system_settings_screen.js';
+import { ExportScreen } from './export_screen.js';
+import { ErrorScreen } from './error_screen.js';
+import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen.js';
+import { LiveReportsScreen } from './live_reports_screen.js';
+import { ConvertResultsScreen } from './convert_results_screen.js';
+import { PartiesScreen } from './parties_screen.js';
+import { DistrictsScreen } from './districts_screen.js';
+import { PrecinctsScreen } from './precincts_screen.js';
+import { HomeScreen } from './home_screen.js';
+import { DownloadsScreen } from './downloads_screen.js';
 
 function ElectionScreens(): JSX.Element {
   return (

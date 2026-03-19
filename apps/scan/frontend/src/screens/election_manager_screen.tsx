@@ -22,8 +22,8 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { ExportResultsModal } from '../components/export_results_modal';
-import { Screen } from '../components/layout';
+import { ExportResultsModal } from '../components/export_results_modal.js';
+import { Screen } from '../components/layout.js';
 import {
   ejectUsbDrive,
   getAuthStatus,
@@ -42,10 +42,10 @@ import {
   beginDoubleFeedCalibration,
   useApiClient,
   setBallotCastingMode,
-} from '../api';
-import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
-import { DiagnosticsScreen } from './diagnostics_screen';
-import { SaveBallotAuditIdSecretKeyButton } from '../components/save_ballot_audit_id_secret_key_button';
+} from '../api.js';
+import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content.js';
+import { DiagnosticsScreen } from './diagnostics_screen.js';
+import { SaveBallotAuditIdSecretKeyButton } from '../components/save_ballot_audit_id_secret_key_button.js';
 
 const TabPanel = styled.div`
   display: flex;

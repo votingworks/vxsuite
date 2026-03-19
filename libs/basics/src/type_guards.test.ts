@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { ok } from './result';
+import { ok } from './result.js';
 import {
   isArray,
   isBoolean,
@@ -10,7 +10,7 @@ import {
   isPlainObject,
   isSet,
   isString,
-} from './type_guards';
+} from './type_guards.js';
 
 test('isBoolean', () => {
   expect(isBoolean(true)).toEqual(true);

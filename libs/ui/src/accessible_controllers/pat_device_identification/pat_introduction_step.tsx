@@ -1,10 +1,10 @@
 import React, { useEffect, useCallback } from 'react';
 
-import { Font, H1, P } from '../../typography';
-import { Icons } from '../../icons';
-import { appStrings } from '../../ui_strings';
-import { validKeypressValues } from './constants';
-import { PortraitStepInnerContainer } from './portrait_step_inner_container';
+import { Font, H1, P } from '../../typography.js';
+import { Icons } from '../../icons.js';
+import { appStrings } from '../../ui_strings/index.js';
+import { validKeypressValues } from './constants.js';
+import { PortraitStepInnerContainer } from './portrait_step_inner_container.js';
 
 export function PatIntroductionStep({
   isDiagnostic,

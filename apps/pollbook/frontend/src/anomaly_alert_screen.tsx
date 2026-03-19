@@ -4,7 +4,7 @@ import type { Anomaly } from '@votingworks/pollbook-backend';
 import { throwIllegalValue } from '@votingworks/basics';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import { dismissAnomaly } from './api';
+import { dismissAnomaly } from './api.js';
 
 export interface AnomalyAlertScreenProps {
   anomaly: Anomaly;

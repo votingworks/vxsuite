@@ -17,7 +17,7 @@ import {
   numBallotPositions,
   getTestDeckCandidateAtIndex,
   generateTestDeckBallots,
-} from './test_deck_ballots';
+} from './test_deck_ballots.js';
 
 const electionGeneral = readElectionGeneral();
 

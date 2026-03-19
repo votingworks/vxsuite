@@ -14,8 +14,8 @@ import {
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
-import { LogoMark } from '../logo_mark';
-import { CertificationSignatures } from './certification_signatures';
+import { LogoMark } from '../logo_mark.js';
+import { CertificationSignatures } from './certification_signatures.js';
 import {
   LabeledValue,
   ReportElectionInfo,
@@ -24,7 +24,7 @@ import {
   ReportSubtitle,
   ReportTitle,
   TestModeBanner,
-} from './report_header';
+} from './report_header.js';
 
 interface Props {
   electionDefinition: ElectionDefinition;

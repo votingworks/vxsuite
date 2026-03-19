@@ -7,10 +7,10 @@ import { H2 } from '@votingworks/ui';
 import {
   AudioEditorExitLink,
   AudioEditorPanel,
-} from './ballot_audio/audio_editor_panel';
-import { BallotAudioPathParams } from './ballot_audio/routes';
-import { routes } from './routes';
-import * as api from './api';
+} from './ballot_audio/audio_editor_panel.js';
+import { BallotAudioPathParams } from './ballot_audio/routes.js';
+import { routes } from './routes.js';
+import * as api from './api.js';
 
 const ENTITY_NAME: Partial<Record<ElectionStringKey, string>> = {
   [ElectionStringKey.COUNTY_NAME]: 'Jurisdiction',

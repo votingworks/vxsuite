@@ -1,7 +1,7 @@
 import { assert, lines } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { execFile } from '../exec';
+import { execFile } from '../exec.js';
 
 /**
  * Returns the amount of free disk space available at the specified paths in

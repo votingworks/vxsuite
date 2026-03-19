@@ -14,7 +14,7 @@ import {
   Task,
   createDocument,
   createScratchpad,
-} from './renderer';
+} from './renderer.js';
 
 function launchChromium() {
   return chromium.launch({

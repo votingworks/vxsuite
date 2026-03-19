@@ -2,17 +2,17 @@ import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useQueryChangeListener } from '@votingworks/ui';
 import { useEffect, useRef, useState } from 'react';
-import { getScannerStatus, readyForNextBallot, playSound } from '../api';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
-import { InsertBallotScreen } from './insert_ballot_screen';
-import { ScanBusyScreen } from './scan_busy_screen';
-import { ScanErrorScreen } from './scan_error_screen';
-import { ScanJamScreen } from './scan_jam_screen';
-import { ScanProcessingScreen } from './scan_processing_screen';
-import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen';
-import { ScanSuccessScreen } from './scan_success_screen';
-import { ScanWarningScreen } from './scan_warning_screen';
-import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio';
+import { getScannerStatus, readyForNextBallot, playSound } from '../api.js';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
+import { InsertBallotScreen } from './insert_ballot_screen.js';
+import { ScanBusyScreen } from './scan_busy_screen.js';
+import { ScanErrorScreen } from './scan_error_screen.js';
+import { ScanJamScreen } from './scan_jam_screen.js';
+import { ScanProcessingScreen } from './scan_processing_screen.js';
+import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen.js';
+import { ScanSuccessScreen } from './scan_success_screen.js';
+import { ScanWarningScreen } from './scan_warning_screen.js';
+import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio.js';
 
 /**
  * How long to show the accepted screen after a ballot is accepted before

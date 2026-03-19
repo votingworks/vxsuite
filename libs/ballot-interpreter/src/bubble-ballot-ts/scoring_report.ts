@@ -14,8 +14,8 @@ import {
 import { basename, join } from 'node:path';
 import { CanvasRenderingContext2D, createCanvas } from 'canvas';
 import { fileSync } from 'tmp';
-import { interpret } from './interpret';
-import { InterpretedBallotPage, getQuadrilateralBounds } from './types';
+import { interpret } from './interpret.js';
+import { InterpretedBallotPage, getQuadrilateralBounds } from './types.js';
 
 interface ImagePathSheet {
   sheetName: string;

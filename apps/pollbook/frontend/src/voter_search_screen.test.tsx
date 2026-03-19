@@ -10,23 +10,23 @@ import {
   ApiMock,
   createApiMock,
   createMockVoter,
-} from '../test/mock_api_client';
-import { renderInAppContext } from '../test/render_in_app_context';
+} from '../test/mock_api_client.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
 import {
   act,
   getDefaultNormalizer,
   screen,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 import {
   createEmptySearchParams,
   validateUsState,
   VoterSearch,
-} from './voter_search_screen';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
+} from './voter_search_screen.js';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api.js';
 import {
   getMockAamvaDocument,
   getMockExactSearchParams,
-} from '../test/aamva_fixtures';
+} from '../test/aamva_fixtures.js';
 
 let apiMock: ApiMock;
 let unmount: () => void;

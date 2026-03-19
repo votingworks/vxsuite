@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, P, Button } from '@votingworks/ui';
-import { clearCastVoteRecordFiles, deleteAllManualResults } from '../../api';
+import { clearCastVoteRecordFiles, deleteAllManualResults } from '../../api.js';
 
 export function ConfirmRemoveAllResultsModal({
   onClose,

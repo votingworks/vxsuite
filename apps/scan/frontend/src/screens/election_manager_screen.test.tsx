@@ -21,18 +21,18 @@ import {
   screen,
   waitFor,
   within,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
-} from './election_manager_screen';
-import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_manager_printer_tab_content';
+} from './election_manager_screen.js';
+import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_manager_printer_tab_content.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

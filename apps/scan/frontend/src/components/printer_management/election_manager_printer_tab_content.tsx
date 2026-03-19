@@ -3,9 +3,9 @@ import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import styled from 'styled-components';
-import { getPrinterStatus } from '../../api';
-import { ElectionManagerLoadPaperButton } from './election_manager_load_paper_button';
-import { PrintTestPageButton } from './print_test_page_button';
+import { getPrinterStatus } from '../../api.js';
+import { ElectionManagerLoadPaperButton } from './election_manager_load_paper_button.js';
+import { PrintTestPageButton } from './print_test_page_button.js';
 
 export const RELOAD_REMINDER_TEXT =
   'If the paper roll was used in a previous election, replace it or confirm it has enough paper for this election.';

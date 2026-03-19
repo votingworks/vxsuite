@@ -2,11 +2,11 @@ import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vitest';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 
-import { newTestContext } from '../../test/test_context';
-import { PlayAudioClips } from './play_audio_clips';
-import { AudioPlayer, AudioPlayerParams, newAudioPlayer } from './audio_player';
-import { act, screen, waitFor } from '../../test/react_testing_library';
-import { DEFAULT_PLAYBACK_RATE } from './audio_playback_rate';
+import { newTestContext } from '../../test/test_context.js';
+import { PlayAudioClips } from './play_audio_clips.js';
+import { AudioPlayer, AudioPlayerParams, newAudioPlayer } from './audio_player.js';
+import { act, screen, waitFor } from '../../test/react_testing_library.js';
+import { DEFAULT_PLAYBACK_RATE } from './audio_playback_rate.js';
 
 vi.mock(import('./audio_player.js'), async (importActual) => ({
   ...(await importActual()),

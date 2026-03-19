@@ -9,9 +9,9 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { BLANK_PAGE_IMAGE_DATA, loadImageData } from '@votingworks/image-utils';
 import { DEFAULT_MARK_THRESHOLDS, asSheet } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { tmpDir } from '../test/helpers/tmp';
-import { interpretSheetAndSaveImages } from './interpret';
+import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import { tmpDir } from '../test/helpers/tmp.js';
+import { interpretSheetAndSaveImages } from './interpret.js';
 
 test('interprets ballot images and saves images for storage', async () => {
   const electionDefinition =

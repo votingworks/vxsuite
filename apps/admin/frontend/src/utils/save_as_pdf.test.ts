@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { generateDefaultReportFilename } from './save_as_pdf';
+import { generateDefaultReportFilename } from './save_as_pdf.js';
 
 const electionGeneral = readElectionGeneral();
 

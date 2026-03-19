@@ -18,7 +18,7 @@ import {
   Election,
   ElectionId,
   PartyId,
-} from '../../election';
+} from '../../election.js';
 
 export const testVxfElection: Election = {
   id: 'election-1' as ElectionId,

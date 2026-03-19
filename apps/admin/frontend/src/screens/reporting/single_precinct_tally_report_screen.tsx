@@ -3,13 +3,13 @@ import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import styled from 'styled-components';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { TallyReportViewer } from '../../components/reporting/tally_report_viewer.js';
 import {
   reportParentRoutes,
   ReportScreenContainer,
-} from '../../components/reporting/shared';
+} from '../../components/reporting/shared.js';
 
 export const TITLE = 'Single Precinct Tally Report';
 

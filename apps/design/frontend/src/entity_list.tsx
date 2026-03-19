@@ -8,7 +8,7 @@ import {
   H2,
 } from '@votingworks/ui';
 
-import { cssThemedScrollbars } from './scrollbars';
+import { cssThemedScrollbars } from './scrollbars.js';
 
 const Box = styled.ul.attrs({ role: 'listbox' })`
   --entity-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid

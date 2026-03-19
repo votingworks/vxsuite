@@ -3,10 +3,10 @@ import {
   ElectionPackageConfigurationError,
   SYSTEM_LIMITS,
 } from '@votingworks/types';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { UnconfiguredElectionScreen } from './unconfigured_election_screen';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
+import { UnconfiguredElectionScreen } from './unconfigured_election_screen.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 
 test('UnconfiguredElectionScreen shows an error message when no USB drive is inserted', async () => {
   render(

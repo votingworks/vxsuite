@@ -10,8 +10,8 @@ import {
   ReadOnLoad as ReadOnLoadBase,
   Screen,
 } from '@votingworks/ui';
-import { ButtonFooter } from './button_footer';
-import { VoterScreen } from './voter_screen';
+import { ButtonFooter } from './button_footer.js';
+import { VoterScreen } from './voter_screen.js';
 
 export interface CenteredPageLayoutProps {
   buttons?: React.ReactNode;

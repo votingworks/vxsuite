@@ -1,9 +1,9 @@
 import React, { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
-import { gapStyles } from '../../button';
-import { TextOnly } from '../../ui_strings';
-import { getBorderWidthRem, Key } from '../common';
-import { KeyGroupAudioLabel } from './key_group_audio_label';
+import { gapStyles } from '../../button.js';
+import { TextOnly } from '../../ui_strings/index.js';
+import { getBorderWidthRem, Key } from '../common.js';
+import { KeyGroupAudioLabel } from './key_group_audio_label.js';
 
 interface StyledComponentProps {
   numKeys: number;

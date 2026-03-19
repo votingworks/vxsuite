@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { screen, within } from './react_testing_library';
+import { screen, within } from './react_testing_library.js';
 
 /**
  * Useful for diagnostic pages where we expect specific icons alongside text.

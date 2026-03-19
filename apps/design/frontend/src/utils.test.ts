@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { downloadFile, reorderElement } from './utils';
+import { downloadFile, reorderElement } from './utils.js';
 
 test('downloadFile cleans up temporary anchor tag', () => {
   downloadFile('http://localhost:1234/file.zip');

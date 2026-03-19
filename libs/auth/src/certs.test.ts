@@ -8,7 +8,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { ProgrammedCardDetails } from './card';
+import { ProgrammedCardDetails } from './card.js';
 import {
   CardCustomCertFields,
   certDetailsToCardDetails,
@@ -19,8 +19,8 @@ import {
   MachineCustomCertFields,
   MachineType,
   parseCert,
-} from './certs';
-import { openssl } from './cryptography';
+} from './certs.js';
+import { openssl } from './cryptography.js';
 
 vi.mock('./cryptography');
 

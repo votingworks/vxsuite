@@ -12,7 +12,7 @@ import {
   validateSheetInterpretation,
   ValidationError,
   ValidationErrorType,
-} from './validation';
+} from './validation.js';
 
 const BmdPage: InterpretedBmdPage = {
   type: 'InterpretedBmdPage',

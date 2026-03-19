@@ -58,16 +58,16 @@ import {
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
-import { rootDebug } from './util/debug';
-import { isHmpbPage, isPageWithVotes } from './util/results';
+import { sheetRequiresAdjudication } from './sheet_requires_adjudication.js';
+import { rootDebug } from './util/debug.js';
+import { isHmpbPage, isPageWithVotes } from './util/results.js';
 import {
   extractHmpbWriteIns,
   extractSummaryWriteIns,
   extractWriteInCandidates,
   getOvervotedContestIds,
-} from './util/write_in_report';
-import { PollsTransition } from './types';
+} from './util/write_in_report.js';
+import { PollsTransition } from './types.js';
 
 const debug = rootDebug.extend('store');
 

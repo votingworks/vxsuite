@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import {
   CenteredPageLayout,
   CenteredPageLayoutProps,
-} from './centered_page_layout';
+} from './centered_page_layout.js';
 
 export type CenteredCardPageLayoutProps = Omit<
   CenteredPageLayoutProps,

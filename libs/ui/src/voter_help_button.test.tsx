@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../test/react_testing_library';
-import { VoterHelpButton } from './voter_help_button';
+import { render, screen } from '../test/react_testing_library.js';
+import { VoterHelpButton } from './voter_help_button.js';
 
 test('VoterHelpButton', () => {
   const onPress = vi.fn();

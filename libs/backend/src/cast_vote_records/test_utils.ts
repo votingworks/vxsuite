@@ -18,7 +18,7 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
-import { readCastVoteRecordExportMetadata } from './import';
+import { readCastVoteRecordExportMetadata } from './import.js';
 
 function identifyFunction<T>(input: T): T {
   return input;

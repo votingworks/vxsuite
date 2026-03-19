@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { render, screen } from '../test/react_testing_library';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { advanceTimersAndPromises } from '../test/helpers/timers';
-import { App } from './app';
+import { render, screen } from '../test/react_testing_library.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
+import { App } from './app.js';
 
 let apiMock: ApiMock;
 

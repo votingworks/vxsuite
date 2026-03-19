@@ -16,7 +16,7 @@ import {
   renderBmdBallotFixture,
   renderMultiPageBmdBallotFixture,
   writeFirstBallotPageToImageFile,
-} from './bmd_ballot_fixtures';
+} from './bmd_ballot_fixtures.js';
 
 const MAX_BALLOT_IMAGE_SIZE_BYTES = 250 * 1024;
 

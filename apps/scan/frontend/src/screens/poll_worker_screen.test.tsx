@@ -19,14 +19,14 @@ import {
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
 import { PollsState } from '@votingworks/types';
-import { screen, render } from '../../test/react_testing_library';
-import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
+import { screen, render } from '../../test/react_testing_library.js';
+import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

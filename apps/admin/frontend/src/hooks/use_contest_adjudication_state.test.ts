@@ -10,7 +10,7 @@ import {
   isWriteInPending,
   makeInitialState,
   useContestAdjudicationState,
-} from './use_contest_adjudication_state';
+} from './use_contest_adjudication_state.js';
 
 test('useContestAdjudicationState can manage adjudications', () => {
   const cvrId = 'cvr';

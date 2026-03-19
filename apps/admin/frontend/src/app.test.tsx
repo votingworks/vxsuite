@@ -19,17 +19,17 @@ import {
   screen,
   waitFor,
   within,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 
-import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { buildApp } from '../test/helpers/build_app';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { eitherNeitherElectionDefinition } from '../test/render_in_app_context.js';
+import { buildApp } from '../test/helpers/build_app.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 import {
   mockCastVoteRecordFileRecord,
   mockManualResultsMetadata,
-} from '../test/api_mock_data';
-import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
+} from '../test/api_mock_data.js';
+import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

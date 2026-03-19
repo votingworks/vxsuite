@@ -95,31 +95,31 @@ import {
   getExportedFile,
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
-} from '../test/helpers';
+} from '../test/helpers.js';
 import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReports,
   precinctTallyReportFileName,
-} from './test_decks';
+} from './test_decks.js';
 import {
   ElectionInfo,
   ElectionListing,
   ElectionStatus,
   Jurisdiction,
-} from './types';
+} from './types.js';
 import {
   MainExportTaskMetadata,
   DuplicateDistrictError,
   DuplicatePartyError,
-} from './store';
+} from './store.js';
 import {
   getStateFeaturesConfig,
   stateFeatureConfigs,
   userFeatureConfigs,
-} from './features';
-import { buildApi } from './app';
+} from './features.js';
+import { buildApi } from './app.js';
 import {
   organizations,
   jurisdictions,
@@ -136,19 +136,19 @@ import {
   msJurisdiction,
   nonVxOrganizationUser,
   supportUser,
-} from '../test/mocks';
+} from '../test/mocks.js';
 import {
   SLI_DEFAULT_SYSTEM_SETTINGS,
   stateDefaultSystemSettings,
-} from './system_settings';
+} from './system_settings.js';
 import {
   GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,
-} from './worker/generate_election_package_and_ballots';
+} from './worker/generate_election_package_and_ballots.js';
 import {
   GenerateTestDecksPayload,
   GenerateTestDecksPayloadSchema,
-} from './worker/generate_test_decks';
+} from './worker/generate_test_decks.js';
 
 vi.setConfig({
   testTimeout: 120_000,

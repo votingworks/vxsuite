@@ -21,15 +21,15 @@ import {
   decodeCompressedTally,
   encodeCompressedTally,
   decodeAndReadCompressedTally,
-} from './compressed_tallies';
+} from './compressed_tallies.js';
 import {
   buildElectionResultsFixture,
   getEmptyElectionResults,
-} from './tabulation';
+} from './tabulation.js';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '../precinct_selection';
+} from '../precinct_selection.js';
 
 function getZeroCompressedTally(
   election: Election,

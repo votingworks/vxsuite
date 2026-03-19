@@ -19,11 +19,11 @@ import {
   getGroupedBallotStyles,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { getScannerBatches } from '../../api';
+import { getScannerBatches } from '../../api.js';
 import {
   getPartiesWithPrimaryElections,
   getValidDistricts,
-} from '../../utils/election';
+} from '../../utils/election.js';
 
 const FilterEditorContainer = styled.div`
   width: 100%;

@@ -15,12 +15,12 @@ import {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import { Store } from '../store';
-import { getMachineConfig } from '../machine_config';
-import { getScannerResultsMemoized } from '../util/results';
-import { getCurrentTime } from '../util/get_current_time';
-import { rootDebug } from '../util/debug';
-import { ADJUSTED_MARGIN_DIMENSIONS } from './constants';
+import { Store } from '../store.js';
+import { getMachineConfig } from '../machine_config.js';
+import { getScannerResultsMemoized } from '../util/results.js';
+import { getCurrentTime } from '../util/get_current_time.js';
+import { rootDebug } from '../util/debug.js';
+import { ADJUSTED_MARGIN_DIMENSIONS } from './constants.js';
 
 const debug = rootDebug.extend('print-report-section');
 

@@ -1,5 +1,5 @@
 import { TouchSizeMode } from '@votingworks/types';
-import { MisvoteWarningsConfig } from './types';
+import { MisvoteWarningsConfig } from './types.js';
 
 /**
  * Layout configuration params for each {@link TouchSizeMode} - these were manually

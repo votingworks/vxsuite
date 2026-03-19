@@ -3,9 +3,9 @@ import { TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
-import { Workspace } from '../util/workspace';
-import * as barcodes from '../barcodes';
-import { Player as AudioPlayer } from '../audio/player';
+import { Workspace } from '../util/workspace.js';
+import * as barcodes from '../barcodes/index.js';
+import { Player as AudioPlayer } from '../audio/player.js';
 
 export interface ServerContext {
   audioPlayer?: AudioPlayer;

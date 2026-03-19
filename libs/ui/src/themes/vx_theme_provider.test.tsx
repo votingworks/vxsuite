@@ -3,8 +3,8 @@ import React from 'react';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 
 import { render } from '@testing-library/react';
-import { VxThemeProvider } from './vx_theme_provider';
-import { makeTheme } from './make_theme';
+import { VxThemeProvider } from './vx_theme_provider.js';
+import { makeTheme } from './make_theme.js';
 
 let currentTheme: DefaultTheme;
 

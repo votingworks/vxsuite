@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { memoize } from './memoize';
+import { memoize } from './memoize.js';
 
 test('calls the underlying function as long as it returns undefined', () => {
   const fn = vi.fn();

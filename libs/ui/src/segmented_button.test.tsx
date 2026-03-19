@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
-import { SegmentedButton, SegmentedButtonOption } from './segmented_button';
-import { makeTheme } from './themes/make_theme';
+import { render, screen } from '../test/react_testing_library.js';
+import { SegmentedButton, SegmentedButtonOption } from './segmented_button.js';
+import { makeTheme } from './themes/make_theme.js';
 
 type TestOptionId = 'a' | 'b' | 'c';
 

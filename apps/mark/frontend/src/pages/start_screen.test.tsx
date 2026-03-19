@@ -8,9 +8,9 @@ import { createMemoryHistory } from 'history';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { BallotStyleId } from '@votingworks/types';
-import { screen } from '../../test/react_testing_library';
-import { render } from '../../test/test_utils';
-import { StartScreen } from './start_screen';
+import { screen } from '../../test/react_testing_library.js';
+import { render } from '../../test/test_utils.js';
+import { StartScreen } from './start_screen.js';
 
 test('renders StartScreen', () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();

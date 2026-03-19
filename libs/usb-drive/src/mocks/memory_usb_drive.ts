@@ -1,8 +1,8 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import tmp from 'tmp';
-import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDrive } from '../types';
+import { MockFileTree, writeMockFileTree } from './helpers.js';
+import { UsbDrive } from '../types.js';
 
 type MockedUsbDrive = {
   [Method in keyof UsbDrive]: MockFunction<UsbDrive[Method]>;

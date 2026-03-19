@@ -20,7 +20,7 @@ vi.mock('node:worker_threads', async () => {
 
 // Import after mocking
 // eslint-disable-next-line import/first
-import { BarcodeClient } from './client';
+import { BarcodeClient } from './client.js';
 
 describe('Client', () => {
   let logger: BaseLogger;

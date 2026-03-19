@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 import { mapObject, mergeObjects } from '@votingworks/basics';
-import { Dictionary } from './generic';
+import { Dictionary } from './generic.js';
 
 /**
  * Voter-facing election string content that need to be translated and/or

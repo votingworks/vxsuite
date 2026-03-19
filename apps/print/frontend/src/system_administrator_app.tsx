@@ -1,8 +1,8 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import { systemAdministratorRoutes } from './routes';
-import { DiagnosticsScreen } from './screens/diagnostics_screen';
-import { SettingsScreen } from './screens/settings_screen';
+import { systemAdministratorRoutes } from './routes.js';
+import { DiagnosticsScreen } from './screens/diagnostics_screen.js';
+import { SettingsScreen } from './screens/settings_screen.js';
 
 export function SystemAdministratorApp(): JSX.Element {
   return (

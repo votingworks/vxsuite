@@ -13,8 +13,8 @@ import {
 } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
 
-import { ejectUsbDrive, saveElectionPackageToUsb } from '../api';
-import { AppContext } from '../contexts/app_context';
+import { ejectUsbDrive, saveElectionPackageToUsb } from '../api.js';
+import { AppContext } from '../contexts/app_context.js';
 
 type SaveState =
   | { state: 'unsaved' }

@@ -41,11 +41,11 @@ import { assert } from 'node:console';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { loadImageMetadata, toImageBuffer } from '@votingworks/image-utils';
 import { readFile } from 'node:fs/promises';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
-import { rotateImageData180 } from './summary-ballot/utils/rotate';
+import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
+import { rotateImageData180 } from './summary-ballot/utils/rotate.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

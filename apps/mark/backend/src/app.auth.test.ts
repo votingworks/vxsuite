@@ -15,7 +15,7 @@ import {
 } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { LogEventId } from '@votingworks/logging';
-import { configureApp, createApp } from '../test/app_helpers';
+import { configureApp, createApp } from '../test/app_helpers.js';
 
 vi.mock('@votingworks/auth', async (importActual) => ({
   ...(await importActual()),

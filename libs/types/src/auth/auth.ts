@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 
 import { DateWithoutTime } from '@votingworks/basics';
-import { BallotStyleId, Election, ElectionId, PrecinctId } from '../election';
+import { BallotStyleId, Election, ElectionId, PrecinctId } from '../election.js';
 
 export type ProgrammingMachineType = 'admin' | 'poll-book';
 

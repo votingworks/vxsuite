@@ -21,8 +21,8 @@ import {
   ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
 import { getPdfPageCount } from '@votingworks/image-utils';
-import { Store } from '../store';
-import { getMarkScanBmdModel } from './hardware';
+import { Store } from '../store.js';
+import { getMarkScanBmdModel } from './hardware.js';
 
 export interface RenderBallotProps {
   store: Store;

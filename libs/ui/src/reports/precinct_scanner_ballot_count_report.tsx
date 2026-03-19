@@ -11,8 +11,8 @@ import {
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
-import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
-import { printedReportThemeFn, PrintedReport } from './layout';
+import { PrecinctScannerReportHeader } from './precinct_scanner_report_header.js';
+import { printedReportThemeFn, PrintedReport } from './layout.js';
 
 const Contents = styled.div`
   padding-top: 2em;

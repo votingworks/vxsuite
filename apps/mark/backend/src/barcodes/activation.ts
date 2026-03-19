@@ -6,10 +6,10 @@ import { isCardlessVoterAuth } from '@votingworks/utils';
 import { find } from '@votingworks/basics';
 import { SystemSettings, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 
-import { BarcodeReader } from './types';
-import { Workspace } from '../util/workspace';
-import { constructAuthMachineState } from '../util/auth';
-import { Player as AudioPlayer } from '../audio/player';
+import { BarcodeReader } from './types.js';
+import { Workspace } from '../util/workspace.js';
+import { constructAuthMachineState } from '../util/auth.js';
+import { Player as AudioPlayer } from '../audio/player.js';
 
 interface Context {
   audioPlayer?: AudioPlayer;

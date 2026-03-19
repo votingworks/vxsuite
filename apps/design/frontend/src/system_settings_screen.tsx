@@ -37,16 +37,16 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
-import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, routes } from './routes';
+import { Form, Column, Row, FormActionsRow, InputGroup } from './layout.js';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, routes } from './routes.js';
 import {
   updateSystemSettings,
   getUserFeatures,
   getSystemSettings,
   getResultsReportingUrl,
-} from './api';
-import { useTitle } from './hooks/use_title';
+} from './api.js';
+import { useTitle } from './hooks/use_title.js';
 
 function safeParseFormValue<T>(
   schema: z.ZodSchema<T>,

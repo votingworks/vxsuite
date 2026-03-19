@@ -8,23 +8,23 @@ import {
   screen,
   waitFor,
   within,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 import {
   MockApiClient,
   createMockApiClient,
   provideApi,
   jurisdiction,
   supportUser,
-} from '../../test/api_helpers';
+} from '../../test/api_helpers.js';
 import {
   generalElectionRecord,
   primaryElectionRecord,
   electionListing,
   blankElectionRecord,
-} from '../../test/fixtures';
-import { withRoute } from '../../test/routing_helpers';
-import { routes } from '../routes';
-import { SupportHomeScreen } from './support_home_screen';
+} from '../../test/fixtures.js';
+import { withRoute } from '../../test/routing_helpers.js';
+import { routes } from '../routes.js';
+import { SupportHomeScreen } from './support_home_screen.js';
 
 let apiMock: MockApiClient;
 

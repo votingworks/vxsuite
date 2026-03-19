@@ -53,24 +53,24 @@ import type {
   ManualResultsVotingMethod,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import { routerPaths } from '../../router_paths';
+import { routerPaths } from '../../router_paths.js';
 
-import { AppContext } from '../../contexts/app_context';
+import { AppContext } from '../../contexts/app_context.js';
 
 import {
   getManualResults,
   getWriteInCandidates,
   setManualResults,
-} from '../../api';
-import { normalizeWriteInName } from '../../utils/adjudication';
+} from '../../api.js';
+import { normalizeWriteInName } from '../../utils/adjudication.js';
 import {
   ManualTallyFormContestParams,
   ManualTallyFormParams,
-} from '../../config/types';
+} from '../../config/types.js';
 import {
   BallotStyleLabel,
   VotingMethodLabel,
-} from './manual_tallies_shared_components';
+} from './manual_tallies_shared_components.js';
 
 const TallyTaskControls = styled(TaskControls)`
   width: 25rem;

@@ -1,10 +1,10 @@
 import * as fc from 'fast-check';
 import { expect, expectTypeOf, test, vi } from 'vitest';
-import { typedAs } from '../typed_as';
-import { integers } from './integers';
-import { iter } from './iter';
-import { naturals } from './naturals';
-import { AsyncIteratorPlus } from './types';
+import { typedAs } from '../typed_as.js';
+import { integers } from './integers.js';
+import { iter } from './iter.js';
+import { naturals } from './naturals.js';
+import { AsyncIteratorPlus } from './types.js';
 
 test('async', async () => {
   const it = iter([]).async();

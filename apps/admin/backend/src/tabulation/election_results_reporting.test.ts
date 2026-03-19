@@ -3,7 +3,7 @@ import { makeTemporaryFile } from '@votingworks/fixtures';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { testElectionReport } from '@votingworks/types';
 import { err } from '@votingworks/basics';
-import { parseElectionResultsReportingFile } from './election_results_reporting';
+import { parseElectionResultsReportingFile } from './election_results_reporting.js';
 
 test('reads and parses an Election Results Reporting file', async () => {
   const errContents = testElectionReport;

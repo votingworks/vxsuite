@@ -5,18 +5,18 @@ import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
-import { authEnabled, WORKSPACE } from './globals';
-import * as server from './server';
-import { createWorkspace } from './workspace';
-import { GoogleCloudTranslatorWithDbCache } from './translator';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
-import { Auth0Client } from './auth0_client';
+import { authEnabled, WORKSPACE } from './globals.js';
+import * as server from './server.js';
+import { createWorkspace } from './workspace.js';
+import { GoogleCloudTranslatorWithDbCache } from './translator.js';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer.js';
+import { Auth0Client } from './auth0_client.js';
 import {
   LocalFileStorageClient,
   S3FileStorageClient,
-} from './file_storage_client';
+} from './file_storage_client.js';
 
-export type { TtsStringDefault } from './tts_strings';
+export type { TtsStringDefault } from './tts_strings.js';
 export type {
   BackgroundTask,
   DuplicateDistrictError,
@@ -24,7 +24,7 @@ export type {
   ElectionRecord,
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
-} from './store';
+} from './store.js';
 export type {
   User,
   JurisdictionUser,
@@ -43,20 +43,20 @@ export type {
   ResultsReportingPath,
   ExportQaRun,
   ExportQaStatus,
-} from './types';
+} from './types.js';
 export type {
   StateFeature,
   StateFeaturesConfig,
   UserFeature,
   UserFeaturesConfig,
-} from './features';
-export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
-export type { ConvertMsResultsError } from './convert_ms_results';
+} from './features.js';
+export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
+export type { ConvertMsResultsError } from './convert_ms_results.js';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data
-export { createBlankElection } from './app';
+export { createBlankElection } from './app.js';
 
 loadEnvVarsFromDotenvFiles();
 

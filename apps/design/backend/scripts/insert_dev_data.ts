@@ -3,10 +3,10 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 
-import { DEV_USER_ID } from '../src/auth0_client';
-import { NODE_ENV, votingWorksOrganizationId, WORKSPACE } from '../src/globals';
-import { Organization, StateCodes } from '../src/types';
-import { createWorkspace } from '../src/workspace';
+import { DEV_USER_ID } from '../src/auth0_client.js';
+import { NODE_ENV, votingWorksOrganizationId, WORKSPACE } from '../src/globals.js';
+import { Organization, StateCodes } from '../src/types.js';
+import { createWorkspace } from '../src/workspace.js';
 
 /**
  * Inserts the dev user needed when using AUTH_ENABLED=FALSE to bypass Auth0 in development as well

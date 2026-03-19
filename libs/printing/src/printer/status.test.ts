@@ -9,8 +9,8 @@ import {
   IPP_QUERY,
   QueriedIppAttribute,
   getPrinterRichStatus,
-} from './status';
-import { exec } from '../utils/exec';
+} from './status.js';
+import { exec } from '../utils/exec.js';
 
 vi.mock('../utils/exec', async () => ({
   ...(await vi.importActual('../utils/exec')),

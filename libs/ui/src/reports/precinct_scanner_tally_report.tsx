@@ -8,14 +8,14 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
-import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
+import { PrecinctScannerReportHeader } from './precinct_scanner_report_header.js';
 import {
   PrintedReport,
   TallyReportColumns,
   printedReportThemeFn,
-} from './layout';
-import { TallyReportCardCounts } from './tally_report_card_counts';
-import { ContestResultsTable } from './contest_results_table';
+} from './layout.js';
+import { TallyReportCardCounts } from './tally_report_card_counts.js';
+import { ContestResultsTable } from './contest_results_table.js';
 
 interface Props {
   electionDefinition: ElectionDefinition;

@@ -14,9 +14,9 @@ import {
   renderMultiPageBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
-import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
-import { getScannerResults } from './util/results';
+import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers.js';
+import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
+import { getScannerResults } from './util/results.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

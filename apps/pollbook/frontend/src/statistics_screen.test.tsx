@@ -9,16 +9,16 @@ import {
   PrimarySummaryStatistics,
   SummaryStatistics,
 } from '@votingworks/types';
-import { ApiMock, createApiMock } from '../test/mock_api_client';
-import { renderInAppContext } from '../test/render_in_app_context';
-import { act, screen, waitFor } from '../test/react_testing_library';
+import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
+import { act, screen, waitFor } from '../test/react_testing_library.js';
 import {
   StatisticsScreen,
   GeneralElectionStatistics,
   PrimaryElectionStatistics,
   ThroughputChart,
-} from './statistics_screen';
-import { getMockElectionManagerAuth } from '../test/auth';
+} from './statistics_screen.js';
+import { getMockElectionManagerAuth } from '../test/auth.js';
 
 // Mock Chart.js components since they don't render properly in test environment
 vi.mock('react-chartjs-2', () => ({

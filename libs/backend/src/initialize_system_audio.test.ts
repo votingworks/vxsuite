@@ -1,10 +1,10 @@
 import { expect, test, vi } from 'vitest';
-import { execFile } from './exec';
-import { initializeSystemAudio } from './initialize_system_audio';
+import { execFile } from './exec.js';
+import { initializeSystemAudio } from './initialize_system_audio.js';
 
 vi.mock(
   import('./exec.js'),
-  async (importActual): Promise<typeof import('./exec')> => ({
+  async (importActual): Promise<typeof import('./exec.js')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })

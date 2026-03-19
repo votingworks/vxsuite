@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
-import { MarkScanControllerSandbox } from './mark_scan_controller_sandbox';
-import { render, screen } from '../../test/react_testing_library';
-import { AccessibleControllerSandbox } from './accessible_controller_sandbox';
+import { MarkScanControllerSandbox } from './mark_scan_controller_sandbox.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { AccessibleControllerSandbox } from './accessible_controller_sandbox.js';
 import {
   MARK_SCAN_CONTROLLER_KEYBINDINGS,
   MarkScanControllerButton,
-} from './types';
-import { Keybinding } from '../keybindings';
+} from './types.js';
+import { Keybinding } from '../keybindings.js';
 import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from '.';
 
 vi.mock(import('./accessible_controller_sandbox.js'), async (importActual) => ({

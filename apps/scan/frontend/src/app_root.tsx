@@ -16,17 +16,17 @@ import {
 
 import { assert } from '@votingworks/basics';
 import { useCallback, useEffect, useState } from 'react';
-import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
-import { ElectionManagerScreen } from './screens/election_manager_screen';
-import { InvalidCardScreen } from './screens/invalid_card_screen';
-import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
-import { PollWorkerScreen } from './screens/poll_worker_screen';
-import { CardErrorScreen } from './screens/card_error_screen';
-import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen';
-import { InsertUsbScreen } from './screens/insert_usb_screen';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
-import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
-import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
+import { LoadingConfigurationScreen } from './screens/loading_configuration_screen.js';
+import { ElectionManagerScreen } from './screens/election_manager_screen.js';
+import { InvalidCardScreen } from './screens/invalid_card_screen.js';
+import { PollsNotOpenScreen } from './screens/polls_not_open_screen.js';
+import { PollWorkerScreen } from './screens/poll_worker_screen.js';
+import { CardErrorScreen } from './screens/card_error_screen.js';
+import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen.js';
+import { InsertUsbScreen } from './screens/insert_usb_screen.js';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals.js';
+import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen.js';
+import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper.js';
 import {
   checkPin,
   getAuthStatus,
@@ -37,18 +37,18 @@ import {
   getUsbDriveStatus,
   unconfigureElection,
   useApiClient,
-} from './api';
-import { VoterScreen } from './screens/voter_screen';
-import { LoginPromptScreen } from './screens/login_prompt_screen';
-import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
-import { SystemAdministratorScreen } from './screens/system_administrator_screen';
-import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
-import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen';
-import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
-import { useSessionSettingsManager } from './utils/use_session_settings_manager';
-import { ScannerImageSensorCalibrationScreen } from './screens/scanner_image_sensor_calibration_screen';
-import { AccessibilityInputDisconnectedScreen } from './screens/accessibility_input_disconnected_screen';
-import { PatCalibrationScreenWrapper } from './components/pat_calibration_screen_wrapper';
+} from './api.js';
+import { VoterScreen } from './screens/voter_screen.js';
+import { LoginPromptScreen } from './screens/login_prompt_screen.js';
+import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen.js';
+import { SystemAdministratorScreen } from './screens/system_administrator_screen.js';
+import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen.js';
+import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen.js';
+import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen.js';
+import { useSessionSettingsManager } from './utils/use_session_settings_manager.js';
+import { ScannerImageSensorCalibrationScreen } from './screens/scanner_image_sensor_calibration_screen.js';
+import { AccessibilityInputDisconnectedScreen } from './screens/accessibility_input_disconnected_screen.js';
+import { PatCalibrationScreenWrapper } from './components/pat_calibration_screen_wrapper.js';
 
 export function AppRoot(): JSX.Element | null {
   const [

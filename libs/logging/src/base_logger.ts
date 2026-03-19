@@ -2,13 +2,13 @@
 import { Dictionary } from '@votingworks/types';
 import makeDebug from 'debug';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
-import { LogEventId, LogSource, getDetailsForEventId } from './log_event_enums';
+import { LogEventId, LogSource, getDetailsForEventId } from './log_event_enums.js';
 import {
   LogDisposition,
   LogDispositionStandardTypes,
   LogLine,
   LoggingUserRole,
-} from './types';
+} from './types.js';
 
 export const LOGS_ROOT_LOCATION = '/var/log';
 export const LOG_NAME = 'vx-logs';

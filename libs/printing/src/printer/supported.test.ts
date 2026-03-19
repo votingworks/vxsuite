@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { readFile } from 'node:fs/promises';
-import { SUPPORTED_PRINTER_CONFIGS, getPpdPath } from './supported';
+import { SUPPORTED_PRINTER_CONFIGS, getPpdPath } from './supported.js';
 
 // test also confirms that the configs.json file is valid
 test('referenced PPD files exist and are valid', async () => {

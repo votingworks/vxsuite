@@ -11,10 +11,10 @@ import {
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import * as hid from 'node-hid';
 import express, { Application } from 'express';
-import { ServerContext } from './context';
-import { getMachineConfig } from '../machine_config';
-import { sendTestPrint } from './background';
-import { SoundName } from '../audio/player';
+import { ServerContext } from './context.js';
+import { getMachineConfig } from '../machine_config.js';
+import { sendTestPrint } from './background.js';
+import { SoundName } from '../audio/player.js';
 
 // Honeywell CM4680SR (AKA Metrologic Instruments CM4680SR):
 const BARCODE_SCANNER_VENDOR_ID = 0x0c2e;

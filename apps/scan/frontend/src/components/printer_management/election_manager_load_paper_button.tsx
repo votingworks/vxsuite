@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
-import { getPrinterStatus, printTestPage } from '../../api';
-import { PrintTestPageModal } from './print_test_page_modal';
-import { LoadPaperModal } from './load_paper_modal';
+import { getPrinterStatus, printTestPage } from '../../api.js';
+import { PrintTestPageModal } from './print_test_page_modal.js';
+import { LoadPaperModal } from './load_paper_modal.js';
 
 function ElectionManagerLoadPaperModal({
   onClose,

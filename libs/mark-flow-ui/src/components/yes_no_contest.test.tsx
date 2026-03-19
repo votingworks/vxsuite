@@ -10,8 +10,8 @@ import {
   WithScrollButtons,
   WithScrollButtonsProps,
 } from '@votingworks/ui';
-import { screen, within, render } from '../../test/react_testing_library';
-import { YesNoContest } from './yes_no_contest';
+import { screen, within, render } from '../../test/react_testing_library.js';
+import { YesNoContest } from './yes_no_contest.js';
 
 const electionGeneral = readElectionGeneral();
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();

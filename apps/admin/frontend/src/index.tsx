@@ -15,15 +15,15 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { LogSource, BaseLogger } from '@votingworks/logging';
-import { App as ServerApp } from './app';
-import { ClientApp } from './client/client_app';
-import { createApiClient } from './api';
+import { App as ServerApp } from './app.js';
+import { ClientApp } from './client/client_app.js';
+import { createApiClient } from './api.js';
 import {
   SharedApiClientContext,
   createSharedQueryClient,
   getMachineMode,
   systemCallApi,
-} from './shared_api';
+} from './shared_api.js';
 
 function PrimaryApp(): JSX.Element | null {
   const machineModeQuery = getMachineMode.useQuery();

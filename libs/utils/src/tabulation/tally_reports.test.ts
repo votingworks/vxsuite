@@ -2,11 +2,11 @@ import { describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import { CandidateContest, DistrictId, Tabulation } from '@votingworks/types';
-import { buildContestResultsFixture } from './tabulation';
+import { buildContestResultsFixture } from './tabulation.js';
 import {
   getTallyReportCandidateRows,
   shorthandTallyReportCandidateRow,
-} from './tally_reports';
+} from './tally_reports.js';
 
 const electionDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();

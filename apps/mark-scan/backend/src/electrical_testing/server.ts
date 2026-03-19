@@ -1,13 +1,13 @@
 import { LogEventId } from '@votingworks/logging';
 
 import { execFile } from '@votingworks/backend';
-import { PORT } from '../globals';
-import { buildApp } from './app';
+import { PORT } from '../globals.js';
+import { buildApp } from './app.js';
 import {
   runCardReadAndUsbDriveWriteTask,
   runPrintAndScanTask,
-} from './background';
-import { ServerContext } from './context';
+} from './background.js';
+import { ServerContext } from './context.js';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger } = context;

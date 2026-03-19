@@ -7,8 +7,8 @@
 // names in memory in order to JSON stringify them. Can you do better?
 
 import { iter } from '@votingworks/basics';
-import { TODO } from '../src/todo';
-import { run } from '../src/example';
+import { TODO } from '../src/todo.js';
+import { run } from '../src/example.js';
 
 async function extractNamesFromContacts(): Promise<string> {
   TODO();

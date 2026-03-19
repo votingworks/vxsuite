@@ -9,8 +9,8 @@ import {
   assertDefined,
   mapObject,
 } from '@votingworks/basics';
-import { Screen } from '../screen';
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
+import { Screen } from '../screen.js';
+import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
 
 export const DEFAULT_LANGUAGE_CODE = 'en';
 export const DEFAULT_I18NEXT_NAMESPACE = 'translation';

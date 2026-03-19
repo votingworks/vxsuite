@@ -3,9 +3,9 @@ import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { advancePromises, TestLanguageCode } from '@votingworks/test-utils';
-import { newTestContext } from '../../test/test_context';
-import { LanguageSettingsButton } from './language_settings_button';
-import { act, screen } from '../../test/react_testing_library';
+import { newTestContext } from '../../test/test_context.js';
+import { LanguageSettingsButton } from './language_settings_button.js';
+import { act, screen } from '../../test/react_testing_library.js';
 
 const MOCK_ALT_AUDIO_PRIMARY_TEXT_TEST_ID = 'MockAltAudioPrimaryText';
 const MOCK_ALT_AUDIO_ALT_TEXT_TEST_ID = 'MockAltAudioAltText';

@@ -2,10 +2,10 @@ import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { screen } from '../test/react_testing_library';
-import { ExportLogsButton } from './export_logs_modal';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
-import { newTestContext } from '../test/test_context';
+import { screen } from '../test/react_testing_library.js';
+import { ExportLogsButton } from './export_logs_modal.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
+import { newTestContext } from '../test/test_context.js';
 
 const { mockApiClient, render } = newTestContext({
   skipUiStringsApi: true,

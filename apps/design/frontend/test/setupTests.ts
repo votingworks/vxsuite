@@ -7,7 +7,7 @@ import {
 } from '@votingworks/fixtures';
 
 import { TextEncoder } from 'node:util';
-import { makeIdFactory } from './id_helpers';
+import { makeIdFactory } from './id_helpers.js';
 
 expect.extend(matchers);
 

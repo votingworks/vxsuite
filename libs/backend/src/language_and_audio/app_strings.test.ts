@@ -4,9 +4,9 @@ import path from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { GoogleCloudTranslator } from './translator';
-import { makeMockGoogleCloudTranslationClient } from './test_utils';
-import { translateAppStrings } from './app_strings';
+import { GoogleCloudTranslator } from './translator.js';
+import { makeMockGoogleCloudTranslationClient } from './test_utils.js';
+import { translateAppStrings } from './app_strings.js';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },

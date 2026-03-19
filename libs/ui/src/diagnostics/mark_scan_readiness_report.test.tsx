@@ -2,10 +2,10 @@ import { expect, test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { MarkScanReadinessReport } from './mark_scan_readiness_report';
-import { render, screen } from '../../test/react_testing_library';
-import { expectConnectionStatus, expectDiagnosticResult } from './test_utils';
-import { DiagnosticSectionTitle } from './types';
+import { MarkScanReadinessReport } from './mark_scan_readiness_report.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { expectConnectionStatus, expectDiagnosticResult } from './test_utils.js';
+import { DiagnosticSectionTitle } from './types.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

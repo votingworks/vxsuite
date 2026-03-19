@@ -83,7 +83,7 @@ import {
   DuplicatePrecinctError,
   TestDecksTaskMetadata,
   SetPollingPlaceError,
-} from './store';
+} from './store.js';
 import {
   AggregatedReportedPollsStatus,
   AggregatedReportedResults,
@@ -97,8 +97,8 @@ import {
   ResultsReportingError,
   User,
   resultsReportingUrl,
-} from './types';
-import { AppContext } from './context';
+} from './types.js';
+import { AppContext } from './context.js';
 import {
   auth0ClientId,
   auth0IssuerBaseUrl,
@@ -108,26 +108,26 @@ import {
   NODE_ENV,
   DEPLOY_ENV,
   authEnabled,
-} from './globals';
-import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
+} from './globals.js';
+import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots.js';
 import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
   userCanAccessJurisdiction,
-} from './utils';
+} from './utils.js';
 import {
   StateFeaturesConfig,
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   UserFeaturesConfig,
-} from './features';
-import { rootDebug } from './debug';
-import * as ttsStrings from './tts_strings';
-import { convertMsElection } from './convert_ms_election';
-import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
-import { defaultSystemSettings } from './system_settings';
-import { logActivity } from './activity_logs';
+} from './features.js';
+import { rootDebug } from './debug.js';
+import * as ttsStrings from './tts_strings.js';
+import { convertMsElection } from './convert_ms_election.js';
+import { convertMsResults, ConvertMsResultsError } from './convert_ms_results.js';
+import { defaultSystemSettings } from './system_settings.js';
+import { logActivity } from './activity_logs.js';
 
 const debug = rootDebug.extend('app');
 

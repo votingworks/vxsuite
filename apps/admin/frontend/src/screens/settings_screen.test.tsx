@@ -9,15 +9,15 @@ import {
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
-import { HostConnectionStatus } from '../types';
-import { screen, within } from '../../test/react_testing_library';
+import { HostConnectionStatus } from '../types.js';
+import { screen, within } from '../../test/react_testing_library.js';
 
 import {
   eitherNeitherElectionDefinition,
   renderInAppContext,
-} from '../../test/render_in_app_context';
-import { SettingsScreen } from './settings_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+} from '../../test/render_in_app_context.js';
+import { SettingsScreen } from './settings_screen.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 const featureFlagMock = vi.hoisted(() => {
   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires

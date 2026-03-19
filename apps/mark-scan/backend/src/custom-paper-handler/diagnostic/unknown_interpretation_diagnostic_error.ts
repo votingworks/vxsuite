@@ -1,5 +1,5 @@
 import { PageInterpretationType } from '@votingworks/types';
-import { DiagnosticError } from './diagnostic_error';
+import { DiagnosticError } from './diagnostic_error.js';
 
 export class UnknownInterpretationDiagnosticError extends DiagnosticError {
   constructor(interpretationType: PageInterpretationType) {

@@ -4,7 +4,7 @@ import { ContestPage } from '@votingworks/mark-flow-ui';
 
 import { ContestId } from '@votingworks/types';
 import { AccessibilityMode, useIsPatDeviceConnected } from '@votingworks/ui';
-import { BallotContext } from '../contexts/ballot_context';
+import { BallotContext } from '../contexts/ballot_context.js';
 
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;

@@ -4,8 +4,8 @@ import {
   CARD_DOD_CERT,
   CommonAccessCard,
   CommonAccessCardCompatibleCard,
-} from '../../../src/cac';
-import { waitForReadyCardStatus } from '../../src/utils';
+} from '../../../src/cac/index.js';
+import { waitForReadyCardStatus } from '../../src/utils.js';
 
 /**
  * Gets the certificate from a Common Access Card.

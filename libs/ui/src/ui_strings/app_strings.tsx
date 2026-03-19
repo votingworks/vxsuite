@@ -1,10 +1,10 @@
 /* eslint-disable react/no-unescaped-entities */
 
 import React from 'react';
-import { Font } from '../typography';
-import { PlaybackRate } from './audio_playback_rate';
-import { AudioVolume } from './audio_volume';
-import { UiString } from './ui_string';
+import { Font } from '../typography.js';
+import { PlaybackRate } from './audio_playback_rate.js';
+import { AudioVolume } from './audio_volume.js';
+import { UiString } from './ui_string.js';
 
 // TODO(kofi): Add lint rule to ensure object keys match uiStringKey props.
 

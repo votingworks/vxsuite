@@ -15,7 +15,7 @@ import {
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
-import { Column } from './layout';
+import { Column } from './layout.js';
 
 export function prependSpaceIfNeeded(text?: string): string {
   if (!text) {

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, ButtonProps } from '@votingworks/ui';
 
-import * as api from '../api';
+import * as api from '../api.js';
 
 interface Props {
   /** @default 'Deactivate Voting Session' */

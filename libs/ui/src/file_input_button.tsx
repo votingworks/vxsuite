@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, RefObject } from 'react';
 import styled from 'styled-components';
-import { LabelButton, ButtonProps } from './button';
+import { LabelButton, ButtonProps } from './button.js';
 
 const LabelButtonContainer = styled(LabelButton)`
   position: relative;

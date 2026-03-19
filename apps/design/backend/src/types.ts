@@ -11,7 +11,7 @@ import {
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
-import { baseUrl } from './globals';
+import { baseUrl } from './globals.js';
 
 export const StateCodes = ['DEMO', 'MS', 'NH'] as const;
 export type StateCode = (typeof StateCodes)[number];

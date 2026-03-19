@@ -1,14 +1,14 @@
 import { test, beforeEach, afterEach, vi, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import type { Anomaly } from '@votingworks/pollbook-backend';
-import { screen, waitFor } from '../test/react_testing_library';
+import { screen, waitFor } from '../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   createMockVoter,
-} from '../test/mock_api_client';
-import { AnomalyAlertScreen } from './anomaly_alert_screen';
-import { renderInAppContext } from '../test/render_in_app_context';
+} from '../test/mock_api_client.js';
+import { AnomalyAlertScreen } from './anomaly_alert_screen.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
 
 let apiMock: ApiMock;
 let unmount: () => void;

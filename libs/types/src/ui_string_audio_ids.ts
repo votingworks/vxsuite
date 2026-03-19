@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 
-import { Dictionary } from './generic';
+import { Dictionary } from './generic.js';
 
 type AudioIdList = string[];
 

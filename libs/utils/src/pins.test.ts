@@ -3,13 +3,13 @@ import fc from 'fast-check';
 import randomBytes from 'randombytes';
 import { Buffer } from 'node:buffer';
 
-import { isFeatureFlagEnabled } from './features';
+import { isFeatureFlagEnabled } from './features.js';
 import {
   generatePin,
   hyphenatePin,
   MAX_PIN_LENGTH,
   MIN_PIN_LENGTH,
-} from './pins';
+} from './pins.js';
 
 vi.mock('./features', async () => ({
   ...(await vi.importActual('./features')),

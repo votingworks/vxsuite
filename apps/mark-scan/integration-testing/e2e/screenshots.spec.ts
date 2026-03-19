@@ -18,7 +18,7 @@ import {
   forceUnconfigure,
   logInAsElectionManager,
   logInAsSystemAdministrator,
-} from '../support/auth';
+} from '../support/auth.js';
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);

@@ -11,15 +11,15 @@ import {
 import { SelectChangeEventFunction } from '@votingworks/types';
 import { assertDefined, integers } from '@votingworks/basics';
 import styled from 'styled-components';
-import { Select } from './select';
-import { Modal } from './modal';
-import { Button, ButtonProps } from './button';
-import { useNow } from './hooks/use_now';
-import { H2, P } from './typography';
-import { Icons } from './icons';
-import { Card } from './card';
-import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
-import { useSystemCallApi } from './system_call_api';
+import { Select } from './select.js';
+import { Modal } from './modal.js';
+import { Button, ButtonProps } from './button.js';
+import { useNow } from './hooks/use_now.js';
+import { H2, P } from './typography.js';
+import { Icons } from './icons.js';
+import { Card } from './card.js';
+import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
+import { useSystemCallApi } from './system_call_api.js';
 
 const InputGroup = styled.div`
   display: inline-flex;

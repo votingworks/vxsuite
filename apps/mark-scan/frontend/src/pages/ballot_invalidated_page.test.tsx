@@ -3,14 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { InsertedSmartCardAuth } from '@votingworks/types';
 import { VxRenderResult } from '@votingworks/ui';
-import { render } from '../../test/test_utils';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
-import { screen } from '../../test/react_testing_library';
-import { BallotInvalidatedPage } from './ballot_invalidated_page';
+import { render } from '../../test/test_utils.js';
+import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import { screen } from '../../test/react_testing_library.js';
+import { BallotInvalidatedPage } from './ballot_invalidated_page.js';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/mock_auth';
+} from '../../test/helpers/mock_auth.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

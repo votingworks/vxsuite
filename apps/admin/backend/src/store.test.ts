@@ -24,12 +24,12 @@ import {
   getFeatureFlagMock,
   getGroupedBallotStyles,
 } from '@votingworks/utils';
-import { Store } from './store';
+import { Store } from './store.js';
 import {
   ElectionRecord,
   ManualResultsVotingMethod,
   ScannerBatch,
-} from './types';
+} from './types.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

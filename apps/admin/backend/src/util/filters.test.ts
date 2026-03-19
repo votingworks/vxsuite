@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId } from '@votingworks/types';
-import { assertIsBackendFilter, convertFrontendFilter } from './filters';
+import { assertIsBackendFilter, convertFrontendFilter } from './filters.js';
 
 const electionGeneral = readElectionGeneral();
 

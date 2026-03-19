@@ -17,9 +17,9 @@ import {
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
-import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
-import { Jurisdiction, User } from './types';
-import { type StateFeaturesConfig } from './features';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
+import { Jurisdiction, User } from './types.js';
+import { type StateFeaturesConfig } from './features.js';
 
 export function getBallotPdfFileName(
   precinctName: string,

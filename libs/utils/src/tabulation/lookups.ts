@@ -14,8 +14,8 @@ import {
   getBallotStyle,
   ContestId,
 } from '@votingworks/types';
-import { getGroupedBallotStyles } from '../ballot_styles';
-import { allContestOptionsWithMultiEndorsements } from '../hmpb/all_contest_options';
+import { getGroupedBallotStyles } from '../ballot_styles.js';
+import { allContestOptionsWithMultiEndorsements } from '../hmpb/all_contest_options.js';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.

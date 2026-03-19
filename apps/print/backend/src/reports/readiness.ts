@@ -9,9 +9,9 @@ import {
 } from '@votingworks/backend';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { Workspace } from '../util/workspace';
-import { getCurrentTime } from '../util/get_current_time';
-import { PRINT_ALLOWED_EXPORT_PATTERNS } from '../globals';
+import { Workspace } from '../util/workspace.js';
+import { getCurrentTime } from '../util/get_current_time.js';
+import { PRINT_ALLOWED_EXPORT_PATTERNS } from '../globals.js';
 
 async function getReadinessReport({
   workspace,

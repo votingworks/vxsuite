@@ -7,9 +7,9 @@ import {
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatElectionHashes } from '@votingworks/types';
-import { render, screen, within } from '../../test/react_testing_library';
-import { AdminTallyReport } from './admin_tally_report';
-import { mockScannerBatches } from '../../test/fixtures';
+import { render, screen, within } from '../../test/react_testing_library.js';
+import { AdminTallyReport } from './admin_tally_report.js';
+import { mockScannerBatches } from '../../test/fixtures.js';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDefinition;

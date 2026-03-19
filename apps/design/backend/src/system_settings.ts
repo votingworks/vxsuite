@@ -5,8 +5,8 @@ import {
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   SystemSettings,
 } from '@votingworks/types';
-import { Jurisdiction, resultsReportingUrl, StateCode } from './types';
-import { sliOrganizationId } from './globals';
+import { Jurisdiction, resultsReportingUrl, StateCode } from './types.js';
+import { sliOrganizationId } from './globals.js';
 
 export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
   DEMO: {

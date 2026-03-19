@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { DistrictId, Precinct } from '@votingworks/types';
-import { getUserDefinedHmpbStrings } from './election_package_strings';
+import { getUserDefinedHmpbStrings } from './election_package_strings.js';
 
 test('getUserDefinedHmpbStrings', () => {
   const precincts: Precinct[] = [

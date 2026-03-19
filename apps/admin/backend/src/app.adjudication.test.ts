@@ -40,14 +40,14 @@ import {
   configureMachine,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
-} from '../test/app';
+} from '../test/app.js';
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
   HmpbImageView,
   VoteAdjudication,
   WriteInRecord,
-} from './types';
+} from './types.js';
 
 vi.setConfig({
   testTimeout: 30_000,

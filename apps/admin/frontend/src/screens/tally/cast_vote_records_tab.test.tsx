@@ -4,10 +4,10 @@ import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { screen, within } from '../../../test/react_testing_library';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { CastVoteRecordsTab } from './cast_vote_records_tab';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { screen, within } from '../../../test/react_testing_library.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { CastVoteRecordsTab } from './cast_vote_records_tab.js';
 import {
   mockCastVoteRecordFileMetadata,
   mockCastVoteRecordFileRecord,
@@ -15,7 +15,7 @@ import {
   mockManualResultsMetadata,
   TEST_FILE1,
   TEST_FILE2,
-} from '../../../test/api_mock_data';
+} from '../../../test/api_mock_data.js';
 
 let apiMock: ApiMock;
 

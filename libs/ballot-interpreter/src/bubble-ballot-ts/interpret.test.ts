@@ -12,8 +12,8 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import { expect, test } from 'vitest';
-import { pdfToPageImages } from '../../test/helpers/interpretation';
-import { interpret } from './interpret';
+import { pdfToPageImages } from '../../test/helpers/interpretation.js';
+import { interpret } from './interpret.js';
 
 const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();

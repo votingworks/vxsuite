@@ -46,22 +46,22 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
-import { Exporter } from '../exporter';
-import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
+import { Exporter } from '../exporter.js';
+import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals.js';
 import {
   buildCastVoteRecord as baseBuildCastVoteRecord,
   CvrImageDataInput,
-} from './build_cast_vote_record';
+} from './build_cast_vote_record.js';
 import {
   buildBatchManifest,
   buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata,
-} from './build_report_metadata';
-import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize';
+} from './build_report_metadata.js';
+import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize.js';
 import {
   recoverAfterInterruptedCreationTimestampUpdate,
   updateCreationTimestampOfDirectoryAndChildrenFiles,
-} from './file_system_utils';
-import { readCastVoteRecordExportMetadata } from './import';
+} from './file_system_utils.js';
+import { readCastVoteRecordExportMetadata } from './import.js';
 
 /**
  * An election definition and the election package hash.

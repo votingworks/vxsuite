@@ -1,4 +1,4 @@
-import * as builders from '../builders';
+import * as builders from '../builders.js';
 
 export const blankPage = builders.image(
   'data/sample-ballot-images/blank-page.png'

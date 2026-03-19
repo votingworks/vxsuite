@@ -35,10 +35,10 @@ import {
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { getUserRole } from '../src/util/auth';
-import { createWorkspace, Workspace } from '../src/util/workspace';
-import { buildApp } from '../src/app';
-import { Api } from '../src';
+import { getUserRole } from '../src/util/auth.js';
+import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { buildApp } from '../src/app.js';
+import { Api } from '../src/index.js';
 
 async function getFamousNamesBallotPdfBase64s(): Promise<
   readonly [string, string, string, string]

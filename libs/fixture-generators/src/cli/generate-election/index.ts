@@ -4,7 +4,7 @@ import { assertDefined } from '@votingworks/basics';
 import {
   DeepPartialGenerateElectionConfigSchema,
   generateElection,
-} from '../../generate-election';
+} from '../../generate-election/index.js';
 
 interface IO {
   stdin: NodeJS.ReadableStream;

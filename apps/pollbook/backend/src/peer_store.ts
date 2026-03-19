@@ -12,9 +12,9 @@ import {
   NETWORK_EVENT_LIMIT,
   MACHINE_DISCONNECTED_TIMEOUT,
   POLLBOOK_PACKAGE_ASSET_FILE_NAME,
-} from './globals';
-import { getCurrentTime } from './get_current_time';
-import { convertDbRowsToPollbookEvents } from './event_helpers';
+} from './globals.js';
+import { getCurrentTime } from './get_current_time.js';
+import { convertDbRowsToPollbookEvents } from './event_helpers.js';
 import {
   CommunicatingPollbookConnectionStatuses,
   ConfigurationError,
@@ -24,11 +24,11 @@ import {
   PollbookEvent,
   PollbookService,
   transitionPollbookToDisconnectedStatus,
-} from './types';
-import { rootDebug } from './debug';
-import { SchemaPath, Store } from './store';
-import { readPollbookPackage } from './pollbook_package';
-import { shouldPollbooksShareEvents } from './networking';
+} from './types.js';
+import { rootDebug } from './debug.js';
+import { SchemaPath, Store } from './store.js';
+import { readPollbookPackage } from './pollbook_package.js';
+import { shouldPollbooksShareEvents } from './networking.js';
 
 const debug = rootDebug.extend('store:peer');
 

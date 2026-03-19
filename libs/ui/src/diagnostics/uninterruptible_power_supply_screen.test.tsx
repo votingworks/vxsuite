@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { UninterruptiblePowerSupplyScreen } from './uninterruptible_power_supply_screen';
-import { render, screen } from '../../test/react_testing_library';
+import { UninterruptiblePowerSupplyScreen } from './uninterruptible_power_supply_screen.js';
+import { render, screen } from '../../test/react_testing_library.js';
 
 let passTest: () => void;
 let failTest: () => void;

@@ -30,20 +30,20 @@ import {
   Election,
 } from '@votingworks/types';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
-import { LocalApi, buildLocalApp } from '../src/app';
-import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace';
+import { LocalApi, buildLocalApp } from '../src/app.js';
+import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace.js';
 import {
   LocalWorkspace,
   PeerWorkspace,
   PollbookConnectionStatus,
-} from '../src';
-import { getUserRole } from '../src/auth';
-import { buildPeerApp, PeerApi } from '../src/peer_app';
-import { BarcodeScannerClient } from '../src/barcode_scanner/client';
+} from '../src/index.js';
+import { getUserRole } from '../src/auth.js';
+import { buildPeerApp, PeerApi } from '../src/peer_app.js';
+import { BarcodeScannerClient } from '../src/barcode_scanner/client.js';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_POLLING_INTERVAL,
-} from '../src/globals';
+} from '../src/globals.js';
 
 vi.mock('../barcode_scanner/client', () => ({
   BarcodeScannerClient: vi.fn().mockImplementation(() => ({

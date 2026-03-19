@@ -1,7 +1,7 @@
 /* eslint-disable vx/gts-no-public-class-fields */
 import { BaseLogger } from '@votingworks/logging';
-import { PatConnectionStatusReaderInterface } from './connection_status_reader';
-import { GPIO_PATH_PREFIX } from './constants';
+import { PatConnectionStatusReaderInterface } from './connection_status_reader.js';
+import { GPIO_PATH_PREFIX } from './constants.js';
 
 // This mock is intended for developing on PAT flows without PAT hardware.
 // It's also used to create a no-op mock for tests that just need

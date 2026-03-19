@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../../../test/react_testing_library';
-import { ContestList } from './contest_list';
-import { generateContests } from './test_utils.test';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { ContestList } from './contest_list.js';
+import { generateContests } from './test_utils.test.js';
 
 test('renders all provided info', () => {
   const contests = generateContests(4);

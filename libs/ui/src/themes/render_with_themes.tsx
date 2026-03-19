@@ -16,7 +16,7 @@ import {
 } from '@testing-library/react';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import type { OnTestFinishedHandler } from 'vitest';
-import { AppBase } from '../app_base';
+import { AppBase } from '../app_base.js';
 
 /**
  * React Testing Library render options with additional VX-specific parameters.

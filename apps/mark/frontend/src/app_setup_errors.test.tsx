@@ -2,14 +2,14 @@ import { afterEach, beforeEach, describe, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { act, render, screen } from '../test/react_testing_library';
+import { act, render, screen } from '../test/react_testing_library.js';
 
-import { App } from './app';
+import { App } from './app.js';
 
-import { advanceTimersAndPromises } from '../test/helpers/timers';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

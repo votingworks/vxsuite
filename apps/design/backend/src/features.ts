@@ -1,6 +1,6 @@
-import { sliOrganizationId, votingWorksOrganizationId } from './globals';
-import { Jurisdiction, StateCode, User } from './types';
-import { userBelongsToOrganization } from './utils';
+import { sliOrganizationId, votingWorksOrganizationId } from './globals.js';
+import { Jurisdiction, StateCode, User } from './types.js';
+import { userBelongsToOrganization } from './utils.js';
 
 /**
  * Features that should be enabled based on the user's organization - i.e.

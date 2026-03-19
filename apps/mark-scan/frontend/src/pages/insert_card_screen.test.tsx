@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { screen } from '../../test/react_testing_library';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { render } from '../../test/test_utils';
-import { InsertCardScreen } from './insert_card_screen';
-import { electionDefinition } from '../../test/helpers/election';
-import { ApiProvider } from '../api_provider';
+import { screen } from '../../test/react_testing_library.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { render } from '../../test/test_utils.js';
+import { InsertCardScreen } from './insert_card_screen.js';
+import { electionDefinition } from '../../test/helpers/election.js';
+import { ApiProvider } from '../api_provider.js';
 
 let apiMock: ApiMock;
 

@@ -32,11 +32,11 @@ import {
 } from '@votingworks/utils';
 
 import { assert, err, find, ok, Result } from '@votingworks/basics';
-import { QrCode, QrCodeLevel } from './qrcode';
-import { Font, H4, H5, P } from './typography';
-import { VxThemeProvider } from './themes/vx_theme_provider';
-import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
-import { Seal } from './seal';
+import { QrCode, QrCodeLevel } from './qrcode.js';
+import { Font, H4, H5, P } from './typography.js';
+import { VxThemeProvider } from './themes/vx_theme_provider.js';
+import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family.js';
+import { Seal } from './seal.js';
 import {
   electionStrings,
   appStrings,
@@ -44,8 +44,8 @@ import {
   CandidatePartyList,
   InEnglish,
   NumberString,
-} from './ui_strings';
-import { CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO } from './themes/make_theme';
+} from './ui_strings/index.js';
+import { CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO } from './themes/make_theme.js';
 
 export type MachineType = 'mark' | 'markScan';
 

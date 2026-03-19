@@ -3,7 +3,7 @@ import { Meta } from '@storybook/react';
 import {
   CheckboxButtonProps,
   CheckboxButton as Component,
-} from './checkbox_button';
+} from './checkbox_button.js';
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/CheckboxButton',

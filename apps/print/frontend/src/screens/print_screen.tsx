@@ -12,17 +12,17 @@ import {
   Loading,
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
-import { ExpandedSelect } from '../components/expanded_select';
-import { TitleBar } from '../components/title_bar';
-import { PrintAllButton } from '../components/print_all_button';
+import { ExpandedSelect } from '../components/expanded_select.js';
+import { TitleBar } from '../components/title_bar.js';
+import { PrintAllButton } from '../components/print_all_button.js';
 import {
   getDeviceStatuses,
   getElectionRecord,
   getPrecinctSelection,
   printBallot,
-} from '../api';
-import { getPartyOptions } from '../utils';
-import { ScreenWrapper } from '../components/screen_wrapper';
+} from '../api.js';
+import { getPartyOptions } from '../utils.js';
+import { ScreenWrapper } from '../components/screen_wrapper.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

@@ -1,8 +1,8 @@
 import React, { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
-import { TextOnly } from '../../ui_strings';
-import { Key } from '../common';
-import { KeyGroupAudioLabel } from './key_group_audio_label';
+import { TextOnly } from '../../ui_strings/index.js';
+import { Key } from '../common.js';
+import { KeyGroupAudioLabel } from './key_group_audio_label.js';
 
 const RowButton = styled.button`
   margin-bottom: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;

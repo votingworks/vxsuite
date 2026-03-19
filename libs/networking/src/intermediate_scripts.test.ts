@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { intermediateScript } from './intermediate_scripts';
+import { intermediateScript } from './intermediate_scripts.js';
 
 describe('intermediateScript', () => {
   it('returns a path ending in the script name', () => {

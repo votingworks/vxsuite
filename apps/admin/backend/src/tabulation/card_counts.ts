@@ -7,11 +7,11 @@ import {
   isGroupByEmpty,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { CardTally } from '../types';
-import { Store } from '../store';
-import { tabulateManualBallotCounts } from './manual_results';
-import { rootDebug } from '../util/debug';
-import { assertIsBackendFilter } from '../util/filters';
+import { CardTally } from '../types.js';
+import { Store } from '../store.js';
+import { tabulateManualBallotCounts } from './manual_results.js';
+import { rootDebug } from '../util/debug.js';
+import { assertIsBackendFilter } from '../util/filters.js';
 
 const debug = rootDebug.extend('card-counts');
 

@@ -7,7 +7,7 @@ import {
   BallotType,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { Store } from './store';
+import { Store } from './store.js';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({

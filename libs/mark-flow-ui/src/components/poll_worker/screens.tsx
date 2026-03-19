@@ -4,9 +4,9 @@ import React from 'react';
 
 import { Icons, P, RemoveCardImage } from '@votingworks/ui';
 import { Election, CardlessVoterUser } from '@votingworks/types';
-import { CenteredCardPageLayout } from '../centered_card_page_layout';
+import { CenteredCardPageLayout } from '../centered_card_page_layout.js';
 
-import { BallotStyleLabel } from './elements';
+import { BallotStyleLabel } from './elements.js';
 
 export interface ScreenBeginVotingProps {
   election: Election;

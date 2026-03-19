@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { render } from '../../test/test_utils';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
-import { screen } from '../../test/react_testing_library';
-import { EmptyBallotBoxPage } from './empty_ballot_box_page';
+import { render } from '../../test/test_utils.js';
+import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import { screen } from '../../test/react_testing_library.js';
+import { EmptyBallotBoxPage } from './empty_ballot_box_page.js';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/mock_auth';
+} from '../../test/helpers/mock_auth.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

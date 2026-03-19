@@ -10,14 +10,14 @@ import {
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library.js';
 
-import { App } from './app';
+import { App } from './app.js';
 
-import { presidentContest, voterContests } from '../test/helpers/election';
-import { withMarkup } from '../test/helpers/with_markup';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { getMockInterpretation } from '../test/helpers/interpretation';
+import { presidentContest, voterContests } from '../test/helpers/election.js';
+import { withMarkup } from '../test/helpers/with_markup.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { getMockInterpretation } from '../test/helpers/interpretation.js';
 
 let apiMock: ApiMock;
 

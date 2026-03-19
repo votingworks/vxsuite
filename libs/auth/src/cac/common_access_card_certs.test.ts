@@ -5,7 +5,7 @@ import {
   parseCardDetailsFromCert,
   parseCert,
   parseCommonAccessCardFields,
-} from './common_access_card_certs';
+} from './common_access_card_certs.js';
 
 test('parseCommonAccessCardFields', () => {
   expect(

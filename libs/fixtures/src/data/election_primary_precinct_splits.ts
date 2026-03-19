@@ -1,5 +1,5 @@
 import path from 'node:path';
-import * as builders from '../builders';
+import * as builders from '../builders.js';
 
 export const electionPackage = builders.file(
   'data/electionPrimaryPrecinctSplits/election-package-default-system-settings.zip'

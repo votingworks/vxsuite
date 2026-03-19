@@ -6,8 +6,8 @@ import {
   getScannedBallotCount,
   getScannedBallotCountForSheet,
 } from '@votingworks/utils';
-import { TD, TH } from '../table';
-import { reportColors } from './layout';
+import { TD, TH } from '../table.js';
+import { reportColors } from './layout.js';
 
 const CardCountTable = styled.div`
   margin-bottom: 1em;

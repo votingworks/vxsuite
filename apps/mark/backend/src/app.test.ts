@@ -48,16 +48,16 @@ import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
-import { createApp } from '../test/app_helpers';
-import { Api } from './app';
+import { createApp } from '../test/app_helpers.js';
+import { Api } from './app.js';
 import { ElectionState, PrintCalibration } from '.';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
-} from './util/accessible_controller';
-import { Workspace } from './util/workspace';
-import { Player } from './audio/player';
-import { MockBarcodeClient } from './barcodes/mock_client';
+} from './util/accessible_controller.js';
+import { Workspace } from './util/workspace.js';
+import { Player } from './audio/player.js';
+import { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();

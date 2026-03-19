@@ -1,4 +1,4 @@
-import * as builders from '../builders';
+import * as builders from '../builders.js';
 
 /**
  * Note: This is an election equivalent to the BASE_DEPRECATED version in the other fixtures and does

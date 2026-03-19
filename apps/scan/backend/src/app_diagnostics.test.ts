@@ -8,13 +8,13 @@ import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { withApp } from '../test/helpers/scanner_helpers';
+import { withApp } from '../test/helpers/scanner_helpers.js';
 import {
   TEST_PRINT_USER_FAIL_REASON,
   TEST_UPS_USER_FAIL_REASON,
   TEST_UPS_USER_PASS_REASON,
-} from './util/diagnostics';
-import { configureApp } from '../test/helpers/shared_helpers';
+} from './util/diagnostics.js';
+import { configureApp } from '../test/helpers/shared_helpers.js';
 
 vi.setConfig({ testTimeout: 60_000 });
 

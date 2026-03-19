@@ -2,16 +2,16 @@ import { afterEach, beforeEach, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus, Keybinding } from '@votingworks/ui';
-import { fireEvent, render, screen } from '../../test/react_testing_library';
+import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
-} from './diagnostics_screen';
+} from './diagnostics_screen.js';
 
 let apiMock: ApiMock;
 

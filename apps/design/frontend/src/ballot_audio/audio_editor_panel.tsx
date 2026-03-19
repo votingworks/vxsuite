@@ -6,9 +6,9 @@ import { TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey, YesNoContest } from '@votingworks/types';
 
 import { LinkButton, LinkButtonProps } from '@votingworks/ui';
-import * as api from '../api';
-import { UiStringPreview } from './ui_string_preview';
-import { AudioEditor } from './audio_editor';
+import * as api from '../api.js';
+import { UiStringPreview } from './ui_string_preview.js';
+import { AudioEditor } from './audio_editor.js';
 
 const Container = styled.div`
   display: grid;

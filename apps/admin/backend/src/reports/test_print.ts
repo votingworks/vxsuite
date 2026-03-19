@@ -13,7 +13,7 @@ import {
 } from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { getCurrentTime } from '../util/get_current_time';
+import { getCurrentTime } from '../util/get_current_time.js';
 
 const REPORT_NUM_ROWS = 30;
 const REPORT_ROW_RANGE = range(0, REPORT_NUM_ROWS);

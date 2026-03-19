@@ -5,14 +5,14 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { rootDebug } from '../utils/debug';
-import { getConnectedDeviceUris } from './device_uri';
-import { configurePrinter } from './configure';
-import { Printer } from './types';
-import { print as printData } from './print';
-import { getPrinterConfig } from './supported';
-import { MockFilePrinter } from './mocks/file_printer';
-import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
+import { rootDebug } from '../utils/debug.js';
+import { getConnectedDeviceUris } from './device_uri.js';
+import { configurePrinter } from './configure.js';
+import { Printer } from './types.js';
+import { print as printData } from './print.js';
+import { getPrinterConfig } from './supported.js';
+import { MockFilePrinter } from './mocks/file_printer.js';
+import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status.js';
 
 const debug = rootDebug.extend('manager');
 

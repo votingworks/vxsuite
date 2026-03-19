@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
-import { render, screen } from '../../../test/react_testing_library';
-import { generateContests } from './test_utils.test';
-import { WarningsSummary } from './warnings_summary';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { generateContests } from './test_utils.test.js';
+import { WarningsSummary } from './warnings_summary.js';
 
 test('renders all relevant warnings', () => {
   render(

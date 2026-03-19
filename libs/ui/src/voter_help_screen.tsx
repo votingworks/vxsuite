@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import { PageNavigationButtonId } from './accessible_controllers';
-import { Button } from './button';
-import { Screen } from './screen';
-import { H1, H2, H3, P } from './typography';
-import { appStrings, ReadOnLoad } from './ui_strings';
-import { WithScrollButtons } from './with_scroll_buttons';
+import { PageNavigationButtonId } from './accessible_controllers/index.js';
+import { Button } from './button.js';
+import { Screen } from './screen.js';
+import { H1, H2, H3, P } from './typography.js';
+import { appStrings, ReadOnLoad } from './ui_strings/index.js';
+import { WithScrollButtons } from './with_scroll_buttons.js';
 
 const StyledScreen = styled(Screen)`
   height: 100vh;

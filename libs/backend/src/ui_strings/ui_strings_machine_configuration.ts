@@ -2,7 +2,7 @@
 
 import { ElectionPackage } from '@votingworks/types';
 import { BaseLogger } from '@votingworks/logging';
-import { UiStringsStore } from './ui_strings_store';
+import { UiStringsStore } from './ui_strings_store.js';
 
 /** Input for {@link configureUiStrings}. */
 export interface ElectionPackageProcessorInput {

@@ -5,7 +5,7 @@ import {
   VoterRegistrationRequest,
 } from '@votingworks/types';
 import { Optional } from '@votingworks/basics';
-import { isVoterNameChangeValid } from './voter_helpers';
+import { isVoterNameChangeValid } from './voter_helpers.js';
 
 export function maybeGetStreetInfoForAddress(
   streetName: string,

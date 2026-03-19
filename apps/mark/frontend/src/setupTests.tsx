@@ -8,7 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { cleanup, configure } from '../test/react_testing_library';
+import { cleanup, configure } from '../test/react_testing_library.js';
 import './polyfills';
 
 expect.extend(matchers);

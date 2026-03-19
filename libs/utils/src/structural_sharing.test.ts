@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { persistDataReferenceIfDeepEqual } from './structural_sharing';
+import { persistDataReferenceIfDeepEqual } from './structural_sharing.js';
 
 interface Data {
   a: number;

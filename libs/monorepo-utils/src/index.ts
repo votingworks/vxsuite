@@ -2,8 +2,8 @@
 export {
   CIRCLECI_CONFIG_PATH,
   generateAllConfigs as generateAllCircleCiConfigs,
-} from './circleci';
-export * from './dependencies';
-export { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
-export * from './types';
-export * from './unused';
+} from './circleci.js';
+export * from './dependencies.js';
+export { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm.js';
+export * from './types.js';
+export * from './unused.js';

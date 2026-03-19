@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import { assert } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
-import { STATUS_WORD } from './apdu';
+import { STATUS_WORD } from './apdu.js';
 
 /**
  * See https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-73-4.pdf for the full NIST

@@ -1,7 +1,7 @@
 import { test } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
-import { BatterySection } from './battery_section';
+import { render, screen } from '../../test/react_testing_library.js';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
+import { BatterySection } from './battery_section.js';
 
 test('undefined battery info', async () => {
   render(<BatterySection />);

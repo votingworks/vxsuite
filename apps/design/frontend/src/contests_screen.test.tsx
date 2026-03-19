@@ -36,12 +36,12 @@ import {
   provideApi,
   user,
   mockStateFeatures,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   electionInfoFromElection,
   generalElectionRecord,
   makeElectionRecord,
-} from '../test/fixtures';
+} from '../test/fixtures.js';
 import {
   act,
   fireEvent,
@@ -49,13 +49,13 @@ import {
   screen,
   waitFor,
   within,
-} from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { ContestsScreen } from './contests_screen';
-import { routes } from './routes';
-import { makeIdFactory } from '../test/id_helpers';
-import { ContestList, ContestListProps, ReorderParams } from './contest_list';
-import { ContestAudioPanel } from './contest_audio_panel';
+} from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { ContestsScreen } from './contests_screen.js';
+import { routes } from './routes.js';
+import { makeIdFactory } from '../test/id_helpers.js';
+import { ContestList, ContestListProps, ReorderParams } from './contest_list.js';
+import { ContestAudioPanel } from './contest_audio_panel.js';
 
 vi.mock('./contest_list.js');
 const MockContestList = vi.mocked(ContestList);

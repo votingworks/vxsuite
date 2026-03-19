@@ -1,11 +1,11 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 
-import { H1, P } from '../../typography';
-import { Icons } from '../../icons';
-import { ReadOnLoad, appStrings } from '../../ui_strings';
-import { behaviorToKeypressMap, validKeypressValues } from './constants';
-import { PortraitStepInnerContainer } from './portrait_step_inner_container';
+import { H1, P } from '../../typography.js';
+import { Icons } from '../../icons.js';
+import { ReadOnLoad, appStrings } from '../../ui_strings/index.js';
+import { behaviorToKeypressMap, validKeypressValues } from './constants.js';
+import { PortraitStepInnerContainer } from './portrait_step_inner_container.js';
 
 export type InputBehavior = 'Move' | 'Select';
 

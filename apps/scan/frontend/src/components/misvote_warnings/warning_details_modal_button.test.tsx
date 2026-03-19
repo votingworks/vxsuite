@@ -1,9 +1,9 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { WarningDetails } from './warning_details';
-import { generateContests } from './test_utils.test';
-import { WarningDetailsModalButton } from './warning_details_modal_button';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { WarningDetails } from './warning_details.js';
+import { generateContests } from './test_utils.test.js';
+import { WarningDetailsModalButton } from './warning_details_modal_button.js';
 
 vi.mock('./warning_details', async () => ({
   ...(await vi.importActual('./warning_details')),

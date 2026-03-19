@@ -18,9 +18,9 @@ import {
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
-import { getConfig, getMachineConfig, getScannerStatus } from '../api';
-import { ScannedBallotCount } from './scanned_ballot_count';
-import { VoterHelpScreen } from './voter_help_screen';
+import { getConfig, getMachineConfig, getScannerStatus } from '../api.js';
+import { ScannedBallotCount } from './scanned_ballot_count.js';
+import { VoterHelpScreen } from './voter_help_screen.js';
 
 /**
  * At larger text sizes, the election info bar takes up too much valuable screen

@@ -36,15 +36,15 @@ import {
   systemCallApi,
   unconfigure,
   useApiClient,
-} from './api';
-import { ErrorScreen } from './error_screen';
-import { PollWorkerScreen } from './poll_worker_screen';
-import { MachineLockedScreen } from './machine_locked_screen';
-import { ElectionManagerScreen } from './election_manager_screen';
-import { SystemAdministratorScreen } from './system_administrator_screen';
-import { UnconfiguredElectionManagerScreen } from './unconfigured_screen';
-import { SessionTimeLimitTracker } from './session_time_limit_tracker';
-import { AnomalyAlertScreen } from './anomaly_alert_screen';
+} from './api.js';
+import { ErrorScreen } from './error_screen.js';
+import { PollWorkerScreen } from './poll_worker_screen.js';
+import { MachineLockedScreen } from './machine_locked_screen.js';
+import { ElectionManagerScreen } from './election_manager_screen.js';
+import { SystemAdministratorScreen } from './system_administrator_screen.js';
+import { UnconfiguredElectionManagerScreen } from './unconfigured_screen.js';
+import { SessionTimeLimitTracker } from './session_time_limit_tracker.js';
+import { AnomalyAlertScreen } from './anomaly_alert_screen.js';
 
 function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const apiClient = useApiClient();

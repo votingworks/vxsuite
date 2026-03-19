@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { DownloadsScreen } from './downloads_screen';
-import { routes } from './routes';
-import { withRoute } from '../test/routing_helpers';
+import { DownloadsScreen } from './downloads_screen.js';
+import { routes } from './routes.js';
+import { withRoute } from '../test/routing_helpers.js';
 import {
   createMockApiClient,
   jurisdiction,
@@ -10,14 +10,14 @@ import {
   mockUserFeatures,
   provideApi,
   user,
-} from '../test/api_helpers';
-import { render, screen } from '../test/react_testing_library';
-import { BallotsStatus } from './ballots_status';
-import { Downloads } from './downloads';
+} from '../test/api_helpers.js';
+import { render, screen } from '../test/react_testing_library.js';
+import { BallotsStatus } from './ballots_status.js';
+import { Downloads } from './downloads.js';
 import {
   blankElectionRecord,
   electionInfoFromElection,
-} from '../test/fixtures';
+} from '../test/fixtures.js';
 
 vi.mock('./ballots_status');
 const MockBallotsStatus = vi.mocked(BallotsStatus);

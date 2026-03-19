@@ -1,6 +1,6 @@
 /* istanbul ignore file - @preserve used only in internal dev and testing */
 import { EventEmitter } from 'node:stream';
-import { BarcodeReader } from './types';
+import { BarcodeReader } from './types.js';
 
 export class MockBarcodeClient
   extends EventEmitter<{

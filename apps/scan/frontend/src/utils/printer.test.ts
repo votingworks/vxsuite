@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { getPollsFlowPrinterSummary } from './printer';
+import { getPollsFlowPrinterSummary } from './printer.js';
 
 test('getPollsFlowPrinterSummary', () => {
   expect(

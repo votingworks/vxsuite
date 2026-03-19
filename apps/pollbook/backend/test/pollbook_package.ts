@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { MockFileTree } from '@votingworks/usb-drive';
 import { zipFile } from '@votingworks/test-utils';
-import { PollbookPackageFileName } from '../src/pollbook_package';
+import { PollbookPackageFileName } from '../src/pollbook_package.js';
 
 export async function mockPollbookPackageZip(
   electionData: Buffer,

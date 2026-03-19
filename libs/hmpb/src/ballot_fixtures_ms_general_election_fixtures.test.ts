@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { readElection } from '@votingworks/fs';
-import { expectToMatchSavedPdf } from '../test/helpers';
-import { msGeneralElectionFixtures } from './ballot_fixtures';
-import { createPlaywrightRendererPool } from './playwright_renderer';
-import { RendererPool } from './renderer';
+import { expectToMatchSavedPdf } from '../test/helpers.js';
+import { msGeneralElectionFixtures } from './ballot_fixtures.js';
+import { createPlaywrightRendererPool } from './playwright_renderer.js';
+import { RendererPool } from './renderer.js';
 
 vi.setConfig({
   testTimeout: 20_000,

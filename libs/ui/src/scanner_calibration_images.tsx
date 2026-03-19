@@ -1,4 +1,4 @@
-import { Svg } from './svg';
+import { Svg } from './svg.js';
 
 export function CalibrationInsertSingleSheetIllustration(): JSX.Element {
   return (

@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
 import { createApi, createClient } from '@votingworks/grout';
-import { createMockClient } from './mock_client';
+import { createMockClient } from './mock_client.js';
 
 const api = createApi({
   add(input: { num1: number; num2: number }): number {

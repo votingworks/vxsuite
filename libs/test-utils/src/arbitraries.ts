@@ -36,7 +36,7 @@ import {
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
-import { TestLanguageCode } from './test_language_code';
+import { TestLanguageCode } from './test_language_code.js';
 
 /**
  * Builds arbitrary uint2 values.

@@ -1,7 +1,7 @@
 import { DesktopPalette, H2 } from '@votingworks/ui';
 import styled, { css } from 'styled-components';
-import { cssThemedScrollbars } from './scrollbars';
-import { StyledRichTextEditor } from './rich_text_editor';
+import { cssThemedScrollbars } from './scrollbars.js';
+import { StyledRichTextEditor } from './rich_text_editor.js';
 
 export const FormBody = styled.div`
   display: flex;

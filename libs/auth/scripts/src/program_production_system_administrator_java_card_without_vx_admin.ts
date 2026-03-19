@@ -7,12 +7,12 @@ import { DEV_MACHINE_ID } from '@votingworks/types';
 import {
   CERT_EXPIRY_IN_DAYS,
   constructMachineCertSubject,
-} from '../../src/certs';
-import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
-import { createCert } from '../../src/cryptography';
-import { getRequiredEnvVar } from '../../src/env_vars';
-import { JavaCard } from '../../src/java_card';
-import { generatePrivateKey, programJavaCard } from './utils';
+} from '../../src/certs.js';
+import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config.js';
+import { createCert } from '../../src/cryptography.js';
+import { getRequiredEnvVar } from '../../src/env_vars.js';
+import { JavaCard } from '../../src/java_card.js';
+import { generatePrivateKey, programJavaCard } from './utils.js';
 
 interface ScriptEnvVars {
   jurisdiction: string;

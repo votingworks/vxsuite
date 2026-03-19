@@ -44,21 +44,21 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
 import { PrintCalibration } from '@votingworks/hmpb';
-import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
-import { ElectionState, PrintBallotProps } from './types';
-import { printBallot } from './util/print_ballot';
+import { getMachineConfig } from './machine_config.js';
+import { Workspace } from './util/workspace.js';
+import { ElectionState, PrintBallotProps } from './types.js';
+import { printBallot } from './util/print_ballot.js';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
-} from './util/accessible_controller';
-import { constructAuthMachineState } from './util/auth';
-import { ElectionRecord } from './store';
-import * as barcodes from './barcodes';
-import { setUpBarcodeActivation } from './barcodes/activation';
-import { Player as AudioPlayer, SoundName } from './audio/player';
-import { saveReadinessReport } from './readiness_report';
-import { printTestPage } from './util/print_test_page';
+} from './util/accessible_controller.js';
+import { constructAuthMachineState } from './util/auth.js';
+import { ElectionRecord } from './store.js';
+import * as barcodes from './barcodes/index.js';
+import { setUpBarcodeActivation } from './barcodes/activation.js';
+import { Player as AudioPlayer, SoundName } from './audio/player.js';
+import { saveReadinessReport } from './readiness_report.js';
+import { printTestPage } from './util/print_test_page.js';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
 const TEST_UPS_USER_FAIL_REASON =

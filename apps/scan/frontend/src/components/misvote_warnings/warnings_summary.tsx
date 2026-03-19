@@ -6,8 +6,8 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import React from 'react';
-import { WarningDetailsModalButton } from './warning_details_modal_button';
-import { MisvoteWarningsProps } from './types';
+import { WarningDetailsModalButton } from './warning_details_modal_button.js';
+import { MisvoteWarningsProps } from './types.js';
 
 export function WarningsSummary(props: MisvoteWarningsProps): JSX.Element {
   const { blankContests, overvoteContests, partiallyVotedContests } = props;

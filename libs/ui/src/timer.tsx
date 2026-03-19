@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useNow } from './hooks/use_now';
+import { useNow } from './hooks/use_now.js';
 
 const Container = styled('span')`
   font-weight: 500;

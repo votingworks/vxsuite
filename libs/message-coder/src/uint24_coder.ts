@@ -1,6 +1,6 @@
 import { Result, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { MAX_UINT24, MIN_UINT24 } from './constants';
+import { MAX_UINT24, MIN_UINT24 } from './constants.js';
 import {
   BitOffset,
   Coder,
@@ -8,8 +8,8 @@ import {
   DecodeResult,
   EncodeResult,
   Uint24,
-} from './types';
-import { UintCoder } from './uint_coder';
+} from './types.js';
+import { UintCoder } from './uint_coder.js';
 
 /**
  * Coder for a uint24, aka a 24-bit unsigned integer. Uses little-endian byte

@@ -15,7 +15,7 @@ import {
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { ImageData } from 'canvas';
-import { rootDebug } from './util/debug';
+import { rootDebug } from './util/debug.js';
 
 export function combinePageInterpretationsForSheet(
   pages: SheetOf<PageInterpretationWithFiles>

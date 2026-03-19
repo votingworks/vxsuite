@@ -9,9 +9,9 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { format, getGroupedBallotStyles } from '@votingworks/utils';
-import { H2, P } from '../typography';
-import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
-import { Table } from '../table';
+import { H2, P } from '../typography.js';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';
+import { Table } from '../table.js';
 
 export interface ConfigurationSectionProps {
   electionDefinition?: ElectionDefinition;

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Checkbox } from './checkbox';
-import { Icons } from './icons';
-import { Caption, Font, H5, HeadingProps, P } from './typography';
+import { Checkbox } from './checkbox.js';
+import { Icons } from './icons.js';
+import { Caption, Font, H5, HeadingProps, P } from './typography.js';
 
 export interface VoterContestSummaryProps {
   districtName: React.ReactNode;

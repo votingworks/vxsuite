@@ -1,16 +1,16 @@
 import { throwIllegalValue } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
 
-import { BackgroundTask } from '../store';
-import { WorkerContext } from './context';
+import { BackgroundTask } from '../store.js';
+import { WorkerContext } from './context.js';
 import {
   generateElectionPackageAndBallots,
   GenerateElectionPackageAndBallotsPayloadSchema,
-} from './generate_election_package_and_ballots';
+} from './generate_election_package_and_ballots.js';
 import {
   generateTestDecks,
   GenerateTestDecksPayloadSchema,
-} from './generate_test_decks';
+} from './generate_test_decks.js';
 
 export async function processBackgroundTask(
   context: WorkerContext,

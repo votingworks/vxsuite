@@ -1,2 +1,2 @@
-export * from './language_settings_button';
-export * from './language_settings_screen';
+export * from './language_settings_button.js';
+export * from './language_settings_screen.js';

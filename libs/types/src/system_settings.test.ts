@@ -4,7 +4,7 @@ import { err, ok } from '@votingworks/basics';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   safeParseSystemSettings,
-} from './system_settings';
+} from './system_settings.js';
 
 const systemSettingsString = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
 

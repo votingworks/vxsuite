@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
-import { getMockStateRootDir } from './mocking';
+import { getMockStateRootDir } from './mocking.js';
 
 const FAKE_REPO_ROOT = '/fake/repo';
 

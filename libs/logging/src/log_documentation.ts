@@ -7,7 +7,7 @@ import {
   LogEventId,
   LogEventType,
   LogEventTypeDocumentation,
-} from './log_event_enums';
+} from './log_event_enums.js';
 
 export function generateMarkdownDocumentationContent(): string {
   const allEventTypes: LogEventTypeDocumentation[] = Object.values(

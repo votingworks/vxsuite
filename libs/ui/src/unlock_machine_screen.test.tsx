@@ -7,9 +7,9 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 
-import { act, render, screen, waitFor } from '../test/react_testing_library';
-import { UnlockMachineScreen } from './unlock_machine_screen';
-import { PinLength } from './utils/pin_length';
+import { act, render, screen, waitFor } from '../test/react_testing_library.js';
+import { UnlockMachineScreen } from './unlock_machine_screen.js';
+import { PinLength } from './utils/pin_length.js';
 
 beforeEach(() => {
   vi.useFakeTimers({

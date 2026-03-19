@@ -7,7 +7,7 @@ import {
 import type { MachineConfig, MachineMode } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { Iso8601Timestamp } from '../config/types';
+import { Iso8601Timestamp } from '../config/types.js';
 
 export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;

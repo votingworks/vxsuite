@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import type { BatteryInfo as BatteryInfoType } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { IconProps, Icons } from './icons';
-import { Font } from './typography';
-import { useSystemCallApi } from './system_call_api';
+import { IconProps, Icons } from './icons.js';
+import { Font } from './typography.js';
+import { useSystemCallApi } from './system_call_api.js';
 
 const BatteryInfo = styled.div`
   align-self: center;

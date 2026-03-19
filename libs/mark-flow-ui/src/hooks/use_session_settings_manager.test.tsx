@@ -16,8 +16,8 @@ import {
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { AudioControls, InsertedSmartCardAuth } from '@votingworks/types';
-import { act, renderHook } from '../../test/react_testing_library';
-import { useSessionSettingsManager } from './use_session_settings_manager';
+import { act, renderHook } from '../../test/react_testing_library.js';
+import { useSessionSettingsManager } from './use_session_settings_manager.js';
 
 const mockAudioControls = mockUseAudioControls(vi.fn);
 const mockLanguageControls: Mocked<LanguageControls> = {

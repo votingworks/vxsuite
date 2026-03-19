@@ -66,39 +66,39 @@ import {
   delays,
   getPaperHandlerStateMachine,
   paperHandlerStatusToEvent,
-} from './state_machine';
-import { Workspace, createWorkspace } from '../util/workspace';
+} from './state_machine.js';
+import { Workspace, createWorkspace } from '../util/workspace.js';
 import {
   PatConnectionStatusReader,
   PatConnectionStatusReaderInterface,
-} from '../pat-input/connection_status_reader';
-import { getPaperInRearStatus } from './test_utils';
+} from '../pat-input/connection_status_reader.js';
+import { getPaperInRearStatus } from './test_utils/index.js';
 import { SimpleServerStatus } from '.';
 import {
   loadAndParkPaper,
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
-} from './application_driver';
+} from './application_driver.js';
 import {
   mockCardlessVoterAuth,
   mockElectionManagerAuth,
   mockLoggedOutAuth,
   mockPollWorkerAuth,
   mockSystemAdminAuth,
-} from '../../test/auth_helpers';
-import { MAX_BALLOT_BOX_CAPACITY } from './constants';
+} from '../../test/auth_helpers.js';
+import { MAX_BALLOT_BOX_CAPACITY } from './constants.js';
 import {
   GPIO_PATH_PREFIX,
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
-} from '../pat-input/constants';
+} from '../pat-input/constants.js';
 import {
   BLANK_PAGE_INTERPRETATION_MOCK,
   BLANK_PAGE_MOCK,
-} from '../../test/ballot_helpers';
-import { BmdModelNumber } from '../types';
-import { getNodeEnv } from '../globals';
+} from '../../test/ballot_helpers.js';
+import { BmdModelNumber } from '../types.js';
+import { getNodeEnv } from '../globals.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -1230,7 +1230,7 @@ describe('open cover detection', () => {
     // mock paper handler.
     vi.mocked(loadAndParkPaper).mockImplementation(
       (
-        await vi.importActual<typeof import('./application_driver')>(
+        await vi.importActual<typeof import('./application_driver.js')>(
           './application_driver'
         )
       ).loadAndParkPaper

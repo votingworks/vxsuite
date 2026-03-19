@@ -9,7 +9,7 @@ import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { iter, assert, assertDefined } from '@votingworks/basics';
 import tmp from 'tmp';
 
-import { renderTestModeBallotWithoutLanguageContext } from '../../util/render_ballot';
+import { renderTestModeBallotWithoutLanguageContext } from '../../util/render_ballot.js';
 
 export const DIAGNOSTIC_ELECTION_PATH = join(
   import.meta.dirname,

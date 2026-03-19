@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ProgressEllipsis } from './progress_ellipsis';
+import { ProgressEllipsis } from './progress_ellipsis.js';
 
 const Fullscreen = styled.div`
   display: flex;

@@ -21,11 +21,11 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
-import { Screen } from '../components/layout';
+import { Screen } from '../components/layout.js';
 
-import { acceptBallot, getConfig, returnBallot } from '../api';
-import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
-import { MisvoteWarnings } from '../components/misvote_warnings';
+import { acceptBallot, getConfig, returnBallot } from '../api.js';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
+import { MisvoteWarnings } from '../components/misvote_warnings/index.js';
 
 interface MisvoteWarningScreenProps {
   electionDefinition: ElectionDefinition;

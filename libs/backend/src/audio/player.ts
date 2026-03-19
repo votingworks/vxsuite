@@ -1,5 +1,5 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { execFile } from '../exec';
+import { execFile } from '../exec.js';
 
 /**
  * Options for configuring the audio player.

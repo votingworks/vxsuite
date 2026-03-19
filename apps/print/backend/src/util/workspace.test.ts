@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace } from './workspace';
+import { createWorkspace } from './workspace.js';
 
 test('workspace.reset resets the store', () => {
   const workspace = createWorkspace(

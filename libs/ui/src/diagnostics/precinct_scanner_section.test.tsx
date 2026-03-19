@@ -1,7 +1,7 @@
 import { test } from 'vitest';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
-import { render } from '../../test/react_testing_library';
-import { PrecinctScannerSection } from './precinct_scanner_section';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
+import { render } from '../../test/react_testing_library.js';
+import { PrecinctScannerSection } from './precinct_scanner_section.js';
 
 test('State: waiting_for_ballot', async () => {
   render(

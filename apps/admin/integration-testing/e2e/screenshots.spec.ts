@@ -43,18 +43,18 @@ import {
   logInAsElectionManager,
   logInAsSystemAdministrator,
   logOut,
-} from './support/auth';
+} from './support/auth.js';
 import {
   getAdjudicateButtons,
   selectCandidateOrInvalidate,
   WRITE_IN_NAMES,
-} from './support/write_in_adjudication';
+} from './support/write_in_adjudication.js';
 import {
   getPrimaryButton,
   openDropdown,
   selectOpenDropdownOption,
   waitForReportToLoad,
-} from './support/navigation';
+} from './support/navigation.js';
 
 async function saveLastExportedReport({
   usbHandler,

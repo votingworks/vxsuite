@@ -1,6 +1,6 @@
 import { PollsTransitionType } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
-import { LogEventId } from './log_event_enums';
+import { LogEventId } from './log_event_enums.js';
 
 export function getLogEventIdForPollsTransition(
   transitionType: PollsTransitionType

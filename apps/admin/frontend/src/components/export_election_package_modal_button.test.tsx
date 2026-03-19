@@ -4,10 +4,10 @@ import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
-import { screen, within } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ExportElectionPackageModalButton } from './export_election_package_modal_button';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { screen, within } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { ExportElectionPackageModalButton } from './export_election_package_modal_button.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

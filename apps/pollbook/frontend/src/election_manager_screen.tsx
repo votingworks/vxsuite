@@ -1,11 +1,11 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { StatisticsScreen } from './statistics_screen';
-import { ElectionManagerVotersScreen } from './voters_screen';
-import { VoterDetailsScreen } from './voter_details_screen';
-import { VoterRegistrationScreen } from './voter_registration_screen';
-import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
-import { SettingsScreen } from './settings_screen';
-import { ElectionScreen } from './election_screen';
+import { StatisticsScreen } from './statistics_screen.js';
+import { ElectionManagerVotersScreen } from './voters_screen.js';
+import { VoterDetailsScreen } from './voter_details_screen.js';
+import { VoterRegistrationScreen } from './voter_registration_screen.js';
+import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen.js';
+import { SettingsScreen } from './settings_screen.js';
+import { ElectionScreen } from './election_screen.js';
 
 function ElectionManagerElectionScreen(): JSX.Element | null {
   return (

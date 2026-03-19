@@ -18,7 +18,7 @@ import {
   readableFileFromData,
   readableFileFromDisk,
   updateCastVoteRecordHashes,
-} from './cast_vote_record_hashes';
+} from './cast_vote_record_hashes.js';
 
 let tempDirectoryPath: string;
 

@@ -11,7 +11,7 @@ import {
   parseTlv,
   ResponseApduError,
   Tlv,
-} from './apdu';
+} from './apdu.js';
 
 test.each<{
   cla?: ClaParams;

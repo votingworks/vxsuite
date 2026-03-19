@@ -1,6 +1,6 @@
 /* istanbul ignore file - @preserve */
 import { useState } from 'react';
-import { Button } from './button';
+import { Button } from './button.js';
 
 /**
  * A button that displays and increments a tap counter.

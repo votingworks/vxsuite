@@ -3,11 +3,11 @@ import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
-import { withApp } from '../test/app';
+import { withApp } from '../test/app.js';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
-} from './pollbook_package';
+} from './pollbook_package.js';
 
 const electionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();

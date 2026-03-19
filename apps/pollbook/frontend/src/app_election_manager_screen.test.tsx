@@ -13,11 +13,11 @@ import {
   ApiMock,
   createApiMock,
   createMockVoter,
-} from '../test/mock_api_client';
-import { act, render, screen } from '../test/react_testing_library';
-import { App } from './app';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
+} from '../test/mock_api_client.js';
+import { act, render, screen } from '../test/react_testing_library.js';
+import { App } from './app.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api.js';
 
 let apiMock: ApiMock;
 const election: Election = electionMultiPartyPrimaryFixtures.readElection();

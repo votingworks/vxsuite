@@ -10,9 +10,9 @@ import {
   listContests,
   listDistricts,
   reorderContests,
-} from './api';
-import { Column, Row } from './layout';
-import { reorderElement } from './utils';
+} from './api.js';
+import { Column, Row } from './layout.js';
+import { reorderElement } from './utils.js';
 
 function serializeContestIds(contests: Contests): string {
   return contests

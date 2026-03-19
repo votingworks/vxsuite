@@ -37,9 +37,9 @@ import {
   getBallotLayoutSettings,
   listBallotStyles,
   listParties,
-} from './api';
-import { routes } from './routes';
-import { FieldName as BaseFieldName, Row } from './layout';
+} from './api.js';
+import { routes } from './routes.js';
+import { FieldName as BaseFieldName, Row } from './layout.js';
 
 // Worker file must be copied from pdfjs-dist into public directory
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';

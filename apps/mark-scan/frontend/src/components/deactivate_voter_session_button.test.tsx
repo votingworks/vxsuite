@@ -1,11 +1,11 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   ResetVoterSessionButton,
   ResetVoterSessionButtonProps,
-} from './deactivate_voter_session_button';
-import * as api from '../api';
+} from './deactivate_voter_session_button.js';
+import * as api from '../api.js';
 
 vi.mock(import('../api.js'));
 

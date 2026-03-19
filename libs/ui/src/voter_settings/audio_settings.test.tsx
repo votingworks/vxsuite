@@ -4,10 +4,10 @@ import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { act, screen, waitFor } from '../../test/react_testing_library';
-import { AudioSettings } from './audio_settings';
-import { newTestContext } from '../../test/test_context';
-import { AudioVolume } from '../ui_strings/audio_volume';
+import { act, screen, waitFor } from '../../test/react_testing_library.js';
+import { AudioSettings } from './audio_settings.js';
+import { newTestContext } from '../../test/test_context.js';
+import { AudioVolume } from '../ui_strings/audio_volume.js';
 
 const MOCK_TOGGLE_AUDIO_BUTTON_TEST_ID = 'mockToggleAudioButton';
 

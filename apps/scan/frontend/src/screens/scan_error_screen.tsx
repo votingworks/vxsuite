@@ -11,8 +11,8 @@ import {
   PrecinctScannerErrorType,
   InvalidInterpretationReason,
 } from '@votingworks/types';
-import { Screen } from '../components/layout';
-import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+import { Screen } from '../components/layout.js';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;

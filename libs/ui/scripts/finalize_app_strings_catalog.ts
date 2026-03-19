@@ -6,7 +6,7 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import path from 'node:path';
-import { generateNumberStringsCatalog } from '../src/ui_strings/number_strings';
+import { generateNumberStringsCatalog } from '../src/ui_strings/number_strings.js';
 
 const APP_STRINGS_CATALOG_FILE_PATH = path.join(
   import.meta.dirname,

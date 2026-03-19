@@ -46,7 +46,7 @@ import {
   generateCombinations,
   getBatchIdForScannerId,
   splitContestsByPage,
-} from './utils';
+} from './utils.js';
 
 /**
  * Generates all possible contest choice options for a given CandidateContest

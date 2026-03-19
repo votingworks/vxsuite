@@ -4,8 +4,8 @@ import React from 'react';
 import {
   CancelButtonContainer,
   StepContainer,
-} from './diagnostic_screen_components';
-import { getStateMachineState } from '../../api';
+} from './diagnostic_screen_components.js';
+import { getStateMachineState } from '../../api.js';
 
 export interface PaperHandlerDiagnosticProps {
   onClose: () => void;

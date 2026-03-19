@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { describe, expect, test } from 'vitest';
-import { arrayBufferFrom } from './buffers';
+import { arrayBufferFrom } from './buffers.js';
 
 function assertArrayBuffersEqual(a: ArrayBuffer, b: ArrayBuffer) {
   expect(new Uint8Array(a, 0, a.byteLength)).toEqual(

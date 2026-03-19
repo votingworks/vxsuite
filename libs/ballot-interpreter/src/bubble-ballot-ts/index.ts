@@ -1,5 +1,5 @@
 /* istanbul ignore file - @preserve */
-export * from './diagnostic';
-export * from './interpret';
-export { findTimingMarkGrid } from './addon';
-export * from './types';
+export * from './diagnostic.js';
+export * from './interpret.js';
+export { findTimingMarkGrid } from './addon.js';
+export * from './types.js';

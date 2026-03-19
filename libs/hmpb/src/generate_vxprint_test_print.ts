@@ -11,9 +11,9 @@ import {
 } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { ballotTemplates } from './ballot_templates';
-import { createPlaywrightRendererPool } from './playwright_renderer';
-import { layOutBallotsAndCreateElectionDefinition } from './render_ballot';
+import { ballotTemplates } from './ballot_templates/index.js';
+import { createPlaywrightRendererPool } from './playwright_renderer.js';
+import { layOutBallotsAndCreateElectionDefinition } from './render_ballot.js';
 
 const DISTRICT_ID = 'district-1' as DistrictId;
 const PRECINCT_ID = 'precinct-1' as PrecinctId;

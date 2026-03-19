@@ -8,9 +8,9 @@ import {
   ok,
   resultBlock,
   wrapException,
-} from './result';
-import { Optional } from './types';
-import { assert } from './assert';
+} from './result.js';
+import { Optional } from './types.js';
+import { assert } from './assert.js';
 
 test('ok is Ok', () => {
   expect(ok(0).isOk()).toEqual(true);

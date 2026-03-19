@@ -12,8 +12,8 @@ import {
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
+import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation.js';
+import { interpretSheet } from './interpret.js';
 
 describe('Interpret - HMPB - All bubble ballot', () => {
   const {

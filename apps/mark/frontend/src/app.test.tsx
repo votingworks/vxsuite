@@ -11,12 +11,12 @@ import {
 import { BallotStyleId } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { screen } from '../test/react_testing_library';
-import { advanceTimersAndPromises } from '../test/helpers/timers';
-import { render } from '../test/test_utils';
-import { App } from './app';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { buildApp } from '../test/helpers/build_app';
+import { screen } from '../test/react_testing_library.js';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
+import { render } from '../test/test_utils.js';
+import { App } from './app.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { buildApp } from '../test/helpers/build_app.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

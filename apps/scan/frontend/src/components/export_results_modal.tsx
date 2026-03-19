@@ -11,7 +11,7 @@ import {
 import { throwIllegalValue } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api';
+import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api.js';
 
 export interface ExportResultsModalProps {
   onClose: () => void;

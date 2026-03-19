@@ -3,8 +3,8 @@
 import type * as vitest from 'vitest';
 import { MaybePromise } from '@votingworks/basics';
 import { UiStringAudioClips } from '@votingworks/types';
-import { UiStringsStore } from './ui_strings_store';
-import { UiStringsApiMethods } from './ui_strings_api';
+import { UiStringsStore } from './ui_strings_store.js';
+import { UiStringsApiMethods } from './ui_strings_api.js';
 
 type MaybeBuilder<T> = T | (() => MaybePromise<T>);
 

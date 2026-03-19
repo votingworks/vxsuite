@@ -1,4 +1,4 @@
-import { deepEqual } from './equality';
+import { deepEqual } from './equality.js';
 
 /**
  * Groups items by a key function. Uses deepEqual to compare keys in order to

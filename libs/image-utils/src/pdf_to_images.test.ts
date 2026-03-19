@@ -9,7 +9,7 @@ import {
   getPdfPageCount,
   parsePdf,
   pdfToImages,
-} from './pdf_to_images';
+} from './pdf_to_images.js';
 
 async function readMsBallotPdf(): Promise<Uint8Array> {
   return Uint8Array.from(

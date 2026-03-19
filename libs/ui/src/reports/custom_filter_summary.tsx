@@ -4,14 +4,14 @@ import { CachedElectionLookups } from '@votingworks/utils';
 
 import pluralize from 'pluralize';
 import styled from 'styled-components';
-import { Font } from '../typography';
+import { Font } from '../typography.js';
 import {
   getBallotStyleLabel,
   getBatchLabel,
   getScannerLabel,
   LabeledScannerBatch,
-} from './utils';
-import { Box } from './layout';
+} from './utils.js';
+import { Box } from './layout.js';
 
 interface Props {
   electionDefinition: ElectionDefinition;

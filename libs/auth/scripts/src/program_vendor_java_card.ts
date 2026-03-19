@@ -3,11 +3,11 @@ import { extractErrorMessage } from '@votingworks/basics';
 import {
   constructJavaCardConfigForVxProgramming,
   JavaCardConfig,
-} from '../../src/config';
-import { getRequiredEnvVar, isNodeEnvProduction } from '../../src/env_vars';
-import { JavaCard } from '../../src/java_card';
-import { DEV_JURISDICTION } from '../../src/jurisdictions';
-import { programJavaCard } from './utils';
+} from '../../src/config.js';
+import { getRequiredEnvVar, isNodeEnvProduction } from '../../src/env_vars.js';
+import { JavaCard } from '../../src/java_card.js';
+import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
+import { programJavaCard } from './utils.js';
 
 interface ScriptEnvVars {
   isProduction: boolean;

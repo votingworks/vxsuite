@@ -6,14 +6,14 @@ import {
   render as renderWithoutContext,
   screen,
   waitFor,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 import {
   TEST_UI_STRING_TRANSLATIONS,
   testUiStrings,
-} from '../../test/test_ui_strings';
-import { newTestContext } from '../../test/test_context';
-import { UiRichTextString, UiString } from './ui_string';
-import { UiStringAudioDataAttributeName } from './with_audio';
+} from '../../test/test_ui_strings.js';
+import { newTestContext } from '../../test/test_context.js';
+import { UiRichTextString, UiString } from './ui_string.js';
+import { UiStringAudioDataAttributeName } from './with_audio.js';
 
 describe('UiString', () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();

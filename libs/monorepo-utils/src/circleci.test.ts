@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { join } from 'node:path';
 import { assert } from '@votingworks/basics';
-import { generateAllConfigs } from './circleci';
-import { getWorkspacePackageInfo } from './pnpm';
+import { generateAllConfigs } from './circleci.js';
+import { getWorkspacePackageInfo } from './pnpm.js';
 
 test('generateConfig', () => {
   const root = join(import.meta.dirname, '../../..');

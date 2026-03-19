@@ -2,14 +2,14 @@ import { expect, test, vi } from 'vitest';
 import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { newTestContext } from '../../test/test_context';
-import { LanguageSettingsScreen } from './language_settings_screen';
+import { newTestContext } from '../../test/test_context.js';
+import { LanguageSettingsScreen } from './language_settings_screen.js';
 import {
   act,
   render as renderWithoutContext,
   screen,
   waitFor,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 
 test('displays all available languages', async () => {
   const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;

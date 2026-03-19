@@ -14,7 +14,7 @@ import {
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
-import { rootDebug } from './debug';
+import { rootDebug } from './debug.js';
 import {
   PollbookEvent,
   EventDbRow,
@@ -28,19 +28,19 @@ import {
   AnomalyType,
   AnomalyDetailsDb,
   DuplicateCheckInDetailsDb,
-} from './types';
-import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
+} from './types.js';
+import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock.js';
 import {
   applyPollbookEventsToVoters,
   convertDbRowsToPollbookEvents,
   createVoterFromRegistrationData,
-} from './event_helpers';
+} from './event_helpers.js';
 import {
   getUpdatedVoterFirstName,
   getUpdatedVoterLastName,
   getUpdatedVoterMiddleName,
   getUpdatedVoterSuffix,
-} from './voter_helpers';
+} from './voter_helpers.js';
 
 const debug = rootDebug.extend('store');
 

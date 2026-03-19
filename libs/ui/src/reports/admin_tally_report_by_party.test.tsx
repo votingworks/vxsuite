@@ -6,9 +6,9 @@ import {
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatBallotHash } from '@votingworks/types';
-import { render, screen, within } from '../../test/react_testing_library';
-import { AdminTallyReportByParty } from './admin_tally_report_by_party';
-import { mockScannerBatches } from '../../test/fixtures';
+import { render, screen, within } from '../../test/react_testing_library.js';
+import { AdminTallyReportByParty } from './admin_tally_report_by_party.js';
+import { mockScannerBatches } from '../../test/fixtures.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
 import {
   FullElectionTallyReportScreen,
   TITLE,
-} from './full_election_tally_report_screen';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { routerPaths } from '../../router_paths';
-import { screen } from '../../../test/react_testing_library';
+} from './full_election_tally_report_screen.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { routerPaths } from '../../router_paths.js';
+import { screen } from '../../../test/react_testing_library.js';
 
 let apiMock: ApiMock;
 

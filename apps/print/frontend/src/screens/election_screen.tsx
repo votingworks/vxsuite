@@ -17,9 +17,9 @@ import {
   getPrecinctSelection,
   unconfigureMachine,
   ejectUsbDrive,
-} from '../api';
-import { TitleBar } from '../components/title_bar';
-import { ScreenWrapper } from '../components/screen_wrapper';
+} from '../api.js';
+import { TitleBar } from '../components/title_bar.js';
+import { ScreenWrapper } from '../components/screen_wrapper.js';
 
 const Row = styled.div`
   display: flex;

@@ -22,10 +22,10 @@ import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
   printBallotChunks,
   scanAndSave,
-} from '../custom-paper-handler/application_driver';
-import { constructAuthMachineState } from '../util/auth';
-import { ServerContext } from './context';
-import { getNodeEnv } from '../globals';
+} from '../custom-paper-handler/application_driver.js';
+import { constructAuthMachineState } from '../util/auth.js';
+import { ServerContext } from './context.js';
+import { getNodeEnv } from '../globals.js';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;

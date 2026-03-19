@@ -1,8 +1,8 @@
-import { msBallotTemplate } from './ms_ballot_template';
-import { nhBallotTemplate } from './nh_ballot_template';
-import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
+import { msBallotTemplate } from './ms_ballot_template.js';
+import { nhBallotTemplate } from './nh_ballot_template.js';
+import { vxDefaultBallotTemplate } from './vx_default_ballot_template.js';
 
-export type { NhBallotProps } from './nh_ballot_template';
+export type { NhBallotProps } from './nh_ballot_template.js';
 
 /**
  * All ballot templates, indexed by ID.
@@ -16,7 +16,7 @@ export const ballotTemplates = {
 /**
  * Rotation functions associated with ballot templates.
  */
-export { getCandidateOrderingSetsForNhBallot as getAllOrderedContestSetsForNhBallot } from './nh_ballot_template';
+export { getCandidateOrderingSetsForNhBallot as getAllOrderedContestSetsForNhBallot } from './nh_ballot_template.js';
 
 /**
  * The ID of a ballot template.

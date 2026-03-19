@@ -1,1 +1,1 @@
-export * from './load_paper_animation';
+export * from './load_paper_animation.js';

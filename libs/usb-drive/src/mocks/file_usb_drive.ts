@@ -9,9 +9,9 @@ import {
 import { Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { basename, join } from 'node:path';
-import type { MultiUsbDrive } from '../multi_usb_drive';
-import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDrive, UsbDriveStatus } from '../types';
+import type { MultiUsbDrive } from '../multi_usb_drive.js';
+import { MockFileTree, writeMockFileTree } from './helpers.js';
+import { UsbDrive, UsbDriveStatus } from '../types.js';
 
 export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
 export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';

@@ -13,7 +13,7 @@ import {
   PollWorkerPrompt,
 } from '@votingworks/mark-flow-ui';
 import type { PollsState } from '@votingworks/types';
-import { useAlarm } from '../utils/use_alarm';
+import { useAlarm } from '../utils/use_alarm.js';
 
 export interface SetupPrinterPageProps {
   isPollWorkerAuth?: boolean;

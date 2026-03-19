@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Svg } from './svg';
+import { Svg } from './svg.js';
 
 const ForegroundLine = styled.line`
   stroke: ${(p) => p.theme.colors.onBackground};

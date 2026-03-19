@@ -5,9 +5,9 @@ import {
 } from '@votingworks/fixtures';
 import { formatElectionHashes } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { render, screen } from '../../test/react_testing_library';
-import { ConfigurationSection } from './configuration_section';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ConfigurationSection } from './configuration_section.js';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
 
 test('no election', async () => {
   render(<ConfigurationSection />);

@@ -10,11 +10,11 @@ import {
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
-} from './coders';
-import { ScannerCapability } from './scanner_capability';
-import { PaperHandlerDriverInterface } from './driver_interface';
-import { PrintingSpeed } from './constants';
-import { defaultPaperHandlerStatus } from './test_utils';
+} from './coders.js';
+import { ScannerCapability } from './scanner_capability.js';
+import { PaperHandlerDriverInterface } from './driver_interface.js';
+import { PrintingSpeed } from './constants.js';
+import { defaultPaperHandlerStatus } from './test_utils.js';
 
 const debug = makeDebug('custom-paper-handler:mock-driver');
 

@@ -14,10 +14,10 @@ import {
 } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
 import { expect, test, vi } from 'vitest';
-import { mockElectionManagerAuth } from '../test/helpers/auth';
-import { generateBmdBallotFixture } from '../test/helpers/ballots';
-import { withApp } from '../test/helpers/setup_app';
-import { ScannedSheetInfo } from './fujitsu_scanner';
+import { mockElectionManagerAuth } from '../test/helpers/auth.js';
+import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
+import { withApp } from '../test/helpers/setup_app.js';
+import { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
 

@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { getBallotCount } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { MachineConfig, WriteInCandidateRecord } from '../types';
+import { MachineConfig, WriteInCandidateRecord } from '../types.js';
 
 const {
   asNcName,

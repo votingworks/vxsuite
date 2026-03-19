@@ -7,14 +7,14 @@ import express from 'express';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import waitForExpect from 'wait-for-expect';
-import { createClient, ServerError } from './client';
+import { createClient, ServerError } from './client.js';
 import {
   AnyApi,
   buildRouter,
   createApi,
   MiddlewareMethodCall,
   UserError,
-} from './server';
+} from './server.js';
 
 function createTestApp(api: AnyApi) {
   const app = express();

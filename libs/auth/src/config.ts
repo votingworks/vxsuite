@@ -5,8 +5,8 @@ import {
   isVxDev,
 } from '@votingworks/utils';
 
-import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
-import { FileKey, RemoteKey, TpmKey } from './keys';
+import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars.js';
+import { FileKey, RemoteKey, TpmKey } from './keys.js';
 
 /**
  * The path to the dev root cert

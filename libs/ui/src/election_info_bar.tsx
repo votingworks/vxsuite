@@ -7,10 +7,10 @@ import {
 } from '@votingworks/types';
 import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
-import { Seal } from './seal';
-import { Caption, Font } from './typography';
-import { LabelledText } from './labelled_text';
-import { electionStrings, PrecinctSelectionName } from './ui_strings';
+import { Seal } from './seal.js';
+import { Caption, Font } from './typography.js';
+import { LabelledText } from './labelled_text.js';
+import { electionStrings, PrecinctSelectionName } from './ui_strings/index.js';
 
 const Bar = styled.div<{ inverse?: boolean }>`
   background: ${(p) => p.inverse && p.theme.colors.inverseBackground};

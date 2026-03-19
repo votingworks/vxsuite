@@ -12,7 +12,7 @@ import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,
   PID_FILENAME,
-} from './hardware';
+} from './hardware.js';
 
 vi.mock(import('@votingworks/backend'));
 const featureFlagMock = getFeatureFlagMock();

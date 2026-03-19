@@ -17,24 +17,24 @@ import {
   jurisdiction,
   user,
   mockStateFeatures,
-} from '../test/api_helpers';
-import { render, screen, waitFor } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { ExportScreen } from './export_screen';
-import { routes } from './routes';
-import { downloadFile } from './utils';
+} from '../test/api_helpers.js';
+import { render, screen, waitFor } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { ExportScreen } from './export_screen.js';
+import { routes } from './routes.js';
+import { downloadFile } from './utils.js';
 import {
   electionInfoFromRecord,
   generalElectionRecord,
-} from '../test/fixtures';
-import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
-import { ProofingStatus } from './proofing_status';
-import { Downloads } from './downloads';
+} from '../test/fixtures.js';
+import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api.js';
+import { ProofingStatus } from './proofing_status.js';
+import { Downloads } from './downloads.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
 
-vi.mock(import('./utils'), async (importActual) => ({
+vi.mock(import('./utils.js'), async (importActual) => ({
   ...(await importActual()),
   downloadFile: vi.fn(),
 }));

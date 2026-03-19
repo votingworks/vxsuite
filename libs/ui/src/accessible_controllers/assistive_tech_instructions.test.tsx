@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
-import { render } from '../../test/react_testing_library';
-import { AssistiveTechInstructions } from './assistive_tech_instructions';
-import { useIsPatDeviceConnected } from './pat_device_context';
+import { render } from '../../test/react_testing_library.js';
+import { AssistiveTechInstructions } from './assistive_tech_instructions.js';
+import { useIsPatDeviceConnected } from './pat_device_context.js';
 
 vi.mock(import('./pat_device_context.js'));
 

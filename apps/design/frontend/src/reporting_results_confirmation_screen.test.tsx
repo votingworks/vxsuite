@@ -9,14 +9,14 @@ import {
 } from '@votingworks/utils';
 import type { ReceivedReportInfo } from '@votingworks/design-backend';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { render } from '../test/react_testing_library';
-import { generalElectionRecord } from '../test/fixtures';
-import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
+import { render } from '../test/react_testing_library.js';
+import { generalElectionRecord } from '../test/fixtures.js';
+import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen.js';
 import {
   createMockUnauthenticatedApiClient,
   MockUnauthenticatedApiClient,
   provideUnauthenticatedApi,
-} from '../test/unauthenticated_api_helpers';
+} from '../test/unauthenticated_api_helpers.js';
 
 const electionRecord = generalElectionRecord('test-jurisdiction');
 const { election } = electionRecord;

@@ -2,9 +2,9 @@ import { expect, Mocked, test, vi } from 'vitest';
 
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { deferred, typedAs } from '@votingworks/basics';
-import { waitFor } from '../../test/react_testing_library';
-import { newAudioPlayer } from './audio_player';
-import { DEFAULT_PLAYBACK_RATE, PlaybackRate } from './audio_playback_rate';
+import { waitFor } from '../../test/react_testing_library.js';
+import { newAudioPlayer } from './audio_player.js';
+import { DEFAULT_PLAYBACK_RATE, PlaybackRate } from './audio_playback_rate.js';
 
 const { ENGLISH } = TestLanguageCode;
 

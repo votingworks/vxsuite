@@ -4,7 +4,7 @@ import {
   IpaPhoneme,
   IpaPhonemeSchema,
   PhoneticSyllableStress,
-} from './tts_phonemes';
+} from './tts_phonemes.js';
 
 /**
  * Loosely represents a distinct syllable in a word, to which stress can be

@@ -8,8 +8,8 @@ import {
 import { byteArray, Coder, literal, message } from '@votingworks/message-coder';
 import { Buffer } from 'node:buffer';
 import { inspect } from 'node:util';
-import { Lock } from './lock';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
+import { Lock } from './lock.js';
+import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 import {
   BitImagePrintMode,
   PrinterResetCommand,
@@ -20,11 +20,11 @@ import {
   PrintQuality,
   SetPrintQuality,
   convertPrintQualityToCoderValue,
-} from './coders';
-import { Uint16toUint8, Uint8 } from '../bits';
-import { CompressedBitImage } from './types';
-import { isInconsistentStatus } from './status';
-import { rootDebug } from '../debug';
+} from './coders.js';
+import { Uint16toUint8, Uint8 } from '../bits.js';
+import { CompressedBitImage } from './types.js';
+import { isInconsistentStatus } from './status.js';
+import { rootDebug } from '../debug.js';
 
 const debug = rootDebug.extend('driver');
 

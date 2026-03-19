@@ -9,20 +9,20 @@ import {
 } from '@votingworks/types';
 import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
-import { RenderDocument } from './renderer';
+import { RenderDocument } from './renderer.js';
 import {
   BUBBLE_CLASS,
   BubbleShape,
   MARK_OVERLAY_CLASS,
   OptionInfo,
   PAGE_CLASS,
-} from './ballot_components';
+} from './ballot_components.js';
 import {
   convertBallotMeasureWithAdditionalOptionsToCandidateContest,
   gridHeightToPixels,
   gridWidthToPixels,
   measureTimingMarkGrid,
-} from './render_ballot';
+} from './render_ballot.js';
 
 function voteIsCandidate(vote: Vote[number]): vote is Candidate {
   return typeof vote !== 'string';

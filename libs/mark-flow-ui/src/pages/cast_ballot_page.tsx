@@ -11,7 +11,7 @@ import {
   VerifyBallotImage,
   appStrings,
 } from '@votingworks/ui';
-import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen.js';
 
 const Instructions = styled.ol`
   display: flex;

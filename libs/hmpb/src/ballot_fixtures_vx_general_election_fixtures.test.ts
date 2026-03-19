@@ -2,10 +2,10 @@ import { iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
-import { expectToMatchSavedPdf } from '../test/helpers';
-import { vxGeneralElectionFixtures } from './ballot_fixtures';
-import { createPlaywrightRendererPool } from './playwright_renderer';
-import { RendererPool } from './renderer';
+import { expectToMatchSavedPdf } from '../test/helpers.js';
+import { vxGeneralElectionFixtures } from './ballot_fixtures.js';
+import { createPlaywrightRendererPool } from './playwright_renderer.js';
+import { RendererPool } from './renderer.js';
 
 vi.setConfig({
   testTimeout: 60_000,

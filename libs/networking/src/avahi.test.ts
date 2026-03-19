@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { execFile } from '@votingworks/backend';
 import { spawn } from 'node:child_process';
-import { AvahiService, hasOnlineInterface } from './avahi';
+import { AvahiService, hasOnlineInterface } from './avahi.js';
 
 vi.mock(import('@votingworks/backend'));
 vi.mock(import('node:child_process'));

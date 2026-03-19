@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { mockWritable } from '../../../test/helpers/mock_writable';
+import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import {
   Device,
   DeviceSchema,

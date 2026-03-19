@@ -5,8 +5,8 @@ import {
   Organization,
   User,
   SupportUser,
-} from '../src/types';
-import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
+} from '../src/types.js';
+import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals.js';
 
 export const vxOrganization: Organization = {
   id: votingWorksOrganizationId(),

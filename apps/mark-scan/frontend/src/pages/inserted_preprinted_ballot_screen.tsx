@@ -5,7 +5,7 @@ import { BallotStyleId, PrecinctId, VotesDict } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import * as api from '../api';
+import * as api from '../api.js';
 
 export interface InsertedPreprintedBallotScreenProps {
   activateCardlessVoterSession: (

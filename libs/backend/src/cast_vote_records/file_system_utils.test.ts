@@ -4,7 +4,7 @@ import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 
-import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils';
+import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils.js';
 
 let tempDirectoryPath: string;
 

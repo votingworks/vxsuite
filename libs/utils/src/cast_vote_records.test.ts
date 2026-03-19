@@ -15,7 +15,7 @@ import {
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
   isCastVoteRecordWriteInValid,
-} from './cast_vote_records';
+} from './cast_vote_records.js';
 
 const mockCastVoteRecord: CVR.CVR = {
   '@type': 'CVR.CVR',

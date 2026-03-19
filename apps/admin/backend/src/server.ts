@@ -27,17 +27,17 @@ import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { resolve } from 'node:path';
-import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals';
-import { createWorkspace, createClientWorkspace } from './util/workspace';
-import { buildApp } from './app';
-import { buildClientApp } from './client_app';
-import { buildPeerApp } from './peer_app';
-import { readMachineMode } from './machine_mode';
-import { getMachineConfig } from './machine_config';
-import { startHostNetworking, startClientNetworking } from './networking';
-import { rootDebug } from './util/debug';
-import { getUserRole } from './util/auth';
-import type { MachineMode } from './types';
+import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals.js';
+import { createWorkspace, createClientWorkspace } from './util/workspace.js';
+import { buildApp } from './app.js';
+import { buildClientApp } from './client_app.js';
+import { buildPeerApp } from './peer_app.js';
+import { readMachineMode } from './machine_mode.js';
+import { getMachineConfig } from './machine_config.js';
+import { startHostNetworking, startClientNetworking } from './networking.js';
+import { rootDebug } from './util/debug.js';
+import { getUserRole } from './util/auth.js';
+import type { MachineMode } from './types.js';
 
 const debug = rootDebug.extend('server');
 

@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { mockLogger } from '@votingworks/logging';
 import { AudioPlayer } from '@votingworks/backend';
-import { Player, SoundName } from './player';
+import { Player, SoundName } from './player.js';
 
 vi.mock('@votingworks/backend', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/backend')>();

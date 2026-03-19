@@ -25,14 +25,14 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { pdfToImages, ImageData } from '@votingworks/image-utils';
 
-import { Api } from '../../src/app';
+import { Api } from '../../src/app.js';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerStatus,
-} from '../../src/types';
-import { Store } from '../../src/store';
-import { getUserRole } from '../../src/util/auth';
-import { Workspace } from '../../src/util/workspace';
+} from '../../src/types.js';
+import { Store } from '../../src/store.js';
+import { getUserRole } from '../../src/util/auth.js';
+import { Workspace } from '../../src/util/workspace.js';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,

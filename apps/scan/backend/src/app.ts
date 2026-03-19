@@ -46,14 +46,14 @@ import {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
-} from './types';
-import { constructAuthMachineState } from './util/auth';
-import { Workspace } from './util/workspace';
-import { getMachineConfig } from './machine_config';
+} from './types.js';
+import { constructAuthMachineState } from './util/auth.js';
+import { Workspace } from './util/workspace.js';
+import { getMachineConfig } from './machine_config.js';
 import {
   exportCastVoteRecordsToUsbDrive,
   ExportCastVoteRecordsToUsbDriveResult,
-} from './export';
+} from './export.js';
 import {
   openPolls,
   OpenPollsResult,
@@ -61,20 +61,20 @@ import {
   pauseVoting,
   resumeVoting,
   resetPollsToPaused,
-} from './polls';
-import { printTestPage } from './printing/test_print';
-import { printReportSection } from './printing/print_report_section';
-import { printWriteInImageReport } from './printing/print_write_in_image_report';
+} from './polls.js';
+import { printTestPage } from './printing/test_print.js';
+import { printReportSection } from './printing/print_report_section.js';
+import { printWriteInImageReport } from './printing/print_write_in_image_report.js';
 import {
   TEST_AUDIO_USER_FAIL_REASON,
   TEST_PRINT_USER_FAIL_REASON,
   TEST_UPS_USER_FAIL_REASON,
   TEST_UPS_USER_PASS_REASON,
   testPrintFailureDiagnosticMessage,
-} from './util/diagnostics';
-import { saveReadinessReport } from './printing/readiness_report';
-import { Player as AudioPlayer, SoundName } from './audio/player';
-import { getScannerResultsMemoized } from './util/results';
+} from './util/diagnostics.js';
+import { saveReadinessReport } from './printing/readiness_report.js';
+import { Player as AudioPlayer, SoundName } from './audio/player.js';
+import { getScannerResultsMemoized } from './util/results.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 

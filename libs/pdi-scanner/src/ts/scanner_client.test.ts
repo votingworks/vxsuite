@@ -15,7 +15,7 @@ import {
   SCAN_IMAGE_WIDTH,
   ScannerEvent,
   ScannerStatus,
-} from './scanner_client';
+} from './scanner_client.js';
 
 vi.mock('node:child_process');
 let mockChildProcess: MockChildProcess;

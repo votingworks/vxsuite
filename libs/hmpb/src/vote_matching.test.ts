@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Candidate, GridPositionOption } from '@votingworks/types';
-import { voteMatchesGridPosition } from './vote_matching';
+import { voteMatchesGridPosition } from './vote_matching.js';
 
 const gridPositions: GridPositionOption[] = [
   {

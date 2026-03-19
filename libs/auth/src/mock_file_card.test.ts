@@ -17,7 +17,7 @@ import {
   MockFileCard,
   MockFileContents,
   serializeMockFileContents,
-} from './mock_file_card';
+} from './mock_file_card.js';
 
 const electionKey = constructElectionKey(readElectionGeneral());
 const pin = '123456';

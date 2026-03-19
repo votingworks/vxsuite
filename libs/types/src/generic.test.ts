@@ -7,7 +7,7 @@ import {
   maybeParse,
   safeParseJson,
   unsafeParse,
-} from './generic';
+} from './generic.js';
 
 test('unsafeParse', () => {
   expect(unsafeParse(z.string(), 'hello world!')).toEqual('hello world!');

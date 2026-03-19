@@ -31,12 +31,12 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   saveTmpFile,
-} from '../test/app';
+} from '../test/app.js';
 import {
   HostConnectionStatus,
   ManualResultsIdentifier,
   ManualResultsRecord,
-} from './types';
+} from './types.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -45,7 +45,7 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 
 vi.mock(
   './globals.js',
-  async (importActual): Promise<typeof import('./globals')> => ({
+  async (importActual): Promise<typeof import('./globals.js')> => ({
     ...(await importActual()),
     get NODE_ENV(): 'production' | 'test' {
       return mockNodeEnv;

@@ -10,8 +10,8 @@ import {
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
-import { Workspace } from './util/workspace';
-import { getCurrentTime } from './util/get_current_time';
+import { Workspace } from './util/workspace.js';
+import { getCurrentTime } from './util/get_current_time.js';
 
 /**
  * Saves the VxCentralScan hardware readiness report to the USB drive.

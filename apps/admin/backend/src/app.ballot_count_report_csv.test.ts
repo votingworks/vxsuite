@@ -14,19 +14,19 @@ import { formatBallotHash, Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
 import { MockMultiUsbDrive } from '@votingworks/usb-drive';
-import { mockFileName, parseCsv } from '../test/csv';
+import { mockFileName, parseCsv } from '../test/csv.js';
 import {
   buildTestEnvironment,
   configureMachine,
   expectUsbDriveSync,
   mockElectionManagerAuth,
-} from '../test/app';
+} from '../test/app.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../test/mock_cvr_file';
-import { Api } from './app';
-import { generateReportPath } from './util/filenames';
+} from '../test/mock_cvr_file.js';
+import { Api } from './app.js';
+import { generateReportPath } from './util/filenames.js';
 
 vi.setConfig({
   testTimeout: 60_000,

@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { ReviewPage } from '@votingworks/mark-flow-ui';
 
-import { BallotContext } from '../contexts/ballot_context';
+import { BallotContext } from '../contexts/ballot_context.js';
 
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();

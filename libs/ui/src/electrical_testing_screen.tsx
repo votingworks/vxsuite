@@ -2,17 +2,17 @@ import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
-import { Button } from './button';
-import { Card } from './card';
-import { Icons } from './icons';
-import { Main } from './main';
-import { Screen } from './screen';
-import { Caption, H6 } from './typography';
-import { ExportLogsModal } from './export_logs_modal';
+import { Button } from './button.js';
+import { Card } from './card.js';
+import { Icons } from './icons.js';
+import { Main } from './main.js';
+import { Screen } from './screen.js';
+import { Caption, H6 } from './typography.js';
+import { ExportLogsModal } from './export_logs_modal.js';
 import {
   SignedHashValidationApiClient,
   SignedHashValidationButton,
-} from './signed_hash_validation_button';
+} from './signed_hash_validation_button.js';
 
 const Row = styled.div<{ gap?: string }>`
   display: flex;

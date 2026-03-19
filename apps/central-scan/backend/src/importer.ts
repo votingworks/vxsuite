@@ -20,14 +20,14 @@ import {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
-} from './fujitsu_scanner';
-import { Workspace } from './util/workspace';
+} from './fujitsu_scanner.js';
+import { Workspace } from './util/workspace.js';
 import {
   describeValidationError,
   validateSheetInterpretation,
-} from './validation';
-import { logBatchComplete, logScanSheetSuccess } from './util/logging';
-import { ScanStatus } from './types';
+} from './validation.js';
+import { logBatchComplete, logScanSheetSuccess } from './util/logging.js';
+import { ScanStatus } from './types.js';
 
 const debug = makeDebug('scan:importer');
 

@@ -16,8 +16,8 @@ import {
   setUsbDriveTaskRunning,
   systemCallApi,
   useApiClient,
-} from './api';
-import { useSound } from '../hooks/use_sound';
+} from './api.js';
+import { useSound } from '../hooks/use_sound.js';
 
 const SOUND_INTERVAL_SECONDS = 5;
 

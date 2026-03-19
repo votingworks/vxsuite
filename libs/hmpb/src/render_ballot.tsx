@@ -39,7 +39,7 @@ import {
   RenderScratchpad,
   Renderer,
   RendererPool,
-} from './renderer';
+} from './renderer.js';
 import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
@@ -53,9 +53,9 @@ import {
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
-} from './ballot_components';
-import { PixelDimensions, Pixels, Point } from './types';
-import { BaseStylesProps } from './base_styles';
+} from './ballot_components.js';
+import { PixelDimensions, Pixels, Point } from './types.js';
+import { BaseStylesProps } from './base_styles.js';
 
 export type StylesComponent<P> = (props: P) => JSX.Element;
 

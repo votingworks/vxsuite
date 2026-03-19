@@ -3,9 +3,9 @@ import { buildContestResultsFixture } from '@votingworks/utils';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assert } from '@votingworks/basics';
-import { render, screen, within } from '../../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library.js';
 
-import { ContestResultsTable } from './contest_results_table';
+import { ContestResultsTable } from './contest_results_table.js';
 
 const election = electionTwoPartyPrimaryFixtures.readElection();
 

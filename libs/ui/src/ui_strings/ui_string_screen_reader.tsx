@@ -3,16 +3,16 @@ import getDeepValue from 'lodash.get';
 
 import { Optional, assertDefined } from '@votingworks/basics';
 
-import { useAudioContext } from './audio_context';
-import { ClipParams, PlayAudioClips } from './play_audio_clips';
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { UiStringAudioDataAttributeName } from './with_audio';
-import { VOLUME_CHANGE_FEEDBACK_STRING_KEYS } from './app_strings';
+import { useAudioContext } from './audio_context.js';
+import { ClipParams, PlayAudioClips } from './play_audio_clips.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { UiStringAudioDataAttributeName } from './with_audio.js';
+import { VOLUME_CHANGE_FEEDBACK_STRING_KEYS } from './app_strings.js';
 import {
   AudioVolume,
   getDecreasedVolume,
   getIncreasedVolume,
-} from './audio_volume';
+} from './audio_volume.js';
 
 const EMPTY_CLIP_QUEUE: ClipParams[] = [];
 

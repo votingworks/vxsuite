@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { MachineMode } from './types';
+import type { MachineMode } from './types.js';
 
 const MACHINE_MODE_FILENAME = 'machine_mode';
 

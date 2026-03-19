@@ -2,11 +2,11 @@ import { safeParse } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import yargs from 'yargs/yargs';
 import * as fs from 'node:fs';
-import { AppName, AppNameSchema } from '../src';
+import { AppName, AppNameSchema } from '../src/index.js';
 import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,
-} from '../src/log_documentation';
+} from '../src/log_documentation.js';
 
 const DEFAULT_MARKDOWN_LOCATION = 'VotingWorksLoggingDocumentation.md';
 const VOTING_WORKS = 'VotingWorks';

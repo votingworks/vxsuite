@@ -1,5 +1,5 @@
-import { Uint8Size, Uint8, Uint1, Uint8Index } from './types';
-import { makeMasks } from './utils';
+import { Uint8Size, Uint8, Uint1, Uint8Index } from './types.js';
+import { makeMasks } from './utils.js';
 
 /**
  * Represents a cursor for the bit offset into a byte array.

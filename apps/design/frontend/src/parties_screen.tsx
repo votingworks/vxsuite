@@ -11,17 +11,17 @@ import { Route, Switch, useParams, useHistory } from 'react-router-dom';
 import { ElectionStringKey, Party } from '@votingworks/types';
 import { DuplicatePartyError } from '@votingworks/design-backend';
 import styled from 'styled-components';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api';
-import { useTitle } from './hooks/use_title';
-import { generateId } from './utils';
-import * as api from './api';
-import { InputWithAudio } from './ballot_audio/input_with_audio';
-import { FormFixed, FormBody, FormFooter } from './form_fixed';
-import { FixedViewport, ListActionsRow } from './layout';
-import { PartyAudioPanel } from './party_audio_panel';
-import { TooltipContainer, Tooltip } from './tooltip';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api.js';
+import { useTitle } from './hooks/use_title.js';
+import { generateId } from './utils.js';
+import * as api from './api.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { FormFixed, FormBody, FormFooter } from './form_fixed.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
+import { PartyAudioPanel } from './party_audio_panel.js';
+import { TooltipContainer, Tooltip } from './tooltip.js';
 
 export function PartiesScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();

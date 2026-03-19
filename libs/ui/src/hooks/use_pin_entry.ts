@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { PinLength } from '../utils/pin_length';
+import { PinLength } from '../utils/pin_length.js';
 
 /**
  * Options for the {@link usePinEntry} hook.

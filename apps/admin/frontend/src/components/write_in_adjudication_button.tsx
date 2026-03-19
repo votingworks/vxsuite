@@ -3,12 +3,12 @@ import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
 import { Candidate } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { normalizeWriteInName } from '../utils/adjudication';
+import { normalizeWriteInName } from '../utils/adjudication.js';
 import {
   isMarginalMarkPending,
   type MarginalMarkStatus,
   type WriteInAdjudicationStatus,
-} from '../hooks/use_contest_adjudication_state';
+} from '../hooks/use_contest_adjudication_state.js';
 
 export const MAX_WRITE_IN_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';

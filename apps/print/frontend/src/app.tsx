@@ -25,7 +25,7 @@ import {
   isVendorAuth,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { MachineLockedScreen } from './screens/machine_locked_screen';
+import { MachineLockedScreen } from './screens/machine_locked_screen.js';
 import {
   ApiClient,
   ApiClientContext,
@@ -37,12 +37,12 @@ import {
   logOut,
   systemCallApi,
   unconfigureMachine,
-} from './api';
-import { ElectionManagerApp } from './election_manager_app';
-import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen';
-import { SystemAdministratorApp } from './system_administrator_app';
-import { PollWorkerApp } from './poll_worker_app';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
+} from './api.js';
+import { ElectionManagerApp } from './election_manager_app.js';
+import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen.js';
+import { SystemAdministratorApp } from './system_administrator_app.js';
+import { PollWorkerApp } from './poll_worker_app.js';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
 
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,12 +1,12 @@
 import { assertDefined } from '@votingworks/basics';
 import { PageInterpretationType } from '@votingworks/types';
 
-import * as api from '../api';
-import { InsertedWrongElectionBallotScreen } from './inserted_wrong_election_ballot_screen';
-import { InsertedWrongPrecinctBallotScreen } from './inserted_wrong_precinct_ballot_screen';
-import { InsertedWrongTestModeBallotScreen } from './inserted_wrong_test_mode_ballot_screen';
-import { InsertedUnreadableBallotScreen } from './inserted_unreadable_ballot_screen';
-import { InsertedBlankSheetInsteadOfBallotScreen } from './inserted_blank_sheet_instead_of_ballot_screen';
+import * as api from '../api.js';
+import { InsertedWrongElectionBallotScreen } from './inserted_wrong_election_ballot_screen.js';
+import { InsertedWrongPrecinctBallotScreen } from './inserted_wrong_precinct_ballot_screen.js';
+import { InsertedWrongTestModeBallotScreen } from './inserted_wrong_test_mode_ballot_screen.js';
+import { InsertedUnreadableBallotScreen } from './inserted_unreadable_ballot_screen.js';
+import { InsertedBlankSheetInsteadOfBallotScreen } from './inserted_blank_sheet_instead_of_ballot_screen.js';
 
 const SCREENS: Readonly<
   Record<PageInterpretationType, JSX.Element | undefined>

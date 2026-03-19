@@ -26,7 +26,7 @@ import {
 import { CardStatus } from '@votingworks/auth';
 import { PrinterConfig } from '@votingworks/types';
 import { makeRender } from '@votingworks/ui';
-import { DevDock } from './dev_dock';
+import { DevDock } from './dev_dock.js';
 
 export const render = makeRender(onTestFinished);
 

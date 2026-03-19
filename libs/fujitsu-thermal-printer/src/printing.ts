@@ -10,17 +10,17 @@ import { readFileSync } from 'node:fs';
 import {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,
-} from './driver/driver';
-import { CompressedBitImage, UncompressedBitImage } from './driver/types';
-import { BitArray, bitArrayToByte } from './bits';
-import { rootDebug } from './debug';
-import { RawPrinterStatus } from './driver';
+} from './driver/driver.js';
+import { CompressedBitImage, UncompressedBitImage } from './driver/types.js';
+import { BitArray, bitArrayToByte } from './bits.js';
+import { rootDebug } from './debug.js';
+import { RawPrinterStatus } from './driver/index.js';
 import {
   IDLE_REPLY_PARAMETER,
   PRINT_ONGOING_REPLY_PARAMETER,
   PRINT_PROCESSING_REPLY_PARAMETER,
-} from './globals';
-import { waitForPrintReadyStatus } from './status';
+} from './globals.js';
+import { waitForPrintReadyStatus } from './status.js';
 
 const debug = rootDebug.extend('printing');
 

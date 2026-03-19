@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 import { VisualModeDisabledOverlay } from '.';
 
 test('updates context isVisualModeDisabled when button is pressed', () => {

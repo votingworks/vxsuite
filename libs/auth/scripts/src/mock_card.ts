@@ -8,8 +8,8 @@ import {
 import { readElection } from '@votingworks/fs';
 import { ElectionKey, ProgrammingMachineType } from '@votingworks/types';
 
-import { DEV_JURISDICTION } from '../../src/jurisdictions';
-import { mockCard } from '../../src/mock_file_card';
+import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
+import { mockCard } from '../../src/mock_file_card.js';
 
 const CARD_TYPES = [
   'vendor',

@@ -9,8 +9,8 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   parseVotersFromCsvString,
   parseValidStreetsFromCsvString,
-} from './pollbook_package';
-import { getTestElection } from '../test/test_helpers';
+} from './pollbook_package.js';
+import { getTestElection } from '../test/test_helpers.js';
 
 // Get test election and add precincts with external IDs for testing
 const baseElection = getTestElection();

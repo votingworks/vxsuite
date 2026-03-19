@@ -1,5 +1,5 @@
-import { findAllMonorepoDependencies } from './dependencies';
-import { PnpmPackageInfo } from './types';
+import { findAllMonorepoDependencies } from './dependencies.js';
+import { PnpmPackageInfo } from './types.js';
 
 /**
  * Finds unused packages in the monorepo.

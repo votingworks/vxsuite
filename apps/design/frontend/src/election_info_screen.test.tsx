@@ -18,18 +18,18 @@ import {
   provideApi,
   user,
   mockStateFeatures,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   blankElectionRecord,
   electionInfoFromElection,
   electionInfoFromRecord,
   generalElectionRecord,
-} from '../test/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { ElectionInfoScreen } from './election_info_screen';
-import { routes } from './routes';
-import { ElectionInfoAudioPanel } from './election_info_audio_panel';
+} from '../test/fixtures.js';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { ElectionInfoScreen } from './election_info_screen.js';
+import { routes } from './routes.js';
+import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
 
 vi.mock('./election_info_audio_panel.js');
 const MockAudioPanel = vi.mocked(ElectionInfoAudioPanel);

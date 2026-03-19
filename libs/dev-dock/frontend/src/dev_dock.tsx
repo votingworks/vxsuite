@@ -27,10 +27,10 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Button, Modal, P } from '@votingworks/ui';
-import { UsbDriveIcon } from './usb_drive_icon';
-import { Colors } from './colors';
-import { FujitsuPrinterMockControl } from './fujitsu_printer_mock';
-import { ApiClient, ApiClientContext, useApiClient } from './api_client';
+import { UsbDriveIcon } from './usb_drive_icon.js';
+import { Colors } from './colors.js';
+import { FujitsuPrinterMockControl } from './fujitsu_printer_mock.js';
+import { ApiClient, ApiClientContext, useApiClient } from './api_client.js';
 
 const Row = styled.div`
   display: flex;

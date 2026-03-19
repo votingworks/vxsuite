@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render } from '../test/react_testing_library';
+import { render } from '../test/react_testing_library.js';
 
-import { QrCode } from './qrcode';
+import { QrCode } from './qrcode.js';
 
 test('renders QRCode', () => {
   const { container } = render(<QrCode value="VX.21.5" />);

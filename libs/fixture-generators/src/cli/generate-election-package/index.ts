@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { readElectionPackageFromFile } from '@votingworks/backend';
 import yargs from 'yargs/yargs';
 import { stdout } from 'node:process';
-import { generateElectionPackage } from '../../generate-election-package';
+import { generateElectionPackage } from '../../generate-election-package/index.js';
 
 // A script to generate an election package.
 // Usage: ./bin/generate-election-package -e path/to/base-election-definition.json -o path/to/output-directory

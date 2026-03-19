@@ -1,1 +1,1 @@
-export * from './all_contest_options';
+export * from './all_contest_options.js';

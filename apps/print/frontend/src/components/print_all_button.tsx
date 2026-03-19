@@ -15,7 +15,7 @@ import {
   getDistinctBallotStylesCount,
   getElectionRecord,
   printAllBallotStyles,
-} from '../api';
+} from '../api.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

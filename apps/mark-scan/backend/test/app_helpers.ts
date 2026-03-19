@@ -31,15 +31,15 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
-import { Api, buildApp } from '../src/app';
-import { createWorkspace, Workspace } from '../src/util/workspace';
+import { Api, buildApp } from '../src/app.js';
+import { createWorkspace, Workspace } from '../src/util/workspace.js';
 import {
   getPaperHandlerStateMachine,
   PaperHandlerStateMachine,
-} from '../src/custom-paper-handler';
-import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
-import { getUserRole } from '../src/util/auth';
-import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
+} from '../src/custom-paper-handler/index.js';
+import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader.js';
+import { getUserRole } from '../src/util/auth.js';
+import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader.js';
 
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,

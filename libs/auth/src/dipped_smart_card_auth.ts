@@ -25,14 +25,14 @@ import {
   CardDetails,
   CardStatus,
   CheckPinResponse,
-} from './card';
+} from './card.js';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,
-} from './dipped_smart_card_auth_api';
-import { computeCardLockoutEndTime } from './lockout';
-import { computeSessionEndTime } from './sessions';
+} from './dipped_smart_card_auth_api.js';
+import { computeCardLockoutEndTime } from './lockout.js';
+import { computeSessionEndTime } from './sessions.js';
 
 type CheckPinResponseExtended =
   | CheckPinResponse

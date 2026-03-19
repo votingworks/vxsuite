@@ -4,9 +4,9 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { ExportResultsModal } from './export_results_modal';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/api';
+import { ExportResultsModal } from './export_results_modal.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 

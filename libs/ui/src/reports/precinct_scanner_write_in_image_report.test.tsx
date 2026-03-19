@@ -7,11 +7,11 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   ContestWriteIns,
   PrecinctScannerWriteInImageReport,
-} from './precinct_scanner_write_in_image_report';
+} from './precinct_scanner_write_in_image_report.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

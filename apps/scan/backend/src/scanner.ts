@@ -51,15 +51,15 @@ import { Clock } from 'xstate/lib/interpreter';
 import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
 import { writeImageData } from '@votingworks/image-utils';
 import { join } from 'node:path';
-import { isReadyToScan } from './app_flow';
-import { interpret } from './interpret';
-import { InterpretationResult, PrecinctScannerStateMachine } from './types';
-import { rootDebug } from './util/debug';
-import { getCurrentTime } from './util/get_current_time';
-import { Workspace } from './util/workspace';
-import { constructAuthMachineState } from './util/auth';
-import { Store } from './store';
-import { encryptBallotAuditId } from './export';
+import { isReadyToScan } from './app_flow.js';
+import { interpret } from './interpret.js';
+import { InterpretationResult, PrecinctScannerStateMachine } from './types.js';
+import { rootDebug } from './util/debug.js';
+import { getCurrentTime } from './util/get_current_time.js';
+import { Workspace } from './util/workspace.js';
+import { constructAuthMachineState } from './util/auth.js';
+import { Store } from './store.js';
+import { encryptBallotAuditId } from './export.js';
 
 const debug = rootDebug.extend('state-machine');
 

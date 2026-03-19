@@ -1,7 +1,7 @@
 /* istanbul ignore file */
-export * from './integers';
-export * from './iter';
-export * from './iterator_plus';
-export * from './lines';
-export * from './naturals';
-export * from './types';
+export * from './integers.js';
+export * from './iter.js';
+export * from './iterator_plus.js';
+export * from './lines.js';
+export * from './naturals.js';
+export * from './types.js';

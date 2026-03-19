@@ -28,8 +28,8 @@ import {
 } from '@votingworks/ui';
 import { UiStringsStore } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
-import { type Store } from '../store';
-import { closeLayoutRenderer, printBallot } from './print_ballot';
+import { type Store } from '../store.js';
+import { closeLayoutRenderer, printBallot } from './print_ballot.js';
 
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');

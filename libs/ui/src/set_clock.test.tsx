@@ -9,15 +9,15 @@ import {
   screen,
   waitFor,
   within,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 import {
   PickDateTimeModal,
   MAX_YEAR,
   MIN_YEAR,
   SetClockButton,
   CurrentDateAndTime,
-} from './set_clock';
-import { newTestContext } from '../test/test_context';
+} from './set_clock.js';
+import { newTestContext } from '../test/test_context.js';
 
 function getSelect(testId: string): HTMLSelectElement {
   return screen.getByTestId(testId);

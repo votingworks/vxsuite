@@ -1,5 +1,5 @@
 import { Readable } from 'node:stream';
-import { Lines } from './lines';
+import { Lines } from './lines.js';
 
 export class StreamLines extends Lines {
   constructor(input: Readable, terminator?: string) {

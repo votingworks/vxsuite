@@ -29,7 +29,7 @@ import {
   populateImageAndLayoutFileHashes,
   replaceUniqueId,
   getBatchIdForScannerId,
-} from '../../generate-cvrs';
+} from '../../generate-cvrs/index.js';
 
 /**
  * Script to generate a cast vote record file for a given election.

@@ -10,9 +10,9 @@ import {
 import { v4 as uuid } from 'uuid';
 import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
-import { Store } from '../src/store';
-import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
-import { determineCvrContestTags } from '../src/cast_vote_records';
+import { Store } from '../src/store.js';
+import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records.js';
+import { determineCvrContestTags } from '../src/cast_vote_records.js';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {

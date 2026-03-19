@@ -2,8 +2,8 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { resolve } from 'node:path';
-import { WORKSPACE } from '../src/globals';
-import { createWorkspace } from '../src/workspace';
+import { WORKSPACE } from '../src/globals.js';
+import { createWorkspace } from '../src/workspace.js';
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();

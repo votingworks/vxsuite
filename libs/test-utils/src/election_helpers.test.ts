@@ -4,7 +4,7 @@ import {
   createTestElection,
   createElectionDefinition,
   createMockVotes,
-} from './election_helpers';
+} from './election_helpers.js';
 
 describe('createTestElection', () => {
   test('creates an election with the specified number of candidate contests', () => {

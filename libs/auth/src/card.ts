@@ -6,8 +6,8 @@ import {
   VendorUser,
 } from '@votingworks/types';
 
-import { ResponseApduError } from './apdu';
-import { UNIVERSAL_VENDOR_CARD_JURISDICTION } from './jurisdictions';
+import { ResponseApduError } from './apdu.js';
+import { UNIVERSAL_VENDOR_CARD_JURISDICTION } from './jurisdictions.js';
 
 interface VendorCardDetails {
   user: VendorUser;

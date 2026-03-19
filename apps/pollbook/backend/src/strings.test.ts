@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { padWithZeroes } from './strings';
+import { padWithZeroes } from './strings.js';
 
 describe('padWithZeroes', () => {
   test('pads a valid number string with 0s when no targetDigits argument is provided', () => {

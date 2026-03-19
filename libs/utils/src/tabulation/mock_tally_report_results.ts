@@ -3,7 +3,7 @@ import { mapObject } from '@votingworks/basics';
 import {
   ContestResultsSummaries,
   buildElectionResultsFixture,
-} from './tabulation';
+} from './tabulation.js';
 
 function buildSimpleMockElectionResults(
   election: Election,

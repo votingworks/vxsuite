@@ -1,8 +1,8 @@
 import React from 'react';
 import { test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { PatDeviceIdentificationPage } from './pat_device_identification_page';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { PatDeviceIdentificationPage } from './pat_device_identification_page.js';
 
 // Simple mock screen wrapper for testing
 function MockScreenWrapper({

@@ -82,11 +82,11 @@ import {
   User,
   UserType,
   ElectionStatus,
-} from './types';
-import { Db } from './db/db';
-import { Bindable, Client } from './db/client';
-import { generateId } from './utils';
-import { getStateFeaturesConfig } from './features';
+} from './types.js';
+import { Db } from './db/db.js';
+import { Bindable, Client } from './db/client.js';
+import { generateId } from './utils.js';
+import { getStateFeaturesConfig } from './features.js';
 
 export interface ElectionRecord {
   jurisdictionId: string;

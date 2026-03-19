@@ -1,8 +1,8 @@
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
-import { openssl } from '../cryptography';
-import { CommonAccessCardDetails } from './common_access_card_api';
+import { openssl } from '../cryptography.js';
+import { CommonAccessCardDetails } from './common_access_card_api.js';
 
 const debug = makeDebug('auth: cac:certs');
 

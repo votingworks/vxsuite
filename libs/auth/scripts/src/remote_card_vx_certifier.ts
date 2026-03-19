@@ -10,10 +10,10 @@ import {
   CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
-} from '../../src/certs';
-import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
-import { createCert } from '../../src/cryptography';
-import { getRequiredEnvVar } from '../../src/env_vars';
+} from '../../src/certs.js';
+import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config.js';
+import { createCert } from '../../src/cryptography.js';
+import { getRequiredEnvVar } from '../../src/env_vars.js';
 
 interface ScriptEnvVars {
   certPublicKeyPath: string;

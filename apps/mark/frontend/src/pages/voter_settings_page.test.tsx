@@ -3,8 +3,8 @@ import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../test/react_testing_library';
-import { VoterSettingsPage } from './voter_settings_page';
+import { render, screen } from '../../test/react_testing_library.js';
+import { VoterSettingsPage } from './voter_settings_page.js';
 
 test('returns to previous URL on close', () => {
   const history = createMemoryHistory();

@@ -35,7 +35,7 @@ import {
   hasSplits,
   PrecinctOrSplit,
   CandidateVote,
-} from './election';
+} from './election.js';
 
 /**
  * Gets contests which belong to a ballot style in an election.

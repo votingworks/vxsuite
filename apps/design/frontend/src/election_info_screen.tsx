@@ -27,21 +27,21 @@ import {
   getStateFeatures,
   getElectionInfo,
   updateElectionInfo,
-} from './api';
-import { FieldName, FixedViewport, InputGroup, Row } from './layout';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, routes } from './routes';
-import { SealImageInput } from './seal_image_input';
-import { useTitle } from './hooks/use_title';
-import { SignatureImageInput } from './signature_image_input';
-import { InputWithAudio } from './ballot_audio/input_with_audio';
+} from './api.js';
+import { FieldName, FixedViewport, InputGroup, Row } from './layout.js';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, routes } from './routes.js';
+import { SealImageInput } from './seal_image_input.js';
+import { useTitle } from './hooks/use_title.js';
+import { SignatureImageInput } from './signature_image_input.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import {
   FormBody,
   FormErrorContainer,
   FormFixed,
   FormFooter,
-} from './form_fixed';
-import { ElectionInfoAudioPanel } from './election_info_audio_panel';
+} from './form_fixed.js';
+import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return !electionInfo.title && !electionInfo.seal;

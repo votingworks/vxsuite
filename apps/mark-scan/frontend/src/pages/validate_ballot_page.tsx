@@ -22,10 +22,10 @@ import {
   getInterpretation,
   invalidateBallot,
   validateBallot,
-} from '../api';
+} from '../api.js';
 
-import { BallotContext } from '../contexts/ballot_context';
-import { useVoterHelpScreen } from './use_voter_help_screen';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { useVoterHelpScreen } from './use_voter_help_screen.js';
 
 const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;

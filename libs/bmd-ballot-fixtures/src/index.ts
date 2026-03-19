@@ -1,1 +1,1 @@
-export * from './bmd_ballot_fixtures';
+export * from './bmd_ballot_fixtures.js';

@@ -8,9 +8,9 @@ import {
 } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
-import { TestStore } from '../test/test_store';
-import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer.js';
+import { TestStore } from '../test/test_store.js';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);

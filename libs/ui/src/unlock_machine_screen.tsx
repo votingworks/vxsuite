@@ -3,16 +3,16 @@ import styled from 'styled-components';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 
-import { Screen } from './screen';
-import { Main } from './main';
-import { Button } from './button';
-import { NumberPad } from './number_pad';
-import { useNow } from './hooks/use_now';
-import { usePinEntry } from './hooks/use_pin_entry';
-import { Timer } from './timer';
-import { H1, P } from './typography';
-import { Icons } from './icons';
-import { PinLength } from './utils/pin_length';
+import { Screen } from './screen.js';
+import { Main } from './main.js';
+import { Button } from './button.js';
+import { NumberPad } from './number_pad.js';
+import { useNow } from './hooks/use_now.js';
+import { usePinEntry } from './hooks/use_pin_entry.js';
+import { Timer } from './timer.js';
+import { H1, P } from './typography.js';
+import { Icons } from './icons.js';
+import { PinLength } from './utils/pin_length.js';
 
 export const SECURITY_PIN_LENGTH = PinLength.exactly(6);
 

@@ -14,15 +14,15 @@ import {
   jurisdiction,
   provideApi,
   user,
-} from '../test/api_helpers';
-import { render, screen } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { ConvertResultsScreen } from './convert_results_screen';
-import { routes } from './routes';
+} from '../test/api_helpers.js';
+import { render, screen } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { ConvertResultsScreen } from './convert_results_screen.js';
+import { routes } from './routes.js';
 import {
   electionInfoFromRecord,
   generalElectionRecord,
-} from '../test/fixtures';
+} from '../test/fixtures.js';
 
 vi.mock('js-file-download');
 

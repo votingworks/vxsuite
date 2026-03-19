@@ -1,8 +1,8 @@
 import { ContestId, Id } from '@votingworks/types';
 import { loadImageMetadata } from '@votingworks/image-utils';
-import { Store } from '../store';
-import { BallotImageView } from '../types';
-import { rootDebug } from './debug';
+import { Store } from '../store.js';
+import { BallotImageView } from '../types.js';
+import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('adjudication');
 

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { renderHook } from '../../test/react_testing_library';
-import { useLock } from './use_lock';
+import { renderHook } from '../../test/react_testing_library.js';
+import { useLock } from './use_lock.js';
 
 test('locks and unlocks', () => {
   const { result } = renderHook(() => useLock());

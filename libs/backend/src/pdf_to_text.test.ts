@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
-import { pdfToText } from './pdf_to_text';
-import { execFile } from './exec';
+import { pdfToText } from './pdf_to_text.js';
+import { execFile } from './exec.js';
 
 vi.mock(import('./exec.js'));
 

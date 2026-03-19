@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { nextTick } from 'node:process';
-import { backendWaitFor } from './backend_wait_for';
+import { backendWaitFor } from './backend_wait_for.js';
 
 test('if no waiting is necessary, runs only once', async () => {
   let tries = 0;

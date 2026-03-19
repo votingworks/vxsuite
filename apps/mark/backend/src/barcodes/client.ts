@@ -4,7 +4,7 @@ import { EventEmitter } from 'node:stream';
 import util from 'node:util';
 
 import { sleep, throwIllegalValue } from '@votingworks/basics';
-import { BarcodeReader, WorkerMessage } from './types';
+import { BarcodeReader, WorkerMessage } from './types.js';
 
 export class BarcodeClient
   extends EventEmitter<{

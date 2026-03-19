@@ -1,12 +1,12 @@
 import { Device, WebUSBDevice, findByIds } from 'usb';
 import { MockedFunction } from 'vitest';
-import { MockWebUsbDevice } from '../test-utils';
+import { MockWebUsbDevice } from '../test-utils/index.js';
 import {
   REAL_TIME_ENDPOINT_IN,
   REAL_TIME_ENDPOINT_OUT,
   PACKET_SIZE,
-} from './driver';
-import { PaperHandlerStatus } from './coders';
+} from './driver.js';
+import { PaperHandlerStatus } from './coders.js';
 
 const TEST_ALTERNATE_INTERFACE: USBAlternateInterface = {
   alternateSetting: 3,

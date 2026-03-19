@@ -17,8 +17,8 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 
-import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
-import { normalizeWriteInName } from '../utils/adjudication';
+import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal.js';
+import { normalizeWriteInName } from '../utils/adjudication.js';
 
 interface ExistingOfficialCandidate {
   type: 'existing-official';

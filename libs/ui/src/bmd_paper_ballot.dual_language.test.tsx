@@ -12,16 +12,16 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import { generateBallotStyleId } from '@votingworks/utils';
 import { assertDefined, find } from '@votingworks/basics';
-import { BmdPaperBallot } from './bmd_paper_ballot';
-import { newTestContext as newUiStringsTestContext } from '../test/test_context';
-import { UiString, UiStringProps } from './ui_strings/ui_string';
-import { useLanguageContext } from './ui_strings/language_context';
-import { act, screen, waitFor } from '../test/react_testing_library';
+import { BmdPaperBallot } from './bmd_paper_ballot.js';
+import { newTestContext as newUiStringsTestContext } from '../test/test_context.js';
+import { UiString, UiStringProps } from './ui_strings/ui_string.js';
+import { useLanguageContext } from './ui_strings/language_context.js';
+import { act, screen, waitFor } from '../test/react_testing_library.js';
 import { AppStringKey } from '.';
 import {
   generateCandidateVotes,
   generateYesNoVote,
-} from './bmd_paper_ballot_test_utils';
+} from './bmd_paper_ballot_test_utils.js';
 
 vi.mock(import('./qrcode.js'), async (importActual) => ({
   ...(await importActual()),

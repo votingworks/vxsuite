@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { execFile } from '../exec';
-import { AudioPort, setBuiltinAudioPort } from './set_builtin_audio_port';
+import { execFile } from '../exec.js';
+import { AudioPort, setBuiltinAudioPort } from './set_builtin_audio_port.js';
 
 vi.mock(import('../exec.js'));
 

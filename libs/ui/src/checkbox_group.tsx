@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
-import { CheckboxButton } from './checkbox_button';
+import { CheckboxButton } from './checkbox_button.js';
 
 interface Option<T extends string> {
   label: string;

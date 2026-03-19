@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
-import { election } from '../../../test/election';
-import { Candidate, PartyId } from '../../election';
+import { election } from '../../../test/election.js';
+import { Candidate, PartyId } from '../../election.js';
 import {
   asNcName,
   getCandidateId,
@@ -15,7 +15,7 @@ import {
   getPartyIdForCandidate,
   getStateId,
   getYesOptionId,
-} from './ncname';
+} from './ncname.js';
 
 test('asNcName', () => {
   const str = 'test:str';

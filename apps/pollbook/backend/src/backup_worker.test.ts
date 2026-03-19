@@ -12,10 +12,10 @@ import {
   createVoter,
   getTestElection,
   setupTestElectionAndVoters,
-} from '../test/test_helpers';
-import { getBackupPaperChecklistPdfs } from './backup_worker';
-import { LocalStore } from './local_store';
-import { EventType, VoterRegistrationEvent } from './types';
+} from '../test/test_helpers.js';
+import { getBackupPaperChecklistPdfs } from './backup_worker.js';
+import { LocalStore } from './local_store.js';
+import { EventType, VoterRegistrationEvent } from './types.js';
 
 function setSinglePrecinctElection(store: LocalStore): void {
   const baseElection = getTestElection();

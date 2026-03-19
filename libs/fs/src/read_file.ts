@@ -1,6 +1,6 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { open } from './open_file';
+import { open } from './open_file.js';
 
 /**
  * Possible errors that can occur when reading a file.

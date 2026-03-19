@@ -10,21 +10,21 @@ import {
   printedReportThemeFn,
   PrintedReport,
   TallyReportColumns,
-} from './layout';
-import { LogoMark } from '../logo_mark';
-import { ContestResultsTable } from './contest_results_table';
-import { TallyReportCardCounts } from './tally_report_card_counts';
-import { CustomFilterSummary } from './custom_filter_summary';
-import { LabeledScannerBatch, prefixedTitle } from './utils';
-import { CertificationSignatures } from './certification_signatures';
+} from './layout.js';
+import { LogoMark } from '../logo_mark.js';
+import { ContestResultsTable } from './contest_results_table.js';
+import { TallyReportCardCounts } from './tally_report_card_counts.js';
+import { CustomFilterSummary } from './custom_filter_summary.js';
+import { LabeledScannerBatch, prefixedTitle } from './utils.js';
+import { CertificationSignatures } from './certification_signatures.js';
 import {
   ReportHeader,
   ReportTitle,
   ReportElectionInfo,
   TestModeBanner,
   ReportSubtitle,
-} from './report_header';
-import { ReportGeneratedMetadata } from './report_generated_metadata';
+} from './report_header.js';
+import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 
 export interface AdminTallyReportProps {
   title: string;

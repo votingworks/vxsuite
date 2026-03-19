@@ -25,8 +25,8 @@ import chalk from 'chalk';
 import { promises as fs } from 'node:fs';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { once } from 'node:stream';
-import { interpret } from './interpret';
-import { InterpretedBallotCard, InterpretError } from './types';
+import { interpret } from './interpret.js';
+import { InterpretedBallotCard, InterpretError } from './types.js';
 
 interface IO {
   stdout: NodeJS.WritableStream;

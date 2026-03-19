@@ -8,10 +8,10 @@ import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../test/api_helpers';
-import { ContestList, ContestListProps, ReorderParams } from './contest_list';
-import { render, screen, within } from '../test/react_testing_library';
-import { routes } from './routes';
+} from '../test/api_helpers.js';
+import { ContestList, ContestListProps, ReorderParams } from './contest_list.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { routes } from './routes.js';
 
 const district1: District = { id: 'district1', name: 'District 1' };
 const district2: District = { id: 'district2', name: 'District 2' };

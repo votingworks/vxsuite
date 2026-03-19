@@ -4,8 +4,8 @@ import fc from 'fast-check';
 import { createReadStream } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
-import { iter } from './iter';
-import { lines } from './lines';
+import { iter } from './iter.js';
+import { lines } from './lines.js';
 
 test('lines (sync)', () => {
   expect(lines('').toArray()).toEqual(['']);

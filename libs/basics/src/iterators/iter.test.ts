@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { iter } from './iter';
+import { iter } from './iter.js';
 
 test('iter with array', () => {
   expect(iter([]).toArray()).toEqual([]);

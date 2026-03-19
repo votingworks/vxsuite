@@ -6,16 +6,16 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
-import { Store } from '../store';
-import { generateTitleForReport } from './titles';
-import { getCurrentTime } from '../util/get_current_time';
-import { ExportDataResult } from '../types';
+import { Store } from '../store.js';
+import { generateTitleForReport } from './titles.js';
+import { getCurrentTime } from '../util/get_current_time.js';
+import { ExportDataResult } from '../types.js';
 import {
   BallotCountReportWarning,
   getBallotCountReportWarning,
-} from './warnings';
-import { generateReportsDirectoryPath } from '../util/filenames';
-import { buildExporter } from '../util/exporter';
+} from './warnings.js';
+import { generateReportsDirectoryPath } from '../util/filenames.js';
+import { buildExporter } from '../util/exporter.js';
 
 /**
  * Parameters that define a ballot count report.

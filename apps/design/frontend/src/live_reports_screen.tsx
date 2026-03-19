@@ -44,17 +44,17 @@ import type {
   GetExportedElectionError,
   QuickReportedPollStatus,
 } from '@votingworks/design-backend';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, routes } from './routes';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, routes } from './routes.js';
 import {
   deleteQuickReportingResults,
   getLiveResultsReports,
   getLiveReportsSummary,
   getSystemSettings,
-} from './api';
-import { useTitle } from './hooks/use_title';
-import { Row } from './layout';
-import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
+} from './api.js';
+import { useTitle } from './hooks/use_title.js';
+import { Row } from './layout.js';
+import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils.js';
 
 const PollsStatusLabel = styled.span`
   font-size: 1rem;

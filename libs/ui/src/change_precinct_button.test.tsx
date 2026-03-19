@@ -6,11 +6,11 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   ChangePrecinctButton,
   SELECT_PRECINCT_TEXT,
-} from './change_precinct_button';
+} from './change_precinct_button.js';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 

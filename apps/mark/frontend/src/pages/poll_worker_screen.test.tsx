@@ -23,16 +23,16 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { assert, DateWithoutTime } from '@votingworks/basics';
-import { fireEvent, screen } from '../../test/react_testing_library';
+import { fireEvent, screen } from '../../test/react_testing_library.js';
 
-import { render } from '../../test/test_utils';
+import { render } from '../../test/test_utils.js';
 
-import { defaultPrecinctId } from '../../test/helpers/election';
+import { defaultPrecinctId } from '../../test/helpers/election.js';
 
-import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiProvider } from '../api_provider';
+import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen.js';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { ApiProvider } from '../api_provider.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;

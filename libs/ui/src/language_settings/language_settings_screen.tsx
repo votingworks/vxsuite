@@ -3,27 +3,27 @@ import styled, { DefaultTheme } from 'styled-components';
 
 import { SizeMode } from '@votingworks/types';
 
-import { Screen } from '../screen';
-import { Button } from '../button';
+import { Screen } from '../screen.js';
+import { Button } from '../button.js';
 import {
   AudioOnly,
   LanguageOverride,
   ReadOnLoad,
   appStrings,
   electionStrings,
-} from '../ui_strings';
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { useAvailableLanguages } from '../hooks/use_available_languages';
-import { useLanguageControls } from '../hooks/use_language_controls';
-import { H2 } from '../typography';
-import { RadioGroup } from '../radio_group';
-import { DEFAULT_LANGUAGE_CODE } from '../ui_strings/language_context';
-import { useScreenInfo } from '../hooks/use_screen_info';
-import { WithScrollButtons } from '../with_scroll_buttons';
+} from '../ui_strings/index.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { useAvailableLanguages } from '../hooks/use_available_languages.js';
+import { useLanguageControls } from '../hooks/use_language_controls.js';
+import { H2 } from '../typography.js';
+import { RadioGroup } from '../radio_group.js';
+import { DEFAULT_LANGUAGE_CODE } from '../ui_strings/language_context.js';
+import { useScreenInfo } from '../hooks/use_screen_info.js';
+import { WithScrollButtons } from '../with_scroll_buttons.js';
 import {
   PageNavigationButtonId,
   AssistiveTechInstructions,
-} from '../accessible_controllers';
+} from '../accessible_controllers/index.js';
 
 export interface LanguageSettingsScreenProps {
   onDone: () => void;

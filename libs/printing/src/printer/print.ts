@@ -1,8 +1,8 @@
 import { assert } from '@votingworks/basics';
-import { rootDebug } from '../utils/debug';
-import { PrintProps, PrintSides } from './types';
-import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
-import { exec } from '../utils/exec';
+import { rootDebug } from '../utils/debug.js';
+import { PrintProps, PrintSides } from './types.js';
+import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
+import { exec } from '../utils/exec.js';
 
 const debug = rootDebug.extend('status');
 

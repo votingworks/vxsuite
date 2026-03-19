@@ -3,11 +3,11 @@ import express from 'express';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { startCpuMetricsLogging } from '@votingworks/backend';
-import { buildLocalApp } from './app';
-import { PORT } from './globals';
-import { LocalAppContext } from './types';
-import { getUserRole } from './auth';
-import { BarcodeScannerClient } from './barcode_scanner/client';
+import { buildLocalApp } from './app.js';
+import { PORT } from './globals.js';
+import { LocalAppContext } from './types.js';
+import { getUserRole } from './auth.js';
+import { BarcodeScannerClient } from './barcode_scanner/client.js';
 
 /**
  * Starts the server.

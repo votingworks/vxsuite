@@ -2,10 +2,10 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { SystemAdministratorSettingsScreen } from './system_administrator_settings_screen';
-import { createApiMock, ApiMock } from '../../test/api';
+import { screen } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { SystemAdministratorSettingsScreen } from './system_administrator_settings_screen.js';
+import { createApiMock, ApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 

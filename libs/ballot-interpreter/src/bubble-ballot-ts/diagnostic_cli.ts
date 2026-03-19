@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { promises as fs } from 'node:fs';
-import { runBlankPaperDiagnostic } from './diagnostic';
+import { runBlankPaperDiagnostic } from './diagnostic.js';
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(`${chalk.bold('Usage:')} diagnostic [options] <image-path>\n`);

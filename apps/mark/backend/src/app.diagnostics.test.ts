@@ -14,9 +14,9 @@ import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
-import { createApp } from '../test/app_helpers';
-import { Api } from './app';
-import { MockBarcodeClient } from './barcodes/mock_client';
+import { createApp } from '../test/app_helpers.js';
+import { Api } from './app.js';
+import { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

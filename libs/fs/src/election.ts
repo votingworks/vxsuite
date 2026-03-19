@@ -4,7 +4,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { ZodError } from 'zod/v4';
-import { ReadFileError, readFile } from './read_file';
+import { ReadFileError, readFile } from './read_file.js';
 
 /**
  * Possible errors that can occur when reading an election.

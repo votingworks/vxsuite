@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Client, DbConnectionOptions, Statement } from './client';
+import { Client, DbConnectionOptions, Statement } from './client.js';
 
 test('file database client', () => {
   const dbFile = makeTemporaryFile();

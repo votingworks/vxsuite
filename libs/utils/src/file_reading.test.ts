@@ -11,7 +11,7 @@ import {
   getFilePrefixedByName,
   getFileByName,
   maybeGetFileByName,
-} from './file_reading';
+} from './file_reading.js';
 
 // Helper function to create mock JSZipObject entries
 function createMockEntry(name: string, date?: Date): JSZipObject {

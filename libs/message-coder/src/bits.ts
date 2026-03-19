@@ -1,6 +1,6 @@
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BitOffset, EncodeResult } from './types';
+import { BitOffset, EncodeResult } from './types.js';
 
 /**
  * How many bits are in a byte.

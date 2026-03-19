@@ -7,7 +7,7 @@ import {
   Voter,
   safeParseInt,
 } from '@votingworks/types';
-import type { LocalApi } from '../src/app';
+import type { LocalApi } from '../src/app.js';
 
 const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',

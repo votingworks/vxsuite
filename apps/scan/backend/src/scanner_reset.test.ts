@@ -9,10 +9,10 @@ import {
   ballotImages,
   withApp,
   MockPdiScannerClient,
-} from '../test/helpers/scanner_helpers';
-import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
-import { delays, RESET_COOLDOWN_MS } from './scanner';
-import { getCurrentTime } from './util/get_current_time';
+} from '../test/helpers/scanner_helpers.js';
+import { configureApp, waitForStatus } from '../test/helpers/shared_helpers.js';
+import { delays, RESET_COOLDOWN_MS } from './scanner.js';
+import { getCurrentTime } from './util/get_current_time.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 

@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
-import { render, screen } from '../../test/react_testing_library';
-import { PaperReloadedPage } from './paper_reloaded_page';
-import { RemoveJammedSheetScreen } from './remove_jammed_sheet_screen';
+import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { PaperReloadedPage } from './paper_reloaded_page.js';
+import { RemoveJammedSheetScreen } from './remove_jammed_sheet_screen.js';
 
 vi.mock(import('./remove_jammed_sheet_screen.js'));
 

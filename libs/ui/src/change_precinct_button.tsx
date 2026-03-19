@@ -7,11 +7,11 @@ import {
 } from '@votingworks/utils';
 import { assert, deepEqual } from '@votingworks/basics';
 import styled from 'styled-components';
-import { Button } from './button';
-import { Modal } from './modal';
-import { H1, P } from './typography';
-import { Icons } from './icons';
-import { SearchSelect } from './search_select';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { H1, P } from './typography.js';
+import { Icons } from './icons.js';
+import { SearchSelect } from './search_select.js';
 
 const ConfirmModal = styled(Modal)`
   overflow: visible;

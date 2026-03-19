@@ -9,13 +9,13 @@ import {
 } from '@votingworks/backend';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
-import { Workspace } from './util/workspace';
+import { Workspace } from './util/workspace.js';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
-} from './util/accessible_controller';
-import * as barcodes from './barcodes';
-import { getCurrentTime } from './util/get_current_time';
+} from './util/accessible_controller.js';
+import * as barcodes from './barcodes/index.js';
+import { getCurrentTime } from './util/get_current_time.js';
 
 /**
  * Saves the VxMark hardware readiness report to the USB drive.

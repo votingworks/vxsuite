@@ -2,7 +2,7 @@ import { test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CentralScanReadinessReport } from '.';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

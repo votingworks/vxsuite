@@ -3,8 +3,8 @@ import { useTheme } from 'styled-components';
 
 import { isTouchSizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { CONFIG } from './constants';
-import { Layout, MisvoteWarningsProps } from './types';
+import { CONFIG } from './constants.js';
+import { Layout, MisvoteWarningsProps } from './types.js';
 
 export function useLayoutConfig(props: MisvoteWarningsProps): Layout {
   const { blankContests, overvoteContests, partiallyVotedContests } = props;

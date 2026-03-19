@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
-import { render, screen } from '../test/react_testing_library';
-import { NumberInput } from './number_input';
+import { render, screen } from '../test/react_testing_library.js';
+import { NumberInput } from './number_input.js';
 
 
 function ControllerNumberInput({

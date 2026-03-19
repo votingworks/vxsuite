@@ -12,8 +12,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { withApp } from '../test/helpers/scanner_helpers';
-import { configureApp } from '../test/helpers/shared_helpers';
+import { withApp } from '../test/helpers/scanner_helpers.js';
+import { configureApp } from '../test/helpers/shared_helpers.js';
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'scan';

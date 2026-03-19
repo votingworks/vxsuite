@@ -3,9 +3,9 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatElectionHashes } from '@votingworks/types';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 
-import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
+import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();

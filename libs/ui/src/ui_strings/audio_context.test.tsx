@@ -4,20 +4,20 @@ import {
   DEFAULT_AUDIO_ENABLED_STATE,
   UiStringsAudioContextProvider,
   useAudioContext,
-} from './audio_context';
-import { createUiStringsApi } from '../hooks/ui_strings_api';
-import { renderHook } from '../../test/react_testing_library';
+} from './audio_context.js';
+import { createUiStringsApi } from '../hooks/ui_strings_api.js';
+import { renderHook } from '../../test/react_testing_library.js';
 import {
   AudioVolume,
   DEFAULT_AUDIO_VOLUME,
   getAudioGainRatio,
-} from './audio_volume';
+} from './audio_volume.js';
 import {
   DEFAULT_PLAYBACK_RATE,
   PLAYBACK_RATES,
   PlaybackRate,
-} from './audio_playback_rate';
-import { newTestContext } from '../../test/test_context';
+} from './audio_playback_rate.js';
+import { newTestContext } from '../../test/test_context.js';
 
 let setMockHeadphonesPluggedIn: (isPluggedIn: boolean) => void;
 

@@ -17,15 +17,15 @@ import {
   getFeatureFlagMock,
   groupMapToGroupList,
 } from '@votingworks/utils';
-import { Store } from '../store';
+import { Store } from '../store.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../../test/mock_cvr_file';
+} from '../../test/mock_cvr_file.js';
 import {
   tabulateFullCardCounts,
   tabulateScannedCardCounts,
-} from './card_counts';
+} from './card_counts.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

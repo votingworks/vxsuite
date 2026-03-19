@@ -4,12 +4,12 @@ import { beforeEach, expect, test, vi, afterEach } from 'vitest';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { SystemCallApiMethods, createSystemCallApi } from './api';
-import { execFile } from '../exec';
-import { AudioInfo, getAudioInfo } from './get_audio_info';
-import { BatteryInfo, getBatteryInfo } from './get_battery_info';
-import { LogsExportError } from './export_logs_to_usb';
-import { getDiskSpaceSummary } from './get_disk_space_summary';
+import { SystemCallApiMethods, createSystemCallApi } from './api.js';
+import { execFile } from '../exec.js';
+import { AudioInfo, getAudioInfo } from './get_audio_info.js';
+import { BatteryInfo, getBatteryInfo } from './get_battery_info.js';
+import { LogsExportError } from './export_logs_to_usb.js';
+import { getDiskSpaceSummary } from './get_disk_space_summary.js';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),
@@ -18,7 +18,7 @@ vi.mock(import('node:fs/promises'), async (importActual) => ({
 
 vi.mock(
   import('../exec.js'),
-  async (importActual): Promise<typeof import('../exec')> => ({
+  async (importActual): Promise<typeof import('../exec.js')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })

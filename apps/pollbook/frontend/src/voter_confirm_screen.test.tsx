@@ -10,14 +10,14 @@ import {
   electionMultiPartyPrimaryFixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
-import { screen, waitFor, within } from '../test/react_testing_library';
+import { screen, waitFor, within } from '../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   createMockVoter,
-} from '../test/mock_api_client';
-import { renderInAppContext } from '../test/render_in_app_context';
-import { VoterConfirmScreen } from './voter_confirm_screen';
+} from '../test/mock_api_client.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
+import { VoterConfirmScreen } from './voter_confirm_screen.js';
 
 let apiMock: ApiMock;
 let unmount: () => void;

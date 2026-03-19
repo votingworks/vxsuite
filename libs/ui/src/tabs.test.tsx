@@ -2,9 +2,9 @@ import { expect, test } from 'vitest';
 import { Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { render, screen } from '../test/react_testing_library';
-import { RouterTabBar } from './tabs';
-import { makeTheme } from './themes/make_theme';
+import { render, screen } from '../test/react_testing_library.js';
+import { RouterTabBar } from './tabs.js';
+import { makeTheme } from './themes/make_theme.js';
 
 test('RouterTabBar navigates on click and shows active tab', () => {
   const history = createMemoryHistory({ initialEntries: ['/tab1'] });

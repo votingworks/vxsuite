@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { IconName, Icons } from './icons';
-import { Card, CardProps } from './card';
+import { IconName, Icons } from './icons.js';
+import { Card, CardProps } from './card.js';
 
 export interface CalloutProps
   extends Pick<CardProps, 'color' | 'className' | 'style' | 'children'> {

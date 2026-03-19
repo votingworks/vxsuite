@@ -3,8 +3,8 @@ import { LanguageCode } from '@votingworks/types';
 import {
   mockCloudTranslatedText,
   makeMockGoogleCloudTranslationClient,
-} from './test_utils';
-import { GoogleCloudTranslator } from './translator';
+} from './test_utils.js';
+import { GoogleCloudTranslator } from './translator.js';
 
 test('GoogleCloudTranslator', async () => {
   const translationClient = makeMockGoogleCloudTranslationClient({ fn: vi.fn });

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { LinkButton, LinkButtonProps } from './link_button';
-import { Icons } from './icons';
+import { LinkButton, LinkButtonProps } from './link_button.js';
+import { Icons } from './icons.js';
 
 /**
  * A left navigation sidebar container.

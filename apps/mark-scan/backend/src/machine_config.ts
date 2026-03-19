@@ -1,5 +1,5 @@
 import { DEV_MACHINE_ID } from '@votingworks/types';
-import { MachineConfig } from './types';
+import { MachineConfig } from './types.js';
 
 export function getMachineConfig(): MachineConfig {
   return {

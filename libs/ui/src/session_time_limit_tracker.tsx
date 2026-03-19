@@ -10,12 +10,12 @@ import {
 } from '@votingworks/types';
 
 import styled from 'styled-components';
-import { Button } from './button';
-import { useNow } from './hooks/use_now';
-import { Modal } from './modal';
-import { Timer } from './timer';
-import { H1, P } from './typography';
-import { Card } from './card';
+import { Button } from './button.js';
+import { useNow } from './hooks/use_now.js';
+import { Modal } from './modal.js';
+import { Timer } from './timer.js';
+import { H1, P } from './typography.js';
+import { Card } from './card.js';
 
 const SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT = 60;
 const SECONDS_AHEAD_OF_OVERALL_SESSION_TIME_LIMIT_TO_WARN = 15 * 60;

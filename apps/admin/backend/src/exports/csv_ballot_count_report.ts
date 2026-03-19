@@ -14,7 +14,7 @@ import {
   getScannedBallotCountForSheet,
   groupMapToGroupList,
 } from '@votingworks/utils';
-import { Store } from '../store';
+import { Store } from '../store.js';
 import {
   CsvMetadataStructure,
   determineCsvMetadataStructure,
@@ -22,8 +22,8 @@ import {
   generateCsvMetadataHeaders,
   generateCsvTitleRow,
   getCsvMetadataRowValues,
-} from './csv_shared';
-import { tabulateFullCardCounts } from '../tabulation/card_counts';
+} from './csv_shared.js';
+import { tabulateFullCardCounts } from '../tabulation/card_counts.js';
 
 function generateHeaders({
   election,

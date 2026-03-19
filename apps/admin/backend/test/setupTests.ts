@@ -4,7 +4,7 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { cleanupCachedBrowser } from '@votingworks/printing';
-import { cleanupTestSuiteTmpFiles } from './cleanup';
+import { cleanupTestSuiteTmpFiles } from './cleanup.js';
 
 afterAll(async () => {
   cleanupTestSuiteTmpFiles();

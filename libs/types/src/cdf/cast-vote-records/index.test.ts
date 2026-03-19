@@ -3,7 +3,7 @@ import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ok } from '@votingworks/basics';
-import { mockWritable } from '../../../test/helpers/mock_writable';
+import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import {
   AllocationStatus,
   CastVoteRecordReport,
@@ -17,7 +17,7 @@ import {
   findUnusedDefinitions,
   isSubsetCdfSchema,
   validateSchemaDraft04,
-} from '../../../test/cdf_schema_utils';
+} from '../../../test/cdf_schema_utils.js';
 
 const castVoteRecordReport: CastVoteRecordReport = {
   '@type': 'CVR.CastVoteRecordReport',

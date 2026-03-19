@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { PrecinctId, PrecinctIdSchema } from './election';
+import { PrecinctId, PrecinctIdSchema } from './election.js';
 
 export type PrecinctSelectionKind = 'SinglePrecinct' | 'AllPrecincts';
 export const PrecinctSelectionKindSchema: z.ZodSchema<PrecinctSelectionKind> =

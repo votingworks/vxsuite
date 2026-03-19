@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { integers } from './integers';
+import { integers } from './integers.js';
 
 test('integers', () => {
   expect(integers({ from: 4 }).take(5).toArray()).toEqual([4, 5, 6, 7, 8]);

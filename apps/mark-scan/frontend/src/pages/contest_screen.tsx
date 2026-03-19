@@ -4,9 +4,9 @@ import { ContestPage, useIsReviewMode } from '@votingworks/mark-flow-ui';
 import { ContestId } from '@votingworks/types';
 
 import { AccessibilityMode } from '@votingworks/ui';
-import * as api from '../api';
-import { BallotContext } from '../contexts/ballot_context';
-import { useVoterHelpScreen } from './use_voter_help_screen';
+import * as api from '../api.js';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { useVoterHelpScreen } from './use_voter_help_screen.js';
 
 /**
  * A cap to ensure that the summary ballot QR code remains readable

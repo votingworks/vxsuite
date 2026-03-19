@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { PANE_IDS, SettingsPaneId } from './types';
-import { Button } from '../button';
-import { appStrings } from '../ui_strings';
+import { PANE_IDS, SettingsPaneId } from './types.js';
+import { Button } from '../button.js';
+import { appStrings } from '../ui_strings/index.js';
 
 export interface TabBarProps {
   activePaneId: SettingsPaneId;

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { relativeRect } from './relative_rect';
+import { relativeRect } from './relative_rect.js';
 
 test('ratio rect', () => {
   const scaleRect = relativeRect(40, 80);

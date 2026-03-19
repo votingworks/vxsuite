@@ -30,23 +30,23 @@ import type {
 } from '@votingworks/mark-scan-backend';
 
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
-import { LoadPaperPage } from './load_paper_page';
+import { LoadPaperPage } from './load_paper_page.js';
 import {
   getStateMachineState,
   setAcceptingPaperState,
   setPollsState,
   setTestMode,
-} from '../api';
-import * as api from '../api';
-import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
-import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
-import { LoadingNewSheetScreen } from './loading_new_sheet_screen';
-import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
+} from '../api.js';
+import * as api from '../api.js';
+import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen.js';
+import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen.js';
+import { LoadingNewSheetScreen } from './loading_new_sheet_screen.js';
+import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen.js';
 import {
   BallotReinsertionFlow,
   isBallotReinsertionState,
-} from '../ballot_reinsertion_flow';
-import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
+} from '../ballot_reinsertion_flow.js';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button.js';
 
 const {
   EnableLiveModeModal,

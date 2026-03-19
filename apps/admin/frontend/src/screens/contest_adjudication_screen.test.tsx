@@ -23,18 +23,18 @@ import {
   screen,
   waitFor,
   within,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 import {
   RenderInAppContextParams,
   renderInAppContext,
-} from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ContestAdjudicationScreen } from './contest_adjudication_screen';
-import { MAX_WRITE_IN_NAME_LENGTH } from '../components/write_in_adjudication_button';
+} from '../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { ContestAdjudicationScreen } from './contest_adjudication_screen.js';
+import { MAX_WRITE_IN_NAME_LENGTH } from '../components/write_in_adjudication_button.js';
 import {
   IMAGE_VIEWER_HEIGHT_PX,
   IMAGE_VIEWER_WIDTH_PX,
-} from '../components/adjudication_ballot_image_viewer';
+} from '../components/adjudication_ballot_image_viewer.js';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const electionId = electionDefinition.election.id;

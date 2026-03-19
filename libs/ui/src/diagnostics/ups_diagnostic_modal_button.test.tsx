@@ -1,7 +1,7 @@
 import { vi, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '../../test/react_testing_library';
-import { UpsDiagnosticModalButton } from './ups_diagnostic_modal_button';
+import { render, screen, waitFor } from '../../test/react_testing_library.js';
+import { UpsDiagnosticModalButton } from './ups_diagnostic_modal_button.js';
 
 vi.mock('../utils/use_sound');
 

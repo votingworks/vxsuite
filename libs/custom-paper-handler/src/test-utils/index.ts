@@ -1,1 +1,1 @@
-export * from './mock_web_usb_device';
+export * from './mock_web_usb_device.js';

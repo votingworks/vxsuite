@@ -52,7 +52,7 @@ import {
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { sha256 } from 'js-sha256';
-import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
+import { validateElectionDefinitionAgainstSystemLimits } from './system_limits.js';
 
 /**
  * An error from parsing an election package.

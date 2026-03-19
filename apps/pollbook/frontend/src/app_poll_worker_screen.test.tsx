@@ -8,19 +8,19 @@ import {
   readMultiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures';
 import { VoterCheckInError } from '@votingworks/pollbook-backend';
-import { act, render, screen, within } from '../test/react_testing_library';
-import { App } from './app';
+import { act, render, screen, within } from '../test/react_testing_library.js';
+import { App } from './app.js';
 import {
   ApiMock,
   createApiMock,
   createMockVoter,
-} from '../test/mock_api_client';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
+} from '../test/mock_api_client.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 import {
   getMockAamvaDocument,
   getMockExactSearchParams,
-} from '../test/aamva_fixtures';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
+} from '../test/aamva_fixtures.js';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api.js';
 
 let apiMock: ApiMock;
 const famousNamesElection: Election =

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { LogExportFormat } from '@votingworks/logging';
-import { Button } from './button';
-import { Modal } from './modal';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
 
-import { Loading } from './loading';
-import { P } from './typography';
-import { useSystemCallApi } from './system_call_api';
-import { SegmentedButton } from './segmented_button';
-import { WarningIcon } from './diagnostics/icons';
+import { Loading } from './loading.js';
+import { P } from './typography.js';
+import { useSystemCallApi } from './system_call_api.js';
+import { SegmentedButton } from './segmented_button.js';
+import { WarningIcon } from './diagnostics/icons.js';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;

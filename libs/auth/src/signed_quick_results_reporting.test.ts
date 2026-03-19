@@ -4,8 +4,8 @@ import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
 import { compressAndEncodeTally } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 
-import { getTestFilePath } from '../test/utils';
-import { SignedQuickResultsReportingConfig } from './config';
+import { getTestFilePath } from '../test/utils.js';
+import { SignedQuickResultsReportingConfig } from './config.js';
 import {
   generateSignedQuickResultsReportingUrl,
   authenticateSignedQuickResultsReportingUrl,
@@ -13,8 +13,8 @@ import {
   encodeQuickResultsMessage,
   QR_MESSAGE_FORMAT,
   QR_MESSAGE_FORMAT_V1,
-} from './signed_quick_results_reporting';
-import { constructPrefixedMessage } from './signatures';
+} from './signed_quick_results_reporting.js';
+import { constructPrefixedMessage } from './signatures.js';
 
 const sampleCompressedTally = 'a'.repeat(500);
 

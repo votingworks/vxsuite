@@ -13,14 +13,14 @@ import {
 import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
 import { AvahiService } from '@votingworks/networking';
 import { detectPrinter } from '@votingworks/printing';
-import { WORKSPACE } from './globals';
-import * as localServer from './server';
-import * as peerServer from './peer_server';
-import * as backupWorker from './backup_worker';
-import { createLocalWorkspace, createPeerWorkspace } from './workspace';
+import { WORKSPACE } from './globals.js';
+import * as localServer from './server.js';
+import * as peerServer from './peer_server.js';
+import * as backupWorker from './backup_worker.js';
+import { createLocalWorkspace, createPeerWorkspace } from './workspace.js';
 
-export type { LocalApi as Api } from './app';
-export * from './types';
+export type { LocalApi as Api } from './app.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 

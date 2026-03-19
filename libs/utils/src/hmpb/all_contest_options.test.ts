@@ -13,7 +13,7 @@ import {
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { expect, expectTypeOf, test } from 'vitest';
-import { allContestOptions } from './all_contest_options';
+import { allContestOptions } from './all_contest_options.js';
 
 test('candidate contest with no write-ins', () => {
   fc.assert(

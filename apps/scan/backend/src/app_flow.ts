@@ -1,8 +1,8 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { Store } from './store';
-import { constructAuthMachineState } from './util/auth';
+import { Store } from './store.js';
+import { constructAuthMachineState } from './util/auth.js';
 
 /**
  * Determines whether the VxScan is ready to scan. There are circumstances when

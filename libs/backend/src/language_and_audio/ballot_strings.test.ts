@@ -6,14 +6,14 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { GoogleCloudTranslator } from './translator';
-import { makeMockGoogleCloudTranslationClient } from './test_utils';
+import { GoogleCloudTranslator } from './translator.js';
+import { makeMockGoogleCloudTranslationClient } from './test_utils.js';
 import {
   getUserDefinedHmpbStrings,
   translateBallotStrings,
   translateHmpbStrings,
-} from './ballot_strings';
-import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog';
+} from './ballot_strings.js';
+import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog.js';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },

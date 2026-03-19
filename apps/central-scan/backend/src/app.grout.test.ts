@@ -28,9 +28,9 @@ import {
 import { readFile } from 'node:fs/promises';
 import { v4 as uuid } from 'uuid';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { mockElectionManagerAuth } from '../test/helpers/auth';
-import { withApp } from '../test/helpers/setup_app';
-import { generateHmpbFixture } from '../test/helpers/ballots';
+import { mockElectionManagerAuth } from '../test/helpers/auth.js';
+import { withApp } from '../test/helpers/setup_app.js';
+import { generateHmpbFixture } from '../test/helpers/ballots.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

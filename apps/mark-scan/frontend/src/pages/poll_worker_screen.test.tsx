@@ -24,22 +24,22 @@ import userEvent from '@testing-library/user-event';
 
 import { assert, DateWithoutTime } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { fireEvent, screen, waitFor } from '../../test/react_testing_library';
+import { fireEvent, screen, waitFor } from '../../test/react_testing_library.js';
 
-import { render } from '../../test/test_utils';
+import { render } from '../../test/test_utils.js';
 
-import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen.js';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 import {
   mockCardlessVoterAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/mock_auth';
-import { ApiProvider } from '../api_provider';
-import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
-import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
-import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
-import { BALLOT_REINSERTION_SCREENS } from '../ballot_reinsertion_flow';
+} from '../../test/helpers/mock_auth.js';
+import { ApiProvider } from '../api_provider.js';
+import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen.js';
+import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen.js';
+import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen.js';
+import { BALLOT_REINSERTION_SCREENS } from '../ballot_reinsertion_flow.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;

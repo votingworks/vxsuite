@@ -6,7 +6,7 @@ import {
   getCastVoteRecordAdjudicationFlags,
   MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
-} from './cast_vote_records';
+} from './cast_vote_records.js';
 import { CastVoteRecordAdjudicationFlags } from '..';
 
 const electionDefinition =

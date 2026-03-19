@@ -9,8 +9,8 @@ import {
 } from '@votingworks/types';
 import { getPrecinctSelection } from '@votingworks/utils';
 
-import { appStrings } from './app_strings';
-import { electionStrings } from './election_strings';
+import { appStrings } from './app_strings.js';
+import { electionStrings } from './election_strings.js';
 
 /**
  * Convenience component for rendering a translated list of parties associated

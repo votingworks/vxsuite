@@ -12,8 +12,8 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen } from '../../test/react_testing_library';
-import { BallotsPrintedReport } from './ballots_printed_report';
+import { render, screen } from '../../test/react_testing_library.js';
+import { BallotsPrintedReport } from './ballots_printed_report.js';
 
 const electionDefinitionPrimary =
   electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();

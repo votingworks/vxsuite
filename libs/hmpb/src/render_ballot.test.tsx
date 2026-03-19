@@ -29,27 +29,27 @@ import {
   allBaseBallotProps,
   layOutMinimalBallotsToCreateElectionDefinition,
   renderBallotTemplate,
-} from './render_ballot';
+} from './render_ballot.js';
 import {
   createPlaywrightRenderer,
   createPlaywrightRendererPool,
-} from './playwright_renderer';
-import { BallotTemplateId, ballotTemplates } from './ballot_templates';
+} from './playwright_renderer.js';
+import { BallotTemplateId, ballotTemplates } from './ballot_templates/index.js';
 import {
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
-} from './ballot_fixtures';
-import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
-import { generateBallotStyles } from './ballot_styles';
+} from './ballot_fixtures.js';
+import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template.js';
+import { generateBallotStyles } from './ballot_styles.js';
 import {
   BALLOT_MEASURE_OPTION_CLASS,
   BUBBLE_CLASS,
   CANDIDATE_OPTION_CLASS,
   OptionInfo,
   WRITE_IN_OPTION_CLASS,
-} from './ballot_components';
+} from './ballot_components.js';
 
 function getOptionInfoFromElement(element: ParsedHTMLElement): OptionInfo {
   const bubbleElement = assertDefined(

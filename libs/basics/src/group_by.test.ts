@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { groupBy } from './group_by';
+import { groupBy } from './group_by.js';
 
 test('groupBy', () => {
   expect(groupBy([], (x) => x)).toEqual([]);

@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { UiStringsAudioContext } from './audio_context';
-import { AudioOnly } from './audio_only';
-import { LanguageOverride } from './language_override';
-import { useCurrentLanguage } from '../hooks/use_current_language';
+import { UiStringsAudioContext } from './audio_context.js';
+import { AudioOnly } from './audio_only.js';
+import { LanguageOverride } from './language_override.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
 
 export interface WithAltAudioProps {
   audioLanguageOverride?: string;

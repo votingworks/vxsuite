@@ -11,9 +11,9 @@ import {
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
-import { LogoMark } from '../logo_mark';
-import { Font } from '../typography';
-import { PrintedReport, printedReportThemeFn } from './layout';
+import { LogoMark } from '../logo_mark.js';
+import { Font } from '../typography.js';
+import { PrintedReport, printedReportThemeFn } from './layout.js';
 import {
   LabeledValue,
   ReportElectionInfo,
@@ -22,7 +22,7 @@ import {
   ReportSubtitle,
   ReportTitle,
   TestModeBanner,
-} from './report_header';
+} from './report_header.js';
 
 export interface WriteInEntry {
   type: 'image' | 'text';

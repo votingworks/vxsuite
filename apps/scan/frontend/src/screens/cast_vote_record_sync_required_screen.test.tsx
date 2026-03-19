@@ -8,10 +8,10 @@ import {
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
-import { render } from '../../test/react_testing_library';
-import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
-import { ApiClient } from '../api';
+} from '../../test/helpers/mock_api_client.js';
+import { render } from '../../test/react_testing_library.js';
+import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen.js';
+import { ApiClient } from '../api.js';
 
 let apiMock: ApiMock;
 

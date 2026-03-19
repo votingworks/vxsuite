@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { mapObject } from './map_object';
+import { mapObject } from './map_object.js';
 
 test('mapObject', () => {
   expect(

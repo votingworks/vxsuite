@@ -8,7 +8,7 @@ import { safeParseInt } from '@votingworks/types';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { FujitsuThermalPrinter } from './printer';
+import { FujitsuThermalPrinter } from './printer.js';
 
 /**
  * Command line interface for interacting with the paper handler driver.

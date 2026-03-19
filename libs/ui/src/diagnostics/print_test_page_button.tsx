@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { assert, assertFalsy, sleep } from '@votingworks/basics';
 import { DiagnosticOutcome } from '@votingworks/types';
-import { Button } from '../button';
-import { Loading } from '../loading';
-import { Modal } from '../modal';
-import { RadioGroup } from '../radio_group';
-import { Font, P } from '../typography';
+import { Button } from '../button.js';
+import { Loading } from '../loading.js';
+import { Modal } from '../modal.js';
+import { RadioGroup } from '../radio_group.js';
+import { Font, P } from '../typography.js';
 
 /**
  * Normally we want to free up the UI sooner, before the print is actually

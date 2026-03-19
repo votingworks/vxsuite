@@ -1,4 +1,4 @@
-import { MaybePromise, Optional } from '../types';
+import { MaybePromise, Optional } from '../types.js';
 
 /**
  * An iterable with a number of convenience methods for chaining. Many methods are

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { Loading } from './loading';
+import { Loading } from './loading.js';
 
 test('Renders Loading with defaults', () => {
   const { container } = render(<Loading />);

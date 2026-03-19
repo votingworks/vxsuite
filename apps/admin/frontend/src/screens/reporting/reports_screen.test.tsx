@@ -2,10 +2,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
-import { ReportsScreen } from './reports_screen';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { screen } from '../../../test/react_testing_library';
+import { ReportsScreen } from './reports_screen.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { screen } from '../../../test/react_testing_library.js';
 
 let apiMock: ApiMock;
 

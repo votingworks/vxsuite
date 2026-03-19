@@ -3,13 +3,13 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { Button, Icons, H3, RouterTabBar } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { OfficialResultsCard } from '../../components/official_results_card';
-import { CastVoteRecordsTab } from './cast_vote_records_tab';
-import { ManualTalliesTab } from './manual_tallies_tab';
-import { routerPaths } from '../../router_paths';
-import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { OfficialResultsCard } from '../../components/official_results_card.js';
+import { CastVoteRecordsTab } from './cast_vote_records_tab.js';
+import { ManualTalliesTab } from './manual_tallies_tab.js';
+import { routerPaths } from '../../router_paths.js';
+import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal.js';
 
 export function TallyScreen(): JSX.Element | null {
   const { electionDefinition, isOfficialResults, auth } =

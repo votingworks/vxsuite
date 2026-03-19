@@ -4,11 +4,11 @@ import path from 'node:path';
 import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
-import { CommandApdu, constructTlv } from '../../src/apdu';
+import { CommandApdu, constructTlv } from '../../src/apdu.js';
 import {
   constructJavaCardConfigForVxProgramming,
   JavaCardConfig,
-} from '../../src/config';
+} from '../../src/config.js';
 import {
   CARD_IDENTITY_CERT,
   CARD_VX_CERT,
@@ -19,13 +19,13 @@ import {
   OPEN_FIPS_201_AID,
   PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
   PUK,
-} from '../../src/java_card';
+} from '../../src/java_card.js';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
-} from '../../src/piv';
-import { runCommand } from '../../src/shell';
-import { waitForReadyCardStatus } from './utils';
+} from '../../src/piv.js';
+import { runCommand } from '../../src/shell.js';
+import { waitForReadyCardStatus } from './utils.js';
 
 const APPLET_PATH = path.join(
   import.meta.dirname,

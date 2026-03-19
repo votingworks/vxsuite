@@ -4,7 +4,7 @@ import {
   UpsDiagnosticModalButton,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import { NavigationScreen } from '../navigation_screen';
+import { NavigationScreen } from '../navigation_screen.js';
 import {
   getDiskSpaceSummary,
   getElectionRecord,
@@ -16,8 +16,8 @@ import {
   logMostRecentUpsDiagnosticOutcome,
   saveReadinessReport,
   systemCallApi,
-} from '../api';
-import { TestScanButton } from '../components/test_scan_button';
+} from '../api.js';
+import { TestScanButton } from '../components/test_scan_button.js';
 
 const PageLayout = styled.div`
   display: flex;

@@ -19,9 +19,9 @@ import {
   configureFromPeerMachine,
   getDeviceStatuses,
   getElection,
-} from './api';
-import { NavScreen } from './nav_screen';
-import { PollbookConnectionStatus } from './types';
+} from './api.js';
+import { NavScreen } from './nav_screen.js';
+import { PollbookConnectionStatus } from './types.js';
 
 function PollbookConnectionTable({
   pollbooks,

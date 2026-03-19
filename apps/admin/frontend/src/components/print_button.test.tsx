@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { screen, within, act } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { PrintButton } from './print_button';
+import { screen, within, act } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { PrintButton } from './print_button.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,

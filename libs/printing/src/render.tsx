@@ -11,7 +11,7 @@ import {
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { err, ok, Result } from '@votingworks/basics';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
+import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium.js';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 10_000_000;

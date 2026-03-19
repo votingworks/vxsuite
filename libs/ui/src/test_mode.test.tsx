@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
-import { TestModeCallout } from './test_mode';
-import { DesktopPalette, TouchscreenPalette } from './themes/make_theme';
+import { render, screen } from '../test/react_testing_library.js';
+import { TestModeCallout } from './test_mode.js';
+import { DesktopPalette, TouchscreenPalette } from './themes/make_theme.js';
 
 test('TestModeCallout touch', () => {
   const { container } = render(<TestModeCallout viewMode="touch" />);

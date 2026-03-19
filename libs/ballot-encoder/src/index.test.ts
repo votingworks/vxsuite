@@ -11,7 +11,7 @@ import {
   vote,
   VotesDict,
 } from '@votingworks/types';
-import { BitReader, BitWriter } from './bits';
+import { BitReader, BitWriter } from './bits/index.js';
 import {
   decodeBallot,
   decodeBallotHash,

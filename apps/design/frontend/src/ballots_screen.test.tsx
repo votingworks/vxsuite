@@ -14,17 +14,17 @@ import {
   user,
   mockUserFeatures,
   mockStateFeatures,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   electionInfoFromElection,
   generalElectionRecord,
   primaryElectionRecord,
-} from '../test/fixtures';
-import { render, screen, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { BallotsScreen } from './ballots_screen';
-import { routes } from './routes';
-import { BallotsStatus } from './ballots_status';
+} from '../test/fixtures.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { BallotsScreen } from './ballots_screen.js';
+import { routes } from './routes.js';
+import { BallotsStatus } from './ballots_status.js';
 
 vi.mock('./ballots_status');
 const MockBallotsStatus = vi.mocked(BallotsStatus);

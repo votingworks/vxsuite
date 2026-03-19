@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
-import { safeParseInt, safeParseNumber } from './numeric';
+import { safeParseInt, safeParseNumber } from './numeric.js';
 
 function isNotNegativeZero(value: number): boolean {
   return !Object.is(value, -0);

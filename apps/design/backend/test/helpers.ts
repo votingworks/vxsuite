@@ -33,24 +33,24 @@ import { vi } from 'vitest';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
-import type { Api, UnauthenticatedApi } from '../src/app';
-import { buildApp } from '../src/app';
-import { Auth0ClientInterface } from '../src/auth0_client';
+import type { Api, UnauthenticatedApi } from '../src/app.js';
+import { buildApp } from '../src/app.js';
+import { Auth0ClientInterface } from '../src/auth0_client.js';
 import {
   FileStorageClient,
   FileStorageClientError,
-} from '../src/file_storage_client';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
-import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
-import { Jurisdiction, Organization, User } from '../src/types';
-import * as worker from '../src/worker/worker';
-import { createWorkspace, Workspace } from '../src/workspace';
-import { TestStore } from './test_store';
+} from '../src/file_storage_client.js';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer.js';
+import { GoogleCloudTranslatorWithDbCache } from '../src/translator.js';
+import { Jurisdiction, Organization, User } from '../src/types.js';
+import * as worker from '../src/worker/worker.js';
+import { createWorkspace, Workspace } from '../src/workspace.js';
+import { TestStore } from './test_store.js';
 import {
   AllPrecinctsTallyReportRow,
   AllPrecinctsTallyReportRowWithManualTallies,
-} from '../src/convert_ms_results';
-import { MainExportTaskMetadata } from '../src';
+} from '../src/convert_ms_results.js';
+import { MainExportTaskMetadata } from '../src/index.js';
 
 tmp.setGracefulCleanup();
 

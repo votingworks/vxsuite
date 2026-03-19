@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
 
 import {
   MIN_TIME_TO_UNCONFIGURE_MACHINE_MS,
   UnconfigureMachineButton,
-} from './unconfigure_machine_button';
+} from './unconfigure_machine_button.js';
 
 vi.mock(import('@votingworks/basics'), async (importActual) => ({
   ...(await importActual()),

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Button } from './button';
+import { Button } from './button.js';
 
 export interface CheckboxButtonProps {
   label: string;

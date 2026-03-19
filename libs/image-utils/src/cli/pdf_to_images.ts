@@ -1,7 +1,7 @@
 import { assertDefined } from '@votingworks/basics';
 import { promises as fs } from 'node:fs';
 import { basename, dirname, extname, join } from 'node:path';
-import { writeImageData } from '../image_data';
+import { writeImageData } from '../image_data.js';
 import { pdfToImages } from '..';
 
 /**

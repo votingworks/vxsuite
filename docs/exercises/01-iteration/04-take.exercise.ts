@@ -7,8 +7,8 @@
 // array from it and then slice the first ten elements?
 
 import { iter } from '@votingworks/basics';
-import { TODO } from '../src/todo';
-import { run } from '../src/example';
+import { TODO } from '../src/todo.js';
+import { run } from '../src/example.js';
 
 function takeFirst10<T>(iterable: Iterable<T>): T[] {
   TODO();

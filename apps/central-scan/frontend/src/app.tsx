@@ -8,15 +8,15 @@ import {
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppRoot, AppRootProps } from './app_root';
+import { AppRoot, AppRootProps } from './app_root.js';
 import {
   ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
   systemCallApi,
-} from './api';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
+} from './api.js';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
 
 export interface Props {
   logger?: AppRootProps['logger'];

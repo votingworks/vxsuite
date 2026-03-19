@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
-import { ContestChoiceButton } from './contest_choice_button';
+import { render, screen } from '../test/react_testing_library.js';
+import { ContestChoiceButton } from './contest_choice_button.js';
 
 test('renders with default accessible name', () => {
   render(

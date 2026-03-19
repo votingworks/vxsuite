@@ -1,4 +1,4 @@
-import { SystemLimitViolation } from './system_limits';
+import { SystemLimitViolation } from './system_limits.js';
 
 /**
  * Possible errors that can occur during election package configuration

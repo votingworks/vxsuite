@@ -6,8 +6,8 @@ import { TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey, TtsExportSource } from '@votingworks/types';
 import { H3, P, RadioGroup, RadioGroupOption } from '@votingworks/ui';
 
-import * as api from '../api';
-import { TtsTextEditor } from './tts_text_editor';
+import * as api from '../api.js';
+import { TtsTextEditor } from './tts_text_editor.js';
 
 const ModeContainer = styled.div`
   button {

@@ -10,8 +10,8 @@
 // Hint: what does `iter` return? What methods does it have?
 
 import { Optional, iter } from '@votingworks/basics';
-import { TODO } from '../src/todo';
-import { run } from '../src/example';
+import { TODO } from '../src/todo.js';
+import { run } from '../src/example.js';
 
 function computeMin(values: number[]): Optional<number> {
   TODO();

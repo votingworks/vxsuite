@@ -4,7 +4,7 @@ import makeDebugger, {
   enable as enableDebugger,
 } from 'debug';
 
-import { formatDurationNs, time } from './perf';
+import { formatDurationNs, time } from './perf.js';
 
 const debugLogger = makeDebugger('perf.test');
 

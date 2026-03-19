@@ -2,9 +2,9 @@ import { afterEach, beforeEach, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { render, screen } from '../test/react_testing_library';
-import { App } from './app';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { render, screen } from '../test/react_testing_library.js';
+import { App } from './app.js';
 
 let apiMock: ApiMock;
 

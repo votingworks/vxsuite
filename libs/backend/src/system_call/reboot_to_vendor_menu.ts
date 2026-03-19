@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { execFile } from '../exec';
-import { intermediateScript } from '../intermediate_scripts';
+import { execFile } from '../exec.js';
+import { intermediateScript } from '../intermediate_scripts.js';
 
 /**
  * Reboots the machine into the vendor menu.

@@ -26,19 +26,19 @@ import {
 import {
   constructPrefixedMessage,
   deconstructPrefixedMessage,
-} from './signatures';
+} from './signatures.js';
 import {
   extractPublicKeyFromCert,
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './cryptography';
+} from './cryptography.js';
 import {
   constructSignedQuickResultsReportingConfig,
   getVxCertAuthorityCertPath,
   SignedQuickResultsReportingConfig,
-} from './config';
-import { parseCert } from './certs';
+} from './config.js';
+import { parseCert } from './certs.js';
 
 interface SignedQuickResultsReportingInput {
   electionDefinition: ElectionDefinition;

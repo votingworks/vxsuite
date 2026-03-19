@@ -20,7 +20,7 @@ import {
   arbitraryUint16,
   arbitraryUint24,
   arbitraryUint32,
-} from './arbitraries';
+} from './arbitraries.js';
 
 test('arbitraryUint2', () => {
   fc.assert(

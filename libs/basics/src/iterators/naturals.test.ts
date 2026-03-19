@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { naturals } from './naturals';
+import { naturals } from './naturals.js';
 
 test('naturals', () => {
   expect(naturals().take(10).toArray()).toEqual([

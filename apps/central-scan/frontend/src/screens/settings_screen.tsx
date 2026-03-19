@@ -14,10 +14,10 @@ import {
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
-import { AppContext } from '../contexts/app_context';
-import { logOut, unconfigure, ejectUsbDrive, useApiClient } from '../api';
-import { NavigationScreen } from '../navigation_screen';
+import { ToggleTestModeButton } from '../components/toggle_test_mode_button.js';
+import { AppContext } from '../contexts/app_context.js';
+import { logOut, unconfigure, ejectUsbDrive, useApiClient } from '../api.js';
+import { NavigationScreen } from '../navigation_screen.js';
 
 const ButtonRow = styled.div`
   &:not(:last-child) {

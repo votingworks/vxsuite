@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Button, ButtonProps } from './button';
+import { Button, ButtonProps } from './button.js';
 
 const StyledTabButton = styled(Button)`
   min-width: 8rem;

@@ -3,7 +3,7 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { generateBallotStyleId } from './ballot_styles';
+import { generateBallotStyleId } from './ballot_styles.js';
 
 export function getMockMultiLanguageElectionDefinition(
   electionDefinition: ElectionDefinition,

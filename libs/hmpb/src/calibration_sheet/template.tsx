@@ -1,8 +1,8 @@
 import React from 'react';
 import { ballotPaperDimensions, BallotPaperSize } from '@votingworks/types';
-import { BaseStyles } from '../base_styles';
-import { RenderDocument, Renderer } from '../renderer';
-import { Page, pageMarginsInches } from '../ballot_components';
+import { BaseStyles } from '../base_styles.js';
+import { RenderDocument, Renderer } from '../renderer.js';
+import { Page, pageMarginsInches } from '../ballot_components.js';
 
 export async function render(
   renderer: Renderer,

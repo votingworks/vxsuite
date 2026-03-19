@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { render } from '../test/react_testing_library';
+import { render } from '../test/react_testing_library.js';
 
-import { Select } from './select';
+import { Select } from './select.js';
 
 describe('renders Select', () => {
   test('large', () => {

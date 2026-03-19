@@ -2,11 +2,11 @@ import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
 import { assertDefined, ok } from '@votingworks/basics';
-import { screen } from '../test/react_testing_library';
-import { ElectricalTestingScreen } from './electrical_testing_screen';
-import { Icons } from './icons';
-import { P } from './typography';
-import { newTestContext } from '../test/test_context';
+import { screen } from '../test/react_testing_library.js';
+import { ElectricalTestingScreen } from './electrical_testing_screen.js';
+import { Icons } from './icons.js';
+import { P } from './typography.js';
+import { newTestContext } from '../test/test_context.js';
 
 const { mockApiClient, render } = newTestContext();
 

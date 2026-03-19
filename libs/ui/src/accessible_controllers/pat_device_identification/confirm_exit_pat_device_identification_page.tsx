@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { H1, P, Font } from '../../typography';
-import { Icons } from '../../icons';
-import { Button } from '../../button';
-import { ReadOnLoad, appStrings } from '../../ui_strings';
-import { DiagnosticScreenHeader } from './pat_device_identification_page';
+import { H1, P, Font } from '../../typography.js';
+import { Icons } from '../../icons.js';
+import { Button } from '../../button.js';
+import { ReadOnLoad, appStrings } from '../../ui_strings/index.js';
+import { DiagnosticScreenHeader } from './pat_device_identification_page.js';
 
 interface ConfirmExitPatDeviceIdentificationPageProps {
   isDiagnostic?: boolean;

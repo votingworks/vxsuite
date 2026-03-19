@@ -12,13 +12,13 @@ import {
   TEST_JURISDICTION,
   PageInterpretation,
 } from '@votingworks/types';
-import { Store } from '../store';
+import { Store } from '../store.js';
 import {
   getScannerResultsMemoized,
   isBmdMultiPagePage,
   isBmdPage,
   isHmpbPage,
-} from './results';
+} from './results.js';
 
 const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';

@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { App } from './app';
-import { render, screen } from '../test/react_testing_library';
+import { App } from './app.js';
+import { render, screen } from '../test/react_testing_library.js';
 
 test('renders overlay when audio-only mode is enabled', () => {
   render(<App />, {

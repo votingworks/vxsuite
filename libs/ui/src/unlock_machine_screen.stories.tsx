@@ -7,8 +7,8 @@ import {
   SECURITY_PIN_LENGTH,
   UnlockMachineScreen as UnlockMachineScreenComponent,
   UnlockMachineScreenProps,
-} from './unlock_machine_screen';
-import { PinLength } from './utils/pin_length';
+} from './unlock_machine_screen.js';
+import { PinLength } from './utils/pin_length.js';
 
 type PropsAndCustomArgs = React.ComponentProps<
   typeof UnlockMachineScreenComponent

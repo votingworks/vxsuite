@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { asSqliteBool, fromSqliteBool } from './sqlite';
+import { asSqliteBool, fromSqliteBool } from './sqlite.js';
 
 test('asSqliteBool', () => {
   expect(asSqliteBool(false)).toEqual(0);

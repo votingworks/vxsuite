@@ -7,16 +7,16 @@ import {
 } from '@votingworks/design-backend';
 import { assert, sleep } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { downloadFile } from './utils';
+import { downloadFile } from './utils.js';
 import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../test/api_helpers';
-import { routes } from './routes';
-import { Downloads } from './downloads';
-import { render, screen, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
+} from '../test/api_helpers.js';
+import { routes } from './routes.js';
+import { Downloads } from './downloads.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
 
 vi.mock('./utils');
 const mockDownloadFile = vi.mocked(downloadFile);

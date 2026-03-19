@@ -14,7 +14,7 @@ import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { AppBase, TestErrorBoundary } from '@votingworks/ui';
 import { ElectionId } from '@votingworks/types';
 import { SupportUser } from '@votingworks/design-backend';
-import { ApiClientContext, createQueryClient } from '../src/api';
+import { ApiClientContext, createQueryClient } from '../src/api.js';
 
 export type MockApiClient = MockClient<Api>;
 

@@ -1,7 +1,7 @@
 import { BallotPageLayout, Contest, Id, Side } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { getSheetImage } from '../api';
+import { getSheetImage } from '../api.js';
 
 export interface Props {
   sheetId: Id;

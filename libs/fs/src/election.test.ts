@@ -5,7 +5,7 @@ import {
   makeTemporaryFile,
   makeTemporaryPath,
 } from '@votingworks/fixtures';
-import { ReadElectionError, readElection } from './election';
+import { ReadElectionError, readElection } from './election.js';
 
 test('syntax error', async () => {
   const path = makeTemporaryFile({ content: 'invalid json' });

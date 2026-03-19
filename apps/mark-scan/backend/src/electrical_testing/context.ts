@@ -2,7 +2,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { Workspace } from '../util/workspace';
+import { Workspace } from '../util/workspace.js';
 
 export interface ServerContext {
   auth: InsertedSmartCardAuthApi;

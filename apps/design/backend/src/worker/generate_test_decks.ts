@@ -19,16 +19,16 @@ import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
 import { generateTestDeckBallots, TestDeckBallot } from '@votingworks/utils';
-import { EmitProgressFunction, WorkerContext } from './context';
+import { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
-} from '../ballots';
+} from '../ballots.js';
 import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReports,
-} from '../test_decks';
+} from '../test_decks.js';
 
 export interface GenerateTestDecksPayload {
   electionId: ElectionId;

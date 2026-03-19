@@ -1,7 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 
 import styled from 'styled-components';
-import { QrCode, QrCodeProps } from './qrcode';
+import { QrCode, QrCodeProps } from './qrcode.js';
 
 const initialProps: QrCodeProps = {
   value: 'https://youtu.be/dQw4w9WgXcQ',

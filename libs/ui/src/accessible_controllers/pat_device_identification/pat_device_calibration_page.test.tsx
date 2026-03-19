@@ -1,12 +1,12 @@
 import React from 'react';
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { Keybinding } from '../../keybindings';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { Keybinding } from '../../keybindings.js';
 import {
   PatDeviceCalibrationPage,
   PatDeviceCalibrationPageProps,
-} from './pat_device_calibration_page';
+} from './pat_device_calibration_page.js';
 
 // Simple mock screen wrapper for testing
 function MockScreenWrapper({

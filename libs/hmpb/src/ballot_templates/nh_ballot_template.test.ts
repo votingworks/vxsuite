@@ -8,8 +8,8 @@ import {
   rotateCandidatesByStatute,
   rotateCandidatesByPrecinct,
   getCandidateOrderingSetsForNhBallot,
-} from './nh_ballot_template';
-import { RotationParams } from '../types';
+} from './nh_ballot_template.js';
+import { RotationParams } from '../types.js';
 
 const electionGeneral = readElectionGeneral();
 const electionFamousNames = electionFamousNames2021Fixtures.readElection();

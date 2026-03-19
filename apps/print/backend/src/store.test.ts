@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { BallotType, LanguageCode } from '@votingworks/types';
-import { Store } from './store';
+import { Store } from './store.js';
 
 test('getDbPath', () => {
   const store = Store.memoryStore();

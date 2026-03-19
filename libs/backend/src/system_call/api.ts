@@ -2,19 +2,19 @@ import { UsbDrive } from '@votingworks/usb-drive';
 
 import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
 import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
-import { exportLogsToUsb } from './export_logs_to_usb';
-import { rebootToVendorMenu } from './reboot_to_vendor_menu';
-import { powerDown } from './power_down';
-import { setClock } from './set_clock';
-import { getBatteryInfo } from './get_battery_info';
-import { getAudioInfo } from './get_audio_info';
-import { getDiskSpaceSummary } from './get_disk_space_summary';
-import { NODE_ENV } from '../scan_globals';
+import { exportLogsToUsb } from './export_logs_to_usb.js';
+import { rebootToVendorMenu } from './reboot_to_vendor_menu.js';
+import { powerDown } from './power_down.js';
+import { setClock } from './set_clock.js';
+import { getBatteryInfo } from './get_battery_info.js';
+import { getAudioInfo } from './get_audio_info.js';
+import { getDiskSpaceSummary } from './get_disk_space_summary.js';
+import { NODE_ENV } from '../scan_globals.js';
 import {
   getUsbPortStatus,
   toggleUsbPorts,
   UsbPortAction,
-} from './usb_port_status';
+} from './usb_port_status.js';
 
 function buildApi({
   usbDrive,

@@ -22,7 +22,7 @@ import {
 } from '@votingworks/basics';
 import { VX_MACHINE_ID } from '@votingworks/backend';
 import memoizeOne from 'memoize-one';
-import type { Store } from '../store';
+import type { Store } from '../store.js';
 
 export function isHmpbPage(
   interpretation: PageInterpretation

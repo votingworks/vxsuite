@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { generateCombinations } from './utils';
+import { generateCombinations } from './utils.js';
 
 test('generateCombinations', () => {
   expect(generateCombinations([1, 2, 3], 0)).toStrictEqual([]);

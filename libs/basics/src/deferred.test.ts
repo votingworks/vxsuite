@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { deferred, deferredQueue } from './deferred';
+import { deferred, deferredQueue } from './deferred.js';
 
 test('resolves with value passed to resolve', async () => {
   const { promise, resolve } = deferred<number>();

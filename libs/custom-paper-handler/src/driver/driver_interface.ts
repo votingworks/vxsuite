@@ -5,22 +5,22 @@ import {
   PrintingDensity,
   PrintingSpeed,
   RealTimeRequestIds,
-} from './constants';
+} from './constants.js';
 import {
   PaperHandlerBitmap,
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
   RealTimeExchangeResponseWithoutData,
   SensorStatusRealTimeExchangeResponse,
-} from './coders';
+} from './coders.js';
 import {
   PaperMovementAfterScan,
   Resolution,
   ScanDataFormat,
   ScanDirection,
   ScanLight,
-} from './scanner_config';
-import { ScannerCapability } from './scanner_capability';
+} from './scanner_config.js';
+import { ScannerCapability } from './scanner_capability.js';
 
 export interface PaperHandlerDriverInterface {
   connect(): Promise<void>;

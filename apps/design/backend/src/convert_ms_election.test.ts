@@ -1,12 +1,12 @@
 import { test, expect, vi, beforeAll, afterAll } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Election, safeParseElection } from '@votingworks/types';
-import { convertMsElection } from './convert_ms_election';
-import { TestStore } from '../test/test_store';
-import { Jurisdiction } from './types';
-import { readFixture } from '../test/helpers';
-import { vxOrganization } from '../test/mocks';
-import { defaultSystemSettings } from './system_settings';
+import { convertMsElection } from './convert_ms_election.js';
+import { TestStore } from '../test/test_store.js';
+import { Jurisdiction } from './types.js';
+import { readFixture } from '../test/helpers.js';
+import { vxOrganization } from '../test/mocks.js';
+import { defaultSystemSettings } from './system_settings.js';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);

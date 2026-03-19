@@ -7,11 +7,11 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 
-import { Button, ButtonProps } from '../button';
-import { WithAltAudio, appStrings } from '../ui_strings';
-import { ActionKey, getBorderWidthRem, Key } from './common';
-import { advanceElementFocus } from '../accessible_controllers';
-import { Keybinding } from '../keybindings';
+import { Button, ButtonProps } from '../button.js';
+import { WithAltAudio, appStrings } from '../ui_strings/index.js';
+import { ActionKey, getBorderWidthRem, Key } from './common.js';
+import { advanceElementFocus } from '../accessible_controllers/index.js';
+import { Keybinding } from '../keybindings.js';
 
 const Keyboard = styled.div`
   & button {

@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace } from './workspace';
-import { Store } from '../store';
+import { createWorkspace } from './workspace.js';
+import { Store } from '../store.js';
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -5,11 +5,11 @@ import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
-import * as server from './server';
+import * as server from './server.js';
 
-export type { Api } from './app';
-export type { ScanDiagnosticOutcome } from './diagnostic';
-export * from './types';
+export type { Api } from './app.js';
+export type { ScanDiagnosticOutcome } from './diagnostic.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 

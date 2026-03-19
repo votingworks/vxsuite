@@ -1,6 +1,6 @@
-import { assert } from '../assert';
-import { MaybePromise, Optional } from '../types';
-import { AsyncIteratorPlus } from './types';
+import { assert } from '../assert.js';
+import { MaybePromise, Optional } from '../types.js';
+import { AsyncIteratorPlus } from './types.js';
 
 /**
  * A wrapper around {@link AsyncIterable} that provides additional methods.

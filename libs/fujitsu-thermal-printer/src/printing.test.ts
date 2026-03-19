@@ -2,8 +2,8 @@
 import { expect, test, vi } from 'vitest';
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { compressBitImage, packBitsCompression } from './printing';
-import { getFujitsuThermalPrinter } from './printer';
+import { compressBitImage, packBitsCompression } from './printing.js';
+import { getFujitsuThermalPrinter } from './printer.js';
 import {
   CONFIGURATION_NUMBER,
   INTERFACE_NUMBER,
@@ -11,8 +11,8 @@ import {
   PRODUCT_ID,
   RawPrinterStatus,
   VENDOR_ID,
-} from './driver';
-import { mockMinimalWebUsbDevice } from '../test/mock_minimal_web_usb_device';
+} from './driver/index.js';
+import { mockMinimalWebUsbDevice } from '../test/mock_minimal_web_usb_device.js';
 
 test('packBitsCompression', () => {
   const testCases: Array<{ uncompressed: number[]; compressed: number[] }> = [

@@ -1,9 +1,9 @@
-import { Keybinding } from './keybindings';
+import { Keybinding } from './keybindings.js';
 import {
   PageNavigationButtonId,
   advanceElementFocus,
   triggerPageNavigationButton,
-} from './accessible_controllers';
+} from './accessible_controllers/index.js';
 
 /**
  * Prevents the default browser scroll behavior for the arrow keys, since we're

@@ -14,7 +14,7 @@ import {
   configureMachine,
   expectUsbDriveSync,
   mockSystemAdministratorAuth,
-} from '../test/app';
+} from '../test/app.js';
 
 vi.setConfig({
   testTimeout: 60_000,

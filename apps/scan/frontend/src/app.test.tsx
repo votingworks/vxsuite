@@ -33,17 +33,17 @@ import {
   render,
   fireEvent,
   act,
-} from '../test/react_testing_library';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
-import { scannerStatus } from '../test/helpers/helpers';
+} from '../test/react_testing_library.js';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals.js';
+import { scannerStatus } from '../test/helpers/helpers.js';
 import {
   ApiMock,
   createApiMock,
   statusNoPaper,
-} from '../test/helpers/mock_api_client';
-import { App, AppProps } from './app';
-import { useSessionSettingsManager } from './utils/use_session_settings_manager';
-import { DELAY_ACCEPTED_SCREEN_MS } from './screens/voter_screen';
+} from '../test/helpers/mock_api_client.js';
+import { App, AppProps } from './app.js';
+import { useSessionSettingsManager } from './utils/use_session_settings_manager.js';
+import { DELAY_ACCEPTED_SCREEN_MS } from './screens/voter_screen.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

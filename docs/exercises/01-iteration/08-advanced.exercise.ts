@@ -5,9 +5,9 @@
 //
 
 import { Optional, assertDefined, iter, typedAs } from '@votingworks/basics';
-import { TODO } from '../src/todo';
-import { run } from '../src/example';
-import { collecting } from '../src/collecting';
+import { TODO } from '../src/todo.js';
+import { run } from '../src/example.js';
+import { collecting } from '../src/collecting.js';
 
 function consecutiveDayTemperatureDifferences(
   celsiusValues: Iterable<number>

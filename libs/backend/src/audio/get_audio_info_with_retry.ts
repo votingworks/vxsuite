@@ -1,7 +1,7 @@
 import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
-import * as audio from '../system_call/get_audio_info';
+import * as audio from '../system_call/get_audio_info.js';
 
 /**
  * Audio info with a guaranteed builtin audio device.

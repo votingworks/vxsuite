@@ -4,7 +4,7 @@ import {
   Resolution,
   ScanDataFormat,
   ScanLight,
-} from './scanner_config';
+} from './scanner_config.js';
 
 type ScanLightCapabilityOption = ScanLight | 'UV';
 type ScanDataFormatCapabilityOption = ScanDataFormat | 'RGB' | 'RGBU';

@@ -1,6 +1,6 @@
 import { beforeEach, expect, test } from 'vitest';
 import fetchMock from 'fetch-mock';
-import { fetchJson } from './fetch_json';
+import { fetchJson } from './fetch_json.js';
 
 beforeEach(() => {
   fetchMock.restore();

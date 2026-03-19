@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 
-import { Select, SelectProps } from './select';
+import { Select, SelectProps } from './select.js';
 
 const initialProps: SelectProps = {
   children: (

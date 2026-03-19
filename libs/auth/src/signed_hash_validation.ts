@@ -8,14 +8,14 @@ import {
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 
-import { parseCert } from './certs';
+import { parseCert } from './certs.js';
 import {
   constructSignedHashValidationConfig,
   SignedHashValidationConfig,
-} from './config';
-import { signMessage } from './cryptography';
-import { runCommand } from './shell';
-import { constructPrefixedMessage } from './signatures';
+} from './config.js';
+import { signMessage } from './cryptography.js';
+import { runCommand } from './shell.js';
+import { constructPrefixedMessage } from './signatures.js';
 
 /**
  * The separator between parts of the signed hash validation QR code value

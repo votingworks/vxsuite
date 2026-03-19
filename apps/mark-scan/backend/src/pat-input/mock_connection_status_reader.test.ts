@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { MockBaseLogger, mockBaseLogger } from '@votingworks/logging';
-import { MockPatConnectionStatusReader } from './mock_connection_status_reader';
+import { MockPatConnectionStatusReader } from './mock_connection_status_reader.js';
 
 let logger: MockBaseLogger;
 let mockReader: MockPatConnectionStatusReader;

@@ -18,8 +18,8 @@ import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
 import styled from 'styled-components';
-import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
+import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render.js';
+import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

@@ -3,9 +3,9 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { screen, within } from '../test/react_testing_library';
-import { buildApp } from '../test/helpers/build_app';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { screen, within } from '../test/react_testing_library.js';
+import { buildApp } from '../test/helpers/build_app.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

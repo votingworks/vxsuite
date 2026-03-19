@@ -7,7 +7,7 @@ import {
   PageInterpretation,
 } from '@votingworks/types';
 
-import { InterpreterOptions } from './types';
+import { InterpreterOptions } from './types.js';
 
 type PageInterpretationWithMetadata =
   | InterpretedBmdPage

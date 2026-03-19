@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { List } from './list';
-import { ListItem } from './list_item';
-import { render, screen } from '../test/react_testing_library';
+import { List } from './list.js';
+import { ListItem } from './list_item.js';
+import { render, screen } from '../test/react_testing_library.js';
 
 test('renders number of specified columns', () => {
   render(

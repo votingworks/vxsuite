@@ -9,7 +9,7 @@ import {
   getMockFileUsbDriveHandler,
   listMockDrives,
   removeMockDriveDir,
-} from './file_usb_drive';
+} from './file_usb_drive.js';
 
 function cleanupAllMockDrives(): void {
   for (const diskName of listMockDrives()) {

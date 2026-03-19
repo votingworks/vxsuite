@@ -1,8 +1,8 @@
 import { beforeEach, test, vi } from 'vitest';
-import { screen } from '../../test/react_testing_library';
-import { render } from '../../test/test_utils';
-import { ReplaceJammedSheetScreen } from './replace_jammed_sheet_screen';
-import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
+import { screen } from '../../test/react_testing_library.js';
+import { render } from '../../test/test_utils.js';
+import { ReplaceJammedSheetScreen } from './replace_jammed_sheet_screen.js';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button.js';
 
 vi.mock('../components/deactivate_voter_session_button');
 

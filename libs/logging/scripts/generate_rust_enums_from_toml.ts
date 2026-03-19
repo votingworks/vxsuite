@@ -8,13 +8,13 @@ import {
   configFilepath,
   rustEnumsOutputFilepath,
   rustEnumsTemplateFilepath,
-} from './filepaths';
+} from './filepaths.js';
 import {
   GenerateTypesArgs,
   LoggingConfig,
   diffAndCleanUp,
   parseConfig,
-} from './types';
+} from './types.js';
 
 function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   yield `

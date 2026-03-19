@@ -5,7 +5,7 @@ import {
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
 } from '@votingworks/types';
 
-import { CardLockoutConfig, computeCardLockoutEndTime } from './lockout';
+import { CardLockoutConfig, computeCardLockoutEndTime } from './lockout.js';
 
 test.each<{
   numIncorrectPinAttempts: number;

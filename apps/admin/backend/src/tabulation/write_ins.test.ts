@@ -19,12 +19,12 @@ import {
   tabulateWriteInTallies,
   modifyElectionResultsWithWriteInSummary,
   combineElectionWriteInSummaries,
-} from './write_ins';
+} from './write_ins.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../../test/mock_cvr_file';
-import { Store } from '../store';
+} from '../../test/mock_cvr_file.js';
+import { Store } from '../store.js';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 

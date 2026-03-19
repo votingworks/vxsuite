@@ -9,7 +9,7 @@ import {
   getDaysInMonth,
   utcTimestamp,
   MONTHS_LONG,
-} from './date';
+} from './date.js';
 
 test('formatTimeZoneName', () => {
   expect(

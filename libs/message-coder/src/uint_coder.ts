@@ -1,7 +1,7 @@
 import { err, ok, Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { bufferContainsBitOffset, toByteOffset } from './bits';
+import { BaseCoder } from './base_coder.js';
+import { bufferContainsBitOffset, toByteOffset } from './bits.js';
 import {
   BitLength,
   BitOffset,
@@ -9,7 +9,7 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Validates that a value is a valid enum value.

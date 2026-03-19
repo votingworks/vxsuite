@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { normalizeAndJoin } from './path';
+import { normalizeAndJoin } from './path.js';
 
 test('normalizeAndJoin with a single path', () => {
   expect(normalizeAndJoin('a.txt')).toEqual('a.txt');

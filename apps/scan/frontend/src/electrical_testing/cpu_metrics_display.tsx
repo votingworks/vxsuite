@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { Sparkline } from './sparkline';
-import * as api from './api';
+import { Sparkline } from './sparkline.js';
+import * as api from './api.js';
 
 const TopBar = styled.div`
   position: fixed;

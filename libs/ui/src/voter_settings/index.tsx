@@ -1,18 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { SettingsPaneId } from './types';
-import { TabBar } from './tab_bar';
-import { ColorSettings, ColorSettingsProps } from './color_settings';
-import { SizeSettings, SizeSettingsProps } from './size_settings';
-import { H2 } from '../typography';
-import { Button } from '../button';
-import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
-import { useScreenInfo } from '../hooks/use_screen_info';
-import { appStrings } from '../ui_strings';
-import { Header } from './header';
-import { AudioSettings } from './audio_settings';
-import { useAudioControls } from '../hooks/use_audio_controls';
+import { SettingsPaneId } from './types.js';
+import { TabBar } from './tab_bar.js';
+import { ColorSettings, ColorSettingsProps } from './color_settings.js';
+import { SizeSettings, SizeSettingsProps } from './size_settings.js';
+import { H2 } from '../typography.js';
+import { Button } from '../button.js';
+import { VoterSettingsManagerContext } from '../voter_settings_manager_context.js';
+import { useScreenInfo } from '../hooks/use_screen_info.js';
+import { appStrings } from '../ui_strings/index.js';
+import { Header } from './header.js';
+import { AudioSettings } from './audio_settings.js';
+import { useAudioControls } from '../hooks/use_audio_controls.js';
 
 export interface VoterSettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */

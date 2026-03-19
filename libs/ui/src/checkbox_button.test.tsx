@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
-import { CheckboxButton } from './checkbox_button';
+import { render, screen } from '../test/react_testing_library.js';
+import { CheckboxButton } from './checkbox_button.js';
 
 test('checks', () => {
   const onChange = vi.fn();

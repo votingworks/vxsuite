@@ -5,7 +5,7 @@ import {
   getAudioGainRatio,
   getDecreasedVolume,
   getIncreasedVolume,
-} from './audio_volume';
+} from './audio_volume.js';
 
 const VVSG_MAX_INCREMENT_AMOUNT_DB = 10;
 const VVSG_REQUIRED_VOLUME_RANGE_DB = 80; // 20 to 100 dB SPL

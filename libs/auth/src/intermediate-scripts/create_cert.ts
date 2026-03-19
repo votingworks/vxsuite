@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { createCertHelper, parseCreateCertInput } from '../cryptography';
+import { createCertHelper, parseCreateCertInput } from '../cryptography.js';
 
 /**
  * An intermediate component of createCert in src/cryptography.ts, needed for permissions purposes.

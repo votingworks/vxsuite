@@ -10,9 +10,9 @@ import userEvent from '@testing-library/user-event';
 import { deferred, typedAs } from '@votingworks/basics';
 
 import { advancePromises } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
-import * as api from '../api';
-import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
+import { render, screen } from '../../test/react_testing_library.js';
+import * as api from '../api.js';
+import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen.js';
 
 const mockApiClient = typedAs<Partial<api.ApiClient>>({
   getInterpretation: vi.fn(),

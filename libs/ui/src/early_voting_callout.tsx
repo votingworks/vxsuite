@@ -1,11 +1,11 @@
 import { ThemeProvider } from 'styled-components';
-import { makeTheme, TouchscreenPalette } from './themes/make_theme';
-import { Icons } from './icons';
-import { TextOnly } from './ui_strings';
+import { makeTheme, TouchscreenPalette } from './themes/make_theme.js';
+import { Icons } from './icons.js';
+import { TextOnly } from './ui_strings/index.js';
 import {
   MachineModeCardDesktop,
   MachineModeCardTouch,
-} from './machine_mode_card';
+} from './machine_mode_card.js';
 
 const EARLY_VOTING_PURPLE = TouchscreenPalette.Purple80;
 

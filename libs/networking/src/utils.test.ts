@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidIpv4Address } from './utils';
+import { isValidIpv4Address } from './utils.js';
 
 describe('isValidIpv4Address', () => {
   it('returns true for valid IPv4 addresses', () => {

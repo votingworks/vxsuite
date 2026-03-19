@@ -22,14 +22,14 @@ import { mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
-} from './full_results';
-import { Store } from '../store';
-import { importCastVoteRecords } from '../cast_vote_records';
+} from './full_results.js';
+import { Store } from '../store.js';
+import { importCastVoteRecords } from '../cast_vote_records.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../../test/mock_cvr_file';
-import { adjudicateWriteIn } from '../adjudication';
+} from '../../test/mock_cvr_file.js';
+import { adjudicateWriteIn } from '../adjudication.js';
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();

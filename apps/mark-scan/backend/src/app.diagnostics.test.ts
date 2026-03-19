@@ -23,28 +23,28 @@ import { assertDefined, deferred, ok } from '@votingworks/basics';
 import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
-import { Api } from './app';
-import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
+import { Api } from './app.js';
+import { PatConnectionStatusReader } from './pat-input/connection_status_reader.js';
 import {
   configureApp,
   createApp,
   waitForStatus as waitForStatusHelper,
-} from '../test/app_helpers';
+} from '../test/app_helpers.js';
 import {
   delays,
   PaperHandlerStateMachine,
-} from './custom-paper-handler/state_machine';
-import { isAccessibleControllerDaemonRunning } from './util/hardware';
-import { mockSystemAdminAuth } from '../test/auth_helpers';
+} from './custom-paper-handler/state_machine.js';
+import { isAccessibleControllerDaemonRunning } from './util/hardware.js';
+import { mockSystemAdminAuth } from '../test/auth_helpers.js';
 import {
   DIAGNOSTIC_ELECTION_PATH,
   getDiagnosticMockBallotImagePath,
-} from './custom-paper-handler/diagnostic';
+} from './custom-paper-handler/diagnostic/index.js';
 import {
   loadAndParkPaper,
   scanAndSave,
-} from './custom-paper-handler/application_driver';
-import { BLANK_PAGE_MOCK } from '../test/ballot_helpers';
+} from './custom-paper-handler/application_driver.js';
+import { BLANK_PAGE_MOCK } from '../test/ballot_helpers.js';
 
 vi.setConfig({ testTimeout: 60_000 });
 

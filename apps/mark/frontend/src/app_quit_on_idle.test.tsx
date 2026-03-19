@@ -9,12 +9,12 @@ import {
   IDLE_TIMEOUT_SECONDS,
 } from '@votingworks/mark-flow-ui';
 import { BallotStyleId } from '@votingworks/types';
-import { render, screen } from '../test/react_testing_library';
-import { App } from './app';
+import { render, screen } from '../test/react_testing_library.js';
+import { App } from './app.js';
 
-import { advanceTimersAndPromises } from '../test/helpers/timers';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

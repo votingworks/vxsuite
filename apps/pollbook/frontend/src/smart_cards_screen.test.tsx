@@ -1,9 +1,9 @@
 import { test, beforeEach, afterEach, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { screen } from '../test/react_testing_library';
-import { ApiMock, createApiMock } from '../test/mock_api_client';
-import { renderInAppContext } from '../test/render_in_app_context';
-import { SmartCardsScreen } from './smart_cards_screen';
+import { screen } from '../test/react_testing_library.js';
+import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
+import { SmartCardsScreen } from './smart_cards_screen.js';
 
 let apiMock: ApiMock;
 const electionGeneral = readElectionGeneralDefinition();

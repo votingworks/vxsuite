@@ -7,8 +7,8 @@ import {
 } from '@votingworks/basics';
 import { ElectionKey } from '@votingworks/types';
 
-import { arePollWorkerCardDetails, ProgrammedCardDetails } from './card';
-import { openssl } from './cryptography';
+import { arePollWorkerCardDetails, ProgrammedCardDetails } from './card.js';
+import { openssl } from './cryptography.js';
 
 /**
  * VotingWorks's IANA-assigned enterprise OID

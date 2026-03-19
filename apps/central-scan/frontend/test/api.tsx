@@ -24,9 +24,9 @@ import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
-import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
-import { DEFAULT_STATUS } from './fixtures';
-import { screen } from './react_testing_library';
+import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api.js';
+import { DEFAULT_STATUS } from './fixtures.js';
+import { screen } from './react_testing_library.js';
 
 export type MockApiClient = Omit<
   MockClient<Api>,

@@ -8,13 +8,13 @@ import { constructElectionKey, DippedSmartCardAuth } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { deferred, ok } from '@votingworks/basics';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { screen } from '../../test/react_testing_library';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { screen } from '../../test/react_testing_library.js';
 import {
   renderInAppContext,
   RenderInAppContextParams,
-} from '../../test/render_in_app_context';
-import { SmartCardsScreen } from './smart_cards_screen';
+} from '../../test/render_in_app_context.js';
+import { SmartCardsScreen } from './smart_cards_screen.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;

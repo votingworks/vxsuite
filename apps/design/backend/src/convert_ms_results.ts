@@ -19,7 +19,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { MS_ID_SEPARATOR } from './convert_ms_election';
+import { MS_ID_SEPARATOR } from './convert_ms_election.js';
 
 const ALL_PRECINCTS_TALLY_REPORT_COLUMNS = [
   { name: 'Precinct', key: 'precinct' },

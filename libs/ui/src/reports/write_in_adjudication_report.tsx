@@ -11,18 +11,18 @@ import {
   printedReportThemeFn,
   PrintedReport,
   TallyReportColumns,
-} from './layout';
-import { LogoMark } from '../logo_mark';
-import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
-import { prefixedTitle } from './utils';
+} from './layout.js';
+import { LogoMark } from '../logo_mark.js';
+import { ContestWriteInSummaryTable } from './contest_write_in_summary_table.js';
+import { prefixedTitle } from './utils.js';
 import {
   ReportElectionInfo,
   ReportHeader,
   ReportSubtitle,
   ReportTitle,
   TestModeBanner,
-} from './report_header';
-import { ReportGeneratedMetadata } from './report_generated_metadata';
+} from './report_header.js';
+import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 
 function getEmptyContestWriteInSummary(
   contest: AnyContest

@@ -13,18 +13,18 @@ import {
   exportTallyReportPdf,
   getTallyReportPreview,
   printTallyReport,
-} from '../../api';
-import { AppContext } from '../../contexts/app_context';
-import { ExportActions, GenerateButtonWrapper } from './shared';
-import { getTallyReportWarningText } from './tally_report_warnings';
-import { PrintButton } from '../print_button';
-import { PdfViewer } from './pdf_viewer';
+} from '../../api.js';
+import { AppContext } from '../../contexts/app_context.js';
+import { ExportActions, GenerateButtonWrapper } from './shared.js';
+import { getTallyReportWarningText } from './tally_report_warnings.js';
+import { PrintButton } from '../print_button.js';
+import { PdfViewer } from './pdf_viewer.js';
 import {
   generateCdfElectionResultsReportFilename,
   generateTallyReportCsvFilename,
   generateTallyReportPdfFilename,
-} from '../../utils/reporting';
-import { ExportFileButton } from './export_file_button';
+} from '../../utils/reporting.js';
+import { ExportFileButton } from './export_file_button.js';
 
 export interface TallyReportViewerProps {
   filter: Admin.FrontendReportingFilter;

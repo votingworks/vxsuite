@@ -1,26 +1,26 @@
 import { ThemeProvider } from 'styled-components';
-import { makeTheme } from '../themes/make_theme';
-import { PrintedReport } from '../reports/layout';
-import { ReadinessReportHeader } from './report_header';
+import { makeTheme } from '../themes/make_theme.js';
+import { PrintedReport } from '../reports/layout.js';
+import { ReadinessReportHeader } from './report_header.js';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
-} from './configuration_section';
-import { ReportContents } from './components';
+} from './configuration_section.js';
+import { ReportContents } from './components.js';
 import {
   ThermalPrinterSection,
   ThermalPrinterSectionProps,
-} from './thermal_printer_section';
-import { StorageSection, StorageSectionProps } from './storage_section';
-import { ScanAudioSection, ScanAudioSectionProps } from './scan_audio_section';
+} from './thermal_printer_section.js';
+import { StorageSection, StorageSectionProps } from './storage_section.js';
+import { ScanAudioSection, ScanAudioSectionProps } from './scan_audio_section.js';
 import {
   PrecinctScannerSection,
   PrecinctScannerSectionProps,
-} from './precinct_scanner_section';
+} from './precinct_scanner_section.js';
 import {
   UninterruptiblePowerSupplySection,
   UpsSectionProps,
-} from './uninterruptible_power_supply_section';
+} from './uninterruptible_power_supply_section.js';
 
 type ReportContentsProps = ConfigurationSectionProps &
   StorageSectionProps &

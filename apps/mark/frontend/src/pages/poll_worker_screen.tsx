@@ -12,7 +12,7 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import React from 'react';
-import { setPollsState, setTestMode, useApiClient } from '../api';
+import { setPollsState, setTestMode, useApiClient } from '../api.js';
 
 const {
   EnableLiveModeModal,

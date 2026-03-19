@@ -11,17 +11,17 @@ import {
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { act, screen, within } from '../../test/react_testing_library';
-import { render } from '../../test/test_utils';
-import { election } from '../../test/helpers/election';
+import { act, screen, within } from '../../test/react_testing_library.js';
+import { render } from '../../test/test_utils.js';
+import { election } from '../../test/helpers/election.js';
 
-import { AdminScreen, AdminScreenProps } from './admin_screen';
-import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
+import { AdminScreen, AdminScreenProps } from './admin_screen.js';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 const featureFlagMock = getFeatureFlagMock();
 

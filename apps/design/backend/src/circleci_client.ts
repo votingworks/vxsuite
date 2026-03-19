@@ -4,8 +4,8 @@ import {
   circleCiBranch,
   circleCiProjectSlug,
   isCircleCiEnabled,
-} from './globals';
-import { rootDebug } from './debug';
+} from './globals.js';
+import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('circleci');
 

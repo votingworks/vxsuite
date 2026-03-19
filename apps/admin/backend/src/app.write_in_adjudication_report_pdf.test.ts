@@ -17,9 +17,9 @@ import {
   configureMachine,
   expectUsbDriveSync,
   mockElectionManagerAuth,
-} from '../test/app';
-import { mockFileName } from '../test/csv';
-import { generateReportPath } from './util/filenames';
+} from '../test/app.js';
+import { mockFileName } from '../test/csv.js';
+import { generateReportPath } from './util/filenames.js';
 
 vi.setConfig({
   testTimeout: 60_000,

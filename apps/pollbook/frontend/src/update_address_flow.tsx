@@ -14,12 +14,12 @@ import {
 } from '@votingworks/ui';
 import { useState, useMemo } from 'react';
 import { Election } from '@votingworks/types';
-import { Column, Row } from './layout';
-import { NoNavScreen } from './nav_screen';
-import { TitledCard, VoterName } from './shared_components';
-import { AddressInputGroup } from './address_input_group';
-import { changeVoterAddress, getPollbookConfigurationInformation } from './api';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
+import { Column, Row } from './layout.js';
+import { NoNavScreen } from './nav_screen.js';
+import { TitledCard, VoterName } from './shared_components.js';
+import { AddressInputGroup } from './address_input_group.js';
+import { changeVoterAddress, getPollbookConfigurationInformation } from './api.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateAddressFlowState =
   | { step: 'update' }

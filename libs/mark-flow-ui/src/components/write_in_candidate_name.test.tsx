@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { WriteInCandidateName } from './write_in_candidate_name';
+import { render, screen } from '../../test/react_testing_library.js';
+import { WriteInCandidateName } from './write_in_candidate_name.js';
 
 test('renders all valid virtual keyboard letters without error', () => {
   render(<WriteInCandidateName name={`ABCDEFGHIJKLMNOPQRSTUVWXYZ . - ' " `} />);

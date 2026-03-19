@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { CheckboxGroup } from './checkbox_group';
-import { render, screen, within } from '../test/react_testing_library';
-import { Icons } from './icons';
+import { CheckboxGroup } from './checkbox_group.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { Icons } from './icons.js';
 
 test('renders a message when there are no options', () => {
   render(

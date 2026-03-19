@@ -16,7 +16,7 @@ import {
   buildTestEnvironment,
   configureMachine,
   buildBallotsForElection,
-} from '../test/app';
+} from '../test/app.js';
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'print';

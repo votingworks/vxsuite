@@ -14,7 +14,7 @@ import { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 
 import { type PrinterStatus as PrinterStatusType } from '@votingworks/types';
-import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api';
+import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api.js';
 
 // The printer is set to default to 2%, but we warn at 5%
 // to be extra careful about low toner making ballots unscannable

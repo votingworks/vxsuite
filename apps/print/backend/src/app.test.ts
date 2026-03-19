@@ -40,9 +40,9 @@ import {
   configureMachine,
   mockElectionManagerAuth,
   buildBallotsForElection,
-} from '../test/app';
-import { Api } from './app';
-import { Workspace } from './util/workspace';
+} from '../test/app.js';
+import { Api } from './app.js';
+import { Workspace } from './util/workspace.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

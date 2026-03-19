@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import {
   findAllMonorepoDependencies,
   getAllDependencies,
-} from './dependencies';
-import { getWorkspacePackageInfo } from './pnpm';
+} from './dependencies.js';
+import { getWorkspacePackageInfo } from './pnpm.js';
 
 test('getAllDependencies merges dependencies fields', () => {
   expect(

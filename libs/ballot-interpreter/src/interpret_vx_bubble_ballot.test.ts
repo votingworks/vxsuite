@@ -43,10 +43,10 @@ import {
   sortVotesDict,
   unmarkedWriteInsForSheet,
   votesForSheet,
-} from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
+} from '../test/helpers/interpretation.js';
+import { interpretSheet } from './interpret.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
 
 vi.mock('./validation');
 

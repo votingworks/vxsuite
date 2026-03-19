@@ -12,8 +12,8 @@ import {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
-import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
-import { logOut, useApiClient } from '../api';
+import { DiagnosticsScreen } from './diagnostics/diagnostics_screen.js';
+import { logOut, useApiClient } from '../api.js';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';

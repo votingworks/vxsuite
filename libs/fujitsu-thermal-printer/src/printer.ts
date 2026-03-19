@@ -11,22 +11,22 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { rootDebug } from './debug';
+import { rootDebug } from './debug.js';
 import {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,
   getDevice,
-} from './driver';
-import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals';
-import { logPrinterStatusIfChanged } from './logging';
-import { MockFileFujitsuPrinter } from './mocks/file_printer';
-import { printImageData, printPdf } from './printing';
-import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
+} from './driver/index.js';
+import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals.js';
+import { logPrinterStatusIfChanged } from './logging.js';
+import { MockFileFujitsuPrinter } from './mocks/file_printer.js';
+import { printImageData, printPdf } from './printing.js';
+import { summarizeRawStatus, waitForPrintReadyStatus } from './status.js';
 import {
   FujitsuThermalPrinterInterface,
   PrinterStatus,
   PrintResult,
-} from './types';
+} from './types.js';
 
 const debug = rootDebug.extend('printer');
 

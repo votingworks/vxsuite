@@ -14,11 +14,11 @@ import { DateTime } from 'luxon';
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { TIME_FORMAT } from '../../config/globals';
-import { AppContext } from '../../contexts/app_context';
-import { getCastVoteRecordFileMode, getCastVoteRecordFiles } from '../../api';
-import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import { RemoveAllCvrsModal } from './remove_all_cvrs_modal';
+import { TIME_FORMAT } from '../../config/globals.js';
+import { AppContext } from '../../contexts/app_context.js';
+import { getCastVoteRecordFileMode, getCastVoteRecordFiles } from '../../api.js';
+import { ImportCvrFilesModal } from './import_cvrfiles_modal.js';
+import { RemoveAllCvrsModal } from './remove_all_cvrs_modal.js';
 
 const TestModeCard = styled(Card).attrs({ color: 'warning' })`
   margin-bottom: 1rem;

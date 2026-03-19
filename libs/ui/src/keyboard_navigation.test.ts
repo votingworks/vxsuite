@@ -1,11 +1,11 @@
 import { expect, Mock, test, vi } from 'vitest';
-import { Keybinding } from './keybindings';
+import { Keybinding } from './keybindings.js';
 import {
   advanceElementFocus,
   PageNavigationButtonId,
   triggerPageNavigationButton,
-} from './accessible_controllers';
-import { handleKeyboardEvent } from './keyboard_navigation';
+} from './accessible_controllers/index.js';
+import { handleKeyboardEvent } from './keyboard_navigation.js';
 
 vi.mock('./accessible_controllers');
 

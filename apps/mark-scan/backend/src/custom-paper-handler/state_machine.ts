@@ -54,30 +54,30 @@ import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
 import { Clock } from 'xstate/lib/interpreter';
 import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
-import { Workspace } from '../util/workspace';
-import { SimpleServerStatus } from './types';
-import { MAX_BALLOT_BOX_CAPACITY } from './constants';
+import { Workspace } from '../util/workspace.js';
+import { SimpleServerStatus } from './types.js';
+import { MAX_BALLOT_BOX_CAPACITY } from './constants.js';
 import {
   scanAndSave,
   setDefaults,
   resetAndReconnect,
   loadAndParkPaper,
   printBallotChunks,
-} from './application_driver';
-import { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader';
+} from './application_driver.js';
+import { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader.js';
 import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
-} from '../pat-input/constants';
+} from '../pat-input/constants.js';
 import {
   DIAGNOSTIC_ELECTION_PATH,
   renderDiagnosticMockBallot,
-} from './diagnostic';
-import { constructAuthMachineState } from '../util/auth';
-import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error';
-import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error';
-import { DiagnosticError } from './diagnostic/diagnostic_error';
-import { getNodeEnv } from '../globals';
+} from './diagnostic/index.js';
+import { constructAuthMachineState } from '../util/auth.js';
+import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error.js';
+import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error.js';
+import { DiagnosticError } from './diagnostic/diagnostic_error.js';
+import { getNodeEnv } from '../globals.js';
 
 interface CoverStatus {
   isOpen: boolean;

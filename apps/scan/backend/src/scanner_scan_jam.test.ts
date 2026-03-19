@@ -16,13 +16,13 @@ import {
   ballotImages,
   simulateScan,
   withApp,
-} from '../test/helpers/scanner_helpers';
+} from '../test/helpers/scanner_helpers.js';
 import {
   configureApp,
   expectStatus,
   waitForStatus,
-} from '../test/helpers/shared_helpers';
-import { delays } from './scanner';
+} from '../test/helpers/shared_helpers.js';
+import { delays } from './scanner.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 

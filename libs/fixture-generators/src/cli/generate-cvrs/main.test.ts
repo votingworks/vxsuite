@@ -23,8 +23,8 @@ import {
 } from '@votingworks/utils';
 import { readCastVoteRecordExport } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
-import { main } from './main';
-import { IMAGE_URI_REGEX } from '../../generate-cvrs/utils';
+import { main } from './main.js';
+import { IMAGE_URI_REGEX } from '../../generate-cvrs/utils.js';
 
 vi.setConfig({
   testTimeout: 60_000,

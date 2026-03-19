@@ -1,7 +1,7 @@
 import {
   DEFAULT_LANGUAGE_CODE,
   useFrontendLanguageContext,
-} from '../ui_strings/language_context';
+} from '../ui_strings/language_context.js';
 
 export function useAvailableLanguages(): string[] {
   return (

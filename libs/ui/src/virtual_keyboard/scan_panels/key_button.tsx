@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import { forwardRef, Ref } from 'react';
-import { Button } from '../../button';
-import { WithAltAudio } from '../../ui_strings';
-import { getBorderWidthRem, Key } from '../common';
+import { Button } from '../../button.js';
+import { WithAltAudio } from '../../ui_strings/index.js';
+import { getBorderWidthRem, Key } from '../common.js';
 
 const Wrapper = styled.div`
   display: flex;

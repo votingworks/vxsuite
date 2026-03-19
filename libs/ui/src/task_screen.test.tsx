@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import { H1, TaskControls, TaskHeader, TaskScreen } from '.';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
 test('renders task screen', () => {
   render(

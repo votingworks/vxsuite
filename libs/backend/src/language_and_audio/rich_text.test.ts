@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { convertHtmlToAudioCues } from './rich_text';
+import { convertHtmlToAudioCues } from './rich_text.js';
 
 test('convertHtmlToAudioCues', () => {
   expect(convertHtmlToAudioCues('This is HTML text')).toEqual(

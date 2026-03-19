@@ -9,8 +9,8 @@ import type { ExportDataResult } from '@votingworks/admin-backend';
 import { Button, Modal, P, Font, ModalWidth } from '@votingworks/ui';
 
 import { MutationStatus } from '@tanstack/react-query';
-import { AppContext } from '../contexts/app_context';
-import { Loading } from './loading';
+import { AppContext } from '../contexts/app_context.js';
+import { Loading } from './loading.js';
 
 export interface SaveBackendFileModalProps {
   saveFileStatus: MutationStatus;

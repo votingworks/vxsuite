@@ -2,7 +2,7 @@ import { makeTemporaryFile } from '@votingworks/fixtures';
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
-import { sha256File } from './sha256_file';
+import { sha256File } from './sha256_file.js';
 
 test('random data', async () => {
   await fc.assert(

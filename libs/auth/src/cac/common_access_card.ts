@@ -9,7 +9,7 @@ import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
-import { FileKey, TpmKey } from '../keys';
+import { FileKey, TpmKey } from '../keys.js';
 
 import {
   CardCommand,
@@ -18,10 +18,10 @@ import {
   parseTlvPartial,
   ResponseApduError,
   SELECT,
-} from '../apdu';
-import { CardStatus, CheckPinResponse } from '../card';
-import { CardReader } from '../card_reader';
-import { CERT_EXPIRY_IN_DAYS } from '../certs';
+} from '../apdu.js';
+import { CardStatus, CheckPinResponse } from '../card.js';
+import { CardReader } from '../card_reader.js';
+import { CERT_EXPIRY_IN_DAYS } from '../certs.js';
 import {
   certDerToPem,
   certPemToDer,
@@ -29,7 +29,7 @@ import {
   extractPublicKeyFromCert,
   publicKeyDerToPem,
   verifySignature,
-} from '../cryptography';
+} from '../cryptography.js';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -42,16 +42,16 @@ import {
   pivDataObjectId,
   PUT_DATA,
   VERIFY,
-} from '../piv';
+} from '../piv.js';
 import {
   CommonAccessCardCompatibleCard,
   CommonAccessCardDetails,
   GenerateSignatureError,
-} from './common_access_card_api';
+} from './common_access_card_api.js';
 import {
   constructCardCertSubject,
   parseCardDetailsFromCert,
-} from './common_access_card_certs';
+} from './common_access_card_certs.js';
 
 /**
  * The standard CAC applet ID.

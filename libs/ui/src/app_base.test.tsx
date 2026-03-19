@@ -6,12 +6,12 @@ import { ServerStyleSheet, ThemeConsumer } from 'styled-components';
 import { UiTheme } from '@votingworks/types';
 import { act, render } from '@testing-library/react';
 
-import { AppBaseProps, AppBase as OriginalAppBase } from './app_base';
-import { makeTheme } from './themes/make_theme';
+import { AppBaseProps, AppBase as OriginalAppBase } from './app_base.js';
+import { makeTheme } from './themes/make_theme.js';
 import {
   VoterSettingsManagerContext,
   VoterSettingsManagerContextInterface,
-} from './voter_settings_manager_context';
+} from './voter_settings_manager_context.js';
 
 function AppBase(props: AppBaseProps) {
   return <OriginalAppBase {...props} disableFontsForTests />;

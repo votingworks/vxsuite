@@ -16,10 +16,10 @@ import {
 import { format } from '@votingworks/utils';
 import { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
 
-import { ElectionIdParams, routes } from './routes';
-import { InputGroup, Row } from './layout';
-import * as api from './api';
-import { TaskProgress } from './task_progress';
+import { ElectionIdParams, routes } from './routes.js';
+import { InputGroup, Row } from './layout.js';
+import * as api from './api.js';
+import { TaskProgress } from './task_progress.js';
 
 const Container = styled.div`
   align-items: flex-start;

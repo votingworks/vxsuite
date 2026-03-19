@@ -11,8 +11,8 @@ import {
   VoteAdjudication,
   WriteInAdjudicationAction,
   WriteInRecord,
-} from './types';
-import { type Store } from './store';
+} from './types.js';
+import { type Store } from './store.js';
 
 /**
  * Manipulates adjudication records so that a particular vote in a cast vote

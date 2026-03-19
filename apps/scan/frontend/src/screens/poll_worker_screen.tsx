@@ -38,16 +38,16 @@ import {
   useApiClient,
   getConfig,
   getQuickResultsReportingUrl,
-} from '../api';
-import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+} from '../api.js';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 import {
   PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
-} from '../utils/printer';
-import { PostPrintScreen } from './poll_worker_post_print_screen';
-import { Screen } from './poll_worker_shared';
-import { CenteredText, Screen as PlainScreen } from '../components/layout';
-import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
+} from '../utils/printer.js';
+import { PostPrintScreen } from './poll_worker_post_print_screen.js';
+import { Screen } from './poll_worker_shared.js';
+import { CenteredText, Screen as PlainScreen } from '../components/layout.js';
+import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button.js';
 
 type PollWorkerFlowState =
   | {

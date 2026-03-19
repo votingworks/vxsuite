@@ -40,29 +40,29 @@ import {
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { v4 as uuid } from 'uuid';
-import { EmitProgressFunction, WorkerContext } from './context';
+import { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
-} from '../ballots';
-import { generateId, getBallotPdfFileName } from '../utils';
+} from '../ballots.js';
+import { generateId, getBallotPdfFileName } from '../utils.js';
 import {
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
-} from './ballot_pdfs';
+} from './ballot_pdfs.js';
 import {
   createCircleCiClient,
   shouldTriggerCircleCi,
-} from '../circleci_client';
-import { FileStorageClient } from '../file_storage_client';
+} from '../circleci_client.js';
+import { FileStorageClient } from '../file_storage_client.js';
 import {
   baseUrl,
   circleCiProjectSlug,
   circleCiWebhookSecret,
-} from '../globals';
-import { Store } from '../store';
-import { rootDebug } from '../debug';
-import { getStateFeaturesConfig } from '../features';
+} from '../globals.js';
+import { Store } from '../store.js';
+import { rootDebug } from '../debug.js';
+import { getStateFeaturesConfig } from '../features.js';
 
 const debug = rootDebug.extend('export-qa');
 

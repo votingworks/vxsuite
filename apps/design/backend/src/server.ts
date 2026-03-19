@@ -1,6 +1,6 @@
-import { buildApp } from './app';
-import { AppContext } from './context';
-import { PORT } from './globals';
+import { buildApp } from './app.js';
+import { AppContext } from './context.js';
+import { PORT } from './globals.js';
 
 /**
  * Starts the server.

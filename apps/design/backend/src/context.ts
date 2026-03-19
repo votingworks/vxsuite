@@ -1,9 +1,9 @@
 import { Logger } from '@votingworks/logging';
-import { Auth0ClientInterface } from './auth0_client';
-import { FileStorageClient } from './file_storage_client';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
-import { GoogleCloudTranslatorWithDbCache } from './translator';
-import { Workspace } from './workspace';
+import { Auth0ClientInterface } from './auth0_client.js';
+import { FileStorageClient } from './file_storage_client.js';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer.js';
+import { GoogleCloudTranslatorWithDbCache } from './translator.js';
+import { Workspace } from './workspace.js';
 
 export interface AppContext {
   auth0: Auth0ClientInterface;

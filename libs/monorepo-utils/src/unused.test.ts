@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { PnpmPackageInfo } from './types';
-import { findUnusedPackages } from './unused';
+import { PnpmPackageInfo } from './types.js';
+import { findUnusedPackages } from './unused.js';
 
 test('findUnusedPackages treats packages with bins as used', () => {
   const pkgs = new Map<string, PnpmPackageInfo>([

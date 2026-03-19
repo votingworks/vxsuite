@@ -13,8 +13,8 @@ import { PassThrough } from 'node:stream';
 import { ok } from '@votingworks/basics';
 import { convertVxLogToCdf } from '@votingworks/logging-utils';
 import zlib from 'node:zlib';
-import { execFile } from '../exec';
-import { exportLogsToUsb, LogsExportError } from './export_logs_to_usb';
+import { execFile } from '../exec.js';
+import { exportLogsToUsb, LogsExportError } from './export_logs_to_usb.js';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),
@@ -29,7 +29,7 @@ vi.mock(import('node:fs'), async (importActual) => ({
 
 vi.mock(
   import('../exec.js'),
-  async (importActual): Promise<typeof import('../exec')> => ({
+  async (importActual): Promise<typeof import('../exec.js')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })

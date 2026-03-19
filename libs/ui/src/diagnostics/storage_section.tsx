@@ -3,8 +3,8 @@ import {
   type DiskSpaceSummary,
 } from '@votingworks/utils';
 import { format } from '@votingworks/utils';
-import { H2, P } from '../typography';
-import { SuccessIcon, WarningIcon } from './icons';
+import { H2, P } from '../typography.js';
+import { SuccessIcon, WarningIcon } from './icons.js';
 
 function roundToGigabytes(kilobytes: number): number {
   return Math.round(kilobytes / 100_000) / 10;

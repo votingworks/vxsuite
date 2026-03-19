@@ -13,8 +13,8 @@ import {
   Side,
   TargetShape,
   TargetShapeSchema,
-} from './election';
-import { IdSchema } from './generic';
+} from './election.js';
+import { IdSchema } from './generic.js';
 import {
   Corners,
   CornersSchema,
@@ -22,8 +22,8 @@ import {
   RectSchema,
   Size,
   SizeSchema,
-} from './geometry';
-import { ImageData, ImageDataSchema } from './image';
+} from './geometry.js';
+import { ImageData, ImageDataSchema } from './image.js';
 
 export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
 export type BallotMode = (typeof BALLOT_MODES)[number];

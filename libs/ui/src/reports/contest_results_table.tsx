@@ -10,8 +10,8 @@ import {
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
-import { reportColors } from './layout';
-import { Font } from '../typography';
+import { reportColors } from './layout.js';
+import { Font } from '../typography.js';
 
 const DistrictName = styled.p`
   margin-bottom: 0;

@@ -2,10 +2,10 @@ import { Election, Voter, VoterIdentificationMethod } from '@votingworks/types';
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock } from '../test/mock_api_client';
-import { renderInAppContext } from '../test/render_in_app_context';
-import { SelectPartyScreen } from './select_party_screen';
-import { screen } from '../test/react_testing_library';
+import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
+import { SelectPartyScreen } from './select_party_screen.js';
+import { screen } from '../test/react_testing_library.js';
 
 let apiMock: ApiMock;
 let unmount: () => void;

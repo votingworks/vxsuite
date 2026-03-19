@@ -7,8 +7,8 @@ import { AddressInfo } from 'node:net';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
-} from './pollbook_package';
-import { withApp } from '../test/app';
+} from './pollbook_package.js';
+import { withApp } from '../test/app.js';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -17,7 +17,7 @@ const electionDefinition =
 
 vi.mock(
   './globals.js',
-  async (importActual): Promise<typeof import('./globals')> => ({
+  async (importActual): Promise<typeof import('./globals.js')> => ({
     ...(await importActual()),
     get NODE_ENV(): 'production' | 'test' {
       return mockNodeEnv;

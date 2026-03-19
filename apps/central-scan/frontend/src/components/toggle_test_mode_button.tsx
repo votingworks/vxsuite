@@ -1,7 +1,7 @@
 import { Button, Modal, P, SegmentedButton } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { iter } from '@votingworks/basics';
-import { getStatus, getTestMode, setTestMode } from '../api';
+import { getStatus, getTestMode, setTestMode } from '../api.js';
 
 /**
  * Presents a button to toggle between test & live modes with a confirmation.

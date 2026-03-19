@@ -6,12 +6,12 @@ import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { Exporter, ExportDataResult } from './exporter';
-import { execFile } from './exec';
+import { Exporter, ExportDataResult } from './exporter.js';
+import { execFile } from './exec.js';
 
 vi.mock(
   import('./exec.js'),
-  async (importActual): Promise<typeof import('./exec')> => ({
+  async (importActual): Promise<typeof import('./exec.js')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })

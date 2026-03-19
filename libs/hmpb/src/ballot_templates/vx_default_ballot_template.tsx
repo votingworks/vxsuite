@@ -35,8 +35,8 @@ import {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
-} from '../render_ballot';
-import { RenderScratchpad } from '../renderer';
+} from '../render_ballot.js';
+import { RenderScratchpad } from '../renderer.js';
 import {
   OptionInfo,
   Page,
@@ -56,12 +56,12 @@ import {
   ContestTitle,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
-} from '../ballot_components';
-import { PixelDimensions } from '../types';
-import { layOutInColumns } from '../layout_in_columns';
-import { hmpbStrings } from '../hmpb_strings';
-import { Watermark } from './watermark';
-import { BaseStyles } from '../base_styles';
+} from '../ballot_components.js';
+import { PixelDimensions } from '../types.js';
+import { layOutInColumns } from '../layout_in_columns.js';
+import { hmpbStrings } from '../hmpb_strings.js';
+import { Watermark } from './watermark.js';
+import { BaseStyles } from '../base_styles.js';
 
 function Header({
   election,

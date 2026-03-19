@@ -14,7 +14,7 @@ import {
   ScannerClient,
   ScannerEvent,
   ScannerStatus,
-} from './scanner_client';
+} from './scanner_client.js';
 
 const debug = makeDebug('mock-pdi-scanner');
 

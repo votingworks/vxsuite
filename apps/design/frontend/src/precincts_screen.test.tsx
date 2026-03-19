@@ -21,18 +21,18 @@ import {
   jurisdiction,
   provideApi,
   user,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   electionInfoFromElection,
   generalElectionRecord,
-} from '../test/fixtures';
-import { makeIdFactory } from '../test/id_helpers';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { PrecinctsScreen } from './precincts_screen';
-import { PrecinctList } from './precincts_list';
-import { PrecinctAudioPanel } from './precinct_audio_panel';
+} from '../test/fixtures.js';
+import { makeIdFactory } from '../test/id_helpers.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { PrecinctsScreen } from './precincts_screen.js';
+import { PrecinctList } from './precincts_list.js';
+import { PrecinctAudioPanel } from './precinct_audio_panel.js';
 
 vi.mock('./precincts_list.js');
 const MockPrecinctList = vi.mocked(PrecinctList);

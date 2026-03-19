@@ -6,7 +6,7 @@ import {
   DIAGNOSTICS_TABLE_SCHEMA,
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
-} from './diagnostics';
+} from './diagnostics.js';
 
 test('add and get diagnostic records', () => {
   const schemaPath = makeTemporaryFile({ content: DIAGNOSTICS_TABLE_SCHEMA });

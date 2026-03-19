@@ -8,9 +8,9 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { FixedViewport, ListActionsRow, Row } from './layout';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes';
+import { FixedViewport, ListActionsRow, Row } from './layout.js';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
@@ -18,12 +18,12 @@ import {
   listDistricts,
   listParties,
   reorderContests,
-} from './api';
-import { reorderElement } from './utils';
-import { useTitle } from './hooks/use_title';
-import { ContestForm } from './contest_form';
-import { ContestList } from './contest_list';
-import { ContestAudioPanel } from './contest_audio_panel';
+} from './api.js';
+import { reorderElement } from './utils.js';
+import { useTitle } from './hooks/use_title.js';
+import { ContestForm } from './contest_form.js';
+import { ContestList } from './contest_list.js';
+import { ContestAudioPanel } from './contest_audio_panel.js';
 
 export function ContestsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();

@@ -28,7 +28,7 @@ import {
   ResponseApduError,
   SELECT,
   STATUS_WORD,
-} from './apdu';
+} from './apdu.js';
 import {
   arePollWorkerCardDetails,
   Card,
@@ -36,20 +36,20 @@ import {
   CardStatus,
   CheckPinResponse,
   ProgrammedCardDetails,
-} from './card';
-import { CardReader } from './card_reader';
+} from './card.js';
+import { CardReader } from './card_reader.js';
 import {
   CERT_EXPIRY_IN_DAYS,
   certDetailsToCardDetails,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   parseCert,
-} from './certs';
+} from './certs.js';
 import {
   CardProgrammingConfig,
   constructJavaCardConfig,
   JavaCardConfig,
-} from './config';
+} from './config.js';
 import {
   certDerToPem,
   certPemToDer,
@@ -60,7 +60,7 @@ import {
   publicKeyDerToPem,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './cryptography';
+} from './cryptography.js';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -73,7 +73,7 @@ import {
   PUT_DATA,
   RESET_RETRY_COUNTER,
   VERIFY,
-} from './piv';
+} from './piv.js';
 
 /**
  * The OpenFIPS201 applet ID

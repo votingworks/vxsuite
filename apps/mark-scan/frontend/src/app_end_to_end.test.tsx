@@ -12,21 +12,21 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
 
-import { App } from './app';
+import { App } from './app.js';
 
-import { withMarkup } from '../test/helpers/with_markup';
+import { withMarkup } from '../test/helpers/with_markup.js';
 
 import {
   presidentContest,
   countyCommissionersContest,
   measure102Contest,
   voterContests,
-} from '../test/helpers/election';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { configureFromUsbThenRemove } from '../test/helpers/election_package';
-import { getMockInterpretation } from '../test/helpers/interpretation';
+} from '../test/helpers/election.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { configureFromUsbThenRemove } from '../test/helpers/election_package.js';
+import { getMockInterpretation } from '../test/helpers/interpretation.js';
 
 let apiMock: ApiMock;
 

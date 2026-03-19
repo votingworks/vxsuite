@@ -7,7 +7,7 @@ import {
 import {
   getContestDistrictName,
   mergeMsEitherNeitherContests,
-} from './ms_either_neither_contests';
+} from './ms_either_neither_contests.js';
 
 const electionGeneral = readElectionGeneral();
 const electionWithMsEitherNeither = readElectionWithMsEitherNeither();

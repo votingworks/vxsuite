@@ -26,9 +26,9 @@ import { decryptAes256 } from '@votingworks/auth';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LogEventId } from '@votingworks/logging';
-import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
-import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
-import { BALLOT_AUDIT_ID_FILE_NAME } from './app';
+import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
+import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers.js';
+import { BALLOT_AUDIT_ID_FILE_NAME } from './app.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

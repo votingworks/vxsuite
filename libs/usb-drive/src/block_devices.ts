@@ -3,7 +3,7 @@ import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
 import { Optional } from '@votingworks/basics';
-import { exec, spawn } from './exec';
+import { exec, spawn } from './exec.js';
 
 const debug = makeDebug('usb-drive');
 

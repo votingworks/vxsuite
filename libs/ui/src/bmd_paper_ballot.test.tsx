@@ -22,7 +22,7 @@ import { encodeBallot } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library.js';
 import {
   ORDERED_BMD_BALLOT_LAYOUTS,
   MachineType,
@@ -37,8 +37,8 @@ import {
   needsMultiplePages,
   filterVotesForContests,
   MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE,
-} from './bmd_paper_ballot';
-import * as QrCodeModule from './qrcode';
+} from './bmd_paper_ballot.js';
+import * as QrCodeModule from './qrcode.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionTwoPartyPrimaryDefinition =

@@ -2,7 +2,7 @@ import { beforeEach, test, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 
-import { Timer } from './timer';
+import { Timer } from './timer.js';
 
 beforeEach(() => {
   vi.useFakeTimers({

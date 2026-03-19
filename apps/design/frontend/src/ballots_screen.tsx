@@ -27,13 +27,13 @@ import {
   getElectionInfo,
   listParties,
   getStateFeatures,
-} from './api';
-import { Column, Form, FormActionsRow, NestedTr } from './layout';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { BallotScreen, paperSizeLabels } from './ballot_screen';
-import { useTitle } from './hooks/use_title';
-import { BallotsStatus } from './ballots_status';
+} from './api.js';
+import { Column, Form, FormActionsRow, NestedTr } from './layout.js';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import { BallotScreen, paperSizeLabels } from './ballot_screen.js';
+import { useTitle } from './hooks/use_title.js';
+import { BallotsStatus } from './ballots_status.js';
 
 function BallotDesignForm({
   electionId,

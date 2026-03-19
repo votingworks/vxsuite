@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { VoterSettingsManagerContext } from './voter_settings_manager_context';
-import { Button } from './button';
-import { appStrings } from './ui_strings';
-import { H2 } from './typography';
-import { useScreenInfo } from './hooks/use_screen_info';
-import { Header } from './voter_settings/header';
-import { useCurrentTheme } from './hooks/use_current_theme';
+import { VoterSettingsManagerContext } from './voter_settings_manager_context.js';
+import { Button } from './button.js';
+import { appStrings } from './ui_strings/index.js';
+import { H2 } from './typography.js';
+import { useScreenInfo } from './hooks/use_screen_info.js';
+import { Header } from './voter_settings/header.js';
+import { useCurrentTheme } from './hooks/use_current_theme.js';
 
 const Overlay = styled.div`
   position: fixed;

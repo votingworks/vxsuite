@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
-import { P, Font } from '../../typography';
-import { Icons } from '../../icons';
-import { Button } from '../../button';
-import { ReadOnLoad as BaseReadOnLoad, appStrings } from '../../ui_strings';
-import { PatIntroductionStep } from './pat_introduction_step';
-import { IdentifyInputStep } from './identify_input_step';
+import { P, Font } from '../../typography.js';
+import { Icons } from '../../icons.js';
+import { Button } from '../../button.js';
+import { ReadOnLoad as BaseReadOnLoad, appStrings } from '../../ui_strings/index.js';
+import { PatIntroductionStep } from './pat_introduction_step.js';
+import { IdentifyInputStep } from './identify_input_step.js';
 
 export const DiagnosticScreenHeader = styled.div`
   display: flex;

@@ -4,11 +4,11 @@ import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
-import * as server from './server';
-import { WORKSPACE } from './globals';
-import { createWorkspace, Workspace } from './util/workspace';
+import * as server from './server.js';
+import { WORKSPACE } from './globals.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
 
-export type { Api } from './app';
+export type { Api } from './app.js';
 
 loadEnvVarsFromDotenvFiles();
 

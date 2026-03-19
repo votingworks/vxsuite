@@ -9,8 +9,8 @@ import {
 } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { isDeviceAttached } from '@votingworks/backend';
-import { streamExecFile } from './exec';
-import { StreamLines } from './util/stream_lines';
+import { streamExecFile } from './exec.js';
+import { StreamLines } from './util/stream_lines.js';
 
 const debug = makeDebug('scan:scanner');
 

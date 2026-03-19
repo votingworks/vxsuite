@@ -16,8 +16,8 @@ import {
   BackendLanguageContextProvider,
   filterVotesForContests,
 } from '@votingworks/ui';
-import { Store } from '../store';
-import { PrintBallotProps as ClientParams } from '../types';
+import { Store } from '../store.js';
+import { PrintBallotProps as ClientParams } from '../types.js';
 
 /**
  * Shared renderer instance for measuring ballot layouts.

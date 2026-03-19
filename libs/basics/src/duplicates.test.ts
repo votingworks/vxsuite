@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { duplicates } from './duplicates';
+import { duplicates } from './duplicates.js';
 
 test('duplicates', () => {
   expect(duplicates([])).toEqual([]);

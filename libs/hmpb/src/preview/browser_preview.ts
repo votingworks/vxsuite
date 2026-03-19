@@ -16,11 +16,11 @@ import {
   gridWidthToPixels,
   measureTimingMarkGrid,
   renderBallotTemplate,
-} from '../render_ballot';
-import { createBrowserPreviewRenderer } from './browser_preview_renderer';
-import { createTestVotes, markBallotDocument } from '../mark_ballot';
-import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
-import { BallotTemplateId, ballotTemplates } from '../ballot_templates';
+} from '../render_ballot.js';
+import { createBrowserPreviewRenderer } from './browser_preview_renderer.js';
+import { createTestVotes, markBallotDocument } from '../mark_ballot.js';
+import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components.js';
+import { BallotTemplateId, ballotTemplates } from '../ballot_templates/index.js';
 
 /**
  * The ID of the element that marks the document as done for the test.

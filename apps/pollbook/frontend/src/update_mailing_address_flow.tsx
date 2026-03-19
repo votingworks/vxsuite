@@ -12,12 +12,12 @@ import {
   H4,
 } from '@votingworks/ui';
 import { useState } from 'react';
-import { Column, Row } from './layout';
-import { NoNavScreen } from './nav_screen';
-import { TitledCard, VoterName } from './shared_components';
-import { MailingAddressInputGroup } from './mailing_address_input_group';
-import { changeVoterMailingAddress } from './api';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
+import { Column, Row } from './layout.js';
+import { NoNavScreen } from './nav_screen.js';
+import { TitledCard, VoterName } from './shared_components.js';
+import { MailingAddressInputGroup } from './mailing_address_input_group.js';
+import { changeVoterMailingAddress } from './api.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateMailingAddressFlowState =
   | { step: 'update' }

@@ -25,16 +25,16 @@ import type {
   CvrFileImportInfo,
   ImportCastVoteRecordsError,
 } from '@votingworks/admin-backend';
-import { AppContext } from '../../contexts/app_context';
-import { Loading } from '../../components/loading';
-import { CastVoteRecordFilePreprocessedData } from '../../config/types';
-import { NODE_ENV, TIME_FORMAT } from '../../config/globals';
+import { AppContext } from '../../contexts/app_context.js';
+import { Loading } from '../../components/loading.js';
+import { CastVoteRecordFilePreprocessedData } from '../../config/types.js';
+import { NODE_ENV, TIME_FORMAT } from '../../config/globals.js';
 import {
   addCastVoteRecordFile,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
   listCastVoteRecordFilesOnUsb,
-} from '../../api';
+} from '../../api.js';
 
 const CvrFileTableWrapper = styled.div`
   background: ${(p) => p.theme.colors.containerLow};

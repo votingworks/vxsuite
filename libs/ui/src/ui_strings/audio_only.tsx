@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import React from 'react';
-import { AUDIO_ONLY_STYLES } from '../global_styles';
+import { AUDIO_ONLY_STYLES } from '../global_styles.js';
 
 const Container = styled.span`
   ${AUDIO_ONLY_STYLES}

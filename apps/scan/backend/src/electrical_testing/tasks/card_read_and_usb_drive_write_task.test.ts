@@ -4,12 +4,12 @@ import { UsbDrive } from '@votingworks/usb-drive';
 import { exists } from 'fs-extra';
 import { join } from 'node:path';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
-import { test } from '../../../test/helpers/test';
+import { test } from '../../../test/helpers/test.js';
 import {
   CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS,
   runCardReadAndUsbDriveWriteTask,
   USB_DRIVE_FILE_NAME,
-} from './card_read_and_usb_drive_write_task';
+} from './card_read_and_usb_drive_write_task.js';
 
 async function hasWrittenFileToUsbDrive(usbDrive: UsbDrive) {
   const status = await usbDrive.status();

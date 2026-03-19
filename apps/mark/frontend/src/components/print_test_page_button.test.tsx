@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 import {
   PrintTestPageButton,
   TEST_PAGE_PRINT_DELAY_SECONDS,
-} from './print_test_page_button';
+} from './print_test_page_button.js';
 
 let apiMock: ApiMock;
 

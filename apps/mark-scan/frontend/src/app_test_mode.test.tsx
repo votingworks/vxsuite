@@ -6,10 +6,10 @@ import {
 } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { DateWithoutTime } from '@votingworks/basics';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { App } from './app';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import { App } from './app.js';
 
 let apiMock: ApiMock;
 

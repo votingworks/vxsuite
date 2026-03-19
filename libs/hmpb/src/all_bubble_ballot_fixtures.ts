@@ -12,17 +12,17 @@ import {
 import makeDebug from 'debug';
 
 import { join } from 'node:path';
-import { createElection } from './all_bubble_ballot/election';
-import { allBubbleBallotTemplate } from './all_bubble_ballot/template';
-import { concatenatePdfs } from './concatenate_pdfs';
-import { markBallotDocument } from './mark_ballot';
+import { createElection } from './all_bubble_ballot/election.js';
+import { allBubbleBallotTemplate } from './all_bubble_ballot/template.js';
+import { concatenatePdfs } from './concatenate_pdfs.js';
+import { markBallotDocument } from './mark_ballot.js';
 import {
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
-} from './render_ballot';
-import { RendererPool } from './renderer';
-import { injectFooterMetadata } from './all_bubble_ballot/footer';
-import { allBubbleBallotConfig } from './all_bubble_ballot/config';
+} from './render_ballot.js';
+import { RendererPool } from './renderer.js';
+import { injectFooterMetadata } from './all_bubble_ballot/footer.js';
+import { allBubbleBallotConfig } from './all_bubble_ballot/config.js';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 

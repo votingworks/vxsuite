@@ -1,6 +1,6 @@
 import randomBytes from 'randombytes';
-import { BooleanEnvironmentVariableName } from './environment_variable';
-import { isFeatureFlagEnabled } from './features';
+import { BooleanEnvironmentVariableName } from './environment_variable.js';
+import { isFeatureFlagEnabled } from './features.js';
 
 /** See VVSG 2.0 - 11.3.2-B – Password complexity */
 export const MIN_PIN_LENGTH = 6;

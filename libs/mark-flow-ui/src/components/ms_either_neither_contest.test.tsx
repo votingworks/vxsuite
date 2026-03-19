@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 import {
   MsEitherNeitherContest as MsEitherNeitherContestType,
   mergeMsEitherNeitherContests,
-} from '../utils/ms_either_neither_contests';
-import { MsEitherNeitherContest } from './ms_either_neither_contest';
-import { act, render, screen, within } from '../../test/react_testing_library';
+} from '../utils/ms_either_neither_contests.js';
+import { MsEitherNeitherContest } from './ms_either_neither_contest.js';
+import { act, render, screen, within } from '../../test/react_testing_library.js';
 
 const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
 const contests = mergeMsEitherNeitherContests(

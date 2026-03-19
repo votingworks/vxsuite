@@ -1,7 +1,7 @@
 import { Meta } from '@storybook/react';
 
 import { useState } from 'react';
-import { SearchSelect, SearchSelectSingleProps } from './search_select';
+import { SearchSelect, SearchSelectSingleProps } from './search_select.js';
 
 const initialProps: SearchSelectSingleProps = {
   onChange: () => undefined,

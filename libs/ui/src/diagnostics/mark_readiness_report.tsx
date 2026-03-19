@@ -2,22 +2,22 @@ import { ThemeProvider } from 'styled-components';
 import {
   ConfigurationSection,
   ConfigurationSectionProps,
-} from './configuration_section';
-import { makeTheme } from '../themes/make_theme';
-import { PrintedReport } from '../reports/layout';
-import { ReadinessReportHeader } from './report_header';
+} from './configuration_section.js';
+import { makeTheme } from '../themes/make_theme.js';
+import { PrintedReport } from '../reports/layout.js';
+import { ReadinessReportHeader } from './report_header.js';
 import {
   MarkScanDeviceDiagnosticSection,
   MarkScanDeviceDiagnosticSectionProps,
-} from './mark_scan_device_diagnostic_section';
-import { ReportContents } from './components';
-import { DiagnosticSectionTitle } from './types';
-import { StorageSection, StorageSectionProps } from './storage_section';
+} from './mark_scan_device_diagnostic_section.js';
+import { ReportContents } from './components.js';
+import { DiagnosticSectionTitle } from './types.js';
+import { StorageSection, StorageSectionProps } from './storage_section.js';
 import {
   UninterruptiblePowerSupplySection,
   UpsSectionProps,
-} from './uninterruptible_power_supply_section';
-import { PrinterSection, PrinterSectionProps } from './printer_section';
+} from './uninterruptible_power_supply_section.js';
+import { PrinterSection, PrinterSectionProps } from './printer_section.js';
 
 type NonpresentationalSectionProps = Omit<
   MarkScanDeviceDiagnosticSectionProps,

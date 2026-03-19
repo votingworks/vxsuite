@@ -24,9 +24,9 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { BallotStyleSelect, OnBallotStyleSelect } from './ballot_style_select';
-import { ButtonGrid, VotingSession } from './elements';
-import { UpdatePollsButton } from './update_polls_button';
+import { BallotStyleSelect, OnBallotStyleSelect } from './ballot_style_select.js';
+import { ButtonGrid, VotingSession } from './elements.js';
+import { UpdatePollsButton } from './update_polls_button.js';
 
 export interface HeaderProps {
   ballotsPrintedCount: number;

@@ -1,6 +1,6 @@
 import { Dictionary } from '@votingworks/types';
-import { BooleanEnvironmentVariableName } from './environment_variable';
-import { isFeatureFlagEnabled } from './features';
+import { BooleanEnvironmentVariableName } from './environment_variable.js';
+import { isFeatureFlagEnabled } from './features.js';
 
 interface FeatureFlagMock {
   isEnabled: typeof isFeatureFlagEnabled;

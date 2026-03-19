@@ -10,15 +10,15 @@ import {
 import { assert, assertDefined } from '@votingworks/basics';
 import memoize from 'lodash.memoize';
 import hash from 'object-hash';
-import { Store } from '../store';
+import { Store } from '../store.js';
 import {
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
-} from './write_ins';
-import { tabulateManualResults } from './manual_results';
-import { rootDebug } from '../util/debug';
-import { assertIsBackendFilter } from '../util/filters';
-import { LeastRecentlyUsedMap } from '../util/lru_map';
+} from './write_ins.js';
+import { tabulateManualResults } from './manual_results.js';
+import { rootDebug } from '../util/debug.js';
+import { assertIsBackendFilter } from '../util/filters.js';
+import { LeastRecentlyUsedMap } from '../util/lru_map.js';
 
 const debug = rootDebug.extend('tabulation');
 

@@ -2,13 +2,13 @@ import { expect, test, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
-import { createUiStringsApi } from './ui_strings_api';
+import { createUiStringsApi } from './ui_strings_api.js';
 import { UiStringsContextProvider, useCurrentLanguage } from '..';
 import {
   DEFAULT_LANGUAGE_CODE,
   FrontendLanguageContextInterface,
   useFrontendLanguageContext,
-} from '../ui_strings/language_context';
+} from '../ui_strings/language_context.js';
 
 test('returns default language when rendered without context', () => {
   const { result } = renderHook(() => useCurrentLanguage());

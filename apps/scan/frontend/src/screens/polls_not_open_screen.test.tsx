@@ -1,17 +1,17 @@
 import { beforeEach, afterEach, describe, test, expect } from 'vitest';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   PollsNotOpenScreen,
   PollsNotOpenScreenProps,
-} from './polls_not_open_screen';
+} from './polls_not_open_screen.js';
 import {
   ApiMock,
   createApiMock,
   machineConfig,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 const TEST_BALLOT_COUNT = 50;
 

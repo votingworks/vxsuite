@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import { Icons, P, appStrings, useCurrentLanguage } from '@votingworks/ui';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { BallotContext } from '../contexts/ballot_context';
-import { printBallot } from '../api';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { printBallot } from '../api.js';
 
 export function PrintPage(): JSX.Element | null {
   const { ballotStyleId, precinctId, votes } = useContext(BallotContext);

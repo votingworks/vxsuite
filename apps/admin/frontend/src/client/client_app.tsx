@@ -1,13 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
-import { ClientAppRoot } from './client_app_root';
+import { ClientAppRoot } from './client_app_root.js';
 import {
   ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
-} from './api';
-import { SharedApiClientContext } from '../shared_api';
+} from './api.js';
+import { SharedApiClientContext } from '../shared_api.js';
 
 export interface ClientAppProps {
   apiClient?: ApiClient;

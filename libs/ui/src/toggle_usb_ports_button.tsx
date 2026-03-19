@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-import { Button } from './button';
-import { Modal } from './modal';
-import { useSystemCallApi } from './system_call_api';
-import { P } from './typography';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { useSystemCallApi } from './system_call_api.js';
+import { P } from './typography.js';
 
 export interface ToggleUsbPortsButtonProps {
   /**

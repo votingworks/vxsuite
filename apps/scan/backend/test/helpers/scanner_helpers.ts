@@ -40,19 +40,19 @@ import * as tmp from 'tmp';
 import { Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
-import { Api, buildApp } from '../../src/app';
-import { Player as AudioPlayer } from '../../src/audio/player';
-import { createPrecinctScannerStateMachine, delays } from '../../src/scanner';
-import { Store } from '../../src/store';
-import { Workspace, createWorkspace } from '../../src/util/workspace';
+import { Api, buildApp } from '../../src/app.js';
+import { Player as AudioPlayer } from '../../src/audio/player.js';
+import { createPrecinctScannerStateMachine, delays } from '../../src/scanner.js';
+import { Store } from '../../src/store.js';
+import { Workspace, createWorkspace } from '../../src/util/workspace.js';
 import {
   buildMockLogger,
   expectStatus,
   pdfToImageSheet,
   waitForContinuousExportToUsbDrive,
   waitForStatus,
-} from './shared_helpers';
-import { AudioCard } from '../../src/audio/card';
+} from './shared_helpers.js';
+import { AudioCard } from '../../src/audio/card.js';
 
 vi.mock('./audio/card');
 vi.mock('./audio/player');

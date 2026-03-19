@@ -7,15 +7,15 @@ import { DEV_MACHINE_ID } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { err, typedAs } from '@votingworks/basics';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
-import { buildClientApp, ClientApi } from './client_app';
-import { createClientWorkspace } from './util/workspace';
-import { ClientConnectionStatus, ElectionRecord } from './types';
+import { buildClientApp, ClientApi } from './client_app.js';
+import { createClientWorkspace } from './util/workspace.js';
+import { ClientConnectionStatus, ElectionRecord } from './types.js';
 import {
   getMountedUsbDriveDevPath,
   mockMachineLocked,
   mockSystemAdministratorAuth,
   buildMockLogger,
-} from '../test/app';
+} from '../test/app.js';
 
 function buildClientTestEnvironment() {
   const auth = buildMockDippedSmartCardAuth(vi.fn);

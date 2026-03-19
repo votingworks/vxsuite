@@ -1,4 +1,4 @@
-import { Coder } from './types';
+import { Coder } from './types.js';
 
 /**
  * Determines whether two values are equivalent by encoding them and comparing

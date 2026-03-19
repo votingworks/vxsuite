@@ -30,20 +30,20 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
-import { Importer } from './importer';
-import { Workspace } from './util/workspace';
-import { MachineConfig, ScanStatus } from './types';
-import { getMachineConfig } from './machine_config';
-import { constructAuthMachineState } from './util/auth';
+import { Importer } from './importer.js';
+import { Workspace } from './util/workspace.js';
+import { MachineConfig, ScanStatus } from './types.js';
+import { getMachineConfig } from './machine_config.js';
+import { constructAuthMachineState } from './util/auth.js';
 import {
   logBatchStartFailure,
   logBatchStartSuccess,
   logScanBatchContinueFailure,
   logScanBatchContinueSuccess,
-} from './util/logging';
-import { saveReadinessReport } from './readiness_report';
-import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
-import { BatchScanner } from './fujitsu_scanner';
+} from './util/logging.js';
+import { saveReadinessReport } from './readiness_report.js';
+import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic.js';
+import { BatchScanner } from './fujitsu_scanner.js';
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;

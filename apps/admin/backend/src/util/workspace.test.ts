@@ -1,9 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace, createClientWorkspace } from './workspace';
-import { Store } from '../store';
-import { ClientStore } from '../client_store';
+import { createWorkspace, createClientWorkspace } from './workspace.js';
+import { Store } from '../store.js';
+import { ClientStore } from '../client_store.js';
 
 vi.mock(
   import('@votingworks/backend'),

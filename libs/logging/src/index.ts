@@ -1,9 +1,9 @@
 /* istanbul ignore file - @preserve */
-export * from './base_types';
-export * from './export';
-export * from './helpers';
-export * from './log_event_enums';
-export * from './test_utils';
-export * from './types';
-export * from './base_logger';
-export * from './logger';
+export * from './base_types.js';
+export * from './export.js';
+export * from './helpers.js';
+export * from './log_event_enums.js';
+export * from './test_utils.js';
+export * from './types.js';
+export * from './base_logger.js';
+export * from './logger.js';

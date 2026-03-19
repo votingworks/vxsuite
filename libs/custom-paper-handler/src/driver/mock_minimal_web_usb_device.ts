@@ -1,4 +1,4 @@
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
+import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 
 export function mockMinimalWebUsbDevice(): MinimalWebUsbDevice {
   return {

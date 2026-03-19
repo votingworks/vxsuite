@@ -10,9 +10,9 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen, within } from '../../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library.js';
 
-import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
+import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

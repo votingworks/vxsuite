@@ -18,7 +18,7 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 import { generateBallotStyles } from '@votingworks/hmpb';
-import { generateId } from '../src/utils';
+import { generateId } from '../src/utils.js';
 
 function splitCandidateName(candidate: Candidate): Candidate {
   if (!candidate.firstName) {

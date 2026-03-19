@@ -1,7 +1,7 @@
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { expect, test, vi } from 'vitest';
-import * as addon from './addon';
-import { interpret } from './interpret';
+import * as addon from './addon.js';
+import { interpret } from './interpret.js';
 
 const { electionDefinition } = vxFamousNamesFixtures;
 

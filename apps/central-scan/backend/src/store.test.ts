@@ -26,8 +26,8 @@ import {
 } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
-import { zeroRect } from '../test/fixtures/zero_rect';
-import { Store } from './store';
+import { zeroRect } from '../test/fixtures/zero_rect.js';
+import { Store } from './store.js';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({

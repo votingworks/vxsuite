@@ -1,4 +1,4 @@
-import { execFile } from './exec';
+import { execFile } from './exec.js';
 
 /**
  * Convert a PDF file to text.

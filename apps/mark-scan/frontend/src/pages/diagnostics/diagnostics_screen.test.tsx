@@ -17,17 +17,17 @@ import {
   render,
   screen,
   within,
-} from '../../../test/react_testing_library';
+} from '../../../test/react_testing_library.js';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
-} from './diagnostics_screen';
+} from './diagnostics_screen.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../../test/helpers/mock_api_client';
-import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen';
+} from '../../../test/helpers/mock_api_client.js';
+import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

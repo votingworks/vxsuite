@@ -11,7 +11,7 @@ import {
   PrecinctSplit,
   PrecinctWithoutSplits,
   PrecinctWithSplits,
-} from './election';
+} from './election.js';
 import {
   pollingPlaceBallotStyles,
   pollingPlaceContests,
@@ -21,7 +21,7 @@ import {
   pollingPlaceMembers,
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
-} from './polling_places';
+} from './polling_places.js';
 
 test('pollingPlaceBallotStyles', () => {
   const precinct1 = mockPrecinctNoSplits({ id: 'p1' });

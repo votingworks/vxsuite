@@ -12,13 +12,13 @@ import {
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   ATTRIBUTE_COLUMNS,
   BallotCountReport,
   FILLER_COLUMNS,
-} from './ballot_count_report';
-import { mockScannerBatches } from '../../test/fixtures';
+} from './ballot_count_report.js';
+import { mockScannerBatches } from '../../test/fixtures.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

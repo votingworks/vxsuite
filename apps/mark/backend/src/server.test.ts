@@ -16,12 +16,12 @@ import {
   setDefaultAudio,
 } from '@votingworks/backend';
 import { err, ok } from '@votingworks/basics';
-import { start } from './server';
-import { createWorkspace, Workspace } from './util/workspace';
-import { buildApp } from './app';
-import { NODE_ENV } from './globals';
-import { Player as AudioPlayer } from './audio/player';
-import { buildMockLogger } from '../test/app_helpers';
+import { start } from './server.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { buildApp } from './app.js';
+import { NODE_ENV } from './globals.js';
+import { Player as AudioPlayer } from './audio/player.js';
+import { buildMockLogger } from '../test/app_helpers.js';
 
 vi.mock('./app');
 vi.mock('./audio/player');

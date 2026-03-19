@@ -1,5 +1,5 @@
 import { isAbsolute, join } from 'node:path';
-import { PnpmPackageInfo } from './types';
+import { PnpmPackageInfo } from './types.js';
 
 /**
  * Gets all dependencies from a package.json file.

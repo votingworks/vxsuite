@@ -7,7 +7,7 @@ import {
   SystemLimitViolation,
 } from '@votingworks/types';
 
-import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
+import { validateElectionDefinitionAgainstSystemLimits } from './system_limits.js';
 
 test.each<{
   systemLimits: SystemLimits;

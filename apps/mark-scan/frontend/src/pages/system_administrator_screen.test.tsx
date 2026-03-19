@@ -2,17 +2,17 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { formatElectionHashes } from '@votingworks/types';
-import { screen, waitFor } from '../../test/react_testing_library';
-import { electionDefinition, election } from '../../test/helpers/election';
+import { screen, waitFor } from '../../test/react_testing_library.js';
+import { electionDefinition, election } from '../../test/helpers/election.js';
 
-import { render } from '../../test/test_utils';
-import { SystemAdministratorScreen } from './system_administrator_screen';
+import { render } from '../../test/test_utils.js';
+import { SystemAdministratorScreen } from './system_administrator_screen.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
-import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
+} from '../../test/helpers/mock_api_client.js';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 
 let apiMock: ApiMock;
 

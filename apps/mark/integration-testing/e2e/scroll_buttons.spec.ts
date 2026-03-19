@@ -17,7 +17,7 @@ import {
   mockElectionManagerCardInsertion,
   mockPollWorkerCardInsertion,
 } from '@votingworks/auth';
-import { enterPin, findMoreButtons, forceReset } from './helpers';
+import { enterPin, findMoreButtons, forceReset } from './helpers.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

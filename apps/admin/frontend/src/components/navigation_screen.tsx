@@ -25,10 +25,10 @@ import type { MachineMode } from '@votingworks/admin-backend';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { throwIllegalValue, assert } from '@votingworks/basics';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
-import { routerPaths } from '../router_paths';
-import { sharedEjectUsbDrive, sharedLogOut } from '../shared_api';
-import { NavItem, Sidebar } from './sidebar';
+import { AppContext } from '../contexts/app_context.js';
+import { routerPaths } from '../router_paths.js';
+import { sharedEjectUsbDrive, sharedLogOut } from '../shared_api.js';
+import { NavItem, Sidebar } from './sidebar.js';
 
 interface Props {
   children: React.ReactNode;

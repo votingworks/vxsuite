@@ -54,8 +54,8 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { BaseLogger } from '@votingworks/logging';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
-import { normalizeAndJoin } from './util/path';
+import { sheetRequiresAdjudication } from './sheet_requires_adjudication.js';
+import { normalizeAndJoin } from './util/path.js';
 
 const debug = makeDebug('scan:store');
 

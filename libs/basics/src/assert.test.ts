@@ -5,7 +5,7 @@ import {
   fail,
   throwIllegalValue,
   assertFalsy,
-} from './assert';
+} from './assert.js';
 
 test('assert', () => {
   assert(true);

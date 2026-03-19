@@ -9,11 +9,11 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { BallotStyleId, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { screen, waitFor } from '../../test/react_testing_library';
-import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
-import { render } from '../../test/test_utils';
-import { StartScreen } from './start_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { screen, waitFor } from '../../test/react_testing_library.js';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
+import { render } from '../../test/test_utils.js';
+import { StartScreen } from './start_screen.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 beforeEach(() => {

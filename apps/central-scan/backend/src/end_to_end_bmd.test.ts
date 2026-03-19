@@ -13,10 +13,10 @@ import {
 } from '@votingworks/utils';
 import * as fsExtra from 'fs-extra';
 import { expect, test, vi } from 'vitest';
-import { mockElectionManagerAuth } from '../test/helpers/auth';
-import { generateBmdBallotFixture } from '../test/helpers/ballots';
-import { withApp } from '../test/helpers/setup_app';
-import { ScannedSheetInfo } from './fujitsu_scanner';
+import { mockElectionManagerAuth } from '../test/helpers/auth.js';
+import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
+import { withApp } from '../test/helpers/setup_app.js';
+import { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 // we need more time for ballot interpretation
 vi.setConfig({

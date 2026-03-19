@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { makeTemporaryFile, makeTemporaryPath } from '@votingworks/fixtures';
 import fc from 'fast-check';
-import { ReadFileError, readFile } from './read_file';
+import { ReadFileError, readFile } from './read_file.js';
 
 test('file open error', async () => {
   const path = makeTemporaryPath();

@@ -12,12 +12,12 @@ import {
   provideApi,
   user,
   organizationUser,
-} from '../test/api_helpers';
-import { CreateElectionButton } from './create_election_button';
-import { routes } from './routes';
-import { screen, render, waitFor, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { makeIdFactory } from '../test/id_helpers';
+} from '../test/api_helpers.js';
+import { CreateElectionButton } from './create_election_button.js';
+import { routes } from './routes.js';
+import { screen, render, waitFor, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { makeIdFactory } from '../test/id_helpers.js';
 
 const idFactory = makeIdFactory();
 

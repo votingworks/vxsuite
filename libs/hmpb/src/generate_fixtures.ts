@@ -6,7 +6,7 @@ import { dirname } from 'node:path';
 import {
   AllBubbleBallotFixtures,
   allBubbleBallotFixtures,
-} from './all_bubble_ballot_fixtures';
+} from './all_bubble_ballot_fixtures.js';
 import {
   calibrationSheetFixtures,
   msGeneralElectionFixtures,
@@ -15,10 +15,10 @@ import {
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
-} from './ballot_fixtures';
-import { createPlaywrightRendererPool } from './playwright_renderer';
-import { Renderer, RendererPool } from './renderer';
-import { TimingMarkPaperType } from './timing_mark_paper/template';
+} from './ballot_fixtures.js';
+import { createPlaywrightRendererPool } from './playwright_renderer.js';
+import { Renderer, RendererPool } from './renderer.js';
+import { TimingMarkPaperType } from './timing_mark_paper/template.js';
 
 async function generateAllBubbleBallotFixtures(
   fixtures: AllBubbleBallotFixtures,

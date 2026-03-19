@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { Icons } from './icons';
+import { Icons } from './icons.js';
 
 export interface CheckboxProps {
   checked?: boolean;

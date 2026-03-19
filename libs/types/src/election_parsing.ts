@@ -7,10 +7,10 @@ import {
 } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
-import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
-import * as Cdf from './cdf/ballot-definition';
-import { Election, ElectionDefinition, ElectionSchema } from './election';
-import { safeParse, safeParseJson } from './generic';
+import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
+import * as Cdf from './cdf/ballot-definition/index.js';
+import { Election, ElectionDefinition, ElectionSchema } from './election.js';
+import { safeParse, safeParseJson } from './generic.js';
 
 /**
  * Parse the date field of an Election object from a string to a

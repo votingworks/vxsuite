@@ -4,13 +4,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ok } from '@votingworks/basics';
 import { BallotDefinitionSchema } from '.';
-import { mockWritable } from '../../../test/helpers/mock_writable';
-import { testCdfBallotDefinition } from './fixtures';
+import { mockWritable } from '../../../test/helpers/mock_writable.js';
+import { testCdfBallotDefinition } from './fixtures.js';
 import {
   findUnusedDefinitions,
   isSubsetCdfSchema,
   validateSchema,
-} from '../../../test/cdf_schema_utils';
+} from '../../../test/cdf_schema_utils.js';
 
 const nistXsd = readFileSync(
   join(import.meta.dirname, '../../../data/cdf/ballot-definition/nist-schema.xsd'),

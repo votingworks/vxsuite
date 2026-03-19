@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAudioContext } from './audio_context';
+import { useAudioContext } from './audio_context.js';
 
 const Container = styled.div`
   /* stylelint-disable no-empty-source */

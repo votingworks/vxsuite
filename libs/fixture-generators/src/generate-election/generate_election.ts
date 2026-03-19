@@ -18,8 +18,8 @@ import {
   PrecinctWithoutSplits,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
-import { defaultConfig, GenerateElectionConfig } from './config';
-import { ballotMeasureText, seal, words } from './source_text';
+import { defaultConfig, GenerateElectionConfig } from './config.js';
+import { ballotMeasureText, seal, words } from './source_text.js';
 
 const generateId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 

@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
-import { FileInputButton } from './file_input_button';
+import { render, screen } from '../test/react_testing_library.js';
+import { FileInputButton } from './file_input_button.js';
 
 const mockFile = new File(['mock contents'], 'mock-file.txt', {
   type: 'text/plain',

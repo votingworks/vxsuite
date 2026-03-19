@@ -14,9 +14,9 @@ import {
   configureMachine,
   expectUsbDriveSync,
   mockElectionManagerAuth,
-} from '../test/app';
-import { mockFileName, parseCsv } from '../test/csv';
-import { Api } from './app';
+} from '../test/app.js';
+import { mockFileName, parseCsv } from '../test/csv.js';
+import { Api } from './app.js';
 
 // enable us to use modified fixtures that don't pass authentication
 const featureFlagMock = getFeatureFlagMock();

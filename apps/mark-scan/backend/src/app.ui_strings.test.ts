@@ -17,11 +17,11 @@ import {
 } from '@votingworks/utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Store } from './store';
-import { createWorkspace, Workspace } from './util/workspace';
-import { Api, buildApi } from './app';
-import { buildMockLogger } from '../test/app_helpers';
-import { mockElectionManagerAuth } from '../test/auth_helpers';
+import { Store } from './store.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { Api, buildApi } from './app.js';
+import { buildMockLogger } from '../test/app_helpers.js';
+import { mockElectionManagerAuth } from '../test/auth_helpers.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

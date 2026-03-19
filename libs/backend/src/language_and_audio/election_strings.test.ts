@@ -5,9 +5,9 @@ import {
 } from '@votingworks/fixtures';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { extractAndTranslateElectionStrings } from './election_strings';
-import { GoogleCloudTranslator } from './translator';
-import { makeMockGoogleCloudTranslationClient } from './test_utils';
+import { extractAndTranslateElectionStrings } from './election_strings.js';
+import { GoogleCloudTranslator } from './translator.js';
+import { makeMockGoogleCloudTranslationClient } from './test_utils.js';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },

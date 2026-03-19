@@ -6,12 +6,12 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { detectUsbDrive } from './usb_drive';
-import { UsbDiskDeviceInfo } from './block_devices';
+import { detectUsbDrive } from './usb_drive.js';
+import { UsbDiskDeviceInfo } from './block_devices.js';
 import {
   MOCK_USB_DRIVE_DIR,
   MOCK_USB_DRIVE_STATE_FILENAME,
-} from './mocks/file_usb_drive';
+} from './mocks/file_usb_drive.js';
 
 const featureFlagMock = getFeatureFlagMock();
 

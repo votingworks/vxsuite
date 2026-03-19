@@ -1,11 +1,11 @@
 import { throwIllegalValue } from '@votingworks/basics';
 import { relative } from 'node:path';
-import { IO } from '../types';
-import { validateMonorepo, ValidationIssue } from './validation';
-import * as cargo from './validation/cargo';
-import * as circleci from './validation/circleci';
-import * as pkgs from './validation/packages';
-import * as tsconfig from './validation/tsconfig';
+import { IO } from '../types.js';
+import { validateMonorepo, ValidationIssue } from './validation/index.js';
+import * as cargo from './validation/cargo.js';
+import * as circleci from './validation/circleci.js';
+import * as pkgs from './validation/packages.js';
+import * as tsconfig from './validation/tsconfig.js';
 
 /**
  * Validate the monorepo build configuration, printing any issues found.

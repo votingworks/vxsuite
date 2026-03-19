@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render } from '../test/react_testing_library';
+import { render } from '../test/react_testing_library.js';
 
-import { ProgressEllipsis } from './progress_ellipsis';
+import { ProgressEllipsis } from './progress_ellipsis.js';
 
 test('renders ProgressEllipsis', () => {
   const { container } = render(<ProgressEllipsis />);

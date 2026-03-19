@@ -15,21 +15,21 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { buildApp } from './app';
-import { Workspace } from './util/workspace';
-import { getDefaultAuth, getUserRole } from './util/auth';
-import { BarcodeClient } from './barcodes';
-import { MockBarcodeClient } from './barcodes/mock_client';
+import { buildApp } from './app.js';
+import { Workspace } from './util/workspace.js';
+import { getDefaultAuth, getUserRole } from './util/auth.js';
+import { BarcodeClient } from './barcodes/index.js';
+import { MockBarcodeClient } from './barcodes/mock_client.js';
 import {
   getMockPatInputConnected,
   setMockPatInputConnected,
-} from './util/mock_pat_input';
-import { NODE_ENV } from './globals';
-import { Player as AudioPlayer } from './audio/player';
+} from './util/mock_pat_input.js';
+import { NODE_ENV } from './globals.js';
+import { Player as AudioPlayer } from './audio/player.js';
 import {
   getMockAccessibleControllerConnected,
   setMockAccessibleControllerConnected,
-} from './util/mock_accessible_controller';
+} from './util/mock_accessible_controller.js';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;

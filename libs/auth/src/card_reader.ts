@@ -11,7 +11,7 @@ import {
   MAX_APDU_LENGTH,
   ResponseApduError,
   STATUS_WORD,
-} from './apdu';
+} from './apdu.js';
 
 /**
  * A PCSC Lite instance

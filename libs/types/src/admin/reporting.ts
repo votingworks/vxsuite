@@ -1,5 +1,5 @@
-import { ContestId } from '../election';
-import * as Tabulation from '../tabulation';
+import { ContestId } from '../election.js';
+import * as Tabulation from '../tabulation.js';
 
 export const ADJUDICATION_FLAGS = [
   'isBlank',

@@ -13,11 +13,11 @@ import {
 import type { FileSystemEntry } from '@votingworks/fs';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { systemLimitViolationToString } from '@votingworks/utils';
-import { Loading } from '../components/loading';
-import { NavigationScreen } from '../components/navigation_screen';
-import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
-import { AppContext } from '../contexts/app_context';
-import { NODE_ENV, TIME_FORMAT } from '../config/globals';
+import { Loading } from '../components/loading.js';
+import { NavigationScreen } from '../components/navigation_screen.js';
+import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api.js';
+import { AppContext } from '../contexts/app_context.js';
+import { NODE_ENV, TIME_FORMAT } from '../config/globals.js';
 
 const ButtonRow = styled.tr`
   cursor: pointer;

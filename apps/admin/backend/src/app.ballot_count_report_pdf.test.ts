@@ -20,11 +20,11 @@ import {
   configureMachine,
   expectUsbDriveSync,
   mockElectionManagerAuth,
-} from '../test/app';
-import { Api } from './app';
-import { BallotCountReportSpec } from './reports/ballot_count_report';
-import { mockFileName } from '../test/csv';
-import { generateReportPath } from './util/filenames';
+} from '../test/app.js';
+import { Api } from './app.js';
+import { BallotCountReportSpec } from './reports/ballot_count_report.js';
+import { mockFileName } from '../test/csv.js';
+import { generateReportPath } from './util/filenames.js';
 
 vi.setConfig({
   testTimeout: 60_000,

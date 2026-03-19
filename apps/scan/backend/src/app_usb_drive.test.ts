@@ -4,8 +4,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
-import { configureApp } from '../test/helpers/shared_helpers';
+import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
+import { configureApp } from '../test/helpers/shared_helpers.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

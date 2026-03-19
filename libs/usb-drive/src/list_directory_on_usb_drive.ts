@@ -6,7 +6,7 @@ import {
   listDirectory,
 } from '@votingworks/fs';
 import { join } from 'node:path';
-import { UsbDrive } from './types';
+import { UsbDrive } from './types.js';
 
 /**
  * Expected errors that can occur when trying to list directories on a USB drive.

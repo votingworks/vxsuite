@@ -16,14 +16,14 @@ import {
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { Workspace, createWorkspace } from '../../src/util/workspace';
-import { MockScanner, makeMockScanner } from '../util/mocks';
-import { Importer } from '../../src/importer';
-import { Api } from '../../src';
-import { buildCentralScannerApp } from '../../src/app';
-import { start } from '../../src/server';
-import { Store } from '../../src/store';
-import { getUserRole } from '../../src/util/auth';
+import { Workspace, createWorkspace } from '../../src/util/workspace.js';
+import { MockScanner, makeMockScanner } from '../util/mocks.js';
+import { Importer } from '../../src/importer.js';
+import { Api } from '../../src/index.js';
+import { buildCentralScannerApp } from '../../src/app.js';
+import { start } from '../../src/server.js';
+import { Store } from '../../src/store.js';
+import { getUserRole } from '../../src/util/auth.js';
 
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,

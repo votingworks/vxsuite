@@ -14,8 +14,8 @@ import {
   opensslKeyParams,
   TpmKey,
   TpmKeySchema,
-} from './keys';
-import { runCommand } from './shell';
+} from './keys.js';
+import { runCommand } from './shell.js';
 
 /**
  * The static header for a public key in DER format

@@ -8,8 +8,8 @@ import {
   TtsEdit,
   TtsEditKey,
 } from '@votingworks/types';
-import * as ttsStrings from './tts_strings';
-import { ElectionRecord, Store } from './store';
+import * as ttsStrings from './tts_strings.js';
+import { ElectionRecord, Store } from './store.js';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {

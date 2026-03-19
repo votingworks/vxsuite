@@ -19,19 +19,19 @@ import {
 import { parseCastVoteRecordReportExportDirectoryName } from '@votingworks/utils';
 
 import CombinedStream from 'combined-stream';
-import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes';
-import { MachineCustomCertFields, parseCert } from './certs';
+import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes.js';
+import { MachineCustomCertFields, parseCert } from './certs.js';
 import {
   ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
-} from './config';
+} from './config.js';
 import {
   extractPublicKeyFromCert,
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './cryptography';
-import { constructPrefixedMessage } from './signatures';
+} from './cryptography.js';
+import { constructPrefixedMessage } from './signatures.js';
 
 /**
  * The file extension for VotingWorks signature files

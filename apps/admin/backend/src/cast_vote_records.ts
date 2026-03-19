@@ -44,7 +44,7 @@ import {
 
 import { MarkScores } from '@votingworks/types/src/tabulation';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { Store } from './store';
+import { Store } from './store.js';
 import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
@@ -52,7 +52,7 @@ import {
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
-} from './types';
+} from './types.js';
 import {
   CvrContestTagList,
   formatMarkScoreDistributionForLog,
@@ -60,7 +60,7 @@ import {
   getNumberVotesAllowed,
   MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
-} from './util/cast_vote_records';
+} from './util/cast_vote_records.js';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond

@@ -15,8 +15,8 @@ import {
   hasTextAcrossElements,
   TestLanguageCode,
 } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
-import { BallotStyleReadinessReport } from './ballot_style_readiness_report';
+import { render, screen } from '../../test/react_testing_library.js';
+import { BallotStyleReadinessReport } from './ballot_style_readiness_report.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

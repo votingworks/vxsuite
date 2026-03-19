@@ -1,10 +1,10 @@
-import { asBoolean } from './as_boolean';
+import { asBoolean } from './as_boolean.js';
 import {
   BooleanEnvironmentVariableName,
   getEnvironmentVariable,
   getBooleanEnvVarConfig,
   isIntegrationTest,
-} from './environment_variable';
+} from './environment_variable.js';
 
 export function isVxDev(): boolean {
   return asBoolean(process.env.REACT_APP_VX_DEV);

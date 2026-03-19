@@ -33,11 +33,11 @@ import {
   setPrecinctSelection,
   setTestMode,
   useApiClient,
-} from '../api';
-import * as api from '../api';
-import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
-import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
-import { DiagnosticsScreen } from './diagnostics_screen';
+} from '../api.js';
+import * as api from '../api.js';
+import { BubbleMarkCalibration } from '../components/bubble_mark_calibration.js';
+import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal.js';
+import { DiagnosticsScreen } from './diagnostics_screen.js';
 
 const Section = styled.div`
   &:not(:last-child) {

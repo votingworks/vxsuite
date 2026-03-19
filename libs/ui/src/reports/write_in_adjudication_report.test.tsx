@@ -5,8 +5,8 @@ import {
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatElectionHashes } from '@votingworks/types';
-import { render, screen, within } from '../../test/react_testing_library';
-import { WriteInAdjudicationReport } from './write_in_adjudication_report';
+import { render, screen, within } from '../../test/react_testing_library.js';
+import { WriteInAdjudicationReport } from './write_in_adjudication_report.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

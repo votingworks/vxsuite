@@ -1,4 +1,4 @@
-import { LabeledScannerBatch } from '../src/reports/utils';
+import { LabeledScannerBatch } from '../src/reports/utils.js';
 
 export const mockScannerBatches: LabeledScannerBatch[] = [
   {

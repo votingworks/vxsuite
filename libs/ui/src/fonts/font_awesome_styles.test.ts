@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { generateFontAwesomeStyles } from './generate_font_awesome_styles';
-import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './font_awesome_class_names';
+import { generateFontAwesomeStyles } from './generate_font_awesome_styles.js';
+import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './font_awesome_class_names.js';
 
 test('font_awesome_styles.ts is up to date (if not, run generate-font-awesome-styles)', () => {
   const actual = readFileSync(

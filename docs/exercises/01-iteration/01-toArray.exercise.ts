@@ -6,8 +6,8 @@
 // Hint: look at the function signature for `iter` in @votingworks/basics.
 
 import { iter } from '@votingworks/basics';
-import { run } from '../src/example';
-import { TODO } from '../src/todo';
+import { run } from '../src/example.js';
+import { TODO } from '../src/todo.js';
 
 function collect<T>(iterable: Iterable<T>): T[] {
   TODO();

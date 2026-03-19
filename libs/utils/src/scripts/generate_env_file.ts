@@ -5,7 +5,7 @@ import yargs from 'yargs';
 import {
   BooleanEnvironmentVariableName,
   getBooleanEnvVarConfig,
-} from '../environment_variable';
+} from '../environment_variable.js';
 
 const rl = readline.createInterface({
   input: process.stdin,

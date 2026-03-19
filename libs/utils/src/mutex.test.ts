@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { Mutex } from './mutex';
+import { Mutex } from './mutex.js';
 
 test('sync lock flow', () => {
   const mutex = new Mutex();

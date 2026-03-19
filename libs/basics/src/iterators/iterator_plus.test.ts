@@ -1,9 +1,9 @@
 import * as fc from 'fast-check';
 import { expect, expectTypeOf, test, vi } from 'vitest';
-import { integers } from './integers';
-import { iter } from './iter';
-import { naturals } from './naturals';
-import { IteratorPlus } from './types';
+import { integers } from './integers.js';
+import { iter } from './iter.js';
+import { naturals } from './naturals.js';
+import { IteratorPlus } from './types.js';
 
 test('map', () => {
   expect(iter([]).map(Boolean).toArray()).toEqual([]);

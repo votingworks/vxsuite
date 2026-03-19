@@ -12,7 +12,7 @@ import {
   getElectionRecord,
   getMachineConfig,
   getPrecinctSelection,
-} from '../api';
+} from '../api.js';
 
 const LockedImage = styled.img`
   margin-right: auto;

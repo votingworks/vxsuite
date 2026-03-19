@@ -1,7 +1,7 @@
 import { test, vi } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { Button } from '../button';
-import { ScanAudioSection } from './scan_audio_section';
+import { render, screen } from '../../test/react_testing_library.js';
+import { Button } from '../button.js';
+import { ScanAudioSection } from './scan_audio_section.js';
 
 test('renders successful diagnostic results', () => {
   render(

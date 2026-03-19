@@ -4,19 +4,19 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { Keybinding, simulateKeyPress } from '@votingworks/ui';
 import { BallotStyleId } from '@votingworks/types';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library.js';
 
-import { App } from '../app';
-import { advanceTimersAndPromises } from '../../test/helpers/timers';
+import { App } from '../app.js';
+import { advanceTimersAndPromises } from '../../test/helpers/timers.js';
 
 import {
   contest0,
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
-} from '../../test/helpers/election';
+} from '../../test/helpers/election.js';
 
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

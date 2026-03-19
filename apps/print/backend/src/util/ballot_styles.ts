@@ -18,7 +18,7 @@ import {
   getBallotStyleGroupsForPrecinctOrSplit,
   getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
-import type { BallotPrintCountRow } from '../store';
+import type { BallotPrintCountRow } from '../store.js';
 
 interface FindBallotStyleArgs {
   precinctId: PrecinctId;

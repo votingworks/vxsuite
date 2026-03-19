@@ -4,7 +4,7 @@ import {
   InsertCardImage,
   RemoveCardImage,
   RotateCardImage,
-} from './smart_card_images';
+} from './smart_card_images.js';
 
 function SmartCardImages(props: SmartCardImageProps): JSX.Element {
   return (

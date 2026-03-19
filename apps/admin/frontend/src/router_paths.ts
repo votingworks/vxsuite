@@ -2,7 +2,7 @@ import {
   ContestAdjudicationScreenParams,
   ManualTallyFormContestParams,
   ManualTallyFormParams,
-} from './config/types';
+} from './config/types.js';
 
 export const routerPaths = {
   root: '/',

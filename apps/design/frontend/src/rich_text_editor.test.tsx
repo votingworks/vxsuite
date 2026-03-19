@@ -1,11 +1,11 @@
 import { expect, test, vi, describe } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   RichTextEditor,
   sanitizeTrailingNbspOnPaste,
-} from './rich_text_editor';
+} from './rich_text_editor.js';
 
 // We mostly test that the buttons in the toolbar work as expected and that
 // `onChange` works. We rely on tiptap working correctly for the actual text

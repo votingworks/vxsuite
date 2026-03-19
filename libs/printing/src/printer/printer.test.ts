@@ -8,9 +8,9 @@ import {
 } from '@votingworks/utils';
 import { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
-import { detectPrinter } from './printer';
+import { detectPrinter } from './printer.js';
 import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
-import { MockFilePrinter } from './mocks/file_printer';
+import { MockFilePrinter } from './mocks/file_printer.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -22,7 +22,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 const mockConfigurePrinter = mockFunction('configurePrinter');
 vi.mock(
   import('./configure.js'),
-  async (importActual): Promise<typeof import('./configure')> => ({
+  async (importActual): Promise<typeof import('./configure.js')> => ({
     ...(await importActual()),
     configurePrinter: (args) => mockConfigurePrinter(args),
   })
@@ -31,7 +31,7 @@ vi.mock(
 const mockGetConnectedDeviceUris = mockFunction('getConnectedDeviceUris');
 vi.mock(
   import('./device_uri.js'),
-  async (importActual): Promise<typeof import('./device_uri')> => ({
+  async (importActual): Promise<typeof import('./device_uri.js')> => ({
     ...(await importActual()),
     getConnectedDeviceUris: () => mockGetConnectedDeviceUris(),
   })
@@ -47,7 +47,7 @@ const isDeviceAttachedMock = vi.mocked(isDeviceAttached);
 const mockGetPrinterRichStatus = mockFunction('mockGetPrinterRichStatus');
 vi.mock(
   import('./status.js'),
-  async (importActual): Promise<typeof import('./status')> => ({
+  async (importActual): Promise<typeof import('./status.js')> => ({
     ...(await importActual()),
     getPrinterRichStatus: () => mockGetPrinterRichStatus(),
   })
@@ -56,7 +56,7 @@ vi.mock(
 const mockPrintData = mockFunction('mockPrintData');
 vi.mock(
   import('./print.js'),
-  async (importActual): Promise<typeof import('./print')> => ({
+  async (importActual): Promise<typeof import('./print.js')> => ({
     ...(await importActual()),
     print: () => mockPrintData(),
   })

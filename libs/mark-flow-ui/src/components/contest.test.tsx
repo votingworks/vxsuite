@@ -7,13 +7,13 @@ import userEvent from '@testing-library/user-event';
 import { assert, find } from '@votingworks/basics';
 import { CandidateContest, VotesDict, YesNoContest } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen, within } from '../../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library.js';
 
-import { Contest } from './contest';
+import { Contest } from './contest.js';
 import {
   MsEitherNeitherContest,
   mergeMsEitherNeitherContests,
-} from '../utils/ms_either_neither_contests';
+} from '../utils/ms_either_neither_contests.js';
 
 const electionGeneral = readElectionGeneral();
 const electionWithMsEitherNeither = readElectionWithMsEitherNeither();

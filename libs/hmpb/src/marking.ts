@@ -28,9 +28,9 @@ import {
   pageMarginsInches,
   TIMING_MARK_DIMENSIONS,
   timingMarkCounts,
-} from './ballot_components';
-import { PrintCalibration } from './types';
-import { voteMatchesGridPosition } from './vote_matching';
+} from './ballot_components.js';
+import { PrintCalibration } from './types.js';
+import { voteMatchesGridPosition } from './vote_matching.js';
 
 const robotoBoldTtf = fs.readFileSync(`${import.meta.dirname}/fonts/Roboto-Bold.ttf`);
 

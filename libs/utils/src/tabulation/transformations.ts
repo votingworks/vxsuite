@@ -1,6 +1,6 @@
 import { Tabulation } from '@votingworks/types';
 import { mapObject } from '@votingworks/basics';
-import { getGroupKey, getGroupSpecifierFromGroupKey } from './tabulation';
+import { getGroupKey, getGroupSpecifierFromGroupKey } from './tabulation.js';
 
 export function mergeTabulationGroupMaps<T, U, V>(
   groupedT: Tabulation.GroupMap<T>,

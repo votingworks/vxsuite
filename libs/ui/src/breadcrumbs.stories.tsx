@@ -1,7 +1,7 @@
 import { Meta } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
-import { BreadcrumbsProps, Breadcrumbs as Component } from './breadcrumbs';
-import { H1 } from './typography';
+import { BreadcrumbsProps, Breadcrumbs as Component } from './breadcrumbs.js';
+import { H1 } from './typography.js';
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/Breadcrumbs',

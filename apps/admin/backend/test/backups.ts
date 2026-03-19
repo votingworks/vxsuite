@@ -1,8 +1,8 @@
 import { cpSync, emptyDirSync, ensureDirSync, existsSync } from 'fs-extra';
 import { join } from 'node:path';
 import tmp from 'tmp';
-import { Workspace } from '../src/util/workspace';
-import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
+import { Workspace } from '../src/util/workspace.js';
+import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup.js';
 
 export const WORKSPACE_BACKUPS_DIR = join(import.meta.dirname, '..', 'workspace-backups');
 

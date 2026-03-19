@@ -1,5 +1,5 @@
-import { Uint8Size } from './types';
-import { sizeof } from './utils';
+import { Uint8Size } from './types.js';
+import { sizeof } from './utils.js';
 
 /**
  * Encoding to be used for encoding and decoding text.

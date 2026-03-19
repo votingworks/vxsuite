@@ -7,15 +7,15 @@ import {
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
-import { newTestContext as newUiStringsTestContext } from '../../test/test_context';
-import { AudioOnly } from '../ui_strings/audio_only';
-import { useCurrentLanguage } from '../hooks/use_current_language';
+import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import { newTestContext as newUiStringsTestContext } from '../../test/test_context.js';
+import { AudioOnly } from '../ui_strings/audio_only.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
 import {
   ScanPanelVirtualKeyboard,
   US_ENGLISH_SCAN_PANEL_KEYMAP,
-} from './scan_panel_virtual_keyboard';
-import { ActionKey } from './common';
+} from './scan_panel_virtual_keyboard.js';
+import { ActionKey } from './common.js';
 
 vi.mock(import('../ui_strings/audio_only.js'), async (importActual) => ({
   ...(await importActual()),

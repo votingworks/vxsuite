@@ -6,10 +6,10 @@ import {
 } from '@votingworks/pollbook-backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { screen, within } from '../test/react_testing_library';
-import { ApiMock, createApiMock } from '../test/mock_api_client';
-import { DeviceStatusBar } from './nav_screen';
-import { renderInAppContext } from '../test/render_in_app_context';
+import { screen, within } from '../test/react_testing_library.js';
+import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { DeviceStatusBar } from './nav_screen.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
 
 const electionFamousNames =
   electionFamousNames2021Fixtures.readElectionDefinition();

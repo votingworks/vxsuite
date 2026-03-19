@@ -26,16 +26,16 @@ import {
   getBallotTemplate,
   decryptCvrBallotAuditIds,
   getStateFeatures,
-} from './api';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, routes } from './routes';
-import { downloadFile } from './utils';
-import { Column, InputGroup } from './layout';
-import { useTitle } from './hooks/use_title';
-import { ReorderContestsByDistrictButton } from './reorder_contests_by_district_button';
-import { Downloads } from './downloads';
-import { ProofingStatus } from './proofing_status';
-import { TaskProgress } from './task_progress';
+} from './api.js';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, routes } from './routes.js';
+import { downloadFile } from './utils.js';
+import { Column, InputGroup } from './layout.js';
+import { useTitle } from './hooks/use_title.js';
+import { ReorderContestsByDistrictButton } from './reorder_contests_by_district_button.js';
+import { Downloads } from './downloads.js';
+import { ProofingStatus } from './proofing_status.js';
+import { TaskProgress } from './task_progress.js';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',

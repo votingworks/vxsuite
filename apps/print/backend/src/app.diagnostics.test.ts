@@ -8,7 +8,7 @@ import {
 } from '@votingworks/backend';
 import { DiagnosticRecord } from '@votingworks/types';
 import { DiskSpaceSummary } from '@votingworks/utils';
-import { buildTestEnvironment, mockSystemAdministratorAuth } from '../test/app';
+import { buildTestEnvironment, mockSystemAdministratorAuth } from '../test/app.js';
 
 vi.setConfig({
   testTimeout: 60_000,

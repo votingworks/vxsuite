@@ -1,7 +1,7 @@
 import { assertDefined, find, err, ok, Result } from '@votingworks/basics';
-import { Candidate, CandidateId } from '../../election';
+import { Candidate, CandidateId } from '../../election.js';
 import * as ResultsReporting from '.';
-import * as VxTabulation from '../../tabulation';
+import * as VxTabulation from '../../tabulation.js';
 import {
   BallotMeasureContest,
   CandidateContest,
@@ -13,9 +13,9 @@ import {
   isBallotMeasureContest,
   isCandidateContest,
   isRetentionContest,
-} from './types';
-import { TEMPORARY_WRITE_IN_ID_PREFIX } from '../../admin';
-import { CDF_ERR_VX_ID_PREFIX } from './constants';
+} from './types.js';
+import { TEMPORARY_WRITE_IN_ID_PREFIX } from '../../admin/index.js';
+import { CDF_ERR_VX_ID_PREFIX } from './constants.js';
 
 type CandidateNameRecord = Record<CandidateId, Candidate['name']>;
 

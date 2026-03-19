@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
-import { ResultsReporting } from '../..';
+import { ResultsReporting } from '../../index.js';
 import {
   findBallotMeasureSelectionWithContent,
   findLanguageString,
   convertElectionResultsReportingReportToVxManualResults,
   LanguageStringQueryParams,
-} from './convert';
+} from './convert.js';
 import {
   testElectionReport,
   testElectionReportExportedFromVxAdmin,
@@ -16,8 +16,8 @@ import {
   testElectionReportWriteIns,
   testElectionReportYesNoContest,
   testElectionReportYesNoContestWithoutTextMatch,
-} from './fixtures';
-import { ManualElectionResults } from '../../tabulation';
+} from './fixtures.js';
+import { ManualElectionResults } from '../../tabulation.js';
 import { ElectionReport } from '.';
 
 function makeLanguageString(

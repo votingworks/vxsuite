@@ -18,9 +18,9 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 
-import { UiRichTextString, UiString } from './ui_string';
-import { DateString } from './date_string';
-import { InEnglish } from './language_override';
+import { UiRichTextString, UiString } from './ui_string.js';
+import { DateString } from './date_string.js';
+import { InEnglish } from './language_override.js';
 
 type ContestWithDescription = ContestLike & {
   description: string;

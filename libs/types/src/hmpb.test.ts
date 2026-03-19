@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { asSheet, mapSheet } from './hmpb';
+import { asSheet, mapSheet } from './hmpb.js';
 
 test('mapSheet sync', () => {
   expect(mapSheet([1, 2], (x) => x + 1)).toEqual([2, 3]);

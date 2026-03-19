@@ -1,4 +1,4 @@
-import * as builders from '../builders';
+import * as builders from '../builders.js';
 
 const batchResults = builders.file(
   'data/electionMultiPartyPrimary/csvFiles/batchResults.csv'

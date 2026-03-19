@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import styled, { DefaultTheme, css } from 'styled-components';
 
 import { SizeMode } from '@votingworks/types';
-import { Button, ButtonVariant } from './button';
-import { Checkbox } from './checkbox';
-import { Caption, P } from './typography';
+import { Button, ButtonVariant } from './button.js';
+import { Checkbox } from './checkbox.js';
+import { Caption, P } from './typography.js';
 
 export interface ContestChoiceButtonProps<T> {
   'aria-label'?: string;

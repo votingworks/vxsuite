@@ -26,9 +26,9 @@ import {
 import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
 
-import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
-import { BreadcrumbMetadata, ContestHeader } from './contest_header';
-import { UpdateVoteFunction } from '../config/types';
+import { ContestFooter, ChoicesGrid } from './contest_screen_layout.js';
+import { BreadcrumbMetadata, ContestHeader } from './contest_header.js';
+import { UpdateVoteFunction } from '../config/types.js';
 
 interface Props {
   breadcrumbs?: BreadcrumbMetadata;

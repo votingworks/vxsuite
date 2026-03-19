@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { asBoolean } from './as_boolean';
+import { asBoolean } from './as_boolean.js';
 
 test('truthy values', () => {
   expect(asBoolean('true')).toEqual(true);

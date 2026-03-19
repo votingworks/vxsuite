@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
-import { ProgressBar } from './progress_bar';
+import { render, screen } from '../test/react_testing_library.js';
+import { ProgressBar } from './progress_bar.js';
 
 test('0 progress', () => {
   render(<ProgressBar progress={0} />);

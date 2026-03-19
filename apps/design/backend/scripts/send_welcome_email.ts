@@ -1,6 +1,6 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { Auth0Client } from '../src/auth0_client';
+import { Auth0Client } from '../src/auth0_client.js';
 
 const USAGE = `Usage: pnpm send-welcome-email <email address>`;
 

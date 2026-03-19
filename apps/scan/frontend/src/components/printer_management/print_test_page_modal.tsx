@@ -1,7 +1,7 @@
 import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React from 'react';
-import { logTestPrintOutcome, printTestPage } from '../../api';
+import { logTestPrintOutcome, printTestPage } from '../../api.js';
 
 export interface PrintTestPageModalProps {
   printTestPageMutation: ReturnType<typeof printTestPage.useMutation>;

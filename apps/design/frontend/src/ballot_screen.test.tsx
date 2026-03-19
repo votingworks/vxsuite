@@ -11,15 +11,15 @@ import {
   createMockApiClient,
   jurisdiction,
   provideApi,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   electionInfoFromElection,
   generalElectionRecord,
-} from '../test/fixtures';
-import { render, screen } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { BallotScreen } from './ballot_screen';
+} from '../test/fixtures.js';
+import { render, screen } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { BallotScreen } from './ballot_screen.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;

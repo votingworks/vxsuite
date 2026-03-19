@@ -4,8 +4,8 @@ import { useHistory } from 'react-router-dom';
 import { appStrings, P } from '@votingworks/ui';
 import { InsertedSmartCardAuth, VotesDict } from '@votingworks/types';
 
-import { AskPollWorkerPage } from './ask_poll_worker_page';
-import { RemoveJammedSheetScreen } from './remove_jammed_sheet_screen';
+import { AskPollWorkerPage } from './ask_poll_worker_page.js';
+import { RemoveJammedSheetScreen } from './remove_jammed_sheet_screen.js';
 
 export interface JammedPageProps {
   authStatus:

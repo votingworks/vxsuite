@@ -6,8 +6,8 @@ import {
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 } from '@votingworks/types';
-import { interpret as interpretImpl, JsInterpretOptions } from './addon';
-import { HmpbInterpretResult } from './types';
+import { interpret as interpretImpl, JsInterpretOptions } from './addon.js';
+import { HmpbInterpretResult } from './types.js';
 
 /**
  * Options for interpreting a ballot at the bridge layer.

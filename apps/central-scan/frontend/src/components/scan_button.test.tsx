@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { screen } from '../../test/react_testing_library';
-import { ScanButton } from './scan_button';
-import { ApiMock, createApiMock } from '../../test/api';
-import { renderInAppContext } from '../../test/render_in_app_context';
+import { screen } from '../../test/react_testing_library.js';
+import { ScanButton } from './scan_button.js';
+import { ApiMock, createApiMock } from '../../test/api.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
 
 let apiMock: ApiMock;
 

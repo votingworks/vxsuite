@@ -4,7 +4,7 @@ import { appStrings, Caption, Font, Icons, P } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';
 
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import * as api from '../api';
+import * as api from '../api.js';
 
 export function InsertedWrongTestModeBallotScreen(): React.ReactNode {
   const interpretationQuery = api.getInterpretation.useQuery();

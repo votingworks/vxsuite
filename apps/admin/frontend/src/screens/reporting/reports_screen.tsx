@@ -5,13 +5,13 @@ import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
-import { AppContext } from '../../contexts/app_context';
+import { AppContext } from '../../contexts/app_context.js';
 
-import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
-import { getTotalBallotCount, getCastVoteRecordFileMode } from '../../api';
-import { MarkResultsOfficialButton } from '../../components/mark_official_button';
-import { OfficialResultsCard } from '../../components/official_results_card';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { routerPaths } from '../../router_paths.js';
+import { getTotalBallotCount, getCastVoteRecordFileMode } from '../../api.js';
+import { MarkResultsOfficialButton } from '../../components/mark_official_button.js';
+import { OfficialResultsCard } from '../../components/official_results_card.js';
 
 const Section = styled.section`
   margin-bottom: 2rem;

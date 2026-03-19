@@ -22,12 +22,12 @@ import {
   TestErrorBoundary,
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { render as testRender, RenderResult } from './react_testing_library';
-import { AppContext } from '../src/contexts/app_context';
-import { Iso8601Timestamp } from '../src/config/types';
-import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
-import { ApiMock } from './helpers/mock_api_client';
-import { SharedApiClientContext, systemCallApi } from '../src/shared_api';
+import { render as testRender, RenderResult } from './react_testing_library.js';
+import { AppContext } from '../src/contexts/app_context.js';
+import { Iso8601Timestamp } from '../src/config/types.js';
+import { ApiClient, ApiClientContext, createQueryClient } from '../src/api.js';
+import { ApiMock } from './helpers/mock_api_client.js';
+import { SharedApiClientContext, systemCallApi } from '../src/shared_api.js';
 
 export const eitherNeitherElectionDefinition =
   readElectionWithMsEitherNeitherDefinition();

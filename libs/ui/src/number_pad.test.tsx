@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library.js';
 
-import { NumberPad } from './number_pad';
+import { NumberPad } from './number_pad.js';
 
 test('click all pad buttons', () => {
   const onPress = vi.fn();

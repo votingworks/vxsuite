@@ -38,8 +38,8 @@ import type {
   PrinterStatus,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import { mockPollsInfo } from './mock_polls_info';
-import { ApiProvider } from '../../src/api_provider';
+import { mockPollsInfo } from './mock_polls_info.js';
+import { ApiProvider } from '../../src/api_provider.js';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',

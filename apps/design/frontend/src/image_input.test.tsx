@@ -6,9 +6,9 @@ import {
   render,
   screen,
   waitFor,
-} from '../test/react_testing_library';
-import { ImageInput } from './image_input';
-import { normalizeImageToSvg, NormalizeParams } from './image_normalization';
+} from '../test/react_testing_library.js';
+import { ImageInput } from './image_input.js';
+import { normalizeImageToSvg, NormalizeParams } from './image_normalization.js';
 
 vi.mock('./image_normalization', { spy: true });
 

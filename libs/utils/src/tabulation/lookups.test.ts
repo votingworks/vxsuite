@@ -14,7 +14,7 @@ import {
   getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
   getOptionPosition,
-} from './lookups';
+} from './lookups.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

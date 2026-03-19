@@ -19,15 +19,15 @@ import {
   UsbDriveStatus,
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
-import { getMachineConfig } from './machine_config';
-import { readMachineMode, writeMachineMode } from './machine_mode';
+import { getMachineConfig } from './machine_config.js';
+import { readMachineMode, writeMachineMode } from './machine_mode.js';
 import {
   type MachineMode,
   ClientConnectionStatus,
   ElectionRecord,
-} from './types';
-import { type ClientWorkspace } from './util/workspace';
-import { constructAuthMachineState } from './util/auth';
+} from './types.js';
+import { type ClientWorkspace } from './util/workspace.js';
+import { constructAuthMachineState } from './util/auth.js';
 
 /**
  * Network connection status as returned to the frontend.

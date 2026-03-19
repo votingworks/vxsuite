@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { createMockUsbDrive } from './memory_usb_drive';
+import { createMockUsbDrive } from './memory_usb_drive.js';
 
 test('insert/remove drive', () => {
   const mock = createMockUsbDrive();

@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { CheckInBallotParty, PartyAbbreviation } from '@votingworks/types';
-import { partyAbbreviationToString } from './strings';
+import { partyAbbreviationToString } from './strings.js';
 
 const cases: Array<{
   abbreviation: PartyAbbreviation | CheckInBallotParty;

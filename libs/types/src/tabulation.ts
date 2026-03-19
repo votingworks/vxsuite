@@ -8,8 +8,8 @@ import {
   ContestId,
   ContestOptionId,
   PrecinctId,
-} from './election';
-import { Id } from './generic';
+} from './election.js';
+import { Id } from './generic.js';
 
 export interface ContestResultsMetadata {
   overvotes: number;

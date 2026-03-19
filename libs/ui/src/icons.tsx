@@ -102,9 +102,9 @@ import styled, { useTheme } from 'styled-components';
 
 import { assert } from '@votingworks/basics';
 import { UiTheme } from '@votingworks/types';
-import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
-import { Font, FontProps } from './typography';
-import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './fonts/font_awesome_class_names';
+import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
+import { Font, FontProps } from './typography.js';
+import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './fonts/font_awesome_class_names.js';
 
 export const ICON_COLORS = [
   'neutral',

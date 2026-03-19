@@ -15,14 +15,14 @@ import {
   getFeatureFlagMock,
   getGroupedBallotStyles,
 } from '@votingworks/utils';
-import { screen, within } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library.js';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualTalliesTab,
-} from './manual_tallies_tab';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { mockManualResultsMetadata } from '../../../test/api_mock_data';
+} from './manual_tallies_tab.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { mockManualResultsMetadata } from '../../../test/api_mock_data.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async () => ({

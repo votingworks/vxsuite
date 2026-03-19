@@ -21,9 +21,9 @@ import useInterval from 'use-interval';
 import { iter } from '@votingworks/basics';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
-import { useSoundControls } from '../utils/use_sound';
-import * as api from './api';
-import { useApiClient } from './api';
+import { useSoundControls } from '../utils/use_sound.js';
+import * as api from './api.js';
+import { useApiClient } from './api.js';
 
 const SOUND_INTERVAL_SECONDS = 5;
 

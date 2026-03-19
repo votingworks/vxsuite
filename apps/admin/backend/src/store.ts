@@ -93,10 +93,10 @@ import {
   BaseStore,
   MachineRecord,
   MachineMode,
-} from './types';
-import { rootDebug } from './util/debug';
-import { getCurrentTime } from './get_current_time';
-import { STALE_MACHINE_THRESHOLD_MS } from './globals';
+} from './types.js';
+import { rootDebug } from './util/debug.js';
+import { getCurrentTime } from './get_current_time.js';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 
 const debug = rootDebug.extend('store');
 

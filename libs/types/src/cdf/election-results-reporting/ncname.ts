@@ -1,4 +1,4 @@
-import { CDF_ERR_VX_ID_PREFIX } from './constants';
+import { CDF_ERR_VX_ID_PREFIX } from './constants.js';
 import {
   Candidate,
   CandidateId,
@@ -7,7 +7,7 @@ import {
   Election,
   Party,
   YesNoContest,
-} from '../../election';
+} from '../../election.js';
 
 // Helpers for formatting IDs as xmlschema NCNames.
 

@@ -6,7 +6,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { CastVoteRecordAdjudicationFlags, CvrContestTag } from '../types';
+import { CastVoteRecordAdjudicationFlags, CvrContestTag } from '../types.js';
 
 /**
  * Returns the number of allowed votes for the contest

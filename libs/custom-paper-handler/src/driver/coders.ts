@@ -8,7 +8,7 @@ import {
   uint32,
   uint8,
 } from '@votingworks/message-coder';
-import { START_OF_PACKET, TOKEN } from './constants';
+import { START_OF_PACKET, TOKEN } from './constants.js';
 
 export const INVALID_ARGUMENT_RESPONSE_CODE = 0x12;
 

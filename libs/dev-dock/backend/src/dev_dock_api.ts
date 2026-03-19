@@ -46,7 +46,7 @@ import {
   pdfToImages,
   writeImageData,
 } from '@votingworks/image-utils';
-import { execFile } from './utils';
+import { execFile } from './utils.js';
 
 export interface MockBatchScannerApi {
   addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;

@@ -34,7 +34,7 @@ import { v4 as uuid } from 'uuid';
 import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
-import { Store } from './store';
+import { Store } from './store.js';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({ testTimeout: 20000 });

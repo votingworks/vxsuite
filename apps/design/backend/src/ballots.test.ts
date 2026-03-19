@@ -13,7 +13,7 @@ import { NhBallotProps } from '@votingworks/hmpb';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
-} from './ballots';
+} from './ballots.js';
 
 const election = readElectionGeneral();
 

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { copyFile } from './file';
+import { copyFile } from './file.js';
 
 test('copy file works', async () => {
   const file = new File(['12345'], 'foo.txt');

@@ -1,10 +1,10 @@
 import { vi, expect, beforeEach, afterEach, test } from 'vitest';
 import { Contest } from '@votingworks/types';
-import { ContestList } from './contest_list';
-import { render, screen, within } from '../../../test/react_testing_library';
-import { WarningDetails } from './warning_details';
-import { generateContests } from './test_utils.test';
-import { useLayoutConfig } from './use_layout_config_hook';
+import { ContestList } from './contest_list.js';
+import { render, screen, within } from '../../../test/react_testing_library.js';
+import { WarningDetails } from './warning_details.js';
+import { generateContests } from './test_utils.test.js';
+import { useLayoutConfig } from './use_layout_config_hook.js';
 
 vi.mock('./contest_list', async () => ({
   ...(await vi.importActual('./contest_list')),

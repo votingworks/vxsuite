@@ -30,16 +30,16 @@ import {
   getExportedFile,
   MockFileStorageClient,
   testSetupHelpers,
-} from '../test/helpers';
-import { ALL_PRECINCTS_REPORT_KEY } from './types';
-import { Workspace } from './workspace';
+} from '../test/helpers.js';
+import { ALL_PRECINCTS_REPORT_KEY } from './types.js';
+import { Workspace } from './workspace.js';
 import {
   jurisdictions,
   nonVxJurisdiction,
   nonVxUser,
   organizations,
   users,
-} from '../test/mocks';
+} from '../test/mocks.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

@@ -6,18 +6,18 @@ import {
   election,
   electionTwoPartyPrimary,
   primaryElection,
-} from '../../../test/election';
-import { safeParseElection } from '../../election_parsing';
+} from '../../../test/election.js';
+import { safeParseElection } from '../../election_parsing.js';
 import {
   convertCdfBallotDefinitionToVxfElection,
   convertVxfElectionToCdfBallotDefinition,
   safeParseCdfBallotDefinition,
-} from './convert';
-import { testCdfBallotDefinition, testVxfElection } from './fixtures';
-import { ElectionStringKey, UiStringsPackage, mergeUiStrings } from '../..';
+} from './convert.js';
+import { testCdfBallotDefinition, testVxfElection } from './fixtures.js';
+import { ElectionStringKey, UiStringsPackage, mergeUiStrings } from '../../index.js';
 import * as Cdf from '.';
-import * as Vxf from '../../election';
-import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers';
+import * as Vxf from '../../election.js';
+import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers.js';
 
 function languageString(content: string, language: string): Cdf.LanguageString {
   return {

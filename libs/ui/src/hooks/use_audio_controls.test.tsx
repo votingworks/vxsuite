@@ -1,13 +1,13 @@
 import { expect, test, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { AudioControls } from '@votingworks/types';
-import { UiStringsAudioContext } from '../ui_strings/audio_context';
-import { useAudioControls } from './use_audio_controls';
-import { UiStringsReactQueryApi, createUiStringsApi } from './ui_strings_api';
-import { UiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader';
-import { newTestContext } from '../../test/test_context';
-import { DEFAULT_AUDIO_VOLUME } from '../ui_strings/audio_volume';
-import { PlaybackRate } from '../ui_strings/audio_playback_rate';
+import { UiStringsAudioContext } from '../ui_strings/audio_context.js';
+import { useAudioControls } from './use_audio_controls.js';
+import { UiStringsReactQueryApi, createUiStringsApi } from './ui_strings_api.js';
+import { UiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader.js';
+import { newTestContext } from '../../test/test_context.js';
+import { DEFAULT_AUDIO_VOLUME } from '../ui_strings/audio_volume.js';
+import { PlaybackRate } from '../ui_strings/audio_playback_rate.js';
 
 test('returns external-facing audio context API', () => {
   const { mockApiClient } = newTestContext();

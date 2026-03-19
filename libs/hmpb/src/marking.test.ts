@@ -9,8 +9,8 @@ import {
   toImageBuffer,
 } from '@votingworks/image-utils';
 
-import { generateMarkOverlay } from './marking';
-import { vxGeneralElectionFixtures } from './ballot_fixtures';
+import { generateMarkOverlay } from './marking.js';
+import { vxGeneralElectionFixtures } from './ballot_fixtures.js';
 
 test('places marks consistently', async () => {
   const fixture = find(

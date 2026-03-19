@@ -10,15 +10,15 @@ import {
   within,
   act,
   screen,
-} from '../test/react_testing_library';
-import { App } from './app';
+} from '../test/react_testing_library.js';
+import { App } from './app.js';
 
-import { withMarkup } from '../test/helpers/with_markup';
+import { withMarkup } from '../test/helpers/with_markup.js';
 
-import { advanceTimersAndPromises } from '../test/helpers/timers';
+import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { measure102Contest } from '../test/helpers/election';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { measure102Contest } from '../test/helpers/election.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

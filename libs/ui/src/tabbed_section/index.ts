@@ -1,1 +1,1 @@
-export * from './tabbed_section';
+export * from './tabbed_section.js';

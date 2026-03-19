@@ -6,7 +6,7 @@ import {
 import { isIntegrationTest } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
-import type { BaseStore } from '../types';
+import type { BaseStore } from '../types.js';
 
 /**
  * Construct the auth machine state from the store's election state. When the

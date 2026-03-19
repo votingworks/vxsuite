@@ -12,7 +12,7 @@ import {
   PageInterpretation,
   UnreadablePage,
 } from '@votingworks/types';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
+import { sheetRequiresAdjudication } from './sheet_requires_adjudication.js';
 
 const metadata: BallotMetadata = {
   ballotStyleId: '12' as BallotStyleId,

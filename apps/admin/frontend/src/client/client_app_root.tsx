@@ -21,13 +21,13 @@ import {
   getUsbDriveStatus,
   logOut,
   useApiClient,
-} from './api';
-import { AppContext, AppContextInterface } from '../contexts/app_context';
-import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { routerPaths } from '../router_paths';
-import { ClientSettingsScreen } from './screens/client_settings_screen';
-import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen';
-import { ClientAdjudicationScreen } from './screens/client_adjudication_screen';
+} from './api.js';
+import { AppContext, AppContextInterface } from '../contexts/app_context.js';
+import { MachineLockedScreen } from '../screens/machine_locked_screen.js';
+import { routerPaths } from '../router_paths.js';
+import { ClientSettingsScreen } from './screens/client_settings_screen.js';
+import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen.js';
+import { ClientAdjudicationScreen } from './screens/client_adjudication_screen.js';
 
 export function ClientAppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();

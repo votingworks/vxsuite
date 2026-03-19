@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/react';
 import React from 'react';
-import { H1, H2, H3, P } from '../typography';
+import { H1, H2, H3, P } from '../typography.js';
 
 export function Spacing(): JSX.Element {
   return (

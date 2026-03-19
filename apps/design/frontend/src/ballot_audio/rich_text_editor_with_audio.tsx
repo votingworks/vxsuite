@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { RichTextEditor } from '../rich_text_editor';
-import { TooltipProps } from '../tooltip';
-import { AudioLinkButton } from './audio_link_button';
+import { RichTextEditor } from '../rich_text_editor.js';
+import { TooltipProps } from '../tooltip.js';
+import { AudioLinkButton } from './audio_link_button.js';
 
 export type RickTextEditorWithAudioProps = {
   audioScreenUrl: string;

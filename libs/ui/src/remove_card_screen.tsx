@@ -1,7 +1,7 @@
-import { Screen } from './screen';
-import { Main } from './main';
-import { H1 } from './typography';
-import { CardInsertionDirection, RemoveCardImage } from './smart_card_images';
+import { Screen } from './screen.js';
+import { Main } from './main.js';
+import { H1 } from './typography.js';
+import { CardInsertionDirection, RemoveCardImage } from './smart_card_images.js';
 
 interface Props {
   productName: string;
