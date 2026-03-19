@@ -442,8 +442,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                 )}
               </React.Fragment>
             ) : (
-              <React.Fragment>
-                <Column style={{ gap: '1rem' }}>
+              <Column style={{ gap: '1rem' }}>
+                <Row style={{ gap: '1rem' }}>
                   <div style={{ minWidth: '12rem' }}>
                     <FieldName>Districts</FieldName>
                     <DistrictList
@@ -460,39 +460,41 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       value={[...precinct.districtIds]}
                     />
                   </div>
-                  {features.PRECINCT_REGISTERED_VOTER_COUNTS && (
-                    <InputGroup label="Registered Voters">
-                      <input
-                        disabled={disabled}
-                        type="number"
-                        min={0}
-                        value={precinct.registeredVoterCount ?? ''}
-                        onChange={(e) =>
-                          setPrecinct((prev) => {
-                            if (isPrecinctAndMetadataWithSplits(prev)) {
-                              return prev;
-                            }
-                            return {
-                              ...prev,
-                              registeredVoterCount: e.target.value
-                                ? safeParseInt(e.target.value).unsafeUnwrap()
-                                : undefined,
-                            };
-                          })
-                        }
-                        style={{ width: '8rem' }}
-                      />
-                    </InputGroup>
+
+                  {!finalized && !hasExternalSource && (
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <Button icon="Add" onPress={onAddSplitPress}>
+                        Add Split
+                      </Button>
+                    </div>
                   )}
-                </Column>
-                {!finalized && !hasExternalSource && (
-                  <div style={{ alignSelf: 'flex-end' }}>
-                    <Button icon="Add" onPress={onAddSplitPress}>
-                      Add Split
-                    </Button>
+                </Row>
+                {features.PRECINCT_REGISTERED_VOTER_COUNTS && (
+                  <div style={{ minWidth: '12rem' }}>
+                    <FieldName>Registered Voters</FieldName>
+                    <input
+                      disabled={disabled}
+                      type="number"
+                      min={0}
+                      value={precinct.registeredVoterCount ?? ''}
+                      onChange={(e) =>
+                        setPrecinct((prev) => {
+                          if (isPrecinctAndMetadataWithSplits(prev)) {
+                            return prev;
+                          }
+                          return {
+                            ...prev,
+                            registeredVoterCount: e.target.value
+                              ? safeParseInt(e.target.value).unsafeUnwrap()
+                              : undefined,
+                          };
+                        })
+                      }
+                      style={{ width: '8rem' }}
+                    />
                   </div>
                 )}
-              </React.Fragment>
+              </Column>
             )}
           </Row>
         </div>
