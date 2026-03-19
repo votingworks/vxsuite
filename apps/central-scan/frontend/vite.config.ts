@@ -1,8 +1,10 @@
+import { createRequire } from 'node:module';
 import react from '@vitejs/plugin-react';
 import { join } from 'node:path';
 import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
+const require = createRequire(import.meta.url);
 
 export default defineConfig((env) => {
   const workspacePackages = getWorkspacePackageInfo(join(import.meta.dirname, '../..'));

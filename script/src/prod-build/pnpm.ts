@@ -1,6 +1,8 @@
+import { createRequire } from 'node:module';
 import { writeFileSync } from 'node:fs';
 import { PNPM_LOGLEVEL } from './globals';
 import { execSync } from './utils/exec_sync';
+const require = createRequire(import.meta.url);
 
 export function removeDependencies(
   pkgRoot: string,

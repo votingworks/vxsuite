@@ -1,9 +1,11 @@
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 // @ts-expect-error - TS thinks there's an error with the module type but it works ok
 import { Alias, mergeConfig, InlineConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
+const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
