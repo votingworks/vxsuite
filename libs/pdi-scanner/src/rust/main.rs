@@ -2,7 +2,7 @@ use clap::Parser;
 use color_eyre::eyre::bail;
 use image::EncodableLayout;
 use std::{
-    cell::Cell,
+    cell::{Cell, RefCell},
     fmt::Debug,
     future::pending,
     io::{self, Write},
@@ -189,13 +189,6 @@ enum Message {
     Response(Response),
 }
 
-fn send_to_stdout(message: &Message) -> color_eyre::Result<()> {
-    let mut stdout = io::stdout().lock();
-    serde_json::to_writer(&mut stdout, &message)?;
-    stdout.write_all(b"\n")?;
-    Ok(())
-}
-
 fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     match error {
         Error::Usb {
@@ -240,14 +233,17 @@ async fn initialize_connected_scanner(
     Ok((client, calibration_tables))
 }
 
+/// Runs the main command/event loop. Reads JSON commands from `stdin`,
+/// writes JSON responses and events to `stdout`, and uses `connect` to
+/// create new scanner connections.
 #[allow(clippy::too_many_lines)]
-#[tokio::main]
-async fn main() -> color_eyre::Result<()> {
-    let config = Config::parse();
-    setup(&config)?;
-
-    let stdin = BufReader::new(tokio::io::stdin());
+async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write>(
+    stdin: R,
+    stdout: W,
+    mut connect: impl FnMut() -> pdi_scanner::Result<Client>,
+) -> color_eyre::Result<()> {
     let mut stdin_lines = stdin.lines();
+    let stdout = RefCell::new(stdout);
 
     let mut client: Option<Client> = None;
     let mut image_calibration_tables: Option<ImageCalibrationTables> = None;
@@ -259,6 +255,13 @@ async fn main() -> color_eyre::Result<()> {
     // flag in the send_response/send_event functions, since they are called in
     // basically every case when the scanner state changes.
     let scan_in_progress = Cell::new(false);
+
+    let send_to_stdout = |message: &Message| -> color_eyre::Result<()> {
+        let mut stdout = stdout.borrow_mut();
+        serde_json::to_writer(&mut *stdout, message)?;
+        stdout.write_all(b"\n")?;
+        Ok(())
+    };
 
     let send_response = |response: Response| -> color_eyre::Result<()> {
         tracing::debug!("sending response: {response:?}");
@@ -326,7 +329,7 @@ async fn main() -> color_eyre::Result<()> {
                                     message: None,
                                 })?;
                             }
-                            (None, Command::Connect) => match Client::connect() {
+                            (None, Command::Connect) => match connect() {
                                 Ok(c) => {
                                     tracing::info!("connect() succeeded");
                                     match initialize_connected_scanner(c).await {
@@ -565,4 +568,618 @@ async fn main() -> color_eyre::Result<()> {
     }
 
     Ok(())
+}
+
+#[tokio::main]
+async fn main() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
+
+    let stdin = BufReader::new(tokio::io::stdin());
+    handle_commands_and_events(stdin, io::stdout(), Client::connect).await
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{io, time::Duration};
+
+    use pdi_scanner::{
+        client::Client,
+        protocol::packets::{Incoming, Outgoing},
+        scanner::Scanner,
+    };
+    use serde_json::{json, Value};
+    use tokio::{
+        io::{AsyncWriteExt, BufReader},
+        sync::mpsc,
+        time::timeout,
+    };
+
+    use super::handle_commands_and_events;
+
+    const TEST_TIMEOUT: Duration = Duration::from_secs(3);
+
+    /// A Write impl that sends each newline-delimited JSON message to a
+    /// channel, allowing the test to await individual messages.
+    struct ChannelWriter {
+        tx: mpsc::UnboundedSender<Value>,
+        buf: Vec<u8>,
+    }
+
+    impl ChannelWriter {
+        fn new() -> (Self, mpsc::UnboundedReceiver<Value>) {
+            let (tx, rx) = mpsc::unbounded_channel();
+            (
+                Self {
+                    tx,
+                    buf: Vec::new(),
+                },
+                rx,
+            )
+        }
+    }
+
+    impl io::Write for ChannelWriter {
+        fn write(&mut self, data: &[u8]) -> io::Result<usize> {
+            self.buf.extend_from_slice(data);
+            while let Some(pos) = self.buf.iter().position(|&b| b == b'\n') {
+                let line: Vec<u8> = self.buf.drain(..=pos).collect();
+                let value: Value = serde_json::from_slice(&line).unwrap();
+                let _ = self.tx.send(value);
+            }
+            Ok(data.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    struct ConnectedTestHarness {
+        host_to_scanner_rx: mpsc::UnboundedReceiver<(usize, Outgoing)>,
+        host_to_scanner_ack_tx: mpsc::UnboundedSender<usize>,
+        scanner_to_host_tx: mpsc::UnboundedSender<pdi_scanner::Result<Incoming>>,
+    }
+
+    fn setup_connected_client() -> (Client, ConnectedTestHarness) {
+        use pdi_scanner::protocol::types::Register;
+
+        let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
+        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
+
+        // Pre-load responses for initialize_connected_scanner:
+        // wait_until_ready: EnableCrcChecking (ack 0) + GetTestString (ack 1 + response)
+        // initialize_scanning:
+        //   DisableFeeder (ack 2)
+        //   set_boot_eject_motion reads register 9 (ack 3 + response)
+        //     value 0x200 = BootEjectMotion::None already set, so no write needed
+        //   GetCalibrationInfo (ack 4 + 2 responses)
+        for i in 0..5 {
+            host_to_scanner_ack_tx.send(i).unwrap();
+        }
+        let register_9 = pdi_scanner::protocol::types::RegisterIndex::new(9).unwrap();
+        scanner_to_host_tx
+            .send(Ok(Incoming::GetTestStringResponse("test".into())))
+            .unwrap();
+        scanner_to_host_tx
+            .send(Ok(Incoming::ReadRegisterDataResponse(Register::new(
+                register_9, 0x200, // BootEjectMotion::None (2) << 8
+            ))))
+            .unwrap();
+        let empty_cal = || Incoming::GetCalibrationInformationResponse {
+            white_calibration_table: vec![],
+            black_calibration_table: vec![],
+        };
+        scanner_to_host_tx.send(Ok(empty_cal())).unwrap();
+        scanner_to_host_tx.send(Ok(empty_cal())).unwrap();
+
+        let client = Client::from_scanner(Scanner::mock(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+        ));
+
+        (
+            client,
+            ConnectedTestHarness {
+                host_to_scanner_rx,
+                host_to_scanner_ack_tx,
+                scanner_to_host_tx,
+            },
+        )
+    }
+
+    /// Sends a JSON command to stdin and waits for the next output message.
+    async fn send_command(
+        stdin: &mut tokio::io::DuplexStream,
+        output_rx: &mut mpsc::UnboundedReceiver<Value>,
+        cmd: &str,
+    ) -> Value {
+        stdin.write_all(cmd.as_bytes()).await.unwrap();
+        stdin.write_all(b"\n").await.unwrap();
+        timeout(TEST_TIMEOUT, output_rx.recv())
+            .await
+            .unwrap()
+            .unwrap()
+    }
+
+    /// Sends a JSON command to stdin without waiting for output (for exit).
+    async fn send_exit(stdin: &mut tokio::io::DuplexStream) {
+        stdin.write_all(b"{\"command\":\"exit\"}\n").await.unwrap();
+    }
+
+    /// Waits for the next output message.
+    async fn recv_output(output_rx: &mut mpsc::UnboundedReceiver<Value>) -> Value {
+        timeout(TEST_TIMEOUT, output_rx.recv())
+            .await
+            .unwrap()
+            .unwrap()
+    }
+
+    /// Collects all remaining messages from the output channel.
+    fn drain_output(output_rx: &mut mpsc::UnboundedReceiver<Value>) -> Vec<Value> {
+        let mut messages = Vec::new();
+        while let Ok(msg) = output_rx.try_recv() {
+            messages.push(msg);
+        }
+        messages
+    }
+
+    /// Runs the event loop with pre-written stdin, no connect needed.
+    async fn run_disconnected(input: &[u8]) -> Vec<Value> {
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        stdin_write.write_all(input).await.unwrap();
+        drop(stdin_write);
+
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+        timeout(
+            TEST_TIMEOUT,
+            handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                unreachable!("connect should not be called")
+            }),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        drain_output(&mut output_rx)
+    }
+
+    /// Runs the event loop with pre-written stdin, using a mock connected client.
+    async fn run_connected(input: &[u8]) -> (Vec<Value>, ConnectedTestHarness) {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        stdin_write.write_all(input).await.unwrap();
+        drop(stdin_write);
+
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+        timeout(
+            TEST_TIMEOUT,
+            handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                Ok(client_slot.take().expect("connect called more than once"))
+            }),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        (drain_output(&mut output_rx), harness)
+    }
+
+    #[tokio::test]
+    async fn exit_command_terminates_loop() {
+        let messages = run_disconnected(b"{\"command\":\"exit\"}\n").await;
+        assert!(messages.is_empty());
+    }
+
+    #[tokio::test]
+    async fn eof_terminates_loop() {
+        let (stdin_read, stdin_write) = tokio::io::duplex(1024);
+        drop(stdin_write);
+
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+        timeout(
+            TEST_TIMEOUT,
+            handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                unreachable!("connect should not be called")
+            }),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert!(drain_output(&mut output_rx).is_empty());
+    }
+
+    #[tokio::test]
+    async fn command_while_disconnected_returns_error() {
+        let messages =
+            run_disconnected(b"{\"command\":\"getScannerStatus\"}\n{\"command\":\"exit\"}\n").await;
+        assert_eq!(
+            messages,
+            vec![json!({"response": "error", "code": "disconnected", "message": null})]
+        );
+    }
+
+    #[tokio::test]
+    async fn invalid_command_returns_error() {
+        let messages = run_disconnected(b"not json\n{\"command\":\"exit\"}\n").await;
+        assert_eq!(
+            messages,
+            vec![
+                json!({"response": "error", "code": "other", "message": "failed to serialize JSON: expected ident at line 1 column 2"})
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn connect_success() {
+        let (messages, _harness) =
+            run_connected(b"{\"command\":\"connect\"}\n{\"command\":\"exit\"}\n").await;
+        assert_eq!(messages, vec![json!({"response": "ok"})]);
+    }
+
+    #[tokio::test]
+    async fn connect_failure() {
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(1024);
+        stdin_write
+            .write_all(b"{\"command\":\"connect\"}\n{\"command\":\"exit\"}\n")
+            .await
+            .unwrap();
+        drop(stdin_write);
+
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+        timeout(
+            TEST_TIMEOUT,
+            handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                Err(pdi_scanner::Error::Usb {
+                    source: pdi_scanner::UsbError::DeviceNotFound,
+                    trace: std::backtrace::Backtrace::capture(),
+                })
+            }),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+
+        let messages = drain_output(&mut output_rx);
+        assert_eq!(
+            messages,
+            vec![json!({"response": "error", "code": "disconnected", "message": null})]
+        );
+    }
+
+    #[tokio::test]
+    async fn already_connected_returns_error() {
+        let (messages, _harness) = run_connected(
+            b"{\"command\":\"connect\"}\n\
+              {\"command\":\"connect\"}\n\
+              {\"command\":\"exit\"}\n",
+        )
+        .await;
+        assert_eq!(
+            messages,
+            vec![
+                json!({"response": "ok"}),
+                json!({"response": "error", "code": "alreadyConnected", "message": null}),
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn disconnect_returns_ok() {
+        let (messages, _harness) = run_connected(
+            b"{\"command\":\"connect\"}\n\
+              {\"command\":\"disconnect\"}\n\
+              {\"command\":\"exit\"}\n",
+        )
+        .await;
+        assert_eq!(
+            messages,
+            vec![json!({"response": "ok"}), json!({"response": "ok"})]
+        );
+    }
+
+    #[tokio::test]
+    async fn scanner_event_forwarded() {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, _) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    let msg =
+                        send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                            .await;
+                    assert_eq!(msg, json!({"response": "ok"}));
+
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::CoverOpenEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "coverOpen"}));
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
+    #[tokio::test]
+    async fn scan_in_progress_blocks_commands() {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, _) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+
+                    let msg = send_command(
+                        &mut stdin_write,
+                        &mut output_rx,
+                        r#"{"command":"disableScanning"}"#,
+                    )
+                    .await;
+                    assert_eq!(
+                        msg,
+                        json!({"response": "error", "code": "scanInProgress", "message": null})
+                    );
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
+    #[tokio::test]
+    async fn end_scan_disables_feeder() {
+        let (client, mut harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, _) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    // Drain the init commands
+                    while harness.host_to_scanner_rx.try_recv().is_ok() {}
+
+                    // EndScan needs an ack for the feeder disable command (ID 5, after
+                    // the 5 init commands used IDs 0-4)
+                    harness.host_to_scanner_ack_tx.send(5).unwrap();
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::EndScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg["event"], "error");
+                    assert_eq!(msg["code"], "scanFailed");
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+
+        // Verify the feeder disable command was sent (after draining init commands)
+        let (_, packet) = timeout(TEST_TIMEOUT, harness.host_to_scanner_rx.recv())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(packet, Outgoing::DisableFeederRequest);
+    }
+
+    #[tokio::test]
+    async fn scanner_error_forwarded_as_event() {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, _) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    harness
+                        .scanner_to_host_tx
+                        .send(Err(pdi_scanner::Error::RecvTimeout))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg["event"], "error");
+                    assert_eq!(msg["code"], "other");
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
+    #[tokio::test]
+    async fn scanner_task_exit_resets_to_disconnected() {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, _) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    // Simulate a USB error that produces an error event,
+                    // then drop the channel so the next recv gets Disconnected
+                    // and clears the client.
+                    harness
+                        .scanner_to_host_tx
+                        .send(Err(pdi_scanner::Error::RecvTimeout))
+                        .unwrap();
+                    drop(harness.scanner_to_host_tx);
+                    // Wait for the error event — confirms the error was processed
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg["event"], "error");
+                    // The channel close is processed on the next select iteration
+                    // (no output). The following command confirms client = None.
+                    let msg = send_command(
+                        &mut stdin_write,
+                        &mut output_rx,
+                        r#"{"command":"disableScanning"}"#,
+                    )
+                    .await;
+                    assert_eq!(
+                        msg,
+                        json!({"response": "error", "code": "disconnected", "message": null})
+                    );
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
+    #[tokio::test]
+    async fn connect_initialization_failure() {
+        let (host_to_scanner_tx, _host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (_host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
+        let (_scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
+
+        // Client connects but init times out (no acks pre-loaded)
+        let client = Client::from_scanner(Scanner::mock(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+        ));
+        let mut client_slot = Some(client);
+
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        stdin_write
+            .write_all(b"{\"command\":\"connect\"}\n{\"command\":\"exit\"}\n")
+            .await
+            .unwrap();
+        drop(stdin_write);
+
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+        timeout(
+            Duration::from_secs(10),
+            handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                Ok(client_slot.take().expect("connect called more than once"))
+            }),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+
+        let messages = drain_output(&mut output_rx);
+        assert_eq!(
+            messages,
+            vec![
+                json!({"response": "error", "code": "other", "message": "timed out receiving data"})
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn scan_in_progress_resets_after_end_scan() {
+        let (client, mut harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, _) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    // Drain init commands
+                    while harness.host_to_scanner_rx.try_recv().is_ok() {}
+
+                    // Start a scan
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+
+                    // End the scan (needs ack for feeder disable)
+                    harness.host_to_scanner_ack_tx.send(5).unwrap();
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::EndScanEvent))
+                        .unwrap();
+                    // Wait for scanFailed event (image decode fails on empty data)
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg["event"], "error");
+                    assert_eq!(msg["code"], "scanFailed");
+
+                    // Now a command should succeed (not get scanInProgress)
+                    harness.host_to_scanner_ack_tx.send(6).unwrap();
+                    let msg = send_command(
+                        &mut stdin_write,
+                        &mut output_rx,
+                        r#"{"command":"disableScanning"}"#,
+                    )
+                    .await;
+                    assert_eq!(msg, json!({"response": "ok"}));
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
 }

@@ -6,12 +6,12 @@ use crate::{protocol::parsers, Result, UsbError};
 
 use super::protocol::packets::{self, Incoming};
 
-pub trait BulkInQueue: Send + 'static {
+pub(crate) trait BulkInQueue: Send + 'static {
     fn submit(&mut self, buf: RequestBuffer);
     fn next_complete(&mut self) -> impl Future<Output = Completion<Vec<u8>>> + Send + '_;
 }
 
-pub trait UsbInterface: Send + Sync + 'static {
+pub(crate) trait UsbInterface: Send + Sync + 'static {
     type BulkInQueue: BulkInQueue;
     fn bulk_in_queue(&self, endpoint: u8) -> Self::BulkInQueue;
     fn bulk_out(
@@ -62,6 +62,7 @@ const DEFAULT_BUFFER_SIZE: usize = 16_384;
 /// otherwise we get a `FifoOverflow` error from the scanner.
 const IMAGE_BUFFER_SIZE: usize = 1_048_576; // 1 MiB
 
+#[allow(clippy::struct_field_names)]
 pub struct Scanner {
     pub(crate) host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
     pub(crate) host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
@@ -87,6 +88,7 @@ impl Scanner {
     /// Creates a scanner with mock channels and no background task. The
     /// returned scanner's `disconnect` is a no-op. Used for testing
     /// [`Client`](crate::client::Client) without real USB hardware.
+    #[must_use]
     pub fn mock(
         host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
         host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
@@ -408,8 +410,10 @@ mod tests {
         (handles, scanner)
     }
 
+    // --- Incoming: primary endpoint ---
+
     #[tokio::test]
-    async fn primary_endpoint_packet_parsed_and_forwarded() {
+    async fn incoming_primary_packet_parsed_and_forwarded() {
         let (handles, mut scanner) = start_mock_scanner();
 
         handles
@@ -429,7 +433,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn primary_endpoint_parse_failure_produces_unknown() {
+    async fn incoming_primary_parse_failure_produces_unknown() {
         let (handles, mut scanner) = start_mock_scanner();
 
         let garbage = b"not a valid packet".to_vec();
@@ -450,7 +454,32 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn image_data_forwarded() {
+    async fn incoming_primary_partial_parse_produces_unknown() {
+        let (handles, mut scanner) = start_mock_scanner();
+
+        // Valid CoverOpenEvent followed by trailing garbage
+        let mut data = encode_packet(COVER_OPEN_EVENT_BODY);
+        data.extend_from_slice(b"trailing");
+        handles
+            .primary_tx
+            .send(Completion {
+                data: data.clone(),
+                status: Ok(()),
+            })
+            .unwrap();
+
+        let packet = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+            .await
+            .unwrap()
+            .unwrap()
+            .unwrap();
+        assert_eq!(packet, Incoming::Unknown(data));
+    }
+
+    // --- Incoming: image data endpoint ---
+
+    #[tokio::test]
+    async fn incoming_image_data_forwarded() {
         let (handles, mut scanner) = start_mock_scanner();
 
         let image_bytes = vec![0xAA, 0xBB, 0xCC];
@@ -469,6 +498,8 @@ mod tests {
             .unwrap();
         assert_eq!(packet, Incoming::ImageData(ImageData(image_bytes)));
     }
+
+    // --- Outgoing ---
 
     #[tokio::test]
     async fn outgoing_command_forwarded_and_acked() {
@@ -495,8 +526,10 @@ mod tests {
         assert_eq!(ack_id, 123);
     }
 
+    // --- Errors ---
+
     #[tokio::test]
-    async fn primary_endpoint_error_forwarded_and_task_exits() {
+    async fn incoming_primary_error_forwarded_and_task_exits() {
         let (handles, mut scanner) = start_mock_scanner();
 
         handles
@@ -518,7 +551,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn image_data_endpoint_error_forwarded_and_task_exits() {
+    async fn incoming_image_data_error_forwarded_and_task_exits() {
         let (handles, mut scanner) = start_mock_scanner();
 
         handles
@@ -538,6 +571,8 @@ mod tests {
         assert!(scanner.scanner_to_host_rx.recv().await.is_none());
     }
 
+    // --- Lifecycle ---
+
     #[tokio::test]
     async fn stop_signal_exits_task_cleanly() {
         let (_handles, scanner) = start_mock_scanner();
@@ -546,36 +581,24 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn primary_endpoint_partial_parse_produces_unknown() {
-        let (handles, mut scanner) = start_mock_scanner();
-
-        // Valid CoverOpenEvent followed by trailing garbage
-        let mut data = encode_packet(COVER_OPEN_EVENT_BODY);
-        data.extend_from_slice(b"trailing");
-        handles
-            .primary_tx
-            .send(Completion {
-                data: data.clone(),
-                status: Ok(()),
-            })
-            .unwrap();
-
-        let packet = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
-            .await
-            .unwrap()
-            .unwrap()
-            .unwrap();
-        assert_eq!(packet, Incoming::Unknown(data));
-    }
-
-    #[tokio::test]
     async fn initial_submits_and_resubmission() {
         let (handles, mut scanner) = start_mock_scanner();
 
         // After start(), the task submits initial buffers:
-        // 1 for primary, 2 for image data
-        // Give the task a moment to run the initial submits
-        tokio::time::sleep(Duration::from_millis(10)).await;
+        // 1 for primary, 2 for image data.
+        // Yield until the background task has run its initial submits.
+        timeout(TEST_TIMEOUT, async {
+            loop {
+                if handles.primary_submissions.lock().unwrap().len() >= 1
+                    && handles.image_data_submissions.lock().unwrap().len() >= 2
+                {
+                    break;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
         assert_eq!(handles.primary_submissions.lock().unwrap().len(), 1);
         assert_eq!(handles.image_data_submissions.lock().unwrap().len(), 2);
 
