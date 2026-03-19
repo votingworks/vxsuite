@@ -6,7 +6,11 @@ import {
 } from '@votingworks/networking';
 import * as grout from '@votingworks/grout';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   getHostServiceName,
   startHostNetworking,
@@ -97,6 +101,30 @@ describe('startClientNetworking', () => {
     return buildMockDippedSmartCardAuth(vi.fn);
   }
 
+  interface MockPeerClientOverrides {
+    connectToHost?: ReturnType<typeof vi.fn>;
+    getElectionPackageHash?: ReturnType<typeof vi.fn>;
+    getCurrentElectionMetadata?: ReturnType<typeof vi.fn>;
+    getSystemSettings?: ReturnType<typeof vi.fn>;
+  }
+
+  function createMockPeerClient(
+    overrides: MockPeerClientOverrides = {}
+  ): grout.Client<PeerApi> {
+    const defaults: MockPeerClientOverrides = {
+      connectToHost: vi
+        .fn()
+        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      getElectionPackageHash: vi.fn().mockResolvedValue(undefined),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+      getSystemSettings: vi.fn().mockResolvedValue(undefined),
+    };
+    return Object.assign(
+      defaults,
+      overrides
+    ) as unknown as grout.Client<PeerApi>;
+  }
+
   test('stores offline status initially', () => {
     const clientStore = createClientStore();
     startClientNetworking({
@@ -136,13 +164,7 @@ describe('startClientNetworking', () => {
         port: '3002',
       },
     ]);
-    const mockClient = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
-      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
-      getSystemSettings: vi.fn().mockResolvedValue(undefined),
-    } as unknown as grout.Client<PeerApi>;
+    const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
@@ -194,13 +216,7 @@ describe('startClientNetworking', () => {
         port: '3002',
       },
     ]);
-    const mockClient = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
-      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
-      getSystemSettings: vi.fn().mockResolvedValue(undefined),
-    } as unknown as grout.Client<PeerApi>;
+    const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
@@ -302,13 +318,7 @@ describe('startClientNetworking', () => {
         port: '3002',
       },
     ]);
-    const mockClient = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
-      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
-      getSystemSettings: vi.fn().mockResolvedValue(undefined),
-    } as unknown as grout.Client<PeerApi>;
+    const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
@@ -337,12 +347,12 @@ describe('startClientNetworking', () => {
         port: '3002',
       },
     ]);
-    const mockClient = {
+    const mockClient = createMockPeerClient({
       connectToHost: vi
         .fn()
         .mockResolvedValueOnce({ machineId: 'HOST1', codeVersion: 'dev' })
         .mockRejectedValue(new Error('connection lost')),
-    } as unknown as grout.Client<PeerApi>;
+    });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
@@ -379,9 +389,9 @@ describe('startClientNetworking', () => {
         port: '3002',
       },
     ]);
-    const mockClient = {
+    const mockClient = createMockPeerClient({
       connectToHost: vi.fn().mockRejectedValue(new Error('connection refused')),
-    } as unknown as grout.Client<PeerApi>;
+    });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
@@ -397,13 +407,7 @@ describe('startClientNetworking', () => {
 
   test('clears connected host when host disappears', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    const mockClient = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
-      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
-      getSystemSettings: vi.fn().mockResolvedValue(undefined),
-    } as unknown as grout.Client<PeerApi>;
+    const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     // First poll: host present, connect
@@ -440,5 +444,113 @@ describe('startClientNetworking', () => {
     ]);
     await vi.advanceTimersByTimeAsync(2000);
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
+  });
+
+  test('does not repeatedly log out when host is unconfigured', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    // Host has no election — getElectionPackageHash returns null
+    const mockClient = createMockPeerClient();
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0011', clientStore, auth });
+
+    // First poll: connects, sees no election
+    await advancePollingInterval();
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+
+    // Second poll: still no election — should NOT call logOut again
+    await vi.advanceTimersByTimeAsync(2000);
+    // Third poll
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(auth.logOut).not.toHaveBeenCalled();
+  });
+
+  test('does not cache election when hash exists but metadata is missing', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    // Hash returns a value but metadata returns undefined (race condition
+    // where election was unconfigured between the two calls)
+    const mockClient = createMockPeerClient({
+      getElectionPackageHash: vi.fn().mockResolvedValue('some-hash'),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+      getSystemSettings: vi.fn().mockResolvedValue(undefined),
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0012', clientStore, auth });
+    await advancePollingInterval();
+
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+    expect(clientStore.getCachedElectionRecord()).toBeUndefined();
+    expect(clientStore.getCachedSystemSettings()).toBeUndefined();
+    expect(auth.logOut).not.toHaveBeenCalled();
+  });
+
+  test('logs out and clears cache when host transitions from configured to unconfigured', async () => {
+    const electionDefinition = readElectionGeneralDefinition();
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+
+    const mockGetHash = vi.fn().mockResolvedValue('hash-1');
+    const mockClient = createMockPeerClient({
+      getElectionPackageHash: mockGetHash,
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue({
+        id: 'election-1',
+        electionDefinition,
+        createdAt: new Date().toISOString(),
+        isOfficialResults: false,
+        electionPackageHash: 'hash-1',
+      }),
+      getSystemSettings: vi.fn().mockResolvedValue(DEFAULT_SYSTEM_SETTINGS),
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0013', clientStore, auth });
+
+    // First poll: connects and caches election
+    await advancePollingInterval();
+    expect(clientStore.getCachedElectionRecord()).toBeDefined();
+
+    // Host unconfigures — hash now returns undefined
+    mockGetHash.mockResolvedValue(undefined);
+
+    // Second poll: detects unconfigured, clears cache and logs out
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(clientStore.getCachedElectionRecord()).toBeUndefined();
+    expect(clientStore.getCachedSystemSettings()).toBeUndefined();
+    expect(auth.logOut).toHaveBeenCalled();
   });
 });

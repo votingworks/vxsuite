@@ -32,6 +32,14 @@ function buildPeerApi({ workspace }: PeerAppContext) {
       return getMachineConfig();
     },
 
+    getElectionPackageHash(): Optional<string> {
+      const currentElectionId = workspace.store.getCurrentElectionId();
+      if (!currentElectionId) return undefined;
+      const record = workspace.store.getElection(currentElectionId);
+      assert(record);
+      return record.electionPackageHash;
+    },
+
     getCurrentElectionMetadata(): Optional<ElectionRecord> {
       const currentElectionId = workspace.store.getCurrentElectionId();
       if (!currentElectionId) return undefined;
