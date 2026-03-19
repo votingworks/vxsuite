@@ -1817,13 +1817,23 @@ export class Store {
         registeredVoterCount: number | null;
       }>;
 
+      const splitsByPrecinctId = new Map<PrecinctId, typeof splitRows>();
+      for (const split of splitRows) {
+        const group = splitsByPrecinctId.get(split.precinctId);
+        if (group) {
+          group.push(split);
+        } else {
+          splitsByPrecinctId.set(split.precinctId, [split]);
+        }
+      }
+
       const metadata: ElectionPrecinctMetadata = {};
       for (const row of precinctRows) {
         const entry: PrecinctMetadataEntry = {};
         if (row.registeredVoterCount !== null) {
           entry.registeredVoterCount = row.registeredVoterCount;
         }
-        const splits = splitRows.filter((s) => s.precinctId === row.id);
+        const splits = splitsByPrecinctId.get(row.id) ?? [];
         if (splits.length > 0) {
           entry.splits = {};
           for (const split of splits) {
