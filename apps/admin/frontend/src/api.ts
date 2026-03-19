@@ -16,6 +16,7 @@ import {
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
@@ -38,7 +39,9 @@ export function useApiClient(): ApiClient {
 }
 
 export function createQueryClient(): QueryClient {
-  return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
+  return new QueryClient({
+    defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
+  });
 }
 
 export const getMachineConfig = {
@@ -70,8 +73,6 @@ export const setMachineMode = {
   },
 } as const;
 
-const MACHINES_POLLING_INTERVAL_MS = 5000;
-
 export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];
@@ -79,7 +80,7 @@ export const getNetworkStatus = {
   useQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
-      refetchInterval: MACHINES_POLLING_INTERVAL_MS,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       enabled,
     });
   },
