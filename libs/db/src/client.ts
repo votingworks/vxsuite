@@ -9,8 +9,9 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
 const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const Database = require('better-sqlite3') as typeof BetterSqlite3;
+const Database: typeof BetterSqlite3 =
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('better-sqlite3');
 type Database = BetterSqlite3.Database;
 
 const debug = makeDebug('db-client');
@@ -34,7 +35,7 @@ const privateInnerStatementSymbol = Symbol('privateInnerStatement');
  * A prepared statement that can be run with parameters.
  */
 export interface Statement<P extends Bindable[] = []> {
-  [privateInnerStatementSymbol]: Database.Statement<P>;
+  [privateInnerStatementSymbol]: BetterSqlite3.Statement<P>;
 }
 
 /**
@@ -382,7 +383,7 @@ export class Client {
 
   private asStatement<P extends Bindable[]>(
     statement: Statement<P> | string
-  ): Database.Statement<P> {
+  ): BetterSqlite3.Statement<P> {
     return typeof statement === 'string'
       ? this.getDatabase().prepare<P>(statement)
       : statement[privateInnerStatementSymbol];
