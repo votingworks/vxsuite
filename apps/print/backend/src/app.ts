@@ -15,6 +15,7 @@ import {
   BallotPrintCount,
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
+  pollingPlaceFromElection,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -162,6 +163,27 @@ export function buildApi(ctx: AppContext) {
           electionDefinition.election.precincts,
           input.precinctSelection
         )}`,
+      });
+    },
+
+    getPollingPlaceId(): string | null {
+      return store.getPollingPlaceId() || null;
+    },
+
+    setPollingPlaceId(input: { id: string }): void {
+      const { electionDefinition } = assertDefined(
+        store.getElectionRecord(),
+        'Cannot set polling place without an election.'
+      );
+
+      const { election } = electionDefinition;
+      const { name } = pollingPlaceFromElection(election, input.id);
+
+      store.setPollingPlaceId(input.id);
+
+      void logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the polling place for the machine to ${name}`,
       });
     },
 

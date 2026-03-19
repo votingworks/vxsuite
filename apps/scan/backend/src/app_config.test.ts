@@ -10,7 +10,7 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { err, ok } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -196,6 +196,38 @@ test('setPrecinctSelection will reset polls to closed', async () => {
       {
         disposition: 'success',
         message: 'User set the precinct for the machine to East Lincoln',
+      }
+    );
+  });
+});
+
+test('setPollingPlaceId will reset polls to closed', async () => {
+  await withApp(async (ctx) => {
+    const { apiClient, mockUsbDrive, mockAuth, logger, workspace } = ctx;
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
+      pollsState: 'polls_open',
+      lastPollsTransition: {
+        type: 'open_polls',
+        time: expect.anything(),
+        ballotCount: 0,
+      },
+    });
+
+    const electionRecord = assertDefined(workspace.store.getElectionRecord());
+    const { election } = electionRecord.electionDefinition;
+    const place = assertDefined(election.pollingPlaces)[0];
+    await apiClient.setPollingPlaceId({ id: place.id });
+
+    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
+      pollsState: 'polls_closed_initial',
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      {
+        disposition: 'success',
+        message: `User set the polling place for the machine to ${place.name}`,
       }
     );
   });

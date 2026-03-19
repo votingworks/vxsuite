@@ -37,6 +37,7 @@ export interface PrecinctScannerConfig {
   electionPackageHash?: string;
   systemSettings: SystemSettings;
   precinctSelection?: PrecinctSelection;
+  pollingPlaceId?: string;
   isSoundMuted: boolean;
   isDoubleFeedDetectionDisabled: boolean;
   // "Config" that is specific to each election session

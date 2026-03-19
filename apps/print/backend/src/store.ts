@@ -8,7 +8,7 @@ import {
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
-import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import { BaseLogger } from '@votingworks/logging';
 import {
@@ -209,6 +209,25 @@ export class Store {
   }
 
   /**
+   * ID of the currently selected polling place.
+   */
+  getPollingPlaceId(): string | undefined {
+    const row = this.client.one('select polling_place_id from election') as
+      | { polling_place_id: string | null }
+      | undefined;
+
+    return row?.polling_place_id || undefined;
+  }
+
+  /**
+   * Sets the current polling place for which voters can cast ballots.
+   */
+  setPollingPlaceId(id: string): void {
+    assert(this.hasElection(), 'Cannot set polling place without an election.');
+    this.client.run('update election set polling_place_id = ?', id);
+  }
+
+  /**
    * Gets the current jurisdiction.
    */
   getJurisdiction(): string | undefined {
@@ -399,10 +418,10 @@ export class Store {
         ballot_mode as ballotMode,
         encoded_ballot as encodedBallot
       from ballots
-      where 
-        ballot_style_id = ? and 
-        precinct_id = ? and 
-        ballot_type = ? and 
+      where
+        ballot_style_id = ? and
+        precinct_id = ? and
+        ballot_type = ? and
         ballot_mode = ?
       `,
       ballotStyleId,
@@ -429,7 +448,7 @@ export class Store {
     const rows = this.client.all(
       `
       select
-        ballot_style_id as ballotStyleId, 
+        ballot_style_id as ballotStyleId,
         precinct_id as precinctId
       from ballots
       where

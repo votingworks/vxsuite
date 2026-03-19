@@ -283,6 +283,25 @@ export class Store {
   }
 
   /**
+   * ID of the currently selected polling place.
+   */
+  getPollingPlaceId(): Optional<string> {
+    const row = this.client.one('select polling_place_id from election') as
+      | { polling_place_id: string | null }
+      | undefined;
+
+    return row?.polling_place_id || undefined;
+  }
+
+  /**
+   * Sets the current polling place for which voters can cast ballots.
+   */
+  setPollingPlaceId(id: string): void {
+    assert(this.hasElection(), 'Cannot set polling place without an election.');
+    this.client.run('update election set polling_place_id = ?', id);
+  }
+
+  /**
    * Gets the current test mode setting value.
    */
   getTestMode(): boolean {

@@ -4,7 +4,7 @@ create table election (
   election_data text not null,
   election_package_hash text not null,
   jurisdiction text not null,
-  precinct_selection text,
+  precinct_selection text, -- [TODO] Remove after migration to polling places
   is_test_mode boolean not null default true,
   polls_state text not null default "polls_closed_initial",
   is_sound_muted boolean not null default false,
@@ -87,4 +87,4 @@ create table diagnostics (
   outcome text not null check (outcome = 'pass' or outcome = 'fail'),
   message text,
   timestamp number not null
-);  
+);
