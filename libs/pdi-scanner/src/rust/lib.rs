@@ -3,19 +3,4 @@ pub mod protocol;
 pub mod scanner;
 mod types;
 
-use client::Client;
-use scanner::Scanner;
 pub use types::{Error, Result, UsbError};
-
-/// Connect to the scanner and return the client. When you're done,
-/// you should call [`Client::disconnect`] to properly close the connection.
-///
-/// # Errors
-///
-/// Fails if the connection to the scanner cannot be opened.
-pub fn connect() -> color_eyre::Result<Client<Scanner>, Error> {
-    let mut scanner = Scanner::open()?;
-    let (tx, ack_rx, rx) = scanner.start();
-    let client = Client::new(tx, ack_rx, rx, Some(scanner));
-    Ok(client)
-}
