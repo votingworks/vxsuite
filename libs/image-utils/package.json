@@ -4,6 +4,7 @@
   "private": true,
   "description": "Image utilities for VxSuite",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "scripts": {
     "type-check": "tsgo --build",

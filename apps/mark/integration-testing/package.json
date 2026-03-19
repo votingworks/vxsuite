@@ -4,6 +4,7 @@
   "private": true,
   "license": "GPL-3.0-only",
   "author": "VotingWorks Engineering <eng@voting.works>",
+  "type": "module",
   "scripts": {
     "build": "pnpm install && make build",
     "format": "prettier --write .",

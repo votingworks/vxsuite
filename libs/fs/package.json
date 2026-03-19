@@ -4,6 +4,7 @@
   "private": true,
   "description": "File system utilities for VotingWorks projects",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.js",
   "files": [

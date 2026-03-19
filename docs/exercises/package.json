@@ -4,6 +4,7 @@
   "private": true,
   "description": "Code exercises",
   "license": "GPL-3.0-only",
+  "type": "module",
   "scripts": {
     "build": "pnpm type-check",
     "clean": "echo 'Nothing to clean'",

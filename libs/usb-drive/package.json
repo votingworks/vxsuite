@@ -4,6 +4,7 @@
   "private": true,
   "description": "Library for interacting with a USB drive",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Utilities and definitions for logging in votingworks components",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.js",
   "files": [

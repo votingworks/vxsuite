@@ -4,6 +4,7 @@
   "private": true,
   "description": "A library to create type-safe RPC glue code.",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {

@@ -5,6 +5,7 @@
   "description": "",
   "license": "GPL-3.0-only",
   "author": "VotingWorks Eng <eng@voting.works>",
+  "type": "module",
   "scripts": {
     "build": "tsgo --build"
   },

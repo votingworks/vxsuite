@@ -4,6 +4,7 @@
   "description": "VotingWorks monorepo rules for ESLint",
   "keywords": [],
   "license": "GPL-3.0-only",
+  "type": "commonjs",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [

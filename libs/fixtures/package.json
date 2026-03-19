@@ -6,6 +6,7 @@
   "keywords": [],
   "license": "GPL-3.0-only",
   "author": "VotingWorks",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [

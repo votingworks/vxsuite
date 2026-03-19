@@ -4,6 +4,7 @@
   "private": true,
   "description": "Shared networking utilities for avahi service discovery and publishing",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [

@@ -4,6 +4,7 @@
   "private": true,
   "description": "An extended TS standard library of generic utility functions and types.",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {

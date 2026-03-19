@@ -4,6 +4,7 @@
   "description": "Generators for election data test fixtures",
   "keywords": [],
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "bin": {
     "cvr-fixture-generator": "bin/generate-cvrs"
