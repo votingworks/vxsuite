@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { AdminConnectionStatus, MachineConfig } from './types';
+import { HostConnectionStatus, MachineConfig } from './types';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('peer-app');
@@ -22,10 +22,10 @@ function buildPeerApi({ workspace }: PeerAppContext) {
         input.machineId,
         workspace.store.getCurrentElectionId() ?? 'none'
       );
-      workspace.store.setMachine(
+      workspace.store.setNetworkedMachineStatus(
         input.machineId,
         'client',
-        AdminConnectionStatus.Connected
+        HostConnectionStatus.Connected
       );
       return getMachineConfig();
     },

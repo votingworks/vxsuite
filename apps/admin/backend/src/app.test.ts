@@ -32,7 +32,7 @@ import {
   saveTmpFile,
 } from '../test/app';
 import {
-  AdminConnectionStatus,
+  HostConnectionStatus,
   ManualResultsIdentifier,
   ManualResultsRecord,
 } from './types';
@@ -107,10 +107,10 @@ test('getNetworkStatus returns offline with no connected clients by default', as
 
 test('getNetworkStatus returns online when host is connected', async () => {
   const { apiClient, workspace } = buildTestEnvironment();
-  workspace.store.setMachine(
+  workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
     'host',
-    AdminConnectionStatus.Connected
+    HostConnectionStatus.Connected
   );
   expect(await apiClient.getNetworkStatus()).toMatchObject({
     isOnline: true,
@@ -120,20 +120,20 @@ test('getNetworkStatus returns online when host is connected', async () => {
 
 test('getNetworkStatus returns connected clients', async () => {
   const { apiClient, workspace } = buildTestEnvironment();
-  workspace.store.setMachine(
+  workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
     'host',
-    AdminConnectionStatus.Connected
+    HostConnectionStatus.Connected
   );
-  workspace.store.setMachine(
+  workspace.store.setNetworkedMachineStatus(
     'CLIENT-001',
     'client',
-    AdminConnectionStatus.Connected
+    HostConnectionStatus.Connected
   );
-  workspace.store.setMachine(
+  workspace.store.setNetworkedMachineStatus(
     'CLIENT-002',
     'client',
-    AdminConnectionStatus.Offline
+    HostConnectionStatus.Offline
   );
   const status = await apiClient.getNetworkStatus();
   expect(status.isOnline).toEqual(true);
@@ -141,7 +141,7 @@ test('getNetworkStatus returns connected clients', async () => {
   expect(status.connectedClients[0]).toMatchObject({
     machineId: 'CLIENT-001',
     machineMode: 'client',
-    status: AdminConnectionStatus.Connected,
+    status: HostConnectionStatus.Connected,
   });
 });
 

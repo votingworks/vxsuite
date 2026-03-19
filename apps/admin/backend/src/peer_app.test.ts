@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { DEV_MACHINE_ID } from '@votingworks/types';
-import { AdminConnectionStatus } from './types';
+import { HostConnectionStatus } from './types';
 import { buildTestEnvironment } from '../test/app';
 
 test('connectToHost registers client and returns host machine config', async () => {
@@ -18,6 +18,6 @@ test('connectToHost registers client and returns host machine config', async () 
   expect(machines[0]).toMatchObject({
     machineId: 'client-001',
     machineMode: 'client',
-    status: AdminConnectionStatus.Connected,
+    status: HostConnectionStatus.Connected,
   });
 });

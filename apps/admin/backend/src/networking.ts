@@ -8,7 +8,7 @@ import { assert } from '@votingworks/basics';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
-import { AdminConnectionStatus, ClientConnectionStatus } from './types';
+import { HostConnectionStatus, ClientConnectionStatus } from './types';
 import { rootDebug } from './util/debug';
 import {
   NETWORK_POLLING_INTERVAL_MS,
@@ -58,12 +58,10 @@ export function startHostNetworking({
   process.nextTick(() => {
     setInterval(async () => {
       const isOnline = await hasOnlineInterface();
-      store.setMachine(
+      store.setNetworkedMachineStatus(
         machineId,
         'host',
-        isOnline
-          ? AdminConnectionStatus.Connected
-          : AdminConnectionStatus.Offline
+        isOnline ? HostConnectionStatus.Connected : HostConnectionStatus.Offline
       );
       store.cleanupStaleMachines();
     }, NETWORK_POLLING_INTERVAL_MS);

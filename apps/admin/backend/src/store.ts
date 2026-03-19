@@ -89,7 +89,7 @@ import {
   WriteInAdjudicationActionReset,
   CvrContestTag,
   WriteInForTally,
-  AdminConnectionStatus,
+  HostConnectionStatus,
   BaseStore,
   MachineRecord,
   MachineMode,
@@ -2861,10 +2861,10 @@ export class Store implements BaseStore {
   // Manage machine connections (multi-station)
   //
 
-  setMachine(
+  setNetworkedMachineStatus(
     machineId: string,
     machineMode: MachineMode,
-    status: AdminConnectionStatus
+    status: HostConnectionStatus
   ): void {
     this.client.run(
       `insert into machines (machine_id, machine_mode, status, last_seen_at)
@@ -2894,8 +2894,8 @@ export class Store implements BaseStore {
     this.client.run(
       `update machines set status = ?
        where status = ? and (? - last_seen_at) > ?`,
-      AdminConnectionStatus.Offline,
-      AdminConnectionStatus.Connected,
+      HostConnectionStatus.Offline,
+      HostConnectionStatus.Connected,
       getCurrentTime(),
       STALE_MACHINE_THRESHOLD_MS
     );

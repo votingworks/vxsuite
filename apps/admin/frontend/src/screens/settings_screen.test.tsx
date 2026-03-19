@@ -9,7 +9,7 @@ import {
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
-import { AdminConnectionStatus } from '../types';
+import { HostConnectionStatus } from '../types';
 import { screen, within } from '../../test/react_testing_library';
 
 import {
@@ -124,7 +124,7 @@ describe('multi-station mode', () => {
       connectedClients: Array<{
         machineId: string;
         machineMode: 'client';
-        status: AdminConnectionStatus;
+        status: HostConnectionStatus;
         lastSeenAt: number;
       }>;
     } = { isOnline: true, connectedClients: [] }
@@ -168,7 +168,7 @@ describe('multi-station mode', () => {
         {
           machineId: 'client-001',
           machineMode: 'client',
-          status: AdminConnectionStatus.Connected,
+          status: HostConnectionStatus.Connected,
           lastSeenAt: Date.now(),
         },
       ],
@@ -188,7 +188,7 @@ describe('multi-station mode', () => {
         {
           machineId: 'client-001',
           machineMode: 'client',
-          status: AdminConnectionStatus.Connected,
+          status: HostConnectionStatus.Connected,
           lastSeenAt: Date.now(),
         },
       ],

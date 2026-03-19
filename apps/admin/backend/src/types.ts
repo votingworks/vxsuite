@@ -39,8 +39,8 @@ export interface BaseStore {
   getSystemSettings(electionId: Id): SystemSettings | undefined;
 }
 
-/** Connection status between machines in a multi-station setup. */
-export enum AdminConnectionStatus {
+/** Connection status between a host machine and another admin machine in a multi-station setup. */
+export enum HostConnectionStatus {
   Connected = 'connected',
   Offline = 'offline',
 }
@@ -56,7 +56,7 @@ export enum ClientConnectionStatus {
 export interface MachineRecord {
   machineId: string;
   machineMode: MachineMode;
-  status: AdminConnectionStatus;
+  status: HostConnectionStatus;
   lastSeenAt: number;
 }
 
