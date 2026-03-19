@@ -5,11 +5,13 @@ import {
   isValidIpv4Address,
 } from '@votingworks/networking';
 import { assert } from '@votingworks/basics';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { safeParseElectionDefinition } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
 import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
   NETWORK_POLLING_INTERVAL_MS,
@@ -78,9 +80,11 @@ export function startHostNetworking({
 export function startClientNetworking({
   machineId,
   clientStore,
+  auth,
 }: {
   machineId: string;
   clientStore: ClientStore;
+  auth: DippedSmartCardAuthApi;
 }): void {
   debug('Starting client networking for machine %s', machineId);
 
@@ -162,8 +166,14 @@ export function startClientNetworking({
             });
             clientStore.setCachedSystemSettings(systemSettings);
           } else {
+            const previouslyConfiguredElection =
+              clientStore.getCachedElectionRecord();
             clientStore.setCachedElectionRecord(undefined);
             clientStore.setCachedSystemSettings(undefined);
+            if (previouslyConfiguredElection) {
+              debug('Host election unconfigured, logging out client');
+              auth.logOut(constructAuthMachineState(clientStore));
+            }
           }
         } catch (error) {
           debug('Lost connection to host at %s: %s', hostAddress, error);

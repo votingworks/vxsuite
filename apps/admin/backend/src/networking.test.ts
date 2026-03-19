@@ -5,6 +5,7 @@ import {
   isValidIpv4Address,
 } from '@votingworks/networking';
 import * as grout from '@votingworks/grout';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   getHostServiceName,
@@ -92,9 +93,17 @@ describe('startClientNetworking', () => {
     return new ClientStore();
   }
 
+  function createMockAuth() {
+    return buildMockDippedSmartCardAuth(vi.fn);
+  }
+
   test('stores offline status initially', () => {
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0001', clientStore });
+    startClientNetworking({
+      machineId: '0001',
+      clientStore,
+      auth: createMockAuth(),
+    });
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.Offline
     );
@@ -105,7 +114,11 @@ describe('startClientNetworking', () => {
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0001a', clientStore });
+    startClientNetworking({
+      machineId: '0001a',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -133,7 +146,11 @@ describe('startClientNetworking', () => {
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0001b', clientStore });
+    startClientNetworking({
+      machineId: '0001b',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -150,7 +167,11 @@ describe('startClientNetworking', () => {
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0001c', clientStore });
+    startClientNetworking({
+      machineId: '0001c',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.OnlineWaitingForHost
@@ -183,7 +204,11 @@ describe('startClientNetworking', () => {
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0002', clientStore });
+    startClientNetworking({
+      machineId: '0002',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
@@ -195,7 +220,11 @@ describe('startClientNetworking', () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(false);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0003', clientStore });
+    startClientNetworking({
+      machineId: '0003',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(hasOnlineInterface).toHaveBeenCalled();
@@ -207,7 +236,11 @@ describe('startClientNetworking', () => {
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0004', clientStore });
+    startClientNetworking({
+      machineId: '0004',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(AvahiService.discoverHttpServices).toHaveBeenCalled();
@@ -227,7 +260,11 @@ describe('startClientNetworking', () => {
     vi.mocked(isValidIpv4Address).mockReturnValue(false);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0005', clientStore });
+    startClientNetworking({
+      machineId: '0005',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(grout.createClient).not.toHaveBeenCalled();
@@ -245,7 +282,11 @@ describe('startClientNetworking', () => {
     ]);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0006', clientStore });
+    startClientNetworking({
+      machineId: '0006',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(grout.createClient).not.toHaveBeenCalled();
@@ -271,7 +312,11 @@ describe('startClientNetworking', () => {
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0007', clientStore });
+    startClientNetworking({
+      machineId: '0007',
+      clientStore,
+      auth: createMockAuth(),
+    });
 
     // First poll: connect
     await advancePollingInterval();
@@ -301,7 +346,11 @@ describe('startClientNetworking', () => {
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0008', clientStore });
+    startClientNetworking({
+      machineId: '0008',
+      clientStore,
+      auth: createMockAuth(),
+    });
 
     // First poll: connect
     await advancePollingInterval();
@@ -336,7 +385,11 @@ describe('startClientNetworking', () => {
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0009', clientStore });
+    startClientNetworking({
+      machineId: '0009',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
 
     expect(mockClient.connectToHost).toHaveBeenCalled();
@@ -364,7 +417,11 @@ describe('startClientNetworking', () => {
     ]);
 
     const clientStore = createClientStore();
-    startClientNetworking({ machineId: '0010', clientStore });
+    startClientNetworking({
+      machineId: '0010',
+      clientStore,
+      auth: createMockAuth(),
+    });
     await advancePollingInterval();
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
 

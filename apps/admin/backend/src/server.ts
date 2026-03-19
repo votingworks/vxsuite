@@ -200,6 +200,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       startClientNetworking({
         machineId: getMachineConfig().machineId,
         clientStore: clientWorkspace.clientStore,
+        auth,
       });
 
       app = buildClientApp({
