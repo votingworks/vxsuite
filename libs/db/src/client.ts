@@ -2,12 +2,16 @@ import { assert } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
+import type BetterSqlite3 from 'better-sqlite3';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';
-import Database = require('better-sqlite3');
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
-type Database = Database.Database;
+const require = createRequire(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Database = require('better-sqlite3') as typeof BetterSqlite3;
+type Database = BetterSqlite3.Database;
 
 const debug = makeDebug('db-client');
 
