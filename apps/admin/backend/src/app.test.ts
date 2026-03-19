@@ -17,13 +17,13 @@ import {
   safeParseElectionDefinition,
   testElectionReport,
   testElectionReportUnsupportedContestType,
+  Tabulation,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
   HP_LASER_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
-import { CandidateContestResults } from '@votingworks/types/src/tabulation';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -587,7 +587,7 @@ describe('ERR file import', () => {
     );
     const councilContest = assertDefined(
       manualResults?.manualResults.contestResults['city-council']
-    ) as CandidateContestResults;
+    ) as Tabulation.CandidateContestResults;
     const writeInTally = assertDefined(
       Object.values(councilContest.tallies).find(
         (tally) => tally.name === 'Alvin Boone and James Lian'

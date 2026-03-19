@@ -20,7 +20,6 @@ import {
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { AuthStatus } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import { screen, within } from '../test/react_testing_library.js';
 import { newTestContext } from '../test/test_context.js';
 import {
@@ -648,7 +647,7 @@ test('Insert vendor card', async () => {
 });
 
 test('Insert poll worker card programmed for another election (PINs enabled)', async () => {
-  const authStatus: AuthStatus = {
+  const authStatus: DippedSmartCardAuth.AuthStatus = {
     ...baseAuth,
     programmableCard: {
       status: 'ready',

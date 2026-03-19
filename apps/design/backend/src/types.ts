@@ -7,9 +7,9 @@ import {
   LiveReportVotingType,
   PrecinctSelection,
   PollsTransitionType,
+  Tabulation,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
-import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
 import { baseUrl } from './globals.js';
 
@@ -149,7 +149,7 @@ export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: false;
-  contestResults: Record<ContestId, ContestResults>;
+  contestResults: Record<ContestId, Tabulation.ContestResults>;
 }
 
 export type ReceivedReportInfo =
@@ -161,7 +161,7 @@ export type ReceivedReportInfo =
 
 export interface AggregatedReportedResults {
   ballotHash: string;
-  contestResults: Record<ContestId, ContestResults>;
+  contestResults: Record<ContestId, Tabulation.ContestResults>;
   election: Election;
   machinesReporting: string[];
   isLive: boolean;

@@ -42,7 +42,6 @@ import {
   CachedElectionLookups,
 } from '@votingworks/utils';
 
-import { MarkScores } from '@votingworks/types/src/tabulation';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { Store } from './store.js';
 import {
@@ -219,7 +218,7 @@ export function determineCvrContestTags({
   isHmpb: boolean;
   votes: Tabulation.Votes;
   writeIns: CastVoteRecordWriteIn[];
-  markScores?: MarkScores;
+  markScores?: Tabulation.MarkScores;
 }): CvrContestTag[] {
   const electionId = assertDefined(store.getCurrentElectionId());
   const { adminAdjudicationReasons, markThresholds } =

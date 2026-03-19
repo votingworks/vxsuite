@@ -55,6 +55,7 @@ import {
   PollingPlace,
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
+  Tabulation,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -66,7 +67,6 @@ import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
-import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   ALL_PRECINCTS_REPORT_KEY,
   ExternalElectionSource,
@@ -2914,7 +2914,7 @@ export class Store {
     precinctSelection: PrecinctSelection,
     isLive: boolean
   ): Promise<{
-    contestResults: Record<ContestId, ContestResults>;
+    contestResults: Record<ContestId, Tabulation.ContestResults>;
     machinesReporting: string[];
   }> {
     let precinctWhereClause = '';
@@ -2964,7 +2964,7 @@ export class Store {
       precinctSelection
     ).map((contest) => contest.id);
 
-    const filteredContestResults: Record<ContestId, ContestResults> = {};
+    const filteredContestResults: Record<ContestId, Tabulation.ContestResults> = {};
     for (const contestId of contestIdsForPrecinct) {
       assert(contestId in contestResults, 'Missing contest results');
       filteredContestResults[contestId] = contestResults[contestId];
