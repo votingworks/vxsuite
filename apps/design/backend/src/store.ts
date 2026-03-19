@@ -57,7 +57,6 @@ import {
   pollingPlaceGenerateFromPrecinct,
   ElectionPrecinctMetadata,
   PrecinctMetadataEntry,
-  isPrecinctAndMetadataWithSplits,
 } from '@votingworks/types';
 import type { PrecinctAndMetadata } from '@votingworks/types';
 import {
@@ -287,9 +286,7 @@ async function insertPrecinct(
     precinct.id,
     electionId,
     precinct.name,
-    isPrecinctAndMetadataWithSplits(precinct)
-      ? null
-      : precinct.registeredVoterCount ?? null
+    hasSplits(precinct) ? null : precinct.registeredVoterCount ?? null
   );
 
   await insertPrecinctDistrictsOrSplits(client, precinct);
@@ -301,7 +298,7 @@ async function insertPrecinctDistrictsOrSplits(
 ) {
   await assertWithinTransaction(client);
 
-  if (isPrecinctAndMetadataWithSplits(precinct)) {
+  if (hasSplits(precinct)) {
     if (
       uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
         .length !== precinct.splits.length
@@ -1737,9 +1734,7 @@ export class Store {
                 and election_id = $4
             `,
             precinct.name,
-            isPrecinctAndMetadataWithSplits(precinct)
-              ? null
-              : precinct.registeredVoterCount ?? null,
+            hasSplits(precinct) ? null : precinct.registeredVoterCount ?? null,
             precinct.id,
             electionId
           );

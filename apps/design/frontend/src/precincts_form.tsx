@@ -14,7 +14,7 @@ import {
   District,
   ElectionStringKey,
   safeParseInt,
-  isPrecinctAndMetadataWithSplits,
+  hasSplits,
 } from '@votingworks/types';
 import type {
   PrecinctAndMetadata,
@@ -148,13 +148,13 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function setSplit(index: number, split: PrecinctAndMetadataSplit) {
-    assert(precinct && isPrecinctAndMetadataWithSplits(precinct));
+    assert(precinct && hasSplits(precinct));
     setSplits(replaceAtIndex(precinct.splits, index, split));
   }
 
   function onAddSplitPress() {
     assert(precinct);
-    if (isPrecinctAndMetadataWithSplits(precinct)) {
+    if (hasSplits(precinct)) {
       setSplits([
         ...precinct.splits,
         {
@@ -183,7 +183,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function onRemoveSplitPress(index: number) {
-    assert(precinct && isPrecinctAndMetadataWithSplits(precinct));
+    assert(precinct && hasSplits(precinct));
     const { splits, ...rest } = precinct;
     const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
@@ -290,11 +290,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
           />
         </InputGroup>
         <div>
-          {isPrecinctAndMetadataWithSplits(precinct) && (
-            <FieldName>Splits</FieldName>
-          )}
+          {hasSplits(precinct) && <FieldName>Splits</FieldName>}
           <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
-            {isPrecinctAndMetadataWithSplits(precinct) ? (
+            {hasSplits(precinct) ? (
               <React.Fragment>
                 {precinct.splits.map((split, index) => (
                   <Card key={split.id}>
@@ -478,7 +476,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       value={precinct.registeredVoterCount ?? ''}
                       onChange={(e) =>
                         setPrecinct((prev) => {
-                          if (isPrecinctAndMetadataWithSplits(prev)) {
+                          if (hasSplits(prev)) {
                             return prev;
                           }
                           return {

@@ -49,7 +49,6 @@ import {
   YesNoContest,
   BmdBallotPaperSize,
   hasSplits,
-  isPrecinctAndMetadataWithSplits,
   DistrictId,
   Precinct,
   BallotStyle,
@@ -689,24 +688,6 @@ test('hasSplits', () => {
 
   expect(hasSplits(precincts[0])).toEqual(true);
   expect(hasSplits(precincts[1])).toEqual(false);
-});
-
-test('isPrecinctAndMetadataWithSplits', () => {
-  const districtIds: DistrictId[] = ['district-1' as DistrictId];
-  expect(
-    isPrecinctAndMetadataWithSplits({
-      id: 'precinct-1',
-      name: 'Precinct 1',
-      splits: [{ id: 'split-a', name: 'Split A', districtIds }],
-    })
-  ).toEqual(true);
-  expect(
-    isPrecinctAndMetadataWithSplits({
-      id: 'precinct-2',
-      name: 'Precinct 2',
-      districtIds,
-    })
-  ).toEqual(false);
 });
 
 test('getAllPrecinctsAndSplits', () => {

@@ -351,7 +351,13 @@ export type PrecinctSplit = PrecinctSplitBase & NhPrecinctSplitOptions;
 
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
-export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
+export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits;
+export function hasSplits(
+  precinct: PrecinctAndMetadata
+): precinct is PrecinctAndMetadataWithSplits;
+export function hasSplits(
+  precinct: Precinct | PrecinctAndMetadata
+): precinct is PrecinctWithSplits | PrecinctAndMetadataWithSplits {
   return 'splits' in precinct && precinct.splits !== undefined;
 }
 
@@ -372,12 +378,6 @@ export interface PrecinctAndMetadataWithSplits
 export type PrecinctAndMetadata =
   | PrecinctAndMetadataWithoutSplits
   | PrecinctAndMetadataWithSplits;
-
-export function isPrecinctAndMetadataWithSplits(
-  precinct: PrecinctAndMetadata
-): precinct is PrecinctAndMetadataWithSplits {
-  return 'splits' in precinct && precinct.splits !== undefined;
-}
 
 export type PrecinctOrSplit =
   | { precinct: PrecinctWithoutSplits; split?: never }
