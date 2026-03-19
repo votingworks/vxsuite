@@ -16,7 +16,7 @@ import { UsbDrive, UsbDriveStatus } from '../types';
 export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
 export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';
 // libs/usb-drive/src/mocks/ is 4 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../..');
 export const MOCK_USB_DRIVE_DIR = join(
   getMockStateRootDir(REPO_ROOT),
   'usb-drive'

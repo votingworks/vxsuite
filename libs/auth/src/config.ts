@@ -12,7 +12,7 @@ import { FileKey, RemoteKey, TpmKey } from './keys';
  * The path to the dev root cert
  */
 export const DEV_VX_CERT_AUTHORITY_CERT_PATH = path.join(
-  __dirname,
+  import.meta.dirname,
   '../certs/dev/vx-cert-authority-cert.pem'
 );
 
@@ -21,7 +21,7 @@ export const DEV_VX_CERT_AUTHORITY_CERT_PATH = path.join(
  * universal and 2) public.
  */
 export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
-  __dirname,
+  import.meta.dirname,
   '../certs/prod/vx-cert-authority-cert.pem'
 );
 
@@ -59,11 +59,11 @@ function getMachineCertPathAndPrivateKey(): {
     };
   }
   return {
-    certPath: path.join(__dirname, '../certs/dev', machineCertFileName),
+    certPath: path.join(import.meta.dirname, '../certs/dev', machineCertFileName),
     privateKey: {
       source: 'file',
       path: path.join(
-        __dirname,
+        import.meta.dirname,
         '../certs/dev',
         `vx-${machineType}-private-key.pem`
       ),
@@ -129,7 +129,7 @@ export function constructJavaCardConfig(): JavaCardConfig {
 export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
   const vxPrivateKeyPath = shouldUseProdCerts()
     ? getRequiredEnvVar('VX_PRIVATE_KEY_PATH')
-    : path.join(__dirname, '../certs/dev/vx-private-key.pem');
+    : path.join(import.meta.dirname, '../certs/dev/vx-private-key.pem');
   return {
     cardProgrammingConfig: {
       configType: 'vx',

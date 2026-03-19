@@ -19,7 +19,7 @@ import { getMockConnectedPrinterStatus } from './fixtures';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 // libs/printing/src/printer/mocks/ is 5 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 export const MOCK_HP_PRINTER_DIR = join(
   getMockStateRootDir(REPO_ROOT),
   'hp-printer'

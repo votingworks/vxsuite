@@ -23,7 +23,7 @@ import {
 
 export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
 // libs/fujitsu-thermal-printer/src/mocks/ is 4 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../..');
 export const MOCK_FUJITSU_PRINTER_DIR = join(
   getMockStateRootDir(REPO_ROOT),
   'fujitsu-printer'

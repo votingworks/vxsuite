@@ -28,5 +28,5 @@ export const NODE_ENV = unsafeParse(
 export const SCAN_WORKSPACE =
   process.env.SCAN_WORKSPACE ??
   (NODE_ENV === 'development'
-    ? join(__dirname, '../dev-workspace')
+    ? join(import.meta.dirname, '../dev-workspace')
     : undefined);

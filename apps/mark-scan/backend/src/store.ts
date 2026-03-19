@@ -35,7 +35,7 @@ import {
 import { DateTime } from 'luxon';
 import { join } from 'node:path';
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 export interface ElectionRecord {
   electionDefinition: ElectionDefinition;

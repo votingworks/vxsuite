@@ -85,7 +85,7 @@ async function benchmark(
 }
 
 function resultsFilePath(label: string) {
-  return join(__dirname, 'results', ENV, `${label.replaceAll(' ', '-')}.json`);
+  return join(import.meta.dirname, 'results', ENV, `${label.replaceAll(' ', '-')}.json`);
 }
 
 function saveResults(label: string, results: BenchmarkResults) {

@@ -13,15 +13,15 @@ import {
 } from '../../../test/cdf_schema_utils';
 
 const nistXsd = readFileSync(
-  join(__dirname, '../../../data/cdf/ballot-definition/nist-schema.xsd'),
+  join(import.meta.dirname, '../../../data/cdf/ballot-definition/nist-schema.xsd'),
   'utf-8'
 );
 const nistJson = readFileSync(
-  join(__dirname, '../../../data/cdf/ballot-definition/nist-schema.json'),
+  join(import.meta.dirname, '../../../data/cdf/ballot-definition/nist-schema.json'),
   'utf-8'
 );
 const nistSchema = JSON.parse(nistJson);
-const vxJson = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
+const vxJson = readFileSync(join(import.meta.dirname, './vx-schema.json'), 'utf-8');
 const vxSchema = JSON.parse(vxJson);
 
 test('BallotDefinition schema', () => {
@@ -29,7 +29,7 @@ test('BallotDefinition schema', () => {
 });
 
 test('generated types are in sync with schema', () => {
-  const generatedTypes = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+  const generatedTypes = readFileSync(join(import.meta.dirname, './index.ts'), 'utf-8');
   const out = mockWritable();
   buildSchema(nistXsd, vxJson, out).unsafeUnwrap();
   const expectedTypes = out.toString();

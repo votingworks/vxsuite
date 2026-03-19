@@ -18,7 +18,7 @@ export const SUPPORTED_PRINTER_CONFIGS = safeParse(
   z.array(PrinterConfigSchema),
   safeParseJson(
     readFileSync(
-      join(__dirname, RELATIVE_PATH_TO_SUPPORTED_PRINTERS, 'configs.json'),
+      join(import.meta.dirname, RELATIVE_PATH_TO_SUPPORTED_PRINTERS, 'configs.json'),
       'utf8'
     )
   ).unsafeUnwrap()
@@ -32,7 +32,7 @@ export function getPrinterConfig(uri: string): PrinterConfig | undefined {
 
 export function getPpdPath(printerConfig: PrinterConfig): string {
   return join(
-    __dirname,
+    import.meta.dirname,
     RELATIVE_PATH_TO_SUPPORTED_PRINTERS,
     printerConfig.ppd
   );

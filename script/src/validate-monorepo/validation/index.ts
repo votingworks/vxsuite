@@ -12,7 +12,7 @@ export type ValidationIssue =
   | cargo.ValidationIssue;
 
 export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
-  const root = join(__dirname, '../../../..');
+  const root = join(import.meta.dirname, '../../../..');
   const workspacePackages = getWorkspacePackageInfo(root);
 
   yield* pkgs.checkConfig({

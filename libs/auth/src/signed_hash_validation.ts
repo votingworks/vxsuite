@@ -29,7 +29,7 @@ export const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '#';
 
 async function computeSystemHash(): Promise<string> {
   const scriptPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../src/intermediate-scripts/compute-system-hash'
   );
   const stdout = await runCommand(['sudo', scriptPath]);

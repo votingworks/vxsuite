@@ -78,7 +78,7 @@ export class BarcodeClient
     });
 
   start(): Worker {
-    return new Worker(`${__dirname}/monitor`)
+    return new Worker(`${import.meta.dirname}/monitor`)
       .on('error', this.onError)
       .on('exit', this.onExit)
       .on('message', this.onMessage)

@@ -108,8 +108,8 @@ export async function openssl(
  */
 export function getConfigFilePath({ usingTpm }: { usingTpm: boolean }): string {
   return usingTpm
-    ? path.join(__dirname, '../config/openssl.vx-tpm.cnf')
-    : path.join(__dirname, '../config/openssl.vx.cnf');
+    ? path.join(import.meta.dirname, '../config/openssl.vx-tpm.cnf')
+    : path.join(import.meta.dirname, '../config/openssl.vx.cnf');
 }
 
 /**
@@ -269,7 +269,7 @@ export async function manageOpensslConfig(
   options: { addSudo?: boolean } = {}
 ): Promise<void> {
   const manageOpensslConfigScriptPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../src/intermediate-scripts/manage-openssl-config'
   );
   const command = [manageOpensslConfigScriptPath, action];
@@ -435,7 +435,7 @@ export async function createCertHelper({
  */
 export async function createCert(input: CreateCertInput): Promise<Buffer> {
   const scriptPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../src/intermediate-scripts/create-cert'
   );
   const scriptInput = JSON.stringify(input);
@@ -540,7 +540,7 @@ export async function signMessage({
   ...inputExcludingMessage
 }: SignMessageInput): Promise<Buffer> {
   const scriptPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../src/intermediate-scripts/sign-message'
   );
   const scriptInput = JSON.stringify(inputExcludingMessage);

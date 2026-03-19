@@ -35,5 +35,5 @@ export function getNodeEnv(): z.TypeOf<typeof NodeEnvSchema> {
 export const MARK_SCAN_WORKSPACE =
   process.env.MARK_SCAN_WORKSPACE ??
   (NODE_ENV === 'development'
-    ? join(__dirname, '../dev-workspace')
+    ? join(import.meta.dirname, '../dev-workspace')
     : undefined);

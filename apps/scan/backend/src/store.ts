@@ -71,7 +71,7 @@ import { PollsTransition } from './types';
 
 const debug = rootDebug.extend('store');
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 const getSheetsBaseQuery = `
   select

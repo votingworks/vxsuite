@@ -115,15 +115,15 @@ const castVoteRecordReport: CastVoteRecordReport = {
 };
 
 const nistXsd = readFileSync(
-  join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.xsd'),
+  join(import.meta.dirname, '../../../data/cdf/cast-vote-records/nist-schema.xsd'),
   'utf-8'
 );
 const nistJson = readFileSync(
-  join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.json'),
+  join(import.meta.dirname, '../../../data/cdf/cast-vote-records/nist-schema.json'),
   'utf-8'
 );
 const nistSchema = JSON.parse(nistJson);
-const vxJson = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
+const vxJson = readFileSync(join(import.meta.dirname, './vx-schema.json'), 'utf-8');
 const vxSchema = JSON.parse(vxJson);
 
 test('CastVoteRecordReport', () => {
@@ -131,7 +131,7 @@ test('CastVoteRecordReport', () => {
 });
 
 test('generated types are in sync with schema', () => {
-  const generatedTypes = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+  const generatedTypes = readFileSync(join(import.meta.dirname, './index.ts'), 'utf-8');
   const out = mockWritable();
   buildSchema(nistXsd, vxJson, out).unsafeUnwrap();
   const expectedTypes = out.toString();

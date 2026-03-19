@@ -12,7 +12,7 @@ import tmp from 'tmp';
 import { renderTestModeBallotWithoutLanguageContext } from '../../util/render_ballot';
 
 export const DIAGNOSTIC_ELECTION_PATH = join(
-  __dirname,
+  import.meta.dirname,
   ElectionPackageFileName.ELECTION
 );
 

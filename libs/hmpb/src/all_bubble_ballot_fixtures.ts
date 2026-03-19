@@ -26,7 +26,7 @@ import { allBubbleBallotConfig } from './all_bubble_ballot/config';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
-const fixturesDir = join(__dirname, '../fixtures');
+const fixturesDir = join(import.meta.dirname, '../fixtures');
 
 export interface AllBubbleBallotFixtures {
   paperSize: HmpbBallotPaperSize;

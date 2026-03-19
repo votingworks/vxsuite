@@ -30,26 +30,26 @@ export default defineConfig({
     alias: [
       {
         find: '@votingworks/auth',
-        replacement: join(__dirname, '../../../libs/auth/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/auth/src/index.ts'),
       },
       {
         find: '@votingworks/backend',
-        replacement: join(__dirname, '../../../libs/backend/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/backend/src/index.ts'),
       },
       {
         find: '@votingworks/ballot-interpreter',
         replacement: join(
-          __dirname,
+          import.meta.dirname,
           '../../../libs/ballot-interpreter/src/index.ts'
         ),
       },
       {
         find: '@votingworks/types',
-        replacement: join(__dirname, '../../../libs/types/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/types/src/index.ts'),
       },
       {
         find: '@votingworks/ui',
-        replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/ui/src/index.ts'),
       },
     ],
   },

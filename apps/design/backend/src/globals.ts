@@ -193,7 +193,7 @@ export function circleCiBaseUrl(): string {
 export const WORKSPACE =
   process.env.WORKSPACE ??
   (NODE_ENV === 'development'
-    ? join(__dirname, '../dev-workspace')
+    ? join(import.meta.dirname, '../dev-workspace')
     : undefined);
 
 /**

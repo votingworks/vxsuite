@@ -3,7 +3,7 @@ import { Alias, defineConfig } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {
-  const workspaceRootPath = join(__dirname, '../..');
+  const workspaceRootPath = join(import.meta.dirname, '../..');
   const workspacePackages = getWorkspacePackageInfo(workspaceRootPath);
 
   return {
@@ -28,27 +28,27 @@ export default defineConfig(async (env) => {
         { find: 'node:buffer', replacement: require.resolve('buffer/') },
         {
           find: 'fs/promises',
-          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+          replacement: join(import.meta.dirname, './src/preview/stubs/fs.ts'),
         },
         {
           find: 'node:fs/promises',
-          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+          replacement: join(import.meta.dirname, './src/preview/stubs/fs.ts'),
         },
         {
           find: 'fs',
-          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+          replacement: join(import.meta.dirname, './src/preview/stubs/fs.ts'),
         },
         {
           find: 'node:fs',
-          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+          replacement: join(import.meta.dirname, './src/preview/stubs/fs.ts'),
         },
         {
           find: 'os',
-          replacement: join(__dirname, './src/preview/stubs/os.ts'),
+          replacement: join(import.meta.dirname, './src/preview/stubs/os.ts'),
         },
         {
           find: 'node:os',
-          replacement: join(__dirname, './src/preview/stubs/os.ts'),
+          replacement: join(import.meta.dirname, './src/preview/stubs/os.ts'),
         },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'node:path', replacement: require.resolve('path/') },

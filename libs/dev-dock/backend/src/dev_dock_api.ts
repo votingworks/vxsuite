@@ -73,13 +73,13 @@ export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
   './libs/fixtures/data/electionGeneral/election.json';
 
 const MOCK_CARD_SCRIPT_PATH = join(
-  __dirname,
+  import.meta.dirname,
   '../../../auth/scripts/mock-card'
 );
 
 // The repo root is 4 levels up from this file's directory
 // (libs/dev-dock/backend/src -> libs/dev-dock/backend -> libs/dev-dock -> libs -> repo root)
-const REPO_ROOT = join(__dirname, '../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../..');
 
 // Directory for dev-dock mock state, namespaced by NODE_ENV for worktree isolation
 export const DEFAULT_DEV_DOCK_DIR = getMockStateRootDir(REPO_ROOT);
@@ -251,7 +251,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
-      const baseFixturePath = join(__dirname, '../../../../libs/fixtures/data');
+      const baseFixturePath = join(import.meta.dirname, '../../../../libs/fixtures/data');
       return fs
         .readdirSync(baseFixturePath, {
           withFileTypes: true,

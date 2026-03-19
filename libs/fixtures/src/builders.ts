@@ -79,7 +79,7 @@ export interface ImageFixture extends FileFixture {
  * Locates a resource file relative to the current module.
  */
 function locate(path: string): string {
-  let rootDir = __dirname;
+  let rootDir = import.meta.dirname;
   do {
     if (existsSync(join(rootDir, 'package.json'))) {
       const realPath = join(rootDir, path);

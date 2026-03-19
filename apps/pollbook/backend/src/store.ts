@@ -44,7 +44,7 @@ import {
 
 const debug = rootDebug.extend('store');
 
-export const SchemaPath = join(__dirname, '../schema.sql');
+export const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 

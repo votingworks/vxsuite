@@ -101,7 +101,7 @@ if (args.help) {
   process.exit(0);
 }
 
-const fileLocation = join(__dirname, '../../../..');
+const fileLocation = join(import.meta.dirname, '../../../..');
 const fileName = '.env.local';
 const filePath = args.outputPath ?? join(fileLocation, fileName);
 void generateEnvFile(filePath, args.isVxDev ?? false);

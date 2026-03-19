@@ -41,7 +41,7 @@ test('file database client', () => {
 
 test('file database client with a schema', () => {
   const dbFile = makeTemporaryFile();
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
     dbFile,
     mockBaseLogger({ fn: vi.fn }),
@@ -138,7 +138,7 @@ test('file database client with regex enabled in connectionOptions', () => {
 
 test('reset file database client', () => {
   const dbFile = makeTemporaryFile();
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
     dbFile,
     mockBaseLogger({ fn: vi.fn }),
@@ -168,7 +168,7 @@ test('reset file database client', () => {
 });
 
 test('memory database client, reset', () => {
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.memoryClient(schemaFile);
 
   expect(client.getDatabasePath()).toEqual(':memory:');
@@ -389,7 +389,7 @@ test('connect errors', () => {
 
 test('vacuuming reduces file size', () => {
   const dbFile = makeTemporaryFile();
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
     dbFile,
     mockBaseLogger({ fn: vi.fn }),

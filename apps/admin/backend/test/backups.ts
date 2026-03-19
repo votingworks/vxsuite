@@ -4,7 +4,7 @@ import tmp from 'tmp';
 import { Workspace } from '../src/util/workspace';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 
-export const WORKSPACE_BACKUPS_DIR = join(__dirname, '..', 'workspace-backups');
+export const WORKSPACE_BACKUPS_DIR = join(import.meta.dirname, '..', 'workspace-backups');
 
 export interface MakeTestWorkspaceBackupParams {
   workspace: Workspace;

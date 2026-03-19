@@ -23,7 +23,7 @@ async function countNonBlankLinesReference(path: string): Promise<number> {
 }
 
 run({
-  makeInput: () => __filename,
+  makeInput: () => import.meta.filename,
   referenceImplementation: countNonBlankLinesReference,
   exerciseImplementation: countNonBlankLines,
   solutionImplementation: countNonBlankLinesSolution,

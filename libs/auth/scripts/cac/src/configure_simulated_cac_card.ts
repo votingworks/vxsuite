@@ -21,10 +21,10 @@ import { waitForReadyCardStatus } from '../../src/utils';
 import { CARD_DOD_CERT, CommonAccessCard, DEFAULT_PIN } from '../../../src/cac';
 
 const APPLET_PATH = path.join(
-  __dirname,
+  import.meta.dirname,
   '../../../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
 );
-const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(__dirname, '../../gp.jar');
+const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(import.meta.dirname, '../../gp.jar');
 
 /**
  * CHANGE REFERENCE DATA ADMIN is an OpenFIPS201-specific extension of the PIV-standard CHANGE

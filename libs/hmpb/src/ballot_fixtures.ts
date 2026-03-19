@@ -45,7 +45,7 @@ import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
-export const fixturesDir = join(__dirname, '../fixtures');
+export const fixturesDir = join(import.meta.dirname, '../fixtures');
 
 export const vxFamousNamesFixtures = (() => {
   const dir = join(fixturesDir, 'vx-famous-names');

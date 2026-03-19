@@ -15,7 +15,7 @@ vi.mock('@votingworks/backend', async (importOriginal) => {
 
 const MockAudioPlayer = vi.mocked(AudioPlayer);
 
-test('Player uses correct sounds directory (__dirname)', () => {
+test('Player uses correct sounds directory (import.meta.dirname)', () => {
   const logger = mockLogger({ fn: vi.fn });
   // eslint-disable-next-line no-new
   new Player('development', logger, 'test.output');
@@ -24,7 +24,7 @@ test('Player uses correct sounds directory (__dirname)', () => {
     nodeEnv: 'development',
     logger,
     outputName: 'test.output',
-    soundsDirectory: __dirname,
+    soundsDirectory: import.meta.dirname,
   });
 });
 

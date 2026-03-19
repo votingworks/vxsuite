@@ -38,7 +38,7 @@ export const NODE_ENV = unsafeParse(
 export const WORKSPACE =
   process.env.WORKSPACE ??
   (NODE_ENV === 'development'
-    ? join(__dirname, '../dev-workspace')
+    ? join(import.meta.dirname, '../dev-workspace')
     : undefined);
 
 export const CONFIGURATION_POLLING_INTERVAL = 100;

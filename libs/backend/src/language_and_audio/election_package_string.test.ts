@@ -24,7 +24,7 @@ const allBallotLanguages: BallotLanguageConfigs = [
 const appStringsCatalog = JSON.parse(
   fs.readFileSync(
     path.join(
-      __dirname,
+      import.meta.dirname,
       `../../../ui/src/ui_strings/app_strings_catalog/latest.json`
     ),
     'utf-8'

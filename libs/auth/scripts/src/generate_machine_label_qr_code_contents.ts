@@ -94,7 +94,7 @@ async function generateMachineLabelQrCodeContents({
   });
 
   const certPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../../certs/prod/vx-label-qr-codes-cert-authority-cert.pem'
   );
   const publicKey = await extractPublicKeyFromCert(certPath);

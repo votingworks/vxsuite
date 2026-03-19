@@ -55,7 +55,7 @@ async function run(
   const stderr = mockWritable();
 
   const exitCode = await main(
-    [process.argv0, resolve(__dirname, './main'), ...args],
+    [process.argv0, resolve(import.meta.dirname, './main'), ...args],
     { stdin, stdout, stderr }
   );
 

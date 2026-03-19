@@ -40,7 +40,7 @@ import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
 import { DateTime } from 'luxon';
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 export type ElectricalTestingComponent =
   | 'card'

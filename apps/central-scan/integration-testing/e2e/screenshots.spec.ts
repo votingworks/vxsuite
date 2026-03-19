@@ -16,7 +16,7 @@ import {
 } from './support/auth';
 
 const MARKED_BALLOT_PATH = resolve(
-  __dirname,
+  import.meta.dirname,
   '../../../../libs/hmpb/fixtures/vx-famous-names/marked-official-ballot.pdf'
 );
 

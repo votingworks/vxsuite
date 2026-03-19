@@ -17,7 +17,7 @@ export function createWorkspace(
 ): Workspace {
   ensureDirSync(workspacePath);
 
-  const assetDirectoryPath = join(__dirname, '../../frontend/build');
+  const assetDirectoryPath = join(import.meta.dirname, '../../frontend/build');
   ensureDirSync(assetDirectoryPath);
 
   return { assetDirectoryPath, store };

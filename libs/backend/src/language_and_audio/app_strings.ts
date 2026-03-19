@@ -27,7 +27,7 @@ export async function translateAppStrings(
 
   const appStringsCatalogFileContents = await fs.readFile(
     path.join(
-      __dirname,
+      import.meta.dirname,
       `../../../ui/src/ui_strings/app_strings_catalog/${machineVersion}.json`
     ),
     'utf-8'

@@ -123,7 +123,7 @@ test('unknown error', async () => {
 test('when PID file does not exist', async () => {
   expect(
     await isAccessibleControllerDaemonRunning(
-      join(__dirname, 'not-a-real-dir'),
+      join(import.meta.dirname, 'not-a-real-dir'),
       logger
     )
   ).toEqual(false);

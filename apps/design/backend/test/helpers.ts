@@ -383,7 +383,7 @@ export async function exportTestDecks({
   )[0];
 }
 
-const fixturesPath = `${__dirname}/../test/fixtures`;
+const fixturesPath = `${import.meta.dirname}/../test/fixtures`;
 
 export function readFixture(filename: string): string {
   return readFileSync(join(fixturesPath, filename), 'utf8');

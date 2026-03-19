@@ -5,15 +5,15 @@ import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
 
 export default defineConfig((env) => {
-  const workspacePackages = getWorkspacePackageInfo(join(__dirname, '../..'));
+  const workspacePackages = getWorkspacePackageInfo(join(import.meta.dirname, '../..'));
 
   const envPrefix = 'REACT_APP_';
   const rootDotenvValues = loadEnv(
     env.mode,
-    join(__dirname, '../../..'),
+    join(import.meta.dirname, '../../..'),
     envPrefix
   );
-  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix);
+  const coreDotenvValues = loadEnv(env.mode, import.meta.dirname, envPrefix);
   const processEnvDefines = [
     ...Object.entries(rootDotenvValues),
     ...Object.entries(coreDotenvValues),
@@ -58,13 +58,13 @@ export default defineConfig((env) => {
         { find: 'node:buffer', replacement: require.resolve('buffer/') },
         { find: 'events', replacement: require.resolve('events/') },
         { find: 'node:events', replacement: require.resolve('events/') },
-        { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'jsdom', replacement: join(__dirname, './src/stubs/jsdom.ts') },
+        { find: 'fs', replacement: join(import.meta.dirname, './src/stubs/fs.ts') },
+        { find: 'node:fs', replacement: join(import.meta.dirname, './src/stubs/fs.ts') },
+        { find: 'jsdom', replacement: join(import.meta.dirname, './src/stubs/jsdom.ts') },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'node:path', replacement: require.resolve('path/') },
-        { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
-        { find: 'node:os', replacement: join(__dirname, './src/stubs/os.ts') },
+        { find: 'os', replacement: join(import.meta.dirname, './src/stubs/os.ts') },
+        { find: 'node:os', replacement: join(import.meta.dirname, './src/stubs/os.ts') },
         { find: 'stream', replacement: require.resolve('stream-browserify') },
         {
           find: 'node:stream',
@@ -78,7 +78,7 @@ export default defineConfig((env) => {
         // Work around an internet curmudgeon.
         // Problem: https://github.com/isaacs/node-glob/pull/374
         // Fix: https://github.com/isaacs/node-glob/pull/479
-        { find: 'glob', replacement: join(__dirname, './src/stubs/glob.ts') },
+        { find: 'glob', replacement: join(import.meta.dirname, './src/stubs/glob.ts') },
 
         // Create aliases for all workspace packages, i.e.
         //

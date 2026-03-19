@@ -9,7 +9,7 @@ import path from 'node:path';
 import { generateNumberStringsCatalog } from '../src/ui_strings/number_strings';
 
 const APP_STRINGS_CATALOG_FILE_PATH = path.join(
-  __dirname,
+  import.meta.dirname,
   '../src/ui_strings/app_strings_catalog/latest.json'
 );
 

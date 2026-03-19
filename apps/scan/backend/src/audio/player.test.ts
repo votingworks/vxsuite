@@ -19,7 +19,7 @@ vi.mock('@votingworks/backend', async (importOriginal) => {
 
 const MockAudioPlayer = vi.mocked(AudioPlayer);
 
-test('Player uses correct sounds directory (__dirname)', () => {
+test('Player uses correct sounds directory (import.meta.dirname)', () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
 
@@ -30,7 +30,7 @@ test('Player uses correct sounds directory (__dirname)', () => {
     nodeEnv: 'development',
     logger,
     outputName: AUDIO_DEVICE_DEFAULT_SINK,
-    soundsDirectory: __dirname,
+    soundsDirectory: import.meta.dirname,
   });
 });
 

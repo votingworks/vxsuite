@@ -12,14 +12,14 @@ import { testElectionReport } from './fixtures';
 
 const nistXsd = readFileSync(
   join(
-    __dirname,
+    import.meta.dirname,
     '../../../data/cdf/election-results-reporting/nist-schema.xsd'
   ),
   'utf-8'
 );
 const nistJson = readFileSync(
   join(
-    __dirname,
+    import.meta.dirname,
     '../../../data/cdf/election-results-reporting/nist-schema.json'
   ),
   'utf-8'
@@ -31,7 +31,7 @@ test('ElectionReportSchema', () => {
 });
 
 test('generated types are in sync with schema', () => {
-  const generatedTypes = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+  const generatedTypes = readFileSync(join(import.meta.dirname, './index.ts'), 'utf-8');
   const out = mockWritable();
   buildSchema(nistXsd, nistJson, out).unsafeUnwrap();
   const expectedTypes = out.toString();

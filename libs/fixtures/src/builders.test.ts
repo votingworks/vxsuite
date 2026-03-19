@@ -25,7 +25,7 @@ test('file allows reading the file contents as a path', async () => {
   const tmpPath = file.asFilePath();
   expect(basename(tmpPath)).toEqual('package.json');
   expect(await readFile(tmpPath, 'utf-8')).toEqual(
-    await readFile(join(__dirname, '../package.json'), 'utf-8')
+    await readFile(join(import.meta.dirname, '../package.json'), 'utf-8')
   );
 });
 
@@ -37,7 +37,7 @@ test('directory allows reading the directory contents', async () => {
   const directory = builders.directory('src');
   expect(
     await readFile(join(directory.asDirectoryPath(), 'index.ts'), 'utf-8')
-  ).toEqual(await readFile(join(__dirname, 'index.ts'), 'utf-8'));
+  ).toEqual(await readFile(join(import.meta.dirname, 'index.ts'), 'utf-8'));
 });
 
 test('election allows reading the election', () => {

@@ -26,7 +26,7 @@ export class Player {
       nodeEnv,
       logger,
       outputName,
-      soundsDirectory: __dirname,
+      soundsDirectory: import.meta.dirname,
     });
   }
 

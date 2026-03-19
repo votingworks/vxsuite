@@ -39,8 +39,8 @@ test.each([
   const { createServer } = await import('vite');
   await using vite = asyncDisposable(
     await createServer({
-      root: join(__dirname, '../src/preview'),
-      configFile: join(__dirname, '../vite.config.ts'),
+      root: join(import.meta.dirname, '../src/preview'),
+      configFile: join(import.meta.dirname, '../vite.config.ts'),
     }),
     (s) => s.close()
   );

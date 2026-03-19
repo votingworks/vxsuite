@@ -24,7 +24,7 @@ export default defineConfig({
     alias: [
       {
         find: '@votingworks/ui',
-        replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/ui/src/index.ts'),
       },
     ],
   },

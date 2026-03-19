@@ -131,7 +131,7 @@ export async function runPrintAndScanTask({
   });
 
   const testPdf = await fs.readFile(
-    join(__dirname, '../../electrical-testing-print-page.pdf')
+    join(import.meta.dirname, '../../electrical-testing-print-page.pdf')
   );
   const outputDir = join(workspace.path, 'electrical-testing-output');
   await fs.mkdir(outputDir, { recursive: true });

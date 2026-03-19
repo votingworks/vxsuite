@@ -43,7 +43,7 @@ export type BallotPrintCountRow = Omit<
   'precinctOrSplitName' | 'partyName' | 'languageCode'
 > & { precinctId: string };
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 /**
  * ElectionRecord represents election configuration in the store.

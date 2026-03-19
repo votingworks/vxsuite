@@ -22,7 +22,7 @@ export class Player {
       nodeEnv: this.nodeEnv,
       logger: this.logger,
       outputName: AUDIO_DEVICE_DEFAULT_SINK,
-      soundsDirectory: __dirname,
+      soundsDirectory: import.meta.dirname,
     });
   }
 

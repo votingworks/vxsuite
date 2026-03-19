@@ -132,7 +132,7 @@ const ADJUDICATION_QUEUE_ORDER_BY = `
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
  */
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string

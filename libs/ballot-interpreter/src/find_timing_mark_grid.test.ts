@@ -28,7 +28,7 @@ test('scanned image', async () => {
   const { topLeftMark, topRightMark } = findTimingMarkGrid(
     (
       await loadImageData(
-        join(__dirname, '../test/fixtures/vxqa-2024-10/skew-front.png')
+        join(import.meta.dirname, '../test/fixtures/vxqa-2024-10/skew-front.png')
       )
     ).unsafeUnwrap()
   );

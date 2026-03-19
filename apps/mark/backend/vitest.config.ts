@@ -29,11 +29,11 @@ export default defineConfig({
     alias: [
       {
         find: '@votingworks/auth',
-        replacement: join(__dirname, '../../../libs/auth/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/auth/src/index.ts'),
       },
       {
         find: '@votingworks/backend',
-        replacement: join(__dirname, '../../../libs/backend/src/index.ts'),
+        replacement: join(import.meta.dirname, '../../../libs/backend/src/index.ts'),
       },
     ],
   },

@@ -51,7 +51,7 @@ test('mismatching images with diff path', async () => {
     height: 100,
   });
 
-  const diffPath = `/tmp/${basename(__filename)}.${currentTestName?.replace(
+  const diffPath = `/tmp/${basename(import.meta.filename)}.${currentTestName?.replace(
     /[^a-z0-9]+/g,
     '-'
   )}-diff.png`;

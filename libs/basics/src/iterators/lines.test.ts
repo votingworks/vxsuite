@@ -113,9 +113,9 @@ test('lines (async)', async () => {
     ).toArray()
   ).toEqual(['abc', 'de']);
 
-  const input = createReadStream(__filename);
+  const input = createReadStream(import.meta.filename);
   expect(await lines(input).toString('\n')).toEqual(
-    await readFile(__filename, 'utf8')
+    await readFile(import.meta.filename, 'utf8')
   );
 
   // check that the lines are the same as joining then splitting

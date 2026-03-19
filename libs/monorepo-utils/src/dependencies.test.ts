@@ -79,7 +79,7 @@ test.each(['dependencies', 'devDependencies', 'peerDependencies'])(
 );
 
 test('findAllMonorepoDependencies yields all dependencies', () => {
-  const pkgs = getWorkspacePackageInfo(join(__dirname, '../../..'));
+  const pkgs = getWorkspacePackageInfo(join(import.meta.dirname, '../../..'));
   const basicsPkg = pkgs.get('@votingworks/basics')!;
 
   // simple dependencies

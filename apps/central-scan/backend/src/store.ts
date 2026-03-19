@@ -59,7 +59,7 @@ import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 const getSheetsBaseQuery = `
   select

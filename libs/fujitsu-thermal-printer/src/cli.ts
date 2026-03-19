@@ -47,7 +47,7 @@ async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
 }
 
 const fixturePath = join(
-  __dirname,
+  import.meta.dirname,
   '../test/fixtures/tally-report-single-page.pdf'
 );
 

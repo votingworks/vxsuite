@@ -23,7 +23,7 @@ const config: StorybookConfig = {
   staticDirs: ['../.storybook-static'],
   async viteFinal(config: InlineConfig): Promise<InlineConfig> {
     const workspacePackages = getWorkspacePackageInfo(
-      path.join(__dirname, '../..')
+      path.join(import.meta.dirname, '../..')
     );
 
     return mergeConfig(config, {
@@ -48,23 +48,23 @@ const config: StorybookConfig = {
           { find: 'node:events', replacement: require.resolve('events/') },
           {
             find: 'fs',
-            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/fs.ts'),
           },
           {
             find: 'node:fs',
-            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/fs.ts'),
           },
           {
             find: 'jsdom',
-            replacement: path.join(__dirname, '../src/stubs/jsdom.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/jsdom.ts'),
           },
           {
             find: 'os',
-            replacement: path.join(__dirname, '../src/stubs/os.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/os.ts'),
           },
           {
             find: 'node:os',
-            replacement: path.join(__dirname, '../src/stubs/os.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/os.ts'),
           },
           { find: 'path', replacement: require.resolve('path/') },
           { find: 'node:path', replacement: require.resolve('path/') },

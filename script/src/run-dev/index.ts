@@ -109,7 +109,7 @@ export async function main(
     return 1;
   }
 
-  const monorepoRoot = join(__dirname, '../../..');
+  const monorepoRoot = join(import.meta.dirname, '../../..');
   let frontendRoot = join(monorepoRoot, 'apps', frontend, 'frontend');
   // Support our old file structure while we transition to the new apps/ structure.
   if (!fs.existsSync(frontendRoot)) {
@@ -179,7 +179,7 @@ export async function main(
 
   const running = concurrently(commands, {
     logger,
-    cwd: join(__dirname, '..'),
+    cwd: join(import.meta.dirname, '..'),
     outputStream: stdout,
     controllers: [
       new LogOutput({ logger }),

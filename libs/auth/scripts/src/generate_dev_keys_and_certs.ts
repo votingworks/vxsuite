@@ -56,14 +56,14 @@ async function parseCommandLineArgs(
       'output-dir': {
         description: 'The directory to output generated keys and certs to',
         type: 'string',
-        default: path.join(__dirname, '../../certs/dev'),
+        default: path.join(import.meta.dirname, '../../certs/dev'),
       },
       'election-definition': {
         description:
           'The path to an election definition to generate keys and certs for',
         type: 'string',
         default: path.join(
-          __dirname,
+          import.meta.dirname,
           '../../../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
         ),
       },

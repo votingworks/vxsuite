@@ -5,15 +5,15 @@ import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
 
 export default defineConfig((env) => {
-  const workspacePackages = getWorkspacePackageInfo(join(__dirname, '../..'));
+  const workspacePackages = getWorkspacePackageInfo(join(import.meta.dirname, '../..'));
 
   const envPrefix = 'REACT_APP_';
   const rootDotenvValues = loadEnv(
     env.mode,
-    join(__dirname, '../../..'),
+    join(import.meta.dirname, '../../..'),
     envPrefix
   );
-  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix);
+  const coreDotenvValues = loadEnv(env.mode, import.meta.dirname, envPrefix);
   const processEnvDefines = [
     ...Object.entries(rootDotenvValues),
     ...Object.entries(coreDotenvValues),
@@ -54,8 +54,8 @@ export default defineConfig((env) => {
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'node:buffer', replacement: require.resolve('buffer/') },
-        { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
+        { find: 'fs', replacement: join(import.meta.dirname, './src/stubs/fs.ts') },
+        { find: 'node:fs', replacement: join(import.meta.dirname, './src/stubs/fs.ts') },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'node:path', replacement: require.resolve('path/') },
         { find: 'util', replacement: require.resolve('util/') },

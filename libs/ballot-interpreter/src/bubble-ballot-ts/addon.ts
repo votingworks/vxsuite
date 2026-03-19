@@ -11,8 +11,8 @@ const addon = (() => {
   //   src/bubble-ballot-ts/addon.ts -> build/addon.node via `../../build/addon.node`
   //   build/bubble-ballot-ts/addon.js -> build/addon.node via `../../build/addon.node`
   //
-  const require = createRequire(__filename);
-  const root = join(__dirname, '../..');
+  const require = createRequire(import.meta.filename);
+  const root = join(import.meta.dirname, '../..');
   // eslint-disable-next-line import/no-dynamic-require
   return require(join(root, 'build', 'addon.node'));
 })();

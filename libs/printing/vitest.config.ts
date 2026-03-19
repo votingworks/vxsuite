@@ -7,11 +7,11 @@ export default defineConfig({
     alias: [
       {
         find: '@votingworks/types',
-        replacement: join(__dirname, '../types/src/index.ts'),
+        replacement: join(import.meta.dirname, '../types/src/index.ts'),
       },
       {
         find: '@votingworks/ui',
-        replacement: join(__dirname, '../ui/src/index.ts'),
+        replacement: join(import.meta.dirname, '../ui/src/index.ts'),
       },
     ],
   },

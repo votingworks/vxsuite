@@ -7,7 +7,7 @@ import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './font_awesome_class_names';
 
 test('font_awesome_styles.ts is up to date (if not, run generate-font-awesome-styles)', () => {
   const actual = readFileSync(
-    join(__dirname, './font_awesome_styles.ts'),
+    join(import.meta.dirname, './font_awesome_styles.ts'),
     'utf8'
   );
   const expectedPath = makeTemporaryFile();
@@ -19,7 +19,7 @@ test('font_awesome_styles.ts is up to date (if not, run generate-font-awesome-st
 
 test('FONT_AWESOME_INLINE_SVG_CLASS_NAME can be found in latest Font Awesome styles', () => {
   const fontAwesomeStyles = readFileSync(
-    join(__dirname, './font_awesome_styles.ts'),
+    join(import.meta.dirname, './font_awesome_styles.ts'),
     'utf8'
   );
   expect(fontAwesomeStyles).toContain(

@@ -5,7 +5,7 @@ import { generateAllConfigs } from './circleci';
 import { getWorkspacePackageInfo } from './pnpm';
 
 test('generateConfig', () => {
-  const root = join(__dirname, '../../..');
+  const root = join(import.meta.dirname, '../../..');
   const configs = generateAllConfigs(getWorkspacePackageInfo(root));
   const keys = Array.from(configs.keys());
   assert(keys[0] !== undefined);

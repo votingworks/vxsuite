@@ -32,7 +32,7 @@ import {
 import { PrintCalibration } from './types';
 import { voteMatchesGridPosition } from './vote_matching';
 
-const robotoBoldTtf = fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`);
+const robotoBoldTtf = fs.readFileSync(`${import.meta.dirname}/fonts/Roboto-Bold.ttf`);
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
 

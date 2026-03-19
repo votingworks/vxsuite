@@ -3,6 +3,6 @@ import { generateFontAwesomeStyles } from '../src/fonts/generate_font_awesome_st
 
 export function main(): void {
   generateFontAwesomeStyles(
-    join(__dirname, '../src/fonts/font_awesome_styles.ts')
+    join(import.meta.dirname, '../src/fonts/font_awesome_styles.ts')
   );
 }

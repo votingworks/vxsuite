@@ -178,7 +178,7 @@ function generateTestJobForPackage(
  * Path to the CircleCI config file.
  */
 export const CIRCLECI_CONFIG_PATH = join(
-  __dirname,
+  import.meta.dirname,
   '../../../.circleci/config.yml'
 );
 
@@ -450,7 +450,7 @@ commands:
     /* istanbul ignore else - @preserve */
     if (filteredConfigLines.length > 0) {
       const filteredConfigPath = join(
-        __dirname,
+        import.meta.dirname,
         '../../..',
         generateCircleCiAppLevelConfigPath(pkg)
       );

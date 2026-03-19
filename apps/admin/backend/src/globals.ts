@@ -24,7 +24,7 @@ export const NODE_ENV = unsafeParse(
 export const ADMIN_WORKSPACE =
   process.env.ADMIN_WORKSPACE ??
   (NODE_ENV === 'development'
-    ? join(__dirname, '../dev-workspace')
+    ? join(import.meta.dirname, '../dev-workspace')
     : undefined);
 
 /**

@@ -5,7 +5,7 @@ import {
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const TEST_PRINT_PDF_PATH = join(__dirname, 'test-print.pdf');
+const TEST_PRINT_PDF_PATH = join(import.meta.dirname, 'test-print.pdf');
 
 /**
  * Prints a test page for diagnostic purposes. Uses a mock tally

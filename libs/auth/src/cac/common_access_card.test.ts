@@ -43,9 +43,9 @@ vi.mock(
   })
 );
 
-const DEV_CERT_PEM = fs.readFileSync(join(__dirname, './cac-dev-cert.pem'));
+const DEV_CERT_PEM = fs.readFileSync(join(import.meta.dirname, './cac-dev-cert.pem'));
 const CERTIFYING_PRIVATE_KEY_PATH = join(
-  __dirname,
+  import.meta.dirname,
   '../../certs/dev/vx-cert-authority-cert.pem'
 );
 
