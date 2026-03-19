@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import '../configure_sentry'; // Must be imported first to instrument code
 
 import path from 'node:path';
@@ -45,7 +46,7 @@ async function main(): Promise<void> {
 }
 
 /* istanbul ignore next - @preserve */
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
     process.stderr.write(
       `Error starting VxDesign background worker:\n${error.stack}\n`

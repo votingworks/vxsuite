@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import {
   BaseLogger,
   LogSource,
@@ -113,7 +114,7 @@ async function main(): Promise<number> {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main()
     .then((exitCode) => {
       process.exitCode = exitCode;

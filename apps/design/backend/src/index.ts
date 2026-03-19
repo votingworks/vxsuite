@@ -1,5 +1,6 @@
 /* istanbul ignore file - @preserve */
 
+import { fileURLToPath } from 'node:url';
 import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
@@ -99,7 +100,7 @@ async function main(): Promise<number> {
   return Promise.resolve(0);
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .catch((error) => {
       // eslint-disable-next-line no-console
