@@ -4,11 +4,13 @@ import {
   RemoveCardScreen,
   SetupCardReaderPage,
   UnlockMachineScreen,
+  VendorScreen,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
-  isSystemAdministratorAuth,
   isPollWorkerAuth,
+  isSystemAdministratorAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import {
@@ -17,6 +19,8 @@ import {
   getCurrentElectionMetadata,
   getMachineConfig,
   getUsbDriveStatus,
+  logOut,
+  useApiClient,
 } from './api';
 import { AppContext, AppContextInterface } from '../contexts/app_context';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
@@ -31,6 +35,8 @@ export function ClientAppRoot(): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
   const electionMetadataQuery = getCurrentElectionMetadata.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const apiClient = useApiClient();
+  const logOutMutation = logOut.useMutation();
 
   if (
     !authStatusQuery.isSuccess ||
@@ -106,6 +112,19 @@ export function ClientAppRoot(): JSX.Element | null {
             : 'Use a system administrator card.'
         }
         cardInsertionDirection="right"
+      />
+    );
+  }
+
+  if (isVendorAuth(auth)) {
+    return (
+      <VendorScreen
+        apiClient={apiClient}
+        isMachineConfigured={Boolean(electionRecord)}
+        logOut={logOutMutation.mutate}
+        unconfigureMachine={async () => {
+          /* istanbul ignore next - no-op on client @preserve */
+        }}
       />
     );
   }
