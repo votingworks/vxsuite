@@ -31,7 +31,11 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app';
-import { ManualResultsIdentifier, ManualResultsRecord } from './types';
+import {
+  HostConnectionStatus,
+  ManualResultsIdentifier,
+  ManualResultsRecord,
+} from './types';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -91,6 +95,54 @@ test('getMachineMode and setMachineMode', async () => {
 
   await apiClient.setMachineMode({ mode: 'host' });
   expect(await apiClient.getMachineMode()).toEqual('host');
+});
+
+test('getNetworkStatus returns offline with no connected clients by default', async () => {
+  const { apiClient } = buildTestEnvironment();
+  expect(await apiClient.getNetworkStatus()).toEqual({
+    isOnline: false,
+    connectedClients: [],
+  });
+});
+
+test('getNetworkStatus returns online when host is connected', async () => {
+  const { apiClient, workspace } = buildTestEnvironment();
+  workspace.store.setNetworkedMachineStatus(
+    DEV_MACHINE_ID,
+    'host',
+    HostConnectionStatus.Connected
+  );
+  expect(await apiClient.getNetworkStatus()).toMatchObject({
+    isOnline: true,
+    connectedClients: [],
+  });
+});
+
+test('getNetworkStatus returns connected clients', async () => {
+  const { apiClient, workspace } = buildTestEnvironment();
+  workspace.store.setNetworkedMachineStatus(
+    DEV_MACHINE_ID,
+    'host',
+    HostConnectionStatus.Connected
+  );
+  workspace.store.setNetworkedMachineStatus(
+    'CLIENT-001',
+    'client',
+    HostConnectionStatus.Connected
+  );
+  workspace.store.setNetworkedMachineStatus(
+    'CLIENT-002',
+    'client',
+    HostConnectionStatus.Offline
+  );
+  const status = await apiClient.getNetworkStatus();
+  expect(status.isOnline).toEqual(true);
+  expect(status.connectedClients).toHaveLength(1);
+  expect(status.connectedClients[0]).toMatchObject({
+    machineId: 'CLIENT-001',
+    machineMode: 'client',
+    status: HostConnectionStatus.Connected,
+  });
 });
 
 test('managing the current election', async () => {

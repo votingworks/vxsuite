@@ -256,6 +256,15 @@ create table diagnostics (
   timestamp number not null
 );  
 
+create table machines (
+  machine_id text primary key,
+  machine_mode text not null
+    check (machine_mode = 'host' or machine_mode = 'client'),
+  status text not null
+    check (status = 'connected' or status = 'offline'),
+  last_seen_at integer not null
+);
+
 -- to track data changes in order to invalidate cached data
 create table data_versions (
   election_id varchar(36),

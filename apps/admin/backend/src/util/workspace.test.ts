@@ -1,8 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace } from './workspace';
+import { createWorkspace, createClientWorkspace } from './workspace';
 import { Store } from '../store';
+import { ClientStore } from '../client_store';
 
 vi.mock(
   import('@votingworks/backend'),
@@ -20,4 +21,14 @@ test('createWorkspace', () => {
   const workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
   expect(workspace.path).toEqual(dir);
   expect(workspace.store).toBeInstanceOf(Store);
+});
+
+test('createClientWorkspace', async () => {
+  const dir = makeTemporaryDirectory();
+  const workspace = createClientWorkspace(dir);
+  expect(workspace.path).toEqual(dir);
+  expect(workspace.clientStore).toBeInstanceOf(ClientStore);
+  await expect(workspace.getDiskSpaceSummary()).resolves.toEqual(
+    expect.objectContaining({ available: expect.any(Number) })
+  );
 });

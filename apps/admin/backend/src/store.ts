@@ -89,8 +89,14 @@ import {
   WriteInAdjudicationActionReset,
   CvrContestTag,
   WriteInForTally,
+  HostConnectionStatus,
+  BaseStore,
+  MachineRecord,
+  MachineMode,
 } from './types';
 import { rootDebug } from './util/debug';
+import { getCurrentTime } from './get_current_time';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals';
 
 const debug = rootDebug.extend('store');
 
@@ -149,7 +155,7 @@ interface CastVoteRecordVoteAdjudication {
  * Manages a data store for imported election data, cast vote records, and
  * transcribed and adjudicated write-ins.
  */
-export class Store {
+export class Store implements BaseStore {
   private constructor(
     private readonly client: DbClient,
     private readonly ballotImagesPath: string
@@ -2848,6 +2854,50 @@ export class Store {
             ).count,
           ] as const
       )
+    );
+  }
+
+  //
+  // Manage machine connections (multi-station)
+  //
+
+  setNetworkedMachineStatus(
+    machineId: string,
+    machineMode: MachineMode,
+    status: HostConnectionStatus
+  ): void {
+    this.client.run(
+      `insert into machines (machine_id, machine_mode, status, last_seen_at)
+       values (?, ?, ?, ?)
+       on conflict (machine_id) do update set
+         status = excluded.status,
+         last_seen_at = excluded.last_seen_at`,
+      machineId,
+      machineMode,
+      status,
+      getCurrentTime()
+    );
+  }
+
+  getMachines(): MachineRecord[] {
+    return this.client.all(
+      `select
+         machine_id as machineId,
+         machine_mode as machineMode,
+         status,
+         last_seen_at as lastSeenAt
+       from machines`
+    ) as MachineRecord[];
+  }
+
+  cleanupStaleMachines(): void {
+    this.client.run(
+      `update machines set status = ?
+       where status = ? and (? - last_seen_at) > ?`,
+      HostConnectionStatus.Offline,
+      HostConnectionStatus.Connected,
+      getCurrentTime(),
+      STALE_MACHINE_THRESHOLD_MS
     );
   }
 }

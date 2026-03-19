@@ -34,9 +34,24 @@ export const ADMIN_WORKSPACE =
 export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
 
 /**
+ * Default port for the peer API (host-client communication).
+ */
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const PEER_PORT = Number(process.env['PEER_PORT'] || PORT + 1);
+
+/**
  * A glob pattern for USB drives (real and not dev mock)
  */
 export const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
+
+/**  How often to poll the network for changes (in milliseconds) */
+export const NETWORK_POLLING_INTERVAL_MS = 2 * 1000;
+
+/**  Network request timeout (in milliseconds) */
+export const NETWORK_REQUEST_TIMEOUT_MS = 1 * 1000;
+
+/** How long to wait before considering a machine stale (in milliseconds) */
+export const STALE_MACHINE_THRESHOLD_MS = 10 * 1000;
 
 const DEFAULT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+echo "=== VxAdmin Multi-Station Networking Dev Setup ==="
+
+# Install avahi utilities
+echo "Installing avahi packages..."
+sudo apt-get update -qq
+sudo apt-get install -y avahi-daemon avahi-utils libnss-mdns
+
+# Enable and start avahi-daemon
+echo "Enabling avahi-daemon..."
+sudo systemctl enable avahi-daemon
+sudo systemctl start avahi-daemon
+
+# Disable firewalld if installed (blocks mDNS)
+if systemctl list-unit-files firewalld.service &>/dev/null; then
+  echo "Disabling firewalld..."
+  sudo systemctl stop firewalld
+  sudo systemctl disable firewalld
+else
+  echo "firewalld not installed, skipping."
+fi
+
+# Allow mDNS through iptables if any rules exist
+if sudo iptables -L INPUT -n 2>/dev/null | grep -q "DROP\|REJECT"; then
+  echo "Adding iptables rule to allow mDNS (UDP 5353)..."
+  sudo iptables -I INPUT -p udp --dport 5353 -j ACCEPT
+else
+  echo "No restrictive iptables rules found, skipping."
+fi
+
+# Verify avahi-daemon is running
+echo ""
+echo "=== Verification ==="
+if systemctl is-active --quiet avahi-daemon; then
+  echo "avahi-daemon: active"
+else
+  echo "WARNING: avahi-daemon is not active"
+fi
+
+echo ""
+echo "Setup complete. You can test with:"
+echo "  avahi-browse -a -r          # discover services on the network"
+echo "  avahi-publish-service test _http._tcp 8080  # publish a test service"

@@ -1,0 +1,162 @@
+import * as grout from '@votingworks/grout';
+import {
+  AvahiService,
+  hasOnlineInterface,
+  isValidIpv4Address,
+} from '@votingworks/networking';
+import { assert } from '@votingworks/basics';
+import type { PeerApi } from './peer_app';
+import type { Store } from './store';
+import type { ClientStore } from './client_store';
+import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { rootDebug } from './util/debug';
+import {
+  NETWORK_POLLING_INTERVAL_MS,
+  NETWORK_REQUEST_TIMEOUT_MS,
+} from './globals';
+
+const debug = rootDebug.extend('networking');
+
+const AVAHI_SERVICE_NAME_PREFIX = 'VxAdmin';
+
+/**
+ * Returns the avahi service name for a VxAdmin host.
+ */
+export function getHostServiceName(machineId: string): string {
+  return `${AVAHI_SERVICE_NAME_PREFIX}-${machineId}`;
+}
+
+/**
+ * Creates a Grout client for a host's peer API at the given address.
+ */
+function createPeerApiClient(address: string): grout.Client<PeerApi> {
+  debug('Creating peer API client for %s', address);
+  return grout.createClient<PeerApi>({
+    baseUrl: `${address}/api`,
+    timeout: NETWORK_REQUEST_TIMEOUT_MS,
+  });
+}
+
+/**
+ * Starts host networking: advertises on avahi so clients can discover this host.
+ * Polls network status and writes the host's own status to the store.
+ */
+export function startHostNetworking({
+  machineId,
+  peerPort,
+  store,
+}: {
+  machineId: string;
+  peerPort: number;
+  store: Store;
+}): void {
+  const serviceName = getHostServiceName(machineId);
+  debug('Publishing avahi service %s on port %d', serviceName, peerPort);
+  AvahiService.advertiseHttpService(serviceName, peerPort);
+  // TODO(CARO) - poll the network for other hosts and surface an error when there is more than one host.
+
+  process.nextTick(() => {
+    setInterval(async () => {
+      const isOnline = await hasOnlineInterface();
+      store.setNetworkedMachineStatus(
+        machineId,
+        'host',
+        isOnline ? HostConnectionStatus.Connected : HostConnectionStatus.Offline
+      );
+      store.cleanupStaleMachines();
+    }, NETWORK_POLLING_INTERVAL_MS);
+  });
+}
+
+/**
+ * Starts client networking: discovers VxAdmin hosts on the network and
+ * attempts to connect. Runs a polling loop on `process.nextTick`.
+ *
+ * Writes connection state to the provided {@link ClientStore}.
+ */
+export function startClientNetworking({
+  machineId,
+  clientStore,
+}: {
+  machineId: string;
+  clientStore: ClientStore;
+}): void {
+  debug('Starting client networking for machine %s', machineId);
+
+  let isPolling = false;
+
+  process.nextTick(() => {
+    setInterval(async () => {
+      /* istanbul ignore next - re-entrancy guard @preserve */
+      if (isPolling) return;
+      isPolling = true;
+
+      try {
+        if (!(await hasOnlineInterface())) {
+          debug('No online interface found, skipping discovery');
+          clientStore.setConnection(ClientConnectionStatus.Offline);
+          return;
+        }
+
+        const services = await AvahiService.discoverHttpServices();
+        const hostServices = services.filter((s) =>
+          s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX)
+        );
+
+        if (hostServices.length === 0) {
+          debug('No VxAdmin hosts found on network');
+          const existing = clientStore.getHostConnection();
+          if (existing) {
+            debug('Lost connection to host at %s', existing.address);
+          }
+          clientStore.setConnection(
+            ClientConnectionStatus.OnlineWaitingForHost
+          );
+          return;
+        }
+
+        // TODO(CARO) - handle multiple hosts found case (currently just uses the first discovered host)
+        const [host] = hostServices;
+        assert(host !== undefined);
+        if (!isValidIpv4Address(host.resolvedIp)) {
+          debug(
+            'Invalid IP address for host %s: %s',
+            host.name,
+            host.resolvedIp
+          );
+          return;
+        }
+
+        const hostAddress = `http://${host.resolvedIp}:${host.port}`;
+        const existing = clientStore.getHostConnection();
+        const apiClient =
+          existing?.address === hostAddress
+            ? existing.apiClient
+            : createPeerApiClient(hostAddress);
+
+        try {
+          const hostConfig = await apiClient.connectToHost({ machineId });
+          clientStore.setConnection(
+            ClientConnectionStatus.OnlineConnectedToHost,
+            {
+              address: hostAddress,
+              machineId: hostConfig.machineId,
+              apiClient,
+            }
+          );
+          debug('Connected to host at %s', hostAddress);
+        } catch (error) {
+          debug('Lost connection to host at %s: %s', hostAddress, error);
+          clientStore.setConnection(
+            ClientConnectionStatus.OnlineWaitingForHost
+          );
+        }
+      } catch (error) {
+        /* istanbul ignore next - defensive @preserve */
+        debug('Error in client networking loop: %s', error);
+      } finally {
+        isPolling = false;
+      }
+    }, NETWORK_POLLING_INTERVAL_MS);
+  });
+}

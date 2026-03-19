@@ -3,6 +3,7 @@ import {
   ContestOptionId,
   ElectionDefinition,
   ElectionDefinitionSchema,
+  ElectionKey,
   Id,
   IdSchema,
   Iso8601Timestamp,
@@ -10,6 +11,7 @@ import {
   Rect,
   CandidateId,
   PrecinctId,
+  SystemSettings,
   Tabulation,
   ReadCastVoteRecordExportError,
   ReadCastVoteRecordError,
@@ -29,6 +31,34 @@ export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
  * (adjudication-only, proxies to host).
  */
 export type MachineMode = 'host' | 'client';
+
+/** Shared interface for stores that support auth state construction. */
+export interface BaseStore {
+  getCurrentElectionId(): Id | undefined;
+  getElectionKey(electionId: Id): ElectionKey | undefined;
+  getSystemSettings(electionId: Id): SystemSettings | undefined;
+}
+
+/** Connection status between a host machine and another admin machine in a multi-station setup. */
+export enum HostConnectionStatus {
+  Connected = 'connected',
+  Offline = 'offline',
+}
+
+/** Connection status for a client machine in a multi-station setup. */
+export enum ClientConnectionStatus {
+  Offline = 'offline',
+  OnlineWaitingForHost = 'online-waiting-for-host',
+  OnlineConnectedToHost = 'online-connected-to-host',
+}
+
+/** A record of a machine in the multi-station machines table. */
+export interface MachineRecord {
+  machineId: string;
+  machineMode: MachineMode;
+  status: HostConnectionStatus;
+  lastSeenAt: number;
+}
 
 /**
  * Environment variables that identify the machine and its software. Set at the

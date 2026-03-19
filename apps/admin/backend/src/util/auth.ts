@@ -6,15 +6,16 @@ import {
 import { isIntegrationTest } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
-import { Workspace } from './workspace';
+import type { BaseStore } from '../types';
 
 /**
- * Construct the auth state machine based on the election state in the store.
+ * Construct the auth machine state from the store's election state. When the
+ * store has no current election, returns defaults.
  */
 export function constructAuthMachineState(
-  workspace: Workspace
+  store: BaseStore
 ): DippedSmartCardAuthMachineState {
-  const electionId = workspace.store.getCurrentElectionId();
+  const electionId = store.getCurrentElectionId();
 
   /* istanbul ignore next - covered by integration testing @preserve */
   const jurisdiction = isIntegrationTest()
@@ -29,10 +30,11 @@ export function constructAuthMachineState(
     };
   }
 
-  const systemSettings = workspace.store.getSystemSettings(electionId);
+  const systemSettings =
+    store.getSystemSettings(electionId) ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
-    electionKey: workspace.store.getElectionKey(electionId),
+    electionKey: store.getElectionKey(electionId),
     jurisdiction,
     machineType: 'admin',
   };
@@ -43,11 +45,9 @@ export function constructAuthMachineState(
  */
 export async function getUserRole(
   auth: DippedSmartCardAuthApi,
-  workspace: Workspace
+  store: BaseStore
 ): Promise<LoggingUserRole> {
-  const authStatus = await auth.getAuthStatus(
-    constructAuthMachineState(workspace)
-  );
+  const authStatus = await auth.getAuthStatus(constructAuthMachineState(store));
   if (authStatus.status === 'logged_in') {
     return authStatus.user.role;
   }

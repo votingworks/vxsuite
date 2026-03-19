@@ -88,6 +88,8 @@ import {
   AdjudicatedCvrContest,
   CvrContestTag,
   MachineMode,
+  HostConnectionStatus,
+  MachineRecord,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -229,21 +231,40 @@ function buildApi({
       writeMachineMode(workspace.path, input.mode);
     },
 
+    getNetworkStatus(): {
+      isOnline: boolean;
+      connectedClients: MachineRecord[];
+    } {
+      const { machineId } = getMachineConfig();
+      const machines = store.getMachines();
+      const hostRecord = machines.find(
+        (m) => m.machineMode === 'host' && m.machineId === machineId
+      );
+      return {
+        isOnline: hostRecord?.status === HostConnectionStatus.Connected,
+        connectedClients: machines.filter(
+          (m) =>
+            m.machineMode === 'client' &&
+            m.status === HostConnectionStatus.Connected
+        ),
+      };
+    },
+
     getAuthStatus() {
-      return auth.getAuthStatus(constructAuthMachineState(workspace));
+      return auth.getAuthStatus(constructAuthMachineState(workspace.store));
     },
 
     checkPin(input: { pin: string }) {
-      return auth.checkPin(constructAuthMachineState(workspace), input);
+      return auth.checkPin(constructAuthMachineState(workspace.store), input);
     },
 
     logOut() {
-      return auth.logOut(constructAuthMachineState(workspace));
+      return auth.logOut(constructAuthMachineState(workspace.store));
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
-        constructAuthMachineState(workspace),
+        constructAuthMachineState(workspace.store),
         input
       );
     },
@@ -251,13 +272,13 @@ function buildApi({
     programCard(input: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
     }) {
-      return auth.programCard(constructAuthMachineState(workspace), {
+      return auth.programCard(constructAuthMachineState(workspace.store), {
         userRole: input.userRole,
       });
     },
 
     unprogramCard() {
-      return auth.unprogramCard(constructAuthMachineState(workspace));
+      return auth.unprogramCard(constructAuthMachineState(workspace.store));
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {
@@ -289,7 +310,7 @@ function buildApi({
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
       const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace)
+        constructAuthMachineState(workspace.store)
       );
       if (!isSystemAdministratorAuth(authStatus)) {
         return err(
