@@ -387,8 +387,7 @@ export interface Delays {
    */
   DELAY_RECONNECT: number;
   /**
-   * How long to attempt scanning before giving up and disconnecting and
-   * reconnecting to the scanner.
+   * How long to attempt scanning before giving up and declaring an error.
    */
   DELAY_SCANNING_TIMEOUT: number;
   /**
@@ -407,7 +406,7 @@ export const delays = {
   DELAY_SCANNING_ENABLED_POLLING_INTERVAL: 500,
   DELAY_SCANNER_STATUS_POLLING_INTERVAL: 500,
   DELAY_RECONNECT: 500,
-  DELAY_SCANNING_TIMEOUT: 5_000,
+  DELAY_SCANNING_TIMEOUT: 10_000,
   DELAY_ACCEPTING_TIMEOUT: 5_000,
   DELAY_AUTH_STATUS_POLLING_INTERVAL: 500,
 } satisfies Delays;
