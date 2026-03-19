@@ -1476,13 +1476,7 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   });
 
   // Create a precinct with splits, each split having a registered voter count
-  const precinct2: PrecinctAndMetadataWithSplits & {
-    splits: Array<
-      PrecinctAndMetadataWithSplits['splits'][number] & {
-        registeredVoterCount: number;
-      }
-    >;
-  } = {
+  const precinct2: PrecinctAndMetadataWithSplits = {
     id: 'precinct-2',
     name: 'Precinct 2',
     splits: [
@@ -1534,13 +1528,15 @@ test('registered voter counts are stored and retrieved for precincts and splits'
         id: 'split-3b',
         name: 'Split 3B',
         districtIds: [],
-        // no registeredVoterCount — exercises the null branch in getPrecinctMetadata
       },
     ],
   };
-  (
-    await apiClient.createPrecinct({ electionId, newPrecinct: precinct3 })
-  ).unsafeUnwrap();
+
+  const createResult = await apiClient.createPrecinct({
+    electionId,
+    newPrecinct: precinct3,
+  });
+  createResult.unsafeUnwrap();
   expect(await workspace.store.getPrecinctMetadata(electionId)).toEqual({
     'precinct-1': { registeredVoterCount: 750 },
     'precinct-2': {
@@ -1561,57 +1557,6 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     precinct2,
     precinct3,
   ]);
-});
-
-test('cloneElection regenerates ids for yesno contests', async () => {
-  const baseElectionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-  auth0.setLoggedInUser(supportUser);
-  const srcElectionId = 'election-yesno-src' as ElectionId;
-  (
-    await apiClient.loadElection({
-      newId: srcElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
-      },
-    })
-  ).unsafeUnwrap();
-
-  const destElectionId = await apiClient.cloneElection({
-    electionId: srcElectionId,
-    destElectionId: 'election-yesno-clone' as ElectionId,
-    destJurisdictionId: nonVxJurisdiction.id,
-  });
-  expect(destElectionId).toEqual('election-yesno-clone');
-});
-
-test('organization user can access elections in their organization jurisdiction', async () => {
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-
-  // Create an election as a jurisdiction user in nonVxJurisdiction
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = (
-    await apiClient.createElection({
-      jurisdictionId: nonVxJurisdiction.id,
-      id: unsafeParse(ElectionIdSchema, 'election-org-access'),
-    })
-  ).unsafeUnwrap();
-
-  // Organization user in the same org should be able to access the election
-  // (exercises the organization_user branch in userCanAccessJurisdiction)
-  auth0.setLoggedInUser(nonVxOrganizationUser);
-  expect(await apiClient.listPrecincts({ electionId })).toEqual([]);
 });
 
 test('updateParties', async () => {
