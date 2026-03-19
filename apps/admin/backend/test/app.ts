@@ -26,7 +26,10 @@ import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockMultiUsbDrive,
+  MockMultiUsbDrive,
+} from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import {
@@ -141,6 +144,23 @@ export function buildMockLogger(
   });
 }
 
+export function getMountedUsbDrivePartitionDevPath(
+  mockMultiUsbDrive: MockMultiUsbDrive
+): string {
+  const mountedPartition =
+    mockMultiUsbDrive.multiUsbDrive.getDrives()[0]?.partitions[0];
+  if (!mountedPartition) {
+    throw new Error('Expected a mounted USB drive in the test environment.');
+  }
+  return mountedPartition.devPath;
+}
+
+export function expectUsbDriveSync(mockMultiUsbDrive: MockMultiUsbDrive): void {
+  mockMultiUsbDrive.multiUsbDrive.sync
+    .expectCallWith(getMountedUsbDrivePartitionDevPath(mockMultiUsbDrive))
+    .resolves();
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildTestEnvironment(workspaceRoot?: string) {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
@@ -156,13 +176,13 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace.store);
-  const mockUsbDrive = createMockUsbDrive();
+  const mockMultiUsbDrive = createMockMultiUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
   const app = buildApp({
     auth,
     workspace,
     logger,
-    usbDrive: mockUsbDrive.usbDrive,
+    multiUsbDrive: mockMultiUsbDrive.multiUsbDrive,
     printer: mockPrinterHandler.printer,
   });
   // port 0 will bind to a random, free port assigned by the OS
@@ -190,7 +210,8 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     apiClient,
     peerApiClient,
     peerServer,
-    mockUsbDrive,
+    mockUsbDrive: mockMultiUsbDrive,
+    mockMultiUsbDrive,
     mockPrinterHandler,
   };
 }

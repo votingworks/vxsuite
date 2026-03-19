@@ -21,10 +21,11 @@ import {
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
+  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from '.';
@@ -94,7 +95,7 @@ test('logs success if export succeeds', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
 
   const filename = mockFileName('json');
   const exportResult = await apiClient.exportCdfElectionResultsReport({
@@ -115,11 +116,11 @@ test('logs success if export succeeds', async () => {
 
 async function getCurrentReport(
   apiClient: Client<Api>,
-  mockUsbDrive: MockUsbDrive
+  mockUsbDrive: MockMultiUsbDrive
 ): Promise<ResultsReporting.ElectionReport> {
   const filename = mockFileName('json');
 
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const exportResult = await apiClient.exportCdfElectionResultsReport({
     filename,
   });

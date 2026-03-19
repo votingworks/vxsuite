@@ -15,6 +15,7 @@ import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
+  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName } from '../test/csv';
@@ -74,7 +75,7 @@ test('write-in adjudication report', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, mockMultiUsbDrive } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
@@ -88,7 +89,7 @@ test('write-in adjudication report', async () => {
     'State-Representatives-Hillsborough-District-34-b1012d38';
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  mockMultiUsbDrive.insertUsbDrive({});
 
   async function expectIdenticalSnapshotsAcrossExportMethods(
     customSnapshotIdentifier: string
@@ -108,7 +109,7 @@ test('write-in adjudication report', async () => {
       customSnapshotIdentifier,
     });
 
-    mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+    expectUsbDriveSync(mockMultiUsbDrive);
     const filename = mockFileName('pdf');
     const exportResult = await apiClient.exportWriteInAdjudicationReportPdf({
       filename,
@@ -230,7 +231,7 @@ test('write-in adjudication report logging', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
 
   // successful file export
   const validFileName = mockFileName('pdf');

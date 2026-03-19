@@ -16,7 +16,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
@@ -78,14 +78,14 @@ afterEach(() => {
 
 test('starts with default logger and port', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   server = await suppressingConsoleOutput(() =>
     start({
       workspacePath: makeTemporaryDirectory(),
       logger,
-      usbDrive,
+      multiUsbDrive,
       printer,
     })
   );
@@ -96,14 +96,14 @@ test('starts with default logger and port', async () => {
 
 test('start with config options', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   server = await suppressingConsoleOutput(() =>
     start({
       workspacePath: makeTemporaryDirectory(),
       logger,
-      usbDrive,
+      multiUsbDrive,
       printer,
       port: 3005,
     })
@@ -143,14 +143,14 @@ test('errors on start with no workspace', async () => {
 
 test('logs device attach/un-attach events', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   server = await suppressingConsoleOutput(() =>
     start({
       workspacePath: makeTemporaryDirectory(),
       logger,
-      usbDrive,
+      multiUsbDrive,
       printer,
       port: 0,
     })
@@ -161,14 +161,14 @@ test('logs device attach/un-attach events', async () => {
 
 test('logs when no election results data present at startup', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   server = await suppressingConsoleOutput(() =>
     start({
       workspacePath: makeTemporaryDirectory(),
       logger,
-      usbDrive,
+      multiUsbDrive,
       printer,
     })
   );
@@ -200,7 +200,7 @@ test('logs when there is stored election results data present at startup', async
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   // Add CVRs to db
@@ -244,7 +244,7 @@ test('logs when there is stored election results data present at startup', async
   });
 
   server = await suppressingConsoleOutput(() =>
-    start({ workspacePath: workspace.path, logger, usbDrive, printer })
+    start({ workspacePath: workspace.path, logger, multiUsbDrive, printer })
   );
 
   const address = server.address() as AddressInfo;
@@ -264,14 +264,14 @@ test('logs when there is stored election results data present at startup', async
 
 test('does not start networking in host mode without multi-station enabled', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   server = await suppressingConsoleOutput(() =>
     start({
       workspacePath: makeTemporaryDirectory(),
       logger,
-      usbDrive,
+      multiUsbDrive,
       printer,
       port: 0,
     })
@@ -283,7 +283,7 @@ test('does not start networking in host mode without multi-station enabled', asy
 
 test('starts host networking and peer server when multi-station is enabled', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const { usbDrive } = createMockUsbDrive();
+  const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
   featureFlagMock.enableFeatureFlag(
@@ -295,7 +295,7 @@ test('starts host networking and peer server when multi-station is enabled', asy
     start({
       workspacePath: makeTemporaryDirectory(),
       logger,
-      usbDrive,
+      multiUsbDrive,
       printer,
       port: 0,
       peerPort,

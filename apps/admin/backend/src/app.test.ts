@@ -27,6 +27,7 @@ import { CandidateContestResults } from '@votingworks/types/src/tabulation';
 import {
   buildTestEnvironment,
   configureMachine,
+  getMountedUsbDrivePartitionDevPath,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   saveTmpFile,
@@ -449,7 +450,9 @@ test('saveElectionPackageToUsb', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync
+    .expectRepeatedCallsWith(getMountedUsbDrivePartitionDevPath(mockUsbDrive))
+    .resolves();
   const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(ok());
 });
@@ -460,9 +463,7 @@ test('saveElectionPackageToUsb when no USB drive', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockUsbDrive.usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'no_drive' });
+  mockUsbDrive.removeUsbDrive();
   const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(
     err({ type: 'missing-usb-drive', message: 'No USB drive found' })
@@ -470,54 +471,70 @@ test('saveElectionPackageToUsb when no USB drive', async () => {
 });
 
 test('usbDrive', async () => {
-  const {
-    apiClient,
-    auth,
-    mockUsbDrive: { usbDrive },
-  } = buildTestEnvironment();
+  const { apiClient, auth, mockMultiUsbDrive } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockSystemAdministratorAuth(auth);
 
-  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  mockMultiUsbDrive.removeUsbDrive();
   expect(await apiClient.getUsbDriveStatus()).toEqual({
     status: 'no_drive',
   });
 
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'error', reason: 'bad_format' });
+  mockMultiUsbDrive.insertUsbDrive({});
   expect(await apiClient.getUsbDriveStatus()).toMatchObject({
+    status: 'mounted',
+    mountPoint: expect.any(String),
+  });
+
+  mockMultiUsbDrive.multiUsbDrive.getDrives.reset();
+  mockMultiUsbDrive.multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
+    {
+      devPath: '/dev/sdb',
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          fstype: 'ext4',
+          fsver: '1.0',
+          mount: { type: 'unmounted' },
+        },
+      ],
+    },
+  ]);
+  expect(await apiClient.getUsbDriveStatus()).toEqual({
     status: 'error',
     reason: 'bad_format',
   });
 
-  usbDrive.eject.expectCallWith().resolves();
+  mockMultiUsbDrive.insertUsbDrive({});
+
+  mockMultiUsbDrive.multiUsbDrive.ejectDrive
+    .expectCallWith('/dev/sdb')
+    .resolves();
   await apiClient.ejectUsbDrive();
 
-  usbDrive.format.expectCallWith().resolves();
+  mockMultiUsbDrive.multiUsbDrive.formatDrive
+    .expectCallWith('/dev/sdb')
+    .resolves();
   (await apiClient.formatUsbDrive()).assertOk('format failed');
 
   const error = new Error('format failed');
-  usbDrive.format.expectCallWith().throws(error);
+  mockMultiUsbDrive.multiUsbDrive.formatDrive
+    .expectCallWith('/dev/sdb')
+    .throws(error);
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 
 test('usbDrive without proper auth', async () => {
-  const {
-    apiClient,
-    auth,
-    mockUsbDrive: { usbDrive },
-  } = buildTestEnvironment();
+  const { apiClient, auth, mockMultiUsbDrive } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockElectionManagerAuth(auth, electionDefinition.election);
-
-  usbDrive.format.expectCallWith().resolves();
+  mockMultiUsbDrive.insertUsbDrive({});
   (await apiClient.formatUsbDrive()).assertErr(
     'Formatting USB drive requires system administrator auth.'
   );

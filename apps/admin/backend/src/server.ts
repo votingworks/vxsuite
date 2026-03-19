@@ -17,7 +17,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
+import { detectMultiUsbDrive, MultiUsbDrive } from '@votingworks/usb-drive';
 import {
   HP_LASER_PRINTER_CONFIG,
   Printer,
@@ -92,7 +92,7 @@ export interface StartOptions {
   port?: number | string;
   peerPort?: number;
   workspacePath?: string;
-  usbDrive?: UsbDrive;
+  multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
 }
 
@@ -125,7 +125,8 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         /* istanbul ignore next - @preserve */
         () => getUserRole(auth, workspace.store)
       );
-      const usbDrive = options.usbDrive ?? detectUsbDrive(logger);
+      const multiUsbDrive =
+        options.multiUsbDrive ?? detectMultiUsbDrive(logger);
       const printer = options.printer ?? detectPrinter(logger);
 
       const isMultiStationEnabled = isFeatureFlagEnabled(
@@ -152,7 +153,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       app = buildApp({
         auth,
         logger,
-        usbDrive,
+        multiUsbDrive,
         printer,
         workspace,
       });

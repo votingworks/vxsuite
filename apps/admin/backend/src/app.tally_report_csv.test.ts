@@ -14,11 +14,12 @@ import { LogEventId } from '@votingworks/logging';
 import { formatBallotHash, Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { assertDefined, err, ok } from '@votingworks/basics';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import { mockFileName, parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
   configureMachine,
+  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import {
@@ -64,12 +65,12 @@ async function getParsedExport({
   filter,
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockMultiUsbDrive;
   groupBy: Tabulation.GroupBy;
   filter: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const filename = mockFileName();
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const exportResult = await apiClient.exportTallyReportCsv({
     filename,
     groupBy,
@@ -95,7 +96,7 @@ test('exports expected results for full election', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filter: {},
@@ -521,7 +522,7 @@ test('exports ballot styles grouped by language agnostic parent in multi-languag
   });
   loadFileResult.assertOk('load file failed');
 
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filter: {},
