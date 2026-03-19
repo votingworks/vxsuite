@@ -7,7 +7,7 @@ import {
   MarkScanControllerButton,
 } from './types.js';
 import { Keybinding } from '../keybindings.js';
-import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from '.';
+import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from './index.js';
 
 vi.mock(import('./accessible_controller_sandbox.js'), async (importActual) => ({
   ...(await importActual()),

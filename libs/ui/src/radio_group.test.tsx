@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library.js';
-import { RadioGroup } from '.';
+import { RadioGroup } from './index.js';
 import { makeTheme } from './themes/make_theme.js';
 
 test('renders all provided options', () => {

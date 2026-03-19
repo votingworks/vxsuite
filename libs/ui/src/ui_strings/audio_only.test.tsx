@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Button } from '../button.js';
-import { AudioOnly } from '.';
+import { AudioOnly } from './index.js';
 import { render, screen } from '../../test/react_testing_library.js';
 
 test('hides content without removing from a11y tree', () => {

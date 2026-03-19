@@ -1,4 +1,4 @@
-import { DocumentedEntity, DocumentedProperty, DocumentedType } from './types';
+import { DocumentedEntity, DocumentedProperty, DocumentedType } from './types.js';
 
 /**
  * Finds the documentation for a given type.

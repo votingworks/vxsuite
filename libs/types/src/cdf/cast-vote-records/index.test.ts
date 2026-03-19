@@ -12,7 +12,7 @@ import {
   CVRType,
   IndicationStatus,
   ReportingUnitType,
-} from '.';
+} from './index.js';
 import {
   findUnusedDefinitions,
   isSubsetCdfSchema,

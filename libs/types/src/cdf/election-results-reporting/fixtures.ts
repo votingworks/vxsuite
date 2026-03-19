@@ -6,7 +6,7 @@ import {
   InternationalizedText,
   ReportDetailLevel,
   ResultsStatus,
-} from '.';
+} from './index.js';
 
 function asInternationalizedText(text: string): InternationalizedText {
   return {

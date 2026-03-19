@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { HP_LASER_PRINTER_CONFIG, getPpdPath } from '.';
+import { HP_LASER_PRINTER_CONFIG, getPpdPath } from './index.js';
 import { exec } from '../utils/exec.js';
 import { DEFAULT_MANAGED_PRINTER_NAME, configurePrinter } from './configure.js';
 

@@ -15,7 +15,7 @@ import {
 } from './convert.js';
 import { testCdfBallotDefinition, testVxfElection } from './fixtures.js';
 import { ElectionStringKey, UiStringsPackage, mergeUiStrings } from '../../index.js';
-import * as Cdf from '.';
+import * as Cdf from './index.js';
 import * as Vxf from '../../election.js';
 import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers.js';
 

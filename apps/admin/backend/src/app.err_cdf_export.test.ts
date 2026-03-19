@@ -28,7 +28,7 @@ import {
   expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app.js';
-import { Api } from '.';
+import { Api } from './index.js';
 import { mockFileName } from '../test/csv.js';
 import { generateReportPath } from './util/filenames.js';
 

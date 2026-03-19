@@ -50,7 +50,7 @@ import {
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers.js';
 import { Api } from './app.js';
-import { ElectionState, PrintCalibration } from '.';
+import { ElectionState, PrintCalibration } from './index.js';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,

@@ -35,7 +35,7 @@ import {
   encodeBmdMultiPageBallot,
   decodeBmdMultiPageBallot,
   BmdMultiPageBallotPage,
-} from '.';
+} from './index.js';
 
 const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
   BallotType.Precinct

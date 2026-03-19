@@ -17,7 +17,7 @@ import { newTestContext as newUiStringsTestContext } from '../test/test_context.
 import { UiString, UiStringProps } from './ui_strings/ui_string.js';
 import { useLanguageContext } from './ui_strings/language_context.js';
 import { act, screen, waitFor } from '../test/react_testing_library.js';
-import { AppStringKey } from '.';
+import { AppStringKey } from './index.js';
 import {
   generateCandidateVotes,
   generateYesNoVote,

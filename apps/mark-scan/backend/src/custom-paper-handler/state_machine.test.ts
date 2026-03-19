@@ -73,7 +73,7 @@ import {
   PatConnectionStatusReaderInterface,
 } from '../pat-input/connection_status_reader.js';
 import { getPaperInRearStatus } from './test_utils/index.js';
-import { SimpleServerStatus } from '.';
+import { SimpleServerStatus } from './index.js';
 import {
   loadAndParkPaper,
   printBallotChunks,

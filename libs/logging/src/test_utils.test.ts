@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { LogEventType, LogLine, LogSource } from '.';
+import { LogEventType, LogLine, LogSource } from './index.js';
 import { LogEventId } from './log_event_enums.js';
 import { mockBaseLogger, mockLogger } from './test_utils.js';
 

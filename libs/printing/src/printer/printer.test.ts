@@ -9,7 +9,7 @@ import {
 import { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
 import { detectPrinter } from './printer.js';
-import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
+import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from './index.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
 
 const featureFlagMock = getFeatureFlagMock();

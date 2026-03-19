@@ -24,7 +24,7 @@ import {
   adjudicateVote,
   adjudicateWriteIn,
 } from './adjudication.js';
-import { AdjudicatedContestOption, VoteAdjudication, WriteInRecord } from '.';
+import { AdjudicatedContestOption, VoteAdjudication, WriteInRecord } from './index.js';
 
 const contestId = 'zoo-council-mammal';
 

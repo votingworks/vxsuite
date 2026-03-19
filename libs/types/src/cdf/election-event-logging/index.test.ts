@@ -17,7 +17,7 @@ import {
   EventSchema,
   EventTypeDescription,
   HashType,
-} from '.';
+} from './index.js';
 
 const event: Event = {
   '@type': 'EventLogging.Event',

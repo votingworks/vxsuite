@@ -1,6 +1,6 @@
 import { assertDefined, find, err, ok, Result } from '@votingworks/basics';
 import { Candidate, CandidateId } from '../../election.js';
-import * as ResultsReporting from '.';
+import * as ResultsReporting from './index.js';
 import * as VxTabulation from '../../tabulation.js';
 import {
   BallotMeasureContest,
@@ -8,7 +8,7 @@ import {
   CountItemType,
   PartyContest,
   RetentionContest,
-} from '.';
+} from './index.js';
 import {
   isBallotMeasureContest,
   isCandidateContest,

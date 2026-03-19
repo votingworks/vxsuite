@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import * as fixtures from '.';
+import * as fixtures from './index.js';
 
 test('has various election definitions', () => {
   expect(

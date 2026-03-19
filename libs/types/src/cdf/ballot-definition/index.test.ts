@@ -3,7 +3,7 @@ import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ok } from '@votingworks/basics';
-import { BallotDefinitionSchema } from '.';
+import { BallotDefinitionSchema } from './index.js';
 import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import { testCdfBallotDefinition } from './fixtures.js';
 import {

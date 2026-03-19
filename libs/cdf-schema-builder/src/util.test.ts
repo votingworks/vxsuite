@@ -4,7 +4,7 @@ import {
   makeIdentifier,
   renderTypeAsDeclaration,
   renderTypeAsZodSchema,
-} from './util';
+} from './util.js';
 
 test('makeIdentifier', () => {
   expect(makeIdentifier('foo')).toEqual('Foo');

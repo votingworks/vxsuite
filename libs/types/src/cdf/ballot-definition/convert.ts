@@ -14,7 +14,7 @@ import {
   wrapException,
 } from '@votingworks/basics';
 import setWith from 'lodash.setwith';
-import * as Cdf from '.';
+import * as Cdf from './index.js';
 import * as Vxf from '../../election.js';
 import {
   ballotPaperDimensions,

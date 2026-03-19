@@ -18,7 +18,7 @@ import {
   testElectionReportYesNoContestWithoutTextMatch,
 } from './fixtures.js';
 import { ManualElectionResults } from '../../tabulation.js';
-import { ElectionReport } from '.';
+import { ElectionReport } from './index.js';
 
 function makeLanguageString(
   content: string,

@@ -3,7 +3,7 @@ import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
-import { VisualModeDisabledOverlay } from '.';
+import { VisualModeDisabledOverlay } from './index.js';
 
 test('updates context isVisualModeDisabled when button is pressed', () => {
   let currentTheme: UiTheme | null = null;

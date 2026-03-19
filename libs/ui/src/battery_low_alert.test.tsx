@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { screen, within } from '../test/react_testing_library.js';
 import { newTestContext } from '../test/test_context.js';
 import { BatteryLowAlert } from './battery_low_alert.js';
-import { BATTERY_POLLING_INTERVAL_GROUT } from '.';
+import { BATTERY_POLLING_INTERVAL_GROUT } from './index.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,

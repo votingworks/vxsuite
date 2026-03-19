@@ -7,7 +7,7 @@ import {
 import { find, iter } from '@votingworks/basics';
 import { configureApp } from '../test/helpers/shared_helpers.js';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
-import { PrecinctScannerPollsInfo } from '.';
+import { PrecinctScannerPollsInfo } from './index.js';
 
 vi.setConfig({ testTimeout: 60_000 });
 

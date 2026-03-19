@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { assert } from '@votingworks/basics';
-import { arbitraryDateTime } from '.';
+import { arbitraryDateTime } from './index.js';
 import {
   arbitraryCandidateContest,
   arbitraryElection,

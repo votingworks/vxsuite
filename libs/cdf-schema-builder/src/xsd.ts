@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import { DocumentedEntity } from './types';
+import { DocumentedEntity } from './types.js.js';
 
 /**
  * Gets the first child element with the given name.

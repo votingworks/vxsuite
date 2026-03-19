@@ -9,7 +9,7 @@ import {
   OrientationType,
   SelectionCaptureMethod,
   BallotSideType,
-} from '.';
+} from './index.js';
 import {
   HmpbBallotPaperSize,
   BallotStyleGroupId,

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
 import { DateWithoutTime } from '@votingworks/basics';
-import { MachineId, safeParse } from '.';
+import { MachineId, safeParse } from './index.js';
 import {
   DateWithoutTimeSchema,
   maybeParse,

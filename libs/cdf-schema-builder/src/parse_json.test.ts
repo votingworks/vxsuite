@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
-import { safeParseJson } from './parse_json';
+import { safeParseJson } from './parse_json.js';
 
 test('safeParseJson', () => {
   expect(safeParseJson('{"a":1}').unsafeUnwrap()).toEqual({ a: 1 });
