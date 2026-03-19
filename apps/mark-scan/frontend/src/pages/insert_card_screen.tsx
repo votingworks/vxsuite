@@ -11,7 +11,7 @@ import {
   InsertCardImage,
   H1,
   P,
-  TestModeCallout,
+  TestModeBanner,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -65,12 +65,7 @@ export function InsertCardScreen({
 
   return (
     <Screen>
-      {!isLiveMode && (
-        <TestModeCallout
-          viewMode="touch"
-          style={{ alignSelf: 'center', marginTop: '0.5rem' }}
-        />
-      )}
+      {!isLiveMode && <TestModeBanner />}
       <Main centerChild>
         <P>
           <InsertCardImage cardInsertionDirection="up" />

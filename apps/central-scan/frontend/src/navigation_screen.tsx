@@ -12,7 +12,7 @@ import {
   NavListItem,
   Screen,
   SessionTimeLimitTimer,
-  TestModeCallout,
+  TestModeBanner,
   UsbControllerButton,
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
@@ -133,11 +133,11 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
       </LeftNav>
       <Main flexColumn>
         <SessionTimeLimitTimer authStatus={auth} />
+        {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
+          <TestModeBanner />
+        )}
         <Header>
           <H1>{title}</H1>
-          {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
-            <TestModeCallout viewMode="desktop" />
-          )}
           <HeaderActions>
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (

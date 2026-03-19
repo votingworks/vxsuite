@@ -9,7 +9,7 @@ import {
   LanguageSettingsScreen,
   ReadOnLoad,
   AudioOnly,
-  TestModeCallout,
+  TestModeBanner,
   VoterHelpButton,
   EarlyVotingCallout,
   VoterSettings,
@@ -95,39 +95,6 @@ const TitleContainer = styled.div`
   min-width: 5rem;
 `;
 
-interface ModeBannerProps {
-  showTestModeBanner: boolean;
-  showEarlyVotingBanner: boolean;
-}
-
-function ModeBanner({
-  showTestModeBanner,
-  showEarlyVotingBanner,
-}: ModeBannerProps): React.ReactElement | null {
-  if (showTestModeBanner && !showEarlyVotingBanner) {
-    return <TestModeCallout viewMode="touch" />;
-  }
-  if (showEarlyVotingBanner && !showTestModeBanner) {
-    return <EarlyVotingCallout viewMode="touch" />;
-  }
-  if (showTestModeBanner && showEarlyVotingBanner) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '1rem',
-        }}
-      >
-        <TestModeCallout viewMode="touch" />
-        <EarlyVotingCallout viewMode="touch" />
-      </div>
-    );
-  }
-
-  return null;
-}
-
 export function Screen(props: ScreenProps): JSX.Element | null {
   const {
     actionButtons,
@@ -207,6 +174,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
 
   return (
     <ScreenBase>
+      {showTestModeBanner && <TestModeBanner />}
       {voterFacing && (
         <HeaderRow>
           <SettingsButtons>
@@ -228,21 +196,12 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               />
             )}
           </SettingsButtons>
-          <ModeBanner
-            showTestModeBanner={showTestModeBanner}
-            showEarlyVotingBanner={showEarlyVotingBanner}
-          />
+          {showEarlyVotingBanner && <EarlyVotingCallout viewMode="touch" />}
           {ballotCountElement}
         </HeaderRow>
       )}
       <HeaderRow>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {!voterFacing && (
-          <ModeBanner
-            showTestModeBanner={showTestModeBanner}
-            showEarlyVotingBanner={showEarlyVotingBanner}
-          />
-        )}
         {!voterFacing && ballotCountElement}
       </HeaderRow>
       {voterFacing ? (
