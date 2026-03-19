@@ -534,12 +534,14 @@ test('usb formatting flows', async () => {
   await screen.findByText('USB Drive Formatted');
   screen.getByText('USB Ejected');
 
-  // Removing USB resets modal
-  apiMock.expectGetUsbDriveStatus('no_drive');
-  await screen.findByText('No USB Drive Detected');
+  // Close the done modal; wait for drive status to be 'error' before re-opening
+  // so that the format confirm screen appears.
+  userEvent.click(screen.getButton('Close'));
+  apiMock.expectGetUsbDriveStatus('error');
+  await screen.findByText('No USB');
 
   // Format another USB, this time in an incompatible format
-  apiMock.expectGetUsbDriveStatus('error');
+  userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const incompatibleModal = screen.getByRole('alertdialog');
   within(incompatibleModal).getByText(/not compatible/);
@@ -549,11 +551,13 @@ test('usb formatting flows', async () => {
   await screen.findByText('USB Drive Formatted');
   screen.getByText('USB Ejected');
 
-  // Removing USB resets modal
-  apiMock.expectGetUsbDriveStatus('no_drive');
-  await screen.findByText('No USB Drive Detected');
-  // Error handling
+  // Close the done modal; wait for drive status to be 'error' before re-opening
+  userEvent.click(screen.getButton('Close'));
   apiMock.expectGetUsbDriveStatus('error');
+  await screen.findByText('No USB');
+
+  // Error handling
+  userEvent.click(screen.getButton('Format USB Drive'));
   apiMock.apiClient.formatUsbDrive
     .expectCallWith()
     .resolves(err(new Error('unable to format')));
@@ -563,8 +567,10 @@ test('usb formatting flows', async () => {
   await within(errorModal).findByText('Failed to Format USB Drive');
   within(errorModal).getByText(/unable to format/);
 
-  // Removing USB resets modal
+  // Close the error modal; re-open with no USB drive
+  userEvent.click(screen.getButton('Close'));
   apiMock.expectGetUsbDriveStatus('no_drive');
+  userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByText('No USB Drive Detected');
 });
 

@@ -117,64 +117,6 @@ function isPartitionOfDisk(
   return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
 }
 
-/**
- * Returns the device info for the USB drive, if it's a removable data drive.
- * Returns info for both partitioned drives (type 'part') and unpartitioned
- * drives (type 'disk'). Callers should use the type to determine whether the
- * drive needs to be formatted before use.
- *
- * NOTE: Only a single USB drive is supported. When multiple USB drives are
- * present, the first one enumerated is returned.
- */
-export async function getUsbDriveDeviceInfo(): Promise<
-  BlockDeviceInfo | undefined
-> {
-  const [exportDbOutput, mountsContent] = await Promise.all([
-    exec('udevadm', ['info', '--export-db'])
-      .then(({ stdout }) => stdout)
-      .catch(() => ''),
-    fs.readFile('/proc/mounts', 'utf-8').catch(() => ''),
-  ]);
-
-  const usbBlockDevices = parseExportDb(exportDbOutput);
-  if (usbBlockDevices.length === 0) {
-    debug('No USB block devices found in udev database');
-    return undefined;
-  }
-
-  // Prefer partitions over their parent disks: skip disk entries that have
-  // at least one partition in the udev database.
-  const candidates = usbBlockDevices.filter(
-    (d) =>
-      d.devtype === 'partition' ||
-      !usbBlockDevices.some(
-        (p) =>
-          p.devtype === 'partition' && isPartitionOfDisk(p.devname, d.devname)
-      )
-  );
-
-  const mountpoints = parseMountpoints(mountsContent);
-
-  const deviceInfos: BlockDeviceInfo[] = candidates.map((d) => ({
-    name: basename(d.devname),
-    path: d.devname,
-    type: d.devtype === 'partition' ? 'part' : 'disk',
-    mountpoint: mountpoints.get(d.devname),
-    fstype: d.fstype,
-    fsver: d.fsver,
-    label: d.label,
-  }));
-
-  const dataUsbDrive = deviceInfos.find(isDataUsbDrive);
-  if (!dataUsbDrive) {
-    debug('USB block device(s) found, but none are usable data drives');
-    return undefined;
-  }
-
-  debug(`Detected USB drive at ${dataUsbDrive.path}`);
-  return dataUsbDrive;
-}
-
 export interface UsbPartitionDeviceInfo {
   devPath: string;
   mountpoint?: string;
@@ -257,6 +199,10 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
           label: p.label,
         }));
 
+      // Skip entirely if no partitions qualify — e.g. a non-/media mount.
+      // Returning an empty-partition disk would look like an unformatted drive.
+      if (validPartitions.length === 0) continue;
+
       result.push({
         devPath: disk.devname,
         vendor: disk.vendor,
@@ -276,41 +222,64 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
     }
   }
 
+  // Handle partitions whose parent disk has no udev entry. This is unusual but
+  // observed with some USB card readers where only the partition (not the parent
+  // disk) appears in the udev database. For each such orphan partition, derive
+  // the disk path by stripping the partition suffix and synthesize a disk entry.
+  const diskDevPaths = new Set(diskDevices.map((d) => d.devname));
+  for (const partition of partitionDevices) {
+    const diskDevPath = partition.devname.replace(/(p\d+|\d+)$/, '');
+    if (diskDevPaths.has(diskDevPath)) continue;
+
+    const partitionInfo: BlockDeviceInfo = {
+      name: basename(partition.devname),
+      path: partition.devname,
+      type: 'part',
+      mountpoint: mountpoints.get(partition.devname),
+      fstype: partition.fstype,
+      fsver: partition.fsver,
+      label: partition.label,
+    };
+    if (!isDataUsbDrive(partitionInfo)) continue;
+
+    result.push({
+      devPath: diskDevPath,
+      vendor: undefined,
+      model: undefined,
+      serial: undefined,
+      partitions: [
+        {
+          devPath: partition.devname,
+          mountpoint: partitionInfo.mountpoint,
+          fstype: partition.fstype,
+          fsver: partition.fsver,
+          label: partition.label,
+        },
+      ],
+    });
+  }
+
   debug(`Found ${result.length} USB drive(s)`);
   return result;
 }
 
-export interface UsbDriveMonitor {
-  getDeviceInfo(): BlockDeviceInfo | undefined;
-  refresh(): Promise<void>;
+export interface BlockDeviceChangeWatcher {
   stop(): void;
 }
 
 const MONITOR_DEBOUNCE_MS = 50;
 const MONITOR_RESTART_DELAY_MS = 1_000;
 
-export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
-  let cachedDeviceInfo: BlockDeviceInfo | undefined;
-  let isFirstRefresh = true;
+export function createBlockDeviceChangeWatcher(
+  onDeviceChange: () => void
+): BlockDeviceChangeWatcher {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let monitorProcess: ChildProcess | undefined;
   let stopped = false;
 
-  async function doRefresh(): Promise<void> {
-    const newDeviceInfo = await getUsbDriveDeviceInfo();
-    const stateChanged =
-      isFirstRefresh ||
-      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
-    isFirstRefresh = false;
-    cachedDeviceInfo = newDeviceInfo;
-    if (stateChanged) {
-      onRefresh?.();
-    }
-  }
-
-  function scheduleRefresh(): void {
+  function scheduleChange(): void {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => void doRefresh(), MONITOR_DEBOUNCE_MS);
+    debounceTimer = setTimeout(onDeviceChange, MONITOR_DEBOUNCE_MS);
   }
 
   function startMonitor(): void {
@@ -321,7 +290,7 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
       '--subsystem-match=block',
     ]);
     monitorProcess = proc;
-    proc.stdout.on('data', scheduleRefresh);
+    proc.stdout.on('data', scheduleChange);
     // Handle spawn errors (e.g. binary not found) so they don't go unhandled.
     // The 'exit'/'close' event will fire after 'error' and trigger a restart.
     proc.on('error', (err) => {
@@ -335,16 +304,9 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
     });
   }
 
-  void doRefresh();
   startMonitor();
 
   return {
-    getDeviceInfo: () => cachedDeviceInfo,
-
-    async refresh(): Promise<void> {
-      await doRefresh();
-    },
-
     stop(): void {
       stopped = true;
       clearTimeout(debounceTimer);
