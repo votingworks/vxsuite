@@ -2,8 +2,8 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { basename, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import * as builders from './builders';
-import { clearTemporaryRootDir, setupTemporaryRootDir } from './tmpdir';
+import * as builders from './builders.js';
+import { clearTemporaryRootDir, setupTemporaryRootDir } from './tmpdir.js';
 
 beforeEach(setupTemporaryRootDir);
 afterEach(clearTemporaryRootDir);

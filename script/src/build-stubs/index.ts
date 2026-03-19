@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import { IO } from '../types';
+import { IO } from '../types.js';
 import { createRequire } from 'node:module';
 
 type Module = Record<PropertyKey, unknown>;

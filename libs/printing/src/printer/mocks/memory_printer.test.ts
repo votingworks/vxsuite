@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { HP_LASER_PRINTER_CONFIG, PrintSides } from '..';
+import { HP_LASER_PRINTER_CONFIG, PrintSides } from '../index.js';
 import { createMockPrinterHandler } from './memory_printer.js';
 import { MOCK_PRINTER_RICH_STATUS } from './fixtures.js';
 

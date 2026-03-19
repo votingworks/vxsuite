@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import zlib from 'node:zlib';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { assert, expect, test, vi } from 'vitest';
-import { convertVxLogToCdf } from '..';
+import { convertVxLogToCdf } from '../index.js';
 
 type Format = 'compressed' | 'uncompressed';
 

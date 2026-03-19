@@ -19,7 +19,7 @@ import {
   UiStringsContextProvider,
   UiStringsReactQueryApi,
   createUiStringsApi,
-} from '..';
+} from '../index.js';
 import { useFrontendLanguageContext } from './language_context.js';
 
 const initialProps: Partial<Props> = {

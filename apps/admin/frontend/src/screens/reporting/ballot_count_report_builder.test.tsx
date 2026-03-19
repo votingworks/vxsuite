@@ -4,11 +4,11 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen, within } from '../../../test/react_testing_library';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
-import { BallotCountReportBuilder, TITLE } from './ballot_count_report_builder';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { screen, within } from '../../../test/react_testing_library.js';
+import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting.js';
+import { BallotCountReportBuilder, TITLE } from './ballot_count_report_builder.js';
 
 let apiMock: ApiMock;
 

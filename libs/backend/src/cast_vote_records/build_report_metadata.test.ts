@@ -5,7 +5,7 @@ import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
 import {
   buildBatchManifest,
   buildCastVoteRecordReportMetadata,
-} from './build_report_metadata';
+} from './build_report_metadata.js';
 
 const { election } = readElectionTwoPartyPrimaryDefinition();
 

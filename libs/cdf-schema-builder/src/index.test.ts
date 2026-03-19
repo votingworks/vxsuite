@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { typedAs } from '@votingworks/basics';
 import { JSONSchema4 } from 'json-schema';
-import { mockWritable } from '../test/mock_writable';
-import { buildSchema } from '.';
+import { mockWritable } from '../test/mock_writable.js';
+import { buildSchema } from './index.js';
 
 test('empty', () => {
   const out = mockWritable();

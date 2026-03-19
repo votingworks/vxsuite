@@ -1,19 +1,19 @@
 import * as fs from 'node:fs';
 import { basename, join } from 'node:path';
-import { doBuild, doCopy, inBuildDir } from './build';
+import { doBuild, doCopy, inBuildDir } from './build.js';
 import {
   getDependencyGraph,
   getPackages,
   getProductionPackages,
   PackageType,
-} from './deps';
-import { BUILD_ROOT, WORKSPACE_ROOT } from './globals';
-import { deleteScript } from './pnpm';
-import { IO } from '../types';
-import { execSync } from './utils/exec_sync';
-import { existsSync } from './utils/exists_sync';
-import { mkdirp } from './utils/mkdirp';
-import { rmrf } from './utils/rmrf';
+} from './deps.js';
+import { BUILD_ROOT, WORKSPACE_ROOT } from './globals.js';
+import { deleteScript } from './pnpm.js';
+import { IO } from '../types.js';
+import { execSync } from './utils/exec_sync.js';
+import { existsSync } from './utils/exists_sync.js';
+import { mkdirp } from './utils/mkdirp.js';
+import { rmrf } from './utils/rmrf.js';
 
 export function main({ stdout }: IO): void {
   // Ensure pipenv places the virtualenv in the project.

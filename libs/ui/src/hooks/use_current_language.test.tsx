@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
 import { createUiStringsApi } from './ui_strings_api.js';
-import { UiStringsContextProvider, useCurrentLanguage } from '..';
+import { UiStringsContextProvider, useCurrentLanguage } from '../index.js';
 import {
   DEFAULT_LANGUAGE_CODE,
   FrontendLanguageContextInterface,

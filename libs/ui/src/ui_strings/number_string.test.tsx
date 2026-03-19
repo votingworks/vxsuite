@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { H1, TestErrorBoundary } from '..';
+import { H1, TestErrorBoundary } from '../index.js';
 import {
   act,
   render as renderWithoutContext,

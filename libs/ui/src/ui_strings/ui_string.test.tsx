@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { UiStringsPackage } from '@votingworks/types';
-import { H1 } from '..';
+import { H1 } from '../index.js';
 import {
   act,
   render as renderWithoutContext,

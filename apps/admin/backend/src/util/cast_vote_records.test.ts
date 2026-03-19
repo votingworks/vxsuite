@@ -7,7 +7,7 @@ import {
   MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
 } from './cast_vote_records.js';
-import { CastVoteRecordAdjudicationFlags } from '..';
+import { CastVoteRecordAdjudicationFlags } from '../index.js';
 
 const electionDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();

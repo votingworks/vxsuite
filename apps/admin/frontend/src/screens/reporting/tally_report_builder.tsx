@@ -7,18 +7,18 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { Admin, Tabulation } from '@votingworks/types';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { FilterEditor } from '../../components/reporting/filter_editor';
-import { GroupByEditor } from '../../components/reporting/group_by_editor';
-import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { FilterEditor } from '../../components/reporting/filter_editor.js';
+import { GroupByEditor } from '../../components/reporting/group_by_editor.js';
+import { TallyReportViewer } from '../../components/reporting/tally_report_viewer.js';
+import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting.js';
 import {
   ReportBuilderControls,
   ControlLabel,
   reportParentRoutes,
   ReportScreenContainer,
-} from '../../components/reporting/shared';
+} from '../../components/reporting/shared.js';
 
 const TITLE = 'Tally Report Builder';
 

@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import { format } from '@votingworks/utils';
-import { H1 } from '..';
+import { H1 } from '../index.js';
 import {
   act,
   render as renderWithoutContext,

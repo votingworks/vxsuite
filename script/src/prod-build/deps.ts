@@ -1,7 +1,7 @@
 import resolveFrom from 'resolve-from';
-import { WORKSPACE_ROOT } from './globals';
-import { maybeRequire } from './utils/maybe_require';
-import { relativePath } from './utils/relative_path';
+import { WORKSPACE_ROOT } from './globals.js';
+import { maybeRequire } from './utils/maybe_require.js';
+import { relativePath } from './utils/relative_path.js';
 import { dirname, normalize, join } from 'node:path';
 
 export enum PackageType {

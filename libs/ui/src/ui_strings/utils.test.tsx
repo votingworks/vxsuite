@@ -12,7 +12,7 @@ import {
 } from '@votingworks/utils';
 import { CandidatePartyList, PrecinctSelectionName } from './utils.js';
 import { newTestContext } from '../../test/test_context.js';
-import { H1 } from '..';
+import { H1 } from '../index.js';
 import { screen } from '../../test/react_testing_library.js';
 
 const ELECTION_PARTIES: Readonly<Parties> = [

@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { writeFileSync } from 'node:fs';
-import { PNPM_LOGLEVEL } from './globals';
-import { execSync } from './utils/exec_sync';
+import { PNPM_LOGLEVEL } from './globals.js';
+import { execSync } from './utils/exec_sync.js';
 const require = createRequire(import.meta.url);
 
 export function removeDependencies(

@@ -8,7 +8,7 @@ import {
 } from '../../test/react_testing_library.js';
 import { newTestContext } from '../../test/test_context.js';
 import { InEnglish, LanguageOverride } from './language_override.js';
-import { Button, appStrings } from '..';
+import { Button, appStrings } from '../index.js';
 
 test('LanguageOverride overrides current active language', async () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();
