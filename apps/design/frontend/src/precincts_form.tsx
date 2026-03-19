@@ -470,8 +470,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                   )}
                 </Row>
                 {features.PRECINCT_REGISTERED_VOTER_COUNTS && (
-                  <div style={{ minWidth: '12rem' }}>
-                    <FieldName>Registered Voters</FieldName>
+                  <InputGroup label="Registered Voters">
                     <input
                       disabled={disabled}
                       type="number"
@@ -492,7 +491,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       }
                       style={{ width: '8rem' }}
                     />
-                  </div>
+                  </InputGroup>
                 )}
               </Column>
             )}
