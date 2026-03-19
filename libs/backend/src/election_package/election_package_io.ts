@@ -48,8 +48,8 @@ import {
   EncodedBallotEntrySchema,
   SystemLimitViolation,
   SystemLimits,
-  ElectionPrecinctMetadata,
-  ElectionPrecinctMetadataSchema,
+  ElectionRegisteredVoterCounts,
+  ElectionRegisteredVoterCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -200,17 +200,17 @@ export async function readElectionPackageFromBuffer(
       }
     }
 
-    // Precinct Metadata:
+    // Registered Voter Counts:
 
-    let precinctMetadata: ElectionPrecinctMetadata | undefined;
-    const precinctMetadataEntry = maybeGetFileByName(
+    let registeredVoterCounts: ElectionRegisteredVoterCounts | undefined;
+    const registeredVoterCountsEntry = maybeGetFileByName(
       entries,
-      ElectionPackageFileName.PRECINCT_METADATA
+      ElectionPackageFileName.REGISTERED_VOTER_COUNTS
     );
-    if (precinctMetadataEntry) {
-      precinctMetadata = safeParseJson(
-        await readTextEntry(precinctMetadataEntry),
-        ElectionPrecinctMetadataSchema
+    if (registeredVoterCountsEntry) {
+      registeredVoterCounts = safeParseJson(
+        await readTextEntry(registeredVoterCountsEntry),
+        ElectionRegisteredVoterCountsSchema
       ).unsafeUnwrap();
     }
 
@@ -240,7 +240,7 @@ export async function readElectionPackageFromBuffer(
       ballots,
       electionDefinition,
       metadata,
-      precinctMetadata,
+      registeredVoterCounts,
       systemSettings,
       uiStrings,
       uiStringAudioIds,

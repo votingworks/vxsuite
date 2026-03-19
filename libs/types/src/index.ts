@@ -3,7 +3,7 @@ export * as Admin from './admin';
 export * from './auth';
 export * from './election_package_metadata';
 export * from './election_package';
-export * from './precinct_metadata';
+export * from './registered_voter_counts';
 export * from './byte';
 export * from './hmpb';
 export * from './cast_vote_records';

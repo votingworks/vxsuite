@@ -17,7 +17,6 @@ import {
   BaseBallotProps,
   Election,
   pollingPlacesGenerateFromPrecincts,
-  ElectionPrecinctMetadata,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -348,11 +347,11 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(systemSettings, null, 2)
   );
 
-  const precinctMetadata: ElectionPrecinctMetadata =
-    await store.getPrecinctMetadata(electionId);
+  const registeredVoterCounts =
+    await store.getRegisteredVoterCounts(electionId);
   electionPackageZip.file(
-    ElectionPackageFileName.PRECINCT_METADATA,
-    JSON.stringify(precinctMetadata, null, 2)
+    ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
+    JSON.stringify(registeredVoterCounts, null, 2)
   );
 
   if (shouldExportAudio) {

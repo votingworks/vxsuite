@@ -1470,9 +1470,9 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     updatedPrecinct1,
   ]);
 
-  // Verify getPrecinctMetadata reflects the count
-  expect(await workspace.store.getPrecinctMetadata(electionId)).toEqual({
-    'precinct-1': { registeredVoterCount: 750 },
+  // Verify getRegisteredVoterCounts reflects the count
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-1': { count: 750 },
   });
 
   // Create a precinct with splits, each split having a registered voter count
@@ -1502,13 +1502,13 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     precinct2,
   ]);
 
-  // Verify getPrecinctMetadata for split precincts
-  expect(await workspace.store.getPrecinctMetadata(electionId)).toEqual({
-    'precinct-1': { registeredVoterCount: 750 },
+  // Verify getRegisteredVoterCounts for split precincts
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-1': { count: 750 },
     'precinct-2': {
       splits: {
-        'split-1': { registeredVoterCount: 200 },
-        'split-2': { registeredVoterCount: 300 },
+        'split-1': 200,
+        'split-2': 300,
       },
     },
   });
@@ -1537,18 +1537,17 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     newPrecinct: precinct3,
   });
   createResult.unsafeUnwrap();
-  expect(await workspace.store.getPrecinctMetadata(electionId)).toEqual({
-    'precinct-1': { registeredVoterCount: 750 },
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-1': { count: 750 },
     'precinct-2': {
       splits: {
-        'split-1': { registeredVoterCount: 200 },
-        'split-2': { registeredVoterCount: 300 },
+        'split-1': 200,
+        'split-2': 300,
       },
     },
     'precinct-3': {
       splits: {
-        'split-3a': { registeredVoterCount: 400 },
-        'split-3b': {},
+        'split-3a': 400,
       },
     },
   });
@@ -3243,8 +3242,8 @@ test('Election package and ballots export', async () => {
       })
     ).unsafeUnwrap();
   }
-  const expectedPrecinctMetadata = Object.fromEntries(
-    precincts.map((p) => [p.id, { registeredVoterCount: 1000 }])
+  const expectedRegisteredVoterCounts = Object.fromEntries(
+    precincts.map((p) => [p.id, { count: 1000 }])
   );
 
   const exportMeta = await exportElectionPackage({
@@ -3272,7 +3271,7 @@ test('Election package and ballots export', async () => {
   const {
     electionDefinition,
     metadata,
-    precinctMetadata,
+    registeredVoterCounts,
     systemSettings,
     uiStringAudioClips,
     uiStringAudioIds,
@@ -3282,7 +3281,7 @@ test('Election package and ballots export', async () => {
   assert(metadata !== undefined);
   assert(systemSettings !== undefined);
 
-  expect(precinctMetadata).toEqual(expectedPrecinctMetadata);
+  expect(registeredVoterCounts).toEqual(expectedRegisteredVoterCounts);
   assert(uiStringAudioClips !== undefined);
   assert(uiStringAudioIds !== undefined);
   assert(uiStrings !== undefined);
