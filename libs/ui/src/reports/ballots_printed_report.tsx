@@ -14,7 +14,7 @@ import {
   ReportHeader,
   ReportTitle,
   ReportElectionInfo,
-  TestModeBanner,
+  TestModeReportBanner,
 } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 import { FillerColumn } from './ballot_count_report';
@@ -389,7 +389,7 @@ export function BallotsPrintedReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport>
         {isTestMode && (
-          <TestModeBanner overrideText="This report was generated in test mode and reflects test ballot print counts only." />
+          <TestModeReportBanner overrideText="This report was generated in test mode and reflects test ballot print counts only." />
         )}
         <LogoMark />
         <ReportHeader style={{ marginBottom: '1em' }}>
