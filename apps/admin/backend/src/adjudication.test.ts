@@ -64,7 +64,7 @@ test('adjudicateVote', () => {
   assert(cvrId !== undefined);
 
   // Validate this cvr didn't create a contest tag
-  const cvrContestTag = store.getCvrContestTag({ cvrId, contestId });
+  const [cvrContestTag] = store.getCvrContestTags({ cvrId, contestId });
   expect(cvrContestTag).toBeUndefined();
 
   function expectVotes(votes: Tabulation.Votes) {
@@ -433,7 +433,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
 
   expectVotes(initialVotes);
   expectWriteInRecords(initialWriteInRecords);
-  const initialContestTag = store.getCvrContestTag({ cvrId, contestId });
+  const [initialContestTag] = store.getCvrContestTags({ cvrId, contestId });
   expect(initialContestTag).toBeDefined();
   expect(
     initialContestTag?.isResolved === false &&
@@ -441,6 +441,9 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       initialContestTag?.hasWriteIn &&
       initialContestTag?.hasUnmarkedWriteIn === false
   ).toEqual(true);
+
+  // non-blank ballot should not have a cvr tag
+  expect(store.getCvrTag({ cvrId })).toBeUndefined();
 
   // remove both initial votes
   adjudicate({});
@@ -472,7 +475,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       candidateId: 'elephant',
     },
   ]);
-  const adjudicatedContestTag = store.getCvrContestTag({ cvrId, contestId });
+  const [adjudicatedContestTag] = store.getCvrContestTags({ cvrId, contestId });
   expect(adjudicatedContestTag).toBeDefined();
   expect(
     adjudicatedContestTag?.isResolved &&
@@ -572,7 +575,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       candidateId: 'elephant',
     },
   ]);
-  const finalContestTag = store.getCvrContestTag({ cvrId, contestId });
+  const [finalContestTag] = store.getCvrContestTags({ cvrId, contestId });
   expect(finalContestTag).toBeDefined();
   expect(
     finalContestTag?.isResolved &&
@@ -580,4 +583,133 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       finalContestTag?.hasWriteIn &&
       finalContestTag?.hasUnmarkedWriteIn === false
   ).toEqual(true);
+});
+
+test('blank ballot gets a cvrTag when BlankBallot adjudication reason is enabled', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(
+      typedAs<SystemSettings>({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        adminAdjudicationReasons: [AdjudicationReason.BlankBallot],
+      })
+    ),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const blankVotes: Tabulation.Votes = {
+    'zoo-council-mammal': [],
+    'best-animal-mammal': [],
+    'new-zoo-either': [],
+    'new-zoo-pick': [],
+    fishing: [],
+  };
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: blankVotes,
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  const cvrTag = store.getCvrTag({ cvrId });
+  expect(cvrTag).toBeDefined();
+  assert(cvrTag !== undefined);
+  expect(cvrTag.isBlankBallot).toEqual(true);
+  expect(cvrTag.isResolved).toEqual(false);
+});
+
+test('non-blank ballot does not get a cvrTag even when BlankBallot adjudication reason is enabled', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(
+      typedAs<SystemSettings>({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        adminAdjudicationReasons: [AdjudicationReason.BlankBallot],
+      })
+    ),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': ['lion'] },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  expect(store.getCvrTag({ cvrId })).toBeUndefined();
+});
+
+test('blank ballot does not get a cvrTag when BlankBallot adjudication reason is disabled', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const blankVotes: Tabulation.Votes = {
+    'zoo-council-mammal': [],
+    'best-animal-mammal': [],
+    'new-zoo-either': [],
+    'new-zoo-pick': [],
+    fishing: [],
+  };
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: blankVotes,
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  expect(store.getCvrTag({ cvrId })).toBeUndefined();
 });

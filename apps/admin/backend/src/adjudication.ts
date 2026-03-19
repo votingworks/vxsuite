@@ -340,7 +340,8 @@ export function adjudicateCvrContest(
       }
     }
 
-    // Create a tag if one doesn't already exist for this cvr-contest pair
+    // Create a tag if one doesn't already exist for this cvr-contest pair.
+    /* istanbul ignore next - @preserve - TODO(nikhil) remove in refactor */
     if (!store.getCvrContestTags({ cvrId, contestId }).length) {
       const electionRecord = assertDefined(store.getElection(electionId));
       const contest = CachedElectionLookups.getContestById(
