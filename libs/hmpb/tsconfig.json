@@ -11,7 +11,6 @@
     "lib": ["esnext", "dom"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "moduleResolution": "node16",
     "noEmit": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,

@@ -1,7 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ],
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "src",
@@ -9,10 +14,20 @@
     "declaration": true
   },
   "references": [
-    { "path": "../fixtures/tsconfig.build.json" },
-    { "path": "../image-utils/tsconfig.build.json" },
-    { "path": "../printing/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../ui/tsconfig.build.json" }
+    {
+      "path": "../fixtures/tsconfig.build.json"
+    },
+    {
+      "path": "../image-utils/tsconfig.build.json"
+    },
+    {
+      "path": "../printing/tsconfig.build.json"
+    },
+    {
+      "path": "../types/tsconfig.build.json"
+    },
+    {
+      "path": "../ui/tsconfig.build.json"
+    }
   ]
 }

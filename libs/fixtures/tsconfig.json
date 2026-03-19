@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "module": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "composite": true,
     "noEmit": true,
     "esModuleInterop": true,

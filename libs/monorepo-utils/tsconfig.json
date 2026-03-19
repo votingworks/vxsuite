@@ -3,7 +3,8 @@
   "include": ["src"],
   "exclude": [],
   "compilerOptions": {
-    "module": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
     "noEmit": true,

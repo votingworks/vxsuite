@@ -6,7 +6,8 @@
     "downlevelIteration": true,
     "lib": ["ESNext"],
     "jsx": "react-jsx",
-    "module": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true
   },

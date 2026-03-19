@@ -1,7 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src"],
-  "exclude": ["**/*.test.tsx"],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**/*.test.tsx"
+  ],
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "src",
@@ -10,16 +14,38 @@
     "declarationMap": true
   },
   "references": [
-    { "path": "../backend/tsconfig.build.json" },
-    { "path": "../../auth/tsconfig.build.json" },
-    { "path": "../../basics/tsconfig.build.json" },
-    { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../fujitsu-thermal-printer/tsconfig.build.json" },
-    { "path": "../../grout/tsconfig.build.json" },
-    { "path": "../../grout/test-utils/tsconfig.build.json" },
-    { "path": "../../test-utils/tsconfig.build.json" },
-    { "path": "../../types/tsconfig.build.json" },
-    { "path": "../../ui/tsconfig.build.json" },
-    { "path": "../../utils/tsconfig.build.json" }
+    {
+      "path": "../backend/tsconfig.build.json"
+    },
+    {
+      "path": "../../auth/tsconfig.build.json"
+    },
+    {
+      "path": "../../basics/tsconfig.build.json"
+    },
+    {
+      "path": "../../eslint-plugin-vx/tsconfig.build.json"
+    },
+    {
+      "path": "../../fujitsu-thermal-printer/tsconfig.build.json"
+    },
+    {
+      "path": "../../grout/tsconfig.build.json"
+    },
+    {
+      "path": "../../grout/test-utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../test-utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../types/tsconfig.build.json"
+    },
+    {
+      "path": "../../ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../utils/tsconfig.build.json"
+    }
   ]
 }
