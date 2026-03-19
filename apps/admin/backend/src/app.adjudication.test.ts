@@ -44,7 +44,6 @@ import {
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
-  HmpbImageView,
   VoteAdjudication,
   WriteInRecord,
 } from './types';
@@ -729,7 +728,7 @@ test('getAdjudicationQueueMetadata', async () => {
   );
 });
 
-test('getBallotImageView on hmpb', async () => {
+test('getBallotImages on hmpb', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -753,20 +752,9 @@ test('getBallotImageView on hmpb', async () => {
   const [cvrId] = cvrIds;
   assert(cvrId !== undefined);
 
-  const ballotImageView = await apiClient.getBallotImageView({
-    cvrId,
-    contestId,
-  });
-
-  // check first write-in image
-  assert(ballotImageView);
-
-  const {
-    imageUrl: actualImageUrl,
-    ballotCoordinates,
-    contestCoordinates,
-    optionLayouts,
-  } = ballotImageView as HmpbImageView;
+  const ballotImages = await apiClient.getBallotImages({ cvrId });
+  const { front } = ballotImages;
+  assert(front.type === 'hmpb');
 
   const imageBytes = await readFile(
     join(
@@ -775,7 +763,7 @@ test('getBallotImageView on hmpb', async () => {
       `${MANUAL_CAST_VOTE_RECORD_EXPORT_ID}-front.jpg`
     )
   );
-  expect(actualImageUrl).toEqual(
+  expect(front.imageUrl).toEqual(
     `data:image/jpeg;base64,${imageBytes.toString('base64')}`
   );
 
@@ -786,17 +774,24 @@ test('getBallotImageView on hmpb', async () => {
     x: 0,
     y: 0,
   };
-  expect(ballotCoordinates).toEqual(expectedBallotCoordinates);
-  const expectedContestCoordinates: Rect = {
+  expect(front.ballotCoordinates).toEqual(expectedBallotCoordinates);
+
+  const contestLayout = find(
+    front.layout.contests,
+    (c) => c.contestId === contestId
+  );
+  expect(contestLayout.bounds).toEqual({
     width: 1161,
     height: 374,
     x: 436,
     y: 1183,
-  };
-  expect(contestCoordinates).toEqual(expectedContestCoordinates);
-  const [writeIn] = await apiClient.getWriteIns({ cvrId, contestId });
+  });
+
   const writeInOptionLayout = assertDefined(
-    optionLayouts.find((layout) => layout.definition?.id === writeIn?.optionId)
+    contestLayout.options.find(
+      (layout) =>
+        layout.definition?.type === 'candidate' && layout.definition.isWriteIn
+    )
   );
   expect(writeInOptionLayout.bounds).toMatchInlineSnapshot(`
     {
@@ -808,7 +803,7 @@ test('getBallotImageView on hmpb', async () => {
   `);
 });
 
-test('getBallotImageView on bmd', async () => {
+test('getBallotImages on bmd', async () => {
   const { auth, apiClient, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -831,11 +826,8 @@ test('getBallotImageView on bmd', async () => {
   const [cvrId1] = cvrIds;
   assert(cvrId1 !== undefined);
 
-  const ballotImageView = await apiClient.getBallotImageView({
-    cvrId: cvrId1,
-    contestId,
-  });
-  assert(ballotImageView);
+  const ballotImages = await apiClient.getBallotImages({ cvrId: cvrId1 });
+  expect(ballotImages.front.type).toEqual('bmd');
 
   // verify that unconfigure cleans up ballot image files
   expect(readdirSync(workspace.store.getBallotImagesPath())).not.toHaveLength(
@@ -846,7 +838,7 @@ test('getBallotImageView on bmd', async () => {
   expect(readdirSync(workspace.store.getBallotImagesPath())).toHaveLength(0);
 });
 
-test('getBallotImageView when image is corrupted', async () => {
+test('getBallotImages when image is corrupted', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -909,14 +901,11 @@ test('getBallotImageView when image is corrupted', async () => {
   const [cvrId] = cvrIds;
   assert(cvrId !== undefined);
 
-  const ballotImageView = await apiClient.getBallotImageView({
-    cvrId,
-    contestId,
-  });
-
-  assert(ballotImageView.type === 'hmpb');
-  expect(ballotImageView.imageUrl).toBeNull();
-  expect(ballotImageView.ballotCoordinates).toEqual({
+  const ballotImages = await apiClient.getBallotImages({ cvrId });
+  const { front } = ballotImages;
+  assert(front.type === 'hmpb');
+  expect(front.imageUrl).toBeUndefined();
+  expect(front.ballotCoordinates).toEqual({
     height: 0,
     width: 0,
     x: 0,
