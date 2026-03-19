@@ -325,10 +325,9 @@ function BallotSideContestList({
       >
         {title}
         <ViewSideButton
-          color="neutral"
           onPress={onHeaderClick}
           disabled={isVisibleSide}
-          icon={<Icons.Search />}
+          icon="Search"
         >
           View
         </ViewSideButton>
@@ -483,8 +482,7 @@ export function AdjudicationContestList({
                     onPress={() =>
                       onSelectSide(selectedSide === 'front' ? 'back' : 'front')
                     }
-                    color={cvrTag.isResolved ? 'neutral' : 'neutral'}
-                    icon={<Icons.Search />}
+                    icon="Search"
                   >
                     View {selectedSide === 'front' ? 'Back' : 'Front'}
                   </ViewSideButton>
