@@ -62,67 +62,43 @@ const DEFAULT_BUFFER_SIZE: usize = 16_384;
 /// otherwise we get a `FifoOverflow` error from the scanner.
 const IMAGE_BUFFER_SIZE: usize = 1_048_576; // 1 MiB
 
-type ScannerChannels = (
-    tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
-    tokio::sync::mpsc::UnboundedReceiver<usize>,
-    tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
-);
-
 pub struct Scanner {
-    usb_interface: Arc<nusb::Interface>,
-    default_timeout: Duration,
+    pub(crate) host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
+    pub(crate) host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
+    pub(crate) scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
     stop_tx: Option<tokio::sync::oneshot::Sender<()>>,
     task_handle: Option<tokio::task::JoinHandle<()>>,
 }
 
 impl Scanner {
-    /// Opens a connection to the scanner.
+    /// Opens a connection to the scanner, starts the background USB I/O task,
+    /// and returns a handle for communicating with and disconnecting from the
+    /// scanner.
     ///
     /// # Errors
     ///
     /// Fails if the device cannot be found, the connection cannot be opened, or
     /// the interface cannot be claimed.
-    pub fn open() -> Result<Self> {
-        /// Vendor ID for the PDI scanner.
-        const VENDOR_ID: u16 = 0x0bd7;
+    pub fn connect() -> Result<Self> {
+        let interface = Arc::new(open_usb_interface()?);
+        Ok(poll_scanner(&interface, Duration::from_secs(1)))
+    }
 
-        /// Product ID for the PDI scanner.
-        const PRODUCT_ID: u16 = 0xa002;
-
-        const INTERFACE: u8 = 0;
-
-        let mut devices = nusb::list_devices()?;
-        let device = devices
-            .find(|device| device.vendor_id() == VENDOR_ID && device.product_id() == PRODUCT_ID)
-            .ok_or(UsbError::DeviceNotFound)?
-            .open()?;
-        device.set_configuration(1)?;
-        let scanner_interface = device.detach_and_claim_interface(INTERFACE)?;
-        tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
-
-        let scanner_interface = Arc::new(scanner_interface);
-
-        Ok(Self {
-            usb_interface: scanner_interface,
-            default_timeout: Duration::from_secs(1),
+    /// Creates a scanner with mock channels and no background task. The
+    /// returned scanner's `disconnect` is a no-op. Used for testing
+    /// [`Client`](crate::client::Client) without real USB hardware.
+    pub fn mock(
+        host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
+        host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
+        scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
+    ) -> Self {
+        Self {
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
             stop_tx: None,
             task_handle: None,
-        })
-    }
-
-    pub fn set_default_timeout(&mut self, timeout: Duration) {
-        self.default_timeout = timeout;
-    }
-
-    /// # Panics
-    ///
-    /// If the in-process channel between the scanner and the client becomes disconnected.
-    pub fn start(&mut self) -> ScannerChannels {
-        let (channels, stop_tx, task_handle) =
-            start_poll_task(&self.usb_interface, self.default_timeout);
-        self.stop_tx = Some(stop_tx);
-        self.task_handle = Some(task_handle);
-        channels
+        }
     }
 
     /// Disconnects from the scanner by stopping the background task and
@@ -141,11 +117,38 @@ impl Scanner {
     }
 }
 
+/// Finds the PDI scanner on the USB bus, opens it, and claims its interface.
+///
+/// # Errors
+///
+/// Fails if the device is not found, cannot be opened, or the interface
+/// cannot be claimed.
+fn open_usb_interface() -> Result<nusb::Interface> {
+    /// Vendor ID for the PDI scanner.
+    const VENDOR_ID: u16 = 0x0bd7;
+
+    /// Product ID for the PDI scanner.
+    const PRODUCT_ID: u16 = 0xa002;
+
+    const INTERFACE: u8 = 0;
+
+    let mut devices = nusb::list_devices()?;
+    let device = devices
+        .find(|device| device.vendor_id() == VENDOR_ID && device.product_id() == PRODUCT_ID)
+        .ok_or(UsbError::DeviceNotFound)?
+        .open()?;
+    device.set_configuration(1)?;
+    let scanner_interface = device.detach_and_claim_interface(INTERFACE)?;
+    tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
+
+    Ok(scanner_interface)
+}
+
 /// Spawns a background task that bridges USB I/O with in-process channels.
 /// The task polls the primary and image data USB endpoints for incoming
-/// packets, parses them, and forwards them to the returned channels.
-/// Outgoing packets sent on the returned channels are serialized and
-/// written to the USB OUT endpoint.
+/// packets, parses them, and forwards them to the returned scanner's
+/// channels. Outgoing packets sent on the scanner's channels are serialized
+/// and written to the USB OUT endpoint.
 ///
 /// # Panics
 ///
@@ -153,14 +156,7 @@ impl Scanner {
 /// disconnected.
 #[allow(clippy::unwrap_used)]
 #[allow(clippy::too_many_lines)]
-fn start_poll_task<U: UsbInterface>(
-    usb_interface: &Arc<U>,
-    default_timeout: Duration,
-) -> (
-    ScannerChannels,
-    tokio::sync::oneshot::Sender<()>,
-    tokio::task::JoinHandle<()>,
-) {
+fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Duration) -> Scanner {
     let (host_to_scanner_tx, mut host_to_scanner_rx) =
         tokio::sync::mpsc::unbounded_channel::<(usize, packets::Outgoing)>();
     let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
@@ -271,11 +267,13 @@ fn start_poll_task<U: UsbInterface>(
         }
     });
 
-    (
-        (host_to_scanner_tx, host_to_scanner_ack_rx, scanner_to_host_rx),
-        stop_tx,
-        task_handle,
-    )
+    Scanner {
+        host_to_scanner_tx,
+        host_to_scanner_ack_rx,
+        scanner_to_host_rx,
+        stop_tx: Some(stop_tx),
+        task_handle: Some(task_handle),
+    }
 }
 
 #[cfg(test)]
@@ -294,8 +292,8 @@ mod tests {
     };
 
     use super::{
-        start_poll_task, BulkInQueue, UsbInterface, ENDPOINT_IN_IMAGE_DATA, ENDPOINT_IN_PRIMARY,
-        ENDPOINT_OUT,
+        poll_scanner, BulkInQueue, Scanner, UsbInterface, ENDPOINT_IN_IMAGE_DATA,
+        ENDPOINT_IN_PRIMARY, ENDPOINT_OUT,
     };
 
     const TEST_TIMEOUT: Duration = Duration::from_millis(100);
@@ -404,35 +402,17 @@ mod tests {
         )
     }
 
-    struct MockScanner {
-        handles: MockHandles,
-        host_to_scanner_tx: mpsc::UnboundedSender<(usize, Outgoing)>,
-        host_to_scanner_ack_rx: mpsc::UnboundedReceiver<usize>,
-        scanner_to_host_rx: mpsc::UnboundedReceiver<crate::Result<Incoming>>,
-        stop_tx: tokio::sync::oneshot::Sender<()>,
-        task_handle: tokio::task::JoinHandle<()>,
-    }
-
-    fn start_mock_scanner() -> MockScanner {
+    fn start_mock_scanner() -> (MockHandles, Scanner) {
         let (interface, handles) = mock_interface_and_handles();
-        let ((tx, ack_rx, rx), stop_tx, task_handle) =
-            start_poll_task(&Arc::new(interface), Duration::from_secs(1));
-        MockScanner {
-            handles,
-            host_to_scanner_tx: tx,
-            host_to_scanner_ack_rx: ack_rx,
-            scanner_to_host_rx: rx,
-            stop_tx,
-            task_handle,
-        }
+        let scanner = poll_scanner(&Arc::new(interface), Duration::from_secs(1));
+        (handles, scanner)
     }
 
     #[tokio::test]
     async fn primary_endpoint_packet_parsed_and_forwarded() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
-        scanner
-            .handles
+        handles
             .primary_tx
             .send(Completion {
                 data: encode_packet(COVER_OPEN_EVENT_BODY),
@@ -450,11 +430,10 @@ mod tests {
 
     #[tokio::test]
     async fn primary_endpoint_parse_failure_produces_unknown() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
         let garbage = b"not a valid packet".to_vec();
-        scanner
-            .handles
+        handles
             .primary_tx
             .send(Completion {
                 data: garbage.clone(),
@@ -472,11 +451,10 @@ mod tests {
 
     #[tokio::test]
     async fn image_data_forwarded() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
         let image_bytes = vec![0xAA, 0xBB, 0xCC];
-        scanner
-            .handles
+        handles
             .image_data_tx
             .send(Completion {
                 data: image_bytes.clone(),
@@ -494,20 +472,22 @@ mod tests {
 
     #[tokio::test]
     async fn outgoing_command_forwarded_and_acked() {
-        let mut scanner = start_mock_scanner();
+        let (mut handles, mut scanner) = start_mock_scanner();
 
         scanner
             .host_to_scanner_tx
             .send((123, Outgoing::EnableCrcCheckingRequest))
             .unwrap();
 
-        let (endpoint, data) = timeout(TEST_TIMEOUT, scanner.handles.write_rx.recv())
+        // Verify the serialized bytes arrive on the correct endpoint
+        let (endpoint, data) = timeout(TEST_TIMEOUT, handles.write_rx.recv())
             .await
             .unwrap()
             .unwrap();
         assert_eq!(endpoint, ENDPOINT_OUT);
         assert_eq!(data, Outgoing::EnableCrcCheckingRequest.to_bytes());
 
+        // Verify the ack
         let ack_id = timeout(TEST_TIMEOUT, scanner.host_to_scanner_ack_rx.recv())
             .await
             .unwrap()
@@ -517,10 +497,9 @@ mod tests {
 
     #[tokio::test]
     async fn primary_endpoint_error_forwarded_and_task_exits() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
-        scanner
-            .handles
+        handles
             .primary_tx
             .send(Completion {
                 data: Vec::new(),
@@ -534,15 +513,15 @@ mod tests {
             .unwrap();
         assert!(result.is_err());
 
+        // Task should have exited — channel closes
         assert!(scanner.scanner_to_host_rx.recv().await.is_none());
     }
 
     #[tokio::test]
     async fn image_data_endpoint_error_forwarded_and_task_exits() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
-        scanner
-            .handles
+        handles
             .image_data_tx
             .send(Completion {
                 data: Vec::new(),
@@ -561,20 +540,19 @@ mod tests {
 
     #[tokio::test]
     async fn stop_signal_exits_task_cleanly() {
-        let scanner = start_mock_scanner();
+        let (_handles, scanner) = start_mock_scanner();
 
-        let _ = scanner.stop_tx.send(());
-        scanner.task_handle.await.unwrap();
+        scanner.disconnect().await;
     }
 
     #[tokio::test]
     async fn primary_endpoint_partial_parse_produces_unknown() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
+        // Valid CoverOpenEvent followed by trailing garbage
         let mut data = encode_packet(COVER_OPEN_EVENT_BODY);
         data.extend_from_slice(b"trailing");
-        scanner
-            .handles
+        handles
             .primary_tx
             .send(Completion {
                 data: data.clone(),
@@ -592,25 +570,17 @@ mod tests {
 
     #[tokio::test]
     async fn initial_submits_and_resubmission() {
-        let mut scanner = start_mock_scanner();
+        let (handles, mut scanner) = start_mock_scanner();
 
         // After start(), the task submits initial buffers:
         // 1 for primary, 2 for image data
+        // Give the task a moment to run the initial submits
         tokio::time::sleep(Duration::from_millis(10)).await;
-        assert_eq!(scanner.handles.primary_submissions.lock().unwrap().len(), 1);
-        assert_eq!(
-            scanner
-                .handles
-                .image_data_submissions
-                .lock()
-                .unwrap()
-                .len(),
-            2
-        );
+        assert_eq!(handles.primary_submissions.lock().unwrap().len(), 1);
+        assert_eq!(handles.image_data_submissions.lock().unwrap().len(), 2);
 
         // Send a primary endpoint completion — should trigger a resubmit
-        scanner
-            .handles
+        handles
             .primary_tx
             .send(Completion {
                 data: encode_packet(COVER_OPEN_EVENT_BODY),
@@ -618,11 +588,10 @@ mod tests {
             })
             .unwrap();
         let _ = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv()).await;
-        assert_eq!(scanner.handles.primary_submissions.lock().unwrap().len(), 2);
+        assert_eq!(handles.primary_submissions.lock().unwrap().len(), 2);
 
         // Send an image data completion — should trigger a resubmit
-        scanner
-            .handles
+        handles
             .image_data_tx
             .send(Completion {
                 data: vec![0xAA],
@@ -630,14 +599,6 @@ mod tests {
             })
             .unwrap();
         let _ = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv()).await;
-        assert_eq!(
-            scanner
-                .handles
-                .image_data_submissions
-                .lock()
-                .unwrap()
-                .len(),
-            3
-        );
+        assert_eq!(handles.image_data_submissions.lock().unwrap().len(), 3);
     }
 }

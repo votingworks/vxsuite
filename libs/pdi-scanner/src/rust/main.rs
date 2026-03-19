@@ -17,7 +17,6 @@ use tracing_subscriber::prelude::*;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use pdi_scanner::{
     client::{Client, DoubleFeedDetectionCalibrationConfig, ImageCalibrationTables},
-    connect,
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::{Incoming, IncomingType},
@@ -26,7 +25,6 @@ use pdi_scanner::{
             DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode, Status,
         },
     },
-    scanner::Scanner,
     Error, UsbError,
 };
 
@@ -217,8 +215,8 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
 }
 
 async fn initialize_connected_scanner(
-    mut client: Client<Scanner>,
-) -> pdi_scanner::Result<(Client<Scanner>, ImageCalibrationTables)> {
+    mut client: Client,
+) -> pdi_scanner::Result<(Client, ImageCalibrationTables)> {
     if timeout(Duration::from_secs(3), client.wait_until_ready())
         .await
         .is_err()
@@ -251,7 +249,7 @@ async fn main() -> color_eyre::Result<()> {
     let stdin = BufReader::new(tokio::io::stdin());
     let mut stdin_lines = stdin.lines();
 
-    let mut client: Option<Client<Scanner>> = None;
+    let mut client: Option<Client> = None;
     let mut image_calibration_tables: Option<ImageCalibrationTables> = None;
     let mut raw_image_data = RawImageData::new();
 
@@ -328,7 +326,7 @@ async fn main() -> color_eyre::Result<()> {
                                     message: None,
                                 })?;
                             }
-                            (None, Command::Connect) => match connect() {
+                            (None, Command::Connect) => match Client::connect() {
                                 Ok(c) => {
                                     tracing::info!("connect() succeeded");
                                     match initialize_connected_scanner(c).await {

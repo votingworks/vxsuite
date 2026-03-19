@@ -7,7 +7,7 @@ use std::time::Duration;
 use tokio::time::timeout;
 use tracing_subscriber::prelude::*;
 
-use pdi_scanner::connect;
+use pdi_scanner::client::Client;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(1);
@@ -49,7 +49,7 @@ async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
-    let mut client = connect()?;
+    let mut client = Client::connect()?;
     timeout(CONNECT_TIMEOUT, client.wait_until_ready()).await?;
 
     for n in 1..=config.times {

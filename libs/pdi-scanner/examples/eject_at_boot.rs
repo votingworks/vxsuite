@@ -5,12 +5,10 @@ use tracing_subscriber::prelude::*;
 
 use pdi_scanner::{
     client::Client,
-    connect,
     protocol::{
         packets::Incoming,
         types::{BootEjectMotion, ClampedPercentage, DoubleFeedDetectionMode, FeederMode},
     },
-    scanner::Scanner,
 };
 
 const REBOOT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -87,9 +85,9 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
 /// Sends a reboot command, drops the old connection, and tries to reconnect
 /// until the scanner comes back or the timeout expires.
 async fn reboot_and_reconnect(
-    mut client: Client<Scanner>,
+    mut client: Client,
     request_timeout: Duration,
-) -> color_eyre::Result<Client<Scanner>> {
+) -> color_eyre::Result<Client> {
     client.reboot().await?;
     // Give the scanner a moment to begin shutting down before we drop the
     // connection, ensuring the reboot command is fully transmitted.
@@ -104,7 +102,7 @@ async fn reboot_and_reconnect(
                 "Timed out waiting for scanner to reconnect after reboot"
             ));
         }
-        match connect() {
+        match Client::connect() {
             Ok(mut candidate) => {
                 match timeout(request_timeout, candidate.wait_until_ready()).await {
                     Ok(()) => return Ok(candidate),
@@ -132,7 +130,7 @@ async fn main() -> color_eyre::Result<()> {
             dry_run,
         } => {
             let onesec = Duration::from_secs(1);
-            let mut client = connect()?;
+            let mut client = Client::connect()?;
             timeout(onesec, client.wait_until_ready()).await?;
 
             let current = timeout(onesec, client.get_boot_eject_motion()).await??;
@@ -164,7 +162,7 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         SubCommand::Test => {
-            let mut client = connect()?;
+            let mut client = Client::connect()?;
 
             let onesec = Duration::from_secs(1);
             timeout(onesec, client.wait_until_ready()).await?;
