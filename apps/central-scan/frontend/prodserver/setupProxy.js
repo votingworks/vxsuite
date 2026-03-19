@@ -8,12 +8,12 @@
 
 // @ts-check
 
-const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
+import { createProxyMiddleware as proxy } from 'http-proxy-middleware';
 
 /**
  * @param {import('connect').Server} app
  */
-module.exports = function (app) {
+export default function (app) {
   const backendPort = Number(process.env.FRONTEND_PORT || 3000) + 1;
 
   app.use('/machine-config', (req, res, next) => {

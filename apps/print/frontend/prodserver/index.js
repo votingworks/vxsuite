@@ -5,12 +5,12 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-const express = require('express');
-const path = require('path');
-const { Logger, LogSource, LogEventId } = require('@votingworks/logging');
-const { handleUncaughtExceptions } = require('@votingworks/backend');
+import express from 'express';
+import path from 'path';
+import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { handleUncaughtExceptions } from '@votingworks/backend';
 
-const proxy = require('./setupProxy');
+import setupProxy from './setupProxy.js';
 const app = express();
 const frontendPort = Number(process.env.FRONTEND_PORT || 3000);
 const logger = new Logger(LogSource.VxPrintFrontend);
@@ -22,11 +22,11 @@ app.use((req, res, next) => {
   next();
 });
 
-proxy(app);
+setupProxy(app);
 
-app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(import.meta.dirname, '../build')));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+  res.sendFile(path.join(import.meta.dirname, '../build/index.html'));
 });
 
 app

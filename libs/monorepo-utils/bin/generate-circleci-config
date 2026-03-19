@@ -1,17 +1,11 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-// @ts-check
+import { join } from 'node:path';
+import { writeFileSync } from 'node:fs';
+import { generateAllConfigs } from '../src/circleci.ts';
+import { getWorkspacePackageInfo } from '../src/pnpm.ts';
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-
-const { join } = require('path');
-const { generateAllConfigs } = require('../src/circleci');
-const { getWorkspacePackageInfo } = require('../src/pnpm');
-const { writeFileSync } = require('fs');
-
-const workspaceRoot = join(__dirname, '..', '..', '..');
+const workspaceRoot = join(import.meta.dirname, '..', '..', '..');
 
 async function main() {
   const packageInfo = getWorkspacePackageInfo(workspaceRoot);
