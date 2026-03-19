@@ -9,6 +9,7 @@
     "build": "tsgo --build"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "concurrently": "7.6.0",

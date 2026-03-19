@@ -5972,6 +5972,9 @@ importers:
 
   script:
     dependencies:
+      '@iarna/toml':
+        specifier: ^2.2.5
+        version: 2.2.5
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../libs/basics
@@ -32450,7 +32453,7 @@ packages:
       '@vitest/spy': 3.2.4
       '@vitest/utils': 3.2.4
       chai: 5.2.0
-      debug: 4.4.1
+      debug: 4.4.0
       expect-type: 1.2.1
       jsdom: 20.0.1
       magic-string: 0.30.17
@@ -32520,7 +32523,7 @@ packages:
       '@vitest/spy': 3.2.4
       '@vitest/utils': 3.2.4
       chai: 5.2.0
-      debug: 4.4.1
+      debug: 4.4.0
       expect-type: 1.2.1
       jsdom: 20.0.1
       magic-string: 0.30.17

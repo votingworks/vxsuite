@@ -51,16 +51,14 @@ commands:
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
           paths:
             - /root/.cargo
 
