@@ -1,6 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./create_cert').main();
+import { main } from './create_cert.ts';
+main();

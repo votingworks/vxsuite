@@ -1,13 +1,7 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-// @ts-check
-
-require('esbuild-runner').install({
-  type: 'transform',
-});
-
-require('../src/cli')
-  .main(process.argv)
+import { main } from '../src/cli.ts';
+main(process.argv)
   .then((code) => {
     process.exitCode = code;
   })

@@ -1,6 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./sign_message').main();
+import { main } from './sign_message.ts';
+main();

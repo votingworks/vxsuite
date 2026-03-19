@@ -1,9 +1,7 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install();
-
-require('../src/cli')
-  .main()
+import { main } from '../src/cli.ts';
+main()
   .then((code) => {
     process.exitCode = code;
   })

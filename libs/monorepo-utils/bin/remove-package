@@ -1,20 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-// @ts-check
+import { join } from 'path';
+import { rmSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { getWorkspacePackageInfo } from '../src/pnpm.ts';
+import { findAllMonorepoDependencies } from '../src/dependencies.ts';
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+const __dirname = join(fileURLToPath(import.meta.url), '..');
 
-const { join } = require('path');
-const { getWorkspacePackageInfo } = require('../src/pnpm');
-const { findAllMonorepoDependencies } = require('../src/dependencies');
-const { rmSync } = require('fs');
-
-/**
- * @param {readonly string[]} names
- */
-function removePackages(names) {
+function removePackages(names: readonly string[]) {
   for (const name of names) {
     const pkgs = getWorkspacePackageInfo(join(__dirname, '..', '..', '..'));
     const pkgToRemove = pkgs.get(name);

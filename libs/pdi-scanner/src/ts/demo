@@ -1,11 +1,7 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
+import { main } from './demo.ts';
+main(process.argv.slice(2)).catch((e) => {
+  console.error(e);
+  process.exit(1);
 });
-require('./demo.ts')
-  .main(process.argv.slice(2))
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });

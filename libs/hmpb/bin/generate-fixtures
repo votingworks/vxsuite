@@ -1,10 +1,7 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('../src/generate_fixtures')
-  .main()
+import { main } from '../src/generate_fixtures.ts';
+main()
   .then((exitCode) => {
     process.exitCode = exitCode;
   })

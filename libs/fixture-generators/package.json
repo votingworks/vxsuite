@@ -38,8 +38,6 @@
     "@votingworks/utils": "workspace:*",
     "csv-stringify": "^6.4.0",
     "debug": "4.3.4",
-    "esbuild": "0.21.2",
-    "esbuild-runner": "2.2.2",
     "js-sha256": "^0.9.0",
     "jszip": "^3.9.1",
     "nanoid": "^3.3.7",
@@ -49,6 +47,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
+    "tsx": "^4.21.0",
     "@types/node": "20.17.31",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",

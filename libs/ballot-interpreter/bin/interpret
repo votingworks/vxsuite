@@ -1,29 +1,25 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-// @ts-check
+import { existsSync } from 'fs';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
 
-const fs = require('fs');
-const { join } = require('path');
+const __dirname = join(fileURLToPath(import.meta.url), '..');
 
-if (!fs.existsSync(join(__dirname, '../build/addon.node'))) {
+if (!existsSync(join(__dirname, '../build/addon.node'))) {
   process.stderr.write(
     'Error: native addon has not been built. Please run `pnpm build` first.\n'
   );
   process.exit(1);
 }
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-
-require('../src/bubble-ballot-ts/cli')
-  .main(process.argv.slice(2))
-  .then(
-    (code) => {
-      process.exitCode = code;
-    },
-    (err) => {
-      console.error(err);
-      process.exit(1);
-    }
-  );
+import { main } from '../src/bubble-ballot-ts/cli.ts';
+main(process.argv.slice(2)).then(
+  (code) => {
+    process.exitCode = code;
+  },
+  (err) => {
+    console.error(err);
+    process.exit(1);
+  }
+);

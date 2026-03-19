@@ -49,6 +49,7 @@
     "zedbar": "^0.2.1"
   },
   "devDependencies": {
+    "tsx": "^4.21.0",
     "@types/better-sqlite3": "7.6.3",
     "@types/chalk": "^2.2.0",
     "@types/debug": "4.1.12",
@@ -63,8 +64,6 @@
     "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "cargo-cp-artifact": "^0.1.9",
-    "esbuild": "0.21.2",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fs-extra": "11.1.1",
     "is-ci-cli": "2.2.0",

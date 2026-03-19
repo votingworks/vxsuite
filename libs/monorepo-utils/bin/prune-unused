@@ -1,21 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-// @ts-check
+import { rmSync } from 'fs';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { findUnusedPackages } from '../src/unused.ts';
+import { getWorkspacePackageInfo } from '../src/pnpm.ts';
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-
-const { rmSync } = require('fs');
-const { join } = require('path');
-const { findUnusedPackages } = require('../src/unused');
-const { getWorkspacePackageInfo } = require('../src/pnpm');
-
+const __dirname = join(fileURLToPath(import.meta.url), '..');
 const MONOREPO_ROOT = join(__dirname, '..', '..', '..');
 
-/**
- * Removes a package from the monorepo.
- */
 function pruneUnusedPackages({ dryRun = false } = {}) {
   let count = 0;
 

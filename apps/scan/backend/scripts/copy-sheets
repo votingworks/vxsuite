@@ -1,6 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./copy_sheets').main(process.argv.slice(2));
+import { main } from './copy_sheets.ts';
+main(process.argv.slice(2));

@@ -1,6 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./src/mock_card').main(process.argv.slice(2));
+import { main } from './src/mock_card.ts';
+main(process.argv.slice(2));

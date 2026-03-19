@@ -1,6 +1,5 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./finalize_app_strings_catalog.ts').main();
+import { main } from './finalize_app_strings_catalog.ts';
+
+main();

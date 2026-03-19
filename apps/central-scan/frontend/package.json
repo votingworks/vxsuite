@@ -72,6 +72,7 @@
     "zod": "3.25.42"
   },
   "devDependencies": {
+    "tsx": "^4.21.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^13.5.0",
@@ -97,8 +98,6 @@
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
-    "esbuild": "0.21.2",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "history": "4.10.1",
     "is-ci-cli": "2.2.0",

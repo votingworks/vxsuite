@@ -1,6 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./translate_text.ts').main(process.argv.slice(2));
+import { main } from './translate_text.ts';
+main(process.argv.slice(2));

@@ -1,11 +1,7 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-
-require('../src/printer/cli')
-  .main(process.argv)
+import { main } from '../src/printer/cli.ts';
+main(process.argv)
   .then((code) => {
     process.exitCode = code;
   })
