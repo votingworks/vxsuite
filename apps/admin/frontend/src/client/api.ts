@@ -4,6 +4,8 @@ import type { ClientApi } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
 } from '@votingworks/ui';
 import {
   QueryClient,
@@ -118,3 +120,66 @@ export const logOut = {
     });
   },
 } as const;
+
+// Election
+
+export const getCurrentElectionMetadata = {
+  queryKey(): QueryKey {
+    return ['getCurrentElectionMetadata'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getCurrentElectionMetadata(),
+      { staleTime: 0 }
+    );
+  },
+} as const;
+
+// USB
+
+export const getUsbDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getUsbDriveStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+        const isUnchanged = deepEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+    });
+  },
+} as const;
+
+export const ejectUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.ejectUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const formatUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.formatUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const systemCallApi = createSystemCallApi(useApiClient);

@@ -71,7 +71,12 @@ function createAuth(
       allowElectionManagersToAccessUnconfiguredMachines: false,
       allowedUserRoles:
         machineMode === 'client'
-          ? ['vendor', 'system_administrator']
+          ? [
+              'vendor',
+              'system_administrator',
+              'election_manager',
+              'poll_worker',
+            ]
           : ['vendor', 'system_administrator', 'election_manager'],
     },
     logger: baseLogger,
@@ -190,12 +195,19 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         () => getUserRole(auth, clientWorkspace.clientStore)
       );
 
+      const usbDrive = options.usbDrive ?? detectUsbDrive(logger);
+
       startClientNetworking({
         machineId: getMachineConfig().machineId,
         clientStore: clientWorkspace.clientStore,
       });
 
-      app = buildClientApp({ auth, logger, workspace: clientWorkspace });
+      app = buildClientApp({
+        auth,
+        logger,
+        workspace: clientWorkspace,
+        usbDrive,
+      });
 
       baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
         message:

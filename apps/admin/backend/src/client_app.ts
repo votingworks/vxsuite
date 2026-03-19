@@ -1,11 +1,27 @@
 import express, { Application } from 'express';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  DippedSmartCardAuthApi,
+  generateSignedHashValidationQrCodeValue,
+} from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { Logger } from '@votingworks/logging';
+import {
+  assertDefined,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import { createSystemCallApi } from '@votingworks/backend';
+import { Logger, LogEventId } from '@votingworks/logging';
+import { isSystemAdministratorAuth } from '@votingworks/utils';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
-import { type MachineMode, ClientConnectionStatus } from './types';
+import {
+  type MachineMode,
+  ClientConnectionStatus,
+  ElectionRecord,
+} from './types';
 import { type ClientWorkspace } from './util/workspace';
 import { constructAuthMachineState } from './util/auth';
 
@@ -20,10 +36,13 @@ export type NetworkConnectionStatus =
 function buildClientApi({
   auth,
   workspace,
+  logger,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: ClientWorkspace;
   logger: Logger;
+  usbDrive: UsbDrive;
 }) {
   const { clientStore } = workspace;
   return grout.createApi({
@@ -57,6 +76,10 @@ function buildClientApi({
       }
     },
 
+    getCurrentElectionMetadata(): ElectionRecord | null {
+      return clientStore.getCachedElectionRecord() ?? null;
+    },
+
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(clientStore));
     },
@@ -68,6 +91,54 @@ function buildClientApi({
     logOut() {
       return auth.logOut(constructAuthMachineState(clientStore));
     },
+
+    async getUsbDriveStatus() {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive() {
+      return usbDrive.eject();
+    },
+
+    async formatUsbDrive(): Promise<Result<void, Error>> {
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(clientStore)
+      );
+      if (!isSystemAdministratorAuth(authStatus)) {
+        return err(
+          new Error('Formatting USB drive requires system administrator auth.')
+        );
+      }
+      try {
+        await usbDrive.format();
+        return ok();
+      } catch (error) {
+        return err(error as Error);
+      }
+    },
+
+    /* istanbul ignore next - @preserve */
+    async generateSignedHashValidationQrCodeValue() {
+      const { codeVersion } = getMachineConfig();
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+      const electionRecord = clientStore.getCachedElectionRecord();
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord,
+        softwareVersion: codeVersion,
+      });
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
+    },
+
+    ...createSystemCallApi({
+      usbDrive,
+      logger,
+      machineId: getMachineConfig().machineId,
+      codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
+    }),
   });
 }
 
@@ -84,13 +155,15 @@ export function buildClientApp({
   auth,
   workspace,
   logger,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: ClientWorkspace;
   logger: Logger;
+  usbDrive: UsbDrive;
 }): Application {
   const app: Application = express();
-  const api = buildClientApi({ auth, workspace, logger });
+  const api = buildClientApi({ auth, workspace, logger, usbDrive });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

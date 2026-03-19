@@ -1,27 +1,50 @@
+import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   InvalidCardScreen,
-  mockUsbDriveStatus,
   RemoveCardScreen,
   SetupCardReaderPage,
   UnlockMachineScreen,
 } from '@votingworks/ui';
-import { isSystemAdministratorAuth } from '@votingworks/utils';
-import { checkPin, getAuthStatus, getMachineConfig } from './api';
-import { AppContext } from '../contexts/app_context';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+  isPollWorkerAuth,
+} from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
+import {
+  checkPin,
+  getAuthStatus,
+  getCurrentElectionMetadata,
+  getMachineConfig,
+  getUsbDriveStatus,
+} from './api';
+import { AppContext, AppContextInterface } from '../contexts/app_context';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { ClientMainScreen } from './screens/client_main_screen';
+import { routerPaths } from '../router_paths';
+import { ClientSettingsScreen } from './screens/client_settings_screen';
+import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen';
+import { ClientAdjudicationScreen } from './screens/client_adjudication_screen';
 
 export function ClientAppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const checkPinMutation = checkPin.useMutation();
+  const electionMetadataQuery = getCurrentElectionMetadata.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
 
-  if (!authStatusQuery.isSuccess || !getMachineConfigQuery.isSuccess) {
+  if (
+    !authStatusQuery.isSuccess ||
+    !getMachineConfigQuery.isSuccess ||
+    !electionMetadataQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess
+  ) {
     return null;
   }
 
   const auth = authStatusQuery.data;
   const machineConfig = getMachineConfigQuery.data;
+  const electionRecord = electionMetadataQuery.data;
+  const usbDriveStatus = usbDriveStatusQuery.data;
 
   const hasCardReaderAttached = !(
     auth.status === 'logged_out' && auth.reason === 'no_card_reader'
@@ -48,6 +71,12 @@ export function ClientAppRoot(): JSX.Element | null {
     );
   }
 
+  if (auth.status === 'remove_card') {
+    return (
+      <RemoveCardScreen productName="VxAdmin" cardInsertionDirection="right" />
+    );
+  }
+
   if (auth.status === 'logged_out') {
     if (
       auth.reason === 'machine_locked' ||
@@ -58,8 +87,10 @@ export function ClientAppRoot(): JSX.Element | null {
           value={{
             auth,
             machineConfig,
+            electionDefinition: electionRecord?.electionDefinition,
+            electionPackageHash: electionRecord?.electionPackageHash,
             isOfficialResults: false,
-            usbDriveStatus: mockUsbDriveStatus('no_drive'),
+            usbDriveStatus,
           }}
         >
           <MachineLockedScreen />
@@ -69,27 +100,68 @@ export function ClientAppRoot(): JSX.Element | null {
     return (
       <InvalidCardScreen
         reasonAndContext={auth}
-        recommendedAction="Use a system administrator card."
+        recommendedAction={
+          electionRecord
+            ? 'Use an election manager or poll worker card.'
+            : 'Use a system administrator card.'
+        }
         cardInsertionDirection="right"
       />
     );
   }
 
-  if (auth.status === 'remove_card') {
+  const appContext: AppContextInterface = {
+    auth,
+    machineConfig,
+    electionDefinition: electionRecord?.electionDefinition,
+    electionPackageHash: electionRecord?.electionPackageHash,
+    isOfficialResults: electionRecord?.isOfficialResults ?? false,
+    usbDriveStatus,
+  };
+
+  if (isSystemAdministratorAuth(auth)) {
     return (
-      <RemoveCardScreen productName="VxAdmin" cardInsertionDirection="right" />
+      <AppContext.Provider value={appContext}>
+        <Switch>
+          <Route exact path={routerPaths.settings}>
+            <ClientSettingsScreen />
+          </Route>
+          <Route exact path={routerPaths.hardwareDiagnostics}>
+            <ClientDiagnosticsScreen />
+          </Route>
+          <Redirect to={routerPaths.settings} />
+        </Switch>
+      </AppContext.Provider>
     );
   }
 
-  if (isSystemAdministratorAuth(auth)) {
-    return <ClientMainScreen machineConfig={machineConfig} />;
+  if (isElectionManagerAuth(auth)) {
+    return (
+      <AppContext.Provider value={appContext}>
+        <Switch>
+          <Route exact path={routerPaths.adjudication}>
+            <ClientAdjudicationScreen />
+          </Route>
+          <Route exact path={routerPaths.settings}>
+            <ClientSettingsScreen />
+          </Route>
+          <Route exact path={routerPaths.hardwareDiagnostics}>
+            <ClientDiagnosticsScreen />
+          </Route>
+          <Redirect to={routerPaths.adjudication} />
+        </Switch>
+      </AppContext.Provider>
+    );
   }
-
+  assert(isPollWorkerAuth(auth));
   return (
-    <InvalidCardScreen
-      reasonAndContext={{ reason: 'wrong_election' }}
-      recommendedAction="Use a system administrator card."
-      cardInsertionDirection="right"
-    />
+    <AppContext.Provider value={appContext}>
+      <Switch>
+        <Route exact path={routerPaths.adjudication}>
+          <ClientAdjudicationScreen />
+        </Route>
+        <Redirect to={routerPaths.adjudication} />
+      </Switch>
+    </AppContext.Provider>
   );
 }

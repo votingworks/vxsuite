@@ -2,8 +2,16 @@ import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
+import {
+  constructElectionKey,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
+import { assertDefined } from '@votingworks/basics';
 import {
   startHostNetworking,
   startClientNetworking,
@@ -231,4 +239,44 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
       { status: HostConnectionStatus.Offline }
     );
   });
+});
+
+test('client receives and caches election data from configured host', async () => {
+  const hostMachineId = 'HOST-004';
+  const clientMachineId = 'CLIENT-004';
+  const { store, clientStore } = await setupHostAndClient(
+    hostMachineId,
+    clientMachineId
+  );
+
+  // Configure an election on the host
+  const electionDefinition = readElectionGeneralDefinition();
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageHash: 'test-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // Wait for client to connect and cache election data
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+    expect(clientStore.getCachedElectionRecord()).toBeDefined();
+  });
+
+  const cachedRecord = assertDefined(clientStore.getCachedElectionRecord());
+  expect(cachedRecord.electionDefinition.election.title).toEqual(
+    electionDefinition.election.title
+  );
+  expect(clientStore.getCurrentElectionId()).toEqual(cachedRecord.id);
+  expect(clientStore.getElectionKey(cachedRecord.id)).toEqual(
+    constructElectionKey(electionDefinition.election)
+  );
+  expect(clientStore.getCachedSystemSettings()).toEqual(
+    DEFAULT_SYSTEM_SETTINGS
+  );
 });

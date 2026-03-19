@@ -5,6 +5,7 @@ import {
   isValidIpv4Address,
 } from '@votingworks/networking';
 import { assert } from '@votingworks/basics';
+import { safeParseElectionDefinition } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
@@ -145,6 +146,25 @@ export function startClientNetworking({
             }
           );
           debug('Connected to host at %s', hostAddress);
+
+          const [electionRecord, systemSettings] = await Promise.all([
+            apiClient.getCurrentElectionMetadata(),
+            apiClient.getSystemSettings(),
+          ]);
+          if (electionRecord) {
+            const parsed = safeParseElectionDefinition(
+              electionRecord.electionDefinition.electionData
+            ).unsafeUnwrap();
+            assert(systemSettings !== undefined);
+            clientStore.setCachedElectionRecord({
+              ...electionRecord,
+              electionDefinition: parsed,
+            });
+            clientStore.setCachedSystemSettings(systemSettings);
+          } else {
+            clientStore.setCachedElectionRecord(undefined);
+            clientStore.setCachedSystemSettings(undefined);
+          }
         } catch (error) {
           debug('Lost connection to host at %s: %s', hostAddress, error);
           clientStore.setConnection(

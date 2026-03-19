@@ -46,6 +46,7 @@ test('getAuthStatus', async () => {
     electionKey,
     jurisdiction,
     machineType,
+    isConfigured: true,
   });
 });
 
@@ -57,7 +58,13 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
     { pin: '123456' }
   );
 });
@@ -73,6 +80,7 @@ test('logOut', async () => {
     electionKey,
     jurisdiction,
     machineType,
+    isConfigured: true,
   });
 });
 
@@ -86,7 +94,13 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -99,7 +113,13 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(1);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
     { userRole: 'system_administrator' }
   );
 
@@ -107,7 +127,13 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(2);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     2,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
     { userRole: 'election_manager' }
   );
 
@@ -115,7 +141,13 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(3);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     3,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
     { userRole: 'poll_worker' }
   );
 });
@@ -131,6 +163,7 @@ test('unprogramCard', async () => {
     electionKey,
     jurisdiction,
     machineType,
+    isConfigured: true,
   });
 });
 
@@ -143,6 +176,7 @@ test('getAuthStatus before election definition has been configured', async () =>
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     jurisdiction,
     machineType,
+    isConfigured: false,
   });
 });
 
@@ -157,6 +191,7 @@ test('checkPin before election definition has been configured', async () => {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
       jurisdiction,
       machineType,
+      isConfigured: false,
     },
     { pin: '123456' }
   );
@@ -171,6 +206,7 @@ test('logOut before election definition has been configured', async () => {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     jurisdiction,
     machineType,
+    isConfigured: false,
   });
 });
 
@@ -187,6 +223,7 @@ test('updateSessionExpiry before election definition has been configured', async
       ...DEFAULT_SYSTEM_SETTINGS.auth,
       jurisdiction,
       machineType,
+      isConfigured: false,
     },
     { sessionExpiresAt: expect.any(Date) }
   );

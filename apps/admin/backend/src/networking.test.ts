@@ -127,6 +127,8 @@ describe('startClientNetworking', () => {
       connectToHost: vi
         .fn()
         .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+      getSystemSettings: vi.fn().mockResolvedValue(undefined),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
@@ -175,6 +177,8 @@ describe('startClientNetworking', () => {
       connectToHost: vi
         .fn()
         .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+      getSystemSettings: vi.fn().mockResolvedValue(undefined),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
@@ -261,6 +265,8 @@ describe('startClientNetworking', () => {
       connectToHost: vi
         .fn()
         .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+      getSystemSettings: vi.fn().mockResolvedValue(undefined),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
@@ -342,6 +348,8 @@ describe('startClientNetworking', () => {
       connectToHost: vi
         .fn()
         .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+      getSystemSettings: vi.fn().mockResolvedValue(undefined),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 

@@ -1,6 +1,13 @@
 import * as grout from '@votingworks/grout';
+import { assert, Optional } from '@votingworks/basics';
+import type { ElectionKey, Id, SystemSettings } from '@votingworks/types';
+import { constructElectionKey } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
-import { ClientConnectionStatus, type BaseStore } from './types';
+import {
+  ClientConnectionStatus,
+  ElectionRecord,
+  type BaseStore,
+} from './types';
 
 /**
  * Active connection to a host machine, including the API client for
@@ -13,27 +20,47 @@ export interface HostConnection {
 }
 
 /**
- * In-memory store for client-mode state. Holds ephemeral connection status
- * and the active host connection.
+ * In-memory store for client-mode state. Holds ephemeral connection status,
+ * the active host connection, and cached data synced from the host.
  */
 export class ClientStore implements BaseStore {
   private status: ClientConnectionStatus = ClientConnectionStatus.Offline;
   private hostConnection?: HostConnection;
+  private cachedElectionRecord?: ElectionRecord;
+  private cachedSystemSettings?: SystemSettings;
 
-  // TODO(CARO) we should return the election of the currently connected host machine once we are retrieving that
-  /* istanbul ignore next - not implemented yet @preserve */
-  getCurrentElectionId(): undefined {
-    return undefined;
+  getCurrentElectionId(): Optional<Id> {
+    return this.cachedElectionRecord?.id;
   }
 
-  /* istanbul ignore next - not implemented yet @preserve */
-  getElectionKey(): undefined {
-    return undefined;
+  getElectionKey(electionId: Id): Optional<ElectionKey> {
+    if (!this.cachedElectionRecord) return undefined;
+    assert(this.cachedElectionRecord.id === electionId);
+    return constructElectionKey(
+      this.cachedElectionRecord.electionDefinition.election
+    );
   }
 
-  /* istanbul ignore next - not implemented yet @preserve */
-  getSystemSettings(): undefined {
-    return undefined;
+  getSystemSettings(electionId: Id): Optional<SystemSettings> {
+    if (!this.cachedSystemSettings) return undefined;
+    assert(this.cachedElectionRecord?.id === electionId);
+    return this.cachedSystemSettings;
+  }
+
+  getCachedElectionRecord(): Optional<ElectionRecord> {
+    return this.cachedElectionRecord;
+  }
+
+  setCachedElectionRecord(record?: ElectionRecord): void {
+    this.cachedElectionRecord = record;
+  }
+
+  getCachedSystemSettings(): Optional<SystemSettings> {
+    return this.cachedSystemSettings;
+  }
+
+  setCachedSystemSettings(settings?: SystemSettings): void {
+    this.cachedSystemSettings = settings;
   }
 
   getConnectionStatus(): ClientConnectionStatus {
@@ -50,5 +77,9 @@ export class ClientStore implements BaseStore {
   ): void {
     this.status = status;
     this.hostConnection = hostConnection;
+    if (status !== ClientConnectionStatus.OnlineConnectedToHost) {
+      this.cachedElectionRecord = undefined;
+      this.cachedSystemSettings = undefined;
+    }
   }
 }

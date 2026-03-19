@@ -35,6 +35,27 @@ export function AdminReadinessReportContents(
   );
 }
 
+type ClientReportContentsProps = ConfigurationSectionProps &
+  BatterySectionProps &
+  StorageSectionProps;
+
+export function AdminClientReadinessReportContents(
+  props: ClientReportContentsProps
+): JSX.Element {
+  const { electionDefinition } = props;
+
+  return (
+    <ReportContents>
+      <ConfigurationSection {...props} />
+      <BatterySection {...props} />
+      <StorageSection {...props} />
+      {electionDefinition && (
+        <BallotStyleReadinessReport electionDefinition={electionDefinition} />
+      )}
+    </ReportContents>
+  );
+}
+
 export function AdminReadinessReport({
   generatedAtTime,
   machineId,

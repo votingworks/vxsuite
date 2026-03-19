@@ -1,13 +1,14 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, expect, test } from 'vitest';
+import { cleanup } from '@testing-library/react';
 import {
   mockElectionManagerUser,
+  mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SystemCallContextProvider } from '@votingworks/ui';
 import { screen, render } from '../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -19,12 +20,18 @@ import {
 } from '../api';
 
 let apiMock: ApiMock;
+let queryClient: QueryClient;
+
+const electionDefinition = readElectionGeneralDefinition();
 
 beforeEach(() => {
   apiMock = createApiMock();
+  queryClient = createQueryClient();
 });
 
 afterEach(() => {
+  cleanup();
+  queryClient.clear();
   apiMock.assertComplete();
 });
 
@@ -37,21 +44,46 @@ function setSystemAdminAuth() {
   });
 }
 
-function renderClientApp() {
+function setElectionManagerAuth() {
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(electionDefinition.election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+}
+
+function setPollWorkerAuth() {
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockPollWorkerUser({
+      electionKey: constructElectionKey(electionDefinition.election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+}
+
+function expectNetworkConnected() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (apiMock.apiClient as any).getNetworkConnectionStatus
+    .expectRepeatedCallsWith()
+    .resolves({ status: 'online-connected-to-host', hostMachineId: '0001' });
+}
+
+function renderClientApp({
+  withElection = false,
+}: { withElection?: boolean } = {}) {
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetCurrentElectionMetadata(
+    withElection ? { electionDefinition } : null
+  );
+  apiMock.expectGetUsbDriveStatus('no_drive');
+
   const clientApiClient = apiMock.apiClient as unknown as ApiClient;
-  // Add getNetworkConnectionStatus mock since it only exists on ClientApi
-  if (!('getNetworkConnectionStatus' in clientApiClient)) {
-    Object.assign(clientApiClient, {
-      getNetworkConnectionStatus: vi
-        .fn()
-        .mockResolvedValue({ status: 'offline' }),
-    });
-  }
-  // Provide both HostApiClientContext (for systemCallApi) and ClientApp's context
   return render(
     <HostApiClientContext.Provider value={apiMock.apiClient}>
-      <QueryClientProvider client={createQueryClient()}>
+      <QueryClientProvider client={queryClient}>
         <SystemCallContextProvider api={systemCallApi}>
           <ClientApp apiClient={clientApiClient} />
         </SystemCallContextProvider>
@@ -69,7 +101,7 @@ test('shows setup card reader page when no card reader', async () => {
   await screen.findByText('Card Reader Not Detected');
 });
 
-test('shows locked screen when machine is locked', async () => {
+test('shows locked screen when machine is locked without election', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
@@ -77,6 +109,16 @@ test('shows locked screen when machine is locked', async () => {
   renderClientApp();
   await screen.findByText('VxAdmin Locked');
   await screen.findByText('Insert system administrator card to unlock.');
+});
+
+test('shows locked screen with election info when election is loaded', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  renderClientApp({ withElection: true });
+  await screen.findByText('VxAdmin Locked');
+  screen.getByText(electionDefinition.election.title);
 });
 
 test('shows locked screen on session expiry', async () => {
@@ -88,13 +130,22 @@ test('shows locked screen on session expiry', async () => {
   await screen.findByText('VxAdmin Locked');
 });
 
-test('shows invalid card screen for non-system-admin cards', async () => {
+test('shows invalid card screen without election', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'wrong_election',
   });
   renderClientApp();
-  await screen.findByText(/Use a system administrator card/);
+  await screen.findByText(/Use a system administrator card\./);
+});
+
+test('shows invalid card screen mentioning valid roles when election is loaded', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'wrong_election',
+  });
+  renderClientApp({ withElection: true });
+  await screen.findByText(/Use an election manager or poll worker card\./);
 });
 
 test('shows unlock screen when checking pin', async () => {
@@ -108,19 +159,6 @@ test('shows unlock screen when checking pin', async () => {
   await screen.findByText('Enter Card PIN');
 });
 
-test('shows invalid card for logged-in election manager', async () => {
-  const electionDefinition = readElectionGeneralDefinition();
-  apiMock.setAuthStatus({
-    status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionKey: constructElectionKey(electionDefinition.election),
-    }),
-    sessionExpiresAt: mockSessionExpiresAt(),
-  });
-  renderClientApp();
-  await screen.findByText(/Use a system administrator card/);
-});
-
 test('shows remove card screen after authentication', async () => {
   apiMock.setAuthStatus({
     status: 'remove_card',
@@ -131,62 +169,50 @@ test('shows remove card screen after authentication', async () => {
   await screen.findByText(/Remove card to unlock/i);
 });
 
-test('shows main screen when logged in as system administrator', async () => {
-  setSystemAdminAuth();
-  renderClientApp();
-  await screen.findByText('VxAdmin Client');
-  await screen.findByText('Offline');
+test('shows adjudication screen with election info when logged in as poll worker', async () => {
+  setPollWorkerAuth();
+  expectNetworkConnected();
+  renderClientApp({ withElection: true });
+  await screen.findByRole('heading', { name: 'Adjudication' });
+  screen.getByText(electionDefinition.election.title);
 });
 
-test('shows waiting for host status', async () => {
-  setSystemAdminAuth();
-  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
-  Object.assign(clientApiClient, {
-    getNetworkConnectionStatus: vi
-      .fn()
-      .mockResolvedValue({ status: 'online-waiting-for-host' }),
-  });
-  renderClientApp();
-  await screen.findByText(/Online — Waiting for host/);
+test('poll worker sees only adjudication tab', async () => {
+  setPollWorkerAuth();
+  expectNetworkConnected();
+  renderClientApp({ withElection: true });
+  await screen.findByRole('heading', { name: 'Adjudication' });
+  screen.getByRole('button', { name: 'Adjudication' });
+  expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Diagnostics' })).toBeNull();
 });
 
-test('shows connected to host status', async () => {
-  setSystemAdminAuth();
-  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
-  Object.assign(clientApiClient, {
-    getNetworkConnectionStatus: vi.fn().mockResolvedValue({
-      status: 'online-connected-to-host',
-      hostMachineId: '0001',
-    }),
-  });
-  renderClientApp();
-  await screen.findByText(/Online — Connected to host machine: 0001/);
+test('election manager sees adjudication, settings, and diagnostics tabs', async () => {
+  setElectionManagerAuth();
+  expectNetworkConnected();
+  renderClientApp({ withElection: true });
+  await screen.findByRole('heading', { name: 'Adjudication' });
+  screen.getByRole('button', { name: 'Adjudication' });
+  screen.getByRole('button', { name: 'Settings' });
+  screen.getByRole('button', { name: 'Diagnostics' });
 });
 
-test('switching to host mode shows restart screen', async () => {
+test('shows settings screen when logged in as system administrator', async () => {
   setSystemAdminAuth();
+  expectNetworkConnected();
+  apiMock.expectGetUsbPortStatus();
   renderClientApp();
-  const switchButton = await screen.findByRole('button', {
-    name: 'Switch to Host Mode',
-  });
-  apiMock.apiClient.setMachineMode.expectCallWith({ mode: 'host' }).resolves();
-  userEvent.click(switchButton);
-  await screen.findByText('Machine mode changed. Restart is required.');
-  screen.getByRole('button', { name: 'Power Down' });
+  await screen.findByRole('heading', { name: 'Settings' });
 });
 
-test('can lock machine from main screen', async () => {
+test('sysadmin sees settings and diagnostics tabs but not adjudication', async () => {
   setSystemAdminAuth();
+  expectNetworkConnected();
+  apiMock.expectGetUsbPortStatus();
   renderClientApp();
-
-  const lockButton = await screen.findByRole('button', {
-    name: 'Lock Machine',
-  });
-  apiMock.apiClient.logOut.expectCallWith().resolves();
-  apiMock.setAuthStatus({
-    status: 'logged_out',
-    reason: 'machine_locked',
-  });
-  userEvent.click(lockButton);
-  await screen.findByText('VxAdmin Locked');
+  await screen.findByRole('heading', { name: 'Settings' });
+  screen.getByRole('button', { name: 'Settings' });
+  screen.getByRole('button', { name: 'Diagnostics' });
+  screen.getByRole('button', { name: 'Lock Machine' });
+  expect(screen.queryByRole('button', { name: 'Adjudication' })).toBeNull();
 });

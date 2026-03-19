@@ -27,6 +27,7 @@ export function constructAuthMachineState(
       ...DEFAULT_SYSTEM_SETTINGS.auth,
       jurisdiction,
       machineType: 'admin',
+      isConfigured: false,
     };
   }
 
@@ -34,6 +35,7 @@ export function constructAuthMachineState(
     store.getSystemSettings(electionId) ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
+    isConfigured: true,
     electionKey: store.getElectionKey(electionId),
     jurisdiction,
     machineType: 'admin',
