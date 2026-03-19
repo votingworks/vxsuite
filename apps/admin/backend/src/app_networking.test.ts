@@ -137,11 +137,14 @@ test('client discovers host and connects - host stores client info in database',
   });
 
   // Client should also know it's connected to the host
-  expect(clientStore.getConnectionStatus()).toEqual(
-    ClientConnectionStatus.OnlineConnectedToHost
-  );
-  expect(clientStore.getHostConnection()).toMatchObject({
-    address: `http://127.0.0.1:${peerPort}`,
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+    expect(clientStore.getHostConnection()).toMatchObject({
+      address: `http://127.0.0.1:${peerPort}`,
+    });
   });
 });
 
@@ -153,12 +156,15 @@ test('client transitions to waiting-for-host when host disappears from avahi', a
     clientMachineId
   );
 
-  // Wait for initial connection
+  // Wait for initial connection (both host-side and client-side)
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(
       store.getMachines().find((m) => m.machineId === clientMachineId)
     ).toMatchObject({ status: HostConnectionStatus.Connected });
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
   });
 
   // Host disappears from avahi discovery
@@ -181,12 +187,15 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
     clientMachineId
   );
 
-  // Wait for client to connect
+  // Wait for client to connect (both host-side and client-side)
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(
       store.getMachines().find((m) => m.machineId === clientMachineId)
     ).toMatchObject({ status: HostConnectionStatus.Connected });
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
   });
 
   // Verify cleanupStaleMachines is called during host polling
