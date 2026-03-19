@@ -31,6 +31,7 @@ export const TouchscreenPalette = {
   Purple80: '#4d2692',
 
   Orange20: '#ffc457',
+  Orange30: '#ffa733',
   Orange50: '#ec791e',
   Orange80: '#5c3600',
 
