@@ -1593,3 +1593,19 @@ test('keyboard nav enabled for voter settings', async () => {
   await act(() => fireEvent.keyDown(document, { key: Keybinding.PAT_SELECT }));
   screen.getByText('Extra-Large');
 });
+
+test('shows early voting label in election info bar', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.EARLY_VOTING
+  );
+  apiMock.expectGetConfig({
+    ballotCastingMode: 'early_voting',
+  });
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+  await screen.findByText(/Insert Your Ballot/i);
+  screen.getByText('Early Voting');
+});

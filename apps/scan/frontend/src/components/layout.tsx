@@ -2,19 +2,22 @@ import React from 'react';
 import {
   Screen as ScreenBase,
   Main,
-  ElectionInfoBar,
+  InfoBar,
+  ElectionInfo,
+  SystemInfo,
   InfoBarMode,
   H1,
+  Icons,
   LanguageSettingsButton,
   LanguageSettingsScreen,
   ReadOnLoad,
   AudioOnly,
   TestModeBanner,
   VoterHelpButton,
-  EarlyVotingCallout,
   VoterSettings,
   Button,
   appStrings,
+  ElectionInfoBarProps,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -94,6 +97,48 @@ const SettingsButtons = styled.div`
 const TitleContainer = styled.div`
   min-width: 5rem;
 `;
+
+const EarlyVotingLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
+
+function ElectionInfoBar({
+  mode,
+  electionDefinition,
+  electionPackageHash,
+  precinctSelection,
+  codeVersion,
+  machineId,
+  showEarlyVotingBanner,
+}: ElectionInfoBarProps & { showEarlyVotingBanner: boolean }): JSX.Element {
+  return (
+    <InfoBar>
+      {electionDefinition && (
+        <ElectionInfo
+          electionDefinition={electionDefinition}
+          precinctSelection={precinctSelection}
+        />
+      )}
+      {showEarlyVotingBanner && (
+        <EarlyVotingLabel>
+          <Icons.Clock color="primary" /> Early Voting
+        </EarlyVotingLabel>
+      )}
+      <div>
+        <SystemInfo
+          mode={mode}
+          electionDefinition={electionDefinition}
+          electionPackageHash={electionPackageHash}
+          codeVersion={codeVersion}
+          machineId={machineId}
+        />
+      </div>
+    </InfoBar>
+  );
+}
 
 export function Screen(props: ScreenProps): JSX.Element | null {
   const {
@@ -196,7 +241,6 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               />
             )}
           </SettingsButtons>
-          {showEarlyVotingBanner && <EarlyVotingCallout viewMode="touch" />}
           {ballotCountElement}
         </HeaderRow>
       )}
@@ -223,6 +267,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           electionPackageHash={electionPackageHash}
           codeVersion={codeVersion}
           machineId={machineId}
+          showEarlyVotingBanner={showEarlyVotingBanner}
         />
       )}
     </ScreenBase>
