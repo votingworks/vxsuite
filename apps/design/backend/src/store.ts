@@ -1007,14 +1007,9 @@ export class Store {
             districtIds: split.districtIds,
             ...split.nhOptions,
           }));
-        if (splits.length > 0) {
-          return { id: row.id, name: row.name, splits };
-        }
-        return {
-          id: row.id,
-          name: row.name,
-          districtIds: row.districtIds,
-        };
+        return splits.length > 0
+          ? { id: row.id, name: row.name, splits }
+          : { id: row.id, name: row.name, districtIds: row.districtIds };
       });
 
       const parties = (

@@ -143,9 +143,7 @@ export interface StateFeaturesConfig {
   EDIT_POLLING_PLACES?: boolean;
   /**
    * Allow the user to enter registered voter counts for precincts and precinct
-   * splits. Enabled by default for all states; disabled for NH because NH uses
-   * precinct splits for per-split ballot overrides, making voter count entry
-   * unnecessarily complex for their workflow.
+   * splits.
    */
   PRECINCT_REGISTERED_VOTER_COUNTS?: boolean;
 }
