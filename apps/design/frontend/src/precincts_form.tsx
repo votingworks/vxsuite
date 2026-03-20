@@ -322,20 +322,6 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                         />
                       </InputGroup>
 
-                      <DistrictList
-                        disabled={disabled || hasExternalSource}
-                        districts={districts}
-                        editing={editing && !hasExternalSource}
-                        noDistrictsCallout={noDistrictsCallout}
-                        value={[...split.districtIds]}
-                        onChange={(districtIds) =>
-                          setSplit(index, {
-                            ...split,
-                            districtIds,
-                          })
-                        }
-                      />
-
                       {!features.DISABLE_REGISTERED_VOTER_COUNTS && (
                         <InputGroup label="Registered Voters">
                           <input
@@ -355,6 +341,20 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           />
                         </InputGroup>
                       )}
+
+                      <DistrictList
+                        disabled={disabled || hasExternalSource}
+                        districts={districts}
+                        editing={editing && !hasExternalSource}
+                        noDistrictsCallout={noDistrictsCallout}
+                        value={[...split.districtIds]}
+                        onChange={(districtIds) =>
+                          setSplit(index, {
+                            ...split,
+                            districtIds,
+                          })
+                        }
+                      />
 
                       {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
                         <InputGroup label="Election Title Override">
@@ -428,45 +428,19 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           Remove Split
                         </Button>
                       )}
+                      {!finalized && !hasExternalSource && (
+                        <div>
+                          <Button icon="Add" onPress={onAddSplitPress}>
+                            Add Split
+                          </Button>
+                        </div>
+                      )}
                     </Column>
                   </Card>
                 ))}
-                {!finalized && !hasExternalSource && (
-                  <div>
-                    <Button icon="Add" onPress={onAddSplitPress}>
-                      Add Split
-                    </Button>
-                  </div>
-                )}
               </React.Fragment>
             ) : (
               <Column style={{ gap: '1rem' }}>
-                <Row style={{ gap: '1rem' }}>
-                  <div style={{ minWidth: '12rem' }}>
-                    <FieldName>Districts</FieldName>
-                    <DistrictList
-                      disabled={disabled || hasExternalSource}
-                      districts={districts}
-                      editing={editing && !hasExternalSource}
-                      noDistrictsCallout={noDistrictsCallout}
-                      onChange={(districtIds) =>
-                        setPrecinct({
-                          ...precinct,
-                          districtIds,
-                        })
-                      }
-                      value={[...precinct.districtIds]}
-                    />
-                  </div>
-
-                  {!finalized && !hasExternalSource && (
-                    <div style={{ marginTop: '1.5rem' }}>
-                      <Button icon="Add" onPress={onAddSplitPress}>
-                        Add Split
-                      </Button>
-                    </div>
-                  )}
-                </Row>
                 {!features.DISABLE_REGISTERED_VOTER_COUNTS && (
                   <InputGroup label="Registered Voters">
                     <input
@@ -491,6 +465,31 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                     />
                   </InputGroup>
                 )}
+                <Row style={{ gap: '1rem' }}>
+                  <div style={{ minWidth: '12rem' }}>
+                    <FieldName>Districts</FieldName>
+                    <DistrictList
+                      disabled={disabled || hasExternalSource}
+                      districts={districts}
+                      editing={editing && !hasExternalSource}
+                      noDistrictsCallout={noDistrictsCallout}
+                      onChange={(districtIds) =>
+                        setPrecinct({
+                          ...precinct,
+                          districtIds,
+                        })
+                      }
+                      value={[...precinct.districtIds]}
+                    />
+                  </div>
+                  {!finalized && !hasExternalSource && (
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <Button icon="Add" onPress={onAddSplitPress}>
+                        Add Split
+                      </Button>
+                    </div>
+                  )}
+                </Row>
               </Column>
             )}
           </Row>

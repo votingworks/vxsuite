@@ -335,6 +335,7 @@ test('editing a precinct - adding splits in NH', async () => {
 
 test('editing a precinct - removing splits', async () => {
   const savedPrecinct = election.precincts.find(hasSplits)!;
+  assert(hasSplits(savedPrecinct));
   assert(savedPrecinct.splits.length === 2);
 
   const changedPrecinct: PrecinctWithoutSplits = {
@@ -604,6 +605,7 @@ test('error message for duplicate precinct name', async () => {
 
 test('error message for duplicate precinct split name', async () => {
   const savedPrecinct = election.precincts.find(hasSplits)!;
+  assert(hasSplits(savedPrecinct));
   assert(savedPrecinct.splits.length === 2);
 
   apiMock.listPrecincts
@@ -686,6 +688,7 @@ test('error message for duplicate precinct split name', async () => {
 
 test('error message for splits with the same districts', async () => {
   const savedPrecinct = election.precincts.find(hasSplits)!;
+  assert(hasSplits(savedPrecinct));
   assert(savedPrecinct.splits.length === 2);
 
   apiMock.listPrecincts
@@ -801,6 +804,7 @@ describe('audio editing', () => {
 
 test('form controls are disabled in "view" mode', async () => {
   const srcPrecinct = election.precincts.find(hasSplits)!;
+  assert(hasSplits(srcPrecinct));
   assert(srcPrecinct.splits.length === 2);
 
   const savedPrecinct: Precinct = {
