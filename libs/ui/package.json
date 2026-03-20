@@ -17,7 +17,7 @@
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:self": "tsgo --build tsconfig.build.json && pnpm build:app-strings-catalog",
-    "build:app-strings-catalog": "i18next && ./scripts/finalize-app-strings-catalog",
+    "build:app-strings-catalog": "i18next && tsx ./scripts/finalize-app-strings-catalog",
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
