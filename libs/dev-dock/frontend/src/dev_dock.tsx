@@ -323,11 +323,65 @@ const UsbMocksDisabledMessage = styled.div`
   }
 `;
 
+const UsbDriveDevLabel = styled.div`
+  font-size: 0.5em;
+  text-align: center;
+  color: ${Colors.TEXT};
+`;
+
+const UsbDriveRemoveSlotButton = styled.button`
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid ${Colors.BORDER};
+  background-color: white;
+  color: ${Colors.TEXT};
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background-color: ${Colors.BORDER};
+  }
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
+`;
+
+const AddDriveSlotButton = styled.button`
+  background-color: white;
+  width: 80px;
+  height: 120px;
+  border-radius: 8px;
+  border: 1px solid ${Colors.BORDER};
+  color: ${Colors.TEXT};
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover:not(:disabled) {
+    border-color: ${Colors.ACTIVE};
+    color: ${Colors.ACTIVE};
+  }
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
+`;
+
 function UsbDriveMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getUsbDriveStatusQuery = useQuery(['getUsbDriveStatus'], () =>
-    apiClient.getUsbDriveStatus()
+  const getUsbDriveStatusQuery = useQuery(
+    ['getUsbDriveStatus'],
+    () => apiClient.getUsbDriveStatus(),
+    { refetchInterval: 1000 }
   );
   const insertUsbDriveMutation = useMutation(apiClient.insertUsbDrive, {
     onSuccess: async () =>
@@ -341,47 +395,110 @@ function UsbDriveMockControls() {
     onSuccess: async () =>
       await queryClient.invalidateQueries(['getUsbDriveStatus']),
   });
+  const addUsbDriveSlotMutation = useMutation(apiClient.addUsbDriveSlot, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+  });
+  const removeUsbDriveSlotMutation = useMutation(apiClient.removeUsbDriveSlot, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+  });
 
-  const status = getUsbDriveStatusQuery.data ?? undefined;
+  const [recentlyClearedDevPaths, setRecentlyClearedDevPaths] = useState(
+    new Map<string, boolean>()
+  );
 
-  function onUsbDriveClick() {
-    if (status === 'inserted') {
-      removeUsbDriveMutation.mutate();
-    } else {
-      insertUsbDriveMutation.mutate();
-    }
-  }
-
-  function onClearUsbDriveClick() {
-    clearUsbDriveMutation.mutate();
+  function handleClearClick(devPath: string) {
+    clearUsbDriveMutation.mutate(
+      { devPath },
+      {
+        onSuccess: () => {
+          setRecentlyClearedDevPaths((prev) =>
+            new Map(prev).set(devPath, true)
+          );
+          setTimeout(() => {
+            setRecentlyClearedDevPaths((prev) => {
+              const next = new Map(prev);
+              next.delete(devPath);
+              return next;
+            });
+          }, 1500);
+        },
+      }
+    );
   }
 
   const isFeatureEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
+  const controlsDisabled =
+    !isFeatureEnabled || !getUsbDriveStatusQuery.isSuccess;
+  const drives = getUsbDriveStatusQuery.data ?? [];
 
-  const disabled = !isFeatureEnabled || !getUsbDriveStatusQuery.isSuccess;
-
-  const isInserted = status === 'inserted';
   return (
-    <Column>
-      <UsbDriveControl
-        onClick={onUsbDriveClick}
-        isInserted={isInserted}
-        disabled={disabled}
-        aria-label="USB Drive"
-      >
-        <UsbDriveIcon isInserted={isInserted} disabled={disabled} />
-        {!isFeatureEnabled && (
-          <UsbMocksDisabledMessage>
-            <p>USB mock disabled</p>
-          </UsbMocksDisabledMessage>
-        )}
-      </UsbDriveControl>
-      <UsbDriveClearButton onClick={onClearUsbDriveClick} disabled={disabled}>
-        Clear
-      </UsbDriveClearButton>
-    </Column>
+    <Row>
+      {drives.map((drive) => {
+        const isInserted = drive.status === 'inserted';
+        return (
+          <Column key={drive.devPath}>
+            <div style={{ position: 'relative' }}>
+              <UsbDriveControl
+                onClick={() => {
+                  if (isInserted) {
+                    removeUsbDriveMutation.mutate({ devPath: drive.devPath });
+                  } else {
+                    insertUsbDriveMutation.mutate({ devPath: drive.devPath });
+                  }
+                }}
+                isInserted={isInserted}
+                disabled={controlsDisabled}
+                aria-label={`USB Drive ${drive.devPath}`}
+              >
+                <UsbDriveIcon
+                  isInserted={isInserted}
+                  disabled={controlsDisabled}
+                />
+                {!isFeatureEnabled && (
+                  <UsbMocksDisabledMessage>
+                    <p>USB mock disabled</p>
+                  </UsbMocksDisabledMessage>
+                )}
+              </UsbDriveControl>
+              {drive.status === 'removed' && (
+                <UsbDriveRemoveSlotButton
+                  onClick={() =>
+                    removeUsbDriveSlotMutation.mutate({
+                      devPath: drive.devPath,
+                    })
+                  }
+                  disabled={controlsDisabled}
+                  aria-label={`Remove slot ${drive.devPath}`}
+                >
+                  <FontAwesomeIcon icon={faXmark} />
+                </UsbDriveRemoveSlotButton>
+              )}
+            </div>
+            <UsbDriveDevLabel>{drive.devPath}</UsbDriveDevLabel>
+            <UsbDriveClearButton
+              onClick={() => handleClearClick(drive.devPath)}
+              disabled={controlsDisabled}
+            >
+              {recentlyClearedDevPaths.has(drive.devPath) ? '✓' : 'Clear'}
+            </UsbDriveClearButton>
+          </Column>
+        );
+      })}
+      <Column>
+        <AddDriveSlotButton
+          onClick={() => addUsbDriveSlotMutation.mutate()}
+          disabled={!isFeatureEnabled}
+          aria-label="Add USB Drive Slot"
+        >
+          +
+        </AddDriveSlotButton>
+        <UsbDriveDevLabel>Add USB</UsbDriveDevLabel>
+      </Column>
+    </Row>
   );
 }
 

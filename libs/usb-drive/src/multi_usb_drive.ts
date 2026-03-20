@@ -22,7 +22,7 @@ import {
   UsbPartitionDeviceInfo,
   createBlockDeviceChangeWatcher,
 } from './block_devices';
-import { MockFileMultiUsbDrive } from './mocks/file_multi_usb_drive';
+import { createMockFileMultiUsbDrive } from './mocks/file_usb_drive';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 
@@ -180,7 +180,7 @@ export function detectMultiUsbDrive(
   options?: MultiUsbDriveOptions
 ): MultiUsbDrive {
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
-    return new MockFileMultiUsbDrive();
+    return createMockFileMultiUsbDrive();
   }
 
   const { onChange } = options ?? {};

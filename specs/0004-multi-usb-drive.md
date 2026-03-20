@@ -90,12 +90,13 @@ This adapter allows all existing code that depends on `UsbDrive` — exporters,
 `listDirectoryOnUsbDrive`, `createSystemCallApi`, and other shared utilities —
 to continue working without changes.
 
-### `detectOrMockMultiUsbDrive`
+### `detectMultiUsbDrive` mock path
 
-A new `detectOrMockMultiUsbDrive(logger)` function replaces `detectUsbDrive` for
-apps migrating to the multi-drive API. It returns the file-backed mock when
-`USE_MOCK_USB_DRIVE` is enabled, or the real `detectMultiUsbDrive`
-implementation otherwise.
+Rather than introducing a separate `detectOrMockMultiUsbDrive()` entrypoint, the
+existing `detectMultiUsbDrive(logger)` implementation also honors
+`USE_MOCK_USB_DRIVE`. When the flag is enabled it returns the file-backed
+multi-drive mock; otherwise it returns the real implementation backed by block
+device detection.
 
 ### Admin backend migration
 

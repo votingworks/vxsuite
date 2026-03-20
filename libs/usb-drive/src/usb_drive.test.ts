@@ -42,7 +42,11 @@ test('uses MockFileUsbDrive when feature flag is set', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  const stateFilePath = join(MOCK_USB_DRIVE_DIR, MOCK_USB_DRIVE_STATE_FILENAME);
+  const stateFilePath = join(
+    MOCK_USB_DRIVE_DIR,
+    'sdb',
+    MOCK_USB_DRIVE_STATE_FILENAME
+  );
 
   if (existsSync(stateFilePath)) {
     rmSync(stateFilePath);

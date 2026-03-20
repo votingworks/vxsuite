@@ -1,14 +1,15 @@
-import { Buffer } from 'node:buffer';
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { Optional, assert } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
+import type { MultiUsbDrive } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
 
@@ -26,106 +27,141 @@ function getMockUsbDirPath(): string {
   return MOCK_USB_DRIVE_DIR;
 }
 
-interface MockStateFileContents {
-  status: UsbDriveStatus;
+function getMockDriveDirPath(diskName: string): string {
+  return join(getMockUsbDirPath(), diskName);
 }
 
-function getMockUsbStateFilePath(): string {
-  return join(getMockUsbDirPath(), MOCK_USB_DRIVE_STATE_FILENAME);
+function getMockDriveDataDirPath(diskName: string): string {
+  return join(getMockDriveDirPath(diskName), MOCK_USB_DRIVE_DATA_DIRNAME);
 }
 
-function getMockUsbDataDirPath(): string {
-  return join(getMockUsbDirPath(), MOCK_USB_DRIVE_DATA_DIRNAME);
+interface MockDriveState {
+  state: 'inserted' | 'ejected' | 'removed';
 }
 
-/**
- * Converts a MockFileContents object into a Buffer
- */
-function serializeMockFileContents(
-  mockStateFileContents: MockStateFileContents
-): Buffer {
-  return Buffer.from(JSON.stringify(mockStateFileContents), 'utf-8');
-}
-
-/**
- * Converts a Buffer created by serializeMockFileContents back into a MockFileContents object
- */
-function deserializeMockFileContents(file: Buffer): MockStateFileContents {
-  return JSON.parse(file.toString('utf-8'));
-}
-
-function writeToMockFile(mockStateFileContents: MockStateFileContents): void {
-  mkdirSync(getMockUsbDirPath(), { recursive: true });
-  writeFileSync(
-    getMockUsbStateFilePath(),
-    serializeMockFileContents(mockStateFileContents)
+function readMockDriveState(diskName: string): MockDriveState {
+  const stateFilePath = join(
+    getMockDriveDirPath(diskName),
+    MOCK_USB_DRIVE_STATE_FILENAME
   );
-  // Create the data dir whenever we write to the state file, so that it's
-  // there before mock mounting
-  mkdirSync(getMockUsbDataDirPath(), { recursive: true });
-}
-
-export function initializeMockFile(): void {
-  writeToMockFile({
-    status: {
-      status: 'no_drive',
-    },
-  });
-}
-
-/**
- * A helper for readFromMockFile. Returns undefined if the mock file doesn't exist or can't be
- * parsed.
- */
-function readFromMockFileHelper(): Optional<MockStateFileContents> {
-  const mockFilePath = getMockUsbStateFilePath();
-  if (!existsSync(mockFilePath)) {
-    return undefined;
+  if (!existsSync(stateFilePath)) {
+    return { state: 'removed' };
   }
-  const file = readFileSync(mockFilePath);
   try {
-    return deserializeMockFileContents(file);
+    return JSON.parse(readFileSync(stateFilePath, 'utf-8')) as MockDriveState;
   } catch {
-    return undefined;
+    return { state: 'removed' };
   }
 }
 
-/**
- * Reads and parses the contents of the file underlying a MockFileUsbDrive
- */
-export function readFromMockFile(): MockStateFileContents {
-  let mockFileContents = readFromMockFileHelper();
-  if (!mockFileContents) {
-    initializeMockFile();
-    mockFileContents = readFromMockFileHelper();
-    assert(mockFileContents !== undefined);
-  }
-  return mockFileContents;
+function writeMockDriveState(diskName: string, state: MockDriveState): void {
+  const driveDir = getMockDriveDirPath(diskName);
+  mkdirSync(driveDir, { recursive: true });
+  mkdirSync(getMockDriveDataDirPath(diskName), { recursive: true });
+  writeFileSync(
+    join(driveDir, MOCK_USB_DRIVE_STATE_FILENAME),
+    JSON.stringify(state)
+  );
 }
 
-/**
- * USB drive initialized in apps that use a temporary file to mock a real drive.
- */
+function ensureMockDriveState(diskName: string): void {
+  const stateFilePath = join(
+    getMockDriveDirPath(diskName),
+    MOCK_USB_DRIVE_STATE_FILENAME
+  );
+  if (!existsSync(stateFilePath)) {
+    writeMockDriveState(diskName, { state: 'removed' });
+  }
+}
+
+export function listMockDrives(): string[] {
+  const usbRoot = getMockUsbDirPath();
+  if (!existsSync(usbRoot)) {
+    return [];
+  }
+  return readdirSync(usbRoot)
+    .filter((name) =>
+      existsSync(join(usbRoot, name, MOCK_USB_DRIVE_STATE_FILENAME))
+    )
+    .sort();
+}
+
+export function addMockDrive(): string {
+  const existing = new Set(listMockDrives());
+  for (let i = 1; i <= 25; i += 1) {
+    const name = `sd${String.fromCharCode('a'.charCodeAt(0) + i)}`;
+    if (!existing.has(name)) {
+      writeMockDriveState(name, { state: 'removed' });
+      return name;
+    }
+  }
+  throw new Error('No available mock drive slot');
+}
+
+export function removeMockDriveDir(diskName: string): void {
+  rmSync(getMockDriveDirPath(diskName), { recursive: true, force: true });
+}
+
+export function createMockFileUsbDrive(): UsbDrive {
+  const diskName = 'sdb';
+
+  return {
+    status(): Promise<UsbDriveStatus> {
+      ensureMockDriveState(diskName);
+      const { state } = readMockDriveState(diskName);
+      if (state === 'removed') {
+        return Promise.resolve({ status: 'no_drive' });
+      }
+      if (state === 'ejected') {
+        return Promise.resolve({ status: 'ejected' });
+      }
+      return Promise.resolve({
+        status: 'mounted',
+        mountPoint: getMockDriveDataDirPath(diskName),
+      });
+    },
+
+    eject(): Promise<void> {
+      ensureMockDriveState(diskName);
+      const { state } = readMockDriveState(diskName);
+      if (state === 'inserted') {
+        writeMockDriveState(diskName, { state: 'ejected' });
+      }
+      return Promise.resolve();
+    },
+
+    format(): Promise<void> {
+      ensureMockDriveState(diskName);
+      const { state } = readMockDriveState(diskName);
+      if (state === 'inserted') {
+        writeMockDriveState(diskName, { state: 'ejected' });
+      }
+      return Promise.resolve();
+    },
+
+    sync(): Promise<void> {
+      return Promise.resolve();
+    },
+  };
+}
+
 export class MockFileUsbDrive implements UsbDrive {
+  private readonly usbDrive = createMockFileUsbDrive();
+
   status(): Promise<UsbDriveStatus> {
-    return Promise.resolve(readFromMockFile().status);
+    return this.usbDrive.status();
   }
 
   eject(): Promise<void> {
-    const { status } = readFromMockFile();
-    if (status.status === 'mounted') {
-      writeToMockFile({ status: { status: 'ejected' } });
-    }
-    return Promise.resolve();
+    return this.usbDrive.eject();
   }
 
-  // mock not fully implemented
   format(): Promise<void> {
-    return this.eject();
+    return this.usbDrive.format();
   }
 
   sync(): Promise<void> {
-    return Promise.resolve();
+    return this.usbDrive.sync();
   }
 }
 
@@ -138,34 +174,92 @@ export interface MockFileUsbDriveHandler {
   cleanup: () => void;
 }
 
-export function getMockFileUsbDriveHandler(): MockFileUsbDriveHandler {
+export function createMockFileMultiUsbDrive(): MultiUsbDrive {
   return {
-    status: () => readFromMockFile().status,
+    getDrives() {
+      return listMockDrives().flatMap((diskName) => {
+        const { state } = readMockDriveState(diskName);
+        if (state === 'removed') return [];
+        const mount =
+          state === 'inserted'
+            ? ({
+                type: 'mounted',
+                mountPoint: getMockDriveDataDirPath(diskName),
+              } as const)
+            : ({ type: 'ejected' } as const);
+        return [
+          {
+            devPath: `/dev/${diskName}`,
+            partitions: [
+              {
+                devPath: `/dev/${diskName}1`,
+                fstype: 'vfat',
+                fsver: 'FAT32',
+                mount,
+              },
+            ],
+          },
+        ];
+      });
+    },
+
+    refresh: () => Promise.resolve(),
+
+    ejectDrive(driveDevPath: string): Promise<void> {
+      const diskName = basename(driveDevPath);
+      const { state } = readMockDriveState(diskName);
+      if (state === 'inserted') {
+        writeMockDriveState(diskName, { state: 'ejected' });
+      }
+      return Promise.resolve();
+    },
+
+    formatDrive(driveDevPath: string): Promise<void> {
+      const diskName = basename(driveDevPath);
+      const { state } = readMockDriveState(diskName);
+      if (state === 'inserted') {
+        writeMockDriveState(diskName, { state: 'ejected' });
+      }
+      return Promise.resolve();
+    },
+
+    sync: (partitionDevPath: string) => {
+      void partitionDevPath;
+      return Promise.resolve();
+    },
+    stop: () => {},
+  };
+}
+
+export function getMockFileUsbDriveHandler(
+  diskName = 'sdb'
+): MockFileUsbDriveHandler {
+  function getDataPath(): string {
+    return getMockDriveDataDirPath(diskName);
+  }
+
+  return {
+    status: (): UsbDriveStatus => {
+      const { state } = readMockDriveState(diskName);
+      if (state === 'removed') return { status: 'no_drive' };
+      if (state === 'ejected') return { status: 'ejected' };
+      return { status: 'mounted', mountPoint: getDataPath() };
+    },
     insert: (contents?: MockFileTree) => {
       if (contents) {
-        writeMockFileTree(getMockUsbDataDirPath(), contents);
+        writeMockFileTree(getDataPath(), contents);
       }
-
-      writeToMockFile({
-        status: {
-          status: 'mounted',
-          mountPoint: getMockUsbDataDirPath(),
-        },
-      });
+      writeMockDriveState(diskName, { state: 'inserted' });
     },
     remove: () => {
-      writeToMockFile({
-        status: {
-          status: 'no_drive',
-        },
-      });
+      writeMockDriveState(diskName, { state: 'removed' });
     },
     clearData: () => {
-      rmSync(getMockUsbDataDirPath(), { recursive: true, force: true });
+      rmSync(getDataPath(), { recursive: true, force: true });
     },
-    getDataPath: getMockUsbDataDirPath,
+    getDataPath: () => getDataPath(),
     cleanup: () => {
-      rmSync(getMockUsbDirPath(), { recursive: true, force: true });
+      rmSync(getMockDriveDirPath(diskName), { recursive: true, force: true });
     },
   };
 }
