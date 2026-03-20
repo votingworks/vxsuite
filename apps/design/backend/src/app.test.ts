@@ -117,7 +117,6 @@ import {
   DuplicatePartyError,
 } from './store';
 import {
-  defaultStateFeaturesConfig,
   getStateFeaturesConfig,
   stateFeatureConfigs,
   userFeatureConfigs,
@@ -4526,7 +4525,7 @@ test('feature configs and default system settings', async () => {
   ).unsafeUnwrap();
   expect(
     await apiClient.getStateFeatures({ electionId: vxElectionId })
-  ).toEqual({ ...defaultStateFeaturesConfig, ...stateFeatureConfigs.DEMO });
+  ).toEqual(stateFeatureConfigs.DEMO);
   expect(
     await apiClient.getSystemSettings({ electionId: vxElectionId })
   ).toEqual(stateDefaultSystemSettings.DEMO);
@@ -4539,7 +4538,7 @@ test('feature configs and default system settings', async () => {
   ).unsafeUnwrap();
   expect(
     await apiClient.getStateFeatures({ electionId: sliElectionId })
-  ).toEqual({ ...defaultStateFeaturesConfig, ...stateFeatureConfigs.DEMO });
+  ).toEqual(stateFeatureConfigs.DEMO);
   expect(
     await apiClient.getSystemSettings({ electionId: sliElectionId })
   ).toEqual(SLI_DEFAULT_SYSTEM_SETTINGS);
@@ -4552,7 +4551,7 @@ test('feature configs and default system settings', async () => {
   ).unsafeUnwrap();
   expect(
     await apiClient.getStateFeatures({ electionId: nhElectionId })
-  ).toEqual({ ...defaultStateFeaturesConfig, ...stateFeatureConfigs.NH });
+  ).toEqual(stateFeatureConfigs.NH);
   expect(
     await apiClient.getSystemSettings({ electionId: nhElectionId })
   ).toEqual(stateDefaultSystemSettings.NH);
@@ -4566,7 +4565,7 @@ test('feature configs and default system settings', async () => {
 
   expect(
     await apiClient.getStateFeatures({ electionId: msElectionId })
-  ).toEqual({ ...defaultStateFeaturesConfig, ...stateFeatureConfigs.MS });
+  ).toEqual(stateFeatureConfigs.MS);
   expect(
     await apiClient.getSystemSettings({ electionId: msElectionId })
   ).toEqual(stateDefaultSystemSettings.MS);

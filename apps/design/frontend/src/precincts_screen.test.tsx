@@ -886,13 +886,11 @@ async function navigateToPrecinctView(
   screen.getByTestId(PRECINCT_LIST_TEST_ID);
 }
 
-test('PRECINCT_REGISTERED_VOTER_COUNTS shows voter count field when enabled', async () => {
+test('shows voter count field by default', async () => {
   const savedPrecinct = election.precincts[0];
   assert(!hasSplits(savedPrecinct));
 
-  mockStateFeatures(apiMock, electionId, {
-    PRECINCT_REGISTERED_VOTER_COUNTS: true,
-  });
+  mockStateFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves([savedPrecinct]);
@@ -905,12 +903,12 @@ test('PRECINCT_REGISTERED_VOTER_COUNTS shows voter count field when enabled', as
   screen.getByLabelText('Registered Voters');
 });
 
-test('PRECINCT_REGISTERED_VOTER_COUNTS hides voter count field when disabled', async () => {
+test('DISABLE_REGISTERED_VOTER_COUNTS hides voter count field', async () => {
   const savedPrecinct = election.precincts[0];
   assert(!hasSplits(savedPrecinct));
 
   mockStateFeatures(apiMock, electionId, {
-    PRECINCT_REGISTERED_VOTER_COUNTS: false,
+    DISABLE_REGISTERED_VOTER_COUNTS: true,
   });
   apiMock.listPrecincts
     .expectCallWith({ electionId })

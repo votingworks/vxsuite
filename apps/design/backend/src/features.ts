@@ -142,10 +142,10 @@ export interface StateFeaturesConfig {
    */
   EDIT_POLLING_PLACES?: boolean;
   /**
-   * Allow the user to enter registered voter counts for precincts and precinct
+   * Disable the registered voter counts fields for precincts and precinct
    * splits.
    */
-  PRECINCT_REGISTERED_VOTER_COUNTS?: boolean;
+  DISABLE_REGISTERED_VOTER_COUNTS?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
@@ -175,10 +175,6 @@ export const userFeatureConfigs = {
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
-export const defaultStateFeaturesConfig: StateFeaturesConfig = {
-  PRECINCT_REGISTERED_VOTER_COUNTS: true,
-};
-
 export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   DEMO: {
     AUDIO_ENABLED: true,
@@ -201,7 +197,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
     ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
     POST_FINALIZE_CHANGE_FEE_WARNING: true,
-    PRECINCT_REGISTERED_VOTER_COUNTS: false,
+    DISABLE_REGISTERED_VOTER_COUNTS: true,
   },
 };
 
@@ -218,8 +214,5 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
 export function getStateFeaturesConfig(
   jurisdiction: Jurisdiction
 ): StateFeaturesConfig {
-  return {
-    ...defaultStateFeaturesConfig,
-    ...stateFeatureConfigs[jurisdiction.stateCode],
-  };
+  return stateFeatureConfigs[jurisdiction.stateCode];
 }
