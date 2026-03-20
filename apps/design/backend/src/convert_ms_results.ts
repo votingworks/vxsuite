@@ -291,7 +291,7 @@ export function convertMsResults(
     stringify(resultsRows, {
       // SEMS results files don't have headers, so make sure we get the columns in
       // the right order.
-      columns: SEMS_RESULTS_COLUMNS,
+      columns: [...SEMS_RESULTS_COLUMNS],
       quoted: true,
       recordDelimiter: ',\r\n',
     }).trimEnd()

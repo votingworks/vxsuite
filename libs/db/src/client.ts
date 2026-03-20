@@ -9,9 +9,8 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
 const require = createRequire(import.meta.url);
-const Database: typeof BetterSqlite3 =
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('better-sqlite3');
+const Database: typeof BetterSqlite3 = require('better-sqlite3');
+
 type Database = BetterSqlite3.Database;
 
 const debug = makeDebug('db-client');
