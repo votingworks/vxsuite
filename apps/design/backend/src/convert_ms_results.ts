@@ -293,7 +293,7 @@ export function convertMsResults(
       // the right order.
       columns: [...SEMS_RESULTS_COLUMNS],
       quoted: true,
-      recordDelimiter: ',\r\n',
+      record_delimiter: ',\r\n',
     }).trimEnd()
   );
 }

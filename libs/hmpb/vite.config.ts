@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { Alias, defineConfig } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
+
 const require = createRequire(import.meta.url);
 
 export default defineConfig(async (env) => {

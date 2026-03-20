@@ -4,7 +4,7 @@
 */
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { BaseLogEventDetails } from './base_types';
+import { BaseLogEventDetails } from './base_types.js';
 
 export interface LogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
   // LogEventId is generated later in this file

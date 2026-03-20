@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+
 const require = createRequire(import.meta.url);
 
 export function generateFontAwesomeStyles(outputPath: string): void {

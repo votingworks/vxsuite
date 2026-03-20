@@ -4,6 +4,7 @@ import { Alias, mergeConfig, InlineConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
+
 const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
