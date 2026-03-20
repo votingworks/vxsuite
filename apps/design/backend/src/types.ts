@@ -8,12 +8,6 @@ import {
   PrecinctSelection,
   PollsTransitionType,
 } from '@votingworks/types';
-import type {
-  PrecinctAndMetadata,
-  PrecinctAndMetadataWithoutSplits,
-  PrecinctAndMetadataSplit,
-  PrecinctAndMetadataWithSplits,
-} from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
@@ -237,36 +231,3 @@ export interface UpdateQaRunStatusParams {
   circleCiWorkflowId?: string;
   jobUrl?: string;
 }
-
-const PrecinctAndMetadataWithoutSplitsSchema: z.ZodType<PrecinctAndMetadataWithoutSplits> =
-  z.object({
-    districtIds: z.array(z.string()),
-    id: z.string(),
-    name: z.string().min(1),
-    registeredVoterCount: z.number().int().nonnegative().optional(),
-  });
-
-const PrecinctAndMetadataSplitSchema: z.ZodType<PrecinctAndMetadataSplit> =
-  z.object({
-    id: z.string(),
-    districtIds: z.array(z.string()),
-    name: z.string().min(1),
-    registeredVoterCount: z.number().int().nonnegative().optional(),
-    electionTitleOverride: z.string().optional(),
-    electionSealOverride: z.string().optional(),
-    clerkSignatureImage: z.string().optional(),
-    clerkSignatureCaption: z.string().optional(),
-  });
-
-const PrecinctAndMetadataWithSplitsSchema: z.ZodType<PrecinctAndMetadataWithSplits> =
-  z.object({
-    id: z.string(),
-    name: z.string().min(1),
-    splits: z.array(PrecinctAndMetadataSplitSchema),
-  });
-
-export const PrecinctAndMetadataSchema: z.ZodType<PrecinctAndMetadata> =
-  z.union([
-    PrecinctAndMetadataWithoutSplitsSchema,
-    PrecinctAndMetadataWithSplitsSchema,
-  ]);

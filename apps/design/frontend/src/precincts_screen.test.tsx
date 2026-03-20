@@ -87,6 +87,9 @@ beforeEach(() => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getRegisteredVoterCounts
+    .expectRepeatedCallsWith({ electionId })
+    .resolves({});
 
   MockPrecinctList.mockReturnValue(<div data-testid={PRECINCT_LIST_TEST_ID} />);
 
@@ -319,7 +322,10 @@ test('editing a precinct - adding splits in NH', async () => {
   });
 
   apiMock.updatePrecinct
-    .expectCallWith({ electionId, updatedPrecinct: changedPrecinct })
+    .expectCallWith({
+      electionId,
+      updatedPrecinct: changedPrecinct,
+    })
     .resolves(ok());
   apiMock.listPrecincts
     .expectCallWith({ electionId })
@@ -379,7 +385,10 @@ test('editing a precinct - removing splits', async () => {
   });
 
   apiMock.updatePrecinct
-    .expectCallWith({ electionId, updatedPrecinct: changedPrecinct })
+    .expectCallWith({
+      electionId,
+      updatedPrecinct: changedPrecinct,
+    })
     .resolves(ok());
   apiMock.listPrecincts
     .expectCallWith({ electionId })

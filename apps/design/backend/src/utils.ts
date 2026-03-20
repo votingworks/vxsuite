@@ -128,8 +128,8 @@ export function regenerateElectionIds(
               id: replaceId(contest.noOption.id),
             },
           };
-        /* istanbul ignore next - @preserve */
         default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(contest);
         }
       }
@@ -218,8 +218,8 @@ export function userCanAccessJurisdiction(
     }
     case 'support_user':
       return true;
-    /* istanbul ignore next - @preserve */
     default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(user);
     }
   }

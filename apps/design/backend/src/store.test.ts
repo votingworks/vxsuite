@@ -906,6 +906,11 @@ test('getUserIdByEmail returns user id or undefined', async () => {
   expect(noUserId).toBeUndefined();
 });
 
+test('getUser returns undefined for non-existent user', async () => {
+  const store = testStore.getStore();
+  expect(await store.getUser('non-existent-id')).toBeUndefined();
+});
+
 describe('Export QA run store methods', () => {
   const qaRunHelpers = testSetupHelpers();
 

@@ -17,6 +17,10 @@ import {
   unsafeParse,
   LanguageCodeSchema,
   getAllBallotLanguages,
+  Precinct,
+  PrecinctRegisteredVoterCountEntry,
+  PrecinctRegisteredVoterCountEntrySchema,
+  ElectionRegisteredVoterCounts,
   District,
   PrecinctId,
   Party,
@@ -24,6 +28,7 @@ import {
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
+  PrecinctSchema,
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
@@ -72,7 +77,6 @@ import {
   decryptAes256,
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
-import type { PrecinctAndMetadata } from '@votingworks/types';
 import {
   MainExportTaskMetadata,
   DuplicateContestError,
@@ -96,7 +100,6 @@ import {
   ResultsReportingError,
   User,
   resultsReportingUrl,
-  PrecinctAndMetadataSchema,
 } from './types';
 import { AppContext } from './context';
 import {
@@ -537,30 +540,44 @@ export function buildApi(ctx: AppContext) {
 
     async listPrecincts(input: {
       electionId: ElectionId;
-    }): Promise<readonly PrecinctAndMetadata[]> {
+    }): Promise<readonly Precinct[]> {
       return store.listPrecincts(input.electionId);
     },
 
     async createPrecinct(input: {
       electionId: ElectionId;
-      newPrecinct: PrecinctAndMetadata;
+      newPrecinct: Precinct;
+      voterCounts?: PrecinctRegisteredVoterCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
-      const precinct = unsafeParse(
-        PrecinctAndMetadataSchema,
-        input.newPrecinct
-      );
-      return store.createPrecinct(input.electionId, precinct);
+      const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
+      const voterCounts = input.voterCounts
+        ? unsafeParse(
+            PrecinctRegisteredVoterCountEntrySchema,
+            input.voterCounts
+          )
+        : undefined;
+      return store.createPrecinct(input.electionId, precinct, voterCounts);
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
-      updatedPrecinct: PrecinctAndMetadata;
+      updatedPrecinct: Precinct;
+      voterCounts?: PrecinctRegisteredVoterCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
-      const precinct = unsafeParse(
-        PrecinctAndMetadataSchema,
-        input.updatedPrecinct
-      );
-      return store.updatePrecinct(input.electionId, precinct);
+      const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
+      const voterCounts = input.voterCounts
+        ? unsafeParse(
+            PrecinctRegisteredVoterCountEntrySchema,
+            input.voterCounts
+          )
+        : undefined;
+      return store.updatePrecinct(input.electionId, precinct, voterCounts);
+    },
+
+    async getRegisteredVoterCounts(input: {
+      electionId: ElectionId;
+    }): Promise<ElectionRegisteredVoterCounts> {
+      return store.getRegisteredVoterCounts(input.electionId);
     },
 
     async deletePrecinct(input: {

@@ -141,11 +141,6 @@ export interface StateFeaturesConfig {
    * precincts at the time of export.
    */
   EDIT_POLLING_PLACES?: boolean;
-  /**
-   * Disable the registered voter counts fields for precincts and precinct
-   * splits.
-   */
-  DISABLE_REGISTERED_VOTER_COUNTS?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
@@ -197,7 +192,6 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
     ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
     POST_FINALIZE_CHANGE_FEE_WARNING: true,
-    DISABLE_REGISTERED_VOTER_COUNTS: true,
   },
 };
 

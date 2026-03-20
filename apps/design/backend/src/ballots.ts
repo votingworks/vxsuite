@@ -25,8 +25,8 @@ export function defaultBallotTemplate(
       return 'MsBallot';
     case 'NH':
       return 'NhBallot';
-    /* istanbul ignore next - @preserve */
     default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(jurisdiction.stateCode);
     }
   }
@@ -123,8 +123,8 @@ export function createBallotPropsForTemplate(
     case 'VxDefaultBallot':
       return baseBallotProps;
 
-    /* istanbul ignore next - @preserve */
     default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(templateId);
     }
   }

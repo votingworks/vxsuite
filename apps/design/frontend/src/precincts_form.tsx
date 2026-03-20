@@ -17,8 +17,9 @@ import {
   hasSplits,
 } from '@votingworks/types';
 import type {
-  PrecinctAndMetadata,
-  PrecinctAndMetadataSplit,
+  Precinct,
+  PrecinctSplit,
+  PrecinctRegisteredVoterCountEntry,
 } from '@votingworks/types';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -46,7 +47,7 @@ import {
 } from './form_fixed';
 import { InputWithAudio } from './ballot_audio/input_with_audio';
 
-function createBlankPrecinct(): PrecinctAndMetadata {
+function createBlankPrecinct(): Precinct {
   return {
     name: '',
     id: generateId(),
@@ -57,24 +58,28 @@ function createBlankPrecinct(): PrecinctAndMetadata {
 export interface PrecinctFormProps {
   editing: boolean;
   electionId: ElectionId;
-  savedPrecinct?: PrecinctAndMetadata;
+  savedPrecinct?: Precinct;
+  savedVoterCounts?: PrecinctRegisteredVoterCountEntry;
   title: React.ReactNode;
 }
 
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
-  const { editing, electionId, savedPrecinct, title } = props;
+  const { editing, electionId, savedPrecinct, savedVoterCounts, title } = props;
 
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
-  const [precinct, setPrecinct] = useState<PrecinctAndMetadata>(
+  const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
       // To make mocked IDs predictable in tests, we pass a function here
       // so it will only be called on initial render.
       createBlankPrecinct
   );
+  const [voterCounts, setVoterCounts] = useState<
+    PrecinctRegisteredVoterCountEntry | undefined
+  >(savedVoterCounts);
 
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
@@ -115,9 +120,10 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function onSubmit() {
+    const voterCountsArg = voterCounts ? { voterCounts } : {};
     if (savedPrecinct) {
       updatePrecinctMutation.mutate(
-        { electionId, updatedPrecinct: precinct },
+        { electionId, updatedPrecinct: precinct, ...voterCountsArg },
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
@@ -127,7 +133,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       );
     } else {
       createPrecinctMutation.mutate(
-        { electionId, newPrecinct: precinct },
+        { electionId, newPrecinct: precinct, ...voterCountsArg },
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
@@ -138,7 +144,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     }
   }
 
-  function setSplits(splits: PrecinctAndMetadataSplit[]) {
+  function setSplits(splits: PrecinctSplit[]) {
     assert(precinct);
     setPrecinct({
       id: precinct.id,
@@ -147,7 +153,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     });
   }
 
-  function setSplit(index: number, split: PrecinctAndMetadataSplit) {
+  function setSplit(index: number, split: PrecinctSplit) {
     assert(precinct && hasSplits(precinct));
     setSplits(replaceAtIndex(precinct.splits, index, split));
   }
@@ -328,15 +334,28 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                             disabled={disabled}
                             type="number"
                             min={0}
-                            value={split.registeredVoterCount ?? ''}
-                            onChange={(e) =>
-                              setSplit(index, {
-                                ...split,
-                                registeredVoterCount: e.target.value
-                                  ? safeParseInt(e.target.value).unsafeUnwrap()
-                                  : undefined,
-                              })
+                            value={
+                              typeof voterCounts === 'object'
+                                ? voterCounts.splits[split.id] ?? ''
+                                : ''
                             }
+                            onChange={(e) => {
+                              const currentSplits =
+                                typeof voterCounts === 'object'
+                                  ? voterCounts.splits
+                                  : {};
+                              const newSplits: Record<string, number> = {
+                                ...currentSplits,
+                              };
+                              if (e.target.value) {
+                                newSplits[split.id] = safeParseInt(
+                                  e.target.value
+                                ).unsafeUnwrap();
+                              } else {
+                                delete newSplits[split.id];
+                              }
+                              setVoterCounts({ splits: newSplits });
+                            }}
                             style={{ width: '8rem' }}
                           />
                         </InputGroup>
@@ -447,19 +466,13 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       disabled={disabled}
                       type="number"
                       min={0}
-                      value={precinct.registeredVoterCount ?? ''}
+                      value={typeof voterCounts === 'number' ? voterCounts : ''}
                       onChange={(e) =>
-                        setPrecinct((prev) => {
-                          if (hasSplits(prev)) {
-                            return prev;
-                          }
-                          return {
-                            ...prev,
-                            registeredVoterCount: e.target.value
-                              ? safeParseInt(e.target.value).unsafeUnwrap()
-                              : undefined,
-                          };
-                        })
+                        setVoterCounts(
+                          e.target.value
+                            ? safeParseInt(e.target.value).unsafeUnwrap()
+                            : undefined
+                        )
                       }
                       style={{ width: '8rem' }}
                     />
