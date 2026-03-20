@@ -428,16 +428,16 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           Remove Split
                         </Button>
                       )}
-                      {!finalized && !hasExternalSource && (
-                        <div>
-                          <Button icon="Add" onPress={onAddSplitPress}>
-                            Add Split
-                          </Button>
-                        </div>
-                      )}
                     </Column>
                   </Card>
                 ))}
+                {!finalized && !hasExternalSource && (
+                  <div>
+                    <Button icon="Add" onPress={onAddSplitPress}>
+                      Add Split
+                    </Button>
+                  </div>
+                )}
               </React.Fragment>
             ) : (
               <Column style={{ gap: '1rem' }}>
