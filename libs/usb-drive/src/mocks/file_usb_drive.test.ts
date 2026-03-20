@@ -8,6 +8,7 @@ import {
   MockFileUsbDrive,
   getMockFileUsbDriveHandler,
 } from './file_usb_drive';
+import { MockFileMultiUsbDrive } from './file_multi_usb_drive';
 
 test('mock flow', async () => {
   const usbDrive = new MockFileUsbDrive();
@@ -51,4 +52,45 @@ test('mock flow', async () => {
   // Cleanup
   handler.cleanup();
   expect(existsSync(expectedTestFilePath)).toEqual(false);
+});
+
+test('multi-drive mock flow', async () => {
+  const multiUsbDrive = new MockFileMultiUsbDrive();
+  expect(multiUsbDrive.getDrives()).toEqual([]);
+
+  const handler = getMockFileUsbDriveHandler();
+  handler.insert({
+    'test-file.txt': Buffer.from('test file contents'),
+  });
+  const expectedMountPoint = join(
+    MOCK_USB_DRIVE_DIR,
+    MOCK_USB_DRIVE_DATA_DIRNAME
+  );
+
+  expect(multiUsbDrive.getDrives()).toMatchObject([
+    {
+      devPath: '/dev/sdb',
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          label: 'VxUSB-ABCDE',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          mount: {
+            type: 'mounted',
+            mountPoint: expectedMountPoint,
+          },
+        },
+      ],
+    },
+  ]);
+
+  await multiUsbDrive.ejectDrive('/dev/sdb');
+  expect(multiUsbDrive.getDrives()).toMatchObject([
+    {
+      partitions: [{ mount: { type: 'ejected' } }],
+    },
+  ]);
+
+  handler.cleanup();
 });

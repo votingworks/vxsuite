@@ -93,7 +93,7 @@ function readFromMockFileHelper(): Optional<MockStateFileContents> {
 /**
  * Reads and parses the contents of the file underlying a MockFileUsbDrive
  */
-function readFromMockFile(): MockStateFileContents {
+export function readFromMockFile(): MockStateFileContents {
   let mockFileContents = readFromMockFileHelper();
   if (!mockFileContents) {
     initializeMockFile();
