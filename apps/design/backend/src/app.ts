@@ -550,12 +550,13 @@ export function buildApi(ctx: AppContext) {
       voterCounts?: PrecinctRegisteredVoterCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
-      const voterCounts = input.voterCounts
-        ? unsafeParse(
-            PrecinctRegisteredVoterCountEntrySchema,
-            input.voterCounts
-          )
-        : undefined;
+      const voterCounts =
+        input.voterCounts !== undefined
+          ? unsafeParse(
+              PrecinctRegisteredVoterCountEntrySchema,
+              input.voterCounts
+            )
+          : undefined;
       return store.createPrecinct(input.electionId, precinct, voterCounts);
     },
 
@@ -565,12 +566,13 @@ export function buildApi(ctx: AppContext) {
       voterCounts?: PrecinctRegisteredVoterCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
-      const voterCounts = input.voterCounts
-        ? unsafeParse(
-            PrecinctRegisteredVoterCountEntrySchema,
-            input.voterCounts
-          )
-        : undefined;
+      const voterCounts =
+        input.voterCounts !== undefined
+          ? unsafeParse(
+              PrecinctRegisteredVoterCountEntrySchema,
+              input.voterCounts
+            )
+          : undefined;
       return store.updatePrecinct(input.electionId, precinct, voterCounts);
     },
 
