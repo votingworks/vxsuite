@@ -22,38 +22,39 @@ export default defineConfig(async (env) => {
       alias: [
         // Replace NodeJS built-in modules with polyfills.
         //
-        // The trailing slash is important, otherwise it will be resolved as a
-        // built-in NodeJS module.
-        { find: 'buffer', replacement: require.resolve('buffer/') },
-        { find: 'node:buffer', replacement: require.resolve('buffer/') },
+        // Use regexes to match both 'module' and 'module/' imports, since
+        // Rolldown (Vite 8) doesn't handle trailing-slash requires the same
+        // way Rollup did.
+        { find: /^buffer\/?$/, replacement: require.resolve('buffer/') },
+        { find: /^node:buffer\/?$/, replacement: require.resolve('buffer/') },
         {
-          find: 'fs/promises',
+          find: /^fs\/promises$/,
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
         {
-          find: 'node:fs/promises',
+          find: /^node:fs\/promises$/,
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
         {
-          find: 'fs',
+          find: /^fs$/,
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
         {
-          find: 'node:fs',
+          find: /^node:fs$/,
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
         {
-          find: 'os',
+          find: /^os$/,
           replacement: join(__dirname, './src/preview/stubs/os.ts'),
         },
         {
-          find: 'node:os',
+          find: /^node:os$/,
           replacement: join(__dirname, './src/preview/stubs/os.ts'),
         },
-        { find: 'path', replacement: require.resolve('path/') },
-        { find: 'node:path', replacement: require.resolve('path/') },
-        { find: 'util', replacement: require.resolve('util/') },
-        { find: 'node:util', replacement: require.resolve('util/') },
+        { find: /^path\/?$/, replacement: require.resolve('path/') },
+        { find: /^node:path\/?$/, replacement: require.resolve('path/') },
+        { find: /^util\/?$/, replacement: require.resolve('util/') },
+        { find: /^node:util\/?$/, replacement: require.resolve('util/') },
 
         // Create aliases for all workspace packages, i.e.
         //

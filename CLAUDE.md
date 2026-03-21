@@ -47,7 +47,7 @@ Each app typically has `frontend/`, `backend/`, and optionally
 - **API Layer:** @votingworks/grout (custom type-safe RPC)
 - **Package Manager:** pnpm 8.15 (workspaces)
 - **Build:** tsgo, esbuild, Vite (frontends)
-- **Node:** 20.16.0
+- **Node:** 20.19.0
 - **Rust:** Used in performance-critical libs (ballot-interpreter, pdi-scanner,
   logging)
 

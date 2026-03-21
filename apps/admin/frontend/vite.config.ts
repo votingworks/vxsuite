@@ -50,35 +50,48 @@ export default defineConfig((env) => {
       alias: [
         // Replace NodeJS built-in modules with polyfills.
         //
-        // The trailing slash is important for the ones with the same name.
-        // Without it, they will be resolved as built-in NodeJS modules.
-        { find: 'assert', replacement: require.resolve('assert/') },
-        { find: 'node:assert', replacement: require.resolve('assert/') },
-        { find: 'buffer', replacement: require.resolve('buffer/') },
-        { find: 'node:buffer', replacement: require.resolve('buffer/') },
-        { find: 'events', replacement: require.resolve('events/') },
-        { find: 'node:events', replacement: require.resolve('events/') },
-        { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'jsdom', replacement: join(__dirname, './src/stubs/jsdom.ts') },
-        { find: 'path', replacement: require.resolve('path/') },
-        { find: 'node:path', replacement: require.resolve('path/') },
-        { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
-        { find: 'node:os', replacement: join(__dirname, './src/stubs/os.ts') },
-        { find: 'stream', replacement: require.resolve('stream-browserify') },
+        // Use regexes to match both 'module' and 'module/' imports, since
+        // Rolldown (Vite 8) doesn't handle trailing-slash requires the same
+        // way Rollup did.
+        { find: /^assert\/?$/, replacement: require.resolve('assert/') },
+        { find: /^node:assert\/?$/, replacement: require.resolve('assert/') },
+        { find: /^buffer\/?$/, replacement: require.resolve('buffer/') },
+        { find: /^node:buffer\/?$/, replacement: require.resolve('buffer/') },
+        { find: /^events\/?$/, replacement: require.resolve('events/') },
+        { find: /^node:events\/?$/, replacement: require.resolve('events/') },
+        { find: /^fs$/, replacement: join(__dirname, './src/stubs/fs.ts') },
         {
-          find: 'node:stream',
+          find: /^node:fs$/,
+          replacement: join(__dirname, './src/stubs/fs.ts'),
+        },
+        {
+          find: /^jsdom$/,
+          replacement: join(__dirname, './src/stubs/jsdom.ts'),
+        },
+        { find: /^path\/?$/, replacement: require.resolve('path/') },
+        { find: /^node:path\/?$/, replacement: require.resolve('path/') },
+        { find: /^os$/, replacement: join(__dirname, './src/stubs/os.ts') },
+        {
+          find: /^node:os$/,
+          replacement: join(__dirname, './src/stubs/os.ts'),
+        },
+        { find: /^stream$/, replacement: require.resolve('stream-browserify') },
+        {
+          find: /^node:stream$/,
           replacement: require.resolve('stream-browserify'),
         },
-        { find: 'util', replacement: require.resolve('util/') },
-        { find: 'node:util', replacement: require.resolve('util/') },
-        { find: 'zlib', replacement: require.resolve('browserify-zlib') },
-        { find: 'node:zlib', replacement: require.resolve('browserify-zlib') },
+        { find: /^util\/?$/, replacement: require.resolve('util/') },
+        { find: /^node:util\/?$/, replacement: require.resolve('util/') },
+        { find: /^zlib$/, replacement: require.resolve('browserify-zlib') },
+        {
+          find: /^node:zlib$/,
+          replacement: require.resolve('browserify-zlib'),
+        },
 
         // Work around an internet curmudgeon.
         // Problem: https://github.com/isaacs/node-glob/pull/374
         // Fix: https://github.com/isaacs/node-glob/pull/479
-        { find: 'glob', replacement: join(__dirname, './src/stubs/glob.ts') },
+        { find: /^glob$/, replacement: join(__dirname, './src/stubs/glob.ts') },
 
         // Create aliases for all workspace packages, i.e.
         //
