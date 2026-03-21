@@ -557,7 +557,12 @@ export function buildApi(ctx: AppContext) {
               input.voterCounts
             )
           : undefined;
-      return store.createPrecinct(input.electionId, precinct, voterCounts);
+      const result = await store.createPrecinct(input.electionId, precinct);
+      if (result.isErr()) {
+        return result;
+      }
+      await store.setPrecinctRegisteredVoterCounts(precinct, voterCounts);
+      return ok();
     },
 
     async updatePrecinct(input: {
@@ -573,7 +578,12 @@ export function buildApi(ctx: AppContext) {
               input.voterCounts
             )
           : undefined;
-      return store.updatePrecinct(input.electionId, precinct, voterCounts);
+      const result = await store.updatePrecinct(input.electionId, precinct);
+      if (result.isErr()) {
+        return result;
+      }
+      await store.setPrecinctRegisteredVoterCounts(precinct, voterCounts);
+      return ok();
     },
 
     async getRegisteredVoterCounts(input: {
