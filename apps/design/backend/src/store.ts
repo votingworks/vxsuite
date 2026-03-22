@@ -1643,12 +1643,17 @@ export class Store {
               type: 'election_day',
             });
 
+            // Use a savepoint so a duplicate-name error doesn't abort the
+            // outer transaction (PostgreSQL marks the transaction as aborted
+            // after any statement error, even if caught).
+            await client.query('SAVEPOINT before_polling_place');
             const res = await insertPollingPlace(
               client,
               electionId,
               generatedPlace
             );
             if (res.isErr()) {
+              await client.query('ROLLBACK TO SAVEPOINT before_polling_place');
               const error = res.err();
               switch (error) {
                 case 'duplicate-name':
@@ -1667,6 +1672,7 @@ export class Store {
                   throwIllegalValue(error);
               }
             }
+            await client.query('RELEASE SAVEPOINT before_polling_place');
           }
 
           return true;
