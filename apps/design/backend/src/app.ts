@@ -547,42 +547,48 @@ export function buildApi(ctx: AppContext) {
     async createPrecinct(input: {
       electionId: ElectionId;
       newPrecinct: Precinct;
-      voterCounts?: PrecinctRegisteredVoterCountEntry;
+      registeredVotersCounts?: PrecinctRegisteredVoterCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
-      const voterCounts =
-        input.voterCounts !== undefined
+      const registeredVotersCounts =
+        input.registeredVotersCounts !== undefined
           ? unsafeParse(
               PrecinctRegisteredVoterCountEntrySchema,
-              input.voterCounts
+              input.registeredVotersCounts
             )
           : undefined;
       const result = await store.createPrecinct(input.electionId, precinct);
       if (result.isErr()) {
         return result;
       }
-      await store.setPrecinctRegisteredVoterCounts(precinct, voterCounts);
+      await store.setPrecinctRegisteredVoterCounts(
+        precinct,
+        registeredVotersCounts
+      );
       return ok();
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
       updatedPrecinct: Precinct;
-      voterCounts?: PrecinctRegisteredVoterCountEntry;
+      registeredVotersCounts?: PrecinctRegisteredVoterCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
-      const voterCounts =
-        input.voterCounts !== undefined
+      const registeredVotersCounts =
+        input.registeredVotersCounts !== undefined
           ? unsafeParse(
               PrecinctRegisteredVoterCountEntrySchema,
-              input.voterCounts
+              input.registeredVotersCounts
             )
           : undefined;
       const result = await store.updatePrecinct(input.electionId, precinct);
       if (result.isErr()) {
         return result;
       }
-      await store.setPrecinctRegisteredVoterCounts(precinct, voterCounts);
+      await store.setPrecinctRegisteredVoterCounts(
+        precinct,
+        registeredVotersCounts
+      );
       return ok();
     },
 

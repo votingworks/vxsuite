@@ -59,12 +59,18 @@ export interface PrecinctFormProps {
   editing: boolean;
   electionId: ElectionId;
   savedPrecinct?: Precinct;
-  savedVoterCounts?: PrecinctRegisteredVoterCountEntry;
+  savedRegisteredVotersCounts?: PrecinctRegisteredVoterCountEntry;
   title: React.ReactNode;
 }
 
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
-  const { editing, electionId, savedPrecinct, savedVoterCounts, title } = props;
+  const {
+    editing,
+    electionId,
+    savedPrecinct,
+    savedRegisteredVotersCounts,
+    title,
+  } = props;
 
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
@@ -77,9 +83,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       // so it will only be called on initial render.
       createBlankPrecinct
   );
-  const [voterCounts, setVoterCounts] = useState<
+  const [registeredVotersCounts, setRegisteredVotersCounts] = useState<
     PrecinctRegisteredVoterCountEntry | undefined
-  >(savedVoterCounts);
+  >(savedRegisteredVotersCounts);
 
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
@@ -120,10 +126,12 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function onSubmit() {
-    const voterCountsArg = voterCounts ? { voterCounts } : {};
+    const registeredVotersCountsArg = registeredVotersCounts
+      ? { registeredVotersCounts }
+      : {};
     if (savedPrecinct) {
       updatePrecinctMutation.mutate(
-        { electionId, updatedPrecinct: precinct, ...voterCountsArg },
+        { electionId, updatedPrecinct: precinct, ...registeredVotersCountsArg },
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
@@ -133,7 +141,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       );
     } else {
       createPrecinctMutation.mutate(
-        { electionId, newPrecinct: precinct, ...voterCountsArg },
+        { electionId, newPrecinct: precinct, ...registeredVotersCountsArg },
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
@@ -182,6 +190,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
           districtIds: [],
         },
       ]);
+      setRegisteredVotersCounts(undefined);
     }
 
     // If adding to an existing precinct in view mode, switch to edit mode:
@@ -202,6 +211,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         ...rest,
         districtIds: newSplits[0].districtIds,
       });
+      setRegisteredVotersCounts(undefined);
     }
   }
 
@@ -335,14 +345,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                             type="number"
                             min={0}
                             value={
-                              typeof voterCounts === 'object'
-                                ? voterCounts.splits[split.id] ?? ''
+                              typeof registeredVotersCounts === 'object'
+                                ? registeredVotersCounts.splits[split.id] ?? ''
                                 : ''
                             }
                             onChange={(e) => {
                               const currentSplits =
-                                typeof voterCounts === 'object'
-                                  ? voterCounts.splits
+                                typeof registeredVotersCounts === 'object'
+                                  ? registeredVotersCounts.splits
                                   : {};
                               const newSplits: Record<string, number> = {
                                 ...currentSplits,
@@ -354,7 +364,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                               } else {
                                 delete newSplits[split.id];
                               }
-                              setVoterCounts({ splits: newSplits });
+                              setRegisteredVotersCounts({ splits: newSplits });
                             }}
                             style={{ width: '8rem' }}
                           />
@@ -466,9 +476,13 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       disabled={disabled}
                       type="number"
                       min={0}
-                      value={typeof voterCounts === 'number' ? voterCounts : ''}
+                      value={
+                        typeof registeredVotersCounts === 'number'
+                          ? registeredVotersCounts
+                          : ''
+                      }
                       onChange={(e) =>
-                        setVoterCounts(
+                        setRegisteredVotersCounts(
                           e.target.value
                             ? safeParseInt(e.target.value).unsafeUnwrap()
                             : undefined

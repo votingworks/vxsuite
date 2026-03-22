@@ -1450,7 +1450,7 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.createPrecinct({
       electionId,
       newPrecinct: precinct1,
-      voterCounts: 500,
+      registeredVotersCounts: 500,
     })
   ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
@@ -1460,7 +1460,7 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.updatePrecinct({
       electionId,
       updatedPrecinct: precinct1,
-      voterCounts: 750,
+      registeredVotersCounts: 750,
     })
   ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
@@ -1491,7 +1491,7 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.createPrecinct({
       electionId,
       newPrecinct: precinct2,
-      voterCounts: { splits: { 'split-1': 200, 'split-2': 300 } },
+      registeredVotersCounts: { splits: { 'split-1': 200, 'split-2': 300 } },
     })
   ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([
@@ -1531,7 +1531,7 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   const createResult = await apiClient.createPrecinct({
     electionId,
     newPrecinct: precinct3,
-    voterCounts: { splits: { 'split-3a': 400 } },
+    registeredVotersCounts: { splits: { 'split-3a': 400 } },
   });
   createResult.unsafeUnwrap();
   expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
@@ -3278,7 +3278,7 @@ test('Election package and ballots export', async () => {
       await apiClient.updatePrecinct({
         electionId,
         updatedPrecinct: precinct,
-        voterCounts: 1000,
+        registeredVotersCounts: 1000,
       })
     ).unsafeUnwrap();
   }

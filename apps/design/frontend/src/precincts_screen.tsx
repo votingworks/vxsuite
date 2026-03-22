@@ -178,7 +178,7 @@ function EditPrecinctForm(): JSX.Element | null {
   const precincts = listPrecinctsQuery.data;
   const registeredVoterCounts = registeredVoterCountsQuery.data;
   const savedPrecinct = precincts.find((p) => p.id === precinctId);
-  const savedVoterCounts = savedPrecinct
+  const savedRegisteredVotersCounts = savedPrecinct
     ? registeredVoterCounts[savedPrecinct.id]
     : undefined;
   const canEdit = !finalizedAt.data && !!savedPrecinct;
@@ -193,7 +193,7 @@ function EditPrecinctForm(): JSX.Element | null {
               electionId={electionId}
               key={precinctId}
               savedPrecinct={savedPrecinct}
-              savedVoterCounts={savedVoterCounts}
+              savedRegisteredVotersCounts={savedRegisteredVotersCounts}
               title="Edit Precinct"
             />
           </Route>
@@ -206,7 +206,7 @@ function EditPrecinctForm(): JSX.Element | null {
               editing={false}
               key={precinctId}
               savedPrecinct={savedPrecinct}
-              savedVoterCounts={savedVoterCounts}
+              savedRegisteredVotersCounts={savedRegisteredVotersCounts}
               title="Precinct Info"
             />
           </Route>

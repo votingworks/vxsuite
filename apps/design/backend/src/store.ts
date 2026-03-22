@@ -1715,23 +1715,28 @@ export class Store {
     }
   }
 
+  /**
+   * Sets the registered voter count(s) for a precinct or splits in a precinct.
+   * @param precinct The precinct to update.
+   * @param registeredVotersCounts Will unset the registered voter count if undefined.
+   */
   async setPrecinctRegisteredVoterCounts(
     precinct: Precinct,
-    voterCounts?: PrecinctRegisteredVoterCountEntry
+    registeredVotersCounts?: PrecinctRegisteredVoterCountEntry
   ): Promise<void> {
     await this.db.withClient(async (client) => {
       await client.query(
         `delete from precinct_registered_voter_counts where precinct_id = $1`,
         precinct.id
       );
-      if (!hasSplits(precinct) && typeof voterCounts === 'number') {
+      if (!hasSplits(precinct) && typeof registeredVotersCounts === 'number') {
         await client.query(
           `
             insert into precinct_registered_voter_counts (precinct_id, count)
             values ($1, $2)
           `,
           precinct.id,
-          voterCounts
+          registeredVotersCounts
         );
       }
       await client.query(
@@ -1743,9 +1748,9 @@ export class Store {
         `,
         precinct.id
       );
-      if (hasSplits(precinct) && typeof voterCounts === 'object') {
+      if (hasSplits(precinct) && typeof registeredVotersCounts === 'object') {
         for (const split of precinct.splits) {
-          const splitCount = voterCounts.splits[split.id];
+          const splitCount = registeredVotersCounts.splits[split.id];
           if (splitCount !== undefined) {
             await client.query(
               `
