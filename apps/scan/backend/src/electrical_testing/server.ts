@@ -1,17 +1,14 @@
 import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import {
-  getAudioInfoWithRetry,
-  setAudioVolume,
-  startCpuMetricsLogging,
-} from '@votingworks/backend';
+import { startCpuMetricsLogging } from '@votingworks/backend';
 import { NODE_ENV, PORT } from '../globals';
 import { buildApp } from './app';
 import { runPrintAndScanTask } from './tasks/print_and_scan_task';
 import { ServerContext } from './context';
 import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
 import { Player as AudioPlayer } from '../audio/player';
+import { AudioCard } from '../audio/card';
 
 export async function startElectricalTestingServer(
   context: ServerContext
@@ -96,23 +93,13 @@ export async function startElectricalTestingServer(
 }
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
-  const audioInfo = await getAudioInfoWithRetry({
-    baseRetryDelayMs: 2000,
-    logger,
-    maxAttempts: 4,
-    nodeEnv: NODE_ENV,
-  });
+  const audioCard = await AudioCard.default(NODE_ENV, logger);
 
-  const resultVolume = await setAudioVolume({
-    logger,
-    nodeEnv: NODE_ENV,
-    sinkName: audioInfo.builtin.name,
-    // This is set to 100% in the prod app, but the HWTA has no UI volume
-    // control at the moment, so this is set to a safe listening level
-    // discovered the hard way:
-    volumePct: 40,
-  });
-  resultVolume.assertOk('unable to set builtin audio volume');
+  // This is set to 100% in the prod app, but the HWTA has no UI volume
+  // control at the moment, so this is set to a safe listening level
+  // discovered the hard way:
+  await audioCard.useHeadphones();
+  await audioCard.setVolume(40);
 
-  return new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
+  return new AudioPlayer(NODE_ENV, logger, audioCard);
 }

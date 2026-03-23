@@ -32,6 +32,7 @@ import {
   createPrecinctScannerStateMachineMock,
 } from '../test/helpers/shared_helpers';
 import { Player as AudioPlayer } from './audio/player';
+import { AudioCard } from './audio/card';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -40,10 +41,13 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
+vi.mock('./audio/card');
 vi.mock('./audio/player');
 
+const mockLog = mockLogger({ fn: vi.fn() });
+const mockAudioCard = new AudioCard('development', mockLog, { name: 'mock' });
 const mockAudioPlayer = vi.mocked(
-  new AudioPlayer('development', mockLogger({ fn: vi.fn() }), 'pci.stereo')
+  new AudioPlayer('development', mockLog, mockAudioCard)
 );
 
 const store = Store.memoryStore();
