@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   addMockDrive,
   createMockFileMultiUsbDrive,
@@ -133,7 +134,7 @@ test('mock flow', async () => {
   });
 
   expect(handler.getDataPath()).toEqual(expectedMountPoint);
-  const expectedTestFilePath = `${expectedMountPoint}/${testFilename}`;
+  const expectedTestFilePath = join(expectedMountPoint!, testFilename);
   expect(existsSync(expectedTestFilePath)).toEqual(true);
 
   await usbDrive.eject();

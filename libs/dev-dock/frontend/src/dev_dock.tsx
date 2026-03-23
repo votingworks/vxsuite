@@ -378,10 +378,8 @@ const AddDriveSlotButton = styled.button`
 function UsbDriveMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getUsbDriveStatusQuery = useQuery(
-    ['getUsbDriveStatus'],
-    () => apiClient.getUsbDriveStatus(),
-    { refetchInterval: 1000 }
+  const getUsbDriveStatusQuery = useQuery(['getUsbDriveStatus'], () =>
+    apiClient.getUsbDriveStatus()
   );
   const insertUsbDriveMutation = useMutation(apiClient.insertUsbDrive, {
     onSuccess: async () =>
@@ -491,7 +489,7 @@ function UsbDriveMockControls() {
       <Column>
         <AddDriveSlotButton
           onClick={() => addUsbDriveSlotMutation.mutate()}
-          disabled={!isFeatureEnabled}
+          disabled={controlsDisabled}
           aria-label="Add USB Drive Slot"
         >
           +
