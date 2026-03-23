@@ -6,37 +6,34 @@ import {
   test,
   vi,
 } from 'vitest';
-import { LogEventId, mockBaseLogger } from '@votingworks/logging';
+import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import {
-  getAudioInfoWithRetry,
-  setAudioVolume,
-  testDetectDevices,
-} from '@votingworks/backend';
-import { err, ok } from '@votingworks/basics';
+import { testDetectDevices } from '@votingworks/backend';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/shared_helpers';
 import { Player as AudioPlayer } from './audio/player';
+import { AudioCard } from './audio/card';
 
 vi.mock('./app');
+vi.mock('./audio/card');
 vi.mock('./audio/player');
 
 vi.mock('@votingworks/backend', async (importActual) => ({
   ...(await importActual()),
+  getAudioCardName: vi.fn(),
   getAudioInfoWithRetry: vi.fn(),
+  setAudioCardProfile: vi.fn(),
   setAudioVolume: vi.fn(),
   setDefaultAudio: vi.fn(),
 }));
 
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>;
-const mockGetAudioInfoWithRetry = vi.mocked(getAudioInfoWithRetry);
 const mockAudioPlayerClass = vi.mocked(AudioPlayer);
-const mockSetAudioVolume = vi.mocked(setAudioVolume);
 
 let workspace!: Workspace;
 
@@ -51,22 +48,22 @@ afterEach(() => {
   workspace.reset();
 });
 
+const audioCardName = 'alsa_output.pci';
+
 test('start passes context to `buildApp`', async () => {
   const listen = vi.fn<(port: number, callback: () => unknown) => void>();
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
-    builtin: { headphonesActive: false, name: 'pci.stereo' },
-  });
-
   const mockAudioPlayer = {
     trustMe: 'I play audio.',
   } as unknown as AudioPlayer;
   mockAudioPlayerClass.mockReturnValueOnce(mockAudioPlayer);
 
-  mockSetAudioVolume.mockResolvedValueOnce(ok());
+  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
+  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
+  vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -85,22 +82,10 @@ test('start passes context to `buildApp`', async () => {
   });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
-  expect(mockGetAudioInfoWithRetry).toHaveBeenCalledWith({
-    baseRetryDelayMs: expect.toSatisfy(
-      (delay: number) => delay >= 500,
-      'should be at least 500ms'
-    ),
-    logger,
-    maxAttempts: expect.toSatisfy(
-      (attempts: number) => attempts >= 2,
-      'should be at least 2'
-    ),
-    nodeEnv: NODE_ENV,
-  });
   expect(mockAudioPlayerClass).toHaveBeenCalledWith(
     NODE_ENV,
     logger,
-    'pci.stereo'
+    mockAudioCard
   );
 
   const callback = listen.mock.calls[0][1];
@@ -124,12 +109,9 @@ test('configures audio device', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
-    builtin: { headphonesActive: false, name: 'pci.stereo' },
-    usb: { name: 'usb.stereo' },
-  });
-
-  mockSetAudioVolume.mockResolvedValueOnce(ok());
+  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
+  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
+  vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -137,12 +119,8 @@ test('configures audio device', async () => {
     logger,
   });
 
-  expect(mockSetAudioVolume).toHaveBeenCalledWith({
-    logger,
-    nodeEnv: NODE_ENV,
-    sinkName: 'pci.stereo',
-    volumePct: 100,
-  });
+  expect(mockAudioCard.useHeadphones).toHaveBeenCalledOnce();
+  expect(mockAudioCard.setVolume).toHaveBeenCalledExactlyOnceWith(100);
 });
 
 test('throws if unable to set volume', async () => {
@@ -151,14 +129,9 @@ test('throws if unable to set volume', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
-    builtin: { headphonesActive: false, name: 'pci.stereo' },
-    usb: { name: 'telepathy.stereo' },
-  });
-
-  mockSetAudioVolume.mockResolvedValueOnce(
-    err({ code: 'pactlError', error: 'output unavailable' })
-  );
+  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
+  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
+  vi.mocked(mockAudioCard.setVolume).mockRejectedValueOnce('invalid device');
 
   await expect(async () =>
     start({
@@ -166,7 +139,7 @@ test('throws if unable to set volume', async () => {
       workspace,
       logger,
     })
-  ).rejects.toThrow(/unable to set builtin audio volume/i);
+  ).rejects.toThrow(/invalid device/i);
 });
 
 test('logs device attach/unattach events', async () => {
@@ -175,11 +148,9 @@ test('logs device attach/unattach events', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
-    builtin: { headphonesActive: false, name: 'pci.stereo' },
-  });
-
-  mockSetAudioVolume.mockResolvedValueOnce(ok());
+  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
+  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
+  vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -189,3 +160,21 @@ test('logs device attach/unattach events', async () => {
 
   testDetectDevices(logger, expect);
 });
+
+function initMockAudioCard(
+  nodeEnv: typeof NODE_ENV,
+  logger: Logger,
+  name: string
+) {
+  const mockAudioCard = new AudioCard(nodeEnv, logger, { name });
+
+  const mockAudioCardDefault = vi.spyOn(AudioCard, 'default');
+  mockAudioCardDefault.mockImplementation((paramNodeEnv, paramLogger) => {
+    expect(paramNodeEnv).toEqual(nodeEnv);
+    expect(paramLogger).toEqual(logger);
+
+    return Promise.resolve(mockAudioCard);
+  });
+
+  return mockAudioCard;
+}

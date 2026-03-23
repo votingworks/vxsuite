@@ -1,13 +1,11 @@
 import {
-  AudioPort,
-  setBuiltinAudioPort,
+  AUDIO_DEVICE_DEFAULT_SINK,
   AudioPlayer as SharedAudioPlayer,
 } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
+import { AudioCard } from './card';
 
 export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
-
-export const MAX_PORT_CHANGE_RETRIES = 3;
 
 /**
  * Audio player for VxScan that plays sounds through the builtin speaker.
@@ -18,25 +16,25 @@ export class Player {
   constructor(
     private readonly nodeEnv: 'production' | 'development' | 'test',
     private readonly logger: Logger,
-    outputName: string
+    private readonly card: AudioCard
   ) {
     this.sharedPlayer = new SharedAudioPlayer({
       nodeEnv: this.nodeEnv,
       logger: this.logger,
-      outputName,
+      outputName: AUDIO_DEVICE_DEFAULT_SINK,
       soundsDirectory: __dirname,
     });
   }
 
   async play(soundName: SoundName): Promise<void> {
-    await setBuiltinAudioPort(this.nodeEnv, AudioPort.SPEAKER, this.logger, {
-      maxRetries: MAX_PORT_CHANGE_RETRIES,
-    });
-
-    await this.sharedPlayer.play(soundName);
-
-    await setBuiltinAudioPort(this.nodeEnv, AudioPort.HEADPHONES, this.logger, {
-      maxRetries: MAX_PORT_CHANGE_RETRIES,
-    });
+    // [TODO] Add locking? We can either ignore/log successive plays while
+    // there's already one in progress (or queue them up, but a well-behaved
+    // client shouldn't be sending overlapping play requests).
+    try {
+      await this.card.useSpeaker();
+      await this.sharedPlayer.play(soundName);
+    } finally {
+      await this.card.useHeadphones();
+    }
   }
 }

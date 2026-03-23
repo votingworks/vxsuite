@@ -1,9 +1,12 @@
 /* istanbul ignore file - @preserve */
 export * from './api';
 export * as audio from './get_audio_info';
+export * from './get_audio_card_name';
 export type { LogsResultType } from './export_logs_to_usb';
 export { getBatteryInfo } from './get_battery_info';
 export type { BatteryInfo } from './get_battery_info';
+export { AUDIO_DEVICE_DEFAULT_SINK } from './pulse_audio';
+export * from './set_audio_card_profile';
 export {
   type SetAudioVolumeErr,
   type SetAudioVolumeResult,
