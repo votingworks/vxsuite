@@ -10,7 +10,6 @@ import {
   GROUP_KEY_ROOT,
   buildElectionResultsFixture,
   buildManualResultsFixture,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import {
@@ -31,29 +30,18 @@ import {
 } from '../../test/mock_cvr_file.js';
 import { adjudicateWriteIn } from '../adjudication.js';
 
-// mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 beforeEach(() => {
   vi.clearAllMocks();
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
+  vi.stubEnv(BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK, 'TRUE');
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 test('tabulateCastVoteRecords', async () => {

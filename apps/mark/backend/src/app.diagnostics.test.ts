@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { Logger, LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
 import { Server } from 'node:http';
@@ -17,13 +14,6 @@ import {
 import { createApp } from '../test/app_helpers.js';
 import { Api } from './app.js';
 import { MockBarcodeClient } from './barcodes/mock_client.js';
-
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
   ...(await importActual()),
@@ -78,8 +68,9 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
 }));
 
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
@@ -95,6 +86,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   server?.close();
 });
 

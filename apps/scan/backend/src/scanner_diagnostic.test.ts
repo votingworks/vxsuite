@@ -1,8 +1,5 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
@@ -21,19 +18,16 @@ import { delays } from './scanner.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 test('scanner diagnostic, unconfigured - pass', async () => {
   await withApp(async ({ apiClient, mockScanner, mockAuth, logger }) => {
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();

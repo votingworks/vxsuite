@@ -6,7 +6,6 @@ import {
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
   HP_LASER_PRINTER_CONFIG,
@@ -47,14 +46,6 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
   };
 });
 
-// mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 vi.mock(import('@votingworks/printing'), async (importActual) => {
   const original = await importActual();
   return {
@@ -64,16 +55,15 @@ vi.mock(import('@votingworks/printing'), async (importActual) => {
 });
 
 beforeEach(() => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK, 'TRUE');
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 async function expectIdenticalSnapshotsAcrossExportMethods({

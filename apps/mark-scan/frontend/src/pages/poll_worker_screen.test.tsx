@@ -13,7 +13,6 @@ import {
 
 import {
   ALL_PRECINCTS_SELECTION,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
@@ -24,11 +23,18 @@ import userEvent from '@testing-library/user-event';
 
 import { assert, DateWithoutTime } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { fireEvent, screen, waitFor } from '../../test/react_testing_library.js';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library.js';
 
 import { render } from '../../test/test_utils.js';
 
-import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen.js';
+import {
+  PollWorkerScreen,
+  PollworkerScreenProps,
+} from './poll_worker_screen.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 import {
@@ -45,12 +51,6 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock(import('./inserted_invalid_new_sheet_screen.js'));
 vi.mock(import('./inserted_preprinted_ballot_screen.js'));
@@ -68,7 +68,7 @@ beforeEach(() => {
   });
   apiMock = createApiMock();
 
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 afterEach(() => {

@@ -25,26 +25,18 @@ import {
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   ALL_PRECINCTS_SELECTION,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
-import { expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
 import { Store } from './store.js';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({ testTimeout: 20000 });
-
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
@@ -111,6 +103,10 @@ const testSheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
 function sortSheets(sheets: Sheet[]): Sheet[] {
   return [...sheets].sort((s1, s2) => s1.id.localeCompare(s2.id));
 }
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('get/set election', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));

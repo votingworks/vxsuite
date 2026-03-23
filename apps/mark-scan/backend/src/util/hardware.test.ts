@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
@@ -15,12 +12,6 @@ import {
 } from './hardware.js';
 
 vi.mock(import('@votingworks/backend'));
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 let workspaceDir: string;
 const MOCK_PID = 12345;
@@ -46,14 +37,12 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
   processKillSpy.mockClear();
 });
 
 test('when bmd-150 flag is on', () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150, 'TRUE');
 
   expect(getMarkScanBmdModel()).toEqual('bmd-150');
 });

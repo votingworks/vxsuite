@@ -19,7 +19,6 @@ import {
   SCANNER_RESULTS_FOLDER,
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
@@ -55,24 +54,14 @@ vi.mock(import('@votingworks/auth'), async (importActual) => ({
   authenticateArtifactUsingSignatureFile: vi.fn(),
 }));
 
-// mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK, 'TRUE');
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 const electionDefinition =
@@ -589,8 +578,9 @@ test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_A
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
 
   const result = await apiClient.addCastVoteRecordFile({
@@ -698,8 +688,9 @@ test('error if a cast vote record not parseable', async () => {
 });
 
 test('error if a cast vote record is somehow invalid', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK,
+    'FALSE'
   );
   const { apiClient, auth } = buildTestEnvironment();
 
@@ -791,8 +782,9 @@ test.each<{
   {
     description: 'mismatched election',
     setupFn: () => {
-      featureFlagMock.disableFeatureFlag(
-        BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
+      vi.stubEnv(
+        BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK,
+        'FALSE'
       );
     },
     modifications: {

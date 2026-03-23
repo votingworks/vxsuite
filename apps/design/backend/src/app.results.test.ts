@@ -6,7 +6,6 @@ import {
   ContestResultsSummary,
   ContestResultsSummaries,
   encodeCompressedTally,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
   getContestsForPrecinct,
   getContestsForPrecinctAndElection,
@@ -41,8 +40,6 @@ import {
   users,
 } from '../test/mocks.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
 const { setupApp, cleanup } = testSetupHelpers();
 
 afterAll(cleanup);
@@ -68,7 +65,7 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
 
 beforeEach(() => {
   mockAuthReturnValue = ok();
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 const baseElectionDefinition =

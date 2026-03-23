@@ -1,22 +1,12 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { find, iter } from '@votingworks/basics';
 import { configureApp } from '../test/helpers/shared_helpers.js';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
 import { PrecinctScannerPollsInfo } from './index.js';
 
 vi.setConfig({ testTimeout: 60_000 });
-
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 const pollsTransitionTime = new Date('2021-01-01T00:00:00.000').getTime();
 vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
@@ -25,9 +15,10 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
 }));
 
 beforeEach(() => {
-  mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.unstubAllEnvs();
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 

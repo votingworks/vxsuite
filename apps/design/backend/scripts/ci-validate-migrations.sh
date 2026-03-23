@@ -23,8 +23,8 @@ validate_commits_vs_origin_main() {
   trap 'rm -f "$origin_main_tempfile" "$head_tempfile"' EXIT # Clean tempfiles on exit
 
   # Compare migrations on origin/main vs HEAD
-  git ls-tree -r --name-only origin/main -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$origin_main_tempfile" || true
-  git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$head_tempfile" || true
+  git ls-tree -r --name-only origin/main -- "$MIGRATION_DIR" | grep -E '\.(js|cjs)$' | sort -u >"$origin_main_tempfile" || true
+  git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.(js|cjs)$' | sort -u >"$head_tempfile" || true
   missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
   added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
 
@@ -58,7 +58,7 @@ validate_head_vs_prev_commit() {
 
   # Check: migrations from previous commit must not be deleted or renamed
   # Use directory path (not glob) since deleted/renamed files don't exist on disk
-  deleted_or_renamed="$(git diff --diff-filter=DR --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
+  deleted_or_renamed="$(git diff --diff-filter=DR --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.(js|cjs)$' || true)"
   if [[ -n "$deleted_or_renamed" ]]; then
     echo "Commit deletes or renames migration(s):"
     printf "%s\n" "$deleted_or_renamed"
@@ -66,11 +66,11 @@ validate_head_vs_prev_commit() {
     exit 1
   fi
 
-  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
+  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.(js|cjs)$' || true)"
   [[ -z "$added_migrations" ]] && exit 0
 
   prev_newest_migration="$(git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" \
-      | grep -E '\.js$' | sort | tail -n1 || true
+      | grep -E '\.(js|cjs)$' | sort | tail -n1 || true
   )"
 
   # Ensure all added migrations are timestamped after previous newest migration

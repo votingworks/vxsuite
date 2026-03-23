@@ -12,7 +12,6 @@ import {
   getMockMultiLanguageElectionDefinition,
   generateFileTimeSuffix,
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
   HP_LASER_PRINTER_CONFIG,
@@ -36,8 +35,6 @@ import {
 import { Api } from './app.js';
 import { Workspace } from './util/workspace.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
 let server: Server | undefined;
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
@@ -52,11 +49,6 @@ const electionDefinition = getMockMultiLanguageElectionDefinition(
 );
 
 let ballots: EncodedBallotEntry[];
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock(import('@votingworks/printing'), async (importActual) => {
   const original = await importActual();
@@ -74,8 +66,9 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
   ({
     apiClient,
@@ -91,6 +84,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   mockPrinterHandler?.cleanup();
   server?.close();
   server = undefined;

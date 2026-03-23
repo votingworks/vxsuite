@@ -21,13 +21,10 @@ import {
   SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
 import { v4 as uuid } from 'uuid';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { withApp } from '../test/helpers/setup_app.js';
 import { generateHmpbFixture } from '../test/helpers/ballots.js';
@@ -36,13 +33,6 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
-
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 const jurisdiction = TEST_JURISDICTION;
 
@@ -128,6 +118,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 test('getElectionDefinition', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const electionPackageHash = 'test-election-package-hash';
@@ -323,8 +316,9 @@ test('uses default machine config if not set', async () => {
 });
 
 test('configure with CDF election', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   await withApp(async ({ apiClient, auth, mockUsbDrive, logger }) => {

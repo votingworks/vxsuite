@@ -2,21 +2,11 @@ import { afterEach, expect, test, vi } from 'vitest';
 import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { initializeSystemAudio, testDetectDevices } from '@votingworks/backend';
 import { resolveDriver, start } from './server.js';
 import { createWorkspace } from './util/workspace.js';
-
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
@@ -24,7 +14,7 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
 }));
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 test('can start server', async () => {
@@ -49,9 +39,7 @@ test('can start server', async () => {
 });
 
 test('can start without providing auth', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_CARDS
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_CARDS, 'TRUE');
 
   const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
@@ -71,9 +59,7 @@ test('can start without providing auth', async () => {
 });
 
 test('logs device attach/un-attach events', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_CARDS
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_CARDS, 'TRUE');
   const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
     makeTemporaryDirectory(),
@@ -94,9 +80,7 @@ test('logs device attach/un-attach events', async () => {
 });
 
 test('resolveDriver returns a mock driver if feature flag is on', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER, 'TRUE');
   const logger = mockLogger({ fn: vi.fn });
 
   const driver = await resolveDriver(logger);

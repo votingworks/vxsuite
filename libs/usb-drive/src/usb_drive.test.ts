@@ -2,26 +2,13 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { mockLogger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { detectUsbDrive } from './usb_drive.js';
 import { UsbDiskDeviceInfo } from './block_devices.js';
 import {
   MOCK_USB_DRIVE_DIR,
   MOCK_USB_DRIVE_STATE_FILENAME,
 } from './mocks/file_usb_drive.js';
-
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock(
-  import('@votingworks/utils'),
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual()),
-    isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
-  })
-);
 
 let mockDrives: UsbDiskDeviceInfo[] = [];
 
@@ -35,13 +22,10 @@ beforeEach(() => {
   mockDrives = [];
   vi.clearAllMocks();
   vi.unstubAllEnvs();
-  featureFlagMock.resetFeatureFlags();
 });
 
 test('uses MockFileUsbDrive when feature flag is set', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE, 'TRUE');
   const stateFilePath = join(
     MOCK_USB_DRIVE_DIR,
     'sdb',

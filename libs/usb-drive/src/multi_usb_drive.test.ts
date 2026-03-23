@@ -2,10 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
 import { PromiseWithChild } from 'node:child_process';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { deferred, sleep } from '@votingworks/basics';
 import { detectMultiUsbDrive } from './multi_usb_drive';
 import { exec } from './exec';
@@ -13,14 +10,7 @@ import { getAllUsbDrives, UsbDiskDeviceInfo } from './block_devices';
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
-const featureFlagMock = getFeatureFlagMock();
-
 type ExecResult = Awaited<ReturnType<typeof exec>>;
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
-}));
 
 const execMock = vi.mocked(exec);
 const getAllUsbDrivesMock = vi.mocked(getAllUsbDrives);
@@ -53,7 +43,6 @@ beforeEach(() => {
   mockWatcherStop.mockReset();
   vi.clearAllMocks();
   vi.unstubAllEnvs();
-  featureFlagMock.resetFeatureFlags();
 });
 
 function makeDisk(
@@ -78,9 +67,7 @@ function makeDisk(
 }
 
 test('works even when USE_MOCK_USB_DRIVE feature flag is enabled', () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE, 'TRUE');
   const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }));
   expect(multiUsbDrive.getDrives()).toEqual([]);
   multiUsbDrive.stop();

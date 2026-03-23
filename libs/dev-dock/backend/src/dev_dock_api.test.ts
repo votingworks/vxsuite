@@ -8,10 +8,7 @@ import {
   vxGeneralElectionFixtures,
 } from '@votingworks/hmpb';
 import { AddressInfo } from 'node:net';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   backendWaitFor,
   mockElectionManagerUser,
@@ -70,15 +67,6 @@ const SINGLE_PAGE_PDF = [
   '%%EOF',
 ].join('\n');
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(
-  '@votingworks/utils',
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual<typeof import('@votingworks/utils')>()),
-    isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
-  })
-);
-
 let server: Server;
 
 function setup(
@@ -95,9 +83,7 @@ function setup(
 }
 
 beforeEach(() => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK, 'TRUE');
 
   for (const diskName of listMockDrives()) {
     removeMockDriveDir(diskName);
@@ -106,13 +92,12 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   server.close();
 });
 
 test('does not mount dev dock endpoints when feature flag is disabled', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK, 'FALSE');
   const { apiClient } = setup();
   await expect(apiClient.getElection()).rejects.toThrow();
   await expect(apiClient.getUsbDriveStatus()).rejects.toThrow();

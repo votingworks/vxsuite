@@ -9,7 +9,6 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
@@ -25,13 +24,6 @@ const electionDefinition =
 let ballots: EncodedBallotEntry[];
 const electionKey = constructElectionKey(electionDefinition.election);
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 // Build shared fixtures once before all tests
 beforeAll(async () => {
   ballots = await buildBallotsForElection({
@@ -41,14 +33,16 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
 let server: Server | undefined;
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   server?.close();
   server = undefined;
 });

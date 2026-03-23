@@ -59,7 +59,6 @@ import {
   ballotStyleHasPrecinctOrSplit,
   BooleanEnvironmentVariableName,
   getEntries,
-  getFeatureFlagMock,
   getFileByName,
   openZip,
 } from '@votingworks/utils';
@@ -162,13 +161,6 @@ function compareName(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name);
 }
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 vi.mock('./ballot_style_reports.js');
 
 // Spy on the ballot rendering function so we can check that it's called with the
@@ -255,7 +247,7 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
 afterAll(cleanup);
 
 beforeEach(() => {
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 afterEach(() => {
@@ -4527,8 +4519,9 @@ test('decryptCvrBallotAuditIds', async () => {
   );
   const decryptedCvrZipEntries = getEntries(decryptedCvrZip);
 
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
   const cvrContents = (
     await readCastVoteRecordExport(cvrDirectoryPath)

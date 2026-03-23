@@ -22,7 +22,6 @@ import {
   ALL_PRECINCTS_SELECTION,
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   generateMockVotes,
   singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
@@ -76,13 +75,6 @@ const TEST_POLLING_INTERVAL_MS = 15;
 
 vi.mock(import('./pat-input/connection_status_reader.js'));
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
@@ -97,15 +89,12 @@ let readSignedElectionPackageFromUsbSpy: MockInstance<
 >;
 
 beforeEach(async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER, 'TRUE');
+  vi.stubEnv(BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150, 'TRUE');
 
   const mockWorkspaceDir = makeTemporaryDirectory();
   patConnectionStatusReader = new PatConnectionStatusReader(
@@ -137,7 +126,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
   await stateMachine.cleanUp();
   server.close();
 });

@@ -1,30 +1,19 @@
 import { createImageData } from 'canvas';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { test } from '../../../test/helpers/test.js';
 import {
   DELAY_AFTER_ACCEPT_MS,
   runPrintAndScanTask,
 } from './print_and_scan_task.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
-  );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS
+  vi.unstubAllEnvs();
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP, 'TRUE');
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS,
+    'TRUE'
   );
 });
 

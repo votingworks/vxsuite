@@ -12,7 +12,6 @@ import userEvent from '@testing-library/user-event';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   getGroupedBallotStyles,
 } from '@votingworks/utils';
 import { screen, within } from '../../../test/react_testing_library.js';
@@ -21,15 +20,11 @@ import {
   ManualTalliesTab,
 } from './manual_tallies_tab.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 import { mockManualResultsMetadata } from '../../../test/api_mock_data.js';
-
-const featureFlagMock = getFeatureFlagMock();
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 let apiMock: ApiMock;
 
@@ -43,7 +38,7 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.assertComplete();
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 const electionDefinition =
@@ -316,9 +311,7 @@ test('disable buttons when results are official', async () => {
 });
 
 test('voting method dropdown includes early voting when feature flag is enabled', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
   const electionGeneralDefinition = readElectionGeneralDefinition();
   apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(<ManualTalliesTab />, {

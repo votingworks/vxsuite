@@ -22,6 +22,14 @@ describe('features', () => {
     ).toEqual(true);
   });
 
+  test('isFeatureFlagEnabled returns true when enabled in test', () => {
+    vi.stubEnv('NODE_ENV', 'test');
+    vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'TRUE');
+    expect(
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
+    ).toEqual(true);
+  });
+
   test('isFeatureFlagEnabled returns false when enabled in production', () => {
     vi.stubEnv('NODE_ENV', 'production');
     vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'TRUE');

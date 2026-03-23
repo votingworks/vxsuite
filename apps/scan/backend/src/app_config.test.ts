@@ -7,7 +7,6 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { assertDefined, err, ok } from '@votingworks/basics';
@@ -33,13 +32,6 @@ const electionGeneral = electionGeneralDefinition.election;
 
 vi.setConfig({ testTimeout: 30_000 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 function mockElectionManager(
   mockAuth: InsertedSmartCardAuthApi,
   electionDefinition: ElectionDefinition
@@ -62,9 +54,10 @@ function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
 }
 
 beforeEach(() => {
-  mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.unstubAllEnvs();
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 

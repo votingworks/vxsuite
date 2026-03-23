@@ -1,13 +1,10 @@
-import { expect, MockInstance, test, vi } from 'vitest';
+import { afterEach, expect, MockInstance, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { readFileSync } from 'node:fs';
 import { assert, ok } from '@votingworks/basics';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
@@ -18,15 +15,9 @@ import {
 import { mockFileName, parseCsv } from '../test/csv.js';
 import { Api } from './app.js';
 
-// enable us to use modified fixtures that don't pass authentication
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-featureFlagMock.enableFeatureFlag(
-  BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+vi.stubEnv(
+  BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+  'TRUE'
 );
 
 async function getParsedExport({
@@ -57,6 +48,10 @@ function filterCallsWithoutCvrId(
 ): Array<unknown[]> {
   return tabulationSpy.mock.calls.filter(([args]) => !args.cvrId);
 }
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('uses and clears CVR tabulation cache appropriately', async () => {
   const electionDefinition =

@@ -41,11 +41,7 @@ import {
   TEST_JURISDICTION,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   renderBmdBallotFixture,
   writeFirstBallotPageToImageFile,
@@ -149,12 +145,6 @@ let scannedBallotFixtureFilepaths: string;
 let clock: SimulatedClock;
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
@@ -212,7 +202,7 @@ beforeAll(
 );
 
 beforeEach(async () => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 
   logger = mockLogger({ fn: vi.fn });
   auth = buildMockInsertedSmartCardAuth(vi.fn);

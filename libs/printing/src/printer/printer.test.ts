@@ -2,22 +2,15 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { mockFunction } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
 import { detectPrinter } from './printer.js';
-import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from './index.js';
+import {
+  CITIZEN_THERMAL_PRINTER_CONFIG,
+  HP_LASER_PRINTER_CONFIG,
+} from './index.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
-
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 const mockConfigurePrinter = mockFunction('configurePrinter');
 vi.mock(
@@ -161,13 +154,11 @@ test('status and configuration', async () => {
 });
 
 test('uses mock file printer when feature flag is set', () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PRINTER, 'TRUE');
 
   const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
   expect(printer).toBeInstanceOf(MockFilePrinter);
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 describe('rich status', () => {

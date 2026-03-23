@@ -13,7 +13,6 @@ import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
@@ -24,14 +23,6 @@ import { PORT } from './globals.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
 import { writeMachineMode } from './machine_mode.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
-
-// Mock modules that start() creates or calls internally
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 vi.mock('@votingworks/auth', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/auth')>();
@@ -286,9 +277,7 @@ test('starts host networking and peer server when multi-station is enabled', asy
   const { multiUsbDrive } = createMockMultiUsbDrive();
   const { printer } = createMockPrinterHandler();
 
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN, 'TRUE');
 
   const peerPort = 0;
   server = await suppressingConsoleOutput(() =>
@@ -318,7 +307,7 @@ test('starts host networking and peer server when multi-station is enabled', asy
     );
   });
 
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 test('starts client networking in client mode', async () => {
@@ -327,9 +316,7 @@ test('starts client networking in client mode', async () => {
 
   writeMachineMode(workspacePath, 'client');
 
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN, 'TRUE');
 
   server = await suppressingConsoleOutput(() =>
     start({ workspacePath, logger, port: 0 })
@@ -349,5 +336,5 @@ test('starts client networking in client mode', async () => {
     }
   );
 
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });

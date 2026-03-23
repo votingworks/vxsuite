@@ -1,10 +1,7 @@
 import { deferred, err, ok, Result } from '@votingworks/basics';
 import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
-import { beforeEach, test, vi } from 'vitest';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import {
   ballotImages,
   withApp,
@@ -16,22 +13,19 @@ import { getCurrentTime } from './util/get_current_time.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 vi.mock(import('./util/get_current_time.js'));
 
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
   vi.mocked(getCurrentTime).mockReturnValue(Date.now());
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 function simulateNonDisconnectError(mockScanner: MockPdiScannerClient) {
   mockScanner.emitEvent({
     event: 'error',

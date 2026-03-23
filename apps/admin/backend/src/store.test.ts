@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
@@ -21,7 +21,6 @@ import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   getGroupedBallotStyles,
 } from '@votingworks/utils';
 import { Store } from './store.js';
@@ -31,14 +30,11 @@ import {
   ScannerBatch,
 } from './types.js';
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
+vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
 
-featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('create a file store', () => {
   const tmpDir = makeTemporaryDirectory();

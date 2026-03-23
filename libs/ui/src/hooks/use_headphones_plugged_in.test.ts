@@ -1,20 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { useHeadphonesPluggedIn } from './use_headphones_plugged_in.js';
 import { AUDIO_INFO_POLLING_INTERVAL_MS } from '../system_call_api.js';
 import { newTestContext } from '../../test/test_context.js';
 import { act, waitFor } from '../../test/react_testing_library.js';
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: vi.fn(),
-}));
-
-const mockFeatureFlagger = getFeatureFlagMock();
 
 function createTestContext() {
   return newTestContext({
@@ -29,13 +18,10 @@ beforeEach(() => {
     shouldAdvanceTime: true,
   });
 
-  mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES
-  );
-
-  vi.mocked(isFeatureFlagEnabled).mockImplementation(
-    mockFeatureFlagger.isEnabled
+  vi.unstubAllEnvs();
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES,
+    'TRUE'
   );
 });
 
@@ -74,8 +60,9 @@ test('uses getAudioInfo system call API', async () => {
 });
 
 test('always returns true if headphones restriction flag is disabled', async () => {
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES,
+    'FALSE'
   );
 
   const { mockApiClient, renderHook } = createTestContext();

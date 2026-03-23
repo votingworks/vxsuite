@@ -17,7 +17,6 @@ import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
 } from '@votingworks/utils';
@@ -33,18 +32,11 @@ vi.setConfig({
 let workingDirectory: string;
 let outputPath: string;
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
   workingDirectory = makeTemporaryDirectory();
   outputPath = join(workingDirectory, 'machine_0000__2024-01-01_00-00-00');
   mkdirSync(outputPath);
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 async function run(
@@ -260,8 +252,9 @@ test('generate test mode CVRs', async () => {
 test('specifying scanner ids', async () => {
   // CVR auth will expectedly fail because the specified scanner IDs don't match the machine ID in
   // signing machine cert
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
 
   const electionDefinitionPath =

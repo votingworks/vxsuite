@@ -1,8 +1,5 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
@@ -14,7 +11,10 @@ import {
   renderMultiPageBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers.js';
+import {
+  configureApp,
+  pdfToImageSheet,
+} from '../test/helpers/shared_helpers.js';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
 import { getScannerResults } from './util/results.js';
 
@@ -22,8 +22,6 @@ const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
 vi.setConfig({ testTimeout: 60_000 });
-
-const mockFeatureFlagger = getFeatureFlagMock();
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();
@@ -33,17 +31,16 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
   };
 });
 
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   ...(await importActual()),

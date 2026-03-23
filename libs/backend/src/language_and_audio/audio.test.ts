@@ -4,7 +4,6 @@ import {
   LanguageCode,
   UiStringsPackage,
 } from '@votingworks/types';
-import { getFeatureFlagMock } from '@votingworks/utils';
 import { deferred } from '@votingworks/basics';
 import {
   GoogleCloudSpeechSynthesizer,
@@ -15,18 +14,9 @@ import { audioIdForText } from './utils.js';
 import { makeMockGoogleCloudTextToSpeechClient } from './test_utils.js';
 import { convertHtmlToAudioCues } from './rich_text.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-vi.mock(
-  import('@votingworks/utils'),
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual()),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  })
-);
-
 describe('extractAndTranslateElectionStrings', () => {
   beforeEach(() => {
-    mockFeatureFlagger.resetFeatureFlags();
+    vi.unstubAllEnvs();
   });
 
   test('generates audio for app and election strings', () =>

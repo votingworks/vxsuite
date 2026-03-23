@@ -10,12 +10,9 @@ import {
   SheetInterpretation,
 } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
@@ -36,19 +33,16 @@ import { createPrecinctScannerStateMachine, delays } from './scanner.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 function simulateDisconnect(mockScanner: MockPdiScannerClient) {
   mockScanner.client.getScannerStatus.mockResolvedValue(
     err({ code: 'disconnected' })

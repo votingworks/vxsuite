@@ -13,7 +13,6 @@ import {
 import {
   BooleanEnvironmentVariableName,
   getCastVoteRecordExportSubDirectoryNames,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 
 import { getImageHash } from './build_cast_vote_record.js';
@@ -24,19 +23,9 @@ import {
   modifyCastVoteRecordExport,
 } from './test_utils.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(
-  import('@votingworks/utils'),
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual()),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  })
-);
-
 beforeEach(() => {
   vi.stubEnv('VX_MACHINE_TYPE', 'admin');
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 const { castVoteRecordExport } =
@@ -108,8 +97,9 @@ test('authentication error during import', async () => {
 });
 
 test('metadata file not found during import', async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
   const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
   fs.rmSync(
@@ -122,8 +112,9 @@ test('metadata file not found during import', async () => {
 });
 
 test('metadata file parse error during import', async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
   const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
   fs.appendFileSync(
@@ -158,8 +149,9 @@ test.each<{
 ])(
   'cast vote record parse error during import - $description',
   async ({ modifier }) => {
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+    vi.stubEnv(
+      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+      'TRUE'
     );
     const exportDirectoryPath = await modifyCastVoteRecordExport(
       castVoteRecordExport.asDirectoryPath(),
@@ -345,8 +337,9 @@ test.each<{
 ])(
   'cast vote record parse error during import - $description',
   async ({ modifications, expectedErrorSubType }) => {
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+    vi.stubEnv(
+      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+      'TRUE'
     );
     const exportDirectoryPath = await modifyCastVoteRecordExport(
       castVoteRecordExport.asDirectoryPath(),

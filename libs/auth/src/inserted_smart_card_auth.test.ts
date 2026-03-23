@@ -32,10 +32,13 @@ import {
 import {
   BooleanEnvironmentVariableName,
   generatePin,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils.js';
+import {
+  buildMockCard,
+  MockCard,
+  mockCardAssertComplete,
+} from '../test/utils.js';
 import { CardDetails, CardStatus, ProgrammedCardDetails } from './card.js';
 import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api.js';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth.js';
@@ -44,14 +47,11 @@ import {
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
 vi.mock(
   '@votingworks/utils',
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
     generatePin: vi.fn(),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   })
 );
 
@@ -68,7 +68,7 @@ beforeEach(() => {
   vi.setSystemTime(mockTime.toJSDate());
 
   vi.mocked(generatePin).mockImplementation(() => pin);
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 
   mockCard = buildMockCard();
   mockLogger = mockBaseLogger({ fn: vi.fn });
@@ -1553,9 +1553,7 @@ test.each<{
 ])(
   'SKIP_PIN_ENTRY feature flag - $description',
   async ({ machineState, cardDetails }) => {
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-    );
+    vi.stubEnv(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY, 'TRUE');
     const auth = new InsertedSmartCardAuth({
       card: mockCard,
       config: defaultConfig,

@@ -18,11 +18,10 @@ import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { withApp } from '../test/helpers/setup_app.js';
 
@@ -31,16 +30,14 @@ vi.setConfig({
   testTimeout: 20000,
 });
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('going through the whole process works - HMPB', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   await withApp(
@@ -155,8 +152,9 @@ test('going through the whole process works - HMPB', async () => {
 });
 
 test('ballots printed with invalid scale are rejected', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   await withApp(

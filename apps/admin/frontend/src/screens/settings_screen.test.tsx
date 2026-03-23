@@ -19,17 +19,6 @@ import {
 import { SettingsScreen } from './settings_screen.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
-const featureFlagMock = vi.hoisted(() => {
-  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
-  const { getFeatureFlagMock } = require('@votingworks/utils');
-  return getFeatureFlagMock();
-});
-vi.mock('@votingworks/utils', async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -109,13 +98,14 @@ describe('multi-station mode', () => {
   };
 
   beforeEach(() => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+    vi.stubEnv(
+      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN,
+      'TRUE'
     );
   });
 
   afterEach(() => {
-    featureFlagMock.resetFeatureFlags();
+    vi.unstubAllEnvs();
   });
 
   function mockNetworkStatusQuery(

@@ -7,7 +7,6 @@ import {
 import { mockKiosk } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
@@ -40,19 +39,9 @@ let apiMock: ApiMock;
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 beforeEach(() => {
   window.kiosk = mockKiosk(vi.fn);
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'FALSE');
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -63,6 +52,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   window.kiosk = undefined;
   apiMock.mockApiClient.assertComplete();
 });
@@ -360,9 +350,7 @@ const ballotCastingPeriodButtonDisabledTestCases: BallotCastingPeriodTestConfig[
 test.each(ballotCastingPeriodButtonDisabledTestCases)(
   '"Ballot Casting Mode" toggle button whenpollsState=$pollsState -> disabled=$buttonDisabled',
   async ({ pollsState, buttonDisabled }) => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.EARLY_VOTING
-    );
+    vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
     apiMock.mockApiClient.getPollsInfo.reset();
     apiMock.expectGetPollsInfo(pollsState);
     apiMock.expectGetConfig({

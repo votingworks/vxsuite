@@ -2,10 +2,7 @@ import { iter } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils';
 import { asSheet, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { simulateScan, withApp } from '../test/helpers/scanner_helpers.js';
@@ -16,17 +13,11 @@ vi.setConfig({
   testTimeout: 10_000,
 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.unstubAllEnvs();
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 

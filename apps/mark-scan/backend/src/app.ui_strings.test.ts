@@ -11,10 +11,7 @@ import {
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store.js';
@@ -22,13 +19,6 @@ import { createWorkspace, Workspace } from './util/workspace.js';
 import { Api, buildApi } from './app.js';
 import { buildMockLogger } from '../test/app_helpers.js';
 import { mockElectionManagerAuth } from '../test/auth_helpers.js';
-
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 const store = Store.memoryStore();
 let workspace: Workspace;
@@ -73,9 +63,10 @@ describe('configureElectionPackageFromUsb', () => {
   let api: Api;
 
   beforeEach(() => {
-    mockFeatureFlagger.resetFeatureFlags();
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+    vi.unstubAllEnvs();
+    vi.stubEnv(
+      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+      'TRUE'
     );
 
     mockUsbDrive = createMockUsbDrive();

@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -14,7 +14,6 @@ import {
   BooleanEnvironmentVariableName,
   GROUP_KEY_ROOT,
   buildManualResultsFixture,
-  getFeatureFlagMock,
   groupMapToGroupList,
 } from '@votingworks/utils';
 import { Store } from '../store.js';
@@ -27,14 +26,11 @@ import {
   tabulateScannedCardCounts,
 } from './card_counts.js';
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
+vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
 
-featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());

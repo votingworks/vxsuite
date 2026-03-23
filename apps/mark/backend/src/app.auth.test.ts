@@ -1,4 +1,12 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest';
 import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -9,10 +17,7 @@ import {
   BallotStyleId,
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { LogEventId } from '@votingworks/logging';
 import { configureApp, createApp } from '../test/app_helpers.js';
@@ -41,19 +46,16 @@ beforeAll(() => {
   expect(systemSettings.auth).not.toEqual(DEFAULT_SYSTEM_SETTINGS.auth);
 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 test('getAuthStatus', async () => {
   const { apiClient, mockAuth, mockUsbDrive } = createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);

@@ -40,7 +40,6 @@ import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'node:path';
@@ -59,8 +58,6 @@ import {
   readSignedElectionPackageFromUsb,
 } from './election_package_io.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
 vi.mock(
   import('@votingworks/auth'),
   async (importActual): Promise<typeof import('@votingworks/auth')> => ({
@@ -69,17 +66,9 @@ vi.mock(
   })
 );
 
-vi.mock(
-  import('@votingworks/utils'),
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual()),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  })
-);
-
 beforeEach(() => {
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
-  mockFeatureFlagger.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 async function assertFilesCreatedInOrder(
@@ -833,8 +822,9 @@ test('readSignedElectionPackageFromUsb ignores election package authentication e
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   const electionKey = constructElectionKey(

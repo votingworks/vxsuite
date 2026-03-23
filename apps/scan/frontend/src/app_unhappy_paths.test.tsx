@@ -8,10 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { ServerError } from '@votingworks/grout';
 import { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import type { ErrorType } from '@votingworks/fujitsu-thermal-printer';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   ApiMock,
@@ -24,23 +21,13 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 function renderApp(props: Partial<AppProps> = {}) {
   render(<App apiClient={apiMock.mockApiClient} noAudio {...props} />);
 }
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'FALSE');
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -48,6 +35,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   apiMock.mockApiClient.assertComplete();
 });
 

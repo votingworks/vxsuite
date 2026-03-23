@@ -32,7 +32,6 @@ import {
   ALL_PRECINCTS_SELECTION,
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
   generateMockVotes,
@@ -62,12 +61,6 @@ import { MockBarcodeClient } from './barcodes/mock_client.js';
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();
 const { election: electionGeneral } = electionGeneralDefinition;
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
   ...(await importActual()),
@@ -120,8 +113,9 @@ function mockNoCard() {
 }
 
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   ({
@@ -137,6 +131,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   server?.close();
 });
 

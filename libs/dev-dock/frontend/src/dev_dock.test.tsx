@@ -13,10 +13,7 @@ import { assertDefined } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api } from '@votingworks/dev-dock-backend';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   mockSystemAdministratorUser,
   mockElectionManagerUser,
@@ -62,13 +59,6 @@ const mockPrinterConfig: PrinterConfig = {
   supportsIpp: false,
 };
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 let mockApiClient: MockClient<Api>;
 let kiosk: Mocked<KioskBrowser.Kiosk>;
 
@@ -101,22 +91,16 @@ beforeEach(() => {
     inputPath: './libs/fixtures/data/electionGeneral/election.json',
     resolvedPath: '/full-path',
   });
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_CARDS
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK, 'TRUE');
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_CARDS, 'TRUE');
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE, 'TRUE');
   kiosk = mockKiosk(vi.fn);
   window.kiosk = kiosk;
 });
 
 afterEach(() => {
   mockApiClient.assertComplete();
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 test('renders nothing if dev dock is disabled', () => {
@@ -125,9 +109,7 @@ test('renders nothing if dev dock is disabled', () => {
   mockApiClient.getUsbDriveStatus.reset();
   mockApiClient.getMockSpec.reset();
   mockApiClient.getCurrentFixtureElectionPaths.reset();
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK, 'FALSE');
   const { container } = renderDock(mockApiClient);
   expect(container).toBeEmptyDOMElement();
 });
@@ -213,9 +195,7 @@ test('card mock controls', async () => {
 });
 
 test('disabled card mock controls if card mocks are disabled', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_CARDS
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_CARDS, 'FALSE');
   renderDock(mockApiClient);
 
   await screen.findByText('Smart card mocks disabled');
@@ -331,9 +311,7 @@ test('add and remove USB drive slots', async () => {
 });
 
 test('disabled USB drive controls if USB drive mocks are disabled', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE, 'FALSE');
   renderDock(mockApiClient);
 
   await screen.findByText('USB mock disabled');
@@ -424,9 +402,7 @@ test('Save button is auto-focused when screenshot modal opens', async () => {
 });
 
 test('printer mock control', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PRINTER, 'TRUE');
 
   mockApiClient.getMockSpec.reset();
   mockApiClient.getMockSpec
@@ -456,15 +432,11 @@ test('printer mock control', async () => {
   userEvent.click(printerButton);
   await waitFor(() => mockApiClient.assertComplete());
 
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PRINTER, 'FALSE');
 });
 
 test('printer mock when disabled', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PRINTER, 'FALSE');
 
   mockApiClient.getMockSpec.reset();
   mockApiClient.getMockSpec
@@ -485,14 +457,11 @@ test('printer mock when disabled', async () => {
 });
 
 test('hardware mock controls: toggle barcode, PAT input, and accessible controller', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_XKEYS
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER, 'TRUE');
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_XKEYS, 'TRUE');
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER,
+    'TRUE'
   );
 
   mockApiClient.getMockSpec.reset();
@@ -557,14 +526,11 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
 });
 
 test('hardware mock controls disabled when feature flags disabled', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
-  );
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_XKEYS
-  );
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER, 'FALSE');
+  vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_XKEYS, 'FALSE');
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER,
+    'FALSE'
   );
 
   mockApiClient.getMockSpec.reset();
@@ -598,9 +564,7 @@ test('hardware mock controls disabled when feature flags disabled', async () => 
 
 describe('fujitsu printer mock', () => {
   test('when disabled', async () => {
-    featureFlagMock.disableFeatureFlag(
-      BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-    );
+    vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PRINTER, 'FALSE');
 
     mockApiClient.getMockSpec.reset();
     mockApiClient.getMockSpec
@@ -618,9 +582,7 @@ describe('fujitsu printer mock', () => {
   });
 
   test('updating mock printer status', async () => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-    );
+    vi.stubEnv(BooleanEnvironmentVariableName.USE_MOCK_PRINTER, 'TRUE');
 
     mockApiClient.getMockSpec.reset();
     mockApiClient.getMockSpec

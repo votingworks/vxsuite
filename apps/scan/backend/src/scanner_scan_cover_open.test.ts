@@ -1,8 +1,5 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  getFeatureFlagMock,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers.js';
@@ -11,19 +8,16 @@ import { withApp } from '../test/helpers/scanner_helpers.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 test('cover open while waiting for ballots', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {

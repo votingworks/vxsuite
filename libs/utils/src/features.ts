@@ -23,6 +23,7 @@ export function isFeatureFlagEnabled(
   return (
     (flagInfo.allowInProduction ||
       process.env.NODE_ENV === 'development' ||
+      process.env.NODE_ENV === 'test' ||
       isVxDev() ||
       isIntegrationTest()) &&
     asBoolean(getEnvironmentVariable(flag))

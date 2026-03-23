@@ -9,10 +9,9 @@ import { CVR } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import * as fsExtra from 'fs-extra';
-import { expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
 import { withApp } from '../test/helpers/setup_app.js';
@@ -23,18 +22,16 @@ vi.setConfig({
   testTimeout: 20000,
 });
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('going through the whole process works - BMD', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   await withApp(

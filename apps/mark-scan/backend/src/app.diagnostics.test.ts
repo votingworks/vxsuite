@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
 import { Server } from 'node:http';
@@ -58,13 +57,6 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
   };
 });
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,
   used: 1 * 1_000_000,
@@ -114,8 +106,9 @@ async function waitForStatus(
 beforeEach(async () => {
   vi.resetAllMocks();
 
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   const mockWorkspaceDir = makeTemporaryDirectory();
@@ -146,6 +139,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
   await stateMachine.cleanUp();
   server?.close();
 });

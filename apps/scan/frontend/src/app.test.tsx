@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
@@ -57,14 +56,6 @@ const startNewSessionMock = vi.fn();
 const pauseSessionMock = vi.fn();
 const resumeSessionMock = vi.fn();
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 function renderApp(props: Partial<AppProps> = {}) {
   render(<App apiClient={apiMock.mockApiClient} noAudio {...props} />);
 }
@@ -72,9 +63,7 @@ function renderApp(props: Partial<AppProps> = {}) {
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'FALSE');
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
@@ -90,6 +79,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   apiMock.mockApiClient.assertComplete();
 });
 

@@ -3,11 +3,7 @@ import {
   asElectionDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
@@ -23,14 +19,6 @@ import {
   provideApi,
 } from '../../test/helpers/mock_api_client.js';
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -43,7 +31,7 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {

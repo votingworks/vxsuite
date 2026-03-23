@@ -20,7 +20,6 @@ import {
   ContestResultsSummary,
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
   buildElectionResultsFixture,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
   AdjudicationReason,
@@ -53,29 +52,20 @@ vi.setConfig({
   testTimeout: 30_000,
 });
 
-// mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 const MANUAL_CAST_VOTE_RECORD_EXPORT_ID =
   '864a2854-ee26-4223-8097-9633b7bed096';
 
 beforeEach(() => {
   vi.clearAllMocks();
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
-  );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  vi.stubEnv(BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK, 'TRUE');
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
   );
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
 });
 
 test('getAdjudicationQueue returns a properly ordered queue', async () => {

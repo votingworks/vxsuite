@@ -13,10 +13,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   constructElectionKey,
   safeParseElectionDefinition,
@@ -33,13 +30,6 @@ import {
 } from '../test/helpers/shared_helpers.js';
 import { Player as AudioPlayer } from './audio/player.js';
 import { AudioCard } from './audio/card.js';
-
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock('./audio/card');
 vi.mock('./audio/player');
@@ -95,9 +85,10 @@ runUiStringApiTests({
 
 describe('configureFromElectionPackageOnUsbDrive', () => {
   beforeEach(() => {
-    mockFeatureFlagger.resetFeatureFlags();
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+    vi.unstubAllEnvs();
+    vi.stubEnv(
+      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+      'TRUE'
     );
 
     mockAuth.getAuthStatus.mockImplementation(() =>

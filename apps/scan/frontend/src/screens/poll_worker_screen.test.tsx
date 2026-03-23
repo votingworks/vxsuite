@@ -7,10 +7,6 @@ import {
   expect,
   Mock,
 } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import {
@@ -20,7 +16,10 @@ import {
 import { err } from '@votingworks/basics';
 import { PollsState } from '@votingworks/types';
 import { screen, render } from '../../test/react_testing_library.js';
-import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen.js';
+import {
+  PollWorkerScreen,
+  PollWorkerScreenProps,
+} from './poll_worker_screen.js';
 import {
   ApiMock,
   createApiMock,
@@ -34,16 +33,8 @@ const electionTwoPartyPrimaryDefinition =
 let apiMock: ApiMock;
 let startNewVoterSessionMock: Mock;
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 beforeEach(() => {
-  featureFlagMock.resetFeatureFlags();
+  vi.unstubAllEnvs();
   startNewVoterSessionMock = vi.fn();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();

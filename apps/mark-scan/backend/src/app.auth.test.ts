@@ -12,10 +12,7 @@ import * as grout from '@votingworks/grout';
 
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Server } from 'node:http';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { configureApp, createApp } from '../test/app_helpers.js';
@@ -37,13 +34,6 @@ const systemSettings: SystemSettings = {
   },
 };
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
@@ -55,8 +45,9 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   const result = await createApp();
@@ -68,6 +59,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
   await stateMachine.cleanUp();
   server?.close();
 });

@@ -22,7 +22,6 @@ import {
 import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
@@ -44,14 +43,7 @@ import {
 import { Api } from './app.js';
 import { Workspace } from './util/workspace.js';
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
 let batteryInfo: BatteryInfo | null = null;
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock(
   import('@votingworks/backend'),
@@ -85,8 +77,9 @@ let mockPrinterHandler: MemoryPrinterHandler;
 let workspace: Workspace;
 
 beforeEach(() => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 
   ({
@@ -104,6 +97,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   mockPrinterHandler?.cleanup();
   server?.close();
   server = undefined;

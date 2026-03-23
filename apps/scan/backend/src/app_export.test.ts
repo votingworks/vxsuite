@@ -13,7 +13,6 @@ import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
-  getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
   allBaseBallotProps,
@@ -27,23 +26,20 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
-import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers.js';
+import {
+  configureApp,
+  pdfToImageSheet,
+} from '../test/helpers/shared_helpers.js';
 import { BALLOT_AUDIT_ID_FILE_NAME } from './app.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
-
 beforeEach(() => {
   vi.useRealTimers();
-  mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  vi.unstubAllEnvs();
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION,
+    'TRUE'
   );
 });
 
