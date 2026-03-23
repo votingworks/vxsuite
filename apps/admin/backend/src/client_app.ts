@@ -14,7 +14,11 @@ import {
 import { createSystemCallApi } from '@votingworks/backend';
 import { Logger, LogEventId } from '@votingworks/logging';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
-import { UsbDrive } from '@votingworks/usb-drive';
+import {
+  MultiUsbDrive,
+  UsbDriveStatus,
+  createUsbDriveAdapter,
+} from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 import {
@@ -37,14 +41,21 @@ function buildClientApi({
   auth,
   workspace,
   logger,
-  usbDrive,
+  multiUsbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: ClientWorkspace;
   logger: Logger;
-  usbDrive: UsbDrive;
+  multiUsbDrive: MultiUsbDrive;
 }) {
   const { clientStore } = workspace;
+
+  const usbDriveAdapter = createUsbDriveAdapter(
+    multiUsbDrive,
+    // return the first drive
+    (drives) => drives[0]?.devPath
+  );
+
   return grout.createApi({
     getMachineConfig,
 
@@ -92,12 +103,12 @@ function buildClientApi({
       return auth.logOut(constructAuthMachineState(clientStore));
     },
 
-    async getUsbDriveStatus() {
-      return usbDrive.status();
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDriveAdapter.status();
     },
 
-    async ejectUsbDrive() {
-      return usbDrive.eject();
+    async ejectUsbDrive(): Promise<void> {
+      return await usbDriveAdapter.eject();
     },
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
@@ -109,8 +120,9 @@ function buildClientApi({
           new Error('Formatting USB drive requires system administrator auth.')
         );
       }
+
       try {
-        await usbDrive.format();
+        await usbDriveAdapter.format();
         return ok();
       } catch (error) {
         return err(error as Error);
@@ -133,7 +145,7 @@ function buildClientApi({
     },
 
     ...createSystemCallApi({
-      usbDrive,
+      usbDrive: usbDriveAdapter,
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
@@ -155,15 +167,15 @@ export function buildClientApp({
   auth,
   workspace,
   logger,
-  usbDrive,
+  multiUsbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: ClientWorkspace;
   logger: Logger;
-  usbDrive: UsbDrive;
+  multiUsbDrive: MultiUsbDrive;
 }): Application {
   const app: Application = express();
-  const api = buildClientApi({ auth, workspace, logger, usbDrive });
+  const api = buildClientApi({ auth, workspace, logger, multiUsbDrive });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

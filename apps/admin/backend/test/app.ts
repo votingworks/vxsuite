@@ -144,6 +144,16 @@ export function buildMockLogger(
   });
 }
 
+export function getMountedUsbDriveDevPath(
+  mockMultiUsbDrive: MockMultiUsbDrive
+): string {
+  const drive = mockMultiUsbDrive.multiUsbDrive.getDrives()[0];
+  if (!drive) {
+    throw new Error('Expected a mounted USB drive in the test environment.');
+  }
+  return drive.devPath;
+}
+
 export function getMountedUsbDrivePartitionDevPath(
   mockMultiUsbDrive: MockMultiUsbDrive
 ): string {

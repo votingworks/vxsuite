@@ -103,8 +103,8 @@ device detection.
 `apps/admin/backend` is the first app to adopt `MultiUsbDrive` as its primary
 interface:
 
-- `buildApp` and `start` accept `multiUsbDrive: MultiUsbDrive` instead of
-  `usbDrive: UsbDrive`.
+- `buildApp`, `buildClientApp`, and `start` accept
+  `multiUsbDrive: MultiUsbDrive` instead of `usbDrive: UsbDrive`.
 - Internally, a `UsbDriveAdapter` is created to pass to legacy-API utilities.
 - The API gains a `getUsbDrives()` method that returns all `UsbDriveInfo[]`
   (replacing `getUsbDriveStatus()`).

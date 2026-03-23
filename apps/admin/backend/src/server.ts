@@ -196,7 +196,8 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         () => getUserRole(auth, clientWorkspace.clientStore)
       );
 
-      const usbDrive = options.usbDrive ?? detectUsbDrive(logger);
+      const multiUsbDrive =
+        options.multiUsbDrive ?? detectMultiUsbDrive(logger);
 
       startClientNetworking({
         machineId: getMachineConfig().machineId,
@@ -208,7 +209,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         auth,
         logger,
         workspace: clientWorkspace,
-        usbDrive,
+        multiUsbDrive,
       });
 
       baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
