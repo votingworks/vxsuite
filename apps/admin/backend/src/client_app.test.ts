@@ -4,10 +4,12 @@ import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';
 import tmp from 'tmp';
 import { DEV_MACHINE_ID } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { err, typedAs } from '@votingworks/basics';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { buildClientApp, ClientApi } from './client_app';
 import { createClientWorkspace } from './util/workspace';
-import { ClientConnectionStatus } from './types';
+import { ClientConnectionStatus, ElectionRecord } from './types';
 import {
   mockMachineLocked,
   mockSystemAdministratorAuth,
@@ -19,7 +21,13 @@ function buildClientTestEnvironment() {
   const workspaceRoot = tmp.dirSync().name;
   const workspace = createClientWorkspace(workspaceRoot);
   const logger = buildMockLogger(auth, workspace.clientStore);
-  const app = buildClientApp({ auth, workspace, logger });
+  const mockUsbDrive = createMockUsbDrive();
+  const app = buildClientApp({
+    auth,
+    workspace,
+    logger,
+    usbDrive: mockUsbDrive.usbDrive,
+  });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const apiClient = grout.createClient<ClientApi>({
@@ -33,6 +41,7 @@ function buildClientTestEnvironment() {
     workspace,
     apiClient,
     server,
+    mockUsbDrive,
   };
 }
 
@@ -116,4 +125,66 @@ test('getNetworkConnectionStatus returns current status from client store', asyn
     status: 'online-connected-to-host',
     hostMachineId: '0001',
   });
+});
+
+test('getCurrentElectionMetadata returns null when no cached data', async () => {
+  expect(await env.apiClient.getCurrentElectionMetadata()).toBeNull();
+});
+
+test('getCurrentElectionMetadata returns cached election record', async () => {
+  const mockRecord: ElectionRecord = {
+    id: 'election-1',
+    electionDefinition: readElectionGeneralDefinition(),
+    createdAt: new Date().toISOString(),
+    isOfficialResults: false,
+    electionPackageHash: 'test-hash',
+  };
+  env.workspace.clientStore.setCachedElectionRecord(mockRecord);
+  const result = await env.apiClient.getCurrentElectionMetadata();
+  expect(result?.id).toEqual('election-1');
+});
+
+test('getUsbDriveStatus returns usb drive status', async () => {
+  env.mockUsbDrive.insertUsbDrive({});
+  const status = await env.apiClient.getUsbDriveStatus();
+  expect(status.status).toEqual('mounted');
+});
+
+test('ejectUsbDrive ejects the usb drive', async () => {
+  env.mockUsbDrive.insertUsbDrive({});
+  env.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
+  await env.apiClient.ejectUsbDrive();
+});
+
+test('formatUsbDrive returns error when not system administrator', async () => {
+  (await env.apiClient.formatUsbDrive()).assertErr(
+    'Formatting USB drive requires system administrator auth.'
+  );
+});
+
+test('formatUsbDrive formats drive when system administrator', async () => {
+  mockSystemAdministratorAuth(env.auth);
+  env.mockUsbDrive.insertUsbDrive({});
+  env.mockUsbDrive.usbDrive.format.expectCallWith().resolves();
+  (await env.apiClient.formatUsbDrive()).assertOk('format failed');
+});
+
+test('formatUsbDrive returns error when format fails', async () => {
+  mockSystemAdministratorAuth(env.auth);
+  const error = new Error('format failed');
+  env.mockUsbDrive.usbDrive.format.expectCallWith().throws(error);
+  expect(await env.apiClient.formatUsbDrive()).toEqual(err(error));
+});
+
+test('getDiskSpaceSummary returns disk space', async () => {
+  const summary = await env.apiClient.getDiskSpaceSummary();
+  expect(summary).toEqual(
+    expect.objectContaining({ available: expect.any(Number) })
+  );
+});
+
+test('getBatteryInfo returns battery info', async () => {
+  const info = await env.apiClient.getBatteryInfo();
+  // Returns null in test environment since no real battery
+  expect(info === null || typeof info === 'object').toEqual(true);
 });

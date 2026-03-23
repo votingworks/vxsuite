@@ -59,3 +59,13 @@ export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
     useErrorBoundary: true,
   },
 };
+const clientQueries = QUERY_CLIENT_DEFAULT_OPTIONS.queries as object;
+
+export const NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
+  ...QUERY_CLIENT_DEFAULT_OPTIONS,
+  queries: {
+    ...clientQueries,
+    // For queries related to network status, we want to reset to default behavior for staleTime as the backend state could change without a mutation from the frontend (e.g. if the host machine goes offline).
+    staleTime: 0,
+  },
+};

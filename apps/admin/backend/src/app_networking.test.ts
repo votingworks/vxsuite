@@ -2,8 +2,17 @@ import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
+import {
+  constructElectionKey,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import { assertDefined } from '@votingworks/basics';
 import {
   startHostNetworking,
   startClientNetworking,
@@ -61,6 +70,7 @@ interface HostAndClientContext {
   peerServer: Server;
   peerPort: number;
   clientStore: ClientStore;
+  auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 }
 
 let peerServer: Server | undefined;
@@ -89,7 +99,8 @@ async function setupHostAndClient(
   mockHasOnlineInterface.mockResolvedValue(true);
 
   startHostNetworking({ machineId: hostMachineId, peerPort, store });
-  startClientNetworking({ machineId: clientMachineId, clientStore });
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
+  startClientNetworking({ machineId: clientMachineId, clientStore, auth });
 
   // Allow process.nextTick callbacks to fire so setIntervals get registered
   await vi.advanceTimersByTimeAsync(0);
@@ -103,7 +114,7 @@ async function setupHostAndClient(
     },
   ]);
 
-  return { store, peerServer, peerPort, clientStore };
+  return { store, peerServer, peerPort, clientStore, auth };
 }
 
 test('client discovers host and connects - host stores client info in database', async () => {
@@ -231,4 +242,80 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
       { status: HostConnectionStatus.Offline }
     );
   });
+});
+
+test('client receives and caches election data from configured host', async () => {
+  const hostMachineId = 'HOST-004';
+  const clientMachineId = 'CLIENT-004';
+  const { store, clientStore } = await setupHostAndClient(
+    hostMachineId,
+    clientMachineId
+  );
+
+  // Configure an election on the host
+  const electionDefinition = readElectionGeneralDefinition();
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageHash: 'test-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // Wait for client to connect and cache election data
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+    expect(clientStore.getCachedElectionRecord()).toBeDefined();
+  });
+
+  const cachedRecord = assertDefined(clientStore.getCachedElectionRecord());
+  expect(cachedRecord.electionDefinition.election.title).toEqual(
+    electionDefinition.election.title
+  );
+  expect(clientStore.getCurrentElectionId()).toEqual(cachedRecord.id);
+  expect(clientStore.getElectionKey(cachedRecord.id)).toEqual(
+    constructElectionKey(electionDefinition.election)
+  );
+  expect(clientStore.getCachedSystemSettings()).toEqual(
+    DEFAULT_SYSTEM_SETTINGS
+  );
+});
+
+test('client logs out when host election is unconfigured', async () => {
+  const hostMachineId = 'HOST-005';
+  const clientMachineId = 'CLIENT-005';
+  const { store, clientStore, auth } = await setupHostAndClient(
+    hostMachineId,
+    clientMachineId
+  );
+
+  // Configure an election on the host
+  const electionDefinition = readElectionGeneralDefinition();
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageHash: 'test-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // Wait for client to connect and cache election data
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getCachedElectionRecord()).toBeDefined();
+  });
+
+  // Unconfigure the election on the host
+  await store.reset();
+
+  // Wait for client to detect the unconfigured election and log out
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getCachedElectionRecord()).toBeUndefined();
+  });
+
+  expect(auth.logOut).toHaveBeenCalled();
 });

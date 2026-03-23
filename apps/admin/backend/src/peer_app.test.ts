@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest';
-import { DEV_MACHINE_ID } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { HostConnectionStatus } from './types';
-import { buildTestEnvironment } from '../test/app';
+import { buildTestEnvironment, configureMachine } from '../test/app';
 
 test('connectToHost registers client and returns host machine config', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
@@ -20,4 +21,37 @@ test('connectToHost registers client and returns host machine config', async () 
     machineMode: 'client',
     status: HostConnectionStatus.Connected,
   });
+});
+
+test('getCurrentElectionMetadata returns null when no election configured', async () => {
+  const { peerApiClient } = buildTestEnvironment();
+  const result = await peerApiClient.getCurrentElectionMetadata();
+  expect(result).toBeUndefined();
+});
+
+test('getCurrentElectionMetadata returns election record when configured', async () => {
+  const { peerApiClient, apiClient, auth } = buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  const result = await peerApiClient.getCurrentElectionMetadata();
+  expect(result).toBeDefined();
+  expect(result?.electionDefinition.election.title).toEqual(
+    electionDefinition.election.title
+  );
+});
+
+test('getSystemSettings returns null when no election configured', async () => {
+  const { peerApiClient } = buildTestEnvironment();
+  const result = await peerApiClient.getSystemSettings();
+  expect(result).toBeUndefined();
+});
+
+test('getSystemSettings returns settings when election configured', async () => {
+  const { peerApiClient, apiClient, auth } = buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  const result = await peerApiClient.getSystemSettings();
+  expect(result).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });

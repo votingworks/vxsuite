@@ -43,6 +43,7 @@ export function AppRoot(): JSX.Element | null {
         usbDriveStatus,
         auth,
         machineConfig,
+        machineMode: 'host',
       }}
     >
       <AppRoutes />

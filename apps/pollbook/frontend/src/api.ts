@@ -15,7 +15,7 @@ import type {
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
+  NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
 
 export const DEFAULT_QUERY_REFETCH_INTERVAL = 1000;
@@ -50,15 +50,8 @@ export function useApiClient(): ApiClient {
 
 /* istanbul ignore next */
 export function createQueryClient(): QueryClient {
-  const defaultQueryOptions = QUERY_CLIENT_DEFAULT_OPTIONS.queries as object;
   return new QueryClient({
-    defaultOptions: {
-      ...QUERY_CLIENT_DEFAULT_OPTIONS,
-      queries: {
-        ...defaultQueryOptions,
-        staleTime: 0, // reset to the default behavior of a stale time of 0
-      },
-    },
+    defaultOptions: NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS,
   });
 }
 

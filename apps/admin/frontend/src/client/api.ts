@@ -3,7 +3,9 @@ import { deepEqual } from '@votingworks/basics';
 import type { ClientApi } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
+  NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
 } from '@votingworks/ui';
 import {
   QueryClient,
@@ -13,6 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals';
 
 export type ApiClient = grout.Client<ClientApi>;
 
@@ -35,8 +38,12 @@ export function useApiClient(): ApiClient {
 }
 
 export function createQueryClient(): QueryClient {
-  return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
+  return new QueryClient({
+    defaultOptions: NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS,
+  });
 }
+
+// Machine config
 
 export const getMachineConfig = {
   queryKey(): QueryKey {
@@ -48,8 +55,6 @@ export const getMachineConfig = {
   },
 } as const;
 
-const NETWORK_STATUS_POLLING_INTERVAL_MS = 2000;
-
 export const getNetworkConnectionStatus = {
   queryKey(): QueryKey {
     return ['getNetworkConnectionStatus'];
@@ -59,7 +64,7 @@ export const getNetworkConnectionStatus = {
     return useQuery(
       this.queryKey(),
       () => apiClient.getNetworkConnectionStatus(),
-      { refetchInterval: NETWORK_STATUS_POLLING_INTERVAL_MS }
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
@@ -118,3 +123,65 @@ export const logOut = {
     });
   },
 } as const;
+
+// Election
+export const getCurrentElectionMetadata = {
+  queryKey(): QueryKey {
+    return ['getCurrentElectionMetadata'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getCurrentElectionMetadata(),
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+    );
+  },
+} as const;
+
+// USB
+
+export const getUsbDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getUsbDriveStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+        const isUnchanged = deepEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+    });
+  },
+} as const;
+
+export const ejectUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.ejectUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const formatUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.formatUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const systemCallApi = createSystemCallApi(useApiClient);

@@ -5,10 +5,13 @@ import {
   isValidIpv4Address,
 } from '@votingworks/networking';
 import { assert } from '@votingworks/basics';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import { safeParseElectionDefinition } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
 import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
   NETWORK_POLLING_INTERVAL_MS,
@@ -77,9 +80,11 @@ export function startHostNetworking({
 export function startClientNetworking({
   machineId,
   clientStore,
+  auth,
 }: {
   machineId: string;
   clientStore: ClientStore;
+  auth: DippedSmartCardAuthApi;
 }): void {
   debug('Starting client networking for machine %s', machineId);
 
@@ -145,6 +150,41 @@ export function startClientNetworking({
             }
           );
           debug('Connected to host at %s', hostAddress);
+
+          // Poll the lightweight hash to detect election changes without
+          // fetching the full election definition every cycle.
+          const remoteHash = await apiClient.getElectionPackageHash();
+          const localHash =
+            clientStore.getCachedElectionRecord()?.electionPackageHash;
+
+          if (remoteHash !== localHash) {
+            if (remoteHash) {
+              debug(
+                'Election package hash changed, fetching new election data'
+              );
+              const [electionRecord, systemSettings] = await Promise.all([
+                apiClient.getCurrentElectionMetadata(),
+                apiClient.getSystemSettings(),
+              ]);
+              if (electionRecord) {
+                const parsed = safeParseElectionDefinition(
+                  electionRecord.electionDefinition.electionData
+                ).unsafeUnwrap();
+                assert(systemSettings !== undefined);
+                clientStore.setCachedElectionRecord({
+                  ...electionRecord,
+                  electionDefinition: parsed,
+                });
+                clientStore.setCachedSystemSettings(systemSettings);
+              }
+            } else {
+              // Transitioning from configured → unconfigured
+              debug('Host election unconfigured, clearing cached data');
+              clientStore.setCachedElectionRecord(undefined);
+              clientStore.setCachedSystemSettings(undefined);
+              auth.logOut(constructAuthMachineState(clientStore));
+            }
+          }
         } catch (error) {
           debug('Lost connection to host at %s: %s', hostAddress, error);
           clientStore.setConnection(

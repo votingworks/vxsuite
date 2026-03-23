@@ -17,13 +17,13 @@ import { assert } from '@votingworks/basics';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import { App as ServerApp } from './app';
 import { ClientApp } from './client/client_app';
+import { createApiClient } from './api';
 import {
-  ApiClientContext,
-  createApiClient,
-  createQueryClient,
+  SharedApiClientContext,
+  createSharedQueryClient,
   getMachineMode,
   systemCallApi,
-} from './api';
+} from './shared_api';
 
 function PrimaryApp(): JSX.Element | null {
   const machineModeQuery = getMachineMode.useQuery();
@@ -42,7 +42,7 @@ function PrimaryApp(): JSX.Element | null {
 }
 
 const apiClient = createApiClient();
-const queryClient = createQueryClient();
+const queryClient = createSharedQueryClient();
 
 const rootElement = document.getElementById('root');
 assert(rootElement);
@@ -58,7 +58,7 @@ root.render(
       showScrollBars
     >
       <AppErrorBoundary logger={logger}>
-        <ApiClientContext.Provider value={apiClient}>
+        <SharedApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <SystemCallContextProvider api={systemCallApi}>
               <PrimaryApp />
@@ -74,7 +74,7 @@ root.render(
               )}
             </SystemCallContextProvider>
           </QueryClientProvider>
-        </ApiClientContext.Provider>
+        </SharedApiClientContext.Provider>
       </AppErrorBoundary>
       <DevDock />
     </AppBase>

@@ -17,14 +17,17 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isElectionManagerAuth,
+  isPollWorkerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
+import type { MachineMode } from '@votingworks/admin-backend';
 import { DippedSmartCardAuth } from '@votingworks/types';
+import { throwIllegalValue, assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { ejectUsbDrive, logOut } from '../api';
+import { sharedEjectUsbDrive, sharedLogOut } from '../shared_api';
 import { NavItem, Sidebar } from './sidebar';
 
 interface Props {
@@ -34,14 +37,14 @@ interface Props {
   noPadding?: boolean;
 }
 
-const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
+const HOST_SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Smart Cards', routerPath: routerPaths.smartcards },
   { label: 'Settings', routerPath: routerPaths.settings },
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
-const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
+const HOST_ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Tally', routerPath: routerPaths.tally },
   ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION)
@@ -52,16 +55,66 @@ const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
-function getNavItems(auth: DippedSmartCardAuth.AuthStatus) {
-  if (isSystemAdministratorAuth(auth)) {
-    return SYSTEM_ADMIN_NAV_ITEMS;
-  }
+const CLIENT_SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
+  { label: 'Settings', routerPath: routerPaths.settings },
+  { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
+];
 
-  if (isElectionManagerAuth(auth)) {
-    return ELECTION_MANAGER_NAV_ITEMS;
-  }
+const CLIENT_ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
+  { label: 'Adjudication', routerPath: routerPaths.adjudication },
+  { label: 'Settings', routerPath: routerPaths.settings },
+  { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
+];
 
-  return [];
+const CLIENT_POLL_WORKER_NAV_ITEMS: readonly NavItem[] = [
+  { label: 'Adjudication', routerPath: routerPaths.adjudication },
+];
+
+function getNavItems(
+  machineMode: MachineMode,
+  auth: DippedSmartCardAuth.AuthStatus
+): readonly NavItem[] {
+  switch (machineMode) {
+    case 'host': {
+      if (isSystemAdministratorAuth(auth)) {
+        return HOST_SYSTEM_ADMIN_NAV_ITEMS;
+      }
+      assert(isElectionManagerAuth(auth));
+      return HOST_ELECTION_MANAGER_NAV_ITEMS;
+    }
+    case 'client': {
+      if (isSystemAdministratorAuth(auth)) {
+        return CLIENT_SYSTEM_ADMIN_NAV_ITEMS;
+      }
+      if (isElectionManagerAuth(auth)) {
+        return CLIENT_ELECTION_MANAGER_NAV_ITEMS;
+      }
+      assert(isPollWorkerAuth(auth));
+      return CLIENT_POLL_WORKER_NAV_ITEMS;
+    }
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(machineMode);
+  }
+}
+
+function shouldShowHeaderActions(
+  machineMode: MachineMode,
+  auth: DippedSmartCardAuth.AuthStatus
+): boolean {
+  switch (machineMode) {
+    case 'host':
+      return isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth);
+    case 'client':
+      return (
+        isSystemAdministratorAuth(auth) ||
+        isElectionManagerAuth(auth) ||
+        isPollWorkerAuth(auth)
+      );
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(machineMode);
+  }
 }
 
 export const Header = styled(MainHeader)`
@@ -85,13 +138,13 @@ export function NavigationScreen({
   parentRoutes,
   noPadding,
 }: Props): JSX.Element {
-  const { usbDriveStatus, auth } = useContext(AppContext);
-  const logOutMutation = logOut.useMutation();
-  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const { usbDriveStatus, auth, machineMode } = useContext(AppContext);
+  const logOutMutation = sharedLogOut.useMutation();
+  const ejectUsbDriveMutation = sharedEjectUsbDrive.useMutation();
 
   return (
     <Screen flexDirection="row">
-      <Sidebar navItems={getNavItems(auth)} />
+      <Sidebar navItems={getNavItems(machineMode, auth)} />
       <Main flexColumn>
         <SessionTimeLimitTimer authStatus={auth} />
         <Header>
@@ -109,8 +162,7 @@ export function NavigationScreen({
             )}
           </div>
           <HeaderActions>
-            {(isSystemAdministratorAuth(auth) ||
-              isElectionManagerAuth(auth)) && (
+            {shouldShowHeaderActions(machineMode, auth) && (
               <React.Fragment>
                 <UsbControllerButton
                   usbDriveEject={() => ejectUsbDriveMutation.mutate()}
