@@ -106,7 +106,7 @@
     "is-ci-cli": "2.2.0",
     "node-fetch": "^2.6.0",
     "sort-package-json": "^1.50.0",
-    "vite": "4.5.2",
+    "vite": "8.0.1",
     "vitest": "^3.1.4"
   },
   "engines": {
