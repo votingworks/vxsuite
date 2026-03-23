@@ -65,7 +65,7 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
   });
 
   handler.insert();
-  await multiUsbDrive.formatDrive('/dev/sdb');
+  await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
   expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
     type: 'ejected',
   });

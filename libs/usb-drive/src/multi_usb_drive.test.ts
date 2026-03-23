@@ -632,7 +632,7 @@ describe('formatDrive', () => {
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     expect(execMock).toHaveBeenCalledWith('sudo', [
       '-n',
@@ -672,7 +672,7 @@ describe('formatDrive', () => {
       formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
+    const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
       type: 'ejected',
@@ -724,7 +724,7 @@ describe('formatDrive', () => {
       await vi.advanceTimersByTimeAsync(0);
 
       // Start format — the while loop sleeps because partitionAction has 'mounting'
-      const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
+      const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
       // Resolve mount exec so mountPartitionWithRetry completes during the sleep
       mountOperation.resolve({ stdout: '', stderr: '' });
@@ -768,7 +768,7 @@ describe('formatDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format (no unmount needed)
 
-    await multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     const formatArgs = execMock.mock.calls.find((c) =>
       (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
@@ -788,7 +788,7 @@ describe('formatDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     const formatArgs = execMock.mock.calls.find((c) =>
       (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
@@ -808,9 +808,9 @@ describe('formatDrive', () => {
 
     execMock.mockRejectedValueOnce(new Error('format failed'));
 
-    await expect(multiUsbDrive.formatDrive('/dev/sdb')).rejects.toThrow(
-      'format failed'
-    );
+    await expect(
+      multiUsbDrive.formatDrive('/dev/sdb', 'fat32')
+    ).rejects.toThrow('format failed');
 
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.UsbDriveFormatted,
@@ -833,8 +833,8 @@ describe('formatDrive', () => {
       formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const firstFormat = multiUsbDrive.formatDrive('/dev/sdb');
-    await multiUsbDrive.formatDrive('/dev/sdb'); // no-op
+    const firstFormat = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32'); // no-op
 
     formatOperation.resolve({ stdout: '', stderr: '' });
     await firstFormat;

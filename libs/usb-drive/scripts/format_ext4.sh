@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage () {
-    echo 'Usage: format_fat32.sh <device> <label>'
+    echo 'Usage: format_ext4.sh <device> <label>'
     exit 1
 }
 
@@ -21,8 +21,8 @@ if ! [[ $DEVICE =~ $DISK_DEVICE_REGEX ]]; then
     exit 1
 fi
 
-if [[ ${#LABEL} -gt 11 ]]; then
-    echo "error: \"${LABEL}\" has more than the allowed 11 characters for a FAT32 volume label"
+if [[ ${#LABEL} -gt 16 ]]; then
+    echo "error: \"${LABEL}\" has more than the allowed 16 characters for an ext4 volume label"
     exit 1
 fi
 
@@ -33,18 +33,26 @@ else
     PARTITION="${DEVICE}1"
 fi
 
-# set the partition table type to dos before using a type=c partition
+# set the partition table type to dos
 echo 'label: dos' | sfdisk "${DEVICE}"
 
-# partition the device with a single FAT32 (type=c) partition
-echo 'type=c' | sfdisk --wipe always --wipe-partitions always "${DEVICE}"
+# partition the device with a single Linux (type=83) partition
+echo 'type=83' | sfdisk --wipe always --wipe-partitions always "${DEVICE}"
 
 # refresh kernel's data on the USB partition table. sfdisk will try to do so,
 # but it may fail and not retry if device information is separately being polled
 partprobe
 
-# format the partition with a FAT32 filesystem, which must be done as root
-mkfs.fat -F 32 -n "${LABEL}" "${PARTITION}"
+# format the partition with an ext4 filesystem
+mkfs.ext4 -L "${LABEL}" "${PARTITION}"
 
 # refresh kernel's data on the USB partition table.
 partprobe
+
+# set ownership of the root directory so the application user can write to it.
+# mount temporarily, chown, unmount.
+TMPDIR=$(mktemp -d)
+mount "${PARTITION}" "$TMPDIR"
+chown vx:vx "$TMPDIR"
+umount "$TMPDIR"
+rmdir "$TMPDIR"

@@ -4,8 +4,24 @@ import { UsbDrive, UsbDriveStatus } from './types';
 
 const debug = makeDebug('usb-drive:adapter');
 
+function isFat32Drive(drive: UsbDriveInfo): boolean {
+  return drive.partitions.some(
+    (p) => p.fstype === 'vfat' && p.fsver === 'FAT32'
+  );
+}
+
+function getFat32Drives(
+  drives: readonly UsbDriveInfo[]
+): readonly UsbDriveInfo[] {
+  return drives.filter(isFat32Drive);
+}
+
 /**
  * Adapts a `MultiUsbDrive` instance to the single-drive `UsbDrive` interface.
+ *
+ * Only FAT32 drives are visible to the adapter. The drive list is filtered
+ * before being passed to `getDriveDevPath`, so callers do not need to account
+ * for non-FAT32 drives in their selection logic.
  *
  * `getDriveDevPath` selects which drive to expose. The adapter maps the first
  * partition's mount state to `UsbDriveStatus` for backward-compatible consumers
@@ -17,14 +33,14 @@ export function createUsbDriveAdapter(
 ): UsbDrive {
   return {
     status(): Promise<UsbDriveStatus> {
-      const drives = multiUsbDrive.getDrives();
-      const driveDevPath = getDriveDevPath(drives);
+      const fat32Drives = getFat32Drives(multiUsbDrive.getDrives());
+      const driveDevPath = getDriveDevPath(fat32Drives);
       if (!driveDevPath) {
         debug('adapter: no drive device path, returning no_drive');
         return Promise.resolve({ status: 'no_drive' });
       }
 
-      const drive = drives.find((d) => d.devPath === driveDevPath);
+      const drive = fat32Drives.find((d) => d.devPath === driveDevPath);
 
       if (!drive) {
         debug('adapter: drive not found in cache, returning no_drive');
@@ -80,7 +96,9 @@ export function createUsbDriveAdapter(
     },
 
     async eject(): Promise<void> {
-      const driveDevPath = getDriveDevPath(multiUsbDrive.getDrives());
+      const driveDevPath = getDriveDevPath(
+        getFat32Drives(multiUsbDrive.getDrives())
+      );
       if (!driveDevPath) {
         debug('adapter: no drive to eject');
         return;
@@ -90,24 +108,26 @@ export function createUsbDriveAdapter(
     },
 
     async format(): Promise<void> {
-      const driveDevPath = getDriveDevPath(multiUsbDrive.getDrives());
+      const driveDevPath = getDriveDevPath(
+        getFat32Drives(multiUsbDrive.getDrives())
+      );
       if (!driveDevPath) {
         debug('adapter: no drive to format');
         return;
       }
 
-      await multiUsbDrive.formatDrive(driveDevPath);
+      await multiUsbDrive.formatDrive(driveDevPath, 'fat32');
     },
 
     async sync(): Promise<void> {
-      const drives = multiUsbDrive.getDrives();
-      const driveDevPath = getDriveDevPath(drives);
+      const fat32Drives = getFat32Drives(multiUsbDrive.getDrives());
+      const driveDevPath = getDriveDevPath(fat32Drives);
       if (!driveDevPath) {
         debug('adapter: no drive to sync');
         return;
       }
 
-      const drive = drives.find((d) => d.devPath === driveDevPath);
+      const drive = fat32Drives.find((d) => d.devPath === driveDevPath);
       const mountedPartition = drive?.partitions.find(
         (p) => p.mount.type === 'mounted'
       );

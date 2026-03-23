@@ -1,6 +1,10 @@
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { MultiUsbDrive, UsbDriveInfo } from '../multi_usb_drive';
+import {
+  MultiUsbDrive,
+  UsbDriveFilesystemType,
+  UsbDriveInfo,
+} from '../multi_usb_drive';
 import { UsbDrive } from '../types';
 import { createUsbDriveAdapter } from '../usb_drive_adapter';
 import { MockFileTree, writeMockFileTree } from './helpers';
@@ -22,9 +26,13 @@ export interface MockMultiUsbDrive {
   assertComplete(): void;
   /**
    * Simulates inserting a USB drive with the given file contents. Configures
-   * getDrives to return a mounted FAT32 partition backed by a temp directory.
+   * getDrives to return a mounted partition backed by a temp directory.
+   * Defaults to FAT32; pass `{ fstype: 'ext4' }` for ext4.
    */
-  insertUsbDrive(contents: MockFileTree): void;
+  insertUsbDrive(
+    contents: MockFileTree,
+    options?: { fstype?: UsbDriveFilesystemType }
+  ): void;
   /**
    * Simulates removing the USB drive. Configures getDrives to return an empty
    * list.
@@ -73,7 +81,11 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
       }
     },
 
-    insertUsbDrive(contents: MockFileTree) {
+    insertUsbDrive(
+      contents: MockFileTree,
+      options?: { fstype?: UsbDriveFilesystemType }
+    ) {
+      const fstype = options?.fstype ?? 'fat32';
       mockUsbTmpDir = makeTemporaryDirectory();
       writeMockFileTree(mockUsbTmpDir, contents);
       const drives: UsbDriveInfo[] = [
@@ -86,8 +98,8 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
             {
               devPath: MOCK_PARTITION_DEV_PATH,
               label: 'VxUSB-ABCDE',
-              fstype: 'vfat',
-              fsver: 'FAT32',
+              fstype: fstype === 'ext4' ? 'ext4' : 'vfat',
+              fsver: fstype === 'ext4' ? '1.0' : 'FAT32',
               mount: { type: 'mounted', mountPoint: mockUsbTmpDir },
             },
           ],

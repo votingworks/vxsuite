@@ -9,7 +9,7 @@ import {
 import { Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { basename, join } from 'node:path';
-import type { MultiUsbDrive } from '../multi_usb_drive';
+import type { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
 
@@ -37,6 +37,7 @@ function getMockDriveDataDirPath(diskName: string): string {
 
 interface MockDriveState {
   state: 'inserted' | 'ejected' | 'removed';
+  fstype?: UsbDriveFilesystemType;
 }
 
 function readMockDriveState(diskName: string): MockDriveState {
@@ -178,23 +179,24 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
   return {
     getDrives() {
       return listMockDrives().flatMap((diskName) => {
-        const { state } = readMockDriveState(diskName);
-        if (state === 'removed') return [];
+        const driveState = readMockDriveState(diskName);
+        if (driveState.state === 'removed') return [];
         const mount =
-          state === 'inserted'
+          driveState.state === 'inserted'
             ? ({
                 type: 'mounted',
                 mountPoint: getMockDriveDataDirPath(diskName),
               } as const)
             : ({ type: 'ejected' } as const);
+        const isExt4 = driveState.fstype === 'ext4';
         return [
           {
             devPath: `/dev/${diskName}`,
             partitions: [
               {
                 devPath: `/dev/${diskName}1`,
-                fstype: 'vfat',
-                fsver: 'FAT32',
+                fstype: isExt4 ? 'ext4' : 'vfat',
+                fsver: isExt4 ? '1.0' : 'FAT32',
                 mount,
               },
             ],
@@ -214,11 +216,14 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
       return Promise.resolve();
     },
 
-    formatDrive(driveDevPath: string): Promise<void> {
+    formatDrive(
+      driveDevPath: string,
+      fstype: UsbDriveFilesystemType
+    ): Promise<void> {
       const diskName = basename(driveDevPath);
       const { state } = readMockDriveState(diskName);
       if (state === 'inserted') {
-        writeMockDriveState(diskName, { state: 'ejected' });
+        writeMockDriveState(diskName, { state: 'ejected', fstype });
       }
       return Promise.resolve();
     },
