@@ -2,12 +2,7 @@ import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
-import {
-  detectDevices,
-  getAudioInfoWithRetry,
-  setAudioVolume,
-  startCpuMetricsLogging,
-} from '@votingworks/backend';
+import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
   createMockPdiScanner,
@@ -26,6 +21,7 @@ import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
 import * as scanner from './scanner';
 import { Player as AudioPlayer } from './audio/player';
+import { AudioCard } from './audio/card';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -72,24 +68,14 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  const audioInfo = await getAudioInfoWithRetry({
-    baseRetryDelayMs: 2000,
-    logger,
-    maxAttempts: 4,
-    nodeEnv: NODE_ENV,
-  });
+  const audioCard = await AudioCard.default(NODE_ENV, logger);
 
   // Screen reader volume levels are calibrated against a maximum system
   // volume setting:
-  const resultVolume = await setAudioVolume({
-    logger,
-    nodeEnv: NODE_ENV,
-    sinkName: audioInfo.builtin.name,
-    volumePct: 100,
-  });
-  resultVolume.assertOk('unable to set builtin audio volume');
+  await audioCard.useHeadphones();
+  await audioCard.setVolume(100);
 
-  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
+  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
 
   const app = buildApp({
     audioPlayer,

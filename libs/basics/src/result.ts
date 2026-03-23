@@ -152,7 +152,7 @@ class Err<E> {
    * Throws the given error message.
    */
   assertOk(message: string): never {
-    throw new Error(message);
+    throw new Error(message, { cause: this.error });
   }
 
   /**
