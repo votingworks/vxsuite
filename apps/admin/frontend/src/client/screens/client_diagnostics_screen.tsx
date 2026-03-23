@@ -1,7 +1,7 @@
 import { AdminClientReadinessReportContents } from '@votingworks/ui';
 import { useContext } from 'react';
-import { ClientNavigationScreen } from '../components/client_navigation_screen';
-import { systemCallApi } from '../api';
+import { NavigationScreen } from '../../components/navigation_screen';
+import { systemCallApi } from '../../shared_api';
 import { Loading } from '../../components/loading';
 import { AppContext } from '../../contexts/app_context';
 
@@ -12,9 +12,9 @@ export function ClientDiagnosticsScreen(): JSX.Element {
 
   if (!batteryInfoQuery.isSuccess || !diskSpaceQuery.isSuccess) {
     return (
-      <ClientNavigationScreen title="Diagnostics">
+      <NavigationScreen title="Diagnostics">
         <Loading isFullscreen />
-      </ClientNavigationScreen>
+      </NavigationScreen>
     );
   }
 
@@ -22,7 +22,7 @@ export function ClientDiagnosticsScreen(): JSX.Element {
   const diskSpaceSummary = diskSpaceQuery.data;
 
   return (
-    <ClientNavigationScreen title="Diagnostics">
+    <NavigationScreen title="Diagnostics">
       <AdminClientReadinessReportContents
         batteryInfo={batteryInfo ?? undefined}
         diskSpaceSummary={diskSpaceSummary}
@@ -30,6 +30,6 @@ export function ClientDiagnosticsScreen(): JSX.Element {
         electionPackageHash={electionPackageHash}
         omitConfigSectionBallotStyles
       />
-    </ClientNavigationScreen>
+    </NavigationScreen>
   );
 }

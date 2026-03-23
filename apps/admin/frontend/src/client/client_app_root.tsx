@@ -97,6 +97,7 @@ export function ClientAppRoot(): JSX.Element | null {
             electionPackageHash: electionRecord?.electionPackageHash,
             isOfficialResults: false,
             usbDriveStatus,
+            machineMode: 'client',
           }}
         >
           <MachineLockedScreen />
@@ -136,6 +137,7 @@ export function ClientAppRoot(): JSX.Element | null {
     electionPackageHash: electionRecord?.electionPackageHash,
     isOfficialResults: electionRecord?.isOfficialResults ?? false,
     usbDriveStatus,
+    machineMode: 'client',
   };
 
   if (isSystemAdministratorAuth(auth)) {

@@ -17,7 +17,7 @@ import {
 } from '@votingworks/ui';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { AppContext } from '../../contexts/app_context';
-import { ClientNavigationScreen } from '../components/client_navigation_screen';
+import { NavigationScreen } from '../../components/navigation_screen';
 import {
   formatUsbDrive,
   getNetworkConnectionStatus,
@@ -88,7 +88,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
   }
 
   return (
-    <ClientNavigationScreen title="Settings">
+    <NavigationScreen title="Settings">
       {isSystemAdministratorAuth(auth) && <NetworkStatusSection />}
       <H2>Logs</H2>
       <ExportLogsButton usbDriveStatus={usbDriveStatus} />
@@ -132,6 +132,6 @@ export function ClientSettingsScreen(): JSX.Element | null {
           </P>
         </React.Fragment>
       )}
-    </ClientNavigationScreen>
+    </NavigationScreen>
   );
 }

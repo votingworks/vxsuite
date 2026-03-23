@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
 } from '@votingworks/types';
-import type { MachineConfig } from '@votingworks/admin-backend';
+import type { MachineConfig, MachineMode } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { Iso8601Timestamp } from '../config/types';
@@ -17,6 +17,7 @@ export interface AppContextInterface {
   usbDriveStatus: UsbDriveStatus;
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
+  machineMode: MachineMode;
 }
 
 const appContext: AppContextInterface = {
@@ -30,6 +31,7 @@ const appContext: AppContextInterface = {
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
   },
+  machineMode: 'host',
 };
 
 export const AppContext = createContext(appContext);

@@ -8,16 +8,13 @@ import {
 } from '@votingworks/test-utils';
 import { constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { SystemCallContextProvider } from '@votingworks/ui';
 import { screen, render } from '../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ClientApp } from './client_app';
 import { createQueryClient, type ApiClient } from './api';
-import {
-  ApiClientContext as HostApiClientContext,
-  systemCallApi,
-} from '../api';
+import { SharedApiClientContext, systemCallApi } from '../shared_api';
 
 let apiMock: ApiMock;
 let queryClient: QueryClient;
@@ -82,13 +79,11 @@ function renderClientApp({
 
   const clientApiClient = apiMock.apiClient as unknown as ApiClient;
   return render(
-    <HostApiClientContext.Provider value={apiMock.apiClient}>
-      <QueryClientProvider client={queryClient}>
-        <SystemCallContextProvider api={systemCallApi}>
-          <ClientApp apiClient={clientApiClient} />
-        </SystemCallContextProvider>
-      </QueryClientProvider>
-    </HostApiClientContext.Provider>
+    <SharedApiClientContext.Provider value={clientApiClient}>
+      <SystemCallContextProvider api={systemCallApi}>
+        <ClientApp apiClient={clientApiClient} queryClient={queryClient} />
+      </SystemCallContextProvider>
+    </SharedApiClientContext.Provider>
   );
 }
 

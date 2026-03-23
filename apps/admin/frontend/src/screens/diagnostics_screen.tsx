@@ -10,10 +10,10 @@ import {
   getMostRecentPrinterDiagnostic,
   getPrinterStatus,
   getDiskSpaceSummary,
-  systemCallApi,
   saveReadinessReport,
   getUsbDriveStatus,
 } from '../api';
+import { systemCallApi } from '../shared_api';
 import { Loading } from '../components/loading';
 import { PrintTestPageButton } from '../components/print_test_page_button';
 import { AppContext } from '../contexts/app_context';

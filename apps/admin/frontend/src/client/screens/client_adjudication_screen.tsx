@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Button, H2, Icons, P } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { ClientNavigationScreen } from '../components/client_navigation_screen';
+import { NavigationScreen } from '../../components/navigation_screen';
 import { getNetworkConnectionStatus } from '../api';
 import { AppContext } from '../../contexts/app_context';
 
@@ -14,7 +14,7 @@ export function ClientAdjudicationScreen(): JSX.Element {
   const isConnectedWithElection = isConnected && !!electionDefinition;
 
   return (
-    <ClientNavigationScreen title="Adjudication">
+    <NavigationScreen title="Adjudication">
       <H2>Connection</H2>
       <P>
         {networkStatusQuery.isSuccess &&
@@ -70,6 +70,6 @@ export function ClientAdjudicationScreen(): JSX.Element {
           Connect to a host with an election configured to begin adjudication.
         </P>
       )}
-    </ClientNavigationScreen>
+    </NavigationScreen>
   );
 }

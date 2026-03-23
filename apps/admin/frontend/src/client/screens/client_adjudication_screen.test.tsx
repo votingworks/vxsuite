@@ -6,22 +6,10 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { SystemCallContextProvider, mockUsbDriveStatus } from '@votingworks/ui';
-import { BrowserRouter } from 'react-router-dom';
-import { screen, render } from '../../../test/react_testing_library';
+import { screen } from '../../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import {
-  ApiClientContext as ClientApiClientContext,
-  createQueryClient,
-  type ApiClient,
-} from '../api';
-import { AppContext } from '../../contexts/app_context';
+import { renderInClientContext } from '../../../test/render_in_client_context';
 import { ClientAdjudicationScreen } from './client_adjudication_screen';
-import {
-  ApiClientContext as HostApiClientContext,
-  systemCallApi as hostSystemCallApi,
-} from '../../api';
 
 let apiMock: ApiMock;
 
@@ -68,35 +56,11 @@ function renderAdjudicationScreen(
   auth: DippedSmartCardAuth.AuthStatus,
   { withElection = false }: { withElection?: boolean } = {}
 ) {
-  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
-  return render(
-    <HostApiClientContext.Provider value={apiMock.apiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        <SystemCallContextProvider api={hostSystemCallApi}>
-          <ClientApiClientContext.Provider value={clientApiClient}>
-            <AppContext.Provider
-              value={{
-                auth,
-                machineConfig: { machineId: '0000', codeVersion: 'dev' },
-                isOfficialResults: false,
-                usbDriveStatus: mockUsbDriveStatus('no_drive'),
-                ...(withElection
-                  ? {
-                      electionDefinition,
-                      electionPackageHash: 'test-election-package-hash',
-                    }
-                  : {}),
-              }}
-            >
-              <BrowserRouter>
-                <ClientAdjudicationScreen />
-              </BrowserRouter>
-            </AppContext.Provider>
-          </ClientApiClientContext.Provider>
-        </SystemCallContextProvider>
-      </QueryClientProvider>
-    </HostApiClientContext.Provider>
-  );
+  return renderInClientContext(<ClientAdjudicationScreen />, {
+    auth,
+    apiMock,
+    ...(withElection ? { electionDefinition } : {}),
+  });
 }
 
 test('shows connected status with election info and enabled start button', async () => {

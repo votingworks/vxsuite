@@ -5,28 +5,12 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import {
-  DippedSmartCardAuth,
-  constructElectionKey,
-  ElectionDefinition,
-} from '@votingworks/types';
+import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { SystemCallContextProvider, mockUsbDriveStatus } from '@votingworks/ui';
-import { BrowserRouter } from 'react-router-dom';
-import { screen, render } from '../../../test/react_testing_library';
+import { screen } from '../../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import {
-  ApiClientContext as ClientApiClientContext,
-  createQueryClient,
-  type ApiClient,
-} from '../api';
-import { AppContext } from '../../contexts/app_context';
+import { renderInClientContext } from '../../../test/render_in_client_context';
 import { ClientSettingsScreen } from './client_settings_screen';
-import {
-  ApiClientContext as HostApiClientContext,
-  systemCallApi as hostSystemCallApi,
-} from '../../api';
 
 let apiMock: ApiMock;
 
@@ -37,39 +21,6 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.assertComplete();
 });
-
-function renderSettingsScreen(options: {
-  auth: DippedSmartCardAuth.AuthStatus;
-  electionDefinition?: ElectionDefinition;
-}) {
-  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
-  return render(
-    <HostApiClientContext.Provider value={apiMock.apiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        <SystemCallContextProvider api={hostSystemCallApi}>
-          <ClientApiClientContext.Provider value={clientApiClient}>
-            <AppContext.Provider
-              value={{
-                auth: options.auth,
-                machineConfig: { machineId: '0000', codeVersion: 'dev' },
-                isOfficialResults: false,
-                usbDriveStatus: mockUsbDriveStatus('no_drive'),
-                electionDefinition: options.electionDefinition,
-                electionPackageHash: options.electionDefinition
-                  ? 'test-election-package-hash'
-                  : undefined,
-              }}
-            >
-              <BrowserRouter>
-                <ClientSettingsScreen />
-              </BrowserRouter>
-            </AppContext.Provider>
-          </ClientApiClientContext.Provider>
-        </SystemCallContextProvider>
-      </QueryClientProvider>
-    </HostApiClientContext.Provider>
-  );
-}
 
 const sysAdminAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
   status: 'logged_in',
@@ -97,7 +48,10 @@ function expectNetworkStatus(
 test('renders settings screen for system administrator', async () => {
   apiMock.expectGetUsbPortStatus();
   expectNetworkStatus('online-connected-to-host', '0001');
-  renderSettingsScreen({ auth: sysAdminAuth });
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('heading', { name: 'Network' });
   await screen.findByText(/Connected to host 0001/);
@@ -118,7 +72,10 @@ test('renders settings screen for election manager (fewer sections)', async () =
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
-  renderSettingsScreen({ auth: emAuth });
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: emAuth,
+    apiMock,
+  });
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('heading', { name: 'Logs' });
   // EM does not see Network, USB Formatting, or Machine Mode sections
@@ -136,14 +93,20 @@ test('renders settings screen for election manager (fewer sections)', async () =
 test('shows offline status', async () => {
   apiMock.expectGetUsbPortStatus();
   expectNetworkStatus('offline');
-  renderSettingsScreen({ auth: sysAdminAuth });
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
   await screen.findByText(/Offline/);
 });
 
 test('shows searching for host status', async () => {
   apiMock.expectGetUsbPortStatus();
   expectNetworkStatus('online-waiting-for-host');
-  renderSettingsScreen({ auth: sysAdminAuth });
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
   await screen.findByText(/Searching for host/);
 });
 
@@ -151,7 +114,11 @@ test('does not show Switch to Host Mode when election is configured', async () =
   apiMock.expectGetUsbPortStatus();
   expectNetworkStatus('online-connected-to-host');
   const electionDefinition = readElectionGeneralDefinition();
-  renderSettingsScreen({ auth: sysAdminAuth, electionDefinition });
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    electionDefinition,
+    apiMock,
+  });
   await screen.findByRole('heading', { name: 'Settings' });
   expect(
     screen.queryByRole('button', { name: 'Switch to Host Mode' })
@@ -161,7 +128,10 @@ test('does not show Switch to Host Mode when election is configured', async () =
 test('shows restart screen after switching to host mode', async () => {
   apiMock.expectGetUsbPortStatus();
   expectNetworkStatus('online-connected-to-host');
-  renderSettingsScreen({ auth: sysAdminAuth });
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
   const switchButton = await screen.findByRole('button', {
     name: 'Switch to Host Mode',
   });
