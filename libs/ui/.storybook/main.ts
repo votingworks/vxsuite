@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 // @ts-expect-error - TS thinks there's an error with the module type but it works ok
-import { Alias, mergeConfig, InlineConfig } from 'vite';
+import { Alias, mergeConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
@@ -21,7 +21,7 @@ const config: StorybookConfig = {
     autodocs: 'tag',
   },
   staticDirs: ['../.storybook-static'],
-  async viteFinal(config: InlineConfig): Promise<InlineConfig> {
+  async viteFinal(config) {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')
     );
