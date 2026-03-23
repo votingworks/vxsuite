@@ -6,11 +6,11 @@ import {
 } from '@votingworks/networking';
 import { assert } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { safeParseElectionDefinition, type UserRole } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
-import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { MachineStatus, ClientConnectionStatus } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
@@ -41,6 +41,21 @@ function createPeerApiClient(address: string): grout.Client<PeerApi> {
 }
 
 /**
+ * Determines the {@link MachineStatus} for a client based on auth state.
+ */
+function getClientMachineStatus(
+  authStatus: Awaited<ReturnType<DippedSmartCardAuthApi['getAuthStatus']>>
+): { status: MachineStatus; authType: UserRole | null } {
+  if (authStatus.status === 'logged_in') {
+    return {
+      status: MachineStatus.Active,
+      authType: authStatus.user.role,
+    };
+  }
+  return { status: MachineStatus.OnlineLocked, authType: null };
+}
+
+/**
  * Starts host networking: advertises on avahi so clients can discover this host.
  * Polls network status and writes the host's own status to the store.
  */
@@ -64,7 +79,7 @@ export function startHostNetworking({
       store.setNetworkedMachineStatus(
         machineId,
         'host',
-        isOnline ? HostConnectionStatus.Connected : HostConnectionStatus.Offline
+        isOnline ? MachineStatus.Active : MachineStatus.Offline
       );
       store.cleanupStaleMachines();
     }, NETWORK_POLLING_INTERVAL_MS);
@@ -140,7 +155,15 @@ export function startClientNetworking({
             : createPeerApiClient(hostAddress);
 
         try {
-          const hostConfig = await apiClient.connectToHost({ machineId });
+          const authStatus = await auth.getAuthStatus(
+            constructAuthMachineState(clientStore)
+          );
+          const { status, authType } = getClientMachineStatus(authStatus);
+          const hostConfig = await apiClient.connectToHost({
+            machineId,
+            status,
+            authType,
+          });
           clientStore.setConnection(
             ClientConnectionStatus.OnlineConnectedToHost,
             {
@@ -148,6 +171,9 @@ export function startClientNetworking({
               machineId: hostConfig.machineId,
               apiClient,
             }
+          );
+          clientStore.setIsClientAdjudicationEnabled(
+            hostConfig.isClientAdjudicationEnabled
           );
           debug('Connected to host at %s', hostAddress);
 

@@ -37,6 +37,13 @@ function expectNetworkStatus(
     .resolves(value);
 }
 
+function expectAdjudicationSessionStatus(isClientAdjudicationEnabled = false) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (apiMock.apiClient as any).getAdjudicationSessionStatus
+    .expectRepeatedCallsWith()
+    .resolves({ isClientAdjudicationEnabled });
+}
+
 const pollWorkerAuth: DippedSmartCardAuth.PollWorkerLoggedIn = {
   status: 'logged_in',
   user: mockPollWorkerUser({
@@ -65,6 +72,7 @@ function renderAdjudicationScreen(
 
 test('shows connected status with election info and enabled start button', async () => {
   expectNetworkStatus('online-connected-to-host', '0001');
+  expectAdjudicationSessionStatus(true);
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   await screen.findByText(/Connected to host 0001/);
@@ -81,6 +89,7 @@ test('shows connected status with election info and enabled start button', async
 
 test('disables start button when connected but no election', async () => {
   expectNetworkStatus('online-connected-to-host', '0001');
+  expectAdjudicationSessionStatus(true);
   renderAdjudicationScreen(pollWorkerAuth);
   await screen.findByText(/Connected to host 0001/);
   const startButton = screen.getByRole('button', {
@@ -89,8 +98,20 @@ test('disables start button when connected but no election', async () => {
   expect(startButton).toBeDisabled();
 });
 
+test('shows waiting for host message when adjudication not enabled', async () => {
+  expectNetworkStatus('online-connected-to-host', '0001');
+  expectAdjudicationSessionStatus(false);
+  renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
+  await screen.findByText('Waiting for host to initiate adjudication.');
+  const startButton = screen.getByRole('button', {
+    name: 'Start Adjudication',
+  });
+  expect(startButton).toBeDisabled();
+});
+
 test('shows offline status with disabled start button', async () => {
   expectNetworkStatus('offline');
+  expectAdjudicationSessionStatus();
   renderAdjudicationScreen(pollWorkerAuth);
   await screen.findByRole('heading', { name: 'Adjudication' });
   await screen.findByText(/Offline/);
@@ -101,6 +122,7 @@ test('shows offline status with disabled start button', async () => {
 
 test('shows searching for host status', async () => {
   expectNetworkStatus('online-waiting-for-host');
+  expectAdjudicationSessionStatus();
   renderAdjudicationScreen(sysAdminAuth);
   await screen.findByText(/Searching for host/);
 });

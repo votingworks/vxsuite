@@ -20,7 +20,7 @@ import {
 } from './networking';
 import { buildPeerApp } from './peer_app';
 import { Store } from './store';
-import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { MachineStatus, ClientConnectionStatus } from './types';
 import { ClientStore } from './client_store';
 import { createWorkspace } from './util/workspace';
 import {
@@ -134,7 +134,7 @@ test('client discovers host and connects - host stores client info in database',
     expect(machines.find((m) => m.machineId === hostMachineId)).toMatchObject({
       machineId: hostMachineId,
       machineMode: 'host',
-      status: HostConnectionStatus.Connected,
+      status: MachineStatus.Active,
     });
 
     // Host should record the client via the connectToHost peer API call
@@ -142,7 +142,7 @@ test('client discovers host and connects - host stores client info in database',
       {
         machineId: clientMachineId,
         machineMode: 'client',
-        status: HostConnectionStatus.Connected,
+        status: MachineStatus.OnlineLocked,
       }
     );
   });
@@ -172,7 +172,7 @@ test('client transitions to waiting-for-host when host disappears from avahi', a
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(
       store.getMachines().find((m) => m.machineId === clientMachineId)
-    ).toMatchObject({ status: HostConnectionStatus.Connected });
+    ).toMatchObject({ status: MachineStatus.OnlineLocked });
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.OnlineConnectedToHost
     );
@@ -203,7 +203,7 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(
       store.getMachines().find((m) => m.machineId === clientMachineId)
-    ).toMatchObject({ status: HostConnectionStatus.Connected });
+    ).toMatchObject({ status: MachineStatus.OnlineLocked });
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.OnlineConnectedToHost
     );
@@ -236,10 +236,10 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     const machines = store.getMachines();
     expect(machines.find((m) => m.machineId === hostMachineId)).toMatchObject({
-      status: HostConnectionStatus.Connected,
+      status: MachineStatus.Active,
     });
     expect(machines.find((m) => m.machineId === clientMachineId)).toMatchObject(
-      { status: HostConnectionStatus.Offline }
+      { status: MachineStatus.Offline }
     );
   });
 });

@@ -1,17 +1,20 @@
 import { expect, test } from 'vitest';
 import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { HostConnectionStatus } from './types';
+import { MachineStatus } from './types';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 
-test('connectToHost registers client and returns host machine config', async () => {
+test('connectToHost registers client and returns host machine config with adjudication status', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
   const result = await peerApiClient.connectToHost({
     machineId: 'client-001',
+    status: MachineStatus.OnlineLocked,
+    authType: null,
   });
   expect(result).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    isClientAdjudicationEnabled: false,
   });
 
   const machines = workspace.store.getMachines();
@@ -19,7 +22,27 @@ test('connectToHost registers client and returns host machine config', async () 
   expect(machines[0]).toMatchObject({
     machineId: 'client-001',
     machineMode: 'client',
-    status: HostConnectionStatus.Connected,
+    status: MachineStatus.OnlineLocked,
+    authType: null,
+  });
+});
+
+test('connectToHost persists status and authType and returns adjudication enabled', async () => {
+  const { peerApiClient, workspace } = buildTestEnvironment();
+
+  workspace.store.setIsClientAdjudicationEnabled(true);
+  const result = await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    status: MachineStatus.Active,
+    authType: 'election_manager',
+  });
+  expect(result.isClientAdjudicationEnabled).toEqual(true);
+
+  const machines = workspace.store.getMachines();
+  expect(machines[0]).toMatchObject({
+    machineId: 'client-001',
+    status: MachineStatus.Active,
+    authType: 'election_manager',
   });
 });
 

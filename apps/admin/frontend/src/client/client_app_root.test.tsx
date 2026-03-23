@@ -68,6 +68,13 @@ function expectNetworkConnected() {
     .resolves({ status: 'online-connected-to-host', hostMachineId: '0001' });
 }
 
+function expectAdjudicationSessionStatus(isClientAdjudicationEnabled = false) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (apiMock.apiClient as any).getAdjudicationSessionStatus
+    .expectRepeatedCallsWith()
+    .resolves({ isClientAdjudicationEnabled });
+}
+
 function renderClientApp({
   withElection = false,
 }: { withElection?: boolean } = {}) {
@@ -167,6 +174,7 @@ test('shows remove card screen after authentication', async () => {
 test('shows adjudication screen with election info when logged in as poll worker', async () => {
   setPollWorkerAuth();
   expectNetworkConnected();
+  expectAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   screen.getByText(electionDefinition.election.title);
@@ -175,6 +183,7 @@ test('shows adjudication screen with election info when logged in as poll worker
 test('poll worker sees only adjudication tab', async () => {
   setPollWorkerAuth();
   expectNetworkConnected();
+  expectAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   screen.getByRole('button', { name: 'Adjudication' });
@@ -185,6 +194,7 @@ test('poll worker sees only adjudication tab', async () => {
 test('election manager sees adjudication, settings, and diagnostics tabs', async () => {
   setElectionManagerAuth();
   expectNetworkConnected();
+  expectAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   screen.getByRole('button', { name: 'Adjudication' });

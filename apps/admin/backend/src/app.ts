@@ -88,7 +88,7 @@ import {
   AdjudicatedCvrContest,
   CvrContestTag,
   MachineMode,
-  HostConnectionStatus,
+  MachineStatus,
   MachineRecord,
 } from './types';
 import { Workspace } from './util/workspace';
@@ -241,13 +241,19 @@ function buildApi({
         (m) => m.machineMode === 'host' && m.machineId === machineId
       );
       return {
-        isOnline: hostRecord?.status === HostConnectionStatus.Connected,
-        connectedClients: machines.filter(
-          (m) =>
-            m.machineMode === 'client' &&
-            m.status === HostConnectionStatus.Connected
-        ),
+        isOnline:
+          hostRecord !== undefined &&
+          hostRecord.status !== MachineStatus.Offline,
+        connectedClients: machines.filter((m) => m.machineMode === 'client'),
       };
+    },
+
+    getIsClientAdjudicationEnabled(): boolean {
+      return store.getIsClientAdjudicationEnabled();
+    },
+
+    setIsClientAdjudicationEnabled(input: { enabled: boolean }) {
+      store.setIsClientAdjudicationEnabled(input.enabled);
     },
 
     getAuthStatus() {

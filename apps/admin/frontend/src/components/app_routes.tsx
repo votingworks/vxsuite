@@ -138,7 +138,7 @@ export function AppRoutes(): JSX.Element | null {
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
       ) && (
-        <Route exact path={routerPaths.adjudication}>
+        <Route path={routerPaths.adjudication}>
           <AdjudicationSummaryScreen />
         </Route>
       )}
