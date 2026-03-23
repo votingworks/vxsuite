@@ -659,6 +659,28 @@ describe('formatDrive', () => {
     multiUsbDrive.stop();
   });
 
+  test('formats drive as ext4 when fstype is ext4', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
+
+    await multiUsbDrive.formatDrive('/dev/sdb', 'ext4');
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/format_ext4.sh`,
+      '/dev/sdb',
+      'VxUSB-ABCDE',
+    ]);
+
+    multiUsbDrive.stop();
+  });
+
   test('shows partitions as ejected during format', async () => {
     mockDrives = [makeDisk()];
     const logger = mockLogger({ fn: vi.fn });

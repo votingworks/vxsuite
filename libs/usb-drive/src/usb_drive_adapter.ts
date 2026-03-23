@@ -49,11 +49,16 @@ export function createUsbDriveAdapter(
 
       const [firstPartition] = drive.partitions;
 
+      // These checks are safety nets — getFat32Drives should already exclude
+      // drives without FAT32 partitions, so these branches are unreachable in
+      // normal operation.
+      /* istanbul ignore next - @preserve */
       if (!firstPartition) {
         debug('adapter: drive has no partitions, returning bad_format');
         return Promise.resolve({ status: 'error', reason: 'bad_format' });
       }
 
+      /* istanbul ignore next - @preserve */
       if (
         firstPartition.fstype !== 'vfat' ||
         firstPartition.fsver !== 'FAT32'
