@@ -11,6 +11,10 @@ import {
   sleep,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { exec } from './exec';
 import {
   getAllUsbDrives,
@@ -18,6 +22,7 @@ import {
   UsbPartitionDeviceInfo,
   createBlockDeviceChangeWatcher,
 } from './block_devices';
+import { createMockFileMultiUsbDrive } from './mocks/file_usb_drive';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 
@@ -174,6 +179,10 @@ export function detectMultiUsbDrive(
   logger: Logger,
   options?: MultiUsbDriveOptions
 ): MultiUsbDrive {
+  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
+    return createMockFileMultiUsbDrive();
+  }
+
   const { onChange } = options ?? {};
 
   let stopped = false;

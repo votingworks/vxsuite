@@ -3,14 +3,119 @@ import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  MOCK_USB_DRIVE_DIR,
-  MOCK_USB_DRIVE_DATA_DIRNAME,
-  MockFileUsbDrive,
+  addMockDrive,
+  createMockFileMultiUsbDrive,
+  createMockFileUsbDrive,
   getMockFileUsbDriveHandler,
+  listMockDrives,
+  removeMockDriveDir,
 } from './file_usb_drive';
 
+function cleanupAllMockDrives(): void {
+  for (const diskName of listMockDrives()) {
+    removeMockDriveDir(diskName);
+  }
+}
+
+test('createMockFileMultiUsbDrive mock flow', async () => {
+  cleanupAllMockDrives();
+  const handler = getMockFileUsbDriveHandler('sdb');
+  const multiUsbDrive = createMockFileMultiUsbDrive();
+
+  expect(multiUsbDrive.getDrives()).toEqual([]);
+
+  await expect(multiUsbDrive.refresh()).resolves.toBeUndefined();
+  await expect(multiUsbDrive.sync('/dev/sdb1')).resolves.toBeUndefined();
+  multiUsbDrive.stop();
+
+  handler.insert();
+  const mountPoint = handler.getDataPath();
+  expect(multiUsbDrive.getDrives()).toEqual([
+    {
+      devPath: '/dev/sdb',
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          mount: { type: 'mounted', mountPoint },
+        },
+      ],
+    },
+  ]);
+
+  await multiUsbDrive.ejectDrive('/dev/sdb');
+  expect(multiUsbDrive.getDrives()).toEqual([
+    {
+      devPath: '/dev/sdb',
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          mount: { type: 'ejected' },
+        },
+      ],
+    },
+  ]);
+
+  await multiUsbDrive.ejectDrive('/dev/sdb');
+  expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+    type: 'ejected',
+  });
+
+  handler.insert();
+  await multiUsbDrive.formatDrive('/dev/sdb');
+  expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+    type: 'ejected',
+  });
+
+  handler.remove();
+  expect(multiUsbDrive.getDrives()).toEqual([]);
+
+  handler.cleanup();
+});
+
+test('createMockFileMultiUsbDrive multi-drive flow', async () => {
+  cleanupAllMockDrives();
+  const multiUsbDrive = createMockFileMultiUsbDrive();
+
+  const diskA = addMockDrive();
+  const diskB = addMockDrive();
+  const handlerA = getMockFileUsbDriveHandler(diskA);
+  const handlerB = getMockFileUsbDriveHandler(diskB);
+
+  expect(multiUsbDrive.getDrives()).toEqual([]);
+
+  handlerA.insert();
+  expect(multiUsbDrive.getDrives()).toHaveLength(1);
+  expect(multiUsbDrive.getDrives()[0]?.devPath).toEqual(`/dev/${diskA}`);
+
+  handlerB.insert();
+  expect(multiUsbDrive.getDrives()).toHaveLength(2);
+
+  await multiUsbDrive.ejectDrive(`/dev/${diskA}`);
+  const drives = multiUsbDrive.getDrives();
+  expect(drives).toHaveLength(2);
+  expect(
+    drives.find((d) => d.devPath === `/dev/${diskA}`)?.partitions[0]?.mount
+  ).toEqual({ type: 'ejected' });
+  expect(
+    drives.find((d) => d.devPath === `/dev/${diskB}`)?.partitions[0]?.mount.type
+  ).toEqual('mounted');
+
+  handlerB.remove();
+  removeMockDriveDir(diskB);
+  expect(multiUsbDrive.getDrives()).toHaveLength(1);
+
+  handlerA.cleanup();
+
+  expect(listMockDrives()).not.toContain(diskB);
+});
+
 test('mock flow', async () => {
-  const usbDrive = new MockFileUsbDrive();
+  cleanupAllMockDrives();
+  const usbDrive = createMockFileUsbDrive();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   await expect(usbDrive.eject()).resolves.toBeUndefined();
   await expect(usbDrive.format()).resolves.toBeUndefined();
@@ -18,37 +123,28 @@ test('mock flow', async () => {
 
   const handler = getMockFileUsbDriveHandler();
 
-  // Insert USB drive
   const testFilename = 'test-file.txt';
   handler.insert({
     [testFilename]: Buffer.from('test file contents'),
   });
-  const expectedMountPoint = join(
-    MOCK_USB_DRIVE_DIR,
-    MOCK_USB_DRIVE_DATA_DIRNAME
-  );
+  const expectedMountPoint = handler.getDataPath();
   expect(await usbDrive.status()).toMatchObject({
     mountPoint: expectedMountPoint,
     status: 'mounted',
   });
 
-  // USB drive contents are accessible
   expect(handler.getDataPath()).toEqual(expectedMountPoint);
-  const expectedTestFilePath = join(expectedMountPoint, testFilename);
+  const expectedTestFilePath = join(expectedMountPoint!, testFilename);
   expect(existsSync(expectedTestFilePath)).toEqual(true);
 
-  // Eject USB drive
   await usbDrive.eject();
   expect(await usbDrive.status()).toEqual({ status: 'ejected' });
 
-  // Remove USB drive
   handler.remove();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
 
-  // USB drive contents should still exist
   expect(existsSync(expectedTestFilePath)).toEqual(true);
 
-  // Cleanup
   handler.cleanup();
   expect(existsSync(expectedTestFilePath)).toEqual(false);
 });

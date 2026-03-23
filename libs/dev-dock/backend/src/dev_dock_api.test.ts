@@ -39,6 +39,7 @@ import {
   getMockFileFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
+import { listMockDrives, removeMockDriveDir } from '@votingworks/usb-drive';
 import {
   Api,
   useDevDockRouter,
@@ -98,6 +99,9 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
 
+  for (const diskName of listMockDrives()) {
+    removeMockDriveDir(diskName);
+  }
   getMockFilePrinterHandler().cleanup();
 });
 
@@ -304,21 +308,47 @@ test('election loading from zip file', async () => {
 
 test('usb drive mock endpoints', async () => {
   const { apiClient } = setup();
-  await apiClient.removeUsbDrive(); // Reset USB state to removed to start in case it's not already
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'removed' },
+  ]);
 
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('removed');
+  await apiClient.insertUsbDrive({ devPath: '/dev/sdb' });
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'inserted' },
+  ]);
 
-  await apiClient.insertUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('inserted');
+  await apiClient.clearUsbDrive({ devPath: '/dev/sdb' });
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'inserted' },
+  ]);
 
-  await apiClient.clearUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('inserted');
+  await apiClient.removeUsbDrive({ devPath: '/dev/sdb' });
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'removed' },
+  ]);
 
-  await apiClient.removeUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('removed');
+  await apiClient.clearUsbDrive({ devPath: '/dev/sdb' });
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'removed' },
+  ]);
+});
 
-  await apiClient.clearUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('removed');
+test('usb drive slot endpoints', async () => {
+  const { apiClient } = setup();
+
+  await expect(apiClient.getUsbDriveStatus()).resolves.toHaveLength(1);
+
+  const { devPath: newDevPath } = await apiClient.addUsbDriveSlot();
+  expect(newDevPath).toEqual('/dev/sdc');
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'removed' },
+    { devPath: '/dev/sdc', status: 'removed' },
+  ]);
+
+  await apiClient.removeUsbDriveSlot({ devPath: '/dev/sdc' });
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual([
+    { devPath: '/dev/sdb', status: 'removed' },
+  ]);
 });
 
 test('mock spec', async () => {

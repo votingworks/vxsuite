@@ -13,11 +13,12 @@ import { LogEventId } from '@votingworks/logging';
 import { formatBallotHash, Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import { mockFileName, parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
   configureMachine,
+  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import {
@@ -108,7 +109,7 @@ test('logs success if export succeeds', async () => {
   loadFileResult.assertOk('load file failed');
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     filename,
@@ -136,11 +137,11 @@ async function getParsedExport({
   filter = {},
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockMultiUsbDrive;
   groupBy?: Tabulation.GroupBy;
   filter?: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     filename,

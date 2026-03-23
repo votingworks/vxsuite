@@ -8,10 +8,11 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
+  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName, parseCsv } from '../test/csv';
@@ -33,9 +34,9 @@ async function getParsedExport({
   mockUsbDrive,
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockMultiUsbDrive;
 }): Promise<ReturnType<typeof parseCsv>> {
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filename,
