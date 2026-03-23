@@ -52,7 +52,9 @@ import {
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers';
+import { AudioCard } from '../../src/audio/card';
 
+vi.mock('./audio/card');
 vi.mock('./audio/player');
 
 export interface MockPdiScannerClient {
@@ -161,8 +163,9 @@ export async function withApp(
     clock,
   });
 
+  const mockAudioCard = new AudioCard('development', logger, { name: 'mock' });
   const mockAudioPlayer = vi.mocked(
-    new AudioPlayer('development', logger, 'pci.stereo')
+    new AudioPlayer('development', logger, mockAudioCard)
   );
 
   const app = buildApp({
