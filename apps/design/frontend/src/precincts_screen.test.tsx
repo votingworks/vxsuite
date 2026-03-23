@@ -930,3 +930,82 @@ test('DISABLE_REGISTERED_VOTER_COUNTS hides voter count field', async () => {
   await navigateToPrecinctEdit(history, savedPrecinct.id);
   expect(screen.queryByLabelText('Registered Voters')).not.toBeInTheDocument();
 });
+
+test('saves registered voter counts for a precinct with splits', async () => {
+  const savedPrecinct = election.precincts.find(hasSplits)!;
+  assert(savedPrecinct.splits.length === 2);
+  const [, split2] = savedPrecinct.splits;
+
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves(election.precincts);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  const history = renderScreen(electionId);
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
+
+  const splitCards = screen
+    .getAllByRole('button', { name: 'Remove Split' })
+    .map((button) => button.closest('div')!);
+  const [split1Card, split2Card] = splitCards;
+
+  userEvent.type(within(split1Card).getByLabelText('Registered Voters'), '500');
+
+  userEvent.type(within(split2Card).getByLabelText('Registered Voters'), '300');
+
+  userEvent.clear(within(split1Card).getByLabelText('Registered Voters'));
+
+  apiMock.updatePrecinct
+    .expectCallWith({
+      electionId,
+      updatedPrecinct: savedPrecinct,
+      registeredVotersCounts: { splits: { [split2.id]: 300 } },
+    })
+    .resolves(ok());
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves(election.precincts);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await expectViewModePrecinct(history, savedPrecinct);
+});
+
+test('clears registered voter count for a precinct without splits', async () => {
+  const savedPrecinct = election.precincts[0];
+  assert(!hasSplits(savedPrecinct));
+
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([savedPrecinct]);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  const history = renderScreen(electionId);
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
+
+  const voterCountInput = screen.getByLabelText('Registered Voters');
+  userEvent.type(voterCountInput, '100');
+  userEvent.clear(voterCountInput);
+
+  apiMock.updatePrecinct
+    .expectCallWith({
+      electionId,
+      updatedPrecinct: savedPrecinct,
+    })
+    .resolves(ok());
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([savedPrecinct]);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await expectViewModePrecinct(history, savedPrecinct);
+});

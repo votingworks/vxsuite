@@ -1383,7 +1383,6 @@ export class Store {
         }
         for (const precinct of election.precincts) {
           await insertPrecinct(client, election.id, precinct);
-          await insertPrecinctDistrictsOrSplits(client, precinct);
         }
         for (const place of election.pollingPlaces || []) {
           const res = await insertPollingPlace(client, election.id, place);
