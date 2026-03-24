@@ -5,8 +5,11 @@ import { UsbDrive, UsbDriveStatus } from './types';
 const debug = makeDebug('usb-drive:adapter');
 
 function isFat32Drive(drive: UsbDriveInfo): boolean {
-  return drive.partitions.some(
-    (p) => p.fstype === 'vfat' && p.fsver === 'FAT32'
+  const [firstPartition] = drive.partitions;
+  return (
+    !!firstPartition &&
+    firstPartition.fstype === 'vfat' &&
+    firstPartition.fsver === 'FAT32'
   );
 }
 

@@ -43,16 +43,29 @@ echo 'type=83' | sfdisk --wipe always --wipe-partitions always "${DEVICE}"
 # but it may fail and not retry if device information is separately being polled
 partprobe
 
-# format the partition with an ext4 filesystem
-mkfs.ext4 -L "${LABEL}" "${PARTITION}"
+# format the partition with an ext4 filesystem. -F avoids interactive
+# confirmation prompts when an existing filesystem signature is detected.
+mkfs.ext4 -F -L "${LABEL}" "${PARTITION}"
 
 # refresh kernel's data on the USB partition table.
 partprobe
 
 # set ownership of the root directory so the application user can write to it.
-# mount temporarily, chown, unmount.
-TMPDIR=$(mktemp -d)
-mount "${PARTITION}" "$TMPDIR"
-chown vx:vx "$TMPDIR"
-umount "$TMPDIR"
-rmdir "$TMPDIR"
+# mount temporarily, chown, unmount. trap ensures cleanup on failure.
+CHOWN_TMPDIR=""
+cleanup_tmp_mount() {
+    if [[ -n "$CHOWN_TMPDIR" && -d "$CHOWN_TMPDIR" ]]; then
+        if mountpoint -q "$CHOWN_TMPDIR"; then
+            umount "$CHOWN_TMPDIR" || true
+        fi
+        rmdir "$CHOWN_TMPDIR" || true
+    fi
+}
+trap cleanup_tmp_mount EXIT
+
+CHOWN_TMPDIR=$(mktemp -d)
+mount -o nosuid,nodev,noexec "${PARTITION}" "$CHOWN_TMPDIR"
+chown vx:vx "$CHOWN_TMPDIR"
+umount "$CHOWN_TMPDIR"
+rmdir "$CHOWN_TMPDIR"
+CHOWN_TMPDIR=""

@@ -221,10 +221,12 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
       fstype: UsbDriveFilesystemType
     ): Promise<void> {
       const diskName = basename(driveDevPath);
-      const { state } = readMockDriveState(diskName);
-      if (state === 'inserted') {
-        writeMockDriveState(diskName, { state: 'ejected', fstype });
-      }
+      const driveState = readMockDriveState(diskName);
+      writeMockDriveState(diskName, {
+        ...driveState,
+        state: driveState.state === 'removed' ? 'removed' : 'ejected',
+        fstype,
+      });
       return Promise.resolve();
     },
 
