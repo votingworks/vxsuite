@@ -265,22 +265,35 @@ pub struct VerticalStreak {
 }
 
 impl VerticalStreak {
+    /// Merges two streaks if they are adjacent or overlapping.
     #[allow(clippy::result_large_err)]
     fn coalesce(self, other: Self) -> Result<Self, (Self, Self)> {
-        if *self.x_range.end() + 1 >= *other.x_range.start() {
-            let overlap_size = (*self.x_range.end() + 1 - *other.x_range.start()) as usize;
-            Ok(Self {
-                x_range: *self.x_range.start()..=*other.x_range.end(),
-                scores: [&self.scores, &other.scores[overlap_size..]].concat(),
-                longest_white_gaps: [
-                    &self.longest_white_gaps,
-                    &other.longest_white_gaps[overlap_size..],
-                ]
-                .concat(),
-            })
+        let (left, right) = if *self.x_range.start() <= *other.x_range.start() {
+            (self, other)
         } else {
-            Err((self, other))
+            (other, self)
+        };
+
+        // No overlap
+        if *left.x_range.end() + 1 < *right.x_range.start() {
+            return Err((left, right));
         }
+
+        // Left fully contains right — nothing new to add.
+        if *right.x_range.end() <= *left.x_range.end() {
+            return Ok(left);
+        }
+
+        let overlap_size = (*left.x_range.end() + 1 - *right.x_range.start()) as usize;
+        Ok(Self {
+            x_range: *left.x_range.start()..=*right.x_range.end(),
+            scores: [&left.scores, &right.scores[overlap_size..]].concat(),
+            longest_white_gaps: [
+                &left.longest_white_gaps,
+                &right.longest_white_gaps[overlap_size..],
+            ]
+            .concat(),
+        })
     }
 
     pub(crate) fn rotate180(&mut self, ballot_image_width: u32) {
@@ -512,6 +525,18 @@ mod test {
         assert_eq!(result.x_range, 0..=8);
         assert_eq!(result.scores, make_scores(0..=8));
         assert_eq!(result.longest_white_gaps, make_longest_white_gaps(0..=8));
+    }
+
+    #[test]
+    fn test_coalesce_self_contains_other() {
+        let result = make_streak(0..=8).coalesce(make_streak(2..=5)).unwrap();
+        assert_eq!(result, make_streak(0..=8));
+    }
+
+    #[test]
+    fn test_coalesce_other_contains_self() {
+        let result = make_streak(2..=5).coalesce(make_streak(0..=8)).unwrap();
+        assert_eq!(result, make_streak(0..=8));
     }
 
     #[test]
