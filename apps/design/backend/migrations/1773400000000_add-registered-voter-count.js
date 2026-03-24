@@ -2,7 +2,7 @@
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  */
 exports.up = (pgm) => {
-  pgm.createTable('precinct_registered_voter_counts', {
+  pgm.createTable('precinct_registered_voters_counts', {
     precinct_id: {
       type: 'text',
       notNull: true,
@@ -13,7 +13,7 @@ exports.up = (pgm) => {
     count: { type: 'integer', notNull: true },
   });
 
-  pgm.createTable('precinct_split_registered_voter_counts', {
+  pgm.createTable('precinct_split_registered_voters_counts', {
     split_id: {
       type: 'text',
       notNull: true,

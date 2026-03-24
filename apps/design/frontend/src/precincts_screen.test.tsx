@@ -87,7 +87,7 @@ beforeEach(() => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.getRegisteredVoterCounts
+  apiMock.getRegisteredVotersCounts
     .expectRepeatedCallsWith({ electionId })
     .resolves({});
 

@@ -19,7 +19,7 @@ import {
 import type {
   Precinct,
   PrecinctSplit,
-  PrecinctRegisteredVoterCountEntry,
+  PrecinctRegisteredVotersCountEntry,
 } from '@votingworks/types';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -29,7 +29,7 @@ import { Row, Column, InputGroup, FieldName } from './layout';
 import {
   listDistricts,
   getStateFeatures,
-  getRegisteredVoterCounts,
+  getRegisteredVotersCounts,
   updatePrecinct,
   createPrecinct,
   deletePrecinct,
@@ -71,7 +71,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getRegisteredVoterCountsQuery =
-    getRegisteredVoterCounts.useQuery(electionId);
+    getRegisteredVotersCounts.useQuery(electionId);
 
   const savedRegisteredVotersCounts = savedPrecinct
     ? getRegisteredVoterCountsQuery.data?.[savedPrecinct.id]
@@ -84,7 +84,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       createBlankPrecinct
   );
   const [registeredVotersCounts, setRegisteredVotersCounts] = useState<
-    PrecinctRegisteredVoterCountEntry | undefined
+    PrecinctRegisteredVotersCountEntry | undefined
   >(savedRegisteredVotersCounts);
 
   const displayedRegisteredVotersCounts = editing

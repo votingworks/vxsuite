@@ -48,8 +48,8 @@ import {
   EncodedBallotEntrySchema,
   SystemLimitViolation,
   SystemLimits,
-  ElectionRegisteredVoterCounts,
-  ElectionRegisteredVoterCountsSchema,
+  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVotersCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -202,7 +202,7 @@ export async function readElectionPackageFromBuffer(
 
     // Registered Voter Counts:
 
-    let registeredVoterCounts: ElectionRegisteredVoterCounts | undefined;
+    let registeredVoterCounts: ElectionRegisteredVotersCounts | undefined;
     const registeredVoterCountsEntry = maybeGetFileByName(
       entries,
       ElectionPackageFileName.REGISTERED_VOTERS_COUNTS
@@ -210,7 +210,7 @@ export async function readElectionPackageFromBuffer(
     if (registeredVoterCountsEntry) {
       registeredVoterCounts = safeParseJson(
         await readTextEntry(registeredVoterCountsEntry),
-        ElectionRegisteredVoterCountsSchema
+        ElectionRegisteredVotersCountsSchema
       ).unsafeUnwrap();
     }
 

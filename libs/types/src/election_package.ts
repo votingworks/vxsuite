@@ -10,7 +10,7 @@ import {
 } from './election';
 import { SystemSettings } from './system_settings';
 import { ElectionPackageMetadata } from './election_package_metadata';
-import { ElectionRegisteredVoterCounts } from './registered_voter_counts';
+import { ElectionRegisteredVotersCounts } from './registered_voter_counts';
 import { UiStringAudioClips } from './ui_string_audio_clips';
 import { UiStringAudioIdsPackage } from './ui_string_audio_ids';
 import { UiStringsPackage } from './ui_string_translations';
@@ -31,7 +31,7 @@ export interface ElectionPackage {
   ballots?: EncodedBallotEntry[];
   electionDefinition: ElectionDefinition;
   metadata?: ElectionPackageMetadata; // TODO(kofi): Make required
-  registeredVoterCounts?: ElectionRegisteredVoterCounts;
+  registeredVoterCounts?: ElectionRegisteredVotersCounts;
   systemSettings?: SystemSettings; // TODO(kevin): Make required
   uiStringAudioClips?: UiStringAudioClips; // TODO(kofi): Make required
   uiStringAudioIds?: UiStringAudioIdsPackage; // TODO(kofi): Make required

@@ -55,9 +55,9 @@ import {
   PollingPlace,
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
-  ElectionRegisteredVoterCounts,
+  ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
-import type { PrecinctRegisteredVoterCountEntry } from '@votingworks/types';
+import type { PrecinctRegisteredVotersCountEntry } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
@@ -1727,12 +1727,12 @@ export class Store {
    */
   async setPrecinctRegisteredVoterCounts(
     precinct: Precinct,
-    registeredVotersCounts?: PrecinctRegisteredVoterCountEntry
+    registeredVotersCounts?: PrecinctRegisteredVotersCountEntry
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         await client.query(
-          `delete from precinct_registered_voter_counts where precinct_id = $1`,
+          `delete from precinct_registered_voters_counts where precinct_id = $1`,
           precinct.id
         );
         if (
@@ -1741,7 +1741,7 @@ export class Store {
         ) {
           await client.query(
             `
-              insert into precinct_registered_voter_counts (precinct_id, count)
+              insert into precinct_registered_voters_counts (precinct_id, count)
               values ($1, $2)
             `,
             precinct.id,
@@ -1750,7 +1750,7 @@ export class Store {
         }
         await client.query(
           `
-            delete from precinct_split_registered_voter_counts
+            delete from precinct_split_registered_voters_counts
             where split_id in (
               select id from precinct_splits where precinct_id = $1
             )
@@ -1763,7 +1763,7 @@ export class Store {
             if (splitCount !== undefined) {
               await client.query(
                 `
-                  insert into precinct_split_registered_voter_counts (split_id, count)
+                  insert into precinct_split_registered_voters_counts (split_id, count)
                   values ($1, $2)
                 `,
                 split.id,
@@ -1794,16 +1794,16 @@ export class Store {
     assert(rowCount === 1, 'Precinct not found');
   }
 
-  async getRegisteredVoterCounts(
+  async getRegisteredVotersCounts(
     electionId: ElectionId
-  ): Promise<ElectionRegisteredVoterCounts> {
+  ): Promise<ElectionRegisteredVotersCounts> {
     return this.db.withClient(async (client) => {
       const precinctRows = (
         await client.query(
           `
             select p.id, prc.count
             from precincts p
-            left join precinct_registered_voter_counts prc on prc.precinct_id = p.id
+            left join precinct_registered_voters_counts prc on prc.precinct_id = p.id
             where p.election_id = $1
           `,
           electionId
@@ -1819,7 +1819,7 @@ export class Store {
               psrc.count
             from precinct_splits ps
             join precincts p on ps.precinct_id = p.id
-            left join precinct_split_registered_voter_counts psrc on psrc.split_id = ps.id
+            left join precinct_split_registered_voters_counts psrc on psrc.split_id = ps.id
             where p.election_id = $1
           `,
           electionId
@@ -1843,7 +1843,7 @@ export class Store {
         }
       }
 
-      const counts: ElectionRegisteredVoterCounts = {};
+      const counts: ElectionRegisteredVotersCounts = {};
       for (const row of precinctRows) {
         const splits = splitsByPrecinctId.get(row.id) ?? [];
         if (splits.length > 0) {

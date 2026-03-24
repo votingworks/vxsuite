@@ -5,39 +5,39 @@ import { PrecinctId, PrecinctSplitId } from './election';
  * Registered voter counts for a precinct with splits, keyed by split ID.
  * Only splits with a count set are included.
  */
-export interface PrecinctWithSplitsRegisteredVoterCounts {
+export interface PrecinctWithSplitsRegisteredVotersCounts {
   splits: Record<PrecinctSplitId, number>;
 }
 
 /**
- * Registered voter counts for a single precinct
+ * Registered voters counts for a single precinct
  *
  * For precincts without splits, the value is the total count as a number.
  * For precincts with splits, the value is a record mapping split IDs to counts.
  */
-export type PrecinctRegisteredVoterCountEntry =
+export type PrecinctRegisteredVotersCountEntry =
   | number
-  | PrecinctWithSplitsRegisteredVoterCounts;
+  | PrecinctWithSplitsRegisteredVotersCounts;
 
 /**
- * Registered voter counts for all precincts in an election, keyed by
+ * Registered voters counts for all precincts in an election, keyed by
  * PrecinctId. Only precincts or splits with a count set are included.
  */
-export type ElectionRegisteredVoterCounts = Record<
+export type ElectionRegisteredVotersCounts = Record<
   PrecinctId,
-  PrecinctRegisteredVoterCountEntry
+  PrecinctRegisteredVotersCountEntry
 >;
 
-export const PrecinctWithSplitsRegisteredVoterCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVoterCounts> =
+export const PrecinctWithSplitsRegisteredVotersCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVotersCounts> =
   z.object({
     splits: z.record(z.string(), z.number().int().nonnegative()),
   });
 
-export const PrecinctRegisteredVoterCountEntrySchema: z.ZodType<PrecinctRegisteredVoterCountEntry> =
+export const PrecinctRegisteredVotersCountEntrySchema: z.ZodType<PrecinctRegisteredVotersCountEntry> =
   z.union([
     z.number().int().nonnegative(),
-    PrecinctWithSplitsRegisteredVoterCountsSchema,
+    PrecinctWithSplitsRegisteredVotersCountsSchema,
   ]);
 
-export const ElectionRegisteredVoterCountsSchema: z.ZodType<ElectionRegisteredVoterCounts> =
-  z.record(z.string(), PrecinctRegisteredVoterCountEntrySchema);
+export const ElectionRegisteredVotersCountsSchema: z.ZodType<ElectionRegisteredVotersCounts> =
+  z.record(z.string(), PrecinctRegisteredVotersCountEntrySchema);

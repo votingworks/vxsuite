@@ -348,7 +348,7 @@ export async function generateElectionPackageAndBallots(
   );
 
   const registeredVotersCounts =
-    await store.getRegisteredVoterCounts(electionId);
+    await store.getRegisteredVotersCounts(electionId);
   electionPackageZip.file(
     ElectionPackageFileName.REGISTERED_VOTERS_COUNTS,
     JSON.stringify(registeredVotersCounts, null, 2)

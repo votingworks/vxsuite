@@ -54,7 +54,7 @@ import {
   pollingPlacesGenerateFromPrecincts,
   PrecinctWithoutSplits,
   PrecinctWithSplits,
-  ElectionRegisteredVoterCounts,
+  ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -1476,8 +1476,8 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
 
-  // Verify getRegisteredVoterCounts reflects the count
-  expect(await apiClient.getRegisteredVoterCounts({ electionId })).toEqual({
+  // Verify getRegisteredVotersCounts reflects the count
+  expect(await apiClient.getRegisteredVotersCounts({ electionId })).toEqual({
     'precinct-1': 750,
   });
 
@@ -1510,8 +1510,8 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     precinct2,
   ]);
 
-  // Verify getRegisteredVoterCounts for split precincts
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  // Verify getRegisteredVotersCounts for split precincts
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -1545,7 +1545,7 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     registeredVotersCounts: { splits: { 'split-3a': 400 } },
   });
   createResult.unsafeUnwrap();
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -1583,8 +1583,8 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.createPrecinct({ electionId, newPrecinct: precinct5 })
   ).unsafeUnwrap();
 
-  // Precincts with no counts should not appear in getRegisteredVoterCounts
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  // Precincts with no counts should not appear in getRegisteredVotersCounts
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -3333,7 +3333,7 @@ test('Election package and ballots export', async () => {
     })
   ).unsafeUnwrap();
 
-  const expectedRegisteredVoterCounts: ElectionRegisteredVoterCounts = {
+  const expectedRegisteredVoterCounts: ElectionRegisteredVotersCounts = {
     ...Object.fromEntries(
       precincts.filter((p) => !hasSplits(p)).map((p) => [p.id, 1000])
     ),

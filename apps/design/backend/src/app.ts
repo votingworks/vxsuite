@@ -18,9 +18,9 @@ import {
   LanguageCodeSchema,
   getAllBallotLanguages,
   Precinct,
-  PrecinctRegisteredVoterCountEntry,
-  PrecinctRegisteredVoterCountEntrySchema,
-  ElectionRegisteredVoterCounts,
+  PrecinctRegisteredVotersCountEntry,
+  PrecinctRegisteredVotersCountEntrySchema,
+  ElectionRegisteredVotersCounts,
   District,
   PrecinctId,
   Party,
@@ -547,13 +547,13 @@ export function buildApi(ctx: AppContext) {
     async createPrecinct(input: {
       electionId: ElectionId;
       newPrecinct: Precinct;
-      registeredVotersCounts?: PrecinctRegisteredVoterCountEntry;
+      registeredVotersCounts?: PrecinctRegisteredVotersCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
       const registeredVotersCounts =
         input.registeredVotersCounts !== undefined
           ? unsafeParse(
-              PrecinctRegisteredVoterCountEntrySchema,
+              PrecinctRegisteredVotersCountEntrySchema,
               input.registeredVotersCounts
             )
           : undefined;
@@ -571,13 +571,13 @@ export function buildApi(ctx: AppContext) {
     async updatePrecinct(input: {
       electionId: ElectionId;
       updatedPrecinct: Precinct;
-      registeredVotersCounts?: PrecinctRegisteredVoterCountEntry;
+      registeredVotersCounts?: PrecinctRegisteredVotersCountEntry;
     }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
       const registeredVotersCounts =
         input.registeredVotersCounts !== undefined
           ? unsafeParse(
-              PrecinctRegisteredVoterCountEntrySchema,
+              PrecinctRegisteredVotersCountEntrySchema,
               input.registeredVotersCounts
             )
           : undefined;
@@ -592,10 +592,10 @@ export function buildApi(ctx: AppContext) {
       return ok();
     },
 
-    async getRegisteredVoterCounts(input: {
+    async getRegisteredVotersCounts(input: {
       electionId: ElectionId;
-    }): Promise<ElectionRegisteredVoterCounts> {
-      return store.getRegisteredVoterCounts(input.electionId);
+    }): Promise<ElectionRegisteredVotersCounts> {
+      return store.getRegisteredVotersCounts(input.electionId);
     },
 
     async deletePrecinct(input: {
