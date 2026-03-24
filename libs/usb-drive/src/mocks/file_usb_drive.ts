@@ -9,7 +9,7 @@ import {
 import { Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { basename, join } from 'node:path';
-import type { MultiUsbDrive } from '../multi_usb_drive';
+import type { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
 
@@ -35,9 +35,10 @@ function getMockDriveDataDirPath(diskName: string): string {
   return join(getMockDriveDirPath(diskName), MOCK_USB_DRIVE_DATA_DIRNAME);
 }
 
-interface MockDriveState {
-  state: 'inserted' | 'ejected' | 'removed';
-}
+type MockDriveState =
+  | { state: 'removed' }
+  | { state: 'inserted'; fstype: UsbDriveFilesystemType }
+  | { state: 'ejected'; fstype: UsbDriveFilesystemType };
 
 function readMockDriveState(diskName: string): MockDriveState {
   const stateFilePath = join(
@@ -48,7 +49,14 @@ function readMockDriveState(diskName: string): MockDriveState {
     return { state: 'removed' };
   }
   try {
-    return JSON.parse(readFileSync(stateFilePath, 'utf-8')) as MockDriveState;
+    const raw = JSON.parse(readFileSync(stateFilePath, 'utf-8')) as {
+      state: string;
+      fstype?: UsbDriveFilesystemType;
+    };
+    if (raw.state === 'inserted' || raw.state === 'ejected') {
+      return { state: raw.state, fstype: raw.fstype ?? 'fat32' };
+    }
+    return { state: 'removed' };
   } catch {
     return { state: 'removed' };
   }
@@ -123,18 +131,24 @@ export function createMockFileUsbDrive(): UsbDrive {
 
     eject(): Promise<void> {
       ensureMockDriveState(diskName);
-      const { state } = readMockDriveState(diskName);
-      if (state === 'inserted') {
-        writeMockDriveState(diskName, { state: 'ejected' });
+      const driveState = readMockDriveState(diskName);
+      if (driveState.state === 'inserted') {
+        writeMockDriveState(diskName, {
+          state: 'ejected',
+          fstype: driveState.fstype,
+        });
       }
       return Promise.resolve();
     },
 
     format(): Promise<void> {
       ensureMockDriveState(diskName);
-      const { state } = readMockDriveState(diskName);
-      if (state === 'inserted') {
-        writeMockDriveState(diskName, { state: 'ejected' });
+      const driveState = readMockDriveState(diskName);
+      if (driveState.state === 'inserted') {
+        writeMockDriveState(diskName, {
+          state: 'ejected',
+          fstype: driveState.fstype,
+        });
       }
       return Promise.resolve();
     },
@@ -178,23 +192,24 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
   return {
     getDrives() {
       return listMockDrives().flatMap((diskName) => {
-        const { state } = readMockDriveState(diskName);
-        if (state === 'removed') return [];
+        const driveState = readMockDriveState(diskName);
+        if (driveState.state === 'removed') return [];
         const mount =
-          state === 'inserted'
+          driveState.state === 'inserted'
             ? ({
                 type: 'mounted',
                 mountPoint: getMockDriveDataDirPath(diskName),
               } as const)
             : ({ type: 'ejected' } as const);
+        const isExt4 = driveState.fstype === 'ext4';
         return [
           {
             devPath: `/dev/${diskName}`,
             partitions: [
               {
                 devPath: `/dev/${diskName}1`,
-                fstype: 'vfat',
-                fsver: 'FAT32',
+                fstype: isExt4 ? 'ext4' : 'vfat',
+                fsver: isExt4 ? '1.0' : 'FAT32',
                 mount,
               },
             ],
@@ -207,18 +222,24 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
 
     ejectDrive(driveDevPath: string): Promise<void> {
       const diskName = basename(driveDevPath);
-      const { state } = readMockDriveState(diskName);
-      if (state === 'inserted') {
-        writeMockDriveState(diskName, { state: 'ejected' });
+      const driveState = readMockDriveState(diskName);
+      if (driveState.state === 'inserted') {
+        writeMockDriveState(diskName, {
+          state: 'ejected',
+          fstype: driveState.fstype,
+        });
       }
       return Promise.resolve();
     },
 
-    formatDrive(driveDevPath: string): Promise<void> {
+    formatDrive(
+      driveDevPath: string,
+      fstype: UsbDriveFilesystemType
+    ): Promise<void> {
       const diskName = basename(driveDevPath);
-      const { state } = readMockDriveState(diskName);
-      if (state === 'inserted') {
-        writeMockDriveState(diskName, { state: 'ejected' });
+      const driveState = readMockDriveState(diskName);
+      if (driveState.state !== 'removed') {
+        writeMockDriveState(diskName, { state: 'ejected', fstype });
       }
       return Promise.resolve();
     },
@@ -249,7 +270,12 @@ export function getMockFileUsbDriveHandler(
       if (contents) {
         writeMockFileTree(getDataPath(), contents);
       }
-      writeMockDriveState(diskName, { state: 'inserted' });
+      const currentState = readMockDriveState(diskName);
+      writeMockDriveState(diskName, {
+        state: 'inserted',
+        fstype:
+          currentState.state !== 'removed' ? currentState.fstype : 'fat32',
+      });
     },
     remove: () => {
       writeMockDriveState(diskName, { state: 'removed' });

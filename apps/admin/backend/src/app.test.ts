@@ -489,6 +489,7 @@ test('usbDrive', async () => {
     mountPoint: expect.any(String),
   });
 
+  // ext4 drives are filtered out by the adapter — they appear as no_drive
   mockMultiUsbDrive.multiUsbDrive.getDrives.reset();
   mockMultiUsbDrive.multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
     {
@@ -504,8 +505,7 @@ test('usbDrive', async () => {
     },
   ]);
   expect(await apiClient.getUsbDriveStatus()).toEqual({
-    status: 'error',
-    reason: 'bad_format',
+    status: 'no_drive',
   });
 
   mockMultiUsbDrive.insertUsbDrive({});
@@ -516,13 +516,13 @@ test('usbDrive', async () => {
   await apiClient.ejectUsbDrive();
 
   mockMultiUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith('/dev/sdb')
+    .expectCallWith('/dev/sdb', 'fat32')
     .resolves();
   (await apiClient.formatUsbDrive()).assertOk('format failed');
 
   const error = new Error('format failed');
   mockMultiUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith('/dev/sdb')
+    .expectCallWith('/dev/sdb', 'fat32')
     .throws(error);
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });

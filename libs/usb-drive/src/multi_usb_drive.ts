@@ -9,6 +9,7 @@ import {
   MaybePromise,
   Optional,
   sleep,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -40,6 +41,8 @@ async function unmountPartition(mountPoint: string): Promise<void> {
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountPoint]);
 }
 
+export type UsbDriveFilesystemType = 'fat32' | 'ext4';
+
 async function formatDriveAsFat32(
   devicePath: string,
   label: string
@@ -47,6 +50,18 @@ async function formatDriveAsFat32(
   await exec('sudo', [
     '-n',
     join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
+    devicePath,
+    label,
+  ]);
+}
+
+async function formatDriveAsExt4(
+  devicePath: string,
+  label: string
+): Promise<void> {
+  await exec('sudo', [
+    '-n',
+    join(MOUNT_SCRIPT_PATH, 'format_ext4.sh'),
     devicePath,
     label,
   ]);
@@ -65,8 +80,19 @@ function generateVxUsbLabel(previousLabel?: string): string {
   return label;
 }
 
-function isFat32Partition(partition: UsbPartitionDeviceInfo): boolean {
+export function isFat32Partition(partition: {
+  fstype?: string;
+  fsver?: string;
+}): boolean {
   return partition.fstype === 'vfat' && partition.fsver === 'FAT32';
+}
+
+export function isExt4Partition(partition: { fstype?: string }): boolean {
+  return partition.fstype === 'ext4';
+}
+
+function isSupportedPartition(partition: UsbPartitionDeviceInfo): boolean {
+  return isFat32Partition(partition) || isExt4Partition(partition);
 }
 
 export type UsbPartitionMount =
@@ -100,7 +126,10 @@ export interface MultiUsbDrive {
   getDrives(): UsbDriveInfo[];
   refresh(): Promise<void>;
   ejectDrive(driveDevPath: string): Promise<void>;
-  formatDrive(driveDevPath: string): Promise<void>;
+  formatDrive(
+    driveDevPath: string,
+    fstype: UsbDriveFilesystemType
+  ): Promise<void>;
   sync(partitionDevPath: string): Promise<void>;
   stop(): void;
 }
@@ -312,7 +341,7 @@ export function detectMultiUsbDrive(
     if (driveAction.isBusy(disk.devPath)) return;
 
     for (const partition of disk.partitions) {
-      if (!isFat32Partition(partition)) continue;
+      if (!isSupportedPartition(partition)) continue;
       if (partition.mountpoint) continue;
       if (partitionAction.isBusy(partition.devPath)) continue;
 
@@ -415,7 +444,10 @@ export function detectMultiUsbDrive(
       await result;
     },
 
-    async formatDrive(driveDevPath: string): Promise<void> {
+    async formatDrive(
+      driveDevPath: string,
+      fstype: UsbDriveFilesystemType
+    ): Promise<void> {
       const result = driveAction.perform(
         driveDevPath,
         'formatting',
@@ -448,14 +480,28 @@ export function detectMultiUsbDrive(
             // Determine label — reuse existing label if it matches VxUSB pattern
             const label = generateVxUsbLabel(freshDisk.partitions[0]?.label);
 
-            debug(`formatting drive ${driveDevPath} with label ${label}`);
-            await formatDriveAsFat32(driveDevPath, label);
+            debug(
+              `formatting drive ${driveDevPath} as ${fstype} with label ${label}`
+            );
+            switch (fstype) {
+              case 'fat32':
+                await formatDriveAsFat32(driveDevPath, label);
+                break;
+              case 'ext4':
+                await formatDriveAsExt4(driveDevPath, label);
+                break;
+              /* istanbul ignore next - @preserve */
+              default:
+                throwIllegalValue(fstype);
+            }
             ejectedDrives.add(driveDevPath); // prevent auto-remount
             await doRefresh();
 
             await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
               disposition: 'success',
-              message: `USB drive successfully formatted with a single FAT32 volume named "${label}".`,
+              message: `USB drive successfully formatted with a single ${
+                fstype === 'ext4' ? 'ext4' : 'FAT32'
+              } volume named "${label}".`,
             });
             debug(`Drive ${driveDevPath} formatted successfully`);
           } catch (error) {

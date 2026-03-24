@@ -168,7 +168,9 @@ test('formatUsbDrive formats drive when system administrator', async () => {
   mockSystemAdministratorAuth(env.auth);
   env.mockUsbDrive.insertUsbDrive({});
   const devPath = getMountedUsbDriveDevPath(env.mockUsbDrive);
-  env.mockUsbDrive.multiUsbDrive.formatDrive.expectCallWith(devPath).resolves();
+  env.mockUsbDrive.multiUsbDrive.formatDrive
+    .expectCallWith(devPath, 'fat32')
+    .resolves();
   (await env.apiClient.formatUsbDrive()).assertOk('format failed');
 });
 
@@ -177,7 +179,7 @@ test('formatUsbDrive returns error when format fails', async () => {
   env.mockUsbDrive.insertUsbDrive({});
   const devPath = getMountedUsbDriveDevPath(env.mockUsbDrive);
   env.mockUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith(devPath)
+    .expectCallWith(devPath, 'fat32')
     .throws(new Error('format failed'));
   expect(await env.apiClient.formatUsbDrive()).toEqual(
     err(new Error('format failed'))

@@ -37,4 +37,10 @@ fi
 if ! [[ -e $MOUNTPOINT ]]; then
     mkdir -p $MOUNTPOINT
 fi
-mount -w -o umask=000,nosuid,nodev,noexec $DEVICE $MOUNTPOINT
+FSTYPE=$(blkid -o value -s TYPE "$DEVICE" 2>/dev/null || echo "")
+
+if [[ "$FSTYPE" == "ext4" ]]; then
+    mount -w -o nosuid,nodev,noexec $DEVICE $MOUNTPOINT
+else
+    mount -w -o umask=000,nosuid,nodev,noexec $DEVICE $MOUNTPOINT
+fi

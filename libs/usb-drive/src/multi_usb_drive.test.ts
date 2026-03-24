@@ -632,7 +632,7 @@ describe('formatDrive', () => {
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     expect(execMock).toHaveBeenCalledWith('sudo', [
       '-n',
@@ -659,6 +659,28 @@ describe('formatDrive', () => {
     multiUsbDrive.stop();
   });
 
+  test('formats drive as ext4 when fstype is ext4', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
+
+    await multiUsbDrive.formatDrive('/dev/sdb', 'ext4');
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/format_ext4.sh`,
+      '/dev/sdb',
+      'VxUSB-ABCDE',
+    ]);
+
+    multiUsbDrive.stop();
+  });
+
   test('shows partitions as ejected during format', async () => {
     mockDrives = [makeDisk()];
     const logger = mockLogger({ fn: vi.fn });
@@ -672,7 +694,7 @@ describe('formatDrive', () => {
       formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
+    const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
       type: 'ejected',
@@ -724,7 +746,7 @@ describe('formatDrive', () => {
       await vi.advanceTimersByTimeAsync(0);
 
       // Start format — the while loop sleeps because partitionAction has 'mounting'
-      const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
+      const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
       // Resolve mount exec so mountPartitionWithRetry completes during the sleep
       mountOperation.resolve({ stdout: '', stderr: '' });
@@ -768,7 +790,7 @@ describe('formatDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format (no unmount needed)
 
-    await multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     const formatArgs = execMock.mock.calls.find((c) =>
       (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
@@ -788,7 +810,7 @@ describe('formatDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     const formatArgs = execMock.mock.calls.find((c) =>
       (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
@@ -808,9 +830,9 @@ describe('formatDrive', () => {
 
     execMock.mockRejectedValueOnce(new Error('format failed'));
 
-    await expect(multiUsbDrive.formatDrive('/dev/sdb')).rejects.toThrow(
-      'format failed'
-    );
+    await expect(
+      multiUsbDrive.formatDrive('/dev/sdb', 'fat32')
+    ).rejects.toThrow('format failed');
 
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.UsbDriveFormatted,
@@ -833,8 +855,8 @@ describe('formatDrive', () => {
       formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const firstFormat = multiUsbDrive.formatDrive('/dev/sdb');
-    await multiUsbDrive.formatDrive('/dev/sdb'); // no-op
+    const firstFormat = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32'); // no-op
 
     formatOperation.resolve({ stdout: '', stderr: '' });
     await firstFormat;
@@ -962,6 +984,63 @@ describe('autoMount', () => {
       expect.any(String),
       expect.objectContaining({ disposition: 'success' })
     );
+
+    multiUsbDrive.stop();
+  });
+
+  test('auto-mounts ext4 partitions', async () => {
+    const unmountedExt4Disk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'ext4',
+          fsver: '1.0',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+    const mountedExt4Disk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: '/media/vx/usb-drive-sdb1',
+          fstype: 'ext4',
+          fsver: '1.0',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+
+    mockDrives = [unmountedExt4Disk];
+    const logger = mockLogger({ fn: vi.fn });
+
+    execMock.mockImplementation((_cmd, args) => {
+      if (args?.includes(`${MOUNT_SCRIPT_PATH}/mount.sh`)) {
+        mockDrives = [mountedExt4Disk];
+      }
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+      }) as unknown as PromiseWithChild<ExecResult>;
+    });
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await vi.waitFor(
+      () => {
+        const drives = multiUsbDrive.getDrives();
+        expect(drives.length).toEqual(1);
+        expect(drives[0]?.partitions[0]?.mount.type).toEqual('mounted');
+      },
+      { timeout: 2000 }
+    );
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/mount.sh`,
+      '/dev/sdb1',
+    ]);
 
     multiUsbDrive.stop();
   });

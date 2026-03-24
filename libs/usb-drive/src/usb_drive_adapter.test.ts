@@ -39,23 +39,26 @@ describe('createUsbDriveAdapter', () => {
       expect(await adapter.status()).toEqual({ status: 'no_drive' });
     });
 
-    test('returns bad_format when drive has no partitions', async () => {
+    test('returns no_drive when drive has no partitions', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(
+        multiUsbDrive,
+        (drives) => drives[0]?.devPath
+      );
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives
         .expectRepeatedCallsWith()
         .returns([makeDriveInfo({ partitions: [] })]);
-      expect(await adapter.status()).toEqual({
-        status: 'error',
-        reason: 'bad_format',
-      });
+      expect(await adapter.status()).toEqual({ status: 'no_drive' });
     });
 
-    test('returns bad_format when first partition is not FAT32', async () => {
+    test('filters out non-FAT32 drives', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(
+        multiUsbDrive,
+        (drives) => drives[0]?.devPath
+      );
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
@@ -63,16 +66,16 @@ describe('createUsbDriveAdapter', () => {
           partitions: [
             {
               devPath: '/dev/sdb1',
-              fstype: 'exfat',
-              mount: { type: 'unmounted' },
+              fstype: 'ext4',
+              mount: {
+                type: 'mounted',
+                mountPoint: '/media/vx/usb-drive-sdb1',
+              },
             },
           ],
         }),
       ]);
-      expect(await adapter.status()).toEqual({
-        status: 'error',
-        reason: 'bad_format',
-      });
+      expect(await adapter.status()).toEqual({ status: 'no_drive' });
     });
 
     test('returns no_drive when partition is mounting', async () => {
@@ -210,7 +213,7 @@ describe('createUsbDriveAdapter', () => {
       multiUsbDrive.getDrives.reset();
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-      multiUsbDrive.formatDrive.expectCallWith('/dev/sdb').resolves();
+      multiUsbDrive.formatDrive.expectCallWith('/dev/sdb', 'fat32').resolves();
       await adapter.format();
 
       assertComplete();
