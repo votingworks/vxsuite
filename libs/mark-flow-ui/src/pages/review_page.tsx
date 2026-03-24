@@ -33,6 +33,7 @@ export interface ReviewPageProps {
   backUrl?: string;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
+  headerContent?: React.ReactNode;
   precinctId?: PrecinctId;
   ballotStyleId?: BallotStyleId;
   printScreenUrl: string;
@@ -46,6 +47,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     backUrl,
     contests,
     electionDefinition,
+    headerContent,
     precinctId,
     ballotStyleId,
     printScreenUrl,
@@ -111,6 +113,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     >
       <ContentHeader>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
+        {headerContent}
         <AudioOnly>
           <AssistiveTechInstructions
             controllerString={appStrings.instructionsBmdReviewPageNavigation()}

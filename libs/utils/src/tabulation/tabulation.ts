@@ -146,8 +146,7 @@ function getCrossoverInvalidatedContestIds(
     if (
       contest.type === 'candidate' &&
       contest.partyId &&
-      cvr.votes[contest.id] &&
-      cvr.votes[contest.id].length > 0
+      (cvr.votes[contest.id]?.length ?? 0) > 0
     ) {
       votedPartyIds.add(contest.partyId);
     }

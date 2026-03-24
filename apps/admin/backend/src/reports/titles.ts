@@ -132,6 +132,8 @@ export function generateTitleForReport({
           return 'Ballots With Undervotes';
         case 'hasWriteIn':
           return 'Ballots With Write-Ins';
+        case 'hasCrossover':
+          return 'Ballots With Crossover Voting';
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(adjudicationFlag);

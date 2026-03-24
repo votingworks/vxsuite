@@ -624,10 +624,10 @@ export class Store {
     ballotAuditId?: string
   ): string {
     try {
-      const requiresAdjudication = sheetRequiresAdjudication([
-        front.interpretation,
-        back.interpretation,
-      ]);
+      const requiresAdjudication = sheetRequiresAdjudication(
+        [front.interpretation, back.interpretation],
+        this.getElectionRecord()?.electionDefinition.election
+      );
 
       this.client.run(
         `insert into sheets (

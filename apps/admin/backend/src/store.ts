@@ -44,6 +44,9 @@ import {
   BallotStyleGroup,
   getContests,
   SheetOf,
+  isOpenPrimary,
+  PartyId,
+  VotesDict,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -53,6 +56,7 @@ import {
   allContestOptions,
   asSqliteBool,
   BooleanEnvironmentVariableName,
+  detectCrossoverVoting,
   fromSqliteBool,
   getBallotStyleGroup,
   getGroupedBallotStyles,
@@ -735,7 +739,7 @@ export class Store implements BaseStore {
           ${['universalGroup', ...sortByParts].join(',\n')}
     `;
 
-    return (
+    const groups = (
       this.client.all(query, ...params) as Array<
         Partial<Tabulation.GroupSpecifier> & {
           universalGroup: number;
@@ -747,6 +751,29 @@ export class Store implements BaseStore {
       ({ universalGroup, precinctSortIndex, ...groupSpecifier }) =>
         groupSpecifier
     );
+
+    // For open primaries, party can't be derived from ballot styles (always
+    // NULL). Expand each group into one per party from the election definition.
+    const electionRecord = this.getElection(electionId);
+    if (
+      groupBy.groupByParty &&
+      electionRecord &&
+      isOpenPrimary(electionRecord.electionDefinition.election)
+    ) {
+      const partyIds = electionRecord.electionDefinition.election.contests
+        .filter(
+          (c): c is Extract<typeof c, { partyId?: PartyId }> =>
+            c.type === 'candidate' && c.partyId !== undefined
+        )
+        .map((c) => (c as { partyId: PartyId }).partyId);
+      const uniquePartyIds = [...new Set(partyIds)];
+
+      return groups.flatMap((group) =>
+        uniquePartyIds.map((pid) => ({ ...group, partyId: pid }))
+      );
+    }
+
+    return groups;
   }
 
   /**
@@ -1506,6 +1533,10 @@ export class Store implements BaseStore {
       filter
     );
 
+    // For open primaries, infer party from votes rather than ballot style
+    const electionRecord = this.getElection(electionId);
+    const election = electionRecord?.electionDefinition.election;
+
     for (const row of this.client.each(
       `
         select
@@ -1555,18 +1586,33 @@ export class Store implements BaseStore {
         adjudications: string | null;
       }
     >) {
+      const votes = this.parseVotesWithAdjudications({
+        votesString: row.votes,
+        adjudicationsString: row.adjudications,
+      });
+
+      // For open primaries, infer party from the voter's actual selections
+      let partyId: PartyId | undefined = row.partyId ?? undefined;
+      if (election && isOpenPrimary(election)) {
+        const { isCrossover, votedPartyIds } = detectCrossoverVoting(
+          votes,
+          election
+        );
+        partyId =
+          !isCrossover && votedPartyIds.length === 1
+            ? votedPartyIds[0]
+            : undefined;
+      }
+
       yield {
         ballotStyleGroupId: row.ballotStyleGroupId,
-        partyId: row.partyId ?? undefined,
+        partyId,
         votingMethod: row.votingMethod,
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
-        votes: this.parseVotesWithAdjudications({
-          votesString: row.votes,
-          adjudicationsString: row.adjudications,
-        }),
+        votes,
         markScores: this.parseMarkScores({
           markScoresString: row.markScores,
         }),
@@ -2072,8 +2118,19 @@ export class Store implements BaseStore {
       selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
     }
 
+    const openPrimary = isOpenPrimary(election);
     if (groupBy.groupByParty) {
-      selectParts.push('ballot_styles.party_id as partyId');
+      if (openPrimary) {
+        // For open primaries, fetch CVR votes so we can infer party
+        selectParts.push('cvrs.votes as cvrVotes');
+        selectParts.push(
+          `(select json_group_array(
+              json_object('contestId', contest_id, 'optionId', option_id, 'isVote', is_vote)
+            ) from vote_adjudications where cvr_id = cvrs.id) as cvrAdjudications`
+        );
+      } else {
+        selectParts.push('ballot_styles.party_id as partyId');
+      }
     }
 
     if (groupBy.groupByBatch) {
@@ -2120,15 +2177,36 @@ export class Store implements BaseStore {
         `,
       ...params
     ) as Iterable<WriteInForTally & Partial<StoreCastVoteRecordAttributes>>) {
+      // For open primaries, infer party from the CVR's votes
+      let writeInPartyId: PartyId | undefined;
+      if (groupBy.groupByParty) {
+        if (openPrimary) {
+          const votes = this.parseVotesWithAdjudications({
+            votesString: (row as { cvrVotes?: string }).cvrVotes ?? '{}',
+            adjudicationsString:
+              (row as { cvrAdjudications?: string | null }).cvrAdjudications ??
+              null,
+          });
+          const { isCrossover, votedPartyIds } = detectCrossoverVoting(
+            votes,
+            election
+          );
+          writeInPartyId =
+            !isCrossover && votedPartyIds.length === 1
+              ? votedPartyIds[0]
+              : undefined;
+        } else {
+          writeInPartyId =
+            /* istanbul ignore next - edge case coverage needed for bad party grouping in general election @preserve */
+            row.partyId !== null ? row.partyId : undefined;
+        }
+      }
+
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
-        partyId:
-          /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
-          groupBy.groupByParty && row.partyId !== null
-            ? row.partyId
-            : undefined,
+        partyId: writeInPartyId,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,

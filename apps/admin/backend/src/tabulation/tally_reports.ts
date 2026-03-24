@@ -150,10 +150,13 @@ export async function tabulateTallyReportResults(params: {
           })
         : undefined;
 
-      // maintain split for card counts
+      // maintain split for card counts (skip undefined-party groups, e.g.
+      // crossover ballots in open primaries)
       const cardCountsByParty: Admin.CardCountsByParty = reportsByParty.reduce(
         (ccByParty, partyTallyReportResults) => {
-          assert(partyTallyReportResults.partyId !== undefined);
+          if (partyTallyReportResults.partyId === undefined) {
+            return ccByParty;
+          }
           return {
             ...ccByParty,
             [partyTallyReportResults.partyId]:

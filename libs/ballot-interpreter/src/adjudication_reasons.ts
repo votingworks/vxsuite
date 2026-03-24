@@ -254,6 +254,9 @@ export function adjudicationReasonDescription(
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`;
 
+    case AdjudicationReason.CrossoverVoting:
+      return `Ballot has votes in contests from multiple parties.`;
+
     // istanbul ignore next
     default:
       throwIllegalValue(reason);

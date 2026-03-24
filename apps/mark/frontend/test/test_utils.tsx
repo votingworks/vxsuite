@@ -62,6 +62,7 @@ export function render(
           endVoterSession,
           precinctId,
           resetBallot,
+          selectParty: () => {},
           updateVote,
           votes,
         }}

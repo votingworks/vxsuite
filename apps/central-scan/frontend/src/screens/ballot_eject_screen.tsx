@@ -4,11 +4,16 @@ import {
   Contest,
   PageInterpretation,
   Side,
+  VotesDict,
   formatBallotHash,
+  isOpenPrimary,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { Button, H1, H2, H6, Icons, Main, P, Screen } from '@votingworks/ui';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  detectCrossoverVoting,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import React, { useCallback, useContext } from 'react';
 import styled from 'styled-components';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
@@ -153,6 +158,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
 
   let isOvervotedSheet = false;
   let isUndervotedSheet = false;
+  let isCrossoverSheet = false;
   let verticalStreaksDetected = false;
   let isFrontBlank = false;
   let isBackBlank = false;
@@ -218,6 +224,26 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             }
           }
         }
+      }
+    }
+  }
+
+  // Crossover voting is a ballot-level check — combine votes from both pages
+  const { election } = electionDefinition;
+  if (isOpenPrimary(election)) {
+    const frontInterp = reviewInfo.interpreted.front.interpretation;
+    const backInterp = reviewInfo.interpreted.back.interpretation;
+    if (
+      frontInterp.type === 'InterpretedHmpbPage' &&
+      backInterp.type === 'InterpretedHmpbPage'
+    ) {
+      const combinedVotes: VotesDict = {
+        ...frontInterp.votes,
+        ...backInterp.votes,
+      };
+      const { isCrossover } = detectCrossoverVoting(combinedVotes, election);
+      if (isCrossover) {
+        isCrossoverSheet = true;
       }
     }
   }
@@ -317,6 +343,20 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           </React.Fragment>
         ),
         allowBallotDuplication: false,
+      };
+    }
+
+    if (isCrossoverSheet) {
+      return {
+        header: 'Crossover Voting',
+        body: (
+          <P>
+            The last scanned ballot was not tabulated because votes were
+            detected in contests from more than one party. If tabulated, only
+            nonpartisan votes will count.
+          </P>
+        ),
+        allowBallotDuplication: true,
       };
     }
 

@@ -87,7 +87,7 @@ export function generateBallotStyles(params: {
 
   // Open primaries generate a single ballot style per precinct (like general
   // elections) with no partyId — every voter gets all contests from all parties.
-  const effectiveElectionType =
+  const effectiveElectionType: ElectionType =
     electionType === 'primary' && isOpenPrimary ? 'general' : electionType;
 
   switch (effectiveElectionType) {
@@ -213,7 +213,7 @@ export function generateBallotStyles(params: {
 
     default: {
       /* istanbul ignore next - @preserve */
-      return throwIllegalValue(electionType);
+      return throwIllegalValue(effectiveElectionType);
     }
   }
 }

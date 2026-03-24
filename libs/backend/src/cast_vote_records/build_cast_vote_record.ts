@@ -103,13 +103,11 @@ function buildCVRBallotMeasureContest({
   vote,
   electionDefinition,
   ballotStyleId,
-  isCrossover,
 }: {
   contest: YesNoContest;
   vote: YesNoVote;
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
-  isCrossover?: boolean;
 }): CVR.CVRContest {
   const overvoted = vote.length > 1;
   const undervoted = vote.length < 1;
@@ -378,7 +376,6 @@ export function buildCVRContestsFromVotes({
             vote: contestVote as YesNoVote,
             electionDefinition,
             ballotStyleId,
-            isCrossover,
           })
         );
         break;

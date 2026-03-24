@@ -1,4 +1,4 @@
-import { Admin, Id, Tabulation } from '@votingworks/types';
+import { Admin, Id, Tabulation, isOpenPrimary } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   getEmptyCardCounts,
@@ -44,6 +44,69 @@ function addCardTallyToCardCounts({
 }
 
 /**
+ * Computes card counts from individual CVRs. Used for open primaries where
+ * party must be inferred from votes (can't use SQL aggregation on
+ * ballot_styles.party_id).
+ */
+function tabulateScannedCardCountsFromCvrs({
+  electionId,
+  store,
+  filter,
+  groupBy,
+}: {
+  electionId: Id;
+  store: Store;
+  filter?: Admin.ReportingFilter;
+  groupBy?: Tabulation.GroupBy;
+}): Tabulation.GroupMap<Tabulation.CardCounts> {
+  debug('computing card counts from CVRs (open primary path)');
+  const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
+
+  // Pre-populate expected groups
+  if (groupBy && groupBySupportsZeroSplits(groupBy)) {
+    const expectedGroups = store.getTabulationGroups({
+      electionId,
+      groupBy,
+      filter,
+    });
+    for (const expectedGroup of expectedGroups) {
+      cardCountsGroupMap[getGroupKey(expectedGroup, groupBy)] =
+        getEmptyCardCounts();
+    }
+  }
+
+  for (const cvr of store.getCastVoteRecords({
+    electionId,
+    filter: filter ?? {},
+  })) {
+    const groupSpecifier: Tabulation.GroupSpecifier = {
+      ballotStyleGroupId: groupBy?.groupByBallotStyle
+        ? cvr.ballotStyleGroupId
+        : undefined,
+      partyId: groupBy?.groupByParty ? cvr.partyId : undefined,
+      precinctId: groupBy?.groupByPrecinct ? cvr.precinctId : undefined,
+      batchId: groupBy?.groupByBatch ? cvr.batchId : undefined,
+      scannerId: groupBy?.groupByScanner ? cvr.scannerId : undefined,
+      votingMethod: groupBy?.groupByVotingMethod
+        ? cvr.votingMethod
+        : undefined,
+    };
+    const groupKey = groupBy
+      ? getGroupKey(groupSpecifier, groupBy)
+      : GROUP_KEY_ROOT;
+
+    const cardCounts = cardCountsGroupMap[groupKey] ?? getEmptyCardCounts();
+    addCardTallyToCardCounts({
+      cardCounts,
+      cardTally: { card: cvr.card, tally: 1 },
+    });
+    cardCountsGroupMap[groupKey] = cardCounts;
+  }
+
+  return cardCountsGroupMap;
+}
+
+/**
  * Tabulates card tallies aggregated by the store into card counts.
  */
 export function tabulateScannedCardCounts({
@@ -58,6 +121,23 @@ export function tabulateScannedCardCounts({
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   assertIsBackendFilter(filter);
+
+  // For open primaries with party grouping, use CVR-based path since SQL
+  // aggregation can't infer party from votes
+  const electionRecord = store.getElection(electionId);
+  if (
+    electionRecord &&
+    isOpenPrimary(electionRecord.electionDefinition.election) &&
+    groupBy?.groupByParty
+  ) {
+    return tabulateScannedCardCountsFromCvrs({
+      electionId,
+      store,
+      filter,
+      groupBy,
+    });
+  }
+
   debug('querying scanned card tallies');
   const cardTallies = store.getCardTallies({
     electionId,
