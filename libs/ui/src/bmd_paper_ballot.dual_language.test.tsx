@@ -327,13 +327,18 @@ describe('English ballot style', () => {
     // Change app-wide language to Spanish to verify ballot language is not
     // affected:
     act(() => getLanguageContext()!.setLanguage('es-US'));
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('es-US')
-    );
 
-    expect(container).not.toHaveTextContent(
-      new RegExp(getMockUiStringPrefix('es-US'))
-    );
+    // Wait for both the language context update and all cascading re-renders
+    // to settle. The language change triggers async effects in UiStringsLoader
+    // (via i18next resource updates and react-i18next re-renders), which can
+    // cause transient intermediate render states where LanguageOverride's
+    // nested context hasn't yet propagated to its children.
+    await waitFor(() => {
+      expect(getLanguageContext()?.currentLanguageCode).toEqual('es-US');
+      expect(container).not.toHaveTextContent(
+        new RegExp(getMockUiStringPrefix('es-US'))
+      );
+    });
   });
 
   test('no votes', async () => {
