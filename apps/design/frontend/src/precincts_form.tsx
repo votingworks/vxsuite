@@ -126,9 +126,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function onSubmit() {
-    const registeredVotersCountsArg = registeredVotersCounts
-      ? { registeredVotersCounts }
-      : {};
+    const registeredVotersCountsArg =
+      registeredVotersCounts === undefined ? {} : { registeredVotersCounts };
     if (savedPrecinct) {
       updatePrecinctMutation.mutate(
         { electionId, updatedPrecinct: precinct, ...registeredVotersCountsArg },
