@@ -259,6 +259,14 @@ function buildApi({
       };
     },
 
+    getIsClientAdjudicationEnabled(): boolean {
+      return store.getIsClientAdjudicationEnabled();
+    },
+
+    setIsClientAdjudicationEnabled(input: { enabled: boolean }) {
+      store.setIsClientAdjudicationEnabled(input.enabled);
+    },
+
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace.store));
     },

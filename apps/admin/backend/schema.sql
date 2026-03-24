@@ -252,6 +252,7 @@ create table settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
   current_election_id varchar(36),
+  is_client_adjudication_enabled boolean not null default 0,
   foreign key (current_election_id) references elections(id)
 );
 

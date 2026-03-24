@@ -18,7 +18,9 @@ export interface PeerAppContext {
 
 function buildPeerApi({ workspace }: PeerAppContext) {
   return grout.createApi({
-    connectToHost(input: { machineId: string }): MachineConfig {
+    connectToHost(input: {
+      machineId: string;
+    }): MachineConfig & { isClientAdjudicationEnabled: boolean } {
       debug(
         'Client %s connected to host (election: %s)',
         input.machineId,
@@ -29,7 +31,11 @@ function buildPeerApi({ workspace }: PeerAppContext) {
         'client',
         HostConnectionStatus.Connected
       );
-      return getMachineConfig();
+      return {
+        ...getMachineConfig(),
+        isClientAdjudicationEnabled:
+          workspace.store.getIsClientAdjudicationEnabled(),
+      };
     },
 
     getElectionPackageHash(): Optional<string> {

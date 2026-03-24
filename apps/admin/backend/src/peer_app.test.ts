@@ -4,7 +4,7 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { HostConnectionStatus } from './types';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 
-test('connectToHost registers client and returns host machine config', async () => {
+test('connectToHost registers client and returns host machine config with adjudication status', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
   const result = await peerApiClient.connectToHost({
     machineId: 'client-001',
@@ -12,6 +12,7 @@ test('connectToHost registers client and returns host machine config', async () 
   expect(result).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    isClientAdjudicationEnabled: false,
   });
 
   const machines = workspace.store.getMachines();
@@ -21,6 +22,15 @@ test('connectToHost registers client and returns host machine config', async () 
     machineMode: 'client',
     status: HostConnectionStatus.Connected,
   });
+});
+
+test('connectToHost returns adjudication enabled when set', async () => {
+  const { peerApiClient, workspace } = buildTestEnvironment();
+  workspace.store.setIsClientAdjudicationEnabled(true);
+  const result = await peerApiClient.connectToHost({
+    machineId: 'client-001',
+  });
+  expect(result.isClientAdjudicationEnabled).toEqual(true);
 });
 
 test('getCurrentElectionMetadata returns null when no election configured', async () => {

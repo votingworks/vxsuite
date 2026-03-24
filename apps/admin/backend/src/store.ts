@@ -3068,4 +3068,22 @@ export class Store implements BaseStore {
       STALE_MACHINE_THRESHOLD_MS
     );
   }
+
+  //
+  // Adjudication session management
+  //
+
+  getIsClientAdjudicationEnabled(): boolean {
+    const result = this.client.one(
+      'select is_client_adjudication_enabled as isEnabled from settings'
+    ) as { isEnabled: number } | undefined;
+    return result?.isEnabled === 1;
+  }
+
+  setIsClientAdjudicationEnabled(enabled: boolean): void {
+    this.client.run(
+      'update settings set is_client_adjudication_enabled = ?',
+      enabled ? 1 : 0
+    );
+  }
 }
