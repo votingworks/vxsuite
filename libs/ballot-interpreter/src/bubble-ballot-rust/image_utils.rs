@@ -257,7 +257,7 @@ pub fn find_scanned_document_inset(
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VerticalStreak {
     pub(crate) x_range: RangeInclusive<PixelPosition>,
     pub(crate) scores: Vec<UnitIntervalScore>,
@@ -271,13 +271,9 @@ impl VerticalStreak {
             let overlap_size = (*self.x_range.end() + 1 - *other.x_range.start()) as usize;
             Ok(Self {
                 x_range: *self.x_range.start()..=*other.x_range.end(),
-                scores: [
-                    &self.scores[..=self.scores.len() - overlap_size],
-                    &other.scores[overlap_size..],
-                ]
-                .concat(),
+                scores: [&self.scores, &other.scores[overlap_size..]].concat(),
                 longest_white_gaps: [
-                    &self.longest_white_gaps[..=self.longest_white_gaps.len() - overlap_size],
+                    &self.longest_white_gaps,
                     &other.longest_white_gaps[overlap_size..],
                 ]
                 .concat(),
@@ -482,6 +478,47 @@ mod test {
                 right: 0,
             })
         );
+    }
+
+    fn make_streak(x_range: RangeInclusive<PixelPosition>) -> VerticalStreak {
+        VerticalStreak {
+            scores: make_scores(x_range.clone()),
+            longest_white_gaps: make_longest_white_gaps(x_range.clone()),
+            x_range,
+        }
+    }
+
+    fn make_scores(columns: RangeInclusive<PixelPosition>) -> Vec<UnitIntervalScore> {
+        columns
+            .map(|x| UnitIntervalScore(x as f32 / 100.0))
+            .collect()
+    }
+
+    fn make_longest_white_gaps(columns: RangeInclusive<PixelPosition>) -> Vec<PixelUnit> {
+        columns.map(|x| x as PixelUnit).collect()
+    }
+
+    #[test]
+    fn test_coalesce_adjacent_streaks() {
+        let result = make_streak(0..=2).coalesce(make_streak(3..=5)).unwrap();
+        assert_eq!(result.x_range, 0..=5);
+        assert_eq!(result.scores, make_scores(0..=5));
+        assert_eq!(result.longest_white_gaps, make_longest_white_gaps(0..=5));
+    }
+
+    #[test]
+    fn test_coalesce_overlapping_streaks() {
+        let result = make_streak(0..=5).coalesce(make_streak(4..=8)).unwrap();
+        assert_eq!(result.x_range, 0..=8);
+        assert_eq!(result.scores, make_scores(0..=8));
+        assert_eq!(result.longest_white_gaps, make_longest_white_gaps(0..=8));
+    }
+
+    #[test]
+    fn test_coalesce_non_adjacent_streaks() {
+        let (l, r) = (make_streak(0..=2), make_streak(4..=6));
+        let coalesced = l.clone().coalesce(r.clone()).unwrap_err();
+        assert_eq!(coalesced, (l, r));
     }
 
     #[test]
