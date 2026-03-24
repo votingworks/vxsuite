@@ -1735,7 +1735,10 @@ export class Store {
           `delete from precinct_registered_voter_counts where precinct_id = $1`,
           precinct.id
         );
-        if (!hasSplits(precinct) && typeof registeredVotersCounts === 'number') {
+        if (
+          !hasSplits(precinct) &&
+          typeof registeredVotersCounts === 'number'
+        ) {
           await client.query(
             `
               insert into precinct_registered_voter_counts (precinct_id, count)
@@ -1769,6 +1772,7 @@ export class Store {
             }
           }
         }
+        return true;
       })
     );
   }

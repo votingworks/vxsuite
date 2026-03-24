@@ -343,6 +343,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           <input
                             disabled={disabled}
                             type="number"
+                            step={1}
                             min={0}
                             value={
                               typeof registeredVotersCounts === 'object'
@@ -358,9 +359,13 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                                 ...currentSplits,
                               };
                               if (e.target.value) {
-                                newSplits[split.id] = safeParseInt(
+                                const parseResult = safeParseInt(
                                   e.target.value
-                                ).unsafeUnwrap();
+                                );
+                                if (parseResult.isErr()) {
+                                  return;
+                                }
+                                newSplits[split.id] = parseResult.ok();
                               } else {
                                 delete newSplits[split.id];
                               }
@@ -488,12 +493,11 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           setRegisteredVotersCounts(undefined);
                           return;
                         }
-                        const parsed = Number.parseInt(value, 10);
-                        if (Number.isNaN(parsed)) {
-                          // Ignore invalid integer input without throwing.
+                        const parseResult = safeParseInt(value);
+                        if (parseResult.isErr()) {
                           return;
                         }
-                        setRegisteredVotersCounts(parsed);
+                        setRegisteredVotersCounts(parseResult.ok());
                       }}
                       style={{ width: '8rem' }}
                     />
