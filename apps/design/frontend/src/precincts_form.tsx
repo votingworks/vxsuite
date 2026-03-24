@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -29,6 +29,7 @@ import { Row, Column, InputGroup, FieldName } from './layout';
 import {
   listDistricts,
   getStateFeatures,
+  getRegisteredVoterCounts,
   updatePrecinct,
   createPrecinct,
   deletePrecinct,
@@ -59,23 +60,22 @@ export interface PrecinctFormProps {
   editing: boolean;
   electionId: ElectionId;
   savedPrecinct?: Precinct;
-  savedRegisteredVotersCounts?: PrecinctRegisteredVoterCountEntry;
   title: React.ReactNode;
 }
 
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
-  const {
-    editing,
-    electionId,
-    savedPrecinct,
-    savedRegisteredVotersCounts,
-    title,
-  } = props;
+  const { editing, electionId, savedPrecinct, title } = props;
 
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const getRegisteredVoterCountsQuery =
+    getRegisteredVoterCounts.useQuery(electionId);
+
+  const savedRegisteredVotersCounts = savedPrecinct
+    ? getRegisteredVoterCountsQuery.data?.[savedPrecinct.id]
+    : undefined;
 
   const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
@@ -87,11 +87,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     PrecinctRegisteredVoterCountEntry | undefined
   >(savedRegisteredVotersCounts);
 
-  useEffect(() => {
-    if (!editing) {
-      setRegisteredVotersCounts(savedRegisteredVotersCounts);
-    }
-  }, [savedRegisteredVotersCounts, editing]);
+  const displayedRegisteredVotersCounts = editing
+    ? registeredVotersCounts
+    : savedRegisteredVotersCounts;
 
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
@@ -352,8 +350,11 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                             step={1}
                             min={0}
                             value={
-                              typeof registeredVotersCounts === 'object'
-                                ? registeredVotersCounts.splits[split.id] ?? ''
+                              typeof displayedRegisteredVotersCounts ===
+                              'object'
+                                ? displayedRegisteredVotersCounts.splits[
+                                    split.id
+                                  ] ?? ''
                                 : ''
                             }
                             onChange={(e) => {
@@ -489,8 +490,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       min={0}
                       step={1}
                       value={
-                        typeof registeredVotersCounts === 'number'
-                          ? registeredVotersCounts
+                        typeof displayedRegisteredVotersCounts === 'number'
+                          ? displayedRegisteredVotersCounts
                           : ''
                       }
                       onChange={(e) => {

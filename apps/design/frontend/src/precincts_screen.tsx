@@ -6,12 +6,7 @@ import { H1, LinkButton } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import {
-  getBallotsFinalizedAt,
-  getElectionInfo,
-  getRegisteredVoterCounts,
-  listPrecincts,
-} from './api';
+import { getBallotsFinalizedAt, getElectionInfo, listPrecincts } from './api';
 import { useTitle } from './hooks/use_title';
 import { PrecinctForm } from './precincts_form';
 import { PrecinctList } from './precincts_list';
@@ -164,23 +159,17 @@ function EditPrecinctForm(): JSX.Element | null {
   const { electionId, precinctId } = useParams<RouteParams>();
 
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
-  const registeredVoterCountsQuery =
-    getRegisteredVoterCounts.useQuery(electionId);
   const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
 
   const precinctParamRoutes = electionParamRoutes.precincts;
   const precinctRoutes = routes.election(electionId).precincts;
 
-  if (!listPrecinctsQuery.isSuccess || !registeredVoterCountsQuery.isSuccess) {
+  if (!listPrecinctsQuery.isSuccess) {
     return null;
   }
 
   const precincts = listPrecinctsQuery.data;
-  const registeredVoterCounts = registeredVoterCountsQuery.data;
   const savedPrecinct = precincts.find((p) => p.id === precinctId);
-  const savedRegisteredVotersCounts = savedPrecinct
-    ? registeredVoterCounts[savedPrecinct.id]
-    : undefined;
   const canEdit = !finalizedAt.data && !!savedPrecinct;
 
   return (
@@ -193,7 +182,6 @@ function EditPrecinctForm(): JSX.Element | null {
               electionId={electionId}
               key={precinctId}
               savedPrecinct={savedPrecinct}
-              savedRegisteredVotersCounts={savedRegisteredVotersCounts}
               title="Edit Precinct"
             />
           </Route>
@@ -206,7 +194,6 @@ function EditPrecinctForm(): JSX.Element | null {
               editing={false}
               key={precinctId}
               savedPrecinct={savedPrecinct}
-              savedRegisteredVotersCounts={savedRegisteredVotersCounts}
               title="Precinct Info"
             />
           </Route>
