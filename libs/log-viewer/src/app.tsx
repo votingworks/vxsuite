@@ -72,6 +72,7 @@ export function App(): JSX.Element {
     useState<FilterState>(EMPTY_FILTER_STATE);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scrollToLine, setScrollToLine] = useState<number | null>(null);
 
   const handleFileLoad = useCallback(async (file: File) => {
     try {
@@ -167,7 +168,15 @@ export function App(): JSX.Element {
                 filterState={filterState}
                 onFilterChange={setFilterState}
               />
-              <LogDisplay stitchedLog={stitchedLog} filterState={filterState} />
+              <LogDisplay
+                stitchedLog={stitchedLog}
+                filterState={filterState}
+                scrollToLine={scrollToLine}
+                onViewInContext={(lineNumber) => {
+                  setFilterState(EMPTY_FILTER_STATE);
+                  setScrollToLine(lineNumber);
+                }}
+              />
             </React.Fragment>
           ) : (
             <WelcomeContainer>

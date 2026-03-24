@@ -90,14 +90,30 @@ function applyFilter(line: LogLine, filterState: FilterState): boolean {
   return true;
 }
 
+function hasActiveFilters(filterState: FilterState): boolean {
+  return Boolean(
+    filterState.eventId ||
+      filterState.source ||
+      filterState.eventType ||
+      filterState.disposition ||
+      filterState.searchText ||
+      filterState.timeStart ||
+      filterState.timeEnd
+  );
+}
+
 interface LogDisplayProps {
   readonly stitchedLog: StitchedLogFile;
   readonly filterState: FilterState;
+  readonly scrollToLine?: number | null;
+  readonly onViewInContext?: (lineNumber: number) => void;
 }
 
 export function LogDisplay({
   stitchedLog,
   filterState,
+  scrollToLine,
+  onViewInContext,
 }: LogDisplayProps): JSX.Element {
   const parentRef = useRef<HTMLDivElement>(null);
   const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
@@ -119,6 +135,8 @@ export function LogDisplay({
     [stitchedLog]
   );
 
+  const isFiltered = hasActiveFilters(filterState);
+
   // Parse URL hash for initial selection
   useEffect(() => {
     const { hash } = window.location;
@@ -133,15 +151,28 @@ export function LogDisplay({
     setSelectedLines(lines);
     setAnchorLine(start);
 
-    // Scroll to the line after virtualizer is ready
     requestAnimationFrame(() => {
       const idx = filteredLines.findIndex((l) => l.lineNumber >= start);
       if (idx >= 0 && parentRef.current) {
-        // Approximate scroll position
         parentRef.current.scrollTop = idx * LOG_ROW_HEIGHT;
       }
     });
   }, []);
+
+  // Scroll to a specific line when requested (e.g. after "View in Context")
+  useEffect(() => {
+    if (scrollToLine === null || scrollToLine === undefined) return;
+    const idx = filteredLines.findIndex((l) => l.lineNumber >= scrollToLine);
+    if (idx >= 0) {
+      setSelectedLines(new Set([scrollToLine]));
+      setAnchorLine(scrollToLine);
+      requestAnimationFrame(() => {
+        if (parentRef.current) {
+          parentRef.current.scrollTop = idx * LOG_ROW_HEIGHT;
+        }
+      });
+    }
+  }, [scrollToLine, filteredLines]);
 
   // Update URL hash when selection changes
   useEffect(() => {
@@ -249,6 +280,13 @@ export function LogDisplay({
             {selectedLines.size} line{selectedLines.size !== 1 ? 's' : ''}{' '}
             selected
           </span>
+          {isFiltered && onViewInContext && selectedLines.size === 1 && (
+            <ToolbarButton
+              onClick={() => onViewInContext([...selectedLines][0])}
+            >
+              View in Context
+            </ToolbarButton>
+          )}
           <ToolbarButton onClick={() => void handleCopyForSlack()}>
             Copy for Slack
           </ToolbarButton>
