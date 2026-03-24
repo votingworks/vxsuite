@@ -988,6 +988,63 @@ describe('autoMount', () => {
     multiUsbDrive.stop();
   });
 
+  test('auto-mounts ext4 partitions', async () => {
+    const unmountedExt4Disk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'ext4',
+          fsver: '1.0',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+    const mountedExt4Disk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: '/media/vx/usb-drive-sdb1',
+          fstype: 'ext4',
+          fsver: '1.0',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+
+    mockDrives = [unmountedExt4Disk];
+    const logger = mockLogger({ fn: vi.fn });
+
+    execMock.mockImplementation((_cmd, args) => {
+      if (args?.includes(`${MOUNT_SCRIPT_PATH}/mount.sh`)) {
+        mockDrives = [mountedExt4Disk];
+      }
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+      }) as unknown as PromiseWithChild<ExecResult>;
+    });
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await vi.waitFor(
+      () => {
+        const drives = multiUsbDrive.getDrives();
+        expect(drives.length).toEqual(1);
+        expect(drives[0]?.partitions[0]?.mount.type).toEqual('mounted');
+      },
+      { timeout: 2000 }
+    );
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/mount.sh`,
+      '/dev/sdb1',
+    ]);
+
+    multiUsbDrive.stop();
+  });
+
   test('logs mount failure when exec throws', async () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
