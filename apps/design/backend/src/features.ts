@@ -141,6 +141,10 @@ export interface StateFeaturesConfig {
    * precincts at the time of export.
    */
   EDIT_POLLING_PLACES?: boolean;
+  /**
+   * Hides the registered voter count fields in the precinct form.
+   */
+  DISABLE_REGISTERED_VOTERS_COUNTS?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;

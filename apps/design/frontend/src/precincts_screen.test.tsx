@@ -912,12 +912,12 @@ test('shows voter count field by default', async () => {
   screen.getByLabelText('Registered Voters');
 });
 
-test('DISABLE_REGISTERED_VOTER_COUNTS hides voter count field', async () => {
+test('DISABLE_REGISTERED_VOTERS_COUNTS hides voter count field', async () => {
   const savedPrecinct = election.precincts[0];
   assert(!hasSplits(savedPrecinct));
 
   mockStateFeatures(apiMock, electionId, {
-    DISABLE_REGISTERED_VOTER_COUNTS: true,
+    DISABLE_REGISTERED_VOTERS_COUNTS: true,
   });
   apiMock.listPrecincts
     .expectCallWith({ electionId })

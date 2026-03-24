@@ -338,7 +338,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                         />
                       </InputGroup>
 
-                      {!features.DISABLE_REGISTERED_VOTER_COUNTS && (
+                      {!features.DISABLE_REGISTERED_VOTERS_COUNTS && (
                         <InputGroup label="Registered Voters">
                           <input
                             disabled={disabled}
@@ -470,7 +470,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
               </React.Fragment>
             ) : (
               <Column style={{ gap: '1rem' }}>
-                {!features.DISABLE_REGISTERED_VOTER_COUNTS && (
+                {!features.DISABLE_REGISTERED_VOTERS_COUNTS && (
                   <InputGroup label="Registered Voters">
                     <input
                       disabled={disabled}
