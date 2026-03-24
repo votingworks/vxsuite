@@ -274,13 +274,18 @@ async function insertPrecinct(
   await assertWithinTransaction(client);
   await client.query(
     `
-      insert into precincts (id, election_id, name)
+      insert into precincts (
+        id,
+        election_id,
+        name
+      )
       values ($1, $2, $3)
     `,
     precinct.id,
     electionId,
     precinct.name
   );
+
   await insertPrecinctDistrictsOrSplits(client, precinct);
 }
 
@@ -302,7 +307,12 @@ async function insertPrecinctDistrictsOrSplits(
       const { id: splitId, name, districtIds, ...nhOptions } = split;
       await client.query(
         `
-          insert into precinct_splits (id, precinct_id, name, nh_options)
+          insert into precinct_splits (
+            id,
+            precinct_id,
+            name,
+            nh_options
+          )
           values ($1, $2, $3, $4)
         `,
         splitId,
@@ -1642,17 +1652,12 @@ export class Store {
               type: 'election_day',
             });
 
-            // Use a savepoint so a duplicate-name error doesn't abort the
-            // outer transaction (PostgreSQL marks the transaction as aborted
-            // after any statement error, even if caught).
-            await client.query('SAVEPOINT before_polling_place');
             const res = await insertPollingPlace(
               client,
               electionId,
               generatedPlace
             );
             if (res.isErr()) {
-              await client.query('ROLLBACK TO SAVEPOINT before_polling_place');
               const error = res.err();
               switch (error) {
                 case 'duplicate-name':
@@ -1671,7 +1676,6 @@ export class Store {
                   throwIllegalValue(error);
               }
             }
-            await client.query('RELEASE SAVEPOINT before_polling_place');
           }
 
           return true;
@@ -1693,7 +1697,9 @@ export class Store {
           const { rowCount } = await client.query(
             `
               update precincts set name = $1
-              where id = $2 and election_id = $3
+              where
+                id = $2
+                and election_id = $3
             `,
             precinct.name,
             precinct.id,
@@ -1705,10 +1711,12 @@ export class Store {
             `delete from districts_precincts where precinct_id = $1`,
             precinct.id
           );
+
           await client.query(
             `delete from precinct_splits where precinct_id = $1`,
             precinct.id
           );
+
           await insertPrecinctDistrictsOrSplits(client, precinct);
 
           return true;
@@ -1721,7 +1729,7 @@ export class Store {
   }
 
   /**
-   * Sets the registered voter count(s) for a precinct or splits in a precinct.
+   * Sets the registered voter counts for a precinct or splits in a precinct.
    * @param precinct The precinct to update.
    * @param registeredVotersCounts Will unset the registered voter count if undefined.
    */
