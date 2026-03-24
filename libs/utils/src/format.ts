@@ -1,4 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
+import { DateTime } from 'luxon';
 
 export const DEFAULT_LOCALE: string = 'en';
 
@@ -165,4 +166,28 @@ export function bytes(
   const scaledValue = value / k ** unitIndex;
 
   return `${scaledValue.toFixed(fractionDigits)} ${units[unitIndex]}`;
+}
+
+const RELATIVE_TIME_ROUND_SECONDS = 5;
+
+/**
+ * Formats a timestamp as a human-readable relative time string (e.g. "5
+ * seconds ago", "2 minutes ago"). Rounds to the nearest 5 seconds and returns
+ * "Now" for very recent timestamps.
+ */
+export function relativeTime(
+  timestamp: number | Date,
+  { roundSeconds = RELATIVE_TIME_ROUND_SECONDS }: { roundSeconds?: number } = {}
+): string {
+  const base = DateTime.now();
+  const lastSeen = DateTime.fromJSDate(
+    timestamp instanceof Date ? timestamp : new Date(timestamp)
+  );
+  const diffSeconds = lastSeen.diff(base).as('seconds');
+  const roundedSeconds = roundSeconds * Math.ceil(diffSeconds / roundSeconds);
+  const relative = base.plus({ seconds: roundedSeconds }).toRelative({
+    base,
+    unit: ['days', 'hours', 'minutes', 'seconds'],
+  });
+  return relative === 'in 0 seconds' ? 'Now' : relative ?? 'Now';
 }
