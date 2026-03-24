@@ -2,7 +2,6 @@ use clap::Parser;
 use color_eyre::eyre::bail;
 use image::EncodableLayout;
 use std::{
-    cell::{Cell, RefCell},
     fmt::Debug,
     future::pending,
     io::{self, Write},
@@ -233,6 +232,48 @@ async fn initialize_connected_scanner(
     Ok((client, calibration_tables))
 }
 
+struct Output<W: Write> {
+    stdout: W,
+    // We reject sending a command while a scan is in progress because it will
+    // interrupt the scan. To ensure this flag gets reset whenever a scan stops
+    // (whether successfully or with an error or disconnection), we manage this
+    // flag in the send_response/send_event methods, since they are called in
+    // basically every case when the scanner state changes.
+    scan_in_progress: bool,
+}
+
+impl<W: Write> Output<W> {
+    fn send_to_stdout(&mut self, message: &Message) -> color_eyre::Result<()> {
+        serde_json::to_writer(&mut self.stdout, message)?;
+        self.stdout.write_all(b"\n")?;
+        Ok(())
+    }
+
+    fn send_response(&mut self, response: Response) -> color_eyre::Result<()> {
+        tracing::debug!("sending response: {response:?}");
+        self.scan_in_progress = false;
+        self.send_to_stdout(&Message::Response(response))
+    }
+
+    fn send_event(&mut self, event: Event) -> color_eyre::Result<()> {
+        tracing::debug!("sending event: {event:?}");
+        self.scan_in_progress = matches!(event, Event::ScanStart);
+        self.send_to_stdout(&Message::Event(event))
+    }
+
+    fn send_error_response(&mut self, error: &Error) -> color_eyre::Result<()> {
+        tracing::error!("sending error: {error:?}");
+        let (code, message) = error_to_code_and_message(error);
+        self.send_response(Response::Error { code, message })
+    }
+
+    fn send_error_event(&mut self, error: &Error) -> color_eyre::Result<()> {
+        tracing::error!("sending error event: {error:?}");
+        let (code, message) = error_to_code_and_message(error);
+        self.send_event(Event::Error { code, message })
+    }
+}
+
 /// Runs the main command/event loop. Reads JSON commands from `stdin`,
 /// writes JSON responses and events to `stdout`, and uses `connect` to
 /// create new scanner connections.
@@ -243,49 +284,14 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
     mut connect: impl FnMut() -> pdi_scanner::Result<Client>,
 ) -> color_eyre::Result<()> {
     let mut stdin_lines = stdin.lines();
-    let stdout = RefCell::new(stdout);
+    let mut output = Output {
+        stdout,
+        scan_in_progress: false,
+    };
 
     let mut client: Option<Client> = None;
     let mut image_calibration_tables: Option<ImageCalibrationTables> = None;
     let mut raw_image_data = RawImageData::new();
-
-    // We reject sending a command while a scan is in progress because it will
-    // interrupt the scan. To ensure this flag gets reset whenever a scan stops
-    // (whether successfully or with an error or disconnection), we manage this
-    // flag in the send_response/send_event functions, since they are called in
-    // basically every case when the scanner state changes.
-    let scan_in_progress = Cell::new(false);
-
-    let send_to_stdout = |message: &Message| -> color_eyre::Result<()> {
-        let mut stdout = stdout.borrow_mut();
-        serde_json::to_writer(&mut *stdout, message)?;
-        stdout.write_all(b"\n")?;
-        Ok(())
-    };
-
-    let send_response = |response: Response| -> color_eyre::Result<()> {
-        tracing::debug!("sending response: {response:?}");
-        scan_in_progress.replace(false);
-        send_to_stdout(&Message::Response(response))
-    };
-
-    let send_event = |event: Event| -> color_eyre::Result<()> {
-        tracing::debug!("sending event: {event:?}");
-        scan_in_progress.replace(matches!(event, Event::ScanStart));
-        send_to_stdout(&Message::Event(event))
-    };
-
-    let send_error_response = |error: &Error| -> color_eyre::Result<()> {
-        tracing::error!("sending error: {error:?}");
-        let (code, message) = error_to_code_and_message(error);
-        send_response(Response::Error { code, message })
-    };
-
-    let send_error_event = |error: &Error| -> color_eyre::Result<()> {
-        tracing::error!("sending error event: {error:?}");
-        let (code, message) = error_to_code_and_message(error);
-        send_event(Event::Error { code, message })
-    };
 
     // Main loop selects whichever of the following is ready first:
     // - Commands received on stdin. Because this loop must complete before
@@ -308,14 +314,14 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                 };
 
                 match serde_json::from_str::<Command>(&line) {
-                    Err(e) => send_error_response(&e.into())?,
+                    Err(e) => output.send_error_response(&e.into())?,
                     Ok(command) => {
                         tracing::debug!("incoming command: {command:?}");
                         if matches!(command, Command::Exit) {
                             break;
                         }
-                        if scan_in_progress.get() {
-                            send_response(Response::Error {
+                        if output.scan_in_progress {
+                            output.send_response(Response::Error {
                                 code: ErrorCode::ScanInProgress,
                                 message: None,
                             })?;
@@ -324,7 +330,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         match (&mut client, command) {
                             (_, Command::Exit) => unreachable!(),
                             (Some(_), Command::Connect) => {
-                                send_response(Response::Error {
+                                output.send_response(Response::Error {
                                     code: ErrorCode::AlreadyConnected,
                                     message: None,
                                 })?;
@@ -336,16 +342,16 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                         Ok((c, calibration_tables)) => {
                                             image_calibration_tables = Some(calibration_tables);
                                             client = Some(c);
-                                            send_response(Response::Ok)?;
+                                            output.send_response(Response::Ok)?;
                                         }
                                         Err(e) => {
-                                            send_error_response(&e)?;
+                                            output.send_error_response(&e)?;
                                         }
                                     }
                                 }
                                 Err(e) => {
                                     tracing::info!("connect() failed");
-                                    send_error_response(&e)?;
+                                    output.send_error_response(&e)?;
                                 }
                             },
                             (Some(_), Command::Disconnect) => {
@@ -355,16 +361,16 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 if let Some(client) = client.take() {
                                     client.disconnect().await;
                                 }
-                                send_response(Response::Ok)?;
+                                output.send_response(Response::Ok)?;
                             }
                             (Some(client), Command::GetScannerStatus) => {
                                 // We use a long-ish timeout here because the scanner
                                 // may sometimes be delayed in sending a response (e.g.
                                 // if its busy ejecting a long sheet of paper).
                                 match timeout(Duration::from_secs(2), client.get_scanner_status()).await {
-                                    Ok(Ok(status)) => send_response(Response::ScannerStatus { status })?,
-                                    Ok(Err(e)) => send_error_response(&e)?,
-                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                    Ok(Ok(status)) => output.send_response(Response::ScannerStatus { status })?,
+                                    Ok(Err(e)) => output.send_error_response(&e)?,
+                                    Err(_) => output.send_error_response(&Error::RecvTimeout)?,
                                 }
                             }
                             (
@@ -388,20 +394,20 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                     )
                                     .await
                                 {
-                                    Ok(()) => send_response(Response::Ok)?,
-                                    Err(e) => send_error_response(&e)?,
+                                    Ok(()) => output.send_response(Response::Ok)?,
+                                    Err(e) => output.send_error_response(&e)?,
                                 }
                             }
                             (Some(client), Command::DisableScanning) => {
                                 match client.set_feeder_mode(FeederMode::Disabled).await {
-                                    Ok(()) => send_response(Response::Ok)?,
-                                    Err(e) => send_error_response(&e)?,
+                                    Ok(()) => output.send_response(Response::Ok)?,
+                                    Err(e) => output.send_error_response(&e)?,
                                 }
                             }
                             (Some(client), Command::EjectDocument { eject_motion }) => {
                                 match client.eject_document(eject_motion).await {
-                                    Ok(()) => send_response(Response::Ok)?,
-                                    Err(e) => send_error_response(&e)?,
+                                    Ok(()) => output.send_response(Response::Ok)?,
+                                    Err(e) => output.send_error_response(&e)?,
                                 }
                             }
                             (Some(client), Command::CalibrateDoubleFeedDetection { calibration_type }) => {
@@ -409,8 +415,8 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                     .calibrate_double_feed_detection(calibration_type)
                                     .await
                                 {
-                                    Ok(()) => send_response(Response::Ok)?,
-                                    Err(e) => send_error_response(&e)?,
+                                    Ok(()) => output.send_response(Response::Ok)?,
+                                    Err(e) => output.send_error_response(&e)?,
                                 }
                             }
                             (Some(client), Command::GetDoubleFeedDetectionCalibrationConfig) => {
@@ -421,28 +427,28 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 .await
                                 {
                                     Ok(Ok(config)) => {
-                                        send_response(Response::DoubleFeedDetectionCalibrationConfig {
+                                        output.send_response(Response::DoubleFeedDetectionCalibrationConfig {
                                             config,
                                         })?;
                                     }
-                                    Ok(Err(e)) => send_error_response(&e)?,
-                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                    Ok(Err(e)) => output.send_error_response(&e)?,
+                                    Err(_) => output.send_error_response(&Error::RecvTimeout)?,
                                 }
                             }
                             (Some(client), Command::CalibrateImageSensors) => {
                                 match client.calibrate_image_sensors().await {
-                                    Ok(()) => send_response(Response::Ok)?,
-                                    Err(e) => send_error_response(&e)?,
+                                    Ok(()) => output.send_response(Response::Ok)?,
+                                    Err(e) => output.send_error_response(&e)?,
                                 }
                             }
                             (Some(client), Command::Reboot) => {
                                 match client.reboot().await {
-                                    Ok(()) => send_response(Response::Ok)?,
-                                    Err(e) => send_error_response(&e)?,
+                                    Ok(()) => output.send_response(Response::Ok)?,
+                                    Err(e) => output.send_error_response(&e)?,
                                 }
                             }
                             (None, _) => {
-                                send_response(Response::Error {
+                                output.send_response(Response::Error {
                                     code: ErrorCode::Disconnected,
                                     message: None,
                                 })?;
@@ -474,7 +480,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                     }
                     Err(e) => {
                         tracing::error!("PACKET ERROR: {e:?}");
-                        send_error_event(&e)?;
+                        output.send_error_event(&e)?;
                         continue;
                     },
                 };
@@ -482,7 +488,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                 match packet {
                     Incoming::BeginScanEvent => {
                         raw_image_data = RawImageData::new();
-                        send_event(Event::ScanStart)?;
+                        output.send_event(Event::ScanStart)?;
                     }
                     Incoming::ImageData(image_data) => {
                         raw_image_data.extend_from_slice(&image_data.0);
@@ -508,7 +514,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 .expect("image calibration tables not set"),
                         ) {
                             Ok(Sheet::Duplex(top, bottom)) => {
-                                send_event(Event::ScanComplete(ScanComplete {
+                                output.send_event(Event::ScanComplete(ScanComplete {
                                     image_data: (
                                         STANDARD.encode(top.as_bytes()),
                                         STANDARD.encode(bottom.as_bytes()),
@@ -520,7 +526,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 ScanSideMode::Duplex
                             ),
                             Err(e) => {
-                                send_event(Event::Error {
+                                output.send_event(Event::Error {
                                     code: ErrorCode::ScanFailed,
                                     message: Some(format!(
                                         "failed to decode the scanned image data: {e}"
@@ -530,34 +536,34 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         }
                     }
                     Incoming::CoverOpenEvent => {
-                        send_event(Event::CoverOpen)?;
+                        output.send_event(Event::CoverOpen)?;
                     }
                     Incoming::CoverClosedEvent => {
-                        send_event(Event::CoverClosed)?;
+                        output.send_event(Event::CoverClosed)?;
                     }
                     Incoming::DoubleFeedEvent => {
-                        send_event(Event::Error {
+                        output.send_event(Event::Error {
                             code: ErrorCode::DoubleFeedDetected,
                             message: None,
                         })?;
                     }
                     Incoming::EjectPauseEvent => {
-                        send_event(Event::EjectPaused)?;
+                        output.send_event(Event::EjectPaused)?;
                     }
                     Incoming::EjectResumeEvent => {
-                        send_event(Event::EjectResumed)?;
+                        output.send_event(Event::EjectResumed)?;
                     }
                     Incoming::DoubleFeedCalibrationCompleteEvent => {
-                        send_event(Event::DoubleFeedCalibrationComplete)?;
+                        output.send_event(Event::DoubleFeedCalibrationComplete)?;
                     }
                     Incoming::DoubleFeedCalibrationTimedOutEvent => {
-                        send_event(Event::DoubleFeedCalibrationTimedOut)?;
+                        output.send_event(Event::DoubleFeedCalibrationTimedOut)?;
                     }
                     Incoming::CalibrationOkEvent => {
-                        send_event(Event::ImageSensorCalibrationComplete)?;
+                        output.send_event(Event::ImageSensorCalibrationComplete)?;
                     }
                     event if matches!(event.message_type(), IncomingType::CalibrationEvent) => {
-                        send_event(Event::ImageSensorCalibrationFailed { error: event })?;
+                        output.send_event(Event::ImageSensorCalibrationFailed { error: event })?;
                     }
                     event => {
                         tracing::info!("unhandled event: {event:?}");
