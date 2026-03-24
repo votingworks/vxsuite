@@ -1729,46 +1729,48 @@ export class Store {
     precinct: Precinct,
     registeredVotersCounts?: PrecinctRegisteredVoterCountEntry
   ): Promise<void> {
-    await this.db.withClient(async (client) => {
-      await client.query(
-        `delete from precinct_registered_voter_counts where precinct_id = $1`,
-        precinct.id
-      );
-      if (!hasSplits(precinct) && typeof registeredVotersCounts === 'number') {
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await client.query(
+          `delete from precinct_registered_voter_counts where precinct_id = $1`,
+          precinct.id
+        );
+        if (!hasSplits(precinct) && typeof registeredVotersCounts === 'number') {
+          await client.query(
+            `
+              insert into precinct_registered_voter_counts (precinct_id, count)
+              values ($1, $2)
+            `,
+            precinct.id,
+            registeredVotersCounts
+          );
+        }
         await client.query(
           `
-            insert into precinct_registered_voter_counts (precinct_id, count)
-            values ($1, $2)
+            delete from precinct_split_registered_voter_counts
+            where split_id in (
+              select id from precinct_splits where precinct_id = $1
+            )
           `,
-          precinct.id,
-          registeredVotersCounts
+          precinct.id
         );
-      }
-      await client.query(
-        `
-          delete from precinct_split_registered_voter_counts
-          where split_id in (
-            select id from precinct_splits where precinct_id = $1
-          )
-        `,
-        precinct.id
-      );
-      if (hasSplits(precinct) && typeof registeredVotersCounts === 'object') {
-        for (const split of precinct.splits) {
-          const splitCount = registeredVotersCounts.splits[split.id];
-          if (splitCount !== undefined) {
-            await client.query(
-              `
-                insert into precinct_split_registered_voter_counts (split_id, count)
-                values ($1, $2)
-              `,
-              split.id,
-              splitCount
-            );
+        if (hasSplits(precinct) && typeof registeredVotersCounts === 'object') {
+          for (const split of precinct.splits) {
+            const splitCount = registeredVotersCounts.splits[split.id];
+            if (splitCount !== undefined) {
+              await client.query(
+                `
+                  insert into precinct_split_registered_voter_counts (split_id, count)
+                  values ($1, $2)
+                `,
+                split.id,
+                splitCount
+              );
+            }
           }
         }
-      }
-    });
+      })
+    );
   }
 
   async deletePrecinct(

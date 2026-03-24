@@ -476,18 +476,25 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       disabled={disabled}
                       type="number"
                       min={0}
+                      step={1}
                       value={
                         typeof registeredVotersCounts === 'number'
                           ? registeredVotersCounts
                           : ''
                       }
-                      onChange={(e) =>
-                        setRegisteredVotersCounts(
-                          e.target.value
-                            ? safeParseInt(e.target.value).unsafeUnwrap()
-                            : undefined
-                        )
-                      }
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        if (value === '') {
+                          setRegisteredVotersCounts(undefined);
+                          return;
+                        }
+                        const parsed = Number.parseInt(value, 10);
+                        if (Number.isNaN(parsed)) {
+                          // Ignore invalid integer input without throwing.
+                          return;
+                        }
+                        setRegisteredVotersCounts(parsed);
+                      }}
                       style={{ width: '8rem' }}
                     />
                   </InputGroup>
