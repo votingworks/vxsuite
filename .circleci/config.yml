@@ -1375,10 +1375,10 @@ jobs:
       - run:
           name: Lint
           command: |
-            cargo clippy --manifest-path ./Cargo.toml
-            cargo clippy --manifest-path libs/ballot-interpreter/Cargo.toml
-            cargo clippy --manifest-path libs/types-rs/Cargo.toml
-            cargo clippy --manifest-path libs/pdi-scanner/Cargo.toml
+            cargo clippy --all-targets --manifest-path ./Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/types-rs/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/pdi-scanner/Cargo.toml
       - run:
           name: Test
           command: |

@@ -153,7 +153,7 @@ function generateTestJobForRustCrates(): string[] {
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
-    ...cargoCommandLines('cargo clippy'),
+    ...cargoCommandLines('cargo clippy --all-targets'),
     `    - run:`,
     `        name: Test`,
     `        command: |`,
