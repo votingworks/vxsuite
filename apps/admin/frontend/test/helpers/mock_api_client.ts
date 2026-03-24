@@ -11,14 +11,12 @@ import type {
   ManualResultsIdentifier,
   WriteInCandidateRecord,
   ScannerBatch,
-  AdjudicationQueueMetadata,
+  BallotAdjudicationData,
+  BallotAdjudicationQueueMetadata,
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
   ManualResultsMetadata,
-  WriteInRecord,
-  VoteAdjudication,
-  CvrContestTag,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -349,24 +347,32 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
-    expectGetAdjudicationQueue(input: { contestId: ContestId }, cvrIds: Id[]) {
-      apiClient.getAdjudicationQueue.expectCallWith(input).resolves(cvrIds);
-    },
-
-    expectGetAdjudicationQueueMetadata(
-      queueMetadata: AdjudicationQueueMetadata[]
+    expectGetBallotAdjudicationQueueMetadata(
+      metadata: BallotAdjudicationQueueMetadata
     ) {
-      return apiClient.getAdjudicationQueueMetadata
+      return apiClient.getBallotAdjudicationQueueMetadata
         .expectCallWith()
-        .resolves(queueMetadata);
+        .resolves(metadata);
     },
 
-    expectGetNextCvrIdForAdjudication(
-      input: { contestId: ContestId },
-      cvrId: Id | null
+    expectGetBallotAdjudicationQueue(cvrIds: Id[]) {
+      apiClient.getBallotAdjudicationQueue.expectCallWith().resolves(cvrIds);
+    },
+
+    expectGetBallotAdjudicationData(
+      input: { cvrId: Id },
+      data: BallotAdjudicationData
     ) {
-      apiClient.getNextCvrIdForAdjudication
-        .expectCallWith(input)
+      apiClient.getBallotAdjudicationData.expectCallWith(input).resolves(data);
+    },
+
+    expectResolveBallotTags(input: { cvrId: Id }) {
+      apiClient.resolveBallotTags.expectCallWith(input).resolves();
+    },
+
+    expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {
+      apiClient.getNextCvrIdForBallotAdjudication
+        .expectCallWith()
         .resolves(cvrId);
     },
 
@@ -380,14 +386,8 @@ export function createApiMock(
         id: input.cvrId,
         electionId: 'electionId',
         ballotStyleGroupId: ballotStyleGroupId ?? ('1M' as BallotStyleGroupId),
+        markScores: null,
       });
-    },
-
-    expectGetWriteIns(
-      input: { contestId: ContestId; cvrId: Id },
-      writeIns: WriteInRecord[]
-    ) {
-      apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
     },
 
     expectGetBallotImages(
@@ -542,27 +542,11 @@ export function createApiMock(
       }
     },
 
-    expectGetVoteAdjudications(
-      input: { contestId: ContestId; cvrId: Id },
-      voteAdjudications: VoteAdjudication[]
-    ) {
-      apiClient.getVoteAdjudications
-        .expectCallWith(input)
-        .resolves(voteAdjudications);
-    },
-
     expectGetMarginalMarks(
       input: { contestId: ContestId; cvrId: Id },
       marginalMarks: ContestOptionId[]
     ) {
       apiClient.getMarginalMarks.expectCallWith(input).resolves(marginalMarks);
-    },
-
-    expectGetCvrContestTag(
-      input: { contestId: ContestId; cvrId: Id },
-      cvrContestTag: CvrContestTag
-    ) {
-      apiClient.getCvrContestTag.expectCallWith(input).resolves(cvrContestTag);
     },
 
     expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {

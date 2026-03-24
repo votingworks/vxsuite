@@ -321,12 +321,16 @@ function BallotAdjudicationScreen({
     }
   }
 
-  function onSkip(): void {
+  function navigateNext(): void {
     if (onLastBallot) {
       history.push(routerPaths.adjudication);
     } else {
       setQueueIndex(queueIndex + 1);
     }
+  }
+
+  function onSkip(): void {
+    navigateNext();
   }
 
   function onAcceptAndNext(): void {
@@ -335,14 +339,6 @@ function BallotAdjudicationScreen({
       return;
     }
     void confirmAcceptAndNext();
-  }
-
-  function navigateNext(): void {
-    if (onLastBallot) {
-      history.push(routerPaths.adjudication);
-    } else {
-      setQueueIndex(queueIndex + 1);
-    }
   }
 
   async function confirmAcceptAndNext(): Promise<void> {

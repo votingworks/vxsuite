@@ -149,7 +149,7 @@ function buildHmpbBallotImages(
   } = {}
 ): BallotImages {
   const imageUrl = options.isImageCorrupted
-    ? null
+    ? undefined
     : `mock-image-data-${cvrId}-0`;
   const ballotDim = options.isImageCorrupted ? 0 : 1000;
   const layout: BallotPageLayout = {
@@ -177,7 +177,7 @@ function buildHmpbBallotImages(
   };
   const backPage: HmpbBallotPageImage = {
     type: 'hmpb',
-    imageUrl: null,
+    imageUrl: undefined,
     ballotCoordinates: { x: 0, y: 0, width: 0, height: 0 },
     layout: { ...layout, contests: [] },
   };
@@ -189,7 +189,7 @@ function buildBmdBallotImages(
   options: { isImageCorrupted?: boolean } = {}
 ): BallotImages {
   const imageUrl = options.isImageCorrupted
-    ? null
+    ? undefined
     : `mock-image-data-${cvrId}-0`;
   return {
     cvrId,
@@ -200,7 +200,7 @@ function buildBmdBallotImages(
     },
     back: {
       type: 'bmd',
-      imageUrl: null,
+      imageUrl: undefined,
       ballotCoordinates: { x: 0, y: 0, width: 0, height: 0 },
     },
   };
@@ -213,7 +213,7 @@ function buildContestAdjudicationData({
   writeInRecords = [],
   voteAdjudications = [],
   marginalMarkOptionIds = [],
-  tag = null,
+  tag = undefined,
   ballotStyleGroupId,
 }: {
   electionDef?: ElectionDefinition;
@@ -222,7 +222,7 @@ function buildContestAdjudicationData({
   writeInRecords?: WriteInRecord[];
   voteAdjudications?: VoteAdjudication[];
   marginalMarkOptionIds?: ContestOptionId[];
-  tag?: CvrContestTag | null;
+  tag?: CvrContestTag;
   ballotStyleGroupId?: BallotStyleGroupId;
 }): ContestAdjudicationData {
   const { election } = electionDef;
@@ -243,10 +243,8 @@ function buildContestAdjudicationData({
       definition: option,
       initialVote: votes.includes(option.id),
       hasMarginalMark: marginalMarkOptionIds.includes(option.id),
-      voteAdjudication:
-        voteAdjudications.find((v) => v.optionId === option.id) ?? null,
-      writeInRecord:
-        writeInRecords.find((w) => w.optionId === option.id) ?? null,
+      voteAdjudication: voteAdjudications.find((v) => v.optionId === option.id),
+      writeInRecord: writeInRecords.find((w) => w.optionId === option.id),
     })
   );
   return { contestId, tag, options };
@@ -361,7 +359,7 @@ describe('hmpb write-in adjudication', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    isUndetected: false,
+    source: 'scanner',
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -651,7 +649,7 @@ describe('bmd write-in adjudication', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    isUndetected: false,
+    source: 'scanner',
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -754,7 +752,7 @@ describe('vote adjudication', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -827,7 +825,7 @@ describe('vote adjudication', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -867,6 +865,56 @@ describe('vote adjudication', () => {
     expect(firstWriteInCheckbox).not.toBeChecked();
     expect(firstWriteInCheckbox).toBeDisabled();
   });
+
+  test('yesno contest can have votes adjudicated', async () => {
+    const contestId: ContestId = 'fishing';
+    const cvrId = 'id-174';
+    const cvrContestTag: CvrContestTag = {
+      isResolved: false,
+      source: 'scanner',
+      cvrId,
+      contestId,
+      hasMarginalMark: true,
+    };
+
+    apiMock.expectGetWriteInCandidates([], contestId);
+
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: [],
+      marginalMarkOptionIds: ['ban-fishing'],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId, {
+        optionLayouts: [],
+      }),
+    });
+
+    await waitForBallotById('id-174');
+
+    // yesno options are rendered with their labels
+    const yesCheckbox = getCheckboxByName('yes');
+    const noCheckbox = getCheckboxByName('no');
+    expect(yesCheckbox).not.toBeChecked();
+    expect(noCheckbox).not.toBeChecked();
+
+    // resolve marginal mark by dismissing — confirms the mark is not a valid vote
+    userEvent.click(getButtonByName('dismiss'));
+
+    apiMock.expectAdjudicateCvrContest({
+      adjudicatedContestOptionById: {
+        'ban-fishing': { type: 'candidate-option', hasVote: false },
+        'allow-fishing': { type: 'candidate-option', hasVote: false },
+      },
+      cvrId,
+      contestId,
+      side: 'front',
+    });
+    apiMock.expectGetWriteInCandidates([], contestId);
+    userEvent.click(getButtonByName('confirm'));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+  });
 });
 
 describe('unmarked and undetected write-ins', () => {
@@ -888,7 +936,7 @@ describe('unmarked and undetected write-ins', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    isUndetected: false,
+    source: 'scanner',
     cvrId,
     contestId,
     hasUnmarkedWriteIn: true,
@@ -1008,7 +1056,7 @@ describe('ballot image viewer', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1106,7 +1154,7 @@ describe('ballot image viewer', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1135,7 +1183,7 @@ describe('ballot image viewer', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1170,7 +1218,7 @@ describe('ballot image viewer', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1220,7 +1268,7 @@ describe('double votes', () => {
   const votes = ['kangaroo', 'write-in-0', 'write-in-1'];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    isUndetected: false,
+    source: 'scanner',
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -1378,7 +1426,7 @@ describe('unsaved changes', () => {
   const votes = ['kangaroo', 'write-in-0'];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    isUndetected: false,
+    source: 'scanner',
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -1388,7 +1436,7 @@ describe('unsaved changes', () => {
     apiMock.expectGetWriteInCandidates([], contestId);
   });
 
-  test('detects unsaved changes when navigating with the overview button', async () => {
+  test('detects unsaved changes when navigating with the cancel button', async () => {
     const data = buildContestAdjudicationData({
       contestId,
       votes,
@@ -1408,8 +1456,8 @@ describe('unsaved changes', () => {
     elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).toBeChecked();
 
-    const overviewButton = getButtonByName('overview');
-    userEvent.click(overviewButton);
+    const cancelButton = getButtonByName('cancel');
+    userEvent.click(cancelButton);
 
     let modal = await screen.findByRole('alertdialog');
     const modalBackButton = within(modal).getByRole('button', {
@@ -1419,7 +1467,7 @@ describe('unsaved changes', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(elephantCheckbox).toBeChecked();
 
-    userEvent.click(overviewButton);
+    userEvent.click(cancelButton);
     modal = await screen.findByRole('alertdialog');
     userEvent.keyboard('{Enter}');
 
@@ -1439,7 +1487,7 @@ describe('unsaved changes', () => {
 
     await waitForBallotById('id-174');
 
-    const overviewButton = getButtonByName('overview');
+    const cancelButton = getButtonByName('cancel');
     const kangarooCheckbox = screen.getByRole('checkbox', {
       name: /kangaroo/i,
     });
@@ -1469,7 +1517,7 @@ describe('unsaved changes', () => {
     elephantItems = screen.getAllByText('Elephant');
     expect(elephantItems).toHaveLength(2);
 
-    userEvent.click(overviewButton);
+    userEvent.click(cancelButton);
 
     let modal = await screen.findByRole('alertdialog');
     const modalBackButton = within(modal).getByRole('button', {
@@ -1481,7 +1529,7 @@ describe('unsaved changes', () => {
     elephantItems = screen.getAllByText('Elephant');
     expect(elephantItems).toHaveLength(2);
 
-    userEvent.click(overviewButton);
+    userEvent.click(cancelButton);
     modal = await screen.findByRole('alertdialog');
     const modalDiscardButton = within(modal).getByRole('button', {
       name: /discard changes/i,
@@ -1499,7 +1547,7 @@ describe('marginal mark adjudication', () => {
     const marginalMarkOptionIds = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasMarginalMark: true,
@@ -1556,7 +1604,7 @@ describe('marginal mark adjudication', () => {
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      isUndetected: false,
+      source: 'scanner',
       cvrId,
       contestId,
       hasMarginalMark: true,
@@ -1674,7 +1722,7 @@ describe('candidate ordering', () => {
       ],
       tag: {
         isResolved: false,
-        isUndetected: false,
+        source: 'scanner',
         cvrId: 'id-174',
         contestId: testContestId,
         hasWriteIn: true,
@@ -1746,7 +1794,7 @@ describe('candidate ordering', () => {
       ],
       tag: {
         isResolved: false,
-        isUndetected: false,
+        source: 'scanner',
         cvrId: 'id-175',
         contestId: testContestId,
         hasWriteIn: true,
@@ -1808,7 +1856,7 @@ describe('candidate ordering', () => {
       votes: ['sherlock-holmes'],
       tag: {
         isResolved: false,
-        isUndetected: false,
+        source: 'scanner',
         cvrId: testCvrId,
         contestId: testContestId,
         hasWriteIn: false,

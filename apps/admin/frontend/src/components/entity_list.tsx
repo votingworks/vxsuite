@@ -52,6 +52,8 @@ const Caption = styled(CaptionBase)`
 `;
 
 const ItemContainer = styled.li<{ hasWarning: boolean }>`
+  /* stylelint-disable value-keyword-case */
+
   align-items: center;
   border-bottom: var(--entity-list-border);
   cursor: pointer;

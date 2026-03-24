@@ -14,7 +14,7 @@ import type {
   ContestOptionAdjudicationData,
   CvrTag,
 } from '@votingworks/admin-backend';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Callout,
@@ -158,14 +158,12 @@ function getStatusLine(
     if (originalStatus === 'undervote' && adjudicatedStatus !== 'undervote') {
       return 'Undervote Resolved';
     }
-    if (adjudicatedStatus === 'undervote') {
-      return (
-        <StatusLine>
-          <Icons.Warning color="warning" />
-          Undervote Created
-        </StatusLine>
-      );
-    }
+    return (
+      <StatusLine>
+        <Icons.Warning color="warning" />
+        Undervote Created
+      </StatusLine>
+    );
   }
 
   return null;
@@ -221,8 +219,10 @@ function getOptionResolutionLine(
             <Font weight="semiBold"> Invalid</Font>
           </span>
         );
-      default:
-        return undefined;
+      /* istanbul ignore next - @preserve */
+      default: {
+        throwIllegalValue(writeInRecord, 'adjudicationType');
+      }
     }
   }
 
