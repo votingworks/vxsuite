@@ -8,7 +8,7 @@ exports.shorthands =
 /**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
- * @returns {Promise<void> | void}
+ * @returns {Promise<void>}
  */
 exports.up = async (pgm) => {
   const { loadEnvVarsFromDotenvFiles } = await import('@votingworks/backend');

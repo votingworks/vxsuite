@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable vx/gts-object-literal-types */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
