@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -86,6 +86,12 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const [registeredVotersCounts, setRegisteredVotersCounts] = useState<
     PrecinctRegisteredVoterCountEntry | undefined
   >(savedRegisteredVotersCounts);
+
+  useEffect(() => {
+    if (!editing) {
+      setRegisteredVotersCounts(savedRegisteredVotersCounts);
+    }
+  }, [savedRegisteredVotersCounts, editing]);
 
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
