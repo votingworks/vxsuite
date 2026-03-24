@@ -128,9 +128,22 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
 
   // adjudicating a mark as a non-vote (by invalidating a write-in) should clear the cache
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
-  const [cvrId] = await apiClient.getAdjudicationQueue({ contestId });
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  let cvrId: string | undefined;
+  let writeIn: { optionId: string } | undefined;
+  for (const id of queue) {
+    const adjData = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const contestData = adjData.contests.find((c) => c.contestId === contestId);
+    const option = contestData?.options.find(
+      (o) => o.writeInRecord !== undefined
+    );
+    if (option?.writeInRecord) {
+      cvrId = id;
+      writeIn = { optionId: option.writeInRecord.optionId };
+      break;
+    }
+  }
   assert(cvrId !== undefined);
-  const [writeIn] = await apiClient.getWriteIns({ cvrId, contestId });
   assert(writeIn !== undefined);
   await apiClient.adjudicateCvrContest({
     adjudicatedContestOptionById: {

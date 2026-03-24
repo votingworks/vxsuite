@@ -162,9 +162,24 @@ test('exports results and metadata accurately', async () => {
     contestId: candidateContestId,
     name: 'Mr. Jerry',
   });
-  const [writeIn1, writeIn2] = await apiClient.getWriteIns({
-    contestId: candidateContestId,
-  });
+
+  // find two write-in records for the contest from the adjudication queue
+  const writeInRecords: Array<{ cvrId: string; optionId: string }> = [];
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  for (const cvrId of queue) {
+    if (writeInRecords.length >= 2) break;
+    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const contest = adjData.contests.find(
+      (c) => c.contestId === candidateContestId
+    );
+    if (!contest) continue;
+    for (const option of contest.options) {
+      if (option.writeInRecord) {
+        writeInRecords.push({ cvrId, optionId: option.writeInRecord.optionId });
+      }
+    }
+  }
+  const [writeIn1, writeIn2] = writeInRecords;
   assert(writeIn1 !== undefined);
   assert(writeIn2 !== undefined);
 

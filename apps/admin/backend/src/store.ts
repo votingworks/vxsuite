@@ -1857,10 +1857,10 @@ export class Store implements BaseStore {
           select cvr_id from cvr_tags
         )
         order by
+          case when ct.is_blank_ballot = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
           c.ballot_style_group_id,
           c.sheet_number,
-          case when ct.is_blank_ballot = 1 then 1 else 0 end,
           c.id
       `
     ) as Array<{ cvr_id: Id }>;
@@ -1964,7 +1964,7 @@ export class Store implements BaseStore {
         const tag: CvrContestTag | undefined =
           tagsByContestId.get(contest.id) ?? undefined;
 
-        const contestVotes = votes[contest.id] ?? [];
+        const contestVotes = assertDefined(votes[contest.id]);
         const contestMarkScores = markScores?.[contest.id];
 
         const options: ContestOptionAdjudicationData[] = [
@@ -2027,10 +2027,10 @@ export class Store implements BaseStore {
           select cvr_id from cvr_tags where is_resolved = 0
         )
         order by
+          case when ct.is_blank_ballot = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
           c.ballot_style_group_id,
           c.sheet_number,
-          case when ct.is_blank_ballot = 1 then 1 else 0 end,
           c.id
         limit 1
       `
@@ -2773,7 +2773,7 @@ export class Store implements BaseStore {
     cvrId,
     contestId,
     source,
-    isResolved = false,
+    isResolved,
     hasOvervote = false,
     hasUndervote = false,
     hasWriteIn = false,
@@ -2911,11 +2911,7 @@ export class Store implements BaseStore {
     );
   }
 
-  addCvrTag({
-    cvrId,
-    isResolved = false,
-    isBlankBallot = false,
-  }: CvrTag): void {
+  addCvrTag({ cvrId, isResolved, isBlankBallot }: CvrTag): void {
     this.client.run(
       `
         insert into cvr_tags (

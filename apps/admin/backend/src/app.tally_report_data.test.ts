@@ -112,9 +112,28 @@ test('general, full election, write in adjudication', async () => {
     contestId: writeInContestId,
     name: 'Unofficial Candidate',
   });
-  const writeIns = await apiClient.getWriteIns({
-    contestId: writeInContestId,
-  });
+  const writeIns: Array<{
+    cvrId: string;
+    contestId: string;
+    optionId: string;
+  }> = [];
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  for (const cvrId of queue) {
+    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const contest = adjData.contests.find(
+      (c) => c.contestId === writeInContestId
+    );
+    if (!contest) continue;
+    for (const option of contest.options) {
+      if (option.writeInRecord) {
+        writeIns.push({
+          cvrId,
+          contestId: writeInContestId,
+          optionId: option.writeInRecord.optionId,
+        });
+      }
+    }
+  }
   expect(writeIns).toHaveLength(56);
   const NUM_INVALID = 24;
   const NUM_OFFICIAL = 16;

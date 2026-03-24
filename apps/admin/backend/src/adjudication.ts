@@ -238,7 +238,7 @@ export function adjudicateCvrContest(
     let hasMarginalMark = false;
 
     const { votes } = store.getCastVoteRecordVoteInfo({ electionId, cvrId });
-    const contestVotes = votes[contestId] ?? [];
+    const contestVotes = assertDefined(votes[contestId]);
 
     for (const [optionId, adjudicatedContestOption] of Object.entries(
       adjudicatedContestOptionById

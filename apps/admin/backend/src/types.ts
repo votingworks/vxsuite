@@ -466,7 +466,7 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
 export interface CvrTag {
   cvrId: Id;
   isResolved: boolean;
-  isBlankBallot?: boolean;
+  isBlankBallot: boolean;
 }
 
 /**

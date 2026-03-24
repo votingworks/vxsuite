@@ -123,9 +123,28 @@ test('write-in adjudication report', async () => {
 
   await expectIdenticalSnapshotsAcrossExportMethods('wia-report-zero');
 
-  const writeIns = await apiClient.getWriteIns({
-    contestId: writeInContestId,
-  });
+  const writeIns: Array<{
+    cvrId: string;
+    contestId: string;
+    optionId: string;
+  }> = [];
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  for (const cvrId of queue) {
+    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const contest = adjData.contests.find(
+      (c) => c.contestId === writeInContestId
+    );
+    if (!contest) continue;
+    for (const option of contest.options) {
+      if (option.writeInRecord) {
+        writeIns.push({
+          cvrId,
+          contestId: writeInContestId,
+          optionId: option.writeInRecord.optionId,
+        });
+      }
+    }
+  }
 
   const unofficialCandidate1 = await apiClient.addWriteInCandidate({
     contestId: writeInContestId,
