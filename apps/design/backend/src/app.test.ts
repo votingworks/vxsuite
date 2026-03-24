@@ -214,6 +214,9 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
   const expectedStrings = mergeUiStrings(election.ballotStrings, {
     [LanguageCode.ENGLISH]: hmpbStringsCatalog,
   });
+  const splitNameEntries = election.precincts
+    .filter(hasSplits)
+    .flatMap((p) => p.splits.map(({ id, name }) => [id, name]));
   return {
     ...expectedStrings,
     [LanguageCode.ENGLISH]: {
@@ -230,16 +233,10 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
       precinctName: Object.fromEntries(
         election.precincts.map(({ id, name }) => [id, name])
       ),
-      ...(() => {
-        const splitNames = election.precincts
-          .filter(hasSplits)
-          .flatMap((p) => p.splits.map(({ id, name }) => [id, name]));
-        return splitNames.length > 0
-          ? {
-              precinctSplitName: Object.fromEntries(splitNames),
-            }
-          : {};
-      })(),
+      precinctSplitName:
+        splitNameEntries.length > 0
+          ? Object.fromEntries(splitNameEntries)
+          : undefined,
       partyName: Object.fromEntries(
         election.parties.map(({ id, name }) => [id, name])
       ),
