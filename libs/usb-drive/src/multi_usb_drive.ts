@@ -80,11 +80,14 @@ function generateVxUsbLabel(previousLabel?: string): string {
   return label;
 }
 
-function isFat32Partition(partition: UsbPartitionDeviceInfo): boolean {
+export function isFat32Partition(partition: {
+  fstype?: string;
+  fsver?: string;
+}): boolean {
   return partition.fstype === 'vfat' && partition.fsver === 'FAT32';
 }
 
-function isExt4Partition(partition: UsbPartitionDeviceInfo): boolean {
+export function isExt4Partition(partition: { fstype?: string }): boolean {
   return partition.fstype === 'ext4';
 }
 

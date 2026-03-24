@@ -1,22 +1,19 @@
 import makeDebug from 'debug';
-import { MultiUsbDrive, UsbDriveInfo } from './multi_usb_drive';
+import { assert } from '@votingworks/basics';
+import {
+  isFat32Partition,
+  MultiUsbDrive,
+  UsbDriveInfo,
+} from './multi_usb_drive';
 import { UsbDrive, UsbDriveStatus } from './types';
 
 const debug = makeDebug('usb-drive:adapter');
 
-function isFat32Drive(drive: UsbDriveInfo): boolean {
-  const [firstPartition] = drive.partitions;
-  return (
-    !!firstPartition &&
-    firstPartition.fstype === 'vfat' &&
-    firstPartition.fsver === 'FAT32'
-  );
-}
-
-function getFat32Drives(
-  drives: readonly UsbDriveInfo[]
-): readonly UsbDriveInfo[] {
-  return drives.filter(isFat32Drive);
+function getFat32Drives(drives: readonly UsbDriveInfo[]): UsbDriveInfo[] {
+  return drives.filter((drive) => {
+    const [firstPartition] = drive.partitions;
+    return !!firstPartition && isFat32Partition(firstPartition);
+  });
 }
 
 /**
@@ -51,24 +48,7 @@ export function createUsbDriveAdapter(
       }
 
       const [firstPartition] = drive.partitions;
-
-      // These checks are safety nets — getFat32Drives should already exclude
-      // drives without FAT32 partitions, so these branches are unreachable in
-      // normal operation.
-      /* istanbul ignore next - @preserve */
-      if (!firstPartition) {
-        debug('adapter: drive has no partitions, returning bad_format');
-        return Promise.resolve({ status: 'error', reason: 'bad_format' });
-      }
-
-      /* istanbul ignore next - @preserve */
-      if (
-        firstPartition.fstype !== 'vfat' ||
-        firstPartition.fsver !== 'FAT32'
-      ) {
-        debug('adapter: first partition is not FAT32, returning bad_format');
-        return Promise.resolve({ status: 'error', reason: 'bad_format' });
-      }
+      assert(firstPartition && isFat32Partition(firstPartition));
 
       const { mount } = firstPartition;
 
