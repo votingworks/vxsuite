@@ -7,7 +7,7 @@ use tokio::time::timeout;
 use tracing_subscriber::prelude::*;
 
 use pdi_scanner::{
-    connect,
+    client::Client,
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::{ImageData, Incoming},
@@ -59,7 +59,7 @@ async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
-    let mut client = connect()?;
+    let mut client = Client::connect()?;
     timeout(CONNECT_TIMEOUT, client.wait_until_ready()).await?;
 
     let mut raw_image_data = RawImageData::new();

@@ -43,33 +43,29 @@ pub struct ImageCalibrationTables {
     pub back_black: Vec<u8>,
 }
 
-pub struct Client<T> {
+pub struct Client {
     id: usize,
     unhandled_packets: VecDeque<Incoming>,
-    host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
-    host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
-    scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<Incoming>>,
-
-    // we only hold on to the scanner handle so that it doesn't get dropped
-    #[allow(dead_code)]
-    scanner_handle: Option<T>,
+    scanner: Scanner,
 }
 
-impl<T> Client<T> {
+impl Client {
+    /// Connect to the scanner and return a client. When you're done,
+    /// call [`Client::disconnect`] to properly close the connection.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the connection to the scanner cannot be opened.
+    pub fn connect() -> std::result::Result<Self, Error> {
+        Ok(Self::from_scanner(Scanner::connect()?))
+    }
+
     #[must_use]
-    pub fn new(
-        host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
-        host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
-        scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<Incoming>>,
-        scanner_handle: Option<T>,
-    ) -> Self {
+    pub fn from_scanner(scanner: Scanner) -> Self {
         Self {
             id: 0,
             unhandled_packets: VecDeque::new(),
-            scanner_to_host_rx,
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_handle,
+            scanner,
         }
     }
 
@@ -78,13 +74,16 @@ impl<T> Client<T> {
 
         let id = self.id;
         self.id = self.id.wrapping_add(1);
-        self.host_to_scanner_tx.send((id, packet)).map_err(|_| {
-            Error::from(nusb::Error::new(
-                io::ErrorKind::ConnectionAborted,
-                "failed to send packet to scanner (host to scanner channel closed)",
-            ))
-        })?;
-        let Some(ack_id) = self.host_to_scanner_ack_rx.recv().await else {
+        self.scanner
+            .host_to_scanner_tx
+            .send((id, packet))
+            .map_err(|_| {
+                Error::from(nusb::Error::new(
+                    io::ErrorKind::ConnectionAborted,
+                    "failed to send packet to scanner (host to scanner channel closed)",
+                ))
+            })?;
+        let Some(ack_id) = self.scanner.host_to_scanner_ack_rx.recv().await else {
             return Err(nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "failed to receive ack from scanner (host to scanner ack channel closed)",
@@ -621,7 +620,7 @@ impl<T> Client<T> {
             return Ok(packet);
         }
 
-        match self.scanner_to_host_rx.recv().await {
+        match self.scanner.scanner_to_host_rx.recv().await {
             Some(result) => result,
             None => Err(Error::TryRecvError(TryRecvError::Disconnected)),
         }
@@ -666,7 +665,7 @@ impl<T> Client<T> {
         }
 
         loop {
-            match self.scanner_to_host_rx.recv().await {
+            match self.scanner.scanner_to_host_rx.recv().await {
                 Some(Ok(packet)) => match filter_map(packet) {
                     Ok(value) => return Ok(value),
                     Err(packet) => self.unhandled_packets.push_back(packet),
@@ -1140,16 +1139,12 @@ impl<T> Client<T> {
 
         Ok(())
     }
-}
 
-impl Client<Scanner> {
     /// Disconnects from the scanner, stopping the background task and
     /// releasing the USB interface. Waits for full cleanup before returning.
     /// Consumes self to prevent reuse of a disconnected client.
-    pub async fn disconnect(mut self) {
-        if let Some(scanner) = self.scanner_handle.take() {
-            scanner.disconnect().await;
-        }
+    pub async fn disconnect(self) {
+        self.scanner.disconnect().await;
     }
 }
 
@@ -1159,7 +1154,10 @@ mod tests {
 
     use tokio::time::timeout;
 
-    use crate::protocol::packets::{ImageData, Incoming, Outgoing};
+    use crate::{
+        protocol::packets::{ImageData, Incoming, Outgoing},
+        scanner::Scanner,
+    };
 
     use super::Client;
 
@@ -1169,12 +1167,11 @@ mod tests {
         let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
             tokio::sync::mpsc::unbounded_channel();
         let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::new(
+        let mut client = Client::from_scanner(Scanner::mock(
             host_to_scanner_tx,
             host_to_scanner_ack_rx,
             scanner_to_host_rx,
-            Some(()),
-        );
+        ));
 
         host_to_scanner_ack_tx.send(0).unwrap();
 
@@ -1195,12 +1192,11 @@ mod tests {
         let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
             tokio::sync::mpsc::unbounded_channel();
         let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::new(
+        let mut client = Client::from_scanner(Scanner::mock(
             host_to_scanner_tx,
             host_to_scanner_ack_rx,
             scanner_to_host_rx,
-            Some(()),
-        );
+        ));
 
         // Each loop iteration sends enable_crc_checking then get_test_string,
         // so we need two ACKs per iteration.
@@ -1247,12 +1243,11 @@ mod tests {
         let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
             tokio::sync::mpsc::unbounded_channel();
         let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::new(
+        let mut client = Client::from_scanner(Scanner::mock(
             host_to_scanner_tx,
             host_to_scanner_ack_rx,
             scanner_to_host_rx,
-            Some(()),
-        );
+        ));
 
         // Each loop iteration sends enable_crc_checking + get_test_string,
         // so we need two ACKs per iteration. Provide enough for several
@@ -1291,13 +1286,11 @@ mod tests {
         let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
             tokio::sync::mpsc::unbounded_channel();
         let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::new(
+        let mut client = Client::from_scanner(Scanner::mock(
             host_to_scanner_tx,
             host_to_scanner_ack_rx,
             scanner_to_host_rx,
-            // dummy value
-            Some(()),
-        );
+        ));
 
         // add some image data to the incoming queue of data
         scanner_to_host_tx
