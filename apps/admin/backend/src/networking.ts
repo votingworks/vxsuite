@@ -149,6 +149,9 @@ export function startClientNetworking({
               apiClient,
             }
           );
+          clientStore.setIsClientAdjudicationEnabled(
+            hostConfig.isClientAdjudicationEnabled
+          );
           debug('Connected to host at %s', hostAddress);
 
           // Poll the lightweight hash to detect election changes without

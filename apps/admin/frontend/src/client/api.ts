@@ -69,6 +69,20 @@ export const getNetworkConnectionStatus = {
   },
 } as const;
 
+export const getAdjudicationSessionStatus = {
+  queryKey(): QueryKey {
+    return ['getAdjudicationSessionStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getAdjudicationSessionStatus(),
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+    );
+  },
+} as const;
+
 export const setMachineMode = {
   useMutation() {
     const apiClient = useApiClient();

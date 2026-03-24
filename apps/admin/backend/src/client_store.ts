@@ -28,6 +28,7 @@ export class ClientStore implements BaseStore {
   private hostConnection?: HostConnection;
   private cachedElectionRecord?: ElectionRecord;
   private cachedSystemSettings?: SystemSettings;
+  private isClientAdjudicationEnabled = false;
 
   getCurrentElectionId(): Optional<Id> {
     return this.cachedElectionRecord?.id;
@@ -80,6 +81,15 @@ export class ClientStore implements BaseStore {
     if (status !== ClientConnectionStatus.OnlineConnectedToHost) {
       this.cachedElectionRecord = undefined;
       this.cachedSystemSettings = undefined;
+      this.isClientAdjudicationEnabled = false;
     }
+  }
+
+  getIsClientAdjudicationEnabled(): boolean {
+    return this.isClientAdjudicationEnabled;
+  }
+
+  setIsClientAdjudicationEnabled(enabled: boolean): void {
+    this.isClientAdjudicationEnabled = enabled;
   }
 }

@@ -8,14 +8,17 @@ import {
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { screen } from '../../../test/react_testing_library';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import {
+  ClientApiMock,
+  createClientApiMock,
+} from '../../../test/helpers/mock_client_api_client';
 import { renderInClientContext } from '../../../test/render_in_client_context';
 import { ClientSettingsScreen } from './client_settings_screen';
 
-let apiMock: ApiMock;
+let apiMock: ClientApiMock;
 
 beforeEach(() => {
-  apiMock = createApiMock();
+  apiMock = createClientApiMock();
 });
 
 afterEach(() => {
@@ -29,25 +32,9 @@ const sysAdminAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
   programmableCard: { status: 'no_card' },
 };
 
-function expectNetworkStatus(
-  status: 'offline' | 'online-waiting-for-host' | 'online-connected-to-host',
-  hostMachineId?: string
-) {
-  const value =
-    status === 'online-connected-to-host'
-      ? { status, hostMachineId: hostMachineId ?? '0001' }
-      : { status };
-  // getNetworkConnectionStatus exists on ClientApi but not host Api;
-  // the grout mock client Proxy auto-creates it at runtime
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (apiMock.apiClient as any).getNetworkConnectionStatus
-    .expectRepeatedCallsWith()
-    .resolves(value);
-}
-
 test('renders settings screen for system administrator', async () => {
   apiMock.expectGetUsbPortStatus();
-  expectNetworkStatus('online-connected-to-host', '0001');
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host', '0001');
   renderInClientContext(<ClientSettingsScreen />, {
     auth: sysAdminAuth,
     apiMock,
@@ -92,7 +79,7 @@ test('renders settings screen for election manager (fewer sections)', async () =
 
 test('shows offline status', async () => {
   apiMock.expectGetUsbPortStatus();
-  expectNetworkStatus('offline');
+  apiMock.expectGetNetworkConnectionStatus('offline');
   renderInClientContext(<ClientSettingsScreen />, {
     auth: sysAdminAuth,
     apiMock,
@@ -102,7 +89,7 @@ test('shows offline status', async () => {
 
 test('shows searching for host status', async () => {
   apiMock.expectGetUsbPortStatus();
-  expectNetworkStatus('online-waiting-for-host');
+  apiMock.expectGetNetworkConnectionStatus('online-waiting-for-host');
   renderInClientContext(<ClientSettingsScreen />, {
     auth: sysAdminAuth,
     apiMock,
@@ -112,7 +99,7 @@ test('shows searching for host status', async () => {
 
 test('does not show Switch to Host Mode when election is configured', async () => {
   apiMock.expectGetUsbPortStatus();
-  expectNetworkStatus('online-connected-to-host');
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   const electionDefinition = readElectionGeneralDefinition();
   renderInClientContext(<ClientSettingsScreen />, {
     auth: sysAdminAuth,
@@ -127,7 +114,7 @@ test('does not show Switch to Host Mode when election is configured', async () =
 
 test('shows restart screen after switching to host mode', async () => {
   apiMock.expectGetUsbPortStatus();
-  expectNetworkStatus('online-connected-to-host');
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   renderInClientContext(<ClientSettingsScreen />, {
     auth: sysAdminAuth,
     apiMock,

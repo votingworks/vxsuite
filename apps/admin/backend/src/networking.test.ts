@@ -112,9 +112,11 @@ describe('startClientNetworking', () => {
     overrides: MockPeerClientOverrides = {}
   ): grout.Client<PeerApi> {
     const defaults: MockPeerClientOverrides = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      connectToHost: vi.fn().mockResolvedValue({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: false,
+      }),
       getElectionPackageHash: vi.fn().mockResolvedValue(undefined),
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
       getSystemSettings: vi.fn().mockResolvedValue(undefined),
@@ -370,9 +372,11 @@ describe('startClientNetworking', () => {
 
     // Third poll: should try to reconnect (createClient called again)
     const newMockClient = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      connectToHost: vi.fn().mockResolvedValue({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: false,
+      }),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(newMockClient);
     await vi.advanceTimersByTimeAsync(2000);
