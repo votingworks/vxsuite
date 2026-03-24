@@ -255,15 +255,30 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         data = String::from_utf8_lossy(&bytes)
                     );
 
-                    let status = tokio::time::timeout(
+                    match tokio::time::timeout(
                         default_timeout,
                         device_handle.bulk_out(ENDPOINT_OUT, bytes),
                     )
                     .await
-                    .unwrap();
-                    status.expect("Error sending outgoing packet");
-
-                    host_to_scanner_ack_tx.send(id).unwrap();
+                    {
+                        Ok(Ok(())) => {
+                            host_to_scanner_ack_tx.send(id).unwrap();
+                        }
+                        Ok(Err(err)) => {
+                            tracing::error!("Error sending outgoing packet: {err:?}");
+                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            break;
+                        }
+                        Err(_) => {
+                            tracing::error!("Timeout sending outgoing packet");
+                            let err = nusb::Error::new(
+                                std::io::ErrorKind::TimedOut,
+                                "timed out sending outgoing packet",
+                            );
+                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -288,6 +303,8 @@ mod tests {
 
     use nusb::transfer::{Completion, RequestBuffer, TransferError};
     use tokio::{sync::mpsc, time::timeout};
+
+    use crate::{Error, UsbError};
 
     use crate::protocol::packets::{
         ImageData, Incoming, Outgoing, PACKET_DATA_END, PACKET_DATA_START,
@@ -339,7 +356,9 @@ mod tests {
         Arc<Mutex<HashMap<u8, (mpsc::UnboundedReceiver<Completion<Vec<u8>>>, Submissions)>>>;
 
     struct MockInterface {
-        write_tx: mpsc::UnboundedSender<(u8, Vec<u8>)>,
+        bulk_out_data_tx: mpsc::UnboundedSender<(u8, Vec<u8>)>,
+        bulk_out_response_rx:
+            tokio::sync::Mutex<mpsc::UnboundedReceiver<Result<(), TransferError>>>,
         queues: MockQueues,
     }
 
@@ -357,17 +376,23 @@ mod tests {
         }
 
         async fn bulk_out(&self, endpoint: u8, data: Vec<u8>) -> Result<(), TransferError> {
-            self.write_tx
+            self.bulk_out_data_tx
                 .send((endpoint, data))
                 .map_err(|_| TransferError::Cancelled)?;
-            Ok(())
+            self.bulk_out_response_rx
+                .lock()
+                .await
+                .recv()
+                .await
+                .unwrap_or(Err(TransferError::Cancelled))
         }
     }
 
     struct MockHandles {
         primary_tx: mpsc::UnboundedSender<Completion<Vec<u8>>>,
         image_data_tx: mpsc::UnboundedSender<Completion<Vec<u8>>>,
-        write_rx: mpsc::UnboundedReceiver<(u8, Vec<u8>)>,
+        bulk_out_data_rx: mpsc::UnboundedReceiver<(u8, Vec<u8>)>,
+        bulk_out_response_tx: mpsc::UnboundedSender<Result<(), TransferError>>,
         primary_submissions: Submissions,
         image_data_submissions: Submissions,
     }
@@ -375,7 +400,8 @@ mod tests {
     fn mock_interface_and_handles() -> (MockInterface, MockHandles) {
         let (primary_tx, primary_rx) = mpsc::unbounded_channel();
         let (image_data_tx, image_data_rx) = mpsc::unbounded_channel();
-        let (write_tx, write_rx) = mpsc::unbounded_channel();
+        let (bulk_out_data_tx, bulk_out_data_rx) = mpsc::unbounded_channel();
+        let (bulk_out_response_tx, bulk_out_response_rx) = mpsc::unbounded_channel();
 
         let primary_submissions = Submissions::default();
         let image_data_submissions = Submissions::default();
@@ -393,13 +419,15 @@ mod tests {
 
         (
             MockInterface {
-                write_tx,
+                bulk_out_data_tx,
+                bulk_out_response_rx: tokio::sync::Mutex::new(bulk_out_response_rx),
                 queues: Arc::new(Mutex::new(queues)),
             },
             MockHandles {
                 primary_tx,
                 image_data_tx,
-                write_rx,
+                bulk_out_data_rx,
+                bulk_out_response_tx,
                 primary_submissions,
                 image_data_submissions,
             },
@@ -407,8 +435,12 @@ mod tests {
     }
 
     fn start_mock_scanner() -> (MockHandles, Scanner) {
+        start_mock_scanner_with_timeout(Duration::from_secs(1))
+    }
+
+    fn start_mock_scanner_with_timeout(default_timeout: Duration) -> (MockHandles, Scanner) {
         let (interface, handles) = mock_interface_and_handles();
-        let scanner = poll_scanner(&Arc::new(interface), Duration::from_secs(1));
+        let scanner = poll_scanner(&Arc::new(interface), default_timeout);
         (handles, scanner)
     }
 
@@ -513,12 +545,14 @@ mod tests {
             .unwrap();
 
         // Verify the serialized bytes arrive on the correct endpoint
-        let (endpoint, data) = timeout(TEST_TIMEOUT, handles.write_rx.recv())
+        let (endpoint, data) = timeout(TEST_TIMEOUT, handles.bulk_out_data_rx.recv())
             .await
             .unwrap()
             .unwrap();
         assert_eq!(endpoint, ENDPOINT_OUT);
         assert_eq!(data, Outgoing::EnableCrcCheckingRequest.to_bytes());
+
+        handles.bulk_out_response_tx.send(Ok(())).unwrap();
 
         // Verify the ack
         let ack_id = timeout(TEST_TIMEOUT, scanner.host_to_scanner_ack_rx.recv())
@@ -570,6 +604,77 @@ mod tests {
             .unwrap();
         assert!(result.is_err());
 
+        assert!(scanner.scanner_to_host_rx.recv().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn outgoing_transfer_error_forwarded_and_task_exits() {
+        let (mut handles, mut scanner) = start_mock_scanner();
+
+        scanner
+            .host_to_scanner_tx
+            .send((1, Outgoing::EnableCrcCheckingRequest))
+            .unwrap();
+
+        let (endpoint, _data) = timeout(TEST_TIMEOUT, handles.bulk_out_data_rx.recv())
+            .await
+            .unwrap()
+            .expect("bulk_out data channel closed before write was observed");
+        assert_eq!(endpoint, ENDPOINT_OUT);
+        handles
+            .bulk_out_response_tx
+            .send(Err(TransferError::Disconnected))
+            .unwrap();
+
+        let err = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+            .await
+            .unwrap()
+            .unwrap()
+            .unwrap_err();
+        assert!(matches!(
+            err,
+            Error::Usb {
+                source: UsbError::NusbTransfer(TransferError::Disconnected),
+                ..
+            }
+        ));
+
+        // Task should have exited — channel closes
+        assert!(scanner.scanner_to_host_rx.recv().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn outgoing_timeout_sends_error_and_task_exits() {
+        // Use a short timeout so the test runs quickly
+        let (mut handles, mut scanner) = start_mock_scanner_with_timeout(Duration::from_millis(10));
+
+        scanner
+            .host_to_scanner_tx
+            .send((1, Outgoing::EnableCrcCheckingRequest))
+            .unwrap();
+
+        // Wait for the packet to arrive at the mock (before the timeout fires)
+        let (endpoint, _data) = timeout(TEST_TIMEOUT, handles.bulk_out_data_rx.recv())
+            .await
+            .unwrap()
+            .expect("bulk_out data channel closed before write was observed");
+        assert_eq!(endpoint, ENDPOINT_OUT);
+
+        // No response sent — mock hangs on response_rx until timeout fires
+        let err = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+            .await
+            .unwrap()
+            .unwrap()
+            .unwrap_err();
+        assert!(matches!(
+            &err,
+            Error::Usb {
+                source: UsbError::Nusb(e),
+                ..
+            } if e.kind() == std::io::ErrorKind::TimedOut
+        ));
+
+        // Task should have exited — channel closes
         assert!(scanner.scanner_to_host_rx.recv().await.is_none());
     }
 
