@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { throwIllegalValue } = require('@votingworks/basics');
-const { hasSplits } = require('@votingworks/types');
 const { PgLiteral } = require('node-pg-migrate');
 
 /**
@@ -33,6 +31,9 @@ exports.shorthands = {
  * @returns {Promise<void>}
  */
 exports.up = async (pgm) => {
+  const { throwIllegalValue } = await import('@votingworks/basics');
+  const { hasSplits } = await import('@votingworks/types');
+
   /**
    * Step 1: Add new columns/tables
    */

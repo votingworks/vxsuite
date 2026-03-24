@@ -1,15 +1,16 @@
 /* eslint-disable vx/gts-object-literal-types */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { hasSplits } = require('@votingworks/types');
-const { generateId } = require('../build/utils.js');
 
 /**
  * Regenerate the IDs of all entities in an election, ensuring that all
  * references are updated.
  * @param {import('@votingworks/types').Election} election
  * @param {import('@votingworks/types').Precinct[]} precincts
+ * @param {object} deps
+ * @param {Function} deps.hasSplits
+ * @param {Function} deps.generateId
  */
-function regenerateElectionIds(election, precincts) {
+function regenerateElectionIds(election, precincts, { hasSplits, generateId }) {
   const idMap = new Map();
   /**
    * @param {string} id
@@ -99,6 +100,9 @@ exports.shorthands =
  * @returns {Promise<void>}
  */
 exports.up = async (pgm) => {
+  const { hasSplits } = await import('@votingworks/types');
+  const { generateId } = await import('../build/utils.js');
+
   const allElections = await pgm.db.select({
     text: 'SELECT id, election_data, precinct_data FROM elections',
   });
@@ -149,7 +153,7 @@ exports.up = async (pgm) => {
       precincts: updatedPrecincts,
       parties,
       contests,
-    } = regenerateElectionIds(election, precincts);
+    } = regenerateElectionIds(election, precincts, { hasSplits, generateId });
     const updatedElection = {
       ...election,
       districts,

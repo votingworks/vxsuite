@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
-
-loadEnvVarsFromDotenvFiles();
 
 exports.shorthands =
   /** @type {import('node-pg-migrate').ColumnDefinitions | undefined} */ (
@@ -13,7 +10,9 @@ exports.shorthands =
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-exports.up = (pgm) => {
+exports.up = async (pgm) => {
+  const { loadEnvVarsFromDotenvFiles } = await import('@votingworks/backend');
+  loadEnvVarsFromDotenvFiles();
   pgm.createTable('organizations', {
     id: { type: 'text', primaryKey: true },
     name: { type: 'text', notNull: true, unique: true },

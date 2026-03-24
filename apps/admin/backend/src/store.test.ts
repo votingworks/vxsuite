@@ -398,6 +398,7 @@ describe('getTabulationGroups', () => {
   let election: Election;
 
   beforeAll(() => {
+    vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
     store = Store.memoryStore(makeTemporaryDirectory());
     electionId = store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),

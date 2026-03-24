@@ -1,11 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
-const {
-  sliOrganizationId,
-  votingWorksOrganizationId,
-} = require('../build/globals');
-
-loadEnvVarsFromDotenvFiles();
 
 exports.shorthands =
   /** @type {import('node-pg-migrate').ColumnDefinitions | undefined} */ (
@@ -17,7 +10,10 @@ exports.shorthands =
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-exports.up = (pgm) => {
+exports.up = async (pgm) => {
+  const { loadEnvVarsFromDotenvFiles } = await import('@votingworks/backend');
+  const { sliOrganizationId, votingWorksOrganizationId } = await import('../build/globals.js');
+  loadEnvVarsFromDotenvFiles();
   pgm.createType('user_type', ['organization_user', 'jurisdiction_user']);
   pgm.addColumn('users', {
     type: { type: 'user_type' },
