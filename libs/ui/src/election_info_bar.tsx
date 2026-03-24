@@ -12,9 +12,7 @@ import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';
 import { electionStrings, PrecinctSelectionName } from './ui_strings';
 
-const Bar = styled.div<{ inverse?: boolean }>`
-  background: ${(p) => p.inverse && p.theme.colors.inverseBackground};
-  color: ${(p) => p.inverse && p.theme.colors.onInverse};
+export const InfoBar = styled.div`
   align-content: flex-end;
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
@@ -43,53 +41,17 @@ const SystemInfoContainer = styled.div`
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
-export interface ElectionInfoBarProps {
-  mode?: InfoBarMode;
-  electionDefinition?: ElectionDefinition;
-  electionPackageHash?: string;
-  codeVersion?: string;
-  machineId?: string;
+interface ElectionInfoProps {
+  electionDefinition: ElectionDefinition;
   precinctSelection?: PrecinctSelection;
   inverse?: boolean;
 }
-export function ElectionInfoBar({
-  mode = 'voter',
+
+export function ElectionInfo({
   electionDefinition,
-  electionPackageHash,
-  codeVersion,
-  machineId,
   precinctSelection,
   inverse,
-}: ElectionInfoBarProps): JSX.Element {
-  const codeVersionInfo =
-    mode !== 'voter' && codeVersion ? (
-      <Caption noWrap>
-        <LabelledText label="Version">
-          <Font weight="bold">{codeVersion}</Font>
-        </LabelledText>
-      </Caption>
-    ) : null;
-
-  const machineIdInfo =
-    mode !== 'voter' && machineId ? (
-      <Caption noWrap>
-        <LabelledText label="Machine ID">
-          <Font weight="bold">{machineId}</Font>
-        </LabelledText>
-      </Caption>
-    ) : null;
-
-  if (!electionDefinition) {
-    return (
-      <Bar data-testid="electionInfoBar" inverse={inverse}>
-        <SystemInfoContainer>
-          {codeVersionInfo}
-          {machineIdInfo}
-        </SystemInfoContainer>
-      </Bar>
-    );
-  }
-
+}: ElectionInfoProps): JSX.Element {
   const {
     election,
     election: { precincts, county, seal },
@@ -111,16 +73,53 @@ export function ElectionInfoBar({
     </Font>
   );
 
-  const electionInfo = (
-    <Caption weight="regular">
-      <LabelledText labelPosition="bottom" label={electionInfoLabel}>
-        <Font weight="bold">{electionStrings.electionTitle(election)}</Font> —{' '}
-        <Font noWrap>{electionStrings.electionDate(election)}</Font>
-      </LabelledText>
-    </Caption>
+  return (
+    <ElectionInfoContainer>
+      <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
+      <Caption weight="regular">
+        <LabelledText labelPosition="bottom" label={electionInfoLabel}>
+          <Font weight="bold">{electionStrings.electionTitle(election)}</Font> —{' '}
+          <Font noWrap>{electionStrings.electionDate(election)}</Font>
+        </LabelledText>
+      </Caption>
+    </ElectionInfoContainer>
   );
+}
 
-  const electionIdInfo = (
+interface SystemInfoProps {
+  mode?: InfoBarMode;
+  electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
+  codeVersion?: string;
+  machineId?: string;
+}
+
+export function SystemInfo({
+  mode = 'voter',
+  electionDefinition,
+  electionPackageHash,
+  codeVersion,
+  machineId,
+}: SystemInfoProps): JSX.Element {
+  const codeVersionInfo =
+    mode !== 'voter' && codeVersion ? (
+      <Caption noWrap>
+        <LabelledText label="Version">
+          <Font weight="bold">{codeVersion}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  const machineIdInfo =
+    mode !== 'voter' && machineId ? (
+      <Caption noWrap>
+        <LabelledText label="Machine ID">
+          <Font weight="bold">{machineId}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  const electionIdInfo = electionDefinition ? (
     <Caption>
       <LabelledText label="Election ID">
         <Font weight="bold">
@@ -131,20 +130,50 @@ export function ElectionInfoBar({
         </Font>
       </LabelledText>
     </Caption>
-  );
+  ) : null;
 
   return (
-    <Bar data-testid="electionInfoBar" inverse={inverse}>
-      <ElectionInfoContainer>
-        <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
-        {electionInfo}
-      </ElectionInfoContainer>
-      <SystemInfoContainer>
-        {codeVersionInfo}
-        {machineIdInfo}
-        {electionIdInfo}
-      </SystemInfoContainer>
-    </Bar>
+    <SystemInfoContainer>
+      {codeVersionInfo}
+      {machineIdInfo}
+      {electionIdInfo}
+    </SystemInfoContainer>
+  );
+}
+
+export interface ElectionInfoBarProps {
+  mode?: InfoBarMode;
+  electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
+  codeVersion?: string;
+  machineId?: string;
+  precinctSelection?: PrecinctSelection;
+}
+
+export function ElectionInfoBar({
+  mode = 'voter',
+  electionDefinition,
+  electionPackageHash,
+  codeVersion,
+  machineId,
+  precinctSelection,
+}: ElectionInfoBarProps): JSX.Element {
+  return (
+    <InfoBar data-testid="electionInfoBar">
+      {electionDefinition && (
+        <ElectionInfo
+          electionDefinition={electionDefinition}
+          precinctSelection={precinctSelection}
+        />
+      )}
+      <SystemInfo
+        mode={mode}
+        electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
+        codeVersion={codeVersion}
+        machineId={machineId}
+      />
+    </InfoBar>
   );
 }
 
@@ -164,7 +193,7 @@ export function VerticalElectionInfoBar({
   machineId,
   precinctSelection,
   inverse,
-}: ElectionInfoBarProps): JSX.Element {
+}: ElectionInfoBarProps & { inverse?: boolean }): JSX.Element {
   if (!electionDefinition) {
     return (
       <VerticalBar inverse={inverse}>

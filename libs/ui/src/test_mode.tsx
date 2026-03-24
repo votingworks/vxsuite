@@ -1,69 +1,67 @@
-import { ThemeProvider } from 'styled-components';
-import { makeTheme, TouchscreenPalette } from './themes/make_theme';
+import styled, { ThemeProvider } from 'styled-components';
+import { isTouchSizeMode } from '@votingworks/types';
+import {
+  DesktopPalette,
+  makeTheme,
+  TouchscreenPalette,
+} from './themes/make_theme';
 import { Icons } from './icons';
 import { TextOnly } from './ui_strings';
-import {
-  MachineModeCardDesktop,
-  MachineModeCardTouch,
-} from './machine_mode_card';
+import { H3 } from './typography';
 
-function TestModeCalloutTouch({
-  style,
-}: {
-  style?: React.CSSProperties;
-}): JSX.Element {
-  return (
-    <TextOnly>
-      <ThemeProvider
-        theme={(theme) =>
-          // Lock to "medium" size mode to keep things from getting out of hand at
-          // larger text sizes.
-          makeTheme({
-            ...theme,
-            sizeMode: 'touchMedium',
-          })
-        }
-      >
-        <MachineModeCardTouch
-          style={style}
-          borderColor={TouchscreenPalette.Orange50}
-        >
-          <Icons.Warning
-            style={{
-              // We always want a bright orange, even if the color mode is
-              // different, so we harcode instead of using the theme.
-              color: TouchscreenPalette.Orange50,
-            }}
-          />{' '}
-          Test Ballot Mode
-        </MachineModeCardTouch>
-      </ThemeProvider>
-    </TextOnly>
-  );
-}
+const BannerStrip = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  width: 100%;
+  padding: 0.5em 0;
+  color: ${(p) => p.theme.colors.onBackground};
+  background-color: ${(p) =>
+    // We use specific non-theme colors to make this banner stand out.
+    isTouchSizeMode(p.theme.sizeMode)
+      ? TouchscreenPalette.Orange30
+      : DesktopPalette.Orange30};
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.thin}em solid
+    ${(p) =>
+      isTouchSizeMode(p.theme.sizeMode)
+        ? p.theme.colors.outline
+        : p.theme.colors.warningAccent};
+  font-size: ${(p) =>
+    // Lock the font size to the local theme (rather than using the root font size)
+    // This will control font size as well as spacing, border width, etc.
+    p.theme.sizes.fontDefault}px;
 
-function TestModeCalloutDesktop({
-  style,
-}: {
-  style?: React.CSSProperties;
-}): JSX.Element {
-  return (
-    <MachineModeCardDesktop style={style} color="warning">
-      <Icons.Warning color="warning" /> Test Ballot Mode
-    </MachineModeCardDesktop>
-  );
-}
-
-export function TestModeCallout({
-  viewMode,
-  style,
-}: {
-  viewMode: 'touch' | 'desktop';
-  style?: React.CSSProperties;
-}): JSX.Element {
-  if (viewMode === 'desktop') {
-    return <TestModeCalloutDesktop style={style} />;
+  h3 {
+    margin: 0;
+    font-size: ${(p) => p.theme.sizes.headingsRem.h3}em;
   }
+`;
 
-  return <TestModeCalloutTouch style={style} />;
+export function TestModeBanner(): JSX.Element {
+  return (
+    <ThemeProvider
+      theme={(t) =>
+        makeTheme({
+          ...t,
+          // If we're in a touch theme context, lock the banner to medium
+          // size/contrast
+          ...(isTouchSizeMode(t.sizeMode)
+            ? {
+                sizeMode: 'touchMedium',
+                colorMode: 'contrastMedium',
+              }
+            : {}),
+        })
+      }
+    >
+      <TextOnly>
+        <BannerStrip>
+          <H3>
+            <Icons.Warning /> Test Ballot Mode
+          </H3>
+        </BannerStrip>
+      </TextOnly>
+    </ThemeProvider>
+  );
 }

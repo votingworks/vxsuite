@@ -74,7 +74,7 @@ const TestModeBannerContainer = styled(Box)`
   }
 `;
 
-export function TestModeBanner({
+export function TestModeReportBanner({
   overrideText,
 }: {
   overrideText?: string;

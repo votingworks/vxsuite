@@ -21,8 +21,8 @@ import {
   ReportElectionInfo,
   ReportMetadata,
   Callout,
-  TestModeCallout,
   TestModeBanner,
+  TestModeReportBanner,
   useQueryChangeListener,
 } from '@votingworks/ui';
 import { useParams, Switch, Route } from 'react-router-dom';
@@ -298,11 +298,9 @@ function LiveReportsSummaryScreen({
           <H1 style={{ paddingRight: '1rem', display: 'inline' }}>
             Live Reports
           </H1>
-          {allEntries.length > 0 && !pollsStatusData.isLive && (
-            <TestModeCallout viewMode="desktop" />
-          )}
         </Row>
       </Header>
+      {allEntries.length > 0 && !pollsStatusData.isLive && <TestModeBanner />}
       <MainContent>
         {allEntries.length > 0 && (
           <div
@@ -652,7 +650,7 @@ function LiveReportsResultsScreen({
             <p>No results reported.</p>
           )}
           {aggregatedResults.machinesReporting.length > 0 &&
-            !aggregatedResults.isLive && <TestModeBanner />}
+            !aggregatedResults.isLive && <TestModeReportBanner />}
           <ReportElectionInfo election={aggregatedResults.election} />
           <ReportMetadata>
             <LabeledValue

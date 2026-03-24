@@ -1,4 +1,5 @@
-import { H1, MainHeader, TestModeCallout } from '@votingworks/ui';
+import React from 'react';
+import { H1, MainHeader, TestModeBanner } from '@votingworks/ui';
 import styled from 'styled-components';
 import { getElectionRecord, getTestMode } from '../api';
 
@@ -10,25 +11,13 @@ const ButtonRow = styled.div`
 `;
 
 const Header = styled(MainHeader)`
-  display: grid;
-  grid-template-columns: minmax(350px, auto) auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   min-height: 4rem;
   padding: 0.5rem 1rem;
   box-sizing: border-box;
-`;
-
-const RightSection = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-`;
-
-const BannerSection = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 export function TitleBar({
@@ -37,7 +26,7 @@ export function TitleBar({
 }: {
   title: string;
   actions?: React.ReactNode;
-}): JSX.Element | null {
+}): JSX.Element {
   const electionRecordQuery = getElectionRecord.useQuery();
   const testModeQuery = getTestMode.useQuery();
 
@@ -45,14 +34,12 @@ export function TitleBar({
   const isConfigured = electionRecordQuery.data !== null;
 
   return (
-    <Header>
-      <H1>{title}</H1>
-      <BannerSection>
-        {isTestMode && isConfigured && <TestModeCallout viewMode="desktop" />}
-      </BannerSection>
-      <RightSection>
-        {actions && <ButtonRow as="div">{actions}</ButtonRow>}
-      </RightSection>
-    </Header>
+    <React.Fragment>
+      {isTestMode && isConfigured && <TestModeBanner />}
+      <Header>
+        <H1>{title}</H1>
+        {actions && <ButtonRow>{actions}</ButtonRow>}
+      </Header>
+    </React.Fragment>
   );
 }

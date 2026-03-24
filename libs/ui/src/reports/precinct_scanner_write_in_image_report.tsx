@@ -21,7 +21,7 @@ import {
   ReportMetadata,
   ReportSubtitle,
   ReportTitle,
-  TestModeBanner,
+  TestModeReportBanner,
 } from './report_header';
 
 export interface WriteInEntry {
@@ -100,7 +100,7 @@ export function PrecinctScannerWriteInImageReport({
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport>
-        {!isLiveMode && <TestModeBanner />}
+        {!isLiveMode && <TestModeReportBanner />}
         <LogoMark />
         <ReportHeader>
           <ReportTitle>Write-In Image Report &bull; {precinctName}</ReportTitle>
