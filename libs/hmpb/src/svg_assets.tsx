@@ -246,3 +246,21 @@ export function ArrowRightCircle({
     </svg>
   );
 }
+
+export function ArrowDown({
+  style = {},
+}: {
+  style?: React.CSSProperties;
+}): JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 60 60"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ ...style, transform: 'rotate(90deg)' }}
+    >
+      <path d="M52.5 30L31.125 46.238L31.125 13.762L52.5 30Z" fill="white" />
+      <rect x="9" y="24" width="22.5" height="12" fill="white" />
+    </svg>
+  );
+}

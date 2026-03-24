@@ -95,7 +95,7 @@ function Header({
 
   const party =
     election.type === 'primary'
-      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
+      ? getPartyForBallotStyle({ election, ballotStyleId })
       : undefined;
 
   return (

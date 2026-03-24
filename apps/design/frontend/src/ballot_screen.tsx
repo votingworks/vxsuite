@@ -322,7 +322,6 @@ export function BallotScreen(): JSX.Element | null {
     return null; // Initial loading state
   }
 
-  const electionInfo = getElectionInfoQuery.data;
   const precincts = listPrecinctsQuery.data;
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
@@ -418,7 +417,7 @@ export function BallotScreen(): JSX.Element | null {
             {precinct.name}
           </div>
 
-          {electionInfo.type === 'primary' && (
+          {ballotStyle.partyId && (
             <div>
               <FieldName>Party</FieldName>
               {find(parties, (p) => p.id === ballotStyle.partyId).fullName}

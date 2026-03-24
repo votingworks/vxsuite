@@ -1,0 +1,15 @@
+exports.shorthands =
+  /** @type {import('node-pg-migrate').ColumnDefinitions | undefined} */ (
+    undefined
+  );
+
+/**
+ * @param pgm {import('node-pg-migrate').MigrationBuilder}
+ * @param run {() => void | undefined}
+ * @returns {Promise<void> | void}
+ */
+exports.up = (pgm) => {
+  pgm.addColumn('elections', {
+    is_open_primary: { type: 'boolean', default: false, notNull: true },
+  });
+};

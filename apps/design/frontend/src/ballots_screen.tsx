@@ -192,6 +192,9 @@ function BallotStylesTab(): JSX.Element | null {
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
+  const showPartyColumn =
+    electionInfo.type === 'primary' &&
+    ballotStyles.some((bs) => bs.partyId !== undefined);
 
   return (
     <TabPanel>
@@ -204,7 +207,7 @@ function BallotStylesTab(): JSX.Element | null {
               <tr>
                 <TH>Precinct</TH>
                 <TH>Ballot Style</TH>
-                {electionInfo.type === 'primary' && <TH>Party</TH>}
+                {showPartyColumn && <TH>Party</TH>}
                 <TH />
               </tr>
             </thead>
@@ -224,7 +227,7 @@ function BallotStylesTab(): JSX.Element | null {
                         </TD>
                         {
                           /* istanbul ignore next - @preserve */
-                          electionInfo.type === 'primary' && <TD />
+                          showPartyColumn && <TD />
                         }
                         <TD />
                       </tr>
@@ -235,7 +238,7 @@ function BallotStylesTab(): JSX.Element | null {
                     <tr key={precinct.id + ballotStyle.id}>
                       <TD>{precinct.name}</TD>
                       <TD>{ballotStyle.id}</TD>
-                      {electionInfo.type === 'primary' && (
+                      {showPartyColumn && (
                         <TD>
                           {
                             find(
@@ -263,7 +266,7 @@ function BallotStylesTab(): JSX.Element | null {
                   <tr key={precinct.id}>
                     <TD>{precinct.name}</TD>
                     <TD />
-                    {electionInfo.type === 'primary' && <TD />}
+                    {showPartyColumn && <TD />}
                     <TD />
                   </tr>
                 );
@@ -285,7 +288,7 @@ function BallotStylesTab(): JSX.Element | null {
                         </TD>
                         {
                           /* istanbul ignore next - @preserve */
-                          electionInfo.type === 'primary' && <TD />
+                          showPartyColumn && <TD />
                         }
                         <TD />
                       </NestedTr>
@@ -296,7 +299,7 @@ function BallotStylesTab(): JSX.Element | null {
                     <NestedTr key={split.id + ballotStyle.id}>
                       <TD>{split.name}</TD>
                       <TD>{ballotStyle.id}</TD>
-                      {electionInfo.type === 'primary' && (
+                      {showPartyColumn && (
                         <TD>
                           {
                             find(

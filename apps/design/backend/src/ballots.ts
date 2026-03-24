@@ -119,6 +119,7 @@ export function createBallotPropsForTemplate(
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
 
+    case 'MiBallot':
     case 'MsBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
