@@ -257,7 +257,7 @@ pub fn find_scanned_document_inset(
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VerticalStreak {
     pub(crate) x_range: RangeInclusive<PixelPosition>,
     pub(crate) scores: Vec<UnitIntervalScore>,
@@ -265,26 +265,35 @@ pub struct VerticalStreak {
 }
 
 impl VerticalStreak {
+    /// Merges two streaks if they are adjacent or overlapping.
     #[allow(clippy::result_large_err)]
     fn coalesce(self, other: Self) -> Result<Self, (Self, Self)> {
-        if *self.x_range.end() + 1 >= *other.x_range.start() {
-            let overlap_size = (*self.x_range.end() + 1 - *other.x_range.start()) as usize;
-            Ok(Self {
-                x_range: *self.x_range.start()..=*other.x_range.end(),
-                scores: [
-                    &self.scores[..=self.scores.len() - overlap_size],
-                    &other.scores[overlap_size..],
-                ]
-                .concat(),
-                longest_white_gaps: [
-                    &self.longest_white_gaps[..=self.longest_white_gaps.len() - overlap_size],
-                    &other.longest_white_gaps[overlap_size..],
-                ]
-                .concat(),
-            })
+        let (left, right) = if *self.x_range.start() <= *other.x_range.start() {
+            (self, other)
         } else {
-            Err((self, other))
+            (other, self)
+        };
+
+        // No overlap
+        if *left.x_range.end() + 1 < *right.x_range.start() {
+            return Err((left, right));
         }
+
+        // Left fully contains right — nothing new to add.
+        if *right.x_range.end() <= *left.x_range.end() {
+            return Ok(left);
+        }
+
+        let overlap_size = (*left.x_range.end() + 1 - *right.x_range.start()) as usize;
+        Ok(Self {
+            x_range: *left.x_range.start()..=*right.x_range.end(),
+            scores: [&left.scores, &right.scores[overlap_size..]].concat(),
+            longest_white_gaps: [
+                &left.longest_white_gaps,
+                &right.longest_white_gaps[overlap_size..],
+            ]
+            .concat(),
+        })
     }
 
     pub(crate) fn rotate180(&mut self, ballot_image_width: u32) {
@@ -482,6 +491,89 @@ mod test {
                 right: 0,
             })
         );
+    }
+
+    fn make_streak(x_range: RangeInclusive<PixelPosition>) -> VerticalStreak {
+        VerticalStreak {
+            scores: make_scores(x_range.clone()),
+            longest_white_gaps: make_longest_white_gaps(x_range.clone()),
+            x_range,
+        }
+    }
+
+    fn make_scores(columns: RangeInclusive<PixelPosition>) -> Vec<UnitIntervalScore> {
+        columns
+            .map(|x| UnitIntervalScore(x as f32 / 100.0))
+            .collect()
+    }
+
+    fn make_longest_white_gaps(columns: RangeInclusive<PixelPosition>) -> Vec<PixelUnit> {
+        columns.map(|x| x as PixelUnit).collect()
+    }
+
+    #[test]
+    fn test_coalesce_adjacent_streaks() {
+        let result = make_streak(0..=2).coalesce(make_streak(3..=5)).unwrap();
+        assert_eq!(result.x_range, 0..=5);
+        assert_eq!(result.scores, make_scores(0..=5));
+        assert_eq!(result.longest_white_gaps, make_longest_white_gaps(0..=5));
+    }
+
+    #[test]
+    fn test_coalesce_overlapping_streaks() {
+        let result = make_streak(0..=5).coalesce(make_streak(4..=8)).unwrap();
+        assert_eq!(result.x_range, 0..=8);
+        assert_eq!(result.scores, make_scores(0..=8));
+        assert_eq!(result.longest_white_gaps, make_longest_white_gaps(0..=8));
+    }
+
+    #[test]
+    fn test_coalesce_self_contains_other() {
+        let result = make_streak(0..=8).coalesce(make_streak(2..=5)).unwrap();
+        assert_eq!(result, make_streak(0..=8));
+    }
+
+    #[test]
+    fn test_coalesce_other_contains_self() {
+        let result = make_streak(2..=5).coalesce(make_streak(0..=8)).unwrap();
+        assert_eq!(result, make_streak(0..=8));
+    }
+
+    #[test]
+    fn test_coalesce_non_adjacent_streaks() {
+        let (l, r) = (make_streak(0..=2), make_streak(4..=6));
+        let coalesced = l.clone().coalesce(r.clone()).unwrap_err();
+        assert_eq!(coalesced, (l, r));
+    }
+
+    proptest::proptest! {
+        #[test]
+        fn coalesce_result_is_consistent(
+            a_start in 0..=1000i32,
+            a_len in 0..=20u32,
+            b_start in 0..=1000i32,
+            b_len in 0..=20u32,
+        ) {
+            let a_end = a_start + a_len as PixelPosition;
+            let b_end = b_start + b_len as PixelPosition;
+            let a = make_streak(a_start..=a_end);
+            let b = make_streak(b_start..=b_end);
+            let gap = (*a.x_range.start().max(b.x_range.start()))
+                - (*a.x_range.end().min(b.x_range.end()));
+            match a.coalesce(b) {
+                Ok(merged) => {
+                    assert!(gap <= 1, "non-adjacent streaks should not coalesce");
+                    assert_eq!(*merged.x_range.start(), a_start.min(b_start));
+                    assert_eq!(*merged.x_range.end(), a_end.max(b_end));
+                    let expected_len = (*merged.x_range.end() - *merged.x_range.start() + 1) as usize;
+                    assert_eq!(merged.scores.len(), expected_len);
+                    assert_eq!(merged.longest_white_gaps.len(), expected_len);
+                }
+                Err(_) => {
+                    assert!(gap > 1, "adjacent/overlapping streaks should coalesce");
+                }
+            }
+        }
     }
 
     #[test]
