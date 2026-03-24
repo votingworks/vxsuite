@@ -201,7 +201,6 @@ export async function readElectionPackageFromBuffer(
     }
 
     // Registered Voter Counts:
-
     let registeredVoterCounts: ElectionRegisteredVotersCounts | undefined;
     const registeredVoterCountsEntry = maybeGetFileByName(
       entries,
