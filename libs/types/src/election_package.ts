@@ -23,7 +23,7 @@ export enum ElectionPackageFileName {
   BALLOTS = 'ballots.jsonl',
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
-  REGISTERED_VOTER_COUNTS = 'registeredVoterCounts.json',
+  REGISTERED_VOTERS_COUNTS = 'registeredVotersCounts.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
 }
 

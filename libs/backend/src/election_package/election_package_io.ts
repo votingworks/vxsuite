@@ -205,7 +205,7 @@ export async function readElectionPackageFromBuffer(
     let registeredVoterCounts: ElectionRegisteredVoterCounts | undefined;
     const registeredVoterCountsEntry = maybeGetFileByName(
       entries,
-      ElectionPackageFileName.REGISTERED_VOTER_COUNTS
+      ElectionPackageFileName.REGISTERED_VOTERS_COUNTS
     );
     if (registeredVoterCountsEntry) {
       registeredVoterCounts = safeParseJson(
