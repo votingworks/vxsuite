@@ -17,6 +17,7 @@ import {
   P,
   H4,
   Icons,
+  TestModeBanner,
 } from '@votingworks/ui';
 
 import {
@@ -214,12 +215,10 @@ export function PollWorkerScreen({
 
   return (
     <Screen>
+      {!isLiveMode && <TestModeBanner />}
       <Main padded>
         <div>
-          <SectionHeader
-            ballotsPrintedCount={ballotsPrintedCount}
-            liveMode={isLiveMode}
-          />
+          <SectionHeader ballotsPrintedCount={ballotsPrintedCount} />
           {pollsState === 'polls_open' && (
             <React.Fragment>
               <SectionSessionStart

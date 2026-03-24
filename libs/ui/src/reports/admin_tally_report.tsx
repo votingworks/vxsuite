@@ -21,7 +21,7 @@ import {
   ReportHeader,
   ReportTitle,
   ReportElectionInfo,
-  TestModeBanner,
+  TestModeReportBanner,
   ReportSubtitle,
 } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
@@ -77,7 +77,7 @@ export function AdminTallyReport({
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
-        {isTest && <TestModeBanner />}
+        {isTest && <TestModeReportBanner />}
         <LogoMark />
         <ReportHeader>
           <ReportTitle>{reportTitle}</ReportTitle>

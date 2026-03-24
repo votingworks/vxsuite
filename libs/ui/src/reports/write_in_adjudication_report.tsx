@@ -20,7 +20,7 @@ import {
   ReportHeader,
   ReportSubtitle,
   ReportTitle,
-  TestModeBanner,
+  TestModeReportBanner,
 } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 
@@ -80,7 +80,7 @@ export function WriteInAdjudicationReport({
               key={sectionKey}
               data-testid={`write-in-tally-report-${sectionKey}`}
             >
-              {isTest && <TestModeBanner />}
+              {isTest && <TestModeReportBanner />}
               <LogoMark />
               <ReportHeader>
                 <ReportTitle>

@@ -23,7 +23,7 @@ import {
   ReportMetadata,
   ReportSubtitle,
   ReportTitle,
-  TestModeBanner,
+  TestModeReportBanner,
 } from './report_header';
 
 interface Props {
@@ -69,7 +69,7 @@ export function PrecinctScannerReportHeader({
 
   return (
     <React.Fragment>
-      {!isLiveMode && <TestModeBanner />}
+      {!isLiveMode && <TestModeReportBanner />}
       <LogoMark />
       <ReportHeader>
         <ReportTitle>{reportTitle}</ReportTitle>

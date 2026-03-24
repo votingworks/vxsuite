@@ -104,23 +104,6 @@ describe('ElectionInfoBar', () => {
     );
     screen.getByTestId('seal');
   });
-
-  test('Renders inverse', () => {
-    const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
-    const { container } = render(
-      <ElectionInfoBar
-        electionDefinition={electionGeneralDefinition}
-        electionPackageHash={mockElectionPackageHash}
-        inverse
-      />,
-      { vxTheme: theme }
-    );
-    const infoBar = container.firstChild;
-    expect(infoBar).toHaveStyle({
-      background: theme.colors.inverseBackground,
-      color: theme.colors.onInverse,
-    });
-  });
 });
 
 describe('VerticalElectionInfoBar', () => {

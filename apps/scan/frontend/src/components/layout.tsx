@@ -2,19 +2,22 @@ import React from 'react';
 import {
   Screen as ScreenBase,
   Main,
-  ElectionInfoBar,
+  InfoBar,
+  ElectionInfo,
+  SystemInfo,
   InfoBarMode,
   H1,
+  Icons,
   LanguageSettingsButton,
   LanguageSettingsScreen,
   ReadOnLoad,
   AudioOnly,
-  TestModeCallout,
+  TestModeBanner,
   VoterHelpButton,
-  EarlyVotingCallout,
   VoterSettings,
   Button,
   appStrings,
+  ElectionInfoBarProps,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -95,37 +98,46 @@ const TitleContainer = styled.div`
   min-width: 5rem;
 `;
 
-interface ModeBannerProps {
-  showTestModeBanner: boolean;
-  showEarlyVotingBanner: boolean;
-}
+const EarlyVotingLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
 
-function ModeBanner({
-  showTestModeBanner,
+function ElectionInfoBar({
+  mode,
+  electionDefinition,
+  electionPackageHash,
+  precinctSelection,
+  codeVersion,
+  machineId,
   showEarlyVotingBanner,
-}: ModeBannerProps): React.ReactElement | null {
-  if (showTestModeBanner && !showEarlyVotingBanner) {
-    return <TestModeCallout viewMode="touch" />;
-  }
-  if (showEarlyVotingBanner && !showTestModeBanner) {
-    return <EarlyVotingCallout viewMode="touch" />;
-  }
-  if (showTestModeBanner && showEarlyVotingBanner) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '1rem',
-        }}
-      >
-        <TestModeCallout viewMode="touch" />
-        <EarlyVotingCallout viewMode="touch" />
+}: ElectionInfoBarProps & { showEarlyVotingBanner: boolean }): JSX.Element {
+  return (
+    <InfoBar>
+      {electionDefinition && (
+        <ElectionInfo
+          electionDefinition={electionDefinition}
+          precinctSelection={precinctSelection}
+        />
+      )}
+      {showEarlyVotingBanner && (
+        <EarlyVotingLabel>
+          <Icons.Clock color="primary" /> Early Voting
+        </EarlyVotingLabel>
+      )}
+      <div>
+        <SystemInfo
+          mode={mode}
+          electionDefinition={electionDefinition}
+          electionPackageHash={electionPackageHash}
+          codeVersion={codeVersion}
+          machineId={machineId}
+        />
       </div>
-    );
-  }
-
-  return null;
+    </InfoBar>
+  );
 }
 
 export function Screen(props: ScreenProps): JSX.Element | null {
@@ -207,6 +219,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
 
   return (
     <ScreenBase>
+      {showTestModeBanner && <TestModeBanner />}
       {voterFacing && (
         <HeaderRow>
           <SettingsButtons>
@@ -228,21 +241,11 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               />
             )}
           </SettingsButtons>
-          <ModeBanner
-            showTestModeBanner={showTestModeBanner}
-            showEarlyVotingBanner={showEarlyVotingBanner}
-          />
           {ballotCountElement}
         </HeaderRow>
       )}
       <HeaderRow>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {!voterFacing && (
-          <ModeBanner
-            showTestModeBanner={showTestModeBanner}
-            showEarlyVotingBanner={showEarlyVotingBanner}
-          />
-        )}
         {!voterFacing && ballotCountElement}
       </HeaderRow>
       {voterFacing ? (
@@ -264,6 +267,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           electionPackageHash={electionPackageHash}
           codeVersion={codeVersion}
           machineId={machineId}
+          showEarlyVotingBanner={showEarlyVotingBanner}
         />
       )}
     </ScreenBase>

@@ -10,7 +10,6 @@ import {
   PowerDownButton,
   SignedHashValidationApiClient,
   SignedHashValidationButton,
-  TestModeCallout,
 } from '@votingworks/ui';
 import React from 'react';
 import {
@@ -30,24 +29,14 @@ import { UpdatePollsButton } from './update_polls_button';
 
 export interface HeaderProps {
   ballotsPrintedCount: number;
-  liveMode: boolean;
 }
 
 export function SectionHeader(props: HeaderProps): JSX.Element {
-  const { ballotsPrintedCount, liveMode: isLiveMode } = props;
+  const { ballotsPrintedCount } = props;
 
   return (
     <React.Fragment>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'start',
-        }}
-      >
-        <H2 as="h1">Poll Worker Menu</H2>
-        {!isLiveMode && <TestModeCallout viewMode="touch" />}
-      </div>
+      <H2 as="h1">Poll Worker Menu</H2>
       <P>Remove the poll worker card to leave this screen.</P>
       <P style={{ fontSize: '1.2em' }}>
         <Font weight="bold">Ballots Printed:</Font>{' '}

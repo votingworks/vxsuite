@@ -6,7 +6,13 @@ import {
   PollsState,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
-import { Button, Main, Screen, ElectionInfoBar } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Screen,
+  ElectionInfoBar,
+  TestModeBanner,
+} from '@votingworks/ui';
 
 import type { MachineConfig } from '@votingworks/mark-backend';
 
@@ -101,12 +107,10 @@ export function PollWorkerScreen({
 
   return (
     <Screen>
+      {!isLiveMode && <TestModeBanner />}
       <Main padded>
         <div>
-          <SectionHeader
-            ballotsPrintedCount={ballotsPrintedCount}
-            liveMode={isLiveMode}
-          />
+          <SectionHeader ballotsPrintedCount={ballotsPrintedCount} />
           {pollsState === 'polls_open' && (
             <SectionSessionStart
               election={election}

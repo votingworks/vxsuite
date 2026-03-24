@@ -11,7 +11,7 @@ import {
   ReportMetadata,
   LabeledValue,
   Callout,
-  TestModeBanner,
+  TestModeReportBanner,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -167,7 +167,7 @@ function ReportHeader({
       </Callout>
       {!isLive && (
         <div>
-          <TestModeBanner />
+          <TestModeReportBanner />
         </div>
       )}
     </div>
@@ -199,7 +199,7 @@ function PartialReportHeader({
       </Callout>
       {!isLive && (
         <div>
-          <TestModeBanner />
+          <TestModeReportBanner />
         </div>
       )}
     </div>

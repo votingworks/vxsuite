@@ -33,7 +33,7 @@ import {
   ReportElectionInfo,
   ReportHeader,
   ReportTitle,
-  TestModeBanner,
+  TestModeReportBanner,
 } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 
@@ -637,7 +637,7 @@ export function BallotCountReport({
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
-        {isTest && <TestModeBanner />}
+        {isTest && <TestModeReportBanner />}
         <LogoMark />
         <ReportHeader style={{ marginBottom: '1em' }}>
           <ReportTitle>{prefixedTitle({ isOfficial, title })}</ReportTitle>
