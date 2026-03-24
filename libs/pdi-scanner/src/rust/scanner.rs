@@ -335,10 +335,12 @@ mod tests {
         }
     }
 
+    type MockQueues =
+        Arc<Mutex<HashMap<u8, (mpsc::UnboundedReceiver<Completion<Vec<u8>>>, Submissions)>>>;
+
     struct MockInterface {
         write_tx: mpsc::UnboundedSender<(u8, Vec<u8>)>,
-        queues:
-            Arc<Mutex<HashMap<u8, (mpsc::UnboundedReceiver<Completion<Vec<u8>>>, Submissions)>>>,
+        queues: MockQueues,
     }
 
     impl UsbInterface for MockInterface {
@@ -375,8 +377,8 @@ mod tests {
         let (image_data_tx, image_data_rx) = mpsc::unbounded_channel();
         let (write_tx, write_rx) = mpsc::unbounded_channel();
 
-        let primary_submissions: Submissions = Arc::default();
-        let image_data_submissions: Submissions = Arc::default();
+        let primary_submissions = Submissions::default();
+        let image_data_submissions = Submissions::default();
 
         let queues = HashMap::from([
             (
@@ -589,7 +591,7 @@ mod tests {
         // Yield until the background task has run its initial submits.
         timeout(TEST_TIMEOUT, async {
             loop {
-                if handles.primary_submissions.lock().unwrap().len() >= 1
+                if !handles.primary_submissions.lock().unwrap().is_empty()
                     && handles.image_data_submissions.lock().unwrap().len() >= 2
                 {
                     break;

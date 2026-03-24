@@ -887,7 +887,7 @@ mod tests {
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
         let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        let (result, _) = timeout(TEST_TIMEOUT, async {
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
             tokio::join!(
                 handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
                     Ok(client_slot.take().expect("connect called more than once"))
@@ -921,7 +921,7 @@ mod tests {
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
         let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        let (result, _) = timeout(TEST_TIMEOUT, async {
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
             tokio::join!(
                 handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
                     Ok(client_slot.take().expect("connect called more than once"))
@@ -964,7 +964,7 @@ mod tests {
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
         let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        let (result, _) = timeout(TEST_TIMEOUT, async {
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
             tokio::join!(
                 handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
                     Ok(client_slot.take().expect("connect called more than once"))
@@ -1010,7 +1010,7 @@ mod tests {
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
         let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        let (result, _) = timeout(TEST_TIMEOUT, async {
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
             tokio::join!(
                 handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
                     Ok(client_slot.take().expect("connect called more than once"))
@@ -1043,7 +1043,7 @@ mod tests {
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
         let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        let (result, _) = timeout(TEST_TIMEOUT, async {
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
             tokio::join!(
                 handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
                     Ok(client_slot.take().expect("connect called more than once"))
@@ -1133,7 +1133,7 @@ mod tests {
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
         let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        let (result, _) = timeout(TEST_TIMEOUT, async {
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
             tokio::join!(
                 handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
                     Ok(client_slot.take().expect("connect called more than once"))
