@@ -18,7 +18,7 @@ import {
 } from './networking';
 import type { PeerApi } from './peer_app';
 import { Store } from './store';
-import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { MachineStatus, ClientConnectionStatus } from './types';
 import { ClientStore } from './client_store';
 import { getCurrentTime } from './get_current_time';
 
@@ -71,7 +71,7 @@ describe('startHostNetworking', () => {
     expect(machines[0]).toMatchObject({
       machineId: '0001',
       machineMode: 'host',
-      status: HostConnectionStatus.Connected,
+      status: MachineStatus.Active,
     });
   });
 
@@ -80,15 +80,11 @@ describe('startHostNetworking', () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     startHostNetworking({ machineId: '0001', peerPort: 3002, store });
     await advancePollingInterval();
-    expect(store.getMachines()[0]?.status).toEqual(
-      HostConnectionStatus.Connected
-    );
+    expect(store.getMachines()[0]?.status).toEqual(MachineStatus.Active);
 
     vi.mocked(hasOnlineInterface).mockResolvedValue(false);
     await vi.advanceTimersByTimeAsync(2000);
-    expect(store.getMachines()[0]?.status).toEqual(
-      HostConnectionStatus.Offline
-    );
+    expect(store.getMachines()[0]?.status).toEqual(MachineStatus.Offline);
   });
 });
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { HostConnectionStatus } from './types';
+import { MachineStatus } from './types';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 
 test('connectToHost registers client and returns host machine config with adjudication status', async () => {
@@ -20,7 +20,7 @@ test('connectToHost registers client and returns host machine config with adjudi
   expect(machines[0]).toMatchObject({
     machineId: 'client-001',
     machineMode: 'client',
-    status: HostConnectionStatus.Connected,
+    status: MachineStatus.OnlineLocked,
   });
 });
 

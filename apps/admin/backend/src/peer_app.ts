@@ -4,7 +4,7 @@ import { assert, Optional } from '@votingworks/basics';
 import { type SystemSettings } from '@votingworks/types';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { HostConnectionStatus, ElectionRecord, MachineConfig } from './types';
+import { MachineStatus, ElectionRecord, MachineConfig } from './types';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('peer-app');
@@ -29,7 +29,7 @@ function buildPeerApi({ workspace }: PeerAppContext) {
       workspace.store.setNetworkedMachineStatus(
         input.machineId,
         'client',
-        HostConnectionStatus.Connected
+        MachineStatus.OnlineLocked
       );
       return {
         ...getMachineConfig(),

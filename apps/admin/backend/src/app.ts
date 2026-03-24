@@ -84,7 +84,7 @@ import {
   CastVoteRecordVoteInfo,
   AdjudicatedCvrContest,
   MachineMode,
-  HostConnectionStatus,
+  MachineStatus,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
@@ -250,12 +250,10 @@ function buildApi({
         (m) => m.machineMode === 'host' && m.machineId === machineId
       );
       return {
-        isOnline: hostRecord?.status === HostConnectionStatus.Connected,
-        connectedClients: machines.filter(
-          (m) =>
-            m.machineMode === 'client' &&
-            m.status === HostConnectionStatus.Connected
-        ),
+        isOnline:
+          hostRecord !== undefined &&
+          hostRecord.status !== MachineStatus.Offline,
+        connectedClients: machines.filter((m) => m.machineMode === 'client'),
       };
     },
 

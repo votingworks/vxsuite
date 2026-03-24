@@ -9,7 +9,6 @@ import {
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
-import { HostConnectionStatus } from '../types';
 import { screen, within } from '../../test/react_testing_library';
 
 import {
@@ -118,110 +117,27 @@ describe('multi-station mode', () => {
     featureFlagMock.resetFeatureFlags();
   });
 
-  function mockNetworkStatusQuery(
-    networkStatus: {
-      isOnline: boolean;
-      connectedClients: Array<{
-        machineId: string;
-        machineMode: 'client';
-        status: HostConnectionStatus;
-        lastSeenAt: number;
-      }>;
-    } = { isOnline: true, connectedClients: [] }
-  ) {
-    apiMock.apiClient.getNetworkStatus
-      .expectRepeatedCallsWith()
-      .resolves(networkStatus);
-  }
-
   test('shows switch to client mode button when unconfigured', () => {
     apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,
       electionDefinition: null,
     });
-    screen.getByRole('heading', { name: 'Multi-Station Mode' });
+    screen.getByRole('heading', { name: 'Machine Mode' });
     screen.getByRole('button', { name: 'Switch to Client Mode' });
   });
 
-  test('shows online network status', async () => {
+  test('hides switch to client mode when election configured', () => {
     apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
-    await screen.findByText('Network: Online');
-  });
-
-  test('shows offline network status', async () => {
-    apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery({ isOnline: false, connectedClients: [] });
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-    await screen.findByText('Network: Offline');
-  });
-
-  test('shows connected clients button when configured', async () => {
-    apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery({
-      isOnline: true,
-      connectedClients: [
-        {
-          machineId: 'client-001',
-          machineMode: 'client',
-          status: HostConnectionStatus.Connected,
-          lastSeenAt: Date.now(),
-        },
-      ],
-    });
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-    screen.getByRole('heading', { name: 'Multi-Station Mode' });
-    await screen.findByRole('button', {
-      name: 'View Connected Clients (1)',
-    });
-  });
-
-  test('opens and closes connected clients modal', async () => {
-    apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery({
-      isOnline: true,
-      connectedClients: [
-        {
-          machineId: 'client-001',
-          machineMode: 'client',
-          status: HostConnectionStatus.Connected,
-          lastSeenAt: Date.now(),
-        },
-      ],
-    });
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-    userEvent.click(
-      await screen.findByRole('button', {
-        name: 'View Connected Clients (1)',
-      })
-    );
-    await screen.findByText('Connected Clients');
-    screen.getByText('client-001');
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
-    await vi.waitFor(() =>
-      expect(screen.queryByText('Connected Clients')).not.toBeInTheDocument()
-    );
-  });
-
-  test('shows empty state in connected clients modal', async () => {
-    apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery();
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-    userEvent.click(
-      await screen.findByRole('button', {
-        name: 'View Connected Clients (0)',
-      })
-    );
-    await screen.findByText('No clients are currently connected.');
+    expect(
+      screen.queryByRole('button', { name: 'Switch to Client Mode' })
+    ).not.toBeInTheDocument();
   });
 
   test('shows restart screen after switching mode', async () => {
     apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,

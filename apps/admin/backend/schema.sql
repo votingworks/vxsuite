@@ -271,7 +271,8 @@ create table machines (
   machine_mode text not null
     check (machine_mode = 'host' or machine_mode = 'client'),
   status text not null
-    check (status = 'connected' or status = 'offline'),
+    check (status in ('offline', 'online_locked', 'active', 'adjudicating')),
+  auth_type text,
   last_seen_at integer not null
 );
 

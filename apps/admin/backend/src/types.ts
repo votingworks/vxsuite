@@ -22,6 +22,8 @@ import {
   Side,
   BallotCastingMode,
   ContestOption,
+  BallotPageContestOptionLayout,
+  UserRole,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 
@@ -40,10 +42,12 @@ export interface BaseStore {
   getSystemSettings(electionId: Id): SystemSettings | undefined;
 }
 
-/** Connection status between a host machine and another admin machine in a multi-station setup. */
-export enum HostConnectionStatus {
-  Connected = 'connected',
+/** Status of a machine in the multi-station machines table. */
+export enum MachineStatus {
   Offline = 'offline',
+  OnlineLocked = 'online_locked',
+  Active = 'active',
+  Adjudicating = 'adjudicating',
 }
 
 /** Connection status for a client machine in a multi-station setup. */
@@ -57,7 +61,8 @@ export enum ClientConnectionStatus {
 export interface MachineRecord {
   machineId: string;
   machineMode: MachineMode;
-  status: HostConnectionStatus;
+  status: MachineStatus;
+  authType: UserRole | null;
   lastSeenAt: number;
 }
 

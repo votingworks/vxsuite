@@ -44,6 +44,7 @@ import {
   BallotStyleGroup,
   getContests,
   SheetOf,
+  UserRole,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -93,7 +94,7 @@ import {
   CvrContestTag,
   CvrTag,
   WriteInForTally,
-  HostConnectionStatus,
+  MachineStatus,
   BaseStore,
   MachineRecord,
   MachineMode,
@@ -3032,17 +3033,20 @@ export class Store implements BaseStore {
   setNetworkedMachineStatus(
     machineId: string,
     machineMode: MachineMode,
-    status: HostConnectionStatus
+    status: MachineStatus,
+    authType: UserRole | null = null
   ): void {
     this.client.run(
-      `insert into machines (machine_id, machine_mode, status, last_seen_at)
-       values (?, ?, ?, ?)
+      `insert into machines (machine_id, machine_mode, status, auth_type, last_seen_at)
+       values (?, ?, ?, ?, ?)
        on conflict (machine_id) do update set
          status = excluded.status,
+         auth_type = excluded.auth_type,
          last_seen_at = excluded.last_seen_at`,
       machineId,
       machineMode,
       status,
+      authType,
       getCurrentTime()
     );
   }
@@ -3053,6 +3057,7 @@ export class Store implements BaseStore {
          machine_id as machineId,
          machine_mode as machineMode,
          status,
+         auth_type as authType,
          last_seen_at as lastSeenAt
        from machines`
     ) as MachineRecord[];
@@ -3060,10 +3065,10 @@ export class Store implements BaseStore {
 
   cleanupStaleMachines(): void {
     this.client.run(
-      `update machines set status = ?
-       where status = ? and (? - last_seen_at) > ?`,
-      HostConnectionStatus.Offline,
-      HostConnectionStatus.Connected,
+      `update machines set status = ?, auth_type = null
+       where status != ? and (? - last_seen_at) > ?`,
+      MachineStatus.Offline,
+      MachineStatus.Offline,
       getCurrentTime(),
       STALE_MACHINE_THRESHOLD_MS
     );

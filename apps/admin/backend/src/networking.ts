@@ -10,7 +10,7 @@ import { safeParseElectionDefinition } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
-import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { MachineStatus, ClientConnectionStatus } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
@@ -64,7 +64,7 @@ export function startHostNetworking({
       store.setNetworkedMachineStatus(
         machineId,
         'host',
-        isOnline ? HostConnectionStatus.Connected : HostConnectionStatus.Offline
+        isOnline ? MachineStatus.Active : MachineStatus.Offline
       );
       store.cleanupStaleMachines();
     }, NETWORK_POLLING_INTERVAL_MS);
