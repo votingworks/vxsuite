@@ -22,6 +22,7 @@ export type {
   DuplicatePartyError,
   ElectionRecord,
   MainExportTaskMetadata,
+  SetPollingPlaceError,
   TestDecksTaskMetadata,
 } from './store';
 export type {
