@@ -11,6 +11,10 @@ import { safeParseNumber } from '@votingworks/types';
 import type { FilterState, LogLine, StitchedLogFile } from './types';
 import { isVxLogLine } from './types';
 import { LogRow } from './log_row';
+import {
+  formatLinesForSlack,
+  formatLinesAsMarkdownTable,
+} from './copy_for_slack';
 
 const LOG_ROW_HEIGHT = 28;
 
@@ -19,6 +23,36 @@ const Container = styled.div`
   overflow: auto;
   font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
   font-size: 12px;
+`;
+
+const SelectionToolbar = styled.div`
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  background: #333;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  align-items: center;
+  z-index: 100;
+`;
+
+const ToolbarButton = styled.button`
+  background: #555;
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+
+  &:hover {
+    background: #666;
+  }
 `;
 
 const RotationBanner = styled.div`
@@ -142,6 +176,27 @@ export function LogDisplay({
     [anchorLine]
   );
 
+  const selectedLogLines = useMemo(() => {
+    if (selectedLines.size === 0) return [];
+    return stitchedLog.lines.filter((l) => selectedLines.has(l.lineNumber));
+  }, [stitchedLog, selectedLines]);
+
+  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+
+  const handleCopyForSlack = useCallback(async () => {
+    const text = formatLinesForSlack(selectedLogLines);
+    await navigator.clipboard.writeText(text);
+    setCopyFeedback('Copied as code block');
+    setTimeout(() => setCopyFeedback(null), 2000);
+  }, [selectedLogLines]);
+
+  const handleCopyAsTable = useCallback(async () => {
+    const text = formatLinesAsMarkdownTable(selectedLogLines);
+    await navigator.clipboard.writeText(text);
+    setCopyFeedback('Copied as table');
+    setTimeout(() => setCopyFeedback(null), 2000);
+  }, [selectedLogLines]);
+
   const virtualizer = useVirtualizer({
     count: filteredLines.length,
     getScrollElement: () => parentRef.current,
@@ -188,6 +243,29 @@ export function LogDisplay({
           );
         })}
       </div>
+      {selectedLines.size > 0 && (
+        <SelectionToolbar>
+          <span>
+            {selectedLines.size} line{selectedLines.size !== 1 ? 's' : ''}{' '}
+            selected
+          </span>
+          <ToolbarButton onClick={() => void handleCopyForSlack()}>
+            Copy for Slack
+          </ToolbarButton>
+          <ToolbarButton onClick={() => void handleCopyAsTable()}>
+            Copy as Table
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => {
+              setSelectedLines(new Set());
+              setAnchorLine(null);
+            }}
+          >
+            Clear
+          </ToolbarButton>
+          {copyFeedback && <span>{copyFeedback}</span>}
+        </SelectionToolbar>
+      )}
     </Container>
   );
 }
