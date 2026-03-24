@@ -546,6 +546,36 @@ mod test {
         assert_eq!(coalesced, (l, r));
     }
 
+    proptest::proptest! {
+        #[test]
+        fn coalesce_result_is_consistent(
+            a_start in 0..=1000i32,
+            a_len in 0..=20u32,
+            b_start in 0..=1000i32,
+            b_len in 0..=20u32,
+        ) {
+            let a_end = a_start + a_len as PixelPosition;
+            let b_end = b_start + b_len as PixelPosition;
+            let a = make_streak(a_start..=a_end);
+            let b = make_streak(b_start..=b_end);
+            let gap = (*a.x_range.start().max(b.x_range.start()))
+                - (*a.x_range.end().min(b.x_range.end()));
+            match a.coalesce(b) {
+                Ok(merged) => {
+                    assert!(gap <= 1, "non-adjacent streaks should not coalesce");
+                    assert_eq!(*merged.x_range.start(), a_start.min(b_start));
+                    assert_eq!(*merged.x_range.end(), a_end.max(b_end));
+                    let expected_len = (*merged.x_range.end() - *merged.x_range.start() + 1) as usize;
+                    assert_eq!(merged.scores.len(), expected_len);
+                    assert_eq!(merged.longest_white_gaps.len(), expected_len);
+                }
+                Err(_) => {
+                    assert!(gap > 1, "adjacent/overlapping streaks should coalesce");
+                }
+            }
+        }
+    }
+
     #[test]
     fn test_find_scanned_document_inset_ballot_image() {
         let image_bytes = include_bytes!("../../test/fixtures/scan-inset.jpeg");
