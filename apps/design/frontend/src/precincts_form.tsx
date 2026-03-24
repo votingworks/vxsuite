@@ -87,10 +87,6 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     PrecinctRegisteredVotersCountEntry | undefined
   >(savedRegisteredVotersCounts);
 
-  const displayedRegisteredVotersCounts = editing
-    ? registeredVotersCounts
-    : savedRegisteredVotersCounts;
-
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
   const deletePrecinctMutation = deletePrecinct.useMutation();
@@ -284,6 +280,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       onReset={(e) => {
         e.preventDefault();
         setPrecinct(savedPrecinct || createBlankPrecinct);
+        setRegisteredVotersCounts(savedRegisteredVotersCounts);
         setIsEditing(!editing);
       }}
     >
@@ -350,11 +347,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                             step={1}
                             min={0}
                             value={
-                              typeof displayedRegisteredVotersCounts ===
-                              'object'
-                                ? displayedRegisteredVotersCounts.splits[
-                                    split.id
-                                  ] ?? ''
+                              typeof registeredVotersCounts === 'object'
+                                ? registeredVotersCounts.splits[split.id] ?? ''
                                 : ''
                             }
                             onChange={(e) => {
@@ -490,8 +484,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       min={0}
                       step={1}
                       value={
-                        typeof displayedRegisteredVotersCounts === 'number'
-                          ? displayedRegisteredVotersCounts
+                        typeof registeredVotersCounts === 'number'
+                          ? registeredVotersCounts
                           : ''
                       }
                       onChange={(e) => {
