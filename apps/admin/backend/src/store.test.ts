@@ -1,4 +1,12 @@
-import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
@@ -30,7 +38,9 @@ import {
   ScannerBatch,
 } from './types.js';
 
-vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
+beforeEach(() => {
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();

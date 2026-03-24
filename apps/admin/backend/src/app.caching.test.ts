@@ -1,4 +1,4 @@
-import { afterEach, expect, MockInstance, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { readFileSync } from 'node:fs';
@@ -15,10 +15,12 @@ import {
 import { mockFileName, parseCsv } from '../test/csv.js';
 import { Api } from './app.js';
 
-vi.stubEnv(
-  BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
-  'TRUE'
-);
+beforeEach(() => {
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
+  );
+});
 
 async function getParsedExport({
   apiClient,

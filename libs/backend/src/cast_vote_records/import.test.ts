@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
@@ -25,6 +25,9 @@ import {
 
 beforeEach(() => {
   vi.stubEnv('VX_MACHINE_TYPE', 'admin');
+});
+
+afterEach(() => {
   vi.unstubAllEnvs();
 });
 

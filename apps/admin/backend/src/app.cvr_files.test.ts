@@ -539,34 +539,43 @@ test('cast vote records authentication error', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  // Disable the skip flag so real authentication runs and fails (no .vxsig)
+  // Disable the skip flag so real authentication runs
   vi.stubEnv(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
     'FALSE'
   );
 
+  // Use the export directory but remove the .vxsig to force auth failure
   const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
-  const result = await apiClient.addCastVoteRecordFile({
-    path: exportDirectoryPath,
-  });
-  expect(result).toEqual(
-    err({
-      type: 'authentication-error',
-      details: expect.stringContaining('Error authenticating'),
-    })
-  );
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.ImportCastVoteRecordsComplete,
-    'election_manager',
-    {
-      disposition: 'failure',
-      message: 'Error importing cast vote records.',
-      exportDirectoryPath,
-      errorDetails: expect.stringContaining('authentication-error'),
-    }
-  );
-  expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  expect(await apiClient.getTotalBallotCount()).toEqual(0);
+  const sigFile = `${exportDirectoryPath}.vxsig`;
+  const { existsSync, renameSync } = await import('node:fs');
+  const sigExists = existsSync(sigFile);
+  if (sigExists) renameSync(sigFile, `${sigFile}.bak`);
+  try {
+    const result = await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    });
+    expect(result).toEqual(
+      err({
+        type: 'authentication-error',
+        details: expect.stringContaining('Error authenticating'),
+      })
+    );
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.ImportCastVoteRecordsComplete,
+      'election_manager',
+      {
+        disposition: 'failure',
+        message: 'Error importing cast vote records.',
+        exportDirectoryPath,
+        errorDetails: expect.stringContaining('authentication-error'),
+      }
+    );
+    expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
+    expect(await apiClient.getTotalBallotCount()).toEqual(0);
+  } finally {
+    if (sigExists) renameSync(`${sigFile}.bak`, sigFile);
+  }
 });
 
 test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is enabled', async () => {

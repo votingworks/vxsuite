@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -26,7 +26,9 @@ import {
   tabulateScannedCardCounts,
 } from './card_counts.js';
 
-vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
+beforeEach(() => {
+  vi.stubEnv(BooleanEnvironmentVariableName.EARLY_VOTING, 'TRUE');
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();
