@@ -1,0 +1,15 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    "vx/gts-jsdoc": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.config.ts"],
+      "rules": {
+        "vx/gts-no-default-exports": "off",
+        "import/no-extraneous-dependencies": "off"
+      }
+    }
+  ]
+}
