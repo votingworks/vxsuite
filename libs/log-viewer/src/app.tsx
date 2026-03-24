@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { makeTheme } from '@votingworks/ui';
 import type { LogSelection, LogZipContents, StitchedLogFile } from './types';
@@ -9,6 +9,8 @@ import { stitchLogFiles } from './log_parser';
 import { Sidebar } from './sidebar';
 import { LogDisplay } from './log_display';
 import { FilterBar } from './filter_bar';
+import { persistState, loadPersistedState } from './persistence';
+import type { AppHistoryState } from './persistence';
 
 const DESKTOP_THEME = makeTheme({
   colorMode: 'desktop',
@@ -63,9 +65,29 @@ const DropZone = styled.label<{ isDragging: boolean }>`
   }
 `;
 
+const LoadingMessage = styled.div`
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+`;
+
+function applySelection(
+  zipData: ArrayBuffer,
+  zipContents: LogZipContents,
+  sel: LogSelection
+): StitchedLogFile | null {
+  const machine = zipContents.machines.find((m) => m.id === sel.machineId);
+  const session = machine?.sessions.find(
+    (s) => s.timestamp === sel.sessionTimestamp
+  );
+  if (!session) return null;
+  return stitchLogFiles(zipData, session, sel.logType);
+}
+
 export function App(): JSX.Element {
   const [zipData, setZipData] = useState<ArrayBuffer | null>(null);
   const [zipContents, setZipContents] = useState<LogZipContents | null>(null);
+  const [zipFileName, setZipFileName] = useState<string>('');
   const [selection, setSelection] = useState<LogSelection | null>(null);
   const [stitchedLog, setStitchedLog] = useState<StitchedLogFile | null>(null);
   const [filterState, setFilterState] =
@@ -73,6 +95,79 @@ export function App(): JSX.Element {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scrollToLine, setScrollToLine] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Track whether the current state change came from popstate (back/forward)
+  const isPopstateRef = useRef(false);
+
+  // Push browser history when navigation state changes
+  const pushHistory = useCallback(
+    (
+      newSelection: LogSelection | null,
+      newFilter: FilterState,
+      newScrollTo: number | null
+    ) => {
+      if (isPopstateRef.current) return;
+      const state: AppHistoryState = {
+        selection: newSelection,
+        filterState: newFilter,
+        scrollToLine: newScrollTo,
+      };
+      window.history.pushState(state, '');
+    },
+    []
+  );
+
+  // Restore state from IndexedDB on load
+  useEffect(() => {
+    void (async () => {
+      try {
+        const persisted = await loadPersistedState();
+        if (persisted) {
+          const contents = parseZip(persisted.zipData);
+          setZipData(persisted.zipData);
+          setZipContents(contents);
+          setZipFileName(persisted.zipFileName);
+          if (persisted.selection) {
+            setSelection(persisted.selection);
+            setFilterState(persisted.filterState);
+            const stitched = applySelection(
+              persisted.zipData,
+              contents,
+              persisted.selection
+            );
+            setStitchedLog(stitched);
+          }
+        }
+      } catch {
+        // Ignore persistence errors
+      }
+      setIsLoading(false);
+    })();
+  }, []);
+
+  // Listen for back/forward
+  useEffect(() => {
+    function handlePopState(e: PopStateEvent) {
+      const state = e.state as AppHistoryState | null;
+      if (!state) return;
+      isPopstateRef.current = true;
+      setSelection(state.selection);
+      setFilterState(state.filterState);
+      setScrollToLine(state.scrollToLine);
+      if (state.selection && zipData && zipContents) {
+        const stitched = applySelection(zipData, zipContents, state.selection);
+        setStitchedLog(stitched);
+      } else {
+        setStitchedLog(null);
+      }
+      requestAnimationFrame(() => {
+        isPopstateRef.current = false;
+      });
+    }
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [zipData, zipContents]);
 
   const handleFileLoad = useCallback(async (file: File) => {
     try {
@@ -81,9 +176,17 @@ export function App(): JSX.Element {
       const contents = parseZip(data);
       setZipData(data);
       setZipContents(contents);
+      setZipFileName(file.name);
       setSelection(null);
       setStitchedLog(null);
       setFilterState(EMPTY_FILTER_STATE);
+      setScrollToLine(null);
+      await persistState({
+        zipData: data,
+        zipFileName: file.name,
+        selection: null,
+        filterState: EMPTY_FILTER_STATE,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load ZIP file');
     }
@@ -112,24 +215,69 @@ export function App(): JSX.Element {
       if (!zipData || !zipContents) return;
       setSelection(newSelection);
       setFilterState(EMPTY_FILTER_STATE);
-
-      const machine = zipContents.machines.find(
-        (m) => m.id === newSelection.machineId
-      );
-      const session = machine?.sessions.find(
-        (s) => s.timestamp === newSelection.sessionTimestamp
-      );
-      if (!session) return;
+      setScrollToLine(null);
 
       try {
-        const stitched = stitchLogFiles(zipData, session, newSelection.logType);
+        const stitched = applySelection(zipData, zipContents, newSelection);
         setStitchedLog(stitched);
+        pushHistory(newSelection, EMPTY_FILTER_STATE, null);
+        void persistState({
+          zipData,
+          zipFileName,
+          selection: newSelection,
+          filterState: EMPTY_FILTER_STATE,
+        });
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to parse log files');
       }
     },
-    [zipData, zipContents]
+    [zipData, zipContents, zipFileName, pushHistory]
   );
+
+  const handleFilterChange = useCallback(
+    (newFilter: FilterState) => {
+      setFilterState(newFilter);
+      pushHistory(selection, newFilter, null);
+      if (zipData) {
+        void persistState({
+          zipData,
+          zipFileName,
+          selection,
+          filterState: newFilter,
+        });
+      }
+    },
+    [selection, zipData, zipFileName, pushHistory]
+  );
+
+  const handleViewInContext = useCallback(
+    (lineNumber: number) => {
+      setFilterState(EMPTY_FILTER_STATE);
+      setScrollToLine(lineNumber);
+      pushHistory(selection, EMPTY_FILTER_STATE, lineNumber);
+      if (zipData) {
+        void persistState({
+          zipData,
+          zipFileName,
+          selection,
+          filterState: EMPTY_FILTER_STATE,
+        });
+      }
+    },
+    [selection, zipData, zipFileName, pushHistory]
+  );
+
+  if (isLoading) {
+    return (
+      <ThemeProvider theme={DESKTOP_THEME}>
+        <AppContainer>
+          <MainContent>
+            <LoadingMessage>Loading...</LoadingMessage>
+          </MainContent>
+        </AppContainer>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={DESKTOP_THEME}>
@@ -166,16 +314,13 @@ export function App(): JSX.Element {
               <FilterBar
                 stitchedLog={stitchedLog}
                 filterState={filterState}
-                onFilterChange={setFilterState}
+                onFilterChange={handleFilterChange}
               />
               <LogDisplay
                 stitchedLog={stitchedLog}
                 filterState={filterState}
                 scrollToLine={scrollToLine}
-                onViewInContext={(lineNumber) => {
-                  setFilterState(EMPTY_FILTER_STATE);
-                  setScrollToLine(lineNumber);
-                }}
+                onViewInContext={handleViewInContext}
               />
             </React.Fragment>
           ) : (

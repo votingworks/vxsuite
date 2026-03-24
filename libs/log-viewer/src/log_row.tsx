@@ -6,6 +6,7 @@ import { isVxLogLine } from './types';
 const Row = styled.div<{ isSelected: boolean }>`
   display: flex;
   align-items: stretch;
+  min-width: max-content;
   height: 28px;
   background: ${(p) => (p.isSelected ? '#e8f0fe' : 'transparent')};
   cursor: pointer;
@@ -16,10 +17,27 @@ const Row = styled.div<{ isSelected: boolean }>`
   }
 `;
 
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: stretch;
+  min-width: max-content;
+  height: 28px;
+  background: #f0f0f0;
+  border-bottom: 2px solid #ddd;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #666;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+`;
+
 const LineNumber = styled.span`
   display: flex;
   align-items: center;
   min-width: 50px;
+  width: 50px;
   padding: 0 0.5rem;
   color: #999;
   text-align: right;
@@ -33,29 +51,27 @@ const Cell = styled.span`
   align-items: center;
   padding: 0 0.5rem;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   flex-shrink: 0;
 `;
 
 const TimeCell = styled(Cell)`
-  width: 200px;
+  width: 160px;
   color: #666;
 `;
 
 const SourceCell = styled(Cell)`
-  width: 160px;
+  width: 180px;
   color: #0066cc;
 `;
 
 const EventCell = styled(Cell)`
-  width: 220px;
+  width: 280px;
   color: #8b5cf6;
 `;
 
-const DispositionCell = styled(Cell)<{ disposition: string }>`
+const DispositionCell = styled(Cell)`
   width: 70px;
-  color: ${(p) => {
+  color: ${(p: { disposition?: string }) => {
     switch (p.disposition) {
       case 'success':
         return '#16a34a';
@@ -68,13 +84,11 @@ const DispositionCell = styled(Cell)<{ disposition: string }>`
 `;
 
 const MessageCell = styled(Cell)`
-  flex: 1;
-  min-width: 0;
+  min-width: 400px;
 `;
 
 const RawTextCell = styled(Cell)`
-  flex: 1;
-  min-width: 0;
+  min-width: 400px;
 `;
 
 interface LogRowProps {
@@ -100,6 +114,31 @@ function formatTimestamp(ts: string): string {
   }
 }
 
+export function LogRowHeader({
+  isVxLog,
+}: {
+  readonly isVxLog: boolean;
+}): JSX.Element {
+  if (isVxLog) {
+    return (
+      <HeaderRow>
+        <LineNumber>#</LineNumber>
+        <TimeCell>Time</TimeCell>
+        <SourceCell>Source</SourceCell>
+        <EventCell>Event</EventCell>
+        <DispositionCell>Disp</DispositionCell>
+        <MessageCell>Message</MessageCell>
+      </HeaderRow>
+    );
+  }
+  return (
+    <HeaderRow>
+      <LineNumber>#</LineNumber>
+      <RawTextCell>Log Line</RawTextCell>
+    </HeaderRow>
+  );
+}
+
 export function LogRow({
   line,
   isSelected,
@@ -115,7 +154,7 @@ export function LogRow({
         <DispositionCell disposition={line.disposition}>
           {line.disposition}
         </DispositionCell>
-        <MessageCell title={line.message}>{line.message}</MessageCell>
+        <MessageCell>{line.message}</MessageCell>
       </Row>
     );
   }

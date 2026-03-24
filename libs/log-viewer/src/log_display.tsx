@@ -7,10 +7,9 @@ import React, {
 } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import styled from 'styled-components';
-import { safeParseNumber } from '@votingworks/types';
 import type { FilterState, LogLine, StitchedLogFile } from './types';
 import { isVxLogLine } from './types';
-import { LogRow } from './log_row';
+import { LogRow, LogRowHeader } from './log_row';
 import {
   formatLinesForSlack,
   formatLinesAsMarkdownTable,
@@ -18,11 +17,20 @@ import {
 
 const LOG_ROW_HEIGHT = 28;
 
-const Container = styled.div`
+const VX_LOG_TYPES = new Set(['vx-logs.log', 'vx-logs.errors.log']);
+
+const OuterContainer = styled.div`
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
   font-size: 12px;
+`;
+
+const ScrollContainer = styled.div`
+  flex: 1;
+  overflow: auto;
 `;
 
 const SelectionToolbar = styled.div`
@@ -115,7 +123,7 @@ export function LogDisplay({
   scrollToLine,
   onViewInContext,
 }: LogDisplayProps): JSX.Element {
-  const parentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
   const [anchorLine, setAnchorLine] = useState<number | null>(null);
 
@@ -136,30 +144,9 @@ export function LogDisplay({
   );
 
   const isFiltered = hasActiveFilters(filterState);
+  const isVxLog = VX_LOG_TYPES.has(stitchedLog.logType);
 
-  // Parse URL hash for initial selection
-  useEffect(() => {
-    const { hash } = window.location;
-    const match = /^#L(\d+)(?:-L(\d+))?$/.exec(hash);
-    if (!match) return;
-    const start = safeParseNumber(match[1]).unsafeUnwrap();
-    const end = match[2] ? safeParseNumber(match[2]).unsafeUnwrap() : start;
-    const lines = new Set<number>();
-    for (let i = start; i <= end; i += 1) {
-      lines.add(i);
-    }
-    setSelectedLines(lines);
-    setAnchorLine(start);
-
-    requestAnimationFrame(() => {
-      const idx = filteredLines.findIndex((l) => l.lineNumber >= start);
-      if (idx >= 0 && parentRef.current) {
-        parentRef.current.scrollTop = idx * LOG_ROW_HEIGHT;
-      }
-    });
-  }, []);
-
-  // Scroll to a specific line when requested (e.g. after "View in Context")
+  // Scroll to a specific line when requested
   useEffect(() => {
     if (scrollToLine === null || scrollToLine === undefined) return;
     const idx = filteredLines.findIndex((l) => l.lineNumber >= scrollToLine);
@@ -167,27 +154,12 @@ export function LogDisplay({
       setSelectedLines(new Set([scrollToLine]));
       setAnchorLine(scrollToLine);
       requestAnimationFrame(() => {
-        if (parentRef.current) {
-          parentRef.current.scrollTop = idx * LOG_ROW_HEIGHT;
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = idx * LOG_ROW_HEIGHT;
         }
       });
     }
   }, [scrollToLine, filteredLines]);
-
-  // Update URL hash when selection changes
-  useEffect(() => {
-    if (selectedLines.size === 0) {
-      if (window.location.hash) {
-        window.history.replaceState(null, '', window.location.pathname);
-      }
-      return;
-    }
-    const sorted = [...selectedLines].sort((a, b) => a - b);
-    const start = sorted[0];
-    const end = sorted[sorted.length - 1];
-    const hash = start === end ? `#L${start}` : `#L${start}-L${end}`;
-    window.history.replaceState(null, '', hash);
-  }, [selectedLines]);
 
   const handleLineClick = useCallback(
     (lineNumber: number, e: React.MouseEvent) => {
@@ -230,50 +202,54 @@ export function LogDisplay({
 
   const virtualizer = useVirtualizer({
     count: filteredLines.length,
-    getScrollElement: () => parentRef.current,
+    getScrollElement: () => scrollRef.current,
     estimateSize: () => LOG_ROW_HEIGHT,
     overscan: 50,
   });
 
   return (
-    <Container ref={parentRef}>
-      <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {virtualizer.getVirtualItems().map((virtualItem) => {
-          const line = filteredLines[virtualItem.index];
-          const isSelected = selectedLines.has(line.lineNumber);
-          const rotationDate = rotationMarkerMap.get(line.lineNumber);
-          const isRotationBoundary = rotationMarkerSet.has(line.lineNumber);
+    <OuterContainer>
+      <ScrollContainer ref={scrollRef}>
+        <LogRowHeader isVxLog={isVxLog} />
+        <div
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: 'max-content',
+            minWidth: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualizer.getVirtualItems().map((virtualItem) => {
+            const line = filteredLines[virtualItem.index];
+            const isSelected = selectedLines.has(line.lineNumber);
+            const rotationDate = rotationMarkerMap.get(line.lineNumber);
+            const isRotationBoundary = rotationMarkerSet.has(line.lineNumber);
 
-          return (
-            <div
-              key={virtualItem.key}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: `${virtualItem.size}px`,
-                transform: `translateY(${virtualItem.start}px)`,
-              }}
-            >
-              {isRotationBoundary && (
-                <RotationBanner>Log rotation: {rotationDate}</RotationBanner>
-              )}
-              <LogRow
-                line={line}
-                isSelected={isSelected}
-                onClick={handleLineClick}
-              />
-            </div>
-          );
-        })}
-      </div>
+            return (
+              <div
+                key={virtualItem.key}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualItem.size}px`,
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
+              >
+                {isRotationBoundary && (
+                  <RotationBanner>Log rotation: {rotationDate}</RotationBanner>
+                )}
+                <LogRow
+                  line={line}
+                  isSelected={isSelected}
+                  onClick={handleLineClick}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </ScrollContainer>
       {selectedLines.size > 0 && (
         <SelectionToolbar>
           <span>
@@ -304,6 +280,6 @@ export function LogDisplay({
           {copyFeedback && <span>{copyFeedback}</span>}
         </SelectionToolbar>
       )}
-    </Container>
+    </OuterContainer>
   );
 }
