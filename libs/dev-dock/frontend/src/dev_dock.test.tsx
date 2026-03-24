@@ -8,7 +8,13 @@ import {
   test,
   vi,
 } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import {
+  cleanup,
+  render as renderWithoutTheme,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { assertDefined } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -400,6 +406,23 @@ test('Esc dismisses screenshot modal', async () => {
   await screen.findByText('Save Screenshot');
 
   userEvent.keyboard('{Escape}');
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
+test('screenshot modal renders without an outer ThemeProvider', async () => {
+  onTestFinished(cleanup);
+  renderWithoutTheme(<DevDock apiClient={mockApiClient} enableAccessibleNav />);
+  const screenshotButton = await screen.findByRole('button', {
+    name: 'Capture Screenshot',
+  });
+
+  document.title = 'VotingWorks VxAdmin';
+  userEvent.click(screenshotButton);
+  await screen.findByText('Save Screenshot');
+
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

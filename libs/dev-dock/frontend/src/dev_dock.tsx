@@ -26,7 +26,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { Button, Modal, P } from '@votingworks/ui';
+import { Button, Modal, P, VxThemeProvider } from '@votingworks/ui';
 import { UsbDriveIcon } from './usb_drive_icon';
 import { Colors } from './colors';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock';
@@ -530,7 +530,7 @@ interface ScreenshotToSaveProps {
 const ScreenshotModal = styled(Modal)`
   background-color: ${Colors.BACKGROUND};
   border-color: ${Colors.BORDER} !important;
-  color: ${Colors} !important;
+  color: ${Colors.TEXT} !important;
 `;
 
 function ScreenshotControls({
@@ -1175,10 +1175,12 @@ function DevDockWrapper({
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   ) ? (
     <QueryClientProvider client={createQueryClient()}>
-      <ApiClientContext.Provider value={apiClient}>
-        <DevDock enableAccessibleNav={enableAccessibleNav} />
-        {false && <ReactQueryDevtools initialIsOpen={false} />}
-      </ApiClientContext.Provider>
+      <VxThemeProvider colorMode="desktop" sizeMode="desktop">
+        <ApiClientContext.Provider value={apiClient}>
+          <DevDock enableAccessibleNav={enableAccessibleNav} />
+          {false && <ReactQueryDevtools initialIsOpen={false} />}
+        </ApiClientContext.Provider>
+      </VxThemeProvider>
     </QueryClientProvider>
   ) : null;
 }
