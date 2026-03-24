@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import {
   buildMockInsertedSmartCardAuth,
+  generateSignedHashValidationQrCodeValue,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
@@ -68,6 +69,7 @@ function createMockBarcodeClient(): MockBarcodeClient {
 
 export function createApp(options?: {
   audioPlayer?: AudioPlayer;
+  generateSignedHashValidationQrCodeValueOverride?: typeof generateSignedHashValidationQrCodeValue;
 }): MockAppContents {
   const workspace = createWorkspace(
     tmp.dirSync().name,
@@ -87,6 +89,8 @@ export function createApp(options?: {
     usbDrive: mockUsbDrive.usbDrive,
     printer: mockPrinterHandler.printer,
     barcodeClient: mockBarcodeClient,
+    generateSignedHashValidationQrCodeValueOverride:
+      options?.generateSignedHashValidationQrCodeValueOverride,
   });
 
   const server = app.listen();

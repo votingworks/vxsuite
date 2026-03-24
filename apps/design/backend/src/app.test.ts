@@ -178,14 +178,6 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
   } as unknown as typeof original;
 });
 
-// Mock decryption for ballotAuditIds
-vi.mock('@votingworks/auth', async (importActual) => ({
-  ...(await importActual()),
-  decryptAes256: vi
-    .fn()
-    .mockImplementation((_key, data) => `decrypted-${data}`),
-}));
-
 // Spy on test deck functions so we can mock them in specific tests
 vi.mock(import('./test_decks.js'), async (importActual) => {
   const original = await importActual();
@@ -199,7 +191,18 @@ vi.mock(import('./test_decks.js'), async (importActual) => {
   };
 });
 
-const { setupApp, cleanup } = testSetupHelpers();
+const { setupApp: originalSetupApp, cleanup } = testSetupHelpers();
+
+// Override decryptAes256 for all tests in this file
+function setupApp(
+  ...args: Parameters<typeof originalSetupApp>
+): ReturnType<typeof originalSetupApp> {
+  return originalSetupApp({
+    ...args[0],
+    decryptAes256Override: (_key: string, data: string) =>
+      Promise.resolve(`decrypted-${data}`),
+  });
+}
 
 function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
   const expectedStrings = mergeUiStrings(election.ballotStrings, {
@@ -4528,8 +4531,8 @@ test('decryptCvrBallotAuditIds', async () => {
   ).unsafeUnwrap();
   for await (const cvrResult of cvrContents.castVoteRecordIterator) {
     const cvr = cvrResult.unsafeUnwrap();
-    // At the top of this file, we mock implementation for decryptAes256 to
-    // create this expected decrypted value
+    // At the top of this file, we override decryptAes256 via
+    // decryptAes256Override to create this expected decrypted value
     const cvrFileName = `decrypted-${cvr.castVoteRecord.BallotAuditId}.json`;
     const cvrFileEntry = getFileByName(decryptedCvrZipEntries, cvrFileName);
     const contents = JSON.parse(await cvrFileEntry.async('text'));

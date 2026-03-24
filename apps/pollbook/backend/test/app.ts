@@ -30,6 +30,7 @@ import {
   Election,
 } from '@votingworks/types';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { LocalApi, buildLocalApp } from '../src/app.js';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace.js';
 import {
@@ -118,8 +119,13 @@ export function mockElectionManagerAuth(
   });
 }
 
+export interface WithAppOptions {
+  generateSignedHashValidationQrCodeValueOverride?: typeof generateSignedHashValidationQrCodeValue;
+}
+
 export async function withApp(
-  fn: (context: TestContext) => Promise<void>
+  fn: (context: TestContext) => Promise<void>,
+  options?: WithAppOptions
 ): Promise<void> {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspacePath = makeTemporaryDirectory();
@@ -168,6 +174,8 @@ export async function withApp(
     },
     logger,
     barcodeScannerClient,
+    generateSignedHashValidationQrCodeValueOverride:
+      options?.generateSignedHashValidationQrCodeValueOverride,
   });
 
   const localServer = app.listen();

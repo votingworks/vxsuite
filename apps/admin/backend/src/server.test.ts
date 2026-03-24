@@ -17,27 +17,13 @@ import {
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { start } from './server.js';
 import { createWorkspace } from './util/workspace.js';
 import { PORT } from './globals.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
 import { writeMachineMode } from './machine_mode.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
-
-vi.mock('@votingworks/auth', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@votingworks/auth')>();
-  return {
-    ...actual,
-    DippedSmartCardAuth: vi
-      .fn()
-      .mockImplementation(() => actual.buildMockDippedSmartCardAuth(vi.fn)),
-    // Mock card classes to prevent pcsclite from being initialized (not
-    // available in CI).
-    JavaCard: vi.fn(),
-    MockFileCard: vi.fn(),
-    manageOpensslConfig: vi.fn(),
-  };
-});
 
 vi.mock('@votingworks/backend', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/backend')>();
@@ -58,6 +44,10 @@ vi.mock('./networking.js', () => ({
 
 let server: Server | undefined;
 
+function createMockAuth() {
+  return buildMockDippedSmartCardAuth(vi.fn);
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -74,6 +64,7 @@ test('starts with default logger and port', async () => {
 
   server = await suppressingConsoleOutput(() =>
     start({
+      auth: createMockAuth(),
       workspacePath: makeTemporaryDirectory(),
       logger,
       multiUsbDrive,
@@ -92,6 +83,7 @@ test('start with config options', async () => {
 
   server = await suppressingConsoleOutput(() =>
     start({
+      auth: createMockAuth(),
       workspacePath: makeTemporaryDirectory(),
       logger,
       multiUsbDrive,
@@ -139,6 +131,7 @@ test('logs device attach/un-attach events', async () => {
 
   server = await suppressingConsoleOutput(() =>
     start({
+      auth: createMockAuth(),
       workspacePath: makeTemporaryDirectory(),
       logger,
       multiUsbDrive,
@@ -157,6 +150,7 @@ test('logs when no election results data present at startup', async () => {
 
   server = await suppressingConsoleOutput(() =>
     start({
+      auth: createMockAuth(),
       workspacePath: makeTemporaryDirectory(),
       logger,
       multiUsbDrive,
@@ -235,7 +229,13 @@ test('logs when there is stored election results data present at startup', async
   });
 
   server = await suppressingConsoleOutput(() =>
-    start({ workspacePath: workspace.path, logger, multiUsbDrive, printer })
+    start({
+      auth: createMockAuth(),
+      workspacePath: workspace.path,
+      logger,
+      multiUsbDrive,
+      printer,
+    })
   );
 
   const address = server.address() as AddressInfo;
@@ -260,6 +260,7 @@ test('does not start networking in host mode without multi-station enabled', asy
 
   server = await suppressingConsoleOutput(() =>
     start({
+      auth: createMockAuth(),
       workspacePath: makeTemporaryDirectory(),
       logger,
       multiUsbDrive,
@@ -282,6 +283,7 @@ test('starts host networking and peer server when multi-station is enabled', asy
   const peerPort = 0;
   server = await suppressingConsoleOutput(() =>
     start({
+      auth: createMockAuth(),
       workspacePath: makeTemporaryDirectory(),
       logger,
       multiUsbDrive,
@@ -319,7 +321,7 @@ test('starts client networking in client mode', async () => {
   vi.stubEnv(BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN, 'TRUE');
 
   server = await suppressingConsoleOutput(() =>
-    start({ workspacePath, logger, port: 0 })
+    start({ auth: createMockAuth(), workspacePath, logger, port: 0 })
   );
 
   expect(startClientNetworking).toHaveBeenCalled();

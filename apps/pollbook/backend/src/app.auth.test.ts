@@ -1,6 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
-import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { withApp } from '../test/app.js';
@@ -20,51 +19,64 @@ const townVoters = parseVotersFromCsvString(
   electionDefinition.election
 );
 
-vi.mock('@votingworks/auth', async (importActual) => ({
-  ...(await importActual()),
-  generateSignedHashValidationQrCodeValue: vi.fn(),
-}));
-
 describe('generateSignedHashValidationQrCodeValue', () => {
   test('pass', async () => {
-    await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-      workspace.store.setElectionAndVoters(
-        electionDefinition,
-        'mock-package-hash',
-        townStreetNames,
-        townVoters
-      );
-      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
-      expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
-
-      vi.mocked(generateSignedHashValidationQrCodeValue).mockResolvedValueOnce({
+    const mockGenerateSignedHashValidationQrCodeValue = vi
+      .fn()
+      .mockResolvedValueOnce({
         qrCodeValue: 'qr code',
       } as unknown as SignedHashValidationQrCodeValue);
 
-      const result =
-        await localApiClient.generateSignedHashValidationQrCodeValue();
-      expect(result).toEqual({ qrCodeValue: 'qr code' });
-    });
+    await withApp(
+      async ({ localApiClient, workspace, mockPrinterHandler }) => {
+        workspace.store.setElectionAndVoters(
+          electionDefinition,
+          'mock-package-hash',
+          townStreetNames,
+          townVoters
+        );
+        mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+        expect(await localApiClient.haveElectionEventsOccurred()).toEqual(
+          false
+        );
+
+        const result =
+          await localApiClient.generateSignedHashValidationQrCodeValue();
+        expect(result).toEqual({ qrCodeValue: 'qr code' });
+      },
+      {
+        generateSignedHashValidationQrCodeValueOverride:
+          mockGenerateSignedHashValidationQrCodeValue,
+      }
+    );
   });
 
   test('fail', async () => {
-    await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-      workspace.store.setElectionAndVoters(
-        electionDefinition,
-        'mock-package-hash',
-        townStreetNames,
-        townVoters
-      );
-      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
-      expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+    const mockGenerateSignedHashValidationQrCodeValue = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('oops'));
 
-      vi.mocked(generateSignedHashValidationQrCodeValue).mockRejectedValueOnce(
-        new Error('oops')
-      );
+    await withApp(
+      async ({ localApiClient, workspace, mockPrinterHandler }) => {
+        workspace.store.setElectionAndVoters(
+          electionDefinition,
+          'mock-package-hash',
+          townStreetNames,
+          townVoters
+        );
+        mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+        expect(await localApiClient.haveElectionEventsOccurred()).toEqual(
+          false
+        );
 
-      await expect(
-        localApiClient.generateSignedHashValidationQrCodeValue
-      ).rejects.toThrow();
-    });
+        await expect(
+          localApiClient.generateSignedHashValidationQrCodeValue
+        ).rejects.toThrow();
+      },
+      {
+        generateSignedHashValidationQrCodeValueOverride:
+          mockGenerateSignedHashValidationQrCodeValue,
+      }
+    );
   });
 });

@@ -109,7 +109,10 @@ import {
   DEPLOY_ENV,
   authEnabled,
 } from './globals.js';
-import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots.js';
+import {
+  createBallotPropsForTemplate,
+  defaultBallotTemplate,
+} from './ballots.js';
 import {
   getBallotPdfFileName,
   regenerateElectionIds,
@@ -125,7 +128,10 @@ import {
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
 import { convertMsElection } from './convert_ms_election.js';
-import { convertMsResults, ConvertMsResultsError } from './convert_ms_results.js';
+import {
+  convertMsResults,
+  ConvertMsResultsError,
+} from './convert_ms_results.js';
 import { defaultSystemSettings } from './system_settings.js';
 import { logActivity } from './activity_logs.js';
 
@@ -1057,7 +1063,8 @@ export function buildApi(ctx: AppContext) {
           ).unsafeUnwrap();
           assert(cvrReport.CVR?.length === 1);
           const cvr = assertDefined(cvrReport.CVR[0]);
-          const decryptedBallotAuditId = await decryptAes256(
+          const decryptFn = ctx.decryptAes256Override ?? decryptAes256;
+          const decryptedBallotAuditId = await decryptFn(
             input.secretKey,
             assertDefined(
               cvr.BallotAuditId,
@@ -1122,7 +1129,8 @@ export function buildApi(ctx: AppContext) {
 
 // Set up API endpoint that should NOT be behind oauth integration
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
+export function buildUnauthenticatedApi(ctx: AppContext) {
+  const { logger, workspace } = ctx;
   const { store } = workspace;
   const middlewares: grout.Middlewares<grout.AnyContext> = {
     before: [],
@@ -1159,7 +1167,10 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
       certificate: string;
     }): Promise<Result<ReceivedReportInfo, ResultsReportingError>> {
       // Verify the signature and certificate
-      const validationResult = await authenticateSignedQuickResultsReportingUrl(
+      const authenticateFn =
+        ctx.authenticateSignedQuickResultsReportingUrlOverride ??
+        authenticateSignedQuickResultsReportingUrl;
+      const validationResult = await authenticateFn(
         payload,
         signature,
         certificate

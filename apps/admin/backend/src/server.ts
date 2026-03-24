@@ -7,6 +7,7 @@ import {
 } from '@votingworks/logging';
 import {
   DippedSmartCardAuth,
+  DippedSmartCardAuthApi,
   JavaCard,
   manageOpensslConfig,
   MockFileCard,
@@ -88,6 +89,7 @@ function createAuth(
  * defaults are used when omitted. Tests can inject pre-built dependencies.
  */
 export interface StartOptions {
+  auth?: DippedSmartCardAuthApi;
   logger?: BaseLogger;
   port?: number | string;
   peerPort?: number;
@@ -119,7 +121,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     case 'host': {
       // TODO(CARO) add some kind of validation that the workspace is properly configured for host mode
       const workspace = createWorkspace(workspacePath, baseLogger);
-      const auth = createAuth('host', baseLogger);
+      const auth = options.auth ?? createAuth('host', baseLogger);
       const logger = Logger.from(
         baseLogger,
         /* istanbul ignore next - @preserve */
@@ -189,7 +191,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
       // TODO(CARO) add some kind of validation that the workspace is properly configured for client mode
       const clientWorkspace = createClientWorkspace(workspacePath);
-      const auth = createAuth('client', baseLogger);
+      const auth = options.auth ?? createAuth('client', baseLogger);
       const logger = Logger.from(
         baseLogger,
         /* istanbul ignore next - @preserve */
@@ -234,8 +236,10 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
   // VxAdmin uses an OpenSSL config file swapping mechanism for card cert creation with the TPM.
   // This is a fallback call to restore the default config in case the app crashed before the
-  // restore could complete.
-  await manageOpensslConfig('restore-default', { addSudo: true });
+  // restore could complete. Skip when auth is injected externally (e.g. in tests).
+  if (!options.auth) {
+    await manageOpensslConfig('restore-default', { addSudo: true });
+  }
 
   const server = app.listen(port, () => {
     baseLogger.log(LogEventId.ApplicationStartup, 'system', {

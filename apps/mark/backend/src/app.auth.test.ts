@@ -18,14 +18,8 @@ import {
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
-import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { LogEventId } from '@votingworks/logging';
 import { configureApp, createApp } from '../test/app_helpers.js';
-
-vi.mock('@votingworks/auth', async (importActual) => ({
-  ...(await importActual()),
-  generateSignedHashValidationQrCodeValue: vi.fn(),
-}));
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'mark';
@@ -233,15 +227,20 @@ test('updateCardlessVoterBallotStyle', async () => {
 
 describe('generateSignedHashValidationQrCodeValue', () => {
   test('pass', async () => {
-    const { apiClient, logger, mockAuth, mockUsbDrive } = createApp();
+    const mockGenerateSignedHashValidationQrCodeValue = vi
+      .fn()
+      .mockResolvedValueOnce({
+        qrCodeValue: 'qr code',
+      } as unknown as SignedHashValidationQrCodeValue);
+
+    const { apiClient, logger, mockAuth, mockUsbDrive } = createApp({
+      generateSignedHashValidationQrCodeValueOverride:
+        mockGenerateSignedHashValidationQrCodeValue,
+    });
     await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
     const mockLogger = vi.mocked(logger.logAsCurrentRole);
     mockLogger.mockReset();
-
-    vi.mocked(generateSignedHashValidationQrCodeValue).mockResolvedValueOnce({
-      qrCodeValue: 'qr code',
-    } as unknown as SignedHashValidationQrCodeValue);
 
     const result = await apiClient.generateSignedHashValidationQrCodeValue();
     expect(result).toEqual({ qrCodeValue: 'qr code' });
@@ -253,15 +252,18 @@ describe('generateSignedHashValidationQrCodeValue', () => {
   });
 
   test('fail', async () => {
-    const { apiClient, logger, mockAuth, mockUsbDrive } = createApp();
+    const mockGenerateSignedHashValidationQrCodeValue = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('oops'));
+
+    const { apiClient, logger, mockAuth, mockUsbDrive } = createApp({
+      generateSignedHashValidationQrCodeValueOverride:
+        mockGenerateSignedHashValidationQrCodeValue,
+    });
     await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
     const mockLogger = vi.mocked(logger.logAsCurrentRole);
     mockLogger.mockReset();
-
-    vi.mocked(generateSignedHashValidationQrCodeValue).mockRejectedValueOnce(
-      new Error('oops')
-    );
 
     await expect(
       apiClient.generateSignedHashValidationQrCodeValue

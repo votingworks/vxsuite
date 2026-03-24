@@ -40,18 +40,23 @@ import {
   users,
 } from '../test/mocks.js';
 
-const { setupApp, cleanup } = testSetupHelpers();
+const { setupApp: originalSetupApp, cleanup } = testSetupHelpers();
 
 afterAll(cleanup);
 
-// Mock the authentication function so we can control its behavior in tests
+// Control the authentication function behavior per-test via this variable
 let mockAuthReturnValue: Result<void, 'invalid-signature'> = ok();
-vi.mock('@votingworks/auth', async (importActual) => ({
-  ...(await importActual()),
-  authenticateSignedQuickResultsReportingUrl: vi
-    .fn()
-    .mockImplementation(() => mockAuthReturnValue),
-}));
+
+// Override authenticateSignedQuickResultsReportingUrl for all tests
+function setupApp(
+  ...args: Parameters<typeof originalSetupApp>
+): ReturnType<typeof originalSetupApp> {
+  return originalSetupApp({
+    ...args[0],
+    authenticateSignedQuickResultsReportingUrlOverride: () =>
+      Promise.resolve(mockAuthReturnValue),
+  });
+}
 
 vi.mock(import('@votingworks/hmpb'), async (importActual) => {
   const original = await importActual();

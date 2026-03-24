@@ -160,11 +160,19 @@ export function testSetupHelpers() {
     jurisdictions,
     users,
     env,
+    decryptAes256Override,
+    authenticateSignedQuickResultsReportingUrlOverride,
   }: {
     organizations: Organization[];
     jurisdictions: Jurisdiction[];
     users: User[];
     env?: Record<string, string>;
+    decryptAes256Override?: (key: string, data: string) => Promise<string>;
+    authenticateSignedQuickResultsReportingUrlOverride?: (
+      payload: string,
+      signature: string,
+      certificate: string
+    ) => Promise<Result<void, 'invalid-signature'>>;
   }) {
     // Set environment variables for this test
     const originalEnv = { ...process.env } as const;
@@ -208,6 +216,8 @@ export function testSetupHelpers() {
       speechSynthesizer,
       translator,
       workspace,
+      decryptAes256Override,
+      authenticateSignedQuickResultsReportingUrlOverride,
     });
     const server = app.listen();
     servers.push(server);

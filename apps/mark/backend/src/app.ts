@@ -72,6 +72,7 @@ interface Context {
   workspace: Workspace;
   usbDrive: UsbDrive;
   printer: Printer;
+  generateSignedHashValidationQrCodeValueOverride?: typeof generateSignedHashValidationQrCodeValue;
 }
 
 // Track last barcode scan for diagnostics
@@ -365,7 +366,10 @@ export function buildApi(ctx: Context) {
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
 
       try {
-        const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        const generateQrCodeFn =
+          ctx.generateSignedHashValidationQrCodeValueOverride ??
+          generateSignedHashValidationQrCodeValue;
+        const qrCodeValue = await generateQrCodeFn({
           electionRecord: store.getElectionRecord(),
           softwareVersion: getMachineConfig().codeVersion,
         });

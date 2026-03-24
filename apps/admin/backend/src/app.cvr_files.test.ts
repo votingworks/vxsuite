@@ -20,7 +20,6 @@ import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
-import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   CastVoteRecordExportModifications,
   combineImageAndLayoutHashes,
@@ -49,14 +48,12 @@ vi.setConfig({
   testTimeout: 60_000,
 });
 
-vi.mock(import('@votingworks/auth'), async (importActual) => ({
-  ...(await importActual()),
-  authenticateArtifactUsingSignatureFile: vi.fn(),
-}));
-
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'TRUE'
+  );
   vi.stubEnv(BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK, 'TRUE');
 });
 
@@ -542,8 +539,10 @@ test('cast vote records authentication error', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
-    err(new Error('Whoa!'))
+  // Disable the skip flag so real authentication runs and fails (no .vxsig)
+  vi.stubEnv(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
+    'FALSE'
   );
 
   const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
@@ -553,7 +552,7 @@ test('cast vote records authentication error', async () => {
   expect(result).toEqual(
     err({
       type: 'authentication-error',
-      details: 'Whoa!',
+      details: expect.stringContaining('Error authenticating'),
     })
   );
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -575,14 +574,8 @@ test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_A
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
-    err(new Error('Whoa!'))
-  );
-  vi.stubEnv(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION,
-    'TRUE'
-  );
-
+  // SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is already enabled in beforeEach,
+  // so real auth (which would fail due to missing .vxsig) is bypassed
   const result = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });

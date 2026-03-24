@@ -81,9 +81,15 @@ interface BuildAppParams {
   context: LocalAppContext;
   barcodeScannerClient: BarcodeScannerClient;
   logger: Logger;
+  generateSignedHashValidationQrCodeValueOverride?: typeof generateSignedHashValidationQrCodeValue;
 }
 
-function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
+function buildApi({
+  context,
+  logger,
+  barcodeScannerClient,
+  generateSignedHashValidationQrCodeValueOverride,
+}: BuildAppParams) {
   const { workspace, auth, usbDrive, printer, machineId, codeVersion } =
     context;
   const { store } = workspace;
@@ -732,7 +738,10 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
               }
             : undefined;
 
-        const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        const generateQrCodeFn =
+          generateSignedHashValidationQrCodeValueOverride ??
+          generateSignedHashValidationQrCodeValue;
+        const qrCodeValue = await generateQrCodeFn({
           softwareVersion: codeVersion,
           electionRecord,
         });
@@ -782,13 +791,19 @@ export function buildLocalApp({
   context,
   logger,
   barcodeScannerClient,
+  generateSignedHashValidationQrCodeValueOverride,
 }: BuildAppParams): Application {
   const app: Application = express();
 
   // Apply security headers middleware first
   app.use(securityHeadersMiddleware);
 
-  const api = buildApi({ context, logger, barcodeScannerClient });
+  const api = buildApi({
+    context,
+    logger,
+    barcodeScannerClient,
+    generateSignedHashValidationQrCodeValueOverride,
+  });
   app.use('/api', grout.buildRouter(api, express));
 
   pollUsbDriveForPollbookPackage(context);
