@@ -1,17 +1,98 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 
-import { Callout, Caption, Font, LinkButton, Loading } from '@votingworks/ui';
+import {
+  Button,
+  Callout,
+  Caption,
+  Font,
+  H2,
+  Icons,
+  LinkButton,
+  Loading,
+  P,
+} from '@votingworks/ui';
 import pluralize from 'pluralize';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
 import {
   getCastVoteRecordFiles,
   getBallotAdjudicationQueueMetadata,
+  getIsClientAdjudicationEnabled,
+  getNetworkStatus,
+  setIsClientAdjudicationEnabled,
 } from '../api';
 import { routerPaths } from '../router_paths';
 
+function NetworkSection(): JSX.Element {
+  const networkStatusQuery = getNetworkStatus.useQuery();
+  const adjudicationEnabledQuery = getIsClientAdjudicationEnabled.useQuery();
+  const setAdjudicationEnabledMutation =
+    setIsClientAdjudicationEnabled.useMutation();
+
+  if (!networkStatusQuery.isSuccess || !adjudicationEnabledQuery.isSuccess) {
+    return <Loading />;
+  }
+
+  const { isOnline } = networkStatusQuery.data;
+  const isEnabled = adjudicationEnabledQuery.data;
+
+  return (
+    <React.Fragment>
+      <H2>Multi-Station Adjudication</H2>
+      <P>
+        {isEnabled ? (
+          <React.Fragment>
+            <Icons.Done color="success" /> Multi-station adjudication is
+            enabled. Connected clients can begin adjudicating.
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Icons.Warning color="warning" /> Multi-station adjudication is
+            disabled. Enable it to allow connected clients to adjudicate.
+          </React.Fragment>
+        )}
+      </P>
+      <P>
+        <Button
+          onPress={() =>
+            setAdjudicationEnabledMutation.mutate({
+              enabled: !isEnabled,
+            })
+          }
+          disabled={setAdjudicationEnabledMutation.isLoading}
+        >
+          {isEnabled
+            ? 'Disable Multi-Station Adjudication'
+            : 'Enable Multi-Station Adjudication'}
+        </Button>
+      </P>
+
+      <H2>Network</H2>
+      <P>
+        {isOnline ? (
+          <React.Fragment>
+            <Icons.Done color="success" /> Online
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Icons.Danger color="danger" /> Offline
+          </React.Fragment>
+        )}
+      </P>
+    </React.Fragment>
+  );
+}
+
 export function AdjudicationStartScreen(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
+
+  const isMultiStationEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
 
   const adjudicationQueueMetadataQuery =
     getBallotAdjudicationQueueMetadata.useQuery();
@@ -62,7 +143,12 @@ export function AdjudicationStartScreen(): JSX.Element {
 
   const callout = renderCallout();
   if (callout) {
-    return <NavigationScreen title="Adjudication">{callout}</NavigationScreen>;
+    return (
+      <NavigationScreen title="Adjudication">
+        {callout}
+        {isMultiStationEnabled && <NetworkSection />}
+      </NavigationScreen>
+    );
   }
 
   return (
@@ -73,7 +159,6 @@ export function AdjudicationStartScreen(): JSX.Element {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '100%',
           gap: '1rem',
           paddingBottom: '5%',
         }}
@@ -100,6 +185,7 @@ export function AdjudicationStartScreen(): JSX.Element {
           </Caption>
         </div>
       </div>
+      {isMultiStationEnabled && <NetworkSection />}
     </NavigationScreen>
   );
 }
