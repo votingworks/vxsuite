@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 // @ts-expect-error - TS thinks there's an error with the module type but it works ok
-import { Alias, mergeConfig, InlineConfig } from 'vite';
+import { Alias, mergeConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
@@ -21,7 +21,7 @@ const config: StorybookConfig = {
     autodocs: 'tag',
   },
   staticDirs: ['../.storybook-static'],
-  async viteFinal(config: InlineConfig): Promise<InlineConfig> {
+  async viteFinal(config) {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')
     );
@@ -69,11 +69,17 @@ const config: StorybookConfig = {
           { find: 'path', replacement: require.resolve('path/') },
           { find: 'node:path', replacement: require.resolve('path/') },
           { find: 'stream', replacement: require.resolve('stream-browserify') },
-          { find: 'node:stream', replacement: require.resolve('stream-browserify') },
+          {
+            find: 'node:stream',
+            replacement: require.resolve('stream-browserify'),
+          },
           { find: 'util', replacement: require.resolve('util/') },
           { find: 'node:util', replacement: require.resolve('util/') },
           { find: 'zlib', replacement: require.resolve('browserify-zlib') },
-          { find: 'node:zlib', replacement: require.resolve('browserify-zlib') },
+          {
+            find: 'node:zlib',
+            replacement: require.resolve('browserify-zlib'),
+          },
 
           // Create aliases for all workspace packages, i.e.
           //
@@ -90,12 +96,12 @@ const config: StorybookConfig = {
               !p.source
                 ? aliases
                 : [
-                  ...aliases,
-                  {
-                    find: p.name,
-                    replacement: path.join(p.path, p.source),
-                  },
-                ],
+                    ...aliases,
+                    {
+                      find: p.name,
+                      replacement: path.join(p.path, p.source),
+                    },
+                  ],
             []
           ),
         ],
