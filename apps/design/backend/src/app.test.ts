@@ -1461,7 +1461,10 @@ test('registered voter counts are stored and retrieved for precincts and splits'
       registeredVotersCounts: 500,
     })
   ).unsafeUnwrap();
-  expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
+  // Verify the initial count is written
+  expect(await apiClient.getRegisteredVotersCounts({ electionId })).toEqual({
+    'precinct-1': 500,
+  });
 
   // Update the registered voter count
   (
@@ -1471,8 +1474,6 @@ test('registered voter counts are stored and retrieved for precincts and splits'
       registeredVotersCounts: 750,
     })
   ).unsafeUnwrap();
-  expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
-
   // Verify getRegisteredVotersCounts reflects the count
   expect(await apiClient.getRegisteredVotersCounts({ electionId })).toEqual({
     'precinct-1': 750,
@@ -1502,10 +1503,6 @@ test('registered voter counts are stored and retrieved for precincts and splits'
       registeredVotersCounts: { splits: { 'split-1': 200, 'split-2': 300 } },
     })
   ).unsafeUnwrap();
-  expect(await apiClient.listPrecincts({ electionId })).toEqual([
-    precinct1,
-    precinct2,
-  ]);
 
   // Verify getRegisteredVotersCounts for split precincts
   expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
@@ -1514,6 +1511,20 @@ test('registered voter counts are stored and retrieved for precincts and splits'
       splits: {
         'split-1': 200,
         'split-2': 300,
+      },
+    },
+  });
+
+  // Update registered voters counts and assert update was written
+  await workspace.store.setPrecinctRegisteredVoterCounts(precinct2, {
+    splits: { 'split-1': 250, 'split-2': 350 },
+  });
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
+    'precinct-1': 750,
+    'precinct-2': {
+      splits: {
+        'split-1': 250,
+        'split-2': 350,
       },
     },
   });
@@ -1536,18 +1547,19 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     ],
   };
 
-  const createResult = await apiClient.createPrecinct({
-    electionId,
-    newPrecinct: precinct3,
-    registeredVotersCounts: { splits: { 'split-3a': 400 } },
-  });
-  createResult.unsafeUnwrap();
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct3,
+      registeredVotersCounts: { splits: { 'split-3a': 400 } },
+    })
+  ).unsafeUnwrap();
   expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
-        'split-1': 200,
-        'split-2': 300,
+        'split-1': 250,
+        'split-2': 350,
       },
     },
     'precinct-3': {
@@ -1585,8 +1597,8 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     'precinct-1': 750,
     'precinct-2': {
       splits: {
-        'split-1': 200,
-        'split-2': 300,
+        'split-1': 250,
+        'split-2': 350,
       },
     },
     'precinct-3': {
@@ -1595,14 +1607,6 @@ test('registered voter counts are stored and retrieved for precincts and splits'
       },
     },
   });
-
-  expect(await apiClient.listPrecincts({ electionId })).toEqual([
-    precinct1,
-    precinct2,
-    precinct3,
-    precinct4,
-    precinct5,
-  ]);
 });
 
 test('updateParties', async () => {
