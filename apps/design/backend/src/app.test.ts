@@ -54,6 +54,7 @@ import {
   pollingPlacesGenerateFromPrecincts,
   PrecinctWithoutSplits,
   PrecinctWithSplits,
+  ElectionRegisteredVoterCounts,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -229,6 +230,16 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
       precinctName: Object.fromEntries(
         election.precincts.map(({ id, name }) => [id, name])
       ),
+      ...(() => {
+        const splitNames = election.precincts
+          .filter(hasSplits)
+          .flatMap((p) => p.splits.map(({ id, name }) => [id, name]));
+        return splitNames.length > 0
+          ? {
+              precinctSplitName: Object.fromEntries(splitNames),
+            }
+          : {};
+      })(),
       partyName: Object.fromEntries(
         election.parties.map(({ id, name }) => [id, name])
       ),
@@ -3269,22 +3280,67 @@ test('Election package and ballots export', async () => {
     systemSettings: mockSystemSettings,
   });
   const electionInfo = await apiClient.getElectionInfo({ electionId });
+
+  // Add a split precinct before listing precincts so it's included in the
+  // exported election definition's precincts list and in the expectedElection
+  // assertion below.
+  const districts = await apiClient.listDistricts({ electionId });
+  const firstDistrictId = assertDefined(districts[0]).id;
+  const splitPrecinctId = 'split-precinct-export-test';
+  const splitFirstId = 'split-a-export-test';
+  const splitSecondId = 'split-b-export-test';
+  const splitPrecinct: PrecinctWithSplits = {
+    id: splitPrecinctId,
+    name: 'Split Precinct Export Test',
+    splits: [
+      { id: splitFirstId, name: 'Split A', districtIds: [firstDistrictId] },
+      { id: splitSecondId, name: 'Split B', districtIds: [] },
+    ],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: splitPrecinct,
+    })
+  ).unsafeUnwrap();
+
+  // Re-fetch ballot styles after creating the split precinct since the new
+  // precinct gets assigned to an existing ballot style.
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
 
-  // Set registered voter counts on precincts before export
+  // Set registered voter counts on non-split precincts before export.
+  // The split precinct gets its counts set separately below since it requires
+  // per-split counts rather than a single number.
   const precincts = await apiClient.listPrecincts({ electionId });
   for (const precinct of precincts) {
-    (
-      await apiClient.updatePrecinct({
-        electionId,
-        updatedPrecinct: precinct,
-        registeredVotersCounts: 1000,
-      })
-    ).unsafeUnwrap();
+    if (!hasSplits(precinct)) {
+      (
+        await apiClient.updatePrecinct({
+          electionId,
+          updatedPrecinct: precinct,
+          registeredVotersCounts: 1000,
+        })
+      ).unsafeUnwrap();
+    }
   }
-  const expectedRegisteredVoterCounts = Object.fromEntries(
-    precincts.map((p) => [p.id, 1000])
-  );
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: splitPrecinct,
+      registeredVotersCounts: {
+        splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+      },
+    })
+  ).unsafeUnwrap();
+
+  const expectedRegisteredVoterCounts: ElectionRegisteredVoterCounts = {
+    ...Object.fromEntries(
+      precincts.filter((p) => !hasSplits(p)).map((p) => [p.id, 1000])
+    ),
+    [splitPrecinctId]: {
+      splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+    },
+  };
 
   const exportMeta = await exportElectionPackage({
     fileStorageClient,
