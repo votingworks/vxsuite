@@ -8,6 +8,8 @@ test('connectToHost registers client and returns host machine config with adjudi
   const { peerApiClient, workspace } = buildTestEnvironment();
   const result = await peerApiClient.connectToHost({
     machineId: 'client-001',
+    status: MachineStatus.OnlineLocked,
+    authType: null,
   });
   expect(result).toEqual({
     machineId: DEV_MACHINE_ID,
@@ -21,16 +23,27 @@ test('connectToHost registers client and returns host machine config with adjudi
     machineId: 'client-001',
     machineMode: 'client',
     status: MachineStatus.OnlineLocked,
+    authType: null,
   });
 });
 
-test('connectToHost returns adjudication enabled when set', async () => {
+test('connectToHost persists status and authType and returns adjudication enabled', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
+
   workspace.store.setIsClientAdjudicationEnabled(true);
   const result = await peerApiClient.connectToHost({
     machineId: 'client-001',
+    status: MachineStatus.Active,
+    authType: 'election_manager',
   });
   expect(result.isClientAdjudicationEnabled).toEqual(true);
+
+  const machines = workspace.store.getMachines();
+  expect(machines[0]).toMatchObject({
+    machineId: 'client-001',
+    status: MachineStatus.Active,
+    authType: 'election_manager',
+  });
 });
 
 test('getCurrentElectionMetadata returns null when no election configured', async () => {

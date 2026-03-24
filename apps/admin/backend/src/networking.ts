@@ -6,7 +6,7 @@ import {
 } from '@votingworks/networking';
 import { assert } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { safeParseElectionDefinition, type UserRole } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
@@ -38,6 +38,21 @@ function createPeerApiClient(address: string): grout.Client<PeerApi> {
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT_MS,
   });
+}
+
+/**
+ * Determines the {@link MachineStatus} for a client based on auth state.
+ */
+function getClientMachineStatus(
+  authStatus: Awaited<ReturnType<DippedSmartCardAuthApi['getAuthStatus']>>
+): { status: MachineStatus; authType: UserRole | null } {
+  if (authStatus.status === 'logged_in') {
+    return {
+      status: MachineStatus.Active,
+      authType: authStatus.user.role,
+    };
+  }
+  return { status: MachineStatus.OnlineLocked, authType: null };
 }
 
 /**
@@ -140,7 +155,15 @@ export function startClientNetworking({
             : createPeerApiClient(hostAddress);
 
         try {
-          const hostConfig = await apiClient.connectToHost({ machineId });
+          const authStatus = await auth.getAuthStatus(
+            constructAuthMachineState(clientStore)
+          );
+          const { status, authType } = getClientMachineStatus(authStatus);
+          const hostConfig = await apiClient.connectToHost({
+            machineId,
+            status,
+            authType,
+          });
           clientStore.setConnection(
             ClientConnectionStatus.OnlineConnectedToHost,
             {

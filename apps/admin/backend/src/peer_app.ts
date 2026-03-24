@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { assert, Optional } from '@votingworks/basics';
-import { type SystemSettings } from '@votingworks/types';
+import { type SystemSettings, type UserRole } from '@votingworks/types';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { MachineStatus, ElectionRecord, MachineConfig } from './types';
@@ -20,16 +20,20 @@ function buildPeerApi({ workspace }: PeerAppContext) {
   return grout.createApi({
     connectToHost(input: {
       machineId: string;
+      status: MachineStatus;
+      authType: UserRole | null;
     }): MachineConfig & { isClientAdjudicationEnabled: boolean } {
       debug(
-        'Client %s connected to host (election: %s)',
+        'Client %s connected to host (election: %s, status: %s)',
         input.machineId,
-        workspace.store.getCurrentElectionId() ?? 'none'
+        workspace.store.getCurrentElectionId() ?? 'none',
+        input.status
       );
       workspace.store.setNetworkedMachineStatus(
         input.machineId,
         'client',
-        MachineStatus.OnlineLocked
+        input.status,
+        input.authType
       );
       return {
         ...getMachineConfig(),

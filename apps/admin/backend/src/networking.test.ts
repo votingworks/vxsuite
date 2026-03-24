@@ -227,6 +227,8 @@ describe('startClientNetworking', () => {
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
       machineId: '0002',
+      status: MachineStatus.OnlineLocked,
+      authType: null,
     });
   });
 
