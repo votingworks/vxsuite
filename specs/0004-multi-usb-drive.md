@@ -2,7 +2,7 @@
 
 **Author:** @eventualbuddha
 
-**Status:** `implementing`
+**Status:** `completed`
 
 ## Existing Discussion
 
@@ -39,18 +39,25 @@ hard to extend.
 
 ### New `MultiUsbDrive` interface
 
-Introduce a `MultiUsbDrive` interface in `@votingworks/usb-drive` that tracks
-all connected USB drives and their partition state:
+`MultiUsbDrive` in `@votingworks/usb-drive` tracks all connected USB drives and
+their partition state:
 
 ```typescript
 // libs/usb-drive/src/multi_usb_drive.ts
+
+export type UsbPartitionMount =
+  | { type: 'unmounted' }
+  | { type: 'ejected' }
+  | { type: 'mounting' }
+  | { type: 'mounted'; mountPoint: string }
+  | { type: 'unmounting'; mountPoint: string };
 
 export interface UsbPartitionInfo {
   devPath: string; // e.g. '/dev/sdb1'
   label?: string;
   fstype?: string;
   fsver?: string;
-  mount: 'unmounted' | 'mounting' | 'mounted' | 'unmounting';
+  mount: UsbPartitionMount;
 }
 
 export interface UsbDriveInfo {
@@ -75,9 +82,11 @@ export interface MultiUsbDrive {
 by `block_devices.ts`. Device enumeration reads `udevadm info --export-db` (to
 identify USB block devices and their filesystem attributes without requiring
 privileged access) and `/proc/mounts` (to determine current mount points).
-Plug/unplug events are detected via `udevadm monitor`. FAT32 partitions are
-auto-mounted on detection. Per-drive and per-partition action locks prevent race
-conditions between concurrent mount, eject, and format operations.
+Plug/unplug events are detected via
+`udevadm monitor --udev --subsystem-match=block`. FAT32 partitions are
+auto-mounted on detection. Per-drive and per-partition action locks (using a
+`KeyedTaskRunner`) prevent race conditions between concurrent mount, eject, and
+format operations.
 
 ### Backward-compatible `UsbDriveAdapter`
 
@@ -96,7 +105,9 @@ Rather than introducing a separate `detectOrMockMultiUsbDrive()` entrypoint, the
 existing `detectMultiUsbDrive(logger)` implementation also honors
 `USE_MOCK_USB_DRIVE`. When the flag is enabled it returns the file-backed
 multi-drive mock; otherwise it returns the real implementation backed by block
-device detection.
+device detection. Similarly, `detectUsbDrive(logger)` now delegates to
+`detectMultiUsbDrive` internally and wraps the result with
+`createUsbDriveAdapter`.
 
 ### Admin backend migration
 
@@ -105,35 +116,27 @@ interface:
 
 - `buildApp`, `buildClientApp`, and `start` accept
   `multiUsbDrive: MultiUsbDrive` instead of `usbDrive: UsbDrive`.
-- Internally, a `UsbDriveAdapter` is created to pass to legacy-API utilities.
-- The API gains a `getUsbDrives()` method that returns all `UsbDriveInfo[]`
-  (replacing `getUsbDriveStatus()`).
-- `ejectUsbDrive` and `formatUsbDrive` now take a `driveDevPath` parameter to
-  target a specific drive.
-
-### Admin frontend
-
-- `getUsbDrives` replaces `getUsbDriveStatus` in `api.ts`, returning
-  `UsbDriveInfo[]` with a 1-second poll interval.
-- A new `getUsbDriveStatus(usbDrives: UsbDriveInfo[]): AdminUsbDriveStatus`
-  utility in `src/utils/get_usb_drive_status.ts` converts the drive list to the
-  legacy status enum for screens that only need to know about a single drive.
-- All mutation calls (`ejectUsbDrive`, `formatUsbDrive`) pass `driveDevPath`.
-- `AppContext` carries `usbDrives: UsbDriveInfo[]` instead of
-  `usbDriveStatus: UsbDriveStatus`.
+- Internally, a `UsbDriveAdapter` is created via
+  `createUsbDriveAdapter(multiUsbDrive, (drives) => drives[0]?.devPath)` to pass
+  to existing single-drive utilities (exporters, `listDirectoryOnUsbDrive`,
+  `createSystemCallApi`).
+- The existing `getUsbDriveStatus`, `ejectUsbDrive`, and `formatUsbDrive` API
+  methods are preserved, operating on the first available drive through the
+  adapter. This keeps the frontend unchanged while enabling multi-drive support
+  at the infrastructure level.
 
 ### Dev dock: multiple drive slots
 
-The dev dock gains first-class support for simulating multiple USB drives:
+The dev dock gained first-class support for simulating multiple USB drives:
 
 **Backend (`dev_dock_api.ts`)**:
 
 - `getUsbDriveStatus()` returns `DevDockUsbDriveInfo[]` (one entry per mock
   drive), replacing the single-status response.
-- New `addUsbDriveSlot()` creates a new mock drive directory and returns its
+- `addUsbDriveSlot()` creates a new mock drive directory and returns its
   `devPath`.
-- New `removeUsbDriveSlot({ devPath })` deletes the mock drive directory.
-- `insertUsbDrive({ devPath })` and `removeUsbDrive({ devPath })` now take a
+- `removeUsbDriveSlot({ devPath })` deletes the mock drive directory.
+- `insertUsbDrive({ devPath })` and `removeUsbDrive({ devPath })` take a
   `devPath` to target a specific slot.
 - On startup, if no mock drives exist, one is created automatically so
   development continues to work without manual setup.
@@ -143,7 +146,7 @@ The dev dock gains first-class support for simulating multiple USB drives:
 - The USB section renders one drive widget per slot, each with its own
   insert/remove/clear controls.
 - A "+" button adds a new drive slot (disabled when at max drives).
-- A "×" button per slot removes that slot.
+- A "x" button per slot removes that slot.
 - Drive device paths are shown as labels (e.g. `/dev/sdb`).
 - Drive state is polled at 1-second intervals to reflect changes made by running
   apps.
@@ -151,15 +154,18 @@ The dev dock gains first-class support for simulating multiple USB drives:
 ### Mock updates
 
 **`createMockFileMultiUsbDrive()`** — the file-backed mock used in development
-and integration tests. Drive state is stored under
-`.mock-state/<NODE_ENV>/usb-drive/<diskName>/` (leveraging the unified
-mock-state root from spec 0003). Helper functions:
+and integration tests. Returns a `MultiUsbDrive` implementation directly. Drive
+state is stored under `.mock-state/<NODE_ENV>/usb-drive/<diskName>/` (leveraging
+the unified mock-state root from spec 0003), with a `mock-usb-state.json` file
+tracking drive state (`inserted`/`ejected`/`removed`) and a `mock-usb-data/`
+directory for file contents. Helper functions:
 
-- `addMockDrive()` — creates a new drive directory, returns its path.
-- `listMockDrives()` — lists currently registered drives.
-- `removeMockDriveDir(drivePath)` — deletes a drive directory.
-- `getMockFileUsbDriveHandler()` — returns a per-drive handler for
-  insert/remove/clear operations, used by the dev dock backend.
+- `addMockDrive()` — creates a new drive directory, returns the disk name.
+- `listMockDrives()` — lists currently registered drive disk names.
+- `removeMockDriveDir(diskName)` — deletes a drive directory.
+- `getMockFileUsbDriveHandler(diskName?)` — returns a per-drive
+  `MockFileUsbDriveHandler` for insert/remove/clear operations, used by the dev
+  dock backend.
 
 **`createMockMultiUsbDrive()`** — the in-memory mock used in unit tests. Wraps
 each `MultiUsbDrive` method as a `mockFunction` for strict call expectations.
@@ -179,11 +185,17 @@ require the least change in the short term, but would leave most of the codebase
 on the legacy API and make it hard to surface multi-drive status consistently
 (e.g., showing all drives in the navigation bar).
 
-## Open Questions
+## Wrap-up / Retro
 
-- Should other apps (VxCentralScan, VxScan) also migrate to `MultiUsbDrive`?
-  Currently only VxAdmin is migrated. The adapter makes it easy to defer this
-  until those apps need multi-drive behavior.
-- Should `getUsbDrives()` replace `getUsbDriveStatus()` in all apps' APIs, or
-  only in VxAdmin? The `getUsbDriveStatus` utility function provides a low-cost
-  bridge for apps that currently don't need multi-drive awareness.
+The original proposal included migrating the admin frontend API from
+`getUsbDriveStatus` to a new `getUsbDrives` endpoint returning `UsbDriveInfo[]`.
+In practice, the adapter pattern made this unnecessary for the initial rollout:
+the backend accepts `MultiUsbDrive` and uses the adapter internally, so the
+frontend API surface did not need to change. This keeps the frontend simpler and
+defers multi-drive UI work until a feature (e.g. backup or multi-station
+adjudication) actually requires it.
+
+Only VxAdmin has been migrated to `MultiUsbDrive`. Other apps (VxCentralScan,
+VxScan, etc.) still use the single-drive `UsbDrive` interface via
+`detectUsbDrive`, which now delegates to `detectMultiUsbDrive` internally. The
+adapter makes it straightforward to migrate these apps when needed.
