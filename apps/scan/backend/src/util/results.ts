@@ -90,10 +90,7 @@ function inferPartyFromVotes(
   election: Election
 ): PartyId | undefined {
   if (!isOpenPrimary(election)) return undefined;
-  const { isCrossover, votedPartyIds } = detectCrossoverVoting(
-    votes,
-    election
-  );
+  const { isCrossover, votedPartyIds } = detectCrossoverVoting(votes, election);
   if (isCrossover || votedPartyIds.length === 0) return undefined;
   return votedPartyIds[0];
 }
@@ -212,7 +209,10 @@ export async function getScannerResults({
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
       election,
-      groupBy: election.type === 'primary' ? { groupByParty: true } : undefined,
+      groupBy:
+        election.type === 'primary' && !isOpenPrimary(election)
+          ? { groupByParty: true }
+          : undefined,
       cvrs,
     })
   );
