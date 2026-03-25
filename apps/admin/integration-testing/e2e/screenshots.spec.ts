@@ -44,11 +44,7 @@ import {
   logInAsSystemAdministrator,
   logOut,
 } from './support/auth';
-import {
-  getAdjudicateButtons,
-  selectCandidateOrInvalidate,
-  WRITE_IN_NAMES,
-} from './support/write_in_adjudication';
+import { adjudicateAllWriteIns } from './support/write_in_adjudication';
 import {
   getPrimaryButton,
   openDropdown,
@@ -468,69 +464,12 @@ test('results', async ({ page }) => {
   await screenshot('tally-screen-with-cvrs');
 
   await page.getByText('Adjudication').click();
-  await page.getByText('Adjudication Queue').waitFor();
+  await page.getByText('Start Adjudication').waitFor();
   await screenshot('adjudication-screen-pre-adjudication');
 
-  // iterate through all the adjudication queues
-  const numWriteInContests = await getAdjudicateButtons(page).count();
-  for (
-    let contestIndex = 0;
-    contestIndex < numWriteInContests;
-    contestIndex += 1
-  ) {
-    await (await getAdjudicateButtons(page).all())[contestIndex].click();
+  await adjudicateAllWriteIns(page);
 
-    let hasFinishedWriteInsForContest = false;
-    let writeInIndex = 0;
-    while (!hasFinishedWriteInsForContest) {
-      // There is occasional flakiness because the write-in adjudication screen
-      // is still rendering and the button press doesn't always register.
-      // Zooming out, by acting as a delay, seems to avoid the problem.
-      await page.getByText('Zoom Out').click();
-      await page.getByRole('combobox').click();
-
-      // uneven but deterministic strategy for making adjudications
-      switch (writeInIndex % 8) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-          // Creates a candidate the first time, re-selects subsequent times
-          await page.getByRole('combobox').fill('Write-In Campaign Candidate');
-          await page.keyboard.press('Enter');
-          break;
-        case 5:
-          // Select a dropdown option via clicking
-          await selectCandidateOrInvalidate(page, writeInIndex);
-          break;
-        case 6:
-          // Mark as invalid by clicking checkbox
-          await page
-            .getByRole('checkbox', { name: /write-in/i, checked: true })
-            .click();
-          break;
-        default:
-          // Create other new candidate
-          await page
-            .getByRole('combobox')
-            .fill(WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]);
-          await page.keyboard.press('Enter');
-      }
-
-      await expect(getPrimaryButton(page)).toBeEnabled();
-      if (await page.getByText('Finish').isVisible()) {
-        await page.getByText('Finish').click();
-        await page.getByText('Adjudication Queue').waitFor();
-        hasFinishedWriteInsForContest = true;
-      } else {
-        await page.getByText('Save & Next').click();
-        writeInIndex += 1;
-      }
-    }
-  }
-
-  await page.getByText('Adjudication Queue').waitFor();
+  await page.getByText('Start Adjudication').waitFor();
   await screenshot('adjudication-screen-post-adjudication');
 
   await page.getByText('Reports').click();
@@ -686,11 +625,19 @@ test('adjudication', async ({ page }) => {
   await page.getByText('Total CVR Count: 1').waitFor();
 
   await page.getByText('Adjudication').click();
-  await page.getByText('Adjudication Queue').waitFor();
+  await page.getByText('Start Adjudication').waitFor();
 
-  await page.getByText('Adjudicate 1').first().click();
-  await page.getByText('Zoom Out').waitFor();
+  await page.getByText('Start Adjudication').click();
+  await page.getByText(/Ballot \d+ of \d+/).waitFor();
   await screenshot('adjudication-view');
+
+  // Click the Governor contest (has write-in + marginal mark)
+  await page
+    .getByRole('listitem')
+    .filter({ has: page.locator('svg[data-icon="triangle-exclamation"]') })
+    .first()
+    .click();
+  await page.getByRole('button', { name: 'Confirm' }).waitFor();
   await page.getByText('Zoom Out').click();
   await expect(page.getByText('Zoom In')).toBeEnabled();
   await screenshot('adjudication-view-zoomed-out');
@@ -701,8 +648,12 @@ test('adjudication', async ({ page }) => {
   await screenshot('adjudication-write-in-new-candidate-adjudicated');
   await page.getByRole('button', { name: 'Dismiss' }).click();
   await screenshot('adjudication-marginal-mark-adjudicated');
-  await page.getByText('Finish').click();
-  await page.getByText('Adjudication Queue').waitFor();
+  await page.getByRole('button', { name: 'Confirm' }).click();
+
+  // Exit to start screen
+  await page.getByRole('button', { name: /Exit/ }).waitFor();
+  await page.getByRole('button', { name: /Exit/ }).click();
+  await page.getByText('Start Adjudication').waitFor();
 });
 
 test('manual results', async ({ page }) => {

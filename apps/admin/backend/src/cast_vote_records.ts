@@ -25,6 +25,7 @@ import {
   getGroupIdFromBallotStyleId,
   getPrecinctById,
   Id,
+  MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -49,6 +50,7 @@ import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
   CvrContestTag,
+  CvrTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
@@ -205,7 +207,8 @@ export async function listCastVoteRecordExportsOnUsbDrive(
  * system settings.
  */
 export function determineCvrContestTags({
-  store,
+  adminAdjudicationReasons,
+  markThresholds,
   electionDefinition,
   cvrId,
   isHmpb,
@@ -213,7 +216,8 @@ export function determineCvrContestTags({
   writeIns,
   markScores,
 }: {
-  store: Store;
+  adminAdjudicationReasons: AdjudicationReason[];
+  markThresholds: MarkThresholds;
   electionDefinition: ElectionDefinition;
   cvrId: Id;
   isHmpb: boolean;
@@ -221,9 +225,6 @@ export function determineCvrContestTags({
   writeIns: CastVoteRecordWriteIn[];
   markScores?: MarkScores;
 }): CvrContestTag[] {
-  const electionId = assertDefined(store.getCurrentElectionId());
-  const { adminAdjudicationReasons, markThresholds } =
-    store.getSystemSettings(electionId);
   const shouldTagMarginalMarks = adminAdjudicationReasons.includes(
     AdjudicationReason.MarginalMark
   );
@@ -295,6 +296,32 @@ export function determineCvrContestTags({
 }
 
 /**
+ * Returns a cvr tag for a given cvr based on system settings.
+ * */
+export function determineCvrTag({
+  adminAdjudicationReasons,
+  cvrId,
+  votes,
+}: {
+  adminAdjudicationReasons: AdjudicationReason[];
+  cvrId: Id;
+  votes: Tabulation.Votes;
+}): CvrTag | undefined {
+  const shouldTagBlankBallots = adminAdjudicationReasons.includes(
+    AdjudicationReason.BlankBallot
+  );
+  const isBlankBallot = Object.values(votes).every(
+    (optionIds) => optionIds.length === 0
+  );
+
+  if (shouldTagBlankBallots && isBlankBallot) {
+    return { cvrId, isResolved: false, isBlankBallot: true };
+  }
+
+  return undefined;
+}
+
+/**
  * Imports cast vote records given a cast vote record export directory path
  */
 export async function importCastVoteRecords(
@@ -345,6 +372,9 @@ export async function importCastVoteRecords(
       wasExistingFile: true,
     });
   }
+
+  const { adminAdjudicationReasons, markThresholds } =
+    store.getSystemSettings(electionId);
 
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
@@ -477,7 +507,8 @@ export async function importCastVoteRecords(
 
       if (isCastVoteRecordNew) {
         const castVoteRecordContestTags = determineCvrContestTags({
-          store,
+          adminAdjudicationReasons,
+          markThresholds,
           electionDefinition,
           cvrId: castVoteRecordId,
           isHmpb,
@@ -485,11 +516,20 @@ export async function importCastVoteRecords(
           writeIns: castVoteRecordWriteIns,
           markScores,
         });
-        if (castVoteRecordContestTags.length > 0) {
-          for (const tag of castVoteRecordContestTags) {
-            store.addCvrContestTag(tag);
-          }
+        const castVoteRecordTag = determineCvrTag({
+          adminAdjudicationReasons,
+          cvrId: castVoteRecordId,
+          votes,
+        });
 
+        if (castVoteRecordTag) {
+          store.addCvrTag(castVoteRecordTag);
+        }
+        for (const tag of castVoteRecordContestTags) {
+          store.addCvrContestTag(tag);
+        }
+
+        if (castVoteRecordContestTags.length > 0 || castVoteRecordTag) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
           for (const i of [0, 1] as const) {

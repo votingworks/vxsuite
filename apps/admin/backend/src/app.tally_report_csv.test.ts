@@ -357,23 +357,30 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     contestId: candidateContestId,
     name: 'Mr. Pickles',
   });
-  const writeIns = await apiClient.getWriteIns({
-    contestId: candidateContestId,
-  });
-  for (const writeIn of writeIns) {
-    await apiClient.adjudicateCvrContest({
-      cvrId: writeIn.cvrId,
-      contestId: writeIn.contestId,
-      side: 'front',
-      adjudicatedContestOptionById: {
-        [writeIn.optionId]: {
-          type: 'write-in-option',
-          candidateName: writeInCandidate.name,
-          candidateType: 'write-in-candidate',
-          hasVote: true,
-        },
-      },
-    });
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  for (const cvrId of queue) {
+    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const contest = adjData.contests.find(
+      (c) => c.contestId === candidateContestId
+    );
+    if (!contest) continue;
+    for (const option of contest.options) {
+      if (option.writeInRecord) {
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId: candidateContestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [option.writeInRecord.optionId]: {
+              type: 'write-in-option',
+              candidateName: writeInCandidate.name,
+              candidateType: 'write-in-candidate',
+              hasVote: true,
+            },
+          },
+        });
+      }
+    }
   }
 
   // add manual data

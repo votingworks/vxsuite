@@ -15,9 +15,6 @@ export type TextareaEventFunction = (
 ) => PromiseOr<void>;
 
 // Router Params
-export interface ContestAdjudicationScreenParams {
-  contestId: ContestId;
-}
 export interface ManualTallyFormParams {
   precinctId: PrecinctId;
   ballotStyleGroupId: BallotStyleGroupId;

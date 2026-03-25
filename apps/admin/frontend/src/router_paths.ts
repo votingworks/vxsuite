@@ -1,5 +1,4 @@
 import {
-  ContestAdjudicationScreenParams,
   ManualTallyFormContestParams,
   ManualTallyFormParams,
 } from './config/types';
@@ -35,9 +34,7 @@ export const routerPaths = {
   ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
   adjudication: '/adjudication',
-  contestAdjudication: ({
-    contestId,
-  }: ContestAdjudicationScreenParams): string => `/adjudication/${contestId}`,
+  ballotAdjudication: `/adjudication/ballots`,
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   system: '/system',

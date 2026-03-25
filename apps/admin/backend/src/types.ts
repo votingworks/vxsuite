@@ -1,4 +1,5 @@
 import {
+  BallotPageLayout,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -20,7 +21,7 @@ import {
   BallotStyleGroupId,
   Side,
   BallotCastingMode,
-  BallotPageContestOptionLayout,
+  ContestOption,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 
@@ -337,12 +338,40 @@ export type WriteInAdjudicatedTally =
 export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 
 /**
- * Description of adjudication queue size.
+ * Description of ballot adjudication queue size.
  */
-export interface AdjudicationQueueMetadata {
-  contestId: ContestId;
+export interface BallotAdjudicationQueueMetadata {
   pendingTally: number;
   totalTally: number;
+}
+
+/**
+ * Information necessary to adjudicate a contest option.
+ */
+export interface ContestOptionAdjudicationData {
+  definition: ContestOption;
+  initialVote: boolean;
+  hasMarginalMark: boolean;
+  voteAdjudication?: VoteAdjudication;
+  writeInRecord?: WriteInRecord;
+}
+
+/**
+ * Information necessary to adjudicate a contest.
+ */
+export interface ContestAdjudicationData {
+  contestId: ContestId;
+  options: ContestOptionAdjudicationData[];
+  tag?: CvrContestTag;
+}
+
+/**
+ * Information necessary to adjudicate a ballot.
+ */
+export interface BallotAdjudicationData {
+  cvrId: Id;
+  tag?: CvrTag;
+  contests: ContestAdjudicationData[];
 }
 
 /**
@@ -432,12 +461,24 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
 }
 
 /**
+ * A queryable ballot-level tag, used for adjudication
+ */
+export interface CvrTag {
+  cvrId: Id;
+  isResolved: boolean;
+  isBlankBallot: boolean;
+}
+
+/**
  * A queryable tag for a cvr-contest pair, used for adjudication
  */
 export interface CvrContestTag {
   cvrId: Id;
   contestId: ContestId;
   isResolved: boolean;
+  // source indicates whether the tag was created automatically by the scanner
+  // detecting an adjudication need or by a user action during adjudication
+  source: 'scanner' | 'user';
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;
@@ -455,31 +496,36 @@ export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionReset;
 
 /**
- * Information necessary to display a ballot on the frontend.
+ * A single page image of an HMPB ballot, including its layout for zoom
  */
-export type BallotImageView = HmpbImageView | BmdImageView;
-
-/**
- * Information necessary to display an hmpb ballot on the frontend.
- */
-export interface HmpbImageView {
+export interface HmpbBallotPageImage {
   readonly type: 'hmpb';
-  readonly cvrId: Id;
-  readonly imageUrl: string | null;
   readonly ballotCoordinates: Rect;
-  readonly contestCoordinates: Rect;
-  readonly optionLayouts: readonly BallotPageContestOptionLayout[];
-  readonly side: Side;
+  readonly layout: BallotPageLayout;
+  readonly imageUrl?: string;
 }
 
 /**
- * Information necessary to display a bmd ballot on the frontend.
+ * A single page image of a BMD ballot with no layout
  */
-export interface BmdImageView {
+export interface BmdBallotPageImage {
   readonly type: 'bmd';
+  readonly ballotCoordinates: Rect;
+  readonly imageUrl?: string;
+}
+
+/**
+ * A single page image of a ballot, either HMPB or BMD
+ */
+export type BallotPageImage = HmpbBallotPageImage | BmdBallotPageImage;
+
+/**
+ * Both sides of a ballot's images and layouts.
+ */
+export interface BallotImages {
   readonly cvrId: Id;
-  readonly imageUrl: string | null;
-  readonly side: 'front'; // bmd ballots are always on the front.
+  readonly front: BallotPageImage;
+  readonly back: BallotPageImage;
 }
 
 /**
@@ -502,6 +548,7 @@ export interface CastVoteRecordVoteInfo {
   electionId: Id;
   ballotStyleGroupId: BallotStyleGroupId;
   votes: Tabulation.CastVoteRecord['votes'];
+  markScores: Tabulation.MarkScores | null;
 }
 
 /**

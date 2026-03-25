@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import type {
-  CvrContestTag,
-  VoteAdjudication,
+  ContestAdjudicationData,
   WriteInCandidateRecord,
-  WriteInRecord,
 } from '@votingworks/admin-backend';
 import type {
   ContestOptionId,
@@ -92,15 +90,6 @@ export function isMarginalMarkPending(
   return status === 'pending';
 }
 
-export interface InitialValues {
-  votes: string[];
-  writeIns: WriteInRecord[];
-  writeInCandidates: WriteInCandidateRecord[];
-  voteAdjudications: VoteAdjudication[];
-  marginalMarks: ContestOptionId[];
-  contestTag: CvrContestTag;
-}
-
 export interface ContestInfo {
   officialOptions: Candidate[] | YesNoOption[];
   isCandidateContest: boolean;
@@ -133,8 +122,50 @@ type ContestOptionAdjudicationStateById = Map<
 
 interface ContestAdjudicationState {
   optionState: ContestOptionAdjudicationStateById;
+  initialOptionState: ContestOptionAdjudicationStateById | null;
   isStateReady: boolean;
-  isModified: boolean;
+}
+
+function writeInStatusesEqual(
+  a: WriteInAdjudicationStatus,
+  b: WriteInAdjudicationStatus
+): boolean {
+  if (a === undefined && b === undefined) return true;
+  if (a === undefined || b === undefined) return false;
+  if (a.type !== b.type) return false;
+  if (
+    (a.type === 'existing-official' || a.type === 'existing-write-in') &&
+    (b.type === 'existing-official' || b.type === 'existing-write-in')
+  ) {
+    return a.id === b.id;
+  }
+  if (a.type === 'new-write-in' && b.type === 'new-write-in') {
+    return a.name === b.name;
+  }
+  return true;
+}
+
+function optionStateMapsEqual(
+  a: ContestOptionAdjudicationStateById,
+  b: ContestOptionAdjudicationStateById
+): boolean {
+  for (const [id, stateA] of a) {
+    const stateB = b.get(id);
+    if (!stateB) return false;
+    if (stateA.hasVote !== stateB.hasVote) return false;
+    if (stateA.marginalMarkStatus !== stateB.marginalMarkStatus) return false;
+    if (
+      stateA.isWriteIn &&
+      stateB.isWriteIn &&
+      !writeInStatusesEqual(
+        stateA.writeInAdjudicationStatus,
+        stateB.writeInAdjudicationStatus
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function getWriteInOptions(
@@ -172,34 +203,36 @@ function makeEmptyState(
 
 export function makeInitialState(
   contestInfo: ContestInfo,
-  initialValues: InitialValues
+  contestAdjudicationData: ContestAdjudicationData,
+  writeInCandidates: WriteInCandidateRecord[]
 ): ContestOptionAdjudicationStateById {
   const state = makeEmptyState(contestInfo);
 
-  for (const optionId of initialValues.votes) {
-    assertDefined(state.get(optionId)).hasVote = true;
-  }
-  for (const voteAdjudication of initialValues.voteAdjudications) {
-    const { optionId, isVote } = voteAdjudication;
-    assertDefined(state.get(optionId)).hasVote = isVote;
-  }
-  for (const optionId of initialValues.marginalMarks) {
-    assertDefined(state.get(optionId)).marginalMarkStatus = initialValues
-      .contestTag.isResolved
-      ? 'resolved'
-      : 'pending';
-  }
+  for (const option of contestAdjudicationData.options) {
+    const optionState = assertDefined(state.get(option.definition.id));
 
-  for (const writeInOption of getWriteInOptions(state)) {
-    const { optionId } = writeInOption;
-    const writeInRecord = initialValues.writeIns.find(
-      (record) => record.optionId === optionId
-    );
+    optionState.hasVote = option.voteAdjudication
+      ? option.voteAdjudication.isVote
+      : option.initialVote;
+
+    if (option.hasMarginalMark) {
+      assert(contestAdjudicationData.tag !== undefined);
+      optionState.marginalMarkStatus = contestAdjudicationData.tag.isResolved
+        ? 'resolved'
+        : 'pending';
+    }
+
+    if (!optionState.isWriteIn) {
+      continue;
+    }
+
+    const { writeInRecord } = option;
     if (!writeInRecord) {
       continue;
     }
+
     if (writeInRecord.status === 'pending') {
-      writeInOption.writeInAdjudicationStatus = { type: 'pending' };
+      optionState.writeInAdjudicationStatus = { type: 'pending' };
       continue;
     }
     switch (writeInRecord.adjudicationType) {
@@ -209,29 +242,27 @@ export function makeInitialState(
             (o) => o.id === writeInRecord.candidateId
           )
         ) as Candidate;
-        writeInOption.writeInAdjudicationStatus = {
+        optionState.writeInAdjudicationStatus = {
           ...candidate,
           type: 'existing-official',
         };
-        writeInOption.hasVote = true;
+        optionState.hasVote = true;
         break;
       }
       case 'write-in-candidate': {
         const candidate = assertDefined(
-          initialValues.writeInCandidates.find(
-            (c) => c.id === writeInRecord.candidateId
-          )
+          writeInCandidates.find((c) => c.id === writeInRecord.candidateId)
         );
-        writeInOption.writeInAdjudicationStatus = {
+        optionState.writeInAdjudicationStatus = {
           ...candidate,
           type: 'existing-write-in',
         };
-        writeInOption.hasVote = true;
+        optionState.hasVote = true;
         break;
       }
       case 'invalid': {
-        writeInOption.writeInAdjudicationStatus = { type: 'invalid' };
-        writeInOption.hasVote = false;
+        optionState.writeInAdjudicationStatus = { type: 'invalid' };
+        optionState.hasVote = false;
         break;
       }
       default: {
@@ -245,7 +276,10 @@ export function makeInitialState(
 
 export function useContestAdjudicationState(
   contestInfo: ContestInfo,
-  initialValues?: Partial<InitialValues>
+  initialValues?: {
+    contestAdjudicationData: ContestAdjudicationData;
+    writeInCandidates: WriteInCandidateRecord[];
+  }
 ): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
@@ -260,7 +294,6 @@ export function useContestAdjudicationState(
   getOptionMarginalMarkStatus: (
     optionId: ContestOptionId
   ) => MarginalMarkStatus;
-  resetState: () => void;
   isStateReady: boolean;
   isModified: boolean;
   checkWriteInNameForDoubleVote: ({
@@ -277,37 +310,23 @@ export function useContestAdjudicationState(
 } {
   const [state, setState] = useState<ContestAdjudicationState>({
     optionState: makeEmptyState(contestInfo),
+    initialOptionState: null,
     isStateReady: false,
-    isModified: false,
   });
   const optionsList = [...state.optionState.values()];
 
-  function resetState() {
-    setState({
-      optionState: makeEmptyState(contestInfo),
-      isStateReady: false,
-      isModified: false,
-    });
-  }
-
   // Initialize state when initial values are loaded
   useEffect(() => {
-    const isInputLoaded =
-      initialValues &&
-      initialValues.votes &&
-      initialValues.writeIns &&
-      initialValues.writeInCandidates &&
-      initialValues.voteAdjudications &&
-      initialValues.marginalMarks &&
-      initialValues.contestTag;
-    if (isInputLoaded && !state.isStateReady) {
+    if (initialValues && !state.isStateReady) {
+      const initialOptionState = makeInitialState(
+        contestInfo,
+        initialValues.contestAdjudicationData,
+        initialValues.writeInCandidates
+      );
       setState({
-        optionState: makeInitialState(
-          contestInfo,
-          initialValues as InitialValues
-        ),
+        optionState: initialOptionState,
+        initialOptionState,
         isStateReady: true,
-        isModified: false,
       });
     }
   }, [initialValues, state.isStateReady, contestInfo]);
@@ -319,7 +338,6 @@ export function useContestAdjudicationState(
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
     setState((prev) => ({
       ...prev,
-      isModified: true,
       optionState: new Map([
         ...prev.optionState,
         [
@@ -369,7 +387,6 @@ export function useContestAdjudicationState(
       if (isMarginalMarkPending(option.marginalMarkStatus)) {
         return {
           ...prev,
-          isModified: true,
           optionState: new Map([
             ...prev.optionState,
             [optionId, { ...option, marginalMarkStatus: 'resolved' }],
@@ -464,10 +481,13 @@ export function useContestAdjudicationState(
     return names;
   })();
 
+  const isModified =
+    state.initialOptionState !== null &&
+    !optionStateMapsEqual(state.optionState, state.initialOptionState);
+
   return {
-    resetState,
     isStateReady: state.isStateReady,
-    isModified: state.isModified,
+    isModified,
     setOptionHasVote,
     getOptionHasVote,
     setOptionWriteInStatus,

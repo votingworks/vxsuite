@@ -42,15 +42,19 @@ import {
   constructElectionKey,
   BallotStyleGroupId,
   BallotStyleGroup,
+  getContests,
+  SheetOf,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
+  allContestOptions,
   asSqliteBool,
   BooleanEnvironmentVariableName,
   fromSqliteBool,
+  getBallotStyleGroup,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
   isFeatureFlagEnabled,
@@ -79,7 +83,6 @@ import {
   WriteInRecordPending,
   ManualResultsFilter,
   CardTally,
-  AdjudicationQueueMetadata,
   VoteAdjudication,
   CastVoteRecordVoteInfo,
   WriteInAdjudicationActionOfficialCandidate,
@@ -88,11 +91,16 @@ import {
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
   CvrContestTag,
+  CvrTag,
   WriteInForTally,
   HostConnectionStatus,
   BaseStore,
   MachineRecord,
   MachineMode,
+  BallotAdjudicationQueueMetadata,
+  BallotAdjudicationData,
+  ContestAdjudicationData,
+  ContestOptionAdjudicationData,
 } from './types';
 import { rootDebug } from './util/debug';
 import { getCurrentTime } from './get_current_time';
@@ -106,28 +114,6 @@ type StoreCastVoteRecordAttributes = Omit<
 > & {
   readonly partyId: string | null;
 };
-
-/**
- * Adjudication queue ordering:
- * Note: The intention is to show the most important issues first
- * 1. All overvotes (regardless of write-ins, marginal marks)
- * 2. Write-ins (unmarked and marked), no marginal marks, includes undervotes
- * 3. Write-ins and marginal marks, includes undervotes
- * 4. Marginal marks, includes undervotes
- * 5. Undervotes without marginal marks or write-ins
- */
-
-const ADJUDICATION_QUEUE_ORDER_BY = `
-  order by
-    case
-      when has_overvote = 1 then 1
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 then 2
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 then 3
-      when has_marginal_mark = 1 then 4
-      else 5
-    end,
-    sequence_id
-`;
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -1258,21 +1244,12 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Returns the image and layout for a cvr-contest.
+   * Returns the images and layouts for both sides of a ballot.
    */
-  getBallotImageAndLayout({
-    cvrId,
-    contestId,
-  }: {
-    cvrId: Id;
-    contestId: ContestId;
-  }): {
-    contestId: ContestId;
-    cvrId: Id;
+  getBallotImagesAndLayouts({ cvrId }: { cvrId: Id }): SheetOf<{
     image: Buffer;
-    side: Side;
     layout?: BallotPageLayout;
-  } {
+  }> {
     const rows = this.client.all(
       `
       select
@@ -1283,6 +1260,8 @@ export class Store implements BaseStore {
       join cvrs c on c.id = bi.cvr_id
       join elections e on e.id = c.election_id
       where bi.cvr_id = ?
+      order by
+        case bi.side when 'front' then 0 when 'back' then 1 end
       `,
       cvrId
     ) as Array<{
@@ -1291,49 +1270,24 @@ export class Store implements BaseStore {
       electionDefinitionId: string;
     }>;
 
-    for (const row of rows) {
-      // Always return the front for bmd ballots
-      if (!row.layout && row.side === 'front') {
-        return {
-          cvrId,
-          contestId,
-          image: readFileSync(
-            this.getBallotImageFilePath(
-              row.electionDefinitionId,
-              cvrId,
-              'front'
-            )
-          ),
-          side: 'front',
-        };
-      }
-      if (row.layout) {
-        const parsedLayout = safeParseJson(
-          row.layout,
-          BallotPageLayoutSchema
-        ).unsafeUnwrap();
-        const hasContest = parsedLayout.contests.some(
-          (contest) => contest.contestId === contestId
-        );
-        if (hasContest) {
-          return {
-            cvrId,
-            contestId,
-            image: readFileSync(
-              this.getBallotImageFilePath(
-                row.electionDefinitionId,
-                cvrId,
-                row.side
-              )
-            ),
-            side: row.side,
-            layout: parsedLayout,
-          };
-        }
-      }
-    }
-    /* istanbul ignore next - @preserve */
-    throw new Error(`No matching ballot layout found for contest ${contestId}`);
+    assert(rows.length === 2);
+    const frontRow = assertDefined(rows[0]);
+    const backRow = assertDefined(rows[1]);
+
+    const parseRow = (row: {
+      layout?: string;
+      side: Side;
+      electionDefinitionId: string;
+    }): { image: Buffer; layout?: BallotPageLayout } => ({
+      image: readFileSync(
+        this.getBallotImageFilePath(row.electionDefinitionId, cvrId, row.side)
+      ),
+      layout: row.layout
+        ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
+        : undefined,
+    });
+
+    return [parseRow(frontRow), parseRow(backRow)];
   }
 
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
@@ -1889,94 +1843,197 @@ export class Store implements BaseStore {
     );
   }
 
-  /**
-   * Gets the adjudication queue for a specific contest.
-   */
-  getAdjudicationQueue({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-  }): Id[] {
+  getBallotAdjudicationQueue({ electionId }: { electionId: Id }): Id[] {
     this.assertElectionExists(electionId);
-    debug(
-      'querying database for adjudication cvr queue for contest %s',
-      contestId
-    );
-
+    debug('querying database for ballot adjudication cvr queue');
     const rows = this.client.all(
       `
-        select
-          cvr_id
-        from cvr_contest_tags
-        where
-          contest_id = ?
-        ${ADJUDICATION_QUEUE_ORDER_BY}
-      `,
-      contestId
+        select c.id as cvr_id
+        from cvrs c
+        left join cvr_tags ct on ct.cvr_id = c.id
+        where c.id in (
+          select cvr_id from cvr_contest_tags
+          union
+          select cvr_id from cvr_tags
+        )
+        order by
+          case when ct.is_blank_ballot = 1 then 1 else 0 end,
+          case when c.card_type = 'bmd' then 1 else 0 end,
+          c.ballot_style_group_id,
+          c.sheet_number,
+          c.id
+      `
     ) as Array<{ cvr_id: Id }>;
-
-    debug('queried cvr contests tags for adjudication queue');
+    debug(
+      'queried cvr contest tags and cvr tags for ballot adjudication queue'
+    );
     return rows.map((r) => r.cvr_id);
   }
 
-  /**
-   * Gets adjudication queue total and pending tallies by contest.
-   */
-  getAdjudicationQueueMetadata({
+  getBallotAdjudicationQueueMetadata({
     electionId,
   }: {
     electionId: Id;
-  }): AdjudicationQueueMetadata[] {
-    this.assertElectionExists(electionId);
-    debug('querying database for adjudication queue metadata using tags');
-
-    const rows = this.client.all(
-      `
-        select
-          contest_id as contestId,
-          count(*) as totalTally,
-          count(case when is_resolved = 0 then 1 end) as pendingTally
-        from cvr_contest_tags
-        group
-          by contest_id
-      `
-    ) as Array<{
-      contestId: ContestId;
-      totalTally: number;
-      pendingTally: number;
-    }>;
-
-    debug('queried adjudication queue metadata from cvr contest tags');
-    return rows;
-  }
-
-  getNextCvrIdForAdjudication({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-  }): Optional<Id> {
+  }): BallotAdjudicationQueueMetadata {
     this.assertElectionExists(electionId);
     debug(
-      'querying database for first unresolved cvr id for contest %s adjudication',
-      contestId
+      'querying database for ballot adjudication queue metadata using tags'
     );
 
     const row = this.client.one(
       `
         select
-          cvr_id
-        from cvr_contest_tags
-        where
-          contest_id = ?
-          and is_resolved = 0
-        ${ADJUDICATION_QUEUE_ORDER_BY}
+          count(distinct cvr_id) as totalTally,
+          count(case when is_resolved = 0 then 1 end) as pendingTally
+        from (
+          select cvr_id, is_resolved from cvr_contest_tags
+          union
+          select cvr_id, is_resolved from cvr_tags
+        )
+      `
+    ) as {
+      totalTally: number;
+      pendingTally: number;
+    };
+
+    debug(
+      'queried adjudication queue metadata from cvr contest tags and cvr tags'
+    );
+    return row;
+  }
+
+  getBallotAdjudicationData({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): BallotAdjudicationData {
+    const electionRecord = assertDefined(this.getElection(electionId));
+    const { election } = electionRecord.electionDefinition;
+    debug(
+      'querying database for ballot adjudication data for cvr id %s',
+      cvrId
+    );
+
+    // 1. Get CVR info
+    const cvrInfo = this.getCastVoteRecordVoteInfo({ electionId, cvrId });
+    const { votes, markScores, ballotStyleGroupId } = cvrInfo;
+
+    // 2. Get all tags
+    const cvrTag = this.getCvrTag({ cvrId });
+    const cvrContestTags = this.getCvrContestTags({ cvrId });
+
+    // 3. Get all vote adjudications
+    const voteAdjudications = this.getVoteAdjudications({ electionId, cvrId });
+
+    // 4. Get all write-in records
+    const writeInRecords = this.getWriteInRecords({
+      electionId,
+      castVoteRecordId: cvrId,
+    });
+
+    // 5. Get mark thresholds and ballot style group
+    const { markThresholds } = this.getSystemSettings(electionId);
+    const ballotStyleGroup = assertDefined(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId,
+      })
+    );
+
+    // 6. Build lookup maps
+    const tagsByContestId = new Map(
+      cvrContestTags.map((tag) => [tag.contestId, tag])
+    );
+    const adjudicationsByKey = new Map(
+      voteAdjudications.map((adj) => [`${adj.contestId}:${adj.optionId}`, adj])
+    );
+    const writeInsByKey = new Map(
+      writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
+    );
+
+    // 7. Build contest adjudication data for each contest on this sheet
+    const cvrContestIds = new Set(Object.keys(votes));
+    const contests: ContestAdjudicationData[] = getContests({
+      ballotStyle: ballotStyleGroup,
+      election,
+    })
+      .filter((contest) => cvrContestIds.has(contest.id))
+      .map((contest) => {
+        const tag: CvrContestTag | undefined =
+          tagsByContestId.get(contest.id) ?? undefined;
+
+        const contestVotes = assertDefined(votes[contest.id]);
+        const contestMarkScores = markScores?.[contest.id];
+
+        const options: ContestOptionAdjudicationData[] = [
+          ...allContestOptions(contest, ballotStyleGroup),
+        ].map((option) => {
+          const key = `${contest.id}:${option.id}`;
+          const initialVote = contestVotes.includes(option.id);
+
+          const voteAdjudication: VoteAdjudication | undefined =
+            adjudicationsByKey.get(key) ?? undefined;
+
+          const writeInRecord = writeInsByKey.get(key) ?? undefined;
+
+          const score = contestMarkScores?.[option.id];
+          const hasMarginalMark =
+            score !== undefined &&
+            score >= markThresholds.marginal &&
+            score < markThresholds.definite;
+
+          return {
+            definition: option,
+            initialVote,
+            hasMarginalMark,
+            voteAdjudication,
+            writeInRecord,
+          };
+        });
+
+        return {
+          contestId: contest.id,
+          tag,
+          options,
+        };
+      });
+
+    debug('queried ballot adjudication data for cvr id %s', cvrId);
+    return {
+      cvrId,
+      tag: cvrTag,
+      contests,
+    };
+  }
+
+  getNextCvrIdForBallotAdjudication({
+    electionId,
+  }: {
+    electionId: Id;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+    debug('querying database for first unresolved cvr id for adjudication');
+
+    const row = this.client.one(
+      `
+        select c.id as cvr_id
+        from cvrs c
+        left join cvr_tags ct on ct.cvr_id = c.id
+        where c.id in (
+          select cvr_id from cvr_contest_tags where is_resolved = 0
+          union
+          select cvr_id from cvr_tags where is_resolved = 0
+        )
+        order by
+          case when ct.is_blank_ballot = 1 then 1 else 0 end,
+          case when c.card_type = 'bmd' then 1 else 0 end,
+          c.ballot_style_group_id,
+          c.sheet_number,
+          c.id
         limit 1
-      `,
-      contestId
+      `
     ) as { cvr_id: Id } | undefined;
 
     debug('queried database for first unresolved cvr id');
@@ -2261,7 +2318,8 @@ export class Store implements BaseStore {
           id,
           election_id as electionId,
           ballot_style_group_id as ballotStyleGroupId,
-          votes
+          votes,
+          mark_scores as markScores
         from cvrs
         where
           election_id = ? and
@@ -2274,6 +2332,7 @@ export class Store implements BaseStore {
       electionId: Id;
       ballotStyleGroupId: BallotStyleGroupId;
       votes: string;
+      markScores: string | null;
     };
 
     return {
@@ -2281,6 +2340,7 @@ export class Store implements BaseStore {
       electionId: row.electionId,
       ballotStyleGroupId: row.ballotStyleGroupId,
       votes: JSON.parse(row.votes),
+      markScores: row.markScores ? JSON.parse(row.markScores) : null,
     };
   }
 
@@ -2330,28 +2390,45 @@ export class Store implements BaseStore {
 
   getVoteAdjudications({
     electionId,
-    contestId,
     cvrId,
+    contestId,
   }: {
     electionId: Id;
-    contestId: ContestId;
     cvrId: Id;
+    contestId?: ContestId;
   }): VoteAdjudication[] {
-    const rows = this.client.all(
-      `
-        select
-          cvr_id as cvrId,
-          contest_id as contestId,
-          option_id as optionId,
-          is_vote as isVote
-        from vote_adjudications
-        where election_id = ?
-          and contest_id = ?
-          and cvr_id = ?
-      `,
-      electionId,
-      contestId,
-      cvrId
+    const rows = (
+      contestId
+        ? this.client.all(
+            `
+              select
+                cvr_id as cvrId,
+                contest_id as contestId,
+                option_id as optionId,
+                is_vote as isVote
+              from vote_adjudications
+              where election_id = ?
+                and cvr_id = ?
+                and contest_id = ?
+            `,
+            electionId,
+            cvrId,
+            contestId
+          )
+        : this.client.all(
+            `
+              select
+                cvr_id as cvrId,
+                contest_id as contestId,
+                option_id as optionId,
+                is_vote as isVote
+              from vote_adjudications
+              where election_id = ?
+                and cvr_id = ?
+            `,
+            electionId,
+            cvrId
+          )
     ) as Array<{
       cvrId: Id;
       contestId: ContestId;
@@ -2695,6 +2772,8 @@ export class Store implements BaseStore {
   addCvrContestTag({
     cvrId,
     contestId,
+    source,
+    isResolved,
     hasOvervote = false,
     hasUndervote = false,
     hasWriteIn = false,
@@ -2706,17 +2785,19 @@ export class Store implements BaseStore {
         insert into cvr_contest_tags (
           cvr_id,
           contest_id,
+          source,
           is_resolved,
           has_overvote,
           has_undervote,
           has_write_in,
           has_unmarked_write_in,
           has_marginal_mark
-        ) values (?, ?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       cvrId,
       contestId,
-      asSqliteBool(false),
+      source,
+      asSqliteBool(isResolved),
       asSqliteBool(hasOvervote),
       asSqliteBool(hasUndervote),
       asSqliteBool(hasWriteIn),
@@ -2725,55 +2806,88 @@ export class Store implements BaseStore {
     );
   }
 
-  getCvrContestTag({
+  getCvrContestTags({
     cvrId,
     contestId,
   }: {
     cvrId: Id;
-    contestId: ContestId;
-  }): CvrContestTag | undefined {
-    const row = this.client.one(
-      `
-        select
-          cvr_id as cvrId,
-          contest_id as contestId,
-          is_resolved as isResolved,
-          has_overvote as hasOvervote,
-          has_undervote as hasUndervote,
-          has_write_in as hasWriteIn,
-          has_unmarked_write_in as hasUnmarkedWriteIn,
-          has_marginal_mark as hasMarginalMark
-        from cvr_contest_tags
-        where
-          cvr_id = ? and
-          contest_id = ?
-      `,
-      cvrId,
+    contestId?: ContestId;
+  }): CvrContestTag[] {
+    const rows = (
       contestId
-    ) as
-      | {
-          cvrId: Id;
-          contestId: ContestId;
-          isResolved: SqliteBool;
-          hasOvervote: SqliteBool;
-          hasUndervote: SqliteBool;
-          hasWriteIn: SqliteBool;
-          hasUnmarkedWriteIn: SqliteBool;
-          hasMarginalMark: SqliteBool;
-        }
-      | undefined;
+        ? this.client.all(
+            `
+              select
+                cvr_id as cvrId,
+                contest_id as contestId,
+                source,
+                is_resolved as isResolved,
+                has_overvote as hasOvervote,
+                has_undervote as hasUndervote,
+                has_write_in as hasWriteIn,
+                has_unmarked_write_in as hasUnmarkedWriteIn,
+                has_marginal_mark as hasMarginalMark
+              from cvr_contest_tags
+              where
+                cvr_id = ? and
+                contest_id = ?
+            `,
+            cvrId,
+            contestId
+          )
+        : this.client.all(
+            `
+              select
+                cvr_id as cvrId,
+                contest_id as contestId,
+                source,
+                is_resolved as isResolved,
+                has_overvote as hasOvervote,
+                has_undervote as hasUndervote,
+                has_write_in as hasWriteIn,
+                has_unmarked_write_in as hasUnmarkedWriteIn,
+                has_marginal_mark as hasMarginalMark
+              from cvr_contest_tags
+              where
+                cvr_id = ?
+            `,
+            cvrId
+          )
+    ) as Array<{
+      cvrId: Id;
+      contestId: ContestId;
+      source: 'scanner' | 'user';
+      isResolved: SqliteBool;
+      hasOvervote: SqliteBool;
+      hasUndervote: SqliteBool;
+      hasWriteIn: SqliteBool;
+      hasUnmarkedWriteIn: SqliteBool;
+      hasMarginalMark: SqliteBool;
+    }>;
 
-    return row
-      ? {
-          ...row,
-          isResolved: fromSqliteBool(row.isResolved),
-          hasOvervote: fromSqliteBool(row.hasOvervote),
-          hasUndervote: fromSqliteBool(row.hasUndervote),
-          hasWriteIn: fromSqliteBool(row.hasWriteIn),
-          hasUnmarkedWriteIn: fromSqliteBool(row.hasUnmarkedWriteIn),
-          hasMarginalMark: fromSqliteBool(row.hasMarginalMark),
-        }
-      : undefined;
+    return rows.map((row) => ({
+      ...row,
+      source: row.source,
+      isResolved: fromSqliteBool(row.isResolved),
+      hasOvervote: fromSqliteBool(row.hasOvervote),
+      hasUndervote: fromSqliteBool(row.hasUndervote),
+      hasWriteIn: fromSqliteBool(row.hasWriteIn),
+      hasUnmarkedWriteIn: fromSqliteBool(row.hasUnmarkedWriteIn),
+      hasMarginalMark: fromSqliteBool(row.hasMarginalMark),
+    }));
+  }
+
+  resolveAllCvrContestTags({ cvrId }: { cvrId: Id }): void {
+    this.client.run(
+      `
+        update cvr_contest_tags
+        set
+          is_resolved = 1
+        where
+          cvr_id = ?
+      `,
+      cvrId
+    );
   }
 
   resolveCvrContestTag({
@@ -2794,6 +2908,60 @@ export class Store implements BaseStore {
       `,
       cvrId,
       contestId
+    );
+  }
+
+  addCvrTag({ cvrId, isResolved, isBlankBallot }: CvrTag): void {
+    this.client.run(
+      `
+        insert into cvr_tags (
+          cvr_id,
+          is_resolved,
+          is_blank_ballot
+        ) values (?, ?, ?)
+      `,
+      cvrId,
+      asSqliteBool(isResolved),
+      asSqliteBool(isBlankBallot)
+    );
+  }
+
+  getCvrTag({ cvrId }: { cvrId: Id }): CvrTag | undefined {
+    const row = this.client.one(
+      `
+        select
+          cvr_id as cvrId,
+          is_resolved as isResolved,
+          is_blank_ballot as isBlankBallot
+        from cvr_tags
+        where cvr_id = ?
+      `,
+      cvrId
+    ) as
+      | {
+          cvrId: Id;
+          isResolved: SqliteBool;
+          isBlankBallot: SqliteBool;
+        }
+      | undefined;
+
+    return row
+      ? {
+          ...row,
+          isResolved: fromSqliteBool(row.isResolved),
+          isBlankBallot: fromSqliteBool(row.isBlankBallot),
+        }
+      : undefined;
+  }
+
+  resolveCvrTag({ cvrId }: { cvrId: Id }): void {
+    this.client.run(
+      `
+        update cvr_tags
+        set is_resolved = 1
+        where cvr_id = ?
+      `,
+      cvrId
     );
   }
 
