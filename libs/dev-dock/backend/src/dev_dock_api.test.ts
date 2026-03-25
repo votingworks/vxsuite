@@ -40,6 +40,7 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import { listMockDrives, removeMockDriveDir } from '@votingworks/usb-drive';
+import { ELECTION_PACKAGE_FOLDER } from '@votingworks/utils';
 import {
   Api,
   useDevDockRouter,
@@ -187,6 +188,10 @@ test('election fixture references', async () => {
       title: 'electionGridLayoutNewHampshireTestBallot',
     },
     {
+      path: 'fixtures/data/electionMiOpenPrimary/election.json',
+      title: 'electionMiOpenPrimary',
+    },
+    {
       path: 'fixtures/data/electionMultiPartyPrimary/election.json',
       title: 'electionMultiPartyPrimary',
     },
@@ -204,14 +209,50 @@ test('election fixture references', async () => {
     },
   ];
 
-  await expect(
-    apiClient.getCurrentFixtureElectionPaths()
-  ).resolves.toMatchObject(
-    expectedFixtures.map(({ path, title }) => ({
-      inputPath: expect.stringContaining(path),
-      title,
-      resolvedPath: expect.any(String),
-    }))
+  const result = await apiClient.getCurrentFixtureElectionPaths();
+  for (const { path, title } of expectedFixtures) {
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          inputPath: expect.stringContaining(path),
+          title,
+          resolvedPath: expect.any(String),
+        }),
+      ])
+    );
+  }
+});
+
+test('detects election packages on mock USB drive', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+
+  // Create a mock USB data directory with an election package
+  const mockUsbDataDir = join(devDockDir, 'usb-drive', 'mock-usb-data');
+  const electionSubdir = join(
+    mockUsbDataDir,
+    'test-county_test-election_abc123'
+  );
+  const packagesDir = join(electionSubdir, ELECTION_PACKAGE_FOLDER);
+  fs.mkdirSync(packagesDir, { recursive: true });
+
+  // Create a zip containing election.json
+  const election = electionFamousNames2021Fixtures.readElection();
+  const zipBuffer = await zipFile({
+    'election.json': JSON.stringify(election),
+  });
+  const zipName = 'election-package__2026-03-25_12-00-00.zip';
+  fs.writeFileSync(join(packagesDir, zipName), zipBuffer);
+
+  const { apiClient } = setup({}, devDockDir);
+  const result = await apiClient.getCurrentFixtureElectionPaths();
+
+  expect(result).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        title: 'USB: test-county_test-election_abc123',
+        inputPath: expect.stringContaining(zipName),
+      }),
+    ])
   );
 });
 

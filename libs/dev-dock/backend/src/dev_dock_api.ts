@@ -17,6 +17,7 @@ import {
   readFromMockFile as readFromCardMockFile,
 } from '@votingworks/auth';
 import {
+  ELECTION_PACKAGE_FOLDER,
   getMockStateRootDir,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
@@ -252,7 +253,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
 
     getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
       const baseFixturePath = join(__dirname, '../../../../libs/fixtures/data');
-      return fs
+      const fixtureElections: DevDockElectionInfo[] = fs
         .readdirSync(baseFixturePath, {
           withFileTypes: true,
         })
@@ -273,6 +274,38 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
           return undefined;
         })
         .filter((item) => item !== undefined);
+
+      // Also scan mock USB data directory for election packages
+      const mockUsbDataPath = join(devDockDir, 'usb-drive', 'mock-usb-data');
+      const usbElections: DevDockElectionInfo[] = [];
+      if (fs.existsSync(mockUsbDataPath)) {
+        for (const subdir of fs.readdirSync(mockUsbDataPath, {
+          withFileTypes: true,
+        })) {
+          if (!subdir.isDirectory()) continue;
+          const packagesDir = join(
+            mockUsbDataPath,
+            subdir.name,
+            ELECTION_PACKAGE_FOLDER
+          );
+          if (!fs.existsSync(packagesDir)) continue;
+          const latestZip = fs
+            .readdirSync(packagesDir)
+            .filter((f) => f.endsWith('.zip'))
+            .sort()
+            .reverse()[0]; // Most recent first
+          if (latestZip) {
+            const zipPath = join(packagesDir, latestZip);
+            usbElections.push({
+              title: `USB: ${subdir.name}`,
+              inputPath: electionAbsolutePathToRelative(zipPath),
+              resolvedPath: zipPath,
+            });
+          }
+        }
+      }
+
+      return [...fixtureElections, ...usbElections];
     },
 
     getCardStatus(): CardStatus {
