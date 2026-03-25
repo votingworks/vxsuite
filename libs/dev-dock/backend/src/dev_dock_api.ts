@@ -30,6 +30,7 @@ import {
   addMockDrive,
   getMockFileUsbDriveHandler,
   listMockDrives,
+  MOCK_USB_DRIVE_DATA_DIRNAME,
   removeMockDriveDir,
 } from '@votingworks/usb-drive';
 import {
@@ -275,10 +276,16 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         })
         .filter((item) => item !== undefined);
 
-      // Also scan mock USB data directory for election packages
-      const mockUsbDataPath = join(devDockDir, 'usb-drive', 'mock-usb-data');
+      // Also scan mock USB drives for election packages
       const usbElections: DevDockElectionInfo[] = [];
-      if (fs.existsSync(mockUsbDataPath)) {
+      for (const diskName of listMockDrives()) {
+        const mockUsbDataPath = join(
+          devDockDir,
+          'usb-drive',
+          diskName,
+          MOCK_USB_DRIVE_DATA_DIRNAME
+        );
+        if (!fs.existsSync(mockUsbDataPath)) continue;
         for (const subdir of fs.readdirSync(mockUsbDataPath, {
           withFileTypes: true,
         })) {
