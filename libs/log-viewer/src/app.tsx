@@ -9,7 +9,11 @@ import { stitchLogFiles } from './log_parser';
 import { Sidebar } from './sidebar';
 import { LogDisplay } from './log_display';
 import { FilterBar } from './filter_bar';
-import { persistState, loadPersistedState } from './persistence';
+import {
+  persistState,
+  loadPersistedState,
+  clearPersistedState,
+} from './persistence';
 import type { AppHistoryState } from './persistence';
 
 const DESKTOP_THEME = makeTheme({
@@ -65,6 +69,33 @@ const DropZone = styled.label<{ isDragging: boolean }>`
   }
 `;
 
+const CollapsedSidebar = styled.div`
+  width: 28px;
+  background: #f5f5f5;
+  border-right: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 1px;
+
+  &:hover {
+    background: #eee;
+    color: #333;
+  }
+`;
+
+function clearHash() {
+  if (window.location.hash) {
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+}
+
 const LoadingMessage = styled.div`
   padding: 2rem;
   text-align: center;
@@ -96,6 +127,7 @@ export function App(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [scrollToLine, setScrollToLine] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Track whether the current state change came from popstate (back/forward)
   const isPopstateRef = useRef(false);
@@ -181,6 +213,7 @@ export function App(): JSX.Element {
       setStitchedLog(null);
       setFilterState(EMPTY_FILTER_STATE);
       setScrollToLine(null);
+      clearHash();
       await persistState({
         zipData: data,
         zipFileName: file.name,
@@ -216,10 +249,12 @@ export function App(): JSX.Element {
       setSelection(newSelection);
       setFilterState(EMPTY_FILTER_STATE);
       setScrollToLine(null);
+      clearHash();
 
       try {
         const stitched = applySelection(zipData, zipContents, newSelection);
         setStitchedLog(stitched);
+        setSidebarOpen(false);
         pushHistory(newSelection, EMPTY_FILTER_STATE, null);
         void persistState({
           zipData,
@@ -282,13 +317,30 @@ export function App(): JSX.Element {
   return (
     <ThemeProvider theme={DESKTOP_THEME}>
       <AppContainer>
-        {zipContents && (
-          <Sidebar
-            contents={zipContents}
-            selection={selection}
-            onSelect={handleSelection}
-          />
-        )}
+        {zipContents &&
+          (sidebarOpen ? (
+            <Sidebar
+              contents={zipContents}
+              selection={selection}
+              onSelect={handleSelection}
+              onHide={() => setSidebarOpen(false)}
+              onLoadNew={() => {
+                setZipData(null);
+                setZipContents(null);
+                setSelection(null);
+                setStitchedLog(null);
+                setFilterState(EMPTY_FILTER_STATE);
+                setScrollToLine(null);
+                setSidebarOpen(true);
+                clearHash();
+                void clearPersistedState();
+              }}
+            />
+          ) : (
+            <CollapsedSidebar onClick={() => setSidebarOpen(true)}>
+              &#9654; FILES &#9654;
+            </CollapsedSidebar>
+          ))}
         <MainContent>
           {error && (
             <div style={{ padding: '1rem', color: 'red' }}>{error}</div>

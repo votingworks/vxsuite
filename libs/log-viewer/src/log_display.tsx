@@ -7,13 +7,12 @@ import React, {
 } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import styled from 'styled-components';
+import { safeParseNumber } from '@votingworks/types';
 import type { FilterState, LogLine, StitchedLogFile } from './types';
 import { isVxLogLine } from './types';
-import { LogRow, LogRowHeader } from './log_row';
-import {
-  formatLinesForSlack,
-  formatLinesAsMarkdownTable,
-} from './copy_for_slack';
+import { LogRow, LogRowHeader, DEFAULT_COLUMN_WIDTHS } from './log_row';
+import type { ColumnWidths } from './log_row';
+import { copyAsRichText, copyAsPlainText } from './copy_for_slack';
 
 const LOG_ROW_HEIGHT = 28;
 
@@ -34,43 +33,64 @@ const ScrollContainer = styled.div`
 `;
 
 const SelectionToolbar = styled.div`
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
   display: flex;
   gap: 0.5rem;
-  background: #333;
-  color: white;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   font-size: 13px;
   align-items: center;
-  z-index: 100;
+  padding: 0.5rem 0;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid #e0e0e0;
 `;
 
 const ToolbarButton = styled.button`
-  background: #555;
-  color: white;
-  border: none;
-  padding: 0.375rem 0.75rem;
+  background: #e8e8e8;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 0.25rem 0.625rem;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
 
   &:hover {
-    background: #666;
+    background: #ddd;
   }
 `;
 
-const RotationBanner = styled.div`
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  padding: 0.25rem 1rem;
-  font-size: 11px;
-  font-weight: 600;
-  color: #856404;
+const DetailPanel = styled.div`
+  border-top: 2px solid #ddd;
+  padding: 0.75rem 1rem;
+  background: #fafafa;
+  font-size: 12px;
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  flex-shrink: 0;
 `;
+
+const DetailGrid = styled.div`
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+`;
+
+const DetailKey = styled.span`
+  color: #666;
+  font-weight: 600;
+`;
+
+const DetailValue = styled.span`
+  white-space: pre-wrap;
+  word-break: break-all;
+`;
+
+function formatDetailValue(value: string): string {
+  try {
+    const parsed = JSON.parse(value);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return value;
+  }
+}
 
 function applyFilter(line: LogLine, filterState: FilterState): boolean {
   if (!isVxLogLine(line)) {
@@ -124,6 +144,16 @@ export function LogDisplay({
   onViewInContext,
 }: LogDisplayProps): JSX.Element {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [columnWidths, setColumnWidths] = useState<ColumnWidths>(
+    DEFAULT_COLUMN_WIDTHS
+  );
+
+  const handleColumnResize = useCallback(
+    (column: keyof ColumnWidths, width: number) => {
+      setColumnWidths((prev) => ({ ...prev, [column]: width }));
+    },
+    []
+  );
   const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
   const [anchorLine, setAnchorLine] = useState<number | null>(null);
 
@@ -137,14 +167,43 @@ export function LogDisplay({
     [stitchedLog]
   );
 
-  const rotationMarkerMap = useMemo(
-    () =>
-      new Map(stitchedLog.rotationMarkers.map((m) => [m.lineNumber, m.date])),
-    [stitchedLog]
-  );
-
   const isFiltered = hasActiveFilters(filterState);
   const isVxLog = VX_LOG_TYPES.has(stitchedLog.logType);
+  const showSource = !filterState.source;
+
+  // Parse URL hash on mount to restore line selection
+  useEffect(() => {
+    const { hash } = window.location;
+    const match = /^#L(\d+)(?:-L(\d+))?$/.exec(hash);
+    if (!match) return;
+    const start = safeParseNumber(match[1]).unsafeUnwrap();
+    const end = match[2] ? safeParseNumber(match[2]).unsafeUnwrap() : start;
+    const lines = new Set<number>();
+    for (let i = start; i <= end; i += 1) {
+      lines.add(i);
+    }
+    setSelectedLines(lines);
+    setAnchorLine(start);
+    requestAnimationFrame(() => {
+      const idx = filteredLines.findIndex((l) => l.lineNumber >= start);
+      if (idx >= 0 && scrollRef.current) {
+        scrollRef.current.scrollTop = idx * LOG_ROW_HEIGHT;
+      }
+    });
+  }, []);
+
+  // Update URL hash when selection changes
+  useEffect(() => {
+    if (selectedLines.size === 0) {
+      if (window.location.hash) window.history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+    const sorted = [...selectedLines].toSorted((a, b) => a - b);
+    const start = sorted[0];
+    const end = sorted[sorted.length - 1];
+    const hash = start === end ? `#L${start}` : `#L${start}-L${end}`;
+    window.history.replaceState(null, '', hash);
+  }, [selectedLines]);
 
   // Scroll to a specific line when requested
   useEffect(() => {
@@ -161,23 +220,57 @@ export function LogDisplay({
     }
   }, [scrollToLine, filteredLines]);
 
-  const handleLineClick = useCallback(
+  const isDraggingRef = useRef(false);
+
+  const selectFilteredRange = useCallback(
+    (from: number, to: number) => {
+      const start = Math.min(from, to);
+      const end = Math.max(from, to);
+      const lines = new Set(
+        filteredLines
+          .filter((l) => l.lineNumber >= start && l.lineNumber <= end)
+          .map((l) => l.lineNumber)
+      );
+      setSelectedLines(lines);
+    },
+    [filteredLines]
+  );
+
+  const handleLineMouseDown = useCallback(
     (lineNumber: number, e: React.MouseEvent) => {
+      if (e.button !== 0) return;
       if (e.shiftKey && anchorLine !== null) {
-        const start = Math.min(anchorLine, lineNumber);
-        const end = Math.max(anchorLine, lineNumber);
-        const lines = new Set<number>();
-        for (let i = start; i <= end; i += 1) {
-          lines.add(i);
-        }
-        setSelectedLines(lines);
+        selectFilteredRange(anchorLine, lineNumber);
       } else {
         setSelectedLines(new Set([lineNumber]));
         setAnchorLine(lineNumber);
+        isDraggingRef.current = true;
       }
     },
-    [anchorLine]
+    [anchorLine, selectFilteredRange]
   );
+
+  const handleLineMouseEnter = useCallback(
+    (lineNumber: number) => {
+      if (!isDraggingRef.current || anchorLine === null) return;
+      selectFilteredRange(anchorLine, lineNumber);
+    },
+    [anchorLine, selectFilteredRange]
+  );
+
+  useEffect(() => {
+    function handleMouseUp() {
+      isDraggingRef.current = false;
+    }
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, []);
+
+  const singleSelectedLine = useMemo(() => {
+    if (selectedLines.size !== 1) return null;
+    const lineNumber = [...selectedLines][0];
+    return stitchedLog.lines.find((l) => l.lineNumber === lineNumber) ?? null;
+  }, [stitchedLog, selectedLines]);
 
   const selectedLogLines = useMemo(() => {
     if (selectedLines.size === 0) return [];
@@ -186,17 +279,15 @@ export function LogDisplay({
 
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
 
-  const handleCopyForSlack = useCallback(async () => {
-    const text = formatLinesForSlack(selectedLogLines);
-    await navigator.clipboard.writeText(text);
-    setCopyFeedback('Copied as code block');
+  const handleCopyRich = useCallback(async () => {
+    await copyAsRichText(selectedLogLines);
+    setCopyFeedback('Copied as table');
     setTimeout(() => setCopyFeedback(null), 2000);
   }, [selectedLogLines]);
 
-  const handleCopyAsTable = useCallback(async () => {
-    const text = formatLinesAsMarkdownTable(selectedLogLines);
-    await navigator.clipboard.writeText(text);
-    setCopyFeedback('Copied as table');
+  const handleCopyPlain = useCallback(async () => {
+    await copyAsPlainText(selectedLogLines);
+    setCopyFeedback('Copied as text');
     setTimeout(() => setCopyFeedback(null), 2000);
   }, [selectedLogLines]);
 
@@ -210,7 +301,12 @@ export function LogDisplay({
   return (
     <OuterContainer>
       <ScrollContainer ref={scrollRef}>
-        <LogRowHeader isVxLog={isVxLog} />
+        <LogRowHeader
+          isVxLog={isVxLog}
+          showSource={showSource}
+          columnWidths={columnWidths}
+          onColumnResize={handleColumnResize}
+        />
         <div
           style={{
             height: `${virtualizer.getTotalSize()}px`,
@@ -222,7 +318,6 @@ export function LogDisplay({
           {virtualizer.getVirtualItems().map((virtualItem) => {
             const line = filteredLines[virtualItem.index];
             const isSelected = selectedLines.has(line.lineNumber);
-            const rotationDate = rotationMarkerMap.get(line.lineNumber);
             const isRotationBoundary = rotationMarkerSet.has(line.lineNumber);
 
             return (
@@ -235,15 +330,21 @@ export function LogDisplay({
                   width: '100%',
                   height: `${virtualItem.size}px`,
                   transform: `translateY(${virtualItem.start}px)`,
+                  ...(isRotationBoundary
+                    ? {
+                        borderTop: '2px solid #ffc107',
+                        background: '#fffbeb',
+                      }
+                    : {}),
                 }}
               >
-                {isRotationBoundary && (
-                  <RotationBanner>Log rotation: {rotationDate}</RotationBanner>
-                )}
                 <LogRow
                   line={line}
                   isSelected={isSelected}
-                  onClick={handleLineClick}
+                  showSource={showSource}
+                  columnWidths={columnWidths}
+                  onMouseDown={handleLineMouseDown}
+                  onMouseEnter={handleLineMouseEnter}
                 />
               </div>
             );
@@ -251,34 +352,50 @@ export function LogDisplay({
         </div>
       </ScrollContainer>
       {selectedLines.size > 0 && (
-        <SelectionToolbar>
-          <span>
-            {selectedLines.size} line{selectedLines.size !== 1 ? 's' : ''}{' '}
-            selected
-          </span>
-          {isFiltered && onViewInContext && selectedLines.size === 1 && (
-            <ToolbarButton
-              onClick={() => onViewInContext([...selectedLines][0])}
-            >
-              View in Context
+        <DetailPanel>
+          <SelectionToolbar>
+            <span>
+              {selectedLines.size} line{selectedLines.size !== 1 ? 's' : ''}{' '}
+              selected
+            </span>
+            {isFiltered && onViewInContext && selectedLines.size === 1 && (
+              <ToolbarButton
+                onClick={() => onViewInContext([...selectedLines][0])}
+              >
+                View in Context
+              </ToolbarButton>
+            )}
+            <ToolbarButton onClick={() => void handleCopyRich()}>
+              Copy Table
             </ToolbarButton>
-          )}
-          <ToolbarButton onClick={() => void handleCopyForSlack()}>
-            Copy for Slack
-          </ToolbarButton>
-          <ToolbarButton onClick={() => void handleCopyAsTable()}>
-            Copy as Table
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => {
-              setSelectedLines(new Set());
-              setAnchorLine(null);
-            }}
-          >
-            Clear
-          </ToolbarButton>
-          {copyFeedback && <span>{copyFeedback}</span>}
-        </SelectionToolbar>
+            <ToolbarButton onClick={() => void handleCopyPlain()}>
+              Copy Text
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => {
+                setSelectedLines(new Set());
+                setAnchorLine(null);
+              }}
+            >
+              Clear
+            </ToolbarButton>
+            {copyFeedback && <span>{copyFeedback}</span>}
+          </SelectionToolbar>
+          {singleSelectedLine &&
+            isVxLogLine(singleSelectedLine) &&
+            Object.keys(singleSelectedLine.extra).length > 0 && (
+              <DetailGrid>
+                {Object.entries(singleSelectedLine.extra).map(
+                  ([key, value]) => (
+                    <React.Fragment key={key}>
+                      <DetailKey>{key}</DetailKey>
+                      <DetailValue>{formatDetailValue(value)}</DetailValue>
+                    </React.Fragment>
+                  )
+                )}
+              </DetailGrid>
+            )}
+        </DetailPanel>
       )}
     </OuterContainer>
   );

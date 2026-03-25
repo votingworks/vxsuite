@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import type { FilterState, StitchedLogFile } from './types';
 import { isVxLogLine } from './types';
+
+const DEBOUNCE_MS = 200;
 
 const FilterContainer = styled.div`
   display: flex;
@@ -45,6 +47,24 @@ export function FilterBar({
   filterState,
   onFilterChange,
 }: FilterBarProps): JSX.Element {
+  const [localSearchText, setLocalSearchText] = useState(
+    filterState.searchText
+  );
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync local text when filterState is reset externally
+  useEffect(() => {
+    setLocalSearchText(filterState.searchText);
+  }, [filterState.searchText]);
+
+  function handleSearchChange(value: string) {
+    setLocalSearchText(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      onFilterChange({ ...filterState, searchText: value });
+    }, DEBOUNCE_MS);
+  }
+
   const options = useMemo(() => {
     const eventIds = new Set<string>();
     const sources = new Set<string>();
@@ -109,8 +129,8 @@ export function FilterBar({
         <input
           type="text"
           placeholder="Filter text..."
-          value={filterState.searchText}
-          onChange={(e) => updateFilter('searchText', e.target.value)}
+          value={localSearchText}
+          onChange={(e) => handleSearchChange(e.target.value)}
         />
       </FilterGroup>
       {hasVxLogs && (

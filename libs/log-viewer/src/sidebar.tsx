@@ -7,6 +7,36 @@ const SidebarContainer = styled.nav`
   background: #f5f5f5;
   border-right: 1px solid #ddd;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SidebarHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #ddd;
+  font-weight: 600;
+  font-size: 0.8125rem;
+`;
+
+const HideButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: #666;
+  padding: 0.125rem 0.375rem;
+
+  &:hover {
+    color: #333;
+  }
+`;
+
+const SidebarBody = styled.div`
+  flex: 1;
+  overflow-y: auto;
   padding: 0.5rem 0;
 `;
 
@@ -63,12 +93,16 @@ interface SidebarProps {
   readonly contents: LogZipContents;
   readonly selection: LogSelection | null;
   readonly onSelect: (selection: LogSelection) => void;
+  readonly onHide: () => void;
+  readonly onLoadNew: () => void;
 }
 
 export function Sidebar({
   contents,
   selection,
   onSelect,
+  onHide,
+  onLoadNew,
 }: SidebarProps): JSX.Element {
   const [expandedMachines, setExpandedMachines] = useState<Set<string>>(
     () => new Set(contents.machines.map((m) => m.id))
@@ -108,51 +142,60 @@ export function Sidebar({
 
   return (
     <SidebarContainer>
-      {contents.machines.map((machine) => (
-        <div key={machine.id}>
-          <SectionHeader onClick={() => toggleMachine(machine.id)}>
-            <Arrow expanded={expandedMachines.has(machine.id)}>&#9654;</Arrow>
-            {machine.id}
-          </SectionHeader>
-          {expandedMachines.has(machine.id) &&
-            machine.sessions.map((session) => {
-              const sessionKey = `${machine.id}/${session.timestamp}`;
-              return (
-                <div key={session.timestamp}>
-                  {machine.sessions.length > 1 && (
-                    <SessionHeader onClick={() => toggleSession(sessionKey)}>
-                      <Arrow expanded={expandedSessions.has(sessionKey)}>
-                        &#9654;
-                      </Arrow>
-                      {session.timestamp}
-                    </SessionHeader>
-                  )}
-                  {(machine.sessions.length === 1 ||
-                    expandedSessions.has(sessionKey)) &&
-                    session.logTypes.map((logType) => (
-                      <LogTypeButton
-                        key={logType}
-                        isSelected={
-                          selection?.machineId === machine.id &&
-                          selection?.sessionTimestamp === session.timestamp &&
-                          selection?.logType === logType
-                        }
-                        onClick={() =>
-                          onSelect({
-                            machineId: machine.id,
-                            sessionTimestamp: session.timestamp,
-                            logType,
-                          })
-                        }
-                      >
-                        {logType}
-                      </LogTypeButton>
-                    ))}
-                </div>
-              );
-            })}
+      <SidebarHeader>
+        Files
+        <div>
+          <HideButton onClick={onLoadNew}>Load New</HideButton>
+          <HideButton onClick={onHide}>&#9664; Hide</HideButton>
         </div>
-      ))}
+      </SidebarHeader>
+      <SidebarBody>
+        {contents.machines.map((machine) => (
+          <div key={machine.id}>
+            <SectionHeader onClick={() => toggleMachine(machine.id)}>
+              <Arrow expanded={expandedMachines.has(machine.id)}>&#9654;</Arrow>
+              {machine.id}
+            </SectionHeader>
+            {expandedMachines.has(machine.id) &&
+              machine.sessions.map((session) => {
+                const sessionKey = `${machine.id}/${session.timestamp}`;
+                return (
+                  <div key={session.timestamp}>
+                    {machine.sessions.length > 1 && (
+                      <SessionHeader onClick={() => toggleSession(sessionKey)}>
+                        <Arrow expanded={expandedSessions.has(sessionKey)}>
+                          &#9654;
+                        </Arrow>
+                        {session.timestamp}
+                      </SessionHeader>
+                    )}
+                    {(machine.sessions.length === 1 ||
+                      expandedSessions.has(sessionKey)) &&
+                      session.logTypes.map((logType) => (
+                        <LogTypeButton
+                          key={logType}
+                          isSelected={
+                            selection?.machineId === machine.id &&
+                            selection?.sessionTimestamp === session.timestamp &&
+                            selection?.logType === logType
+                          }
+                          onClick={() =>
+                            onSelect({
+                              machineId: machine.id,
+                              sessionTimestamp: session.timestamp,
+                              logType,
+                            })
+                          }
+                        >
+                          {logType}
+                        </LogTypeButton>
+                      ))}
+                  </div>
+                );
+              })}
+          </div>
+        ))}
+      </SidebarBody>
     </SidebarContainer>
   );
 }
