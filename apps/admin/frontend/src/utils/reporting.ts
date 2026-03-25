@@ -194,6 +194,9 @@ function generateReportFilenameFilterPrefix({
       case 'hasWriteIn':
         filterPrefixes.push(`write-in`);
         break;
+      case 'hasCrossover':
+        filterPrefixes.push(`crossover`);
+        break;
       // istanbul ignore next
       default:
         throwIllegalValue(adjudicationFlag);

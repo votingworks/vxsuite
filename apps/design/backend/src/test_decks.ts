@@ -11,6 +11,7 @@ import {
   PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
+  isOpenPrimary,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -345,7 +346,7 @@ export async function getTallyReportResults(
       ).map(({ id }) => id)
     : election.contests.map(({ id }) => id);
 
-  if (election.type === 'general') {
+  if (election.type === 'general' || isOpenPrimary(election)) {
     const [electionResults] = groupMapToGroupList(
       await tabulateCastVoteRecords({
         election,

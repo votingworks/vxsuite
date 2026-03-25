@@ -8,6 +8,7 @@ import {
 } from '@votingworks/basics';
 import {
   getPartyForBallotStyle,
+  isOpenPrimary,
   type BallotStyleId,
   type Election,
   type PrecinctId,
@@ -45,7 +46,13 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
     PrecinctId | PrecinctSplitId
   >();
 
-  switch (election.type) {
+  // Open primaries have one ballot style per precinct (no party split),
+  // so ballot style selection works the same as general elections.
+  const electionTypeForBallotStyleSelect = isOpenPrimary(election)
+    ? 'general'
+    : election.type;
+
+  switch (electionTypeForBallotStyleSelect) {
     case 'general': {
       // eslint-disable-next-line no-inner-declarations
       function getBallotStyleForPrecinctOrSplit(
@@ -190,7 +197,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
 
     default: {
       /* istanbul ignore next - @preserve */
-      throwIllegalValue(election.type);
+      throwIllegalValue(electionTypeForBallotStyleSelect);
     }
   }
 }

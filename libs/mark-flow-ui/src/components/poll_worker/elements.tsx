@@ -33,7 +33,12 @@ export function BallotStyleLabel(props: BallotStyleLabelProps): JSX.Element {
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
 
-  if (election.type === 'general') {
+  const party = getPartyForBallotStyle({
+    election,
+    ballotStyleId: ballotStyle.id,
+  });
+
+  if (election.type === 'general' || !party) {
     return (
       <P>
         <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
@@ -47,15 +52,7 @@ export function BallotStyleLabel(props: BallotStyleLabelProps): JSX.Element {
         <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
       </P>
       <P>
-        <Font weight="semiBold">Ballot Style:</Font>{' '}
-        {
-          assertDefined(
-            getPartyForBallotStyle({
-              election,
-              ballotStyleId: ballotStyle.id,
-            })
-          ).name
-        }
+        <Font weight="semiBold">Ballot Style:</Font> {party.name}
       </P>
     </React.Fragment>
   );
