@@ -289,6 +289,7 @@ test('configureElectionPackageFromUsb returns no_ballots error when election pac
   expect(result).toEqual(err({ type: 'no_ballots' }));
 });
 
+// [TODO] Update test name after migration to Polling Places.
 test('configureElectionPackageFromUsb will automatically set precinct for single precinct election on configure', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
@@ -303,6 +304,8 @@ test('configureElectionPackageFromUsb will automatically set precinct for single
       encodedBallot: Buffer.from('mock-pdf-data-for-test').toString('base64'),
     },
   ];
+  const { election } = electionDefinition;
+  const defaultPollingPlace = assertDefined(election.pollingPlaces?.[0]);
 
   mockElectionManagerAuth(auth, electionDefinition);
   mockUsbDrive.insertUsbDrive(
@@ -318,6 +321,7 @@ test('configureElectionPackageFromUsb will automatically set precinct for single
   expect(await apiClient.getPrecinctSelection()).toEqual(
     singlePrecinctSelectionFor(precinctId)
   );
+  expect(await apiClient.getPollingPlaceId()).toEqual(defaultPollingPlace.id);
 });
 
 test('setting precinct', async () => {

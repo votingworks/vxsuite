@@ -129,6 +129,11 @@ export function buildApi(ctx: AppContext) {
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
         }
+        if (electionDefinition.election.pollingPlaces?.length === 1) {
+          workspace.store.setPollingPlaceId(
+            electionDefinition.election.pollingPlaces[0].id
+          );
+        }
       });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {

@@ -350,13 +350,17 @@ async function expectElectionState(expected: Partial<ElectionState>) {
   expect(await apiClient.getElectionState()).toMatchObject(expected);
 }
 
+// [TODO] Update test name after migration to Polling Places.
 test('single precinct election automatically has precinct set on configure', async () => {
-  await setUpUsbAndConfigureElection(
-    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition()
-  );
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const def = fixtures.makeSinglePrecinctElectionDefinition();
+  const defaultPollingPlace = assertDefined(def.election.pollingPlaces?.[0]);
+
+  await setUpUsbAndConfigureElection(def);
 
   await expectElectionState({
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+    pollingPlaceId: defaultPollingPlace.id,
   });
 });
 

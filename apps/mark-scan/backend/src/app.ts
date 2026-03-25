@@ -202,6 +202,11 @@ export function buildApi(
             )
           );
         }
+        if (electionDefinition.election.pollingPlaces?.length === 1) {
+          workspace.store.setPollingPlaceId(
+            electionDefinition.election.pollingPlaces[0].id
+          );
+        }
 
         configureUiStrings({
           electionPackage,
