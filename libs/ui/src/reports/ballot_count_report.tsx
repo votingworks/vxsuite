@@ -384,11 +384,12 @@ function getCellContent({
           ).name;
         case 'ballot-style':
           return assertDefined(cardCounts.ballotStyleGroupId);
-        case 'party':
-          return CachedElectionLookups.getPartyById(
-            electionDefinition,
-            assertDefined(determinePartyId(electionDefinition, cardCounts))
-          ).name;
+        case 'party': {
+          const partyId = determinePartyId(electionDefinition, cardCounts);
+          if (!partyId) return 'Nonpartisan';
+          return CachedElectionLookups.getPartyById(electionDefinition, partyId)
+            .name;
+        }
         case 'voting-method':
           return Tabulation.VOTING_METHOD_LABELS[
             assertDefined(cardCounts.votingMethod)

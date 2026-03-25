@@ -813,8 +813,11 @@ export class Store implements BaseStore {
       ballotStyleParams.push(...filter.precinctIds);
     }
 
+    // In standard primaries, only include contests matching the ballot style's
+    // party. In open primaries (ballot_styles.party_id is NULL), include all
+    // contests since all contests appear on all ballot styles.
     whereParts.push(
-      `(contests.party_id is null or ballot_styles.party_id = contests.party_id)`
+      `(contests.party_id is null or ballot_styles.party_id = contests.party_id or ballot_styles.party_id is null)`
     );
 
     const query = `
