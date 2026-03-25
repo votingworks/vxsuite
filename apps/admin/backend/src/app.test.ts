@@ -149,6 +149,15 @@ test('getNetworkStatus returns all clients including disconnected', async () => 
   });
 });
 
+test('getIsClientAdjudicationEnabled and setIsClientAdjudicationEnabled', async () => {
+  const { apiClient } = buildTestEnvironment();
+  expect(await apiClient.getIsClientAdjudicationEnabled()).toEqual(false);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
+  expect(await apiClient.getIsClientAdjudicationEnabled()).toEqual(true);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: false });
+  expect(await apiClient.getIsClientAdjudicationEnabled()).toEqual(false);
+});
+
 test('managing the current election', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
 
