@@ -22,7 +22,6 @@ import {
   Side,
   BallotCastingMode,
   ContestOption,
-  BallotPageContestOptionLayout,
   UserRole,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
