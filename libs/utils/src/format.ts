@@ -185,9 +185,11 @@ export function relativeTime(
   );
   const diffSeconds = lastSeen.diff(base).as('seconds');
   const roundedSeconds = roundSeconds * Math.ceil(diffSeconds / roundSeconds);
-  const relative = base.plus({ seconds: roundedSeconds }).toRelative({
-    base,
-    unit: ['days', 'hours', 'minutes', 'seconds'],
-  });
-  return relative === 'in 0 seconds' ? 'Now' : relative ?? 'Now';
+  const relative = assertDefined(
+    base.plus({ seconds: roundedSeconds }).toRelative({
+      base,
+      unit: ['days', 'hours', 'minutes', 'seconds'],
+    })
+  );
+  return relative === 'in 0 seconds' ? 'Now' : relative;
 }
