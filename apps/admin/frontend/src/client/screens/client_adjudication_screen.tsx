@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Button, H2, Icons, P } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
 import { NavigationScreen } from '../../components/navigation_screen';
 import {
   getAdjudicationSessionStatus,
@@ -46,21 +45,6 @@ export function ClientAdjudicationScreen(): JSX.Element {
           )}
         {!networkStatusQuery.isSuccess && <span>Checking network status…</span>}
       </P>
-      {electionDefinition && (
-        <React.Fragment>
-          <H2>Election</H2>
-          <P>
-            {electionDefinition.election.title}
-            {' — '}
-            {electionDefinition.election.county.name},{' '}
-            {electionDefinition.election.state}
-            {' — '}
-            {format.localeLongDate(
-              electionDefinition.election.date.toMidnightDatetimeWithSystemTimezone()
-            )}
-          </P>
-        </React.Fragment>
-      )}
       <H2>Write-In Adjudication</H2>
       <P>
         <Button

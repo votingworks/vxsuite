@@ -52,17 +52,12 @@ function renderAdjudicationScreen(
   });
 }
 
-test('shows connected status with election info and enabled start button', async () => {
+test('shows connected status and enabled start button', async () => {
   apiMock.expectGetNetworkConnectionStatus('online-connected-to-host', '0001');
   apiMock.expectGetAdjudicationSessionStatus(true);
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   await screen.findByText(/Connected to host 0001/);
-  screen.getByRole('heading', { name: 'Election' });
-  expect(
-    screen.getAllByText(new RegExp(electionDefinition.election.county.name))
-      .length
-  ).toBeGreaterThanOrEqual(1);
   const startButton = screen.getByRole('button', {
     name: 'Start Adjudication',
   });
