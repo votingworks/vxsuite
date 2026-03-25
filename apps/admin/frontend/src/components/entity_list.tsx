@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Caption as CaptionBase, DesktopPalette, Font } from '@votingworks/ui';
 
-const Box = styled.ul.attrs({ role: 'listbox' })`
+const Box = styled.ul`
   --entity-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${DesktopPalette.Gray30};
   --entity-list-title-size: 1.125rem;
@@ -90,11 +90,6 @@ const ItemContainer = styled.li<{ hasWarning: boolean }>`
     box-shadow: inset 0.35rem 0 0
       ${(p) =>
         p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60};
-
-    ${Label} {
-      font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
-    }
-
     ${Caption} {
       color: ${(p) => p.theme.colors.onBackground};
     }
@@ -140,14 +135,12 @@ function Item(props: EntityListItemProps): React.ReactNode {
 
   return (
     <ItemContainer
-      aria-selected={false}
       hasWarning={hasWarning}
       onClick={() => onSelect(id)}
       onKeyDown={onKeyDown}
       onMouseEnter={() => onHover(id)}
       onMouseLeave={() => onHover(null)}
       ref={autoScrollIntoView ? ref : undefined}
-      role="option"
       tabIndex={0}
     >
       {children}

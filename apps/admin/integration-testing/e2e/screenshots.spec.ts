@@ -633,7 +633,7 @@ test('adjudication', async ({ page }) => {
 
   // Click the Governor contest (has write-in + marginal mark)
   await page
-    .getByRole('option')
+    .getByRole('listitem')
     .filter({ has: page.locator('svg[data-icon="triangle-exclamation"]') })
     .first()
     .click();

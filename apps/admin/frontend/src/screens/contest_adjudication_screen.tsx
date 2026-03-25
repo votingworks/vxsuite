@@ -307,7 +307,7 @@ export function ContestAdjudicationScreen({
   useLayoutEffect(() => {
     if (firstOptionIdPendingAdjudication) {
       scrollTargetRef.current?.scrollIntoView({
-        behavior: 'instant',
+        behavior: 'auto',
         block: 'start',
       });
     }

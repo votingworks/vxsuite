@@ -82,7 +82,7 @@ function getPendingContestItems(page: Page): Locator {
   // Pending contests render a warning icon as a child of the list item.
   // Resolved contests do not.
   return page
-    .getByRole('option')
+    .getByRole('listitem')
     .filter({ has: page.locator('svg[data-icon="triangle-exclamation"]') });
 }
 
