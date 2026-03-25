@@ -4,12 +4,13 @@ import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,
   getAudioCardName,
+  GetAudioCardNameParams,
   setAudioCardProfile,
   SetAudioCardProfileParams,
   setAudioVolume,
 } from '@votingworks/backend';
 import { err, ok } from '@votingworks/basics';
-import { AudioCard } from './card';
+import { AudioCard, MAX_CARD_DETECTION_RETRIES } from './card';
 import { NODE_ENV } from '../globals';
 
 vi.mock('@votingworks/backend');
@@ -18,6 +19,18 @@ const mockSetProfile = vi.mocked(setAudioCardProfile);
 const mockSetVolume = vi.mocked(setAudioVolume);
 
 const cardName = 'test.pci';
+
+test('default()', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  mockGetCardName.mockResolvedValueOnce(ok(cardName));
+
+  await AudioCard.default('production', logger);
+  expect(mockGetCardName).toHaveBeenCalledWith<[GetAudioCardNameParams]>({
+    logger,
+    nodeEnv: 'production',
+    maxRetries: MAX_CARD_DETECTION_RETRIES,
+  });
+});
 
 test('setVolume()', async () => {
   const logger = mockLogger({ fn: vi.fn });

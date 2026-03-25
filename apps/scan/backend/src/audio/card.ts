@@ -8,7 +8,13 @@ import {
 import { Logger } from '@votingworks/logging';
 import { NODE_ENV } from '../globals';
 
-export const MAX_OUTPUT_CHANGE_RETRIES = 3;
+/**
+ * Last round of testing done on a v4 VxComputer with HWTA running.
+ * Over 10 reboots, the number of retries before successful connection to the
+ * pulseaudio service ranged from 3 to 4. Setting the max a little higher to be
+ * safe.
+ */
+export const MAX_CARD_DETECTION_RETRIES = 6;
 
 export class AudioCard {
   constructor(
@@ -21,7 +27,11 @@ export class AudioCard {
     nodeEnv: typeof NODE_ENV,
     logger: Logger
   ): Promise<AudioCard> {
-    const nameRes = await getAudioCardName({ logger, maxRetries: 3, nodeEnv });
+    const nameRes = await getAudioCardName({
+      logger,
+      maxRetries: MAX_CARD_DETECTION_RETRIES,
+      nodeEnv,
+    });
     const name = nameRes.assertOk('audio card detection failed');
 
     return new AudioCard(nodeEnv, logger, { name });
