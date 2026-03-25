@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import React from 'react';
 import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
@@ -5,6 +6,35 @@ import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
+
+const ZERO_TIMESTAMP = "D:00000000000000+00'00'";
+
+/**
+ * Normalizes non-deterministic fields in a Chromium-generated PDF to make
+ * output byte-deterministic across runs. Chromium's `page.pdf()` embeds:
+ * - CreationDate/ModDate timestamps that change every run
+ * - DOM node IDs (nodeNNNNNNNN) that increment based on page reuse
+ *
+ * This function zeroes timestamps and re-sequences node IDs starting from 1.
+ * The resulting PDF is still valid and visually identical.
+ */
+export function normalizeChromiumPdf(pdf: Uint8Array): Uint8Array {
+  let str = Buffer.from(pdf).toString('latin1');
+  str = str.replace(
+    /\/CreationDate \(D:\d{14}[^)]*\)/g,
+    `/CreationDate (${ZERO_TIMESTAMP})`
+  );
+  str = str.replace(
+    /\/ModDate \(D:\d{14}[^)]*\)/g,
+    `/ModDate (${ZERO_TIMESTAMP})`
+  );
+  let counter = 0;
+  str = str.replace(/node\d{8}/g, () => {
+    counter += 1;
+    return `node${String(counter).padStart(8, '0')}`;
+  });
+  return Uint8Array.from(Buffer.from(str, 'latin1'));
+}
 
 export type Page = Pick<
   PlaywrightPage,
@@ -131,13 +161,14 @@ export function createDocument(pageHandle: PageHandle) {
      */
     async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
-      return Uint8Array.from(
+      const pdf = Uint8Array.from(
         await pageHandle.page().pdf({
           width: `${pageDimensions.width}px`,
           height: `${pageDimensions.height}px`,
           printBackground: true,
         })
       );
+      return normalizeChromiumPdf(pdf);
     },
 
     /**

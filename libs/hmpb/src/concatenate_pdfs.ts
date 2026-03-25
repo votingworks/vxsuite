@@ -1,4 +1,5 @@
 import { PDFDocument } from 'pdf-lib';
+import { normalizeChromiumPdf } from './renderer';
 
 export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
   const combinedPdf = await PDFDocument.create();
@@ -12,5 +13,8 @@ export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
       combinedPdf.addPage(page);
     }
   }
-  return Uint8Array.from(await combinedPdf.save());
+  const result = Uint8Array.from(
+    await combinedPdf.save({ useObjectStreams: false })
+  );
+  return normalizeChromiumPdf(result);
 }
