@@ -46,7 +46,6 @@ import {
   SheetOf,
   isOpenPrimary,
   PartyId,
-  VotesDict,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -768,9 +767,11 @@ export class Store implements BaseStore {
         .map((c) => (c as { partyId: PartyId }).partyId);
       const uniquePartyIds = [...new Set(partyIds)];
 
-      return groups.flatMap((group) =>
-        uniquePartyIds.map((pid) => ({ ...group, partyId: pid }))
-      );
+      return groups.flatMap((group) => [
+        ...uniquePartyIds.map((pid) => ({ ...group, partyId: pid })),
+        // Include a group for crossover ballots (no party)
+        { ...group, partyId: undefined },
+      ]);
     }
 
     return groups;

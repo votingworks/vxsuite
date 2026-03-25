@@ -353,7 +353,7 @@ export function getGroupKey(
     keyParts.push(getGroupKeyPart('batchDate', groupSpecifier.batchDate));
   }
 
-  if (groupBy.groupByParty) {
+  if (groupBy.groupByParty && groupSpecifier.partyId !== undefined) {
     keyParts.push(getGroupKeyPart('partyId', groupSpecifier.partyId));
   }
 
