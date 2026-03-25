@@ -164,7 +164,9 @@ function EditPrecinctForm(): JSX.Element | null {
   const precinctParamRoutes = electionParamRoutes.precincts;
   const precinctRoutes = routes.election(electionId).precincts;
 
-  if (!listPrecinctsQuery.isSuccess) return null;
+  if (!listPrecinctsQuery.isSuccess) {
+    return null;
+  }
 
   const precincts = listPrecinctsQuery.data;
   const savedPrecinct = precincts.find((p) => p.id === precinctId);

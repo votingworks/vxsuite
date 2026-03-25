@@ -347,6 +347,13 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(systemSettings, null, 2)
   );
 
+  const registeredVotersCounts =
+    await store.getRegisteredVotersCounts(electionId);
+  electionPackageZip.file(
+    ElectionPackageFileName.REGISTERED_VOTERS_COUNTS,
+    JSON.stringify(registeredVotersCounts, null, 2)
+  );
+
   if (shouldExportAudio) {
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,

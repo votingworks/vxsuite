@@ -11,12 +11,17 @@ import {
 } from '@votingworks/ui';
 import {
   ElectionId,
-  hasSplits,
-  PrecinctSplit,
-  Precinct,
   District,
   ElectionStringKey,
+  safeParseInt,
+  hasSplits,
 } from '@votingworks/types';
+import type {
+  Precinct,
+  PrecinctSplit,
+  PrecinctRegisteredVotersCountEntry,
+} from '@votingworks/types';
+
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import { routes } from './routes';
@@ -24,6 +29,7 @@ import { Row, Column, InputGroup, FieldName } from './layout';
 import {
   listDistricts,
   getStateFeatures,
+  getRegisteredVotersCounts,
   updatePrecinct,
   createPrecinct,
   deletePrecinct,
@@ -64,6 +70,12 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const getRegisteredVoterCountsQuery =
+    getRegisteredVotersCounts.useQuery(electionId);
+
+  const savedRegisteredVotersCounts = savedPrecinct
+    ? getRegisteredVoterCountsQuery.data?.[savedPrecinct.id]
+    : undefined;
 
   const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
@@ -71,6 +83,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       // so it will only be called on initial render.
       createBlankPrecinct
   );
+  const [registeredVotersCounts, setRegisteredVotersCounts] = useState<
+    PrecinctRegisteredVotersCountEntry | undefined
+  >(savedRegisteredVotersCounts);
 
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
@@ -111,9 +126,11 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function onSubmit() {
+    const registeredVotersCountsArg =
+      registeredVotersCounts === undefined ? {} : { registeredVotersCounts };
     if (savedPrecinct) {
       updatePrecinctMutation.mutate(
-        { electionId, updatedPrecinct: precinct },
+        { electionId, updatedPrecinct: precinct, ...registeredVotersCountsArg },
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
@@ -123,7 +140,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       );
     } else {
       createPrecinctMutation.mutate(
-        { electionId, newPrecinct: precinct },
+        { electionId, newPrecinct: precinct, ...registeredVotersCountsArg },
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
@@ -172,6 +189,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
           districtIds: [],
         },
       ]);
+      setRegisteredVotersCounts(undefined);
     }
 
     // If adding to an existing precinct in view mode, switch to edit mode:
@@ -181,17 +199,31 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   function onRemoveSplitPress(index: number) {
     assert(precinct && hasSplits(precinct));
     const { splits, ...rest } = precinct;
+    const removedSplitId = splits[index].id;
     const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
       setPrecinct({
         ...rest,
         splits: newSplits,
       });
+      if (typeof registeredVotersCounts === 'object') {
+        const remainingSplits = Object.fromEntries(
+          Object.entries(registeredVotersCounts.splits).filter(
+            ([id]) => id !== removedSplitId
+          )
+        );
+        setRegisteredVotersCounts({ splits: remainingSplits });
+      }
     } else {
       setPrecinct({
         ...rest,
         districtIds: newSplits[0].districtIds,
       });
+      setRegisteredVotersCounts(
+        typeof registeredVotersCounts === 'object'
+          ? registeredVotersCounts.splits[newSplits[0].id]
+          : undefined
+      );
     }
   }
 
@@ -260,6 +292,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       onReset={(e) => {
         e.preventDefault();
         setPrecinct(savedPrecinct || createBlankPrecinct);
+        setRegisteredVotersCounts(savedRegisteredVotersCounts);
         setIsEditing(!editing);
       }}
     >
@@ -317,6 +350,44 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           required
                         />
                       </InputGroup>
+
+                      {!features.DISABLE_REGISTERED_VOTERS_COUNTS && (
+                        <InputGroup label="Registered Voters">
+                          <input
+                            disabled={disabled}
+                            type="number"
+                            step={1}
+                            min={0}
+                            value={
+                              typeof registeredVotersCounts === 'object'
+                                ? registeredVotersCounts.splits[split.id] ?? ''
+                                : ''
+                            }
+                            onChange={(e) => {
+                              const currentSplits =
+                                typeof registeredVotersCounts === 'object'
+                                  ? registeredVotersCounts.splits
+                                  : {};
+                              const newSplits: Record<string, number> = {
+                                ...currentSplits,
+                              };
+                              if (e.target.value) {
+                                const parseResult = safeParseInt(
+                                  e.target.value
+                                );
+                                if (parseResult.isErr()) {
+                                  return;
+                                }
+                                newSplits[split.id] = parseResult.ok();
+                              } else {
+                                delete newSplits[split.id];
+                              }
+                              setRegisteredVotersCounts({ splits: newSplits });
+                            }}
+                            style={{ width: '8rem' }}
+                          />
+                        </InputGroup>
+                      )}
 
                       <DistrictList
                         disabled={disabled || hasExternalSource}
@@ -416,30 +487,61 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                 )}
               </React.Fragment>
             ) : (
-              <React.Fragment>
-                <div style={{ minWidth: '12rem' }}>
-                  <DistrictList
-                    disabled={disabled || hasExternalSource}
-                    districts={districts}
-                    editing={editing && !hasExternalSource}
-                    noDistrictsCallout={noDistrictsCallout}
-                    onChange={(districtIds) =>
-                      setPrecinct({
-                        ...precinct,
-                        districtIds,
-                      })
-                    }
-                    value={[...precinct.districtIds]}
-                  />
-                </div>
-                {!finalized && !hasExternalSource && (
-                  <div>
-                    <Button icon="Add" onPress={onAddSplitPress}>
-                      Add Split
-                    </Button>
-                  </div>
+              <Column style={{ gap: '1rem' }}>
+                {!features.DISABLE_REGISTERED_VOTERS_COUNTS && (
+                  <InputGroup label="Registered Voters">
+                    <input
+                      disabled={disabled}
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={
+                        typeof registeredVotersCounts === 'number'
+                          ? registeredVotersCounts
+                          : ''
+                      }
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        if (value === '') {
+                          setRegisteredVotersCounts(undefined);
+                          return;
+                        }
+                        const parseResult = safeParseInt(value);
+                        if (parseResult.isErr()) {
+                          return;
+                        }
+                        setRegisteredVotersCounts(parseResult.ok());
+                      }}
+                      style={{ width: '8rem' }}
+                    />
+                  </InputGroup>
                 )}
-              </React.Fragment>
+                <Row style={{ gap: '1rem' }}>
+                  <div style={{ minWidth: '12rem' }}>
+                    <FieldName>Districts</FieldName>
+                    <DistrictList
+                      disabled={disabled || hasExternalSource}
+                      districts={districts}
+                      editing={editing && !hasExternalSource}
+                      noDistrictsCallout={noDistrictsCallout}
+                      onChange={(districtIds) =>
+                        setPrecinct({
+                          ...precinct,
+                          districtIds,
+                        })
+                      }
+                      value={[...precinct.districtIds]}
+                    />
+                  </div>
+                  {!finalized && !hasExternalSource && (
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <Button icon="Add" onPress={onAddSplitPress}>
+                        Add Split
+                      </Button>
+                    </div>
+                  )}
+                </Row>
+              </Column>
             )}
           </Row>
         </div>

@@ -217,6 +217,18 @@ export const listPrecincts = {
   },
 } as const;
 
+export const getRegisteredVotersCounts = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getRegisteredVotersCounts', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getRegisteredVotersCounts({ electionId: id })
+    );
+  },
+} as const;
+
 export const listBallotStyles = {
   queryKey(id: ElectionId): QueryKey {
     return ['listBallotStyles', id];
@@ -358,6 +370,9 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(getElectionInfo.queryKey(electionId)),
     queryClient.invalidateQueries(listDistricts.queryKey(electionId)),
     queryClient.invalidateQueries(listPrecincts.queryKey(electionId)),
+    queryClient.invalidateQueries(
+      getRegisteredVotersCounts.queryKey(electionId)
+    ),
     queryClient.invalidateQueries(listBallotStyles.queryKey(electionId)),
     queryClient.invalidateQueries(listParties.queryKey(electionId)),
     queryClient.invalidateQueries(listContests.queryKey(electionId)),

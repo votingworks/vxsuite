@@ -42,8 +42,6 @@ import {
   ElectionId,
   Precinct,
   hasSplits,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
   District,
   Party,
   PartyIdSchema,
@@ -54,6 +52,9 @@ import {
   BALLOT_MODES,
   safeParseJson,
   pollingPlacesGenerateFromPrecincts,
+  PrecinctWithoutSplits,
+  PrecinctWithSplits,
+  ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -213,6 +214,9 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
   const expectedStrings = mergeUiStrings(election.ballotStrings, {
     [LanguageCode.ENGLISH]: hmpbStringsCatalog,
   });
+  const splitNameEntries = election.precincts
+    .filter(hasSplits)
+    .flatMap((p) => p.splits.map(({ id, name }) => [id, name]));
   return {
     ...expectedStrings,
     [LanguageCode.ENGLISH]: {
@@ -229,6 +233,10 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
       precinctName: Object.fromEntries(
         election.precincts.map(({ id, name }) => [id, name])
       ),
+      precinctSplitName:
+        splitNameEntries.length > 0
+          ? Object.fromEntries(splitNameEntries)
+          : undefined,
       partyName: Object.fromEntries(
         election.parties.map(({ id, name }) => [id, name])
       ),
@@ -1415,6 +1423,189 @@ test('CRUD precincts', async () => {
         precinctId: updatedPrecinct1.id,
       })
     ).rejects.toThrow('auth:forbidden');
+  });
+});
+
+test('registered voter counts are stored and retrieved for precincts and splits', async () => {
+  const { apiClient, workspace, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: unsafeParse(ElectionIdSchema, 'election-rvc'),
+    })
+  ).unsafeUnwrap();
+
+  const district1: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-1'),
+    name: 'District 1',
+  };
+  (
+    await apiClient.updateDistricts({ electionId, newDistricts: [district1] })
+  ).unsafeUnwrap();
+
+  // Create a precinct without splits with a registered voter count
+  const precinct1: PrecinctWithoutSplits = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [district1.id],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct1,
+      registeredVotersCounts: 500,
+    })
+  ).unsafeUnwrap();
+  // Verify the initial count is written
+  expect(await apiClient.getRegisteredVotersCounts({ electionId })).toEqual({
+    'precinct-1': 500,
+  });
+
+  // Update the registered voter count
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: precinct1,
+      registeredVotersCounts: 750,
+    })
+  ).unsafeUnwrap();
+  // Verify getRegisteredVotersCounts reflects the count
+  expect(await apiClient.getRegisteredVotersCounts({ electionId })).toEqual({
+    'precinct-1': 750,
+  });
+
+  // Create a precinct with splits, each split having a registered voter count
+  const precinct2: PrecinctWithSplits = {
+    id: 'precinct-2',
+    name: 'Precinct 2',
+    splits: [
+      {
+        id: 'split-1',
+        name: 'Split 1',
+        districtIds: [district1.id],
+      },
+      {
+        id: 'split-2',
+        name: 'Split 2',
+        districtIds: [],
+      },
+    ],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct2,
+      registeredVotersCounts: { splits: { 'split-1': 200, 'split-2': 300 } },
+    })
+  ).unsafeUnwrap();
+
+  // Verify getRegisteredVotersCounts for split precincts
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
+    'precinct-1': 750,
+    'precinct-2': {
+      splits: {
+        'split-1': 200,
+        'split-2': 300,
+      },
+    },
+  });
+
+  // Update registered voters counts and assert update was written
+  await workspace.store.setPrecinctRegisteredVoterCounts(precinct2, {
+    splits: { 'split-1': 250, 'split-2': 350 },
+  });
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
+    'precinct-1': 750,
+    'precinct-2': {
+      splits: {
+        'split-1': 250,
+        'split-2': 350,
+      },
+    },
+  });
+
+  // Create a precinct with splits where one split has no registered voter count
+  const precinct3: PrecinctWithSplits = {
+    id: 'precinct-3',
+    name: 'Precinct 3',
+    splits: [
+      {
+        id: 'split-3a',
+        name: 'Split 3A',
+        districtIds: [district1.id],
+      },
+      {
+        id: 'split-3b',
+        name: 'Split 3B',
+        districtIds: [],
+      },
+    ],
+  };
+
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct3,
+      registeredVotersCounts: { splits: { 'split-3a': 400 } },
+    })
+  ).unsafeUnwrap();
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
+    'precinct-1': 750,
+    'precinct-2': {
+      splits: {
+        'split-1': 250,
+        'split-2': 350,
+      },
+    },
+    'precinct-3': {
+      splits: {
+        'split-3a': 400,
+      },
+    },
+  });
+
+  // Create a non-split precinct with no voter count - should be omitted from results
+  const precinct4: PrecinctWithoutSplits = {
+    id: 'precinct-4',
+    name: 'Precinct 4',
+    districtIds: [],
+  };
+  (
+    await apiClient.createPrecinct({ electionId, newPrecinct: precinct4 })
+  ).unsafeUnwrap();
+
+  // Create a split precinct with no voter counts - should be omitted from results
+  const precinct5: PrecinctWithSplits = {
+    id: 'precinct-5',
+    name: 'Precinct 5',
+    splits: [
+      { id: 'split-5a', name: 'Split 5A', districtIds: [district1.id] },
+      { id: 'split-5b', name: 'Split 5B', districtIds: [] },
+    ],
+  };
+  (
+    await apiClient.createPrecinct({ electionId, newPrecinct: precinct5 })
+  ).unsafeUnwrap();
+
+  // Precincts with no counts should not appear in getRegisteredVotersCounts
+  expect(await workspace.store.getRegisteredVotersCounts(electionId)).toEqual({
+    'precinct-1': 750,
+    'precinct-2': {
+      splits: {
+        'split-1': 250,
+        'split-2': 350,
+      },
+    },
+    'precinct-3': {
+      splits: {
+        'split-3a': 400,
+      },
+    },
   });
 });
 
@@ -3090,7 +3281,67 @@ test('Election package and ballots export', async () => {
     systemSettings: mockSystemSettings,
   });
   const electionInfo = await apiClient.getElectionInfo({ electionId });
+
+  // Add a split precinct before listing precincts so it's included in the
+  // exported election definition's precincts list and in the expectedElection
+  // assertion below.
+  const districts = await apiClient.listDistricts({ electionId });
+  const firstDistrictId = assertDefined(districts[0]).id;
+  const splitPrecinctId = 'split-precinct-export-test';
+  const splitFirstId = 'split-a-export-test';
+  const splitSecondId = 'split-b-export-test';
+  const splitPrecinct: PrecinctWithSplits = {
+    id: splitPrecinctId,
+    name: 'Split Precinct Export Test',
+    splits: [
+      { id: splitFirstId, name: 'Split A', districtIds: [firstDistrictId] },
+      { id: splitSecondId, name: 'Split B', districtIds: [] },
+    ],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: splitPrecinct,
+    })
+  ).unsafeUnwrap();
+
+  // Re-fetch ballot styles after creating the split precinct since the new
+  // precinct gets assigned to an existing ballot style.
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
+
+  // Set registered voter counts on non-split precincts before export.
+  // The split precinct gets its counts set separately below since it requires
+  // per-split counts rather than a single number.
+  const precincts = await apiClient.listPrecincts({ electionId });
+  for (const precinct of precincts) {
+    if (!hasSplits(precinct)) {
+      (
+        await apiClient.updatePrecinct({
+          electionId,
+          updatedPrecinct: precinct,
+          registeredVotersCounts: 1000,
+        })
+      ).unsafeUnwrap();
+    }
+  }
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: splitPrecinct,
+      registeredVotersCounts: {
+        splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+      },
+    })
+  ).unsafeUnwrap();
+
+  const expectedRegisteredVoterCounts: ElectionRegisteredVotersCounts = {
+    ...Object.fromEntries(
+      precincts.filter((p) => !hasSplits(p)).map((p) => [p.id, 1000])
+    ),
+    [splitPrecinctId]: {
+      splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+    },
+  };
 
   const exportMeta = await exportElectionPackage({
     fileStorageClient,
@@ -3117,6 +3368,7 @@ test('Election package and ballots export', async () => {
   const {
     electionDefinition,
     metadata,
+    registeredVoterCounts,
     systemSettings,
     uiStringAudioClips,
     uiStringAudioIds,
@@ -3125,6 +3377,8 @@ test('Election package and ballots export', async () => {
   } = electionPackage;
   assert(metadata !== undefined);
   assert(systemSettings !== undefined);
+
+  expect(registeredVoterCounts).toEqual(expectedRegisteredVoterCounts);
   assert(uiStringAudioClips !== undefined);
   assert(uiStringAudioIds !== undefined);
   assert(uiStrings !== undefined);
@@ -3169,7 +3423,7 @@ test('Election package and ballots export', async () => {
     // Include entities with IDs generated by VxDesign
     districts: await apiClient.listDistricts({ electionId }),
     pollingPlaces: await apiClient.listPollingPlaces({ electionId }),
-    precincts: await apiClient.listPrecincts({ electionId }),
+    precincts,
     parties: await apiClient.listParties({ electionId }),
     contests: await apiClient.listContests({ electionId }),
 
@@ -3330,8 +3584,8 @@ test('Election package and ballots export', async () => {
 
     const expectedFileNames = [
       ...ballotStyles
-        .flatMap(({ id, precincts }) =>
-          precincts.map((precinctId) => ({
+        .flatMap(({ id, precincts: ballotStylePrecincts }) =>
+          ballotStylePrecincts.map((precinctId) => ({
             ballotStyleId: id,
             precinctId,
           }))
@@ -3363,8 +3617,11 @@ test('Election package and ballots export', async () => {
   // Check ballots.jsonl
   //
   const expectedEntries = ballotStyles
-    .flatMap(({ id, precincts }) =>
-      precincts.map((precinctId) => ({ ballotStyleId: id, precinctId }))
+    .flatMap(({ id, precincts: ballotStylePrecincts }) =>
+      ballotStylePrecincts.map((precinctId) => ({
+        ballotStyleId: id,
+        precinctId,
+      }))
     )
     .flatMap(({ ballotStyleId, precinctId }) =>
       Object.values(['precinct', 'absentee']).flatMap((ballotType) =>

@@ -55,7 +55,9 @@ import {
   PollingPlace,
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
+  ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
+import type { PrecinctRegisteredVotersCountEntry } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
@@ -1726,6 +1728,63 @@ export class Store {
     }
   }
 
+  /**
+   * Sets the registered voter counts for a precinct or splits in a precinct.
+   * @param precinct The precinct to update.
+   * @param registeredVotersCounts Will unset the registered voter count if undefined.
+   */
+  async setPrecinctRegisteredVoterCounts(
+    precinct: Precinct,
+    registeredVotersCounts?: PrecinctRegisteredVotersCountEntry
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await client.query(
+          `delete from precinct_registered_voters_counts where precinct_id = $1`,
+          precinct.id
+        );
+        if (
+          !hasSplits(precinct) &&
+          typeof registeredVotersCounts === 'number'
+        ) {
+          await client.query(
+            `
+              insert into precinct_registered_voters_counts (precinct_id, count)
+              values ($1, $2)
+            `,
+            precinct.id,
+            registeredVotersCounts
+          );
+        }
+        await client.query(
+          `
+            delete from precinct_split_registered_voters_counts
+            where split_id in (
+              select id from precinct_splits where precinct_id = $1
+            )
+          `,
+          precinct.id
+        );
+        if (hasSplits(precinct) && typeof registeredVotersCounts === 'object') {
+          for (const split of precinct.splits) {
+            const splitCount = registeredVotersCounts.splits[split.id];
+            if (splitCount !== undefined) {
+              await client.query(
+                `
+                  insert into precinct_split_registered_voters_counts (split_id, count)
+                  values ($1, $2)
+                `,
+                split.id,
+                splitCount
+              );
+            }
+          }
+        }
+        return true;
+      })
+    );
+  }
+
   async deletePrecinct(
     electionId: ElectionId,
     precinctId: PrecinctId
@@ -1741,6 +1800,76 @@ export class Store {
       )
     );
     assert(rowCount === 1, 'Precinct not found');
+  }
+
+  async getRegisteredVotersCounts(
+    electionId: ElectionId
+  ): Promise<ElectionRegisteredVotersCounts> {
+    return this.db.withClient(async (client) => {
+      const precinctRows = (
+        await client.query(
+          `
+            select p.id, prc.count
+            from precincts p
+            left join precinct_registered_voters_counts prc on prc.precinct_id = p.id
+            where p.election_id = $1
+          `,
+          electionId
+        )
+      ).rows as Array<{ id: PrecinctId; count: number | null }>;
+
+      const splitRows = (
+        await client.query(
+          `
+            select
+              ps.id,
+              ps.precinct_id as "precinctId",
+              psrc.count
+            from precinct_splits ps
+            join precincts p on ps.precinct_id = p.id
+            left join precinct_split_registered_voters_counts psrc on psrc.split_id = ps.id
+            where p.election_id = $1
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: string;
+        precinctId: PrecinctId;
+        count: number | null;
+      }>;
+
+      const splitsByPrecinctId = new Map<
+        PrecinctId,
+        Array<{ id: string; count: number | null }>
+      >();
+      for (const split of splitRows) {
+        const group = splitsByPrecinctId.get(split.precinctId);
+        if (group) {
+          group.push(split);
+        } else {
+          splitsByPrecinctId.set(split.precinctId, [split]);
+        }
+      }
+
+      const counts: ElectionRegisteredVotersCounts = {};
+      for (const row of precinctRows) {
+        const splits = splitsByPrecinctId.get(row.id) ?? [];
+        if (splits.length > 0) {
+          const splitCounts: Record<string, number> = {};
+          for (const split of splits) {
+            if (split.count !== null) {
+              splitCounts[split.id] = split.count;
+            }
+          }
+          if (Object.keys(splitCounts).length > 0) {
+            counts[row.id] = { splits: splitCounts };
+          }
+        } else if (row.count !== null) {
+          counts[row.id] = row.count;
+        }
+      }
+      return counts;
+    });
   }
 
   async listBallotStyles(
