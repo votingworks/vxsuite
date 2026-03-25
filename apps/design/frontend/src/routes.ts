@@ -77,6 +77,25 @@ export const routes = {
           path: `${root}/precincts/${precinctId}`,
         }),
       },
+      pollingPlaces: {
+        root: {
+          title: 'Polling Places',
+          path: `${root}/polling-places`,
+        },
+
+        add: `${root}/polling-places/add`,
+
+        audio: (p: {
+          placeId: ':placeId' | (string & {});
+          stringKey: ':stringKey' | ElectionStringKey;
+        }) => `${root}/polling-places/${p.placeId}/audio/${p.stringKey}`,
+
+        edit: (placeId: ':placeId' | (string & {})) =>
+          `${root}/polling-places/${placeId}/edit`,
+
+        view: (placeId: ':placeId' | (string & {})) =>
+          `${root}/polling-places/${placeId}`,
+      },
       parties: {
         root: {
           title: 'Parties',

@@ -5,6 +5,7 @@ import {
   faCopy,
   faEye,
   faPauseCircle,
+  faSquareMinus,
   faSquare,
   faXmarkCircle,
   faCheckSquare,
@@ -298,6 +299,10 @@ export const Icons = {
     return (
       <FaIcon {...props} type={filled ? faCheckSquareSolid : faCheckSquare} />
     );
+  },
+
+  CheckboxPartial(props: IconProps) {
+    return <FaIcon {...props} type={faSquareMinus} />;
   },
 
   Checkmark(props) {
