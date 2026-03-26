@@ -367,6 +367,18 @@ test('single precinct election automatically has precinct set on configure', asy
   });
 });
 
+test('no automatic polling place selection for multi-polling-place election', async () => {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const def = fixtures.readElectionDefinition();
+
+  await setUpUsbAndConfigureElection(def);
+
+  expect((await apiClient.getElectionState()).pollingPlaceId).toBeUndefined();
+});
+
 test('polls state', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
