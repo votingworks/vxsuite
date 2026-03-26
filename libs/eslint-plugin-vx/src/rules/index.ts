@@ -31,6 +31,7 @@ import noFloatingVoids from './no_floating_results';
 import noAssertResultPredicates from './no_assert_result_predicates';
 import noImportSubfolders from './no_import_workspace_subfolders';
 import noExpectToBe from './no_expect_to_be';
+import noManualSleep from './no_manual_sleep';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency';
 
 const rules: Record<string, Rule.RuleModule> = {
@@ -66,6 +67,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-floating-results': noFloatingVoids,
   'no-import-workspace-subfolders': noImportSubfolders,
   'no-expect-to-be': noExpectToBe,
+  'no-manual-sleep': noManualSleep,
   'no-react-hook-mutation-dependency': noReactHookMutationDependency,
 } as unknown as Record<string, Rule.RuleModule>;
 
