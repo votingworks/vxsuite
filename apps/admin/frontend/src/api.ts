@@ -891,6 +891,38 @@ export const getRegisteredVoterCounts = {
   },
 } as const;
 
+export const getVoterTurnoutReportPreview = {
+  queryKey(): QueryKey {
+    return ['getVoterTurnoutReportPreview'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getVoterTurnoutReportPreview(),
+      {
+        cacheTime: 0,
+        staleTime: 0,
+        refetchOnWindowFocus: false,
+      }
+    );
+  },
+} as const;
+
+export const printVoterTurnoutReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printVoterTurnoutReport);
+  },
+} as const;
+
+export const exportVoterTurnoutReportPdf = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportVoterTurnoutReportPdf);
+  },
+} as const;
+
 export const addDiagnosticRecord = {
   useMutation() {
     const queryClient = useQueryClient();

@@ -127,6 +127,12 @@ import {
   WriteInAdjudicationReportPreview,
 } from './reports/write_in_adjudication_report';
 import {
+  exportVoterTurnoutReportPdf,
+  generateVoterTurnoutReportPreview,
+  printVoterTurnoutReport,
+  VoterTurnoutReportPreview,
+} from './reports/voter_turnout_report';
+import {
   BallotCountReportPreview,
   BallotCountReportSpec,
   exportBallotCountReportPdf,
@@ -1216,6 +1222,44 @@ function buildApi({
       return exportWriteInAdjudicationReportPdf({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
+        usbDrive: usbDriveAdapter,
+        logger,
+        filename: input.filename,
+      });
+    },
+
+    async getVoterTurnoutReportPreview(): Promise<VoterTurnoutReportPreview> {
+      return generateVoterTurnoutReportPreview({
+        store,
+        cardCountsList: getCardCounts({
+          filter: {},
+          groupBy: { groupByPrecinct: true },
+        }),
+        logger,
+      });
+    },
+
+    async printVoterTurnoutReport(): Promise<void> {
+      return printVoterTurnoutReport({
+        store,
+        cardCountsList: getCardCounts({
+          filter: {},
+          groupBy: { groupByPrecinct: true },
+        }),
+        logger,
+        printer,
+      });
+    },
+
+    async exportVoterTurnoutReportPdf(input: {
+      filename: string;
+    }): Promise<ExportDataResult> {
+      return exportVoterTurnoutReportPdf({
+        store,
+        cardCountsList: getCardCounts({
+          filter: {},
+          groupBy: { groupByPrecinct: true },
+        }),
         usbDrive: usbDriveAdapter,
         logger,
         filename: input.filename,
