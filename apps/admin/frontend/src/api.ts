@@ -879,6 +879,18 @@ export const exportWriteInAdjudicationReportPdf = {
   },
 } as const;
 
+export const getRegisteredVoterCounts = {
+  queryKey(): QueryKey {
+    return ['getRegisteredVoterCounts'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getRegisteredVoterCounts()
+    );
+  },
+} as const;
+
 export const addDiagnosticRecord = {
   useMutation() {
     const queryClient = useQueryClient();
