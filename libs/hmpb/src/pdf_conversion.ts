@@ -2,6 +2,7 @@ import { tmpNameSync } from 'tmp';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
 import { readFile, rm, writeFile } from 'node:fs/promises';
+import { normalizePdf } from './normalize_pdf';
 
 /**
  * Given a PDF document, convert it to grayscale.
@@ -22,7 +23,9 @@ export async function convertPdfToGrayscale(
     tmpPdfFilePath,
   ]);
   try {
-    return Uint8Array.from(await readFile(tmpGrayscalePdfFilePath));
+    return normalizePdf(
+      Uint8Array.from(await readFile(tmpGrayscalePdfFilePath))
+    );
   } finally {
     await rm(tmpGrayscalePdfFilePath);
     await rm(tmpPdfFilePath);
@@ -47,7 +50,7 @@ export async function convertPdfToCmyk(pdf: Uint8Array): Promise<Uint8Array> {
     tmpPdfFilePath,
   ]);
   try {
-    return Uint8Array.from(await readFile(tmpCmykPdfFilePath));
+    return normalizePdf(Uint8Array.from(await readFile(tmpCmykPdfFilePath)));
   } finally {
     await rm(tmpCmykPdfFilePath);
     await rm(tmpPdfFilePath);
