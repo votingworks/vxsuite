@@ -79,6 +79,7 @@ export = {
     'vx/no-assert-result-predicates': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
+    'vx/no-manual-sleep': 'error',
 
     // Disallow awaiting a value that is not Thenable which often indicates an error.
     '@typescript-eslint/await-thenable': 'error',
