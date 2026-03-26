@@ -1594,10 +1594,20 @@ export function buildApp(context: AppContext): Application {
   });
 
   const api = buildApi(context);
-  app.use('/api', grout.buildRouter(api, express));
+  app.use(
+    '/api',
+    grout.buildRouter(api, express, {
+      invalidInputBehavior: 'error',
+    })
+  );
 
   const unauthenticatedApi = buildUnauthenticatedApi(context);
-  app.use('/public/api', grout.buildRouter(unauthenticatedApi, express));
+  app.use(
+    '/public/api',
+    grout.buildRouter(unauthenticatedApi, express, {
+      invalidInputBehavior: 'error',
+    })
+  );
 
   app.use(
     express.static(context.workspace.assetDirectoryPath, { index: false })
