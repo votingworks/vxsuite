@@ -44,6 +44,8 @@ import {
   BallotStyleGroup,
   getContests,
   SheetOf,
+  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVotersCountsSchema,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -340,6 +342,84 @@ export class Store implements BaseStore {
       electionId
     ) as { electionPackageFileContents: Buffer } | undefined;
     return result?.electionPackageFileContents;
+  }
+
+  setRegisteredVoterCounts(
+    electionId: Id,
+    counts: ElectionRegisteredVotersCounts
+  ): void {
+    this.withTransaction(() => {
+      for (const [precinctId, entry] of Object.entries(counts)) {
+        if (typeof entry === 'number') {
+          this.client.run(
+            `
+            insert into precinct_registered_voter_counts (election_id, precinct_id, count)
+            values (?, ?, ?)
+            `,
+            electionId,
+            precinctId,
+            entry
+          );
+        } else {
+          for (const [splitId, count] of Object.entries(entry.splits)) {
+            this.client.run(
+              `
+              insert into precinct_split_registered_voter_counts (election_id, precinct_id, split_id, count)
+              values (?, ?, ?, ?)
+              `,
+              electionId,
+              precinctId,
+              splitId,
+              count
+            );
+          }
+        }
+      }
+    });
+  }
+
+  getRegisteredVoterCounts(
+    electionId: Id
+  ): ElectionRegisteredVotersCounts | undefined {
+    const precinctRows = this.client.all(
+      `
+      select precinct_id as precinctId, count
+      from precinct_registered_voter_counts
+      where election_id = ?
+      `,
+      electionId
+    ) as Array<{ precinctId: string; count: number }>;
+
+    const splitRows = this.client.all(
+      `
+      select precinct_id as precinctId, split_id as splitId, count
+      from precinct_split_registered_voter_counts
+      where election_id = ?
+      `,
+      electionId
+    ) as Array<{ precinctId: string; splitId: string; count: number }>;
+
+    if (precinctRows.length === 0 && splitRows.length === 0) {
+      return undefined;
+    }
+
+    const counts: ElectionRegisteredVotersCounts = {};
+    for (const { precinctId, count } of precinctRows) {
+      counts[precinctId] = count;
+    }
+    for (const { precinctId, splitId, count } of splitRows) {
+      const existing = counts[precinctId];
+      assert(
+        typeof existing !== 'number',
+        `Precinct ${precinctId} has both a flat count and split counts`
+      );
+      if (existing === undefined) {
+        counts[precinctId] = { splits: { [splitId]: count } };
+      } else {
+        existing.splits[splitId] = count;
+      }
+    }
+    return ElectionRegisteredVotersCountsSchema.parse(counts);
   }
 
   /**

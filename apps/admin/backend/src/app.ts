@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
   ElectionPackageFileName,
+  ElectionRegisteredVotersCounts,
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -512,13 +513,17 @@ function buildApi({
       const { electionPackage, electionPackageHash, fileContents } =
         electionPackageResult.ok();
 
-      const { electionDefinition, systemSettings } = electionPackage;
+      const { electionDefinition, systemSettings, registeredVoterCounts } =
+        electionPackage;
       const electionId = store.addElection({
         electionData: electionDefinition.electionData,
         systemSettingsData: JSON.stringify(systemSettings),
         electionPackageFileContents: fileContents,
         electionPackageHash,
       });
+      if (registeredVoterCounts) {
+        store.setRegisteredVoterCounts(electionId, registeredVoterCounts);
+      }
       store.setCurrentElectionId(electionId);
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         disposition: 'success',
@@ -544,6 +549,14 @@ function buildApi({
       }
 
       return null;
+    },
+
+    getRegisteredVoterCounts(): ElectionRegisteredVotersCounts | null {
+      const currentElectionId = store.getCurrentElectionId();
+      if (!currentElectionId) {
+        return null;
+      }
+      return store.getRegisteredVoterCounts(currentElectionId) ?? null;
     },
 
     async markResultsOfficial(): Promise<void> {
