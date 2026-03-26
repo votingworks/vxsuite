@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { assert, assertDefined, err, ok } from '@votingworks/basics';
+import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 
 import {
   CandidateContest,
@@ -983,9 +983,7 @@ describe('Export QA run store methods', () => {
     });
 
     // Small delay so created_at differs
-    await new Promise((resolve) => {
-      setTimeout(resolve, 50);
-    });
+    await sleep(50);
 
     await workspace.store.createExportQaRun({
       id: 'qa-run-newer',
