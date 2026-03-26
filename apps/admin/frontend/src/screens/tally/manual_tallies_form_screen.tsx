@@ -747,7 +747,15 @@ function ContestForm({
       <TallyTaskContent>
         <FormCard>
           <div style={{ marginBottom: '0.5rem' }}>
-            <Caption>{getContestDistrictName(election, contest)}</Caption>
+            <Caption>
+              {getContestDistrictName(election, contest)}
+              {contest.type === 'candidate' &&
+                contest.partyId &&
+                ` — ${
+                  find(election.parties, (p) => p.id === contest.partyId)
+                    .fullName
+                }`}
+            </Caption>
             <H2 style={{ margin: 0 }}>{contest.title}</H2>
             {contest.type === 'candidate' && (
               <div>Vote for {contest.seats}</div>
