@@ -23,6 +23,9 @@ export function doesContestAppearOnPartyBallot(
   contest: AnyContest,
   ballotPartyId?: string
 ): boolean {
+  // When ballotPartyId is undefined (open primaries or general elections),
+  // include all contests since all contests appear on all ballot styles.
+  if (!ballotPartyId) return true;
   return (
     contest.type === 'yesno' ||
     !contest.partyId ||

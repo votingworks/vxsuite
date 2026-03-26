@@ -209,10 +209,7 @@ export async function getScannerResults({
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
       election,
-      groupBy:
-        election.type === 'primary' && !isOpenPrimary(election)
-          ? { groupByParty: true }
-          : undefined,
+      groupBy: election.type === 'primary' ? { groupByParty: true } : undefined,
       cvrs,
     })
   );

@@ -2999,18 +2999,25 @@ export class Store implements BaseStore {
     );
   }
 
-  addCvrTag({ cvrId, isResolved, isBlankBallot }: CvrTag): void {
+  addCvrTag({
+    cvrId,
+    isResolved,
+    isBlankBallot,
+    isCrossoverVoting,
+  }: CvrTag): void {
     this.client.run(
       `
         insert into cvr_tags (
           cvr_id,
           is_resolved,
-          is_blank_ballot
-        ) values (?, ?, ?)
+          is_blank_ballot,
+          is_crossover_voting
+        ) values (?, ?, ?, ?)
       `,
       cvrId,
       asSqliteBool(isResolved),
-      asSqliteBool(isBlankBallot)
+      asSqliteBool(isBlankBallot),
+      asSqliteBool(isCrossoverVoting)
     );
   }
 
@@ -3020,7 +3027,8 @@ export class Store implements BaseStore {
         select
           cvr_id as cvrId,
           is_resolved as isResolved,
-          is_blank_ballot as isBlankBallot
+          is_blank_ballot as isBlankBallot,
+          is_crossover_voting as isCrossoverVoting
         from cvr_tags
         where cvr_id = ?
       `,
@@ -3030,6 +3038,7 @@ export class Store implements BaseStore {
           cvrId: Id;
           isResolved: SqliteBool;
           isBlankBallot: SqliteBool;
+          isCrossoverVoting: SqliteBool;
         }
       | undefined;
 
@@ -3038,6 +3047,7 @@ export class Store implements BaseStore {
           ...row,
           isResolved: fromSqliteBool(row.isResolved),
           isBlankBallot: fromSqliteBool(row.isBlankBallot),
+          isCrossoverVoting: fromSqliteBool(row.isCrossoverVoting),
         }
       : undefined;
   }

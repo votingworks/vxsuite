@@ -161,6 +161,7 @@ create table cvr_tags (
   cvr_id varchar(36) not null unique,
   is_resolved boolean not null default false,
   is_blank_ballot boolean not null default false,
+  is_crossover_voting boolean not null default false,
   foreign key (cvr_id) references cvrs(id) on delete cascade
 );
 

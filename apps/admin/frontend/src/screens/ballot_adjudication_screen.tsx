@@ -301,6 +301,26 @@ function BallotAdjudicationScreen({
       AdjudicationReason.Undervote
     );
 
+  const allItems = [...frontContestItems, ...backContestItems];
+  const crossoverStillActive =
+    cvrTag?.isCrossoverVoting &&
+    new Set(
+      allItems
+        .filter(
+          (item) =>
+            item.contest.type === 'candidate' &&
+            item.contest.partyId &&
+            item.adjudicationData.options.some((o) => {
+              const { initialVote, voteAdjudication } = o;
+              return voteAdjudication ? voteAdjudication.isVote : initialVote;
+            })
+        )
+        .map((item) =>
+          item.contest.type === 'candidate' ? item.contest.partyId : undefined
+        )
+        .filter(Boolean)
+    ).size > 1;
+
   const allResolved =
     contestAdjudicationData.every((c) => !c.tag || c.tag.isResolved) ||
     (cvrTag?.isBlankBallot &&
@@ -379,9 +399,18 @@ function BallotAdjudicationScreen({
       [...frontContestItems, ...backContestItems],
       (i) => i.contest.id === hoveredContestId
     );
-    return Boolean(
+    const hasUnresolvedTag = Boolean(
       item.adjudicationData.tag && !item.adjudicationData.tag.isResolved
     );
+    const isCrossoverContest =
+      crossoverStillActive &&
+      item.contest.type === 'candidate' &&
+      !!item.contest.partyId &&
+      item.adjudicationData.options.some((o) => {
+        const { initialVote, voteAdjudication } = o;
+        return voteAdjudication ? voteAdjudication.isVote : initialVote;
+      });
+    return hasUnresolvedTag || isCrossoverContest;
   })();
 
   const ballotBounds =

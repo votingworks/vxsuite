@@ -157,6 +157,7 @@ export function addMockCvrFileToStore({
         adminAdjudicationReasons,
         cvrId,
         votes: mockCastVoteRecord.votes,
+        electionDefinition,
       });
       if (cvrTag) {
         store.addCvrTag(cvrTag);

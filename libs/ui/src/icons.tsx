@@ -88,6 +88,7 @@ import {
   faVolumeXmark,
   faXmark,
   faCircleUser,
+  faArrowRightArrowLeft,
   faArrowRightFromBracket,
   faArrowsSplitUpAndLeft,
   faChartLine,
@@ -363,6 +364,10 @@ export const Icons = {
 
   Copy(props) {
     return <FaIcon {...props} type={faCopy} />;
+  },
+
+  Crossover(props) {
+    return <FaIcon {...props} type={faArrowRightArrowLeft} />;
   },
 
   Danger(props) {

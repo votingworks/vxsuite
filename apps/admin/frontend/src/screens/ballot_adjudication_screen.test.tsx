@@ -632,7 +632,12 @@ test('accept advances to next ballot and blank ballot callout states', async () 
         })
       ),
     ],
-    { cvrId: CVR_ID_2, isBlankBallot: true, isResolved: false }
+    {
+      cvrId: CVR_ID_2,
+      isBlankBallot: true,
+      isCrossoverVoting: false,
+      isResolved: false,
+    }
   );
 
   // Ballot 2 after resolve: confirmed blank ballot
@@ -650,14 +655,24 @@ test('accept advances to next ballot and blank ballot callout states', async () 
         })
       ),
     ],
-    { cvrId: CVR_ID_2, isBlankBallot: true, isResolved: true }
+    {
+      cvrId: CVR_ID_2,
+      isBlankBallot: true,
+      isCrossoverVoting: false,
+      isResolved: true,
+    }
   );
 
   // Ballot 3: blank ballot with an adjudicated vote on one option
   const adjData3 = makeBallotAdjudicationData(
     CVR_ID_3,
     [makeContestAdjudicationData('zoo-council-mammal')],
-    { cvrId: CVR_ID_3, isBlankBallot: true, isResolved: true }
+    {
+      cvrId: CVR_ID_3,
+      isBlankBallot: true,
+      isCrossoverVoting: false,
+      isResolved: true,
+    }
   );
   adjData3.contests[0].options[0].voteAdjudication = {
     electionId: 'election-1',

@@ -1,49 +1,75 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
-import { Button, H1, P } from '@votingworks/ui';
+import {
+  Caption,
+  H2,
+  LinkButton,
+  PageNavigationButtonId,
+  RadioGroup,
+  WithScrollButtons,
+} from '@votingworks/ui';
 import { VoterScreen } from '@votingworks/mark-flow-ui';
+import { PartyId } from '@votingworks/types/src';
 import { BallotContext } from '../contexts/ballot_context';
 
-const PartyList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 30rem;
-  margin: 0 auto;
+const Header = styled.div`
+  padding: 0.5rem;
+`;
+
+const BoldRadioGroup = styled(RadioGroup<PartyId>)`
+  button {
+    font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  }
 `;
 
 export function PartySelectionScreen(): JSX.Element {
-  const history = useHistory();
   const { electionDefinition, selectParty, selectedPartyId } =
     React.useContext(BallotContext);
   const { election } = assertDefined(electionDefinition);
 
-  function onSelectParty(partyId: string) {
-    selectParty(partyId);
-    history.push('/contests/0');
-  }
-
   return (
-    <VoterScreen>
-      <H1>Choose Your Party</H1>
-      <P>
-        This is an open primary election. Please select which party&apos;s
-        contests you would like to vote in. You will also be able to vote in all
-        nonpartisan contests.
-      </P>
-      <PartyList>
-        {election.parties.map((party) => (
-          <Button
-            key={party.id}
-            onPress={() => onSelectParty(party.id)}
-            variant={selectedPartyId === party.id ? 'primary' : 'neutral'}
+    <VoterScreen
+      actionButtons={
+        <React.Fragment>
+          <LinkButton
+            icon="Previous"
+            id={PageNavigationButtonId.PREVIOUS}
+            to="/"
           >
-            {party.fullName}
-          </Button>
-        ))}
-      </PartyList>
+            Back
+          </LinkButton>
+          <LinkButton
+            rightIcon="Next"
+            id={PageNavigationButtonId.NEXT}
+            variant={selectedPartyId ? 'primary' : 'neutral'}
+            to={selectedPartyId ? '/contests/0' : '#'}
+            disabled={!selectedPartyId}
+          >
+            Next
+          </LinkButton>
+        </React.Fragment>
+      }
+    >
+      <Header>
+        <H2>Choose Your Party</H2>
+        <Caption>
+          You will be able to vote for your party&apos;s contests and any
+          nonpartisan contests.
+        </Caption>
+      </Header>
+      <WithScrollButtons>
+        <BoldRadioGroup
+          label="Party"
+          hideLabel
+          options={election.parties.map((party) => ({
+            value: party.id,
+            label: party.fullName,
+          }))}
+          value={selectedPartyId}
+          onChange={(partyId) => selectParty(partyId)}
+        />
+      </WithScrollButtons>
     </VoterScreen>
   );
 }

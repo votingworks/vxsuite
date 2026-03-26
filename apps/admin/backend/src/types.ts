@@ -467,6 +467,7 @@ export interface CvrTag {
   cvrId: Id;
   isResolved: boolean;
   isBlankBallot: boolean;
+  isCrossoverVoting: boolean;
 }
 
 /**

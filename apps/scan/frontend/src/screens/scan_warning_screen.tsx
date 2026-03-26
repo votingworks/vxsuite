@@ -2,7 +2,6 @@ import React from 'react';
 import {
   AdjudicationReason,
   CandidateContest,
-  CrossoverVotingAdjudicationReasonInfo,
   ElectionDefinition,
   AdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
@@ -262,8 +261,8 @@ function CrossoverVotingWarningScreen({
         }
       >
         <P>
-          Crossover voting detected — you voted in contests from more than one
-          party. If you cast this ballot, only your nonpartisan votes will count.
+          You voted in contests from more than one party. If you cast this
+          ballot, the votes for those contests won&apos;t count.
         </P>
         <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </FullScreenPromptLayout>

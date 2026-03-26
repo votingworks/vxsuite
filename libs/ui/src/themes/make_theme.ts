@@ -259,6 +259,8 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     onDanger: DesktopPalette.Gray0,
     dangerContainer: DesktopPalette.Red10,
 
+    warning: DesktopPalette.Orange70,
+    onWarning: DesktopPalette.Gray0,
     warningContainer: DesktopPalette.Orange10,
 
     inverseBackground: DesktopPalette.Gray95,

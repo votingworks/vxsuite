@@ -18,19 +18,20 @@ function getReviewPageUrl(contestId?: ContestId) {
   return '/review';
 }
 
-function getStartPageUrl() {
-  return '/';
-}
-
 export function ContestScreen(): JSX.Element {
   const {
     ballotStyleId,
     contests,
     electionDefinition,
     precinctId,
+    selectedPartyId,
     updateVote,
     votes,
   } = React.useContext(BallotContext);
+
+  function getStartPageUrl() {
+    return selectedPartyId ? '/party-selection' : '/';
+  }
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
 

@@ -2,8 +2,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
+  Button,
+  Caption,
+  Icons,
   LinkButton,
   H1,
+  H4,
   WithScrollButtons,
   appStrings,
   AudioOnly,
@@ -17,6 +21,8 @@ import { assert } from '@votingworks/basics';
 import {
   BallotStyleId,
   ElectionDefinition,
+  isOpenPrimary,
+  PartyId,
   PrecinctId,
   VotesDict,
   getBallotStyle,
@@ -29,11 +35,20 @@ const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
 `;
 
+const PartyRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+`;
+
 export interface ReviewPageProps {
   backUrl?: string;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   headerContent?: React.ReactNode;
+  selectedPartyId?: PartyId;
+  onChangeParty?: () => void;
   precinctId?: PrecinctId;
   ballotStyleId?: BallotStyleId;
   printScreenUrl: string;
@@ -48,6 +63,8 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     contests,
     electionDefinition,
     headerContent,
+    selectedPartyId,
+    onChangeParty,
     precinctId,
     ballotStyleId,
     printScreenUrl,
@@ -73,6 +90,13 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     ballotStyleId,
   });
   assert(ballotStyle, `Ballot style with id ${ballotStyleId} not found`);
+
+  const { election } = electionDefinition;
+  const isOpenPrimaryElection = isOpenPrimary(election);
+  const selectedPartyName =
+    isOpenPrimaryElection &&
+    selectedPartyId &&
+    election.parties.find((p) => p.id === selectedPartyId)?.fullName;
 
   const printMyBallotButton = (
     <LinkButton
@@ -126,8 +150,27 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
         </AudioOnly>
       </ContentHeader>
       <WithScrollButtons>
+        {isOpenPrimaryElection && onChangeParty && (
+          <PartyRow>
+            <div>
+              <Caption>Party</Caption>
+              <H4 style={{ margin: 0 }}>{selectedPartyName || 'None'}</H4>
+            </div>
+            <Button onPress={onChangeParty}>
+              <Caption
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                }}
+              >
+                <Icons.Edit /> Change
+              </Caption>
+            </Button>
+          </PartyRow>
+        )}
         <Review
-          election={electionDefinition.election}
+          election={election}
           contests={contests}
           precinctId={precinctId}
           votes={votes}

@@ -17,6 +17,7 @@ export interface RadioGroupOption<T extends RadioGroupValue> {
 
 /** Props for {@link RadioGroup}. */
 export interface RadioGroupProps<T extends RadioGroupValue> {
+  className?: string;
   disabled?: boolean;
   hideLabel?: boolean;
   inverse?: boolean;
@@ -172,6 +173,7 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
   ref: React.ForwardedRef<HTMLFieldSetElement>
 ): JSX.Element {
   const {
+    className,
     disabled,
     hideLabel,
     inverse,
@@ -191,7 +193,7 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
   );
 
   return (
-    <OuterContainer aria-label={label} ref={ref}>
+    <OuterContainer aria-label={label} className={className} ref={ref}>
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer numColumns={numColumns || 1}>
         {options.map((option) => {

@@ -71,6 +71,8 @@ export interface ColorTheme {
   readonly onDanger: ColorString;
   readonly dangerContainer: ColorString;
 
+  readonly warning: ColorString;
+  readonly onWarning: ColorString;
   readonly warningContainer: ColorString;
 
   readonly inverseBackground: ColorString;

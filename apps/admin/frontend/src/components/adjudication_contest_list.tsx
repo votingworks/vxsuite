@@ -7,6 +7,7 @@ import {
   Election,
   getContestDistrictName,
   Id,
+  isOpenPrimary,
   Side,
 } from '@votingworks/types';
 import type {
@@ -15,15 +16,7 @@ import type {
   CvrTag,
 } from '@votingworks/admin-backend';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import {
-  Button,
-  Callout,
-  Caption,
-  DesktopPalette,
-  Font,
-  Icons,
-  P,
-} from '@votingworks/ui';
+import { Button, Callout, Caption, Font, Icons, P } from '@votingworks/ui';
 import { EntityList } from './entity_list';
 
 const Column = styled.div`
@@ -67,7 +60,11 @@ const CalloutTitle = styled(P)`
 `;
 
 const ResolvedCaption = styled(EntityList.Caption)`
-  color: ${DesktopPalette.Purple70};
+  color: ${(p) => p.theme.colors.primary};
+`;
+
+const WarningCaption = styled(EntityList.Caption)`
+  color: ${(p) => p.theme.colors.warning};
 `;
 
 const StatusLine = styled.span`
@@ -256,10 +253,14 @@ function getOptionResolutionLine(
 }
 
 function ContestAdjudicationSummary({
+  crossoverConfirmed,
+  isCrossoverContest,
   item,
   showUndervoteStatus,
   writeInCandidateNamesById,
 }: {
+  crossoverConfirmed: boolean;
+  isCrossoverContest: boolean;
   item: ContestListItem;
   showUndervoteStatus: boolean;
   writeInCandidateNamesById: Map<Id, string>;
@@ -271,10 +272,19 @@ function ContestAdjudicationSummary({
     )
     .filter((desc): desc is React.ReactNode => desc !== undefined);
 
-  if (!statusLine && bullets.length === 0) return null;
+  const CrossoverCaption = crossoverConfirmed
+    ? ResolvedCaption
+    : WarningCaption;
+
+  if (!isCrossoverContest && !statusLine && bullets.length === 0) return null;
 
   return (
     <React.Fragment>
+      {isCrossoverContest && (
+        <CrossoverCaption weight="semiBold">
+          Crossover vote not counted
+        </CrossoverCaption>
+      )}
       {statusLine && (
         <ResolvedCaption weight="semiBold">{statusLine}</ResolvedCaption>
       )}
@@ -288,6 +298,8 @@ function ContestAdjudicationSummary({
 
 function BallotSideContestList({
   contests,
+  crossoverConfirmed,
+  crossoverStillActive,
   election,
   firstUnresolvedContestId,
   isVisibleSide,
@@ -300,6 +312,8 @@ function BallotSideContestList({
   writeInCandidateNamesById,
 }: {
   contests: ContestListItem[];
+  crossoverConfirmed: boolean;
+  crossoverStillActive: boolean;
   election: Election;
   firstUnresolvedContestId?: ContestId;
   isVisibleSide: boolean;
@@ -351,6 +365,14 @@ function BallotSideContestList({
           );
           const suppressContestAdjudicationInfo =
             isBlankBallot && isOnlyUndervote && !hasAdjudication;
+          const hasEffectiveVotes = adjudicationData.options.some((o) =>
+            getAdjudicatedVote(o)
+          );
+          const isCrossoverContest =
+            crossoverStillActive &&
+            contest.type === 'candidate' &&
+            !!contest.partyId &&
+            hasEffectiveVotes;
 
           return (
             <EntityList.Item
@@ -360,12 +382,19 @@ function BallotSideContestList({
               onHover={onHover}
               autoScrollIntoView={isFirstUnresolved}
               hasWarning={
-                (isPending && !suppressContestAdjudicationInfo) || false
+                (isPending && !suppressContestAdjudicationInfo) ||
+                (isCrossoverContest && !crossoverConfirmed) ||
+                false
               }
             >
               <Column>
                 <EntityList.Caption>
                   {getContestDistrictName(election, contest)}
+                  {isOpenPrimary(election) &&
+                    contest.type === 'candidate' &&
+                    contest.partyId &&
+                    ` — ${election.parties.find((p) => p.id === contest.partyId)
+                      ?.fullName}`}
                 </EntityList.Caption>
                 <EntityList.Label
                   weight="semiBold"
@@ -373,8 +402,11 @@ function BallotSideContestList({
                 >
                   {contest.title}
                 </EntityList.Label>
-                {isResolved && !suppressContestAdjudicationInfo && (
+                {(isCrossoverContest ||
+                  (isResolved && !suppressContestAdjudicationInfo)) && (
                   <ContestAdjudicationSummary
+                    crossoverConfirmed={crossoverConfirmed}
+                    isCrossoverContest={isCrossoverContest}
                     item={item}
                     showUndervoteStatus={showUndervoteStatus}
                     writeInCandidateNamesById={writeInCandidateNamesById}
@@ -383,6 +415,11 @@ function BallotSideContestList({
               </Column>
               {isPending && !suppressContestAdjudicationInfo && (
                 <Icons.Warning color="warning" />
+              )}
+              {isCrossoverContest && (
+                <Icons.Crossover
+                  color={crossoverConfirmed ? 'primary' : 'warning'}
+                />
               )}
             </EntityList.Item>
           );
@@ -441,6 +478,25 @@ export function AdjudicationContestList({
       : 'Blank Ballot Detected';
   })();
 
+  // Dynamically compute crossover status from adjudicated votes
+  const crossoverStillActive = (() => {
+    if (!cvrTag?.isCrossoverVoting) return false;
+    const votedPartyIds = new Set(
+      allContests
+        .filter(
+          (item) =>
+            item.contest.type === 'candidate' &&
+            item.contest.partyId &&
+            item.adjudicationData.options.some((o) => getAdjudicatedVote(o))
+        )
+        .map((item) =>
+          item.contest.type === 'candidate' ? item.contest.partyId : undefined
+        )
+        .filter(Boolean)
+    );
+    return votedPartyIds.size > 1;
+  })();
+
   return (
     <EntityList.Box>
       {cvrTag?.isBlankBallot && (
@@ -492,9 +548,53 @@ export function AdjudicationContestList({
           </Callout>
         </BlankBallotCalloutContainer>
       )}
+      {cvrTag?.isCrossoverVoting &&
+        (() => {
+          const isConfirmed = crossoverStillActive && cvrTag.isResolved;
+          const isResolved = !crossoverStillActive;
+          const calloutColor =
+            isResolved || isConfirmed ? 'primary' : 'warning';
+          const calloutIcon =
+            isResolved || isConfirmed ? (
+              <Icons.Done color="primary" />
+            ) : (
+              <Icons.Crossover color="warning" />
+            );
+          const calloutTitle = isResolved
+            ? 'Crossover Voting Resolved'
+            : isConfirmed
+            ? 'Crossover Voting Confirmed'
+            : 'Crossover Voting Detected';
+          const calloutDescription = isResolved
+            ? 'Ballot no longer has votes for multiple parties.'
+            : isConfirmed
+            ? 'Partisan votes will not be counted.'
+            : 'Votes detected for multiple parties. Partisan votes will not be counted.';
+          return (
+            <BlankBallotCalloutContainer>
+              <Callout color={calloutColor}>
+                <CalloutContent>
+                  <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
+                    {calloutIcon}
+                  </P>
+                  <CalloutBody>
+                    <CalloutTitleContainer>
+                      <CalloutTitle weight="bold">{calloutTitle}</CalloutTitle>
+                      <Caption weight="regular" style={{ lineHeight: 1 }}>
+                        {calloutDescription}
+                      </Caption>
+                    </CalloutTitleContainer>
+                  </CalloutBody>
+                </CalloutContent>
+              </Callout>
+            </BlankBallotCalloutContainer>
+          );
+        })()}
       {frontContests.length > 0 && (
         <BallotSideContestList
           contests={frontContests}
+          crossoverConfirmed={crossoverStillActive && !!cvrTag?.isResolved}
+          crossoverStillActive={crossoverStillActive}
           election={election}
           firstUnresolvedContestId={firstUnresolvedContestId}
           isBlankBallot={cvrTag?.isBlankBallot}
@@ -510,6 +610,8 @@ export function AdjudicationContestList({
       {backContests.length > 0 && (
         <BallotSideContestList
           contests={backContests}
+          crossoverConfirmed={crossoverStillActive && !!cvrTag?.isResolved}
+          crossoverStillActive={crossoverStillActive}
           election={election}
           firstUnresolvedContestId={firstUnresolvedContestId}
           isBlankBallot={cvrTag?.isBlankBallot}

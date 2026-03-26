@@ -41,6 +41,7 @@ import {
   parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
   CachedElectionLookups,
+  detectCrossoverVotingFromTabulationVotes,
 } from '@votingworks/utils';
 
 import { MarkScores } from '@votingworks/types/src/tabulation';
@@ -302,10 +303,12 @@ export function determineCvrTag({
   adminAdjudicationReasons,
   cvrId,
   votes,
+  electionDefinition,
 }: {
   adminAdjudicationReasons: AdjudicationReason[];
   cvrId: Id;
   votes: Tabulation.Votes;
+  electionDefinition: ElectionDefinition;
 }): CvrTag | undefined {
   const shouldTagBlankBallots = adminAdjudicationReasons.includes(
     AdjudicationReason.BlankBallot
@@ -314,8 +317,18 @@ export function determineCvrTag({
     (optionIds) => optionIds.length === 0
   );
 
-  if (shouldTagBlankBallots && isBlankBallot) {
-    return { cvrId, isResolved: false, isBlankBallot: true };
+  const isCrossoverVoting = detectCrossoverVotingFromTabulationVotes(
+    votes,
+    electionDefinition.election
+  );
+
+  if ((shouldTagBlankBallots && isBlankBallot) || isCrossoverVoting) {
+    return {
+      cvrId,
+      isResolved: false,
+      isBlankBallot: shouldTagBlankBallots && isBlankBallot,
+      isCrossoverVoting,
+    };
   }
 
   return undefined;
@@ -520,6 +533,7 @@ export async function importCastVoteRecords(
           adminAdjudicationReasons,
           cvrId: castVoteRecordId,
           votes,
+          electionDefinition,
         });
 
         if (castVoteRecordTag) {

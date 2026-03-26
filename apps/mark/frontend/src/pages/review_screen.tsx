@@ -2,8 +2,6 @@ import { useContext } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { ReviewPage } from '@votingworks/mark-flow-ui';
-import { isOpenPrimary } from '@votingworks/types';
-import { P } from '@votingworks/ui';
 
 import { BallotContext } from '../contexts/ballot_context';
 
@@ -24,26 +22,14 @@ export function ReviewScreen(): JSX.Element {
   const isFinalReview = !fromContest;
   const backUrl = !isFinalReview ? `/contests/${fromContest}` : undefined;
 
-  const election = electionDefinition?.election;
-  const selectedPartyName =
-    election &&
-    isOpenPrimary(election) &&
-    selectedPartyId &&
-    election.parties.find((p) => p.id === selectedPartyId)?.fullName;
-
   return (
     <ReviewPage
       backUrl={backUrl}
       ballotStyleId={ballotStyleId}
       contests={contests}
       electionDefinition={electionDefinition}
-      headerContent={
-        selectedPartyName ? (
-          <P>
-            <strong>Party:</strong> {selectedPartyName}
-          </P>
-        ) : undefined
-      }
+      selectedPartyId={selectedPartyId}
+      onChangeParty={() => history.push('/party-selection')}
       precinctId={precinctId}
       printScreenUrl="/print"
       returnToContest={(contestId) => {

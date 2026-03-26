@@ -44,6 +44,7 @@ test('blank ballot', () => {
     hasUndervote: true,
     hasOvervote: false,
     hasWriteIn: false,
+    hasCrossover: false,
   });
 });
 
@@ -55,6 +56,7 @@ test('no status ballot', () => {
     hasUndervote: false,
     hasOvervote: false,
     hasWriteIn: false,
+    hasCrossover: false,
   });
 });
 
@@ -69,6 +71,7 @@ test('undervote yes-no', () => {
     hasUndervote: true,
     hasOvervote: false,
     hasWriteIn: false,
+    hasCrossover: false,
   });
 });
 
@@ -83,6 +86,7 @@ test('undervote candidate', () => {
     hasUndervote: true,
     hasOvervote: false,
     hasWriteIn: false,
+    hasCrossover: false,
   });
 });
 
@@ -97,6 +101,7 @@ test('overvote yes-no', () => {
     hasUndervote: false,
     hasOvervote: true,
     hasWriteIn: false,
+    hasCrossover: false,
   });
 });
 
@@ -113,6 +118,7 @@ test('overvote candidate', () => {
     hasUndervote: false,
     hasOvervote: true,
     hasWriteIn: false,
+    hasCrossover: false,
   });
 });
 
@@ -129,6 +135,7 @@ test('write-in', () => {
     hasUndervote: false,
     hasOvervote: false,
     hasWriteIn: true,
+    hasCrossover: false,
   });
 });
 
@@ -146,6 +153,7 @@ test('multiple flags', () => {
     hasUndervote: true,
     hasOvervote: true,
     hasWriteIn: true,
+    hasCrossover: false,
   });
 });
 
