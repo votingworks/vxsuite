@@ -29,6 +29,20 @@ ruleTester.run('no-manual-sleep', rule, {
     `new MyPromise((resolve) => setTimeout(resolve, 100))`,
     // setTimeout with no duration
     `new Promise((resolve) => setTimeout(resolve))`,
+    // Block body with a non-call statement
+    `new Promise((resolve) => { return resolve() })`,
+    // Block body with a non-setTimeout call
+    `new Promise((resolve) => { otherFunction(resolve, 100) })`,
+    // Block body with a non-call expression statement
+    `new Promise((resolve) => { resolve })`,
+    // Non-function callback argument
+    `new Promise(executor)`,
+    // Promise constructor with multiple arguments
+    `new Promise((resolve) => setTimeout(resolve, 100), other)`,
+    // Destructured parameter
+    `new Promise(({ resolve }) => setTimeout(resolve, 100))`,
+    // Arrow with non-call, non-block body (e.g. literal)
+    `new Promise((resolve) => 42)`,
   ],
   invalid: [
     {

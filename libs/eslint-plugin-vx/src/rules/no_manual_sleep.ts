@@ -124,10 +124,9 @@ const rule: TSESLint.RuleModule<
         );
         if (!setTimeoutCall) return;
 
-        const durationArg = setTimeoutCall.arguments[1];
-        if (!durationArg) return;
-
-        const sourceCode = context.sourceCode ?? context.getSourceCode();
+        // Safe: isSetTimeoutResolveCall already verified exactly 2 arguments
+        const durationArg = setTimeoutCall.arguments[1]!;
+        const sourceCode = context.getSourceCode();
         const durationText = sourceCode.getText(durationArg);
 
         context.report({
