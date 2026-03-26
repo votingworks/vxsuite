@@ -163,7 +163,7 @@ test('works with the Result type', async () => {
   server.close();
 });
 
-test('errors if RPC method doesnt have the correct signature', async () => {
+test("crashes if RPC method doesn't have the correct signature (crash mode)", async () => {
   // We can catch the wrong number of arguments for defining a method at compile time
   // (Though there may be 1 or 2 arguments due to optional context)
   createApi({
@@ -213,7 +213,31 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   server.close();
 });
 
-test('errors if app has upstream body-parsing middleware', async () => {
+test("returns 400 if RPC method doesn't have the correct signature (error mode)", async () => {
+  const api = createApi({
+    async sqrt(input: number): Promise<number> {
+      return Math.sqrt(input);
+    },
+  });
+  const app = express();
+  app.use('/api', buildRouter(api, express, { invalidInputBehavior: 'error' }));
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+  const client = createClient<typeof api>({ baseUrl });
+
+  vi.spyOn(console, 'error').mockReturnValue();
+  const processExitSpy = vi
+    .spyOn(process, 'exit')
+    .mockReturnValue(undefined as never);
+
+  await expect(client.sqrt(4)).rejects.toThrow('Invalid request body');
+  expect(processExitSpy).not.toHaveBeenCalled();
+
+  server.close();
+});
+
+test('crashes if app has upstream body-parsing middleware (crash mode)', async () => {
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -241,6 +265,88 @@ test('errors if app has upstream body-parsing middleware', async () => {
         'Grout error: Request body was parsed as something other than a string. Make sure you haven\'t added any other body parsers upstream of the Grout router - e.g. app.use(express.json()). Body: {"__grout_type":"undefined","__grout_value":"undefined"}'
       )
     );
+  });
+
+  server.close();
+});
+
+test('returns 400 if app has upstream body-parsing middleware (error mode)', async () => {
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
+
+  const app = express();
+  app.use(express.json());
+  app.use('/api', buildRouter(api, express, { invalidInputBehavior: 'error' }));
+
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+  const client = createClient<typeof api>({ baseUrl });
+
+  vi.spyOn(console, 'error').mockReturnValue();
+  const processExitSpy = vi
+    .spyOn(process, 'exit')
+    .mockReturnValue(undefined as never);
+
+  await expect(client.getStuff()).rejects.toThrow('Invalid request body');
+  expect(processExitSpy).not.toHaveBeenCalled();
+
+  server.close();
+});
+
+test('returns 400 for invalid JSON body (error mode)', async () => {
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
+
+  const app = express();
+  app.use('/api', buildRouter(api, express, { invalidInputBehavior: 'error' }));
+
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue();
+
+  const response = await fetch(`${baseUrl}/getStuff`, {
+    method: 'POST',
+    body: 'not valid json{{{',
+    headers: { 'Content-type': 'application/json' },
+  });
+
+  expect(response.status).toEqual(400);
+  const body = await response.json();
+  expect(body.message).toEqual('Invalid request body');
+  expect(consoleErrorSpy).toHaveBeenCalled();
+
+  server.close();
+});
+
+test('crashes for invalid JSON body (crash mode)', async () => {
+  vi.spyOn(console, 'error').mockReturnValue();
+  const processExitSpy = vi
+    .spyOn(process, 'exit')
+    .mockReturnValue(undefined as never);
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
+  const { server, baseUrl } = createTestApp(api);
+
+  void fetch(`${baseUrl}/getStuff`, {
+    method: 'POST',
+    body: 'not valid json{{{',
+    headers: { 'Content-type': 'application/json' },
+  });
+
+  await waitForExpect(() => {
+    expect(processExitSpy).toHaveBeenCalledWith(1);
   });
 
   server.close();
