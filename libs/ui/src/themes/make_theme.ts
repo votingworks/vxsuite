@@ -187,6 +187,8 @@ function expandToFullColorTheme(theme: TouchscreenColorTheme): ColorTheme {
     onDanger: theme.background,
     dangerContainer: theme.background,
 
+    warning: theme.warningAccent,
+    onWarning: theme.background,
     warningContainer: theme.background,
 
     inverseBackground: theme.onBackground,

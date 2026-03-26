@@ -82,13 +82,19 @@ export function TallyReportCardCounts({
               {format.count(getBallotCount(cardCounts))}
             </TH>
           </tr>
+          {showScannedCount && (
+            <tr>
+              <TD nowrap>Scanned</TD>
+              <TD>{format.count(getScannedBallotCount(cardCounts))}</TD>
+            </tr>
+          )}
           {showCrossoverBreakdown && (
             <React.Fragment>
               <tr className="subrow">
                 <TD nowrap>Single-Party</TD>
                 <TD>
                   {format.count(
-                    getBallotCount(cardCounts) -
+                    getScannedBallotCount(cardCounts) -
                       getBallotCount(nonpartisanCardCounts) -
                       getBallotCount(crossoverCardCounts)
                   )}
@@ -103,12 +109,6 @@ export function TallyReportCardCounts({
                 <TD>{format.count(getBallotCount(crossoverCardCounts))}</TD>
               </tr>
             </React.Fragment>
-          )}
-          {showScannedCount && (
-            <tr>
-              <TD nowrap>Scanned</TD>
-              <TD>{format.count(getScannedBallotCount(cardCounts))}</TD>
-            </tr>
           )}
           {numSheets > 1 &&
             Array.from({ length: numSheets }, (_, sheetIndex) => (

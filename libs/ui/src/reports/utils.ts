@@ -57,7 +57,15 @@ export function getBallotStyleLabel(
     election,
     ballotStyleId: ballotStyleGroup.defaultLanguageBallotStyle.id,
   })?.name;
-  return [districts, party].filter(Boolean).join(' - ');
+  const label = [districts, party].filter(Boolean).join(' - ');
+  if (label) return label;
+  // Fallback for open primaries where districts are shared and there's no
+  // party: use precinct names.
+  return ballotStyleGroup.precincts
+    .map(
+      (precinctId) => find(election.precincts, (p) => p.id === precinctId).name
+    )
+    .join(', ');
 }
 
 export function prefixedTitle({
