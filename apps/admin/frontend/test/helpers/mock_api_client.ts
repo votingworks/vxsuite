@@ -745,6 +745,12 @@ export function createApiMock(
       apiClient.exportWriteInAdjudicationReportPdf
     ),
 
+    expectGetRegisteredVoterCounts(
+      counts: import('@votingworks/types').ElectionRegisteredVotersCounts | null
+    ) {
+      apiClient.getRegisteredVoterCounts.expectCallWith().resolves(counts);
+    },
+
     expectRebootToVendorMenu() {
       apiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
