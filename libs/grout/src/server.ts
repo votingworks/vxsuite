@@ -194,6 +194,24 @@ function exitWithError(message: string): never {
 }
 
 /**
+ * Handle an invalid input error. In 'error' mode, logs the details server-side
+ * and returns a generic 400 response. In 'crash' mode, exits the process.
+ */
+function handleInvalidInput(
+  invalidInputBehavior: InvalidInputBehavior,
+  response: Express.Response,
+  diagnosticMessage: string
+): void {
+  if (invalidInputBehavior === 'error') {
+    // eslint-disable-next-line no-console
+    console.error(new Error(`Grout error: ${diagnosticMessage}`));
+    response.status(400).json({ message: 'Invalid request body' });
+    return;
+  }
+  exitWithError(diagnosticMessage);
+}
+
+/**
  * Determines how the router handles invalid input:
  * - 'crash': Calls process.exit(1). Appropriate for air-gapped machines
  *   (VxScan, VxAdmin, etc.) where bad input should never happen and indicates
@@ -281,47 +299,38 @@ export function buildRouter(
       try {
         debug(`Call: ${methodName}(${request.body})`);
         if (!isString(request.body)) {
-          const message =
+          handleInvalidInput(
+            invalidInputBehavior,
+            response,
             'Request body was parsed as something other than a string.' +
-            " Make sure you haven't added any other body parsers upstream" +
-            ' of the Grout router - e.g. app.use(express.json()).' +
-            ` Body: ${JSON.stringify(request.body)}`;
-          if (invalidInputBehavior === 'error') {
-            // eslint-disable-next-line no-console
-            console.error(new Error(`Grout error: ${message}`));
-            response.status(400).json({ message: 'Invalid request body' });
-            return;
-          }
-          return exitWithError(message);
+              " Make sure you haven't added any other body parsers upstream" +
+              ' of the Grout router - e.g. app.use(express.json()).' +
+              ` Body: ${JSON.stringify(request.body)}`
+          );
+          return;
         }
 
         try {
           input = deserialize(request.body);
         } catch (deserializeError) {
-          if (invalidInputBehavior === 'error') {
-            // eslint-disable-next-line no-console
-            console.error(deserializeError);
-            response.status(400).json({ message: 'Invalid request body' });
-            return;
-          }
-          return exitWithError(
+          handleInvalidInput(
+            invalidInputBehavior,
+            response,
             `Failed to deserialize request body: ${extractErrorMessage(
               deserializeError
             )}`
           );
+          return;
         }
 
         if (!(isObject(input) || input === undefined)) {
-          const message =
+          handleInvalidInput(
+            invalidInputBehavior,
+            response,
             'Grout methods must be called with an object or undefined as the sole argument.' +
-            ` The argument received was: ${JSON.stringify(input)}`;
-          if (invalidInputBehavior === 'error') {
-            // eslint-disable-next-line no-console
-            console.error(new Error(`Grout error: ${message}`));
-            response.status(400).json({ message: 'Invalid request body' });
-            return;
-          }
-          return exitWithError(message);
+              ` The argument received was: ${JSON.stringify(input)}`
+          );
+          return;
         }
 
         const durationStart = Date.now();
