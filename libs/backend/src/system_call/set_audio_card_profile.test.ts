@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';
@@ -14,6 +14,14 @@ const mockPactl = vi.mocked(pactl);
 
 const cardName = 'alsa_output.pci';
 
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 test('happy path', async () => {
   mockPactl.mockResolvedValue(ok(''));
 
@@ -26,6 +34,8 @@ test('happy path', async () => {
     nodeEnv: 'production',
     profile,
   });
+
+  await vi.runAllTimersAsync();
   expect(await result).toEqual(ok());
 
   expect(mockPactl).toHaveBeenCalledExactlyOnceWith('production', logger, [
@@ -41,13 +51,15 @@ test('happy path', async () => {
 });
 
 test('is no-op in dev', async () => {
-  const result = await setAudioCardProfile({
+  const result = setAudioCardProfile({
     cardName,
     logger: mockLogger({ fn: vi.fn }),
     nodeEnv: 'development',
     profile: AudioCardProfile.HDMI,
   });
-  expect(result).toEqual(ok());
+
+  await vi.runAllTimersAsync();
+  expect(await result).toEqual(ok());
   expect(mockPactl).not.toHaveBeenCalled();
 });
 
@@ -62,6 +74,8 @@ test('pactl error', async () => {
     nodeEnv: 'production',
     profile: AudioCardProfile.ANALOG,
   });
+
+  await vi.runAllTimersAsync();
   expect(await res).toEqual<SetAudioCardProfileResult>(
     err(expect.stringContaining(error))
   );
