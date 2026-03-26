@@ -16,6 +16,7 @@ import {
   constructElectionKey,
   ElectionDefinition,
   ElectionPackageFileName,
+  ElectionRegisteredVotersCounts,
   SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
@@ -119,12 +120,20 @@ export async function configureMachine(
   apiClient: grout.Client<Api>,
   auth: DippedSmartCardAuthApi,
   electionDefinition: ElectionDefinition,
+  registeredVoterCounts?: ElectionRegisteredVotersCounts,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<string> {
   mockSystemAdministratorAuth(auth);
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
+    ...(registeredVoterCounts
+      ? {
+          [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+            registeredVoterCounts
+          ),
+        }
+      : {}),
   });
   const electionFilePath = saveTmpFile(electionPackage);
   const { electionId } = (

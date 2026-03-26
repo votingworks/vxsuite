@@ -105,7 +105,13 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       definite: 0.1,
     },
   };
-  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
 
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
 
@@ -358,7 +364,13 @@ test('getBallotAdjudicationQueueMetadata', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -556,7 +568,13 @@ test('getNextCvrIdForBallotAdjudication', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -1213,7 +1231,13 @@ test('getMarginalMarks on an hmpb', async () => {
       definite: 0.1,
     },
   };
-  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
 
   // modify the cvr for a contest to include mark scores
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
@@ -1287,7 +1311,13 @@ test('getMarginalMarks returns nothing if AdjudicationReason.MarginalMark system
       definite: 0.1,
     },
   };
-  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
 
   // modify the cvr for a contest to include mark scores
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
@@ -1359,7 +1389,13 @@ test('getMarginalMarks returns an empty list for a bmd without mark scores', asy
       definite: 0.1,
     },
   };
-  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
 
   (
     await apiClient.addCastVoteRecordFile({
