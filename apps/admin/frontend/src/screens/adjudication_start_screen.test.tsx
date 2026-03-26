@@ -4,12 +4,12 @@ import { sleep, typedAs } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import type { MachineRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
+import { Admin } from '@votingworks/types';
 import { act, screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { AdjudicationStartScreen } from './adjudication_start_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
-import { MachineStatus } from '../types';
 
 const featureFlagMock = vi.hoisted(() => {
   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
@@ -190,28 +190,28 @@ describe('multi-station adjudication', () => {
       typedAs<MachineRecord>({
         machineId: 'CLIENT-001',
         machineMode: 'client',
-        status: MachineStatus.Active,
+        status: Admin.ClientMachineStatus.Active,
         authType: 'election_manager',
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
         machineId: 'CLIENT-002',
         machineMode: 'client',
-        status: MachineStatus.OnlineLocked,
+        status: Admin.ClientMachineStatus.OnlineLocked,
         authType: null,
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
         machineId: 'CLIENT-003',
         machineMode: 'client',
-        status: MachineStatus.Offline,
+        status: Admin.ClientMachineStatus.Offline,
         authType: null,
         lastSeenAt: Date.now() - 60000,
       }),
       typedAs<MachineRecord>({
         machineId: 'CLIENT-004',
         machineMode: 'client',
-        status: MachineStatus.Adjudicating,
+        status: Admin.ClientMachineStatus.Adjudicating,
         authType: 'election_manager',
         lastSeenAt: Date.now(),
       }),

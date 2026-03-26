@@ -6,11 +6,15 @@ import {
 } from '@votingworks/networking';
 import { assert } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { safeParseElectionDefinition, type UserRole } from '@votingworks/types';
+import {
+  Admin,
+  safeParseElectionDefinition,
+  type UserRole,
+} from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore } from './client_store';
-import { MachineStatus, ClientConnectionStatus } from './types';
+import { ClientConnectionStatus } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
@@ -45,14 +49,14 @@ function createPeerApiClient(address: string): grout.Client<PeerApi> {
  */
 function getClientMachineStatus(
   authStatus: Awaited<ReturnType<DippedSmartCardAuthApi['getAuthStatus']>>
-): { status: MachineStatus; authType: UserRole | null } {
+): { status: Admin.ClientMachineStatus; authType: UserRole | null } {
   if (authStatus.status === 'logged_in') {
     return {
-      status: MachineStatus.Active,
+      status: Admin.ClientMachineStatus.Active,
       authType: authStatus.user.role,
     };
   }
-  return { status: MachineStatus.OnlineLocked, authType: null };
+  return { status: Admin.ClientMachineStatus.OnlineLocked, authType: null };
 }
 
 /**
@@ -79,7 +83,9 @@ export function startHostNetworking({
       store.setNetworkedMachineStatus(
         machineId,
         'host',
-        isOnline ? MachineStatus.Active : MachineStatus.Offline
+        isOnline
+          ? Admin.ClientMachineStatus.Active
+          : Admin.ClientMachineStatus.Offline
       );
       store.cleanupStaleMachines();
     }, NETWORK_POLLING_INTERVAL_MS);

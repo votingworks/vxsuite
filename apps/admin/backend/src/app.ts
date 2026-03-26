@@ -84,7 +84,6 @@ import {
   CastVoteRecordVoteInfo,
   AdjudicatedCvrContest,
   MachineMode,
-  MachineStatus,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
@@ -99,6 +98,7 @@ import {
   validateManualResults,
 } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
+
 import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
@@ -252,7 +252,7 @@ function buildApi({
       return {
         isOnline:
           hostRecord !== undefined &&
-          hostRecord.status !== MachineStatus.Offline,
+          hostRecord.status !== Admin.ClientMachineStatus.Offline,
         connectedClients: machines.filter((m) => m.machineMode === 'client'),
       };
     },

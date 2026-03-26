@@ -14,7 +14,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   getHostServiceName,
   startHostNetworking,
@@ -22,7 +22,7 @@ import {
 } from './networking';
 import type { PeerApi } from './peer_app';
 import { Store } from './store';
-import { MachineStatus, ClientConnectionStatus } from './types';
+import { ClientConnectionStatus } from './types';
 import { ClientStore } from './client_store';
 import { getCurrentTime } from './get_current_time';
 
@@ -75,7 +75,7 @@ describe('startHostNetworking', () => {
     expect(machines[0]).toMatchObject({
       machineId: '0001',
       machineMode: 'host',
-      status: MachineStatus.Active,
+      status: Admin.ClientMachineStatus.Active,
     });
   });
 
@@ -84,11 +84,15 @@ describe('startHostNetworking', () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     startHostNetworking({ machineId: '0001', peerPort: 3002, store });
     await advancePollingInterval();
-    expect(store.getMachines()[0]?.status).toEqual(MachineStatus.Active);
+    expect(store.getMachines()[0]?.status).toEqual(
+      Admin.ClientMachineStatus.Active
+    );
 
     vi.mocked(hasOnlineInterface).mockResolvedValue(false);
     await vi.advanceTimersByTimeAsync(2000);
-    expect(store.getMachines()[0]?.status).toEqual(MachineStatus.Offline);
+    expect(store.getMachines()[0]?.status).toEqual(
+      Admin.ClientMachineStatus.Offline
+    );
   });
 });
 
@@ -231,7 +235,7 @@ describe('startClientNetworking', () => {
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
       machineId: '0002',
-      status: MachineStatus.OnlineLocked,
+      status: Admin.ClientMachineStatus.OnlineLocked,
       authType: null,
     });
   });
@@ -266,7 +270,7 @@ describe('startClientNetworking', () => {
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
       machineId: '0002b',
-      status: MachineStatus.Active,
+      status: Admin.ClientMachineStatus.Active,
       authType: 'election_manager',
     });
   });

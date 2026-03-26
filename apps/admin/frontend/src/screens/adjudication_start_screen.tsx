@@ -21,6 +21,7 @@ import {
   format,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { Admin } from '@votingworks/types';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
 import {
@@ -31,7 +32,6 @@ import {
   setIsClientAdjudicationEnabled,
 } from '../api';
 import { routerPaths } from '../router_paths';
-import { MachineStatus } from '../types';
 
 function formatAuthType(authType: string | null): string {
   switch (authType) {
@@ -111,28 +111,27 @@ function NetworkSection(): JSX.Element {
           </thead>
           <tbody>
             {connectedClients.map((machine) => {
-              const status = machine.status as MachineStatus;
               function renderStatus() {
-                switch (status) {
-                  case MachineStatus.Offline:
+                switch (machine.status) {
+                  case Admin.ClientMachineStatus.Offline:
                     return (
                       <React.Fragment>
                         <Icons.Danger color="danger" /> Disconnected
                       </React.Fragment>
                     );
-                  case MachineStatus.OnlineLocked:
+                  case Admin.ClientMachineStatus.OnlineLocked:
                     return (
                       <React.Fragment>
                         <Icons.Lock /> Locked
                       </React.Fragment>
                     );
-                  case MachineStatus.Active:
+                  case Admin.ClientMachineStatus.Active:
                     return (
                       <React.Fragment>
                         <Icons.Done color="success" /> Active
                       </React.Fragment>
                     );
-                  case MachineStatus.Adjudicating:
+                  case Admin.ClientMachineStatus.Adjudicating:
                     return (
                       <React.Fragment>
                         <Icons.Done color="success" /> Adjudicating
@@ -140,11 +139,12 @@ function NetworkSection(): JSX.Element {
                     );
                   /* istanbul ignore next  - @preserve */
                   default:
-                    throwIllegalValue(status);
+                    throwIllegalValue(machine.status);
                 }
               }
 
-              const isOffline = machine.status === MachineStatus.Offline;
+              const isOffline =
+                machine.status === Admin.ClientMachineStatus.Offline;
               return (
                 <tr key={machine.machineId}>
                   <TD>{machine.machineId}</TD>

@@ -17,6 +17,7 @@ import {
   safeParseElectionDefinition,
   testElectionReport,
   testElectionReportUnsupportedContestType,
+  Admin,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
@@ -32,11 +33,7 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app';
-import {
-  MachineStatus,
-  ManualResultsIdentifier,
-  ManualResultsRecord,
-} from './types';
+import { ManualResultsIdentifier, ManualResultsRecord } from './types';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -111,7 +108,7 @@ test('getNetworkStatus returns online when host is connected', async () => {
   workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
     'host',
-    MachineStatus.Active
+    Admin.ClientMachineStatus.Active
   );
   expect(await apiClient.getNetworkStatus()).toMatchObject({
     isOnline: true,
@@ -124,28 +121,28 @@ test('getNetworkStatus returns all clients including disconnected', async () => 
   workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
     'host',
-    MachineStatus.Active
+    Admin.ClientMachineStatus.Active
   );
   workspace.store.setNetworkedMachineStatus(
     'CLIENT-001',
     'client',
-    MachineStatus.Active
+    Admin.ClientMachineStatus.Active
   );
   workspace.store.setNetworkedMachineStatus(
     'CLIENT-002',
     'client',
-    MachineStatus.Offline
+    Admin.ClientMachineStatus.Offline
   );
   const status = await apiClient.getNetworkStatus();
   expect(status.isOnline).toEqual(true);
   expect(status.connectedClients).toHaveLength(2);
   expect(status.connectedClients[0]).toMatchObject({
     machineId: 'CLIENT-001',
-    status: MachineStatus.Active,
+    status: Admin.ClientMachineStatus.Active,
   });
   expect(status.connectedClients[1]).toMatchObject({
     machineId: 'CLIENT-002',
-    status: MachineStatus.Offline,
+    status: Admin.ClientMachineStatus.Offline,
   });
 });
 

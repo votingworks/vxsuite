@@ -1,10 +1,11 @@
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { assert, Optional } from '@votingworks/basics';
-import { type SystemSettings, type UserRole } from '@votingworks/types';
+import { Admin, type SystemSettings, type UserRole } from '@votingworks/types';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { MachineStatus, ElectionRecord, MachineConfig } from './types';
+import { ElectionRecord, MachineConfig } from './types';
+
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('peer-app');
@@ -20,7 +21,7 @@ function buildPeerApi({ workspace }: PeerAppContext) {
   return grout.createApi({
     connectToHost(input: {
       machineId: string;
-      status: MachineStatus;
+      status: Admin.ClientMachineStatus;
       authType: UserRole | null;
     }): MachineConfig & { isClientAdjudicationEnabled: boolean } {
       debug(

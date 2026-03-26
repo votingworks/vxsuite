@@ -41,14 +41,6 @@ export interface BaseStore {
   getSystemSettings(electionId: Id): SystemSettings | undefined;
 }
 
-/** Status of a machine in the multi-station machines table. */
-export enum MachineStatus {
-  Offline = 'offline',
-  OnlineLocked = 'online_locked',
-  Active = 'active',
-  Adjudicating = 'adjudicating',
-}
-
 /** Connection status for a client machine in a multi-station setup. */
 export enum ClientConnectionStatus {
   Offline = 'offline',
@@ -60,7 +52,7 @@ export enum ClientConnectionStatus {
 export interface MachineRecord {
   machineId: string;
   machineMode: MachineMode;
-  status: MachineStatus;
+  status: Admin.ClientMachineStatus;
   authType: UserRole | null;
   lastSeenAt: number;
 }

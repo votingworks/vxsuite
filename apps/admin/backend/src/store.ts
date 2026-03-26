@@ -94,7 +94,6 @@ import {
   CvrContestTag,
   CvrTag,
   WriteInForTally,
-  MachineStatus,
   BaseStore,
   MachineRecord,
   MachineMode,
@@ -3033,7 +3032,7 @@ export class Store implements BaseStore {
   setNetworkedMachineStatus(
     machineId: string,
     machineMode: MachineMode,
-    status: MachineStatus,
+    status: Admin.ClientMachineStatus,
     authType: UserRole | null = null
   ): void {
     this.client.run(
@@ -3067,8 +3066,8 @@ export class Store implements BaseStore {
     this.client.run(
       `update machines set status = ?, auth_type = null
        where status != ? and (? - last_seen_at) > ?`,
-      MachineStatus.Offline,
-      MachineStatus.Offline,
+      Admin.ClientMachineStatus.Offline,
+      Admin.ClientMachineStatus.Offline,
       getCurrentTime(),
       STALE_MACHINE_THRESHOLD_MS
     );
