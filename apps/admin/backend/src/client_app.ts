@@ -91,6 +91,15 @@ function buildClientApi({
       return clientStore.getCachedElectionRecord() ?? null;
     },
 
+    getAdjudicationSessionStatus(): {
+      isClientAdjudicationEnabled: boolean;
+    } {
+      return {
+        isClientAdjudicationEnabled:
+          clientStore.getIsClientAdjudicationEnabled(),
+      };
+    },
+
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(clientStore));
     },

@@ -10,7 +10,11 @@ import {
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+} from '@votingworks/test-utils';
+import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   getHostServiceName,
   startHostNetworking,
@@ -18,7 +22,7 @@ import {
 } from './networking';
 import type { PeerApi } from './peer_app';
 import { Store } from './store';
-import { HostConnectionStatus, ClientConnectionStatus } from './types';
+import { ClientConnectionStatus } from './types';
 import { ClientStore } from './client_store';
 import { getCurrentTime } from './get_current_time';
 
@@ -71,7 +75,7 @@ describe('startHostNetworking', () => {
     expect(machines[0]).toMatchObject({
       machineId: '0001',
       machineMode: 'host',
-      status: HostConnectionStatus.Connected,
+      status: Admin.ClientMachineStatus.Active,
     });
   });
 
@@ -81,13 +85,13 @@ describe('startHostNetworking', () => {
     startHostNetworking({ machineId: '0001', peerPort: 3002, store });
     await advancePollingInterval();
     expect(store.getMachines()[0]?.status).toEqual(
-      HostConnectionStatus.Connected
+      Admin.ClientMachineStatus.Active
     );
 
     vi.mocked(hasOnlineInterface).mockResolvedValue(false);
     await vi.advanceTimersByTimeAsync(2000);
     expect(store.getMachines()[0]?.status).toEqual(
-      HostConnectionStatus.Offline
+      Admin.ClientMachineStatus.Offline
     );
   });
 });
@@ -112,9 +116,11 @@ describe('startClientNetworking', () => {
     overrides: MockPeerClientOverrides = {}
   ): grout.Client<PeerApi> {
     const defaults: MockPeerClientOverrides = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      connectToHost: vi.fn().mockResolvedValue({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: false,
+      }),
       getElectionPackageHash: vi.fn().mockResolvedValue(undefined),
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
       getSystemSettings: vi.fn().mockResolvedValue(undefined),
@@ -229,6 +235,43 @@ describe('startClientNetworking', () => {
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
       machineId: '0002',
+      status: Admin.ClientMachineStatus.OnlineLocked,
+      authType: null,
+    });
+  });
+
+  test('sends active status and auth type when logged in', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockClient = createMockPeerClient();
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const auth = createMockAuth();
+    vi.mocked(auth.getAuthStatus).mockResolvedValue({
+      status: 'logged_in',
+      user: mockElectionManagerUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
+    });
+
+    const clientStore = createClientStore();
+    startClientNetworking({
+      machineId: '0002b',
+      clientStore,
+      auth,
+    });
+    await advancePollingInterval();
+
+    expect(mockClient.connectToHost).toHaveBeenCalledWith({
+      machineId: '0002b',
+      status: Admin.ClientMachineStatus.Active,
+      authType: 'election_manager',
     });
   });
 
@@ -370,9 +413,11 @@ describe('startClientNetworking', () => {
 
     // Third poll: should try to reconnect (createClient called again)
     const newMockClient = {
-      connectToHost: vi
-        .fn()
-        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
+      connectToHost: vi.fn().mockResolvedValue({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: false,
+      }),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(newMockClient);
     await vi.advanceTimersByTimeAsync(2000);

@@ -67,6 +67,20 @@ test('clears cached data when connection is lost', () => {
   expect(store.getElectionKey('')).toBeUndefined();
 });
 
+test('tracks client adjudication enabled state', () => {
+  const store = new ClientStore();
+  expect(store.getIsClientAdjudicationEnabled()).toEqual(false);
+  store.setIsClientAdjudicationEnabled(true);
+  expect(store.getIsClientAdjudicationEnabled()).toEqual(true);
+});
+
+test('resets adjudication enabled on disconnect', () => {
+  const store = new ClientStore();
+  store.setIsClientAdjudicationEnabled(true);
+  store.setConnection(ClientConnectionStatus.OnlineWaitingForHost);
+  expect(store.getIsClientAdjudicationEnabled()).toEqual(false);
+});
+
 test('preserves cached data when connected to host', () => {
   const store = new ClientStore();
   const record = makeElectionRecord();

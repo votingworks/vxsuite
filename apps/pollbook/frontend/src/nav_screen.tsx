@@ -18,7 +18,6 @@ import {
   Table,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
-import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { formatElectionHashes, type PrinterStatus } from '@votingworks/types';
 import type {
@@ -44,7 +43,6 @@ import { PollbookConnectionStatus } from './types';
 import { VerticalElectionInfoBar } from './election_info_bar';
 
 // To avoid constant jumpiness in the last seen time in the UI round the time difference down to the last 5 seconds.
-const NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS = 5;
 
 export const Header = styled(MainHeader)`
   display: flex;
@@ -244,36 +242,7 @@ function NetworkStatus({
                                 : ' - '}
                             </td>
                             <td style={{ width: '10rem' }}>
-                              {(() => {
-                                const base = DateTime.now();
-                                const lastSeenDate = DateTime.fromJSDate(
-                                  new Date(pollbook.lastSeen)
-                                );
-                                const timeDiffInSeconds = lastSeenDate
-                                  .diff(base)
-                                  .as('seconds');
-                                const roundedTimeDiffInSeconds =
-                                  NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS *
-                                  Math.ceil(
-                                    // the numbers are negative, so we use ceiling as oppose to floor to round towards 0
-                                    timeDiffInSeconds /
-                                      NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS
-                                  );
-                                const relative = base
-                                  .plus({ seconds: roundedTimeDiffInSeconds })
-                                  .toRelative({
-                                    base,
-                                    unit: [
-                                      'days',
-                                      'hours',
-                                      'minutes',
-                                      'seconds',
-                                    ],
-                                  });
-                                return relative === 'in 0 seconds'
-                                  ? 'Now'
-                                  : relative;
-                              })()}
+                              {format.relativeTime(pollbook.lastSeen)}
                             </td>
                             <td>{pollbook.numCheckIns} check-ins</td>
                           </tr>

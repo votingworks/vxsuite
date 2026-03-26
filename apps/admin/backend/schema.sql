@@ -252,6 +252,7 @@ create table settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
   current_election_id varchar(36),
+  is_client_adjudication_enabled boolean not null default 0,
   foreign key (current_election_id) references elections(id)
 );
 
@@ -270,7 +271,8 @@ create table machines (
   machine_mode text not null
     check (machine_mode = 'host' or machine_mode = 'client'),
   status text not null
-    check (status = 'connected' or status = 'offline'),
+    check (status in ('offline', 'online_locked', 'active', 'adjudicating')),
+  auth_type text,
   last_seen_at integer not null
 );
 

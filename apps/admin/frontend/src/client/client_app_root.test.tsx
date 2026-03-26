@@ -11,18 +11,21 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { QueryClient } from '@tanstack/react-query';
 import { SystemCallContextProvider } from '@votingworks/ui';
 import { screen, render } from '../../test/react_testing_library';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import {
+  ClientApiMock,
+  createClientApiMock,
+} from '../../test/helpers/mock_client_api_client';
 import { ClientApp } from './client_app';
 import { createQueryClient, type ApiClient } from './api';
 import { SharedApiClientContext, systemCallApi } from '../shared_api';
 
-let apiMock: ApiMock;
+let apiMock: ClientApiMock;
 let queryClient: QueryClient;
 
 const electionDefinition = readElectionGeneralDefinition();
 
 beforeEach(() => {
-  apiMock = createApiMock();
+  apiMock = createClientApiMock();
   queryClient = createQueryClient();
 });
 
@@ -59,13 +62,6 @@ function setPollWorkerAuth() {
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
-}
-
-function expectNetworkConnected() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (apiMock.apiClient as any).getNetworkConnectionStatus
-    .expectRepeatedCallsWith()
-    .resolves({ status: 'online-connected-to-host', hostMachineId: '0001' });
 }
 
 function renderClientApp({
@@ -166,7 +162,8 @@ test('shows remove card screen after authentication', async () => {
 
 test('shows adjudication screen with election info when logged in as poll worker', async () => {
   setPollWorkerAuth();
-  expectNetworkConnected();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
+  apiMock.expectGetAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   screen.getByText(electionDefinition.election.title);
@@ -174,7 +171,8 @@ test('shows adjudication screen with election info when logged in as poll worker
 
 test('poll worker sees only adjudication tab', async () => {
   setPollWorkerAuth();
-  expectNetworkConnected();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
+  apiMock.expectGetAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   screen.getByRole('button', { name: 'Adjudication' });
@@ -184,7 +182,8 @@ test('poll worker sees only adjudication tab', async () => {
 
 test('election manager sees adjudication, settings, and diagnostics tabs', async () => {
   setElectionManagerAuth();
-  expectNetworkConnected();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
+  apiMock.expectGetAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   screen.getByRole('button', { name: 'Adjudication' });
@@ -194,7 +193,7 @@ test('election manager sees adjudication, settings, and diagnostics tabs', async
 
 test('shows settings screen when logged in as system administrator', async () => {
   setSystemAdminAuth();
-  expectNetworkConnected();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetUsbPortStatus();
   renderClientApp();
   await screen.findByRole('heading', { name: 'Settings' });
@@ -202,7 +201,7 @@ test('shows settings screen when logged in as system administrator', async () =>
 
 test('sysadmin sees settings and diagnostics tabs but not adjudication', async () => {
   setSystemAdminAuth();
-  expectNetworkConnected();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetUsbPortStatus();
   renderClientApp();
   await screen.findByRole('heading', { name: 'Settings' });

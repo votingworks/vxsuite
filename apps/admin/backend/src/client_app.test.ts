@@ -76,6 +76,11 @@ test('setMachineMode and getMachineMode round-trip', async () => {
   expect(await env.apiClient.getMachineMode()).toEqual('host');
 });
 
+test('getAdjudicationSessionStatus returns disabled by default', async () => {
+  const result = await env.apiClient.getAdjudicationSessionStatus();
+  expect(result).toEqual({ isClientAdjudicationEnabled: false });
+});
+
 test('getAuthStatus returns auth status', async () => {
   const authStatus = await env.apiClient.getAuthStatus();
   expect(authStatus).toEqual({
