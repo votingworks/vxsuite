@@ -291,6 +291,9 @@ test('configureElectionPackageFromUsb returns no_ballots error when election pac
 
 // [TODO] Update test name after migration to Polling Places.
 test('configureElectionPackageFromUsb will automatically set precinct for single precinct election on configure', async () => {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
   const ballotStyleId = electionDefinition.election.ballotStyles[0]!.id;

@@ -152,6 +152,9 @@ test("if there's only one precinct in the election, it's selected automatically 
   const defaultPollingPlace = assertDefined(election.pollingPlaces?.[0]);
 
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
+    const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({

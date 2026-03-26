@@ -12,9 +12,11 @@ import {
   pollingPlaceFromElection,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   combineElectionResults,
   getPrecinctSelectionName,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -199,11 +201,16 @@ export function buildApi({
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
         }
-        if (electionDefinition.election.pollingPlaces?.length === 1) {
-          workspace.store.setPollingPlaceId(
-            electionDefinition.election.pollingPlaces[0].id
-          );
+
+        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+          if (electionDefinition.election.pollingPlaces?.length === 1) {
+            workspace.store.setPollingPlaceId(
+              electionDefinition.election.pollingPlaces[0].id
+            );
+          }
         }
+
         store.setSystemSettings(systemSettings);
         if (systemSettings.precinctScanEnableBallotAuditIds) {
           store.setBallotAuditIdSecretKey(await generateRandomAes256Key());
