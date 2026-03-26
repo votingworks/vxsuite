@@ -11,15 +11,15 @@
  * the output file cannot be written, or the CDF JSON cannot be serialized.
  */
 export declare function convertVxLogToCdf(
-  log: (
-    eventId: import('@votingworks/logging').LogEventId,
-    message: string,
-    disposition: import('@votingworks/logging').LogDisposition
-  ) => void,
-  source: import('@votingworks/logging').LogSource,
-  machineId: string,
-  codeVersion: string,
-  inputPath: string,
-  outputPath: string,
-  compressed: boolean
-): Promise<void>;
+log: (
+eventId: import('@votingworks/logging').LogEventId,
+message: string,
+disposition: import('@votingworks/logging').LogDisposition
+) => void,
+source: import('@votingworks/logging').LogSource,
+machineId: string,
+codeVersion: string,
+inputPath: string,
+outputPath: string,
+compressed: boolean,
+): Promise<void>
