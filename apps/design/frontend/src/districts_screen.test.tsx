@@ -61,7 +61,9 @@ beforeEach(() => {
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
 
-  mockStateFeatures(apiMock, electionId);
+  apiMock.getStateFeatures
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   apiMock.getElectionInfo
     .expectRepeatedCallsWith({ electionId })
