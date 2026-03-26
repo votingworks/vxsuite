@@ -397,14 +397,20 @@ async function configureMachine(
   mockNoCard();
 }
 
+// [TODO] Update test name after migration to Polling Places.
 test('single precinct election automatically has precinct set on configure', async () => {
-  await configureMachine(
-    mockUsbDrive,
-    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition()
-  );
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const def = fixtures.makeSinglePrecinctElectionDefinition();
+  const defaultPollingPlace = assertDefined(def.election.pollingPlaces?.[0]);
+
+  await configureMachine(mockUsbDrive, def);
 
   await expectElectionState({
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+    pollingPlaceId: defaultPollingPlace.id,
   });
 });
 
