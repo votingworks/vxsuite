@@ -138,6 +138,8 @@ export function AdminTallyReportByParty({
         customFilter={customFilter}
         scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
+        crossoverCardCounts={tallyReportResults.crossoverCardCounts}
+        nonpartisanCardCounts={tallyReportResults.nonpartisanCardCounts}
       />
     );
   }

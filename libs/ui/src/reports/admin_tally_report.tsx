@@ -39,6 +39,8 @@ export interface AdminTallyReportProps {
   scannedElectionResults: Tabulation.ElectionResults;
   manualElectionResults?: Tabulation.ManualElectionResults;
   cardCountsOverride?: Tabulation.CardCounts;
+  crossoverCardCounts?: Tabulation.CardCounts;
+  nonpartisanCardCounts?: Tabulation.CardCounts;
   generatedAtTime?: Date;
   customFilter?: Admin.FrontendReportingFilter;
   scannerBatches?: LabeledScannerBatch[]; // Only needed when customFilter is present
@@ -58,6 +60,8 @@ export function AdminTallyReport({
   scannedElectionResults,
   manualElectionResults,
   cardCountsOverride,
+  crossoverCardCounts,
+  nonpartisanCardCounts,
   generatedAtTime = new Date(),
   customFilter,
   scannerBatches,
@@ -98,7 +102,11 @@ export function AdminTallyReport({
           {includeSignatureLines && <CertificationSignatures />}
         </ReportHeader>
         <TallyReportColumns>
-          <TallyReportCardCounts cardCounts={cardCounts} />
+          <TallyReportCardCounts
+            cardCounts={cardCounts}
+            crossoverCardCounts={crossoverCardCounts}
+            nonpartisanCardCounts={nonpartisanCardCounts}
+          />
           {contests.map((contest) => {
             const scannedContestResults =
               scannedElectionResults.contestResults[contest.id];

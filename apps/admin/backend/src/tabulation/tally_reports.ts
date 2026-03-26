@@ -1,4 +1,4 @@
-import { Admin, Id, Tabulation } from '@votingworks/types';
+import { Admin, Id, Tabulation, isOpenPrimary } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -150,11 +150,21 @@ export async function tabulateTallyReportResults(params: {
           })
         : undefined;
 
-      // maintain split for card counts (skip undefined-party groups, e.g.
-      // crossover ballots in open primaries)
+      // maintain split for card counts, extracting crossover and nonpartisan
+      // counts separately
+      let crossoverCardCounts: Tabulation.CardCounts | undefined;
+      let nonpartisanCardCounts: Tabulation.CardCounts | undefined;
       const cardCountsByParty: Admin.CardCountsByParty = reportsByParty.reduce(
         (ccByParty, partyTallyReportResults) => {
+          if (
+            partyTallyReportResults.partyId ===
+            Tabulation.CROSSOVER_VOTING_PARTY_ID
+          ) {
+            crossoverCardCounts = partyTallyReportResults.cardCounts;
+            return ccByParty;
+          }
           if (partyTallyReportResults.partyId === undefined) {
+            nonpartisanCardCounts = partyTallyReportResults.cardCounts;
             return ccByParty;
           }
           return {
@@ -170,6 +180,9 @@ export async function tabulateTallyReportResults(params: {
         scannedResults: combinedScannedResults,
         manualResults: combinedManualResults,
         cardCountsByParty,
+        ...(isOpenPrimary(election)
+          ? { crossoverCardCounts, nonpartisanCardCounts }
+          : {}),
       };
     }
   );

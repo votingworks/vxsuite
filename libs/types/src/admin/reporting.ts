@@ -66,6 +66,8 @@ export type SingleTallyReportResults = TallyReportResultsBase & {
 export type PartySplitTallyReportResults = TallyReportResultsBase & {
   hasPartySplits: true;
   cardCountsByParty: CardCountsByParty;
+  crossoverCardCounts?: Tabulation.CardCounts;
+  nonpartisanCardCounts?: Tabulation.CardCounts;
 };
 
 /**

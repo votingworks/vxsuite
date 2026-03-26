@@ -387,6 +387,9 @@ function getCellContent({
         case 'party': {
           const partyId = determinePartyId(electionDefinition, cardCounts);
           if (!partyId) return 'Nonpartisan';
+          if (partyId === Tabulation.CROSSOVER_VOTING_PARTY_ID) {
+            return 'Nonpartisan (Crossover Voted)';
+          }
           return CachedElectionLookups.getPartyById(electionDefinition, partyId)
             .name;
         }

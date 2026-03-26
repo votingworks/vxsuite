@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { Tabulation } from '@votingworks/types';
 import {
@@ -51,10 +52,14 @@ const CardCountTable = styled.div`
 
 interface TallyReportCardCountsProps {
   cardCounts: Tabulation.CardCounts;
+  crossoverCardCounts?: Tabulation.CardCounts;
+  nonpartisanCardCounts?: Tabulation.CardCounts;
 }
 
 export function TallyReportCardCounts({
   cardCounts,
+  crossoverCardCounts,
+  nonpartisanCardCounts,
 }: TallyReportCardCountsProps): JSX.Element | null {
   const manualCount =
     cardCounts.manual !== undefined && cardCounts.manual > 0
@@ -63,6 +68,9 @@ export function TallyReportCardCounts({
   const showScannedCount = manualCount !== undefined;
 
   const numSheets = Math.max(cardCounts.hmpb.length, cardCounts.bmd.length);
+
+  const showCrossoverBreakdown =
+    crossoverCardCounts !== undefined && nonpartisanCardCounts !== undefined;
 
   return (
     <CardCountTable>
@@ -74,6 +82,28 @@ export function TallyReportCardCounts({
               {format.count(getBallotCount(cardCounts))}
             </TH>
           </tr>
+          {showCrossoverBreakdown && (
+            <React.Fragment>
+              <tr className="subrow">
+                <TD nowrap>Single-Party</TD>
+                <TD>
+                  {format.count(
+                    getBallotCount(cardCounts) -
+                      getBallotCount(nonpartisanCardCounts) -
+                      getBallotCount(crossoverCardCounts)
+                  )}
+                </TD>
+              </tr>
+              <tr className="subrow">
+                <TD nowrap>Nonpartisan</TD>
+                <TD>{format.count(getBallotCount(nonpartisanCardCounts))}</TD>
+              </tr>
+              <tr className="subrow">
+                <TD nowrap>Crossover Voted</TD>
+                <TD>{format.count(getBallotCount(crossoverCardCounts))}</TD>
+              </tr>
+            </React.Fragment>
+          )}
           {showScannedCount && (
             <tr>
               <TD nowrap>Scanned</TD>

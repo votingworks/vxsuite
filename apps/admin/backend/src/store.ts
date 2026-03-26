@@ -769,8 +769,10 @@ export class Store implements BaseStore {
 
       return groups.flatMap((group) => [
         ...uniquePartyIds.map((pid) => ({ ...group, partyId: pid })),
-        // Include a group for crossover ballots (no party)
+        // Include a group for nonpartisan-only ballots (no party)
         { ...group, partyId: undefined },
+        // Include a group for crossover voted ballots
+        { ...group, partyId: Tabulation.CROSSOVER_VOTING_PARTY_ID },
       ]);
     }
 
@@ -1602,10 +1604,13 @@ export class Store implements BaseStore {
           votes,
           election
         );
-        partyId =
-          !isCrossover && votedPartyIds.length === 1
-            ? votedPartyIds[0]
-            : undefined;
+        if (isCrossover) {
+          partyId = Tabulation.CROSSOVER_VOTING_PARTY_ID;
+        } else if (votedPartyIds.length === 1) {
+          [partyId] = votedPartyIds;
+        } else {
+          partyId = undefined;
+        }
       }
 
       yield {

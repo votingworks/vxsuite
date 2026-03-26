@@ -106,6 +106,7 @@ export type Card =
 export const MANUAL_BATCH_ID = 'NO_BATCH__MANUAL';
 export const MANUAL_SCANNER_ID = 'NO_SCANNER__MANUAL';
 export const MANUAL_BATCH_DATE = 'NO_DATE__MANUAL';
+export const CROSSOVER_VOTING_PARTY_ID = '__crossover_voting__';
 
 /**
  * In situations where we're generating grouped results, specifiers can be
