@@ -217,35 +217,26 @@ function ElectionInfoForm({
           label="Type"
           options={[
             { label: 'General', id: 'general' },
-            { label: 'Primary', id: 'primary' },
+            { label: 'Closed Primary', id: 'closed-primary' },
+            { label: 'Open Primary', id: 'open-primary' },
           ]}
-          selectedOptionId={electionInfo.type}
-          onChange={(type) =>
+          selectedOptionId={
+            electionInfo.type === 'general'
+              ? 'general'
+              : electionInfo.isOpenPrimary
+              ? 'open-primary'
+              : 'closed-primary'
+          }
+          onChange={(electionTypeOption) =>
             setElectionInfo({
               ...electionInfo,
-              type,
-              isOpenPrimary: type === 'general' ? undefined : electionInfo.isOpenPrimary,
+              type: electionTypeOption === 'general' ? 'general' : 'primary',
+              isOpenPrimary:
+                electionTypeOption === 'open-primary' ? true : undefined,
             })
           }
           disabled={disabled || hasExternalSource}
         />
-        {electionInfo.type === 'primary' && (
-          <SegmentedButton
-            label="Primary Type"
-            options={[
-              { label: 'Standard', id: 'standard' },
-              { label: 'Open', id: 'open' },
-            ]}
-            selectedOptionId={electionInfo.isOpenPrimary ? 'open' : 'standard'}
-            onChange={(primaryType) =>
-              setElectionInfo({
-                ...electionInfo,
-                isOpenPrimary: primaryType === 'open',
-              })
-            }
-            disabled={disabled || hasExternalSource}
-          />
-        )}
         <InputGroup label="State">
           <InputWithAudio
             audioScreenUrl={infoRoutes.audio({

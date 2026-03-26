@@ -1326,12 +1326,14 @@ export class Store {
     ballotTemplateId,
     systemSettings,
     externalSource,
+    isOpenPrimary: isOpenPrimaryFlag,
   }: {
     jurisdictionId: string;
     election: Election;
     ballotTemplateId: BallotTemplateId;
     systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
+    isOpenPrimary?: boolean;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
@@ -1357,7 +1359,8 @@ export class Store {
             ballot_template_id,
             ballot_language_codes,
             system_settings_data,
-            external_source
+            external_source,
+            is_open_primary
           )
           values (
             $1,
@@ -1374,7 +1377,8 @@ export class Store {
             $12,
             $13,
             $14,
-            $15
+            $15,
+            $16
           )
         `,
           election.id,
@@ -1391,7 +1395,8 @@ export class Store {
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
           JSON.stringify(systemSettings),
-          externalSource
+          externalSource,
+          isOpenPrimaryFlag ?? false
         );
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);

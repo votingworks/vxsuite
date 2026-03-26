@@ -38,6 +38,7 @@ import {
   formatBallotHash,
   PollingPlaceSchema,
   PollingPlace,
+  isOpenPrimary as checkIsOpenPrimary,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -429,6 +430,7 @@ export function buildApi(ctx: AppContext) {
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
           systemSettings: defaultSystemSettings(jurisdiction),
+          isOpenPrimary: checkIsOpenPrimary(election),
         });
 
         return ok(election.id);
