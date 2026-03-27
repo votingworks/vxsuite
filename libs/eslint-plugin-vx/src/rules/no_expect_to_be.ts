@@ -31,9 +31,8 @@ const rule: TSESLint.RuleModule<'noExpectToBe', readonly unknown[]> =
             context.report({
               node: node.property,
               messageId: 'noExpectToBe',
-              fix: (fixer) => {
-                return fixer.replaceTextRange(node.property.range, 'toEqual');
-              },
+              fix: (fixer) =>
+                fixer.replaceTextRange(node.property.range, 'toEqual'),
             });
           }
         },

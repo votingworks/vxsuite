@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Rule } from 'eslint';
 import gtsArrayTypeStyle from './gts_array_type_style';
 import gtsConstants from './gts_constants';

@@ -1,14 +1,15 @@
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
 import rule from '../../src/rules/gts_identifiers';
 
 const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    tsconfigRootDir: join(__dirname, '../fixtures'),
-    project: './tsconfig.json',
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: 2018,
+      tsconfigRootDir: join(__dirname, '../fixtures'),
+      project: './tsconfig.json',
+    },
   },
-  parser: require.resolve('@typescript-eslint/parser'),
 });
 
 ruleTester.run('gts-identifiers', rule, {
@@ -67,15 +68,48 @@ ruleTester.run('gts-identifiers', rule, {
     },
     {
       code: `let a = { imageURL: '/logo.png' }`,
-      errors: [{ messageId: 'noAbbreviations', line: 1 }],
+      errors: [
+        {
+          messageId: 'noAbbreviations',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'useCamelCase',
+              output: `let a = { imageUrl: '/logo.png' }`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `interface A { imageURL: string }`,
-      errors: [{ messageId: 'noAbbreviations', line: 1 }],
+      errors: [
+        {
+          messageId: 'noAbbreviations',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'useCamelCase',
+              output: `interface A { imageUrl: string }`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `export * as ElectionADT from './election_adt'`,
-      errors: [{ messageId: 'noAbbreviations', line: 1 }],
+      errors: [
+        {
+          messageId: 'noAbbreviations',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'useCamelCase',
+              output: `export * as ElectionAdt from './election_adt'`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });

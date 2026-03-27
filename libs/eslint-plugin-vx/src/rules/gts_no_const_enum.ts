@@ -19,7 +19,7 @@ const rule: TSESLint.RuleModule<'noConstEnum', readonly unknown[]> = createRule(
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const { sourceCode } = context;
 
       return {
         TSEnumDeclaration(node: TSESTree.TSEnumDeclaration): void {

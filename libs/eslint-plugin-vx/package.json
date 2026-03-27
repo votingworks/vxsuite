@@ -4,6 +4,13 @@
   "description": "VotingWorks monorepo rules for ESLint",
   "keywords": [],
   "license": "GPL-3.0-only",
+  "exports": {
+    ".": {
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "types": "./build/index.d.ts"
+    }
+  },
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
@@ -17,8 +24,8 @@
     "build:watch": "tsc --build --watch tsconfig.build.json",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",
-    "lint": "echo eslint-plugin-vs linting temporarily disabled",
-    "lint:fix": "echo eslint-plugin-vs linting temporarily disabled",
+    "lint": "pnpm type-check && eslint --cache .",
+    "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
@@ -28,29 +35,37 @@
     "type-check:watch": "tsc --build --watch"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "8.59.2",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^9.39.4",
+    "@typescript-eslint/parser": "8.59.2",
     "@typescript-eslint/utils": "8.59.2",
     "comment-parser": "^1.4.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-typescript": "3.6.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-n": "17",
-    "eslint-plugin-react": "^7.31.8",
-    "typescript": "npm:@typescript/typescript6@6.0.2"
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-n": "^17",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5",
+    "eslint-plugin-vitest": "^0.5.4",
+    "globals": "^17.4.0",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "typescript-eslint": "8.59.2"
   },
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/react": "18.3.3",
     "@typescript-eslint/rule-tester": "8.59.2",
     "@vitest/coverage-istanbul": "^4.1.6",
-    "eslint-plugin-vitest": "^0.5.4",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
     "vitest": "^4.1.6"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
   },
   "packageManager": "pnpm@10.34.5"
 }

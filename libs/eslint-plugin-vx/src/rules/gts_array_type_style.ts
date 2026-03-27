@@ -23,7 +23,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
 
     function isSimpleType(node: TSESTree.Node) {
       // A simple type contains just alphanumeric characters and dot

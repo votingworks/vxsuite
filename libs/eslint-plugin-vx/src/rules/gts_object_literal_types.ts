@@ -34,7 +34,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
 
     type ReportSuggestionArray = Exclude<
       Parameters<(typeof context)['report']>[0]['suggest'],

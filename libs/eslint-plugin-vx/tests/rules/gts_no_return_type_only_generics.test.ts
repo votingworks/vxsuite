@@ -1,14 +1,15 @@
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
 import rule from '../../src/rules/gts_no_return_type_only_generics';
 
 const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    tsconfigRootDir: join(__dirname, '../fixtures'),
-    project: './tsconfig.json',
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: 2018,
+      tsconfigRootDir: join(__dirname, '../fixtures'),
+      project: './tsconfig.json',
+    },
   },
-  parser: require.resolve('@typescript-eslint/parser'),
 });
 
 ruleTester.run('gts-no-return-type-only-generics', rule, {

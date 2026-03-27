@@ -32,12 +32,11 @@ const rule: TSESLint.RuleModule<'noImportSubfolders', readonly unknown[]> =
               context.report({
                 node,
                 messageId: 'noImportSubfolders',
-                fix: (fixer) => {
-                  return fixer.replaceText(
+                fix: (fixer) =>
+                  fixer.replaceText(
                     node.source,
                     `'${folders[0]}/${folders[1]}'`
-                  );
-                },
+                  ),
               });
             }
           }

@@ -2,6 +2,14 @@ import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import { createRule } from '../util';
 
+function getSpecifierLocalName(
+  node: TSESTree.Identifier | TSESTree.StringLiteral
+): string {
+  return 'name' in node && typeof node.name === 'string'
+    ? node.name
+    : (node as TSESTree.StringLiteral).value;
+}
+
 const rule: TSESLint.RuleModule<
   'noImportType' | 'noExportType',
   Array<{ allowReexport: boolean }>
@@ -37,10 +45,10 @@ const rule: TSESLint.RuleModule<
   ],
 
   create(context, [{ allowReexport }]) {
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
 
-    function isReexportOnly(name: string): boolean {
-      const scope = context.getScope();
+    function isReexportOnly(name: string, scopeNode: TSESTree.Node): boolean {
+      const scope = context.sourceCode.getScope(scopeNode);
       const variable = scope.set.get(name);
 
       if (!variable) {
@@ -70,9 +78,9 @@ const rule: TSESLint.RuleModule<
 
       if (
         reference.identifier.parent.type !==
-        AST_NODE_TYPES.ExportAllDeclaration &&
+          AST_NODE_TYPES.ExportAllDeclaration &&
         reference.identifier.parent.parent.type !==
-        AST_NODE_TYPES.ExportNamedDeclaration
+          AST_NODE_TYPES.ExportNamedDeclaration
       ) {
         return false;
       }
@@ -117,7 +125,7 @@ const rule: TSESLint.RuleModule<
         if (
           allowReexport &&
           node.specifiers.every((specifier) =>
-            isReexportOnly(specifier.local.name)
+            isReexportOnly(getSpecifierLocalName(specifier.local), node)
           )
         ) {
           return;
@@ -147,10 +155,8 @@ const rule: TSESLint.RuleModule<
         // export type { foo }
         if (
           allowReexport &&
-          node.specifiers.every(
-            (specifier) =>
-              specifier.local.type === AST_NODE_TYPES.Identifier &&
-              isReexportOnly(specifier.local.name)
+          node.specifiers.every((specifier) =>
+            isReexportOnly(getSpecifierLocalName(specifier.local), node)
           )
         ) {
           return;

@@ -30,13 +30,13 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const { sourceCode } = context;
       let functionLevel = 0;
       const pendingReports: PendingReport[] = [];
 
       return {
         VariableDeclarator(node: TSESTree.VariableDeclarator): void {
-          const declaration = node.parent as TSESTree.VariableDeclaration;
+          const declaration = node.parent;
           const declarator = node;
           const { id, init } = node;
 

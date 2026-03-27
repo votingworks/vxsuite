@@ -20,7 +20,7 @@ const rule: TSESLint.RuleModule<'noForInLoop', readonly unknown[]> = createRule(
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const { sourceCode } = context;
       return {
         ForInStatement: (node: TSESTree.ForInStatement) => {
           context.report({
