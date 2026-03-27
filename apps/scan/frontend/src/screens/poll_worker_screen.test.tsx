@@ -18,7 +18,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
-import { PollsState } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
 import { screen, render } from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
@@ -292,12 +292,14 @@ test('no transitions from polls closed final', async () => {
   });
   await screen.findByText(/Voting is complete/);
 
-  // There should only be the power down, print previous report, write-in report, and signed hash buttons
-  expect(screen.queryAllByRole('button')).toHaveLength(4);
+  // There should only be the power down, print previous report, and signed hash buttons
+  expect(screen.queryAllByRole('button')).toHaveLength(3);
   screen.getButton('Power Down');
   screen.getButton('Print Polls Closed Report');
-  screen.getButton('Print Write-In Image Report');
   screen.getButton('Signed Hash Validation');
+  expect(
+    screen.queryByText('Print Write-In Image Report')
+  ).not.toBeInTheDocument();
 
   // If the election is not configured for VxQR there should not be an option to view QR code
   expect(
@@ -313,10 +315,9 @@ test('polls closed final shows quick results code when configured', async () => 
   });
   await screen.findByText(/Voting is complete/);
 
-  expect(screen.queryAllByRole('button')).toHaveLength(5);
+  expect(screen.queryAllByRole('button')).toHaveLength(4);
   screen.getButton('Power Down');
   screen.getButton('Print Polls Closed Report');
-  screen.getButton('Print Write-In Image Report');
   screen.getButton('Signed Hash Validation');
 
   const qrButton = screen.getButton('Send Polls Closed Report');
@@ -425,10 +426,21 @@ describe('reprinting previous report', () => {
 });
 
 describe('write-in image report', () => {
+  beforeEach(() => {
+    apiMock.mockApiClient.getConfig.reset();
+    apiMock.expectGetConfig({
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanEnableWriteInImageReport: true,
+      },
+    });
+  });
+
   test('print success flow', async () => {
     apiMock.expectGetPollsInfo('polls_closed_final');
     renderScreen({});
 
+    expect(await screen.findAllByRole('button')).toHaveLength(4);
     const button = await screen.findByText('Print Write-In Image Report');
     apiMock.expectPrintWriteInImageReport().resolve();
     userEvent.click(button);
