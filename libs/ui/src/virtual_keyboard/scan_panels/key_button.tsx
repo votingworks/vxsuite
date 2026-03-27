@@ -30,7 +30,7 @@ export interface KeyButtonProps {
 /**
  * KeyButton is a visual representation of a single keyboard key.
  */
-// eslint-disable-next-line react/display-name
+
 export const KeyButton = forwardRef(
   (
     { keySpec, onKeyPress, disabled, selectable }: KeyButtonProps,

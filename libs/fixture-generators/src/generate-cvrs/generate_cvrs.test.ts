@@ -9,11 +9,11 @@ import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
 
-test('produces well-formed cast vote records with all contests in HMPB (gridlayouts) case', async () => {
+test('produces well-formed cast vote records with all contests in HMPB (gridlayouts) case', () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { election } = electionDefinition;
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     electionDefinition,
     scannerIds: ['scanner-1'],
     testMode: true,
@@ -37,11 +37,11 @@ test('produces well-formed cast vote records with all contests in HMPB (gridlayo
   }
 });
 
-test('produces well-formed cast vote records with all contests in BMD (non-gridlayouts) case', async () => {
+test('produces well-formed cast vote records with all contests in BMD (non-gridlayouts) case', () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
   const { election } = electionDefinition;
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     electionDefinition,
     scannerIds: ['scanner-1'],
     testMode: true,
@@ -65,11 +65,11 @@ test('produces well-formed cast vote records with all contests in BMD (non-gridl
   }
 });
 
-test('has absentee and precinct ballot types', async () => {
+test('has absentee and precinct ballot types', () => {
   let seenAbsentee = false;
   let seenPrecinct = false;
 
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
     electionDefinition:
@@ -103,10 +103,10 @@ test('has absentee and precinct ballot types', async () => {
   expect(seenPrecinct).toEqual(true);
 });
 
-test('uses all the scanners given', async () => {
+test('uses all the scanners given', () => {
   const scanners = new Set<string>();
 
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1', 'scanner-2'],
     electionDefinition:
@@ -120,7 +120,7 @@ test('uses all the scanners given', async () => {
   expect([...scanners].sort()).toStrictEqual(['scanner-1', 'scanner-2']);
 });
 
-test('adds write-ins for contests that allow them', async () => {
+test('adds write-ins for contests that allow them', () => {
   const writeInContest = electionFamousNames2021Fixtures
     .readElection()
     .contests.find(
@@ -128,7 +128,7 @@ test('adds write-ins for contests that allow them', async () => {
     )!;
   let seenWriteIn = false;
 
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
     electionDefinition:
@@ -154,7 +154,7 @@ test('adds write-ins for contests that allow them', async () => {
   expect(seenWriteIn).toEqual(true);
 });
 
-test('adds write-ins for contests that have 1 seat', async () => {
+test('adds write-ins for contests that have 1 seat', () => {
   const writeInContest = electionFamousNames2021Fixtures
     .readElection()
     .contests.find(
@@ -165,7 +165,7 @@ test('adds write-ins for contests that have 1 seat', async () => {
     )!;
   let seenWriteIn = false;
 
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     scannerIds: ['scanner-1'],
     testMode: false,
     electionDefinition:
@@ -191,9 +191,9 @@ test('adds write-ins for contests that have 1 seat', async () => {
   expect(seenWriteIn).toEqual(true);
 });
 
-test('can include ballot image references for write-ins (gridLayouts)', async () => {
+test('can include ballot image references for write-ins (gridLayouts)', () => {
   let reportHasWriteIn = false;
-  for await (const cvr of generateCvrs({
+  for (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
     electionDefinition:

@@ -15,7 +15,7 @@ export interface LinkButtonProps extends Omit<ButtonProps, 'onPress'> {
 /**
  * Renders a button that updates navigation, or calls `onPress`.
  */
-// eslint-disable-next-line react/display-name
+
 export const LinkButton = forwardRef(
   (props: LinkButtonProps, ref: Ref<Button<never>>): JSX.Element => {
     const history = useHistory();

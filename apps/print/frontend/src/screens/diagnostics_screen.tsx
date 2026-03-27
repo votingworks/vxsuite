@@ -1,9 +1,9 @@
 import {
+  Loading,
   PrintReadinessReportContents,
   SaveReadinessReportButton,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Loading } from '@votingworks/ui';
 import { ScreenWrapper } from '../components/screen_wrapper';
 import { TitleBar } from '../components/title_bar';
 import {

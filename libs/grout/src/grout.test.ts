@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-/* eslint-disable no-unused-expressions */
+
 /* eslint-disable @typescript-eslint/require-await */
 import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
@@ -67,10 +67,13 @@ test('registers Express routes for an API', async () => {
   }>();
 
   // @ts-expect-error Catches typos in method names
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   client.getAllPeeple;
   // @ts-expect-error Catches incorrect argument names
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   () => client.getPersonByName({ nam: 'Alice' });
   // @ts-expect-error Catches incorrect argument types
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   () => client.getPersonByName({ name: 1 });
 
   const mockPerson: Person = { name: 'Alice', age: 99 };
@@ -204,6 +207,7 @@ test("crashes if RPC method doesn't have the correct signature (crash mode)", as
     );
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   async () => {
     // We can catch the wrong number of arguments when calling a method at compile time
     // @ts-expect-error expected 1 argument, got 2
@@ -407,6 +411,7 @@ test('can send timeout', async () => {
 });
 
 test('client errors if response is not JSON', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -441,6 +446,7 @@ test('client errors if response is not JSON', async () => {
 });
 
 test('client handles non-JSON error responses', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -461,6 +467,7 @@ test('client handles non-JSON error responses', async () => {
 });
 
 test('client handles other server errors', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;

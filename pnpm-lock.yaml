@@ -22800,7 +22800,7 @@ packages:
       }
     engines: { node: '>=14' }
     dependencies:
-      cross-spawn: 7.0.6
+      cross-spawn: 7.0.3
       signal-exit: 4.1.0
 
   /form-data@2.5.1:

@@ -27,10 +27,10 @@ export default function buildRecommended(plugin: VxPlugin): Linter.Config[] {
       ignores: [
         'build/**',
         'coverage/**',
-        '*.config.ts',
-        '*.config.mts',
-        '*.config.js',
-        '*.config.mjs',
+        '**/*.config.ts',
+        '**/*.config.mts',
+        '**/*.config.js',
+        '**/*.config.mjs',
         // Re-enable playwright.config.ts so integration-testing overrides work.
         '!playwright.config.ts',
         // Dotfile tooling configs (lint-staged, prettier, stylelint, etc.)

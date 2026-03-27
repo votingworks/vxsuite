@@ -47,7 +47,6 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
 
   switch (election.type) {
     case 'general': {
-      // eslint-disable-next-line no-inner-declarations
       function getBallotStyleForPrecinctOrSplit(
         precinctOrSplit: PrecinctOrSplit
       ) {
