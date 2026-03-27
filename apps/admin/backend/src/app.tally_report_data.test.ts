@@ -902,15 +902,13 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   );
   mockElectionManagerAuth(auth, election);
 
-  // Use Fish party contest (party "1") for write-ins. The Mammal party (party
-  // "0") is initialized first in the expected groups, so when combining results
-  // across parties, the Mammal group's stale generic "Write-In" entry for this
-  // contest (from getEmptyElectionResults) gets processed first, overriding
-  // the correct "Unadjudicated Write-In" name from the Fish group.
+  // Regression test for https://github.com/votingworks/vxsuite/pull/8191
+  // When one party has write-ins and another doesn't, the party without
+  // write-ins must not leave stale "Write-In" entries that produce duplicate
+  // rows on the tally report.
   const writeInContestId = 'aquarium-council-fish';
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
-    // Mammal party CVRs without write-ins
     {
       ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1',
@@ -923,7 +921,6 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
       card: { type: 'bmd' },
       multiplier: 5,
     },
-    // Fish party CVRs with write-ins for aquarium-council-fish
     {
       ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-2',
@@ -943,7 +940,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
     store: workspace.store,
   });
 
-  // Adjudicate some write-ins for an unofficial candidate, leaving some pending
+  // Gather write-ins from the adjudication queue
   const unofficialCandidate = await apiClient.addWriteInCandidate({
     contestId: writeInContestId,
     name: 'Unofficial Fish',
@@ -964,7 +961,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   }
   expect(writeIns).toHaveLength(5);
 
-  // Adjudicate only some — leave 2 pending
+  // Adjudicate some, leaving 2 pending
   const NUM_ADJUDICATED = 3;
   for (const [i, writeIn] of writeIns.entries()) {
     if (i < NUM_ADJUDICATED) {
