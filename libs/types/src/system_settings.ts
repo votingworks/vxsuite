@@ -193,6 +193,12 @@ export const SystemSettingsSchema = z
      * available ballot style for the configured precinct.
      */
     bmdEnableQrBallotActivation: z.boolean().optional(),
+
+    /**
+     * Enables the button to print a write-in image report on the VxScan poll worker screen after
+     * polls are closed. If omitted, the button is not shown.
+     */
+    precinctScanEnableWriteInImageReport: z.boolean().optional(),
   })
   .refine(
     (settings) => {

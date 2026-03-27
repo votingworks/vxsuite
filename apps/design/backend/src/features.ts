@@ -46,6 +46,11 @@ export interface UserFeaturesConfig {
    */
   VXSCAN_ALARMS_SYSTEM_SETTING?: boolean;
   /**
+   * Allow the user to toggle the ability to print a write-in image report on VxScan.
+   * Requires the system settings screen to be enabled.
+   */
+  VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING?: boolean;
+  /**
    * Allow the user to toggle the ability to mark overvotes on VxMark.
    * Requires the system settings screen to be enabled.
    */
@@ -158,6 +163,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   SYSTEM_SETTINGS_SCREEN: true,
   VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
+  VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true,
   BMD_OVERVOTE_SYSTEM_SETTING: true,
   BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,

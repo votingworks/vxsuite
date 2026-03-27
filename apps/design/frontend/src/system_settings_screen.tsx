@@ -627,6 +627,23 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Enable Write-In Image Report on VxScan"
+                isChecked={Boolean(
+                  systemSettings.precinctScanEnableWriteInImageReport
+                )}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    precinctScanEnableWriteInImageReport: isChecked
+                      ? true
+                      : undefined, // Completely omit when unchecked,
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
             {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
               <InputGroup label="VxMark Print Mode">
                 <SearchSelect<BmdPrintMode>
