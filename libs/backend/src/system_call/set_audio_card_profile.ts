@@ -60,7 +60,7 @@ export async function setAudioCardProfile(
    * briefly play through the previous output. This provides a bit of buffer
    * to allow for things to settle before playing audio.
    */
-  await sleep(500);
+  await sleep(300);
 
   return ok();
 }
