@@ -2,7 +2,7 @@ import { react, ignores } from 'eslint-plugin-vx';
 import storybook from 'eslint-plugin-storybook';
 
 export default [
-  { ignores: ignores.frontend },
+  { ignores: [...ignores.frontend, '.storybook/**', '.storybook-static/**'] },
   ...react,
   ...storybook.configs['flat/recommended'],
   {
