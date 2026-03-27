@@ -15,6 +15,8 @@ import {
   ElectionStringKey,
   safeParseInt,
   hasSplits,
+  isPrecinctCount,
+  isSplitCounts,
 } from '@votingworks/types';
 import type {
   Precinct,
@@ -206,7 +208,10 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         ...rest,
         splits: newSplits,
       });
-      if (typeof registeredVotersCounts === 'object') {
+      if (
+        registeredVotersCounts !== undefined &&
+        isSplitCounts(registeredVotersCounts)
+      ) {
         const remainingSplits = Object.fromEntries(
           Object.entries(registeredVotersCounts.splits).filter(
             ([id]) => id !== removedSplitId
@@ -220,7 +225,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         districtIds: newSplits[0].districtIds,
       });
       setRegisteredVotersCounts(
-        typeof registeredVotersCounts === 'object'
+        registeredVotersCounts !== undefined &&
+          isSplitCounts(registeredVotersCounts)
           ? registeredVotersCounts.splits[newSplits[0].id]
           : undefined
       );
@@ -359,13 +365,15 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                             step={1}
                             min={0}
                             value={
-                              typeof registeredVotersCounts === 'object'
+                              registeredVotersCounts !== undefined &&
+                              isSplitCounts(registeredVotersCounts)
                                 ? registeredVotersCounts.splits[split.id] ?? ''
                                 : ''
                             }
                             onChange={(e) => {
                               const currentSplits =
-                                typeof registeredVotersCounts === 'object'
+                                registeredVotersCounts !== undefined &&
+                                isSplitCounts(registeredVotersCounts)
                                   ? registeredVotersCounts.splits
                                   : {};
                               const newSplits: Record<string, number> = {
@@ -496,7 +504,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       min={0}
                       step={1}
                       value={
-                        typeof registeredVotersCounts === 'number'
+                        registeredVotersCounts !== undefined &&
+                        isPrecinctCount(registeredVotersCounts)
                           ? registeredVotersCounts
                           : ''
                       }

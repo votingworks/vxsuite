@@ -1,5 +1,9 @@
-import { expect, test } from 'vitest';
-import { BallotStyle } from '@votingworks/types';
+import { describe, expect, test } from 'vitest';
+import {
+  BallotStyle,
+  ElectionRegisteredVotersCounts,
+  Precinct,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
@@ -21,6 +25,8 @@ test('ballots incomplete', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockPrecincts(api, []);
+  mockRegisteredVoterCounts(api, {});
 
   renderUi(api);
 
@@ -37,6 +43,8 @@ test('ballots ready to finalize', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockPrecincts(api, []);
+  mockRegisteredVoterCounts(api, {});
 
   renderUi(api);
 
@@ -63,6 +71,8 @@ test('start finalize and cancel', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockPrecincts(api, []);
+  mockRegisteredVoterCounts(api, {});
 
   renderUi(api);
 
@@ -84,6 +94,8 @@ test('start finalize and confirm', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockPrecincts(api, []);
+  mockRegisteredVoterCounts(api, {});
 
   renderUi(api);
 
@@ -113,6 +125,8 @@ test.each([false, true])(
     mockStateFeatures(api, {
       POST_FINALIZE_CHANGE_FEE_WARNING: isPostFinalizeChangeFeeWarningEnabled,
     });
+    mockPrecincts(api, []);
+    mockRegisteredVoterCounts(api, {});
 
     renderUi(api);
 
@@ -138,6 +152,8 @@ test('ballots finalized', async () => {
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockPrecincts(api, []);
+  mockRegisteredVoterCounts(api, {});
 
   renderUi(api);
 
@@ -154,6 +170,8 @@ test('ballots approved', async () => {
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, new Date());
   mockStateFeatures(api, {});
+  mockPrecincts(api, []);
+  mockRegisteredVoterCounts(api, {});
 
   const { history } = renderUi(api);
 
@@ -167,6 +185,62 @@ test('ballots approved', async () => {
 
   const downloadsUrlPath = routes.election(electionId).downloads.path;
   expect(history.location.pathname).toEqual(downloadsUrlPath);
+});
+
+describe('registered voter counts', () => {
+  test('validation failed - partial registered voter counts (non-split precinct)', async () => {
+    const api = createMockApiClient();
+    mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, {});
+    mockPrecincts(api, [
+      { id: 'p1', name: 'Precinct 1', districtIds: [] },
+      { id: 'p2', name: 'Precinct 2', districtIds: [] },
+    ]);
+    // Only p1 has a count, p2 does not - partial RVC
+    mockRegisteredVoterCounts(api, { p1: 100 });
+
+    renderUi(api);
+
+    const soleHeading = await screen.findByRole('heading');
+    api.assertComplete();
+
+    expect(soleHeading).toHaveTextContent(
+      'Registered voter counts must be provided for all precincts and splits, or none'
+    );
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  test('validation failed - partial registered voter counts (split precinct)', async () => {
+    const api = createMockApiClient();
+    mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, {});
+    mockPrecincts(api, [
+      {
+        id: 'p1',
+        name: 'Precinct 1',
+        splits: [
+          { id: 's1', name: 'Split 1', districtIds: [] },
+          { id: 's2', name: 'Split 2', districtIds: [] },
+        ],
+      },
+    ]);
+    // Only split s1 has a count, s2 does not - partial RVC
+    mockRegisteredVoterCounts(api, { p1: { splits: { s1: 100 } } });
+
+    renderUi(api);
+
+    const soleHeading = await screen.findByRole('heading');
+    api.assertComplete();
+
+    expect(soleHeading).toHaveTextContent(
+      'Registered voter counts must be provided for all precincts and splits, or none'
+    );
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
 });
 
 function mockApprovedAt(api: MockApiClient, date: Date | null) {
@@ -186,6 +260,17 @@ function mockStateFeatures(
   features: Record<string, boolean>
 ) {
   api.getStateFeatures.expectCallWith({ electionId }).resolves(features);
+}
+
+function mockPrecincts(api: MockApiClient, precincts: Precinct[]) {
+  api.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+}
+
+function mockRegisteredVoterCounts(
+  api: MockApiClient,
+  counts: ElectionRegisteredVotersCounts
+) {
+  api.getRegisteredVotersCounts.expectCallWith({ electionId }).resolves(counts);
 }
 
 function renderUi(api: MockApiClient) {

@@ -2723,6 +2723,60 @@ test('Finalize ballots - NH state', async () => {
   expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 });
 
+test('Finalize ballots - rejects partial registered voter counts', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
+    })
+  ).unsafeUnwrap();
+
+  const precincts = await apiClient.listPrecincts({ electionId });
+  // Set a count on only one precinct, leaving the rest without counts
+  const firstPrecinct = assertDefined(precincts.find((p) => !hasSplits(p)));
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: firstPrecinct,
+      registeredVotersCounts: 500,
+    })
+  ).unsafeUnwrap();
+
+  await suppressingConsoleOutput(async () => {
+    await expect(apiClient.finalizeBallots({ electionId })).rejects.toThrow(
+      'Registered voter counts must be provided for all precincts and splits or none'
+    );
+  });
+
+  // Setting all precincts' counts should allow finalization to proceed
+  for (const precinct of precincts) {
+    if (!hasSplits(precinct) && precinct.id !== firstPrecinct.id) {
+      (
+        await apiClient.updatePrecinct({
+          electionId,
+          updatedPrecinct: precinct,
+          registeredVotersCounts: 500,
+        })
+      ).unsafeUnwrap();
+    }
+  }
+  await apiClient.finalizeBallots({ electionId });
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
+    null
+  );
+});
+
 test('approve ballots', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
