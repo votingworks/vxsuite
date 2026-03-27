@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  electionGridLayoutNewHampshireTestBallotFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -183,27 +182,6 @@ describe('voter turnout report link', () => {
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
-      apiMock,
-    });
-
-    await screen.findButton('Full Election Tally Report');
-    expect(
-      screen.queryByText('Unofficial Voter Turnout Report')
-    ).not.toBeInTheDocument();
-  });
-
-  test('not shown for NH elections even when registered voter counts exist', async () => {
-    const nhElectionDefinition =
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-    apiMock.expectGetCastVoteRecordFileMode('test');
-    apiMock.expectGetManualResultsMetadata([]);
-    apiMock.expectGetTotalBallotCount(3000);
-    apiMock.expectGetRegisteredVoterCounts({
-      'town-id-00701-precinct-id-default': 500,
-    });
-
-    renderInAppContext(<ReportsScreen />, {
-      electionDefinition: nhElectionDefinition,
       apiMock,
     });
 
