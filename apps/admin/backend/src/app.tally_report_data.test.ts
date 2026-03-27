@@ -888,3 +888,116 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
     absenteeTallyReport.cardCountsByParty
   );
 });
+
+test('primary, partial write-in adjudication uses correct unadjudicated label', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, election);
+
+  // Use Fish party contest (party "1") for write-ins. The Mammal party (party
+  // "0") is initialized first in the expected groups, so when combining results
+  // across parties, the Mammal group's stale generic "Write-In" entry for this
+  // contest (from getEmptyElectionResults) gets processed first, overriding
+  // the correct "Unadjudicated Write-In" name from the Fish group.
+  const writeInContestId = 'aquarium-council-fish';
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    // Mammal party CVRs without write-ins
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {
+        'zoo-council-mammal': ['zebra', 'lion', 'kangaroo'],
+      },
+      card: { type: 'bmd' },
+      multiplier: 5,
+    },
+    // Fish party CVRs with write-ins for aquarium-council-fish
+    {
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      batchId: 'batch-2',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {
+        [writeInContestId]: ['manta-ray', 'write-in-0'],
+      },
+      card: { type: 'bmd' },
+      multiplier: 5,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+  });
+
+  // Adjudicate some write-ins for an unofficial candidate, leaving some pending
+  const unofficialCandidate = await apiClient.addWriteInCandidate({
+    contestId: writeInContestId,
+    name: 'Unofficial Fish',
+  });
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  const writeIns: Array<{ cvrId: string; optionId: string }> = [];
+  for (const cvrId of queue) {
+    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const contest = adjData.contests.find(
+      (c) => c.contestId === writeInContestId
+    );
+    if (!contest) continue;
+    for (const option of contest.options) {
+      if (option.writeInRecord) {
+        writeIns.push({ cvrId, optionId: option.writeInRecord.optionId });
+      }
+    }
+  }
+  expect(writeIns).toHaveLength(5);
+
+  // Adjudicate only some — leave 2 pending
+  const NUM_ADJUDICATED = 3;
+  for (const [i, writeIn] of writeIns.entries()) {
+    if (i < NUM_ADJUDICATED) {
+      await apiClient.adjudicateCvrContest({
+        cvrId: writeIn.cvrId,
+        contestId: writeInContestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [writeIn.optionId]: {
+            type: 'write-in-option',
+            candidateName: unofficialCandidate.name,
+            candidateType: 'write-in-candidate',
+            hasVote: true,
+          },
+        },
+      });
+    }
+  }
+
+  // Get tally report results
+  const tallyReportList = await apiClient.getResultsForTallyReports();
+  expect(tallyReportList).toHaveLength(1);
+  const [tallyReport] = tallyReportList;
+  assert(tallyReport);
+  assert(tallyReport.hasPartySplits);
+
+  // The unadjudicated write-in entry should have the "Unadjudicated Write-In"
+  // name, not the generic "Write-In" name
+  const contestResults =
+    tallyReport.scannedResults.contestResults[writeInContestId];
+  assert(contestResults);
+  assert(contestResults.contestType === 'candidate');
+  const writeInTally = contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID];
+  expect(writeInTally).toBeDefined();
+  expect(writeInTally?.name).toEqual(Tabulation.PENDING_WRITE_IN_NAME);
+});
