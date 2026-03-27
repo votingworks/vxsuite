@@ -286,7 +286,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
           />
         </InputGroup>
         <div>
-          <FieldName>{hasSplits(precinct) ? 'Splits' : 'Districts'}</FieldName>
+          {hasSplits(precinct) && <FieldName>Splits</FieldName>}
           <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
             {hasSplits(precinct) ? (
               <React.Fragment>

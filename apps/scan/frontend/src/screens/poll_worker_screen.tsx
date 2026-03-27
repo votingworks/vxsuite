@@ -376,7 +376,8 @@ function PollWorkerScreenContents({
   const printerStatus = printerStatusQuery.data;
   const printerSummary = getPollsFlowPrinterSummary(printerStatus);
   const { pollsState } = pollsInfo;
-  const { isContinuousExportEnabled, ballotCastingMode } = configQuery.data;
+  const { isContinuousExportEnabled, ballotCastingMode, systemSettings } =
+    configQuery.data;
   const mustInsertUsbDriveToContinue =
     isContinuousExportEnabled && usbDriveStatus.status !== 'mounted';
 
@@ -838,11 +839,13 @@ function PollWorkerScreenContents({
               and the polls cannot be reopened.
             </P>
             <ButtonGrid>
-              <PollWorkerLoadAndReprintButton
-                reprint={printWriteInReport}
-                reprintText="Print Write-In Image Report"
-                loadPaperText="Load Printer Paper"
-              />
+              {systemSettings.precinctScanEnableWriteInImageReport && (
+                <PollWorkerLoadAndReprintButton
+                  reprint={printWriteInReport}
+                  reprintText="Print Write-In Image Report"
+                  loadPaperText="Load Printer Paper"
+                />
+              )}
               {commonActions}
             </ButtonGrid>
           </Container>
