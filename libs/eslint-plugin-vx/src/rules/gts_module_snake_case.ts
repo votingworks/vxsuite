@@ -24,8 +24,6 @@ const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Requires the use of `snake_case` for module file names.',
-        recommended: 'stylistic',
-        requiresTypeChecking: false,
       },
       messages: {
         useSnakeCase:
@@ -37,11 +35,11 @@ const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
 
       return {
         Program(node: TSESTree.Program): void {
-          const filePath = context.getFilename();
+          const filePath = context.filename;
 
           if (!shouldBeSnakeCase(filePath)) {
             return;

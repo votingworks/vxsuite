@@ -18,8 +18,6 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
       docs: {
         description:
           'Use `function foo() { ... }` to declare named functions, including functions in nested scopes, e.g. within another function.',
-        recommended: 'stylistic',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
@@ -32,7 +30,7 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
       let functionLevel = 0;
       const pendingReports: PendingReport[] = [];
 

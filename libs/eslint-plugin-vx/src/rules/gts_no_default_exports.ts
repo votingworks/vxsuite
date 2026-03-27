@@ -10,8 +10,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows default exports',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -26,12 +24,13 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     function getNamedExportCandidate(
-      name: string
+      name: string,
+      scopeNode: TSESTree.Node
     ): TSESTree.ExportDeclaration | undefined {
-      const defs = context.getScope().set.get(name)?.defs;
+      const defs = context.sourceCode.getScope(scopeNode).set.get(name)?.defs;
 
       if (!defs || defs.length !== 1) {
         return undefined;
@@ -79,7 +78,12 @@ const rule: TSESLint.RuleModule<
             node.parent.type === AST_NODE_TYPES.ExportNamedDeclaration
         );
 
-        if (node.local.name === 'default' && node.exported.name !== 'default') {
+        if (
+          'name' in node.local &&
+          node.local.name === 'default' &&
+          'name' in node.exported &&
+          node.exported.name !== 'default'
+        ) {
           context.report({
             node: node.parent,
             messageId: 'noDefaultExports',
@@ -94,7 +98,10 @@ const rule: TSESLint.RuleModule<
       ExportDefaultDeclaration(node: TSESTree.ExportDefaultDeclaration): void {
         switch (node.declaration.type) {
           case AST_NODE_TYPES.Identifier: {
-            const declaration = getNamedExportCandidate(node.declaration.name);
+            const declaration = getNamedExportCandidate(
+              node.declaration.name,
+              node
+            );
 
             context.report({
               node,

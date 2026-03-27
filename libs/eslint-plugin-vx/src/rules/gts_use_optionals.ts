@@ -48,8 +48,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Use optional fields (on interfaces or classes) and parameters rather than a |undefined type.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -63,7 +61,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     function getFixFunction(
       typeAnnotation: TSESTree.TSTypeAnnotation

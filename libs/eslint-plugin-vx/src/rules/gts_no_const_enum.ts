@@ -8,8 +8,6 @@ const rule: TSESLint.RuleModule<'noConstEnum', readonly unknown[]> = createRule(
     meta: {
       docs: {
         description: 'Disallows use of `const enum`; use `enum` instead.',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       messages: {
         noConstEnum: 'Use `enum` instead of `const enum`.',
@@ -21,7 +19,7 @@ const rule: TSESLint.RuleModule<'noConstEnum', readonly unknown[]> = createRule(
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
 
       return {
         TSEnumDeclaration(node: TSESTree.TSEnumDeclaration): void {

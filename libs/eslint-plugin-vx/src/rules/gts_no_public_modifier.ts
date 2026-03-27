@@ -9,8 +9,6 @@ const rule: TSESLint.RuleModule<'noPublicModifier', readonly unknown[]> =
       docs: {
         description:
           'Disallows use of `public` accessibility modifiers on class properties',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
@@ -23,7 +21,7 @@ const rule: TSESLint.RuleModule<'noPublicModifier', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
 
       function reportPublicToken(node: TSESTree.Node): void {
         const [publicToken, nextToken] = sourceCode.getFirstTokens(node, {

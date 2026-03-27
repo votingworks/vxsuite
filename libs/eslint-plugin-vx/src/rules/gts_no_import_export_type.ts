@@ -2,6 +2,14 @@ import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import { createRule } from '../util';
 
+function getSpecifierLocalName(
+  node: TSESTree.Identifier | TSESTree.StringLiteral
+): string {
+  return 'name' in node && typeof node.name === 'string'
+    ? node.name
+    : (node as TSESTree.StringLiteral).value;
+}
+
 const rule: TSESLint.RuleModule<
   'noImportType' | 'noExportType',
   Array<{ allowReexport: boolean }>
@@ -10,8 +18,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows use of `import type` and `export type`',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -39,10 +45,10 @@ const rule: TSESLint.RuleModule<
   ],
 
   create(context, [{ allowReexport }]) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
-    function isReexportOnly(name: string): boolean {
-      const scope = context.getScope();
+    function isReexportOnly(name: string, scopeNode: TSESTree.Node): boolean {
+      const scope = context.sourceCode.getScope(scopeNode);
       const variable = scope.set.get(name);
 
       if (!variable) {
@@ -119,7 +125,7 @@ const rule: TSESLint.RuleModule<
         if (
           allowReexport &&
           node.specifiers.every((specifier) =>
-            isReexportOnly(specifier.local.name)
+            isReexportOnly(getSpecifierLocalName(specifier.local), node)
           )
         ) {
           return;
@@ -150,7 +156,7 @@ const rule: TSESLint.RuleModule<
         if (
           allowReexport &&
           node.specifiers.every((specifier) =>
-            isReexportOnly(specifier.local.name)
+            isReexportOnly(getSpecifierLocalName(specifier.local), node)
           )
         ) {
           return;

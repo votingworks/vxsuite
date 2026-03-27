@@ -8,8 +8,6 @@ const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Disallows using the `Array` constructor.',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
@@ -22,7 +20,7 @@ const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
 
       function processNode(
         node: TSESTree.CallExpression | TSESTree.NewExpression

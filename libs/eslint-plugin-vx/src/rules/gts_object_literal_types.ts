@@ -17,8 +17,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires type annotations instead of type assertions on object literals',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     messages: {
       noObjectLiteralTypeAssertions:
@@ -36,7 +34,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     type ReportSuggestionArray = Exclude<
       Parameters<(typeof context)['report']>[0]['suggest'],

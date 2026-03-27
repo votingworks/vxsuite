@@ -19,8 +19,6 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
       docs: {
         description:
           'Prevents react query mutation objects from being used as dependencies in react hooks.',
-        recommended: 'strict',
-        requiresTypeChecking: true,
       },
       messages: {
         badMutationDependency:
@@ -46,9 +44,14 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
             return;
           }
 
-          const { parserServices } = context.getSourceCode();
+          const parserServices = context.sourceCode.parserServices;
+          if (
+            !parserServices?.esTreeNodeToTSNodeMap ||
+            !parserServices?.program
+          ) {
+            return;
+          }
           const tsNodeMap = parserServices.esTreeNodeToTSNodeMap;
-          assert(parserServices.program);
           const typeChecker = parserServices.program.getTypeChecker();
 
           const mutation = deps.elements.find((element) => {

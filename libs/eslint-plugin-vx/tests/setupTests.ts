@@ -1,6 +1,7 @@
-import { describe, test } from 'vitest';
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { afterAll, describe, it } from 'vitest';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 
+RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;
-RuleTester.it = test;
-RuleTester.itOnly = test.only;
+RuleTester.it = it;
+RuleTester.itOnly = it.only;

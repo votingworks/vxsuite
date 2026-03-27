@@ -57,8 +57,6 @@ const rule: TSESLint.RuleModule<
     hasSuggestions: true,
     docs: {
       description: 'Requires `Result` values to be handled appropriately',
-      recommended: 'strict',
-      requiresTypeChecking: true,
     },
     messages: {
       floating: 'Results must be handled appropriately.',
@@ -87,7 +85,7 @@ const rule: TSESLint.RuleModule<
   create(context, [options]) {
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     return {
       ExpressionStatement(node: TSESTree.ExpressionStatement): void {

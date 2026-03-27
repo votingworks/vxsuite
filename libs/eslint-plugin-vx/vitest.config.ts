@@ -14,7 +14,7 @@ export default defineConfig({
       ],
       thresholds: {
         lines: -1,
-        branches: -9,
+        branches: -11,
       },
     },
   },

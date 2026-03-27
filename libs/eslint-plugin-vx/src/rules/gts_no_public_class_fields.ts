@@ -7,8 +7,6 @@ const rule: TSESLint.RuleModule<'noPublicClassFields', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Disallows public class fields.',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       messages: {
         noPublicClassFields:

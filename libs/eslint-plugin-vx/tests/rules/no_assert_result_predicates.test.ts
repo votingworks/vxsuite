@@ -1,14 +1,15 @@
 import { join } from 'node:path';
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import rule from '../../src/rules/no_assert_result_predicates';
 
 const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    tsconfigRootDir: join(__dirname, '../fixtures'),
-    project: './tsconfig.json',
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: 2018,
+      tsconfigRootDir: join(__dirname, '../fixtures'),
+      project: './tsconfig.json',
+    },
   },
-  parser: require.resolve('@typescript-eslint/parser'),
 });
 
 ruleTester.run('no-assert-result-predicates', rule, {

@@ -8,8 +8,6 @@ const rule: TSESLint.RuleModule<'noForInLoop', readonly unknown[]> = createRule(
     meta: {
       docs: {
         description: 'Disallows use of `for-in` loops',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
@@ -22,7 +20,7 @@ const rule: TSESLint.RuleModule<'noForInLoop', readonly unknown[]> = createRule(
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
       return {
         ForInStatement: (node: TSESTree.ForInStatement) => {
           context.report({

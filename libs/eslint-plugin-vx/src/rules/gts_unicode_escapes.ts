@@ -20,8 +20,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires the use of real Unicode characters when printable, escapes when non-printable.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     messages: {
       escapeSequenceMissingComment:
@@ -38,7 +36,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     function checkNonPrintableCharacters(
       node: TSESTree.Node,

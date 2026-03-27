@@ -12,8 +12,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Disallows generics in functions where the only use is in the return type',
-      recommended: 'strict',
-      requiresTypeChecking: true,
     },
     messages: {
       noReturnTypeOnlyGenerics:
@@ -29,7 +27,7 @@ const rule: TSESLint.RuleModule<
       node: TSESTree.FunctionLike,
       typeParameter: TSESTree.TSTypeParameter
     ): boolean {
-      const scope = context.getScope();
+      const scope = context.sourceCode.getScope(node as TSESTree.Node);
       const variable = scope.set.get(typeParameter.name.name);
       let typeParameterReferencedByFunctionParamType = false;
       let typeParameterReferencedByFunctionReturnType = false;

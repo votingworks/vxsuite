@@ -12,6 +12,8 @@
     "shellcheck": "script/shellcheck"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^9.39.4",
     "@storybook/addon-a11y": "^7.2.2",
     "@storybook/addon-actions": "^7.2.2",
     "@storybook/addon-backgrounds": "^7.2.2",
@@ -36,10 +38,8 @@
     "@storybook/react-vite": "^7.2.2",
     "@storybook/theming": "^7.2.2",
     "@storybook/types": "^7.2.2",
-    "@types/eslint": "8.4.1",
-    "@typescript-eslint/parser": "6.7.0",
     "@typescript/native-preview": "7.0.0-dev.20260120.1",
-    "eslint": "8.57.0",
+    "eslint": "9.39.4",
     "husky": "^7.0.0",
     "lint-staged": "^15.0.0",
     "ora": "^5.2.0",
@@ -59,7 +59,6 @@
   "pnpm": {
     "overrides": {
       "@babel/traverse": "7.23.2",
-      "@types/eslint": "8.4.1",
       "graceful-fs": "^4.2.9",
       "nan": "^2.20.0",
       "typescript": "5.8.3"
