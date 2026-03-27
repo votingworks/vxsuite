@@ -23,7 +23,7 @@ const EM_DASH = '—';
 const TurnoutGrid = styled.div`
   width: 7.5in;
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr max-content max-content max-content;
   page-break-inside: auto;
   font-size: 14px;
 
