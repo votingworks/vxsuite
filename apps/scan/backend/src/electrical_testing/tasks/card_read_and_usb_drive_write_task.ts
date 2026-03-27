@@ -29,7 +29,6 @@ export async function runCardReadAndUsbDriveWriteTask({
     });
   });
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     // Exit the loop if both tasks are stopped.
     if (cardTask.isStopped() && usbDriveTask.isStopped()) {

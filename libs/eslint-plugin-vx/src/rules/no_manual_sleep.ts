@@ -79,8 +79,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Disallow manual sleep implementations; use `sleep` from `@votingworks/basics`',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     hasSuggestions: true,
     messages: {
@@ -126,7 +124,7 @@ const rule: TSESLint.RuleModule<
 
         // Safe: isSetTimeoutResolveCall already verified exactly 2 arguments
         const durationArg = setTimeoutCall.arguments[1]!;
-        const sourceCode = context.getSourceCode();
+        const sourceCode = context.sourceCode;
         const durationText = sourceCode.getText(durationArg);
 
         context.report({

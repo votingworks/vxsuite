@@ -93,7 +93,7 @@ export async function adjudicateAllWriteIns(page: Page): Promise<void> {
   let writeInIndex = 0;
 
   // Process ballots until we return to the adjudication start screen
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     // If we've navigated back to the start screen, adjudication is complete
     if (await page.getByText('Start Adjudication').isVisible()) {

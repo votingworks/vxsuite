@@ -14,10 +14,11 @@ async function extractNamesFromContacts(): Promise<string> {
   TODO();
 }
 
+ 
 async function extractNamesFromContactsReference(): Promise<string> {
   const names: string[] = [];
 
-  for await (const { name } of getListOfContactsFromDatabase()) {
+  for (const { name } of getListOfContactsFromDatabase()) {
     names.push(name);
   }
 

@@ -31,8 +31,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Enforces GTS JSDoc rules.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -58,7 +56,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     function hasJsDocComment(node: TSESTree.Node): boolean {
       assert(node.parent);
@@ -83,7 +81,7 @@ const rule: TSESLint.RuleModule<
 
     function checkHasJsDoc(node: TSESTree.Node): void {
       if (node.type === AST_NODE_TYPES.Identifier) {
-        const scope = context.getScope();
+        const scope = context.sourceCode.getScope(node);
         const variable = scope.set.get(node.name);
 
         if (variable) {

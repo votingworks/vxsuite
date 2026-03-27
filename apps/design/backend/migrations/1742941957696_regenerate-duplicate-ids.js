@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-object-literal-types */
-/* eslint-disable @typescript-eslint/no-var-requires */
+
 const { hasSplits } = require('@votingworks/types');
 const { generateId } = require('../build/utils.js');
 

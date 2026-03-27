@@ -11,8 +11,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Recommends using short form T[] for simple array types (containing only alphanumeric characters and dots). Recommends using long form Array<T> for complex array types.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -25,7 +23,7 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     function isSimpleType(node: TSESTree.Node) {
       // A simple type contains just alphanumeric characters and dot

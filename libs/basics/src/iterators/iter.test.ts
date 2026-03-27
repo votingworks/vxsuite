@@ -94,7 +94,7 @@ test('iter is iterable', () => {
 test('iter is async iterable', async () => {
   expect(iter([]).async()[Symbol.asyncIterator]).toBeDefined();
 
-  for await (const item of iter([1, 2, 3])) {
+  for await (const item of iter([1, 2, 3]).async()) {
     expect(typeof item).toEqual('number');
   }
 });

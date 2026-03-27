@@ -89,8 +89,6 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
     docs: {
       description:
         'Disallows use of `Array.prototype.forEach`, `Set.prototype.forEach`, and `Map.prototype.forEach`',
-      recommended: 'stylistic',
-      requiresTypeChecking: true,
     },
     messages: {
       noForEach:
@@ -105,7 +103,7 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
   create(context) {
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     const forEachStack: TransformableForEach[] = [];
     let functionLevel = 0;
 

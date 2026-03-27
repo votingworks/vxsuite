@@ -219,6 +219,7 @@ export function mapSheet<F extends (...args: unknown[]) => unknown>(
     typeof (front as unknown as PromiseLike<unknown>).then === 'function' &&
     typeof (back as unknown as PromiseLike<unknown>).then === 'function'
   ) {
+    // eslint-disable-next-line @typescript-eslint/await-thenable
     return Promise.all([front, back]);
   }
 

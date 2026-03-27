@@ -198,7 +198,7 @@ test('save readiness report', async () => {
     }
   );
 
-  const printPath = exportFileResult.unsafeUnwrap()[0]!;
+  const printPath = exportFileResult.unsafeUnwrap()[0];
   await expect(printPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'readiness-report',
     failureThreshold: 0.0001,

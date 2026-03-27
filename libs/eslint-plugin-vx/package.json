@@ -4,6 +4,13 @@
   "description": "VotingWorks monorepo rules for ESLint",
   "keywords": [],
   "license": "GPL-3.0-only",
+  "exports": {
+    ".": {
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "types": "./build/index.d.ts"
+    }
+  },
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
@@ -28,29 +35,38 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "6.7.0",
-    "@typescript-eslint/utils": "6.7.0",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^9",
+    "@typescript-eslint/parser": "^8",
+    "@typescript-eslint/utils": "^8",
     "comment-parser": "^1.4.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-airbnb": "^19",
+    "eslint-config-airbnb-base": "^15",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-typescript": "3.6.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-n": "17",
-    "eslint-plugin-react": "^7.31.8",
-    "typescript": "5.8.3"
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-n": "^17",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5",
+    "eslint-plugin-vitest": "^0.5.4",
+    "globals": "^17.4.0",
+    "typescript": "5.8.3",
+    "typescript-eslint": "^8"
   },
   "devDependencies": {
     "@types/node": "20.17.31",
     "@types/react": "18.3.3",
-    "@typescript-eslint/rule-tester": "^6.7.0",
+    "@typescript-eslint/parser": "^8",
+    "@typescript-eslint/rule-tester": "^8.57.2",
     "@vitest/coverage-istanbul": "^3.1.4",
-    "eslint-plugin-vitest": "^0.5.4",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
     "vitest": "^3.1.4"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
   },
   "packageManager": "pnpm@8.15.5"
 }

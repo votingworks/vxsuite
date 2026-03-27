@@ -51,8 +51,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires spreading iterables in arrays and objects in objects',
-      recommended: 'strict',
-      requiresTypeChecking: true,
     },
     messages: {
       requireIterablesInArraySpread: 'Only iterables may be spread into arrays',
@@ -117,7 +115,9 @@ const rule: TSESLint.RuleModule<
           default: {
             /* istanbul ignore next - this should not be possible @preserve */
             throw new Error(
-              `unexpected spread element parent: ${node.parent.type}`
+              `unexpected spread element parent: ${
+                (node.parent as { type: string }).type
+              }`
             );
           }
         }

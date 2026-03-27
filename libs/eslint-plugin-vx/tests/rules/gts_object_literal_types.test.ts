@@ -1,14 +1,15 @@
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
 import rule from '../../src/rules/gts_object_literal_types';
 
 const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    tsconfigRootDir: join(__dirname, '../fixtures'),
-    project: './tsconfig.json',
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: 2018,
+      tsconfigRootDir: join(__dirname, '../fixtures'),
+      project: './tsconfig.json',
+    },
   },
-  parser: require.resolve('@typescript-eslint/parser'),
 });
 
 ruleTester.run('gts-object-literal-types', rule, {
@@ -149,7 +150,50 @@ ruleTester.run('gts-object-literal-types', rule, {
           b: 'abc',
         } as Foo;
       `,
-      errors: [{ messageId: 'noObjectLiteralTypeAssertions', line: 2 }],
+      errors: [
+        {
+          messageId: 'noObjectLiteralTypeAssertions',
+          line: 2,
+          suggestions: [
+            {
+              messageId: 'convertToTypeAnnotation',
+              output: `
+        const badFoo: Foo = {
+          a: 123,
+          b: 'abc',
+        };
+      `,
+            },
+            {
+              messageId: 'useTypedAs',
+              output: `
+        const badFoo = typedAs<Foo>({
+          a: 123,
+          b: 'abc',
+        });
+      `,
+            },
+            {
+              messageId: 'removeTypeAssertion',
+              output: `
+        const badFoo = {
+          a: 123,
+          b: 'abc',
+        };
+      `,
+            },
+            {
+              messageId: 'castToUnknownFirst',
+              output: `
+        const badFoo = {
+          a: 123,
+          b: 'abc',
+        } as unknown as Foo;
+      `,
+            },
+          ],
+        },
+      ],
     },
   ],
 });

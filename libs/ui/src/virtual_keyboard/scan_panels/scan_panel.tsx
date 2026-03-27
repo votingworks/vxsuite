@@ -33,7 +33,6 @@ interface ScanPanelProps {
   renderAs: ScanPanelRenderOption;
 }
 
-// eslint-disable-next-line react/display-name
 export const ScanPanel = forwardRef(
   (
     { children, keys, renderAs, numKeys, onSelect }: ScanPanelProps,

@@ -154,10 +154,10 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
   });
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  const styleA = electionDefinition.election.ballotStyles[0]!;
-  const styleB = electionDefinition.election.ballotStyles[1]!;
-  const precinctA = styleA.precincts[0]!;
-  const precinctB = styleB.precincts[0]!;
+  const styleA = electionDefinition.election.ballotStyles[0];
+  const styleB = electionDefinition.election.ballotStyles[1];
+  const precinctA = styleA.precincts[0];
+  const precinctB = styleB.precincts[0];
   await apiClient.printBallot({
     precinctId: precinctA,
     languageCode: LanguageCode.ENGLISH,

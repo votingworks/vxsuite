@@ -9,8 +9,6 @@ const rule: TSESLint.RuleModule<'directAccessOnly', readonly unknown[]> =
       docs: {
         description:
           'Directly access module import properties rather than passing it around.',
-        recommended: 'stylistic',
-        requiresTypeChecking: false,
       },
       messages: {
         directAccessOnly:
@@ -26,7 +24,7 @@ const rule: TSESLint.RuleModule<'directAccessOnly', readonly unknown[]> =
         ImportNamespaceSpecifier(
           node: TSESTree.ImportNamespaceSpecifier
         ): void {
-          const scope = context.getScope();
+          const scope = context.sourceCode.getScope(node);
           const variable = scope.set.get(node.local.name);
           assert(variable);
 
