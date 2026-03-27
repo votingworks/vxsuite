@@ -12,6 +12,7 @@ import memoize from 'lodash.memoize';
 import hash from 'object-hash';
 import { Store } from '../store';
 import {
+  getEmptyElectionWriteInSummary,
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
@@ -132,12 +133,10 @@ export async function tabulateElectionResults({
       groupedWriteInSummaries,
       (electionResults, writeInSummary) => {
         assert(electionResults); // results must exist if there is write-in data
-        return writeInSummary
-          ? modifyElectionResultsWithWriteInSummary(
-              electionResults,
-              writeInSummary
-            )
-          : electionResults;
+        return modifyElectionResultsWithWriteInSummary(
+          electionResults,
+          writeInSummary ?? getEmptyElectionWriteInSummary(election)
+        );
       }
     );
   }
