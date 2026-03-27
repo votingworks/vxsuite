@@ -19,10 +19,6 @@ const react: Linter.Config[] = buildReact(plugin);
 /**
  * Extra ignore patterns for workspace packages that need more than the
  * universal ignores baked into `recommended` / `react`.
- *
- * Already handled by the configs themselves (do not repeat here):
- *   `build/**`, `coverage/**`, `*.config.{ts,mts,js,mjs}`,
- *   `.lintstagedrc.js`
  */
 const ignores = {
   /** Vite-based frontend applications */

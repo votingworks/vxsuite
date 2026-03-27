@@ -1,7 +1,0 @@
-{
-  "extends": ["plugin:vx/recommended"],
-  "rules": {
-    // Allow for bitwise operations which are necessary for usb protocol communication.
-    "no-bitwise": "off"
-  }
-}

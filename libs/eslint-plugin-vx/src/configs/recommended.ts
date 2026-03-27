@@ -31,8 +31,14 @@ export default function buildRecommended(plugin: VxPlugin): Linter.Config[] {
         '*.config.mts',
         '*.config.js',
         '*.config.mjs',
+        // Re-enable playwright.config.ts so integration-testing overrides work.
+        '!playwright.config.ts',
         // Dotfile tooling configs (lint-staged, prettier, stylelint, etc.)
-        '.*rc*.js',
+        '.lintstagedrc.js',
+        '.lintstagedrc.shared.js',
+        '.prettierrc.js',
+        '.stylelintrc.js',
+        '.stylelintrc-css.js',
         // Type declaration files are not normal source code.
         '**/*.d.ts',
       ],
