@@ -34,8 +34,8 @@ export async function setAudioVolume(params: {
   let errorOutput: string;
 
   assert(
-    volumePct >= 0 && volumePct <= 100,
-    'Audio volume must be between 0 and 100'
+    volumePct >= 0 && volumePct <= 150,
+    'Audio volume must be between 0 and 150'
   );
 
   try {

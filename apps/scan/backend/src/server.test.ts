@@ -120,7 +120,7 @@ test('configures audio device', async () => {
   });
 
   expect(mockAudioCard.useHeadphones).toHaveBeenCalledOnce();
-  expect(mockAudioCard.setVolume).toHaveBeenCalledExactlyOnceWith(100);
+  expect(mockAudioCard.setVolume).toHaveBeenCalledExactlyOnceWith(150);
 });
 
 test('throws if unable to set volume', async () => {

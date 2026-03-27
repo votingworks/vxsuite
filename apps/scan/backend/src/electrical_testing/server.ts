@@ -94,12 +94,8 @@ export async function startElectricalTestingServer(
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
   const audioCard = await AudioCard.default(NODE_ENV, logger);
-
-  // This is set to 100% in the prod app, but the HWTA has no UI volume
-  // control at the moment, so this is set to a safe listening level
-  // discovered the hard way:
   await audioCard.useHeadphones();
-  await audioCard.setVolume(40);
+  await audioCard.setVolume(150);
 
   return new AudioPlayer(NODE_ENV, logger, audioCard);
 }

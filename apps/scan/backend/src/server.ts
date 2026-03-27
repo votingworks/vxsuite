@@ -71,9 +71,12 @@ export async function start({
   const audioCard = await AudioCard.default(NODE_ENV, logger);
 
   // Screen reader volume levels are calibrated against a maximum system
-  // volume setting:
+  // volume setting.
+  // NOTE: pulseaudio outputs can be pushed a little higher than 100%
+  // to account for the builtin headroom, which we make use of to get a
+  // workable volume baseline for VxScan:
   await audioCard.useHeadphones();
-  await audioCard.setVolume(100);
+  await audioCard.setVolume(150);
 
   const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
 

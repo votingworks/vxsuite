@@ -68,16 +68,16 @@ test('invalid value', async () => {
       sinkName: 'usb.stereo',
       volumePct: -1,
     })
-  ).rejects.toThrow('Audio volume must be between 0 and 100');
+  ).rejects.toThrow('Audio volume must be between 0 and 150');
 
   await expect(
     setAudioVolume({
       logger: mockLogger({ fn: vi.fn }),
       nodeEnv: 'production',
       sinkName: 'usb.stereo',
-      volumePct: 100.1,
+      volumePct: 150.1,
     })
-  ).rejects.toThrow('Audio volume must be between 0 and 100');
+  ).rejects.toThrow('Audio volume must be between 0 and 150');
 });
 
 test('execFile error', async () => {
