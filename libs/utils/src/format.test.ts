@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import * as format from './format';
 
@@ -160,9 +160,58 @@ describe('bytes()', () => {
   test('respects custom fraction digits', () => {
     expect(format.bytes(1536, { fractionDigits: 0 })).toEqual('2 KB');
     expect(format.bytes(1536, { fractionDigits: 2 })).toEqual('1.50 KB');
-    expect(format.bytes(1073741824, { fractionDigits: 3 })).toEqual(
-      '1.000 GB'
-    );
+    expect(format.bytes(1073741824, { fractionDigits: 3 })).toEqual('1.000 GB');
   });
 });
 
+describe('relativeTime()', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ now: new Date('2026-03-25T12:00:00Z') });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('returns "Now" for current timestamp', () => {
+    expect(format.relativeTime(Date.now())).toEqual('Now');
+  });
+
+  test('returns "Now" for timestamps within rounding window', () => {
+    expect(format.relativeTime(Date.now() - 2000)).toEqual('Now');
+    expect(format.relativeTime(Date.now() - 4999)).toEqual('Now');
+  });
+
+  test('returns seconds ago for recent timestamps', () => {
+    expect(format.relativeTime(Date.now() - 5000)).toEqual('5 seconds ago');
+    expect(format.relativeTime(Date.now() - 7000)).toEqual('5 seconds ago');
+    expect(format.relativeTime(Date.now() - 10000)).toEqual('10 seconds ago');
+    expect(format.relativeTime(Date.now() - 30000)).toEqual('30 seconds ago');
+  });
+
+  test('returns minutes ago for older timestamps', () => {
+    expect(format.relativeTime(Date.now() - 60000)).toEqual('1 minute ago');
+    expect(format.relativeTime(Date.now() - 120000)).toEqual('2 minutes ago');
+    expect(format.relativeTime(Date.now() - 300000)).toEqual('5 minutes ago');
+  });
+
+  test('returns hours ago for much older timestamps', () => {
+    expect(format.relativeTime(Date.now() - 3600000)).toEqual('1 hour ago');
+    expect(format.relativeTime(Date.now() - 7200000)).toEqual('2 hours ago');
+  });
+
+  test('accepts Date objects', () => {
+    expect(format.relativeTime(new Date(Date.now() - 60000))).toEqual(
+      '1 minute ago'
+    );
+  });
+
+  test('accepts custom roundSeconds', () => {
+    expect(
+      format.relativeTime(Date.now() - 9000, { roundSeconds: 10 })
+    ).toEqual('Now');
+    expect(
+      format.relativeTime(Date.now() - 10000, { roundSeconds: 10 })
+    ).toEqual('10 seconds ago');
+  });
+});

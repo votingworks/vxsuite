@@ -85,7 +85,6 @@ import {
   CastVoteRecordVoteInfo,
   AdjudicatedCvrContest,
   MachineMode,
-  HostConnectionStatus,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
@@ -100,6 +99,7 @@ import {
   validateManualResults,
 } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
+
 import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
@@ -257,13 +257,19 @@ function buildApi({
         (m) => m.machineMode === 'host' && m.machineId === machineId
       );
       return {
-        isOnline: hostRecord?.status === HostConnectionStatus.Connected,
-        connectedClients: machines.filter(
-          (m) =>
-            m.machineMode === 'client' &&
-            m.status === HostConnectionStatus.Connected
-        ),
+        isOnline:
+          hostRecord !== undefined &&
+          hostRecord.status !== Admin.ClientMachineStatus.Offline,
+        connectedClients: machines.filter((m) => m.machineMode === 'client'),
       };
+    },
+
+    getIsClientAdjudicationEnabled(): boolean {
+      return store.getIsClientAdjudicationEnabled();
+    },
+
+    setIsClientAdjudicationEnabled(input: { enabled: boolean }) {
+      store.setIsClientAdjudicationEnabled(input.enabled);
     },
 
     getAuthStatus() {

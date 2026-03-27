@@ -57,6 +57,7 @@ test('UnconfigureMachineButton interactions', async () => {
 test('UnconfigureMachineButton does not sleep when not necessary', async () => {
   const bufferTimeMs = 100;
   const unconfigureMachine = vi.fn(async () => {
+    // eslint-disable-next-line vx/no-manual-sleep -- intentionally bypassing the mocked sleep
     await new Promise<void>((resolve) => {
       setTimeout(resolve, MIN_TIME_TO_UNCONFIGURE_MACHINE_MS + bufferTimeMs);
     });

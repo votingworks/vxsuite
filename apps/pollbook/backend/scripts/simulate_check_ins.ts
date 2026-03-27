@@ -1,3 +1,4 @@
+import { sleep } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import yargs, { config } from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -200,9 +201,7 @@ async function checkInAllVotersOnCurrentMachine(
         const endInt = safeParseInt(slow.split('-')[1]).unsafeUnwrap() * 1000;
         const delay =
           Math.floor(Math.random() * startInt) + (endInt - startInt); // Random delay between 4 and 8 seconds
-        await new Promise((resolve) => {
-          setTimeout(resolve, delay);
-        });
+        await sleep(delay);
       }
     }
 

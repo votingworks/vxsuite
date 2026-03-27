@@ -1,4 +1,4 @@
-import { ok, Result } from '@votingworks/basics';
+import { ok, Result, sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import type { NODE_ENV } from '../scan_globals';
 import { pactl } from './pulse_audio';
@@ -53,6 +53,14 @@ export async function setAudioCardProfile(
     disposition: 'success',
     message: `audio output set to ${p.profile}`,
   });
+
+  /**
+   * We've noticed a slight delay in profile switching taking effect when
+   * testing on a production VxScan, causing sounds targeting one output to
+   * briefly play through the previous output. This provides a bit of buffer
+   * to allow for things to settle before playing audio.
+   */
+  await sleep(300);
 
   return ok();
 }

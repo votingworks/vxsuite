@@ -18,6 +18,7 @@ import {
   safeParseElectionDefinition,
   testElectionReport,
   testElectionReportUnsupportedContestType,
+  Admin,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
@@ -33,11 +34,7 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app';
-import {
-  HostConnectionStatus,
-  ManualResultsIdentifier,
-  ManualResultsRecord,
-} from './types';
+import { ManualResultsIdentifier, ManualResultsRecord } from './types';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -112,7 +109,7 @@ test('getNetworkStatus returns online when host is connected', async () => {
   workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
     'host',
-    HostConnectionStatus.Connected
+    Admin.ClientMachineStatus.Active
   );
   expect(await apiClient.getNetworkStatus()).toMatchObject({
     isOnline: true,
@@ -120,31 +117,43 @@ test('getNetworkStatus returns online when host is connected', async () => {
   });
 });
 
-test('getNetworkStatus returns connected clients', async () => {
+test('getNetworkStatus returns all clients including disconnected', async () => {
   const { apiClient, workspace } = buildTestEnvironment();
   workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
     'host',
-    HostConnectionStatus.Connected
+    Admin.ClientMachineStatus.Active
   );
   workspace.store.setNetworkedMachineStatus(
     'CLIENT-001',
     'client',
-    HostConnectionStatus.Connected
+    Admin.ClientMachineStatus.Active
   );
   workspace.store.setNetworkedMachineStatus(
     'CLIENT-002',
     'client',
-    HostConnectionStatus.Offline
+    Admin.ClientMachineStatus.Offline
   );
   const status = await apiClient.getNetworkStatus();
   expect(status.isOnline).toEqual(true);
-  expect(status.connectedClients).toHaveLength(1);
+  expect(status.connectedClients).toHaveLength(2);
   expect(status.connectedClients[0]).toMatchObject({
     machineId: 'CLIENT-001',
-    machineMode: 'client',
-    status: HostConnectionStatus.Connected,
+    status: Admin.ClientMachineStatus.Active,
   });
+  expect(status.connectedClients[1]).toMatchObject({
+    machineId: 'CLIENT-002',
+    status: Admin.ClientMachineStatus.Offline,
+  });
+});
+
+test('getIsClientAdjudicationEnabled and setIsClientAdjudicationEnabled', async () => {
+  const { apiClient } = buildTestEnvironment();
+  expect(await apiClient.getIsClientAdjudicationEnabled()).toEqual(false);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
+  expect(await apiClient.getIsClientAdjudicationEnabled()).toEqual(true);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: false });
+  expect(await apiClient.getIsClientAdjudicationEnabled()).toEqual(false);
 });
 
 test('managing the current election', async () => {

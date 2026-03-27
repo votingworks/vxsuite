@@ -143,10 +143,18 @@ test('fails to configure election package if election definition on card does no
   });
 });
 
+// [TODO] Update test name after migration to Polling Places.
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const electionDefinition = fixtures.makeSinglePrecinctElectionDefinition();
+
+  const { election } = electionDefinition;
+  const defaultPollingPlace = assertDefined(election.pollingPlaces?.[0]);
+
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
+    const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({
@@ -167,6 +175,7 @@ test("if there's only one precinct in the election, it's selected automatically 
       kind: 'SinglePrecinct',
       precinctId: 'precinct-1',
     });
+    expect(config.pollingPlaceId).toEqual(defaultPollingPlace.id);
     expect(config.electionDefinition).toEqual(electionDefinition);
     expect(config.electionPackageHash).toEqual(expect.any(String));
   });

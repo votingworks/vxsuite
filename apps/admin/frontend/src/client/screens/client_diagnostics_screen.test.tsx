@@ -5,14 +5,17 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { screen } from '../../../test/react_testing_library';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import {
+  ClientApiMock,
+  createClientApiMock,
+} from '../../../test/helpers/mock_client_api_client';
 import { renderInClientContext } from '../../../test/render_in_client_context';
 import { ClientDiagnosticsScreen } from './client_diagnostics_screen';
 
-let apiMock: ApiMock;
+let apiMock: ClientApiMock;
 
 beforeEach(() => {
-  apiMock = createApiMock();
+  apiMock = createClientApiMock();
 });
 
 afterEach(() => {
@@ -27,7 +30,10 @@ const sysAdminAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
 };
 
 test('shows diagnostics sections and battery info', async () => {
-  apiMock.setBatteryInfo({ level: 0.75, discharging: true });
+  apiMock.apiClient.getBatteryInfo.mockResolvedValue({
+    level: 0.75,
+    discharging: true,
+  });
   renderInClientContext(<ClientDiagnosticsScreen />, {
     auth: sysAdminAuth,
     apiMock,

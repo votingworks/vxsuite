@@ -8,6 +8,7 @@ import type {
   CastVoteRecordFileRecord,
   CvrFileMode,
   MachineConfig,
+  MachineRecord,
   ManualResultsIdentifier,
   WriteInCandidateRecord,
   ScannerBatch,
@@ -770,6 +771,24 @@ export function createApiMock(
 
     expectGetUsbPortStatus(): void {
       apiClient.getUsbPortStatus.expectCallWith().resolves({ enabled: true });
+    },
+
+    expectGetNetworkStatus(
+      overrides: {
+        isOnline?: boolean;
+        connectedClients?: MachineRecord[];
+      } = {}
+    ): void {
+      apiClient.getNetworkStatus.expectRepeatedCallsWith().resolves({
+        isOnline: overrides.isOnline ?? true,
+        connectedClients: overrides.connectedClients ?? [],
+      });
+    },
+
+    expectGetIsClientAdjudicationEnabled(enabled = false): void {
+      apiClient.getIsClientAdjudicationEnabled
+        .expectRepeatedCallsWith()
+        .resolves(enabled);
     },
   };
 }

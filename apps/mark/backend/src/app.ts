@@ -28,8 +28,10 @@ import {
   pollingPlaceFromElection,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   getPrecinctSelectionName,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -241,6 +243,15 @@ export function buildApi(ctx: Context) {
               electionDefinition.election.precincts[0].id
             )
           );
+        }
+
+        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+          if (electionDefinition.election.pollingPlaces?.length === 1) {
+            workspace.store.setPollingPlaceId(
+              electionDefinition.election.pollingPlaces[0].id
+            );
+          }
         }
 
         configureUiStrings({

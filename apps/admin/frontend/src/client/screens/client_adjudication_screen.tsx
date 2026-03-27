@@ -1,17 +1,24 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Button, H2, Icons, P } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
 import { NavigationScreen } from '../../components/navigation_screen';
-import { getNetworkConnectionStatus } from '../api';
+import {
+  getAdjudicationSessionStatus,
+  getNetworkConnectionStatus,
+} from '../api';
 import { AppContext } from '../../contexts/app_context';
 
 export function ClientAdjudicationScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   const networkStatusQuery = getNetworkConnectionStatus.useQuery();
+  const adjudicationStatusQuery = getAdjudicationSessionStatus.useQuery();
   const isConnected =
     networkStatusQuery.isSuccess &&
     networkStatusQuery.data.status === 'online-connected-to-host';
-  const isConnectedWithElection = isConnected && !!electionDefinition;
+  const isAdjudicationEnabled =
+    adjudicationStatusQuery.isSuccess &&
+    adjudicationStatusQuery.data.isClientAdjudicationEnabled;
+  const canStartAdjudication =
+    isConnected && !!electionDefinition && isAdjudicationEnabled;
 
   return (
     <NavigationScreen title="Adjudication">
@@ -38,25 +45,10 @@ export function ClientAdjudicationScreen(): JSX.Element {
           )}
         {!networkStatusQuery.isSuccess && <span>Checking network status…</span>}
       </P>
-      {electionDefinition && (
-        <React.Fragment>
-          <H2>Election</H2>
-          <P>
-            {electionDefinition.election.title}
-            {' — '}
-            {electionDefinition.election.county.name},{' '}
-            {electionDefinition.election.state}
-            {' — '}
-            {format.localeLongDate(
-              electionDefinition.election.date.toMidnightDatetimeWithSystemTimezone()
-            )}
-          </P>
-        </React.Fragment>
-      )}
       <H2>Write-In Adjudication</H2>
       <P>
         <Button
-          disabled={!isConnectedWithElection}
+          disabled={!canStartAdjudication}
           onPress={
             /* istanbul ignore next - placeholder @preserve */
             () => {}
@@ -65,9 +57,11 @@ export function ClientAdjudicationScreen(): JSX.Element {
           Start Adjudication
         </Button>
       </P>
-      {!isConnectedWithElection && (
+      {!canStartAdjudication && (
         <P>
-          Connect to a host with an election configured to begin adjudication.
+          {isConnected && electionDefinition && !isAdjudicationEnabled
+            ? 'Waiting for host to initiate adjudication.'
+            : 'Connect to a host with an election configured to begin adjudication.'}
         </P>
       )}
     </NavigationScreen>

@@ -194,6 +194,45 @@ function exitWithError(message: string): never {
 }
 
 /**
+ * Handle an invalid input error. In 'error' mode, logs the details server-side
+ * and returns a generic 400 response. In 'crash' mode, exits the process.
+ */
+function handleInvalidInput(
+  invalidInputBehavior: InvalidInputBehavior,
+  response: Express.Response,
+  diagnosticMessage: string
+): void {
+  if (invalidInputBehavior === 'error') {
+    // eslint-disable-next-line no-console
+    console.error(new Error(`Grout error: ${diagnosticMessage}`));
+    response.status(400).json({ message: 'Invalid request body' });
+    return;
+  }
+  exitWithError(diagnosticMessage);
+}
+
+/**
+ * Determines how the router handles invalid input:
+ * - 'crash': Calls process.exit(1). Appropriate for air-gapped machines
+ *   (VxScan, VxAdmin, etc.) where bad input should never happen and indicates
+ *   a serious problem.
+ * - 'error': Returns a 400 response. Appropriate for publicly-hosted
+ *   applications (VxDesign) where bad input can come from external clients.
+ */
+export type InvalidInputBehavior = 'crash' | 'error';
+
+/**
+ * Options for {@link buildRouter}.
+ */
+export interface BuildRouterOptions {
+  /**
+   * How to handle invalid input. Defaults to 'crash'.
+   * @see {@link InvalidInputBehavior}
+   */
+  invalidInputBehavior?: InvalidInputBehavior;
+}
+
+/**
  * Creates an express Router with a route handler for each RPC method in a Grout
  * API. This allows you to easily mount the Grout API within a larger Express
  * app like so:
@@ -224,8 +263,10 @@ export function buildRouter(
   // Express directly. This allows client packages to use Grout without having
   // to install Express, and also makes sure we're using the exact same version
   // of Express as the server package.
-  express: typeof Express
+  express: typeof Express,
+  options?: BuildRouterOptions
 ): Express.Router {
+  const invalidInputBehavior = options?.invalidInputBehavior ?? 'crash';
   const router = express.Router();
   router.use(
     express.text({
@@ -258,21 +299,38 @@ export function buildRouter(
       try {
         debug(`Call: ${methodName}(${request.body})`);
         if (!isString(request.body)) {
-          return exitWithError(
+          handleInvalidInput(
+            invalidInputBehavior,
+            response,
             'Request body was parsed as something other than a string.' +
               " Make sure you haven't added any other body parsers upstream" +
               ' of the Grout router - e.g. app.use(express.json()).' +
               ` Body: ${JSON.stringify(request.body)}`
           );
+          return;
         }
 
-        input = deserialize(request.body);
+        try {
+          input = deserialize(request.body);
+        } catch (deserializeError) {
+          handleInvalidInput(
+            invalidInputBehavior,
+            response,
+            `Failed to deserialize request body: ${extractErrorMessage(
+              deserializeError
+            )}`
+          );
+          return;
+        }
 
         if (!(isObject(input) || input === undefined)) {
-          return exitWithError(
+          handleInvalidInput(
+            invalidInputBehavior,
+            response,
             'Grout methods must be called with an object or undefined as the sole argument.' +
               ` The argument received was: ${JSON.stringify(input)}`
           );
+          return;
         }
 
         const durationStart = Date.now();

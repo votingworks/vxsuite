@@ -25,8 +25,10 @@ import {
   readSignedElectionPackageFromUsb,
 } from '@votingworks/backend';
 import {
+  BooleanEnvironmentVariableName,
   getPrecinctSelectionName,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
@@ -128,6 +130,15 @@ export function buildApi(ctx: AppContext) {
         store.setBallots(ballots);
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
+        }
+
+        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+          if (electionDefinition.election.pollingPlaces?.length === 1) {
+            workspace.store.setPollingPlaceId(
+              electionDefinition.election.pollingPlaces[0].id
+            );
+          }
         }
       });
 

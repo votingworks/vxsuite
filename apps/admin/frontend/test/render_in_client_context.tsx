@@ -19,7 +19,7 @@ import {
   createQueryClient,
 } from '../src/client/api';
 import { SharedApiClientContext, systemCallApi } from '../src/shared_api';
-import { ApiMock } from './helpers/mock_api_client';
+import { ClientApiMock } from './helpers/mock_client_api_client';
 
 export interface RenderInClientContextParams {
   auth: DippedSmartCardAuth.AuthStatus;
@@ -28,7 +28,7 @@ export interface RenderInClientContextParams {
   isOfficialResults?: boolean;
   usbDriveStatus?: UsbDriveStatus;
   machineConfig?: MachineConfig;
-  apiMock: ApiMock;
+  apiMock: ClientApiMock;
   queryClient?: QueryClient;
 }
 

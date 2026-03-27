@@ -16,6 +16,7 @@
  *   --fail                  Simulate a failure instead of success
  */
 
+import { sleep } from '@votingworks/basics';
 import { safeParseNumber } from '@votingworks/types';
 import http from 'node:http';
 
@@ -100,12 +101,6 @@ async function sendWebhookCallback(
   }
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 async function simulatePipeline(
   webhookUrl: string,
   qaRunId: string
@@ -116,12 +111,12 @@ async function simulatePipeline(
   console.log('');
 
   for (const step of STATUS_MESSAGES) {
-    await delay(DELAY_MS);
+    await sleep(DELAY_MS);
     await sendWebhookCallback(webhookUrl, step.status, step.statusMessage);
   }
 
   // Final status
-  await delay(DELAY_MS);
+  await sleep(DELAY_MS);
   if (SHOULD_FAIL) {
     await sendWebhookCallback(
       webhookUrl,
