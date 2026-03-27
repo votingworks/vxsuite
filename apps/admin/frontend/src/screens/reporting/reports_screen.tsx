@@ -30,11 +30,7 @@ export function isVoterTurnoutReportEnabled(
   election: Election,
   registeredVoterCounts?: ElectionRegisteredVotersCounts | null
 ): boolean {
-  if (
-    election.state === 'NH' ||
-    registeredVoterCounts === null ||
-    registeredVoterCounts === undefined
-  ) {
+  if (registeredVoterCounts === null || registeredVoterCounts === undefined) {
     return false;
   }
 

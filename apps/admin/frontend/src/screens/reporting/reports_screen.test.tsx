@@ -30,18 +30,8 @@ const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
 describe('isVoterTurnoutReportEnabled', () => {
   const { election } = readElectionTwoPartyPrimaryDefinition();
-  const { election: nhElection } =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { election: splitElection } =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-
-  test('returns false when NH state', () => {
-    expect(
-      isVoterTurnoutReportEnabled(nhElection, {
-        'town-id-00701-precinct-id-default': 500,
-      })
-    ).toEqual(false);
-  });
 
   test('returns false when counts are null', () => {
     expect(isVoterTurnoutReportEnabled(election, null)).toEqual(false);
