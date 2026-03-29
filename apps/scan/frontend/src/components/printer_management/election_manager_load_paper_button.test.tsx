@@ -16,6 +16,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetConfig();
 });
 
 afterEach(() => {

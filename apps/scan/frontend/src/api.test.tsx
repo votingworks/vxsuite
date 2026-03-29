@@ -19,6 +19,7 @@ const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
 describe('playSound', () => {
   test('mutes TTS audio while server sound is playing', async () => {
     const mockClient = createApiMock();
+    mockClient.expectGetConfig();
     const wrapper = testHookWrapper(mockClient);
     mockUseAudioEnabled.mockReturnValue(true);
 
@@ -38,6 +39,7 @@ describe('playSound', () => {
 
   test('does NOT unmute TTS audio if already muted by the voter', async () => {
     const mockClient = createApiMock();
+    mockClient.expectGetConfig();
     const wrapper = testHookWrapper(mockClient);
     mockUseAudioEnabled.mockReturnValue(false);
 
