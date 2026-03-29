@@ -224,6 +224,10 @@ export function buildApi({
         });
       });
 
+      await audioPlayer.setIsScreenReaderEnabled(
+        !systemSettings.precinctScanDisableScreenReaderAudio
+      );
+
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
         disposition: 'success',
@@ -264,6 +268,7 @@ export function buildApi({
 
     async unconfigureElection(): Promise<void> {
       workspace.reset();
+      await audioPlayer.setIsScreenReaderEnabled(false);
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:
