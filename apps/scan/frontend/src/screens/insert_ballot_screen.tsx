@@ -20,6 +20,9 @@ export function InsertBallotScreen({
       voterFacing
       showTestModeBanner={isTestMode}
       showEarlyVotingBanner={isEarlyVotingMode}
+      // Don't read aloud "Insert your ballot" to ensure that prior "Your ballot was counted" audio
+      // is not interrupted
+      disableReadOnLoad
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerInsertBallotScreen()}
