@@ -32,6 +32,7 @@ exports[`Default system settings for 'DEMO' - If a change is intentional, update
     "UnmarkedWriteIn",
   ],
   "precinctScanDisableAlarms": true,
+  "precinctScanDisableScreenReaderAudio": true,
   "precinctScanEnableBmdBallotScanning": true,
   "quickResultsReportingUrl": "http://localhost:3000/report",
   "retryStreakWidthThreshold": 1,
@@ -68,6 +69,7 @@ exports[`Default system settings for 'MS' - If a change is intentional, update s
     "BlankBallot",
   ],
   "precinctScanDisableAlarms": true,
+  "precinctScanDisableScreenReaderAudio": true,
   "precinctScanEnableBmdBallotScanning": true,
   "quickResultsReportingUrl": "http://localhost:3000/report",
   "retryStreakWidthThreshold": 1,
@@ -104,6 +106,7 @@ exports[`Default system settings for 'NH' - If a change is intentional, update s
     "UnmarkedWriteIn",
   ],
   "precinctScanDisableAlarms": true,
+  "precinctScanDisableScreenReaderAudio": true,
   "precinctScanEnableBmdBallotScanning": true,
   "retryStreakWidthThreshold": 1,
 }
