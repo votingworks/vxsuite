@@ -69,7 +69,6 @@ export async function start({
   workspace.clearUploads();
 
   const audioCard = await AudioCard.default(NODE_ENV, logger);
-  await audioCard.setVolume(100);
   const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
 
   const systemSettings = workspace.store.getSystemSettings();

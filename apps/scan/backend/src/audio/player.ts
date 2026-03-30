@@ -35,8 +35,10 @@ export class Player {
     this.isScreenReaderEnabled = enabled;
     if (enabled) {
       await this.card.useHeadphones();
+      await this.card.setVolume(100);
     } else {
       await this.card.useSpeaker();
+      // Speaker volume is not currently set by the app
     }
   }
 

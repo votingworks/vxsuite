@@ -64,7 +64,6 @@ test('start passes context to `buildApp`', async () => {
   mockAudioPlayerClass.mockReturnValueOnce(mockAudioPlayer);
 
   const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -132,8 +131,7 @@ test.each([
       workspace.store.setSystemSettings(systemSettings);
     }
 
-    const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-    vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
+    initMockAudioCard(NODE_ENV, logger, audioCardName);
 
     await start({
       auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -141,7 +139,6 @@ test.each([
       logger,
     });
 
-    expect(mockAudioCard.setVolume).toHaveBeenCalledExactlyOnceWith(100);
     const mockAudioPlayer = mockAudioPlayerClass.mock.results[0].value;
     expect(
       mockAudioPlayer.setIsScreenReaderEnabled
@@ -149,32 +146,13 @@ test.each([
   }
 );
 
-test('throws if unable to set volume', async () => {
-  const listen = vi.fn<(port: number, callback: () => unknown) => void>();
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  const logger = buildMockLogger(auth, workspace);
-  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
-
-  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.setVolume).mockRejectedValueOnce('invalid device');
-
-  await expect(async () =>
-    start({
-      auth: buildMockInsertedSmartCardAuth(vi.fn),
-      workspace,
-      logger,
-    })
-  ).rejects.toThrow(/invalid device/i);
-});
-
 test('logs device attach/unattach events', async () => {
   const listen = vi.fn();
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
+  initMockAudioCard(NODE_ENV, logger, audioCardName);
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
