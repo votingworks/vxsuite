@@ -182,7 +182,7 @@ async function generateScoringReport(
       frontNormalizedImageOutputFile = fileSync();
       backNormalizedImageOutputFile = fileSync();
       process.stdout.write(`Scoring sheet ${sheetName}\n`);
-      const interpretationResult = interpret({
+      const interpretationResult = await interpret({
         electionDefinition,
         ballotImages: imagePaths,
         scoreWriteIns: true,

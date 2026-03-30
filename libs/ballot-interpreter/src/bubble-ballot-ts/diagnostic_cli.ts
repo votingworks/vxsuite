@@ -50,7 +50,7 @@ export async function main(args: string[]): Promise<number> {
   }
 
   if (imagePath) {
-    const didPass = runBlankPaperDiagnostic(
+    const didPass = await runBlankPaperDiagnostic(
       imagePath,
       debug ? imagePath : undefined
     );

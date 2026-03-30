@@ -1,11 +1,13 @@
-#![allow(clippy::similar_names)]
+// dead_code: `cargo test` compiles without the napi runtime, so #[napi] functions appear unused.
+#![allow(clippy::similar_names, dead_code)]
 
 use std::borrow::Cow;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 
 use image::{DynamicImage, GrayImage, RgbaImage};
-use neon::types::extract::{Error, Json};
+use napi::bindgen_prelude::Buffer;
+use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use types_rs::election::Election;
 
@@ -54,13 +56,13 @@ fn interpret(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: JsInterpretOptions,
-) -> Result<JsInterpretResult, Error> {
+) -> Result<JsInterpretResult, napi::Error> {
     let minimum_detected_scale = match options.minimum_detected_scale {
         Some(minimum_detected_scale)
             if minimum_detected_scale > f64::from(f32::MAX)
                 || minimum_detected_scale < f64::from(f32::MIN) =>
         {
-            return Err(Error::new("Invalid minimum detected scale"));
+            return Err(napi::Error::from_reason("Invalid minimum detected scale"));
         }
         Some(minimum_detected_scale) => Some(UnitIntervalScore(minimum_detected_scale as f32)),
         None => None,
@@ -95,7 +97,7 @@ fn interpret(
     let card = match interpret_result {
         Ok(card) => card,
         Err(err) => {
-            // Don't `throw` `interpret::Error`, for better structured & typed handling.
+            // Don't throw `interpret::Error`, for better structured & typed handling.
             let is_bubble_ballot = err.is_bubble_ballot();
             return Ok(JsInterpretResult::Err(Box::new(JsInterpretErr {
                 error: err,
@@ -133,149 +135,206 @@ fn interpret(
             )
         },
     ) {
-        (Err(err), _) | (_, Err(err)) => Err(err)?,
+        (Err(err), _) | (_, Err(err)) => {
+            return Err(napi::Error::from_reason(err));
+        }
         (Ok(()), Ok(())) => {}
     }
 
     Ok(JsInterpretResult::Ok(Box::new(card)))
 }
 
-#[neon::export]
-fn interpret_paths(
-    Json(election): Json<Election>,
+fn from_json<T: serde::de::DeserializeOwned>(value: serde_json::Value) -> napi::Result<T> {
+    serde_json::from_value(value).map_err(|e| napi::Error::from_reason(e.to_string()))
+}
+
+fn to_json<T: Serialize>(value: &T) -> napi::Result<serde_json::Value> {
+    serde_json::to_value(value).map_err(|e| napi::Error::from_reason(e.to_string()))
+}
+
+#[napi(
+    ts_args_type = "election: Election, sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions",
+    ts_return_type = "Promise<BridgeInterpretResult>"
+)]
+pub async fn interpret_paths(
+    election: serde_json::Value,
     side_a_image_path: String,
     side_b_image_path: String,
-    Json(options): Json<JsInterpretOptions>,
-) -> Result<Json<JsInterpretResult>, Error> {
+    options: serde_json::Value,
+) -> napi::Result<serde_json::Value> {
+    let election: Election = from_json(election)?;
+    let options: JsInterpretOptions = from_json(options)?;
+
+    let (side_a_bytes, side_b_bytes) = tokio::try_join!(
+        tokio::fs::read(&side_a_image_path),
+        tokio::fs::read(&side_b_image_path),
+    )
+    .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+
+    // Decode images in parallel with rayon (CPU-bound)
     let (side_a_image, side_b_image) = match rayon::join(
-        || image::open(side_a_image_path).map(DynamicImage::into_luma8),
-        || image::open(side_b_image_path).map(DynamicImage::into_luma8),
+        || image::load_from_memory(&side_a_bytes).map(DynamicImage::into_luma8),
+        || image::load_from_memory(&side_b_bytes).map(DynamicImage::into_luma8),
     ) {
-        (Err(err), _) | (_, Err(err)) => Err(err)?,
+        (Err(err), _) | (_, Err(err)) => {
+            return Err(napi::Error::from_reason(err.to_string()));
+        }
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
     };
 
-    Ok(Json(interpret(
-        election,
-        side_a_image,
-        side_b_image,
-        options,
-    )?))
+    let result = interpret(election, side_a_image, side_b_image, options)?;
+    to_json(&result)
 }
 
-#[allow(clippy::too_many_arguments)]
-#[neon::export]
-fn interpret_images(
-    Json(election): Json<Election>,
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::too_many_arguments, clippy::unused_async)]
+#[napi(
+    ts_args_type = "election: Election, sideAImageWidth: number, sideAImageHeight: number, sideAImageData: Buffer | Uint8ClampedArray, sideBImageWidth: number, sideBImageHeight: number, sideBImageData: Buffer | Uint8ClampedArray, options: BridgeInterpretOptions",
+    ts_return_type = "Promise<BridgeInterpretResult>"
+)]
+pub async fn interpret_images(
+    election: serde_json::Value,
     side_a_image_width: f64,
     side_a_image_height: f64,
-    side_a_image_data: Vec<u8>,
+    side_a_image_data: Buffer,
     side_b_image_width: f64,
     side_b_image_height: f64,
-    side_b_image_data: Vec<u8>,
-    Json(options): Json<JsInterpretOptions>,
-) -> Result<Json<JsInterpretResult>, Error> {
+    side_b_image_data: Buffer,
+    options: serde_json::Value,
+) -> napi::Result<serde_json::Value> {
+    let election: Election = from_json(election)?;
+    let options: JsInterpretOptions = from_json(options)?;
+
     let (side_a_image, side_b_image) = match rayon::join(
-        || gray_image(side_a_image_width, side_a_image_height, side_a_image_data),
-        || gray_image(side_b_image_width, side_b_image_height, side_b_image_data),
+        || {
+            gray_image(
+                side_a_image_width,
+                side_a_image_height,
+                side_a_image_data.to_vec(),
+            )
+        },
+        || {
+            gray_image(
+                side_b_image_width,
+                side_b_image_height,
+                side_b_image_data.to_vec(),
+            )
+        },
     ) {
-        (Err(err), _) | (_, Err(err)) => Err(err)?,
+        (Err(err), _) | (_, Err(err)) => return Err(err),
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
     };
 
-    Ok(Json(interpret(
-        election,
-        side_a_image,
-        side_b_image,
-        options,
-    )?))
+    let result = interpret(election, side_a_image, side_b_image, options)?;
+    to_json(&result)
 }
 
-fn find_timing_mark_grid(
+fn find_timing_mark_grid_inner(
     image: GrayImage,
     label: &str,
     debug_path: Option<PathBuf>,
-) -> Result<TimingMarks, Error> {
+) -> Result<TimingMarks, napi::Error> {
     let ballot_page = BallotPage::from_image(label, image, &PaperInfo::scanned(), debug_path)
-        .map_err(|err| Error::new(format!("Unable to prepare ballot page image: {err}")))?;
+        .map_err(|err| {
+            napi::Error::from_reason(format!("Unable to prepare ballot page image: {err}"))
+        })?;
 
     let find_timing_marks_result = ballot_page.find_timing_marks();
 
-    let timing_marks = find_timing_marks_result
-        .map_err(|err| Error::new(format!("failed to detect timing mark grid: {err:?}")))?;
-
-    Ok(timing_marks)
+    find_timing_marks_result.map_err(|err| {
+        napi::Error::from_reason(format!("failed to detect timing mark grid: {err:?}"))
+    })
 }
 
-#[neon::export]
-fn find_timing_mark_grid_from_path(
+#[napi(
+    ts_args_type = "imagePath: string, debugPath?: string",
+    ts_return_type = "Promise<TimingMarks>"
+)]
+pub async fn find_timing_mark_grid_from_path(
     image_path: String,
     debug_path: Option<String>,
-) -> Result<Json<TimingMarks>, Error> {
-    let image_path = PathBuf::from(image_path);
+) -> napi::Result<serde_json::Value> {
+    let image_path = PathBuf::from(&image_path);
     let label = image_path
         .file_name()
         .map(OsStr::to_string_lossy)
         .map_or_else(|| "image".to_owned(), Cow::into_owned);
-    let image = image::open(image_path).map(DynamicImage::into_luma8)?;
-    Ok(Json(find_timing_mark_grid(
-        image,
-        &label,
-        debug_path.map(Into::into),
-    )?))
+    let bytes = tokio::fs::read(&image_path)
+        .await
+        .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+    let image = image::load_from_memory(&bytes)
+        .map(DynamicImage::into_luma8)
+        .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+    let timing_marks = find_timing_mark_grid_inner(image, &label, debug_path.map(Into::into))?;
+    to_json(&timing_marks)
 }
 
-#[neon::export]
-fn find_timing_mark_grid_from_image(
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "imageWidth: number, imageHeight: number, imageData: Buffer | Uint8ClampedArray, debugPath?: string",
+    ts_return_type = "Promise<TimingMarks>"
+)]
+pub async fn find_timing_mark_grid_from_image(
     image_width: f64,
     image_height: f64,
-    image_data: Vec<u8>,
+    image_data: Buffer,
     debug_path: Option<String>,
-) -> Result<Json<TimingMarks>, Error> {
-    let image = gray_image(image_width, image_height, image_data)?;
-    Ok(Json(find_timing_mark_grid(
-        image,
-        "image",
-        debug_path.map(Into::into),
-    )?))
+) -> napi::Result<serde_json::Value> {
+    let image = gray_image(image_width, image_height, image_data.to_vec())?;
+    let timing_marks = find_timing_mark_grid_inner(image, "image", debug_path.map(Into::into))?;
+    to_json(&timing_marks)
 }
 
-fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, Error> {
+fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, napi::Error> {
     let width = as_u32(width)?;
     let height = as_u32(height)?;
     let len = data.len();
 
     match len / (width as usize * height as usize) {
         1 => Ok(GrayImage::from_vec(width, height, data).ok_or_else(|| {
-            Error::new(format!(
+            napi::Error::from_reason(format!(
                 "Could not construct GrayImage with dimensions: width={width} height={height} buffer length={len}",
             ))
         })?),
-        4 => Ok(DynamicImage::ImageRgba8(RgbaImage::from_vec(width, height, data).ok_or_else(|| {
-            Error::new(format!(
-                "Could not construct RgbaImage with dimensions: width={width} height={height} buffer length={len}",
-            ))
-        })?).into_luma8()),
-        _ => Err(Error::new(format!("Could not construct image dimensions: width={width} height={height} buffer length={len}")))
+        4 => Ok(DynamicImage::ImageRgba8(
+            RgbaImage::from_vec(width, height, data).ok_or_else(|| {
+                napi::Error::from_reason(format!(
+                    "Could not construct RgbaImage with dimensions: width={width} height={height} buffer length={len}",
+                ))
+            })?,
+        )
+        .into_luma8()),
+        _ => Err(napi::Error::from_reason(format!(
+            "Could not construct image dimensions: width={width} height={height} buffer length={len}"
+        ))),
     }
 }
 
-fn as_u32(n: f64) -> Result<u32, Error> {
+fn as_u32(n: f64) -> Result<u32, napi::Error> {
     if n < 0.0 {
-        Err(Error::new("Number is less than zero"))
+        Err(napi::Error::from_reason("Number is less than zero"))
     } else if n > f64::from(u32::MAX) {
-        Err(Error::new("Number is too big (> u32::MAX)"))
+        Err(napi::Error::from_reason("Number is too big (> u32::MAX)"))
     } else {
         Ok(n as u32)
     }
 }
 
-#[neon::export]
-pub fn run_blank_paper_diagnostic_from_path(
+#[napi(
+    ts_args_type = "imagePath: string, debugPath?: string",
+    ts_return_type = "Promise<boolean>"
+)]
+pub async fn run_blank_paper_diagnostic_from_path(
     image_path: String,
     debug_path: Option<String>,
-) -> Result<bool, Error> {
-    let image = image::open(image_path).map(DynamicImage::into_luma8)?;
+) -> napi::Result<bool> {
+    let bytes = tokio::fs::read(&image_path)
+        .await
+        .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+    let image = image::load_from_memory(&bytes)
+        .map(DynamicImage::into_luma8)
+        .map_err(|err| napi::Error::from_reason(err.to_string()))?;
     Ok(crate::diagnostic::blank_paper(
         image,
         debug_path.map(PathBuf::from),

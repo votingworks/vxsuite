@@ -316,9 +316,11 @@ async function runScannerDiagnostic(
       return path;
     }
   );
-  return (
-    runBlankPaperDiagnostic(frontPath) && runBlankPaperDiagnostic(backPath)
-  );
+  const [frontPassed, backPassed] = await Promise.all([
+    runBlankPaperDiagnostic(frontPath),
+    runBlankPaperDiagnostic(backPath),
+  ]);
+  return frontPassed && backPassed;
 }
 
 export const RESET_COOLDOWN_MS = 30_000;

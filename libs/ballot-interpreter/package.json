@@ -7,19 +7,22 @@
   "main": "build/index.js",
   "types": "build/index.d.js",
   "files": [
-    "build"
+    "build",
+    "index.js",
+    "index.d.ts",
+    "dts-header.d.ts",
+    "*.node"
   ],
   "scripts": {
     "benchmark": "cd benchmarks && vitest",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
-    "build:self": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
-    "build:rust-addon": "cargo-cp-artifact -nc build/addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
+    "build:self": "pnpm build:rust-addon && pnpm build:ts",
+    "build:rust-addon": "napi build --platform --release",
     "build:ts": "tsgo --build tsconfig.build.json",
     "clean": "pnpm --filter $npm_package_name... clean:self",
-    "clean:self": "cargo clean --release --package pdi-scanner && rm -rf build && tsgo --build --clean tsconfig.build.json",
-    "install:rust-addon": "cargo fetch",
+    "clean:self": "cargo clean --release --package ballot-interpreter && rm -rf build && tsgo --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "pnpm test:rust-addon && pnpm test:ts",
@@ -48,6 +51,7 @@
     "zedbar": "^0.2.1"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^3.5.1",
     "@types/better-sqlite3": "7.6.3",
     "@types/chalk": "^2.2.0",
     "@types/debug": "4.1.12",
@@ -61,7 +65,6 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
-    "cargo-cp-artifact": "^0.1.9",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
@@ -70,6 +73,14 @@
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^3.1.4"
+  },
+  "napi": {
+    "binaryName": "ballot-interpreter",
+    "dtsHeaderFile": "./dts-header.d.ts",
+    "targets": [
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
   },
   "packageManager": "pnpm@8.15.5"
 }

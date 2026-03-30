@@ -580,14 +580,14 @@ function validateInterpretResults(
  * Returns both the raw Rust result (so callers can check `isBubbleBallot`)
  * and the converted `PageInterpretation` array (for TS-level validation).
  */
-function interpretHmpb(
+async function interpretHmpb(
   sheet: SheetOf<ImageData>,
   options: InterpreterOptions
-): {
+): Promise<{
   rawResult: HmpbInterpretResult;
   interpretation: SheetOf<PageInterpretation>;
-} {
-  const rawResult = interpretHmpbBallotSheetRust({
+}> {
+  const rawResult = await interpretHmpbBallotSheetRust({
     electionDefinition: options.electionDefinition,
     ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
@@ -857,7 +857,7 @@ export async function interpretSheet(
 
   try {
     const hmpb = options.electionDefinition.election.gridLayouts
-      ? interpretHmpb(sheet, options)
+      ? await interpretHmpb(sheet, options)
       : undefined;
 
     const hmpbInterpretation = hmpb?.interpretation;

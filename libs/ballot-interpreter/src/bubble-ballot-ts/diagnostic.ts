@@ -1,12 +1,12 @@
-import { runBlankPaperDiagnosticFromPath as runBlankPaperDiagnosticFromPathImpl } from './addon';
+import { napi } from './napi';
 
 /**
  * Runs a diagnostic on a blank paper image to determine if it is a valid
  * ballot.
  */
-export function runBlankPaperDiagnostic(
+export async function runBlankPaperDiagnostic(
   imagePath: string,
   debugBasePath?: string
-): boolean {
-  return runBlankPaperDiagnosticFromPathImpl(imagePath, debugBasePath);
+): Promise<boolean> {
+  return napi.runBlankPaperDiagnosticFromPath(imagePath, debugBasePath);
 }
