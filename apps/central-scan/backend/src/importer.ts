@@ -1,4 +1,10 @@
-import { assert, assertDefined, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  extractErrorMessage,
+  Optional,
+  sleep,
+} from '@votingworks/basics';
 import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ElectionDefinition,
@@ -63,6 +69,7 @@ export class Importer {
   private readonly workspace: Workspace;
   private readonly scanner: BatchScanner;
   private readonly logger: Logger;
+  private isStartingBatch = false;
   private currentBatch?: CurrentBatch;
 
   constructor({ workspace, scanner, logger }: Options) {
@@ -329,45 +336,72 @@ export class Importer {
    * Create a new batch and begin the scanning process
    */
   async startImport(): Promise<string> {
-    this.getElectionDefinition(); // ensure election definition is loaded
-    const hasImprinter = await this.scanner.isImprinterAttached();
-
-    if (this.currentBatch) {
-      throw new Error('scanning already in progress');
+    if (this.isStartingBatch) {
+      throw new Error('already starting import');
     }
+    this.isStartingBatch = true;
 
-    this.logger.log(LogEventId.ImprinterStatus, 'system', {
-      message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
-    });
+    let batchId: Optional<Id>;
+    let batchScanDirectory: Optional<string>;
 
-    const batchId = this.workspace.store.addBatch();
-    const batchScanDirectory = join(
-      this.workspace.ballotImagesPath,
-      `batch-${batchId}`
-    );
-    await fsExtra.ensureDir(batchScanDirectory);
-    debug(
-      'scanning starting for batch %s into %s',
-      batchId,
-      batchScanDirectory
-    );
-    const ballotPaperSize =
-      this.workspace.store.getBallotPaperSizeForElection();
-    const sheetGenerator = this.scanner.scanSheets({
-      directory: batchScanDirectory,
-      pageSize: ballotPaperSize,
-      // If the imprinter is attached automatically imprint an ID prefixed by the batchID
-      imprintIdPrefix: hasImprinter ? batchId : undefined,
-    });
+    try {
+      this.getElectionDefinition(); // ensure election definition is loaded
+      const hasImprinter = await this.scanner.isImprinterAttached();
 
-    this.currentBatch = {
-      batchId,
-      sheetGenerator,
-      directory: batchScanDirectory,
-    };
-    this.continueImport({ forceAccept: false });
+      if (this.currentBatch) {
+        throw new Error('scanning already in progress');
+      }
 
-    return batchId;
+      this.logger.log(LogEventId.ImprinterStatus, 'system', {
+        message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
+      });
+
+      batchId = this.workspace.store.addBatch();
+      batchScanDirectory = join(
+        this.workspace.ballotImagesPath,
+        `batch-${batchId}`
+      );
+      await fsExtra.ensureDir(batchScanDirectory);
+      debug(
+        'scanning starting for batch %s into %s',
+        batchId,
+        batchScanDirectory
+      );
+      const ballotPaperSize =
+        this.workspace.store.getBallotPaperSizeForElection();
+      const sheetGenerator = this.scanner.scanSheets({
+        directory: batchScanDirectory,
+        pageSize: ballotPaperSize,
+        // If the imprinter is attached automatically imprint an ID prefixed by the batchID
+        imprintIdPrefix: hasImprinter ? batchId : undefined,
+      });
+
+      this.currentBatch = {
+        batchId,
+        sheetGenerator,
+        directory: batchScanDirectory,
+      };
+      this.continueImport({ forceAccept: false });
+
+      return batchId;
+    } catch (error) {
+      if (!this.currentBatch) {
+        // Might have done some setup work, but didn't get to
+        // `this.currentBatch = ...`. Clean up anything that would be a loose
+        // end since `finishBatch` will bail without `currentBatch` set.
+        if (typeof batchId !== 'undefined') {
+          this.workspace.store.deleteBatch(batchId);
+        }
+        if (typeof batchScanDirectory !== 'undefined') {
+          await fsExtra.remove(batchScanDirectory);
+        }
+      } else {
+        await this.finishBatch(extractErrorMessage(error));
+      }
+      throw error;
+    } finally {
+      this.isStartingBatch = false;
+    }
   }
 
   /**
