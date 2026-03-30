@@ -42,7 +42,7 @@ export async function start({
   usbDrive,
   printer,
 }: StartOptions): Promise<void> {
-  detectDevices({ logger });
+  const stopDetectingDevices = detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
@@ -95,7 +95,7 @@ export async function start({
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(logger);
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     logger.log(LogEventId.ApplicationStartup, 'system', {
       message: `VxScan backend running at http://localhost:${PORT}/`,
       disposition: 'success',
@@ -105,4 +105,5 @@ export async function start({
       message: `Scanning ballots into ${workspace.ballotImagesPath}`,
     });
   });
+  server.on('close', stopDetectingDevices);
 }

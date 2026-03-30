@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
+import { EventEmitter } from 'node:events';
 import { Server } from 'node:http';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './util/workspace';
@@ -35,7 +36,7 @@ test('logs device attach/un-attach events', () => {
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
-    return undefined as unknown as Server;
+    return new EventEmitter() as unknown as Server;
   });
   vi.spyOn(console, 'log').mockReturnValue();
 
@@ -87,7 +88,7 @@ test('logs when sheet counts are present at startup', () => {
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
-    return undefined as unknown as Server;
+    return new EventEmitter() as unknown as Server;
   });
   vi.spyOn(console, 'log').mockReturnValue();
 
@@ -127,7 +128,7 @@ test('logs when sheet counts are not present at startup', () => {
   // don't actually listen
   vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
-    return undefined as unknown as Server;
+    return new EventEmitter() as unknown as Server;
   });
   vi.spyOn(console, 'log').mockReturnValue();
 

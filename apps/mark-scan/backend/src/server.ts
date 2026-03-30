@@ -79,7 +79,7 @@ export async function start({
   port,
   workspace,
 }: StartOptions): Promise<Server> {
-  detectDevices({ logger: baseLogger });
+  const stopDetectingDevices = detectDevices({ logger: baseLogger });
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(baseLogger, () =>
     getUserRole(resolvedAuth, workspace)
@@ -128,7 +128,7 @@ export async function start({
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(logger);
 
-  return app.listen(
+  const server = app.listen(
     port,
     /* istanbul ignore next - @preserve */
     () => {
@@ -138,4 +138,6 @@ export async function start({
       });
     }
   );
+  server.on('close', stopDetectingDevices);
+  return server;
 }
