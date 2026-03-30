@@ -290,6 +290,7 @@ export class Importer {
     if (!currentBatch) {
       return;
     }
+    this.currentBatch = undefined;
 
     this.workspace.store.finishBatch({
       batchId: currentBatch.batchId,
@@ -299,7 +300,6 @@ export class Importer {
     await logBatchComplete(this.logger, batch);
     await currentBatch.sheetGenerator.endBatch();
     await fsExtra.remove(currentBatch.directory);
-    this.currentBatch = undefined;
   }
 
   /**
