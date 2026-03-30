@@ -597,6 +597,7 @@ test('getNextCvrIdForBallotAdjudication', async () => {
         });
       }
     }
+    await apiClient.resolveBallotTags({ cvrId });
   }
 
   expect(await apiClient.getNextCvrIdForBallotAdjudication()).toEqual(

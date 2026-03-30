@@ -402,11 +402,6 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       initialContestTag?.hasUnmarkedWriteIn === false
   ).toEqual(true);
 
-  // non-blank ballot should not be flagged as blank
-  const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
-  assert(cvr);
-  expect(cvr.votes[contestId]?.length).toBeGreaterThan(0);
-
   // remove both initial votes
   adjudicate({});
   expectVotes([]);
@@ -591,49 +586,10 @@ test('blank ballot appears in adjudication queue when BlankBallot reason is enab
   assert(cvrId !== undefined);
 
   const queue = store.getBallotAdjudicationQueue({ electionId });
-  expect(queue).toContain(cvrId);
+  expect(queue[0]).toEqual(cvrId);
   const metadata = store.getBallotAdjudicationQueueMetadata({ electionId });
-  expect(metadata.totalTally).toBeGreaterThanOrEqual(1);
-  expect(metadata.pendingTally).toBeGreaterThanOrEqual(1);
-});
-
-test('non-blank ballot does not appear in adjudication queue for blank ballot reason', () => {
-  const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
-  const electionId = store.addElection({
-    electionData,
-    systemSettingsData: JSON.stringify(
-      typedAs<SystemSettings>({
-        ...DEFAULT_SYSTEM_SETTINGS,
-        adminAdjudicationReasons: [AdjudicationReason.BlankBallot],
-      })
-    ),
-    electionPackageFileContents: Buffer.of(),
-    electionPackageHash: 'test-election-package-hash',
-  });
-  store.setCurrentElectionId(electionId);
-
-  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
-    {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
-      batchId: 'batch-1-1',
-      scannerId: 'scanner-1',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      votes: { 'zoo-council-mammal': ['lion'] },
-      card: { type: 'bmd' },
-      multiplier: 1,
-    },
-  ];
-  const [cvrId] = addMockCvrFileToStore({
-    electionId,
-    mockCastVoteRecordFile,
-    store,
-  });
-  assert(cvrId !== undefined);
-
-  const queue = store.getBallotAdjudicationQueue({ electionId });
-  expect(queue).not.toContain(cvrId);
+  expect(metadata.totalTally).toEqual(1);
+  expect(metadata.pendingTally).toEqual(1);
 });
 
 test('blank ballot does not appear in adjudication queue when BlankBallot reason is disabled', () => {

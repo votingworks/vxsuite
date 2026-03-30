@@ -366,7 +366,7 @@ export interface ContestAdjudicationData {
  */
 export interface BallotAdjudicationData {
   cvrId: Id;
-  tag?: CvrTag;
+  tag: CvrTag;
   contests: ContestAdjudicationData[];
 }
 

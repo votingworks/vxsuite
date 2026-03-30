@@ -999,12 +999,14 @@ export class Store implements BaseStore {
     ballotId,
     cvr,
     adjudicationFlags,
+    hasMarginalMark = false,
   }: {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
     cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
     adjudicationFlags: CastVoteRecordAdjudicationFlags;
+    hasMarginalMark?: boolean;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
@@ -1082,9 +1084,10 @@ export class Store implements BaseStore {
           is_blank,
           has_overvote,
           has_undervote,
-          has_write_in
+          has_write_in,
+          has_marginal_mark
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -1101,7 +1104,8 @@ export class Store implements BaseStore {
         asSqliteBool(adjudicationFlags.isBlank),
         asSqliteBool(adjudicationFlags.hasOvervote),
         asSqliteBool(adjudicationFlags.hasUndervote),
-        asSqliteBool(adjudicationFlags.hasWriteIn)
+        asSqliteBool(adjudicationFlags.hasWriteIn),
+        asSqliteBool(hasMarginalMark)
       );
     }
 
@@ -1887,23 +1891,38 @@ export class Store implements BaseStore {
     );
   }
 
-  private shouldAdjudicateBlankBallots(electionId: Id): boolean {
+  /**
+   * Builds a SQL WHERE clause for CVRs that need adjudication based on
+   * the election's system settings and the CVR's adjudication flags.
+   */
+  private getAdjudicationQueueFilter(electionId: Id): string {
     const { adminAdjudicationReasons } = this.getSystemSettings(electionId);
-    return adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot);
+    // Write-ins always need adjudication
+    const conditions: string[] = ['c.has_write_in = 1'];
+    if (adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) {
+      conditions.push('c.has_overvote = 1');
+    }
+    if (adminAdjudicationReasons.includes(AdjudicationReason.Undervote)) {
+      conditions.push('c.has_undervote = 1');
+    }
+    if (adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
+      conditions.push('c.has_marginal_mark = 1');
+    }
+    if (adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot)) {
+      conditions.push('c.is_blank = 1');
+    }
+    return conditions.join(' or ');
   }
 
   getBallotAdjudicationQueue({ electionId }: { electionId: Id }): Id[] {
     this.assertElectionExists(electionId);
     debug('querying database for ballot adjudication cvr queue');
-    const includeBlank = this.shouldAdjudicateBlankBallots(electionId);
+    const filter = this.getAdjudicationQueueFilter(electionId);
     const rows = this.client.all(
       `
         select c.id as cvr_id
         from cvrs c
-        where c.id in (
-          select cvr_id from cvr_contest_tags
-          ${includeBlank ? `union select id from cvrs where is_blank = 1` : ''}
-        )
+        where (${filter})
         order by
           case when c.is_blank = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
@@ -1912,9 +1931,7 @@ export class Store implements BaseStore {
           c.id
       `
     ) as Array<{ cvr_id: Id }>;
-    debug(
-      'queried cvr contest tags and cvr flags for ballot adjudication queue'
-    );
+    debug('queried ballot adjudication queue');
     return rows.map((r) => r.cvr_id);
   }
 
@@ -1925,36 +1942,22 @@ export class Store implements BaseStore {
   }): BallotAdjudicationQueueMetadata {
     this.assertElectionExists(electionId);
     debug('querying database for ballot adjudication queue metadata');
-    const includeBlank = this.shouldAdjudicateBlankBallots(electionId);
+    const filter = this.getAdjudicationQueueFilter(electionId);
 
     const row = this.client.one(
       `
         select
           count(*) as totalTally,
-          count(case when is_pending = 1 then 1 end) as pendingTally
-        from (
-          select
-            cvr_id,
-            min(is_resolved) = 0 as is_pending
-          from (
-            select cvr_id, is_resolved from cvr_contest_tags
-            ${
-              includeBlank
-                ? `union all select id as cvr_id, is_resolved from cvrs where is_blank = 1`
-                : ''
-            }
-          )
-          group by cvr_id
-        )
+          count(case when c.is_resolved = 0 then 1 end) as pendingTally
+        from cvrs c
+        where (${filter})
       `
     ) as {
       totalTally: number;
       pendingTally: number;
     };
 
-    debug(
-      'queried adjudication queue metadata from cvr contest tags and cvr flags'
-    );
+    debug('queried ballot adjudication queue metadata');
     return row;
   }
 
@@ -1981,13 +1984,11 @@ export class Store implements BaseStore {
       `select is_blank as isBlank, is_resolved as isResolved from cvrs where id = ?`,
       cvrId
     ) as { isBlank: SqliteBool; isResolved: SqliteBool };
-    const cvrTag: CvrTag | undefined = fromSqliteBool(cvrRow.isBlank)
-      ? {
-          cvrId,
-          isBlankBallot: true,
-          isResolved: fromSqliteBool(cvrRow.isResolved),
-        }
-      : undefined;
+    const cvrTag: CvrTag = {
+      cvrId,
+      isBlankBallot: fromSqliteBool(cvrRow.isBlank),
+      isResolved: fromSqliteBool(cvrRow.isResolved),
+    };
     const cvrContestTags = this.getCvrContestTags({ cvrId });
 
     // 3. Get adjudicated votes
@@ -2093,20 +2094,14 @@ export class Store implements BaseStore {
   }): Optional<Id> {
     this.assertElectionExists(electionId);
     debug('querying database for first unresolved cvr id for adjudication');
-    const includeBlank = this.shouldAdjudicateBlankBallots(electionId);
+    const filter = this.getAdjudicationQueueFilter(electionId);
 
     const row = this.client.one(
       `
         select c.id as cvr_id
         from cvrs c
-        where c.id in (
-          select cvr_id from cvr_contest_tags where is_resolved = 0
-          ${
-            includeBlank
-              ? `union select id from cvrs where is_blank = 1 and is_resolved = 0`
-              : ''
-          }
-        )
+        where (${filter})
+          and c.is_resolved = 0
         order by
           case when c.is_blank = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,

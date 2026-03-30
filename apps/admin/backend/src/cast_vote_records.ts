@@ -50,7 +50,6 @@ import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
   CvrContestTag,
-  CvrTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
@@ -296,32 +295,6 @@ export function determineCvrContestTags({
 }
 
 /**
- * Returns a cvr tag for a given cvr based on system settings.
- * */
-export function determineCvrTag({
-  adminAdjudicationReasons,
-  cvrId,
-  votes,
-}: {
-  adminAdjudicationReasons: AdjudicationReason[];
-  cvrId: Id;
-  votes: Tabulation.Votes;
-}): CvrTag | undefined {
-  const shouldTagBlankBallots = adminAdjudicationReasons.includes(
-    AdjudicationReason.BlankBallot
-  );
-  const isBlankBallot = Object.values(votes).every(
-    (optionIds) => optionIds.length === 0
-  );
-
-  if (shouldTagBlankBallots && isBlankBallot) {
-    return { cvrId, isResolved: false, isBlankBallot: true };
-  }
-
-  return undefined;
-}
-
-/**
  * Imports cast vote records given a cast vote record export directory path
  */
 export async function importCastVoteRecords(
@@ -478,6 +451,16 @@ export async function importCastVoteRecords(
       );
       const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
       assert(votingMethod);
+      const hasMarginalMark =
+        isHmpb &&
+        markScores !== undefined &&
+        Object.values(markScores).some((contestMarkScores) =>
+          Object.values(contestMarkScores).some(
+            (score) =>
+              score >= markThresholds.marginal &&
+              score < markThresholds.definite
+          )
+        );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId,
         cvr: {
@@ -495,6 +478,7 @@ export async function importCastVoteRecords(
         cvrFileId: importId,
         electionId,
         adjudicationFlags,
+        hasMarginalMark,
       });
       if (addCastVoteRecordResult.isErr()) {
         return err({
@@ -516,15 +500,18 @@ export async function importCastVoteRecords(
           writeIns: castVoteRecordWriteIns,
           markScores,
         });
-        const isBlankBallot =
-          adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot) &&
-          Object.values(votes).every((optionIds) => optionIds.length === 0);
+        const needsBlankBallotAdjudication =
+          adjudicationFlags.isBlank &&
+          adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot);
 
         for (const tag of castVoteRecordContestTags) {
           store.addCvrContestTag(tag);
         }
 
-        if (castVoteRecordContestTags.length > 0 || isBlankBallot) {
+        if (
+          castVoteRecordContestTags.length > 0 ||
+          needsBlankBallotAdjudication
+        ) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
           for (const i of [0, 1] as const) {

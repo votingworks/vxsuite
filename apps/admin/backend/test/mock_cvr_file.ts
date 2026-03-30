@@ -81,6 +81,17 @@ export function addMockCvrFileToStore({
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
     for (let i = 0; i < (mockCastVoteRecord.multiplier ?? 1); i += 1) {
+      const { markScores } = mockCastVoteRecord;
+      const hasMarginalMark =
+        isHmpb &&
+        markScores !== undefined &&
+        Object.values(markScores).some((contestMarkScores) =>
+          Object.values(contestMarkScores).some(
+            (score) =>
+              score >= markThresholds.marginal &&
+              score < markThresholds.definite
+          )
+        );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId,
@@ -90,6 +101,7 @@ export function addMockCvrFileToStore({
           mockCastVoteRecord.votes,
           electionDefinition
         ),
+        hasMarginalMark,
       });
 
       addCastVoteRecordResult.assertOk('failed to add mock cvr');
