@@ -180,6 +180,12 @@ test('generateTitleForReport', () => {
       },
       'Ballot Count Report • Ballots With Write-Ins',
     ],
+    [
+      {
+        adjudicationFlags: ['hasMarginalMark'],
+      },
+      'Ballot Count Report • Ballots With Marginal Marks',
+    ],
   ];
 
   for (const [filter, title] of ballotCountFilters) {

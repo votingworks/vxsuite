@@ -640,3 +640,40 @@ test('blank ballot does not appear in adjudication queue when BlankBallot reason
   const queue = store.getBallotAdjudicationQueue({ electionId });
   expect(queue).not.toContain(cvrId);
 });
+
+test('marginal mark CVR does not appear in adjudication queue when MarginalMark reason is disabled', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': ['zebra', 'lion', 'kangaroo'] },
+      markScores: {
+        'zoo-council-mammal': { zebra: 0.5, lion: 0.5, kangaroo: 0.06 },
+      },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).not.toContain(cvrId);
+});

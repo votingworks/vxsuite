@@ -17,7 +17,6 @@ import {
 } from '@votingworks/basics';
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
-  AdjudicationReason,
   CVR,
   ElectionDefinition,
   getBallotStyle,
@@ -48,6 +47,7 @@ import {
   ImportCastVoteRecordsError,
 } from './types';
 import {
+  doesCvrNeedAdjudication,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
   MarkScoreDistribution,
@@ -379,15 +379,10 @@ export async function importCastVoteRecords(
         addCastVoteRecordResult.ok();
 
       if (isCastVoteRecordNew) {
-        const needsAdjudication =
-          adjudicationFlags.hasWriteIn ||
-          adjudicationFlags.hasMarginalMark ||
-          (adjudicationFlags.hasOvervote &&
-            adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) ||
-          (adjudicationFlags.hasUndervote &&
-            adminAdjudicationReasons.includes(AdjudicationReason.Undervote)) ||
-          (adjudicationFlags.isBlank &&
-            adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot));
+        const needsAdjudication = doesCvrNeedAdjudication(
+          adjudicationFlags,
+          adminAdjudicationReasons
+        );
 
         if (needsAdjudication) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport

@@ -397,14 +397,6 @@ export interface WriteInAdjudicationActionInvalid {
 }
 
 /**
- * Information necessary to reset a write-in to pending.
- */
-export interface WriteInAdjudicationActionReset {
-  writeInId: Id;
-  type: 'reset';
-}
-
-/**
  * A cvr contest with all candidate and write-in options
  * fully adjudicated.
  */
@@ -485,8 +477,7 @@ export interface CvrContestTag {
 export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionOfficialCandidate
   | WriteInAdjudicationActionWriteInCandidate
-  | WriteInAdjudicationActionInvalid
-  | WriteInAdjudicationActionReset;
+  | WriteInAdjudicationActionInvalid;
 
 /**
  * A single page image of an HMPB ballot, including its layout for zoom

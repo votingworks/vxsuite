@@ -1,7 +1,14 @@
 import { expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
 import {
+  AdjudicationReason,
+  MarkThresholds,
+  Tabulation,
+} from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
+import {
+  deriveCvrContestTag,
+  doesCvrNeedAdjudication,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
   MarkScoreDistribution,
@@ -189,6 +196,211 @@ test('no marginal mark when scores are above definite', () => {
     hasWriteIn: false,
     hasMarginalMark: false,
   });
+});
+
+const candidateContest = assertDefined(
+  electionDefinition.election.contests.find(
+    (c) => c.id === 'zoo-council-mammal'
+  )
+);
+const DEFAULT_THRESHOLDS: MarkThresholds = {
+  marginal: 0.05,
+  definite: 0.07,
+  writeInTextArea: 0.05,
+};
+// eslint-disable-next-line vx/gts-object-literal-types
+const BASE_TAG_ARGS = {
+  cvrId: 'cvr-1',
+  contestId: 'zoo-council-mammal',
+  contest: candidateContest,
+  writeInRecords: [],
+  markThresholds: DEFAULT_THRESHOLDS,
+  adminAdjudicationReasons: [] as AdjudicationReason[],
+};
+
+test('deriveCvrContestTag - returns undefined for normal contest', () => {
+  expect(
+    deriveCvrContestTag({
+      ...BASE_TAG_ARGS,
+      votes: ['zebra', 'lion', 'kangaroo'],
+    })
+  ).toBeUndefined();
+});
+
+test('deriveCvrContestTag - overvote with reason enabled', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra', 'lion', 'kangaroo', 'elephant'],
+    adminAdjudicationReasons: [AdjudicationReason.Overvote],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasOvervote).toEqual(true);
+  expect(tag?.isResolved).toEqual(false);
+});
+
+test('deriveCvrContestTag - overvote with reason disabled', () => {
+  expect(
+    deriveCvrContestTag({
+      ...BASE_TAG_ARGS,
+      votes: ['zebra', 'lion', 'kangaroo', 'elephant'],
+    })
+  ).toBeUndefined();
+});
+
+test('deriveCvrContestTag - undervote with reason enabled', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra'],
+    adminAdjudicationReasons: [AdjudicationReason.Undervote],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasUndervote).toEqual(true);
+});
+
+test('deriveCvrContestTag - undervote with reason disabled', () => {
+  expect(
+    deriveCvrContestTag({
+      ...BASE_TAG_ARGS,
+      votes: ['zebra'],
+    })
+  ).toBeUndefined();
+});
+
+test('deriveCvrContestTag - marginal mark with reason enabled', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra', 'lion', 'kangaroo'],
+    markScores: { zebra: 0.5, lion: 0.5, kangaroo: 0.06 },
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasMarginalMark).toEqual(true);
+});
+
+test('deriveCvrContestTag - marginal mark with reason disabled', () => {
+  expect(
+    deriveCvrContestTag({
+      ...BASE_TAG_ARGS,
+      votes: ['zebra', 'lion', 'kangaroo'],
+      markScores: { zebra: 0.5, lion: 0.5, kangaroo: 0.06 },
+    })
+  ).toBeUndefined();
+});
+
+test('deriveCvrContestTag - adjudicated votes that differ set hasMarginalMark', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra', 'lion', 'kangaroo'],
+    adjudicatedVotes: ['zebra', 'lion', 'elephant'],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasMarginalMark).toEqual(true);
+  expect(tag?.isResolved).toEqual(true);
+});
+
+test('deriveCvrContestTag - adjudicated votes create undervote', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra', 'lion', 'kangaroo'],
+    adjudicatedVotes: ['zebra'],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasUndervote).toEqual(true);
+  expect(tag?.hasMarginalMark).toEqual(true);
+});
+
+test('deriveCvrContestTag - adjudicated votes create overvote', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra', 'lion', 'kangaroo'],
+    adjudicatedVotes: ['zebra', 'lion', 'kangaroo', 'elephant'],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasOvervote).toEqual(true);
+});
+
+test('deriveCvrContestTag - isResolved when adjudicatedVotes present', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_TAG_ARGS,
+    votes: ['zebra', 'lion', 'kangaroo'],
+    adjudicatedVotes: ['zebra', 'lion', 'kangaroo'],
+    adminAdjudicationReasons: [AdjudicationReason.Undervote],
+  });
+  expect(tag).toBeUndefined();
+});
+
+const NO_FLAGS: CastVoteRecordAdjudicationFlags = {
+  isBlank: false,
+  hasOvervote: false,
+  hasUndervote: false,
+  hasWriteIn: false,
+  hasMarginalMark: false,
+};
+
+test('doesCvrNeedAdjudication - write-in always needs adjudication', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasWriteIn: true }, [])
+  ).toEqual(true);
+});
+
+test('doesCvrNeedAdjudication - marginal mark with reason enabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasMarginalMark: true }, [
+      AdjudicationReason.MarginalMark,
+    ])
+  ).toEqual(true);
+});
+
+test('doesCvrNeedAdjudication - marginal mark with reason disabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasMarginalMark: true }, [])
+  ).toEqual(false);
+});
+
+test('doesCvrNeedAdjudication - overvote with reason enabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasOvervote: true }, [
+      AdjudicationReason.Overvote,
+    ])
+  ).toEqual(true);
+});
+
+test('doesCvrNeedAdjudication - overvote with reason disabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasOvervote: true }, [])
+  ).toEqual(false);
+});
+
+test('doesCvrNeedAdjudication - undervote with reason enabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasUndervote: true }, [
+      AdjudicationReason.Undervote,
+    ])
+  ).toEqual(true);
+});
+
+test('doesCvrNeedAdjudication - undervote with reason disabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasUndervote: true }, [])
+  ).toEqual(false);
+});
+
+test('doesCvrNeedAdjudication - blank ballot with reason enabled', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, isBlank: true }, [
+      AdjudicationReason.BlankBallot,
+    ])
+  ).toEqual(true);
+});
+
+test('doesCvrNeedAdjudication - blank ballot with reason disabled', () => {
+  expect(doesCvrNeedAdjudication({ ...NO_FLAGS, isBlank: true }, [])).toEqual(
+    false
+  );
+});
+
+test('doesCvrNeedAdjudication - no flags', () => {
+  expect(doesCvrNeedAdjudication(NO_FLAGS, [])).toEqual(false);
 });
 
 test('updateMarkScoreDistributionFromMarkScores adds scores below 0.2 to correct buckets and ignores 0.0', () => {

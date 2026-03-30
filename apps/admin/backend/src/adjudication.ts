@@ -51,8 +51,6 @@ function logWriteInAdjudication({
         return `a vote for an official candidate (${adjudicationAction.candidateId})`;
       case 'write-in-candidate':
         return `a vote for a write-in candidate (${adjudicationAction.candidateId})`;
-      case 'reset':
-        return `unadjudicated`;
       default: {
         /* istanbul ignore next - @preserve */
         throwIllegalValue(adjudicationAction, 'type');
@@ -76,11 +74,9 @@ function logWriteInAdjudication({
       initialWriteInRecord.adjudicationType !== 'invalid'
         ? initialWriteInRecord.candidateId
         : undefined,
-    status:
-      adjudicationAction.type === 'reset' ? 'pending' : adjudicationAction.type,
+    status: adjudicationAction.type,
     candidateId:
-      adjudicationAction.type !== 'invalid' &&
-      adjudicationAction.type !== 'reset'
+      adjudicationAction.type !== 'invalid'
         ? adjudicationAction.candidateId
         : undefined,
   });
@@ -119,9 +115,6 @@ function adjudicateWriteIn(
       } else {
         store.setWriteInRecordInvalid(adjudicationAction);
       }
-      break;
-    case 'reset':
-      store.resetWriteInRecordToPending(adjudicationAction);
       break;
     default: {
       /* istanbul ignore next - @preserve */
@@ -175,7 +168,7 @@ export function adjudicateCvrContest(
   return store.withTransaction(() => {
     // Start from scanned votes, then override with adjudicated options
     const { votes } = store.getCastVoteRecordVoteInfo({ electionId, cvrId });
-    const scannedContestVotes = new Set(votes[contestId] ?? []);
+    const scannedContestVotes = new Set(votes[contestId]);
 
     // Build the adjudicated vote set: start with scanned votes, apply overrides
     const adjudicatedVoteSet = new Set(scannedContestVotes);
