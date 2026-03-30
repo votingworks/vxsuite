@@ -12,7 +12,6 @@ import {
   WriteInRecord,
 } from './types';
 import { type Store } from './store';
-import { getNumberVotesAllowed } from './util/cast_vote_records';
 
 function logWriteInAdjudication({
   initialWriteInRecord,
@@ -280,34 +279,6 @@ export function adjudicateCvrContest(
       contestId,
       votes: adjudicatedVoteOptionIds,
     });
-
-    // Create a tag if one doesn't already exist for this cvr-contest pair.
-    // TODO: remove cvr_contest_tags in next refactor step
-    if (!store.getCvrContestTags({ cvrId, contestId }).length) {
-      const electionRecord = assertDefined(store.getElection(electionId));
-      const { election } = electionRecord.electionDefinition;
-      const contest = assertDefined(
-        election.contests.find((c) => c.id === contestId)
-      );
-      const votesAllowed = getNumberVotesAllowed(contest);
-
-      store.addCvrContestTag({
-        cvrId,
-        contestId,
-        isResolved: true,
-        source: 'user',
-        hasUnmarkedWriteIn: adjudicatedVoteOptionIds.some(
-          (id: ContestOptionId) => !scannedContestVotes.has(id)
-        ),
-        hasMarginalMark: adjudicatedVoteOptionIds.some(
-          (id: ContestOptionId) => !scannedContestVotes.has(id)
-        ),
-        hasOvervote: adjudicatedVoteOptionIds.length > votesAllowed,
-        hasUndervote: adjudicatedVoteOptionIds.length < votesAllowed,
-      });
-    } else {
-      store.resolveCvrContestTag({ cvrId, contestId });
-    }
   });
 }
 
@@ -318,10 +289,7 @@ export function resolveBallotTags(
   { cvrId }: { cvrId: Id },
   store: Store
 ): void {
-  store.withTransaction(() => {
-    store.resolveAllCvrContestTags({ cvrId });
-    store.setCvrResolved({ cvrId });
-  });
+  store.setCvrResolved({ cvrId });
 }
 
 /**

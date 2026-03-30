@@ -12,7 +12,6 @@ import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
 import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
-import { determineCvrContestTags } from '../src/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {
@@ -75,8 +74,7 @@ export function addMockCvrFileToStore({
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));
-  const { adminAdjudicationReasons, markThresholds } =
-    store.getSystemSettings(electionId);
+  const { markThresholds } = store.getSystemSettings(electionId);
   const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
@@ -147,19 +145,6 @@ export function addMockCvrFileToStore({
             isUnmarked,
           });
         }
-      }
-
-      for (const tag of determineCvrContestTags({
-        adminAdjudicationReasons,
-        markThresholds,
-        cvrId,
-        writeIns,
-        isHmpb,
-        markScores: mockCastVoteRecord.markScores,
-        votes: mockCastVoteRecord.votes,
-        electionDefinition,
-      })) {
-        store.addCvrContestTag(tag);
       }
     }
   }

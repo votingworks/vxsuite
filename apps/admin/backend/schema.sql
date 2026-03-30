@@ -162,21 +162,6 @@ create table cvrs (
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
 
-create table cvr_contest_tags (
-  sequence_id integer not null primary key autoincrement,
-  cvr_id varchar(36) not null,
-  contest_id text not null,
-  source text not null default 'scanner' check (source = 'scanner' or source = 'user'),
-  is_resolved boolean not null default false,
-  has_overvote boolean not null default false,
-  has_undervote boolean not null default false,
-  has_write_in boolean not null default false,
-  has_unmarked_write_in boolean not null default false,
-  has_marginal_mark boolean not null default false,
-  unique (cvr_id, contest_id),
-  foreign key (cvr_id) references cvrs(id) on delete cascade
-);
-
 create table scanner_batches (
   id text not null,
   label text not null,

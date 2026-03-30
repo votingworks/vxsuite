@@ -1,12 +1,19 @@
 import {
+  AdjudicationReason,
   AnyContest,
   ContestId,
+  ContestOptionId,
   ElectionDefinition,
   Id,
+  MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { CastVoteRecordAdjudicationFlags, CvrContestTag } from '../types';
+import {
+  CastVoteRecordAdjudicationFlags,
+  CvrContestTag,
+  WriteInRecord,
+} from '../types';
 
 /**
  * Returns the number of allowed votes for the contest
@@ -69,31 +76,71 @@ export function getCastVoteRecordAdjudicationFlags(
 }
 
 /**
- * An ease of use helper class to manage a list of
- * CvrContestTags without duplicates.
+ * Derives a contest-level adjudication tag from CVR data. Returns undefined
+ * if the contest does not need adjudication.
  */
-export class CvrContestTagList {
-  constructor(private readonly cvrId: Id) {}
-  private readonly byContestId = new Map<ContestId, CvrContestTag>();
+export function deriveCvrContestTag({
+  cvrId,
+  contestId,
+  contest,
+  votes,
+  adjudicatedVotes,
+  writeInRecords,
+  markScores,
+  markThresholds,
+  adminAdjudicationReasons,
+}: {
+  cvrId: Id;
+  contestId: ContestId;
+  contest: AnyContest;
+  votes: ContestOptionId[];
+  adjudicatedVotes?: ContestOptionId[];
+  writeInRecords: WriteInRecord[];
+  markScores?: Record<ContestOptionId, number>;
+  markThresholds: MarkThresholds;
+  adminAdjudicationReasons: AdjudicationReason[];
+}): CvrContestTag | undefined {
+  const hasWriteIn = writeInRecords.some(
+    (r) => r.contestId === contestId && !r.isUnmarked
+  );
+  const hasUnmarkedWriteIn = writeInRecords.some(
+    (r) => r.contestId === contestId && r.isUnmarked
+  );
 
-  getOrCreateTag(contestId: ContestId): CvrContestTag {
-    const existingContestTag = this.byContestId.get(contestId);
-    if (existingContestTag) {
-      return existingContestTag;
-    }
-    const newContestTag: CvrContestTag = {
-      cvrId: this.cvrId,
-      contestId,
-      isResolved: false,
-      source: 'scanner',
-    };
-    this.byContestId.set(contestId, newContestTag);
-    return newContestTag;
+  const hasMarginalMark =
+    adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
+    markScores !== undefined &&
+    Object.values(markScores).some(
+      (score) =>
+        score >= markThresholds.marginal && score < markThresholds.definite
+    );
+
+  const votesAllowed = getNumberVotesAllowed(contest);
+  const hasOvervote = votes.length > votesAllowed;
+  const hasUndervote = votes.length < votesAllowed;
+
+  const needsAdjudication =
+    hasWriteIn ||
+    hasUnmarkedWriteIn ||
+    hasMarginalMark ||
+    hasOvervote ||
+    hasUndervote;
+
+  if (!needsAdjudication) {
+    return undefined;
   }
 
-  toArray(): CvrContestTag[] {
-    return Array.from(this.byContestId.values());
-  }
+  return {
+    cvrId,
+    contestId,
+    source: 'scanner',
+    isResolved: adjudicatedVotes !== undefined,
+    hasWriteIn,
+    hasUnmarkedWriteIn,
+    hasMarginalMark,
+    hasOvervote,
+    hasUndervote,
+  };
 }
 
 /**

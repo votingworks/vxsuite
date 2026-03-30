@@ -393,7 +393,14 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
 
   expectVotes(initialVotes);
   expectWriteInRecords(initialWriteInRecords);
-  const [initialContestTag] = store.getCvrContestTags({ cvrId, contestId });
+
+  function getContestTag() {
+    assert(cvrId !== undefined);
+    const adjData = store.getBallotAdjudicationData({ electionId, cvrId });
+    return adjData.contests.find((c) => c.contestId === contestId)?.tag;
+  }
+
+  const initialContestTag = getContestTag();
   expect(initialContestTag).toBeDefined();
   expect(
     initialContestTag?.isResolved === false &&
@@ -432,7 +439,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       candidateId: 'elephant',
     },
   ]);
-  const [adjudicatedContestTag] = store.getCvrContestTags({ cvrId, contestId });
+  const adjudicatedContestTag = getContestTag();
   expect(adjudicatedContestTag).toBeDefined();
   expect(
     adjudicatedContestTag?.isResolved &&
@@ -532,7 +539,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       candidateId: 'elephant',
     },
   ]);
-  const [finalContestTag] = store.getCvrContestTags({ cvrId, contestId });
+  const finalContestTag = getContestTag();
   expect(finalContestTag).toBeDefined();
   expect(
     finalContestTag?.isResolved &&
