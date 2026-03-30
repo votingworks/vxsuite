@@ -516,20 +516,15 @@ export async function importCastVoteRecords(
           writeIns: castVoteRecordWriteIns,
           markScores,
         });
-        const castVoteRecordTag = determineCvrTag({
-          adminAdjudicationReasons,
-          cvrId: castVoteRecordId,
-          votes,
-        });
+        const isBlankBallot =
+          adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot) &&
+          Object.values(votes).every((optionIds) => optionIds.length === 0);
 
-        if (castVoteRecordTag) {
-          store.addCvrTag(castVoteRecordTag);
-        }
         for (const tag of castVoteRecordContestTags) {
           store.addCvrContestTag(tag);
         }
 
-        if (castVoteRecordContestTags.length > 0 || castVoteRecordTag) {
+        if (castVoteRecordContestTags.length > 0 || isBlankBallot) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
           for (const i of [0, 1] as const) {

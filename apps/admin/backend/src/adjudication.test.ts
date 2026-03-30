@@ -402,8 +402,10 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
       initialContestTag?.hasUnmarkedWriteIn === false
   ).toEqual(true);
 
-  // non-blank ballot should not have a cvr tag
-  expect(store.getCvrTag({ cvrId })).toBeUndefined();
+  // non-blank ballot should not be flagged as blank
+  const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+  assert(cvr);
+  expect(cvr.votes[contestId]?.length).toBeGreaterThan(0);
 
   // remove both initial votes
   adjudicate({});
@@ -545,7 +547,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   ).toEqual(true);
 });
 
-test('blank ballot gets a cvrTag when BlankBallot adjudication reason is enabled', () => {
+test('blank ballot appears in adjudication queue when BlankBallot reason is enabled', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
@@ -588,14 +590,14 @@ test('blank ballot gets a cvrTag when BlankBallot adjudication reason is enabled
   });
   assert(cvrId !== undefined);
 
-  const cvrTag = store.getCvrTag({ cvrId });
-  expect(cvrTag).toBeDefined();
-  assert(cvrTag !== undefined);
-  expect(cvrTag.isBlankBallot).toEqual(true);
-  expect(cvrTag.isResolved).toEqual(false);
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).toContain(cvrId);
+  const metadata = store.getBallotAdjudicationQueueMetadata({ electionId });
+  expect(metadata.totalTally).toBeGreaterThanOrEqual(1);
+  expect(metadata.pendingTally).toBeGreaterThanOrEqual(1);
 });
 
-test('non-blank ballot does not get a cvrTag even when BlankBallot adjudication reason is enabled', () => {
+test('non-blank ballot does not appear in adjudication queue for blank ballot reason', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
@@ -630,10 +632,11 @@ test('non-blank ballot does not get a cvrTag even when BlankBallot adjudication 
   });
   assert(cvrId !== undefined);
 
-  expect(store.getCvrTag({ cvrId })).toBeUndefined();
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).not.toContain(cvrId);
 });
 
-test('blank ballot does not get a cvrTag when BlankBallot adjudication reason is disabled', () => {
+test('blank ballot does not appear in adjudication queue when BlankBallot reason is disabled', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
@@ -671,5 +674,6 @@ test('blank ballot does not get a cvrTag when BlankBallot adjudication reason is
   });
   assert(cvrId !== undefined);
 
-  expect(store.getCvrTag({ cvrId })).toBeUndefined();
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).not.toContain(cvrId);
 });

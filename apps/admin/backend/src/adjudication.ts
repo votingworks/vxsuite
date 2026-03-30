@@ -320,7 +320,7 @@ export function resolveBallotTags(
 ): void {
   store.withTransaction(() => {
     store.resolveAllCvrContestTags({ cvrId });
-    store.resolveCvrTag({ cvrId });
+    store.setCvrResolved({ cvrId });
   });
 }
 

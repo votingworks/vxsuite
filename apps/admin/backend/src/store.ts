@@ -15,6 +15,7 @@ import {
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
+  AdjudicationReason,
   AnyContest,
   BallotId,
   BallotPageLayout,
@@ -1886,21 +1887,25 @@ export class Store implements BaseStore {
     );
   }
 
+  private shouldAdjudicateBlankBallots(electionId: Id): boolean {
+    const { adminAdjudicationReasons } = this.getSystemSettings(electionId);
+    return adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot);
+  }
+
   getBallotAdjudicationQueue({ electionId }: { electionId: Id }): Id[] {
     this.assertElectionExists(electionId);
     debug('querying database for ballot adjudication cvr queue');
+    const includeBlank = this.shouldAdjudicateBlankBallots(electionId);
     const rows = this.client.all(
       `
         select c.id as cvr_id
         from cvrs c
-        left join cvr_tags ct on ct.cvr_id = c.id
         where c.id in (
           select cvr_id from cvr_contest_tags
-          union
-          select cvr_id from cvr_tags
+          ${includeBlank ? `union select id from cvrs where is_blank = 1` : ''}
         )
         order by
-          case when ct.is_blank_ballot = 1 then 1 else 0 end,
+          case when c.is_blank = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
           c.ballot_style_group_id,
           c.sheet_number,
@@ -1908,7 +1913,7 @@ export class Store implements BaseStore {
       `
     ) as Array<{ cvr_id: Id }>;
     debug(
-      'queried cvr contest tags and cvr tags for ballot adjudication queue'
+      'queried cvr contest tags and cvr flags for ballot adjudication queue'
     );
     return rows.map((r) => r.cvr_id);
   }
@@ -1919,19 +1924,27 @@ export class Store implements BaseStore {
     electionId: Id;
   }): BallotAdjudicationQueueMetadata {
     this.assertElectionExists(electionId);
-    debug(
-      'querying database for ballot adjudication queue metadata using tags'
-    );
+    debug('querying database for ballot adjudication queue metadata');
+    const includeBlank = this.shouldAdjudicateBlankBallots(electionId);
 
     const row = this.client.one(
       `
         select
-          count(distinct cvr_id) as totalTally,
-          count(case when is_resolved = 0 then 1 end) as pendingTally
+          count(*) as totalTally,
+          count(case when is_pending = 1 then 1 end) as pendingTally
         from (
-          select cvr_id, is_resolved from cvr_contest_tags
-          union
-          select cvr_id, is_resolved from cvr_tags
+          select
+            cvr_id,
+            min(is_resolved) = 0 as is_pending
+          from (
+            select cvr_id, is_resolved from cvr_contest_tags
+            ${
+              includeBlank
+                ? `union all select id as cvr_id, is_resolved from cvrs where is_blank = 1`
+                : ''
+            }
+          )
+          group by cvr_id
         )
       `
     ) as {
@@ -1940,7 +1953,7 @@ export class Store implements BaseStore {
     };
 
     debug(
-      'queried adjudication queue metadata from cvr contest tags and cvr tags'
+      'queried adjudication queue metadata from cvr contest tags and cvr flags'
     );
     return row;
   }
@@ -1963,8 +1976,18 @@ export class Store implements BaseStore {
     const cvrInfo = this.getCastVoteRecordVoteInfo({ electionId, cvrId });
     const { votes, markScores, ballotStyleGroupId } = cvrInfo;
 
-    // 2. Get all tags
-    const cvrTag = this.getCvrTag({ cvrId });
+    // 2. Get tags and resolution status
+    const cvrRow = this.client.one(
+      `select is_blank as isBlank, is_resolved as isResolved from cvrs where id = ?`,
+      cvrId
+    ) as { isBlank: SqliteBool; isResolved: SqliteBool };
+    const cvrTag: CvrTag | undefined = fromSqliteBool(cvrRow.isBlank)
+      ? {
+          cvrId,
+          isBlankBallot: true,
+          isResolved: fromSqliteBool(cvrRow.isResolved),
+        }
+      : undefined;
     const cvrContestTags = this.getCvrContestTags({ cvrId });
 
     // 3. Get adjudicated votes
@@ -2070,19 +2093,22 @@ export class Store implements BaseStore {
   }): Optional<Id> {
     this.assertElectionExists(electionId);
     debug('querying database for first unresolved cvr id for adjudication');
+    const includeBlank = this.shouldAdjudicateBlankBallots(electionId);
 
     const row = this.client.one(
       `
         select c.id as cvr_id
         from cvrs c
-        left join cvr_tags ct on ct.cvr_id = c.id
         where c.id in (
           select cvr_id from cvr_contest_tags where is_resolved = 0
-          union
-          select cvr_id from cvr_tags where is_resolved = 0
+          ${
+            includeBlank
+              ? `union select id from cvrs where is_blank = 1 and is_resolved = 0`
+              : ''
+          }
         )
         order by
-          case when ct.is_blank_ballot = 1 then 1 else 0 end,
+          case when c.is_blank = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
           c.ballot_style_group_id,
           c.sheet_number,
@@ -2903,58 +2929,8 @@ export class Store implements BaseStore {
     );
   }
 
-  addCvrTag({ cvrId, isResolved, isBlankBallot }: CvrTag): void {
-    this.client.run(
-      `
-        insert into cvr_tags (
-          cvr_id,
-          is_resolved,
-          is_blank_ballot
-        ) values (?, ?, ?)
-      `,
-      cvrId,
-      asSqliteBool(isResolved),
-      asSqliteBool(isBlankBallot)
-    );
-  }
-
-  getCvrTag({ cvrId }: { cvrId: Id }): CvrTag | undefined {
-    const row = this.client.one(
-      `
-        select
-          cvr_id as cvrId,
-          is_resolved as isResolved,
-          is_blank_ballot as isBlankBallot
-        from cvr_tags
-        where cvr_id = ?
-      `,
-      cvrId
-    ) as
-      | {
-          cvrId: Id;
-          isResolved: SqliteBool;
-          isBlankBallot: SqliteBool;
-        }
-      | undefined;
-
-    return row
-      ? {
-          ...row,
-          isResolved: fromSqliteBool(row.isResolved),
-          isBlankBallot: fromSqliteBool(row.isBlankBallot),
-        }
-      : undefined;
-  }
-
-  resolveCvrTag({ cvrId }: { cvrId: Id }): void {
-    this.client.run(
-      `
-        update cvr_tags
-        set is_resolved = 1
-        where cvr_id = ?
-      `,
-      cvrId
-    );
+  setCvrResolved({ cvrId }: { cvrId: Id }): void {
+    this.client.run(`update cvrs set is_resolved = 1 where id = ?`, cvrId);
   }
 
   /**

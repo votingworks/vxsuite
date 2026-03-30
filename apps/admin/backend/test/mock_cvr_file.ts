@@ -12,10 +12,7 @@ import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
 import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
-import {
-  determineCvrContestTags,
-  determineCvrTag,
-} from '../src/cast_vote_records';
+import { determineCvrContestTags } from '../src/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {
@@ -151,15 +148,6 @@ export function addMockCvrFileToStore({
         electionDefinition,
       })) {
         store.addCvrContestTag(tag);
-      }
-
-      const cvrTag = determineCvrTag({
-        adminAdjudicationReasons,
-        cvrId,
-        votes: mockCastVoteRecord.votes,
-      });
-      if (cvrTag) {
-        store.addCvrTag(cvrTag);
       }
     }
   }
