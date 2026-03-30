@@ -423,15 +423,18 @@ export class Importer {
     }
 
     this.scanOneSheet().catch((error) => {
-      debug('processing sheet failed with error: %s', error.stack);
+      const message = extractErrorMessage(error);
+      debug('processing sheet failed with error: %s', message);
       void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
         disposition: 'failure',
-        message: `Processing sheet failed: ${error}`,
+        message: `Processing sheet failed: ${message}`,
       });
-      void this.finishBatch(error.toString()).catch((finishError) => {
+      void this.finishBatch(message).catch((finishError) => {
         void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
           disposition: 'failure',
-          message: `Additionally, finishing batch failed: ${finishError}`,
+          message: `Additionally, finishing batch failed: ${extractErrorMessage(
+            finishError
+          )}`,
         });
       });
     });
