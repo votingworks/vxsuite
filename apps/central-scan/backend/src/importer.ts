@@ -304,7 +304,9 @@ export class Importer {
       error,
     });
     const batch = this.workspace.store.getBatch(currentBatch.batchId);
-    await logBatchComplete(this.logger, batch);
+    if (!error) {
+      await logBatchComplete(this.logger, batch);
+    }
     await currentBatch.sheetGenerator.endBatch();
     await fsExtra.remove(currentBatch.directory);
   }
