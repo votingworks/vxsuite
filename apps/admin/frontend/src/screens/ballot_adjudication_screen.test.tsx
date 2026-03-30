@@ -49,7 +49,7 @@ function makeContestTag(overrides: Partial<CvrContestTag> = {}): CvrContestTag {
   return {
     cvrId: CVR_ID_1,
     contestId: 'zoo-council-mammal',
-    source: 'scanner',
+
     isResolved: false,
     hasOvervote: false,
     hasUndervote: false,
@@ -104,7 +104,7 @@ function makeContestAdjudicationData(
 function makeBallotAdjudicationData(
   cvrId: string,
   contests: ContestAdjudicationData[],
-  tag?: CvrTag
+  tag: CvrTag = { cvrId, isBlankBallot: false, isResolved: false }
 ): BallotAdjudicationData {
   return { cvrId, contests, tag };
 }

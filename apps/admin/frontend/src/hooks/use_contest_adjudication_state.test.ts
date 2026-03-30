@@ -50,7 +50,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, source: 'scanner', cvrId, contestId },
+    tag: { isResolved: false, cvrId, contestId },
     options: [
       makeOption(
         {
@@ -283,7 +283,7 @@ test('makeInitialState initializes official and write-in options correctly for c
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, source: 'scanner', cvrId, contestId },
+    tag: { isResolved: false, cvrId, contestId },
     options: [
       makeOption(
         {
@@ -390,7 +390,7 @@ test('makeInitialState initializes official and write-in options correctly for c
   // Now try with the contest already resolved
   const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: true, source: 'scanner', cvrId, contestId },
+    tag: { isResolved: true, cvrId, contestId },
     options: [
       makeOption(
         {
@@ -586,7 +586,7 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, source: 'scanner', cvrId, contestId },
+    tag: { isResolved: false, cvrId, contestId },
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
@@ -611,7 +611,7 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
   const electionId = 'election';
   const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: true, source: 'scanner', cvrId, contestId },
+    tag: { isResolved: true, cvrId, contestId },
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
@@ -662,7 +662,7 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, source: 'scanner', cvrId, contestId },
+    tag: { isResolved: false, cvrId, contestId },
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },

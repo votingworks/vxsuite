@@ -359,7 +359,7 @@ describe('hmpb write-in adjudication', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    source: 'scanner',
+
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -649,7 +649,7 @@ describe('bmd write-in adjudication', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    source: 'scanner',
+
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -752,7 +752,7 @@ describe('vote adjudication', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -825,7 +825,7 @@ describe('vote adjudication', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -871,7 +871,7 @@ describe('vote adjudication', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasMarginalMark: true,
@@ -936,7 +936,7 @@ describe('unmarked and undetected write-ins', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    source: 'scanner',
+
     cvrId,
     contestId,
     hasUnmarkedWriteIn: true,
@@ -1056,7 +1056,7 @@ describe('ballot image viewer', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1154,7 +1154,7 @@ describe('ballot image viewer', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1183,7 +1183,7 @@ describe('ballot image viewer', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1218,7 +1218,7 @@ describe('ballot image viewer', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasWriteIn: true,
@@ -1268,7 +1268,7 @@ describe('double votes', () => {
   const votes = ['kangaroo', 'write-in-0', 'write-in-1'];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    source: 'scanner',
+
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -1426,7 +1426,7 @@ describe('unsaved changes', () => {
   const votes = ['kangaroo', 'write-in-0'];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-    source: 'scanner',
+
     cvrId,
     contestId,
     hasWriteIn: true,
@@ -1547,7 +1547,7 @@ describe('marginal mark adjudication', () => {
     const marginalMarkOptionIds = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasMarginalMark: true,
@@ -1604,7 +1604,7 @@ describe('marginal mark adjudication', () => {
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-      source: 'scanner',
+
       cvrId,
       contestId,
       hasMarginalMark: true,
@@ -1722,7 +1722,7 @@ describe('candidate ordering', () => {
       ],
       tag: {
         isResolved: false,
-        source: 'scanner',
+
         cvrId: 'id-174',
         contestId: testContestId,
         hasWriteIn: true,
@@ -1794,7 +1794,7 @@ describe('candidate ordering', () => {
       ],
       tag: {
         isResolved: false,
-        source: 'scanner',
+
         cvrId: 'id-175',
         contestId: testContestId,
         hasWriteIn: true,
@@ -1856,7 +1856,7 @@ describe('candidate ordering', () => {
       votes: ['sherlock-holmes'],
       tag: {
         isResolved: false,
-        source: 'scanner',
+
         cvrId: testCvrId,
         contestId: testContestId,
         hasWriteIn: false,
