@@ -26,6 +26,7 @@ const commonSettings = {
 const commonCustomerSettings = {
   precinctScanEnableBmdBallotScanning: true,
   precinctScanDisableAlarms: true,
+  precinctScanDisableScreenReaderAudio: true,
   disableSystemLimitChecks: true,
   disableVoterHelpButtons: true,
 } as const;

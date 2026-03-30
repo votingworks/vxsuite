@@ -1563,6 +1563,46 @@ test('voter help button hidden when relevant system setting is set', async () =>
   ).not.toBeInTheDocument();
 });
 
+test.each([
+  {
+    description: 'present when screen reader audio is enabled',
+    precinctScanDisableScreenReaderAudio: false,
+    isAudioTabPresent: true,
+  },
+  {
+    description: 'not present when screen reader audio is disabled',
+    precinctScanDisableScreenReaderAudio: true,
+    isAudioTabPresent: false,
+  },
+])(
+  'voter settings audio tab - $description',
+  async ({ precinctScanDisableScreenReaderAudio, isAudioTabPresent }) => {
+    apiMock.expectGetConfig({
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanDisableScreenReaderAudio,
+      },
+    });
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.expectGetUsbDriveStatus('mounted');
+    apiMock.expectGetScannerStatus(statusNoPaper);
+    apiMock.setPrinterStatus();
+    renderApp();
+
+    await screen.findByText('Insert Your Ballot');
+    userEvent.click(screen.getButton('Settings'));
+    await screen.findByRole('tab', { name: 'Color' });
+
+    if (isAudioTabPresent) {
+      expect(screen.getByRole('tab', { name: 'Audio' })).toBeInTheDocument();
+    } else {
+      expect(
+        screen.queryByRole('tab', { name: 'Audio' })
+      ).not.toBeInTheDocument();
+    }
+  }
+);
+
 test('keyboard nav enabled for voter settings', async () => {
   vi.mocked(useSessionSettingsManager).mockReturnValue({
     isPatCalibrationComplete: true,

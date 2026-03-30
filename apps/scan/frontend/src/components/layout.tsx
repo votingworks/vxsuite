@@ -48,6 +48,7 @@ export interface ScreenProps {
   showEarlyVotingBanner: boolean;
   voterFacing: boolean;
   disableSettingsButtons?: boolean;
+  disableReadOnLoad?: boolean;
 }
 
 export type CenteredScreenProps = Omit<ScreenProps, 'centered' | 'padded'>;
@@ -155,6 +156,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     title,
     voterFacing,
     disableSettingsButtons,
+    disableReadOnLoad,
   } = props;
 
   const [shouldShowLanguageSettings, setShouldShowLanguageSettings] =
@@ -170,29 +172,6 @@ export function Screen(props: ScreenProps): JSX.Element | null {
 
   const currentTheme = React.useContext(ThemeContext);
 
-  if (shouldShowLanguageSettings) {
-    return (
-      <LanguageSettingsScreen
-        onDone={() => setShouldShowLanguageSettings(false)}
-      />
-    );
-  }
-
-  if (shouldShowVoterSettings) {
-    return (
-      <VoterSettings
-        allowAudioVideoOnlyToggles
-        onClose={() => setShouldShowVoterSettings(false)}
-      />
-    );
-  }
-
-  if (shouldShowVoterHelpScreen) {
-    return (
-      <VoterHelpScreen onClose={() => setShouldShowVoterHelpScreen(false)} />
-    );
-  }
-
   if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
     return null;
   }
@@ -204,6 +183,31 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     precinctSelection,
     systemSettings,
   } = configQuery.data;
+
+  if (shouldShowLanguageSettings) {
+    return (
+      <LanguageSettingsScreen
+        onDone={() => setShouldShowLanguageSettings(false)}
+      />
+    );
+  }
+
+  if (shouldShowVoterSettings) {
+    return (
+      <VoterSettings
+        allowAudioVideoOnlyToggles={
+          !systemSettings.precinctScanDisableScreenReaderAudio
+        }
+        onClose={() => setShouldShowVoterSettings(false)}
+      />
+    );
+  }
+
+  if (shouldShowVoterHelpScreen) {
+    return (
+      <VoterHelpScreen onClose={() => setShouldShowVoterHelpScreen(false)} />
+    );
+  }
 
   const ballotCount =
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
@@ -248,7 +252,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
         {!voterFacing && ballotCountElement}
       </HeaderRow>
-      {voterFacing ? (
+      {voterFacing && !disableReadOnLoad ? (
         <ReadOnLoad as={Main} centerChild={centerContent} padded={padded}>
           {title && <AudioOnly>{title}</AudioOnly>}
           {children}

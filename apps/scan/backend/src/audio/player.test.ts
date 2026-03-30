@@ -50,10 +50,14 @@ test('Player supports all VxScan sound names', async () => {
   expect(mockPlayer.play).toHaveBeenCalledTimes(soundNames.length);
 });
 
-test('temporarily switches to speaker port before playing', async () => {
+test('toggles output when screen reader is enabled', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
   const player = new Player('production', logger, mockCard);
+
+  await player.setIsScreenReaderEnabled(true);
+  expect(mockCard.useHeadphones).toHaveBeenCalledOnce();
+  vi.mocked(mockCard.useHeadphones).mockClear();
 
   const deferredOutputSwitch = deferred<void>();
   vi.mocked(mockCard.useSpeaker).mockReturnValueOnce(
@@ -77,4 +81,21 @@ test('temporarily switches to speaker port before playing', async () => {
   // Expect switch back to headphones after sound is done playing:
   await deferredPlay;
   expect(mockCard.useHeadphones).toHaveBeenCalledOnce();
+});
+
+test('does not toggle output when screen reader is disabled', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  const mockCard = new AudioCard('test', logger, { name: 'test.card' });
+  const player = new Player('production', logger, mockCard);
+
+  await player.setIsScreenReaderEnabled(false);
+  expect(mockCard.useSpeaker).toHaveBeenCalledOnce();
+  vi.mocked(mockCard.useSpeaker).mockClear();
+
+  await player.play('success');
+
+  const mockPlayer = MockAudioPlayer.mock.results[0].value;
+  expect(mockPlayer.play).toHaveBeenCalledWith<[SoundName]>('success');
+  expect(mockCard.useSpeaker).not.toHaveBeenCalled();
+  expect(mockCard.useHeadphones).not.toHaveBeenCalled();
 });

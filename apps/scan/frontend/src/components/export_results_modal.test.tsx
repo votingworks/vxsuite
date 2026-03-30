@@ -32,6 +32,7 @@ function renderModal(props: Partial<ExportResultsModalProps> = {}) {
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetConfig();
 });
 
 afterEach(() => {
@@ -45,7 +46,9 @@ test('render no usb found screen when there is not a compatible mounted usb driv
     'error',
   ];
 
+  apiMock.mockApiClient.getConfig.reset();
   for (const status of usbStatuses) {
+    apiMock.expectGetConfig();
     const closeFn = vi.fn();
     const { getByText, unmount } = renderModal({
       usbDrive: mockUsbDriveStatus(status),

@@ -15,6 +15,7 @@ const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {
   ...createApiClient(),
   configureFromElectionPackageOnUsbDrive: vi.fn(),
+  getConfig: vi.fn().mockResolvedValue({}),
   unconfigureElection: vi.fn(),
 };
 

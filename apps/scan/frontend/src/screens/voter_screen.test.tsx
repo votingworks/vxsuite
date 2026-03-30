@@ -30,6 +30,7 @@ function renderScreen(
   props: Partial<VoterScreenProps>
 ): { apiMock: ApiMock } {
   const apiMock = createApiMock();
+  apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(scannerStatus);
 
   render(
