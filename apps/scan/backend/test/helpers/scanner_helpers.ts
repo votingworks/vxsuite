@@ -54,8 +54,8 @@ import {
 } from './shared_helpers';
 import { AudioCard } from '../../src/audio/card';
 
-vi.mock('./audio/card');
-vi.mock('./audio/player');
+vi.mock('../../src/audio/card');
+vi.mock('../../src/audio/player');
 
 export interface MockPdiScannerClient {
   emitEvent: (event: ScannerEvent) => void;
