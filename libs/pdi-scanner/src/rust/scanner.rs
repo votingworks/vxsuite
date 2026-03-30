@@ -126,24 +126,38 @@ impl Scanner {
 /// Fails if the device is not found, cannot be opened, or the interface
 /// cannot be claimed.
 fn open_usb_interface() -> Result<nusb::Interface> {
+    const INTERFACE: u8 = 0;
+
+    let device = find_pdi_device()?;
+
+    // Reset the USB device to prevent possible image corruption on the first
+    // scan after reconnection. Without this, the first scan may produce images
+    // with a horizontal pixel offset and dark bands at the top — we hypothesize
+    // this is due to stale data in the scanner's internal buffer. The reset
+    // triggers a USB bus reset and forces the device to re-enumerate.
+    device.reset()?;
+
+    // reset() invalidates the device handle, so re-find the device.
+    let device = find_pdi_device()?;
+    device.set_configuration(1)?;
+    let scanner_interface = device.detach_and_claim_interface(INTERFACE)?;
+    tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
+
+    Ok(scanner_interface)
+}
+
+fn find_pdi_device() -> Result<nusb::Device> {
     /// Vendor ID for the PDI scanner.
     const VENDOR_ID: u16 = 0x0bd7;
 
     /// Product ID for the PDI scanner.
     const PRODUCT_ID: u16 = 0xa002;
 
-    const INTERFACE: u8 = 0;
-
-    let mut devices = nusb::list_devices()?;
-    let device = devices
-        .find(|device| device.vendor_id() == VENDOR_ID && device.product_id() == PRODUCT_ID)
+    nusb::list_devices()?
+        .find(|d| d.vendor_id() == VENDOR_ID && d.product_id() == PRODUCT_ID)
         .ok_or(UsbError::DeviceNotFound)?
-        .open()?;
-    device.set_configuration(1)?;
-    let scanner_interface = device.detach_and_claim_interface(INTERFACE)?;
-    tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
-
-    Ok(scanner_interface)
+        .open()
+        .map_err(Into::into)
 }
 
 /// Spawns a background task that bridges USB I/O with in-process channels.
