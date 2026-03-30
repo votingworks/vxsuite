@@ -26,6 +26,7 @@ import {
   jurisdiction,
   provideApi,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -49,6 +50,7 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectRepeatedCallsWith().resolves(user);
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
@@ -952,6 +954,8 @@ describe('Results navigation and display', () => {
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(ok(mockPollsStatusAllClosed));
 
+    mockStateFeatures(apiMock, primaryElection.id);
+
     renderScreen(primaryElection.id);
 
     await screen.findByRole('heading', { name: 'Live Reports' });
@@ -1044,6 +1048,8 @@ describe('Results navigation and display', () => {
     apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(ok(mockPollsStatusAllClosed));
+
+    mockStateFeatures(apiMock, primaryElection.id);
 
     renderScreen(primaryElection.id);
 

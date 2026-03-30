@@ -60,6 +60,7 @@ function renderScreen(electionId: ElectionId) {
 
 function expectElectionApiCalls(electionRecord: ElectionRecord) {
   const { id: electionId } = electionRecord.election;
+  mockStateFeatures(apiMock, electionId);
   apiMock.listBallotStyles
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.ballotStyles);

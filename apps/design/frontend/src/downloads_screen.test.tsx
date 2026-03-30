@@ -7,6 +7,7 @@ import {
   createMockApiClient,
   jurisdiction,
   MockApiClient,
+  mockStateFeatures,
   mockUserFeatures,
   provideApi,
   user,
@@ -64,6 +65,7 @@ test('shows ballots status callout when not approved', async () => {
 function mockNavScreenDependencies(api: MockApiClient) {
   api.getUser.expectCallWith().resolves(user);
   mockUserFeatures(api);
+  mockStateFeatures(api, electionId);
 
   api.getSystemSettings
     .expectCallWith({ electionId })
