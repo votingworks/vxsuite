@@ -57,7 +57,9 @@ test('toggles output when screen reader is enabled', async () => {
 
   await player.setIsScreenReaderEnabled(true);
   expect(mockCard.useHeadphones).toHaveBeenCalledOnce();
+  expect(mockCard.setVolume).toHaveBeenCalledWith(100);
   vi.mocked(mockCard.useHeadphones).mockClear();
+  vi.mocked(mockCard.setVolume).mockClear();
 
   const deferredOutputSwitch = deferred<void>();
   vi.mocked(mockCard.useSpeaker).mockReturnValueOnce(
@@ -81,6 +83,9 @@ test('toggles output when screen reader is enabled', async () => {
   // Expect switch back to headphones after sound is done playing:
   await deferredPlay;
   expect(mockCard.useHeadphones).toHaveBeenCalledOnce();
+
+  // Volume should not be set when using speaker for sound effects:
+  expect(mockCard.setVolume).not.toHaveBeenCalled();
 });
 
 test('does not toggle output when screen reader is disabled', async () => {
