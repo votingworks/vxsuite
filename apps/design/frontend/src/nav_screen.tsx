@@ -20,6 +20,7 @@ import styled from 'styled-components';
 import { adminElectionNavRoutes, electionNavRoutes } from './routes';
 import {
   getElectionInfo,
+  getStateFeatures,
   getSystemSettings,
   getUser,
   getUserFeatures,
@@ -120,23 +121,29 @@ export function ElectionNavScreen({
 }): JSX.Element | null {
   const currentRoute = useRouteMatch();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+
   if (
     !getElectionInfoQuery.isSuccess ||
     !getUserFeaturesQuery.isSuccess ||
+    !getStateFeaturesQuery.isSuccess ||
     !getSystemSettingsQuery.isSuccess
   ) {
     return null;
   }
+
   const electionInfo = getElectionInfoQuery.data;
   const systemSettings = getSystemSettingsQuery.data;
   const userFeatures = getUserFeaturesQuery.data;
+  const stateFeatures = getStateFeaturesQuery.data;
+
   return (
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionInfo, systemSettings).map(
+          {electionNavRoutes(electionInfo, systemSettings, stateFeatures).map(
             ({ path, title }) => (
               <NavListItem key={path}>
                 <NavLink to={path} isActive={path === currentRoute.url}>
