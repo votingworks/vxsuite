@@ -2,16 +2,6 @@
 
 // @ts-check
 
-const fs = require('fs');
-const { join } = require('path');
-
-if (!fs.existsSync(join(__dirname, '../build/addon.node'))) {
-  process.stderr.write(
-    'Error: native addon has not been built. Please run `pnpm build` first.\n'
-  );
-  process.exit(1);
-}
-
 require('esbuild-runner').install({
   type: 'transform',
 });
