@@ -61,6 +61,8 @@ const PRINT_MODES = [
  * - `bubble_ballot`: Full HMPBs, printed on blank sheets, with votes marked.
  * - `marks_on_preprinted_ballot`: Bubble marks only, on preprinted HMPB sheets.
  * - `summary`: Summary ballot, printed on blank sheets, with QR-encoded votes.
+ *
+ * Only applies to VxMark. VxMarkScan always prints summary ballots.
  */
 export type BmdPrintMode = (typeof PRINT_MODES)[number];
 
@@ -240,11 +242,28 @@ export function safeParseSystemSettings(
   return safeParseJson(value, SystemSettingsSchema);
 }
 
+const DEFAULT_UNMARKED_WRITE_IN_THRESHOLD = 0.05;
+
+/**
+ * These are our defaults assuming marginal mark adjudication is disabled. The marginal threshold
+ * is irrelevant in this case.
+ */
 export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   marginal: 0.05,
   definite: 0.07,
-  writeInTextArea: 0.05,
+  writeInTextArea: DEFAULT_UNMARKED_WRITE_IN_THRESHOLD,
 };
+
+/**
+ * These are our defaults assuming marginal mark adjudication is enabled. Anything between the
+ * marginal and definite thresholds will be considered a marginal mark.
+ */
+export const DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED: Readonly<MarkThresholds> =
+  {
+    marginal: 0.05,
+    definite: 0.1,
+    writeInTextArea: DEFAULT_UNMARKED_WRITE_IN_THRESHOLD,
+  };
 
 /**
  * See {@link SystemSettings.minimumDetectedBallotScaleOverride} for more context. Landed on this
@@ -252,6 +271,9 @@ export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
  */
 export const DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE = 0.985;
 
+/**
+ * For actual customer-specific defaults, see apps/design/backend/src/system_settings.ts.
+ */
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {
     arePollWorkerCardPinsEnabled: false,
@@ -263,11 +285,14 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     startingCardLockoutDurationSeconds:
       DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   },
+
   markThresholds: DEFAULT_MARK_THRESHOLDS,
+
   precinctScanAdjudicationReasons: [],
   disallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
+
   precinctScanEnableBmdBallotScanning: true,
   maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,

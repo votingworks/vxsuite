@@ -1,21 +1,42 @@
 import {
   AdjudicationReason,
-  DEFAULT_SYSTEM_SETTINGS,
+  DEFAULT_MARK_THRESHOLDS,
+  DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+  DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
 } from '@votingworks/types';
-import { Jurisdiction, resultsReportingUrl, StateCode } from './types';
+
 import { sliOrganizationId } from './globals';
+import { Jurisdiction, resultsReportingUrl, StateCode } from './types';
+
+/**
+ * Default settings applied across customers and SLI
+ */
+const commonSettings = {
+  auth: DEFAULT_SYSTEM_SETTINGS.auth,
+  maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+} as const;
+
+/**
+ * Default settings applied across customers but not SLI
+ */
+const commonCustomerSettings = {
+  precinctScanEnableBmdBallotScanning: true,
+  precinctScanDisableAlarms: true,
+  disableSystemLimitChecks: true,
+  disableVoterHelpButtons: true,
+} as const;
 
 export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
   DEMO: {
-    auth: DEFAULT_SYSTEM_SETTINGS.auth,
-    markThresholds: {
-      definite: 0.1,
-      marginal: 0.05,
-      writeInTextArea: 0.05,
-    },
+    ...commonSettings,
+    ...commonCustomerSettings,
+
+    markThresholds: DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+
     precinctScanAdjudicationReasons: [
       AdjudicationReason.Overvote,
       AdjudicationReason.BlankBallot,
@@ -27,18 +48,17 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
       AdjudicationReason.Overvote,
       AdjudicationReason.MarginalMark,
     ],
-    precinctScanEnableBmdBallotScanning: true,
+
     bmdPrintMode: 'bubble_ballot',
-    precinctScanDisableAlarms: true,
     quickResultsReportingUrl: resultsReportingUrl(),
-    disableSystemLimitChecks: true,
-    disableVoterHelpButtons: true,
-    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 
   MS: {
-    auth: DEFAULT_SYSTEM_SETTINGS.auth,
+    ...commonSettings,
+    ...commonCustomerSettings,
+
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
+
     precinctScanAdjudicationReasons: [
       AdjudicationReason.Overvote,
       AdjudicationReason.Undervote,
@@ -50,23 +70,17 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
       AdjudicationReason.BlankBallot,
     ],
     adminAdjudicationReasons: [],
-    markThresholds: {
-      definite: 0.07,
-      marginal: 0.05,
-      writeInTextArea: 0.05,
-    },
-    precinctScanEnableBmdBallotScanning: true,
+
     bmdPrintMode: 'summary',
-    precinctScanDisableAlarms: true,
     quickResultsReportingUrl: resultsReportingUrl(),
-    disableSystemLimitChecks: true,
-    disableVoterHelpButtons: true,
-    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 
   NH: {
-    auth: DEFAULT_SYSTEM_SETTINGS.auth,
+    ...commonSettings,
+    ...commonCustomerSettings,
+
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
+
     precinctScanAdjudicationReasons: [
       AdjudicationReason.Overvote,
       AdjudicationReason.UnmarkedWriteIn,
@@ -77,36 +91,23 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
       AdjudicationReason.UnmarkedWriteIn,
     ],
     adminAdjudicationReasons: [],
-    markThresholds: {
-      definite: 0.07,
-      marginal: 0.05,
-      writeInTextArea: 0.05,
-    },
+
     allowOfficialBallotsInTestMode: true,
-    precinctScanEnableBmdBallotScanning: true,
     bmdPrintMode: 'bubble_ballot',
-    precinctScanDisableAlarms: true,
-    disableSystemLimitChecks: true,
-    disableVoterHelpButtons: true,
-    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 };
 
 export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
-  auth: DEFAULT_SYSTEM_SETTINGS.auth,
+  ...commonSettings,
+
+  markThresholds: DEFAULT_MARK_THRESHOLDS,
+
   precinctScanAdjudicationReasons: [],
   disallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
-  markThresholds: {
-    definite: 0.07,
-    marginal: 0.05,
-    writeInTextArea: 0.05,
-  },
+
   bmdPrintMode: 'bubble_ballot',
-  maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-  retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 };
 
 export function defaultSystemSettings(
