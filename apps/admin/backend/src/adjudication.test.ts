@@ -19,16 +19,12 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import { Store } from './store';
-import {
-  adjudicateCvrContest,
-  adjudicateVote,
-  adjudicateWriteIn,
-} from './adjudication';
-import { AdjudicatedContestOption, VoteAdjudication, WriteInRecord } from '.';
+import { adjudicateCvrContest } from './adjudication';
+import { AdjudicatedContestOption, WriteInRecord } from '.';
 
 const contestId = 'zoo-council-mammal';
 
-test('adjudicateVote', () => {
+test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
@@ -63,10 +59,6 @@ test('adjudicateVote', () => {
   });
   assert(cvrId !== undefined);
 
-  // Validate this cvr didn't create a contest tag
-  const [cvrContestTag] = store.getCvrContestTags({ cvrId, contestId });
-  expect(cvrContestTag).toBeUndefined();
-
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
     assert(cvr);
@@ -76,86 +68,64 @@ test('adjudicateVote', () => {
     });
   }
 
-  function expectVoteAdjudications(
-    voteAdjudications: Array<Partial<VoteAdjudication>>
-  ) {
-    assert(cvrId !== undefined);
-    expect(
-      store.getVoteAdjudications({ electionId, contestId, cvrId })
-    ).toEqual(
-      voteAdjudications.map((adj) => ({
-        contestId,
-        cvrId,
-        electionId,
-        ...adj,
-      }))
-    );
-  }
+  // initially no adjudicated votes
+  expect(store.getAdjudicatedVotes({ cvrId })).toBeUndefined();
+  expectVotes({});
 
-  function setOption(optionId: ContestOptionId, isVote: boolean): void {
-    assert(cvrId !== undefined);
-    adjudicateVote(
-      {
-        electionId,
-        cvrId,
-        contestId,
-        optionId,
-        isVote,
-      },
-      store
-    );
-  }
-
-  expectVotes({ 'zoo-council-mammal': ['lion'] });
-
-  // toggle a vote that has a scanned mark back and forth, confirm it is idempotent
-  setOption('lion', true);
-  expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudications([]);
-  setOption('lion', false);
-  expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
-  setOption('lion', true);
-  expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudications([]);
-  setOption('lion', true);
-  expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudications([]);
-  setOption('lion', false);
-  expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
-  setOption('lion', false);
-  expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
-
-  // toggle a vote without a scanned mark back and forth, confirm it is idempotent
-  setOption('zebra', false);
-  expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
-  setOption('zebra', true);
+  // adjudicate a contest: remove lion, add zebra
+  store.setContestAdjudicatedVotes({
+    cvrId,
+    contestId,
+    votes: ['zebra'],
+  });
+  expect(store.getAdjudicatedVotes({ cvrId })).toEqual({
+    'zoo-council-mammal': ['zebra'],
+  });
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
-  expectVoteAdjudications([
-    { optionId: 'lion', isVote: false },
-    { optionId: 'zebra', isVote: true },
-  ]);
-  setOption('zebra', true);
-  expectVotes({ 'zoo-council-mammal': ['zebra'] });
-  expectVoteAdjudications([
-    { optionId: 'lion', isVote: false },
-    { optionId: 'zebra', isVote: true },
-  ]);
-  setOption('zebra', false);
-  expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
-  setOption('zebra', true);
-  expectVotes({ 'zoo-council-mammal': ['zebra'] });
-  expectVoteAdjudications([
-    { optionId: 'lion', isVote: false },
-    { optionId: 'zebra', isVote: true },
-  ]);
+
+  // adjudicate same contest again: restore lion
+  store.setContestAdjudicatedVotes({
+    cvrId,
+    contestId,
+    votes: ['lion'],
+  });
+  expect(store.getAdjudicatedVotes({ cvrId })).toEqual({
+    'zoo-council-mammal': ['lion'],
+  });
+  expectVotes({ 'zoo-council-mammal': ['lion'] });
+
+  // adjudicate a different contest
+  store.setContestAdjudicatedVotes({
+    cvrId,
+    contestId: 'best-animal-mammal',
+    votes: ['fox'],
+  });
+  expect(store.getAdjudicatedVotes({ cvrId })).toEqual({
+    'zoo-council-mammal': ['lion'],
+    'best-animal-mammal': ['fox'],
+  });
+  expectVotes({
+    'zoo-council-mammal': ['lion'],
+    'best-animal-mammal': ['fox'],
+  });
+
+  // adjudicate to empty votes
+  store.setContestAdjudicatedVotes({
+    cvrId,
+    contestId,
+    votes: [],
+  });
+  expect(store.getAdjudicatedVotes({ cvrId })).toEqual({
+    'zoo-council-mammal': [],
+    'best-animal-mammal': ['fox'],
+  });
+  expectVotes({
+    'zoo-council-mammal': [],
+    'best-animal-mammal': ['fox'],
+  });
 });
 
-test('adjudicateWriteIn', () => {
+test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
@@ -186,18 +156,38 @@ test('adjudicateWriteIn', () => {
   });
   assert(cvrId !== undefined);
 
+  const allFalse: Record<ContestOptionId, AdjudicatedContestOption> = {
+    kangaroo: { type: 'candidate-option', hasVote: false },
+    elephant: { type: 'candidate-option', hasVote: false },
+    lion: { type: 'candidate-option', hasVote: false },
+    zebra: { type: 'candidate-option', hasVote: false },
+    'write-in-0': { type: 'write-in-option', hasVote: false },
+    'write-in-1': { type: 'write-in-option', hasVote: false },
+    'write-in-2': { type: 'write-in-option', hasVote: false },
+  };
+
+  function adjudicate(
+    trueVotes: Record<ContestOptionId, AdjudicatedContestOption>
+  ): void {
+    assert(cvrId !== undefined);
+    adjudicateCvrContest(
+      {
+        adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
+        cvrId,
+        contestId,
+        side: 'front',
+      },
+      store,
+      logger
+    );
+  }
+
   const writeInId = store.getWriteInRecords({
     castVoteRecordId: cvrId,
     contestId,
     electionId,
   })[0]?.id;
   assert(writeInId !== undefined);
-
-  function expectVotes(votes: Tabulation.Votes) {
-    const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
-    assert(cvr);
-    expect(cvr.votes).toEqual(votes);
-  }
 
   function expectWriteInRecord(expected: Partial<WriteInRecord>) {
     const [writeInRecord] = store.getWriteInRecords({
@@ -207,49 +197,53 @@ test('adjudicateWriteIn', () => {
     expect(writeInRecord).toMatchObject(expected);
   }
 
-  function expectLog(message: string, attributes: Record<string, unknown>) {
-    expect(logger.log).lastCalledWith(
+  function expectWriteInLog(
+    optionId: string,
+    message: string,
+    attributes: Record<string, unknown>
+  ) {
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.WriteInAdjudicated,
       'election_manager',
       {
         disposition: 'success',
         message,
         cvrId,
-        contestId: 'zoo-council-mammal',
-        optionId: 'write-in-0',
+        contestId,
+        optionId,
         ...attributes,
       }
     );
   }
 
-  expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
-  expectWriteInRecord({
-    status: 'pending',
-  });
-
-  adjudicateWriteIn({ writeInId, type: 'invalid' }, store, logger);
-  expectVotes({ 'zoo-council-mammal': [] });
+  // mark write-in as invalid
+  adjudicate({});
   expectWriteInRecord({
     status: 'adjudicated',
     adjudicationType: 'invalid',
   });
-  expectLog('User adjudicated a write-in from unadjudicated to invalid.', {
-    previousStatus: 'pending',
-    status: 'invalid',
-  });
-
-  adjudicateWriteIn(
-    { writeInId, type: 'official-candidate', candidateId: 'lion' },
-    store,
-    logger
+  expectWriteInLog(
+    'write-in-0',
+    'User adjudicated a write-in from unadjudicated to invalid.',
+    { previousStatus: 'pending', status: 'invalid' }
   );
-  expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
+
+  // mark write-in as official candidate
+  adjudicate({
+    'write-in-0': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateId: 'lion',
+      candidateType: 'official-candidate',
+    },
+  });
   expectWriteInRecord({
     status: 'adjudicated',
     adjudicationType: 'official-candidate',
     candidateId: 'lion',
   });
-  expectLog(
+  expectWriteInLog(
+    'write-in-0',
     'User adjudicated a write-in from invalid to a vote for an official candidate (lion).',
     {
       previousStatus: 'invalid',
@@ -258,23 +252,27 @@ test('adjudicateWriteIn', () => {
     }
   );
 
+  // switch to write-in candidate
   const writeInCandidate = store.addWriteInCandidate({
     electionId,
     contestId,
     name: 'Unofficial',
   });
-  adjudicateWriteIn(
-    { writeInId, type: 'write-in-candidate', candidateId: writeInCandidate.id },
-    store,
-    logger
-  );
-  expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
+  adjudicate({
+    'write-in-0': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateName: 'Unofficial',
+      candidateType: 'write-in-candidate',
+    },
+  });
   expectWriteInRecord({
     status: 'adjudicated',
     adjudicationType: 'write-in-candidate',
     candidateId: writeInCandidate.id,
   });
-  expectLog(
+  expectWriteInLog(
+    'write-in-0',
     `User adjudicated a write-in from a vote for an official candidate (lion) to a vote for a write-in candidate (${writeInCandidate.id}).`,
     {
       previousStatus: 'official-candidate',
@@ -284,15 +282,15 @@ test('adjudicateWriteIn', () => {
     }
   );
 
-  adjudicateWriteIn({ writeInId, type: 'invalid' }, store, logger);
-  expectVotes({ 'zoo-council-mammal': [] });
+  // switch away from write-in candidate → should delete the candidate record
+  adjudicate({});
   expectWriteInRecord({
     status: 'adjudicated',
     adjudicationType: 'invalid',
   });
-  // switching away from a write-in candidate should delete the candidate if applicable
   expect(store.getWriteInCandidates({ electionId })).toEqual([]);
-  expectLog(
+  expectWriteInLog(
+    'write-in-0',
     `User adjudicated a write-in from a vote for a write-in candidate (${writeInCandidate.id}) to invalid.`,
     {
       previousStatus: 'write-in-candidate',
@@ -300,44 +298,6 @@ test('adjudicateWriteIn', () => {
       status: 'invalid',
     }
   );
-
-  adjudicateWriteIn({ writeInId, type: 'reset' }, store, logger);
-  expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
-  expectWriteInRecord({
-    status: 'pending',
-  });
-  expectLog(`User adjudicated a write-in from invalid to unadjudicated.`, {
-    previousStatus: 'invalid',
-    status: 'pending',
-  });
-
-  // create an undetected write-in record
-  const undetectedWriteInRecordId = store.addWriteIn({
-    castVoteRecordId: cvrId,
-    contestId,
-    electionId,
-    isUndetected: true,
-    optionId: 'write-in-1',
-    side: 'front',
-  });
-  expectWriteInRecord({
-    id: undetectedWriteInRecordId,
-    status: 'pending',
-    isUndetected: true,
-  });
-
-  // it should be deleted when it is adjudicated as invalid
-  // since we don't maintain undetected records marked invalid
-  adjudicateWriteIn(
-    { writeInId: undetectedWriteInRecordId, type: 'invalid' },
-    store,
-    logger
-  );
-  const [writeInRecord] = store.getWriteInRecords({
-    electionId,
-    writeInId: undetectedWriteInRecordId,
-  });
-  expect(writeInRecord).toBeUndefined();
 });
 
 test('adjudicateCvrContest adjudicates contest and resolves tags', () => {

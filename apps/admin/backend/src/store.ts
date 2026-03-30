@@ -133,12 +133,6 @@ function asQueryPlaceholders(list: unknown[]): string {
   return `(${questionMarks.join(', ')})`;
 }
 
-interface CastVoteRecordVoteAdjudication {
-  contestId: ContestId;
-  optionId: ContestOptionId;
-  isVote: SqliteBool;
-}
-
 /**
  * Manages a data store for imported election data, cast vote records, and
  * transcribed and adjudicated write-ins.
@@ -1522,35 +1516,21 @@ export class Store implements BaseStore {
     return { type: 'bmd' };
   }
 
-  private parseVotesWithAdjudications({
+  private applyAdjudicatedVotes({
     votesString,
-    adjudicationsString,
+    adjudicatedVotesString,
   }: {
     votesString: string;
-    adjudicationsString: string | null;
+    adjudicatedVotesString: string | null;
   }): Tabulation.Votes {
     const votes = JSON.parse(votesString) as Tabulation.Votes;
-    if (!adjudicationsString) return votes;
+    if (!adjudicatedVotesString) return votes;
 
-    const adjudications = JSON.parse(
-      adjudicationsString
-    ) as CastVoteRecordVoteAdjudication[];
+    const adjudicatedVotes = JSON.parse(
+      adjudicatedVotesString
+    ) as Tabulation.Votes;
 
-    for (const adjudication of adjudications) {
-      /* istanbul ignore next - @preserve */
-      const currentContestVotes = votes[adjudication.contestId] ?? [];
-      if (adjudication.isVote) {
-        votes[adjudication.contestId] = [
-          ...currentContestVotes,
-          adjudication.optionId,
-        ];
-      } else {
-        votes[adjudication.contestId] = currentContestVotes.filter(
-          (optionId) => optionId !== adjudication.optionId
-        );
-      }
-    }
-    return votes;
+    return { ...votes, ...adjudicatedVotes };
   }
 
   private parseMarkScores({
@@ -1592,30 +1572,13 @@ export class Store implements BaseStore {
           cvrs.card_type as cardType,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes,
-          cvrs.mark_scores as markScores,
-          aggregated_adjudications.adjudications as adjudications
+          cvrs.adjudicated_votes as adjudicatedVotes,
+          cvrs.mark_scores as markScores
         from cvrs
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
           cvrs.election_id = ballot_styles.election_id and
           cvrs.ballot_style_group_id = ballot_styles.group_id
-        left join (
-          select
-            election_id,
-            cvr_id,
-            json_group_array(
-              json_object(
-                'contestId', contest_id,
-                'optionId', option_id,
-                'isVote', is_vote
-              )
-            ) as adjudications
-          from vote_adjudications
-          group by cvr_id
-        ) aggregated_adjudications
-          on
-            cvrs.election_id = aggregated_adjudications.election_id and
-            cvrs.id = aggregated_adjudications.cvr_id
         where ${whereParts.join(' and ')}
         ${cvrId ? `and cvrs.id = ?` : ''}
   `,
@@ -1625,8 +1588,8 @@ export class Store implements BaseStore {
         cardType: 'bmd' | 'hmpb';
         sheetNumber: number | null;
         votes: string;
+        adjudicatedVotes: string | null;
         markScores: string;
-        adjudications: string | null;
       }
     >) {
       yield {
@@ -1637,9 +1600,9 @@ export class Store implements BaseStore {
         scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
-        votes: this.parseVotesWithAdjudications({
+        votes: this.applyAdjudicatedVotes({
           votesString: row.votes,
-          adjudicationsString: row.adjudications,
+          adjudicatedVotesString: row.adjudicatedVotes,
         }),
         markScores: this.parseMarkScores({
           markScoresString: row.markScores,
@@ -2004,8 +1967,8 @@ export class Store implements BaseStore {
     const cvrTag = this.getCvrTag({ cvrId });
     const cvrContestTags = this.getCvrContestTags({ cvrId });
 
-    // 3. Get all vote adjudications
-    const voteAdjudications = this.getVoteAdjudications({ electionId, cvrId });
+    // 3. Get adjudicated votes
+    const adjudicatedVotes = this.getAdjudicatedVotes({ cvrId });
 
     // 4. Get all write-in records
     const writeInRecords = this.getWriteInRecords({
@@ -2026,9 +1989,6 @@ export class Store implements BaseStore {
     const tagsByContestId = new Map(
       cvrContestTags.map((tag) => [tag.contestId, tag])
     );
-    const adjudicationsByKey = new Map(
-      voteAdjudications.map((adj) => [`${adj.contestId}:${adj.optionId}`, adj])
-    );
     const writeInsByKey = new Map(
       writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
     );
@@ -2045,18 +2005,33 @@ export class Store implements BaseStore {
           tagsByContestId.get(contest.id) ?? undefined;
 
         const contestVotes = assertDefined(votes[contest.id]);
+        const contestAdjudicatedVotes = adjudicatedVotes?.[contest.id];
         const contestMarkScores = markScores?.[contest.id];
 
         const options: ContestOptionAdjudicationData[] = [
           ...allContestOptions(contest, ballotStyleGroup),
         ].map((option) => {
-          const key = `${contest.id}:${option.id}`;
           const initialVote = contestVotes.includes(option.id);
 
-          const voteAdjudication: VoteAdjudication | undefined =
-            adjudicationsByKey.get(key) ?? undefined;
+          // Reconstruct per-option VoteAdjudication for API compatibility
+          let voteAdjudication: VoteAdjudication | undefined;
+          if (contestAdjudicatedVotes) {
+            const adjudicatedIsVote = contestAdjudicatedVotes.includes(
+              option.id
+            );
+            if (adjudicatedIsVote !== initialVote) {
+              voteAdjudication = {
+                electionId,
+                cvrId,
+                contestId: contest.id,
+                optionId: option.id,
+                isVote: adjudicatedIsVote,
+              };
+            }
+          }
 
-          const writeInRecord = writeInsByKey.get(key) ?? undefined;
+          const writeInRecord =
+            writeInsByKey.get(`${contest.id}:${option.id}`) ?? undefined;
 
           const score = contestMarkScores?.[option.id];
           const hasMarginalMark =
@@ -2424,103 +2399,40 @@ export class Store implements BaseStore {
     };
   }
 
-  deleteVoteAdjudication({
-    electionId,
+  setContestAdjudicatedVotes({
     cvrId,
     contestId,
-    optionId,
-  }: Omit<VoteAdjudication, 'isVote'>): void {
-    this.client.run(
-      `
-      delete from vote_adjudications
-      where
-        election_id = ? and
-        cvr_id = ? and
-        contest_id = ? and
-        option_id = ?
-    `,
-      electionId,
-      cvrId,
-      contestId,
-      optionId
-    );
-  }
-
-  createVoteAdjudication({
-    electionId,
-    cvrId,
-    contestId,
-    optionId,
-    isVote,
-  }: VoteAdjudication): void {
-    this.client.run(
-      `
-      insert into vote_adjudications
-        (election_id, cvr_id, contest_id, option_id, is_vote)
-      values
-        (?, ?, ?, ?, ?)
-    `,
-      electionId,
-      cvrId,
-      contestId,
-      optionId,
-      asSqliteBool(isVote)
-    );
-  }
-
-  getVoteAdjudications({
-    electionId,
-    cvrId,
-    contestId,
+    votes,
   }: {
-    electionId: Id;
     cvrId: Id;
-    contestId?: ContestId;
-  }): VoteAdjudication[] {
-    const rows = (
-      contestId
-        ? this.client.all(
-            `
-              select
-                cvr_id as cvrId,
-                contest_id as contestId,
-                option_id as optionId,
-                is_vote as isVote
-              from vote_adjudications
-              where election_id = ?
-                and cvr_id = ?
-                and contest_id = ?
-            `,
-            electionId,
-            cvrId,
-            contestId
-          )
-        : this.client.all(
-            `
-              select
-                cvr_id as cvrId,
-                contest_id as contestId,
-                option_id as optionId,
-                is_vote as isVote
-              from vote_adjudications
-              where election_id = ?
-                and cvr_id = ?
-            `,
-            electionId,
-            cvrId
-          )
-    ) as Array<{
-      cvrId: Id;
-      contestId: ContestId;
-      optionId: Id;
-      isVote: SqliteBool;
-    }>;
+    contestId: ContestId;
+    votes: ContestOptionId[];
+  }): void {
+    const row = this.client.one(
+      `select adjudicated_votes from cvrs where id = ?`,
+      cvrId
+    ) as { adjudicated_votes: string | null };
 
-    return rows.map((row) => ({
-      electionId,
-      ...row,
-      isVote: fromSqliteBool(row.isVote),
-    }));
+    const adjudicatedVotes: Tabulation.Votes = row.adjudicated_votes
+      ? JSON.parse(row.adjudicated_votes)
+      : {};
+    adjudicatedVotes[contestId] = votes;
+
+    this.client.run(
+      `update cvrs set adjudicated_votes = ? where id = ?`,
+      JSON.stringify(adjudicatedVotes),
+      cvrId
+    );
+  }
+
+  getAdjudicatedVotes({ cvrId }: { cvrId: Id }): Tabulation.Votes | undefined {
+    const row = this.client.one(
+      `select adjudicated_votes from cvrs where id = ?`,
+      cvrId
+    ) as { adjudicated_votes: string | null };
+
+    if (!row.adjudicated_votes) return undefined;
+    return JSON.parse(row.adjudicated_votes);
   }
 
   setWriteInRecordOfficialCandidate({

@@ -6,48 +6,13 @@ import {
   ContestOptionId,
   Id,
 } from '@votingworks/types';
-import { CachedElectionLookups } from '@votingworks/utils';
 import {
   AdjudicatedCvrContest,
-  VoteAdjudication,
   WriteInAdjudicationAction,
   WriteInRecord,
 } from './types';
 import { type Store } from './store';
 import { getNumberVotesAllowed } from './util/cast_vote_records';
-
-/**
- * Manipulates adjudication records so that a particular vote in a cast vote
- * record reflects the target marked or unmarked status. Ensures that
- * adjudications are not created when the scanned vote is already the target
- * status.
- */
-export function adjudicateVote(
-  voteAdjudication: Omit<VoteAdjudication, 'id'>,
-  store: Store
-): void {
-  // remove any existing adjudication records for the vote
-  store.deleteVoteAdjudication(voteAdjudication);
-
-  const { votes } = store.getCastVoteRecordVoteInfo({
-    electionId: voteAdjudication.electionId,
-    cvrId: voteAdjudication.cvrId,
-  });
-
-  const contestVotes = votes[voteAdjudication.contestId];
-
-  const scannedIsVote = contestVotes
-    ? contestVotes.includes(voteAdjudication.optionId)
-    : /* istanbul ignore next - @preserve */
-      false;
-
-  // if the vote is already the target status, do nothing
-  if (voteAdjudication.isVote === scannedIsVote) {
-    return;
-  }
-
-  store.createVoteAdjudication(voteAdjudication);
-}
 
 function logWriteInAdjudication({
   initialWriteInRecord,
@@ -124,9 +89,13 @@ function logWriteInAdjudication({
 
 /**
  * Adjudicates a write-in record for an official candidate, write-in candidate,
- * or marks it as invalid.
+ * or marks it as invalid. Vote tallies are handled by the caller via
+ * {@link adjudicateCvrContest} which writes to `adjudicated_votes`.
+ * Function should remain private to ensure it's only used within the context
+ * of adjudicating a full cvr contest, to ensure consistency between write-in
+ * record statuses and adjudicated votes.
  */
-export function adjudicateWriteIn(
+function adjudicateWriteIn(
   adjudicationAction: WriteInAdjudicationAction,
   store: Store,
   logger: BaseLogger
@@ -140,27 +109,9 @@ export function adjudicateWriteIn(
   switch (adjudicationAction.type) {
     case 'official-candidate':
       store.setWriteInRecordOfficialCandidate(adjudicationAction);
-      // ensure the vote does not appear as an undervote in tallies, which is
-      // only applicable to unmarked write-ins
-      adjudicateVote(
-        {
-          ...initialWriteInRecord,
-          isVote: true,
-        },
-        store
-      );
       break;
     case 'write-in-candidate':
       store.setWriteInRecordUnofficialCandidate(adjudicationAction);
-      // ensure the vote does not appear as an undervote in tallies, which is
-      // only applicable to unmarked write-ins
-      adjudicateVote(
-        {
-          ...initialWriteInRecord,
-          isVote: true,
-        },
-        store
-      );
       break;
     case 'invalid':
       // Delete invalid undetected write-in records, as a user created and deleted it
@@ -169,19 +120,9 @@ export function adjudicateWriteIn(
       } else {
         store.setWriteInRecordInvalid(adjudicationAction);
       }
-      // ensure the vote appears as an undervote in tallies
-      adjudicateVote(
-        {
-          ...initialWriteInRecord,
-          isVote: false,
-        },
-        store
-      );
       break;
     case 'reset':
       store.resetWriteInRecordToPending(adjudicationAction);
-      // ensure the vote appears as it originally was in tallies
-      store.deleteVoteAdjudication(initialWriteInRecord);
       break;
     default: {
       /* istanbul ignore next - @preserve */
@@ -210,8 +151,8 @@ export function adjudicateWriteIn(
 /**
  * Receives a fully adjudicated cvr contest as input
  * and updates write-in records, write-in candidates,
- * and vote adjudications to ensure the store reflects
- * the input, within a single transaction
+ * and adjudicated votes to ensure the store reflects
+ * the input, within a single transaction.
  */
 export function adjudicateCvrContest(
   adjudicatedCvrContest: AdjudicatedCvrContest,
@@ -233,32 +174,25 @@ export function adjudicateCvrContest(
   });
 
   return store.withTransaction(() => {
-    // Track flags for tag creation when no pre-existing tag exists
-    let hasUnmarkedWriteIn = false;
-    let hasMarginalMark = false;
-
+    // Start from scanned votes, then override with adjudicated options
     const { votes } = store.getCastVoteRecordVoteInfo({ electionId, cvrId });
-    const contestVotes = assertDefined(votes[contestId]);
+    const scannedContestVotes = new Set(votes[contestId] ?? []);
+
+    // Build the adjudicated vote set: start with scanned votes, apply overrides
+    const adjudicatedVoteSet = new Set(scannedContestVotes);
 
     for (const [optionId, adjudicatedContestOption] of Object.entries(
       adjudicatedContestOptionById
     )) {
       const { hasVote: isVote, type } = adjudicatedContestOption;
+
+      if (isVote) {
+        adjudicatedVoteSet.add(optionId);
+      } else {
+        adjudicatedVoteSet.delete(optionId);
+      }
+
       if (type === 'candidate-option') {
-        const scannedIsVote = contestVotes.includes(optionId);
-        if (isVote !== scannedIsVote) {
-          hasMarginalMark = true;
-        }
-        adjudicateVote(
-          {
-            contestId,
-            cvrId,
-            electionId,
-            isVote,
-            optionId,
-          },
-          store
-        );
         continue;
       }
 
@@ -292,7 +226,6 @@ export function adjudicateCvrContest(
           optionId,
           side,
         });
-        hasUnmarkedWriteIn = true;
       }
 
       const { candidateType } = adjudicatedContestOption;
@@ -340,28 +273,37 @@ export function adjudicateCvrContest(
       }
     }
 
+    // Store the adjudicated votes for this contest
+    const adjudicatedVoteOptionIds = [...adjudicatedVoteSet];
+    store.setContestAdjudicatedVotes({
+      cvrId,
+      contestId,
+      votes: adjudicatedVoteOptionIds,
+    });
+
     // Create a tag if one doesn't already exist for this cvr-contest pair.
-    /* istanbul ignore next - @preserve - TODO(nikhil) remove in refactor */
+    // TODO: remove cvr_contest_tags in next refactor step
     if (!store.getCvrContestTags({ cvrId, contestId }).length) {
       const electionRecord = assertDefined(store.getElection(electionId));
-      const contest = CachedElectionLookups.getContestById(
-        electionRecord.electionDefinition,
-        contestId
+      const { election } = electionRecord.electionDefinition;
+      const contest = assertDefined(
+        election.contests.find((c) => c.id === contestId)
       );
       const votesAllowed = getNumberVotesAllowed(contest);
-      const adjudicatedVoteCount = Object.values(
-        adjudicatedContestOptionById
-      ).filter((option) => option.hasVote).length;
 
       store.addCvrContestTag({
         cvrId,
         contestId,
         isResolved: true,
         source: 'user',
-        hasUnmarkedWriteIn,
-        hasMarginalMark,
-        hasOvervote: adjudicatedVoteCount > votesAllowed,
-        hasUndervote: adjudicatedVoteCount < votesAllowed,
+        hasUnmarkedWriteIn: adjudicatedVoteOptionIds.some(
+          (id: ContestOptionId) => !scannedContestVotes.has(id)
+        ),
+        hasMarginalMark: adjudicatedVoteOptionIds.some(
+          (id: ContestOptionId) => !scannedContestVotes.has(id)
+        ),
+        hasOvervote: adjudicatedVoteOptionIds.length > votesAllowed,
+        hasUndervote: adjudicatedVoteOptionIds.length < votesAllowed,
       });
     } else {
       store.resolveCvrContestTag({ cvrId, contestId });
