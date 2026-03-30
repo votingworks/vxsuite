@@ -530,7 +530,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(33);
+  expect(allControls).toHaveLength(34);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -680,6 +680,32 @@ test.each<{
     checkboxLabel: 'Disable Alarms on VxScan',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { precinctScanDisableAlarms: true },
+  },
+  {
+    userFeatures: { VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: false },
+    checkboxLabel: 'Enable Write-In Image Report on VxScan',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true },
+    checkboxLabel: 'Enable Write-In Image Report on VxScan',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: {
+      precinctScanEnableWriteInImageReport: true,
+    },
+  },
+  {
+    userFeatures: { VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: false },
+    checkboxLabel: 'Disable Screen Reader Audio on VxScan',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true },
+    checkboxLabel: 'Disable Screen Reader Audio on VxScan',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: {
+      precinctScanDisableScreenReaderAudio: true,
+    },
   },
   {
     userFeatures: { SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: false },

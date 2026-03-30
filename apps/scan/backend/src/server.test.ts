@@ -11,6 +11,7 @@ import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { testDetectDevices } from '@votingworks/backend';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { start } from './server';
@@ -58,11 +59,11 @@ test('start passes context to `buildApp`', async () => {
 
   const mockAudioPlayer = {
     trustMe: 'I play audio.',
+    setIsScreenReaderEnabled: vi.fn().mockResolvedValue(undefined),
   } as unknown as AudioPlayer;
   mockAudioPlayerClass.mockReturnValueOnce(mockAudioPlayer);
 
   const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
   vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
   await start({
@@ -103,25 +104,50 @@ test('start passes context to `buildApp`', async () => {
   );
 });
 
-test('configures audio device', async () => {
-  const listen = vi.fn<(port: number, callback: () => unknown) => void>();
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  const logger = buildMockLogger(auth, workspace);
-  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
+test.each([
+  {
+    systemSettings: undefined,
+    isScreenReaderEnabled: false,
+  },
+  {
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    isScreenReaderEnabled: true,
+  },
+  {
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      precinctScanDisableScreenReaderAudio: true,
+    },
+    isScreenReaderEnabled: false,
+  },
+])(
+  'configures audio player correctly',
+  async ({ systemSettings, isScreenReaderEnabled }) => {
+    const listen = vi.fn<(port: number, callback: () => unknown) => void>();
+    const auth = buildMockInsertedSmartCardAuth(vi.fn);
+    const logger = buildMockLogger(auth, workspace);
+    buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
-  vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
+    if (systemSettings) {
+      workspace.store.setSystemSettings(systemSettings);
+    }
 
-  await start({
-    auth: buildMockInsertedSmartCardAuth(vi.fn),
-    workspace,
-    logger,
-  });
+    const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
+    vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
-  expect(mockAudioCard.useHeadphones).toHaveBeenCalledOnce();
-  expect(mockAudioCard.setVolume).toHaveBeenCalledExactlyOnceWith(100);
-});
+    await start({
+      auth: buildMockInsertedSmartCardAuth(vi.fn),
+      workspace,
+      logger,
+    });
+
+    expect(mockAudioCard.setVolume).toHaveBeenCalledExactlyOnceWith(100);
+    const mockAudioPlayer = mockAudioPlayerClass.mock.results[0].value;
+    expect(
+      mockAudioPlayer.setIsScreenReaderEnabled
+    ).toHaveBeenCalledExactlyOnceWith(isScreenReaderEnabled);
+  }
+);
 
 test('throws if unable to set volume', async () => {
   const listen = vi.fn<(port: number, callback: () => unknown) => void>();
@@ -130,7 +156,6 @@ test('throws if unable to set volume', async () => {
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
   vi.mocked(mockAudioCard.setVolume).mockRejectedValueOnce('invalid device');
 
   await expect(async () =>
@@ -149,7 +174,6 @@ test('logs device attach/unattach events', async () => {
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
-  vi.mocked(mockAudioCard.useHeadphones).mockResolvedValueOnce();
   vi.mocked(mockAudioCard.setVolume).mockResolvedValueOnce();
 
   await start({

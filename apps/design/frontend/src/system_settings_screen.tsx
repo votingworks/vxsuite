@@ -647,6 +647,23 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Disable Screen Reader Audio on VxScan"
+                isChecked={Boolean(
+                  systemSettings.precinctScanDisableScreenReaderAudio
+                )}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    precinctScanDisableScreenReaderAudio: isChecked
+                      ? true
+                      : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
             {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
               <InputGroup label="VxMark Print Mode">
                 <SearchSelect<BmdPrintMode>

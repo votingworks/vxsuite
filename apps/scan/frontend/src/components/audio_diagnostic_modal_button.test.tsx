@@ -14,6 +14,7 @@ vi.mock('../utils/use_sound');
 
 function setUp() {
   const apiMock = createApiMock();
+  apiMock.expectGetConfig();
 
   return {
     apiMock,

@@ -201,6 +201,12 @@ export const SystemSettingsSchema = z
      * polls are closed. If omitted, the button is not shown.
      */
     precinctScanEnableWriteInImageReport: z.boolean().optional(),
+
+    /**
+     * Disables screen reader audio on VxScan to minimize performance overhead if a customer will
+     * not be using headphones with VxScan.
+     */
+    precinctScanDisableScreenReaderAudio: z.boolean().optional(),
   })
   .refine(
     (settings) => {
