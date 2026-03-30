@@ -17,6 +17,25 @@ create table precincts(
     on delete cascade
 );
 
+create table precinct_registered_voter_counts (
+  election_id integer not null,
+  precinct_id text not null,
+  count integer not null,
+  primary key (election_id, precinct_id),
+  foreign key (election_id, precinct_id) references precincts(election_id, id)
+    on delete cascade
+);
+
+create table precinct_split_registered_voter_counts (
+  election_id integer not null,
+  precinct_id text not null,
+  split_id text not null,
+  count integer not null,
+  primary key (election_id, precinct_id, split_id),
+  foreign key (election_id, precinct_id) references precincts(election_id, id)
+    on delete cascade
+);
+
 create table ballot_styles (
   election_id integer not null,
   group_id text not null,

@@ -5,17 +5,49 @@ import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
+import {
+  Election,
+  ElectionRegisteredVotersCounts,
+  hasSplits,
+} from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 
 import { NavigationScreen } from '../../components/navigation_screen';
 import { routerPaths } from '../../router_paths';
-import { getTotalBallotCount, getCastVoteRecordFileMode } from '../../api';
+import {
+  getTotalBallotCount,
+  getCastVoteRecordFileMode,
+  getRegisteredVoterCounts,
+} from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 import { OfficialResultsCard } from '../../components/official_results_card';
 
 const Section = styled.section`
   margin-bottom: 2rem;
 `;
+
+export function isVoterTurnoutReportEnabled(
+  election: Election,
+  registeredVoterCounts?: ElectionRegisteredVotersCounts | null
+): boolean {
+  if (registeredVoterCounts === null || registeredVoterCounts === undefined) {
+    return false;
+  }
+
+  return election.precincts.every((precinct) => {
+    const counts = registeredVoterCounts[precinct.id];
+    if (counts === undefined) {
+      return false;
+    }
+    if (hasSplits(precinct)) {
+      if (typeof counts === 'number') {
+        return false;
+      }
+      return precinct.splits.every((split) => split.id in counts.splits);
+    }
+    return typeof counts === 'number';
+  });
+}
 
 export function ReportsScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, configuredAt, auth } =
@@ -25,12 +57,18 @@ export function ReportsScreen(): JSX.Element {
 
   const totalBallotCountQuery = getTotalBallotCount.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const registeredVoterCountsQuery = getRegisteredVoterCounts.useQuery();
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
   const fileMode = castVoteRecordFileModeQuery.data;
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
     (c) => c.type === 'candidate' && c.allowWriteIns
+  );
+
+  const voterTurnoutReportEnabled = isVoterTurnoutReportEnabled(
+    electionDefinition.election,
+    registeredVoterCountsQuery.data
   );
 
   const totalBallotCount = totalBallotCountQuery.data ?? 0;
@@ -99,14 +137,23 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
       </Section>
-      {electionHasWriteInContest && (
+      {(electionHasWriteInContest || voterTurnoutReportEnabled) && (
         <Section>
           <H2>Other Reports</H2>
-          <P>
-            <LinkButton to={routerPaths.tallyWriteInReport}>
-              {statusPrefix} Write-In Adjudication Report
-            </LinkButton>
-          </P>
+          {electionHasWriteInContest && (
+            <P>
+              <LinkButton to={routerPaths.tallyWriteInReport}>
+                {statusPrefix} Write-In Adjudication Report
+              </LinkButton>
+            </P>
+          )}
+          {voterTurnoutReportEnabled && (
+            <P>
+              <LinkButton to={routerPaths.voterTurnoutReport}>
+                {statusPrefix} Voter Turnout Report
+              </LinkButton>
+            </P>
+          )}
         </Section>
       )}
     </NavigationScreen>

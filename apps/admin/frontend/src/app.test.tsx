@@ -235,6 +235,7 @@ test('marking results as official', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetManualResultsMetadata([]);
   apiMock.expectGetTotalBallotCount(1000);
+  apiMock.expectGetRegisteredVoterCounts(null);
   userEvent.click(screen.getButton('Reports'));
   screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
   screen.getByRole('heading', { name: 'Unofficial Ballot Count Reports' });
@@ -436,6 +437,7 @@ test('election manager UI has expected nav', async () => {
   userEvent.click(screen.getButton('Tally'));
   await screen.findByRole('heading', { name: 'Tally' });
 
+  apiMock.expectGetRegisteredVoterCounts(null);
   userEvent.click(screen.getByText('Reports'));
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });

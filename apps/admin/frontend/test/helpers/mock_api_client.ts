@@ -746,6 +746,25 @@ export function createApiMock(
       apiClient.exportWriteInAdjudicationReportPdf
     ),
 
+    expectGetRegisteredVoterCounts(
+      counts: import('@votingworks/types').ElectionRegisteredVotersCounts | null
+    ) {
+      apiClient.getRegisteredVoterCounts.expectCallWith().resolves(counts);
+    },
+
+    expectGetVoterTurnoutReportPreview(pdfContent: string) {
+      apiClient.getVoterTurnoutReportPreview
+        .expectCallWith()
+        .resolves({ pdf: Buffer.from(pdfContent) });
+    },
+
+    expectPrintVoterTurnoutReport: createDeferredMock(
+      apiClient.printVoterTurnoutReport
+    ),
+    expectExportVoterTurnoutReportPdf: createDeferredMock(
+      apiClient.exportVoterTurnoutReportPdf
+    ),
+
     expectRebootToVendorMenu() {
       apiClient.rebootToVendorMenu.expectCallWith().resolves();
     },

@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
-import { ReportsScreen } from './reports_screen';
+import { isVoterTurnoutReportEnabled, ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen } from '../../../test/react_testing_library';
@@ -24,11 +27,79 @@ afterEach(() => {
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
+describe('isVoterTurnoutReportEnabled', () => {
+  const { election } = readElectionTwoPartyPrimaryDefinition();
+  const { election: splitElection } =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+
+  test('returns false when counts are null', () => {
+    expect(isVoterTurnoutReportEnabled(election, null)).toEqual(false);
+  });
+
+  test('returns false when counts are undefined', () => {
+    expect(isVoterTurnoutReportEnabled(election, undefined)).toEqual(false);
+  });
+
+  test('returns false when a precinct is missing counts', () => {
+    expect(
+      isVoterTurnoutReportEnabled(election, { 'precinct-1': 100 })
+    ).toEqual(false);
+  });
+
+  test('returns true when all non-split precincts have counts', () => {
+    expect(
+      isVoterTurnoutReportEnabled(election, {
+        'precinct-1': 100,
+        'precinct-2': 200,
+      })
+    ).toEqual(true);
+  });
+
+  test('returns false when a split precinct has a number instead of splits object', () => {
+    expect(
+      isVoterTurnoutReportEnabled(splitElection, {
+        'precinct-c1-w1-1': 100,
+        'precinct-c1-w1-2': 200,
+        'precinct-c1-w2': 300,
+        'precinct-c2': 400,
+      })
+    ).toEqual(false);
+  });
+
+  test('returns false when a split precinct is missing some splits', () => {
+    expect(
+      isVoterTurnoutReportEnabled(splitElection, {
+        'precinct-c1-w1-1': 100,
+        'precinct-c1-w1-2': 200,
+        'precinct-c1-w2': 300,
+        'precinct-c2': { splits: { 'precinct-c2-split-1': 150 } },
+      })
+    ).toEqual(false);
+  });
+
+  test('returns true when all precincts and splits have counts', () => {
+    expect(
+      isVoterTurnoutReportEnabled(splitElection, {
+        'precinct-c1-w1-1': 100,
+        'precinct-c1-w1-2': 200,
+        'precinct-c1-w2': 300,
+        'precinct-c2': {
+          splits: {
+            'precinct-c2-split-1': 150,
+            'precinct-c2-split-2': 250,
+          },
+        },
+      })
+    ).toEqual(true);
+  });
+});
+
 describe('ballot count summary text', () => {
   test('unlocked mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -42,6 +113,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -55,6 +127,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -65,6 +138,60 @@ describe('ballot count summary text', () => {
   });
 });
 
+describe('voter turnout report link', () => {
+  test('shown when election package has registered voter counts', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts({
+      'precinct-1': 100,
+      'precinct-2': 200,
+    });
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findButton('Unofficial Voter Turnout Report');
+  });
+
+  test('uses official prefix when results are official', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts({
+      'precinct-1': 100,
+      'precinct-2': 200,
+    });
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+      isOfficialResults: true,
+    });
+
+    await screen.findButton('Official Voter Turnout Report');
+  });
+
+  test('not shown when election package has no registered voter counts', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findButton('Full Election Tally Report');
+    expect(
+      screen.queryByText('Unofficial Voter Turnout Report')
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe('showing WIA report link', () => {
   const BUTTON_TEXT = 'Unofficial Write-In Adjudication Report';
 
@@ -72,6 +199,7 @@ describe('showing WIA report link', () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -81,10 +209,11 @@ describe('showing WIA report link', () => {
     await screen.findButton(BUTTON_TEXT);
   });
 
-  test('not shown when election does not write-in contests', async () => {
+  test('not shown when election does not have write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
 
     const electionDefinitionWithoutWriteIns: ElectionDefinition = {
       ...electionDefinition,

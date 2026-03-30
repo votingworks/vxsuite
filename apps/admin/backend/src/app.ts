@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
   ElectionPackageFileName,
+  ElectionRegisteredVotersCounts,
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -125,6 +126,12 @@ import {
   printWriteInAdjudicationReport,
   WriteInAdjudicationReportPreview,
 } from './reports/write_in_adjudication_report';
+import {
+  exportVoterTurnoutReportPdf,
+  generateVoterTurnoutReportPreview,
+  printVoterTurnoutReport,
+  VoterTurnoutReportPreview,
+} from './reports/voter_turnout_report';
 import {
   BallotCountReportPreview,
   BallotCountReportSpec,
@@ -518,13 +525,17 @@ function buildApi({
       const { electionPackage, electionPackageHash, fileContents } =
         electionPackageResult.ok();
 
-      const { electionDefinition, systemSettings } = electionPackage;
+      const { electionDefinition, systemSettings, registeredVoterCounts } =
+        electionPackage;
       const electionId = store.addElection({
         electionData: electionDefinition.electionData,
         systemSettingsData: JSON.stringify(systemSettings),
         electionPackageFileContents: fileContents,
         electionPackageHash,
       });
+      if (registeredVoterCounts) {
+        store.setRegisteredVoterCounts(electionId, registeredVoterCounts);
+      }
       store.setCurrentElectionId(electionId);
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         disposition: 'success',
@@ -550,6 +561,14 @@ function buildApi({
       }
 
       return null;
+    },
+
+    getRegisteredVoterCounts(): ElectionRegisteredVotersCounts | null {
+      const currentElectionId = store.getCurrentElectionId();
+      if (!currentElectionId) {
+        return null;
+      }
+      return store.getRegisteredVoterCounts(currentElectionId) ?? null;
     },
 
     async markResultsOfficial(): Promise<void> {
@@ -1209,6 +1228,44 @@ function buildApi({
       return exportWriteInAdjudicationReportPdf({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
+        usbDrive: usbDriveAdapter,
+        logger,
+        filename: input.filename,
+      });
+    },
+
+    async getVoterTurnoutReportPreview(): Promise<VoterTurnoutReportPreview> {
+      return generateVoterTurnoutReportPreview({
+        store,
+        cardCountsList: getCardCounts({
+          filter: {},
+          groupBy: { groupByPrecinct: true },
+        }),
+        logger,
+      });
+    },
+
+    async printVoterTurnoutReport(): Promise<void> {
+      return printVoterTurnoutReport({
+        store,
+        cardCountsList: getCardCounts({
+          filter: {},
+          groupBy: { groupByPrecinct: true },
+        }),
+        logger,
+        printer,
+      });
+    },
+
+    async exportVoterTurnoutReportPdf(input: {
+      filename: string;
+    }): Promise<ExportDataResult> {
+      return exportVoterTurnoutReportPdf({
+        store,
+        cardCountsList: getCardCounts({
+          filter: {},
+          groupBy: { groupByPrecinct: true },
+        }),
         usbDrive: usbDriveAdapter,
         logger,
         filename: input.filename,

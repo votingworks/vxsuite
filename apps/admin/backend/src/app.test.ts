@@ -13,6 +13,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   ElectionPackageFileName,
+  ElectionRegisteredVotersCounts,
   PrinterStatus,
   safeParseElectionDefinition,
   testElectionReport,
@@ -395,6 +396,7 @@ test('getSystemSettings happy path', async () => {
     apiClient,
     auth,
     electionDefinition,
+    undefined,
     JSON.parse(systemSettings.asText())
   );
 
@@ -403,6 +405,44 @@ test('getSystemSettings happy path', async () => {
   const systemSettingsResult = await apiClient.getSystemSettings();
   assert(systemSettingsResult);
   expect(systemSettingsResult).toEqual(JSON.parse(systemSettings.asText()));
+});
+
+test('getRegisteredVoterCounts', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+    'precinct-1': 500,
+    'precinct-2': 400,
+  };
+
+  const { apiClient, auth } = buildTestEnvironment();
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  // returns null when unconfigured
+  expect(await apiClient.getRegisteredVoterCounts()).toBeNull();
+
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    registeredVoterCounts
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  // returns counts when configured with RV data
+  expect(await apiClient.getRegisteredVoterCounts()).toEqual(
+    registeredVoterCounts
+  );
+});
+
+test('getRegisteredVoterCounts returns null when election has no RV counts', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  expect(await apiClient.getRegisteredVoterCounts()).toBeNull();
 });
 
 test('getSystemSettings returns default system settings when there is no current election', async () => {

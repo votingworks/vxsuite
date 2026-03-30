@@ -13,6 +13,7 @@ import {
   BallotStyleGroupId,
   Id,
   Election,
+  ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
@@ -95,6 +96,50 @@ test('add an election', async () => {
   expect(store.getElectionPackageFileContents('nonexistent-id')).toEqual(
     undefined
   );
+});
+
+test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only counts', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = store.addElection({
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-hash',
+  });
+
+  expect(store.getRegisteredVoterCounts(electionId)).toBeUndefined();
+
+  const counts: ElectionRegisteredVotersCounts = {
+    'precinct-1': 500,
+    'precinct-2': 300,
+  };
+  store.setRegisteredVoterCounts(electionId, counts);
+
+  expect(store.getRegisteredVoterCounts(electionId)).toEqual(counts);
+});
+
+test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct counts', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = store.addElection({
+    electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-hash',
+  });
+
+  // precinct-c2 has splits; precinct-c1-w1-1 does not
+  const counts: ElectionRegisteredVotersCounts = {
+    'precinct-c1-w1-1': 400,
+    'precinct-c2': {
+      splits: {
+        'precinct-c2-split-1': 200,
+        'precinct-c2-split-2': 150,
+      },
+    },
+  };
+  store.setRegisteredVoterCounts(electionId, counts);
+
+  expect(store.getRegisteredVoterCounts(electionId)).toEqual(counts);
 });
 
 test('assert election exists', () => {
