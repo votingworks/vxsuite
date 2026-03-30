@@ -31,12 +31,15 @@ export function getNumberVotesAllowed(contest: AnyContest): number {
  */
 export function getCastVoteRecordAdjudicationFlags(
   votes: Tabulation.Votes,
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  markScores?: Tabulation.MarkScores,
+  markThresholds?: MarkThresholds
 ): CastVoteRecordAdjudicationFlags {
   let isBlank = true;
   let hasUndervote = false;
   let hasOvervote = false;
   let hasWriteIn = false;
+  let hasMarginalMark = false;
 
   for (const [contestId, optionIds] of Object.entries(votes)) {
     const contest = CachedElectionLookups.getContestById(
@@ -67,11 +70,21 @@ export function getCastVoteRecordAdjudicationFlags(
     }
   }
 
+  if (markScores && markThresholds) {
+    hasMarginalMark = Object.values(markScores).some((contestMarkScores) =>
+      Object.values(contestMarkScores).some(
+        (score) =>
+          score >= markThresholds.marginal && score < markThresholds.definite
+      )
+    );
+  }
+
   return {
     isBlank,
     hasUndervote,
     hasOvervote,
     hasWriteIn,
+    hasMarginalMark,
   };
 }
 
@@ -107,7 +120,8 @@ export function deriveCvrContestTag({
     (r) => r.contestId === contestId && r.isUnmarked
   );
 
-  const hasMarginalMark =
+  // Detect scanner-identified marginal marks
+  let hasMarginalMark =
     adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
     markScores !== undefined &&
     Object.values(markScores).some(
@@ -116,8 +130,30 @@ export function deriveCvrContestTag({
     );
 
   const votesAllowed = getNumberVotesAllowed(contest);
-  const hasOvervote = votes.length > votesAllowed;
-  const hasUndervote = votes.length < votesAllowed;
+  let hasOvervote =
+    adminAdjudicationReasons.includes(AdjudicationReason.Overvote) &&
+    votes.length > votesAllowed;
+  let hasUndervote =
+    adminAdjudicationReasons.includes(AdjudicationReason.Undervote) &&
+    votes.length < votesAllowed;
+
+  // If adjudicated votes differ from scanned votes, the user detected
+  // an issue the scanner missed — reflect that in the flags
+  if (adjudicatedVotes) {
+    const scannedSet = new Set(votes);
+    const adjudicatedSet = new Set(adjudicatedVotes);
+    const votesChanged =
+      scannedSet.size !== adjudicatedSet.size ||
+      votes.some((v) => !adjudicatedSet.has(v));
+
+    if (votesChanged) {
+      hasMarginalMark = true;
+    }
+
+    // Recalculate over/undervote based on adjudicated state
+    hasOvervote = hasOvervote || adjudicatedVotes.length > votesAllowed;
+    hasUndervote = hasUndervote || adjudicatedVotes.length < votesAllowed;
+  }
 
   const needsAdjudication =
     hasWriteIn ||
@@ -133,7 +169,6 @@ export function deriveCvrContestTag({
   return {
     cvrId,
     contestId,
-    source: 'scanner',
     isResolved: adjudicatedVotes !== undefined,
     hasWriteIn,
     hasUnmarkedWriteIn,

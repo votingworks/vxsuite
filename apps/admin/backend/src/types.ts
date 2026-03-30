@@ -472,9 +472,6 @@ export interface CvrContestTag {
   cvrId: Id;
   contestId: ContestId;
   isResolved: boolean;
-  // source indicates whether the tag was created automatically by the scanner
-  // detecting an adjudication need or by a user action during adjudication
-  source: 'scanner' | 'user';
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;

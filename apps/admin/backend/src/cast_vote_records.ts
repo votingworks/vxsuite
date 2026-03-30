@@ -345,20 +345,12 @@ export async function importCastVoteRecords(
       // now, during import.
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
         votes,
-        electionDefinition
+        electionDefinition,
+        isHmpb ? markScores : undefined,
+        markThresholds
       );
       const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
       assert(votingMethod);
-      const hasMarginalMark =
-        isHmpb &&
-        markScores !== undefined &&
-        Object.values(markScores).some((contestMarkScores) =>
-          Object.values(contestMarkScores).some(
-            (score) =>
-              score >= markThresholds.marginal &&
-              score < markThresholds.definite
-          )
-        );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId,
         cvr: {
@@ -376,7 +368,6 @@ export async function importCastVoteRecords(
         cvrFileId: importId,
         electionId,
         adjudicationFlags,
-        hasMarginalMark,
       });
       if (addCastVoteRecordResult.isErr()) {
         return err({
@@ -390,7 +381,7 @@ export async function importCastVoteRecords(
       if (isCastVoteRecordNew) {
         const needsAdjudication =
           adjudicationFlags.hasWriteIn ||
-          hasMarginalMark ||
+          adjudicationFlags.hasMarginalMark ||
           (adjudicationFlags.hasOvervote &&
             adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) ||
           (adjudicationFlags.hasUndervote &&

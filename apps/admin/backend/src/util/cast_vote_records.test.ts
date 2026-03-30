@@ -44,6 +44,7 @@ test('blank ballot', () => {
     hasUndervote: true,
     hasOvervote: false,
     hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 
@@ -55,6 +56,7 @@ test('no status ballot', () => {
     hasUndervote: false,
     hasOvervote: false,
     hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 
@@ -69,6 +71,7 @@ test('undervote yes-no', () => {
     hasUndervote: true,
     hasOvervote: false,
     hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 
@@ -83,6 +86,7 @@ test('undervote candidate', () => {
     hasUndervote: true,
     hasOvervote: false,
     hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 
@@ -97,6 +101,7 @@ test('overvote yes-no', () => {
     hasUndervote: false,
     hasOvervote: true,
     hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 
@@ -113,6 +118,7 @@ test('overvote candidate', () => {
     hasUndervote: false,
     hasOvervote: true,
     hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 
@@ -129,6 +135,7 @@ test('write-in', () => {
     hasUndervote: false,
     hasOvervote: false,
     hasWriteIn: true,
+    hasMarginalMark: false,
   });
 });
 
@@ -146,6 +153,41 @@ test('multiple flags', () => {
     hasUndervote: true,
     hasOvervote: true,
     hasWriteIn: true,
+    hasMarginalMark: false,
+  });
+});
+
+test('marginal mark', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      mockVotes(),
+      electionDefinition,
+      { 'best-animal-mammal': { fox: 0.15 } },
+      { marginal: 0.12, definite: 0.2, writeInTextArea: 0.12 }
+    )
+  ).toEqual<CastVoteRecordAdjudicationFlags>({
+    isBlank: false,
+    hasUndervote: false,
+    hasOvervote: false,
+    hasWriteIn: false,
+    hasMarginalMark: true,
+  });
+});
+
+test('no marginal mark when scores are above definite', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      mockVotes(),
+      electionDefinition,
+      { 'best-animal-mammal': { fox: 0.5 } },
+      { marginal: 0.12, definite: 0.2, writeInTextArea: 0.12 }
+    )
+  ).toEqual<CastVoteRecordAdjudicationFlags>({
+    isBlank: false,
+    hasUndervote: false,
+    hasOvervote: false,
+    hasWriteIn: false,
+    hasMarginalMark: false,
   });
 });
 

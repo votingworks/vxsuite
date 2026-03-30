@@ -999,14 +999,12 @@ export class Store implements BaseStore {
     ballotId,
     cvr,
     adjudicationFlags,
-    hasMarginalMark = false,
   }: {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
     cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
     adjudicationFlags: CastVoteRecordAdjudicationFlags;
-    hasMarginalMark?: boolean;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
@@ -1105,7 +1103,7 @@ export class Store implements BaseStore {
         asSqliteBool(adjudicationFlags.hasOvervote),
         asSqliteBool(adjudicationFlags.hasUndervote),
         asSqliteBool(adjudicationFlags.hasWriteIn),
-        asSqliteBool(hasMarginalMark)
+        asSqliteBool(adjudicationFlags.hasMarginalMark)
       );
     }
 
@@ -1504,6 +1502,10 @@ export class Store implements BaseStore {
 
       if (flags.includes('hasWriteIn')) {
         whereParts.push('cvrs.has_write_in = 1');
+      }
+
+      if (flags.includes('hasMarginalMark')) {
+        whereParts.push('cvrs.has_marginal_mark = 1');
       }
     }
 
