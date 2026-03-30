@@ -14,12 +14,8 @@ The easiest way to install Rust is via [rustup](https://rustup.rs/).
 This will build both the Rust library and the Node package.
 
 ```sh
-$ pnpm build
+pnpm build
 ```
-
-This command uses the
-[cargo-cp-artifact](https://github.com/neon-bindings/cargo-cp-artifact) utility
-to run the Rust build and copy the built library into `./build/addon.node`.
 
 ## CLI
 
@@ -131,7 +127,8 @@ each border to find all timing marks.
 
 The timing mark detection process consists of three main steps:
 
-1. **Shape Finding** ([timing_marks/corners/shape_finding/mod.rs](src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs)):
+1. **Shape Finding**
+   ([timing_marks/corners/shape_finding/mod.rs](src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs)):
    The algorithm scans the ballot image column by column within an inset region
    from each edge. For each column, it groups contiguous black pixels vertically
    and filters groups by height to match expected timing mark dimensions.
@@ -140,25 +137,27 @@ The timing mark detection process consists of three main steps:
    marks or debris. Finally, shapes are filtered to ensure they match expected
    timing mark size and aspect ratio.
 
-2. **Corner Finding** ([timing_marks/corners/corner_finding.rs](src/bubble-ballot-rust/timing_marks/corners/corner_finding.rs)):
-   For each of the four corners (top-left, top-right, bottom-left, bottom-right),
-   the algorithm identifies candidate corner groupings. Each grouping consists of
-   three timing marks: the corner mark itself, plus one mark along the adjacent
-   row and one along the adjacent column. Candidates are sorted by distance from
-   the expected corner location. The algorithm selects the first grouping where
-   all three marks meet minimum quality thresholds. If no such grouping is found,
-   an error is returned.
+2. **Corner Finding**
+   ([timing_marks/corners/corner_finding.rs](src/bubble-ballot-rust/timing_marks/corners/corner_finding.rs)):
+   For each of the four corners (top-left, top-right, bottom-left,
+   bottom-right), the algorithm identifies candidate corner groupings. Each
+   grouping consists of three timing marks: the corner mark itself, plus one
+   mark along the adjacent row and one along the adjacent column. Candidates are
+   sorted by distance from the expected corner location. The algorithm selects
+   the first grouping where all three marks meet minimum quality thresholds. If
+   no such grouping is found, an error is returned.
 
-3. **Border Finding** ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
+3. **Border Finding**
+   ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
    After corners are identified, the algorithm finds timing marks along each
    border by "walking" from one corner to the other. Starting at a corner mark,
    it computes a unit vector pointing toward the opposite corner with length
    equal to the expected timing mark spacing. At each step, it searches for the
    closest candidate mark within a tolerance of the expected spacing. If no mark
-   is found within this tolerance, an error is returned. This continues until the
-   ending corner is reached. Finally, the algorithm validates that each border
-   contains exactly the expected number of timing marks (matching the grid
-   dimensions from the election definition). If any border has an incorrect
+   is found within this tolerance, an error is returned. This continues until
+   the ending corner is reached. Finally, the algorithm validates that each
+   border contains exactly the expected number of timing marks (matching the
+   grid dimensions from the election definition). If any border has an incorrect
    count, an error is returned. This strict validation ensures the grid is
    complete and accurate before proceeding to bubble scoring.
 
@@ -169,8 +168,8 @@ reject ballots that might be interpreted incorrectly rather than risk
 misinterpreting votes. Key aspects of error handling include:
 
 1. **No Inference of Missing Marks**: A previous version of this algorithm
-   inferred missing timing marks based on spacing between detected marks, but the
-   current implementation requires all marks to be physically present and
+   inferred missing timing marks based on spacing between detected marks, but
+   the current implementation requires all marks to be physically present and
    detected. This change reduces the risk of misinterpretation. Missing marks
    cause interpretation to fail.
 
@@ -215,7 +214,8 @@ To compute expected bubble location within the image at grid coordinates
    `row` is fractional, interpolate vertically between the closest two rows.
 2. Account for timing marks being cropped during scanning or border removal by
    adjusting the timing mark positions to use the expected width.
-3. Compute a line segment between the centers of the left and right timing marks.
+3. Compute a line segment between the centers of the left and right timing
+   marks.
 4. The expected bubble center is at position `column / (N - 1)` along this
    segment, where `N` is the total number of columns in the grid.
 
