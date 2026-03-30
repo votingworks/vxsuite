@@ -1,4 +1,4 @@
-import { Result, assert, assertDefined, ok, sleep } from '@votingworks/basics';
+import { assert, assertDefined, sleep } from '@votingworks/basics';
 import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ElectionDefinition,
@@ -135,21 +135,17 @@ export class Importer {
     ballotAuditId?: string
   ): Promise<string> {
     let sheetId = uuid();
-    const interpretResult = await this.interpretSheet(sheetId, [
+    const sheetInterpretation = await this.interpretSheet(sheetId, [
       frontInputImageData,
       backInputImageData,
     ]);
 
-    if (interpretResult.isErr()) {
-      throw interpretResult.err();
-    }
-
     const [{ imagePath: frontImagePath }, { imagePath: backImagePath }] =
-      interpretResult.ok();
+      sheetInterpretation;
     let [
       { interpretation: frontInterpretation },
       { interpretation: backInterpretation },
-    ] = interpretResult.ok();
+    ] = sheetInterpretation;
 
     debug(
       'interpreted %s (%s): %O',
@@ -205,7 +201,7 @@ export class Importer {
   private async interpretSheet(
     sheetId: string,
     [frontImageData, backImageData]: SheetOf<ImageData>
-  ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
+  ): Promise<SheetOf<PageInterpretationWithFiles>> {
     const electionDefinition = this.getElectionDefinition();
     const { store } = this.workspace;
     const {
@@ -217,26 +213,24 @@ export class Importer {
       retryStreakWidthThreshold,
     } = assertDefined(store.getSystemSettings());
 
-    return ok(
-      await interpretSheetAndSaveImages(
-        {
-          electionDefinition,
-          precinctSelection: ALL_PRECINCTS_SELECTION,
-          testMode: store.getTestMode(),
-          disableVerticalStreakDetection,
-          adjudicationReasons: store.getAdjudicationReasons(),
-          markThresholds,
-          allowOfficialBallotsInTestMode,
-          minimumDetectedScale:
-            minimumDetectedBallotScaleOverride ??
-            DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
-          maxCumulativeStreakWidth,
-          retryStreakWidthThreshold,
-        },
-        [frontImageData, backImageData],
-        sheetId,
-        this.workspace.ballotImagesPath
-      )
+    return await interpretSheetAndSaveImages(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: store.getTestMode(),
+        disableVerticalStreakDetection,
+        adjudicationReasons: store.getAdjudicationReasons(),
+        markThresholds,
+        allowOfficialBallotsInTestMode,
+        minimumDetectedScale:
+          minimumDetectedBallotScaleOverride ??
+          DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
+        maxCumulativeStreakWidth,
+        retryStreakWidthThreshold,
+      },
+      [frontImageData, backImageData],
+      sheetId,
+      this.workspace.ballotImagesPath
     );
   }
 
