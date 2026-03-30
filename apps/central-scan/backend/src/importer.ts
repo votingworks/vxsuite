@@ -398,17 +398,14 @@ export class Importer {
    * this is really for testing
    */
   async waitForEndOfBatchOrScanningPause(): Promise<void> {
-    if (!this.currentBatch) {
-      return;
-    }
+    while (this.currentBatch) {
+      const adjudicationStatus = this.workspace.store.adjudicationStatus();
+      if (adjudicationStatus.remaining > 0) {
+        break;
+      }
 
-    const adjudicationStatus = this.workspace.store.adjudicationStatus();
-    if (adjudicationStatus.remaining > 0) {
-      return;
+      await sleep(200);
     }
-
-    await sleep(200);
-    return this.waitForEndOfBatchOrScanningPause();
   }
 
   /**
