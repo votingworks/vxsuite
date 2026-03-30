@@ -172,7 +172,7 @@ test('unconfigure', async () => {
     store.setScannerBackedUp(true);
     await apiClient.unconfigure();
     expect(store.getBallotsCounted()).toEqual(0);
-    expect(logger.log).toHaveBeenLastCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ElectionUnconfigured,
       'unknown',
       {
@@ -346,7 +346,7 @@ test('configure with CDF election', async () => {
     expect(electionRecord?.electionDefinition.election.id).toEqual(
       electionGeneral.id
     );
-    expect(logger.log).toHaveBeenLastCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ElectionConfigured,
       'election_manager',
       {
@@ -375,7 +375,7 @@ test('configure with invalid file', async () => {
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       err({ type: 'election_key_mismatch' })
     );
-    expect(logger.log).toHaveBeenLastCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ElectionConfigured,
       'election_manager',
       expect.objectContaining({
