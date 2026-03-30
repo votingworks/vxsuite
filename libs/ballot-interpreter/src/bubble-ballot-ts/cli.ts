@@ -198,7 +198,7 @@ async function interpretFiles(
     useDefaultMarkThresholds?: boolean;
   }
 ): Promise<number> {
-  const result = interpret({
+  const result = await interpret({
     electionDefinition,
     ballotImages: [ballotPathSideA, ballotPathSideB],
     scoreWriteIns,

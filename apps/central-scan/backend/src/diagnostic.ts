@@ -39,8 +39,11 @@ export async function performScanDiagnostic(
   const pathA = sheets.frontPath;
   const pathB = sheets.backPath;
 
-  const didPass =
-    runBlankPaperDiagnostic(pathA) && runBlankPaperDiagnostic(pathB);
+  const [frontPassed, backPassed] = await Promise.all([
+    runBlankPaperDiagnostic(pathA),
+    runBlankPaperDiagnostic(pathB),
+  ]);
+  const didPass = frontPassed && backPassed;
   if (didPass) {
     store.addDiagnosticRecord({
       type: 'blank-sheet-scan',

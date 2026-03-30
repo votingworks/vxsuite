@@ -83,6 +83,15 @@ export interface Inset {
 /** Top-level result of interpretation. */
 export type HmpbInterpretResult = Result<InterpretedBallotCard, InterpretError>;
 
+/**
+ * The raw JSON shape returned by the Rust napi-rs bridge before being wrapped
+ * in a `Result`. This is the actual runtime type; `HmpbInterpretResult` is
+ * produced by calling `ok()`/`err()` on this value.
+ */
+export type BridgeInterpretResult =
+  | { type: 'ok'; value: InterpretedBallotCard }
+  | { type: 'err'; value: InterpretError };
+
 /** A successfully interpreted ballot card. */
 export interface InterpretedBallotCard {
   front: InterpretedBallotPage;

@@ -18,23 +18,23 @@ import { interpret } from './interpret';
 const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-test('interpret with bad election data', () => {
+test('interpret with bad election data', async () => {
   const electionDefinition: ElectionDefinition = {
     ...electionGridLayoutNewHampshireTestBallotDefinition,
     election: { bad: 'election' } as unknown as Election,
   };
 
-  expect(() =>
+  await expect(
     interpret({ electionDefinition, ballotImages: ['a', 'b'] })
-  ).toThrowError('missing field `title`');
+  ).rejects.toThrow('missing field `title`');
 });
 
-test('interpret with bad ballot image paths', () => {
+test('interpret with bad ballot image paths', async () => {
   const electionDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
 
-  expect(() =>
+  await expect(
     interpret({ electionDefinition, ballotImages: ['a', 'b'] })
-  ).toThrowError(/No such file or directory/);
+  ).rejects.toThrow(/No such file or directory/);
 });
 
 test('interpret `ImageData` objects', async () => {
@@ -42,7 +42,7 @@ test('interpret `ImageData` objects', async () => {
   const ballotImages = asSheet(
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
-  const result = interpret({ electionDefinition, ballotImages });
+  const result = await interpret({ electionDefinition, ballotImages });
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
@@ -91,12 +91,12 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "mayor",
@@ -106,7 +106,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.57884616,
+        "score": 0.5788461565971375,
       },
       {
         "contestId": "controller",
@@ -131,7 +131,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "attorney",
         "optionId": "john-snow",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "attorney",
@@ -141,7 +141,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "attorney",
         "optionId": "write-in-0",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "public-works-director",
@@ -166,7 +166,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "natalie-portman",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "chief-of-police",
@@ -186,7 +186,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "write-in-0",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "parks-and-recreation-director",
@@ -216,22 +216,22 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "helen-keller",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "steve-jobs",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "nikola-tesla",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "vincent-van-gogh",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
@@ -256,7 +256,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "write-in-2",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
@@ -266,7 +266,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "city-council",
         "optionId": "marie-curie",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "city-council",
@@ -301,12 +301,12 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "city-council",
         "optionId": "martin-luther-king",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "city-council",
         "optionId": "marilyn-monroe",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "city-council",
@@ -343,7 +343,7 @@ test('interpret images from paths', async () => {
     return path;
   });
 
-  const result = interpret({
+  const result = await interpret({
     electionDefinition,
     ballotImages: ballotImagePaths,
   });
@@ -395,12 +395,12 @@ test('interpret images from paths', async () => {
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "mayor",
@@ -410,7 +410,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.57884616,
+        "score": 0.5788461565971375,
       },
       {
         "contestId": "controller",
@@ -435,7 +435,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "attorney",
         "optionId": "john-snow",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "attorney",
@@ -445,7 +445,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "attorney",
         "optionId": "write-in-0",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "public-works-director",
@@ -470,7 +470,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "natalie-portman",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "chief-of-police",
@@ -490,7 +490,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "write-in-0",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "parks-and-recreation-director",
@@ -520,22 +520,22 @@ test('interpret images from paths', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "helen-keller",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "steve-jobs",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "nikola-tesla",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "vincent-van-gogh",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
@@ -560,7 +560,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "write-in-2",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "board-of-alderman",
@@ -570,7 +570,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "city-council",
         "optionId": "marie-curie",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "city-council",
@@ -605,12 +605,12 @@ test('interpret images from paths', async () => {
       {
         "contestId": "city-council",
         "optionId": "martin-luther-king",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "city-council",
         "optionId": "marilyn-monroe",
-        "score": 0.5778846,
+        "score": 0.5778846144676208,
       },
       {
         "contestId": "city-council",
@@ -646,7 +646,7 @@ test('score write in areas', async () => {
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
 
-  const result = interpret({
+  const result = await interpret({
     electionDefinition,
     ballotImages,
     scoreWriteIns: true,

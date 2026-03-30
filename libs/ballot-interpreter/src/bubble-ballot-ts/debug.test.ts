@@ -1,27 +1,32 @@
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { expect, test, vi } from 'vitest';
-import * as addon from './addon';
+import { napi } from './napi';
 import { interpret } from './interpret';
 
 const { electionDefinition } = vxFamousNamesFixtures;
 
-vi.mock('./addon');
+vi.mock('./napi');
 
-const interpretImplMock = vi.mocked(addon.interpret);
+const interpretPathsMock = vi.mocked(napi.interpretPaths);
 
-test('no debug', () => {
-  interpretImplMock.mockReturnValue({
+test('no debug', async () => {
+  interpretPathsMock.mockResolvedValue({
     type: 'err',
-    value: { type: 'invalidScale', label: 'side A', scale: 0.9, isBubbleBallot: true },
+    value: {
+      type: 'invalidScale',
+      label: 'side A',
+      scale: 0.9,
+      isBubbleBallot: true,
+    },
   });
 
-  void interpret({
+  void (await interpret({
     electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: false,
-  });
+  }));
 
-  expect(interpretImplMock).toHaveBeenCalledWith(
+  expect(interpretPathsMock).toHaveBeenCalledWith(
     electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
@@ -29,19 +34,24 @@ test('no debug', () => {
   );
 });
 
-test('debug with image paths', () => {
-  interpretImplMock.mockReturnValue({
+test('debug with image paths', async () => {
+  interpretPathsMock.mockResolvedValue({
     type: 'err',
-    value: { type: 'invalidScale', label: 'side A', scale: 0.9, isBubbleBallot: true },
+    value: {
+      type: 'invalidScale',
+      label: 'side A',
+      scale: 0.9,
+      isBubbleBallot: true,
+    },
   });
 
-  void interpret({
+  void (await interpret({
     electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: true,
-  });
+  }));
 
-  expect(interpretImplMock).toHaveBeenCalledWith(
+  expect(interpretPathsMock).toHaveBeenCalledWith(
     electionDefinition.election,
     'a.jpeg',
     'b.jpeg',

@@ -93,8 +93,8 @@ export async function runPrintAndScanTask({
         images: scannerEvent.images,
       });
 
-      const analyses = mapSheet([front, back], (image) =>
-        analyzeScannedPage(findTimingMarkGrid(image))
+      const analyses = await mapSheet([front, back], async (image) =>
+        analyzeScannedPage(await findTimingMarkGrid(image))
       );
 
       session.addSheetAnalysis(

@@ -5,7 +5,7 @@ import { expect, test } from 'vitest';
 import { join } from 'node:path';
 import { loadImageData } from '@votingworks/image-utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
-import { findTimingMarkGrid } from './bubble-ballot-ts/addon';
+import { findTimingMarkGrid } from './bubble-ballot-ts';
 
 test('letter-sized timing mark paper', async () => {
   const { pdf } = timingMarkPaperFixtures.specPaths({
@@ -15,7 +15,7 @@ test('letter-sized timing mark paper', async () => {
   const pdfBytes = Uint8Array.from(await readFile(pdf));
   const pdfPage = await pdfToPageImages(pdfBytes).first();
   const { topLeftMark, topRightMark, bottomLeftMark, bottomRightMark } =
-    findTimingMarkGrid(pdfPage!);
+    await findTimingMarkGrid(pdfPage!);
 
   // The fixture has perfect alignment, so that should be reflected in the marks we find.
   expect(topLeftMark.rect.top).toEqual(topRightMark.rect.top);
@@ -25,7 +25,7 @@ test('letter-sized timing mark paper', async () => {
 });
 
 test('scanned image', async () => {
-  const { topLeftMark, topRightMark } = findTimingMarkGrid(
+  const { topLeftMark, topRightMark } = await findTimingMarkGrid(
     (
       await loadImageData(
         join(__dirname, '../test/fixtures/vxqa-2024-10/skew-front.png')

@@ -15,4 +15,4 @@ pub mod qr_code;
 mod scoring;
 pub mod timing_marks;
 
-// Anything marked with `#[neon::export]` is exported to JavaScript.
+// Anything marked with `#[napi]` is exported to JavaScript.
