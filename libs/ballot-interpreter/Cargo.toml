@@ -40,9 +40,18 @@ ab_glyph = "0.2.23"
 clap = { version = "4.0.29", features = ["derive", "env"] }
 color-eyre = "0.6.2"
 crossterm = "0.27.0"
-image = { version = "0.25.0", default-features = false, features = ["png", "jpeg", "rayon"] }
+image = { version = "0.25.0", default-features = false, features = [
+  "png",
+  "jpeg",
+  "rayon",
+] }
 log = "0.4.17"
-napi = { version = "3.8.0", default-features = false, features = ["napi4", "async", "serde-json", "dyn-symbols"] }
+napi = { version = "3.8.0", default-features = false, features = [
+  "napi4",
+  "async",
+  "serde-json",
+  "dyn-symbols",
+] }
 napi-derive = "3.5.2"
 rayon = "1.5.3"
 serde = { version = "1.0.150", features = ["derive"] }
@@ -53,7 +62,7 @@ rqrr = "0.7.1"
 zedbar = "0.2.1"
 base64 = "0.22.0"
 thiserror = "1.0.50"
-tokio = { version = "1.44.2", features = ["fs", "macros", "signal", "io-std", "io-util"] }
+tokio = { version = "1.44.2", features = ["fs", "macros"] }
 types-rs = { path = "../types-rs" }
 
 [build-dependencies]
