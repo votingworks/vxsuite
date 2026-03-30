@@ -3039,6 +3039,7 @@ export class Store implements BaseStore {
       `insert into machines (machine_id, machine_mode, status, auth_type, last_seen_at)
        values (?, ?, ?, ?, ?)
        on conflict (machine_id) do update set
+         machine_mode = excluded.machine_mode,
          status = excluded.status,
          auth_type = excluded.auth_type,
          last_seen_at = excluded.last_seen_at`,
@@ -3089,5 +3090,15 @@ export class Store implements BaseStore {
       'update settings set is_client_adjudication_enabled = ?',
       enabled ? 1 : 0
     );
+  }
+
+  getMultipleHostsDetected(selfMachineId: string): boolean {
+    const count = this.client.one(
+      `select count(*) as cnt from machines
+       where machine_mode = 'host' and status != ? and machine_id != ?`,
+      Admin.ClientMachineStatus.Offline,
+      selfMachineId
+    ) as { cnt: number };
+    return count.cnt > 0;
   }
 }

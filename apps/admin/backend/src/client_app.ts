@@ -5,6 +5,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import {
+  assert,
   assertDefined,
   err,
   ok,
@@ -35,7 +36,8 @@ import { constructAuthMachineState } from './util/auth';
 export type NetworkConnectionStatus =
   | { status: 'offline' }
   | { status: 'online-waiting-for-host' }
-  | { status: 'online-connected-to-host'; hostMachineId: string };
+  | { status: 'online-connected-to-host'; hostMachineId: string }
+  | { status: 'online-multiple-hosts-detected' };
 
 function buildClientApi({
   auth,
@@ -63,7 +65,11 @@ function buildClientApi({
       return readMachineMode(workspace.path);
     },
 
-    setMachineMode(input: { mode: MachineMode }) {
+    setMachineMode(input: { mode: MachineMode }): void {
+      assert(
+        clientStore.getCurrentElectionId() === undefined,
+        'Cannot change machine mode while an election is configured.'
+      );
       writeMachineMode(workspace.path, input.mode);
     },
 
@@ -81,6 +87,8 @@ function buildClientApi({
             hostMachineId: hostConnection.machineId,
           };
         }
+        case ClientConnectionStatus.OnlineMultipleHostsDetected:
+          return { status: 'online-multiple-hosts-detected' };
         /* istanbul ignore next - @preserve */
         default:
           throwIllegalValue(status);

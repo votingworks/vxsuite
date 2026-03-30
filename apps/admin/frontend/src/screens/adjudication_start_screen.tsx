@@ -47,15 +47,17 @@ function formatAuthType(authType: string | null): string {
 }
 
 function MultiStationToggleButton(): JSX.Element | null {
+  const networkStatusQuery = getNetworkStatus.useQuery();
   const adjudicationEnabledQuery = getIsClientAdjudicationEnabled.useQuery();
   const setAdjudicationEnabledMutation =
     setIsClientAdjudicationEnabled.useMutation();
 
-  if (!adjudicationEnabledQuery.isSuccess) {
+  if (!adjudicationEnabledQuery.isSuccess || !networkStatusQuery.isSuccess) {
     return null;
   }
 
   const isEnabled = adjudicationEnabledQuery.data;
+  const { multipleHostsDetected } = networkStatusQuery.data;
 
   return (
     <Button
@@ -64,7 +66,9 @@ function MultiStationToggleButton(): JSX.Element | null {
           enabled: !isEnabled,
         })
       }
-      disabled={setAdjudicationEnabledMutation.isLoading}
+      disabled={
+        setAdjudicationEnabledMutation.isLoading || multipleHostsDetected
+      }
       style={{ height: '3rem', fontSize: '1.25rem' }}
     >
       {isEnabled
@@ -81,13 +85,19 @@ function NetworkSection(): JSX.Element {
     return <Loading />;
   }
 
-  const { isOnline, connectedClients } = networkStatusQuery.data;
+  const { isOnline, connectedClients, multipleHostsDetected } =
+    networkStatusQuery.data;
 
   return (
     <React.Fragment>
       <H2 style={{ marginTop: 0 }}>Clients</H2>
       <P>
-        {isOnline ? (
+        {multipleHostsDetected ? (
+          <React.Fragment>
+            <Icons.Danger color="danger" /> Multiple hosts detected on the
+            network. Only one host machine should be active at a time.
+          </React.Fragment>
+        ) : isOnline ? (
           <React.Fragment>
             <Icons.Done color="success" /> Network: Online
           </React.Fragment>

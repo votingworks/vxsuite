@@ -117,8 +117,17 @@ describe('multi-station mode', () => {
     featureFlagMock.resetFeatureFlags();
   });
 
+  function mockNetworkStatusQuery({
+    multipleHostsDetected = false,
+  }: {
+    multipleHostsDetected?: boolean;
+  } = {}) {
+    apiMock.expectGetNetworkStatus({ multipleHostsDetected });
+  }
+
   test('shows switch to client mode button when unconfigured', () => {
     apiMock.expectGetUsbPortStatus();
+    mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,
@@ -130,14 +139,27 @@ describe('multi-station mode', () => {
 
   test('hides switch to client mode when election configured', () => {
     apiMock.expectGetUsbPortStatus();
+    mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
     expect(
       screen.queryByRole('button', { name: 'Switch to Client Mode' })
     ).not.toBeInTheDocument();
   });
 
+  test('shows multiple hosts detected error', async () => {
+    apiMock.expectGetUsbPortStatus();
+    mockNetworkStatusQuery({ multipleHostsDetected: true });
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      electionDefinition: null,
+    });
+    await screen.findByText(/Multiple hosts detected/);
+  });
+
   test('shows restart screen after switching mode', async () => {
     apiMock.expectGetUsbPortStatus();
+    mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,

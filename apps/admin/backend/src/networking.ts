@@ -1,5 +1,6 @@
 import * as grout from '@votingworks/grout';
 import {
+  AvahiDiscoveredService,
   AvahiService,
   hasOnlineInterface,
   isValidIpv4Address,
@@ -61,7 +62,7 @@ function getClientMachineStatus(
 
 /**
  * Starts host networking: advertises on avahi so clients can discover this host.
- * Polls network status and writes the host's own status to the store.
+ * Polls network status, detects other hosts, and writes status to the store.
  */
 export function startHostNetworking({
   machineId,
@@ -75,19 +76,60 @@ export function startHostNetworking({
   const serviceName = getHostServiceName(machineId);
   debug('Publishing avahi service %s on port %d', serviceName, peerPort);
   AvahiService.advertiseHttpService(serviceName, peerPort);
-  // TODO(CARO) - poll the network for other hosts and surface an error when there is more than one host.
+
+  let isPolling = false;
 
   process.nextTick(() => {
     setInterval(async () => {
-      const isOnline = await hasOnlineInterface();
-      store.setNetworkedMachineStatus(
-        machineId,
-        'host',
-        isOnline
-          ? Admin.ClientMachineStatus.Active
-          : Admin.ClientMachineStatus.Offline
-      );
-      store.cleanupStaleMachines();
+      /* istanbul ignore next - re-entrancy guard @preserve */
+      if (isPolling) return;
+      isPolling = true;
+
+      try {
+        const isOnline = await hasOnlineInterface();
+        store.setNetworkedMachineStatus(
+          machineId,
+          'host',
+          isOnline
+            ? Admin.ClientMachineStatus.Active
+            : Admin.ClientMachineStatus.Offline
+        );
+
+        if (isOnline) {
+          const services = await AvahiService.discoverHttpServices();
+          const otherHosts = services.filter(
+            (s) =>
+              s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX) &&
+              s.name !== serviceName
+          );
+          for (const otherHost of otherHosts) {
+            if (!isValidIpv4Address(otherHost.resolvedIp)) continue;
+            const otherMachineId = otherHost.name.replace(
+              `${AVAHI_SERVICE_NAME_PREFIX}-`,
+              ''
+            );
+            try {
+              const address = `http://${otherHost.resolvedIp}:${otherHost.port}`;
+              const peerClient = createPeerApiClient(address);
+              await peerClient.getCurrentElectionMetadata();
+              store.setNetworkedMachineStatus(
+                otherMachineId,
+                'host',
+                Admin.ClientMachineStatus.Active
+              );
+            } catch {
+              debug(
+                'Failed to communicate with other host %s, ignoring',
+                otherHost.name
+              );
+            }
+          }
+        }
+
+        store.cleanupStaleMachines();
+      } finally {
+        isPolling = false;
+      }
     }, NETWORK_POLLING_INTERVAL_MS);
   });
 }
@@ -125,9 +167,9 @@ export function startClientNetworking({
         }
 
         const services = await AvahiService.discoverHttpServices();
-        const hostServices = services.filter((s) =>
-          s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX)
-        );
+        const hostServices = services
+          .filter((s) => s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX))
+          .filter((s) => isValidIpv4Address(s.resolvedIp));
 
         if (hostServices.length === 0) {
           debug('No VxAdmin hosts found on network');
@@ -141,17 +183,38 @@ export function startClientNetworking({
           return;
         }
 
-        // TODO(CARO) - handle multiple hosts found case (currently just uses the first discovered host)
-        const [host] = hostServices;
-        assert(host !== undefined);
-        if (!isValidIpv4Address(host.resolvedIp)) {
+        const reachableHosts: AvahiDiscoveredService[] = [];
+        for (const service of hostServices) {
+          const address = `http://${service.resolvedIp}:${service.port}`;
+          try {
+            const client = createPeerApiClient(address);
+            await client.getCurrentElectionMetadata();
+            reachableHosts.push(service);
+          } catch {
+            debug('Host %s unreachable, ignoring', service.name);
+          }
+        }
+        if (reachableHosts.length > 1) {
           debug(
-            'Invalid IP address for host %s: %s',
-            host.name,
-            host.resolvedIp
+            'Multiple reachable VxAdmin hosts found on network (%d), refusing to connect',
+            reachableHosts.length
+          );
+          clientStore.setConnection(
+            ClientConnectionStatus.OnlineMultipleHostsDetected
           );
           return;
         }
+
+        if (reachableHosts.length === 0) {
+          clientStore.setConnection(
+            ClientConnectionStatus.OnlineWaitingForHost
+          );
+          return;
+        }
+
+        const [host] = reachableHosts;
+
+        assert(host !== undefined);
 
         const hostAddress = `http://${host.resolvedIp}:${host.port}`;
         const existing = clientStore.getHostConnection();

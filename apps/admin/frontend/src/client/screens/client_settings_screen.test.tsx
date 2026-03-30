@@ -112,6 +112,16 @@ test('does not show Switch to Host Mode when election is configured', async () =
   ).not.toBeInTheDocument();
 });
 
+test('shows multiple hosts detected warning', async () => {
+  apiMock.expectGetUsbPortStatus();
+  apiMock.expectGetNetworkConnectionStatus('online-multiple-hosts-detected');
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(/Multiple hosts detected/);
+});
+
 test('shows restart screen after switching to host mode', async () => {
   apiMock.expectGetUsbPortStatus();
   apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');

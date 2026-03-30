@@ -6,6 +6,7 @@ import {
   FormatUsbButton,
   FullScreenMessage,
   H2,
+  Icons,
   Main,
   P,
   Screen,
@@ -21,7 +22,13 @@ import {
 } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { formatUsbDrive, logOut, setMachineMode, useApiClient } from '../api';
+import {
+  formatUsbDrive,
+  getNetworkStatus,
+  logOut,
+  setMachineMode,
+  useApiClient,
+} from '../api';
 
 export function SettingsScreen(): JSX.Element | null {
   const { auth, electionDefinition, usbDriveStatus } = useContext(AppContext);
@@ -33,6 +40,9 @@ export function SettingsScreen(): JSX.Element | null {
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
   );
   const powerDownMutation = useSystemCallApi().powerDown.useMutation();
+  const networkStatusQuery = getNetworkStatus.useQuery({
+    enabled: isMultiStationEnabled,
+  });
 
   if (setMachineModeMutation.isSuccess) {
     return (
@@ -91,6 +101,14 @@ export function SettingsScreen(): JSX.Element | null {
         !electionDefinition && (
           <React.Fragment>
             <H2>Machine Mode</H2>
+            {networkStatusQuery.isSuccess &&
+              networkStatusQuery.data.multipleHostsDetected && (
+                <P>
+                  <Icons.Danger color="danger" /> Multiple hosts detected on the
+                  network. Only one host machine should be active at a time.
+                  Clients will not connect until the conflict is resolved.
+                </P>
+              )}
             <P>
               <Button
                 onPress={() =>

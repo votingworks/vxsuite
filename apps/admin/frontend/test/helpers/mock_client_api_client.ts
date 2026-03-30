@@ -87,7 +87,8 @@ export function createClientApiMock(
       status:
         | 'offline'
         | 'online-waiting-for-host'
-        | 'online-connected-to-host',
+        | 'online-connected-to-host'
+        | 'online-multiple-hosts-detected',
       hostMachineId?: string
     ): void {
       const value =
