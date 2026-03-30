@@ -374,6 +374,10 @@ export class Importer {
    * Continue the existing scanning process
    */
   continueImport(options: { forceAccept: boolean }): void {
+    if (!this.currentBatch) {
+      throw new Error('no scanning job in progress');
+    }
+
     const sheet = this.workspace.store.getNextAdjudicationSheet();
 
     if (sheet) {
@@ -384,14 +388,10 @@ export class Importer {
       }
     }
 
-    if (this.currentBatch) {
-      this.scanOneSheet().catch((error) => {
-        debug('processing sheet failed with error: %s', error.stack);
-        void this.finishBatch(error.toString());
-      });
-    } else {
-      throw new Error('no scanning job in progress');
-    }
+    this.scanOneSheet().catch((error) => {
+      debug('processing sheet failed with error: %s', error.stack);
+      void this.finishBatch(error.toString());
+    });
   }
 
   /**
