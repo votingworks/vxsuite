@@ -677,3 +677,41 @@ test('marginal mark CVR does not appear in adjudication queue when MarginalMark 
   const queue = store.getBallotAdjudicationQueue({ electionId });
   expect(queue).not.toContain(cvrId);
 });
+
+test('CVR with only an unmarked write-in appears in adjudication queue', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // the mock helper detects 'write-in-unmarked-0' as an unmarked write-in
+  // and sets has_write_in on the CVR, which should put it in the queue
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {
+        'zoo-council-mammal': ['zebra', 'lion', 'write-in-unmarked-0'],
+      },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).toContain(cvrId);
+});

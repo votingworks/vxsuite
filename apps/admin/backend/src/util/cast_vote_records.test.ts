@@ -135,7 +135,28 @@ test('write-in', () => {
       mockVotes({
         'best-animal-mammal': ['write-in-0'],
       }),
-      electionDefinition
+      electionDefinition,
+      undefined,
+      undefined,
+      1
+    )
+  ).toEqual<CastVoteRecordAdjudicationFlags>({
+    isBlank: false,
+    hasUndervote: false,
+    hasOvervote: false,
+    hasWriteIn: true,
+    hasMarginalMark: false,
+  });
+});
+
+test('unmarked write-in sets hasWriteIn', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      mockVotes(),
+      electionDefinition,
+      undefined,
+      undefined,
+      1
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -153,7 +174,10 @@ test('multiple flags', () => {
         'zoo-council-mammal': ['write-in-0'],
         fishing: ['yes', 'no'],
       }),
-      electionDefinition
+      electionDefinition,
+      undefined,
+      undefined,
+      1
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,

@@ -33,12 +33,12 @@ export function getCastVoteRecordAdjudicationFlags(
   votes: Tabulation.Votes,
   electionDefinition: ElectionDefinition,
   markScores?: Tabulation.MarkScores,
-  markThresholds?: MarkThresholds
+  markThresholds?: MarkThresholds,
+  writeInCount?: number
 ): CastVoteRecordAdjudicationFlags {
   let isBlank = true;
   let hasUndervote = false;
   let hasOvervote = false;
-  let hasWriteIn = false;
   let hasMarginalMark = false;
 
   for (const [contestId, optionIds] of Object.entries(votes)) {
@@ -60,15 +60,11 @@ export function getCastVoteRecordAdjudicationFlags(
     if (optionIds.length > votesAllowed) {
       hasOvervote = true;
     }
-
-    if (
-      optionIds.some((optionId) =>
-        optionId.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
-      )
-    ) {
-      hasWriteIn = true;
-    }
   }
+
+  // Write-ins are detected from write-in records (which include unmarked
+  // write-ins), not from votes which only contain marked write-ins
+  const hasWriteIn = (writeInCount ?? 0) > 0;
 
   if (markScores && markThresholds) {
     hasMarginalMark = Object.values(markScores).some((contestMarkScores) =>

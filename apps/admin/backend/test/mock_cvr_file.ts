@@ -79,42 +79,51 @@ export function addMockCvrFileToStore({
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
     for (let i = 0; i < (mockCastVoteRecord.multiplier ?? 1); i += 1) {
+      // Collect write-in info and filter unmarked write-ins from votes,
+      // matching real scanner behavior where unmarked write-ins (text
+      // detected without a filled bubble) are not included in votes
+      const writeIns: Array<{
+        contestId: ContestId;
+        optionId: ContestOptionId;
+        isUnmarked: boolean;
+      }> = [];
+      const filteredVotes: Record<string, string[]> = {};
+      for (const [contestId, optionIds] of Object.entries(
+        mockCastVoteRecord.votes
+      )) {
+        const filtered: string[] = [];
+        for (const optionId of optionIds) {
+          if (optionId.startsWith('write-in')) {
+            const isUnmarked = optionId.includes('unmarked');
+            writeIns.push({ contestId, optionId, isUnmarked });
+            if (!isUnmarked) {
+              filtered.push(optionId);
+            }
+          } else {
+            filtered.push(optionId);
+          }
+        }
+        filteredVotes[contestId] = filtered;
+      }
+
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
-        mockCastVoteRecord.votes,
+        filteredVotes,
         electionDefinition,
         isHmpb ? mockCastVoteRecord.markScores : undefined,
-        markThresholds
+        markThresholds,
+        writeIns.length
       );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId,
         ballotId: uuid(),
-        cvr: mockCastVoteRecord,
+        cvr: { ...mockCastVoteRecord, votes: filteredVotes },
         adjudicationFlags,
       });
 
       addCastVoteRecordResult.assertOk('failed to add mock cvr');
       const { cvrId } = addCastVoteRecordResult.unsafeUnwrap();
       cvrIds.push(cvrId);
-
-      const writeIns: Array<{
-        contestId: ContestId;
-        optionId: ContestOptionId;
-        isUnmarked: boolean;
-      }> = [];
-      for (const [contestId, optionIds] of Object.entries(
-        mockCastVoteRecord.votes
-      )) {
-        for (const optionId of optionIds) {
-          if (optionId.startsWith('write-in')) {
-            writeIns.push({
-              contestId,
-              optionId,
-              isUnmarked: optionId.includes('unmarked'),
-            });
-          }
-        }
-      }
 
       // add write-ins, all on the "front"
       if (writeIns.length) {
