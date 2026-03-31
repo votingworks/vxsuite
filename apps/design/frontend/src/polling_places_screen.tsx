@@ -10,7 +10,6 @@ import {
 
 import { H1, LinkButton } from '@votingworks/ui';
 
-import { pollingPlaceGroups } from '@votingworks/types';
 import * as api from './api';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -81,19 +80,6 @@ function Content(): React.ReactNode {
   const places = api.listPollingPlaces.useQuery(electionId);
   const finalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
 
-  // Used to select the first available polling place in the list when
-  // navigating to the root route:
-  const defaultPollingPlaceRoute = React.useMemo(() => {
-    if (!places.data) return null;
-
-    const groups = pollingPlaceGroups(places.data);
-    const defaultPlace =
-      // Follows ordering used in `PollingPlaceList`:
-      groups.absentee[0] || groups.early_voting[0] || groups.election_day[0];
-
-    return defaultPlace ? placeRoutes.view(defaultPlace.id) : null;
-  }, [places.data, placeRoutes]);
-
   if (!places.isSuccess || !finalizedAt.isSuccess) return null;
 
   const finalized = !!finalizedAt.data;
@@ -132,10 +118,6 @@ function Content(): React.ReactNode {
           <Route path={paramRoutes.add} component={AddForm} />
 
           <Route path={paramRoutes.view(':placeId')} component={EditForm} />
-
-          {defaultPollingPlaceRoute && (
-            <Redirect to={defaultPollingPlaceRoute} />
-          )}
         </Switch>
       </Body>
     </Viewport>

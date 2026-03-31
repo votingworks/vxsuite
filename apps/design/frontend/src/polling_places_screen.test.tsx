@@ -122,7 +122,7 @@ test('polling place list is wired up', async () => {
   mockFinalizedDate(api, null);
   mockSavedPlaces(api, [place1ElectionDay, place2EarlyVoting, place3Absentee]);
 
-  const { history } = renderScreen(api);
+  const { history } = renderScreen(api, placeRoutes.view(place3Absentee.id));
   await waitFor(() => api.assertComplete());
 
   expectViewRoute(history, place3Absentee.id);
@@ -139,20 +139,6 @@ test('polling place list is wired up', async () => {
 
   act(() => listProps.onSelect(place1ElectionDay.id));
   expectViewRoute(history, place1ElectionDay.id);
-});
-
-test('renders form in "view" mode for first available polling place', async () => {
-  const api = createMockApiClient();
-  mockNavScreenDependencies(api, { EDIT_POLLING_PLACES: true });
-  mockFinalizedDate(api, null);
-  mockSavedPlaces(api, [place1ElectionDay, place2EarlyVoting]);
-
-  const { history } = renderScreen(api);
-  await waitFor(() => api.assertComplete());
-
-  expectViewRoute(history, place2EarlyVoting.id);
-  screen.getByTestId(MOCK_FORM_ID);
-  expectFormWithProps({ editing: false, savedPlace: place2EarlyVoting });
 });
 
 test('enter and exit "add" mode', async () => {
@@ -181,7 +167,7 @@ test('switch from "add" to "view" mode', async () => {
 
   const { history } = renderScreen(api);
   await waitFor(() => api.assertComplete());
-  expectViewRoute(history, place3Absentee.id);
+  expectRootRoute(history);
 
   userEvent.click(screen.getButton('Add Polling Place'));
   expectAddRoute(history);
@@ -199,7 +185,7 @@ test('switch from "view" to "edit" mode', async () => {
   mockFinalizedDate(api, null);
   mockSavedPlaces(api, [place1ElectionDay]);
 
-  const { history } = renderScreen(api);
+  const { history } = renderScreen(api, placeRoutes.view(place1ElectionDay.id));
   await waitFor(() => api.assertComplete());
   expectViewRoute(history, place1ElectionDay.id);
 
@@ -254,9 +240,8 @@ test('exit "view" mode after delete', async () => {
     savedPlace: place1ElectionDay,
   });
 
-  // Should return to first visible polling place in the sidebar on exit:
   act(() => props.exit());
-  expectViewRoute(history, place2EarlyVoting.id);
+  expectRootRoute(history);
 });
 
 test('exit "edit" mode after delete', async () => {
@@ -277,9 +262,8 @@ test('exit "edit" mode after delete', async () => {
     savedPlace: place1ElectionDay,
   });
 
-  // Should return to first visible polling place in the sidebar on exit:
   act(() => props.exit());
-  expectViewRoute(history, place2EarlyVoting.id);
+  expectRootRoute(history);
 });
 
 test('renders audio panel for matching route', async () => {
@@ -308,7 +292,7 @@ test('disables "add" button if ballots are finalized', async () => {
   mockFinalizedDate(api, new Date());
   mockSavedPlaces(api, [place1ElectionDay, place3Absentee]);
 
-  const { history } = renderScreen(api);
+  const { history } = renderScreen(api, placeRoutes.edit(place3Absentee.id));
   await waitFor(() => api.assertComplete());
 
   expectViewRoute(history, place3Absentee.id);
