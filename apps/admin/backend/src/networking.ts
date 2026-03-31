@@ -1,6 +1,5 @@
 import * as grout from '@votingworks/grout';
 import {
-  AvahiDiscoveredService,
   AvahiService,
   hasOnlineInterface,
   isValidIpv4Address,
@@ -14,7 +13,7 @@ import {
 } from '@votingworks/types';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
-import type { ClientStore } from './client_store';
+import type { ClientStore, HostConnection } from './client_store';
 import { ClientConnectionStatus } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
@@ -183,13 +182,17 @@ export function startClientNetworking({
           return;
         }
 
-        const reachableHosts: AvahiDiscoveredService[] = [];
+        const existingConnection = clientStore.getHostConnection();
+        const reachableHosts: Array<Omit<HostConnection, 'machineId'>> = [];
         for (const service of hostServices) {
           const address = `http://${service.resolvedIp}:${service.port}`;
+          const apiClient =
+            existingConnection?.address === address
+              ? existingConnection.apiClient
+              : createPeerApiClient(address);
           try {
-            const client = createPeerApiClient(address);
-            await client.getCurrentElectionMetadata();
-            reachableHosts.push(service);
+            await apiClient.getCurrentElectionMetadata();
+            reachableHosts.push({ address, apiClient });
           } catch {
             debug('Host %s unreachable, ignoring', service.name);
           }
@@ -212,16 +215,9 @@ export function startClientNetworking({
           return;
         }
 
-        const [host] = reachableHosts;
-
-        assert(host !== undefined);
-
-        const hostAddress = `http://${host.resolvedIp}:${host.port}`;
-        const existing = clientStore.getHostConnection();
-        const apiClient =
-          existing?.address === hostAddress
-            ? existing.apiClient
-            : createPeerApiClient(hostAddress);
+        const reachableHost = reachableHosts[0];
+        assert(reachableHost !== undefined);
+        const { address: hostAddress, apiClient } = reachableHost;
 
         try {
           const authStatus = await auth.getAuthStatus(
