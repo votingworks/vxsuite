@@ -96,6 +96,16 @@ test('getMachineMode and setMachineMode', async () => {
   expect(await apiClient.getMachineMode()).toEqual('host');
 });
 
+test('setMachineMode throws when election is configured', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  await expect(apiClient.setMachineMode({ mode: 'client' })).rejects.toThrow(
+    'Cannot change machine mode while an election is configured.'
+  );
+});
+
 test('getNetworkStatus returns offline with no connected clients by default', async () => {
   const { apiClient } = buildTestEnvironment();
   expect(await apiClient.getNetworkStatus()).toEqual({

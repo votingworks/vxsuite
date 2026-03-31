@@ -3131,6 +3131,20 @@ export class Store implements BaseStore {
     );
   }
 
+  getMachine(machineId: string): MachineRecord | undefined {
+    return this.client.one(
+      `select
+         machine_id as machineId,
+         machine_mode as machineMode,
+         status,
+         auth_type as authType,
+         last_seen_at as lastSeenAt
+       from machines
+       where machine_id = ?`,
+      machineId
+    ) as MachineRecord | undefined;
+  }
+
   getMachines(): MachineRecord[] {
     return this.client.all(
       `select

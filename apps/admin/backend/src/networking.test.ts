@@ -15,6 +15,7 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   getHostServiceName,
   startHostNetworking,
@@ -61,7 +62,12 @@ describe('getHostServiceName', () => {
 describe('startHostNetworking', () => {
   test('advertises avahi service', () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
 
     expect(AvahiService.advertiseHttpService).toHaveBeenCalledWith(
       'VxAdmin-0001',
@@ -69,10 +75,68 @@ describe('startHostNetworking', () => {
     );
   });
 
+  test('logs avahi service publication on startup', () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: testLogger,
+    });
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        message: 'Published avahi service VxAdmin-0001 on port 3002.',
+      })
+    );
+  });
+
+  test('logs host online/offline transitions', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: testLogger,
+    });
+    await advancePollingInterval();
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        newStatus: 'online',
+        disposition: 'success',
+      })
+    );
+
+    vi.mocked(hasOnlineInterface).mockResolvedValue(false);
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        newStatus: 'offline',
+        disposition: 'failure',
+      })
+    );
+  });
+
   test('writes connected status to store when online', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
     await advancePollingInterval();
 
     const machines = store.getMachines();
@@ -105,7 +169,12 @@ describe('startHostNetworking', () => {
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
     await advancePollingInterval();
 
     expect(store.getMultipleHostsDetected('0001')).toEqual(true);
@@ -139,7 +208,12 @@ describe('startHostNetworking', () => {
         .mockRejectedValue(new Error('unreachable')),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
     await advancePollingInterval();
 
     expect(store.getMultipleHostsDetected('0001')).toEqual(false);
@@ -165,7 +239,12 @@ describe('startHostNetworking', () => {
         port: '3002',
       },
     ]);
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
     await advancePollingInterval();
 
     expect(store.getMultipleHostsDetected('0001')).toEqual(false);
@@ -192,7 +271,12 @@ describe('startHostNetworking', () => {
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
     await advancePollingInterval();
     expect(store.getMultipleHostsDetected('0001')).toEqual(true);
 
@@ -210,10 +294,74 @@ describe('startHostNetworking', () => {
     expect(store.getMultipleHostsDetected('0001')).toEqual(false);
   });
 
+  test('logs multipleHosts when more than one other host is discovered', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-0001',
+        host: 'self.local',
+        resolvedIp: '192.168.1.1',
+        port: '3002',
+      },
+      {
+        name: 'VxAdmin-OTHER1',
+        host: 'other1.local',
+        resolvedIp: '192.168.1.2',
+        port: '3002',
+      },
+      {
+        name: 'VxAdmin-OTHER2',
+        host: 'other2.local',
+        resolvedIp: '192.168.1.3',
+        port: '3002',
+      },
+    ]);
+    const mockClient = {
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+    } as unknown as grout.Client<PeerApi>;
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: testLogger,
+    });
+    await advancePollingInterval();
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        newStatus: 'multipleHosts',
+      })
+    );
+  });
+
+  test('does not detect multiple hosts when offline', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    vi.mocked(hasOnlineInterface).mockResolvedValue(false);
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
+    await advancePollingInterval();
+
+    expect(store.getMultipleHostsDetected('0001')).toEqual(false);
+  });
+
   test('writes offline status to store when network goes down', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    startHostNetworking({ machineId: '0001', peerPort: 3002, store });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
     await advancePollingInterval();
     expect(store.getMachines()[0]?.status).toEqual(
       Admin.ClientMachineStatus.Active
@@ -228,6 +376,8 @@ describe('startHostNetworking', () => {
 });
 
 describe('startClientNetworking', () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+
   function createClientStore(): ClientStore {
     return new ClientStore();
   }
@@ -262,12 +412,162 @@ describe('startClientNetworking', () => {
     ) as unknown as grout.Client<PeerApi>;
   }
 
+  test('logs client networking startup', () => {
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0001',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        message: 'Starting client networking for machine 0001.',
+      })
+    );
+  });
+
+  test('logs client connection status transitions', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0001log',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+    await advancePollingInterval();
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        previousStatus: 'unknown',
+        newStatus: ClientConnectionStatus.OnlineWaitingForHost,
+      })
+    );
+
+    vi.mocked(hasOnlineInterface).mockResolvedValue(false);
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        previousStatus: ClientConnectionStatus.OnlineWaitingForHost,
+        newStatus: ClientConnectionStatus.Offline,
+      })
+    );
+  });
+
+  test('logs election sync from host', async () => {
+    const electionDefinition = readElectionGeneralDefinition();
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockClient = createMockPeerClient({
+      getElectionPackageHash: vi.fn().mockResolvedValue('hash-1'),
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue({
+        id: 'election-1',
+        electionDefinition,
+        createdAt: new Date().toISOString(),
+        isOfficialResults: false,
+        electionPackageHash: 'hash-1',
+      }),
+      getSystemSettings: vi.fn().mockResolvedValue(DEFAULT_SYSTEM_SETTINGS),
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0001sync',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+    await advancePollingInterval();
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        message: expect.stringContaining('Election package hash changed'),
+      })
+    );
+  });
+
+  test('logs when host election is unconfigured', async () => {
+    const electionDefinition = readElectionGeneralDefinition();
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockGetHash = vi.fn().mockResolvedValue('hash-1');
+    const mockClient = createMockPeerClient({
+      getElectionPackageHash: mockGetHash,
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue({
+        id: 'election-1',
+        electionDefinition,
+        createdAt: new Date().toISOString(),
+        isOfficialResults: false,
+        electionPackageHash: 'hash-1',
+      }),
+      getSystemSettings: vi.fn().mockResolvedValue(DEFAULT_SYSTEM_SETTINGS),
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0001unconfig',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+
+    // First poll: connects and caches election
+    await advancePollingInterval();
+    expect(clientStore.getCachedElectionRecord()).toBeDefined();
+
+    // Host unconfigures
+    mockGetHash.mockResolvedValue(undefined);
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        message: 'Host election unconfigured, clearing cached election data.',
+      })
+    );
+  });
+
   test('stores offline status initially', () => {
     const clientStore = createClientStore();
     startClientNetworking({
       machineId: '0001',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.Offline
@@ -283,6 +583,7 @@ describe('startClientNetworking', () => {
       machineId: '0001a',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -309,6 +610,7 @@ describe('startClientNetworking', () => {
       machineId: '0001b',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -330,6 +632,7 @@ describe('startClientNetworking', () => {
       machineId: '0001c',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -367,6 +670,7 @@ describe('startClientNetworking', () => {
       machineId: '0001d',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -410,6 +714,7 @@ describe('startClientNetworking', () => {
       machineId: '0001d2',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -441,6 +746,7 @@ describe('startClientNetworking', () => {
       machineId: '0001d3',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -473,6 +779,7 @@ describe('startClientNetworking', () => {
       machineId: '0001e',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -512,6 +819,7 @@ describe('startClientNetworking', () => {
       machineId: '0002',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -547,6 +855,7 @@ describe('startClientNetworking', () => {
       machineId: '0002b',
       clientStore,
       auth,
+      logger,
     });
     await advancePollingInterval();
 
@@ -565,6 +874,7 @@ describe('startClientNetworking', () => {
       machineId: '0003',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -581,6 +891,7 @@ describe('startClientNetworking', () => {
       machineId: '0004',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -605,6 +916,7 @@ describe('startClientNetworking', () => {
       machineId: '0005',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -627,6 +939,7 @@ describe('startClientNetworking', () => {
       machineId: '0006',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -651,6 +964,7 @@ describe('startClientNetworking', () => {
       machineId: '0007',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
 
     // First poll: connect
@@ -685,6 +999,7 @@ describe('startClientNetworking', () => {
       machineId: '0008',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
 
     // First poll: connect
@@ -720,6 +1035,7 @@ describe('startClientNetworking', () => {
       machineId: '0009',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
 
@@ -746,6 +1062,7 @@ describe('startClientNetworking', () => {
       machineId: '0010',
       clientStore,
       auth: createMockAuth(),
+      logger,
     });
     await advancePollingInterval();
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
@@ -767,6 +1084,74 @@ describe('startClientNetworking', () => {
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
   });
 
+  test('logs when client adjudication is enabled by host', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockConnectToHost = vi.fn().mockResolvedValue({
+      machineId: 'HOST1',
+      codeVersion: 'dev',
+      isClientAdjudicationEnabled: false,
+    });
+    const mockClient = createMockPeerClient({
+      connectToHost: mockConnectToHost,
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0001adj',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+
+    // First poll: connect with adjudication disabled
+    await advancePollingInterval();
+    expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(false);
+
+    // Host enables adjudication
+    mockConnectToHost.mockResolvedValue({
+      machineId: 'HOST1',
+      codeVersion: 'dev',
+      isClientAdjudicationEnabled: true,
+    });
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(true);
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        message: 'Client adjudication enabled by host.',
+      })
+    );
+
+    // Host disables adjudication
+    mockConnectToHost.mockResolvedValue({
+      machineId: 'HOST1',
+      codeVersion: 'dev',
+      isClientAdjudicationEnabled: false,
+    });
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(false);
+
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        message: 'Client adjudication disabled by host.',
+      })
+    );
+  });
+
   test('does not repeatedly log out when host is unconfigured', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
@@ -783,7 +1168,7 @@ describe('startClientNetworking', () => {
 
     const clientStore = createClientStore();
     const auth = createMockAuth();
-    startClientNetworking({ machineId: '0011', clientStore, auth });
+    startClientNetworking({ machineId: '0011', clientStore, auth, logger });
 
     // First poll: connects, sees no election
     await advancePollingInterval();
@@ -820,7 +1205,7 @@ describe('startClientNetworking', () => {
 
     const clientStore = createClientStore();
     const auth = createMockAuth();
-    startClientNetworking({ machineId: '0012', clientStore, auth });
+    startClientNetworking({ machineId: '0012', clientStore, auth, logger });
     await advancePollingInterval();
 
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -859,7 +1244,7 @@ describe('startClientNetworking', () => {
 
     const clientStore = createClientStore();
     const auth = createMockAuth();
-    startClientNetworking({ machineId: '0013', clientStore, auth });
+    startClientNetworking({ machineId: '0013', clientStore, auth, logger });
 
     // First poll: connects and caches election
     await advancePollingInterval();

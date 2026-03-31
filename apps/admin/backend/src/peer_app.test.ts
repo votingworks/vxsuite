@@ -50,6 +50,32 @@ test('connectToHost persists status and authType and returns adjudication enable
   });
 });
 
+test('connectToHost updates store when client status changes', async () => {
+  const { peerApiClient, workspace } = buildTestEnvironment();
+
+  // First call: new client
+  await peerApiClient.connectToHost({
+    machineId: 'client-002',
+    status: Admin.ClientMachineStatus.OnlineLocked,
+    authType: null,
+  });
+  expect(workspace.store.getMachine('client-002')).toMatchObject({
+    status: Admin.ClientMachineStatus.OnlineLocked,
+    authType: null,
+  });
+
+  // Second call: status changes
+  await peerApiClient.connectToHost({
+    machineId: 'client-002',
+    status: Admin.ClientMachineStatus.Active,
+    authType: 'election_manager',
+  });
+  expect(workspace.store.getMachine('client-002')).toMatchObject({
+    status: Admin.ClientMachineStatus.Active,
+    authType: 'election_manager',
+  });
+});
+
 test('getCurrentElectionMetadata returns null when no election configured', async () => {
   const { peerApiClient } = buildTestEnvironment();
   const result = await peerApiClient.getCurrentElectionMetadata();

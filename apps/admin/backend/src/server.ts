@@ -134,7 +134,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       );
 
       if (isMultiStationEnabled) {
-        const peerApp = buildPeerApp({ workspace });
+        const peerApp = buildPeerApp({ workspace, logger: baseLogger });
         peerApp.listen(peerPort, () => {
           debug('Peer API server running at http://localhost:%d/', peerPort);
           baseLogger.log(LogEventId.ApplicationStartup, 'system', {
@@ -147,6 +147,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
           machineId: getMachineConfig().machineId,
           peerPort,
           store: workspace.store,
+          logger: baseLogger,
         });
       }
 
@@ -203,6 +204,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         machineId: getMachineConfig().machineId,
         clientStore: clientWorkspace.clientStore,
         auth,
+        logger: baseLogger,
       });
 
       app = buildClientApp({

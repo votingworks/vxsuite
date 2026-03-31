@@ -212,7 +212,10 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     baseUrl,
   });
 
-  const peerApp = buildPeerApp({ workspace });
+  const peerApp = buildPeerApp({
+    workspace,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
   const peerServer = peerApp.listen();
   const { port: peerPort } = peerServer.address() as AddressInfo;
   const peerApiClient = grout.createClient<PeerApi>({

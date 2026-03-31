@@ -1057,6 +1057,24 @@ eventType = "user-action"
 documentationMessage = "A user has changed the ballot casting mode."
 restrictInDocumentationToApps = ["vx-scan"]
 
+[Events.AdminNetworkStatus]
+eventId = "admin-network-status"
+eventType = "application-status"
+documentationMessage = "A status message indicating an update to the multi-station admin network, such as host discovery, client connection changes, or multiple host detection."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminMachineModeChanged]
+eventId = "admin-machine-mode-changed"
+eventType = "user-action"
+documentationMessage = "A user changed the VxAdmin machine mode between host and client."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminClientAdjudicationToggled]
+eventId = "admin-client-adjudication-toggled"
+eventType = "user-action"
+documentationMessage = "A user enabled or disabled multi-station client adjudication."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.LowDiskSpace]
 eventId = "low-disk-space"
 eventType = "system-status"
