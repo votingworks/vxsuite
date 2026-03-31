@@ -14,6 +14,7 @@ import {
   jurisdiction,
   provideApi,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -45,6 +46,7 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromRecord(electionRecord));

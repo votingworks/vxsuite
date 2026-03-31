@@ -21,7 +21,20 @@ export function PollingPlaceList(
   props: PollingPlaceListProps
 ): React.ReactNode {
   const { onSelect, places, selectedId } = props;
+
   const groups = React.useMemo(() => pollingPlaceGroups(places), [places]);
+  const sublists = [
+    { title: 'Absentee Voting', places: groups.absentee },
+    { title: 'Early Voting', places: groups.early_voting },
+    { title: 'Election Day', places: groups.election_day },
+  ];
+
+  // If no selection has been made yet, auto-select the first available polling
+  // place in the list, for user convenience.
+  if (!selectedId) {
+    const firstNonEmpty = sublists.find((s) => s.places.length > 0);
+    if (firstNonEmpty) setTimeout(() => onSelect(firstNonEmpty.places[0].id));
+  }
 
   return (
     <EntityList.Box>
@@ -32,24 +45,15 @@ export function PollingPlaceList(
           </Callout>
         </NoPollingPlaces>
       )}
-      <Sublist
-        title="Absentee Voting"
-        onSelect={onSelect}
-        places={groups.absentee}
-        selectedId={selectedId}
-      />
-      <Sublist
-        title="Early Voting"
-        onSelect={onSelect}
-        places={groups.early_voting}
-        selectedId={selectedId}
-      />
-      <Sublist
-        title="Election Day"
-        onSelect={onSelect}
-        places={groups.election_day}
-        selectedId={selectedId}
-      />
+      {sublists.map((sublist) => (
+        <Sublist
+          title={sublist.title}
+          key={sublist.title}
+          onSelect={onSelect}
+          places={sublist.places}
+          selectedId={selectedId}
+        />
+      ))}
     </EntityList.Box>
   );
 }

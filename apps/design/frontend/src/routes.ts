@@ -2,6 +2,7 @@
 import { typedAs } from '@votingworks/basics';
 import type {
   ElectionInfo,
+  StateFeaturesConfig,
   UserFeaturesConfig,
 } from '@votingworks/design-backend';
 import { ResultsReportingPath } from '@votingworks/design-backend';
@@ -195,7 +196,8 @@ export const rootNavRoutes: Route[] = [];
 
 export function electionNavRoutes(
   electionInfo: ElectionInfo,
-  systemSettings: SystemSettings
+  systemSettings: SystemSettings,
+  stateFeatures: StateFeaturesConfig
 ): Route[] {
   const r = routes.election(electionInfo.electionId);
 
@@ -203,6 +205,7 @@ export function electionNavRoutes(
     r.electionInfo.root,
     r.districts.root,
     r.precincts.root,
+    stateFeatures.EDIT_POLLING_PLACES && r.pollingPlaces.root,
     r.parties.root,
     r.contests.root,
     r.ballots.root,

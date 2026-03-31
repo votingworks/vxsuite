@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { PollingPlace } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -57,6 +57,34 @@ test('renders sublist headings, place names, and precinct counts', async () => {
     'Election Day',
     getOption(with3Precincts, '3 Precincts').textContent,
   ]);
+});
+
+describe('auto-selects first place in the list if none selected', () => {
+  for (const spec of [
+    {
+      title: 'with all polling place types present',
+      places: [with3Precincts, with1Precinct, withNoPrecincts],
+      expectedSelection: withNoPrecincts, // Absentee takes precedence
+    },
+    {
+      title: 'with early voting and election day polling places',
+      places: [with3Precincts, with1Precinct],
+      expectedSelection: with1Precinct, // Early voting
+    },
+    {
+      title: 'with only election day polling places',
+      places: [with3Precincts],
+      expectedSelection: with3Precincts,
+    },
+  ]) {
+    test(`${spec.title}`, async () => {
+      const onSelect = vi.fn();
+      render(<PollingPlaceList onSelect={onSelect} places={spec.places} />);
+
+      await screen.findAllByRole('option');
+      expect(onSelect).toHaveBeenCalledWith(spec.expectedSelection.id);
+    });
+  }
 });
 
 test('renders selected pollingPlace, emits event on select', async () => {

@@ -15,6 +15,7 @@ import {
   jurisdiction,
   provideApi,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -39,6 +40,7 @@ beforeEach(() => {
     .expectCallWith({ electionId })
     .resolves(electionInfoFromRecord(electionRecord));
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
