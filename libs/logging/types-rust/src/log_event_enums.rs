@@ -439,6 +439,12 @@ pub enum EventId {
     DataCheckOnStartup,
     #[serde(rename = "set-ballot-casting-mode")]
     SetBallotCastingMode,
+    #[serde(rename = "admin-network-status")]
+    AdminNetworkStatus,
+    #[serde(rename = "admin-machine-mode-changed")]
+    AdminMachineModeChanged,
+    #[serde(rename = "admin-client-adjudication-toggled")]
+    AdminClientAdjudicationToggled,
     #[serde(rename = "low-disk-space")]
     LowDiskSpace,
 }

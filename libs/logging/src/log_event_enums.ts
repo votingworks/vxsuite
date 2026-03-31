@@ -228,6 +228,9 @@ export enum LogEventId {
   PollbookDuplicateCheckInDetected = 'pollbook-duplicate-check-in-detected',
   DataCheckOnStartup = 'data-check-on-startup',
   SetBallotCastingMode = 'set-ballot-casting-mode',
+  AdminNetworkStatus = 'admin-network-status',
+  AdminMachineModeChanged = 'admin-machine-mode-changed',
+  AdminClientAdjudicationToggled = 'admin-client-adjudication-toggled',
   LowDiskSpace = 'low-disk-space',
 }
 
@@ -1428,6 +1431,30 @@ const SetBallotCastingMode: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxScan],
 };
 
+const AdminNetworkStatus: LogDetails = {
+  eventId: LogEventId.AdminNetworkStatus,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A status message indicating an update to the multi-station admin network, such as host discovery, client connection changes, or multiple host detection.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminMachineModeChanged: LogDetails = {
+  eventId: LogEventId.AdminMachineModeChanged,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user changed the VxAdmin machine mode between host and client.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminClientAdjudicationToggled: LogDetails = {
+  eventId: LogEventId.AdminClientAdjudicationToggled,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user enabled or disabled multi-station client adjudication.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const LowDiskSpace: LogDetails = {
   eventId: LogEventId.LowDiskSpace,
   eventType: LogEventType.SystemStatus,
@@ -1760,6 +1787,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DataCheckOnStartup;
     case LogEventId.SetBallotCastingMode:
       return SetBallotCastingMode;
+    case LogEventId.AdminNetworkStatus:
+      return AdminNetworkStatus;
+    case LogEventId.AdminMachineModeChanged:
+      return AdminMachineModeChanged;
+    case LogEventId.AdminClientAdjudicationToggled:
+      return AdminClientAdjudicationToggled;
     case LogEventId.LowDiskSpace:
       return LowDiskSpace;
     default:

@@ -662,6 +662,18 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user has changed the ballot casting mode.
 **Machines:** vx-scan
+### admin-network-status
+**Type:** [application-status](#application-status)
+**Description:** A status message indicating an update to the multi-station admin network, such as host discovery, client connection changes, or multiple host detection.
+**Machines:** vx-admin
+### admin-machine-mode-changed
+**Type:** [user-action](#user-action)
+**Description:** A user changed the VxAdmin machine mode between host and client.
+**Machines:** vx-admin
+### admin-client-adjudication-toggled
+**Type:** [user-action](#user-action)
+**Description:** A user enabled or disabled multi-station client adjudication.
+**Machines:** vx-admin
 ### low-disk-space
 **Type:** [system-status](#system-status)
 **Description:** Free disk space is low.
