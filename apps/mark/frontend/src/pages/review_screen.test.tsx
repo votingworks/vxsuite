@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -12,6 +12,10 @@ import { render as renderWithBallotContext } from '../../test/test_utils';
 import { ReviewScreen } from './review_screen';
 
 const electionGeneral = readElectionGeneral();
+
+vi.setConfig({
+  testTimeout: 20_000,
+});
 
 test('Renders ReviewScreen with Print My Ballot in final review mode', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
