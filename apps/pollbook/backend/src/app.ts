@@ -276,6 +276,15 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       }
     },
 
+    setPollingPlaceId(input: { id: string }): Result<void, unknown> {
+      try {
+        store.setPollingPlaceId(input.id);
+        return ok();
+      } catch (error) {
+        return err(error);
+      }
+    },
+
     searchVoters(input: {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {

@@ -12,6 +12,10 @@ import {
   Voter,
   VoterSchema,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { customAlphabet } from 'nanoid';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { rootDebug } from './debug';
@@ -134,9 +138,9 @@ export abstract class Store {
     const rows = timestamp
       ? (this.client.all(
           `
-        SELECT * FROM event_log 
-        WHERE physical_time >= ? OR 
-          (physical_time = ? AND logical_counter >= ?) OR 
+        SELECT * FROM event_log
+        WHERE physical_time >= ? OR
+          (physical_time = ? AND logical_counter >= ?) OR
           (physical_time = ? AND logical_counter = ? AND machine_id >= ?)
         ORDER BY physical_time, logical_counter, machine_id
         `,
@@ -149,7 +153,7 @@ export abstract class Store {
         ) as EventDbRow[])
       : (this.client.all(
           `
-        SELECT * FROM event_log 
+        SELECT * FROM event_log
         ORDER BY physical_time, logical_counter, machine_id
       `
         ) as EventDbRow[]);
@@ -450,7 +454,7 @@ export abstract class Store {
             `
             INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
             VALUES (?, ?, ?)
-            ON CONFLICT(voter_id) DO UPDATE SET 
+            ON CONFLICT(voter_id) DO UPDATE SET
             is_checked_in = EXCLUDED.is_checked_in,
             machine_id = EXCLUDED.machine_id
             `,
@@ -496,7 +500,7 @@ export abstract class Store {
   getElection(): Election | undefined {
     const row = this.client.one(
       `
-          select election_data 
+          select election_data
           from elections
           order by rowid desc
           limit 1
@@ -523,7 +527,12 @@ export abstract class Store {
   getPollbookConfigurationInformation(): PollbookConfigurationInformation {
     const row = this.client.one(
       `
-          select election_data, ballot_hash, package_hash, configured_precinct_id
+          select
+            election_data,
+            ballot_hash,
+            package_hash,
+            configured_precinct_id,
+            polling_place_id
           from elections
           order by rowid desc
           limit 1
@@ -533,6 +542,7 @@ export abstract class Store {
       ballot_hash: string;
       package_hash: string;
       configured_precinct_id: string;
+      polling_place_id: string | null;
     };
     if (!row) {
       return {
@@ -553,6 +563,7 @@ export abstract class Store {
       configuredPrecinctId: row.configured_precinct_id
         ? row.configured_precinct_id
         : undefined,
+      pollingPlaceId: row.polling_place_id || undefined,
     };
   }
 
@@ -624,6 +635,16 @@ export abstract class Store {
             electionDefinition.election.precincts[0].id
           );
         }
+
+        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+          if (electionDefinition.election.pollingPlaces?.length === 1) {
+            this.client.run(
+              `update elections set polling_place_id = ?`,
+              electionDefinition.election.pollingPlaces[0].id
+            );
+          }
+        }
       });
       this.logger.log(LogEventId.PollbookConfigurationStatus, 'system', {
         message: 'Election and voters set successfully',
@@ -673,6 +694,17 @@ export abstract class Store {
     });
   }
 
+  setPollingPlaceId(id: string): void {
+    const election = this.getElection();
+    assert(election, 'Cannot set polling place without an election.');
+
+    if (this.hasEvents()) {
+      throw new Error('Can not change precinct when there are events.');
+    }
+
+    this.client.run('update elections set polling_place_id = ?', id);
+  }
+
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.
   // TODO the frontend doesn't need to know everything in the ValidStreetInfo object. This could be pared down.
   getStreetInfo(): ValidStreetInfo[] {
@@ -681,7 +713,7 @@ export abstract class Store {
     }
     const row = this.client.one(
       `
-          select valid_street_data 
+          select valid_street_data
           from elections
           order by rowid desc
           limit 1

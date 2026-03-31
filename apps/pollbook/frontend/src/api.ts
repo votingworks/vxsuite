@@ -487,6 +487,7 @@ export const setIsAbsenteeMode = {
   },
 } as const;
 
+// [TODO] Remove after migration to polling places.
 export const setConfiguredPrecinct = {
   useMutation() {
     const apiClient = useApiClient();
@@ -498,6 +499,22 @@ export const setConfiguredPrecinct = {
         );
         // because we sort the voters by placing those in the configured precinct
         // first, changing the precinct actually changes the search results
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+/* istanbul ignore next - WIP - @preserve */
+export const setPollingPlaceId = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollingPlaceId, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getPollbookConfigurationInformation.queryKey()
+        );
         await invalidateVoterQueries(queryClient);
       },
     });

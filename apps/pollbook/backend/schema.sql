@@ -25,7 +25,8 @@ CREATE TABLE elections (
     package_hash TEXT not null,
     valid_street_data TEXT,
     is_absentee_mode BOOLEAN NOT NULL,
-    configured_precinct_id TEXT
+    configured_precinct_id TEXT, -- [TODO] Remove after migration to polling places
+    polling_place_id text
 );
 
 CREATE TABLE event_log (
@@ -47,9 +48,9 @@ CREATE TABLE config_data (
 INSERT INTO config_data (id, configuration_status) VALUES (0, null);
 
 -- Index for sorting events by hybrid logical clock physical time then logical counter - machine id is included in the rare event of tie
-CREATE INDEX idx_hlc ON event_log (physical_time, logical_counter, machine_id); 
-CREATE INDEX idx_machine_hlc ON event_log (machine_id, physical_time, logical_counter); 
-CREATE INDEX idx_voter_hlc ON event_log (voter_id, physical_time, logical_counter, machine_id); 
+CREATE INDEX idx_hlc ON event_log (physical_time, logical_counter, machine_id);
+CREATE INDEX idx_machine_hlc ON event_log (machine_id, physical_time, logical_counter);
+CREATE INDEX idx_voter_hlc ON event_log (voter_id, physical_time, logical_counter, machine_id);
 CREATE INDEX idx_updated_first_name ON voters (updated_first_name);
 CREATE INDEX idx_updated_last_name ON voters (updated_last_name);
 

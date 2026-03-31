@@ -159,6 +159,7 @@ export interface PollbookConfigurationInformation {
   pollbookPackageHash?: string;
   electionTitle?: string;
   configuredPrecinctId?: string;
+  pollingPlaceId?: string;
   machineId: string;
   codeVersion: string;
 }
@@ -175,6 +176,7 @@ export const PollbookInformationSchema: z.ZodSchema<PollbookConfigurationInforma
     pollbookPackageHash: z.string().optional(),
     electionTitle: z.string().optional(),
     configuredPrecinctId: z.string().optional(),
+    pollingPlaceId: z.string().optional(),
     machineId: z.string(),
     codeVersion: z.string(),
   });

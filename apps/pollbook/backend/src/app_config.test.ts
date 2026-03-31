@@ -1,10 +1,14 @@
 import { beforeEach, afterEach, expect, test, vi, vitest } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { err } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionMultiPartyPrimaryFixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
@@ -36,10 +40,17 @@ vi.mock(
   })
 );
 
+const mockFeatureFlagger = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (f) => mockFeatureFlagger.isEnabled(f),
+}));
+
 beforeEach(() => {
   mockNodeEnv = 'test';
   vi.clearAllMocks();
   vitest.useFakeTimers();
+  mockFeatureFlagger.resetFeatureFlags();
 });
 
 afterEach(() => {
@@ -219,16 +230,46 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
       new Error('Precinct with id precinct-xyz does not exist in the election')
     );
 
-    const ok = await localApiClient.setConfiguredPrecinct({
+    const res = await localApiClient.setConfiguredPrecinct({
       precinctId: multiPrecinctElection.election.precincts[0].id,
     });
-    expect(ok.ok()).toEqual(undefined);
+    expect(res.ok()).toEqual(undefined);
 
     // Now it should be returned
     config = await localApiClient.getPollbookConfigurationInformation();
     expect(config.configuredPrecinctId).toEqual(
       multiPrecinctElection.election.precincts[0].id
     );
+  });
+});
+
+test('set/get polling place ID', async () => {
+  const fixtures = electionMultiPartyPrimaryFixtures;
+  const electionDef = fixtures.readElectionDefinition();
+  const { election } = electionDef;
+  const pollingPlace = assertDefined(election.pollingPlaces?.[0]);
+
+  const testStreets = parseValidStreetsFromCsvString(
+    fixtures.pollbookCityStreetNames.asText(),
+    election
+  );
+
+  await withApp(async ({ localApiClient, workspace }) => {
+    workspace.store.setElectionAndVoters(
+      electionDef,
+      'mock-package-hash',
+      testStreets,
+      []
+    );
+
+    let config = await localApiClient.getPollbookConfigurationInformation();
+    expect(config.pollingPlaceId).toBeUndefined();
+
+    const res = await localApiClient.setPollingPlaceId({ id: pollingPlace.id });
+    expect(res).toEqual(ok());
+
+    config = await localApiClient.getPollbookConfigurationInformation();
+    expect(config.pollingPlaceId).toEqual(pollingPlace.id);
   });
 });
 
@@ -249,5 +290,39 @@ test('setting a single precinct election automatically sets the configured preci
     expect(config.configuredPrecinctId).toEqual(
       singlePrecinctElectionDefinition.election.precincts[0].id
     );
+  });
+});
+
+test('automatically selects polling place for single-polling-place election', async () => {
+  const { election } = singlePrecinctElectionDefinition;
+  const expectedPollingPlace = assertDefined(election.pollingPlaces?.[0]);
+
+  const testStreets = parseValidStreetsFromCsvString(
+    electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
+    election
+  );
+
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
+  await withApp(async ({ localApiClient, workspace }) => {
+    workspace.store.setElectionAndVoters(
+      singlePrecinctElectionDefinition,
+      'mock-package-hash',
+      testStreets,
+      []
+    );
+
+    const config = await localApiClient.getPollbookConfigurationInformation();
+    expect(config.pollingPlaceId).toEqual(expectedPollingPlace.id);
+  });
+});
+
+test('setPollingPlaceId propagates exceptions as error values', async () => {
+  await withApp(async ({ localApiClient }) => {
+    const res = await localApiClient.setPollingPlaceId({
+      id: 'should-fail-with-no-election-set',
+    });
+    expect(res.err()).toBeDefined();
   });
 });
