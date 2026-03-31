@@ -110,7 +110,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
   debug('starting server...');
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
-  signal?.addEventListener('abort', stopDetectingDevices, { once: true });
 
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
@@ -246,5 +245,13 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       disposition: 'success',
     });
   });
+  signal?.addEventListener(
+    'abort',
+    () => {
+      stopDetectingDevices();
+      server.close();
+    },
+    { once: true }
+  );
   return server;
 }

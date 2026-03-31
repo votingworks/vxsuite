@@ -96,10 +96,12 @@ export async function withApp(
       server,
     });
   } finally {
-    shutdownController.abort();
-    await new Promise<void>((resolve, reject) => {
-      server.close((error) => (error ? reject(error) : resolve()));
+    const closed = new Promise<void>((resolve) => {
+      server.on('close', resolve);
+      if (!server.listening) resolve();
     });
+    shutdownController.abort();
+    await closed;
     workspace.reset();
   }
 }

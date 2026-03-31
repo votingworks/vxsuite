@@ -50,7 +50,6 @@ export function start({
   signal,
 }: Partial<StartOptions> = {}): Server {
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
-  signal?.addEventListener('abort', stopDetectingDevices, { once: true });
 
   let resolvedWorkspace = workspace;
   /* istanbul ignore next - @preserve */
@@ -160,5 +159,13 @@ export function start({
       message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
     });
   });
+  signal?.addEventListener(
+    'abort',
+    () => {
+      stopDetectingDevices();
+      server.close();
+    },
+    { once: true }
+  );
   return server;
 }

@@ -82,7 +82,6 @@ export async function start({
   signal,
 }: StartOptions): Promise<Server> {
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
-  signal?.addEventListener('abort', stopDetectingDevices, { once: true });
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(baseLogger, () =>
     getUserRole(resolvedAuth, workspace)
@@ -140,6 +139,14 @@ export async function start({
         disposition: 'success',
       });
     }
+  );
+  signal?.addEventListener(
+    'abort',
+    () => {
+      stopDetectingDevices();
+      server.close();
+    },
+    { once: true }
   );
   return server;
 }
