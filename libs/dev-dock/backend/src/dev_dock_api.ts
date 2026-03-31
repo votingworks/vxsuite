@@ -61,11 +61,14 @@ export interface DevDockUsbDriveInfo {
   devPath: string;
   status: DevDockUsbDriveStatus;
 }
-export interface DevDockElectionInfo {
+export interface DevDockElectionOption {
   title: string;
   /** The path that appears in the file picker and is passed to the backend */
   inputPath: string;
-  /** The actual path to the election.json file (may be extracted from zip to temp file) */
+}
+
+export interface DevDockElectionInfo extends DevDockElectionOption {
+  /** The path to a readable election.json file (extracted from zip if needed) */
   resolvedPath: string;
 }
 
@@ -250,7 +253,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       return getElection(devDockDir);
     },
 
-    getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
+    getCurrentFixtureElectionPaths(): DevDockElectionOption[] {
       const baseFixturePath = join(__dirname, '../../../../libs/fixtures/data');
       return fs
         .readdirSync(baseFixturePath, {
@@ -263,11 +266,12 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
             /^(electionGenerated.*|election)\.json$/.test(file)
           );
           if (electionFile) {
-            const resolvedPath = join(baseFixturePath, item.name, electionFile);
+            const inputPath = electionAbsolutePathToRelative(
+              join(baseFixturePath, item.name, electionFile)
+            );
             return {
-              title: item.name,
-              inputPath: electionAbsolutePathToRelative(resolvedPath),
-              resolvedPath,
+              title: `${item.name} - ${inputPath}`,
+              inputPath,
             };
           }
           return undefined;

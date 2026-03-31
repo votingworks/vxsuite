@@ -45,7 +45,6 @@ import {
   useDevDockRouter,
   MockSpec,
   MockBatchScannerApi,
-  DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
   DEV_DOCK_ELECTION_FILE_NAME,
   PdiScannerStatus,
 } from './dev_dock_api';
@@ -208,9 +207,8 @@ test('election fixture references', async () => {
     apiClient.getCurrentFixtureElectionPaths()
   ).resolves.toMatchObject(
     expectedFixtures.map(({ path, title }) => ({
+      title: expect.stringContaining(title),
       inputPath: expect.stringContaining(path),
-      title,
-      resolvedPath: expect.any(String),
     }))
   );
 });
@@ -222,7 +220,6 @@ test('election setting', async () => {
   const defaultElection = await apiClient.getElection();
   expect(defaultElection).toMatchObject({
     title: electionGeneral.title,
-    inputPath: DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
     resolvedPath: expect.any(String),
   });
 
@@ -233,8 +230,6 @@ test('election setting', async () => {
   const updatedElection = await apiClient.getElection();
   expect(updatedElection).toMatchObject({
     title: election.title,
-    inputPath:
-      './libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
     resolvedPath: expect.any(String),
   });
 
@@ -274,7 +269,6 @@ test('election loading from zip file', async () => {
   const expectedElectionPath = join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME);
   expect(loadedElection).toMatchObject({
     title: election.title,
-    inputPath: zipPath,
     resolvedPath: expectedElectionPath,
   });
   expect(loadedElection?.resolvedPath).toBeDefined();

@@ -119,7 +119,7 @@ function ElectionControl(): JSX.Element | null {
     >
       {elections.map((election) => (
         <option key={election.inputPath} value={election.inputPath}>
-          {election.title} - {election.inputPath}
+          {election.title}
         </option>
       ))}
       {window.kiosk && <option>Pick from file...</option>}

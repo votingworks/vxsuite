@@ -89,17 +89,14 @@ beforeEach(() => {
     {
       title: 'electionGeneral',
       inputPath: './libs/fixtures/data/electionGeneral/election.json',
-      resolvedPath: '/full-path',
     },
     {
       title: 'electionFamousNames2021',
       inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
-      resolvedPath: '/full-path',
     },
     {
       title: 'electionTwoPartyPrimary',
       inputPath: './libs/fixtures/data/electionTwoPartyPrimary/election.json',
-      resolvedPath: '/full-path',
     },
   ]);
   mockApiClient.getElection.expectCallWith().resolves({
