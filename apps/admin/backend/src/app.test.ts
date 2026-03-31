@@ -101,6 +101,7 @@ test('getNetworkStatus returns offline with no connected clients by default', as
   expect(await apiClient.getNetworkStatus()).toEqual({
     isOnline: false,
     connectedClients: [],
+    multipleHostsDetected: false,
   });
 });
 

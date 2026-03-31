@@ -131,6 +131,13 @@ test('getNetworkConnectionStatus returns current status from client store', asyn
     status: 'online-connected-to-host',
     hostMachineId: '0001',
   });
+
+  env.workspace.clientStore.setConnection(
+    ClientConnectionStatus.OnlineMultipleHostsDetected
+  );
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-multiple-hosts-detected',
+  });
 });
 
 test('getCurrentElectionMetadata returns null when no cached data', async () => {

@@ -69,6 +69,7 @@ import {
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
+import { AvahiService } from '@votingworks/networking';
 import {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
@@ -93,6 +94,7 @@ import {
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
+import { getHostServiceName } from './networking';
 import { getBallotImages } from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
@@ -243,13 +245,22 @@ function buildApi({
       return readMachineMode(workspace.path);
     },
 
-    setMachineMode(input: { mode: MachineMode }) {
+    setMachineMode(input: { mode: MachineMode }): void {
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot change machine mode while an election is configured.'
+      );
+      if (input.mode === 'client') {
+        const { machineId } = getMachineConfig();
+        AvahiService.stopAdvertisedService(getHostServiceName(machineId));
+      }
       writeMachineMode(workspace.path, input.mode);
     },
 
     getNetworkStatus(): {
       isOnline: boolean;
       connectedClients: MachineRecord[];
+      multipleHostsDetected: boolean;
     } {
       const { machineId } = getMachineConfig();
       const machines = store.getMachines();
@@ -261,6 +272,7 @@ function buildApi({
           hostRecord !== undefined &&
           hostRecord.status !== Admin.ClientMachineStatus.Offline,
         connectedClients: machines.filter((m) => m.machineMode === 'client'),
+        multipleHostsDetected: store.getMultipleHostsDetected(machineId),
       };
     },
 

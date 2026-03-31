@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
-  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -34,13 +33,6 @@ const pollWorkerAuth: DippedSmartCardAuth.PollWorkerLoggedIn = {
   sessionExpiresAt: mockSessionExpiresAt(),
 };
 
-const sysAdminAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
-  status: 'logged_in',
-  user: mockSystemAdministratorUser(),
-  sessionExpiresAt: mockSessionExpiresAt(),
-  programmableCard: { status: 'no_card' },
-};
-
 function renderAdjudicationScreen(
   auth: DippedSmartCardAuth.AuthStatus,
   { withElection = false }: { withElection?: boolean } = {}
@@ -52,31 +44,17 @@ function renderAdjudicationScreen(
   });
 }
 
-test('shows connected status and enabled start button', async () => {
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host', '0001');
+test('shows enabled start button when adjudication is enabled', async () => {
   apiMock.expectGetAdjudicationSessionStatus(true);
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
-  await screen.findByText(/Connected to host 0001/);
   const startButton = screen.getByRole('button', {
     name: 'Start Adjudication',
   });
   expect(startButton).not.toBeDisabled();
 });
 
-test('disables start button when connected but no election', async () => {
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host', '0001');
-  apiMock.expectGetAdjudicationSessionStatus(true);
-  renderAdjudicationScreen(pollWorkerAuth);
-  await screen.findByText(/Connected to host 0001/);
-  const startButton = screen.getByRole('button', {
-    name: 'Start Adjudication',
-  });
-  expect(startButton).toBeDisabled();
-});
-
-test('shows waiting for host message when adjudication not enabled', async () => {
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host', '0001');
+test('shows waiting message and disabled button when adjudication not enabled', async () => {
   apiMock.expectGetAdjudicationSessionStatus(false);
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   await screen.findByText('Waiting for host to initiate adjudication.');
@@ -84,22 +62,4 @@ test('shows waiting for host message when adjudication not enabled', async () =>
     name: 'Start Adjudication',
   });
   expect(startButton).toBeDisabled();
-});
-
-test('shows offline status with disabled start button', async () => {
-  apiMock.expectGetNetworkConnectionStatus('offline');
-  apiMock.expectGetAdjudicationSessionStatus();
-  renderAdjudicationScreen(pollWorkerAuth);
-  await screen.findByRole('heading', { name: 'Adjudication' });
-  await screen.findByText(/Offline/);
-  await screen.findByText(
-    /Connect to a host with an election configured to begin adjudication/
-  );
-});
-
-test('shows searching for host status', async () => {
-  apiMock.expectGetNetworkConnectionStatus('online-waiting-for-host');
-  apiMock.expectGetAdjudicationSessionStatus();
-  renderAdjudicationScreen(sysAdminAuth);
-  await screen.findByText(/Searching for host/);
 });

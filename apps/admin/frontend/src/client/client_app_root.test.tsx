@@ -162,7 +162,6 @@ test('shows remove card screen after authentication', async () => {
 
 test('shows adjudication screen with election info when logged in as poll worker', async () => {
   setPollWorkerAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
@@ -171,7 +170,6 @@ test('shows adjudication screen with election info when logged in as poll worker
 
 test('poll worker sees only adjudication tab', async () => {
   setPollWorkerAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
@@ -182,7 +180,6 @@ test('poll worker sees only adjudication tab', async () => {
 
 test('election manager sees adjudication, settings, and diagnostics tabs', async () => {
   setElectionManagerAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetAdjudicationSessionStatus();
   renderClientApp({ withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
