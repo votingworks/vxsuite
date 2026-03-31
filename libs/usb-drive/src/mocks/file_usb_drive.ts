@@ -6,7 +6,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { Optional } from '@votingworks/basics';
+import { deferred, Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { basename, join } from 'node:path';
 import type { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
@@ -189,6 +189,8 @@ export interface MockFileUsbDriveHandler {
 }
 
 export function createMockFileMultiUsbDrive(): MultiUsbDrive {
+  const changeDeferred = deferred<void>();
+
   return {
     getDrives() {
       return listMockDrives().flatMap((diskName) => {
@@ -242,6 +244,10 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
         writeMockDriveState(diskName, { state: 'ejected', fstype });
       }
       return Promise.resolve();
+    },
+
+    waitForChange(): Promise<void> {
+      return changeDeferred.promise;
     },
 
     sync: (partitionDevPath: string) => {

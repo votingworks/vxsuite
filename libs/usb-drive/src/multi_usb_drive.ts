@@ -131,6 +131,11 @@ export interface MultiUsbDrive {
     fstype: UsbDriveFilesystemType
   ): Promise<void>;
   sync(partitionDevPath: string): Promise<void>;
+  /**
+   * Returns a promise that resolves the next time the drive state changes.
+   * Multiple callers share the same promise for a given change event.
+   */
+  waitForChange(): Promise<void>;
   stop(): void;
 }
 
@@ -217,6 +222,7 @@ export function detectMultiUsbDrive(
   let stopped = false;
   let isFirstRefresh = true;
   let cachedDrives: UsbDiskDeviceInfo[] = [];
+  let changeDeferred = deferred<void>();
 
   // Per-drive eject state: cleared when the drive is no longer detected.
   const ejectedDrives = new Set<string>();
@@ -288,7 +294,11 @@ export function detectMultiUsbDrive(
         doMountPartitionWithRetry(diskDevPath, partitionDevPath)
       )
       ?.then(() => {
-        if (!stopped) onChange?.();
+        if (!stopped) {
+          changeDeferred.resolve();
+          changeDeferred = deferred<void>();
+          onChange?.();
+        }
       });
   }
 
@@ -361,6 +371,41 @@ export function detectMultiUsbDrive(
       }
     }
 
+    // Clean up phantom mounts: if a partition was mounted in the previous
+    // scan but its parent drive has disappeared (hot-removed), the kernel
+    // mount entry and the /media/vx directory linger. Lazy-unmount and
+    // remove the directory so they don't accumulate.
+    const newPartitionDevPaths = new Set(
+      newDrives.flatMap((d) => d.partitions.map((p) => p.devPath))
+    );
+    for (const oldDisk of cachedDrives) {
+      for (const oldPartition of oldDisk.partitions) {
+        if (
+          oldPartition.mountpoint &&
+          !newPartitionDevPaths.has(oldPartition.devPath)
+        ) {
+          debug(
+            `cleaning up phantom mount for removed partition ${oldPartition.devPath} at ${oldPartition.mountpoint}`
+          );
+          try {
+            await unmountPartition(oldPartition.mountpoint);
+          } catch {
+            // lazy unmount as fallback
+            try {
+              await exec('sudo', [
+                '-n',
+                'umount',
+                '-l',
+                oldPartition.mountpoint,
+              ]);
+            } catch {
+              debug(`failed to lazy-unmount ${oldPartition.mountpoint}`);
+            }
+          }
+        }
+      }
+    }
+
     const stateChanged =
       isFirstRefresh ||
       JSON.stringify(newDrives) !== JSON.stringify(cachedDrives);
@@ -372,6 +417,8 @@ export function detectMultiUsbDrive(
     }
 
     if (stateChanged) {
+      changeDeferred.resolve();
+      changeDeferred = deferred<void>();
       onChange?.();
     }
   }
@@ -380,6 +427,17 @@ export function detectMultiUsbDrive(
     void doRefresh().catch((e) => debug(`background refresh failed: ${e}`));
   });
   void doRefresh().catch((e) => debug(`initial refresh failed: ${e}`));
+
+  // Periodic fallback refresh. The udevadm watcher handles most changes
+  // instantly, but some environments (e.g. VMs with hot-removed virtual
+  // disks) may not generate block subsystem events. A gentle periodic
+  // refresh catches these.
+  const PERIODIC_REFRESH_MS = 5_000;
+  const periodicRefreshInterval = setInterval(() => {
+    if (!stopped) {
+      void doRefresh().catch((e) => debug(`periodic refresh failed: ${e}`));
+    }
+  }, PERIODIC_REFRESH_MS);
 
   return {
     getDrives(): UsbDriveInfo[] {
@@ -525,6 +583,10 @@ export function detectMultiUsbDrive(
       await result;
     },
 
+    waitForChange(): Promise<void> {
+      return changeDeferred.promise;
+    },
+
     async sync(partitionDevPath: string): Promise<void> {
       const partition = cachedDrives
         .flatMap((d) => d.partitions)
@@ -541,6 +603,7 @@ export function detectMultiUsbDrive(
     stop(): void {
       stopped = true;
       watcher.stop();
+      clearInterval(periodicRefreshInterval);
     },
   };
 }
