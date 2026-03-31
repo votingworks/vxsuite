@@ -67,6 +67,31 @@ export function SettingsScreen(): JSX.Element | null {
 
   return (
     <NavigationScreen title="Settings">
+      {isSystemAdministratorAuth(auth) &&
+        isMultiStationEnabled &&
+        !electionDefinition && (
+          <React.Fragment>
+            <H2>Machine Mode</H2>
+            {networkStatusQuery.isSuccess &&
+              networkStatusQuery.data.multipleHostsDetected && (
+                <P>
+                  <Icons.Danger color="danger" /> Multiple hosts detected on the
+                  network. Only one host machine should be active at a time.
+                  Clients will not connect until the conflict is resolved.
+                </P>
+              )}
+            <P>
+              <Button
+                onPress={() =>
+                  setMachineModeMutation.mutate({ mode: 'client' })
+                }
+                disabled={setMachineModeMutation.isLoading}
+              >
+                Switch to Client Mode
+              </Button>
+            </P>
+          </React.Fragment>
+        )}
       <H2>Logs</H2>
       <ExportLogsButton usbDriveStatus={usbDriveStatus} />
       <H2>Date and Time</H2>
@@ -96,31 +121,6 @@ export function SettingsScreen(): JSX.Element | null {
           <ToggleUsbPortsButton />
         </P>
       )}
-      {isSystemAdministratorAuth(auth) &&
-        isMultiStationEnabled &&
-        !electionDefinition && (
-          <React.Fragment>
-            <H2>Machine Mode</H2>
-            {networkStatusQuery.isSuccess &&
-              networkStatusQuery.data.multipleHostsDetected && (
-                <P>
-                  <Icons.Danger color="danger" /> Multiple hosts detected on the
-                  network. Only one host machine should be active at a time.
-                  Clients will not connect until the conflict is resolved.
-                </P>
-              )}
-            <P>
-              <Button
-                onPress={() =>
-                  setMachineModeMutation.mutate({ mode: 'client' })
-                }
-                disabled={setMachineModeMutation.isLoading}
-              >
-                Switch to Client Mode
-              </Button>
-            </P>
-          </React.Fragment>
-        )}
     </NavigationScreen>
   );
 }
