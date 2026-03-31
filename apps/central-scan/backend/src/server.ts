@@ -34,6 +34,7 @@ export interface StartOptions {
   app: Application;
   logger: BaseLogger;
   workspace: Workspace;
+  signal: AbortSignal;
 }
 
 /**
@@ -46,8 +47,11 @@ export function start({
   app,
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
+  signal,
 }: Partial<StartOptions> = {}): Server {
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
+  signal?.addEventListener('abort', stopDetectingDevices, { once: true });
+
   let resolvedWorkspace = workspace;
   /* istanbul ignore next - @preserve */
   if (!resolvedWorkspace) {
@@ -156,6 +160,5 @@ export function start({
       message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
     });
   });
-  server.on('close', stopDetectingDevices);
   return server;
 }

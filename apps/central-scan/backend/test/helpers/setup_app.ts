@@ -73,11 +73,13 @@ export async function withApp(
   const apiClient = grout.createClient({
     baseUrl,
   });
+  const shutdownController = new AbortController();
   const server = start({
     app,
     logger,
     workspace,
     port,
+    signal: shutdownController.signal,
   });
 
   try {
@@ -94,6 +96,7 @@ export async function withApp(
       server,
     });
   } finally {
+    shutdownController.abort();
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });

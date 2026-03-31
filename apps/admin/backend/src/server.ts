@@ -94,6 +94,7 @@ export interface StartOptions {
   workspacePath?: string;
   multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
+  signal?: AbortSignal;
 }
 
 /**
@@ -104,10 +105,12 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     logger: baseLogger = new BaseLogger(LogSource.VxAdminService),
     port = PORT,
     peerPort = PEER_PORT,
+    signal,
   } = options;
 
   debug('starting server...');
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
+  signal?.addEventListener('abort', stopDetectingDevices, { once: true });
 
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
@@ -243,6 +246,5 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       disposition: 'success',
     });
   });
-  server.on('close', stopDetectingDevices);
   return server;
 }

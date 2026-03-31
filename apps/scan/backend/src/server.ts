@@ -30,6 +30,7 @@ export interface StartOptions {
   port?: number | string;
   usbDrive?: UsbDrive;
   printer?: FujitsuThermalPrinterInterface;
+  signal?: AbortSignal;
 }
 
 /**
@@ -41,6 +42,7 @@ export async function start({
   logger,
   usbDrive,
   printer,
+  signal,
 }: StartOptions): Promise<void> {
   const stopDetectingDevices = detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
@@ -105,5 +107,12 @@ export async function start({
       message: `Scanning ballots into ${workspace.ballotImagesPath}`,
     });
   });
-  server.on('close', stopDetectingDevices);
+  signal?.addEventListener(
+    'abort',
+    () => {
+      stopDetectingDevices();
+      server.close();
+    },
+    { once: true }
+  );
 }

@@ -35,6 +35,7 @@ export interface StartOptions {
   logger: BaseLogger;
   port: number | string;
   workspace: Workspace;
+  signal?: AbortSignal;
 }
 
 export async function resolveDriver(
@@ -78,8 +79,10 @@ export async function start({
   logger: baseLogger,
   port,
   workspace,
+  signal,
 }: StartOptions): Promise<Server> {
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
+  signal?.addEventListener('abort', stopDetectingDevices, { once: true });
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(baseLogger, () =>
     getUserRole(resolvedAuth, workspace)
@@ -138,6 +141,5 @@ export async function start({
       });
     }
   );
-  server.on('close', stopDetectingDevices);
   return server;
 }
