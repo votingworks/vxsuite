@@ -65,7 +65,6 @@ export function DiagnosticsScreen(): JSX.Element {
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
             printerDiagnosticUi={<PrintTestPageButton />}
-            omitConfigSectionBallotStyles
           />
         </div>
         <SaveReadinessReportButton

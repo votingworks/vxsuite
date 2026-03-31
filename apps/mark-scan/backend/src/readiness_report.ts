@@ -87,7 +87,6 @@ export async function saveReadinessReport({
     generatedAtTime,
     electionDefinition,
     electionPackageHash,
-    expectPrecinctSelection: true,
     precinctSelection,
   });
   // Readiness report PDF shouldn't be too long, so we don't expect a render error

@@ -1,7 +1,15 @@
 import { ThemeProvider } from 'styled-components';
 import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import {
   ConfigurationSection,
   ConfigurationSectionProps,
+  PollingPlaceSection,
+  PollingPlaceSectionProps,
+  PrecinctSelectionSection,
+  PrecinctSelectionSectionProps,
 } from './configuration_section';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
@@ -27,6 +35,8 @@ type HeadphoneInputSectionProps = Omit<
 type UpsSectionProps = Omit<NonpresentationalSectionProps, 'isDeviceConnected'>;
 
 type ReportContentsProps = ConfigurationSectionProps &
+  PrecinctSelectionSectionProps &
+  PollingPlaceSectionProps &
   StorageSectionProps & {
     accessibleControllerProps: NonpresentationalSectionProps;
     paperHandlerProps: NonpresentationalSectionProps;
@@ -38,16 +48,34 @@ type ReportContentsProps = ConfigurationSectionProps &
 export function MarkScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
   const {
     accessibleControllerProps,
+    electionDefinition,
     headphoneInputProps,
     paperHandlerProps,
     patInputProps,
+    pollingPlaceId,
+    precinctSelection,
     upsProps,
   } = props;
+  const election = electionDefinition?.election;
+
   return (
     <ReportContents>
-      <ConfigurationSection {...props} expectPrecinctSelection />
+      <ConfigurationSection {...props}>
+        {isFeatureFlagEnabled(ENABLE_POLLING_PLACES) ? (
+          <PollingPlaceSection
+            election={election}
+            pollingPlaceId={pollingPlaceId}
+          />
+        ) : (
+          <PrecinctSelectionSection
+            election={election}
+            precinctSelection={precinctSelection}
+          />
+        )}
+      </ConfigurationSection>
       <StorageSection {...props} />
       <MarkScanDeviceDiagnosticSection
         {...accessibleControllerProps}
