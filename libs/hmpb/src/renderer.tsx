@@ -132,13 +132,11 @@ export function createDocument(pageHandle: PageHandle) {
      */
     async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
-      const pdf = Uint8Array.from(
-        await pageHandle.page().pdf({
-          width: `${pageDimensions.width}px`,
-          height: `${pageDimensions.height}px`,
-          printBackground: true,
-        })
-      );
+      const pdf = await pageHandle.page().pdf({
+        width: `${pageDimensions.width}px`,
+        height: `${pageDimensions.height}px`,
+        printBackground: true,
+      });
       return normalizePdf(pdf);
     },
 

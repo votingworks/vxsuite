@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { PDFDocument } from 'pdf-lib';
 import { normalizePdf } from './normalize_pdf';
 
@@ -17,8 +18,7 @@ export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
   // entries with zlib, which produces non-deterministic output. The trade-off
   // is a tiny size increase (~0.2%) but guarantees byte-identical output
   // across runs.
-  const result = Uint8Array.from(
-    await combinedPdf.save({ useObjectStreams: false })
+  return normalizePdf(
+    Buffer.from(await combinedPdf.save({ useObjectStreams: false }))
   );
-  return normalizePdf(result);
 }

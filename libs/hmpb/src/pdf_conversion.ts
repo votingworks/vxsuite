@@ -23,9 +23,7 @@ export async function convertPdfToGrayscale(
     tmpPdfFilePath,
   ]);
   try {
-    return normalizePdf(
-      Uint8Array.from(await readFile(tmpGrayscalePdfFilePath))
-    );
+    return normalizePdf(await readFile(tmpGrayscalePdfFilePath));
   } finally {
     await rm(tmpGrayscalePdfFilePath);
     await rm(tmpPdfFilePath);
@@ -50,7 +48,7 @@ export async function convertPdfToCmyk(pdf: Uint8Array): Promise<Uint8Array> {
     tmpPdfFilePath,
   ]);
   try {
-    return normalizePdf(Uint8Array.from(await readFile(tmpCmykPdfFilePath)));
+    return normalizePdf(await readFile(tmpCmykPdfFilePath));
   } finally {
     await rm(tmpCmykPdfFilePath);
     await rm(tmpPdfFilePath);

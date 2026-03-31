@@ -23,6 +23,9 @@ function renumberPdfObjects(str: string): string {
     match = defRegex.exec(str);
   }
 
+  // defRegex above only matches definitions (`N 0 obj`) to build the mapping.
+  // This replacement matches both definitions and references (`N 0 R`) to
+  // renumber all occurrences.
   let result = str.replace(/(\d+) 0 (obj|R)/g, (full, num, suffix) => {
     const newNum = oldToNew.get(num);
     return newNum !== undefined ? `${newNum} 0 ${suffix}` : full;
@@ -72,14 +75,19 @@ function renumberPdfObjects(str: string): string {
  * Idempotent — safe to apply after rendering and again after any
  * transformation (ghostscript, pdf-lib concatenation, etc.).
  */
-export function normalizePdf(pdf: Uint8Array): Uint8Array {
+export function normalizePdf(pdf: Buffer): Uint8Array {
   const ZERO_TIMESTAMP = "D:00000000000000+00'00'";
   const ZERO_XMP_DATE = '0000-00-00T00:00:00+00:00';
   const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
   const ZERO_HEX_ID = '0'.repeat(32);
   const CHROMIUM_NODE_ID_WIDTH = 8;
 
-  let str = Buffer.from(pdf).toString('latin1');
+  // Latin1 maps each byte 0x00–0xFF to the same Unicode code point, making it
+  // the only encoding that round-trips arbitrary bytes through JS strings
+  // losslessly. This lets us use regex on the ASCII-structured parts of the PDF
+  // (timestamps, object numbers, etc.) while binary data (compressed streams,
+  // images) passes through untouched and converts back to the original bytes.
+  let str = pdf.toString('latin1');
 
   // Chromium embeds the current time in CreationDate/ModDate. These are
   // metadata-only and don't affect rendering or content.
@@ -150,5 +158,5 @@ export function normalizePdf(pdf: Uint8Array): Uint8Array {
   );
 
   str = renumberPdfObjects(str);
-  return Uint8Array.from(Buffer.from(str, 'latin1'));
+  return Buffer.from(str, 'latin1');
 }

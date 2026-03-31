@@ -5,8 +5,8 @@ import * as path from 'node:path';
 import { safeParseInt } from '@votingworks/types';
 import { normalizePdf } from './normalize_pdf';
 
-function toBytes(str: string): Uint8Array {
-  return Uint8Array.from(Buffer.from(str, 'latin1'));
+function toBuffer(str: string): Buffer {
+  return Buffer.from(str, 'latin1');
 }
 
 function fromBytes(bytes: Uint8Array): string {
@@ -73,7 +73,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain("/CreationDate (D:00000000000000+00'00')");
     expect(result).toContain("/ModDate (D:00000000000000+00'00')");
     expect(result).not.toMatch(/20260325/);
@@ -89,7 +89,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain("/CreationDate(D:00000000000000+00'00')");
     expect(result).toContain("/ModDate(D:00000000000000+00'00')");
   });
@@ -103,7 +103,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain(
       'node00000001 ref node00000002 ref node00000003 again'
     );
@@ -114,7 +114,7 @@ describe('normalizePdf', () => {
       objects: [{ num: 1, content: '<< /Type /Catalog >>' }],
       names: '(node00000001) 28 0 R (node00000002) 172 0 R',
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain('/Names []');
     expect(result).not.toMatch(/node00000/);
   });
@@ -130,7 +130,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain(
       '<xmp:ModifyDate>0000-00-00T00:00:00+00:00</xmp:ModifyDate>'
     );
@@ -149,7 +149,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain(
       "xapMM:DocumentID='uuid:00000000-0000-0000-0000-000000000000'"
     );
@@ -165,7 +165,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain(
       '/ID [<00000000000000000000000000000000><00000000000000000000000000000000>]'
     );
@@ -181,7 +181,7 @@ describe('normalizePdf', () => {
         },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain(
       '/ID [<00000000000000000000000000000000><00000000000000000000000000000000>]'
     );
@@ -194,7 +194,7 @@ describe('normalizePdf', () => {
         { num: 99, content: '<< /Type /Pages >>' },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain('1 0 obj');
     expect(result).toContain('/Pages 2 0 R');
     expect(result).toContain('2 0 obj');
@@ -209,7 +209,7 @@ describe('normalizePdf', () => {
         { num: 20, content: '<< /Type /Pages >>' },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
 
     const xrefMatch = result.match(/xref\n0 (\d+)\n([\s\S]*?)trailer/);
     expect(xrefMatch).toBeTruthy();
@@ -231,7 +231,7 @@ describe('normalizePdf', () => {
         { num: 15, content: '<< /Length 0 >>' },
       ],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
     expect(result).toContain('/Size 4'); // 3 objects + 1 free entry
   });
 
@@ -239,7 +239,7 @@ describe('normalizePdf', () => {
     const pdf = makePdf({
       objects: [{ num: 1, content: '<< /Type /Catalog >>' }],
     });
-    const result = fromBytes(normalizePdf(toBytes(pdf)));
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
 
     const startxrefMatch = result.match(/startxref\n(\d+)/);
     expect(startxrefMatch).toBeTruthy();
@@ -260,8 +260,8 @@ describe('normalizePdf', () => {
         { num: 28, content: '<< /Type /Pages >>' },
       ],
     });
-    const result1 = fromBytes(normalizePdf(toBytes(pdf1)));
-    const result2 = fromBytes(normalizePdf(toBytes(pdf2)));
+    const result1 = fromBytes(normalizePdf(toBuffer(pdf1)));
+    const result2 = fromBytes(normalizePdf(toBuffer(pdf2)));
     expect(result1).toEqual(result2);
   });
 
@@ -270,7 +270,7 @@ describe('normalizePdf', () => {
       __dirname,
       '../fixtures/calibration-sheet/calibration-sheet-letter.pdf'
     );
-    const pdf = Uint8Array.from(fs.readFileSync(fixturePath));
+    const pdf = fs.readFileSync(fixturePath);
     const normalized = normalizePdf(pdf);
 
     const originalStreams = extractContentStreams(pdf);
@@ -291,8 +291,8 @@ describe('normalizePdf', () => {
       ],
       names: '(node00000042) 28 0 R',
     });
-    const once = normalizePdf(toBytes(pdf));
-    const twice = normalizePdf(once);
+    const once = normalizePdf(toBuffer(pdf));
+    const twice = normalizePdf(Buffer.from(once));
     expect(fromBytes(once)).toEqual(fromBytes(twice));
   });
 });
