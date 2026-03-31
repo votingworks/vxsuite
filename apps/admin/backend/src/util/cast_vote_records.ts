@@ -142,7 +142,6 @@ export function deriveCvrContestTag({
     (r) => r.contestId === contestId && r.isUnmarked
   );
 
-  // Detect scanner-identified marginal marks
   let hasMarginalMark =
     adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
     markScores !== undefined &&
@@ -159,16 +158,22 @@ export function deriveCvrContestTag({
     adminAdjudicationReasons.includes(AdjudicationReason.Undervote) &&
     votes.length < votesAllowed;
 
-  // If adjudicated votes differ from scanned votes, the user detected
-  // an issue the scanner missed — reflect that in the flags
+  // If adjudicated votes differ from scanned votes for non-write-in
+  // options, the user corrected a mark the scanner misread
   if (adjudicatedVotes) {
-    const scannedSet = new Set(votes);
-    const adjudicatedSet = new Set(adjudicatedVotes);
-    const votesChanged =
-      scannedSet.size !== adjudicatedSet.size ||
-      votes.some((v) => !adjudicatedSet.has(v));
+    const scannedCandidateVotes = new Set(
+      votes.filter((v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID))
+    );
+    const adjudicatedCandidateVotes = new Set(
+      adjudicatedVotes.filter(
+        (v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
+      )
+    );
+    const candidateVotesChanged =
+      scannedCandidateVotes.size !== adjudicatedCandidateVotes.size ||
+      [...scannedCandidateVotes].some((v) => !adjudicatedCandidateVotes.has(v));
 
-    if (votesChanged) {
+    if (candidateVotesChanged) {
       hasMarginalMark = true;
     }
 

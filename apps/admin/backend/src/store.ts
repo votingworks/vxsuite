@@ -2043,7 +2043,6 @@ export class Store implements BaseStore {
         ].map((option) => {
           const initialVote = contestVotes.includes(option.id);
 
-          // Reconstruct per-option VoteAdjudication for API compatibility
           let voteAdjudication: VoteAdjudication | undefined;
           if (contestAdjudicatedVotes) {
             const adjudicatedIsVote = contestAdjudicatedVotes.includes(

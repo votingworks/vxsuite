@@ -166,48 +166,43 @@ export function adjudicateCvrContest(
   });
 
   return store.withTransaction(() => {
-    // Start from scanned votes, then override with adjudicated options
     const { votes } = store.getCastVoteRecordVoteInfo({ electionId, cvrId });
-    const scannedContestVotes = new Set(votes[contestId]);
 
-    // Build the adjudicated vote set: start with scanned votes, apply overrides
-    const adjudicatedVoteSet = new Set(scannedContestVotes);
-
-    for (const [optionId, adjudicatedContestOption] of Object.entries(
+    const adjudicatedVotes = new Set(votes[contestId]);
+    for (const [optionId, option] of Object.entries(
       adjudicatedContestOptionById
     )) {
-      const { hasVote: isVote, type } = adjudicatedContestOption;
-
-      if (isVote) {
-        adjudicatedVoteSet.add(optionId);
+      if (option.hasVote) {
+        adjudicatedVotes.add(optionId);
       } else {
-        adjudicatedVoteSet.delete(optionId);
+        adjudicatedVotes.delete(optionId);
       }
+    }
+    store.setContestAdjudicatedVotes({
+      cvrId,
+      contestId,
+      votes: [...adjudicatedVotes],
+    });
 
-      if (type === 'candidate-option') {
+    // Handle write-ins
+    for (const [optionId, option] of Object.entries(
+      adjudicatedContestOptionById
+    )) {
+      if (option.type === 'candidate-option') {
         continue;
       }
 
-      // write-in option
       let writeInId = cvrWriteInRecords.find(
         (record) => record.optionId === optionId
       )?.id;
 
-      if (!isVote) {
+      if (!option.hasVote) {
         if (writeInId) {
-          adjudicateWriteIn(
-            {
-              type: 'invalid',
-              writeInId,
-            },
-            store,
-            logger
-          );
+          adjudicateWriteIn({ type: 'invalid', writeInId }, store, logger);
         }
         continue;
       }
 
-      // isVote = true
       if (!writeInId) {
         writeInId = store.addWriteIn({
           castVoteRecordId: cvrId,
@@ -220,39 +215,32 @@ export function adjudicateCvrContest(
         });
       }
 
-      const { candidateType } = adjudicatedContestOption;
+      const { candidateType } = option;
       switch (candidateType) {
-        case 'official-candidate': {
-          const { candidateId } = adjudicatedContestOption;
+        case 'official-candidate':
           adjudicateWriteIn(
             {
               type: 'official-candidate',
               writeInId,
-              candidateId,
+              candidateId: option.candidateId,
             },
             store,
             logger
           );
           break;
-        }
         case 'write-in-candidate': {
-          const { candidateName } = adjudicatedContestOption;
           let candidateId = contestWriteInCandidates.find(
-            (c) => c.name === candidateName
+            (c) => c.name === option.candidateName
           )?.id;
           if (!candidateId) {
             candidateId = store.addWriteInCandidate({
               electionId,
               contestId,
-              name: candidateName,
+              name: option.candidateName,
             }).id;
           }
           adjudicateWriteIn(
-            {
-              type: 'write-in-candidate',
-              writeInId,
-              candidateId,
-            },
+            { type: 'write-in-candidate', writeInId, candidateId },
             store,
             logger
           );
@@ -260,29 +248,11 @@ export function adjudicateCvrContest(
         }
         default: {
           /* istanbul ignore next - @preserve */
-          throwIllegalValue(adjudicatedContestOption, 'type');
+          throwIllegalValue(option, 'type');
         }
       }
     }
-
-    // Store the adjudicated votes for this contest
-    const adjudicatedVoteOptionIds = [...adjudicatedVoteSet];
-    store.setContestAdjudicatedVotes({
-      cvrId,
-      contestId,
-      votes: adjudicatedVoteOptionIds,
-    });
   });
-}
-
-/**
- * Resolves the ballot tag and all remaining unresolved contest tags.
- */
-export function resolveBallotTags(
-  { cvrId }: { cvrId: Id },
-  store: Store
-): void {
-  store.setCvrResolved({ cvrId });
 }
 
 /**

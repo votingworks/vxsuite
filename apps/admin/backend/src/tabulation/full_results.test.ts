@@ -30,11 +30,7 @@ import {
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
 import { adjudicateCvrContest } from '../adjudication';
-import {
-  AdjudicatedContestOption,
-  ContestOptionAdjudicationData,
-  WriteInRecord,
-} from '../types';
+import { AdjudicatedContestOption, WriteInRecord } from '../types';
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -63,61 +59,27 @@ afterEach(() => {
 
 /**
  * Adjudicates a single write-in through {@link adjudicateCvrContest}.
- * Uses {@link Store.getBallotAdjudicationData} to read the current contest
- * state, preserving other options' current votes, and applying the write-in
- * action.
+ * Only the target write-in option is specified; other options retain
+ * their scanned votes.
  */
 function adjudicateWriteIn({
   store,
-  electionId,
   contestId,
   writeIn,
   adjudicatedOption,
   logger,
 }: {
   store: Store;
-  electionId: string;
   contestId: string;
   writeIn: WriteInRecord;
   adjudicatedOption: AdjudicatedContestOption;
   logger: BaseLogger;
 }): void {
-  const adjData = store.getBallotAdjudicationData({
-    electionId,
-    cvrId: writeIn.cvrId,
-  });
-  const contestData = adjData.contests.find((c) => c.contestId === contestId);
-  assert(contestData !== undefined);
-
-  function currentVote(option: ContestOptionAdjudicationData): boolean {
-    return option.voteAdjudication
-      ? option.voteAdjudication.isVote
-      : option.initialVote;
-  }
-
-  const adjudicatedContestOptionById: Record<string, AdjudicatedContestOption> =
-    {};
-  for (const option of contestData.options) {
-    const isWriteInOption =
-      option.definition.type === 'candidate' && option.definition.isWriteIn;
-    if (!isWriteInOption) {
-      adjudicatedContestOptionById[option.definition.id] = {
-        type: 'candidate-option',
-        hasVote: currentVote(option),
-      };
-    } else if (option.definition.id === writeIn.optionId) {
-      adjudicatedContestOptionById[option.definition.id] = adjudicatedOption;
-    } else {
-      adjudicatedContestOptionById[option.definition.id] = {
-        type: 'write-in-option',
-        hasVote: false,
-      };
-    }
-  }
-
   adjudicateCvrContest(
     {
-      adjudicatedContestOptionById,
+      adjudicatedContestOptionById: {
+        [writeIn.optionId]: adjudicatedOption,
+      },
       cvrId: writeIn.cvrId,
       contestId,
       side: 'front',
@@ -456,7 +418,6 @@ test('tabulateElectionResults - write-in handling', async () => {
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
   const adjudicateArgs = {
     store,
-    electionId,
     contestId: candidateContestId,
     logger,
   } as const;
@@ -816,7 +777,6 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   for (const writeIn of writeIns) {
     adjudicateWriteIn({
       store,
-      electionId,
       contestId: candidateContestId,
       writeIn,
       adjudicatedOption: { type: 'write-in-option', hasVote: false },

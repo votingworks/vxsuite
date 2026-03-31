@@ -208,20 +208,21 @@ const DEFAULT_THRESHOLDS: MarkThresholds = {
   definite: 0.07,
   writeInTextArea: 0.05,
 };
+
 // eslint-disable-next-line vx/gts-object-literal-types
-const BASE_TAG_ARGS = {
+const BASE_ARGS = {
   cvrId: 'cvr-1',
   contestId: 'zoo-council-mammal',
   contest: candidateContest,
   writeInRecords: [],
   markThresholds: DEFAULT_THRESHOLDS,
-  adminAdjudicationReasons: [] as AdjudicationReason[],
+  adminAdjudicationReasons: [],
 };
 
 test('deriveCvrContestTag - returns undefined for normal contest', () => {
   expect(
     deriveCvrContestTag({
-      ...BASE_TAG_ARGS,
+      ...BASE_ARGS,
       votes: ['zebra', 'lion', 'kangaroo'],
     })
   ).toBeUndefined();
@@ -229,7 +230,7 @@ test('deriveCvrContestTag - returns undefined for normal contest', () => {
 
 test('deriveCvrContestTag - overvote with reason enabled', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra', 'lion', 'kangaroo', 'elephant'],
     adminAdjudicationReasons: [AdjudicationReason.Overvote],
   });
@@ -241,7 +242,7 @@ test('deriveCvrContestTag - overvote with reason enabled', () => {
 test('deriveCvrContestTag - overvote with reason disabled', () => {
   expect(
     deriveCvrContestTag({
-      ...BASE_TAG_ARGS,
+      ...BASE_ARGS,
       votes: ['zebra', 'lion', 'kangaroo', 'elephant'],
     })
   ).toBeUndefined();
@@ -249,7 +250,7 @@ test('deriveCvrContestTag - overvote with reason disabled', () => {
 
 test('deriveCvrContestTag - undervote with reason enabled', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra'],
     adminAdjudicationReasons: [AdjudicationReason.Undervote],
   });
@@ -260,7 +261,7 @@ test('deriveCvrContestTag - undervote with reason enabled', () => {
 test('deriveCvrContestTag - undervote with reason disabled', () => {
   expect(
     deriveCvrContestTag({
-      ...BASE_TAG_ARGS,
+      ...BASE_ARGS,
       votes: ['zebra'],
     })
   ).toBeUndefined();
@@ -268,7 +269,7 @@ test('deriveCvrContestTag - undervote with reason disabled', () => {
 
 test('deriveCvrContestTag - marginal mark with reason enabled', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra', 'lion', 'kangaroo'],
     markScores: { zebra: 0.5, lion: 0.5, kangaroo: 0.06 },
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
@@ -280,7 +281,7 @@ test('deriveCvrContestTag - marginal mark with reason enabled', () => {
 test('deriveCvrContestTag - marginal mark with reason disabled', () => {
   expect(
     deriveCvrContestTag({
-      ...BASE_TAG_ARGS,
+      ...BASE_ARGS,
       votes: ['zebra', 'lion', 'kangaroo'],
       markScores: { zebra: 0.5, lion: 0.5, kangaroo: 0.06 },
     })
@@ -289,7 +290,7 @@ test('deriveCvrContestTag - marginal mark with reason disabled', () => {
 
 test('deriveCvrContestTag - adjudicated votes that differ set hasMarginalMark', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra', 'lion', 'kangaroo'],
     adjudicatedVotes: ['zebra', 'lion', 'elephant'],
   });
@@ -298,9 +299,21 @@ test('deriveCvrContestTag - adjudicated votes that differ set hasMarginalMark', 
   expect(tag?.isResolved).toEqual(true);
 });
 
+test('deriveCvrContestTag - write-in only vote change does not set hasMarginalMark', () => {
+  const tag = deriveCvrContestTag({
+    ...BASE_ARGS,
+    votes: ['zebra', 'lion', 'write-in-0'],
+    adjudicatedVotes: ['zebra', 'lion'],
+    adminAdjudicationReasons: [AdjudicationReason.Undervote],
+  });
+  expect(tag).toBeDefined();
+  expect(tag?.hasMarginalMark).toEqual(false);
+  expect(tag?.hasUndervote).toEqual(true);
+});
+
 test('deriveCvrContestTag - adjudicated votes create undervote', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra', 'lion', 'kangaroo'],
     adjudicatedVotes: ['zebra'],
   });
@@ -311,7 +324,7 @@ test('deriveCvrContestTag - adjudicated votes create undervote', () => {
 
 test('deriveCvrContestTag - adjudicated votes create overvote', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra', 'lion', 'kangaroo'],
     adjudicatedVotes: ['zebra', 'lion', 'kangaroo', 'elephant'],
   });
@@ -321,7 +334,7 @@ test('deriveCvrContestTag - adjudicated votes create overvote', () => {
 
 test('deriveCvrContestTag - isResolved when adjudicatedVotes present', () => {
   const tag = deriveCvrContestTag({
-    ...BASE_TAG_ARGS,
+    ...BASE_ARGS,
     votes: ['zebra', 'lion', 'kangaroo'],
     adjudicatedVotes: ['zebra', 'lion', 'kangaroo'],
     adminAdjudicationReasons: [AdjudicationReason.Undervote],

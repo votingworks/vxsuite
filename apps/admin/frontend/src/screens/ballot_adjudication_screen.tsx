@@ -17,7 +17,7 @@ import type {
 import { useHistory } from 'react-router-dom';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
-  resolveBallotTags,
+  setCvrResolved,
   getBallotAdjudicationData,
   getBallotAdjudicationQueue,
   getBallotImages,
@@ -218,7 +218,7 @@ function BallotAdjudicationScreen({
   });
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const resolveBallotTagsMutation = resolveBallotTags.useMutation();
+  const setCvrResolvedMutation = setCvrResolved.useMutation();
 
   // Prefetch the next and previous ballot images
   const prefetchImageViews = getBallotImages.usePrefetch();
@@ -344,7 +344,7 @@ function BallotAdjudicationScreen({
   async function confirmAcceptAndNext(): Promise<void> {
     setShowConfirmModal(false);
     try {
-      await resolveBallotTagsMutation.mutateAsync({ cvrId });
+      await setCvrResolvedMutation.mutateAsync({ cvrId });
       navigateNext();
     } catch {
       // Handled by default query client error handling

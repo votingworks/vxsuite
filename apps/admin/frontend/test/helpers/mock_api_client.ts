@@ -367,8 +367,8 @@ export function createApiMock(
       apiClient.getBallotAdjudicationData.expectCallWith(input).resolves(data);
     },
 
-    expectResolveBallotTags(input: { cvrId: Id }) {
-      apiClient.resolveBallotTags.expectCallWith(input).resolves();
+    expectSetCvrResolved(input: { cvrId: Id }) {
+      apiClient.setCvrResolved.expectCallWith(input).resolves();
     },
 
     expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {

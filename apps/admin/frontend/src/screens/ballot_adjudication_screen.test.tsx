@@ -409,7 +409,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
   await screen.findByText('Incomplete Adjudication');
 
   // click Accept Anyway -> resolves ballot and navigates to start screen
-  apiMock.expectResolveBallotTags({ cvrId: CVR_ID_1 });
+  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
   // invalidated queries refetch after resolve
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotAdjudicationQueue([]);
@@ -691,7 +691,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   await screen.findByText('Ballot 1 of 3');
   expect(screen.queryByText(/Blank Ballot/)).not.toBeInTheDocument();
 
-  apiMock.expectResolveBallotTags({ cvrId: CVR_ID_1 });
+  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
@@ -715,7 +715,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
 
   // Blank ballot with only undervotes counts as allResolved, so Accept
   // directly resolves without a confirmation modal
-  apiMock.expectResolveBallotTags({ cvrId: CVR_ID_2 });
+  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_2 });
   apiMock.expectGetBallotAdjudicationData(
     { cvrId: CVR_ID_2 },
     adjData2Resolved
