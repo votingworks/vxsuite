@@ -142,6 +142,7 @@ export async function start({
   );
   signal?.addEventListener(
     'abort',
+    /* istanbul ignore next - @preserve */
     () => {
       stopDetectingDevices();
       server.close();

@@ -247,6 +247,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
   });
   signal?.addEventListener(
     'abort',
+    /* istanbul ignore next - @preserve */
     () => {
       stopDetectingDevices();
       server.close();
