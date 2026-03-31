@@ -4,13 +4,15 @@ import {
   hasOnlineInterface,
   isValidIpv4Address,
 } from '@votingworks/networking';
-import { assert } from '@votingworks/basics';
+import { assert, deepEqual } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   Admin,
+  formatElectionHashes,
   safeParseElectionDefinition,
   type UserRole,
 } from '@votingworks/types';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore, HostConnection } from './client_store';
@@ -67,14 +69,43 @@ export function startHostNetworking({
   machineId,
   peerPort,
   store,
+  logger,
 }: {
   machineId: string;
   peerPort: number;
   store: Store;
+  logger: BaseLogger;
 }): void {
   const serviceName = getHostServiceName(machineId);
   debug('Publishing avahi service %s on port %d', serviceName, peerPort);
   AvahiService.advertiseHttpService(serviceName, peerPort);
+  logger.log(LogEventId.AdminNetworkStatus, 'system', {
+    message: `Published avahi service ${serviceName} on port ${peerPort}.`,
+  });
+
+  type HostNetworkStatus = 'offline' | 'online' | 'multipleHosts';
+
+  let previousStatus: HostNetworkStatus | undefined;
+
+  function logStatusTransition(
+    newStatus: HostNetworkStatus,
+    extra: Record<string, string> = {}
+  ): void {
+    if (newStatus === previousStatus) return;
+    const messages: Record<HostNetworkStatus, string> = {
+      offline: 'Host network interface is offline.',
+      online: 'Host network interface is online.',
+      multipleHosts: 'Multiple VxAdmin hosts detected on network.',
+    };
+    logger.log(LogEventId.AdminNetworkStatus, 'system', {
+      message: messages[newStatus],
+      disposition: newStatus === 'offline' ? 'failure' : 'success',
+      previousStatus: previousStatus ?? 'unknown',
+      newStatus,
+      ...extra,
+    });
+    previousStatus = newStatus;
+  }
 
   let isPolling = false;
 
@@ -94,35 +125,47 @@ export function startHostNetworking({
             : Admin.ClientMachineStatus.Offline
         );
 
-        if (isOnline) {
-          const services = await AvahiService.discoverHttpServices();
-          const otherHosts = services.filter(
-            (s) =>
-              s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX) &&
-              s.name !== serviceName
+        if (!isOnline) {
+          logStatusTransition('offline');
+          store.cleanupStaleMachines();
+          return;
+        }
+
+        const services = await AvahiService.discoverHttpServices();
+        const otherHosts = services.filter(
+          (s) =>
+            s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX) &&
+            s.name !== serviceName
+        );
+        for (const otherHost of otherHosts) {
+          if (!isValidIpv4Address(otherHost.resolvedIp)) continue;
+          const otherMachineId = otherHost.name.replace(
+            `${AVAHI_SERVICE_NAME_PREFIX}-`,
+            ''
           );
-          for (const otherHost of otherHosts) {
-            if (!isValidIpv4Address(otherHost.resolvedIp)) continue;
-            const otherMachineId = otherHost.name.replace(
-              `${AVAHI_SERVICE_NAME_PREFIX}-`,
-              ''
+          try {
+            const address = `http://${otherHost.resolvedIp}:${otherHost.port}`;
+            const peerClient = createPeerApiClient(address);
+            await peerClient.getCurrentElectionMetadata();
+            store.setNetworkedMachineStatus(
+              otherMachineId,
+              'host',
+              Admin.ClientMachineStatus.Active
             );
-            try {
-              const address = `http://${otherHost.resolvedIp}:${otherHost.port}`;
-              const peerClient = createPeerApiClient(address);
-              await peerClient.getCurrentElectionMetadata();
-              store.setNetworkedMachineStatus(
-                otherMachineId,
-                'host',
-                Admin.ClientMachineStatus.Active
-              );
-            } catch {
-              debug(
-                'Failed to communicate with other host %s, ignoring',
-                otherHost.name
-              );
-            }
+          } catch {
+            debug(
+              'Failed to communicate with other host %s, ignoring',
+              otherHost.name
+            );
           }
+        }
+
+        if (otherHosts.length > 1) {
+          logStatusTransition('multipleHosts', {
+            hostCount: String(otherHosts.length),
+          });
+        } else {
+          logStatusTransition('online');
         }
 
         store.cleanupStaleMachines();
@@ -143,14 +186,62 @@ export function startClientNetworking({
   machineId,
   clientStore,
   auth,
+  logger,
 }: {
   machineId: string;
   clientStore: ClientStore;
   auth: DippedSmartCardAuthApi;
+  logger: BaseLogger;
 }): void {
   debug('Starting client networking for machine %s', machineId);
+  logger.log(LogEventId.AdminNetworkStatus, 'system', {
+    message: `Starting client networking for machine ${machineId}.`,
+  });
 
   let isPolling = false;
+
+  interface ClientNetworkState {
+    connectionStatus: ClientConnectionStatus;
+    isClientAdjudicationEnabled?: boolean;
+  }
+  let previousState: ClientNetworkState | undefined;
+
+  function logStatusTransition(
+    input: ClientNetworkState,
+    extra: Record<string, string> = {}
+  ): void {
+    const newState: Required<ClientNetworkState> = {
+      connectionStatus: input.connectionStatus,
+      isClientAdjudicationEnabled: input.isClientAdjudicationEnabled ?? false,
+    };
+
+    if (deepEqual(previousState, newState)) return;
+
+    if (previousState?.connectionStatus !== newState.connectionStatus) {
+      logger.log(LogEventId.AdminNetworkStatus, 'system', {
+        message: `Client connection status changed from ${
+          previousState?.connectionStatus ?? 'unknown'
+        } to ${newState.connectionStatus}.`,
+        previousStatus: previousState?.connectionStatus ?? 'unknown',
+        newStatus: newState.connectionStatus,
+        ...extra,
+      });
+    }
+
+    if (
+      (previousState?.isClientAdjudicationEnabled ?? false) !==
+      newState.isClientAdjudicationEnabled
+    ) {
+      logger.log(LogEventId.AdminNetworkStatus, 'system', {
+        message: `Client adjudication ${
+          newState.isClientAdjudicationEnabled ? 'enabled' : 'disabled'
+        } by host.`,
+        disposition: 'success',
+      });
+    }
+
+    previousState = newState;
+  }
 
   process.nextTick(() => {
     setInterval(async () => {
@@ -161,6 +252,9 @@ export function startClientNetworking({
       try {
         if (!(await hasOnlineInterface())) {
           debug('No online interface found, skipping discovery');
+          logStatusTransition({
+            connectionStatus: ClientConnectionStatus.Offline,
+          });
           clientStore.setConnection(ClientConnectionStatus.Offline);
           return;
         }
@@ -176,6 +270,9 @@ export function startClientNetworking({
           if (existing) {
             debug('Lost connection to host at %s', existing.address);
           }
+          logStatusTransition({
+            connectionStatus: ClientConnectionStatus.OnlineWaitingForHost,
+          });
           clientStore.setConnection(
             ClientConnectionStatus.OnlineWaitingForHost
           );
@@ -201,6 +298,13 @@ export function startClientNetworking({
           debug(
             'Multiple reachable VxAdmin hosts found on network (%d), refusing to connect',
             reachableHosts.length
+          );
+          logStatusTransition(
+            {
+              connectionStatus:
+                ClientConnectionStatus.OnlineMultipleHostsDetected,
+            },
+            { hostCount: String(hostServices.length) }
           );
           clientStore.setConnection(
             ClientConnectionStatus.OnlineMultipleHostsDetected
@@ -229,6 +333,14 @@ export function startClientNetworking({
             status,
             authType,
           });
+          logStatusTransition(
+            {
+              connectionStatus: ClientConnectionStatus.OnlineConnectedToHost,
+              isClientAdjudicationEnabled:
+                hostConfig.isClientAdjudicationEnabled,
+            },
+            { hostMachineId: hostConfig.machineId }
+          );
           clientStore.setConnection(
             ClientConnectionStatus.OnlineConnectedToHost,
             {
@@ -262,6 +374,12 @@ export function startClientNetworking({
                   electionRecord.electionDefinition.electionData
                 ).unsafeUnwrap();
                 assert(systemSettings !== undefined);
+                logger.log(LogEventId.AdminNetworkStatus, 'system', {
+                  message: `Election package hash changed, syncing new election data from host. Election ID: ${formatElectionHashes(
+                    parsed.ballotHash,
+                    remoteHash
+                  )}.`,
+                });
                 clientStore.setCachedElectionRecord({
                   ...electionRecord,
                   electionDefinition: parsed,
@@ -269,8 +387,11 @@ export function startClientNetworking({
                 clientStore.setCachedSystemSettings(systemSettings);
               }
             } else {
-              // Transitioning from configured → unconfigured
               debug('Host election unconfigured, clearing cached data');
+              logger.log(LogEventId.AdminNetworkStatus, 'system', {
+                message:
+                  'Host election unconfigured, clearing cached election data.',
+              });
               clientStore.setCachedElectionRecord(undefined);
               clientStore.setCachedSystemSettings(undefined);
               auth.logOut(constructAuthMachineState(clientStore));
@@ -278,6 +399,9 @@ export function startClientNetworking({
           }
         } catch (error) {
           debug('Lost connection to host at %s: %s', hostAddress, error);
+          logStatusTransition({
+            connectionStatus: ClientConnectionStatus.OnlineWaitingForHost,
+          });
           clientStore.setConnection(
             ClientConnectionStatus.OnlineWaitingForHost
           );

@@ -91,18 +91,24 @@ async function setupHostAndClient(
   clientMachineId: string
 ): Promise<HostAndClientContext> {
   const tmpDir = makeTemporaryDirectory();
-  const workspace = createWorkspace(tmpDir, mockBaseLogger({ fn: vi.fn }));
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const workspace = createWorkspace(tmpDir, logger);
   const { store } = workspace;
-  const peerApp = buildPeerApp({ workspace });
+  const peerApp = buildPeerApp({ workspace, logger });
   peerServer = peerApp.listen();
   const { port: peerPort } = peerServer.address() as AddressInfo;
   const clientStore = new ClientStore();
 
   mockHasOnlineInterface.mockResolvedValue(true);
 
-  startHostNetworking({ machineId: hostMachineId, peerPort, store });
+  startHostNetworking({ machineId: hostMachineId, peerPort, store, logger });
   const auth = buildMockDippedSmartCardAuth(vi.fn);
-  startClientNetworking({ machineId: clientMachineId, clientStore, auth });
+  startClientNetworking({
+    machineId: clientMachineId,
+    clientStore,
+    auth,
+    logger,
+  });
 
   // Allow process.nextTick callbacks to fire so setIntervals get registered
   await vi.advanceTimersByTimeAsync(0);

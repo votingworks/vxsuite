@@ -76,6 +76,20 @@ test('setMachineMode and getMachineMode round-trip', async () => {
   expect(await env.apiClient.getMachineMode()).toEqual('host');
 });
 
+test('setMachineMode throws when election is configured', async () => {
+  const mockRecord: ElectionRecord = {
+    id: 'election-1',
+    electionDefinition: readElectionGeneralDefinition(),
+    createdAt: new Date().toISOString(),
+    isOfficialResults: false,
+    electionPackageHash: 'test-hash',
+  };
+  env.workspace.clientStore.setCachedElectionRecord(mockRecord);
+  await expect(env.apiClient.setMachineMode({ mode: 'host' })).rejects.toThrow(
+    'Cannot change machine mode while an election is configured.'
+  );
+});
+
 test('getAdjudicationSessionStatus returns disabled by default', async () => {
   const result = await env.apiClient.getAdjudicationSessionStatus();
   expect(result).toEqual({ isClientAdjudicationEnabled: false });

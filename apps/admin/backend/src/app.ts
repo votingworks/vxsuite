@@ -94,7 +94,6 @@ import {
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
-import { getHostServiceName } from './networking';
 import { getBallotImages } from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
@@ -153,6 +152,7 @@ import { saveReadinessReport } from './reports/readiness';
 import { constructAuthMachineState } from './util/auth';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
 import { generateReportsDirectoryPath } from './util/filenames';
+import { getHostServiceName } from './networking';
 
 const debug = rootDebug.extend('app');
 
@@ -245,7 +245,7 @@ function buildApi({
       return readMachineMode(workspace.path);
     },
 
-    setMachineMode(input: { mode: MachineMode }): void {
+    async setMachineMode(input: { mode: MachineMode }): Promise<void> {
       assert(
         store.getCurrentElectionId() === undefined,
         'Cannot change machine mode while an election is configured.'
@@ -255,6 +255,11 @@ function buildApi({
         AvahiService.stopAdvertisedService(getHostServiceName(machineId));
       }
       writeMachineMode(workspace.path, input.mode);
+      await logger.logAsCurrentRole(LogEventId.AdminMachineModeChanged, {
+        message: `Machine mode changed to ${input.mode}.`,
+        disposition: 'success',
+        newMode: input.mode,
+      });
     },
 
     getNetworkStatus(): {
@@ -280,8 +285,17 @@ function buildApi({
       return store.getIsClientAdjudicationEnabled();
     },
 
-    setIsClientAdjudicationEnabled(input: { enabled: boolean }) {
+    async setIsClientAdjudicationEnabled(input: {
+      enabled: boolean;
+    }): Promise<void> {
       store.setIsClientAdjudicationEnabled(input.enabled);
+      await logger.logAsCurrentRole(LogEventId.AdminClientAdjudicationToggled, {
+        message: `Client adjudication ${
+          input.enabled ? 'enabled' : 'disabled'
+        }.`,
+        disposition: 'success',
+        enabled: input.enabled,
+      });
     },
 
     getAuthStatus() {

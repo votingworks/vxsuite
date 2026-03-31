@@ -65,12 +65,17 @@ function buildClientApi({
       return readMachineMode(workspace.path);
     },
 
-    setMachineMode(input: { mode: MachineMode }): void {
+    async setMachineMode(input: { mode: MachineMode }): Promise<void> {
       assert(
         clientStore.getCurrentElectionId() === undefined,
         'Cannot change machine mode while an election is configured.'
       );
       writeMachineMode(workspace.path, input.mode);
+      await logger.logAsCurrentRole(LogEventId.AdminMachineModeChanged, {
+        message: `Machine mode changed to ${input.mode}.`,
+        disposition: 'success',
+        newMode: input.mode,
+      });
     },
 
     getNetworkConnectionStatus(): NetworkConnectionStatus {

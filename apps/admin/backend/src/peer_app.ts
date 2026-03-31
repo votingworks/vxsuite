@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { assert, Optional } from '@votingworks/basics';
 import { Admin, type SystemSettings, type UserRole } from '@votingworks/types';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionRecord, MachineConfig } from './types';
@@ -15,9 +16,10 @@ const debug = rootDebug.extend('peer-app');
  */
 export interface PeerAppContext {
   workspace: Workspace;
+  logger: BaseLogger;
 }
 
-function buildPeerApi({ workspace }: PeerAppContext) {
+function buildPeerApi({ workspace, logger }: PeerAppContext) {
   return grout.createApi({
     connectToHost(input: {
       machineId: string;
@@ -30,6 +32,22 @@ function buildPeerApi({ workspace }: PeerAppContext) {
         workspace.store.getCurrentElectionId() ?? 'none',
         input.status
       );
+      const previous = workspace.store.getMachine(input.machineId);
+      if (
+        previous?.status !== input.status ||
+        previous?.authType !== input.authType
+      ) {
+        logger.log(LogEventId.AdminNetworkStatus, 'system', {
+          message: previous
+            ? `Client ${input.machineId} status changed from ${previous.status} to ${input.status}.`
+            : `New client ${input.machineId} connected to host with status ${input.status}.`,
+          clientMachineId: input.machineId,
+          previousStatus: previous?.status ?? 'unknown',
+          newStatus: input.status,
+          previousAuthType: previous?.authType ?? 'none',
+          newAuthType: input.authType ?? 'none',
+        });
+      }
       workspace.store.setNetworkedMachineStatus(
         input.machineId,
         'client',
@@ -79,5 +97,8 @@ export function buildPeerApp(context: PeerAppContext): Application {
   const app: Application = express();
   const api = buildPeerApi(context);
   app.use('/api', grout.buildRouter(api, express));
+  context.logger.log(LogEventId.AdminNetworkStatus, 'system', {
+    message: 'Peer API server initialized.',
+  });
   return app;
 }
