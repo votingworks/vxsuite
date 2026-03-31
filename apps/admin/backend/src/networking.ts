@@ -313,6 +313,9 @@ export function startClientNetworking({
         }
 
         if (reachableHosts.length === 0) {
+          logStatusTransition({
+            connectionStatus: ClientConnectionStatus.OnlineWaitingForHost,
+          });
           clientStore.setConnection(
             ClientConnectionStatus.OnlineWaitingForHost
           );
