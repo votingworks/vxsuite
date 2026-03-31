@@ -14,6 +14,7 @@ import {
   Font,
 } from '@votingworks/ui';
 
+import { hasPartialRegisteredVoterCounts } from '@votingworks/types';
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
 import { Row } from './layout';
@@ -26,6 +27,9 @@ export function BallotsStatus(): React.ReactNode {
   const approvedAtQuery = api.getBallotsApprovedAt.useQuery(electionId);
   const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
   const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+  const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
+  const getRegisteredVoterCountsQuery =
+    api.getRegisteredVotersCounts.useQuery(electionId);
 
   const finalizeBallotsMutation = api.finalizeBallots.useMutation();
 
@@ -33,7 +37,9 @@ export function BallotsStatus(): React.ReactNode {
     !listBallotStylesQuery.isSuccess ||
     !finalizedAtQuery.isSuccess ||
     !approvedAtQuery.isSuccess ||
-    !getStateFeaturesQuery.isSuccess
+    !getStateFeaturesQuery.isSuccess ||
+    !listPrecinctsQuery.isSuccess ||
+    !getRegisteredVoterCountsQuery.isSuccess
   ) {
     return null;
   }
@@ -48,6 +54,25 @@ export function BallotsStatus(): React.ReactNode {
       <Callout color="neutral" icon={<Icons.Info />} title="Ballots Incomplete">
         VxDesign will create ballot styles for your election once you have
         created districts, precincts, and contests.
+      </Callout>
+    );
+  }
+
+  if (
+    hasPartialRegisteredVoterCounts(
+      listPrecinctsQuery.data,
+      getRegisteredVoterCountsQuery.data
+    )
+  ) {
+    return (
+      <Callout
+        color="neutral"
+        icon={<Icons.Info />}
+        title="Registered voter counts must be provided for all precincts and splits, or none."
+      >
+        Registered voter counts are set for some precincts but not all. Set
+        counts for all precincts or remove them from all precincts before
+        finalizing.
       </Callout>
     );
   }

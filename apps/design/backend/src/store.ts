@@ -56,6 +56,8 @@ import {
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
   ElectionRegisteredVotersCounts,
+  isPrecinctCount,
+  isSplitCounts,
 } from '@votingworks/types';
 import type { PrecinctRegisteredVotersCountEntry } from '@votingworks/types';
 import {
@@ -1745,7 +1747,8 @@ export class Store {
         );
         if (
           !hasSplits(precinct) &&
-          typeof registeredVotersCounts === 'number'
+          registeredVotersCounts !== undefined &&
+          isPrecinctCount(registeredVotersCounts)
         ) {
           await client.query(
             `
@@ -1765,7 +1768,11 @@ export class Store {
           `,
           precinct.id
         );
-        if (hasSplits(precinct) && typeof registeredVotersCounts === 'object') {
+        if (
+          hasSplits(precinct) &&
+          registeredVotersCounts !== undefined &&
+          isSplitCounts(registeredVotersCounts)
+        ) {
           for (const split of precinct.splits) {
             const splitCount = registeredVotersCounts.splits[split.id];
             if (splitCount !== undefined) {

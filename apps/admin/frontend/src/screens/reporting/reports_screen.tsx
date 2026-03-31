@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import {
   Election,
   ElectionRegisteredVotersCounts,
-  hasSplits,
+  hasPartialRegisteredVoterCounts,
 } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 
@@ -30,23 +30,18 @@ export function isVoterTurnoutReportEnabled(
   election: Election,
   registeredVoterCounts?: ElectionRegisteredVotersCounts | null
 ): boolean {
-  if (registeredVoterCounts === null || registeredVoterCounts === undefined) {
+  if (
+    registeredVoterCounts === null ||
+    registeredVoterCounts === undefined ||
+    Object.keys(registeredVoterCounts).length === 0
+  ) {
     return false;
   }
 
-  return election.precincts.every((precinct) => {
-    const counts = registeredVoterCounts[precinct.id];
-    if (counts === undefined) {
-      return false;
-    }
-    if (hasSplits(precinct)) {
-      if (typeof counts === 'number') {
-        return false;
-      }
-      return precinct.splits.every((split) => split.id in counts.splits);
-    }
-    return typeof counts === 'number';
-  });
+  return !hasPartialRegisteredVoterCounts(
+    election.precincts,
+    registeredVoterCounts
+  );
 }
 
 export function ReportsScreen(): JSX.Element {

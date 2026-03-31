@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { PrecinctId, PrecinctSplitId } from './election';
+import { hasSplits, Precinct, PrecinctId, PrecinctSplitId } from './election';
 
 /**
  * Registered voter counts for a precinct with splits, keyed by split ID.
@@ -27,6 +27,52 @@ export type ElectionRegisteredVotersCounts = Record<
   PrecinctId,
   PrecinctRegisteredVotersCountEntry
 >;
+
+export function isPrecinctCount(
+  entry: PrecinctRegisteredVotersCountEntry
+): entry is number {
+  return typeof entry === 'number';
+}
+
+export function isSplitCounts(
+  entry: PrecinctRegisteredVotersCountEntry
+): entry is PrecinctWithSplitsRegisteredVotersCounts {
+  return typeof entry === 'object';
+}
+
+export function hasPartialRegisteredVoterCounts(
+  precincts: readonly Precinct[],
+  counts: ElectionRegisteredVotersCounts
+): boolean {
+  let someHaveCount = false;
+  let someMissingCount = false;
+
+  for (const precinct of precincts) {
+    if (hasSplits(precinct)) {
+      const precinctEntry = counts[precinct.id];
+      for (const split of precinct.splits) {
+        if (
+          precinctEntry !== undefined &&
+          isSplitCounts(precinctEntry) &&
+          precinctEntry.splits[split.id] !== undefined
+        ) {
+          someHaveCount = true;
+        } else {
+          someMissingCount = true;
+        }
+      }
+    } else if (
+      counts[precinct.id] !== undefined &&
+      isPrecinctCount(counts[precinct.id])
+    ) {
+      someHaveCount = true;
+    } else {
+      someMissingCount = true;
+    }
+  }
+
+  return someHaveCount && someMissingCount;
+}
 
 export const PrecinctWithSplitsRegisteredVotersCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVotersCounts> =
   z.object({

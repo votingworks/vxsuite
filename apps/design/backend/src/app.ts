@@ -38,6 +38,7 @@ import {
   formatBallotHash,
   PollingPlaceSchema,
   PollingPlace,
+  hasPartialRegisteredVoterCounts,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -712,10 +713,22 @@ export function buildApi(ctx: AppContext) {
       input: { electionId: ElectionId },
       { user }: ApiContext
     ): Promise<void> {
+      const precincts = await store.listPrecincts(input.electionId);
+
       const jurisdiction = await store.getElectionJurisdiction(
         input.electionId
       );
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
+      if (!stateFeatures.DISABLE_REGISTERED_VOTERS_COUNTS) {
+        const registeredVoterCounts = await store.getRegisteredVotersCounts(
+          input.electionId
+        );
+        assert(
+          !hasPartialRegisteredVoterCounts(precincts, registeredVoterCounts),
+          'Registered voter counts must be provided for all precincts and splits or none'
+        );
+      }
 
       await store.createElectionPackageBackgroundTask({
         electionId: input.electionId,
