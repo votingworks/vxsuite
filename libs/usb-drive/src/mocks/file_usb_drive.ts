@@ -110,9 +110,7 @@ export function removeMockDriveDir(diskName: string): void {
   rmSync(getMockDriveDirPath(diskName), { recursive: true, force: true });
 }
 
-export function createMockFileUsbDrive(): UsbDrive {
-  const diskName = 'sdb';
-
+export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
   return {
     status(): Promise<UsbDriveStatus> {
       ensureMockDriveState(diskName);

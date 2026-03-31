@@ -290,7 +290,8 @@ export async function readElectionPackageFromFile(
   return result.isErr() ? result : ok({ ...result.ok(), fileContents });
 }
 
-async function getMostRecentElectionPackageFilepath(
+/** Finds the most recent election package ZIP on a mounted USB drive. */
+export async function getMostRecentElectionPackageFilepath(
   usbDrive: UsbDrive
 ): Promise<Result<string, ElectionPackageConfigurationError>> {
   const usbDriveStatus = await usbDrive.status();

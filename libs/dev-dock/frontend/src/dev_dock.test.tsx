@@ -85,7 +85,7 @@ beforeEach(() => {
   mockApiClient.getUsbDriveStatus
     .expectRepeatedCallsWith()
     .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
-  mockApiClient.getCurrentFixtureElectionPaths.expectCallWith().resolves([
+  mockApiClient.getAvailableElections.expectCallWith().resolves([
     {
       title: 'electionGeneral',
       inputPath: './libs/fixtures/data/electionGeneral/election.json',
@@ -127,7 +127,7 @@ test('renders nothing if dev dock is disabled', () => {
   mockApiClient.getElection.reset();
   mockApiClient.getUsbDriveStatus.reset();
   mockApiClient.getMockSpec.reset();
-  mockApiClient.getCurrentFixtureElectionPaths.reset();
+  mockApiClient.getAvailableElections.reset();
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );

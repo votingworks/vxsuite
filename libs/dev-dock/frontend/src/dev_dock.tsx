@@ -71,11 +71,11 @@ function ElectionControl(): JSX.Element | null {
     ['getElection'],
     async () => (await apiClient.getElection()) ?? null
   );
-  const currentFixturesQuery = useQuery(
-    ['getCurrentFixtureElectionPaths'],
-    async () => (await apiClient.getCurrentFixtureElectionPaths()) ?? null
+  const availableElectionsQuery = useQuery(
+    ['getAvailableElections'],
+    async () => (await apiClient.getAvailableElections()) ?? null
   );
-  const fixturesElections = currentFixturesQuery.data || [];
+  const availableElections = availableElectionsQuery.data || [];
   const setElectionMutation = useMutation(apiClient.setElection, {
     onSuccess: async () => await queryClient.invalidateQueries(['getElection']),
   });
@@ -108,7 +108,7 @@ function ElectionControl(): JSX.Element | null {
   }
 
   const elections = uniqueBy(
-    fixturesElections.concat(selectedElection ?? []),
+    availableElections.concat(selectedElection ?? []),
     (election) => election.inputPath
   );
 
