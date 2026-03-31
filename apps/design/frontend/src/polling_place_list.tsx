@@ -30,7 +30,7 @@ export function PollingPlaceList(
   ];
 
   // If no selection has been made yet, auto-select the first available polling
-  // place in the list, for user convenience,
+  // place in the list, for user convenience.
   if (!selectedId) {
     const firstNonEmpty = sublists.find((s) => s.places.length > 0);
     if (firstNonEmpty) setTimeout(() => onSelect(firstNonEmpty.places[0].id));
