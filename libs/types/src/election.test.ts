@@ -524,6 +524,20 @@ test('election schema', () => {
   }
 });
 
+test('election schema rejects primary with mixed partyId ballot styles', () => {
+  const mixedPrimary: Election = {
+    ...primaryElection,
+    ballotStyles: [
+      primaryElection.ballotStyles[0]!,
+      { ...primaryElection.ballotStyles[1]!, partyId: undefined },
+    ],
+  };
+  const result = safeParseElection(mixedPrimary);
+  expect(result.err()?.message).toContain(
+    'must either all have a partyId (closed primary) or all omit partyId (open primary)'
+  );
+});
+
 test('getCandidateParties', () => {
   expect(
     getCandidateParties(election.parties, {

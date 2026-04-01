@@ -913,6 +913,24 @@ export const ElectionSchema: z.ZodSchema<Election> = z
         }
       }
     }
+
+    if (election.type === 'primary') {
+      const hasBallotStyleWithPartyId = election.ballotStyles.some(
+        (bs) => bs.partyId
+      );
+      const hasBallotStyleWithoutPartyId = election.ballotStyles.some(
+        (bs) => !bs.partyId
+      );
+      if (hasBallotStyleWithPartyId && hasBallotStyleWithoutPartyId) {
+        ctx.issues.push({
+          code: 'custom',
+          path: ['ballotStyles'],
+          message:
+            'Primary election ballot styles must either all have a partyId (closed primary) or all omit partyId (open primary).',
+          input: election,
+        });
+      }
+    }
   });
 export type OptionalElection = Optional<Election>;
 export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
