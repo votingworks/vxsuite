@@ -369,6 +369,7 @@ mod test {
     use super::*;
     use crate::ballot_card::BallotImage;
     use image::GrayImage;
+    use proptest::prelude::*;
     use types_rs::ballot_card::BallotSide;
     use types_rs::geometry::Point;
 
@@ -451,5 +452,30 @@ mod test {
             &location,
             DEFAULT_MAXIMUM_SEARCH_DISTANCE,
         );
+    }
+
+    proptest! {
+        #[test]
+        fn score_bubble_mark_never_panics(
+            img_w in 10u32..200,
+            img_h in 10u32..200,
+            tmpl_w in 5u32..30,
+            tmpl_h in 5u32..30,
+            center_x in -20.0f32..220.0,
+            center_y in -20.0f32..220.0,
+            search_dist in 0u32..15,
+        ) {
+            let ballot_image = make_ballot_image(img_w, img_h);
+            let template = GrayImage::new(tmpl_w, tmpl_h);
+            let location = make_location();
+
+            let _ = score_bubble_mark(
+                &ballot_image,
+                &template,
+                Point { x: center_x, y: center_y },
+                &location,
+                search_dist,
+            );
+        }
     }
 }
