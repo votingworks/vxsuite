@@ -1,11 +1,4 @@
-import {
-  copyFile,
-  mkdir,
-  readFile,
-  rename,
-  stat,
-  writeFile,
-} from 'node:fs/promises';
+import { mkdir, rename, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { assert, err, ok, Result } from '@votingworks/basics';
@@ -16,18 +9,17 @@ import {
   BACKUP_IMAGES_DIR,
   BACKUP_ROOT_DIR,
   BackupManifest,
-  MANIFEST_FILENAME,
   RESTORE_IN_PROGRESS_DIR,
   RestoreProgress,
 } from './types';
 import {
   cleanupDirSafe,
   cleanupSafe,
+  copyFileWithHash,
   getAvailableDiskSpace,
   ignoreMissing,
 } from './fs_utils';
 import { BackupStopReason, validateBackup } from './backup';
-import { sha256File } from '../util/sha256_file';
 
 const debug = makeDebug('admin:restore');
 
@@ -179,17 +171,6 @@ async function doRestore(
   await mkdir(newWorkspacePath, { recursive: true });
   await mkdir(join(newWorkspacePath, 'ballot-images'), { recursive: true });
 
-  // 4. Write manifest for reference
-  const manifestJson = await readFile(
-    join(backupDirPath, MANIFEST_FILENAME),
-    'utf-8'
-  );
-  await writeFile(
-    join(restoreInProgressPath, MANIFEST_FILENAME),
-    manifestJson,
-    'utf-8'
-  );
-
   if (ctx.signal?.aborted) {
     return err({ type: 'cancelled' });
   }
@@ -215,10 +196,8 @@ async function doRestore(
     const destPath = join(newWorkspacePath, file.path);
 
     await mkdir(join(destPath, '..'), { recursive: true });
-    await copyFile(srcPath, destPath);
+    const { sha256: hash } = await copyFileWithHash(srcPath, destPath);
 
-    // Verify hash after copy
-    const hash = await sha256File(destPath);
     if (hash !== file.sha256) {
       return err({
         type: 'invalidFileHash',
@@ -261,7 +240,10 @@ async function doRestore(
   const newImagesPath = join(newWorkspacePath, BACKUP_IMAGES_DIR);
 
   await rename(newDbPath, ctx.dbPath);
-  if (!(await ignoreMissing(rename(newImagesPath, ctx.ballotImagesPath)))) {
+  const newImagesStat = await ignoreMissing(stat(newImagesPath));
+  if (newImagesStat) {
+    await rename(newImagesPath, ctx.ballotImagesPath);
+  } else {
     // Ensure ballot-images directory exists even if backup had none
     await mkdir(ctx.ballotImagesPath, { recursive: true });
   }

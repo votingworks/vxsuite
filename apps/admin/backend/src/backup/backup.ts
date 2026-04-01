@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
 import {
   link,
   mkdir,
@@ -10,8 +8,6 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { pipeline } from 'node:stream/promises';
-import { Transform } from 'node:stream';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
 import { assert, err, iter, ok, Result } from '@votingworks/basics';
@@ -38,6 +34,7 @@ import { sha256File } from '../util/sha256_file';
 import {
   cleanupDirSafe,
   cleanupSafe,
+  copyFileWithHash,
   formatBytes,
   getAvailableDiskSpace,
   ignoreMissing,
@@ -155,30 +152,6 @@ function getCurrentElectionBackupInfo(
       error: error instanceof Error ? error : new Error(String(error)),
     });
   }
-}
-
-/**
- * Copy a file while computing its SHA256 hash. Returns the hash.
- */
-async function copyFileWithHash(
-  src: string,
-  dest: string
-): Promise<{ sha256: string; size: number }> {
-  const hash = createHash('sha256');
-  const fileStat = await stat(src);
-
-  await pipeline(
-    createReadStream(src),
-    new Transform({
-      transform(chunk, _encoding, callback) {
-        hash.update(chunk);
-        callback(null, chunk);
-      },
-    }),
-    createWriteStream(dest)
-  );
-
-  return { sha256: hash.digest('hex'), size: fileStat.size };
 }
 
 /**
