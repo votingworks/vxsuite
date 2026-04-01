@@ -1,4 +1,10 @@
-import { Result, assert, assertDefined, ok, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  extractErrorMessage,
+  Optional,
+  sleep,
+} from '@votingworks/basics';
 import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ElectionDefinition,
@@ -63,6 +69,7 @@ export class Importer {
   private readonly workspace: Workspace;
   private readonly scanner: BatchScanner;
   private readonly logger: Logger;
+  private isStartingBatch = false;
   private currentBatch?: CurrentBatch;
 
   constructor({ workspace, scanner, logger }: Options) {
@@ -135,21 +142,17 @@ export class Importer {
     ballotAuditId?: string
   ): Promise<string> {
     let sheetId = uuid();
-    const interpretResult = await this.interpretSheet(sheetId, [
+    const sheetInterpretation = await this.interpretSheet(sheetId, [
       frontInputImageData,
       backInputImageData,
     ]);
 
-    if (interpretResult.isErr()) {
-      throw interpretResult.err();
-    }
-
     const [{ imagePath: frontImagePath }, { imagePath: backImagePath }] =
-      interpretResult.ok();
+      sheetInterpretation;
     let [
       { interpretation: frontInterpretation },
       { interpretation: backInterpretation },
-    ] = interpretResult.ok();
+    ] = sheetInterpretation;
 
     debug(
       'interpreted %s (%s): %O',
@@ -205,7 +208,7 @@ export class Importer {
   private async interpretSheet(
     sheetId: string,
     [frontImageData, backImageData]: SheetOf<ImageData>
-  ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
+  ): Promise<SheetOf<PageInterpretationWithFiles>> {
     const electionDefinition = this.getElectionDefinition();
     const { store } = this.workspace;
     const {
@@ -217,26 +220,24 @@ export class Importer {
       retryStreakWidthThreshold,
     } = assertDefined(store.getSystemSettings());
 
-    return ok(
-      await interpretSheetAndSaveImages(
-        {
-          electionDefinition,
-          precinctSelection: ALL_PRECINCTS_SELECTION,
-          testMode: store.getTestMode(),
-          disableVerticalStreakDetection,
-          adjudicationReasons: store.getAdjudicationReasons(),
-          markThresholds,
-          allowOfficialBallotsInTestMode,
-          minimumDetectedScale:
-            minimumDetectedBallotScaleOverride ??
-            DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
-          maxCumulativeStreakWidth,
-          retryStreakWidthThreshold,
-        },
-        [frontImageData, backImageData],
-        sheetId,
-        this.workspace.ballotImagesPath
-      )
+    return await interpretSheetAndSaveImages(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: store.getTestMode(),
+        disableVerticalStreakDetection,
+        adjudicationReasons: store.getAdjudicationReasons(),
+        markThresholds,
+        allowOfficialBallotsInTestMode,
+        minimumDetectedScale:
+          minimumDetectedBallotScaleOverride ??
+          DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
+        maxCumulativeStreakWidth,
+        retryStreakWidthThreshold,
+      },
+      [frontImageData, backImageData],
+      sheetId,
+      this.workspace.ballotImagesPath
     );
   }
 
@@ -296,16 +297,18 @@ export class Importer {
     if (!currentBatch) {
       return;
     }
+    this.currentBatch = undefined;
 
     this.workspace.store.finishBatch({
       batchId: currentBatch.batchId,
       error,
     });
     const batch = this.workspace.store.getBatch(currentBatch.batchId);
-    await logBatchComplete(this.logger, batch);
+    if (!error) {
+      await logBatchComplete(this.logger, batch);
+    }
     await currentBatch.sheetGenerator.endBatch();
     await fsExtra.remove(currentBatch.directory);
-    this.currentBatch = undefined;
   }
 
   /**
@@ -335,51 +338,82 @@ export class Importer {
    * Create a new batch and begin the scanning process
    */
   async startImport(): Promise<string> {
-    this.getElectionDefinition(); // ensure election definition is loaded
-    const hasImprinter = await this.scanner.isImprinterAttached();
-
-    if (this.currentBatch) {
-      throw new Error('scanning already in progress');
+    if (this.isStartingBatch) {
+      throw new Error('already starting import');
     }
+    this.isStartingBatch = true;
 
-    this.logger.log(LogEventId.ImprinterStatus, 'system', {
-      message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
-    });
+    let batchId: Optional<Id>;
+    let batchScanDirectory: Optional<string>;
 
-    const batchId = this.workspace.store.addBatch();
-    const batchScanDirectory = join(
-      this.workspace.ballotImagesPath,
-      `batch-${batchId}`
-    );
-    await fsExtra.ensureDir(batchScanDirectory);
-    debug(
-      'scanning starting for batch %s into %s',
-      batchId,
-      batchScanDirectory
-    );
-    const ballotPaperSize =
-      this.workspace.store.getBallotPaperSizeForElection();
-    const sheetGenerator = this.scanner.scanSheets({
-      directory: batchScanDirectory,
-      pageSize: ballotPaperSize,
-      // If the imprinter is attached automatically imprint an ID prefixed by the batchID
-      imprintIdPrefix: hasImprinter ? batchId : undefined,
-    });
+    try {
+      this.getElectionDefinition(); // ensure election definition is loaded
+      const hasImprinter = await this.scanner.isImprinterAttached();
 
-    this.currentBatch = {
-      batchId,
-      sheetGenerator,
-      directory: batchScanDirectory,
-    };
-    this.continueImport({ forceAccept: false });
+      if (this.currentBatch) {
+        throw new Error('scanning already in progress');
+      }
 
-    return batchId;
+      this.logger.log(LogEventId.ImprinterStatus, 'system', {
+        message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
+      });
+
+      batchId = this.workspace.store.addBatch();
+      batchScanDirectory = join(
+        this.workspace.ballotImagesPath,
+        `batch-${batchId}`
+      );
+      await fsExtra.ensureDir(batchScanDirectory);
+      debug(
+        'scanning starting for batch %s into %s',
+        batchId,
+        batchScanDirectory
+      );
+      const ballotPaperSize =
+        this.workspace.store.getBallotPaperSizeForElection();
+      const sheetGenerator = this.scanner.scanSheets({
+        directory: batchScanDirectory,
+        pageSize: ballotPaperSize,
+        // If the imprinter is attached automatically imprint an ID prefixed by the batchID
+        imprintIdPrefix: hasImprinter ? batchId : undefined,
+      });
+
+      this.currentBatch = {
+        batchId,
+        sheetGenerator,
+        directory: batchScanDirectory,
+      };
+      this.continueImport({ forceAccept: false });
+
+      return batchId;
+    } catch (error) {
+      if (!this.currentBatch) {
+        // Might have done some setup work, but didn't get to
+        // `this.currentBatch = ...`. Clean up anything that would be a loose
+        // end since `finishBatch` will bail without `currentBatch` set.
+        if (typeof batchId !== 'undefined') {
+          this.workspace.store.deleteBatch(batchId);
+        }
+        if (typeof batchScanDirectory !== 'undefined') {
+          await fsExtra.remove(batchScanDirectory);
+        }
+      } else {
+        await this.finishBatch(extractErrorMessage(error));
+      }
+      throw error;
+    } finally {
+      this.isStartingBatch = false;
+    }
   }
 
   /**
    * Continue the existing scanning process
    */
   continueImport(options: { forceAccept: boolean }): void {
+    if (!this.currentBatch) {
+      throw new Error('no scanning job in progress');
+    }
+
     const sheet = this.workspace.store.getNextAdjudicationSheet();
 
     if (sheet) {
@@ -390,31 +424,36 @@ export class Importer {
       }
     }
 
-    if (this.currentBatch) {
-      this.scanOneSheet().catch((error) => {
-        debug('processing sheet failed with error: %s', error.stack);
-        void this.finishBatch(error.toString());
+    this.scanOneSheet().catch((error) => {
+      const message = extractErrorMessage(error);
+      debug('processing sheet failed with error: %s', message);
+      void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
+        disposition: 'failure',
+        message: `Processing sheet failed: ${message}`,
       });
-    } else {
-      throw new Error('no scanning job in progress');
-    }
+      void this.finishBatch(message).catch((finishError) => {
+        void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
+          disposition: 'failure',
+          message: `Additionally, finishing batch failed: ${extractErrorMessage(
+            finishError
+          )}`,
+        });
+      });
+    });
   }
 
   /**
    * this is really for testing
    */
   async waitForEndOfBatchOrScanningPause(): Promise<void> {
-    if (!this.currentBatch) {
-      return;
-    }
+    while (this.currentBatch) {
+      const adjudicationStatus = this.workspace.store.adjudicationStatus();
+      if (adjudicationStatus.remaining > 0) {
+        break;
+      }
 
-    const adjudicationStatus = this.workspace.store.adjudicationStatus();
-    if (adjudicationStatus.remaining > 0) {
-      return;
+      await sleep(200);
     }
-
-    await sleep(200);
-    return this.waitForEndOfBatchOrScanningPause();
   }
 
   /**
