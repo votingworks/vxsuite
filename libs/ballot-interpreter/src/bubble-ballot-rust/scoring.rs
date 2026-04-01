@@ -227,7 +227,7 @@ pub fn score_bubble_mark(
         -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
     {
         let x = left as PixelPosition + offset_x;
-        if x < 0 {
+        if x < 0 || x as u32 + width > ballot_image.image().width() {
             continue;
         }
 
@@ -235,7 +235,7 @@ pub fn score_bubble_mark(
             -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
         {
             let y = top as PixelPosition + offset_y;
-            if y < 0 {
+            if y < 0 || y as u32 + height > ballot_image.image().height() {
                 continue;
             }
 
