@@ -33,14 +33,22 @@ const debug = makeDebug('admin:restore');
 
 /** Context needed to perform a restore operation. */
 export interface RestoreContext {
+  /** Path to the workspace directory, used for staging restored files and disk space checks. */
   readonly workspacePath: string;
+  /** Destination path for the restored SQLite database file. */
   readonly dbPath: string;
+  /** Destination path for the restored ballot image files. */
   readonly ballotImagesPath: string;
+  /** Mount point of the USB drive containing the backup. */
   readonly backupDriveMountPoint: string;
+  /** Name of the backup subdirectory on the USB drive to restore from. */
   readonly backupDirectoryName: string;
+  /** Software version string checked against the backup manifest for compatibility. */
   readonly softwareVersion: string;
   readonly logger: BaseLogger;
+  /** Optional callback invoked as the restore progresses through phases. */
   onProgress?: (progress: RestoreProgress) => void;
+  /** Signal to cancel the restore operation. */
   signal?: AbortSignal;
 }
 

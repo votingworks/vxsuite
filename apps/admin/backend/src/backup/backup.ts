@@ -48,15 +48,24 @@ const debug = makeDebug('admin:backup');
 
 /** Context needed to perform a backup operation. */
 export interface BackupContext {
+  /** Path to the workspace directory on the internal drive, used for temporary files and disk space checks. */
   readonly workspacePath: string;
+  /** Path to the admin backend SQLite database file. */
   readonly dbPath: string;
+  /** Path to the directory containing ballot image files. */
   readonly ballotImagesPath: string;
+  /** Mount point of the USB drive where backups are stored. */
   readonly backupDriveMountPoint: string;
+  /** Identifier for the machine performing the backup, recorded in the manifest. */
   readonly machineId: string;
+  /** Software version string recorded in the manifest and checked during validation. */
   readonly softwareVersion: string;
   readonly logger: BaseLogger;
+  /** Creates a snapshot of the database at the given destination path (via VACUUM INTO). */
   backupDatabase: (destPath: string) => void;
+  /** Optional callback invoked as the backup progresses through phases. */
   onProgress?: (progress: BackupProgress) => void;
+  /** Signal to cancel the backup operation. */
   signal?: AbortSignal;
 }
 
