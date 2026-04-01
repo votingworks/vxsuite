@@ -97,7 +97,7 @@ export const getCpuMetrics = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
-      refetchInterval: 1000,
+      refetchInterval: 15_000,
     });
   },
 } as const;
