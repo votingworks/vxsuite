@@ -149,11 +149,16 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
     `xapMM:DocumentID='uuid:${ZERO_UUID}'`
   );
 
-  // Ghostscript generates unique hex /ID pairs per run. These are used for PDF
+  // Ghostscript generates unique /ID pairs per run. These are used for PDF
   // document identification (e.g. by viewers to detect the same document) — no
-  // effect on content.
+  // effect on content. Handles both hex form (/ID [<hex><hex>]) and string
+  // literal form (/ID [(...)(...)]).
   str = str.replace(
     /\/ID \[<[0-9A-Fa-f]{32}><[0-9A-Fa-f]{32}>\]/g,
+    `/ID [<${ZERO_HEX_ID}><${ZERO_HEX_ID}>]`
+  );
+  str = str.replace(
+    /\/ID \[\((?:[^)\\]|\\.)*\)\((?:[^)\\]|\\.)*\)\]/g,
     `/ID [<${ZERO_HEX_ID}><${ZERO_HEX_ID}>]`
   );
 
