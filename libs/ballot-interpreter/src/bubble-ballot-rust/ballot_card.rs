@@ -159,7 +159,7 @@ impl BallotImage {
         self.image.dimensions()
     }
 
-    /// Creates a `BallotImage` with a uniform gray image for testing.
+    /// Wraps the given image and threshold into a `BallotImage` for testing.
     #[cfg(test)]
     pub fn for_testing(image: GrayImage, threshold: u8) -> Self {
         use crate::debug::ImageDebugWriter;

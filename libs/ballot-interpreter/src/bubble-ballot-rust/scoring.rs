@@ -190,8 +190,14 @@ pub fn score_bubble_marks_from_grid_layout(
 }
 
 /// Computes a match score between a region of the source image and a bubble
-/// template. Equivalent to `threshold` -> `diff` -> `count_pixels(WHITE)` but
+/// template. Equivalent to `threshold` -> `diff` -> counting white pixels, but
 /// without allocating intermediate images.
+///
+/// # Panics
+///
+/// Panics if the template-sized region at `(x, y)` extends beyond the image
+/// bounds, i.e. if `x + template.width() > img.width()` or
+/// `y + template.height() > img.height()`.
 fn compute_match_score(
     img: &GrayImage,
     template: &GrayImage,
