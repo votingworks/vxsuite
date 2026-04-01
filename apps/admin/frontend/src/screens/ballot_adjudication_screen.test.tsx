@@ -13,6 +13,10 @@ import type {
   CvrContestTag,
   CvrTag,
 } from '@votingworks/admin-backend';
+import {
+  HIGHLIGHT_PRIMARY_BACKGROUND,
+  HIGHLIGHT_WARNING_BACKGROUND,
+} from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { Route, Switch } from 'react-router-dom';
@@ -273,18 +277,24 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   await screen.findByText(/Ballot ID: cvr-/);
   screen.getByText('Ballot 1 of 3');
   expect(screen.getByRole('button', { name: /Back/ })).toBeDisabled();
-  const ballotImage = screen.getByAltText('Full ballot');
-  expect(ballotImage).toHaveAttribute('src', `mock-front-image-${CVR_ID_1}`);
+  const ballotImage = screen.getByRole('img', { name: /ballot/i });
+  expect(ballotImage.style.backgroundImage).toContain(
+    `mock-front-image-${CVR_ID_1}`
+  );
 
   // switch to back side
   const viewButtons = screen.getAllByRole('button', { name: 'View' });
   // the back side's View button is the second one (front is disabled)
   userEvent.click(viewButtons[1]);
-  expect(ballotImage).toHaveAttribute('src', `mock-back-image-${CVR_ID_1}`);
+  expect(ballotImage.style.backgroundImage).toContain(
+    `mock-back-image-${CVR_ID_1}`
+  );
 
   // switch back to front side
   userEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
-  expect(ballotImage).toHaveAttribute('src', `mock-front-image-${CVR_ID_1}`);
+  expect(ballotImage.style.backgroundImage).toContain(
+    `mock-front-image-${CVR_ID_1}`
+  );
 
   // skip to second ballot — first pending contest is on back, so opens to back
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
@@ -292,7 +302,9 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   await screen.findByText('Ballot 2 of 3');
   expect(screen.getByRole('button', { name: /Back/ })).toBeEnabled();
   await waitFor(() => {
-    expect(ballotImage).toHaveAttribute('src', `mock-back-image-${CVR_ID_2}`);
+    expect(ballotImage.style.backgroundImage).toContain(
+      `mock-back-image-${CVR_ID_2}`
+    );
   });
 
   // skip to third (last) ballot
@@ -563,12 +575,11 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
 
   await screen.findByText('Zoo Council');
 
-  const ballotImage = screen.getByAltText('Full ballot');
-  const imageWrapper = ballotImage.parentElement!;
+  const ballotImage = screen.getByRole('img', { name: /ballot/i });
 
   function getHighlightOverlay(): HTMLElement | null {
-    // the highlight overlay is a positioned div sibling of the ballot image
-    return imageWrapper.querySelector('div');
+    // the highlight overlay is a child div of the ballot image container
+    return ballotImage.querySelector('div');
   }
 
   // no highlight initially
@@ -580,7 +591,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   const warningHighlight = getHighlightOverlay();
   expect(warningHighlight).toBeInTheDocument();
   expect(warningHighlight).toHaveStyle({
-    background: 'rgba(220, 120, 0, 0.1)',
+    background: HIGHLIGHT_WARNING_BACKGROUND,
   });
 
   // mouse leave clears highlight
@@ -593,7 +604,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   const resolvedHighlight = getHighlightOverlay();
   expect(resolvedHighlight).toBeInTheDocument();
   expect(resolvedHighlight).toHaveStyle({
-    background: 'rgba(100, 50, 200, 0.1)',
+    background: HIGHLIGHT_PRIMARY_BACKGROUND,
   });
   fireEvent.mouseLeave(bestAnimalItem);
 
@@ -706,12 +717,18 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   await screen.findByText('Blank Ballot Detected');
 
   // Blank ballot callout has a View button to switch sides
-  const ballotImage = screen.getByAltText('Full ballot');
-  expect(ballotImage).toHaveAttribute('src', `mock-front-image-${CVR_ID_2}`);
+  const ballotImage = screen.getByRole('img', { name: /ballot/i });
+  expect(ballotImage.style.backgroundImage).toContain(
+    `mock-front-image-${CVR_ID_2}`
+  );
   userEvent.click(screen.getByRole('button', { name: 'View Back' }));
-  expect(ballotImage).toHaveAttribute('src', `mock-back-image-${CVR_ID_2}`);
+  expect(ballotImage.style.backgroundImage).toContain(
+    `mock-back-image-${CVR_ID_2}`
+  );
   userEvent.click(screen.getByRole('button', { name: 'View Front' }));
-  expect(ballotImage).toHaveAttribute('src', `mock-front-image-${CVR_ID_2}`);
+  expect(ballotImage.style.backgroundImage).toContain(
+    `mock-front-image-${CVR_ID_2}`
+  );
 
   // Blank ballot with only undervotes counts as allResolved, so Accept
   // directly resolves without a confirmation modal

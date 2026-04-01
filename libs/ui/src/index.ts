@@ -5,6 +5,7 @@ export * as virtualKeyboardCommon from './virtual_keyboard/common';
 export * from './accessible_controllers';
 export * from './app_base';
 export * from './auth';
+export * from './ballot_image';
 export * from './big_metric';
 export * from './bmd';
 export * from './bmd_paper_ballot';

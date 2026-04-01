@@ -384,9 +384,6 @@ function BallotAdjudicationScreen({
     );
   })();
 
-  const ballotBounds =
-    visibleImage.type === 'hmpb' ? visibleImage.ballotCoordinates : undefined;
-
   if (selectedContestId) {
     return (
       <ContestAdjudicationScreen
@@ -416,9 +413,13 @@ function BallotAdjudicationScreen({
             <UnableToLoadImageCallout />
           ) : (
             <BallotStaticImageViewer
-              ballotBounds={ballotBounds}
-              hasWarning={hoveredContestHasWarning}
-              highlightBounds={hoveredContestBounds}
+              ballotBounds={visibleImage.ballotCoordinates}
+              highlight={
+                hoveredContestBounds && {
+                  bounds: hoveredContestBounds,
+                  variant: hoveredContestHasWarning ? 'warning' : 'primary',
+                }
+              }
               imageUrl={visibleImage.imageUrl}
             />
           )}
