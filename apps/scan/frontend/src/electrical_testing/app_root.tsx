@@ -578,9 +578,11 @@ function AudioControls(): JSX.Element {
           onBegin={() => {
             headphonesSuccess.stop();
             setCalibrating(true);
+            // Calibration must be performed against max system volume
             setVolumeMutation.mutate(100);
           }}
           onEnd={() => {
+            // Return to a safe listening level
             setVolumeMutation.mutate(40);
             setCalibrating(false);
           }}

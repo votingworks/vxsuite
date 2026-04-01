@@ -9,7 +9,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 
 export async function initializeAudio(
   logger: Logger,
-  defaultVolumeOverride?: number
+  options: { defaultVolumeOverride?: number } = {}
 ): Promise<AudioInfoWithBuiltin> {
   const audioInfo = await getAudioInfoWithRetry({
     baseRetryDelayMs: 2000,
@@ -31,7 +31,7 @@ export async function initializeAudio(
       logger,
       nodeEnv: NODE_ENV,
       sinkName: audioInfo.usb.name,
-      volumePct: defaultVolumeOverride ?? 100,
+      volumePct: options.defaultVolumeOverride ?? 100,
     });
     resultVolume.assertOk('unable to set USB audio volume');
   } else {

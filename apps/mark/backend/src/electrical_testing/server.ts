@@ -21,7 +21,9 @@ export function startElectricalTestingServer(context: ServerContext): void {
 
   const server = app.listen(PORT, async () => {
     try {
-      await initializeAudio(logger, 40);
+      // System volume is set to 100% in the prod app, but the HWTA has no UI volume control, so we
+      // set to a safe listening level discovered the hard way
+      await initializeAudio(logger, { defaultVolumeOverride: 40 });
     } catch (error) {
       logger.log(LogEventId.ApplicationStartup, 'system', {
         disposition: 'failure',

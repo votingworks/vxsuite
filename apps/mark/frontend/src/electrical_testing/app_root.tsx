@@ -122,9 +122,11 @@ function AudioControls({
         audioUrl="/sounds/tts-sample.mp3"
         onBegin={() => {
           setCalibratingHeadphones(true);
+          // Calibration must be performed against max system volume
           setVolumeMutation.mutate(100);
         }}
         onEnd={() => {
+          // Return to a safe listening level
           setVolumeMutation.mutate(40);
           setCalibratingHeadphones(false);
         }}
