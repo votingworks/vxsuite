@@ -34,6 +34,7 @@ export interface StartOptions {
   app: Application;
   logger: BaseLogger;
   workspace: Workspace;
+  signal: AbortSignal;
 }
 
 /**
@@ -46,8 +47,10 @@ export function start({
   app,
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
+  signal,
 }: Partial<StartOptions> = {}): Server {
-  detectDevices({ logger: baseLogger });
+  const stopDetectingDevices = detectDevices({ logger: baseLogger });
+
   let resolvedWorkspace = workspace;
   /* istanbul ignore next - @preserve */
   if (!resolvedWorkspace) {
@@ -146,7 +149,7 @@ export function start({
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(baseLogger);
 
-  return resolvedApp.listen(port, () => {
+  const server = resolvedApp.listen(port, () => {
     baseLogger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Scan Service running at http://localhost:${port}/`,
       disposition: 'success',
@@ -156,4 +159,13 @@ export function start({
       message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
     });
   });
+  signal?.addEventListener(
+    'abort',
+    () => {
+      stopDetectingDevices();
+      server.close();
+    },
+    { once: true }
+  );
+  return server;
 }

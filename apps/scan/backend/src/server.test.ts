@@ -52,7 +52,9 @@ afterEach(() => {
 const audioCardName = 'alsa_output.pci';
 
 test('start passes context to `buildApp`', async () => {
-  const listen = vi.fn<(port: number, callback: () => unknown) => void>();
+  const listen = vi
+    .fn<(port: number, callback: () => unknown) => unknown>()
+    .mockReturnValue({ close: vi.fn() });
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
@@ -122,7 +124,9 @@ test.each([
 ])(
   'configures audio player correctly',
   async ({ systemSettings, isScreenReaderEnabled }) => {
-    const listen = vi.fn<(port: number, callback: () => unknown) => void>();
+    const listen = vi
+      .fn<(port: number, callback: () => unknown) => unknown>()
+      .mockReturnValue({ close: vi.fn() });
     const auth = buildMockInsertedSmartCardAuth(vi.fn);
     const logger = buildMockLogger(auth, workspace);
     buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
@@ -147,7 +151,7 @@ test.each([
 );
 
 test('logs device attach/unattach events', async () => {
-  const listen = vi.fn();
+  const listen = vi.fn().mockReturnValue({ close: vi.fn() });
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);

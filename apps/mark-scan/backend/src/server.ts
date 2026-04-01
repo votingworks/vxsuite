@@ -35,6 +35,7 @@ export interface StartOptions {
   logger: BaseLogger;
   port: number | string;
   workspace: Workspace;
+  signal?: AbortSignal;
 }
 
 export async function resolveDriver(
@@ -78,8 +79,9 @@ export async function start({
   logger: baseLogger,
   port,
   workspace,
+  signal,
 }: StartOptions): Promise<Server> {
-  detectDevices({ logger: baseLogger });
+  const stopDetectingDevices = detectDevices({ logger: baseLogger });
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(baseLogger, () =>
     getUserRole(resolvedAuth, workspace)
@@ -128,7 +130,7 @@ export async function start({
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(logger);
 
-  return app.listen(
+  const server = app.listen(
     port,
     /* istanbul ignore next - @preserve */
     () => {
@@ -138,4 +140,14 @@ export async function start({
       });
     }
   );
+  signal?.addEventListener(
+    'abort',
+    /* istanbul ignore next - @preserve */
+    () => {
+      stopDetectingDevices();
+      server.close();
+    },
+    { once: true }
+  );
+  return server;
 }
