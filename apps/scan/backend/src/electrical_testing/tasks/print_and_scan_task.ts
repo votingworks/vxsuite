@@ -27,6 +27,7 @@ import { resultToString } from '../utils';
 export const LOOP_INTERVAL_MS = 100;
 export const PRINT_INTERVAL_SECONDS = 5 * 60;
 export const DELAY_AFTER_ACCEPT_MS = 2_500;
+export const DELAY_AFTER_SCANNER_ERROR_MS = 5_000;
 
 function createPrinterTestImage(): ImageData {
   const canvas = createCanvas(200, 50);
@@ -270,6 +271,7 @@ export async function runPrintAndScanTask({
             'scanner',
             `Error while resetting scanning: ${extractErrorMessage(error)}`
           );
+          await sleep(DELAY_AFTER_SCANNER_ERROR_MS);
         }
       }
 

@@ -8,6 +8,7 @@ import {
   Icons,
   InputControls,
   Main,
+  Modal,
   RadioGroup,
   Screen,
   SignedHashValidationButton,
@@ -49,6 +50,48 @@ const Small = styled.span`
 const ExtraSmall = styled.span`
   font-size: 0.6rem;
 `;
+
+const STATUS_MESSAGE_MAX_LENGTH = 80;
+
+function TruncatedStatusMessage({
+  modalTitle,
+  message,
+}: {
+  modalTitle: string;
+  message: string;
+}): JSX.Element {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const needsTruncation = message.length > STATUS_MESSAGE_MAX_LENGTH;
+  const displayedMessage = needsTruncation
+    ? `${message.slice(0, STATUS_MESSAGE_MAX_LENGTH)}…`
+    : message;
+
+  return (
+    <React.Fragment>
+      <Small>
+        {displayedMessage}
+        {needsTruncation && (
+          <Button
+            onPress={() => setIsModalOpen(true)}
+            style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}
+          >
+            Details
+          </Button>
+        )}
+      </Small>
+      {isModalOpen && (
+        <Modal
+          title={modalTitle}
+          content={
+            <Small style={{ overflowWrap: 'anywhere' }}>{message}</Small>
+          }
+          actions={<Button onPress={() => setIsModalOpen(false)}>Close</Button>}
+          onOverlayClick={() => setIsModalOpen(false)}
+        />
+      )}
+    </React.Fragment>
+  );
+}
 
 const RadioOptionTitle = styled(H6)`
   margin-bottom: 0;
@@ -118,16 +161,10 @@ function ScannerControls({
           <Icons.File /> Scanner
         </H6>
         <Caption style={{ flexGrow: 1 }}>
-          <Caption
-            style={{
-              flexGrow: 1,
-              overflowWrap: 'anywhere',
-              maxHeight: '2rem',
-              overflow: 'hidden',
-            }}
-          >
-            <Small>{status?.statusMessage ?? 'Unknown'}</Small>
-          </Caption>
+          <TruncatedStatusMessage
+            modalTitle="Scanner Status Details"
+            message={status?.statusMessage ?? 'Unknown'}
+          />
         </Caption>
         {status?.updatedAt && (
           <Caption style={{ flexGrow: 0 }}>
