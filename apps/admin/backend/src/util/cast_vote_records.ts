@@ -1,7 +1,6 @@
 import {
   AdjudicationReason,
   AnyContest,
-  ContestId,
   ContestOptionId,
   ElectionDefinition,
   Id,
@@ -9,6 +8,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
+import { deepEqual } from '@votingworks/basics';
 import {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
@@ -30,11 +30,11 @@ export function getNumberVotesAllowed(contest: AnyContest): number {
  * Determines the summary adjudication flags for a cast vote record.
  */
 export function getCastVoteRecordAdjudicationFlags(
-  votes: Tabulation.Votes,
   electionDefinition: ElectionDefinition,
+  votes: Tabulation.Votes,
+  writeInCount: number,
   markScores?: Tabulation.MarkScores,
-  markThresholds?: MarkThresholds,
-  writeInCount?: number
+  markThresholds?: MarkThresholds
 ): CastVoteRecordAdjudicationFlags {
   let isBlank = true;
   let hasUndervote = false;
@@ -64,7 +64,7 @@ export function getCastVoteRecordAdjudicationFlags(
 
   // Write-ins are detected from write-in records (which include unmarked
   // write-ins), not from votes which only contain marked write-ins
-  const hasWriteIn = (writeInCount ?? 0) > 0;
+  const hasWriteIn = writeInCount > 0;
 
   if (markScores && markThresholds) {
     hasMarginalMark = Object.values(markScores).some((contestMarkScores) =>
@@ -112,7 +112,6 @@ export function doesCvrNeedAdjudication(
  */
 export function deriveCvrContestTag({
   cvrId,
-  contestId,
   contest,
   votes,
   adjudicatedVotes,
@@ -122,7 +121,6 @@ export function deriveCvrContestTag({
   adminAdjudicationReasons,
 }: {
   cvrId: Id;
-  contestId: ContestId;
   contest: AnyContest;
   votes: ContestOptionId[];
   adjudicatedVotes?: ContestOptionId[];
@@ -132,10 +130,10 @@ export function deriveCvrContestTag({
   adminAdjudicationReasons: AdjudicationReason[];
 }): CvrContestTag | undefined {
   const hasWriteIn = writeInRecords.some(
-    (r) => r.contestId === contestId && !r.isUnmarked
+    (r) => r.contestId === contest.id && !r.isUnmarked
   );
   const hasUnmarkedWriteIn = writeInRecords.some(
-    (r) => r.contestId === contestId && r.isUnmarked
+    (r) => r.contestId === contest.id && r.isUnmarked
   );
 
   let hasMarginalMark =
@@ -165,14 +163,13 @@ export function deriveCvrContestTag({
         (v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
       )
     );
-    const candidateVotesChanged =
-      scannedCandidateVotes.size !== adjudicatedCandidateVotes.size ||
-      [...scannedCandidateVotes].some((v) => !adjudicatedCandidateVotes.has(v));
-
+    const candidateVotesChanged = !deepEqual(
+      scannedCandidateVotes,
+      adjudicatedCandidateVotes
+    );
     if (candidateVotesChanged) {
       hasMarginalMark = true;
     }
-
     // Recalculate over/undervote based on adjudicated state
     hasOvervote = hasOvervote || adjudicatedVotes.length > votesAllowed;
     hasUndervote = hasUndervote || adjudicatedVotes.length < votesAllowed;
@@ -191,7 +188,7 @@ export function deriveCvrContestTag({
 
   return {
     cvrId,
-    contestId,
+    contestId: contest.id,
     isResolved: adjudicatedVotes !== undefined,
     hasWriteIn,
     hasUnmarkedWriteIn,

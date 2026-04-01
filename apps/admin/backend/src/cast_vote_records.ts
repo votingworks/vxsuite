@@ -344,11 +344,11 @@ export async function importCastVoteRecords(
       // rather than post-adjudication status. As a result, we can just calculate
       // now, during import.
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
-        votes,
         electionDefinition,
+        votes,
+        castVoteRecordWriteIns.length,
         isHmpb ? markScores : undefined,
-        markThresholds,
-        castVoteRecordWriteIns.length
+        markThresholds
       );
       const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
       assert(votingMethod);

@@ -107,11 +107,11 @@ export function addMockCvrFileToStore({
       }
 
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
-        filteredVotes,
         electionDefinition,
+        filteredVotes,
+        writeIns.length,
         isHmpb ? mockCastVoteRecord.markScores : undefined,
-        markThresholds,
-        writeIns.length
+        markThresholds
       );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,

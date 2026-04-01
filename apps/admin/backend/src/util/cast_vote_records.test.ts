@@ -37,6 +37,7 @@ function mockVotes(partialVotes: Tabulation.Votes = {}) {
 test('blank ballot', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       {
         'best-animal-mammal': [],
         'zoo-council-mammal': [],
@@ -44,7 +45,7 @@ test('blank ballot', () => {
         'new-zoo-pick': [],
         fishing: [],
       },
-      electionDefinition
+      0
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: true,
@@ -57,7 +58,7 @@ test('blank ballot', () => {
 
 test('no status ballot', () => {
   expect(
-    getCastVoteRecordAdjudicationFlags(mockVotes(), electionDefinition)
+    getCastVoteRecordAdjudicationFlags(electionDefinition, mockVotes(), 0)
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
     hasUndervote: false,
@@ -70,8 +71,9 @@ test('no status ballot', () => {
 test('undervote yes-no', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       mockVotes({ fishing: [] }),
-      electionDefinition
+      0
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -85,8 +87,9 @@ test('undervote yes-no', () => {
 test('undervote candidate', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       mockVotes({ 'best-animal-mammal': [] }),
-      electionDefinition
+      0
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -100,8 +103,9 @@ test('undervote candidate', () => {
 test('overvote yes-no', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       mockVotes({ fishing: ['yes', 'no'] }),
-      electionDefinition
+      0
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -115,10 +119,11 @@ test('overvote yes-no', () => {
 test('overvote candidate', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       mockVotes({
         'zoo-council-mammal': ['zebra', 'lion', 'kangaroo', 'elephant'],
       }),
-      electionDefinition
+      0
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -132,12 +137,10 @@ test('overvote candidate', () => {
 test('write-in', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       mockVotes({
         'best-animal-mammal': ['write-in-0'],
       }),
-      electionDefinition,
-      undefined,
-      undefined,
       1
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
@@ -151,13 +154,7 @@ test('write-in', () => {
 
 test('unmarked write-in sets hasWriteIn', () => {
   expect(
-    getCastVoteRecordAdjudicationFlags(
-      mockVotes(),
-      electionDefinition,
-      undefined,
-      undefined,
-      1
-    )
+    getCastVoteRecordAdjudicationFlags(electionDefinition, mockVotes(), 1)
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
     hasUndervote: false,
@@ -170,13 +167,11 @@ test('unmarked write-in sets hasWriteIn', () => {
 test('multiple flags', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
+      electionDefinition,
       mockVotes({
         'zoo-council-mammal': ['write-in-0'],
         fishing: ['yes', 'no'],
       }),
-      electionDefinition,
-      undefined,
-      undefined,
       1
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
@@ -191,8 +186,9 @@ test('multiple flags', () => {
 test('marginal mark', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
-      mockVotes(),
       electionDefinition,
+      mockVotes(),
+      0,
       { 'best-animal-mammal': { fox: 0.15 } },
       { marginal: 0.12, definite: 0.2, writeInTextArea: 0.12 }
     )
@@ -208,8 +204,9 @@ test('marginal mark', () => {
 test('no marginal mark when scores are above definite', () => {
   expect(
     getCastVoteRecordAdjudicationFlags(
-      mockVotes(),
       electionDefinition,
+      mockVotes(),
+      0,
       { 'best-animal-mammal': { fox: 0.5 } },
       { marginal: 0.12, definite: 0.2, writeInTextArea: 0.12 }
     )
@@ -236,7 +233,6 @@ const DEFAULT_THRESHOLDS: MarkThresholds = {
 // eslint-disable-next-line vx/gts-object-literal-types
 const BASE_ARGS = {
   cvrId: 'cvr-1',
-  contestId: 'zoo-council-mammal',
   contest: candidateContest,
   writeInRecords: [],
   markThresholds: DEFAULT_THRESHOLDS,

@@ -1949,7 +1949,7 @@ export class Store implements BaseStore {
       `
         select
           count(*) as totalTally,
-          count(case when c.is_resolved = 0 then 1 end) as pendingTally
+          count(case when c.is_adjudicated = 0 then 1 end) as pendingTally
         from cvrs c
         where (${filter})
       `
@@ -1982,7 +1982,7 @@ export class Store implements BaseStore {
 
     // 2. Get tags and resolution status
     const cvrRow = this.client.one(
-      `select is_blank as isBlank, is_resolved as isResolved from cvrs where id = ?`,
+      `select is_blank as isBlank, is_adjudicated as isResolved from cvrs where id = ?`,
       cvrId
     ) as { isBlank: SqliteBool; isResolved: SqliteBool };
     const cvrTag: CvrTag = {
@@ -2024,7 +2024,6 @@ export class Store implements BaseStore {
       .map((contest) => {
         const tag = deriveCvrContestTag({
           cvrId,
-          contestId: contest.id,
           contest,
           votes: assertDefined(votes[contest.id]),
           adjudicatedVotes: adjudicatedVotes?.[contest.id],
@@ -2106,7 +2105,7 @@ export class Store implements BaseStore {
         select c.id as cvr_id
         from cvrs c
         where (${filter})
-          and c.is_resolved = 0
+          and c.is_adjudicated = 0
         order by
           case when c.is_blank = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
@@ -2771,7 +2770,7 @@ export class Store implements BaseStore {
   }
 
   setCvrResolved({ cvrId }: { cvrId: Id }): void {
-    this.client.run(`update cvrs set is_resolved = 1 where id = ?`, cvrId);
+    this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
   }
 
   /**
