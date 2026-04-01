@@ -12,7 +12,7 @@ import {
 } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { buildIntegrationTestHelper } from '@votingworks/test-utils';
-import { safeParseInt } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
   forceUnconfigure,
@@ -108,7 +108,12 @@ test('everything but voting', async ({ page }) => {
   await screenshot('em-insert-usb');
 
   usbHandler.insert(
-    await mockElectionPackageFileTree(fixtureSet.toElectionPackage())
+    await mockElectionPackageFileTree(
+      fixtureSet.toElectionPackage({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disableVoterHelpButtons: true,
+      })
+    )
   );
   await page.getByText('Election Manager Menu').waitFor();
   await screenshot('em-menu');
@@ -126,14 +131,21 @@ test('everything but voting', async ({ page }) => {
     'em-menu-official-ballot-mode-button'
   );
 
+  // Select precinct and capture screenshot in test mode
+  await page.getByText('Select a precinct…').click({ force: true });
+  await page.getByText('North Lincoln', { exact: true }).click();
+  mockCardRemoval();
+  await page.getByText(/poll worker card/).waitFor();
+  await screenshot('pw-insert-card-test-mode');
+
+  // Re-login as EM and toggle to official mode
+  await logInAsElectionManager(page, election);
+  await page.getByText('Election Manager Menu').waitFor();
   await page.getByText('Official Ballot Mode').click();
   await screenshotWithFocusHighlight(
     'Test Ballot Mode',
     'em-menu-test-ballot-mode-button'
   );
-
-  await page.getByText('Select a precinct…').click({ force: true });
-  await page.getByText('North Lincoln', { exact: true }).click();
 
   mockCardRemoval();
   await page.getByText(/poll worker card/).waitFor();
@@ -255,7 +267,12 @@ test('voting session', async ({ page }) => {
   await page.getByText(/a USB drive/).waitFor();
 
   usbHandler.insert(
-    await mockElectionPackageFileTree(fixtureSet.toElectionPackage())
+    await mockElectionPackageFileTree(
+      fixtureSet.toElectionPackage({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disableVoterHelpButtons: true,
+      })
+    )
   );
   await page.getByText('Election Manager Menu').waitFor();
 
@@ -380,6 +397,7 @@ test('voting session', async ({ page }) => {
 
   // Track whether we've captured the next screenshot
   let capturedNextButton = false;
+  let capturedWriteIn = false;
 
   // Navigate through all contests
   for (let contestNum = 1; contestNum <= totalContests; contestNum += 1) {
@@ -391,13 +409,39 @@ test('voting session', async ({ page }) => {
       );
     }
 
-    const optionCount = await page.getByRole('option').count();
-    const options = page.getByRole('option');
+    // Capture write-in flow on first contest that supports it
+    const writeInButton = page.getByText('add write-in candidate');
+    if (!capturedWriteIn && (await writeInButton.isVisible())) {
+      await screenshotWithFocusHighlight(
+        'add write-in candidate',
+        'voting-write-in-button'
+      );
 
-    // Make selection deterministically (use modulo for index)
-    const selectionIndex = contestNum % optionCount;
-    await options.nth(selectionIndex).click();
-    await page.waitForTimeout(100);
+      await writeInButton.click();
+      await page.getByRole('alertdialog').waitFor();
+      const dialog = page.getByRole('alertdialog');
+      for (const letter of 'NEMO') {
+        await dialog
+          // Button names are doubled for some reason, e.g., "A A"
+          .getByRole('button', { name: `${letter} ${letter}` })
+          .click();
+      }
+      await screenshot('voting-write-in-entry');
+
+      await page.getByRole('button', { name: 'Accept' }).click();
+      await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+      await screenshot('voting-write-in-selected');
+
+      capturedWriteIn = true;
+    } else {
+      const optionCount = await page.getByRole('option').count();
+      const options = page.getByRole('option');
+
+      // Make selection deterministically (use modulo for index)
+      const selectionIndex = contestNum % optionCount;
+      await options.nth(selectionIndex).click();
+      await page.waitForTimeout(100);
+    }
 
     // Screenshot the contest with selections
     await screenshot(`voting-contest-${contestNum}`);
