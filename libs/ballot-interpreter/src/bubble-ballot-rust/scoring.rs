@@ -362,3 +362,94 @@ fn score_write_in_area(
         score,
     })
 }
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod test {
+    use super::*;
+    use crate::ballot_card::BallotImage;
+    use image::GrayImage;
+    use types_rs::ballot_card::BallotSide;
+    use types_rs::geometry::Point;
+
+    fn make_ballot_image(width: u32, height: u32) -> BallotImage {
+        BallotImage::for_testing(
+            GrayImage::from_pixel(width, height, image::Luma([200])),
+            128,
+        )
+    }
+
+    fn make_location() -> GridLocation {
+        GridLocation::new(BallotSide::Front, 0.0, 0.0)
+    }
+
+    #[test]
+    fn score_bubble_mark_returns_none_when_bubble_is_entirely_off_image() {
+        let ballot_image = make_ballot_image(100, 100);
+        let template = GrayImage::new(20, 20);
+        let location = make_location();
+
+        // Center way off the right edge
+        let result = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 200.0, y: 50.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+        assert!(result.is_none());
+
+        // Center way off the bottom edge
+        let result = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 50.0, y: 200.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn score_bubble_mark_does_not_panic_near_edges() {
+        let ballot_image = make_ballot_image(100, 100);
+        let template = GrayImage::new(20, 20);
+        let location = make_location();
+
+        // Near left edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 5.0, y: 50.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+
+        // Near top edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 50.0, y: 5.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+
+        // Near right edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 95.0, y: 50.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+
+        // Near bottom edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 50.0, y: 95.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+    }
+}
