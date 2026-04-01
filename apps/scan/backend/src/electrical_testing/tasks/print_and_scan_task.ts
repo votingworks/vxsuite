@@ -66,6 +66,7 @@ export async function runPrintAndScanTask({
 
   const printerTestImage = createPrinterTestImage();
   let lastScanTime: DateTime | undefined;
+  let lastScannerErrorTime: DateTime | undefined;
   let lastMode: ScanningMode | undefined;
   let shouldResetScanning = true;
 
@@ -246,7 +247,12 @@ export async function runPrintAndScanTask({
         shouldResetScanning = true;
       }
 
-      if (shouldResetScanning) {
+      const scannerErrorCoolDownComplete =
+        !lastScannerErrorTime ||
+        DateTime.now().diff(lastScannerErrorTime).as('milliseconds') >
+          DELAY_AFTER_SCANNER_ERROR_MS;
+
+      if (shouldResetScanning && scannerErrorCoolDownComplete) {
         workspace.store.setElectricalTestingStatusMessage(
           'scanner',
           'Resetting scanning'
@@ -282,12 +288,13 @@ export async function runPrintAndScanTask({
             );
           }
           shouldResetScanning = false;
+          lastScannerErrorTime = undefined;
         } catch (error) {
           workspace.store.setElectricalTestingStatusMessage(
             'scanner',
             `Error while resetting scanning: ${extractErrorMessage(error)}`
           );
-          await sleep(DELAY_AFTER_SCANNER_ERROR_MS);
+          lastScannerErrorTime = DateTime.now();
         }
       }
 
