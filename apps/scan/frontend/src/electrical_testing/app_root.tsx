@@ -472,6 +472,7 @@ function AudioControls(): JSX.Element {
 
   const headphonesSuccess = useSoundControls('success');
   const playSoundSpeaker = api.playSound.useMutation().mutate;
+  const setVolumeMutation = api.setVolume.useMutation();
 
   const anyOutputActive = !calibrating && (headphonesOn || speakerOn);
   useInterval(
@@ -540,8 +541,12 @@ function AudioControls(): JSX.Element {
           onBegin={() => {
             headphonesSuccess.stop();
             setCalibrating(true);
+            setVolumeMutation.mutate(100);
           }}
-          onEnd={() => setCalibrating(false)}
+          onEnd={() => {
+            setVolumeMutation.mutate(40);
+            setCalibrating(false);
+          }}
         />
       </Row>
     </Column>

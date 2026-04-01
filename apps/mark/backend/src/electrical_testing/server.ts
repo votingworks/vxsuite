@@ -1,7 +1,11 @@
 import { LogEventId } from '@votingworks/logging';
 
+import {
+  AUDIO_DEVICE_DEFAULT_SINK,
+  setAudioVolume,
+} from '@votingworks/backend';
 import { cleanupCachedBrowser } from '@votingworks/printing';
-import { PORT } from '../globals';
+import { NODE_ENV, PORT } from '../globals';
 import { buildApp } from './app';
 import {
   runCardReadAndUsbDriveWriteTask,
@@ -17,7 +21,20 @@ export function startElectricalTestingServer(context: ServerContext): void {
 
   const app = buildApp(context);
 
-  const server = app.listen(PORT, () => {
+  const server = app.listen(PORT, async () => {
+    const volumeResult = await setAudioVolume({
+      logger,
+      nodeEnv: NODE_ENV,
+      sinkName: AUDIO_DEVICE_DEFAULT_SINK,
+      volumePct: 40,
+    });
+    if (volumeResult.isErr()) {
+      logger.log(LogEventId.Info, 'system', {
+        message: `Failed to set initial audio volume: ${volumeResult.err()}`,
+        disposition: 'failure',
+      });
+    }
+
     logger.log(LogEventId.ApplicationStartup, 'system', {
       disposition: 'success',
       message: `VxMark electrical testing backend running at http://localhost:${PORT}`,

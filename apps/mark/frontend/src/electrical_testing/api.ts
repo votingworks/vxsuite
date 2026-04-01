@@ -171,6 +171,15 @@ export const getBarcodeStatus = {
   },
 } as const;
 
+export const setVolume = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation((volumePct: number) =>
+      apiClient.setVolume({ volumePct })
+    );
+  },
+} as const;
+
 export const playSpeakerSound = {
   useMutation() {
     const apiClient = useApiClient();

@@ -71,6 +71,10 @@ function buildApi({
       };
     },
 
+    async setVolume(input: { volumePct: number }): Promise<void> {
+      await audioPlayer?.setVolume(input.volumePct);
+    },
+
     async playSound(input: { name: SoundName }): Promise<void> {
       await audioPlayer?.play(input.name);
     },

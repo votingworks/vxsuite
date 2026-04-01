@@ -23,6 +23,7 @@ import {
   setCardReaderTaskRunning,
   setPrinterTaskRunning,
   setUsbDriveTaskRunning,
+  setVolume,
   systemCallApi,
   useApiClient,
 } from './api';
@@ -98,6 +99,8 @@ function AudioControls({
   headphonesAvailable: boolean;
   setCalibratingHeadphones: (calibrating: boolean) => void;
 }): JSX.Element {
+  const setVolumeMutation = setVolume.useMutation();
+
   return (
     <AudioControlsContainer>
       <CheckboxButton
@@ -117,8 +120,14 @@ function AudioControls({
       />
       <HeadphoneCalibrationButton
         audioUrl="/sounds/tts-sample.mp3"
-        onBegin={() => setCalibratingHeadphones(true)}
-        onEnd={() => setCalibratingHeadphones(false)}
+        onBegin={() => {
+          setCalibratingHeadphones(true);
+          setVolumeMutation.mutate(100);
+        }}
+        onEnd={() => {
+          setVolumeMutation.mutate(40);
+          setCalibratingHeadphones(false);
+        }}
       />
     </AudioControlsContainer>
   );

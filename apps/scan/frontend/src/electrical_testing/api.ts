@@ -190,6 +190,15 @@ export const resetScanningSession = {
   },
 } as const;
 
+export const setVolume = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation((volumePct: number) =>
+      apiClient.setVolume({ volumePct })
+    );
+  },
+} as const;
+
 export const playSound = {
   useMutation: () => appApi.usePlaySoundMutation(useApiClient),
 } as const;
