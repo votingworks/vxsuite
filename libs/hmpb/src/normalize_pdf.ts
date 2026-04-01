@@ -158,5 +158,14 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
   );
 
   str = renumberPdfObjects(str);
+
+  // Verify that regex operations didn't introduce any characters outside the
+  // latin1 range (code points > 0xFF), which would silently corrupt binary data
+  // when encoding back to a Buffer.
+  assert(
+    !/[^\x00-\xFF]/.test(str), // eslint-disable-line no-control-regex -- checking full latin1 byte range
+    'PDF normalization introduced non-latin1 characters'
+  );
+
   return Buffer.from(str, 'latin1');
 }
