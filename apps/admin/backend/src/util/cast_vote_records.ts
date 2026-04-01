@@ -1,5 +1,6 @@
 import {
   AdjudicationReason,
+  Admin,
   AnyContest,
   ContestId,
   ContestOptionId,
@@ -8,12 +9,13 @@ import {
   MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
-import { CachedElectionLookups } from '@votingworks/utils';
+import { CastVoteRecordWriteIn } from '@votingworks/utils';
 import {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
   WriteInRecord,
 } from '../types';
+import { deepEqual, throwIllegalValue, unique } from '@votingworks/basics/src';
 
 /**
  * Returns the number of allowed votes for the contest
@@ -26,62 +28,107 @@ export function getNumberVotesAllowed(contest: AnyContest): number {
   return contest.seats;
 }
 
+const CONTEST_ADJUDICATION_FLAGS = [
+  'hasOvervote',
+  'hasUndervote',
+  'hasMarginalMark',
+  'hasWriteIn',
+  'hasUnmarkedWriteIn',
+] as const;
+type ContestAdjudicationFlag = (typeof CONTEST_ADJUDICATION_FLAGS)[number];
+
+function detectContestAdjudicationFlags({
+  contest,
+  votes,
+  writeIns,
+  markScores,
+  markThresholds,
+}: {
+  contest: AnyContest;
+  votes: ContestOptionId[];
+  writeIns: { isUnmarked?: boolean }[];
+  markScores?: Record<ContestOptionId, number>;
+  markThresholds: MarkThresholds;
+}): ContestAdjudicationFlag[] {
+  return CONTEST_ADJUDICATION_FLAGS.filter((flag) => {
+    switch (flag) {
+      case 'hasOvervote':
+        return votes.length > getNumberVotesAllowed(contest);
+      case 'hasUndervote':
+        return votes.length < getNumberVotesAllowed(contest);
+      case 'hasMarginalMark':
+        return (
+          markScores !== undefined &&
+          Object.values(markScores).some(
+            (score) =>
+              score >= markThresholds.marginal &&
+              score < markThresholds.definite
+          )
+        );
+      case 'hasWriteIn':
+        return writeIns.some((r) => !r.isUnmarked);
+      case 'hasUnmarkedWriteIn':
+        return writeIns.some((r) => r.isUnmarked);
+      default:
+        return throwIllegalValue(flag);
+    }
+  });
+}
+
 /**
  * Determines the summary adjudication flags for a cast vote record.
  */
 export function getCastVoteRecordAdjudicationFlags(
   votes: Tabulation.Votes,
   electionDefinition: ElectionDefinition,
-  markScores?: Tabulation.MarkScores,
-  markThresholds?: MarkThresholds,
-  writeInCount?: number
+  writeIns: CastVoteRecordWriteIn[],
+  markThresholds: MarkThresholds,
+  markScores?: Tabulation.MarkScores
 ): CastVoteRecordAdjudicationFlags {
-  let isBlank = true;
-  let hasUndervote = false;
-  let hasOvervote = false;
-  let hasMarginalMark = false;
+  const contestAdjudicationFlags = unique(
+    electionDefinition.election.contests.map((contest) => {
+      return detectContestAdjudicationFlags({
+        contest,
+        votes: votes[contest.id] ?? [],
+        writeIns: writeIns.filter((r) => r.contestId === contest.id),
+        markScores: markScores ? markScores[contest.id] : undefined,
+        markThresholds: markThresholds,
+      }).map((flag) => (flag === 'hasUnmarkedWriteIn' ? 'hasWriteIn' : flag));
+    })
+  );
 
-  for (const [contestId, optionIds] of Object.entries(votes)) {
-    const contest = CachedElectionLookups.getContestById(
-      electionDefinition,
-      contestId
-    );
-
-    if (optionIds.length > 0) {
-      isBlank = false;
-    }
-
-    const votesAllowed = getNumberVotesAllowed(contest);
-
-    if (optionIds.length < votesAllowed) {
-      hasUndervote = true;
-    }
-
-    if (optionIds.length > votesAllowed) {
-      hasOvervote = true;
-    }
-  }
-
-  // Write-ins are detected from write-in records (which include unmarked
-  // write-ins), not from votes which only contain marked write-ins
-  const hasWriteIn = (writeInCount ?? 0) > 0;
-
-  if (markScores && markThresholds) {
-    hasMarginalMark = Object.values(markScores).some((contestMarkScores) =>
-      Object.values(contestMarkScores).some(
-        (score) =>
-          score >= markThresholds.marginal && score < markThresholds.definite
-      )
-    );
-  }
+  const isBlank = Object.values(votes).every(
+    (optionIds) => optionIds.length === 0
+  );
 
   return {
     isBlank,
-    hasUndervote,
-    hasOvervote,
-    hasWriteIn,
-    hasMarginalMark,
+    ...Object.fromEntries(contestAdjudicationFlags.map((flag) => [flag, true])),
   };
+}
+
+function isAdjudicationFlagEnabled(
+  flag: Admin.CastVoteRecordAdjudicationFlag | ContestAdjudicationFlag,
+  adminAdjudicationReasons: AdjudicationReason[]
+): boolean {
+  switch (flag) {
+    case 'hasOvervote':
+      return adminAdjudicationReasons.includes(AdjudicationReason.Overvote);
+    case 'hasUndervote':
+      return adminAdjudicationReasons.includes(AdjudicationReason.Undervote);
+    case 'hasMarginalMark':
+      return adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark);
+    case 'hasWriteIn':
+      return true; // Write-ins always require adjudication
+    case 'hasUnmarkedWriteIn':
+      return adminAdjudicationReasons.includes(
+        AdjudicationReason.UnmarkedWriteIn
+      );
+    case 'isBlank':
+      return adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot);
+    default:
+      throwIllegalValue(flag);
+  }
 }
 
 /**
@@ -93,17 +140,14 @@ export function doesCvrNeedAdjudication(
   adjudicationFlags: CastVoteRecordAdjudicationFlags,
   adminAdjudicationReasons: AdjudicationReason[]
 ): boolean {
-  return (
-    adjudicationFlags.hasWriteIn ||
-    (adjudicationFlags.hasMarginalMark &&
-      adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) ||
-    (adjudicationFlags.hasOvervote &&
-      adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) ||
-    (adjudicationFlags.hasUndervote &&
-      adminAdjudicationReasons.includes(AdjudicationReason.Undervote)) ||
-    (adjudicationFlags.isBlank &&
-      adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot))
-  );
+  return Object.entries(adjudicationFlags)
+    .filter(([, value]) => value)
+    .some(([flag]) =>
+      isAdjudicationFlagEnabled(
+        flag as Admin.CastVoteRecordAdjudicationFlag,
+        adminAdjudicationReasons
+      )
+    );
 }
 
 /**
@@ -131,60 +175,46 @@ export function deriveCvrContestTag({
   markThresholds: MarkThresholds;
   adminAdjudicationReasons: AdjudicationReason[];
 }): CvrContestTag | undefined {
-  const hasWriteIn = writeInRecords.some(
-    (r) => r.contestId === contestId && !r.isUnmarked
-  );
-  const hasUnmarkedWriteIn = writeInRecords.some(
-    (r) => r.contestId === contestId && r.isUnmarked
-  );
+  const writeIns = writeInRecords.filter((r) => r.contestId === contestId);
+  const originalAdjudicationFlags = detectContestAdjudicationFlags({
+    contest,
+    votes,
+    writeIns,
+    markScores,
+    markThresholds,
+  });
+  const adjudicationFlagsAfterAdjudication = adjudicatedVotes
+    ? detectContestAdjudicationFlags({
+        contest,
+        votes: adjudicatedVotes,
+        writeIns,
+        markScores,
+        markThresholds,
+      })
+    : [];
 
-  let hasMarginalMark =
-    adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
-    markScores !== undefined &&
-    Object.values(markScores).some(
-      (score) =>
-        score >= markThresholds.marginal && score < markThresholds.definite
-    );
-
-  const votesAllowed = getNumberVotesAllowed(contest);
-  let hasOvervote =
-    adminAdjudicationReasons.includes(AdjudicationReason.Overvote) &&
-    votes.length > votesAllowed;
-  let hasUndervote =
-    adminAdjudicationReasons.includes(AdjudicationReason.Undervote) &&
-    votes.length < votesAllowed;
-
-  // If adjudicated votes differ from scanned votes for non-write-in
-  // options, the user corrected a mark the scanner misread
-  if (adjudicatedVotes) {
-    const scannedCandidateVotes = new Set(
-      votes.filter((v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID))
-    );
-    const adjudicatedCandidateVotes = new Set(
-      adjudicatedVotes.filter(
-        (v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
+  const didAdjudicateMarginalMark =
+    adjudicatedVotes !== undefined &&
+    // If adjudicated votes differ from scanned votes for non-write-in
+    // options, the user corrected a mark the scanner misread
+    !deepEqual(
+      votes.filter((v) => v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)),
+      adjudicatedVotes.filter((v) =>
+        v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
       )
     );
-    const candidateVotesChanged =
-      scannedCandidateVotes.size !== adjudicatedCandidateVotes.size ||
-      [...scannedCandidateVotes].some((v) => !adjudicatedCandidateVotes.has(v));
-
-    if (candidateVotesChanged) {
-      hasMarginalMark = true;
-    }
-
-    // Recalculate over/undervote based on adjudicated state
-    hasOvervote = hasOvervote || adjudicatedVotes.length > votesAllowed;
-    hasUndervote = hasUndervote || adjudicatedVotes.length < votesAllowed;
+  // TODO in the original code, this flag was added regardless of whether
+  // marginal mark adjudication was enabled. Is that what we want?
+  if (didAdjudicateMarginalMark) {
+    adjudicationFlagsAfterAdjudication.push('hasMarginalMark');
   }
 
-  const needsAdjudication =
-    hasWriteIn ||
-    hasUnmarkedWriteIn ||
-    hasMarginalMark ||
-    hasOvervote ||
-    hasUndervote;
+  const allAdjudicationsFlags = [
+    ...originalAdjudicationFlags,
+    ...adjudicationFlagsAfterAdjudication,
+  ].filter((flag) => isAdjudicationFlagEnabled(flag, adminAdjudicationReasons));
 
+  const needsAdjudication = allAdjudicationsFlags.length > 0;
   if (!needsAdjudication) {
     return undefined;
   }
@@ -193,11 +223,7 @@ export function deriveCvrContestTag({
     cvrId,
     contestId,
     isResolved: adjudicatedVotes !== undefined,
-    hasWriteIn,
-    hasUnmarkedWriteIn,
-    hasMarginalMark,
-    hasOvervote,
-    hasUndervote,
+    ...Object.fromEntries(allAdjudicationsFlags.map((flag) => [flag, true])),
   };
 }
 

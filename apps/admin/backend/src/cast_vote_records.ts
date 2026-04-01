@@ -346,9 +346,9 @@ export async function importCastVoteRecords(
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
         votes,
         electionDefinition,
-        isHmpb ? markScores : undefined,
+        castVoteRecordWriteIns,
         markThresholds,
-        castVoteRecordWriteIns.length
+        isHmpb ? markScores : undefined
       );
       const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
       assert(votingMethod);
