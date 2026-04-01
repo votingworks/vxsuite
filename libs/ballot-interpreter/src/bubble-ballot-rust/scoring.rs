@@ -499,36 +499,6 @@ mod test {
         UnitIntervalScore(count_pixels(&match_diff, white).ratio())
     }
 
-    #[test]
-    fn compute_match_score_agrees_with_reference_pipeline() {
-        let threshold_val: u8 = 128;
-
-        let img = GrayImage::from_fn(100, 100, |x, y| {
-            image::Luma([((x * 37 + y * 59) % 256) as u8])
-        });
-        let template = GrayImage::from_fn(20, 20, |x, y| {
-            if (x + y) % 3 == 0 {
-                image::Luma([0])
-            } else {
-                image::Luma([255])
-            }
-        });
-
-        let actual = compute_match_score(&img, &template, 40, 40, threshold_val);
-        let expected = reference_match_score(
-            &img.view(40, 40, 20, 20).to_image(),
-            &template,
-            threshold_val,
-        );
-
-        assert!(
-            (actual.0 - expected.0).abs() < f32::EPSILON,
-            "compute_match_score ({}) != reference pipeline ({})",
-            actual.0,
-            expected.0
-        );
-    }
-
     proptest! {
         #[test]
         fn score_bubble_mark_never_panics(
@@ -555,21 +525,20 @@ mod test {
 
         #[test]
         fn compute_match_score_agrees_with_reference_pipeline_proptest(
+            img_pixels in proptest::collection::vec(proptest::num::u8::ANY, 10_000),
+            tmpl_pixels in proptest::collection::vec(
+                proptest::strategy::Union::new([
+                    proptest::strategy::Just(0u8).boxed(),
+                    proptest::strategy::Just(255u8).boxed(),
+                ]),
+                400,
+            ),
             threshold_val in 1u8..254,
-            seed in 0u32..1000,
             x in 0u32..80,
             y in 0u32..80,
         ) {
-            let img = GrayImage::from_fn(100, 100, |ix, iy| {
-                image::Luma([((ix.wrapping_mul(37).wrapping_add(iy.wrapping_mul(59)).wrapping_add(seed)) % 256) as u8])
-            });
-            let template = GrayImage::from_fn(20, 20, |ix, iy| {
-                if (ix.wrapping_add(iy).wrapping_add(seed)) % 3 == 0 {
-                    image::Luma([0])
-                } else {
-                    image::Luma([255])
-                }
-            });
+            let img = GrayImage::from_raw(100, 100, img_pixels).unwrap();
+            let template = GrayImage::from_raw(20, 20, tmpl_pixels).unwrap();
 
             let actual = compute_match_score(&img, &template, x, y, threshold_val);
             let expected = reference_match_score(
