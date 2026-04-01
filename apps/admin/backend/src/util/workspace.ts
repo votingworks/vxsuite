@@ -6,6 +6,12 @@ import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
 import { ClientStore } from '../client_store';
 
+/** Filename of the SQLite database within a workspace. */
+export const WORKSPACE_DB_FILENAME = 'data.db';
+
+/** Name of the ballot images subdirectory within a workspace. */
+export const WORKSPACE_BALLOT_IMAGES_DIR = 'ballot-images';
+
 /**
  * Shared workspace interface for both host and client machines.
  */
@@ -19,6 +25,8 @@ export interface BaseWorkspace {
  */
 export interface Workspace extends BaseWorkspace {
   readonly store: Store;
+  readonly dbPath: string;
+  readonly ballotImagesPath: string;
 }
 
 /**
@@ -33,14 +41,16 @@ export interface ClientWorkspace extends BaseWorkspace {
  */
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
-  const ballotImagesPath = join(resolvedRoot, 'ballot-images');
-  const dbPath = join(resolvedRoot, 'data.db');
+  const ballotImagesPath = join(resolvedRoot, WORKSPACE_BALLOT_IMAGES_DIR);
+  const dbPath = join(resolvedRoot, WORKSPACE_DB_FILENAME);
 
   ensureDirSync(ballotImagesPath);
   const store = Store.fileStore(dbPath, ballotImagesPath, logger);
 
   return {
     path: resolvedRoot,
+    dbPath,
+    ballotImagesPath,
     store,
     getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
   };

@@ -46,17 +46,14 @@ function createTestWorkspace() {
   });
   workspace.store.setCurrentElectionId(electionId);
 
-  const dbPath = join(workspacePath, 'data.db');
-  const ballotImagesPath = join(workspacePath, 'ballot-images');
-
   function backupDatabase(destPath: string): void {
     workspace.store.backup(destPath);
   }
 
   return {
     workspacePath,
-    dbPath,
-    ballotImagesPath,
+    dbPath: workspace.dbPath,
+    ballotImagesPath: workspace.ballotImagesPath,
     logger,
     backupDatabase,
     store: workspace.store,

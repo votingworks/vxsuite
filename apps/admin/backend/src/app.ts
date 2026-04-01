@@ -1512,14 +1512,12 @@ export function buildApp({
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
 }): Application {
-  const dbPath = join(workspace.path, 'data.db');
-  const ballotImagesPath = join(workspace.path, 'ballot-images');
   const backupManager = BackupManager.create(
     () => workspace.path,
-    () => dbPath,
-    () => ballotImagesPath,
+    () => workspace.dbPath,
+    () => workspace.ballotImagesPath,
     (destPath: string) => {
-      const client = DbClient.fileClient(dbPath, logger);
+      const client = DbClient.fileClient(workspace.dbPath, logger);
       client.backup(destPath);
     },
     logger,

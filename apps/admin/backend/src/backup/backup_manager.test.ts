@@ -15,12 +15,17 @@ import { BackupManager } from './backup_manager';
 import * as backupModule from './backup';
 import * as restoreModule from './restore';
 import {
+  BACKUP_DB_FILENAME,
   BACKUP_ROOT_DIR,
   BackupManifest,
   MANIFEST_FILENAME,
   MANIFEST_SIGNATURE_FILENAME,
 } from './types';
 import { signManifest } from './signing';
+import {
+  WORKSPACE_BALLOT_IMAGES_DIR,
+  WORKSPACE_DB_FILENAME,
+} from '../util/workspace';
 
 function mountedExt4Drive(
   mountPoint: string,
@@ -43,16 +48,17 @@ function mountedExt4Drive(
 
 async function createTestBackupManager(mockDrive: MockMultiUsbDrive) {
   const workspacePath = makeTemporaryDirectory();
-  const dbPath = join(workspacePath, 'data.db');
+  const dbPath = join(workspacePath, WORKSPACE_DB_FILENAME);
   await writeFile(dbPath, 'test');
-  await mkdir(join(workspacePath, 'ballot-images'), { recursive: true });
+  const ballotImagesPath = join(workspacePath, WORKSPACE_BALLOT_IMAGES_DIR);
+  await mkdir(ballotImagesPath, { recursive: true });
   const logger = mockBaseLogger({ fn: vi.fn });
   const backupDatabase = vi.fn();
 
   const manager = BackupManager.create(
     () => workspacePath,
     () => dbPath,
-    () => join(workspacePath, 'ballot-images'),
+    () => ballotImagesPath,
     backupDatabase,
     logger,
     mockDrive.multiUsbDrive
@@ -330,7 +336,7 @@ describe('BackupManager', () => {
     vi.spyOn(backupModule, 'performBackup').mockResolvedValue(
       err({
         type: 'invalidFileHash',
-        path: 'data.db',
+        path: BACKUP_DB_FILENAME,
         expected: 'expected-hash',
         actual: 'actual-hash',
       })

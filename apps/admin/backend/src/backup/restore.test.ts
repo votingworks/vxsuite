@@ -17,6 +17,10 @@ import {
   MANIFEST_FILENAME,
   MANIFEST_SIGNATURE_FILENAME,
 } from './types';
+import {
+  WORKSPACE_BALLOT_IMAGES_DIR,
+  WORKSPACE_DB_FILENAME,
+} from '../util/workspace';
 
 function sha256(content: string): string {
   return createHash('sha256').update(content, 'utf-8').digest('hex');
@@ -93,8 +97,8 @@ describe('performRestore', () => {
     const manifest = (
       await performRestore({
         workspacePath: workspace,
-        dbPath: join(workspace, 'data.db'),
-        ballotImagesPath: join(workspace, 'ballot-images'),
+        dbPath: join(workspace, WORKSPACE_DB_FILENAME),
+        ballotImagesPath: join(workspace, WORKSPACE_BALLOT_IMAGES_DIR),
         backupDriveMountPoint: mountPoint,
         backupDirectoryName: 'test-backup',
         softwareVersion: 'dev',
@@ -103,13 +107,15 @@ describe('performRestore', () => {
     ).unsafeUnwrap();
 
     expect(manifest.electionTitle).toEqual('Test');
-    expect((await stat(join(workspace, 'data.db'))).isFile()).toEqual(true);
-    expect(await readFile(join(workspace, 'data.db'), 'utf-8')).toEqual(
-      'restored-db'
-    );
+    expect(
+      (await stat(join(workspace, WORKSPACE_DB_FILENAME))).isFile()
+    ).toEqual(true);
+    expect(
+      await readFile(join(workspace, WORKSPACE_DB_FILENAME), 'utf-8')
+    ).toEqual('restored-db');
     expect(
       await readFile(
-        join(workspace, 'ballot-images', 'batch1', 'img.jpg'),
+        join(workspace, WORKSPACE_BALLOT_IMAGES_DIR, 'batch1', 'img.jpg'),
         'utf-8'
       )
     ).toEqual('image-bytes');
@@ -149,13 +155,13 @@ describe('performRestore', () => {
     );
 
     const workspace = makeTemporaryDirectory();
-    await writeFile(join(workspace, 'data.db'), 'original-db');
+    await writeFile(join(workspace, WORKSPACE_DB_FILENAME), 'original-db');
     const logger = mockBaseLogger({ fn: vi.fn });
 
     const result = await performRestore({
       workspacePath: workspace,
-      dbPath: join(workspace, 'data.db'),
-      ballotImagesPath: join(workspace, 'ballot-images'),
+      dbPath: join(workspace, WORKSPACE_DB_FILENAME),
+      ballotImagesPath: join(workspace, WORKSPACE_BALLOT_IMAGES_DIR),
       backupDriveMountPoint: mountPoint,
       backupDirectoryName: 'tampered-backup',
       softwareVersion: 'dev',
@@ -179,8 +185,8 @@ describe('performRestore', () => {
     (
       await performRestore({
         workspacePath: workspace,
-        dbPath: join(workspace, 'data.db'),
-        ballotImagesPath: join(workspace, 'ballot-images'),
+        dbPath: join(workspace, WORKSPACE_DB_FILENAME),
+        ballotImagesPath: join(workspace, WORKSPACE_BALLOT_IMAGES_DIR),
         backupDriveMountPoint: mountPoint,
         backupDirectoryName: 'test-backup',
         softwareVersion: 'dev',
@@ -207,8 +213,8 @@ describe('performRestore', () => {
 
     const result = await performRestore({
       workspacePath: workspace,
-      dbPath: join(workspace, 'data.db'),
-      ballotImagesPath: join(workspace, 'ballot-images'),
+      dbPath: join(workspace, WORKSPACE_DB_FILENAME),
+      ballotImagesPath: join(workspace, WORKSPACE_BALLOT_IMAGES_DIR),
       backupDriveMountPoint: mountPoint,
       backupDirectoryName: 'test-backup',
       softwareVersion: 'dev',
@@ -231,8 +237,8 @@ describe('performRestore', () => {
 
     const result = await performRestore({
       workspacePath: workspace,
-      dbPath: join(workspace, 'data.db'),
-      ballotImagesPath: join(workspace, 'ballot-images'),
+      dbPath: join(workspace, WORKSPACE_DB_FILENAME),
+      ballotImagesPath: join(workspace, WORKSPACE_BALLOT_IMAGES_DIR),
       backupDriveMountPoint: mountPoint,
       backupDirectoryName: 'test-backup',
       softwareVersion: 'dev',
@@ -261,8 +267,8 @@ describe('performRestore', () => {
     await expect(
       performRestore({
         workspacePath: workspace,
-        dbPath: join(workspace, 'data.db'),
-        ballotImagesPath: join(workspace, 'ballot-images'),
+        dbPath: join(workspace, WORKSPACE_DB_FILENAME),
+        ballotImagesPath: join(workspace, WORKSPACE_BALLOT_IMAGES_DIR),
         backupDriveMountPoint: mountPoint,
         backupDirectoryName: 'nonexistent',
         softwareVersion: 'dev',

@@ -18,6 +18,10 @@ import { listBackups, performBackup, validateBackup } from './backup';
 import { performRestore } from './restore';
 import { BackupProgress, RestoreProgress } from './types';
 import { formatBackupStopReason } from './format_backup_stop_reason';
+import {
+  WORKSPACE_BALLOT_IMAGES_DIR,
+  WORKSPACE_DB_FILENAME,
+} from '../util/workspace';
 
 /** Streams for CLI output. */
 export interface Io {
@@ -34,7 +38,7 @@ Commands:
   restore [options]                   Restore from a backup
 
 Backup options:
-  --workspace <path>         Workspace directory (contains data.db, ballot-images/)
+  --workspace <path>         Workspace directory (contains ${WORKSPACE_DB_FILENAME}, ${WORKSPACE_BALLOT_IMAGES_DIR}/)
   --mount-point <path>       USB drive mount point
 
 Restore options:
@@ -183,7 +187,7 @@ async function validateWorkspace(workspacePath: string): Promise<void> {
   if (!(await pathExists(workspacePath))) {
     throw new Error(`Workspace does not exist: ${workspacePath}`);
   }
-  const dbPath = join(workspacePath, 'data.db');
+  const dbPath = join(workspacePath, WORKSPACE_DB_FILENAME);
   if (!(await pathExists(dbPath))) {
     throw new Error(
       `Database not found at ${dbPath}. Is this a valid workspace?`
@@ -308,8 +312,8 @@ async function commandBackup(
   await validateWorkspace(workspace);
   await validateMountPoint(mountPoint);
 
-  const dbPath = join(workspace, 'data.db');
-  const ballotImagesPath = join(workspace, 'ballot-images');
+  const dbPath = join(workspace, WORKSPACE_DB_FILENAME);
+  const ballotImagesPath = join(workspace, WORKSPACE_BALLOT_IMAGES_DIR);
 
   const machineId = getMachineId();
   const softwareVersion = getCodeVersion();
@@ -370,8 +374,8 @@ async function commandRestore(
 
   const backupDir = await resolveBackupDir(mountPoint);
 
-  const dbPath = join(workspace, 'data.db');
-  const ballotImagesPath = join(workspace, 'ballot-images');
+  const dbPath = join(workspace, WORKSPACE_DB_FILENAME);
+  const ballotImagesPath = join(workspace, WORKSPACE_BALLOT_IMAGES_DIR);
 
   const sigint = createSigintCanceller(io);
 

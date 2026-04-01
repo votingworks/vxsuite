@@ -13,7 +13,12 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { mockWritable } from '@votingworks/test-utils';
 
-import { createWorkspace, Workspace } from '../util/workspace';
+import {
+  createWorkspace,
+  Workspace,
+  WORKSPACE_BALLOT_IMAGES_DIR,
+  WORKSPACE_DB_FILENAME,
+} from '../util/workspace';
 import { signManifest } from './signing';
 import {
   BACKUP_DB_FILENAME,
@@ -163,7 +168,7 @@ async function addBallotImageToWorkspace(
   side: 'front' | 'back'
 ): Promise<void> {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const dbPath = join(workspacePath, 'data.db');
+  const dbPath = join(workspacePath, WORKSPACE_DB_FILENAME);
   const client = DbClient.fileClient(dbPath, logger);
 
   const { id: electionId } = client.one('select id from elections limit 1') as {
@@ -195,7 +200,11 @@ async function addBallotImageToWorkspace(
   );
 
   // Write the image file at the expected path
-  const imageDir = join(workspacePath, 'ballot-images', electionDefId);
+  const imageDir = join(
+    workspacePath,
+    WORKSPACE_BALLOT_IMAGES_DIR,
+    electionDefId
+  );
   await mkdir(imageDir, { recursive: true });
   await writeFile(join(imageDir, `${cvrId}-${side}`), imageContent);
 }
@@ -545,7 +554,10 @@ describe('backup command', () => {
     const workspacePath = join(tmpDir, 'missing-election');
     const logger = mockBaseLogger({ fn: vi.fn });
     createWorkspace(workspacePath, logger);
-    const client = DbClient.fileClient(join(workspacePath, 'data.db'), logger);
+    const client = DbClient.fileClient(
+      join(workspacePath, WORKSPACE_DB_FILENAME),
+      logger
+    );
     client.run('PRAGMA foreign_keys = OFF');
     client.run('update settings set current_election_id = ?', 'nonexistent-id');
     client.run('PRAGMA foreign_keys = ON');
@@ -565,7 +577,10 @@ describe('backup command', () => {
     const workspacePath = join(tmpDir, 'corrupt-election');
     const logger = mockBaseLogger({ fn: vi.fn });
     createWorkspace(workspacePath, logger);
-    const client = DbClient.fileClient(join(workspacePath, 'data.db'), logger);
+    const client = DbClient.fileClient(
+      join(workspacePath, WORKSPACE_DB_FILENAME),
+      logger
+    );
     client.run(
       `insert into elections (id, election_data, system_settings_data, election_package_file_contents, election_package_hash)
        values (?, 'not-valid-json', '{}', x'00', 'hash')`,
@@ -746,7 +761,9 @@ describe('restore command', () => {
     const out = io.stdout.toString();
     expect(out).toContain('Restore completed successfully');
     expect(out).toContain('Restore Test Election');
-    expect((await stat(join(workspace, 'data.db'))).isFile()).toEqual(true);
+    expect(
+      (await stat(join(workspace, WORKSPACE_DB_FILENAME))).isFile()
+    ).toEqual(true);
   });
 
   test('performs restore with images', async () => {
@@ -772,12 +789,16 @@ describe('restore command', () => {
 
     expect(
       (
-        await stat(join(workspace, 'ballot-images', 'batch1', 'img1.jpg'))
+        await stat(
+          join(workspace, WORKSPACE_BALLOT_IMAGES_DIR, 'batch1', 'img1.jpg')
+        )
       ).isFile()
     ).toEqual(true);
     expect(
       (
-        await stat(join(workspace, 'ballot-images', 'batch1', 'img2.jpg'))
+        await stat(
+          join(workspace, WORKSPACE_BALLOT_IMAGES_DIR, 'batch1', 'img2.jpg')
+        )
       ).isFile()
     ).toEqual(true);
   });
@@ -864,12 +885,12 @@ describe('backup then restore round-trip', () => {
     expect(restoreCode).toEqual(0);
 
     // Verify restored database exists and contains data
-    expect((await stat(join(restoreWorkspace, 'data.db'))).isFile()).toEqual(
-      true
-    );
+    expect(
+      (await stat(join(restoreWorkspace, WORKSPACE_DB_FILENAME))).isFile()
+    ).toEqual(true);
     const restoredLogger = mockBaseLogger({ fn: vi.fn });
     const restoredClient = DbClient.fileClient(
-      join(restoreWorkspace, 'data.db'),
+      join(restoreWorkspace, WORKSPACE_DB_FILENAME),
       restoredLogger
     );
     const settings = restoredClient.one(
@@ -878,7 +899,10 @@ describe('backup then restore round-trip', () => {
     expect(settings.currentElectionId).toBeDefined();
 
     // Verify restored images — find the image file under ballot-images/
-    const restoredImagesRoot = join(restoreWorkspace, 'ballot-images');
+    const restoredImagesRoot = join(
+      restoreWorkspace,
+      WORKSPACE_BALLOT_IMAGES_DIR
+    );
     const subdirs = await readdir(restoredImagesRoot);
     expect(subdirs.length).toBeGreaterThan(0);
     const imageFiles = await readdir(
@@ -933,7 +957,7 @@ describe('SIGINT cancellation', () => {
     vi.spyOn(restoreModule, 'performRestore').mockResolvedValue(
       err({
         type: 'invalidFileHash',
-        path: 'data.db',
+        path: BACKUP_DB_FILENAME,
         expected: 'expected-hash',
         actual: 'actual-hash',
       })

@@ -20,6 +20,10 @@ import {
   ignoreMissing,
 } from './fs_utils';
 import { BackupStopReason, validateBackup } from './backup';
+import {
+  WORKSPACE_BALLOT_IMAGES_DIR,
+  WORKSPACE_DB_FILENAME,
+} from '../util/workspace';
 
 const debug = makeDebug('admin:restore');
 
@@ -96,7 +100,10 @@ export async function performRestore(
 
   try {
     await cleanupSafe(ctx.dbPath);
-    await rename(join(previousWorkspacePath, 'data.db'), ctx.dbPath);
+    await rename(
+      join(previousWorkspacePath, WORKSPACE_DB_FILENAME),
+      ctx.dbPath
+    );
     debug('restored previous database');
   } catch {
     debug('rollback of database failed or no previous database to restore');
@@ -105,7 +112,7 @@ export async function performRestore(
   try {
     await cleanupDirSafe(ctx.ballotImagesPath);
     await rename(
-      join(previousWorkspacePath, 'ballot-images'),
+      join(previousWorkspacePath, WORKSPACE_BALLOT_IMAGES_DIR),
       ctx.ballotImagesPath
     );
     debug('restored previous ballot images');
@@ -169,7 +176,9 @@ async function doRestore(
   const newWorkspacePath = join(restoreInProgressPath, 'new-workspace');
   await mkdir(previousWorkspacePath, { recursive: true });
   await mkdir(newWorkspacePath, { recursive: true });
-  await mkdir(join(newWorkspacePath, 'ballot-images'), { recursive: true });
+  await mkdir(join(newWorkspacePath, WORKSPACE_BALLOT_IMAGES_DIR), {
+    recursive: true,
+  });
 
   if (ctx.signal?.aborted) {
     return err({ type: 'cancelled' });
@@ -220,6 +229,15 @@ async function doRestore(
   }
 
   // ── Activate ────────────────────────────────────────────────────────
+  //
+  // TODO: Make activation truly atomic by keeping both data.db and
+  // ballot-images/ inside a versioned subdirectory (e.g.
+  // workspace/data-v1/) and pointing a workspace/current symlink at it.
+  // A restore would prepare workspace/data-v2/, then atomically swap
+  // the symlink. This avoids the current two-step rename where the db
+  // can succeed but images can fail, leaving the workspace inconsistent.
+  // Requires changes to Workspace, Store, BackupManager, and a
+  // migration strategy for existing deployments.
 
   ctx.onProgress?.({
     phase: 'activating',
@@ -229,10 +247,13 @@ async function doRestore(
 
   // 2. Move current data to previous-workspace (may not exist on first restore)
   await ignoreMissing(
-    rename(ctx.dbPath, join(previousWorkspacePath, 'data.db'))
+    rename(ctx.dbPath, join(previousWorkspacePath, WORKSPACE_DB_FILENAME))
   );
   await ignoreMissing(
-    rename(ctx.ballotImagesPath, join(previousWorkspacePath, 'ballot-images'))
+    rename(
+      ctx.ballotImagesPath,
+      join(previousWorkspacePath, WORKSPACE_BALLOT_IMAGES_DIR)
+    )
   );
 
   // 3. Move new data into workspace
