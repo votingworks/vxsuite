@@ -844,9 +844,11 @@ describe('vote adjudication', () => {
 
     await waitForBallotById('id-174');
     const ballotImage = await screen.findByRole('img', {
-      name: /full ballot/i,
+      name: /ballot/i,
     });
-    expect(ballotImage).toHaveAttribute('src', 'mock-image-data-id-174-0');
+    expect(ballotImage.style.backgroundImage).toContain(
+      'mock-image-data-id-174-0'
+    );
     const rockfishCheckbox = screen.getByRole('checkbox', {
       name: /rockfish/i,
     });
@@ -1095,7 +1097,7 @@ describe('ballot image viewer', () => {
     // Zoom out to show the entire ballot
     userEvent.click(zoomButton);
     ballotImage = screen.getByRole('img', {
-      name: /full ballot/i,
+      name: /ballot/i,
     });
     expect(ballotImage).toHaveStyle({ width: '100%' });
     expect(zoomButton).toBeEnabled();
@@ -1202,12 +1204,13 @@ describe('ballot image viewer', () => {
 
     await waitForBallotById('id-174');
     const ballotImage = await screen.findByRole('img', {
-      name: /Full ballot/i,
+      name: /ballot/i,
     });
 
     // Fully zoomed out
-    expect(ballotImage).toHaveAttribute('src', 'mock-image-data-id-174-0');
-    expect(ballotImage).toHaveStyle({ height: `100%` });
+    expect(ballotImage.style.backgroundImage).toContain(
+      'mock-image-data-id-174-0'
+    );
 
     // There should be no zoom buttons
     expect(screen.queryByText(/Zoom/)).toBeNull();

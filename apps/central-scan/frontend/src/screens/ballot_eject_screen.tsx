@@ -5,13 +5,24 @@ import {
   PageInterpretation,
   Side,
   formatBallotHash,
+  mapSheet,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { Button, H1, H2, H6, Icons, Main, P, Screen } from '@votingworks/ui';
+import {
+  BallotImage,
+  BallotImageHighlight,
+  Button,
+  H1,
+  H2,
+  H6,
+  Icons,
+  Main,
+  P,
+  Screen,
+} from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import React, { useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { AppContext } from '../contexts/app_context';
 import { Header } from '../navigation_screen';
 import {
@@ -36,24 +47,13 @@ const AdjudicationExplanation = styled.div`
   }
 `;
 
-const RectoVerso = styled.div`
+const BallotImagesContainer = styled.div`
   background: ${(p) => p.theme.colors.containerHigh};
   padding: 1rem;
+  gap: 1em;
   display: flex;
-
-  & > * {
-    &:first-child {
-      margin-right: 1em;
-    }
-  }
-
-  img {
-    max-width: 100%;
-    max-height: 82vh;
-  }
+  flex: 3;
 `;
-
-const HIGHLIGHTER_COLOR = '#fbff0066';
 
 interface Props {
   isTestMode: boolean;
@@ -89,17 +89,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   function acceptBallotAndContinueScanning() {
     continueScanningMutation.mutate({ forceAccept: true });
   }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const highlightedContestIds = new Set<Contest['id']>();
-
-  const styleForContest = useCallback(
-    (contestId: Contest['id']): React.CSSProperties =>
-      highlightedContestIds.has(contestId)
-        ? { backgroundColor: HIGHLIGHTER_COLOR }
-        : {},
-    [highlightedContestIds]
-  );
 
   const reviewInfo = getNextReviewSheetQuery.data;
 
@@ -169,16 +158,12 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     {
       side: 'front' as Side,
       interpretation: reviewInfo.interpreted.front.interpretation,
-      layout: reviewInfo.layouts.front,
-      contestIds: reviewInfo.definitions.front?.contestIds,
       adjudicationFinishedAt:
         reviewInfo.interpreted.front.adjudicationFinishedAt,
     },
     {
       side: 'back' as Side,
       interpretation: reviewInfo.interpreted.back.interpretation,
-      layout: reviewInfo.layouts.back,
-      contestIds: reviewInfo.definitions.back?.contestIds,
       adjudicationFinishedAt:
         reviewInfo.interpreted.back.adjudicationFinishedAt,
     },
@@ -229,6 +214,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   const isBlankSheet =
     isFrontBlank && (isBackBlank || isBackIntentionallyLeftBlank);
 
+  const highlightedContestIds = new Set<Contest['id']>();
   if (isOvervotedSheet) {
     for (const contestId of overvoteContestIds) {
       highlightedContestIds.add(contestId);
@@ -423,22 +409,37 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             </Button>
           )}
         </AdjudicationExplanation>
-        <RectoVerso>
-          <BallotSheetImage
-            sheetId={reviewInfo.interpreted.id}
-            side="front"
-            layout={reviewInfo.layouts.front}
-            contestIds={reviewInfo.definitions.front?.contestIds}
-            styleForContest={styleForContest}
-          />
-          <BallotSheetImage
-            sheetId={reviewInfo.interpreted.id}
-            side="back"
-            layout={reviewInfo.layouts.back}
-            contestIds={reviewInfo.definitions.back?.contestIds}
-            styleForContest={styleForContest}
-          />
-        </RectoVerso>
+        <BallotImagesContainer>
+          {mapSheet(reviewInfo.images, (pageImage, side) => {
+            const highlights = pageImage.layout?.contests
+              .filter((contestLayout) =>
+                highlightedContestIds.has(contestLayout.contestId)
+              )
+              .map(
+                (contestLayout): BallotImageHighlight => ({
+                  bounds: contestLayout.bounds,
+                  variant: 'warning',
+                })
+              );
+
+            return (
+              <div
+                style={{
+                  flex: 1,
+                  height: '100%',
+                }}
+                key={side}
+              >
+                <BallotImage
+                  style={{ margin: '0 auto' }}
+                  imageUrl={pageImage.imageUrl}
+                  ballotBounds={pageImage.ballotBounds}
+                  highlights={highlights}
+                />
+              </div>
+            );
+          })}
+        </BallotImagesContainer>
       </Main>
     </Screen>
   );

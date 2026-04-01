@@ -2,7 +2,7 @@ import {
   DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
-import { Optional, Result, assert, ok } from '@votingworks/basics';
+import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
   readSignedElectionPackageFromUsb,
@@ -11,28 +11,27 @@ import {
 } from '@votingworks/backend';
 import {
   ElectionPackageConfigurationError,
-  BallotPageLayout,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   SystemSettings,
   ExportCastVoteRecordsToUsbDriveError,
   DiagnosticRecord,
-  ContestId,
-  Id,
-  Side,
   BallotSheetInfo,
   DiagnosticOutcome,
+  Rect,
+  mapSheet,
+  SheetOf,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
+import { loadImageMetadata } from '@votingworks/image-utils';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { MachineConfig, ScanStatus } from './types';
+import { BallotImage, MachineConfig, ScanStatus } from './types';
 import { getMachineConfig } from './machine_config';
 import { constructAuthMachineState } from './util/auth';
 import {
@@ -210,67 +209,46 @@ function buildApi({
       }
     },
 
-    getNextReviewSheet(): {
+    async getNextReviewSheet(): Promise<{
       interpreted: BallotSheetInfo;
-      layouts: {
-        front?: BallotPageLayout;
-        back?: BallotPageLayout;
-      };
-      definitions: {
-        front?: { contestIds: readonly ContestId[] };
-        back?: { contestIds: readonly ContestId[] };
-      };
-    } | null {
+      images: SheetOf<BallotImage>;
+    } | null> {
       const sheet = store.getNextAdjudicationSheet();
 
       if (!sheet) {
         return null;
       }
 
-      let frontLayout: BallotPageLayout | undefined;
-      let backLayout: BallotPageLayout | undefined;
-      let frontDefinition: Optional<{ contestIds: readonly ContestId[] }>;
-      let backDefinition: Optional<{ contestIds: readonly ContestId[] }>;
-
-      if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
-        const front = sheet.front.interpretation;
-        frontLayout = front.layout;
-        const contestIds = Object.keys(front.votes);
-        frontDefinition = { contestIds };
-      }
-
-      if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
-        const back = sheet.back.interpretation;
-        const contestIds = Object.keys(back.votes);
-
-        backLayout = back.layout;
-        backDefinition = { contestIds };
-      }
+      const images = await mapSheet(
+        [sheet.front, sheet.back],
+        async (info, side): Promise<BallotImage> => {
+          const imagePath = assertDefined(
+            store.getBallotImagePath(sheet.id, side)
+          );
+          const imageBuffer = await readFile(imagePath);
+          const metadata = (
+            await loadImageMetadata(imageBuffer)
+          ).unsafeUnwrap();
+          const { type, width, height } = metadata;
+          const imageUrl = `data:${type};base64,${imageBuffer.toString(
+            'base64'
+          )}`;
+          const ballotBounds: Rect = { x: 0, y: 0, width, height };
+          return {
+            imageUrl,
+            ballotBounds,
+            layout:
+              info.interpretation.type === 'InterpretedHmpbPage'
+                ? info.interpretation.layout
+                : undefined,
+          };
+        }
+      );
 
       return {
         interpreted: sheet,
-        layouts: {
-          front: frontLayout,
-          back: backLayout,
-        },
-        definitions: {
-          front: frontDefinition,
-          back: backDefinition,
-        },
+        images,
       };
-    },
-
-    async getSheetImage(input: {
-      sheetId: Id;
-      side: Side;
-    }): Promise<Buffer | null> {
-      const imagePath = store.getBallotImagePath(input.sheetId, input.side);
-
-      if (!imagePath) {
-        return null;
-      }
-
-      return await readFile(imagePath);
     },
 
     async continueScanning(input: { forceAccept: boolean }): Promise<void> {

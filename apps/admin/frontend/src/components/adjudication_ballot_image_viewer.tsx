@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Button, Callout, DesktopPalette } from '@votingworks/ui';
+import {
+  BallotImage,
+  BallotImageHighlight,
+  Button,
+  Callout,
+} from '@votingworks/ui';
 import styled from 'styled-components';
 import { Rect } from '@votingworks/types';
 
@@ -14,6 +19,8 @@ const BallotImageViewerContainer = styled.div`
   position: relative;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
 `;
 
 // We zoom in by scaling (setting the width) and then translating to center the
@@ -88,32 +95,6 @@ const ZoomedOutBallotImageContainer = styled.div`
   }
 `;
 
-const ImageWrapper = styled.div`
-  position: relative;
-  height: 100%;
-`;
-
-const ContestHighlight = styled.div<{
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-  hasWarning?: boolean;
-}>`
-  position: absolute;
-  top: ${(p) => p.top}%;
-  left: ${(p) => p.left}%;
-  width: ${(p) => p.width}%;
-  height: ${(p) => p.height}%;
-  z-index: 1;
-  background: ${(p) =>
-    p.hasWarning ? 'rgba(220, 120, 0, 0.1)' : 'rgba(100, 50, 200, 0.1)'};
-  box-shadow: 0 0 0 3px
-    ${(p) => (p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60)};
-  border-radius: 2px;
-  pointer-events: none;
-`;
-
 const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   display: flex;
   justify-content: flex-end;
@@ -173,53 +154,29 @@ export function BallotZoomImageViewer({
         </React.Fragment>
       ) : (
         <ZoomedOutBallotImageContainer>
-          <img src={imageUrl} alt="Full ballot" />
+          <img src={imageUrl} alt="Ballot" />
         </ZoomedOutBallotImageContainer>
       )}
     </BallotImageViewerContainer>
   );
 }
 
-const FitToHeightContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  height: 100%;
-
-  img {
-    height: 100%;
-  }
-`;
-
 export function BallotStaticImageViewer({
   imageUrl,
-  highlightBounds,
   ballotBounds,
-  hasWarning,
+  highlight,
 }: {
   imageUrl: string;
-  highlightBounds?: Rect;
-  ballotBounds?: Rect;
-  hasWarning?: boolean;
+  ballotBounds: Rect;
+  highlight?: BallotImageHighlight;
 }): JSX.Element {
-  const overlay =
-    highlightBounds && ballotBounds ? (
-      <ContestHighlight
-        top={(highlightBounds.y / ballotBounds.height) * 100}
-        left={(highlightBounds.x / ballotBounds.width) * 100}
-        width={(highlightBounds.width / ballotBounds.width) * 100}
-        height={(highlightBounds.height / ballotBounds.height) * 100}
-        hasWarning={hasWarning}
-      />
-    ) : null;
-
   return (
     <BallotImageViewerContainer>
-      <FitToHeightContainer>
-        <ImageWrapper>
-          <img src={imageUrl} alt="Full ballot" />
-          {overlay}
-        </ImageWrapper>
-      </FitToHeightContainer>
+      <BallotImage
+        imageUrl={imageUrl}
+        ballotBounds={ballotBounds}
+        highlights={highlight && [highlight]}
+      />
     </BallotImageViewerContainer>
   );
 }

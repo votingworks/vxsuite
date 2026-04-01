@@ -1,4 +1,4 @@
-import { BatchInfo } from '@votingworks/types';
+import { BallotPageLayout, BatchInfo, Rect } from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;
@@ -13,4 +13,10 @@ export interface ScanStatus {
   adjudicationsRemaining: number;
   batches: BatchInfo[];
   canUnconfigure: boolean;
+}
+
+export interface BallotImage {
+  imageUrl: string;
+  ballotBounds: Rect;
+  layout?: BallotPageLayout;
 }

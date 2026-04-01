@@ -422,7 +422,10 @@ export function ContestAdjudicationScreen({
               }
             />
           ) : isBmd ? (
-            <BallotStaticImageViewer imageUrl={ballotImage.imageUrl} />
+            <BallotStaticImageViewer
+              imageUrl={ballotImage.imageUrl}
+              ballotBounds={ballotImage.ballotCoordinates}
+            />
           ) : null}
         </BallotPanel>
         <AdjudicationPanel>

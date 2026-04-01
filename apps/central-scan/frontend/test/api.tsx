@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import { Mock, vi } from 'vitest';
 import React from 'react';
 import type {
@@ -13,8 +12,6 @@ import {
   DiagnosticRecord,
   DippedSmartCardAuth,
   ElectionDefinition,
-  Id,
-  Side,
   SystemSettings,
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -143,15 +140,6 @@ export function createApiMock(
       apiClient.getNextReviewSheet
         .expectRepeatedCallsWith()
         .resolves(reviewSheetInfo ?? null);
-    },
-
-    expectGetSheetImage(
-      input: { sheetId: Id; side: Side },
-      imageBuffer?: Buffer
-    ) {
-      apiClient.getSheetImage
-        .expectCallWith(input)
-        .resolves(imageBuffer ?? null);
     },
 
     expectContinueScanning(input: { forceAccept: boolean }) {
