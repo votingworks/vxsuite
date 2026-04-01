@@ -2,15 +2,22 @@ import { test } from 'vitest';
 import {
   Candidate,
   DistrictId,
+  Election,
+  ElectionStringKey,
   Parties,
   PartyId,
+  PollingPlace,
   Precinct,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { CandidatePartyList, PrecinctSelectionName } from './utils';
+import {
+  CandidatePartyList,
+  PollingPlaceName,
+  PrecinctSelectionName,
+} from './utils';
 import { newTestContext } from '../../test/test_context';
 import { H1 } from '..';
 import { screen } from '../../test/react_testing_library';
@@ -171,3 +178,59 @@ test('PrecinctSelectionName - no selection', async () => {
 
   await screen.findByRole('heading', { name: 'Precincts:' });
 });
+
+test('PollingPlaceName - with selection', async () => {
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
+  mockApiClient.getUiStrings.mockResolvedValue({
+    [ElectionStringKey.POLLING_PLACE_NAME]: {
+      p1: 'Centro de votación 1',
+      p2: 'Centro de votación 2',
+    },
+  });
+
+  const election = mockElection({
+    pollingPlaces: [
+      mockPollingPlace({ id: 'p1', name: 'Place 1' }),
+      mockPollingPlace({ id: 'p2', name: 'Place 2' }),
+    ],
+  });
+
+  render(
+    <H1>
+      Polling Place: <PollingPlaceName election={election} id="p2" />
+    </H1>
+  );
+
+  await screen.findByRole('heading', {
+    name: 'Polling Place: Centro de votación 2',
+  });
+});
+
+test('PollingPlaceName - no selection', async () => {
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
+  mockApiClient.getUiStrings.mockResolvedValue({
+    [ElectionStringKey.POLLING_PLACE_NAME]: { p1: 'Centro de votación 1' },
+  });
+
+  const election = mockElection({
+    pollingPlaces: [mockPollingPlace({ id: 'p1', name: 'Place 1' })],
+  });
+
+  render(
+    <H1>
+      Polling Place: <PollingPlaceName election={election} id={undefined} />
+    </H1>
+  );
+
+  await screen.findByRole('heading', { name: 'Polling Place:' });
+});
+
+function mockElection(partial: Partial<Election>): Election {
+  return partial as Election;
+}
+
+function mockPollingPlace(partial: Partial<PollingPlace>): PollingPlace {
+  return partial as PollingPlace;
+}

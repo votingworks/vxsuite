@@ -2,10 +2,12 @@ import React from 'react';
 
 import {
   Candidate,
+  Election,
   Parties,
   Precinct,
   PrecinctSelection,
   getCandidateParties,
+  pollingPlaceFromElection,
 } from '@votingworks/types';
 import { getPrecinctSelection } from '@votingworks/utils';
 
@@ -57,4 +59,17 @@ export function PrecinctSelectionName(props: {
   const precinct = getPrecinctSelection(electionPrecincts, precinctSelection);
 
   return electionStrings.precinctName(precinct);
+}
+
+export function PollingPlaceName(props: {
+  election: Election;
+  id?: string;
+}): React.ReactNode {
+  const { election, id } = props;
+
+  if (!id) return null;
+
+  return electionStrings.pollingPlaceName(
+    pollingPlaceFromElection(election, id)
+  );
 }
