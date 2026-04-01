@@ -3,12 +3,7 @@ import { Server } from 'node:http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import {
-  getAudioInfoWithRetry,
-  setAudioVolume,
-  setDefaultAudio,
-  startCpuMetricsLogging,
-} from '@votingworks/backend';
+import { startCpuMetricsLogging } from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
@@ -30,6 +25,7 @@ import {
   getMockAccessibleControllerConnected,
   setMockAccessibleControllerConnected,
 } from './util/mock_accessible_controller';
+import { initializeAudio } from './audio/initialize';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -67,36 +63,7 @@ export async function start({
     ? new MockBarcodeClient()
     : new BarcodeClient(baseLogger);
 
-  const audioInfo = await getAudioInfoWithRetry({
-    baseRetryDelayMs: 2000,
-    logger,
-    maxAttempts: 4,
-    nodeEnv: NODE_ENV,
-  });
-
-  if (audioInfo.usb) {
-    const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
-      logger,
-      nodeEnv: NODE_ENV,
-    });
-    resultDefaultAudio.assertOk('unable to set USB audio as default output');
-
-    // Screen reader volume levels are calibrated against a maximum system
-    // volume setting:
-    const resultVolume = await setAudioVolume({
-      logger,
-      nodeEnv: NODE_ENV,
-      sinkName: audioInfo.usb.name,
-      volumePct: 100,
-    });
-    resultVolume.assertOk('unable to set USB audio volume');
-  } else {
-    void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
-      message: 'USB audio device not detected.',
-      disposition: 'failure',
-    });
-  }
-
+  const audioInfo = await initializeAudio(logger);
   const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
 
   const app = buildApp({

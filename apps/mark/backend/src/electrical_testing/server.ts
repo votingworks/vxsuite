@@ -1,17 +1,15 @@
 import { LogEventId } from '@votingworks/logging';
 
-import {
-  AUDIO_DEVICE_DEFAULT_SINK,
-  setAudioVolume,
-} from '@votingworks/backend';
 import { cleanupCachedBrowser } from '@votingworks/printing';
-import { NODE_ENV, PORT } from '../globals';
+import { extractErrorMessage } from '@votingworks/basics';
+import { PORT } from '../globals';
 import { buildApp } from './app';
 import {
   runCardReadAndUsbDriveWriteTask,
   runPrinterTestTask,
 } from './background';
 import { ServerContext } from './context';
+import { initializeAudio } from '../audio/initialize';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger, barcodeClient } = context;
@@ -22,16 +20,12 @@ export function startElectricalTestingServer(context: ServerContext): void {
   const app = buildApp(context);
 
   const server = app.listen(PORT, async () => {
-    const volumeResult = await setAudioVolume({
-      logger,
-      nodeEnv: NODE_ENV,
-      sinkName: AUDIO_DEVICE_DEFAULT_SINK,
-      volumePct: 40,
-    });
-    if (volumeResult.isErr()) {
-      logger.log(LogEventId.Info, 'system', {
-        message: `Failed to set initial audio volume: ${volumeResult.err()}`,
+    try {
+      await initializeAudio(logger, 40);
+    } catch (error) {
+      logger.log(LogEventId.ApplicationStartup, 'system', {
         disposition: 'failure',
+        message: `Failed to initialize audio: ${extractErrorMessage(error)}`,
       });
     }
 
