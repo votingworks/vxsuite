@@ -1,6 +1,6 @@
 export * from './artifact_authentication';
 export * as cac from './cac';
-export type { CardStatus } from './card';
+export type { Card, CardStatus } from './card';
 export * from './cast_vote_record_hashes';
 export * from './config';
 export {
