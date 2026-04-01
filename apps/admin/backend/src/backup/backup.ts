@@ -209,32 +209,31 @@ export async function performBackup(
   const timestamp = new Date().toISOString().replace(/[^\d]/g, '');
   const tempDbPath = join(ctx.workspacePath, `admin-backup-${timestamp}.db`);
 
-  const result = await doBackup(ctx, backupRootPath, tempDbPath);
+  const { result, inProgressDirPath } = await doBackup(
+    ctx,
+    backupRootPath,
+    tempDbPath
+  );
 
   // Clean up on failure
-  if (result.isErr()) {
-    const electionInfoResult = getCurrentElectionBackupInfo(
-      tempDbPath,
-      ctx.logger
-    );
-    if (electionInfoResult.isOk()) {
-      const inProgressDirPath = join(
-        backupRootPath,
-        `${electionInfoResult.ok().electionDirName}${IN_PROGRESS_SUFFIX}`
-      );
-      await cleanupDirSafe(inProgressDirPath);
-    }
+  if (result.isErr() && inProgressDirPath) {
+    await cleanupDirSafe(inProgressDirPath);
   }
 
   await cleanupSafe(tempDbPath);
   return result;
 }
 
+interface DoBackupResult {
+  readonly result: Result<void, BackupStopReason>;
+  readonly inProgressDirPath?: string;
+}
+
 async function doBackup(
   ctx: BackupContext,
   backupRootPath: string,
   tempDbPath: string
-): Promise<Result<void, BackupStopReason>> {
+): Promise<DoBackupResult> {
   // ── Pre-Flight ──────────────────────────────────────────────────────
 
   ctx.onProgress?.({
@@ -253,17 +252,19 @@ async function doBackup(
     formatBytes(dbStat.size)
   );
   if (internalSpace > 0 && internalSpace < dbStat.size * 1.1) {
-    return err({
-      type: 'insufficientDiskSpace',
-      location: 'internal',
-      required: dbStat.size,
-      available: internalSpace,
-    });
+    return {
+      result: err({
+        type: 'insufficientDiskSpace',
+        location: 'internal',
+        required: dbStat.size,
+        available: internalSpace,
+      }),
+    };
   }
 
   /* istanbul ignore next */
   if (ctx.signal?.aborted) {
-    return err({ type: 'cancelled' });
+    return { result: err({ type: 'cancelled' }) };
   }
 
   // 2. Copy database using VACUUM INTO
@@ -279,7 +280,7 @@ async function doBackup(
 
   /* istanbul ignore next */
   if (ctx.signal?.aborted) {
-    return err({ type: 'cancelled' });
+    return { result: err({ type: 'cancelled' }) };
   }
 
   const electionInfoResult = getCurrentElectionBackupInfo(
@@ -287,7 +288,7 @@ async function doBackup(
     ctx.logger
   );
   if (electionInfoResult.isErr()) {
-    return electionInfoResult;
+    return { result: electionInfoResult };
   }
   const electionInfo = electionInfoResult.ok();
   const electionDirPath = join(backupRootPath, electionInfo.electionDirName);
@@ -356,17 +357,20 @@ async function doBackup(
 
   // Only check if we could actually get disk space info
   if (driveSpace > 0 && driveSpace < totalNeeded * 1.05) {
-    return err({
-      type: 'insufficientDiskSpace',
-      location: 'backupDrive',
-      required: totalNeeded,
-      available: driveSpace,
-    });
+    return {
+      result: err({
+        type: 'insufficientDiskSpace',
+        location: 'backupDrive',
+        required: totalNeeded,
+        available: driveSpace,
+      }),
+      inProgressDirPath,
+    };
   }
 
   /* istanbul ignore next */
   if (ctx.signal?.aborted) {
-    return err({ type: 'cancelled' });
+    return { result: err({ type: 'cancelled' }), inProgressDirPath };
   }
 
   // ── Backup ──────────────────────────────────────────────────────────
@@ -389,7 +393,7 @@ async function doBackup(
   });
 
   if (ctx.signal?.aborted) {
-    return err({ type: 'cancelled' });
+    return { result: err({ type: 'cancelled' }), inProgressDirPath };
   }
 
   // 3. Hard-link files from previous backup
@@ -409,7 +413,7 @@ async function doBackup(
 
   for (const imageRelPath of reusedImageFiles) {
     if (ctx.signal?.aborted) {
-      return err({ type: 'cancelled' });
+      return { result: err({ type: 'cancelled' }), inProgressDirPath };
     }
 
     const backupImagePath = join(BACKUP_IMAGES_DIR, imageRelPath);
@@ -444,7 +448,7 @@ async function doBackup(
 
   for (const imageRelPath of newImageFiles) {
     if (ctx.signal?.aborted) {
-      return err({ type: 'cancelled' });
+      return { result: err({ type: 'cancelled' }), inProgressDirPath };
     }
 
     const srcPath = join(ctx.ballotImagesPath, imageRelPath);
@@ -470,7 +474,7 @@ async function doBackup(
   }
 
   if (ctx.signal?.aborted) {
-    return err({ type: 'cancelled' });
+    return { result: err({ type: 'cancelled' }), inProgressDirPath };
   }
 
   debug('all images processed (%d total)', imagesCopied);
@@ -506,7 +510,7 @@ async function doBackup(
   debug('manifest written and signed');
 
   if (ctx.signal?.aborted) {
-    return err({ type: 'cancelled' });
+    return { result: err({ type: 'cancelled' }), inProgressDirPath };
   }
 
   // 6. Atomically swap directories
@@ -538,11 +542,11 @@ async function doBackup(
 
   /* istanbul ignore next */
   if (validateResult.isErr()) {
-    return validateResult;
+    return { result: validateResult };
   }
 
   debug('backup complete');
-  return ok();
+  return { result: ok() };
 }
 
 /**
