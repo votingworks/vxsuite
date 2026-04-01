@@ -106,6 +106,7 @@ interface SearchSelectBaseProps<T = string> {
   onFocus?: () => void;
   onInputChange?: (value?: T) => void;
   menuPortalTarget?: HTMLElement;
+  menuShadow?: boolean;
   minMenuHeight?: number;
   maxMenuHeight?: number;
   noOptionsMessage?: () => React.ReactNode;
@@ -151,6 +152,7 @@ export function SearchSelect<T = string>({
   placeholder,
   required,
   menuPortalTarget,
+  menuShadow,
   minMenuHeight,
   noOptionsMessage,
   maxMenuHeight = 600, // in px, 1/2 admin's vh
@@ -267,6 +269,11 @@ export function SearchSelect<T = string>({
           ...baseStyles,
           borderRadius,
           '::-webkit-scrollbar': { display: 'none' },
+          // [TODO] Provide different shadow options, instead of a
+          // one-size-fits-all on/off switch.
+          boxShadow: menuShadow
+            ? '0rem 0.25rem 0.5rem rgba(0, 0, 0, 0.35)'
+            : undefined,
         }),
         option: (baseStyles, state) => ({
           ...baseStyles,
