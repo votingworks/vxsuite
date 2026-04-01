@@ -13,7 +13,11 @@ import makeDebug from 'debug';
 import { assert, err, iter, ok, Result } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import { BaseLogger } from '@votingworks/logging';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import {
+  safeParse,
+  safeParseElectionDefinition,
+  safeParseJson,
+} from '@votingworks/types';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 
 import {
@@ -23,6 +27,7 @@ import {
   BackupEntry,
   BackupManifest,
   BackupManifestFile,
+  BackupManifestSchema,
   BackupProgress,
   IN_PROGRESS_SUFFIX,
   MANIFEST_FILENAME,
@@ -172,7 +177,23 @@ async function readPreviousManifest(
       );
       return undefined;
     }
-    return JSON.parse(manifestJson.toString('utf8')) as BackupManifest;
+    const jsonParseResult = safeParseJson(manifestJson.toString('utf8'));
+    if (jsonParseResult.isErr()) {
+      debug('previous manifest is not valid JSON: %s', jsonParseResult.err());
+      return undefined;
+    }
+    const parseResult = safeParse<BackupManifest>(
+      BackupManifestSchema,
+      jsonParseResult.ok()
+    );
+    if (parseResult.isErr()) {
+      debug(
+        'previous manifest failed schema validation: %s',
+        parseResult.err()
+      );
+      return undefined;
+    }
+    return parseResult.ok();
   } catch (error) {
     debug('error reading previous manifest: %s', error);
     return undefined;
@@ -575,7 +596,26 @@ export async function validateBackup(
     });
   }
 
-  const manifest: BackupManifest = JSON.parse(manifestJson.toString('utf8'));
+  const jsonParseResult = safeParseJson(manifestJson.toString('utf8'));
+  if (jsonParseResult.isErr()) {
+    return err({
+      type: 'error',
+      error: new Error(
+        `Invalid manifest JSON: ${jsonParseResult.err().message}`
+      ),
+    });
+  }
+  const parseResult = safeParse<BackupManifest>(
+    BackupManifestSchema,
+    jsonParseResult.ok()
+  );
+  if (parseResult.isErr()) {
+    return err({
+      type: 'error',
+      error: new Error(`Invalid manifest: ${parseResult.err().message}`),
+    });
+  }
+  const manifest = parseResult.ok();
   debug('validate: manifest has %d files', manifest.files.length);
 
   // 2. Check software version
@@ -642,7 +682,28 @@ export async function listBackups(mountPoint: string): Promise<BackupEntry[]> {
       const manifestJson = await readFile(join(dirPath, MANIFEST_FILENAME), {
         encoding: 'utf-8',
       });
-      const manifest: BackupManifest = JSON.parse(manifestJson);
+      const jsonParseResult = safeParseJson(manifestJson);
+      if (jsonParseResult.isErr()) {
+        debug(
+          'manifest in %s is not valid JSON: %s',
+          dirName,
+          jsonParseResult.err()
+        );
+        continue;
+      }
+      const parseResult = safeParse<BackupManifest>(
+        BackupManifestSchema,
+        jsonParseResult.ok()
+      );
+      if (parseResult.isErr()) {
+        debug(
+          'manifest in %s failed schema validation: %s',
+          dirName,
+          parseResult.err()
+        );
+        continue;
+      }
+      const manifest = parseResult.ok();
       const totalSize = iter(manifest.files)
         .map((f) => f.size)
         .sum();

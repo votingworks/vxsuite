@@ -58,7 +58,10 @@ export function validateManifestSignature(
     return true;
   }
 
-  // TODO: Add vxsig validation
+  // TODO: Implement real vxsig signature validation using `libs/auth` for
+  // full certificate chain verification. This should validate the signature
+  // against the VotingWorks TPM-backed certificate hierarchy rather than
+  // relying on HMAC.
   debug('unknown signature format');
   return false;
 }

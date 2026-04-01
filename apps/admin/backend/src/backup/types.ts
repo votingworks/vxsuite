@@ -1,4 +1,5 @@
-import { Id } from '@votingworks/types';
+import { z } from 'zod/v4';
+import { Id, IdSchema, Iso8601TimestampSchema } from '@votingworks/types';
 
 /**
  * Top-level directory on a backup drive that contains all VxAdmin backups.
@@ -40,24 +41,30 @@ export const BACKUP_IMAGES_DIR = 'ballot-images';
  */
 export const RESTORE_IN_PROGRESS_DIR = 'restore-in-progress';
 
+/** Zod schema for a single file entry in a backup manifest. */
+export const BackupManifestFileSchema = z.object({
+  path: z.string().nonempty(),
+  sha256: z.string().regex(/^[0-9a-f]+$/i),
+  size: z.number().int().nonnegative(),
+});
+
 /** A single file entry in a backup manifest. */
-export interface BackupManifestFile {
-  readonly path: string;
-  readonly sha256: string;
-  readonly size: number;
-}
+export type BackupManifestFile = z.infer<typeof BackupManifestFileSchema>;
+
+/** Zod schema for a backup manifest. */
+export const BackupManifestSchema = z.object({
+  version: z.literal(1),
+  electionId: IdSchema,
+  electionTitle: z.string().nonempty(),
+  electionDate: z.string().nonempty(),
+  machineId: z.string().nonempty(),
+  softwareVersion: z.string().nonempty(),
+  createdAt: Iso8601TimestampSchema,
+  files: z.array(BackupManifestFileSchema),
+});
 
 /** Manifest describing a complete backup, including all files and metadata. */
-export interface BackupManifest {
-  readonly version: 1;
-  readonly electionId: Id;
-  readonly electionTitle: string;
-  readonly electionDate: string;
-  readonly machineId: string;
-  readonly softwareVersion: string;
-  readonly createdAt: string;
-  readonly files: BackupManifestFile[];
-}
+export type BackupManifest = z.infer<typeof BackupManifestSchema>;
 
 /** Phases of a backup operation. */
 export type BackupPhase =
