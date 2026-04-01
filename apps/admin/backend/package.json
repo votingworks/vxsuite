@@ -57,6 +57,7 @@
     "object-hash": "^3.0.0",
     "react": "18.3.1",
     "tmp": "^0.2.1",
+    "yargs": "17.7.1",
     "zip-stream": "^4.1.0",
     "zod": "3.25.42"
   },
@@ -75,6 +76,7 @@
     "@types/react": "18.3.3",
     "@types/supertest": "^2.0.10",
     "@types/tmp": "0.2.4",
+    "@types/yargs": "17.0.22",
     "@types/zip-stream": "workspace:*",
     "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",

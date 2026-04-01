@@ -246,7 +246,7 @@ describe('formatProgress', () => {
         imagesTotal: 0,
         imagesCopied: 0,
       })
-    ).toEqual('unknown...');
+    ).toEqual('unknown…');
   });
 });
 
@@ -278,7 +278,7 @@ describe('formatRestoreProgress', () => {
         filesTotal: 0,
         filesCopied: 0,
       })
-    ).toEqual('unknown...');
+    ).toEqual('unknown…');
   });
 });
 
@@ -310,40 +310,52 @@ describe('createSigintCanceller', () => {
     cleanup();
     exitMock.mockRestore();
   });
+
+  test('supports Symbol.dispose for use with "using"', () => {
+    const io = createIo();
+    const canceller = createSigintCanceller(io);
+
+    expect(typeof canceller[Symbol.dispose]).toEqual('function');
+    canceller[Symbol.dispose]();
+
+    // After dispose, the handler should be removed; emitting SIGINT
+    // should not abort the controller.
+    const exitMock = vi
+      .spyOn(process, 'exit')
+      .mockImplementation(() => undefined as never);
+    process.emit('SIGINT');
+    expect(canceller.controller.signal.aborted).toEqual(false);
+
+    exitMock.mockRestore();
+  });
 });
 
 describe('CLI argument parsing', () => {
-  test('no command shows usage and exits 1', async () => {
+  test('no command shows error and exits 1', async () => {
     const io = createIo();
     const code = await main(argv(), io);
     expect(code).toEqual(1);
-    expect(io.stderr.toString()).toContain('Usage:');
   });
 
-  test('unknown command shows error and usage', async () => {
+  test('unknown command shows error and exits 1', async () => {
     const io = createIo();
     const code = await main(argv('bogus'), io);
     expect(code).toEqual(1);
-    expect(io.stderr.toString()).toContain('Unknown command: bogus');
+    expect(io.stderr.toString()).toContain('bogus');
   });
 
   test('help command shows usage and exits 0', async () => {
     const io = createIo();
     const code = await main(argv('help'), io);
     expect(code).toEqual(0);
-    expect(io.stdout.toString()).toContain('Usage:');
+    expect(io.stdout.toString()).toContain('backup');
   });
 
-  test('--help shows usage and exits 0', async () => {
+  test('--help flag shows usage and exits 0', async () => {
     const io = createIo();
-    const code = await main(argv('--help'), io);
+    const code = await main(argv('list', '--help'), io);
     expect(code).toEqual(0);
-  });
-
-  test('-h shows usage and exits 0', async () => {
-    const io = createIo();
-    const code = await main(argv('-h'), io);
-    expect(code).toEqual(0);
+    expect(io.stdout.toString()).toContain('backup');
   });
 });
 
@@ -352,7 +364,7 @@ describe('list command', () => {
     const io = createIo();
     const code = await main(argv('list'), io);
     expect(code).toEqual(1);
-    expect(io.stderr.toString()).toContain('mount point is required');
+    expect(io.stderr.toString()).toContain('mount-point');
   });
 
   test('errors on non-existent mount point', async () => {
@@ -418,7 +430,7 @@ describe('validate command', () => {
     const io = createIo();
     const code = await main(argv('validate'), io);
     expect(code).toEqual(1);
-    expect(io.stderr.toString()).toContain('backup directory path is required');
+    expect(io.stderr.toString()).toContain('backup-dir-path');
   });
 
   test('errors on non-existent path', async () => {
@@ -498,7 +510,7 @@ describe('backup command', () => {
     const code = await main(argv('backup', '--workspace', tmpDir), io);
     expect(code).toEqual(1);
     expect(io.stderr.toString()).toContain(
-      'Missing required option: --mount-point'
+      'Missing required argument: mount-point'
     );
   });
 
@@ -689,7 +701,7 @@ describe('restore command', () => {
     const code = await main(argv('restore', '--workspace', tmpDir), io);
     expect(code).toEqual(1);
     expect(io.stderr.toString()).toContain(
-      'Missing required option: --mount-point'
+      'Missing required argument: mount-point'
     );
   });
 

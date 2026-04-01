@@ -13,6 +13,7 @@ import { join, resolve } from 'node:path';
 import { Client as DbClient } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { DEV_MACHINE_ID } from '@votingworks/types';
+import yargs from 'yargs/yargs';
 
 import { listBackups, performBackup, validateBackup } from './backup';
 import { performRestore } from './restore';
@@ -30,85 +31,28 @@ export interface Io {
   stderr: NodeJS.WritableStream;
 }
 
-const USAGE = `Usage: backup <command> [options]
-
-Commands:
-  list <mount-point>                  List backups on a drive
-  validate <backup-dir-path>          Validate a backup's integrity
-  backup [options]                    Run a backup to a USB drive
-  restore [options]                   Restore from a backup
-
-Backup options:
-  --workspace <path>         Workspace directory (contains ${WORKSPACE_DB_FILENAME}, ${WORKSPACE_BALLOT_IMAGES_DIR}/)
-  --mount-point <path>       USB drive mount point
-
-Restore options:
-  --workspace <path>         Workspace directory to restore into
-  --mount-point <path>       USB drive mount point
-
-Environment:
-  VX_MACHINE_ID              Machine ID (default: ${DEV_MACHINE_ID})
-  VX_CODE_VERSION            Software version (default: dev)
-  DEBUG=admin:backup         Enable debug logging
-  DEBUG=admin:restore        Enable debug logging for restore
-`;
-
-interface ParsedArgs {
-  command: string;
-  positional: string[];
-  flags: Map<string, string>;
-}
-
-function parseArgs(argv: readonly string[]): ParsedArgs {
-  const args = argv.slice(2);
-  const command = args[0] ?? '';
-  const positional: string[] = [];
-  const flags = new Map<string, string>();
-
-  for (let i = 1; i < args.length; ) {
-    const arg = args[i] ?? '';
-    if (arg.startsWith('--')) {
-      const value = args[i + 1];
-      if (value === undefined || value.startsWith('--')) {
-        flags.set(arg, 'true');
-        i += 1;
-      } else {
-        flags.set(arg, value);
-        i += 2;
-      }
-    } else {
-      positional.push(arg);
-      i += 1;
-    }
-  }
-
-  return { command, positional, flags };
-}
-
-function requireFlag(flags: ReadonlyMap<string, string>, name: string): string {
-  const value = flags.get(`--${name}`);
-  if (!value) {
-    throw new Error(`Missing required option: --${name}`);
-  }
-  return value;
+interface SigintCanceller {
+  controller: AbortController;
+  cleanup: () => void;
+  [Symbol.dispose]: () => void;
 }
 
 /** Format backup progress for display. */
 export function formatProgress(progress: BackupProgress): string {
   switch (progress.phase) {
     case 'preflight':
-      return 'Pre-flight checks...';
+      return 'Pre-flight checks…';
     case 'snapshot':
-      return 'Creating database snapshot...';
+      return 'Creating database snapshot…';
     case 'images':
-      if (progress.imagesTotal === 0) return 'Processing images...';
+      if (progress.imagesTotal === 0) return 'Processing images…';
       return `Copying images: ${progress.imagesCopied}/${progress.imagesTotal}`;
     case 'signing':
-      return 'Signing manifest...';
+      return 'Signing manifest…';
     case 'validating':
-      return 'Validating backup...';
+      return 'Validating backup…';
     default:
-      return `${progress.phase}...`;
+      return `${progress.phase}…`;
   }
 }
 
@@ -116,36 +60,35 @@ export function formatProgress(progress: BackupProgress): string {
 export function formatRestoreProgress(progress: RestoreProgress): string {
   switch (progress.phase) {
     case 'preflight':
-      return 'Validating backup and checking disk space...';
+      return 'Validating backup and checking disk space…';
     case 'copying':
-      if (progress.filesTotal === 0) return 'Copying files...';
+      if (progress.filesTotal === 0) return 'Copying files…';
       return `Copying files: ${progress.filesCopied}/${progress.filesTotal}`;
     case 'activating':
-      return 'Activating restored data...';
+      return 'Activating restored data…';
     default:
-      return `${progress.phase}...`;
+      return `${progress.phase}…`;
   }
 }
 
 /** Register a SIGINT handler for graceful cancellation with force-quit on double press. */
-export function createSigintCanceller(io: Io): {
-  controller: AbortController;
-  cleanup: () => void;
-} {
+export function createSigintCanceller(io: Io): SigintCanceller {
   const controller = new AbortController();
   function handler() {
     if (controller.signal.aborted) {
       process.exit(130);
     }
     controller.abort();
-    io.stderr.write('\nCancelling... (press Ctrl+C again to force quit)\n');
+    io.stderr.write('\nCancelling… (press Ctrl+C again to force quit)\n');
   }
   process.on('SIGINT', handler);
+  function cleanup() {
+    process.removeListener('SIGINT', handler);
+  }
   return {
     controller,
-    cleanup: () => {
-      process.removeListener('SIGINT', handler);
-    },
+    cleanup,
+    [Symbol.dispose]: cleanup,
   };
 }
 
@@ -201,15 +144,10 @@ async function resolveBackupDir(mountPoint: string): Promise<string> {
   return first.directoryName;
 }
 
-async function commandList(
-  io: Io,
-  positional: readonly string[]
-): Promise<number> {
+async function commandList(io: Io, mountPoint?: string): Promise<number> {
   const { stdout, stderr } = io;
-  const mountPoint = positional[0];
   if (!mountPoint) {
     stderr.write('Error: mount point is required\n');
-    stderr.write(USAGE);
     return 1;
   }
 
@@ -243,13 +181,11 @@ async function commandList(
 
 async function commandValidate(
   io: Io,
-  positional: readonly string[]
+  backupDirPath?: string
 ): Promise<number> {
   const { stdout, stderr } = io;
-  const backupDirPath = positional[0];
   if (!backupDirPath) {
     stderr.write('Error: backup directory path is required\n');
-    stderr.write(USAGE);
     return 1;
   }
 
@@ -261,7 +197,7 @@ async function commandValidate(
     return 1;
   }
 
-  stdout.write(`Validating ${resolvedPath}...\n`);
+  stdout.write(`Validating ${resolvedPath}…\n`);
   const validateResult = await validateBackup(resolvedPath);
 
   if (validateResult.isErr()) {
@@ -285,33 +221,34 @@ async function commandValidate(
 
 async function commandBackup(
   io: Io,
-  flags: ReadonlyMap<string, string>,
+  workspace: string,
+  mountPoint: string,
   logger: BaseLogger
 ): Promise<number> {
   const { stdout } = io;
-  const workspace = resolve(requireFlag(flags, 'workspace'));
-  const mountPoint = resolve(requireFlag(flags, 'mount-point'));
+  const resolvedWorkspace = resolve(workspace);
+  const resolvedMountPoint = resolve(mountPoint);
 
-  await validateWorkspace(workspace);
-  await validateMountPoint(mountPoint);
+  await validateWorkspace(resolvedWorkspace);
+  await validateMountPoint(resolvedMountPoint);
 
-  const dbPath = join(workspace, WORKSPACE_DB_FILENAME);
-  const ballotImagesPath = join(workspace, WORKSPACE_BALLOT_IMAGES_DIR);
+  const dbPath = join(resolvedWorkspace, WORKSPACE_DB_FILENAME);
+  const ballotImagesPath = join(resolvedWorkspace, WORKSPACE_BALLOT_IMAGES_DIR);
 
   const machineId = getMachineId();
   const softwareVersion = getCodeVersion();
 
-  const sigint = createSigintCanceller(io);
+  using sigint = createSigintCanceller(io);
 
-  stdout.write(`Backing up to ${mountPoint}...\n`);
-  stdout.write(`  Workspace: ${workspace}\n`);
+  stdout.write(`Backing up to ${resolvedMountPoint}…\n`);
+  stdout.write(`  Workspace: ${resolvedWorkspace}\n`);
   stdout.write(`  Machine:   ${machineId}\n\n`);
 
   const backupResult = await performBackup({
-    workspacePath: workspace,
+    workspacePath: resolvedWorkspace,
     dbPath,
     ballotImagesPath,
-    backupDriveMountPoint: mountPoint,
+    backupDriveMountPoint: resolvedMountPoint,
     machineId,
     softwareVersion,
     logger,
@@ -327,7 +264,6 @@ async function commandBackup(
     const error = backupResult.err();
     if (error.type === 'cancelled') {
       stdout.write('\n\nBackup cancelled.\n');
-      sigint.cleanup();
       return 130;
     }
 
@@ -335,42 +271,42 @@ async function commandBackup(
   }
 
   stdout.write('\n\nBackup completed successfully.\n');
-  sigint.cleanup();
   return 0;
 }
 
 async function commandRestore(
   io: Io,
-  flags: Map<string, string>,
+  workspace: string,
+  mountPoint: string,
   logger: BaseLogger
 ): Promise<number> {
   const { stdout } = io;
-  const workspace = resolve(requireFlag(flags, 'workspace'));
-  const mountPoint = resolve(requireFlag(flags, 'mount-point'));
+  const resolvedWorkspace = resolve(workspace);
+  const resolvedMountPoint = resolve(mountPoint);
   const softwareVersion = getCodeVersion();
 
-  await validateMountPoint(mountPoint);
+  await validateMountPoint(resolvedMountPoint);
 
   // For restore, the workspace may not have a data.db yet (fresh restore)
-  if (!(await pathExists(workspace))) {
-    throw new Error(`Workspace does not exist: ${workspace}`);
+  if (!(await pathExists(resolvedWorkspace))) {
+    throw new Error(`Workspace does not exist: ${resolvedWorkspace}`);
   }
 
-  const backupDir = await resolveBackupDir(mountPoint);
+  const backupDir = await resolveBackupDir(resolvedMountPoint);
 
-  const dbPath = join(workspace, WORKSPACE_DB_FILENAME);
-  const ballotImagesPath = join(workspace, WORKSPACE_BALLOT_IMAGES_DIR);
+  const dbPath = join(resolvedWorkspace, WORKSPACE_DB_FILENAME);
+  const ballotImagesPath = join(resolvedWorkspace, WORKSPACE_BALLOT_IMAGES_DIR);
 
-  const sigint = createSigintCanceller(io);
+  using sigint = createSigintCanceller(io);
 
-  stdout.write(`Restoring from ${backupDir}...\n`);
-  stdout.write(`  Workspace: ${workspace}\n\n`);
+  stdout.write(`Restoring from ${backupDir}…\n`);
+  stdout.write(`  Workspace: ${resolvedWorkspace}\n\n`);
 
   const restoreResult = await performRestore({
-    workspacePath: workspace,
+    workspacePath: resolvedWorkspace,
     dbPath,
     ballotImagesPath,
-    backupDriveMountPoint: mountPoint,
+    backupDriveMountPoint: resolvedMountPoint,
     backupDirectoryName: backupDir,
     softwareVersion,
     logger,
@@ -386,7 +322,6 @@ async function commandRestore(
       stdout.write(
         '\n\nRestore cancelled. Previous data has been preserved.\n'
       );
-      sigint.cleanup();
       return 130;
     }
 
@@ -399,41 +334,135 @@ async function commandRestore(
   stdout.write(`  Election: ${manifest.electionTitle}\n`);
   stdout.write(`  Date:     ${manifest.electionDate}\n`);
   stdout.write(`  Files:    ${manifest.files.length}\n`);
-  sigint.cleanup();
   return 0;
 }
 
 /** CLI entry point for backup management commands. */
 export async function main(argv: readonly string[], io: Io): Promise<number> {
-  const { command, positional, flags } = parseArgs(argv);
-  const { stdout, stderr } = io;
+  const { stderr } = io;
   const logger = new BaseLogger(LogSource.System);
+
+  let helpRequested = false;
+  let exitCode: number | undefined;
+  const parser = yargs()
+    .strict()
+    .exitProcess(false)
+    .scriptName('backup')
+    .usage('Usage: $0 <command> [options]')
+    .help(false)
+    .option('help', {
+      alias: 'h',
+      type: 'boolean',
+      describe: 'Show help',
+    })
+    .version(false)
+    .fail((msg) => {
+      stderr.write(`${msg}\n`);
+      exitCode = 1;
+    })
+    .command('list <mount-point>', 'List backups on a drive', (y) =>
+      y.positional('mount-point', {
+        type: 'string',
+        describe: 'USB drive mount point',
+      })
+    )
+    .command(
+      'validate <backup-dir-path>',
+      "Validate a backup's integrity",
+      (y) =>
+        y.positional('backup-dir-path', {
+          type: 'string',
+          describe: 'Path to backup directory',
+        })
+    )
+    .command('backup', 'Run a backup to a USB drive', (y) =>
+      y
+        .option('workspace', {
+          type: 'string',
+          describe: 'Workspace directory (contains data.db, ballot-images/)',
+          demandOption: true,
+        })
+        .option('mount-point', {
+          type: 'string',
+          describe: 'USB drive mount point',
+          demandOption: true,
+        })
+    )
+    .command('restore', 'Restore from a backup', (y) =>
+      y
+        .option('workspace', {
+          type: 'string',
+          describe: 'Workspace directory to restore into',
+          demandOption: true,
+        })
+        .option('mount-point', {
+          type: 'string',
+          describe: 'USB drive mount point',
+          demandOption: true,
+        })
+    )
+    .command('help', 'Show help')
+    .epilogue(
+      `Environment:\n` +
+        `  VX_MACHINE_ID              Machine ID (default: ${DEV_MACHINE_ID})\n` +
+        `  VX_CODE_VERSION            Software version (default: dev)\n` +
+        `  DEBUG=admin:backup         Enable debug logging\n` +
+        `  DEBUG=admin:restore        Enable debug logging for restore`
+    )
+    .demandCommand(1, '')
+    .middleware((parsedArgs) => {
+      if (parsedArgs['help'] || parsedArgs._[0] === 'help') {
+        helpRequested = true;
+      }
+    });
+
+  const args = await parser.parse(argv.slice(2));
+
+  if (helpRequested) {
+    parser.showHelp((text) => {
+      io.stdout.write(`${text}\n`);
+    });
+    return 0;
+  }
+
+  if (typeof exitCode !== 'undefined') {
+    return exitCode;
+  }
+
+  const command = args._[0];
 
   try {
     switch (command) {
       case 'list':
-        return await commandList(io, positional);
+        return await commandList(io, args['mount-point'] as string | undefined);
 
       case 'validate':
-        return await commandValidate(io, positional);
+        return await commandValidate(
+          io,
+          args['backup-dir-path'] as string | undefined
+        );
 
       case 'backup':
-        return await commandBackup(io, flags, logger);
+        return await commandBackup(
+          io,
+          args['workspace'] as string,
+          args['mount-point'] as string,
+          logger
+        );
 
       case 'restore':
-        return await commandRestore(io, flags, logger);
-
-      case 'help':
-      case '--help':
-      case '-h':
-        stdout.write(USAGE);
-        return 0;
+        return await commandRestore(
+          io,
+          args['workspace'] as string,
+          args['mount-point'] as string,
+          logger
+        );
 
       default:
-        if (command) {
-          stderr.write(`Unknown command: ${command}\n`);
-        }
-        stderr.write(USAGE);
+        stderr.write(`Unknown command: ${String(command)}\n`);
+        parser.showHelp((text) => {
+          stderr.write(`${text}\n`);
+        });
         return 1;
     }
   } catch (error) {
