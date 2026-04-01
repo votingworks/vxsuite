@@ -214,19 +214,19 @@ pub fn score_bubble_mark(
         diff: GrayImage,
     }
 
-    let center_x = expected_bubble_center.x.round() as PixelUnit;
-    let center_y = expected_bubble_center.y.round() as PixelUnit;
-    let left = center_x - bubble_template.width() / 2;
-    let top = center_y - bubble_template.height() / 2;
+    let center_x = expected_bubble_center.x.round() as PixelPosition;
+    let center_y = expected_bubble_center.y.round() as PixelPosition;
     let width = bubble_template.width();
     let height = bubble_template.height();
-    let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
+    let left = center_x - (width / 2) as PixelPosition;
+    let top = center_y - (height / 2) as PixelPosition;
+    let expected_bounds = Rect::new(left, top, width, height);
     let mut best_match = None;
 
     for offset_x in
         -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
     {
-        let x = left as PixelPosition + offset_x;
+        let x = left + offset_x;
         if x < 0 || x as u32 + width > ballot_image.image().width() {
             continue;
         }
@@ -234,7 +234,7 @@ pub fn score_bubble_mark(
         for offset_y in
             -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
         {
-            let y = top as PixelPosition + offset_y;
+            let y = top + offset_y;
             if y < 0 || y as u32 + height > ballot_image.image().height() {
                 continue;
             }
