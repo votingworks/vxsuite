@@ -15,7 +15,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import { Id, Side } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -188,25 +187,6 @@ export const getNextReviewSheet = {
       cacheTime: 0,
       staleTime: 0,
     });
-  },
-} as const;
-
-export const getSheetImage = {
-  queryKey({ sheetId, side }: { sheetId: Id; side: Side }): QueryKey {
-    return ['getSheetImage', sheetId, side];
-  },
-
-  useQuery({ sheetId, side }: { sheetId: Id; side: Side }) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey({ sheetId, side }),
-      () => apiClient.getSheetImage({ sheetId, side }),
-      // Don't let cached images take up memory - there's no benefit to caching them
-      {
-        cacheTime: 0,
-        staleTime: 0,
-      }
-    );
   },
 } as const;
 

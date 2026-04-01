@@ -12,6 +12,7 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { HIGHLIGHT_WARNING_BACKGROUND } from '@votingworks/ui';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
@@ -55,34 +56,23 @@ function buildNextReviewSheet(
     'metadata' in ballotSheetInfo.back.interpretation
       ? ballotSheetInfo.back.interpretation.metadata
       : buildHmpMetadataWithPage(2);
+  function buildImage(metadata: BallotMetadata | BallotPageMetadata) {
+    return {
+      imageUrl: 'data:image/png;base64,',
+      ballotBounds: { x: 0, y: 0, width: 1700, height: 2200 },
+      layout:
+        'pageNumber' in metadata
+          ? {
+              contests: [],
+              metadata,
+              pageSize: { width: 1, height: 1 },
+            }
+          : undefined,
+    };
+  }
   return {
     interpreted: ballotSheetInfo,
-    layouts: {
-      front:
-        'pageNumber' in frontMetadata
-          ? {
-              contests: [],
-              metadata: frontMetadata as BallotPageMetadata,
-              pageSize: { width: 1, height: 1 },
-            }
-          : undefined,
-      back:
-        'pageNumber' in backMetadata
-          ? {
-              contests: [],
-              metadata: backMetadata as BallotPageMetadata,
-              pageSize: { width: 1, height: 1 },
-            }
-          : undefined,
-    },
-    definitions: {
-      front: {
-        contestIds: [],
-      },
-      back: {
-        contestIds: [],
-      },
-    },
+    images: [buildImage(frontMetadata), buildImage(backMetadata)] as const,
   };
 }
 
@@ -96,8 +86,6 @@ afterEach(() => {
 });
 
 test('says the sheet is unreadable if it is', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -137,8 +125,6 @@ test('says the sheet is unreadable if it is', async () => {
 });
 
 test('says the ballot sheet is overvoted if it is', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -224,9 +210,131 @@ test('says the ballot sheet is overvoted if it is', async () => {
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
+test('renders both ballot images with highlights on overvoted contests', async () => {
+  const BALLOT_BOUNDS = { x: 0, y: 0, width: 1700, height: 2200 } as const;
+  const CONTEST_BOUNDS = { x: 100, y: 200, width: 500, height: 300 } as const;
+
+  apiMock.expectGetNextReviewSheet({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
+          metadata: buildHmpMetadataWithPage(1),
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: 'contest-1',
+                optionIds: ['1', '2'],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(1),
+            contests: [],
+          },
+        },
+      },
+      back: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
+          metadata: buildHmpMetadataWithPage(2),
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(2),
+            contests: [],
+          },
+        },
+      },
+    },
+    images: [
+      {
+        imageUrl: 'mock-front-image',
+        ballotBounds: BALLOT_BOUNDS,
+        layout: {
+          pageSize: { width: 1700, height: 2200 },
+          metadata: buildHmpMetadataWithPage(1),
+          contests: [
+            {
+              contestId: 'contest-1',
+              bounds: CONTEST_BOUNDS,
+              corners: [
+                { x: 100, y: 200 },
+                { x: 600, y: 200 },
+                { x: 100, y: 500 },
+                { x: 600, y: 500 },
+              ],
+              options: [],
+            },
+            {
+              contestId: 'contest-2',
+              bounds: { x: 100, y: 600, width: 500, height: 300 },
+              corners: [
+                { x: 100, y: 600 },
+                { x: 600, y: 600 },
+                { x: 100, y: 900 },
+                { x: 600, y: 900 },
+              ],
+              options: [],
+            },
+          ],
+        },
+      },
+      {
+        imageUrl: 'mock-back-image',
+        ballotBounds: BALLOT_BOUNDS,
+        layout: {
+          pageSize: { width: 1700, height: 2200 },
+          metadata: buildHmpMetadataWithPage(2),
+          contests: [],
+        },
+      },
+    ] as const,
+  });
+
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+
+  await screen.findByText('Overvote');
+
+  // Both ballot images are rendered
+  const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
+  expect(ballotImages).toHaveLength(2);
+  expect(ballotImages[0].style.backgroundImage).toContain('mock-front-image');
+  expect(ballotImages[1].style.backgroundImage).toContain('mock-back-image');
+
+  // Front image has a single highlight overlay for the overvoted contest only
+  const frontHighlights = ballotImages[0].querySelectorAll('div');
+  expect(frontHighlights).toHaveLength(1);
+  expect(frontHighlights[0]).toHaveStyle({
+    background: HIGHLIGHT_WARNING_BACKGROUND,
+  });
+
+  // Back image has no highlights
+  expect(ballotImages[1].querySelector('div')).not.toBeInTheDocument();
+
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
 test('says the ballot sheet is undervoted if it is', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -313,8 +421,6 @@ test('says the ballot sheet is undervoted if it is', async () => {
 });
 
 test('says the ballot sheet is blank if it is', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -408,8 +514,6 @@ test('says the ballot sheet is blank if it is', async () => {
 });
 
 test('calls out official ballot sheets in test mode', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -461,8 +565,6 @@ test('calls out official ballot sheets in test mode', async () => {
 });
 
 test('calls out test ballot sheets in live mode', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -517,8 +619,6 @@ test('calls out test ballot sheets in live mode', async () => {
 });
 
 test('shows invalid election screen when appropriate', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -566,8 +666,7 @@ test('shows invalid election screen when appropriate', async () => {
 
 test('does not allow tabulating the overvote if disallowCastingOvervotes is set', async () => {
   apiMock.apiClient.getSystemSettings.reset();
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
+
   apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
     disallowCastingOvervotes: true,
@@ -664,8 +763,6 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
 });
 
 test('says the scanner needs cleaning if a streak is detected', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -710,8 +807,6 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
 });
 
 test('ballot with invalid scale', async () => {
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
-  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
