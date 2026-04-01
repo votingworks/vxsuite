@@ -9,11 +9,11 @@ import {
   BACKUP_IMAGES_DIR,
   BACKUP_ROOT_DIR,
   BackupManifest,
+  manifestTotalSize,
   RESTORE_IN_PROGRESS_DIR,
   RestoreProgress,
 } from './types';
 import {
-  cleanupDirSafe,
   cleanupSafe,
   copyFileWithHash,
   getAvailableDiskSpace,
@@ -78,11 +78,21 @@ export async function performRestore(
   );
 
   // Clean up any previous restore-in-progress
-  await cleanupDirSafe(restoreInProgressPath);
+  await cleanupSafe(restoreInProgressPath, { recursive: true });
+
+  const previousWorkspacePath = join(
+    restoreInProgressPath,
+    'previous-workspace'
+  );
 
   let restoreResult: Result<BackupManifest, BackupStopReason>;
   try {
-    restoreResult = await doRestore(ctx, backupDirPath, restoreInProgressPath);
+    restoreResult = await doRestore(
+      ctx,
+      backupDirPath,
+      restoreInProgressPath,
+      previousWorkspacePath
+    );
   } catch (error) {
     restoreResult = err({ type: 'error', error: asError(error) });
   }
@@ -92,11 +102,6 @@ export async function performRestore(
   }
 
   debug('restore failed, attempting rollback: %o', restoreResult.err());
-
-  const previousWorkspacePath = join(
-    restoreInProgressPath,
-    'previous-workspace'
-  );
 
   try {
     await cleanupSafe(ctx.dbPath);
@@ -110,7 +115,7 @@ export async function performRestore(
   }
 
   try {
-    await cleanupDirSafe(ctx.ballotImagesPath);
+    await cleanupSafe(ctx.ballotImagesPath, { recursive: true });
     await rename(
       join(previousWorkspacePath, WORKSPACE_BALLOT_IMAGES_DIR),
       ctx.ballotImagesPath
@@ -120,14 +125,15 @@ export async function performRestore(
     debug('rollback of ballot images failed or no previous images to restore');
   }
 
-  await cleanupDirSafe(restoreInProgressPath);
+  await cleanupSafe(restoreInProgressPath, { recursive: true });
   return restoreResult;
 }
 
 async function doRestore(
   ctx: RestoreContext,
   backupDirPath: string,
-  restoreInProgressPath: string
+  restoreInProgressPath: string,
+  previousWorkspacePath: string
 ): Promise<Result<BackupManifest, BackupStopReason>> {
   // ── Pre-Flight ──────────────────────────────────────────────────────
 
@@ -155,7 +161,7 @@ async function doRestore(
   const manifest = validateResult.ok();
 
   // 2. Check internal disk space
-  const totalSize = manifest.files.reduce((sum, f) => sum + f.size, 0);
+  const totalSize = manifestTotalSize(manifest);
   const internalSpace = getAvailableDiskSpace(ctx.workspacePath);
 
   if (internalSpace > 0 && internalSpace < totalSize * 1.1) {
@@ -169,10 +175,6 @@ async function doRestore(
 
   // 3. Create restore directories
   await mkdir(restoreInProgressPath, { recursive: true });
-  const previousWorkspacePath = join(
-    restoreInProgressPath,
-    'previous-workspace'
-  );
   const newWorkspacePath = join(restoreInProgressPath, 'new-workspace');
   await mkdir(previousWorkspacePath, { recursive: true });
   await mkdir(newWorkspacePath, { recursive: true });
@@ -270,7 +272,7 @@ async function doRestore(
   }
 
   // 4. Clean up
-  await cleanupDirSafe(restoreInProgressPath);
+  await cleanupSafe(restoreInProgressPath, { recursive: true });
 
   debug('restore complete for election %s', manifest.electionTitle);
   return ok(manifest);

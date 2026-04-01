@@ -10,7 +10,7 @@ import {
 import { dirname, join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
-import { assert, err, iter, ok, Result } from '@votingworks/basics';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import { BaseLogger } from '@votingworks/logging';
 import {
@@ -30,6 +30,7 @@ import {
   BackupManifestSchema,
   BackupProgress,
   IN_PROGRESS_SUFFIX,
+  manifestTotalSize,
   MANIFEST_FILENAME,
   MANIFEST_SIGNATURE_FILENAME,
   PREVIOUS_SUFFIX,
@@ -37,7 +38,6 @@ import {
 import { signManifest, validateManifestSignature } from './signing';
 import { sha256File } from '../util/sha256_file';
 import {
-  cleanupDirSafe,
   cleanupSafe,
   copyFileWithHash,
   formatBytes,
@@ -94,10 +94,6 @@ export type BackupStopReason =
     }
   | { type: 'mismatchedSoftwareVersion'; expected: string; actual: string }
   | { type: 'cancelled' };
-
-function getInternalAvailableSpace(workspacePath: string): number {
-  return getAvailableDiskSpace(workspacePath);
-}
 
 interface CurrentElectionBackupInfo {
   readonly electionId: string;
@@ -238,7 +234,7 @@ export async function performBackup(
 
   // Clean up on failure
   if (result.isErr() && inProgressDirPath) {
-    await cleanupDirSafe(inProgressDirPath);
+    await cleanupSafe(inProgressDirPath, { recursive: true });
   }
 
   await cleanupSafe(tempDbPath);
@@ -266,7 +262,7 @@ async function doBackup(
   debug('pre-flight: checking disk space');
   // 1. Check internal disk space for database copy
   const dbStat = await stat(ctx.dbPath);
-  const internalSpace = getInternalAvailableSpace(ctx.workspacePath);
+  const internalSpace = getAvailableDiskSpace(ctx.workspacePath);
   debug(
     'internal space: %s, db size: %s',
     formatBytes(internalSpace),
@@ -397,7 +393,7 @@ async function doBackup(
   // ── Backup ──────────────────────────────────────────────────────────
 
   // 1. Create in-progress directory
-  await cleanupDirSafe(inProgressDirPath); // remove any leftover from a previous failed backup
+  await cleanupSafe(inProgressDirPath, { recursive: true }); // remove any leftover from a previous failed backup
   await mkdir(join(inProgressDirPath, BACKUP_IMAGES_DIR), { recursive: true });
 
   const manifestFiles: BackupManifestFile[] = [];
@@ -538,14 +534,14 @@ async function doBackup(
   debug('swapping backup directories (in-progress → final)');
 
   // Move previous backup to -previous
-  await cleanupDirSafe(previousDirPath); // clean any leftover
+  await cleanupSafe(previousDirPath, { recursive: true }); // clean any leftover
   await ignoreMissing(rename(electionDirPath, previousDirPath));
 
   // Move in-progress to final
   await rename(inProgressDirPath, electionDirPath);
 
   // Delete -previous
-  await cleanupDirSafe(previousDirPath);
+  await cleanupSafe(previousDirPath, { recursive: true });
 
   // ── Validate ────────────────────────────────────────────────────────
 
@@ -704,9 +700,6 @@ export async function listBackups(mountPoint: string): Promise<BackupEntry[]> {
         continue;
       }
       const manifest = parseResult.ok();
-      const totalSize = iter(manifest.files)
-        .map((f) => f.size)
-        .sum();
 
       entries.push({
         electionId: manifest.electionId,
@@ -715,7 +708,7 @@ export async function listBackups(mountPoint: string): Promise<BackupEntry[]> {
         machineId: manifest.machineId,
         softwareVersion: manifest.softwareVersion,
         createdAt: manifest.createdAt,
-        sizeBytes: totalSize,
+        sizeBytes: manifestTotalSize(manifest),
         directoryName: dirName,
       });
     } catch (error) {

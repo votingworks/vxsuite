@@ -66,6 +66,15 @@ export const BackupManifestSchema = z.object({
 /** Manifest describing a complete backup, including all files and metadata. */
 export type BackupManifest = z.infer<typeof BackupManifestSchema>;
 
+/** Sum the sizes of all files in a manifest. */
+export function manifestTotalSize(manifest: BackupManifest): number {
+  let total = 0;
+  for (const file of manifest.files) {
+    total += file.size;
+  }
+  return total;
+}
+
 /** Phases of a backup operation. */
 export type BackupPhase =
   | 'preflight'

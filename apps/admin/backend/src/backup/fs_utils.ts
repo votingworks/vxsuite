@@ -26,28 +26,27 @@ export function getAvailableDiskSpace(path: string): number {
   }
 }
 
-/** Format a byte count for display in error messages. */
+/** Format a byte count for human-readable display. */
 export function formatBytes(bytes: number): string {
   if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(1)} GB`;
-  if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(0)} MB`;
+  if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`;
+  if (bytes >= 1_000) return `${(bytes / 1_000).toFixed(1)} KB`;
   return `${bytes} bytes`;
 }
 
-/** Remove a file, ignoring errors. */
-export async function cleanupSafe(filePath: string): Promise<void> {
+/**
+ * Remove a file or directory, ignoring errors.
+ * Uses `rm` with `force: true` (which handles missing paths) and additionally
+ * catches unexpected errors like permission issues, logging them via debug.
+ */
+export async function cleanupSafe(
+  path: string,
+  options: { recursive?: boolean } = {}
+): Promise<void> {
   try {
-    await rm(filePath, { force: true });
+    await rm(path, { force: true, ...options });
   } catch {
-    debug('failed to clean up %s', filePath);
-  }
-}
-
-/** Remove a directory recursively, ignoring errors. */
-export async function cleanupDirSafe(dirPath: string): Promise<void> {
-  try {
-    await rm(dirPath, { recursive: true, force: true });
-  } catch {
-    debug('failed to clean up directory %s', dirPath);
+    debug('failed to clean up %s', path);
   }
 }
 

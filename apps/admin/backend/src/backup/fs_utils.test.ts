@@ -3,12 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
-import {
-  cleanupDirSafe,
-  cleanupSafe,
-  formatBytes,
-  getAvailableDiskSpace,
-} from './fs_utils';
+import { cleanupSafe, formatBytes, getAvailableDiskSpace } from './fs_utils';
 
 describe('getAvailableDiskSpace', () => {
   test('returns a positive number for a real directory', () => {
@@ -27,8 +22,12 @@ describe('formatBytes', () => {
     expect(formatBytes(500)).toEqual('500 bytes');
   });
 
+  test('formats kilobytes', () => {
+    expect(formatBytes(1_500)).toEqual('1.5 KB');
+  });
+
   test('formats megabytes', () => {
-    expect(formatBytes(5_000_000)).toEqual('5 MB');
+    expect(formatBytes(5_000_000)).toEqual('5.0 MB');
   });
 
   test('formats gigabytes', () => {
@@ -48,25 +47,23 @@ describe('cleanupSafe', () => {
     );
   });
 
-  test('does nothing for nonexistent file', async () => {
-    await cleanupSafe('/nonexistent/file.txt');
-  });
-});
-
-describe('cleanupDirSafe', () => {
   test('removes a directory recursively', async () => {
     const tmpDir = makeTemporaryDirectory();
     const dirPath = join(tmpDir, 'subdir');
     await mkdir(dirPath, { recursive: true });
     await writeFile(join(dirPath, 'file.txt'), 'data');
     expect((await stat(dirPath)).isDirectory()).toEqual(true);
-    await cleanupDirSafe(dirPath);
+    await cleanupSafe(dirPath, { recursive: true });
     await expect(stat(dirPath)).rejects.toEqual(
       expect.objectContaining({ code: 'ENOENT' })
     );
   });
 
+  test('does nothing for nonexistent file', async () => {
+    await cleanupSafe('/nonexistent/file.txt');
+  });
+
   test('does nothing for nonexistent directory', async () => {
-    await cleanupDirSafe('/nonexistent/dir');
+    await cleanupSafe('/nonexistent/dir', { recursive: true });
   });
 });

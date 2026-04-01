@@ -18,6 +18,7 @@ import { listBackups, performBackup, validateBackup } from './backup';
 import { performRestore } from './restore';
 import { BackupProgress, RestoreProgress } from './types';
 import { formatBackupStopReason } from './format_backup_stop_reason';
+import { formatBytes } from './fs_utils';
 import {
   WORKSPACE_BALLOT_IMAGES_DIR,
   WORKSPACE_DB_FILENAME,
@@ -126,14 +127,6 @@ export function formatRestoreProgress(progress: RestoreProgress): string {
   }
 }
 
-/** Format a byte count for human-readable display. */
-export function formatSize(bytes: number): string {
-  if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(1)} GB`;
-  if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`;
-  if (bytes >= 1_000) return `${(bytes / 1_000).toFixed(1)} KB`;
-  return `${bytes} bytes`;
-}
-
 /** Register a SIGINT handler for graceful cancellation with force-quit on double press. */
 export function createSigintCanceller(io: Io): {
   controller: AbortController;
@@ -153,16 +146,6 @@ export function createSigintCanceller(io: Io): {
     cleanup: () => {
       process.removeListener('SIGINT', handler);
     },
-  };
-}
-
-function backupDatabaseFn(
-  dbPath: string,
-  logger: BaseLogger
-): (destPath: string) => void {
-  return (destPath: string) => {
-    const client = DbClient.fileClient(dbPath, logger);
-    client.backup(destPath);
   };
 }
 
@@ -250,7 +233,7 @@ async function commandList(
     stdout.write(`    Election: ${backup.electionTitle}\n`);
     stdout.write(`    Date:     ${backup.electionDate}\n`);
     stdout.write(`    Created:  ${backup.createdAt}\n`);
-    stdout.write(`    Size:     ${formatSize(backup.sizeBytes)}\n`);
+    stdout.write(`    Size:     ${formatBytes(backup.sizeBytes)}\n`);
     stdout.write(`    Machine:  ${backup.machineId}\n`);
     stdout.write(`    Version:  ${backup.softwareVersion}\n`);
     stdout.write('\n');
@@ -332,7 +315,8 @@ async function commandBackup(
     machineId,
     softwareVersion,
     logger,
-    backupDatabase: backupDatabaseFn(dbPath, logger),
+    backupDatabase: (destPath: string) =>
+      DbClient.fileClient(dbPath, logger).backup(destPath),
     onProgress: (progress: BackupProgress) => {
       stdout.write(`\r  ${formatProgress(progress)}`.padEnd(60));
     },

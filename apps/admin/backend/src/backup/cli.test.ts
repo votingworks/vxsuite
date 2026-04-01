@@ -34,11 +34,10 @@ import {
   createSigintCanceller,
   formatProgress,
   formatRestoreProgress,
-  formatSize,
   Io,
   main,
 } from './cli';
-import { ignoreMissing } from './fs_utils';
+import { formatBytes, ignoreMissing } from './fs_utils';
 
 let tmpDir: string;
 
@@ -283,12 +282,12 @@ describe('formatRestoreProgress', () => {
   });
 });
 
-describe('formatSize', () => {
+describe('formatBytes', () => {
   test('formats various sizes', () => {
-    expect(formatSize(500)).toEqual('500 bytes');
-    expect(formatSize(1_500)).toEqual('1.5 KB');
-    expect(formatSize(5_000_000)).toEqual('5.0 MB');
-    expect(formatSize(2_500_000_000)).toEqual('2.5 GB');
+    expect(formatBytes(500)).toEqual('500 bytes');
+    expect(formatBytes(1_500)).toEqual('1.5 KB');
+    expect(formatBytes(5_000_000)).toEqual('5.0 MB');
+    expect(formatBytes(2_500_000_000)).toEqual('2.5 GB');
   });
 });
 
