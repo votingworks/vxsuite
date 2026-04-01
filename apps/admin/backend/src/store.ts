@@ -50,7 +50,7 @@ import {
   UserRole,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, sep } from 'node:path';
+import { dirname, join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 import {
@@ -108,6 +108,10 @@ import { deriveCvrContestTag } from './util/cast_vote_records';
 import { rootDebug } from './util/debug';
 import { getCurrentTime } from './get_current_time';
 import { STALE_MACHINE_THRESHOLD_MS } from './globals';
+import {
+  getBallotImageFilePath,
+  getBallotImageRelativePath,
+} from './ballot_image_paths';
 
 const debug = rootDebug.extend('store');
 
@@ -152,6 +156,10 @@ export class Store implements BaseStore {
     return this.ballotImagesPath;
   }
 
+  backup(destPath: string): void {
+    this.client.backup(destPath);
+  }
+
   /**
    * Builds and returns a new store whose data is kept in memory. An
    * `imageDirPath` must be provided, but may be a temporary directory if
@@ -172,6 +180,21 @@ export class Store implements BaseStore {
   ): Store {
     return new Store(
       DbClient.fileClient(dbPath, logger, SchemaPath),
+      ballotImagesPath
+    );
+  }
+
+  /**
+   * Opens an existing database file without schema validation. Use this for
+   * read-only access to database snapshots that lack an adjacent .digest file.
+   */
+  static snapshotStore(
+    dbPath: string,
+    ballotImagesPath: string,
+    logger: BaseLogger
+  ): Store {
+    return new Store(
+      DbClient.fileClient(dbPath, logger),
       ballotImagesPath
     );
   }
@@ -1160,20 +1183,47 @@ export class Store implements BaseStore {
     );
   }
 
+  getBallotImageRelativeFilePaths(): Array<{
+    electionDefinitionId: Id;
+    cvrId: Id;
+    side: Side;
+    path: string;
+  }> {
+    const rows = this.client.all(
+      `
+    select
+      e.election_data ->> 'id' as electionDefinitionId,
+      bi.cvr_id as cvrId,
+      bi.side
+    from ballot_images bi
+    join cvrs c on c.id = bi.cvr_id
+    join elections e on e.id = c.election_id
+  `
+    ) as Array<{
+      electionDefinitionId: string;
+      cvrId: string;
+      side: Side;
+    }>;
+    return rows.map((row) => ({
+      ...row,
+      path: getBallotImageRelativePath(
+        row.electionDefinitionId,
+        row.cvrId,
+        row.side
+      ),
+    }));
+  }
+
   private getBallotImageFilePath(
     electionDefinitionId: string,
     cvrId: Id,
     side: Side
   ): string {
-    assert(
-      !electionDefinitionId.includes(sep),
-      `Election definition ID contains a path separator: ${electionDefinitionId}`
-    );
-    assert(!cvrId.includes(sep), `CVR ID contains a path separator: ${cvrId}`);
-    return join(
+    return getBallotImageFilePath(
       this.ballotImagesPath,
       electionDefinitionId,
-      `${cvrId}-${side}`
+      cvrId,
+      side
     );
   }
 

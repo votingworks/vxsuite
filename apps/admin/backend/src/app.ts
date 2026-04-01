@@ -56,6 +56,7 @@ import {
   readElectionPackageFromBuffer,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
+import { Client as DbClient } from '@votingworks/db';
 import {
   FileSystemEntry,
   FileSystemEntryType,
@@ -156,6 +157,9 @@ import { constructAuthMachineState } from './util/auth';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
 import { generateReportsDirectoryPath } from './util/filenames';
 import { getHostServiceName } from './networking';
+import { BackupManager } from './backup/backup_manager';
+import { BackupStopReason } from './backup/backup';
+import { BackupManifest } from './backup/types';
 
 const debug = rootDebug.extend('app');
 
@@ -181,12 +185,14 @@ function buildApi({
   workspace,
   logger,
   multiUsbDrive,
+  backupManager,
   printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
+  backupManager: BackupManager;
   printer: Printer;
 }) {
   const { store } = workspace;
@@ -361,6 +367,53 @@ function buildApi({
 
     async ejectUsbDrive(): Promise<void> {
       return await usbDriveAdapter.eject();
+    },
+
+    getBackupOperationStatus() {
+      return backupManager.getStatus();
+    },
+
+    async getBackupDrives() {
+      return backupManager.getBackupDrives();
+    },
+
+    listBackups(input: { mountPoint: string }) {
+      return backupManager.listBackups(input.mountPoint);
+    },
+
+    async designateBackupDrive(input: { driveDevPath: string }) {
+      await backupManager.designateBackupDrive(input.driveDevPath);
+    },
+
+    startBackup(input: {
+      trigger: 'manual' | 'auto';
+      backupDriveMountPoint: string;
+    }): Result<void, { type: 'alreadyRunning' }> {
+      // This only reports immediate start eligibility. Callers should watch
+      // getBackupOperationStatus() for completion/failure details.
+      const { machineId, codeVersion } = getMachineConfig();
+      return backupManager.startBackup(
+        input.trigger,
+        input.backupDriveMountPoint,
+        machineId,
+        codeVersion
+      );
+    },
+
+    cancelBackup(): void {
+      backupManager.cancelBackup();
+    },
+
+    async restoreBackup(input: {
+      backupDriveMountPoint: string;
+      backupDirectoryName: string;
+    }): Promise<Result<BackupManifest, BackupStopReason>> {
+      const { codeVersion } = getMachineConfig();
+      return backupManager.restore(
+        input.backupDriveMountPoint,
+        input.backupDirectoryName,
+        codeVersion
+      );
     },
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
@@ -1459,12 +1512,28 @@ export function buildApp({
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
 }): Application {
+  const dbPath = join(workspace.path, 'data.db');
+  const ballotImagesPath = join(workspace.path, 'ballot-images');
+  const backupManager = BackupManager.create(
+    () => workspace.path,
+    () => dbPath,
+    () => ballotImagesPath,
+    (destPath: string) => {
+      const client = DbClient.fileClient(dbPath, logger);
+      client.backup(destPath);
+    },
+    logger,
+    multiUsbDrive
+  );
+  void backupManager.refreshDriveCache();
+
   const app: Application = express();
   const api = buildApi({
     auth,
     workspace,
     logger,
     multiUsbDrive,
+    backupManager,
     printer,
   });
   app.use('/api', grout.buildRouter(api, express));

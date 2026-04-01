@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { err, ok, typedAs } from '@votingworks/basics';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { buildClientApp, ClientApi } from './client_app';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config';
@@ -106,8 +107,10 @@ test('setMachineMode throws when election is configured', async () => {
     electionPackageHash: 'test-hash',
   };
   env.workspace.clientStore.setCachedElectionRecord(mockRecord);
-  await expect(env.apiClient.setMachineMode({ mode: 'host' })).rejects.toThrow(
-    'Cannot change machine mode while an election is configured.'
+  await suppressingConsoleOutput(() =>
+    expect(env.apiClient.setMachineMode({ mode: 'host' })).rejects.toThrow(
+      'Cannot change machine mode while an election is configured.'
+    )
   );
 });
 

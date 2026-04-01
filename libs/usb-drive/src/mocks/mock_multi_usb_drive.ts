@@ -60,6 +60,7 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
     ejectDrive: mockFunction('ejectDrive'),
     formatDrive: mockFunction('formatDrive'),
     sync: mockFunction('sync'),
+    waitForChange: mockFunction('waitForChange'),
     stop: mockFunction('stop'),
   };
 
