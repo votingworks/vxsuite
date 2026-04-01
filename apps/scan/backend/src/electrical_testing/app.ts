@@ -21,6 +21,7 @@ function buildApi({
   audioPlayer,
   workspace,
   cardTask,
+  cardReaderErrorTracker,
   usbDriveTask,
   printerTask,
   scannerTask,
@@ -31,6 +32,8 @@ function buildApi({
 
   return grout.createApi({
     async getElectricalTestingStatuses() {
+      cardReaderErrorTracker.assertHealthy();
+
       const messages = store.getElectricalTestingStatusMessages();
       const cardMessage = messages.find(
         (message) => message.component === 'card'

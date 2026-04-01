@@ -48,7 +48,7 @@ export async function start({
   workspace,
 }: StartOptions): Promise<Server> {
   /* istanbul ignore next - @preserve */
-  const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
+  const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
 
   const logger = Logger.from(
     baseLogger,

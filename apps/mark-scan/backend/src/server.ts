@@ -80,7 +80,7 @@ export async function start({
   workspace,
 }: StartOptions): Promise<Server> {
   detectDevices({ logger: baseLogger });
-  const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
+  const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
   const logger = Logger.from(baseLogger, () =>
     getUserRole(resolvedAuth, workspace)
   );

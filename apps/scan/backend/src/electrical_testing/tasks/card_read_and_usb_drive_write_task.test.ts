@@ -1,4 +1,3 @@
-import { err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { exists } from 'fs-extra';
@@ -54,10 +53,10 @@ test.electrical(
 
 test.electrical(
   'does not read card data when card reading is paused',
-  async ({ electricalAppContext, mainAppContext }) => {
+  async ({ electricalAppContext, mainAppContext, mockCard }) => {
     mainAppContext.mockUsbDrive.insertUsbDrive({});
-    mainAppContext.mockAuth.readCardData.mockResolvedValue(
-      err(new Error('no readCardData call expected'))
+    mockCard.getCardStatus.mockRejectedValue(
+      new Error('No card status call expected')
     );
 
     // Pause card reading.
@@ -89,9 +88,8 @@ test.electrical(
 
 test.electrical(
   'does not write to the USB drive when USB writing is paused',
-  async ({ electricalAppContext, mainAppContext }) => {
+  async ({ electricalAppContext, mainAppContext, mockCard }) => {
     mainAppContext.mockUsbDrive.insertUsbDrive({});
-    mainAppContext.mockAuth.readCardData.mockResolvedValue(ok('card data'));
     await expect(
       hasWrittenFileToUsbDrive(mainAppContext.mockUsbDrive.usbDrive)
     ).resolves.toBe(false);
@@ -107,9 +105,7 @@ test.electrical(
       runCardReadAndUsbDriveWriteTask(electricalAppContext);
 
     // Wait for the loop to go at least once.
-    await vi.waitUntil(
-      () => mainAppContext.mockAuth.readCardData.mock.calls.length > 0
-    );
+    await vi.waitUntil(() => mockCard.getCardStatus.mock.calls.length > 0);
     await vi.waitFor(() => {
       expect(
         mainAppContext.workspace.store.getElectricalTestingStatusMessages()
@@ -128,9 +124,8 @@ test.electrical(
 
 test.electrical(
   'performs both card and USB drive operations multiple times',
-  async ({ electricalAppContext, mainAppContext }) => {
+  async ({ electricalAppContext, mainAppContext, mockCard }) => {
     mainAppContext.mockUsbDrive.insertUsbDrive({});
-    mainAppContext.mockAuth.readCardData.mockResolvedValue(ok('card data'));
 
     // Start the loop.
     const runLoopPromise =
@@ -141,7 +136,7 @@ test.electrical(
       vi.advanceTimersByTime(
         CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS * 1000
       );
-      return mainAppContext.mockAuth.readCardData.mock.calls.length > 2;
+      return mockCard.getCardStatus.mock.calls.length > 2;
     });
     await vi.waitFor(() => {
       expect(
@@ -164,9 +159,8 @@ test.electrical(
 
 test.electrical(
   'writes error status if the USB drive is not mounted',
-  async ({ electricalAppContext, mainAppContext }) => {
+  async ({ electricalAppContext, mainAppContext, mockCard }) => {
     mainAppContext.mockUsbDrive.removeUsbDrive();
-    mainAppContext.mockAuth.readCardData.mockResolvedValue(ok('card data'));
 
     // Start the loop.
     const runLoopPromise =
@@ -177,7 +171,7 @@ test.electrical(
       vi.advanceTimersByTime(
         CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS * 1000
       );
-      return mainAppContext.mockAuth.readCardData.mock.calls.length > 2;
+      return mockCard.getCardStatus.mock.calls.length > 2;
     });
     await vi.waitFor(() => {
       expect(

@@ -1,7 +1,8 @@
 /* eslint-disable no-empty-pattern */
-import { TaskController } from '@votingworks/backend';
+import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
 import { DateTime } from 'luxon';
 import { Mocked, test, vi } from 'vitest';
+import { Card } from '@votingworks/auth';
 import {
   ScanningMode,
   ServerContext,
@@ -22,6 +23,19 @@ function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
   };
 }
 
+function createMockCard(): Mocked<Card> {
+  return {
+    disconnect: vi.fn(),
+    getCardStatus: vi.fn().mockResolvedValue({ status: 'no_card' }),
+    checkPin: vi.fn(),
+    program: vi.fn(),
+    unprogram: vi.fn(),
+    readData: vi.fn(),
+    writeData: vi.fn(),
+    clearData: vi.fn(),
+  };
+}
+
 export const electricalTest = test.extend<{
   mainAppContext: AppContext;
   electricalAppContext: ServerContext;
@@ -33,6 +47,7 @@ export const electricalTest = test.extend<{
     string
   >;
   usbDriveTask: TaskController<void, string>;
+  mockCard: Mocked<Card>;
 }>({
   mainAppContext: async ({}, use) => {
     await withApp(async (context) => {
@@ -48,11 +63,13 @@ export const electricalTest = test.extend<{
       printerTask,
       scannerTask,
       usbDriveTask,
+      mockCard,
     },
     use
   ) => {
     const testingContext: ServerContext = {
-      auth: appContext.mockAuth,
+      card: mockCard,
+      cardReaderErrorTracker: new CardReaderErrorTracker(),
       cardTask,
       logger: appContext.logger,
       printer: appContext.mockFujitsuPrinterHandler.printer,
@@ -92,4 +109,6 @@ export const electricalTest = test.extend<{
   usbDriveTask: async ({}, use) => {
     await use(TaskController.started());
   },
+
+  mockCard: ({}, use) => use(createMockCard()),
 });

@@ -1,8 +1,8 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
+
 import { LogEventId } from '@votingworks/logging';
-import { constructAuthMachineState } from '../../util/auth';
 import { ServerContext } from '../context';
 import { resultToString } from '../utils';
 
@@ -10,7 +10,8 @@ export const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 export const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
 export async function runCardReadAndUsbDriveWriteTask({
-  auth,
+  card,
+  cardReaderErrorTracker,
   cardTask,
   logger,
   usbDrive,
@@ -43,11 +44,11 @@ export async function runCardReadAndUsbDriveWriteTask({
     ]);
 
     if (cardTask.isRunning()) {
-      const machineState = constructAuthMachineState(workspace.store);
-      const cardReadResult = await auth.readCardData(machineState);
+      const cardStatus = await card.getCardStatus();
+      cardReaderErrorTracker.update(cardStatus);
       workspace.store.setElectricalTestingStatusMessage(
         'card',
-        resultToString(cardReadResult)
+        cardStatus.status === 'ready' ? 'Success' : cardStatus.status
       );
     }
 

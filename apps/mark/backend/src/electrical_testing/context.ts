@@ -1,5 +1,5 @@
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { TaskController } from '@votingworks/backend';
+import { Card } from '@votingworks/auth';
+import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
@@ -9,7 +9,8 @@ import { Player as AudioPlayer } from '../audio/player';
 
 export interface ServerContext {
   audioPlayer?: AudioPlayer;
-  auth: InsertedSmartCardAuthApi;
+  card: Card;
+  cardReaderErrorTracker: CardReaderErrorTracker;
   cardTask: TaskController<void, string>;
   usbDriveTask: TaskController<void, string>;
   printerTask: TaskController<void, string>;

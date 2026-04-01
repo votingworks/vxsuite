@@ -1,5 +1,5 @@
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { TaskController } from '@votingworks/backend';
+import { Card } from '@votingworks/auth';
+import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
@@ -15,7 +15,8 @@ export type ScanningMode =
   | 'disabled';
 
 export interface ServerContext {
-  auth: InsertedSmartCardAuthApi;
+  card: Card;
+  cardReaderErrorTracker: CardReaderErrorTracker;
   cardTask: TaskController<void, string>;
   usbDriveTask: TaskController<void, string>;
   printerTask: TaskController<{ lastPrintedAt?: DateTime }, string>;
