@@ -16,7 +16,7 @@ use crate::interpret::{Error, Result};
 use crate::timing_marks::TimingMarks;
 use crate::{
     debug,
-    image_utils::{diff, BLACK, WHITE},
+    image_utils::{diff, BLACK},
 };
 
 #[derive(Clone, Copy, Serialize, Default)]
@@ -189,6 +189,42 @@ pub fn score_bubble_marks_from_grid_layout(
     Ok(scored_bubbles)
 }
 
+/// Computes a match score between a region of the source image and a bubble
+/// template. Equivalent to `threshold` -> `diff` -> counting white pixels, but
+/// without allocating intermediate images.
+///
+/// # Panics
+///
+/// Panics if the template-sized region at `(x, y)` extends beyond the image
+/// bounds, i.e. if `x + template.width() > img.width()` or
+/// `y + template.height() > img.height()`.
+fn compute_match_score(
+    img: &GrayImage,
+    template: &GrayImage,
+    x: u32,
+    y: u32,
+    threshold_val: u8,
+) -> UnitIntervalScore {
+    let width = template.width();
+    let height = template.height();
+    let total_pixels = (width * height) as f32;
+    let mut matching_pixels = 0u32;
+    for py in 0..height {
+        for px in 0..width {
+            let source_val = img.get_pixel(x + px, y + py).0[0];
+            let binarized = if source_val <= threshold_val {
+                0u8
+            } else {
+                255u8
+            };
+            if binarized <= template.get_pixel(px, py).0[0] {
+                matching_pixels += 1;
+            }
+        }
+    }
+    UnitIntervalScore(matching_pixels as f32 / total_pixels)
+}
+
 /// Scores a bubble mark within a scanned ballot image.
 ///
 /// Compares the source image to the bubble template image at every pixel location
@@ -211,56 +247,52 @@ pub fn score_bubble_mark(
     struct Match {
         bounds: Rect,
         score: UnitIntervalScore,
-        diff: GrayImage,
     }
 
-    let center_x = expected_bubble_center.x.round() as PixelUnit;
-    let center_y = expected_bubble_center.y.round() as PixelUnit;
-    let left = center_x - bubble_template.width() / 2;
-    let top = center_y - bubble_template.height() / 2;
+    let center_x = expected_bubble_center.x.round() as PixelPosition;
+    let center_y = expected_bubble_center.y.round() as PixelPosition;
     let width = bubble_template.width();
     let height = bubble_template.height();
-    let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
+    let left = center_x - (width / 2) as PixelPosition;
+    let top = center_y - (height / 2) as PixelPosition;
+    let expected_bounds = Rect::new(left, top, width, height);
+
+    let img = ballot_image.image();
+    let img_width = img.width();
+    let img_height = img.height();
+    let threshold_val = ballot_image.threshold();
     let mut best_match = None;
 
     for offset_x in
         -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
     {
-        let x = left as PixelPosition + offset_x;
-        if x < 0 {
+        let x = left + offset_x;
+        if x < 0 || x as u32 + width > img_width {
             continue;
         }
 
         for offset_y in
             -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
         {
-            let y = top as PixelPosition + offset_y;
-            if y < 0 {
+            let y = top + offset_y;
+            if y < 0 || y as u32 + height > img_height {
                 continue;
             }
 
-            let cropped = ballot_image
-                .image()
-                .view(x as PixelUnit, y as PixelUnit, width, height)
-                .to_image();
-            let cropped_and_thresholded = threshold(&cropped, ballot_image.threshold());
-
-            let match_diff = diff(&cropped_and_thresholded, bubble_template);
-            let match_score = UnitIntervalScore(count_pixels(&match_diff, WHITE).ratio());
+            let match_score =
+                compute_match_score(img, bubble_template, x as u32, y as u32, threshold_val);
 
             match best_match {
                 None => {
                     best_match = Some(Match {
                         bounds: Rect::new(x, y, width, height),
                         score: match_score,
-                        diff: match_diff,
                     });
                 }
                 Some(ref mut best_match) => {
                     if match_score > best_match.score {
                         best_match.bounds = Rect::new(x, y, width, height);
                         best_match.score = match_score;
-                        best_match.diff = match_diff;
                     }
                 }
             }
@@ -268,8 +300,7 @@ pub fn score_bubble_mark(
     }
 
     let best_match = best_match?;
-    let source_image = ballot_image
-        .image()
+    let source_image = img
         .view(
             best_match.bounds.left() as PixelUnit,
             best_match.bounds.top() as PixelUnit,
@@ -361,4 +392,165 @@ fn score_write_in_area(
         shape,
         score,
     })
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod test {
+    use super::*;
+    use crate::ballot_card::BallotImage;
+    use image::{GenericImageView, GrayImage};
+    use proptest::prelude::*;
+    use types_rs::ballot_card::BallotSide;
+    use types_rs::geometry::Point;
+
+    fn make_ballot_image(width: u32, height: u32) -> BallotImage {
+        BallotImage::for_testing(
+            GrayImage::from_pixel(width, height, image::Luma([200])),
+            128,
+        )
+    }
+
+    fn make_location() -> GridLocation {
+        GridLocation::new(BallotSide::Front, 0.0, 0.0)
+    }
+
+    #[test]
+    fn score_bubble_mark_returns_none_when_bubble_is_entirely_off_image() {
+        let ballot_image = make_ballot_image(100, 100);
+        let template = GrayImage::new(20, 20);
+        let location = make_location();
+
+        // Center way off the right edge
+        let result = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 200.0, y: 50.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+        assert!(result.is_none());
+
+        // Center way off the bottom edge
+        let result = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 50.0, y: 200.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn score_bubble_mark_does_not_panic_near_edges() {
+        let ballot_image = make_ballot_image(100, 100);
+        let template = GrayImage::new(20, 20);
+        let location = make_location();
+
+        // Near left edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 5.0, y: 50.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+
+        // Near top edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 50.0, y: 5.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+
+        // Near right edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 95.0, y: 50.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+
+        // Near bottom edge
+        let _ = score_bubble_mark(
+            &ballot_image,
+            &template,
+            Point { x: 50.0, y: 95.0 },
+            &location,
+            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        );
+    }
+
+    /// Computes the match score using the original allocating pipeline
+    /// (`threshold` -> `diff` -> `count_pixels`) as a reference implementation.
+    fn reference_match_score(
+        source: &GrayImage,
+        template: &GrayImage,
+        threshold_val: u8,
+    ) -> UnitIntervalScore {
+        use crate::image_utils::{count_pixels, diff, threshold};
+        let white = image::Luma([255u8]);
+        let binarized = threshold(source, threshold_val);
+        let match_diff = diff(&binarized, template);
+        UnitIntervalScore(count_pixels(&match_diff, white).ratio())
+    }
+
+    proptest! {
+        #[test]
+        fn score_bubble_mark_never_panics(
+            img_w in 10u32..200,
+            img_h in 10u32..200,
+            tmpl_w in 5u32..30,
+            tmpl_h in 5u32..30,
+            center_x in -20.0f32..220.0,
+            center_y in -20.0f32..220.0,
+            search_dist in 0u32..15,
+        ) {
+            let ballot_image = make_ballot_image(img_w, img_h);
+            let template = GrayImage::new(tmpl_w, tmpl_h);
+            let location = make_location();
+
+            let _ = score_bubble_mark(
+                &ballot_image,
+                &template,
+                Point { x: center_x, y: center_y },
+                &location,
+                search_dist,
+            );
+        }
+
+        #[test]
+        fn compute_match_score_agrees_with_reference_pipeline_proptest(
+            img_pixels in proptest::collection::vec(proptest::num::u8::ANY, 10_000),
+            tmpl_pixels in proptest::collection::vec(
+                proptest::strategy::Union::new([
+                    proptest::strategy::Just(0u8).boxed(),
+                    proptest::strategy::Just(255u8).boxed(),
+                ]),
+                400,
+            ),
+            threshold_val in 1u8..254,
+            x in 0u32..80,
+            y in 0u32..80,
+        ) {
+            let img = GrayImage::from_raw(100, 100, img_pixels).unwrap();
+            let template = GrayImage::from_raw(20, 20, tmpl_pixels).unwrap();
+
+            let actual = compute_match_score(&img, &template, x, y, threshold_val);
+            let expected = reference_match_score(
+                &img.view(x, y, 20, 20).to_image(),
+                &template,
+                threshold_val,
+            );
+
+            prop_assert!(
+                (actual.0 - expected.0).abs() < f32::EPSILON,
+                "compute_match_score={} != reference={}", actual.0, expected.0
+            );
+        }
+    }
 }

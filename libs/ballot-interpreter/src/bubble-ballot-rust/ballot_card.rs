@@ -159,6 +159,25 @@ impl BallotImage {
         self.image.dimensions()
     }
 
+    /// Wraps the given image and threshold into a `BallotImage` for testing.
+    #[cfg(test)]
+    pub fn for_testing(image: GrayImage, threshold: u8) -> Self {
+        use crate::debug::ImageDebugWriter;
+        use crate::image_utils::Inset;
+
+        BallotImage {
+            image,
+            threshold,
+            border_inset: Inset {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+            },
+            debug: ImageDebugWriter::disabled(),
+        }
+    }
+
     /// Determines whether the pixel at the given coordinate is foreground
     /// or background.
     #[must_use]

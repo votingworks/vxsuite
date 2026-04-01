@@ -10,7 +10,6 @@ use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 use crate::ballot_card::BallotImage;
 use crate::{debug, scoring::UnitIntervalScore};
 
-pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
 pub const WHITE_RGB: Rgb<u8> = Rgb([255, 255, 255]);
 pub const RED: Rgb<u8> = Rgb([255, 0, 0]);
