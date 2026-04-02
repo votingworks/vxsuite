@@ -191,6 +191,10 @@ test('election fixture references', async () => {
       title: 'electionMultiPartyPrimary',
     },
     {
+      path: 'fixtures/data/electionOpenPrimary/election.json',
+      title: 'electionOpenPrimary',
+    },
+    {
       path: 'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json',
       title: 'electionPrimaryPrecinctSplits',
     },
