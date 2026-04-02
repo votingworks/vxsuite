@@ -10,15 +10,11 @@ use crate::{
         votes::ContestVote,
         PartialBallotHash, MULTI_PAGE_PRELUDE,
     },
-    coding,
+    codable,
     election::{BallotStyleId, ContestId, Election, PrecinctId},
 };
 
-/// Maximum number of pages in a multi-page BMD ballot.
-const MAXIMUM_PAGES: u8 = 30;
-
-/// Number of bits needed to encode page number or total pages.
-const PAGE_BITS: u32 = coding::const_bit_size(MAXIMUM_PAGES as u64);
+codable!(PageNumber, u8, 1..=30);
 
 /// A single page of a multi-page BMD summary ballot, as encoded in the QR code.
 #[derive(Debug, PartialEq, serde::Serialize)]
@@ -26,8 +22,8 @@ pub struct MultiPageCastVoteRecord {
     pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,
     pub precinct_id: PrecinctId,
-    pub page_number: u8,
-    pub total_pages: u8,
+    pub page_number: PageNumber,
+    pub total_pages: PageNumber,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
     pub ballot_audit_id: BallotAuditId,
@@ -59,8 +55,8 @@ impl ToBitStreamWith<'_> for MultiPageCastVoteRecord {
             &self.ballot_style_id,
         )?;
 
-        w.write_var::<u8>(PAGE_BITS, self.page_number)?;
-        w.write_var::<u8>(PAGE_BITS, self.total_pages)?;
+        w.build(&self.page_number)?;
+        w.build(&self.total_pages)?;
         w.write_bit(self.is_test_mode)?;
         w.build(&self.ballot_type)?;
 
@@ -109,8 +105,8 @@ impl FromBitStreamWith<'_> for MultiPageCastVoteRecord {
             ballot_style,
         } = encoding::read_ballot_header(r, election)?;
 
-        let page_number = r.read_var::<u8>(PAGE_BITS)?;
-        let total_pages = r.read_var::<u8>(PAGE_BITS)?;
+        let page_number = r.parse()?;
+        let total_pages = r.parse()?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
         let ballot_audit_id: BallotAuditId = r.parse()?;

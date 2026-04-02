@@ -2,10 +2,11 @@
 
 use std::collections::HashMap;
 
+use proptest::prelude::Strategy;
 use proptest::proptest;
 use types_rs::ballot_card::BallotType;
 use types_rs::bmd::encoding::BallotAuditId;
-use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
+use types_rs::bmd::multi_page::{MultiPageCastVoteRecord, PageNumber};
 use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
 use types_rs::bmd::PartialBallotHash;
@@ -25,8 +26,8 @@ fn test_multi_page_round_trip_no_votes() {
         ballot_hash: [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        page_number: 1,
-        total_pages: 3,
+        page_number: PageNumber::new_unchecked(1),
+        total_pages: PageNumber::new_unchecked(3),
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
         ballot_audit_id: BallotAuditId::new("audit-1").unwrap(),
@@ -47,8 +48,8 @@ fn test_multi_page_round_trip_empty_votes() {
         ballot_hash: [0xaa; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        page_number: 2,
-        total_pages: 3,
+        page_number: PageNumber::new_unchecked(2),
+        total_pages: PageNumber::new_unchecked(3),
         is_test_mode: true,
         ballot_type: BallotType::Absentee,
         ballot_audit_id: BallotAuditId::new("test-id-123").unwrap(),
@@ -77,8 +78,8 @@ fn test_multi_page_round_trip_with_votes() {
         ballot_hash: [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x11, 0x22],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        page_number: 1,
-        total_pages: 2,
+        page_number: PageNumber::new_unchecked(1),
+        total_pages: PageNumber::new_unchecked(2),
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
         ballot_audit_id: BallotAuditId::new("abc").unwrap(),
@@ -112,8 +113,8 @@ fn test_multi_page_round_trip_with_write_in() {
         ballot_hash: [0xff; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        page_number: 1,
-        total_pages: 1,
+        page_number: PageNumber::new_unchecked(1),
+        total_pages: PageNumber::new_unchecked(1),
         is_test_mode: true,
         ballot_type: BallotType::Provisional,
         ballot_audit_id: BallotAuditId::new("write-in-test").unwrap(),
@@ -148,8 +149,8 @@ fn test_multi_page_round_trip_yesno_contest() {
         ballot_hash: [0x55; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        page_number: 2,
-        total_pages: 2,
+        page_number: PageNumber::new_unchecked(2),
+        total_pages: PageNumber::new_unchecked(2),
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
         ballot_audit_id: BallotAuditId::new("yn-test").unwrap(),
@@ -182,8 +183,8 @@ fn test_multi_page_partial_contests_on_page() {
         ballot_hash: [0x42; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        page_number: 1,
-        total_pages: 2,
+        page_number: PageNumber::new_unchecked(1),
+        total_pages: PageNumber::new_unchecked(2),
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
         ballot_audit_id: BallotAuditId::new("partial").unwrap(),
@@ -241,31 +242,34 @@ fn max_votes_for(contest: &Contest) -> (ContestId, ContestVote) {
     }
 }
 
+fn arbitrary_page_number() -> impl Strategy<Value = PageNumber> {
+    (PageNumber::MIN_VALUE..=PageNumber::MAX_VALUE).prop_map(PageNumber::new_unchecked)
+}
+
 proptest! {
     #[test]
     fn test_multi_page_round_trip_arbitrary(
         ballot_hash: PartialBallotHash,
         is_test_mode: bool,
         ballot_type in arbitrary_ballot_type(),
-        total_pages in 1u8..=5,
+        total_pages in arbitrary_page_number(),
         contests in arbitrary_contests(DistrictId::from("d-1".to_owned())),
     ) {
         let election = Election { contests, ..simple_election() };
         let all_contests = election.contests.clone();
 
         // Distribute contests across pages round-robin style
-        let mut pages: Vec<Vec<&Contest>> = (0..total_pages).map(|_| Vec::new()).collect();
+        let mut pages: Vec<Vec<&Contest>> = (0..total_pages.get()).map(|_| Vec::new()).collect();
         for (i, contest) in all_contests.iter().enumerate() {
-            pages[i % total_pages as usize].push(contest);
+            pages[i % total_pages.get() as usize].push(contest);
         }
 
         // Round-trip each page
         for (page_idx, page_contests) in pages.iter().enumerate() {
             #[allow(clippy::cast_possible_truncation)]
-            let page_number = (page_idx as u8) + 1;
+            let page_number = PageNumber::new_unchecked((page_idx as u8) + 1);
 
-            // Vote on odd-numbered pages, no votes on even
-            let votes: HashMap<_, _> = if page_number % 2 == 1 {
+            let votes: HashMap<_, _> = if page_number.get() % 2 == 1 {
                 page_contests.iter().map(|c| max_votes_for(c)).collect()
             } else {
                 HashMap::new()

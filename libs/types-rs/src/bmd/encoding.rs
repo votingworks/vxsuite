@@ -142,10 +142,19 @@ impl BallotAuditId {
     /// Fails if the given ballot audit ID length is out of bounds.
     pub fn new(value: impl Into<String>) -> Result<Self, Error> {
         let value = value.into();
-        match BallotAuditIdLength::try_from(value.len()) {
-            Err(_) => Err(Error::InvalidBallotAuditId(value)),
-            Ok(_) => Ok(Self(value)),
+        match u8::try_from(value.len())
+            .ok()
+            .and_then(BallotAuditIdLength::new)
+        {
+            None => Err(Error::InvalidBallotAuditId(value)),
+            Some(_) => Ok(Self(value)),
         }
+    }
+
+    /// Gets the length of the ballot audit ID as a constrained
+    /// `BallotAuditIdLength`.
+    pub fn len(&self) -> BallotAuditIdLength {
+        BallotAuditIdLength::new_unchecked(self.0.len() as u8)
     }
 }
 
@@ -157,9 +166,7 @@ impl ToBitStream for BallotAuditId {
         Self: Sized,
     {
         let bytes = self.0.as_bytes();
-        let len = BallotAuditIdLength::try_from(bytes.len())
-            .expect("BallotAuditId must have valid length");
-        w.build(&len)?;
+        w.build(&self.len())?;
         w.write_bytes(bytes)?;
         Ok(())
     }
