@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 
 use crate::{
-    ballot_card::{BallotAuditIdLength, BallotType},
+    ballot_card::BallotType,
     bmd::{
-        encoding::{self, BallotHeader},
+        encoding::{self, BallotAuditId, BallotHeader},
         error::Error,
         votes::ContestVote,
         PartialBallotHash, SINGLE_PAGE_PRELUDE,
@@ -23,7 +23,7 @@ pub struct CastVoteRecord {
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
     // Not currently used in BMD ballots, but we do try to read them.
-    pub ballot_audit_id: Option<String>,
+    pub ballot_audit_id: Option<BallotAuditId>,
 }
 
 impl ToBitStreamWith<'_> for CastVoteRecord {
@@ -54,15 +54,7 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
         match self.ballot_audit_id {
             Some(ref ballot_audit_id) => {
                 w.write_bit(true)?;
-                let Ok(ballot_audit_id_length) = u8::try_from(ballot_audit_id.len()) else {
-                    return Err(Error::InvalidBallotAuditId(ballot_audit_id.clone()));
-                };
-                let Some(ballot_audit_id_length) = BallotAuditIdLength::new(ballot_audit_id_length)
-                else {
-                    return Err(Error::InvalidBallotAuditId(ballot_audit_id.clone()));
-                };
-                w.build(&ballot_audit_id_length)?;
-                w.write_bytes(ballot_audit_id.as_bytes())?;
+                w.build(ballot_audit_id)?;
             }
 
             None => w.write_bit(false)?,
@@ -101,12 +93,7 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
         let ballot_type: BallotType = r.parse()?;
 
         let ballot_audit_id = if r.read_bit()? {
-            let ballot_audit_id_length: BallotAuditIdLength = r.parse()?;
-            let ballot_audit_id_bytes = r.read_to_vec(ballot_audit_id_length.get().into())?;
-            Some(
-                String::from_utf8(ballot_audit_id_bytes)
-                    .map_err(|err| Error::InvalidBallotAuditId(err.to_string()))?,
-            )
+            Some(r.parse()?)
         } else {
             None
         };

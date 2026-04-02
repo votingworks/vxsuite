@@ -1,7 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
+
+use bitstream_io::{FromBitStream, ToBitStream};
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    ballot_card::{BallotStyleByIndex, PrecinctByIndex},
+    ballot_card::{BallotAuditIdLength, BallotStyleByIndex, PrecinctByIndex},
     election::{BallotStyle, BallotStyleId, Contest, ContestId, Election, PrecinctId},
 };
 
@@ -125,4 +128,60 @@ pub fn read_roll_call_and_votes<R: bitstream_io::BitRead + ?Sized>(
     }
 
     Ok(votes)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct BallotAuditId(String);
+
+impl BallotAuditId {
+    /// Builds a new `BallotAuditId` if `value` is a valid ballot audit ID.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the given ballot audit ID length is out of bounds.
+    pub fn new(value: impl Into<String>) -> Result<Self, Error> {
+        let value = value.into();
+        match BallotAuditIdLength::try_from(value.len()) {
+            Err(_) => Err(Error::InvalidBallotAuditId(value)),
+            Ok(_) => Ok(Self(value)),
+        }
+    }
+}
+
+impl ToBitStream for BallotAuditId {
+    type Error = Error;
+
+    fn to_writer<W: bitstream_io::BitWrite + ?Sized>(&self, w: &mut W) -> Result<(), Self::Error>
+    where
+        Self: Sized,
+    {
+        let bytes = self.0.as_bytes();
+        let len = BallotAuditIdLength::try_from(bytes.len())
+            .expect("BallotAuditId must have valid length");
+        w.build(&len)?;
+        w.write_bytes(bytes)?;
+        Ok(())
+    }
+}
+
+impl FromBitStream for BallotAuditId {
+    type Error = Error;
+
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
+    where
+        Self: Sized,
+    {
+        let len: BallotAuditIdLength = r.parse()?;
+        let bytes = r.read_to_vec(len.get().into())?;
+        Ok(Self(String::from_utf8(bytes).map_err(|err| {
+            Error::InvalidBallotAuditId(err.to_string())
+        })?))
+    }
+}
+
+impl Display for BallotAuditId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
 }

@@ -5,7 +5,7 @@ use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 use crate::{
     ballot_card::BallotType,
     bmd::{
-        encoding::{self, BallotHeader},
+        encoding::{self, BallotAuditId, BallotHeader},
         error::Error,
         votes::ContestVote,
         PartialBallotHash, MULTI_PAGE_PRELUDE,
@@ -20,10 +20,6 @@ const MAXIMUM_PAGES: u8 = 30;
 /// Number of bits needed to encode page number or total pages.
 const PAGE_BITS: u32 = coding::const_bit_size(MAXIMUM_PAGES as u64);
 
-/// Number of bits for string length prefix (matches TS `writeString` default
-/// `maxLength` of 255).
-const STRING_LENGTH_BITS: u32 = 8;
-
 /// A single page of a multi-page BMD summary ballot, as encoded in the QR code.
 #[derive(Debug, PartialEq, serde::Serialize)]
 pub struct MultiPageCastVoteRecord {
@@ -34,7 +30,7 @@ pub struct MultiPageCastVoteRecord {
     pub total_pages: u8,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
-    pub ballot_audit_id: String,
+    pub ballot_audit_id: BallotAuditId,
     /// The IDs of contests included on this page.
     pub contest_ids: Vec<ContestId>,
     /// Votes for the contests on this page.
@@ -68,13 +64,7 @@ impl ToBitStreamWith<'_> for MultiPageCastVoteRecord {
         w.write_bit(self.is_test_mode)?;
         w.build(&self.ballot_type)?;
 
-        // Ballot audit ID is always present for multi-page BMD ballots,
-        // encoded as a length-prefixed UTF-8 string (no presence bit).
-        let audit_id_bytes = self.ballot_audit_id.as_bytes();
-        let audit_id_len = u8::try_from(audit_id_bytes.len())
-            .map_err(|_| Error::InvalidBallotAuditId(self.ballot_audit_id.clone()))?;
-        w.write_var::<u8>(STRING_LENGTH_BITS, audit_id_len)?;
-        w.write_bytes(audit_id_bytes)?;
+        w.build(&self.ballot_audit_id)?;
 
         let all_contests = election.contests_in(&ballot_style);
         let contests_on_page: std::collections::HashSet<&ContestId> =
@@ -123,12 +113,7 @@ impl FromBitStreamWith<'_> for MultiPageCastVoteRecord {
         let total_pages = r.read_var::<u8>(PAGE_BITS)?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
-
-        // Ballot audit ID: length-prefixed UTF-8 string (no presence bit)
-        let audit_id_len: u8 = r.read_var(STRING_LENGTH_BITS)?;
-        let audit_id_bytes = r.read_to_vec(audit_id_len.into())?;
-        let ballot_audit_id = String::from_utf8(audit_id_bytes)
-            .map_err(|err| Error::InvalidBallotAuditId(err.to_string()))?;
+        let ballot_audit_id: BallotAuditId = r.parse()?;
 
         let all_contests = election.contests_in(&ballot_style);
 

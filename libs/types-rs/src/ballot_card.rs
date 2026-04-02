@@ -1,4 +1,4 @@
-use std::num::NonZeroU8;
+use std::num::{NonZeroU8, TryFromIntError};
 use std::{fmt::Debug, io};
 
 use bitstream_io::{FromBitStream, FromBitStreamWith, ToBitStream};
@@ -306,6 +306,14 @@ impl PaperSize {
                 height: Inch::new(22.0),
             },
         }
+    }
+}
+
+impl TryFrom<usize> for BallotAuditIdLength {
+    type Error = TryFromIntError;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        Ok(Self(u8::try_from(value)?))
     }
 }
 

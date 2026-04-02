@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use proptest::proptest;
 use types_rs::ballot_card::BallotType;
+use types_rs::bmd::encoding::BallotAuditId;
 use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
 use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
@@ -28,7 +29,7 @@ fn test_multi_page_round_trip_no_votes() {
         total_pages: 3,
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
-        ballot_audit_id: "audit-1".to_owned(),
+        ballot_audit_id: BallotAuditId::new("audit-1").unwrap(),
         contest_ids: all_contest_ids,
         votes: HashMap::new(),
     };
@@ -50,7 +51,7 @@ fn test_multi_page_round_trip_empty_votes() {
         total_pages: 3,
         is_test_mode: true,
         ballot_type: BallotType::Absentee,
-        ballot_audit_id: "test-id-123".to_owned(),
+        ballot_audit_id: BallotAuditId::new("test-id-123").unwrap(),
         contest_ids: vec![],
         votes: HashMap::new(),
     };
@@ -80,7 +81,7 @@ fn test_multi_page_round_trip_with_votes() {
         total_pages: 2,
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
-        ballot_audit_id: "abc".to_owned(),
+        ballot_audit_id: BallotAuditId::new("abc").unwrap(),
         contest_ids: vec![candidate_contest.id.clone()],
         votes: HashMap::from([(
             candidate_contest.id.clone(),
@@ -115,7 +116,7 @@ fn test_multi_page_round_trip_with_write_in() {
         total_pages: 1,
         is_test_mode: true,
         ballot_type: BallotType::Provisional,
-        ballot_audit_id: "write-in-test".to_owned(),
+        ballot_audit_id: BallotAuditId::new("write-in-test").unwrap(),
         contest_ids: vec![candidate_contest.id.clone()],
         votes: HashMap::from([(
             candidate_contest.id.clone(),
@@ -151,7 +152,7 @@ fn test_multi_page_round_trip_yesno_contest() {
         total_pages: 2,
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
-        ballot_audit_id: "yn-test".to_owned(),
+        ballot_audit_id: BallotAuditId::new("yn-test").unwrap(),
         contest_ids: vec![yesno_contest.id.clone()],
         votes: HashMap::from([(
             yesno_contest.id.clone(),
@@ -185,7 +186,7 @@ fn test_multi_page_partial_contests_on_page() {
         total_pages: 2,
         is_test_mode: false,
         ballot_type: BallotType::Precinct,
-        ballot_audit_id: "partial".to_owned(),
+        ballot_audit_id: BallotAuditId::new("partial").unwrap(),
         contest_ids: vec![candidate_contest_id],
         votes: HashMap::new(),
     };
@@ -278,7 +279,7 @@ proptest! {
                 total_pages,
                 is_test_mode,
                 ballot_type,
-                ballot_audit_id: "test".to_owned(),
+                ballot_audit_id: BallotAuditId::new("test").unwrap(),
                 contest_ids: page_contests.iter().map(|c| c.id().clone()).collect(),
                 votes,
             };
