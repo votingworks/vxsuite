@@ -101,6 +101,7 @@ export * from './unlock_machine_screen';
 export * from './system_administrator_screen_contents';
 export * from './unconfigure_machine_button';
 export * from './change_precinct_button';
+export * from './polling_place_picker';
 export * from './export_logs_modal';
 export * from './task_screen';
 export * from './unconfigured_election_screen';
