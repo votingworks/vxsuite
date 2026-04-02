@@ -94,11 +94,14 @@ export async function startElectricalTestingServer(
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
   const audioCard = await AudioCard.default(NODE_ENV, logger);
+  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
+
+  // Enables the ability to toggle back and forth between headphone and speaker output
+  await audioPlayer.setIsScreenReaderEnabled(true);
 
   // System volume is set to 100% in the prod app, but the HWTA has no UI volume control, so we set
   // to a safe listening level discovered the hard way
-  await audioCard.useHeadphones();
-  await audioCard.setVolume(40);
+  await audioPlayer.setVolume(40);
 
-  return new AudioPlayer(NODE_ENV, logger, audioCard);
+  return audioPlayer;
 }
