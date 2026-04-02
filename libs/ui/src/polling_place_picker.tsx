@@ -38,7 +38,6 @@ export type PollingPlacePickerMode =
 export interface PollingPlacePickerProps {
   includedTypes?: PollingPlaceType[];
   mode: PollingPlacePickerMode;
-  noTypeLabels?: boolean;
   places: readonly PollingPlace[];
   selectedId?: string;
   selectPlace: (id: string) => Promise<void>;
@@ -47,7 +46,6 @@ export interface PollingPlacePickerProps {
 export function PollingPlacePicker({
   includedTypes = ['absentee', 'early_voting', 'election_day'],
   mode,
-  noTypeLabels,
   places,
   selectedId,
   selectPlace,
@@ -104,9 +102,9 @@ export function PollingPlacePicker({
 
     return {
       groupedList: grouped,
-      omitTypeLabels: noTypeLabels || nVisibleGroups <= 1,
+      omitTypeLabels: nVisibleGroups <= 1,
     };
-  }, [includedTypes, noTypeLabels, places]);
+  }, [includedTypes, places]);
 
   const dropdown = (
     <SearchSelect

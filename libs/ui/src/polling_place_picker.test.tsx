@@ -99,30 +99,6 @@ describe('dropdown contents', () => {
       ]);
     });
 
-    test(`[${spec.mode} mode] omits type labels if 'noTypeLabels' is specified`, () => {
-      render(
-        <PollingPlacePicker
-          mode={spec.mode}
-          noTypeLabels
-          places={[earlyVoting1, electionDay1]}
-          selectedId={electionDay1.id}
-          selectPlace={vi.fn(() => Promise.resolve())}
-        />
-      );
-
-      spec.prep?.();
-
-      const dropdown = getDropdown();
-      const selectEl = dropdown.closest('.search-select');
-      expect(selectEl).toHaveTextContent(electionDay1.name);
-
-      userEvent.click(getDropdown());
-      expect(getAllOptions().map((opt) => opt.textContent)).toEqual([
-        earlyVoting1.name,
-        electionDay1.name,
-      ]);
-    });
-
     test(`[${spec.mode} mode] omits type labels if only one is available`, () => {
       render(
         <PollingPlacePicker
