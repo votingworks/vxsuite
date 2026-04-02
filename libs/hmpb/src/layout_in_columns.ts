@@ -1,4 +1,5 @@
-import { iter, assertDefined, range } from '@votingworks/basics';
+/* eslint-disable no-labels */
+import { iter, assertDefined, assert, range, find } from '@votingworks/basics';
 
 function findLastIndex<T>(arr: T[], keyFn: (item: T) => boolean): number {
   for (let i = arr.length - 1; i >= 0; i -= 1) {
@@ -171,5 +172,303 @@ export async function layOutInColumns<Element extends ElementWithHeight>({
   return {
     columns: bestColumns,
     height: heightOfTallestColumn(bestColumns),
+  };
+}
+
+export interface Section<Element> {
+  header: Element;
+  subsections: ReadonlyArray<Subsection<Element>>;
+}
+
+export interface Subsection<Element> {
+  header: Element;
+  elements: readonly Element[];
+}
+
+interface SectionIndex {
+  subsectionIndex: number;
+  elementIndex: number;
+}
+
+export function sectionIndexOf<E>(
+  section: Section<E>,
+  element: E
+): SectionIndex | undefined {
+  for (const [subsectionIndex, subsection] of section.subsections.entries()) {
+    for (const [
+      elementIndex,
+      subsectionElement,
+    ] of subsection.elements.entries()) {
+      if (subsectionElement === element) {
+        return { subsectionIndex, elementIndex };
+      }
+    }
+  }
+  return undefined;
+}
+
+export function sectionDrop<E>(
+  section: Section<E>,
+  index: SectionIndex
+): Section<E> | undefined {
+  const { subsectionIndex, elementIndex } = index;
+  const slicedElements = section.subsections[subsectionIndex].elements.slice(
+    elementIndex + 1
+  );
+  const slicedSubsections = [
+    ...(slicedElements.length > 0
+      ? [
+          {
+            ...section.subsections[subsectionIndex],
+            elements: slicedElements,
+          },
+        ]
+      : []),
+    ...section.subsections.slice(subsectionIndex + 1),
+  ];
+  if (slicedSubsections.length === 0) {
+    return undefined;
+  }
+  return {
+    header: section.header,
+    subsections: slicedSubsections,
+  };
+}
+
+export function zipSections<Element>(
+  sections: Array<Section<Element>>
+): Section<readonly Element[]> {
+  assert(
+    sections.every(
+      (s) => s.subsections.length === sections[0].subsections.length
+    )
+  );
+  return {
+    header: sections.map((s) => s.header),
+    subsections: sections[0].subsections.map((_, subsectionIndex) => ({
+      header: sections.map((s) => s.subsections[subsectionIndex].header),
+      elements: transpose(
+        sections.map((s) => s.subsections[subsectionIndex].elements)
+      ),
+    })),
+  };
+}
+
+export function transpose<E>(arrays: Array<readonly E[]>): Array<E[]> {
+  if (arrays.length === 0) {
+    return [];
+  }
+  const { length } = arrays[0];
+  assert(arrays.every((arr) => arr.length === length));
+  const result: Array<E[]> = [];
+  for (let i = 0; i < length; i += 1) {
+    result.push(arrays.map((arr) => arr[i]));
+  }
+  return result;
+}
+
+/**
+ * Lay out sections of fixed-height elements in columns. Each section has a
+ * header and may contain subsections with optional headers. Layout constraints:
+ * - No more than `numColumns` columns
+ * - Each column must be no taller than `maxColumnHeight`
+ * - Element order must be preserved when filling columns
+ * - Sections and subsections may be split across columns
+ * - If a subsection is split across columns, its header is repeated at the top
+ *   of the new column
+ */
+export function layOutSectionsInColumns<Element extends ElementWithHeight>({
+  sections,
+  numColumns,
+  maxColumnHeight,
+  elementGap = 0,
+}: {
+  sections: Array<Section<Element>>;
+  numColumns: number;
+  maxColumnHeight: number;
+  elementGap?: number;
+}): {
+  columns: Array<Column<Element>>;
+  leftoverSections: Array<Section<Element>>;
+} {
+  for (const section of sections) {
+    assert(section.subsections.length > 0, 'Section must have subsections');
+    for (const subsection of section.subsections) {
+      assert(subsection.elements.length > 0, 'Subsection must have elements');
+    }
+  }
+
+  function columnHeight(column: Column<Element>): number {
+    return (
+      iter(column)
+        .map((e) => e.height)
+        .sum() +
+      Math.max(column.length - 1, 0) * elementGap
+    );
+  }
+
+  const columns: Array<Column<Element>> = range(0, numColumns).map(() => []);
+
+  let columnIndex = 0;
+
+  function fitsInCurrentColumn(elementsToAdd: Element[]): boolean {
+    return (
+      columnHeight(columns[columnIndex].concat(elementsToAdd)) <=
+      maxColumnHeight
+    );
+  }
+
+  sectionLoop: for (const section of sections) {
+    while (
+      !fitsInCurrentColumn([
+        section.header,
+        section.subsections[0].header,
+        section.subsections[0].elements[0],
+      ])
+    ) {
+      columnIndex += 1;
+      if (columnIndex >= numColumns) break sectionLoop;
+    }
+    columns[columnIndex].push(section.header);
+
+    for (const subsection of section.subsections) {
+      while (
+        !fitsInCurrentColumn([subsection.header, subsection.elements[0]])
+      ) {
+        columnIndex += 1;
+        if (columnIndex >= numColumns) break sectionLoop;
+      }
+      columns[columnIndex].push(subsection.header);
+      for (const element of subsection.elements) {
+        while (!fitsInCurrentColumn([element])) {
+          columnIndex += 1;
+          if (columnIndex >= numColumns) break sectionLoop;
+          // Repeat subsection header at top of new column
+          columns[columnIndex].push(subsection.header);
+        }
+        columns[columnIndex].push(element);
+      }
+    }
+  }
+
+  const lastUsedElement = iter(
+    columns.findLast((column) => column.length > 0)
+  ).last();
+  if (!lastUsedElement) {
+    return { columns, leftoverSections: [...sections] };
+  }
+
+  const lastUsedElementSection = find(
+    sections,
+    (section) => sectionIndexOf(section, lastUsedElement) !== undefined
+  );
+  const lastUsedElementSectionIndex = sections.indexOf(lastUsedElementSection);
+  const leftoverLastUsedElementSection = sectionDrop(
+    lastUsedElementSection,
+    assertDefined(sectionIndexOf(lastUsedElementSection, lastUsedElement))
+  );
+  const leftoverSections = [
+    ...(leftoverLastUsedElementSection ? [leftoverLastUsedElementSection] : []),
+    ...sections.slice(lastUsedElementSectionIndex + 1),
+  ];
+  return { columns, leftoverSections };
+}
+
+/**
+ * Lay out sections of fixed-height elements in parallel columns. Each section
+ * occupies one column and they are filled in lockstep so all columns have the
+ * same number of elements (capped by whichever column maxes out first).
+ */
+export function layOutSectionsInParallelColumns<
+  Element extends ElementWithHeight,
+>({
+  sections,
+  maxColumnHeight,
+  elementGap = 0,
+}: {
+  sections: Array<Section<Element>>;
+  maxColumnHeight: number;
+  elementGap?: number;
+}): {
+  columns: Array<Column<Element>>;
+  leftoverSections: Array<Section<Element>>;
+} {
+  for (const section of sections) {
+    assert(section.subsections.length > 0, 'Section must have subsections');
+    for (const subsection of section.subsections) {
+      assert(subsection.elements.length > 0, 'Subsection must have elements');
+    }
+  }
+
+  function columnHeight(column: Column<Element>): number {
+    return (
+      iter(column)
+        .map((e) => e.height)
+        .sum() +
+      Math.max(column.length - 1, 0) * elementGap
+    );
+  }
+
+  function fitsInColumn(
+    column: Column<Element>,
+    elementsToAdd: Element[]
+  ): boolean {
+    return columnHeight(column.concat(elementsToAdd)) <= maxColumnHeight;
+  }
+
+  const columns: Array<Column<Element>> = sections.map(() => []);
+
+  const zippedSection = zipSections(sections);
+
+  // Add section headers
+  for (const [i, sectionHeader] of zippedSection.header.entries()) {
+    assert(fitsInColumn(columns[i], [sectionHeader]));
+    columns[i].push(sectionHeader);
+  }
+
+  subsectionLoop: for (const subsection of zippedSection.subsections) {
+    // If we can't fit the header and first element in all columns, we're done
+    if (
+      !columns.every((column, i) =>
+        fitsInColumn(column, [subsection.header[i], subsection.elements[0][i]])
+      )
+    ) {
+      break;
+    }
+    // Add subsection headers
+    for (const [i, subsectionHeader] of subsection.header.entries()) {
+      columns[i].push(subsectionHeader);
+    }
+    for (const elementRow of subsection.elements) {
+      // If we can't fit the next element in all columns, we're done
+      if (
+        !columns.every((column, i) => fitsInColumn(column, [elementRow[i]]))
+      ) {
+        break subsectionLoop;
+      }
+      for (const [i, subsectionElement] of elementRow.entries()) {
+        columns[i].push(subsectionElement);
+      }
+    }
+  }
+
+  const lastUsedElementInFirstColumn = iter(columns[0]).last();
+  if (!lastUsedElementInFirstColumn) {
+    return {
+      columns,
+      leftoverSections: [],
+    };
+  }
+
+  const lastUsedElementIndex = assertDefined(
+    sectionIndexOf(sections[0], lastUsedElementInFirstColumn)
+  );
+  const leftoverSections = sections
+    .map((section) => sectionDrop(section, lastUsedElementIndex))
+    .filter((section) => section !== undefined);
+
+  return {
+    columns,
+    leftoverSections,
   };
 }

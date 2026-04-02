@@ -36,6 +36,7 @@ import {
 } from './playwright_renderer';
 import { BallotTemplateId, ballotTemplates } from './ballot_templates';
 import {
+  miOpenPrimaryFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxFamousNamesFixtures,
@@ -223,6 +224,7 @@ const optionEncodingTestProps: Record<BallotTemplateId, BaseBallotProps> = {
   VxDefaultBallot: vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
   NhBallot: nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
   MsBallot: msGeneralElectionFixtures.allBallotProps[0],
+  MiBallot: miOpenPrimaryFixtures.allBallotProps[0],
 };
 const optionEncodingTestCases = Object.entries(optionEncodingTestProps).map(
   ([templateName, ballotProps]) => ({

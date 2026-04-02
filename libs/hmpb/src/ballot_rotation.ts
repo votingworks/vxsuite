@@ -159,6 +159,7 @@ export function getAllPossibleCandidateOrderings(
         return getCandidateOrderingSetsForNhBallot(params);
       case 'VxDefaultBallot':
       case 'MsBallot':
+      case 'MiBallot':
         return getDefaultCandidateOrdering(params);
       default: {
         /* istanbul ignore next - @preserve */

@@ -8,6 +8,7 @@ import {
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
@@ -41,6 +42,7 @@ import {
 } from './ballot_templates/nh_ballot_template';
 import { convertPdfToCmyk } from './pdf_conversion';
 import { generateBallotStyles } from './ballot_styles';
+import { miBallotTemplate } from './ballot_templates/mi_ballot_template';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
@@ -781,6 +783,87 @@ export const msGeneralElectionFixtures = (() => {
         await layOutBallotsAndCreateElectionDefinition(
           rendererPool,
           msBallotTemplate,
+          allBallotProps,
+          'vxf'
+        );
+
+      const blankBallotContents = ballotContents[0];
+      const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+        async (renderer) => {
+          const ballotDocument =
+            await renderer.loadDocumentFromContent(blankBallotContents);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+            allBallotProps[0],
+            ballotDocument,
+            electionDefinition
+          );
+
+          debug(`Generating: ${markedBallotPath}`);
+          await markBallotDocument(ballotDocument, votes);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const markedBallotPdf = await ballotDocument.renderToPdf();
+
+          return { blankBallotPdf, markedBallotPdf };
+        }
+      );
+
+      return {
+        electionDefinition,
+        blankBallotPath,
+        markedBallotPath,
+        blankBallotPdf,
+        markedBallotPdf,
+      };
+    },
+  };
+})();
+
+export const miOpenPrimaryFixtures = (() => {
+  const dir = join(fixturesDir, 'mi-open-primary');
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  const markedBallotPath = join(dir, 'marked-ballot.pdf');
+
+  const election = electionOpenPrimaryFixtures.readElection();
+
+  // For open primaries, ballot styles have no partyId, so getContests only
+  // returns nonpartisan contests. The MI template renders all contests from all
+  // parties by filtering by district directly. We create votes for all contests
+  // on the ballot style's districts.
+  const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map(
+      (precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })
+    )
+  );
+  const blankBallotProps = allBallotProps[0];
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
+  );
+  const allContests = election.contests.filter((c) =>
+    ballotStyle.districts.includes(c.districtId)
+  );
+  const { votes } = createTestVotes(allContests);
+
+  return {
+    dir,
+    blankBallotPath,
+    markedBallotPath,
+    allBallotProps,
+    ...blankBallotProps,
+    votes,
+
+    async generate(rendererPool: RendererPool) {
+      debug(`Generating: ${blankBallotPath}`);
+      const { ballotContents, electionDefinition } =
+        await layOutBallotsAndCreateElectionDefinition(
+          rendererPool,
+          miBallotTemplate,
           allBallotProps,
           'vxf'
         );
