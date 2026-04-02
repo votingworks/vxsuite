@@ -15,6 +15,7 @@ use crate::{
 
 /// A cast vote record as encoded on a BMD summary ballot's QR code.
 #[derive(Debug, PartialEq, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CastVoteRecord {
     pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,

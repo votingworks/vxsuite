@@ -8,10 +8,11 @@ use crate::{
 };
 
 #[derive(Debug, PartialEq, serde::Serialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum CandidateVote {
-    NamedCandidate {
-        candidate_id: OptionId,
-    },
+    #[serde(rename_all = "camelCase")]
+    NamedCandidate { candidate_id: OptionId },
+    #[serde(rename_all = "camelCase")]
     WriteInCandidate {
         candidate_id: OptionId,
         name: WriteInName,
@@ -30,6 +31,7 @@ impl CandidateVote {
 pub type YesNoVote = OptionId;
 
 #[derive(Debug, PartialEq, serde::Serialize)]
+#[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum ContestVote {
     Candidate(Vec<CandidateVote>),
     YesNo(YesNoVote),
