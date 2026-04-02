@@ -87,7 +87,7 @@ impl ToBitStreamWith<'_> for MultiPageCastVoteRecord {
 
         // Collect the contests that are on this page (preserving ballot style order)
         let page_contests: Vec<_> = all_contests
-            .iter()
+            .into_iter()
             .filter(|c| contests_on_page.contains(c.id()))
             .collect();
 

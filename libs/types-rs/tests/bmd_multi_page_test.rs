@@ -9,7 +9,7 @@ use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
 use types_rs::bmd::PartialBallotHash;
 use types_rs::coding;
-use types_rs::election::{Candidate, Contest, DistrictId, Election, OptionId};
+use types_rs::election::{Candidate, Contest, ContestId, DistrictId, Election, OptionId};
 
 use crate::common::{arbitrary_ballot_type, arbitrary_contests, simple_election};
 
@@ -217,71 +217,75 @@ fn test_multi_page_invalid_prelude() {
     assert!(result.is_err());
 }
 
+/// Build max votes for a contest (all named candidates up to seats, or yes).
+fn max_votes_for(contest: &Contest) -> (ContestId, ContestVote) {
+    match contest {
+        Contest::Candidate(cc) => (
+            cc.id.clone(),
+            ContestVote::Candidate(
+                cc.candidates
+                    .iter()
+                    .filter_map(|c| match c {
+                        Candidate::Named(n) => Some(n),
+                        Candidate::WriteIn(_) => None,
+                    })
+                    .map(|c| CandidateVote::NamedCandidate {
+                        candidate_id: c.id.clone(),
+                    })
+                    .take(cc.seats as usize)
+                    .collect(),
+            ),
+        ),
+        Contest::YesNo(yn) => (yn.id.clone(), ContestVote::YesNo(yn.yes_option.id.clone())),
+    }
+}
+
 proptest! {
     #[test]
     fn test_multi_page_round_trip_arbitrary(
         ballot_hash: PartialBallotHash,
         is_test_mode: bool,
         ballot_type in arbitrary_ballot_type(),
+        total_pages in 1u8..=5,
         contests in arbitrary_contests(DistrictId::from("d-1".to_owned())),
     ) {
-        let election = simple_election();
-        let election = Election { contests, ..election };
+        let election = Election { contests, ..simple_election() };
         let all_contests = election.contests.clone();
 
-        // Split contests across two pages
-        let mid = all_contests.len() / 2;
-        let page1_contests: Vec<_> = all_contests.iter().take(mid).collect();
-        let page2_contests: Vec<_> = all_contests.iter().skip(mid).collect();
+        // Distribute contests across pages round-robin style
+        let mut pages: Vec<Vec<&Contest>> = (0..total_pages).map(|_| Vec::new()).collect();
+        for (i, contest) in all_contests.iter().enumerate() {
+            pages[i % total_pages as usize].push(contest);
+        }
 
-        // Build votes for page 1 contests
-        let votes: HashMap<_, _> = page1_contests.iter().map(|contest| match contest {
-            Contest::Candidate(cc) => (cc.id.clone(), ContestVote::Candidate(
-                cc.candidates.iter()
-                    .filter_map(|c| match c {
-                        Candidate::Named(n) => Some(n),
-                        Candidate::WriteIn(_) => None,
-                    })
-                    .map(|c| CandidateVote::NamedCandidate { candidate_id: c.id.clone() })
-                    .take(cc.seats as usize)
-                    .collect()
-            )),
-            Contest::YesNo(yn) => (yn.id.clone(), ContestVote::YesNo(yn.yes_option.id.clone())),
-        }).collect();
+        // Round-trip each page
+        for (page_idx, page_contests) in pages.iter().enumerate() {
+            #[allow(clippy::cast_possible_truncation)]
+            let page_number = (page_idx as u8) + 1;
 
-        let record = MultiPageCastVoteRecord {
-            ballot_hash,
-            ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
-            precinct_id: election.precincts.first().unwrap().id.clone(),
-            page_number: 1,
-            total_pages: 2,
-            is_test_mode,
-            ballot_type,
-            ballot_audit_id: "test".to_owned(),
-            contest_ids: page1_contests.iter().map(|c| c.id().clone()).collect(),
-            votes,
-        };
+            // Vote on odd-numbered pages, no votes on even
+            let votes: HashMap<_, _> = if page_number % 2 == 1 {
+                page_contests.iter().map(|c| max_votes_for(c)).collect()
+            } else {
+                HashMap::new()
+            };
 
-        let encoded = coding::encode_with(&record, &election).unwrap();
-        let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
-        assert_eq!(decoded, record);
+            let record = MultiPageCastVoteRecord {
+                ballot_hash,
+                ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
+                precinct_id: election.precincts.first().unwrap().id.clone(),
+                page_number,
+                total_pages,
+                is_test_mode,
+                ballot_type,
+                ballot_audit_id: "test".to_owned(),
+                contest_ids: page_contests.iter().map(|c| c.id().clone()).collect(),
+                votes,
+            };
 
-        // Also test page 2 with no votes
-        let record2 = MultiPageCastVoteRecord {
-            ballot_hash,
-            ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
-            precinct_id: election.precincts.first().unwrap().id.clone(),
-            page_number: 2,
-            total_pages: 2,
-            is_test_mode,
-            ballot_type,
-            ballot_audit_id: "test".to_owned(),
-            contest_ids: page2_contests.iter().map(|c| c.id().clone()).collect(),
-            votes: HashMap::new(),
-        };
-
-        let encoded2 = coding::encode_with(&record2, &election).unwrap();
-        let decoded2: MultiPageCastVoteRecord = coding::decode_with(&encoded2, &election).unwrap();
-        assert_eq!(decoded2, record2);
+            let encoded = coding::encode_with(&record, &election).unwrap();
+            let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+            assert_eq!(decoded, record);
+        }
     }
 }

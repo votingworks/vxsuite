@@ -82,7 +82,7 @@ pub fn write_ballot_header<W: bitstream_io::BitWrite + ?Sized>(
 #[allow(clippy::implicit_hasher)]
 pub fn write_roll_call_and_votes<W: bitstream_io::BitWrite + ?Sized>(
     w: &mut W,
-    contests: &[&Contest],
+    contests: &[Contest],
     votes: &HashMap<ContestId, ContestVote>,
 ) -> Result<(), Error> {
     for contest in contests {

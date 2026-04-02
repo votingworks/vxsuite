@@ -69,8 +69,7 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
         }
 
         let contests = election.contests_in(&ballot_style);
-        let contest_refs: Vec<_> = contests.iter().collect();
-        encoding::write_roll_call_and_votes(w, &contest_refs, &self.votes)?;
+        encoding::write_roll_call_and_votes(w, &contests, &self.votes)?;
 
         Ok(())
     }
