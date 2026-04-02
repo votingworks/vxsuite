@@ -3,8 +3,13 @@ use std::collections::HashMap;
 use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 
 use crate::{
-    ballot_card::{BallotAuditIdLength, BallotStyleByIndex, BallotType, PrecinctByIndex},
-    bmd::{error::Error, votes::ContestVote, PartialBallotHash, PRELUDE},
+    ballot_card::{BallotAuditIdLength, BallotType},
+    bmd::{
+        encoding::{self, BallotHeader},
+        error::Error,
+        votes::ContestVote,
+        PartialBallotHash, SINGLE_PAGE_PRELUDE,
+    },
     election::{BallotStyleId, ContestId, Election, PrecinctId},
 };
 
@@ -33,31 +38,18 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
     where
         Self: Sized,
     {
-        w.write_bytes(PRELUDE)?;
-        w.write_bytes(&self.ballot_hash)?;
+        w.write_bytes(SINGLE_PAGE_PRELUDE)?;
 
-        let precinct_index = election
-            .precinct_index(&self.precinct_id)
-            .ok_or_else(|| Error::InvalidPrecinctId(self.precinct_id.clone()))?;
-        w.build(&precinct_index)?;
-
-        let ballot_style_index = election
-            .ballot_style_index(&self.ballot_style_id)
-            .ok_or_else(|| Error::InvalidBallotStyleId(self.ballot_style_id.clone()))?;
-        w.build(&ballot_style_index)?;
-
-        let ballot_style = election
-            .ballot_styles
-            .get(ballot_style_index.get() as usize)
-            .ok_or_else(|| Error::InvalidBallotStyleIndex {
-                index: ballot_style_index.get() as usize,
-                count: election.ballot_styles.len(),
-            })?;
+        let ballot_style = encoding::write_ballot_header(
+            w,
+            election,
+            &self.ballot_hash,
+            &self.precinct_id,
+            &self.ballot_style_id,
+        )?;
 
         w.write_bit(self.is_test_mode)?;
         w.build(&self.ballot_type)?;
-
-        let contests = election.contests_in(ballot_style);
 
         match self.ballot_audit_id {
             Some(ref ballot_audit_id) => {
@@ -76,20 +68,9 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
             None => w.write_bit(false)?,
         }
 
-        // write roll call
-        for contest in &contests {
-            let contest_vote = self.votes.get(contest.id());
-            w.write_bit(contest_vote.is_some_and(ContestVote::has_votes))?;
-        }
-
-        // write vote data
-        for contest in &contests {
-            if let Some(contest_vote) = self.votes.get(contest.id()) {
-                if contest_vote.has_votes() {
-                    w.build_with(contest_vote, contest)?;
-                }
-            }
-        }
+        let contests = election.contests_in(&ballot_style);
+        let contest_refs: Vec<_> = contests.iter().collect();
+        encoding::write_roll_call_and_votes(w, &contest_refs, &self.votes)?;
 
         Ok(())
     }
@@ -107,13 +88,16 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
         Self: Sized,
     {
         let prelude: [u8; 3] = r.read_to()?;
-        if &prelude != PRELUDE {
+        if &prelude != SINGLE_PAGE_PRELUDE {
             return Err(Error::InvalidPrelude(prelude));
         }
 
-        let ballot_hash: PartialBallotHash = r.read_to()?;
-        let precinct_index: PrecinctByIndex = r.parse_with(election)?;
-        let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
+        let BallotHeader {
+            ballot_hash,
+            precinct_id,
+            ballot_style,
+        } = encoding::read_ballot_header(r, election)?;
+
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
 
@@ -128,31 +112,13 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
             None
         };
 
-        let precinct = precinct_index.precinct();
-        let ballot_style = ballot_style_index.ballot_style();
-
-        // read roll call
-        let contests = election.contests_in(ballot_style);
-        let mut contests_with_votes = vec![];
-
-        for contest in contests {
-            if r.read_bit()? {
-                contests_with_votes.push(contest);
-            }
-        }
-
-        // read vote data
-        let mut votes = HashMap::new();
-
-        for contest in contests_with_votes {
-            let vote = r.parse_with(&contest)?;
-            votes.insert(contest.id().clone(), vote);
-        }
+        let contests = election.contests_in(&ballot_style);
+        let votes = encoding::read_roll_call_and_votes(r, &contests)?;
 
         Ok(CastVoteRecord {
             ballot_hash,
             ballot_style_id: ballot_style.id.clone(),
-            precinct_id: precinct.id.clone(),
+            precinct_id,
             votes,
             is_test_mode,
             ballot_type,
