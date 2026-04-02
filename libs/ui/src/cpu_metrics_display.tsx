@@ -7,10 +7,6 @@ import { Sparkline } from './sparkline';
 
 // Landscape mode - horizontal top bar (single row)
 const TopBar = styled.div<{ portrait?: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   background: rgba(0, 0, 0, 85%);
   color: #fff;
   display: flex;
@@ -18,7 +14,6 @@ const TopBar = styled.div<{ portrait?: boolean }>`
   align-items: center;
   padding: ${({ portrait }) => (portrait ? '0.5rem 0.75rem' : '0 1rem')};
   gap: ${({ portrait }) => (portrait ? '0.5rem 1.5rem' : '2rem')};
-  z-index: 1000;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 30%);
   ${({ portrait }) => !portrait && 'height: 60px;'}

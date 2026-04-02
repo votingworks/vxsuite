@@ -224,102 +224,101 @@ export function AppRoot(): JSX.Element {
   const usbDriveStatus = getElectricalTestingStatusesQuery.data?.usbDrive;
 
   return (
-    <React.Fragment>
-      <CpuMetricsDisplay
-        metrics={getCpuMetricsQuery.data}
-        orientation="portrait"
-      />
-      <ElectricalTestingScreen
-        topOffset="100px"
-        tasks={[
-          {
-            id: 'card',
-            icon: <Icons.SimCard />,
-            title: 'Card Reader',
-            statusMessage: cardStatus?.statusMessage ?? 'Unknown',
-            isRunning: cardStatus?.taskStatus === 'running',
-            toggleIsRunning: toggleCardReaderTaskRunning,
-            updatedAt: cardStatus?.updatedAt,
-          },
-          {
-            id: 'usbDrive',
-            icon: <Icons.UsbDrive />,
-            title: 'USB Drive',
-            statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
-            isRunning: usbDriveStatus?.taskStatus === 'running',
-            toggleIsRunning: toggleUsbDriveTaskRunning,
-            updatedAt: usbDriveStatus?.updatedAt,
-          },
-          {
-            id: 'printer',
-            icon: <Icons.Print />,
-            title: 'Printer',
-            body: (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                }}
+    <ElectricalTestingScreen
+      header={
+        <CpuMetricsDisplay
+          metrics={getCpuMetricsQuery.data}
+          orientation="portrait"
+        />
+      }
+      tasks={[
+        {
+          id: 'card',
+          icon: <Icons.SimCard />,
+          title: 'Card Reader',
+          statusMessage: cardStatus?.statusMessage ?? 'Unknown',
+          isRunning: cardStatus?.taskStatus === 'running',
+          toggleIsRunning: toggleCardReaderTaskRunning,
+          updatedAt: cardStatus?.updatedAt,
+        },
+        {
+          id: 'usbDrive',
+          icon: <Icons.UsbDrive />,
+          title: 'USB Drive',
+          statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
+          isRunning: usbDriveStatus?.taskStatus === 'running',
+          toggleIsRunning: toggleUsbDriveTaskRunning,
+          updatedAt: usbDriveStatus?.updatedAt,
+        },
+        {
+          id: 'printer',
+          icon: <Icons.Print />,
+          title: 'Printer',
+          body: (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+            >
+              {formatPrinterStatus(
+                getPrinterStatusQuery.data,
+                getPrinterTaskStatusQuery.data
+              )}
+              <br />
+              <Button
+                onPress={() => printTestPageMutation.mutate()}
+                disabled={
+                  printTestPageMutation.isLoading ||
+                  !getPrinterStatusQuery.data?.connected
+                }
               >
-                {formatPrinterStatus(
-                  getPrinterStatusQuery.data,
-                  getPrinterTaskStatusQuery.data
-                )}
-                <br />
-                <Button
-                  onPress={() => printTestPageMutation.mutate()}
-                  disabled={
-                    printTestPageMutation.isLoading ||
-                    !getPrinterStatusQuery.data?.connected
-                  }
-                >
-                  {printTestPageMutation.isLoading
-                    ? 'Printing...'
-                    : 'Print Test Page'}
-                </Button>
-              </div>
+                {printTestPageMutation.isLoading
+                  ? 'Printing...'
+                  : 'Print Test Page'}
+              </Button>
+            </div>
+          ),
+          isRunning: getPrinterTaskStatusQuery.data?.taskStatus === 'running',
+          toggleIsRunning: togglePrinterTaskRunning,
+        },
+        {
+          id: 'barcodeScanner',
+          icon: <Icons.Search />,
+          title: 'Barcode Scanner',
+          body: formatBarcodeStatus(getBarcodeStatusQuery.data),
+        },
+        {
+          id: 'sound',
+          icon:
+            speakerEnabled || headphonesEnabled ? (
+              <Icons.VolumeUp />
+            ) : (
+              <Icons.VolumeMute />
             ),
-            isRunning: getPrinterTaskStatusQuery.data?.taskStatus === 'running',
-            toggleIsRunning: togglePrinterTaskRunning,
-          },
-          {
-            id: 'barcodeScanner',
-            icon: <Icons.Search />,
-            title: 'Barcode Scanner',
-            body: formatBarcodeStatus(getBarcodeStatusQuery.data),
-          },
-          {
-            id: 'sound',
-            icon:
-              speakerEnabled || headphonesEnabled ? (
-                <Icons.VolumeUp />
-              ) : (
-                <Icons.VolumeMute />
-              ),
-            title: 'Sound',
-            body: (
-              <AudioControls
-                speakerEnabled={speakerEnabled}
-                setSpeakerEnabled={setSpeakerEnabled}
-                headphonesEnabled={headphonesEnabled}
-                setHeadphonesEnabled={setHeadphonesEnabled}
-                headphonesAvailable={headphonesAvailable}
-                setCalibratingHeadphones={setCalibratingHeadphones}
-              />
-            ),
-          },
-          {
-            id: 'inputs',
-            icon: <Icons.Mouse />,
-            title: 'Inputs',
-            body: <InputControls />,
-          },
-        ]}
-        powerDown={powerDown}
-        usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
-        apiClient={apiClient}
-      />
-    </React.Fragment>
+          title: 'Sound',
+          body: (
+            <AudioControls
+              speakerEnabled={speakerEnabled}
+              setSpeakerEnabled={setSpeakerEnabled}
+              headphonesEnabled={headphonesEnabled}
+              setHeadphonesEnabled={setHeadphonesEnabled}
+              headphonesAvailable={headphonesAvailable}
+              setCalibratingHeadphones={setCalibratingHeadphones}
+            />
+          ),
+        },
+        {
+          id: 'inputs',
+          icon: <Icons.Mouse />,
+          title: 'Inputs',
+          body: <InputControls />,
+        },
+      ]}
+      powerDown={powerDown}
+      usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
+      apiClient={apiClient}
+    />
   );
 }
