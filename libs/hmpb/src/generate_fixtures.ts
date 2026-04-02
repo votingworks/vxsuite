@@ -255,6 +255,11 @@ export async function main(): Promise<number> {
         break;
       }
 
+      case '--ms-general-election': {
+        fixtures.add('ms-general-election');
+        break;
+      }
+
       case '--calibration-sheet': {
         fixtures.add('calibration-sheet');
         break;

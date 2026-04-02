@@ -36,3 +36,22 @@ These ballots can be regenerated after code changes using the following command:
 ```sh
 pnpm generate-fixtures
 ```
+
+## Benchmarks
+
+Benchmark ballot PDF generation with:
+
+```sh
+# Save a baseline
+pnpm benchmark
+
+# Compare current performance against the baseline
+pnpm benchmark:compare
+```
+
+Results are saved per-machine at `bench-results/<env>.json`. Set `BENCH_ENV` to
+name different machines (defaults to `default`):
+
+```sh
+BENCH_ENV=ci-x86 pnpm benchmark
+```

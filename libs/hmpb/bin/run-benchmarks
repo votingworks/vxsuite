@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env="${1:-default}"
+output="bench-results/${env}.json"
+
+vitest bench --outputJson "$output"
+
+# Strip absolute filepaths from the output — they're machine-specific and
+# not needed for comparison.
+node -e '
+  const fs = require("fs");
+  const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+  for (const file of data.files) delete file.filepath;
+  fs.writeFileSync(process.argv[1], JSON.stringify(data, null, 2) + "\n");
+' "$output"

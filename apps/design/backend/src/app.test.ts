@@ -4292,6 +4292,64 @@ test('Consistency of ballot hash across exports', async () => {
   );
 });
 
+test('Election package generation is deterministic', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
+    })
+  ).unsafeUnwrap();
+
+  const exportMeta1 = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
+  });
+  const contents1 = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: nonVxJurisdiction.id,
+    url: exportMeta1.electionPackageUrl,
+  });
+
+  const exportMeta2 = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
+  });
+  const contents2 = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: nonVxJurisdiction.id,
+    url: exportMeta2.electionPackageUrl,
+  });
+
+  expect(contents1.equals(contents2)).toEqual(true);
+});
+
 test('CDF exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();

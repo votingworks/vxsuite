@@ -5,6 +5,7 @@ import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
+import { normalizePdf } from './normalize_pdf';
 
 export type Page = Pick<
   PlaywrightPage,
@@ -131,13 +132,12 @@ export function createDocument(pageHandle: PageHandle) {
      */
     async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
-      return Uint8Array.from(
-        await pageHandle.page().pdf({
-          width: `${pageDimensions.width}px`,
-          height: `${pageDimensions.height}px`,
-          printBackground: true,
-        })
-      );
+      const pdf = await pageHandle.page().pdf({
+        width: `${pageDimensions.width}px`,
+        height: `${pageDimensions.height}px`,
+        printBackground: true,
+      });
+      return normalizePdf(pdf);
     },
 
     /**

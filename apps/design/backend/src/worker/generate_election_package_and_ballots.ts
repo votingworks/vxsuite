@@ -66,6 +66,24 @@ import { getStateFeaturesConfig } from '../features';
 
 const debug = rootDebug.extend('export-qa');
 
+// Fixed date for ZIP entries to make archive output deterministic.
+const FIXED_ZIP_DATE = new Date('2024-01-01T00:00:00Z');
+
+/**
+ * Creates a JsZip instance whose `.file()` method defaults to a fixed
+ * timestamp, producing deterministic ZIP output across runs.
+ */
+function createDeterministicZip(): JsZip {
+  const zip = new JsZip();
+  const originalFile = zip.file.bind(zip);
+  zip.file = ((name: string, data: unknown, opts?: JsZip.JSZipFileOptions) =>
+    originalFile(name, data as never, {
+      date: FIXED_ZIP_DATE,
+      ...(opts ?? {}),
+    })) as typeof zip.file;
+  return zip;
+}
+
 export interface GenerateElectionPackageAndBallotsPayload {
   electionId: ElectionId;
   electionSerializationFormat: ElectionSerializationFormat;
@@ -237,10 +255,10 @@ export async function generateElectionPackageAndBallots(
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
-  const officialBallotsZip = new JsZip();
-  const sampleBallotsZip = new JsZip();
-  const testBallotsZip = new JsZip();
-  const electionPackageZip = new JsZip();
+  const officialBallotsZip = createDeterministicZip();
+  const sampleBallotsZip = createDeterministicZip();
+  const testBallotsZip = createDeterministicZip();
+  const electionPackageZip = createDeterministicZip();
 
   // Make election package
   const metadata: ElectionPackageMetadata = LATEST_METADATA;

@@ -11,6 +11,7 @@ export default defineConfig({
       exclude: [
         '**/*.test.ts',
         '**/*.test.tsx',
+        '**/*.bench.ts',
         // tested by src/preview.test.ts, but no coverage is collected
         'src/preview',
         'src/generate_fixtures.ts',
