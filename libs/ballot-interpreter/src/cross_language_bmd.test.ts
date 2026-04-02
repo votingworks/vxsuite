@@ -16,16 +16,14 @@ import {
   BmdMultiPageBallotPage,
   sliceBallotHashForEncoding,
 } from '@votingworks/ballot-encoder';
-import { arbitraryElection, arbitraryBallotId } from '@votingworks/test-utils';
+import {
+  arbitraryBallotId,
+  arbitraryElectionDefinition,
+} from '@votingworks/test-utils';
 import { Buffer } from 'node:buffer';
-import { createHash } from 'node:crypto';
+import assert from 'node:assert';
 import { napi } from './bubble-ballot-ts/napi';
-import type {
-  BridgeDecodeBmdResult,
-  RustCastVoteRecord,
-  RustContestVote,
-  RustMultiPageCastVoteRecord,
-} from './bubble-ballot-ts/types';
+import type { RustContestVote } from './bubble-ballot-ts/types';
 
 /**
  * Generates votes for a set of contests. For candidate contests, selects up
@@ -127,26 +125,6 @@ function normalizeTsVotes(votes: Record<string, unknown>): NormalizedVotes {
   return normalized;
 }
 
-function arbitraryElectionWithBallotHash(): fc.Arbitrary<{
-  election: Election;
-  ballotHash: string;
-}> {
-  return arbitraryElection().map((election) => ({
-    election,
-    ballotHash: createHash('sha256')
-      .update(JSON.stringify(election))
-      .digest('hex'),
-  }));
-}
-
-/**
- * Strips non-serializable fields (e.g. DateWithoutTime class instances)
- * so the election can cross the NAPI JSON boundary.
- */
-function toNapiElection(election: Election): Election {
-  return JSON.parse(JSON.stringify(election));
-}
-
 // To replay a failure, set seed and path from the counterexample output:
 // e.g. { seed: 736549880, path: "31:0:0:0:0", numRuns: 1 }
 const SINGLE_PAGE_FC_PARAMS: fc.Parameters<unknown> = { numRuns: 50 };
@@ -154,7 +132,7 @@ const SINGLE_PAGE_FC_PARAMS: fc.Parameters<unknown> = { numRuns: 50 };
 test('single-page BMD ballot: TS encode matches Rust decode', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryElectionWithBallotHash(),
+      arbitraryElectionDefinition(),
       fc.boolean(),
       fc.constantFrom(
         BallotType.Precinct,
@@ -189,13 +167,13 @@ test('single-page BMD ballot: TS encode matches Rust decode', async () => {
           ballotType,
         });
 
-        const result: BridgeDecodeBmdResult = await napi.decodeBmdBallotData(
-          toNapiElection(election),
+        const result = await napi.decodeBmdBallotData(
+          election,
           Buffer.from(encoded)
         );
 
-        expect(result.type).toEqual('single-page');
-        const value = result.value as RustCastVoteRecord;
+        assert(result.type === 'single-page');
+        const { value } = result;
 
         expect(rustBallotHashToHex(value.ballotHash)).toEqual(
           sliceBallotHashForEncoding(ballotHash)
@@ -224,7 +202,7 @@ const MULTI_PAGE_FC_PARAMS: fc.Parameters<unknown> = { numRuns: 50 };
 test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryElectionWithBallotHash(),
+      arbitraryElectionDefinition(),
       fc.boolean(),
       fc.constantFrom(
         BallotType.Precinct,
@@ -280,13 +258,13 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
 
           const encoded = encodeBmdMultiPageBallot(election, page);
 
-          const result: BridgeDecodeBmdResult = await napi.decodeBmdBallotData(
-            toNapiElection(election),
+          const result = await napi.decodeBmdBallotData(
+            election,
             Buffer.from(encoded)
           );
 
-          expect(result.type).toEqual('multi-page');
-          const value = result.value as RustMultiPageCastVoteRecord;
+          assert(result.type === 'multi-page');
+          const { value } = result;
 
           expect(rustBallotHashToHex(value.ballotHash)).toEqual(
             sliceBallotHashForEncoding(ballotHash)
