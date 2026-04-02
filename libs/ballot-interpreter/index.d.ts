@@ -19,11 +19,18 @@ export interface BridgeInterpretOptions {
   retryStreakWidthThreshold: number;
 }
 /**
- * Decodes raw QR code bytes as either a single-page CastVoteRecord (VX\x02)
- * or a multi-page MultiPageCastVoteRecord (VB\x01). Used for cross-language
+ * Decodes raw QR code bytes as either a single-page `CastVoteRecord` (VX\x02)
+ * or a multi-page `MultiPageCastVoteRecord` (VB\x01). Used for cross-language
  * testing to verify the Rust decoder matches the TypeScript encoder.
  */
 export declare function decodeBmdBallotData(election: Election, data: Buffer): Promise<BridgeDecodeBmdResult>
+
+/**
+ * Encodes a `CastVoteRecord` or `MultiPageCastVoteRecord` to raw bytes
+ * using the Rust bitstream encoder. Used for cross-language testing to
+ * verify the Rust encoder matches the TypeScript decoder.
+ */
+export declare function encodeBmdBallotData(election: Election, record: BridgeDecodeBmdResult): Promise<Buffer>
 
 export declare function findTimingMarkGridFromImage(imageWidth: number, imageHeight: number, imageData: Buffer | Uint8ClampedArray, debugPath?: string): Promise<TimingMarks>
 

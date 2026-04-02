@@ -7,7 +7,7 @@ use crate::{
     election::{Contest, OptionId},
 };
 
-#[derive(Debug, PartialEq, serde::Serialize)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum CandidateVote {
     #[serde(rename_all = "camelCase")]
@@ -30,7 +30,7 @@ impl CandidateVote {
 }
 pub type YesNoVote = OptionId;
 
-#[derive(Debug, PartialEq, serde::Serialize)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum ContestVote {
     Candidate(Vec<CandidateVote>),

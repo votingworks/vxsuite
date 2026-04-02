@@ -17,7 +17,7 @@ use crate::{
 codable!(PageNumber, u8, 1..=30);
 
 /// A single page of a multi-page BMD summary ballot, as encoded in the QR code.
-#[derive(Debug, PartialEq, serde::Serialize)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MultiPageCastVoteRecord {
     pub ballot_hash: PartialBallotHash,

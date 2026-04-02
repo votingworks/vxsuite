@@ -404,5 +404,5 @@ export interface RustMultiPageCastVoteRecord {
  * Result of decoding raw BMD ballot bytes via the Rust decoder.
  */
 export type BridgeDecodeBmdResult =
-  | { type: 'single-page'; value: RustCastVoteRecord }
-  | { type: 'multi-page'; value: RustMultiPageCastVoteRecord };
+  | { type: 'singlePage'; value: RustCastVoteRecord }
+  | { type: 'multiPage'; value: RustMultiPageCastVoteRecord };
