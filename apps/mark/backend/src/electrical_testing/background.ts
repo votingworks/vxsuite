@@ -13,7 +13,6 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import { renderToPdf } from '@votingworks/printing';
 import { ServerContext } from './context';
-import { constructAuthMachineState } from '../util/auth';
 import { getMachineConfig } from '../machine_config';
 import { TestPrintPage } from './test_print_page';
 
@@ -28,7 +27,8 @@ function resultToString(result: Result<unknown, unknown>): string {
 }
 
 export async function runCardReadAndUsbDriveWriteTask({
-  auth,
+  card,
+  cardReaderErrorTracker,
   usbDrive,
   cardTask,
   usbDriveTask,
@@ -57,11 +57,11 @@ export async function runCardReadAndUsbDriveWriteTask({
     ]);
 
     if (cardTask.isRunning()) {
-      const machineState = constructAuthMachineState(workspace);
-      const cardReadResult = await auth.readCardData(machineState);
+      const cardStatus = await card.getCardStatus();
+      cardReaderErrorTracker.update(cardStatus);
       workspace.store.setElectricalTestingStatusMessage(
         'card',
-        resultToString(cardReadResult)
+        cardStatus.status === 'ready' ? 'Success' : cardStatus.status
       );
     }
 

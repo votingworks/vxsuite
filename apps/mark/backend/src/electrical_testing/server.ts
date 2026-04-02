@@ -1,6 +1,7 @@
 import { LogEventId } from '@votingworks/logging';
 
 import { cleanupCachedBrowser } from '@votingworks/printing';
+import { extractErrorMessage } from '@votingworks/basics';
 import { PORT } from '../globals';
 import { buildApp } from './app';
 import {
@@ -8,6 +9,7 @@ import {
   runPrinterTestTask,
 } from './background';
 import { ServerContext } from './context';
+import { initializeAudio } from '../audio/initialize';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger, barcodeClient } = context;
@@ -17,7 +19,18 @@ export function startElectricalTestingServer(context: ServerContext): void {
 
   const app = buildApp(context);
 
-  const server = app.listen(PORT, () => {
+  const server = app.listen(PORT, async () => {
+    try {
+      // System volume is set to 100% in the prod app, but the HWTA has no UI volume control, so we
+      // set to a safe listening level discovered the hard way
+      await initializeAudio(logger, { defaultVolumeOverride: 40 });
+    } catch (error) {
+      logger.log(LogEventId.ApplicationStartup, 'system', {
+        disposition: 'failure',
+        message: `Failed to initialize audio: ${extractErrorMessage(error)}`,
+      });
+    }
+
     logger.log(LogEventId.ApplicationStartup, 'system', {
       disposition: 'success',
       message: `VxMark electrical testing backend running at http://localhost:${PORT}`,

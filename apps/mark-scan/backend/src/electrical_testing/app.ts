@@ -15,6 +15,7 @@ function buildApi({
   usbDrive,
   logger,
   cardTask,
+  cardReaderErrorTracker,
   paperHandlerTask,
   usbDriveTask,
 }: ServerContext) {
@@ -22,6 +23,8 @@ function buildApi({
 
   return grout.createApi({
     async getElectricalTestingStatuses() {
+      cardReaderErrorTracker.assertHealthy();
+
       const messages = store.getElectricalTestingStatusMessages();
       const cardMessage = messages.find(
         (message) => message.component === 'card'

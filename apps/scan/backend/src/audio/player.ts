@@ -42,6 +42,10 @@ export class Player {
     }
   }
 
+  async setVolume(volumePct: number): Promise<void> {
+    await this.card.setVolume(volumePct);
+  }
+
   /**
    * Plays a sound through the built-in speaker
    */

@@ -17,6 +17,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import {
+  CardReaderErrorTracker,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
   TaskController,
@@ -58,12 +59,13 @@ function resolveWorkspace(): Workspace {
 async function main(): Promise<number> {
   handleUncaughtExceptions(baseLogger);
 
+  const card =
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+    isIntegrationTest()
+      ? new MockFileCard()
+      : new JavaCard();
   const auth = new InsertedSmartCardAuth({
-    card:
-      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-      isIntegrationTest()
-        ? new MockFileCard()
-        : new JavaCard(),
+    card,
     config: {},
     logger: baseLogger,
   });
@@ -78,7 +80,8 @@ async function main(): Promise<number> {
     )
   ) {
     await startElectricalTestingServer({
-      auth,
+      card,
+      cardReaderErrorTracker: new CardReaderErrorTracker(),
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
       printerTask: TaskController.started({ lastPrintedAt: undefined }),

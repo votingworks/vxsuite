@@ -1,5 +1,6 @@
 /* istanbul ignore file - @preserve */
 export * from './audio';
+export * from './card_reader_error_tracker';
 export * from './cast_vote_records';
 export * from './cpu_metrics';
 export * from './detect_devices';

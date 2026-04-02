@@ -6,6 +6,7 @@ import {
 } from '@votingworks/logging';
 import {
   audio,
+  CardReaderErrorTracker,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
   TaskController,
@@ -62,7 +63,7 @@ async function main(): Promise<number> {
       BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     )
   ) {
-    const auth = getDefaultAuth(baseLogger);
+    const { auth, card } = getDefaultAuth(baseLogger);
     const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
     const usbDrive = detectUsbDrive(logger);
     const printer = detectPrinter(logger);
@@ -96,7 +97,8 @@ async function main(): Promise<number> {
 
     startElectricalTestingServer({
       audioPlayer,
-      auth,
+      card,
+      cardReaderErrorTracker: new CardReaderErrorTracker(),
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
       printerTask: TaskController.started(),
