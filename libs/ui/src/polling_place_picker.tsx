@@ -9,7 +9,7 @@ import { assert, assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Button } from './button';
 import { Modal } from './modal';
-import { Caption, H1, P } from './typography';
+import { Caption, Font, H1, P } from './typography';
 import { Icons } from './icons';
 import { SearchSelect } from './search_select';
 
@@ -113,6 +113,7 @@ export function PollingPlacePicker({
       disabled={saving || mode === 'disabled'}
       isMulti={false}
       isSearchable={false}
+      menuPortalTarget={document.body}
       onChange={onChange}
       options={groupedList.map((place) => ({
         value: place.id,
@@ -123,7 +124,7 @@ export function PollingPlacePicker({
                 {pollingPlaceTypeName(place.type)}
               </Caption>
             )}
-            <span>{place.name}</span>
+            <Font weight="semiBold">{place.name}</Font>
           </Option>
         ),
       }))}

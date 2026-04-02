@@ -525,8 +525,9 @@ export class Store {
 
   /**
    * Sets the current polling place for which voters can cast ballots.
+   * Set to `null` to clear the polling place selection.
    */
-  setPollingPlaceId(id: string): void {
+  setPollingPlaceId(id: string | null): void {
     assert(this.hasElection(), 'Cannot set polling place without an election.');
     this.client.run('update election set polling_place_id = ?', id);
   }
