@@ -13,7 +13,7 @@ import { ScannerEvent } from '@votingworks/pdi-scanner';
 import { mapSheet } from '@votingworks/types';
 import { createCanvas, ImageData } from 'canvas';
 import { DateTime } from 'luxon';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { inspect } from 'node:util';
 import {
@@ -27,6 +27,7 @@ import { resultToString } from '../utils';
 export const LOOP_INTERVAL_MS = 100;
 export const PRINT_INTERVAL_SECONDS = 5 * 60;
 export const DELAY_AFTER_ACCEPT_MS = 2_500;
+export const DELAY_AFTER_SCANNER_ERROR_MS = 5_000;
 
 function createPrinterTestImage(): ImageData {
   const canvas = createCanvas(200, 50);
@@ -65,6 +66,7 @@ export async function runPrintAndScanTask({
 
   const printerTestImage = createPrinterTestImage();
   let lastScanTime: DateTime | undefined;
+  let lastScannerErrorTime: DateTime | undefined;
   let lastMode: ScanningMode | undefined;
   let shouldResetScanning = true;
 
@@ -97,12 +99,28 @@ export async function runPrintAndScanTask({
         analyzeScannedPage(findTimingMarkGrid(image))
       );
 
-      session.addSheetAnalysis(
+      const droppedSheet = session.addSheetAnalysis(
         mapSheet(savedImagePaths, analyses, (path, analysis) => ({
           path,
           analysis,
         }))
       );
+
+      if (droppedSheet) {
+        for (const { path } of droppedSheet) {
+          // Delete from disk, too, to avoid running out of disk space
+          try {
+            await unlink(path);
+          } catch (error) {
+            logger.log(LogEventId.ClearedBallotData, 'system', {
+              disposition: 'failure',
+              message: `Failed to delete image at path ${path}: ${extractErrorMessage(
+                error
+              )}`,
+            });
+          }
+        }
+      }
 
       if (
         isFeatureFlagEnabled(
@@ -229,7 +247,12 @@ export async function runPrintAndScanTask({
         shouldResetScanning = true;
       }
 
-      if (shouldResetScanning) {
+      const scannerErrorCoolDownComplete =
+        !lastScannerErrorTime ||
+        DateTime.now().diff(lastScannerErrorTime).as('milliseconds') >
+          DELAY_AFTER_SCANNER_ERROR_MS;
+
+      if (shouldResetScanning && scannerErrorCoolDownComplete) {
         workspace.store.setElectricalTestingStatusMessage(
           'scanner',
           'Resetting scanning'
@@ -265,11 +288,13 @@ export async function runPrintAndScanTask({
             );
           }
           shouldResetScanning = false;
+          lastScannerErrorTime = undefined;
         } catch (error) {
           workspace.store.setElectricalTestingStatusMessage(
             'scanner',
             `Error while resetting scanning: ${extractErrorMessage(error)}`
           );
+          lastScannerErrorTime = DateTime.now();
         }
       }
 

@@ -190,6 +190,15 @@ export const resetScanningSession = {
   },
 } as const;
 
+export const setVolume = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation((volumePct: number) =>
+      apiClient.setVolume({ volumePct })
+    );
+  },
+} as const;
+
 export const playSound = {
   useMutation: () => appApi.usePlaySoundMutation(useApiClient),
 } as const;
@@ -201,7 +210,7 @@ export const getCpuMetrics = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
-      refetchInterval: 1000,
+      refetchInterval: 15_000,
     });
   },
 } as const;

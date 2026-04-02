@@ -133,19 +133,18 @@ export interface Task<Id = string> {
 }
 
 export function ElectricalTestingScreen<Id extends React.Key>({
+  header,
   tasks,
   modals,
   powerDown,
   usbDriveStatus,
-  topOffset,
   apiClient,
 }: {
+  header?: React.ReactNode;
   tasks: ReadonlyArray<Task<Id>>;
   modals?: React.ReactNode;
   powerDown: () => void;
   usbDriveStatus?: UsbDriveStatus;
-  /** Optional top offset (e.g., '80px') to account for a fixed top bar */
-  topOffset?: string;
   /** API client for signed hash validation */
   apiClient: SignedHashValidationApiClient;
 }): JSX.Element {
@@ -153,8 +152,9 @@ export function ElectricalTestingScreen<Id extends React.Key>({
 
   return (
     <Screen>
-      <Main style={topOffset ? { paddingTop: topOffset } : undefined} padded>
-        <Column style={{ height: '100%' }}>
+      {header}
+      <Main padded flexColumn>
+        <Column>
           <Cards>
             {tasks.map((t) => (
               <StatusCard

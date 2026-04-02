@@ -25,15 +25,17 @@ export function InputControls(): JSX.Element {
   return (
     <Column>
       <CounterButton />
-      Last key press:{' '}
-      {lastKeyPress ? (
-        <React.Fragment>
-          <code>{lastKeyPress.key}</code> at{' '}
-          {formatTimestamp(lastKeyPress.pressedAt)}
-        </React.Fragment>
-      ) : (
-        'n/a'
-      )}
+      <span>
+        Last key press:{' '}
+        {lastKeyPress ? (
+          <React.Fragment>
+            <code>{lastKeyPress.key}</code> at{' '}
+            {formatTimestamp(lastKeyPress.pressedAt)}
+          </React.Fragment>
+        ) : (
+          'n/a'
+        )}
+      </span>
     </Column>
   );
 }

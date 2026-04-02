@@ -8,6 +8,7 @@ import {
   Icons,
   InputControls,
   Main,
+  Modal,
   RadioGroup,
   Screen,
   SignedHashValidationButton,
@@ -49,6 +50,52 @@ const Small = styled.span`
 const ExtraSmall = styled.span`
   font-size: 0.6rem;
 `;
+
+const STATUS_MESSAGE_MAX_LENGTH = 80;
+
+function TruncatedStatusMessage({
+  modalTitle,
+  message,
+}: {
+  modalTitle: string;
+  message: string;
+}): JSX.Element {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const needsTruncation = message.length > STATUS_MESSAGE_MAX_LENGTH;
+  const displayedMessage = needsTruncation
+    ? `${message.slice(0, STATUS_MESSAGE_MAX_LENGTH)}…`
+    : message;
+
+  return (
+    <React.Fragment>
+      <Small style={{ display: 'flex', flexDirection: 'column' }}>
+        {displayedMessage}
+        {needsTruncation && (
+          <Button
+            onPress={() => setIsModalOpen(true)}
+            style={{
+              alignSelf: 'start',
+              marginTop: '0.5rem',
+              marginBottom: '0.5rem',
+            }}
+          >
+            Details
+          </Button>
+        )}
+      </Small>
+      {isModalOpen && (
+        <Modal
+          title={modalTitle}
+          content={
+            <Small style={{ overflowWrap: 'anywhere' }}>{message}</Small>
+          }
+          actions={<Button onPress={() => setIsModalOpen(false)}>Close</Button>}
+          onOverlayClick={() => setIsModalOpen(false)}
+        />
+      )}
+    </React.Fragment>
+  );
+}
 
 const RadioOptionTitle = styled(H6)`
   margin-bottom: 0;
@@ -113,24 +160,18 @@ function ScannerControls({
 }): JSX.Element {
   return (
     <Column gap="1rem">
-      <Column style={{ flexGrow: 1 }}>
-        <H6 style={{ flexGrow: 0 }}>
+      <Column style={{ minHeight: '8rem', justifyContent: 'start' }}>
+        <H6>
           <Icons.File /> Scanner
         </H6>
-        <Caption style={{ flexGrow: 1 }}>
-          <Caption
-            style={{
-              flexGrow: 1,
-              overflowWrap: 'anywhere',
-              maxHeight: '2rem',
-              overflow: 'hidden',
-            }}
-          >
-            <Small>{status?.statusMessage ?? 'Unknown'}</Small>
-          </Caption>
+        <Caption>
+          <TruncatedStatusMessage
+            modalTitle="Scanner Status Details"
+            message={status?.statusMessage ?? 'Unknown'}
+          />
         </Caption>
         {status?.updatedAt && (
-          <Caption style={{ flexGrow: 0 }}>
+          <Caption>
             <ExtraSmall>{formatTimestamp(status.updatedAt)}</ExtraSmall>
           </Caption>
         )}
@@ -472,6 +513,7 @@ function AudioControls(): JSX.Element {
 
   const headphonesSuccess = useSoundControls('success');
   const playSoundSpeaker = api.playSound.useMutation().mutate;
+  const setVolumeMutation = api.setVolume.useMutation();
 
   const anyOutputActive = !calibrating && (headphonesOn || speakerOn);
   useInterval(
@@ -540,8 +582,14 @@ function AudioControls(): JSX.Element {
           onBegin={() => {
             headphonesSuccess.stop();
             setCalibrating(true);
+            // Calibration must be performed against max system volume
+            setVolumeMutation.mutate(100);
           }}
-          onEnd={() => setCalibrating(false)}
+          onEnd={() => {
+            // Return to a safe listening level
+            setVolumeMutation.mutate(40);
+            setCalibrating(false);
+          }}
         />
       </Row>
     </Column>
@@ -577,7 +625,10 @@ function ScannedSheetImage({
 function ScannedSheetImages({ urls }: { urls?: SheetOf<string> }): JSX.Element {
   const [top, bottom] = urls ?? [];
   return (
-    <Row gap="2rem" style={{ height: '100%', flexGrow: 3 }}>
+    <Row
+      gap="1rem"
+      style={{ alignItems: 'start', flexGrow: 3, height: '100%' }}
+    >
       <ScannedSheetImage url={top} label="Top" />
       <ScannedSheetImage url={bottom} label="Bottom" />
     </Row>
@@ -626,73 +677,75 @@ export function AppRoot(): JSX.Element {
   return (
     <Screen>
       <CpuMetricsDisplay metrics={getCpuMetricsQuery.data} />
-      <Main centerChild style={{ paddingTop: '70px' }}>
-        <Column center style={{ width: '80%' }}>
-          <Row gap="2rem" style={{ flexGrow: 1, maxHeight: '70%' }}>
-            <Column gap="2rem" style={{ flexGrow: 1 }}>
-              <CardReaderControls
-                status={cardStatus}
-                setIsEnabled={(isEnabled) =>
-                  setCardReaderTaskRunningMutation.mutate(isEnabled)
-                }
-              />
-              <UsbDriveControls
-                status={usbDriveStatus}
-                setIsEnabled={(isEnabled) =>
-                  setUsbDriveTaskRunningMutation.mutate(isEnabled)
-                }
-              />
-              <AudioControls />
-              <Column gap="0.5rem">
-                <Column>
-                  <H6>
-                    <Icons.Mouse /> Inputs
-                  </H6>
-                  <Caption style={{ flexGrow: 1 }}>
-                    <InputControls />
-                  </Caption>
-                </Column>
-              </Column>
-              <PrinterControls
-                status={printerStatus}
-                setIsEnabled={(isEnabled) =>
-                  setPrinterTaskRunningMutation.mutate(isEnabled)
-                }
-                requestPrintNow={() => resetLastPrintedAtMutation.mutate()}
-              />
-            </Column>
-            <Column gap="2rem" style={{ flexGrow: 1 }}>
-              <ScannerControls
-                status={scannerStatus}
-                sessionSheetCount={
-                  getCurrentScanningSessionDataQuery.data?.sheets.length ?? 0
-                }
-                sessionStats={getCurrentScanningSessionDataQuery.data?.stats}
-                latestSheet={latestScannedSheet}
-                setScanningMode={setScanningMode}
-                onResetScanningSession={resetScanningSession}
-              />
-            </Column>
-            <ScannedSheetImages
-              urls={
-                latestScannedSheet &&
-                mapSheet(latestScannedSheet, ({ path }) => path)
+      <Main flexColumn style={{ gap: '2rem' }}>
+        <Row
+          gap="2rem"
+          style={{
+            alignItems: 'start',
+            alignSelf: 'center',
+            marginTop: '2rem',
+            width: '80%',
+          }}
+        >
+          <Column gap="2rem" style={{ flexGrow: 1 }}>
+            <CardReaderControls
+              status={cardStatus}
+              setIsEnabled={(isEnabled) =>
+                setCardReaderTaskRunningMutation.mutate(isEnabled)
               }
             />
-          </Row>
-          <Row gap="1rem" center style={{ height: '200px' }}>
-            <SignedHashValidationButton apiClient={apiClient} />
-            <Button
-              icon={<Icons.Save />}
-              onPress={() => setIsSaveLogsModalOpen(true)}
-            >
-              Save Logs
-            </Button>
-            <Button icon={<Icons.PowerOff />} onPress={powerDown}>
-              Power Down
-            </Button>
-          </Row>
-        </Column>
+            <UsbDriveControls
+              status={usbDriveStatus}
+              setIsEnabled={(isEnabled) =>
+                setUsbDriveTaskRunningMutation.mutate(isEnabled)
+              }
+            />
+            <AudioControls />
+            <Column gap="0.5rem">
+              <H6>
+                <Icons.Mouse /> Inputs
+              </H6>
+              <InputControls />
+            </Column>
+            <PrinterControls
+              status={printerStatus}
+              setIsEnabled={(isEnabled) =>
+                setPrinterTaskRunningMutation.mutate(isEnabled)
+              }
+              requestPrintNow={() => resetLastPrintedAtMutation.mutate()}
+            />
+          </Column>
+          <Column gap="2rem" style={{ flexGrow: 1 }}>
+            <ScannerControls
+              status={scannerStatus}
+              sessionSheetCount={
+                getCurrentScanningSessionDataQuery.data?.sheets.length ?? 0
+              }
+              sessionStats={getCurrentScanningSessionDataQuery.data?.stats}
+              latestSheet={latestScannedSheet}
+              setScanningMode={setScanningMode}
+              onResetScanningSession={resetScanningSession}
+            />
+          </Column>
+          <ScannedSheetImages
+            urls={
+              latestScannedSheet &&
+              mapSheet(latestScannedSheet, ({ path }) => path)
+            }
+          />
+        </Row>
+        <Row gap="1rem" center>
+          <SignedHashValidationButton apiClient={apiClient} />
+          <Button
+            icon={<Icons.Save />}
+            onPress={() => setIsSaveLogsModalOpen(true)}
+          >
+            Save Logs
+          </Button>
+          <Button icon={<Icons.PowerOff />} onPress={powerDown}>
+            Power Down
+          </Button>
+        </Row>
         {isSaveLogsModalOpen && usbDriveStatus?.underlyingDeviceStatus && (
           <ExportLogsModal
             onClose={() => setIsSaveLogsModalOpen(false)}

@@ -1,4 +1,5 @@
 import {
+  CardReaderErrorTracker,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
   TaskController,
@@ -54,11 +55,12 @@ async function main(): Promise<number> {
       BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     )
   ) {
-    const auth = getDefaultAuth(baseLogger);
+    const { auth, card } = getDefaultAuth(baseLogger);
     const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
     const usbDrive = detectUsbDrive(logger);
     startElectricalTestingServer({
-      auth,
+      card,
+      cardReaderErrorTracker: new CardReaderErrorTracker(),
       cardTask: TaskController.started(),
       paperHandlerTask: TaskController.started(),
       usbDriveTask: TaskController.started(),

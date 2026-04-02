@@ -1,7 +1,9 @@
 import {
+  AUDIO_DEVICE_DEFAULT_SINK,
   createSystemCallApi,
   getCpuMetrics,
   CpuMetrics,
+  setAudioVolume,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -13,6 +15,7 @@ import * as hid from 'node-hid';
 import express, { Application } from 'express';
 import { ServerContext } from './context';
 import { getMachineConfig } from '../machine_config';
+import { NODE_ENV } from '../globals';
 import { sendTestPrint } from './background';
 import { SoundName } from '../audio/player';
 
@@ -46,6 +49,7 @@ function buildApi({
   usbDrive,
   logger,
   cardTask,
+  cardReaderErrorTracker,
   usbDriveTask,
   printer,
   printerTask,
@@ -71,6 +75,8 @@ function buildApi({
 
   return grout.createApi({
     async getElectricalTestingStatuses() {
+      cardReaderErrorTracker.assertHealthy();
+
       const messages = store.getElectricalTestingStatusMessages();
       const cardMessage = messages.find(
         (message) => message.component === 'card'
@@ -157,6 +163,16 @@ function buildApi({
         lastScan: lastBarcodeScan,
         lastScanTimestamp: lastBarcodeScanTimestamp,
       };
+    },
+
+    async setVolume(input: { volumePct: number }): Promise<void> {
+      const result = await setAudioVolume({
+        logger,
+        nodeEnv: NODE_ENV,
+        sinkName: AUDIO_DEVICE_DEFAULT_SINK,
+        volumePct: input.volumePct,
+      });
+      result.assertOk('unable to set audio volume');
     },
 
     async playSpeakerSound(input: { name: SoundName }): Promise<void> {

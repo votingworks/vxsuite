@@ -97,7 +97,7 @@ export const getCpuMetrics = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
-      refetchInterval: 1000,
+      refetchInterval: 15_000,
     });
   },
 } as const;
@@ -168,6 +168,15 @@ export const getBarcodeStatus = {
     return useQuery(this.queryKey(), () => apiClient.getBarcodeStatus(), {
       refetchInterval: 1000,
     });
+  },
+} as const;
+
+export const setVolume = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation((volumePct: number) =>
+      apiClient.setVolume({ volumePct })
+    );
   },
 } as const;
 

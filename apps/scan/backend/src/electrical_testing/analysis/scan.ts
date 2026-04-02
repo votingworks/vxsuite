@@ -81,6 +81,10 @@ export function analyzeScannedPage(
   };
 }
 
+// Cap the number of sheets stored in memory for analysis to avoid unbounded memory usage over
+// long-running sessions
+const MAX_SHEETS_PER_SESSION = 100;
+
 export class ScanningSession {
   private readonly sheets: Array<
     SheetOf<{ path: string; analysis: ScannedPageAnalysis }>
@@ -88,8 +92,13 @@ export class ScanningSession {
 
   addSheetAnalysis(
     analyzedPaths: SheetOf<{ path: string; analysis: ScannedPageAnalysis }>
-  ): void {
+  ): SheetOf<{ path: string; analysis: ScannedPageAnalysis }> | undefined {
     this.sheets.push(analyzedPaths);
+
+    if (this.sheets.length > MAX_SHEETS_PER_SESSION) {
+      return this.sheets.shift();
+    }
+    return undefined;
   }
 
   toJSON(): ScanningSessionData {
