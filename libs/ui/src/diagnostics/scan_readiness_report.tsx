@@ -1,10 +1,20 @@
 import { ThemeProvider } from 'styled-components';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
+  PrecinctSelectionSection,
+  MarkThresholdsSection,
+  MarkThresholdsSectionProps,
+  PrecinctSelectionSectionProps,
+  PollingPlaceSection,
+  PollingPlaceSectionProps,
 } from './configuration_section';
 import { ReportContents } from './components';
 import {
@@ -23,6 +33,9 @@ import {
 } from './uninterruptible_power_supply_section';
 
 type ReportContentsProps = ConfigurationSectionProps &
+  MarkThresholdsSectionProps &
+  PrecinctSelectionSectionProps &
+  PollingPlaceSectionProps &
   StorageSectionProps &
   PrecinctScannerSectionProps &
   ThermalPrinterSectionProps &
@@ -32,9 +45,31 @@ type ReportContentsProps = ConfigurationSectionProps &
 export function ScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  const {
+    electionDefinition,
+    markThresholds,
+    pollingPlaceId,
+    precinctSelection,
+  } = props;
+  const election = electionDefinition?.election;
+
   return (
     <ReportContents>
-      <ConfigurationSection {...props} />
+      <ConfigurationSection {...props}>
+        {isFeatureFlagEnabled(ENABLE_POLLING_PLACES) ? (
+          <PollingPlaceSection
+            election={election}
+            pollingPlaceId={pollingPlaceId}
+          />
+        ) : (
+          <PrecinctSelectionSection
+            election={election}
+            precinctSelection={precinctSelection}
+          />
+        )}
+        <MarkThresholdsSection markThresholds={markThresholds} />
+      </ConfigurationSection>
       <StorageSection {...props} />
       <PrecinctScannerSection {...props} />
       <ThermalPrinterSection {...props} />

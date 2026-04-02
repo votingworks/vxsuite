@@ -9,6 +9,9 @@ import { ReadinessReportHeader } from './report_header';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
+  AllBallotStylesSection,
+  MarkThresholdsSection,
+  MarkThresholdsSectionProps,
 } from './configuration_section';
 import { ReportContents } from './components';
 import { BatterySection, BatterySectionProps } from './battery_section';
@@ -19,6 +22,7 @@ import {
 } from './uninterruptible_power_supply_section';
 
 type ReportContentsProps = ConfigurationSectionProps &
+  MarkThresholdsSectionProps &
   BatterySectionProps &
   StorageSectionProps &
   CentralScannerSectionProps &
@@ -27,9 +31,14 @@ type ReportContentsProps = ConfigurationSectionProps &
 export function CentralScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
+  const { electionDefinition, markThresholds } = props;
+
   return (
     <ReportContents>
-      <ConfigurationSection {...props} />
+      <ConfigurationSection {...props}>
+        <AllBallotStylesSection election={electionDefinition?.election} />
+        <MarkThresholdsSection markThresholds={markThresholds} />
+      </ConfigurationSection>
       <BatterySection {...props} />
       <StorageSection {...props} />
       <UninterruptiblePowerSupplySection {...props} />

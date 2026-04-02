@@ -28,7 +28,6 @@ export function ClientDiagnosticsScreen(): JSX.Element {
         diskSpaceSummary={diskSpaceSummary}
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
-        omitConfigSectionBallotStyles
       />
     </NavigationScreen>
   );

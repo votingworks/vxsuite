@@ -1,26 +1,22 @@
+import React from 'react';
+
 import {
-  BallotStyleGroup,
+  BallotStyle,
   Election,
   ElectionDefinition,
   MarkThresholds,
   PrecinctSelection,
   formatElectionHashes,
   getPrecinctById,
+  pollingPlaceBallotStyles,
+  pollingPlaceFromElection,
+  pollingPlaceTypeName,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { format, getGroupedBallotStyles } from '@votingworks/utils';
-import { H2, P } from '../typography';
+import { Caption, H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 import { Table } from '../table';
-
-export interface ConfigurationSectionProps {
-  electionDefinition?: ElectionDefinition;
-  electionPackageHash?: string;
-  expectPrecinctSelection?: boolean;
-  markThresholds?: MarkThresholds;
-  omitConfigSectionBallotStyles?: boolean;
-  precinctSelection?: PrecinctSelection;
-}
 
 function getPrecinctSelectionName(
   precinctSelection: PrecinctSelection,
@@ -36,45 +32,38 @@ function getPrecinctSelectionName(
   return precinct.name;
 }
 
-function getBallotStyleGroupForPrecinct(
-  election: Election,
-  precinctSelection?: PrecinctSelection
-): BallotStyleGroup[] {
-  if (!precinctSelection || precinctSelection.kind === 'AllPrecincts') {
-    return getGroupedBallotStyles(election.ballotStyles);
-  }
-
-  const { precinctId } = precinctSelection;
-  return getGroupedBallotStyles(
-    election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
-  );
-}
-
 function truncate(num: number, decimals: number): number {
   return Math.trunc(num * 10 ** decimals) / 10 ** decimals;
 }
 
-export interface BallotStylesDetailSectionProps {
-  election: Election;
-  precinctSelection?: PrecinctSelection;
+export interface AllBallotStylesSectionProps {
+  election?: Election;
 }
 
-function BallotStylesSection({
+export function AllBallotStylesSection({
   election,
-  precinctSelection,
-}: BallotStylesDetailSectionProps): JSX.Element {
-  const ballotStyleGroups = getBallotStyleGroupForPrecinct(
-    election,
-    precinctSelection
-  );
+}: AllBallotStylesSectionProps): React.ReactNode {
+  if (!election) return null;
+  return <BallotStylesSection ballotStyles={election.ballotStyles} />;
+}
+
+interface BallotStylesSectionProps {
+  ballotStyles: readonly BallotStyle[];
+}
+
+function BallotStylesSection(props: BallotStylesSectionProps): React.ReactNode {
+  const { ballotStyles } = props;
+
+  const ballotStyleGroups = getGroupedBallotStyles(ballotStyles);
   const isSingleLanguage = ballotStyleGroups.every(
     (bs) => bs.ballotStyles.length === 1
   );
+
   if (isSingleLanguage) {
     return (
       <P>
         <SuccessIcon /> Ballot Styles:{' '}
-        {election.ballotStyles.map((bs) => bs.id).join(', ')}
+        {ballotStyles.map((bs) => bs.id).join(', ')}
       </P>
     );
   }
@@ -120,14 +109,16 @@ function BallotStylesSection({
   );
 }
 
+export interface ConfigurationSectionProps {
+  electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
+}
+
 export function ConfigurationSection({
+  children,
   electionDefinition,
   electionPackageHash,
-  expectPrecinctSelection,
-  markThresholds,
-  omitConfigSectionBallotStyles,
-  precinctSelection,
-}: ConfigurationSectionProps): JSX.Element {
+}: React.PropsWithChildren<ConfigurationSectionProps>): React.ReactNode {
   if (!electionDefinition) {
     return (
       <section>
@@ -138,47 +129,112 @@ export function ConfigurationSection({
       </section>
     );
   }
-  const { election } = electionDefinition;
+
+  const { ballotHash, election } = electionDefinition;
 
   return (
     <section>
       <H2>Configuration</H2>
       <P>
         <SuccessIcon /> Election: {election.title},{' '}
-        {formatElectionHashes(
-          electionDefinition.ballotHash,
-          assertDefined(electionPackageHash)
-        )}
+        {formatElectionHashes(ballotHash, assertDefined(electionPackageHash))}
       </P>
-      {expectPrecinctSelection &&
-        (precinctSelection ? (
-          <P>
-            <SuccessIcon /> Precinct:{' '}
-            {getPrecinctSelectionName(precinctSelection, election)}
-          </P>
-        ) : (
-          <P>
-            <WarningIcon /> No precinct selected.
-          </P>
-        ))}
-      {!(expectPrecinctSelection && !precinctSelection) &&
-        !omitConfigSectionBallotStyles && (
-          <BallotStylesSection
-            election={election}
-            precinctSelection={precinctSelection}
-          />
-        )}
-      {markThresholds?.definite && (
-        <P>
-          <SuccessIcon /> Mark Threshold: {truncate(markThresholds.definite, 4)}
-        </P>
-      )}
-      {markThresholds?.writeInTextArea && (
+      {children}
+    </section>
+  );
+}
+
+export interface PrecinctSelectionSectionProps {
+  election?: Election;
+  precinctSelection?: PrecinctSelection;
+}
+
+export function PrecinctSelectionSection({
+  election,
+  precinctSelection,
+}: PrecinctSelectionSectionProps): React.ReactNode {
+  /* istanbul ignore next - component will be deprecated soon anyway - @preserve */
+  if (!election) return null;
+
+  if (!precinctSelection) {
+    return (
+      <P>
+        <WarningIcon /> No precinct selected.
+      </P>
+    );
+  }
+
+  const ballotStyles =
+    precinctSelection?.kind === 'SinglePrecinct'
+      ? election.ballotStyles.filter((bs) =>
+          bs.precincts.includes(precinctSelection.precinctId)
+        )
+      : election.ballotStyles;
+
+  return (
+    <React.Fragment>
+      <P>
+        <SuccessIcon /> Precinct:{' '}
+        {getPrecinctSelectionName(precinctSelection, election)}
+      </P>
+      <BallotStylesSection ballotStyles={ballotStyles} />
+    </React.Fragment>
+  );
+}
+
+export interface PollingPlaceSectionProps {
+  election?: Election;
+  pollingPlaceId?: string;
+}
+
+export function PollingPlaceSection({
+  election,
+  pollingPlaceId,
+}: PollingPlaceSectionProps): React.ReactNode {
+  if (!election) return null;
+
+  if (!pollingPlaceId) {
+    return (
+      <P>
+        <WarningIcon /> No polling place selected.
+      </P>
+    );
+  }
+
+  const place = pollingPlaceFromElection(election, pollingPlaceId);
+  const ballotStyles = pollingPlaceBallotStyles(election, place);
+
+  return (
+    <React.Fragment>
+      <P>
+        <SuccessIcon /> Polling Place: {place.name}{' '}
+        <Caption>({pollingPlaceTypeName(place.type)})</Caption>
+      </P>
+      <BallotStylesSection ballotStyles={ballotStyles} />
+    </React.Fragment>
+  );
+}
+
+export interface MarkThresholdsSectionProps {
+  markThresholds?: MarkThresholds;
+}
+
+export function MarkThresholdsSection({
+  markThresholds,
+}: MarkThresholdsSectionProps): React.ReactNode {
+  if (!markThresholds) return null;
+
+  return (
+    <React.Fragment>
+      <P>
+        <SuccessIcon /> Mark Threshold: {truncate(markThresholds.definite, 4)}
+      </P>
+      {markThresholds.writeInTextArea && (
         <P>
           <SuccessIcon /> Write-in Threshold:{' '}
           {truncate(markThresholds.writeInTextArea, 4)}
         </P>
       )}
-    </section>
+    </React.Fragment>
   );
 }

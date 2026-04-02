@@ -171,3 +171,20 @@ export function pollingPlacePrecinctIds(
 
   return ids;
 }
+
+export function pollingPlaceTypeName(type: PollingPlaceType): string {
+  switch (type) {
+    case 'absentee':
+      return 'Absentee Voting';
+
+    case 'early_voting':
+      return 'Early Voting';
+
+    case 'election_day':
+      return 'Election Day';
+
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(type);
+  }
+}

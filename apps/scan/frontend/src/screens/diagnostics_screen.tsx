@@ -121,7 +121,6 @@ export function DiagnosticsScreen({
       <ScanReadinessReportContents
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
-        expectPrecinctSelection
         precinctSelection={precinctSelection}
         diskSpaceSummary={diskSpaceQuery.data}
         scannerStatus={scannerStatus}

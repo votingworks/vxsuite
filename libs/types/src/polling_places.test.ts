@@ -21,6 +21,7 @@ import {
   pollingPlaceMembers,
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
+  pollingPlaceTypeName,
 } from './polling_places';
 
 test('pollingPlaceBallotStyles', () => {
@@ -292,6 +293,12 @@ test('pollingPlacePrecinctIds', () => {
     },
     ['p1', 'p2']
   );
+});
+
+test('pollingPlaceTypeName', () => {
+  expect(pollingPlaceTypeName('absentee')).toEqual('Absentee Voting');
+  expect(pollingPlaceTypeName('early_voting')).toEqual('Early Voting');
+  expect(pollingPlaceTypeName('election_day')).toEqual('Election Day');
 });
 
 function mockBallotStyle(partial: Partial<BallotStyle>): BallotStyle {

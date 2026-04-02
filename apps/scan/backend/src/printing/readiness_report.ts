@@ -39,7 +39,6 @@ export async function saveReadinessReport({
   const report = ScanReadinessReport({
     electionDefinition: electionRecord?.electionDefinition,
     electionPackageHash: electionRecord?.electionPackageHash,
-    expectPrecinctSelection: true,
     precinctSelection: store.getPrecinctSelection(),
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     scannerStatus: machine.status(),
