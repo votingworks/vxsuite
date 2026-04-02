@@ -61,7 +61,7 @@ export async function runCardReadAndUsbDriveWriteTask({
       cardReaderErrorTracker.update(cardStatus);
       workspace.store.setElectricalTestingStatusMessage(
         'card',
-        cardStatus.status
+        cardStatus.status === 'ready' ? 'Success' : cardStatus.status
       );
     }
 
