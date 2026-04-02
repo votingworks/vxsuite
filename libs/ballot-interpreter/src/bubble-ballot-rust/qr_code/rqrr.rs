@@ -1,13 +1,11 @@
-use image::GrayImage;
 use rqrr::PreparedImage;
 use types_rs::geometry::{PixelUnit, Point, Rect};
 
-use super::detect::{get_detection_areas, Detected, DetectionArea, Detector, Error, Result};
+use super::detect::{Detected, DetectionArea, Detector, Error, Result};
 
-/// Uses the `rqrr` QR code library to detect a QR code in the given ballot
-/// image. Crops the image to improve performance.
-pub fn detect(img: &GrayImage) -> Result {
-    let detection_areas = get_detection_areas(img);
+/// Uses the `rqrr` QR code library to detect a QR code in the given detection
+/// areas.
+pub fn detect_in_areas(detection_areas: Vec<DetectionArea>) -> Result {
     let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
     for area in detection_areas {
         let mut prepared_img = PreparedImage::prepare(area.image().clone());

@@ -1,6 +1,9 @@
 use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
 
-use crate::image_utils::{otsu_level, threshold};
+use crate::{
+    image_utils::{otsu_level, threshold},
+    qr_code::SearchStrategy,
+};
 use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
 use itertools::Itertools;
 use serde::Serialize;
@@ -531,12 +534,15 @@ impl BallotCard {
     ) -> Result<Pair<(bubble_ballot::Metadata, Orientation)>> {
         self.as_pair()
             .map(|ballot_page| {
-                let qr_code =
-                    qr_code::detect(ballot_page.ballot_image().image(), ballot_page.debug())
-                        .map_err(|e| Error::InvalidQrCodeMetadata {
-                            label: ballot_page.label().to_owned(),
-                            message: e.to_string(),
-                        })?;
+                let qr_code = qr_code::detect_with_strategy(
+                    ballot_page.ballot_image().image(),
+                    SearchStrategy::BubbleCorners,
+                    ballot_page.debug(),
+                )
+                .map_err(|e| Error::InvalidQrCodeMetadata {
+                    label: ballot_page.label().to_owned(),
+                    message: e.to_string(),
+                })?;
                 let metadata = coding::decode_with(qr_code.bytes(), election).map_err(|e| {
                     Error::InvalidQrCodeMetadata {
                         label: ballot_page.label().to_owned(),
