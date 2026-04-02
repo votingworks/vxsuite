@@ -358,3 +358,51 @@ export interface BallotPagePathAndGeometry {
   path: string;
   geometry: Geometry;
 }
+
+/**
+ * Rust-decoded vote types. Uses serde `tag = "type"` discriminators
+ * and camelCase field names.
+ */
+export type RustCandidateVote =
+  | { type: 'namedCandidate'; candidateId: string }
+  | { type: 'writeInCandidate'; candidateId: string; name: string };
+
+export type RustContestVote =
+  | { type: 'candidate'; value: RustCandidateVote[] }
+  | { type: 'yesNo'; value: string };
+
+/**
+ * Rust-decoded single-page CastVoteRecord (VX\x02 prelude).
+ */
+export interface RustCastVoteRecord {
+  ballotHash: number[];
+  ballotStyleId: string;
+  precinctId: string;
+  votes: Record<string, RustContestVote>;
+  isTestMode: boolean;
+  ballotType: string;
+  ballotAuditId: string | null;
+}
+
+/**
+ * Rust-decoded multi-page CastVoteRecord (VB\x01 prelude).
+ */
+export interface RustMultiPageCastVoteRecord {
+  ballotHash: number[];
+  ballotStyleId: string;
+  precinctId: string;
+  pageNumber: number;
+  totalPages: number;
+  votes: Record<string, RustContestVote>;
+  isTestMode: boolean;
+  ballotType: string;
+  ballotAuditId: string;
+  contestIds: string[];
+}
+
+/**
+ * Result of decoding raw BMD ballot bytes via the Rust decoder.
+ */
+export type BridgeDecodeBmdResult =
+  | { type: 'singlePage'; value: RustCastVoteRecord }
+  | { type: 'multiPage'; value: RustMultiPageCastVoteRecord };

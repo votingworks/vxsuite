@@ -576,6 +576,8 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.decodeBmdBallotData = nativeBinding.decodeBmdBallotData
+module.exports.encodeBmdBallotData = nativeBinding.encodeBmdBallotData
 module.exports.findTimingMarkGridFromImage = nativeBinding.findTimingMarkGridFromImage
 module.exports.findTimingMarkGridFromPath = nativeBinding.findTimingMarkGridFromPath
 module.exports.interpretImages = nativeBinding.interpretImages

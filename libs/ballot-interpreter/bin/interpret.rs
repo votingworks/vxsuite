@@ -168,7 +168,7 @@ fn pretty_print_cvr(cvr: &CastVoteRecord, election: &Election) {
     );
 
     if let Some(audit_id) = &cvr.ballot_audit_id {
-        println!("   {} {}", "Audit ID:".bold(), audit_id.as_str().cyan());
+        println!("   {} {}", "Audit ID:".bold(), audit_id.to_string().cyan());
     }
 
     // Votes section
