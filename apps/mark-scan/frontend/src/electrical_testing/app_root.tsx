@@ -14,7 +14,6 @@ import {
   setCardReaderTaskRunning,
   setPaperHandlerTaskRunning,
   setUsbDriveTaskRunning,
-  systemCallApi,
   useApiClient,
 } from './api';
 import { useSound } from '../hooks/use_sound';
@@ -31,7 +30,6 @@ export function AppRoot(): JSX.Element {
   const setCardReaderTaskRunningMutation =
     setCardReaderTaskRunning.useMutation();
   const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
-  const powerDownMutation = systemCallApi.powerDown.useMutation();
 
   const [calibratingHeadphones, setCalibratingHeadphones] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
@@ -58,10 +56,6 @@ export function AppRoot(): JSX.Element {
 
   function toggleSoundEnabled() {
     setIsSoundEnabled((prev) => !prev);
-  }
-
-  function powerDown() {
-    powerDownMutation.mutate();
   }
 
   useInterval(
@@ -136,7 +130,6 @@ export function AppRoot(): JSX.Element {
           body: <InputControls />,
         },
       ]}
-      powerDown={powerDown}
       usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
       apiClient={apiClient}
     />

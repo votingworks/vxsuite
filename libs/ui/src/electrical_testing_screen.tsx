@@ -143,7 +143,7 @@ export function ElectricalTestingScreen<Id extends React.Key>({
   header?: React.ReactNode;
   tasks: ReadonlyArray<Task<Id>>;
   modals?: React.ReactNode;
-  powerDown: () => void;
+  powerDown?: () => void;
   usbDriveStatus?: UsbDriveStatus;
   /** API client for signed hash validation */
   apiClient: SignedHashValidationApiClient;
@@ -181,9 +181,11 @@ export function ElectricalTestingScreen<Id extends React.Key>({
             >
               Save Logs
             </Button>
-            <Button icon={<Icons.PowerOff />} onPress={powerDown}>
-              Power Down
-            </Button>
+            {powerDown && (
+              <Button icon={<Icons.PowerOff />} onPress={powerDown}>
+                Power Down
+              </Button>
+            )}
           </Footer>
         </Column>
         {isSaveLogsModalOpen && usbDriveStatus && (
