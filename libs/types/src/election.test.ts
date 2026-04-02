@@ -321,6 +321,53 @@ test('getContests', () => {
       election: electionTwoPartyPrimary,
     }).map((c) => c.id)
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
+
+  // open primary ballot style (no partyId) returns all contests
+  const openPrimaryBallotStyle: BallotStyle = {
+    ...getBallotStyle({
+      ballotStyleId: '1M' as BallotStyleId,
+      election: electionTwoPartyPrimary,
+    })!,
+    partyId: undefined,
+  };
+  expect(
+    getContests({
+      ballotStyle: openPrimaryBallotStyle,
+      election: electionTwoPartyPrimary,
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'best-animal-fish',
+    'zoo-council-mammal',
+    'aquarium-council-fish',
+    'fishing',
+  ]);
+
+  // closed primary with a nonpartisan candidate contest includes it
+  const electionWithNonpartisanCandidate: Election = {
+    ...electionTwoPartyPrimary,
+    contests: [
+      ...electionTwoPartyPrimary.contests,
+      {
+        type: 'candidate',
+        id: 'judge',
+        districtId: 'district-1' as DistrictId,
+        title: 'Judge',
+        seats: 1,
+        allowWriteIns: false,
+        candidates: [{ id: 'candidate-1', name: 'Candidate 1' }],
+      },
+    ],
+  };
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '1M' as BallotStyleId,
+        election: electionWithNonpartisanCandidate,
+      })!,
+      election: electionWithNonpartisanCandidate,
+    }).map((c) => c.id)
+  ).toEqual(['best-animal-mammal', 'zoo-council-mammal', 'fishing', 'judge']);
 });
 
 test('getContestsFromIds', () => {

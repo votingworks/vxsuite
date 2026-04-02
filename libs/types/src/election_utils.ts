@@ -48,11 +48,13 @@ export function getContests({
   election: Election;
 }): Contests {
   return election.contests.filter(
-    (c) =>
-      ballotStyle.districts.includes(c.districtId) &&
-      (c.type !== 'candidate' ||
-        !c.partyId ||
-        ballotStyle.partyId === c.partyId)
+    (contest) =>
+      ballotStyle.districts.includes(contest.districtId) &&
+      // In closed primary elections, where each ballot style has a specific
+      // party, filter candidate contests by party (if they have one).
+      (ballotStyle.partyId && contest.type === 'candidate'
+        ? !contest.partyId || contest.partyId === ballotStyle.partyId
+        : true)
   );
 }
 
