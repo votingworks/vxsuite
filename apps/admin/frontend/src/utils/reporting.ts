@@ -194,6 +194,9 @@ function generateReportFilenameFilterPrefix({
       case 'hasWriteIn':
         filterPrefixes.push(`write-in`);
         break;
+      case 'hasMarginalMark':
+        filterPrefixes.push(`marginal-mark`);
+        break;
       // istanbul ignore next
       default:
         throwIllegalValue(adjudicationFlag);

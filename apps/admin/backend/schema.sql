@@ -145,11 +145,14 @@ create table cvrs (
   card_type text not null default 'bmd' check (card_type = 'bmd' or card_type = 'hmpb'),
   sheet_number integer check (sheet_number is null or sheet_number > 0),
   votes text not null,
+  adjudicated_votes text,
   mark_scores text,
   is_blank boolean not null,
   has_overvote boolean not null,
   has_undervote boolean not null,
   has_write_in boolean not null,
+  has_marginal_mark boolean not null default false,
+  is_adjudicated boolean not null default false,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade,
@@ -158,43 +161,6 @@ create table cvrs (
 
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
-
-create table cvr_contest_tags (
-  sequence_id integer not null primary key autoincrement,
-  cvr_id varchar(36) not null,
-  contest_id text not null,
-  source text not null default 'scanner' check (source = 'scanner' or source = 'user'),
-  is_resolved boolean not null default false,
-  has_overvote boolean not null default false,
-  has_undervote boolean not null default false,
-  has_write_in boolean not null default false,
-  has_unmarked_write_in boolean not null default false,
-  has_marginal_mark boolean not null default false,
-  unique (cvr_id, contest_id),
-  foreign key (cvr_id) references cvrs(id) on delete cascade
-);
-
-create table cvr_tags (
-  sequence_id integer not null primary key autoincrement,
-  cvr_id varchar(36) not null unique,
-  is_resolved boolean not null default false,
-  is_blank_ballot boolean not null default false,
-  foreign key (cvr_id) references cvrs(id) on delete cascade
-);
-
-create table vote_adjudications (
-  election_id varchar(36) not null,
-  cvr_id varchar(36) not null,
-  contest_id text not null,
-  option_id text not null,
-  is_vote boolean not null,
-  created_at timestamp not null default current_timestamp,
-  primary key (election_id, cvr_id, contest_id, option_id),
-  foreign key (election_id) references elections(id)
-    on delete cascade,
-  foreign key (cvr_id) references cvrs(id)
-    on delete cascade
-);
 
 create table scanner_batches (
   id text not null,
@@ -319,16 +285,9 @@ begin
     where election_id = old.election_id;
 end;
 
-create trigger adjudication_added before insert on vote_adjudications
+create trigger cvr_adjudication_updated after update of adjudicated_votes on cvrs
 begin
   update data_versions
     set cvrs_data_version = data_versions.cvrs_data_version + 1
     where election_id = new.election_id;
-end;
-
-create trigger adjudication_removed before delete on vote_adjudications
-begin
-  update data_versions
-    set cvrs_data_version = data_versions.cvrs_data_version + 1
-    where election_id = old.election_id;
 end;

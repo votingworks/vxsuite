@@ -17,15 +17,12 @@ import {
 } from '@votingworks/basics';
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
-  AdjudicationReason,
   CVR,
   ElectionDefinition,
   getBallotStyle,
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
-  Id,
-  MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -33,33 +30,26 @@ import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordMarkMetricsToMarkScores,
-  CastVoteRecordWriteIn,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
-  CachedElectionLookups,
 } from '@votingworks/utils';
-
-import { MarkScores } from '@votingworks/types/src/tabulation';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
-  CvrContestTag,
-  CvrTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
 import {
-  CvrContestTagList,
+  doesCvrNeedAdjudication,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
-  getNumberVotesAllowed,
   MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
 } from './util/cast_vote_records';
@@ -200,125 +190,6 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );
-}
-
-/**
- * Returns a list of contest tags for a given cvr based on
- * system settings.
- */
-export function determineCvrContestTags({
-  adminAdjudicationReasons,
-  markThresholds,
-  electionDefinition,
-  cvrId,
-  isHmpb,
-  votes,
-  writeIns,
-  markScores,
-}: {
-  adminAdjudicationReasons: AdjudicationReason[];
-  markThresholds: MarkThresholds;
-  electionDefinition: ElectionDefinition;
-  cvrId: Id;
-  isHmpb: boolean;
-  votes: Tabulation.Votes;
-  writeIns: CastVoteRecordWriteIn[];
-  markScores?: MarkScores;
-}): CvrContestTag[] {
-  const shouldTagMarginalMarks = adminAdjudicationReasons.includes(
-    AdjudicationReason.MarginalMark
-  );
-  const shouldTagOvervotes = adminAdjudicationReasons.includes(
-    AdjudicationReason.Overvote
-  );
-  const shouldTagUndervotes = adminAdjudicationReasons.includes(
-    AdjudicationReason.Undervote
-  );
-
-  // Write-ins
-  const tagsByContestId = new CvrContestTagList(cvrId);
-  for (const writeIn of writeIns) {
-    const tag = tagsByContestId.getOrCreateTag(writeIn.contestId);
-    if (writeIn.isUnmarked) {
-      tag.hasUnmarkedWriteIn = true;
-    } else {
-      tag.hasWriteIn = true;
-    }
-  }
-
-  // Marginal marks
-  if (shouldTagMarginalMarks && isHmpb) {
-    assert(
-      markScores !== undefined,
-      `mark scores expected for hmpb with 'MarginalMark' 
-       adjudication reason set in system settings`
-    );
-    for (const [contestId, contestMarkScores] of Object.entries(markScores)) {
-      for (const optionMarkScore of Object.values(contestMarkScores)) {
-        const hasMarginalMark =
-          optionMarkScore >= markThresholds.marginal &&
-          optionMarkScore < markThresholds.definite;
-        if (hasMarginalMark) {
-          const tag = tagsByContestId.getOrCreateTag(contestId);
-          tag.hasMarginalMark = true;
-          break;
-        }
-      }
-    }
-  }
-
-  // Overvotes, undervotes
-  if (shouldTagOvervotes || shouldTagUndervotes) {
-    for (const [contestId, optionIdsWithVotes] of Object.entries(votes)) {
-      const contest = CachedElectionLookups.getContestById(
-        electionDefinition,
-        contestId
-      );
-      const votesAllowed = getNumberVotesAllowed(contest);
-      const voteCount = optionIdsWithVotes.length;
-
-      const hasOvervote = voteCount > votesAllowed;
-      const hasUndervote = voteCount < votesAllowed;
-
-      if (hasOvervote && shouldTagOvervotes) {
-        const tag = tagsByContestId.getOrCreateTag(contestId);
-        tag.hasOvervote = true;
-      }
-
-      if (hasUndervote && shouldTagUndervotes) {
-        const tag = tagsByContestId.getOrCreateTag(contestId);
-        tag.hasUndervote = true;
-      }
-    }
-  }
-
-  return tagsByContestId.toArray();
-}
-
-/**
- * Returns a cvr tag for a given cvr based on system settings.
- * */
-export function determineCvrTag({
-  adminAdjudicationReasons,
-  cvrId,
-  votes,
-}: {
-  adminAdjudicationReasons: AdjudicationReason[];
-  cvrId: Id;
-  votes: Tabulation.Votes;
-}): CvrTag | undefined {
-  const shouldTagBlankBallots = adminAdjudicationReasons.includes(
-    AdjudicationReason.BlankBallot
-  );
-  const isBlankBallot = Object.values(votes).every(
-    (optionIds) => optionIds.length === 0
-  );
-
-  if (shouldTagBlankBallots && isBlankBallot) {
-    return { cvrId, isResolved: false, isBlankBallot: true };
-  }
-
-  return undefined;
 }
 
 /**
@@ -473,8 +344,11 @@ export async function importCastVoteRecords(
       // rather than post-adjudication status. As a result, we can just calculate
       // now, during import.
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
+        electionDefinition,
         votes,
-        electionDefinition
+        castVoteRecordWriteIns.length,
+        isHmpb ? markScores : undefined,
+        markThresholds
       );
       const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
       assert(votingMethod);
@@ -506,30 +380,12 @@ export async function importCastVoteRecords(
         addCastVoteRecordResult.ok();
 
       if (isCastVoteRecordNew) {
-        const castVoteRecordContestTags = determineCvrContestTags({
-          adminAdjudicationReasons,
-          markThresholds,
-          electionDefinition,
-          cvrId: castVoteRecordId,
-          isHmpb,
-          votes,
-          writeIns: castVoteRecordWriteIns,
-          markScores,
-        });
-        const castVoteRecordTag = determineCvrTag({
-          adminAdjudicationReasons,
-          cvrId: castVoteRecordId,
-          votes,
-        });
+        const needsAdjudication = doesCvrNeedAdjudication(
+          adjudicationFlags,
+          adminAdjudicationReasons
+        );
 
-        if (castVoteRecordTag) {
-          store.addCvrTag(castVoteRecordTag);
-        }
-        for (const tag of castVoteRecordContestTags) {
-          store.addCvrContestTag(tag);
-        }
-
-        if (castVoteRecordContestTags.length > 0 || castVoteRecordTag) {
+        if (needsAdjudication) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
           for (const i of [0, 1] as const) {

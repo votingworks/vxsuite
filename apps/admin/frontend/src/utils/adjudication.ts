@@ -1,3 +1,4 @@
+import type { CvrContestTag } from '@votingworks/admin-backend';
 import {
   BallotPageContestOptionLayout,
   ContestOptionId,
@@ -20,4 +21,15 @@ export function getOptionCoordinates(
     );
   }
   return option.bounds;
+}
+
+export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
+  return (
+    (tag.hasUndervote &&
+      !tag.hasMarginalMark &&
+      !tag.hasWriteIn &&
+      !tag.hasUnmarkedWriteIn &&
+      !tag.hasOvervote) ??
+    false
+  );
 }

@@ -597,6 +597,7 @@ test('getNextCvrIdForBallotAdjudication', async () => {
         });
       }
     }
+    await apiClient.setCvrResolved({ cvrId });
   }
 
   expect(await apiClient.getNextCvrIdForBallotAdjudication()).toEqual(
@@ -823,7 +824,7 @@ test('handling unmarked write-ins', async () => {
     },
   });
 
-  await apiClient.resolveBallotTags({ cvrId });
+  await apiClient.setCvrResolved({ cvrId });
 
   const adjDataAfter = await apiClient.getBallotAdjudicationData({ cvrId });
   const contestDataAfter = find(

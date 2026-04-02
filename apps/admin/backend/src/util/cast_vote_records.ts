@@ -1,12 +1,19 @@
 import {
+  AdjudicationReason,
   AnyContest,
-  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   Id,
+  MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { CastVoteRecordAdjudicationFlags, CvrContestTag } from '../types';
+import { deepEqual } from '@votingworks/basics';
+import {
+  CastVoteRecordAdjudicationFlags,
+  CvrContestTag,
+  WriteInRecord,
+} from '../types';
 
 /**
  * Returns the number of allowed votes for the contest
@@ -23,13 +30,16 @@ export function getNumberVotesAllowed(contest: AnyContest): number {
  * Determines the summary adjudication flags for a cast vote record.
  */
 export function getCastVoteRecordAdjudicationFlags(
+  electionDefinition: ElectionDefinition,
   votes: Tabulation.Votes,
-  electionDefinition: ElectionDefinition
+  writeInCount: number,
+  markScores?: Tabulation.MarkScores,
+  markThresholds?: MarkThresholds
 ): CastVoteRecordAdjudicationFlags {
   let isBlank = true;
   let hasUndervote = false;
   let hasOvervote = false;
-  let hasWriteIn = false;
+  let hasMarginalMark = false;
 
   for (const [contestId, optionIds] of Object.entries(votes)) {
     const contest = CachedElectionLookups.getContestById(
@@ -50,14 +60,19 @@ export function getCastVoteRecordAdjudicationFlags(
     if (optionIds.length > votesAllowed) {
       hasOvervote = true;
     }
+  }
 
-    if (
-      optionIds.some((optionId) =>
-        optionId.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
+  // Write-ins are detected from write-in records (which include unmarked
+  // write-ins), not from votes which only contain marked write-ins
+  const hasWriteIn = writeInCount > 0;
+
+  if (markScores && markThresholds) {
+    hasMarginalMark = Object.values(markScores).some((contestMarkScores) =>
+      Object.values(contestMarkScores).some(
+        (score) =>
+          score >= markThresholds.marginal && score < markThresholds.definite
       )
-    ) {
-      hasWriteIn = true;
-    }
+    );
   }
 
   return {
@@ -65,35 +80,122 @@ export function getCastVoteRecordAdjudicationFlags(
     hasUndervote,
     hasOvervote,
     hasWriteIn,
+    hasMarginalMark,
   };
 }
 
 /**
- * An ease of use helper class to manage a list of
- * CvrContestTags without duplicates.
+ * Determines whether a CVR needs adjudication based on its flags and the
+ * election's adjudication reasons. Write-ins always need adjudication;
+ * other flags are gated on system settings.
  */
-export class CvrContestTagList {
-  constructor(private readonly cvrId: Id) {}
-  private readonly byContestId = new Map<ContestId, CvrContestTag>();
+export function doesCvrNeedAdjudication(
+  adjudicationFlags: CastVoteRecordAdjudicationFlags,
+  adminAdjudicationReasons: AdjudicationReason[]
+): boolean {
+  return (
+    adjudicationFlags.hasWriteIn ||
+    (adjudicationFlags.hasMarginalMark &&
+      adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) ||
+    (adjudicationFlags.hasOvervote &&
+      adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) ||
+    (adjudicationFlags.hasUndervote &&
+      adminAdjudicationReasons.includes(AdjudicationReason.Undervote)) ||
+    (adjudicationFlags.isBlank &&
+      adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot))
+  );
+}
 
-  getOrCreateTag(contestId: ContestId): CvrContestTag {
-    const existingContestTag = this.byContestId.get(contestId);
-    if (existingContestTag) {
-      return existingContestTag;
+/**
+ * Derives a contest-level adjudication tag from CVR data. Returns undefined
+ * if the contest does not need adjudication.
+ */
+export function deriveCvrContestTag({
+  cvrId,
+  contest,
+  votes,
+  adjudicatedVotes,
+  writeInRecords,
+  markScores,
+  markThresholds,
+  adminAdjudicationReasons,
+}: {
+  cvrId: Id;
+  contest: AnyContest;
+  votes: ContestOptionId[];
+  adjudicatedVotes?: ContestOptionId[];
+  writeInRecords: WriteInRecord[];
+  markScores?: Record<ContestOptionId, number>;
+  markThresholds: MarkThresholds;
+  adminAdjudicationReasons: AdjudicationReason[];
+}): CvrContestTag | undefined {
+  const hasWriteIn = writeInRecords.some(
+    (r) => r.contestId === contest.id && !r.isUnmarked
+  );
+  const hasUnmarkedWriteIn = writeInRecords.some(
+    (r) => r.contestId === contest.id && r.isUnmarked
+  );
+
+  let hasMarginalMark =
+    adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
+    markScores !== undefined &&
+    Object.values(markScores).some(
+      (score) =>
+        score >= markThresholds.marginal && score < markThresholds.definite
+    );
+
+  const votesAllowed = getNumberVotesAllowed(contest);
+  let hasOvervote =
+    adminAdjudicationReasons.includes(AdjudicationReason.Overvote) &&
+    votes.length > votesAllowed;
+  let hasUndervote =
+    adminAdjudicationReasons.includes(AdjudicationReason.Undervote) &&
+    votes.length < votesAllowed;
+
+  // If adjudicated votes differ from scanned votes for non-write-in
+  // options, the user corrected a mark the scanner misread
+  if (adjudicatedVotes) {
+    const scannedCandidateVotes = new Set(
+      votes.filter((v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID))
+    );
+    const adjudicatedCandidateVotes = new Set(
+      adjudicatedVotes.filter(
+        (v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
+      )
+    );
+    const candidateVotesChanged = !deepEqual(
+      scannedCandidateVotes,
+      adjudicatedCandidateVotes
+    );
+    if (candidateVotesChanged) {
+      hasMarginalMark = true;
     }
-    const newContestTag: CvrContestTag = {
-      cvrId: this.cvrId,
-      contestId,
-      isResolved: false,
-      source: 'scanner',
-    };
-    this.byContestId.set(contestId, newContestTag);
-    return newContestTag;
+    // Recalculate over/undervote based on adjudicated state
+    hasOvervote = hasOvervote || adjudicatedVotes.length > votesAllowed;
+    hasUndervote = hasUndervote || adjudicatedVotes.length < votesAllowed;
   }
 
-  toArray(): CvrContestTag[] {
-    return Array.from(this.byContestId.values());
+  const needsAdjudication =
+    hasWriteIn ||
+    hasUnmarkedWriteIn ||
+    hasMarginalMark ||
+    hasOvervote ||
+    hasUndervote;
+
+  if (!needsAdjudication) {
+    return undefined;
   }
+
+  return {
+    cvrId,
+    contestId: contest.id,
+    isResolved: adjudicatedVotes !== undefined,
+    hasWriteIn,
+    hasUnmarkedWriteIn,
+    hasMarginalMark,
+    hasOvervote,
+    hasUndervote,
+  };
 }
 
 /**

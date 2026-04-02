@@ -18,7 +18,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
-import { mockBaseLogger } from '@votingworks/logging';
+import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
@@ -29,7 +29,8 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { adjudicateWriteIn } from '../adjudication';
+import { adjudicateCvrContest } from '../adjudication';
+import { AdjudicatedContestOption, WriteInRecord } from '../types';
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -55,6 +56,38 @@ beforeEach(() => {
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
+
+/**
+ * Adjudicates a single write-in through {@link adjudicateCvrContest}.
+ * Only the target write-in option is specified; other options retain
+ * their scanned votes.
+ */
+function adjudicateWriteIn({
+  store,
+  contestId,
+  writeIn,
+  adjudicatedOption,
+  logger,
+}: {
+  store: Store;
+  contestId: string;
+  writeIn: WriteInRecord;
+  adjudicatedOption: AdjudicatedContestOption;
+  logger: BaseLogger;
+}): void {
+  adjudicateCvrContest(
+    {
+      adjudicatedContestOptionById: {
+        [writeIn.optionId]: adjudicatedOption,
+      },
+      cvrId: writeIn.cvrId,
+      contestId,
+      side: 'front',
+    },
+    store,
+    logger
+  );
+}
 
 test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
@@ -383,68 +416,69 @@ test('tabulateElectionResults - write-in handling', async () => {
     contestId: candidateContestId,
   });
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
-  adjudicateWriteIn(
-    {
-      writeInId: writeIn1!.id,
-      type: 'invalid',
-    },
+  const adjudicateArgs = {
     store,
-    logger
-  );
-  adjudicateWriteIn(
-    {
-      writeInId: writeIn2!.id,
-      type: 'invalid',
-    },
-    store,
-    logger
-  );
-  adjudicateWriteIn(
-    {
-      writeInId: writeIn3!.id,
-      type: 'official-candidate',
+    contestId: candidateContestId,
+    logger,
+  } as const;
+  adjudicateWriteIn({
+    ...adjudicateArgs,
+    writeIn: writeIn1!,
+    adjudicatedOption: { type: 'write-in-option', hasVote: false },
+  });
+  adjudicateWriteIn({
+    ...adjudicateArgs,
+    writeIn: writeIn2!,
+    adjudicatedOption: { type: 'write-in-option', hasVote: false },
+  });
+  adjudicateWriteIn({
+    ...adjudicateArgs,
+    writeIn: writeIn3!,
+    adjudicatedOption: {
+      type: 'write-in-option',
+      hasVote: true,
       candidateId: 'Obadiah-Carrigan-5c95145a',
+      candidateType: 'official-candidate',
     },
-    store,
-    logger
-  );
-  adjudicateWriteIn(
-    {
-      writeInId: writeIn4!.id,
-      type: 'official-candidate',
+  });
+  adjudicateWriteIn({
+    ...adjudicateArgs,
+    writeIn: writeIn4!,
+    adjudicatedOption: {
+      type: 'write-in-option',
+      hasVote: true,
       candidateId: 'Abigail-Bartlett-4e46c9d4',
+      candidateType: 'official-candidate',
     },
-    store,
-    logger
-  );
-  const writeInCandidate1 = store.addWriteInCandidate({
-    electionId,
-    contestId: candidateContestId,
-    name: 'Mr. Pickles',
   });
-  adjudicateWriteIn(
-    {
-      writeInId: writeIn5!.id,
-      type: 'write-in-candidate',
-      candidateId: writeInCandidate1.id,
+  adjudicateWriteIn({
+    ...adjudicateArgs,
+    writeIn: writeIn5!,
+    adjudicatedOption: {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateName: 'Mr. Pickles',
+      candidateType: 'write-in-candidate',
     },
-    store,
-    logger
-  );
-  const writeInCandidate2 = store.addWriteInCandidate({
-    electionId,
-    contestId: candidateContestId,
-    name: 'Ms. Tomato',
   });
-  adjudicateWriteIn(
-    {
-      writeInId: writeIn6!.id,
-      type: 'write-in-candidate',
-      candidateId: writeInCandidate2.id,
+  adjudicateWriteIn({
+    ...adjudicateArgs,
+    writeIn: writeIn6!,
+    adjudicatedOption: {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateName: 'Ms. Tomato',
+      candidateType: 'write-in-candidate',
     },
-    store,
-    logger
-  );
+  });
+  const writeInCandidate1 = store
+    .getWriteInCandidates({ electionId, contestId: candidateContestId })
+    .find((c) => c.name === 'Mr. Pickles');
+  assert(writeInCandidate1 !== undefined);
+  const writeInCandidate2 = store
+    .getWriteInCandidates({ electionId, contestId: candidateContestId })
+    .find((c) => c.name === 'Ms. Tomato');
+  assert(writeInCandidate2 !== undefined);
 
   // if we don't specify we need the detailed WIA data, undervotes still reflect the invalid write-ins
   const overallResultsScreenWiaNoDetail = (
@@ -741,14 +775,13 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
   expect(writeIns.length).toEqual(56);
   for (const writeIn of writeIns) {
-    adjudicateWriteIn(
-      {
-        writeInId: writeIn.id,
-        type: 'invalid',
-      },
+    adjudicateWriteIn({
       store,
-      logger
-    );
+      contestId: candidateContestId,
+      writeIn,
+      adjudicatedOption: { type: 'write-in-option', hasVote: false },
+      logger,
+    });
   }
 
   // check absentee results, should have received half of the adjudicated as invalid write-ins

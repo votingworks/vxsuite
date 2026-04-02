@@ -12,12 +12,11 @@ import { format } from '@votingworks/utils';
 import type {
   BallotImages,
   ContestAdjudicationData,
-  CvrContestTag,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
-  resolveBallotTags,
+  setCvrResolved,
   getBallotAdjudicationData,
   getBallotAdjudicationQueue,
   getBallotImages,
@@ -36,6 +35,7 @@ import {
 } from '../components/adjudication_contest_list';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
+import { isContestTagOnlyUndervote } from '../utils/adjudication';
 
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 const DEFAULT_PADDING = '0.75rem';
@@ -148,16 +148,6 @@ function groupContestsBySide(
   return { frontContests, backContests };
 }
 
-function isContestTagOnlyUndervote(tag: CvrContestTag) {
-  return (
-    tag.hasUndervote &&
-    !tag.hasMarginalMark &&
-    !tag.hasWriteIn &&
-    !tag.hasUnmarkedWriteIn &&
-    !tag.hasOvervote
-  );
-}
-
 export function BallotAdjudicationScreenWrapper(): JSX.Element {
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
   const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
@@ -218,7 +208,7 @@ function BallotAdjudicationScreen({
   });
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const resolveBallotTagsMutation = resolveBallotTags.useMutation();
+  const setCvrResolvedMutation = setCvrResolved.useMutation();
 
   // Prefetch the next and previous ballot images
   const prefetchImageViews = getBallotImages.usePrefetch();
@@ -344,7 +334,7 @@ function BallotAdjudicationScreen({
   async function confirmAcceptAndNext(): Promise<void> {
     setShowConfirmModal(false);
     try {
-      await resolveBallotTagsMutation.mutateAsync({ cvrId });
+      await setCvrResolvedMutation.mutateAsync({ cvrId });
       navigateNext();
     } catch {
       // Handled by default query client error handling

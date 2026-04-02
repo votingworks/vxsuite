@@ -367,7 +367,7 @@ export interface ContestAdjudicationData {
  */
 export interface BallotAdjudicationData {
   cvrId: Id;
-  tag?: CvrTag;
+  tag: CvrTag;
   contests: ContestAdjudicationData[];
 }
 
@@ -395,14 +395,6 @@ export interface WriteInAdjudicationActionWriteInCandidate {
 export interface WriteInAdjudicationActionInvalid {
   writeInId: Id;
   type: 'invalid';
-}
-
-/**
- * Information necessary to reset a write-in to pending.
- */
-export interface WriteInAdjudicationActionReset {
-  writeInId: Id;
-  type: 'reset';
 }
 
 /**
@@ -473,9 +465,6 @@ export interface CvrContestTag {
   cvrId: Id;
   contestId: ContestId;
   isResolved: boolean;
-  // source indicates whether the tag was created automatically by the scanner
-  // detecting an adjudication need or by a user action during adjudication
-  source: 'scanner' | 'user';
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;
@@ -489,8 +478,7 @@ export interface CvrContestTag {
 export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionOfficialCandidate
   | WriteInAdjudicationActionWriteInCandidate
-  | WriteInAdjudicationActionInvalid
-  | WriteInAdjudicationActionReset;
+  | WriteInAdjudicationActionInvalid;
 
 /**
  * A single page image of an HMPB ballot, including its layout for zoom

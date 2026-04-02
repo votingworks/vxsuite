@@ -814,11 +814,11 @@ export const adjudicateCvrContest = {
   },
 } as const;
 
-export const resolveBallotTags = {
+export const setCvrResolved = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.resolveBallotTags, {
+    return useMutation(apiClient.setCvrResolved, {
       async onSuccess(_data, variables) {
         await queryClient.invalidateQueries(
           getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })

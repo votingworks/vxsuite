@@ -632,32 +632,47 @@ test('tabulateFullCardCounts - blankBallots', () => {
       votes: { 'zoo-council-mammal': ['zebra', 'lion', 'write-in-0'] }, // write-in
       multiplier: 5,
     },
+    {
+      ...cvrMetadata,
+      card: { type: 'hmpb', sheetNumber: 1 },
+      votes: { 'zoo-council-mammal': ['zebra', 'lion', 'kangaroo'] }, // marginal mark
+      markScores: {
+        'zoo-council-mammal': { zebra: 0.5, lion: 0.5, kangaroo: 0.06 },
+      },
+      multiplier: 2,
+    },
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
   const testCases: Array<{
     adjudicationFlags?: Admin.ReportingFilter['adjudicationFlags'];
-    expected: number;
+    expectedBmd?: number;
+    expectedHmpb?: number;
   }> = [
     {
       adjudicationFlags: [],
-      expected: 15,
+      expectedBmd: 15,
+      expectedHmpb: 2,
     },
     {
       adjudicationFlags: ['isBlank'],
-      expected: 1,
+      expectedBmd: 1,
     },
     {
       adjudicationFlags: ['hasUndervote'],
-      expected: 3,
+      expectedBmd: 3,
     },
     {
       adjudicationFlags: ['hasOvervote'],
-      expected: 4,
+      expectedBmd: 4,
     },
     {
       adjudicationFlags: ['hasWriteIn'],
-      expected: 5,
+      expectedBmd: 5,
+    },
+    {
+      adjudicationFlags: ['hasMarginalMark'],
+      expectedHmpb: 2,
     },
   ];
 
@@ -672,6 +687,11 @@ test('tabulateFullCardCounts - blankBallots', () => {
       })
     );
 
-    expect(cardCounts?.bmd).toEqual([testCase.expected]);
+    if (testCase.expectedBmd) {
+      expect(cardCounts?.bmd).toEqual([testCase.expectedBmd]);
+    }
+    if (testCase.expectedHmpb) {
+      expect(cardCounts?.hmpb).toEqual([testCase.expectedHmpb]);
+    }
   }
 });

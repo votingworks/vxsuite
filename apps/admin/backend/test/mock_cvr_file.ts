@@ -12,10 +12,6 @@ import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
 import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
-import {
-  determineCvrContestTags,
-  determineCvrTag,
-} from '../src/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {
@@ -78,45 +74,56 @@ export function addMockCvrFileToStore({
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));
-  const { adminAdjudicationReasons, markThresholds } =
-    store.getSystemSettings(electionId);
+  const { markThresholds } = store.getSystemSettings(electionId);
   const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
     for (let i = 0; i < (mockCastVoteRecord.multiplier ?? 1); i += 1) {
-      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
-        electionId,
-        cvrFileId,
-        ballotId: uuid(),
-        cvr: mockCastVoteRecord,
-        adjudicationFlags: getCastVoteRecordAdjudicationFlags(
-          mockCastVoteRecord.votes,
-          electionDefinition
-        ),
-      });
-
-      addCastVoteRecordResult.assertOk('failed to add mock cvr');
-      const { cvrId } = addCastVoteRecordResult.unsafeUnwrap();
-      cvrIds.push(cvrId);
-
+      // Collect write-in info and filter unmarked write-ins from votes,
+      // matching real scanner behavior where unmarked write-ins (text
+      // detected without a filled bubble) are not included in votes
       const writeIns: Array<{
         contestId: ContestId;
         optionId: ContestOptionId;
         isUnmarked: boolean;
       }> = [];
+      const filteredVotes: Record<string, string[]> = {};
       for (const [contestId, optionIds] of Object.entries(
         mockCastVoteRecord.votes
       )) {
+        const filtered: string[] = [];
         for (const optionId of optionIds) {
           if (optionId.startsWith('write-in')) {
-            writeIns.push({
-              contestId,
-              optionId,
-              isUnmarked: optionId.includes('unmarked'),
-            });
+            const isUnmarked = optionId.includes('unmarked');
+            writeIns.push({ contestId, optionId, isUnmarked });
+            if (!isUnmarked) {
+              filtered.push(optionId);
+            }
+          } else {
+            filtered.push(optionId);
           }
         }
+        filteredVotes[contestId] = filtered;
       }
+
+      const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
+        electionDefinition,
+        filteredVotes,
+        writeIns.length,
+        isHmpb ? mockCastVoteRecord.markScores : undefined,
+        markThresholds
+      );
+      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
+        electionId,
+        cvrFileId,
+        ballotId: uuid(),
+        cvr: { ...mockCastVoteRecord, votes: filteredVotes },
+        adjudicationFlags,
+      });
+
+      addCastVoteRecordResult.assertOk('failed to add mock cvr');
+      const { cvrId } = addCastVoteRecordResult.unsafeUnwrap();
+      cvrIds.push(cvrId);
 
       // add write-ins, all on the "front"
       if (writeIns.length) {
@@ -138,28 +145,6 @@ export function addMockCvrFileToStore({
             isUnmarked,
           });
         }
-      }
-
-      for (const tag of determineCvrContestTags({
-        adminAdjudicationReasons,
-        markThresholds,
-        cvrId,
-        writeIns,
-        isHmpb,
-        markScores: mockCastVoteRecord.markScores,
-        votes: mockCastVoteRecord.votes,
-        electionDefinition,
-      })) {
-        store.addCvrContestTag(tag);
-      }
-
-      const cvrTag = determineCvrTag({
-        adminAdjudicationReasons,
-        cvrId,
-        votes: mockCastVoteRecord.votes,
-      });
-      if (cvrTag) {
-        store.addCvrTag(cvrTag);
       }
     }
   }
