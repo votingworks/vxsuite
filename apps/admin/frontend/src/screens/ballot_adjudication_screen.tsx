@@ -12,7 +12,6 @@ import { format } from '@votingworks/utils';
 import type {
   BallotImages,
   ContestAdjudicationData,
-  CvrContestTag,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -36,6 +35,7 @@ import {
 } from '../components/adjudication_contest_list';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
+import { isContestTagOnlyUndervote } from '../utils/adjudication';
 
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 const DEFAULT_PADDING = '0.75rem';
@@ -146,16 +146,6 @@ function groupContestsBySide(
     }
   }
   return { frontContests, backContests };
-}
-
-function isContestTagOnlyUndervote(tag: CvrContestTag) {
-  return (
-    tag.hasUndervote &&
-    !tag.hasMarginalMark &&
-    !tag.hasWriteIn &&
-    !tag.hasUnmarkedWriteIn &&
-    !tag.hasOvervote
-  );
 }
 
 export function BallotAdjudicationScreenWrapper(): JSX.Element {

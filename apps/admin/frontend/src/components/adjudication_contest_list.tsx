@@ -25,6 +25,7 @@ import {
   P,
 } from '@votingworks/ui';
 import { EntityList } from './entity_list';
+import { isContestTagOnlyUndervote } from '../utils/adjudication';
 
 const Column = styled.div`
   display: flex;
@@ -339,13 +340,8 @@ function BallotSideContestList({
           const isPending = tag && !tag.isResolved;
           const isResolved = tag && tag.isResolved;
           const isFirstUnresolved = contest.id === firstUnresolvedContestId;
-          const isOnlyUndervote =
-            tag &&
-            tag.hasUndervote &&
-            !tag.hasMarginalMark &&
-            !tag.hasWriteIn &&
-            !tag.hasUnmarkedWriteIn &&
-            !tag.hasOvervote;
+          const isOnlyUndervote = tag && isContestTagOnlyUndervote(tag);
+
           const hasAdjudication = adjudicationData.options.some(
             (o) => o.voteAdjudication
           );
