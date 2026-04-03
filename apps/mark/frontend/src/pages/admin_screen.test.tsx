@@ -5,12 +5,14 @@ import {
 } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName,
+  BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
+import { LocationPicker, LocationPickerProps } from '@votingworks/mark-flow-ui';
+import { assertDefined } from '@votingworks/basics';
 import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election } from '../../test/helpers/election';
@@ -27,9 +29,15 @@ const featureFlagMock = getFeatureFlagMock();
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
+  isFeatureFlagEnabled: (flag: Feature) => featureFlagMock.isEnabled(flag),
 }));
+
+vi.mock('@votingworks/mark-flow-ui', async (importActual) => ({
+  ...(await importActual()),
+  LocationPicker: vi.fn(),
+}));
+const MOCK_LOCATION_PICKER_ID = 'MockLocationPicker';
+const MockLocationPicker = vi.mocked(LocationPicker);
 
 let apiMock: ApiMock;
 
@@ -39,6 +47,10 @@ beforeEach(() => {
     now: new Date('2020-10-31T00:00:00.000'),
   });
   apiMock = createApiMock();
+
+  MockLocationPicker.mockReturnValue(
+    <div data-testid={MOCK_LOCATION_PICKER_ID} />
+  );
 });
 
 afterEach(() => {
@@ -107,7 +119,33 @@ test('renders system buttons', async () => {
   screen.getByText('Signed Hash Validation');
 });
 
-test('can switch the precinct', () => {
+test('wires up location picker', async () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
+
+  const pollsState: PollsState = 'polls_paused';
+  const [place1, place2] = assertDefined(election.pollingPlaces);
+
+  renderScreen({ pollingPlaceId: place1.id, pollsState });
+  screen.getByTestId(MOCK_LOCATION_PICKER_ID);
+
+  const props = assertDefined(MockLocationPicker.mock.lastCall)[0];
+  expect(props).toEqual<LocationPickerProps>({
+    election,
+    pollsState,
+    selectPollingPlace: expect.anything(),
+    selectPrecinct: expect.anything(),
+    pollingPlaceId: place1.id,
+  });
+
+  const client = apiMock.mockApiClient;
+  client.setPollingPlaceId.expectCallWith({ id: place2.id }).resolves();
+  await props.selectPollingPlace(place2.id);
+  client.assertComplete();
+});
+
+test('can switch the precinct', async () => {
+  await useRealPrecinctPicker();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
   renderScreen();
@@ -117,7 +155,8 @@ test('can switch the precinct', () => {
   userEvent.click(screen.getByText('All Precincts'));
 });
 
-test('precinct change disabled if polls closed', () => {
+test('precinct change disabled if polls closed', async () => {
+  await useRealPrecinctPicker();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
   renderScreen({ pollsState: 'polls_closed_final' });
@@ -127,6 +166,7 @@ test('precinct change disabled if polls closed', () => {
 });
 
 test('precinct selection absent if single precinct election', async () => {
+  await useRealPrecinctPicker();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
   renderScreen({
@@ -322,3 +362,20 @@ test('does not show enable USB ports button when USB ports are enabled', async (
     screen.queryByRole('button', { name: 'Enable USB Ports' })
   ).not.toBeInTheDocument();
 });
+
+async function useRealPrecinctPicker() {
+  const markFlowUi = await vi.importActual<
+    typeof import('@votingworks/mark-flow-ui')
+  >('@votingworks/mark-flow-ui');
+
+  setPollingPlacesEnabled(false);
+  MockLocationPicker.mockImplementation(markFlowUi.LocationPicker);
+}
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}
