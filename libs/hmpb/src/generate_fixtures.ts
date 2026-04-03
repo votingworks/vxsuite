@@ -189,14 +189,6 @@ async function generateCalibrationSheetFixtures(
   await writeFile(specPaths.pdf, generated.pdf);
 }
 
-const ALL_PAPER_SIZES: readonly HmpbBallotPaperSize[] = [
-  HmpbBallotPaperSize.Letter,
-  HmpbBallotPaperSize.Legal,
-  HmpbBallotPaperSize.Custom17,
-  HmpbBallotPaperSize.Custom19,
-  HmpbBallotPaperSize.Custom22,
-];
-
 function usage(out: NodeJS.WriteStream) {
   out.write(`Usage: generate_fixtures.ts\n`);
 }
@@ -273,7 +265,7 @@ export async function main(): Promise<number> {
   }
 
   if (fixtures.size === 0 || fixtures.has('all-bubble-ballot')) {
-    for (const paperSize of ALL_PAPER_SIZES) {
+    for (const paperSize of Object.values(HmpbBallotPaperSize)) {
       const abbFixtures = allBubbleBallotFixtures(paperSize);
       await rm(abbFixtures.dir, { recursive: true, force: true });
       await generateAllBubbleBallotFixtures(abbFixtures, rendererPool);
@@ -319,22 +311,30 @@ export async function main(): Promise<number> {
 
   if (fixtures.size === 0 || fixtures.has('timing-mark-paper')) {
     await rendererPool.runTasks(
-      ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
-        await generateTimingMarkPaperFixtures(renderer, paperSize, 'standard');
-        await generateTimingMarkPaperFixtures(
-          renderer,
-          paperSize,
-          'qa-overlay'
-        );
-      })
+      Object.values(HmpbBallotPaperSize).map(
+        (paperSize) => async (renderer) => {
+          await generateTimingMarkPaperFixtures(
+            renderer,
+            paperSize,
+            'standard'
+          );
+          await generateTimingMarkPaperFixtures(
+            renderer,
+            paperSize,
+            'qa-overlay'
+          );
+        }
+      )
     );
   }
 
   if (fixtures.size === 0 || fixtures.has('calibration-sheet')) {
     await rendererPool.runTasks(
-      ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
-        await generateCalibrationSheetFixtures(renderer, paperSize);
-      })
+      Object.values(HmpbBallotPaperSize).map(
+        (paperSize) => async (renderer) => {
+          await generateCalibrationSheetFixtures(renderer, paperSize);
+        }
+      )
     );
   }
 
