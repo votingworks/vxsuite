@@ -340,67 +340,92 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
 
     let (width, height) = ballot_image.dimensions();
+    let height_usize = height as usize;
+    let width_usize = width as usize;
     let x_range = BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE;
-    let binarized_columns = x_range.clone().map(|x| {
-        let binarized_column = (0..height)
-            .map(|y| ballot_image.get_pixel(x, y).is_foreground())
-            .collect::<Vec<_>>();
-        (x as PixelPosition, binarized_column)
-    });
+    let raw = ballot_image.image().as_raw();
+    let thresh = ballot_image.threshold();
 
-    let streaks = binarized_columns
-        .tuple_windows()
-        .filter_map(|((x, column), (_, next_column))| {
-            let num_column_black_pixels = column.iter().filter(|is_black| **is_black).count();
+    // Two reusable buffers for binarized column data, swapped each iteration
+    // to avoid per-column Vec allocations.
+    let mut cur_col = vec![false; height_usize];
+    let mut next_col = vec![false; height_usize];
+
+    // Helper to fill a column buffer from raw image data.
+    let fill_column = |buf: &mut [bool], x: usize| {
+        let mut idx = x;
+        for slot in buf.iter_mut() {
+            *slot = raw[idx] <= thresh;
+            idx += width_usize;
+        }
+    };
+
+    // Pre-fill the first column.
+    let x_start = x_range.start as usize;
+    fill_column(&mut cur_col, x_start);
+    let mut cur_black_count: usize = cur_col.iter().filter(|&&b| b).count();
+
+    let streaks = x_range
+        .clone()
+        .filter_map(|x| {
+            let x_usize = x as usize;
+            fill_column(&mut next_col, x_usize + 1);
+            let next_black_count: usize = next_col.iter().filter(|&&b| b).count();
+
             let column_streak_score =
-                UnitIntervalScore(num_column_black_pixels as f32 / height as f32);
-            if column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
-                return None;
-            }
-
-            let two_column_pixels = column
-                .iter()
-                .zip(next_column.iter())
-                .map(|(is_black, is_black_next)| *is_black || *is_black_next)
-                .collect_vec();
-            let num_two_column_black_pixels = two_column_pixels
-                .iter()
-                .filter(|is_black| **is_black)
-                .count();
-            let two_column_streak_score =
-                UnitIntervalScore(num_two_column_black_pixels as f32 / height as f32);
-            if two_column_streak_score < MIN_TWO_COLUMN_STREAK_SCORE {
-                return None;
-            }
-
-            let longest_white_gap_length = two_column_pixels
-                .iter()
-                .group_by(|is_black| *is_black)
-                .into_iter()
-                .filter(|(is_black, _)| !*is_black)
-                .map(|(_, white_gap)| white_gap.count() as PixelUnit)
-                .max()
-                .unwrap_or(0);
-            if longest_white_gap_length > MAX_WHITE_GAP_PIXELS {
-                return None;
-            }
-
-            let next_column_black_pixels = next_column.iter().filter(|is_black| **is_black).count();
-            let next_column_streak_score =
-                UnitIntervalScore(next_column_black_pixels as f32 / height as f32);
-            if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
-                Some(VerticalStreak {
-                    x_range: x..=x,
-                    scores: vec![two_column_streak_score],
-                    longest_white_gaps: vec![longest_white_gap_length],
-                })
+                UnitIntervalScore(cur_black_count as f32 / height as f32);
+            let result = if column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
+                None
             } else {
-                Some(VerticalStreak {
-                    x_range: x..=x + 1,
-                    scores: vec![two_column_streak_score, next_column_streak_score],
-                    longest_white_gaps: vec![longest_white_gap_length, longest_white_gap_length],
-                })
-            }
+                // Compute two-column stats inline without allocating.
+                let mut num_two_column_black = 0u32;
+                let mut longest_white_gap: PixelUnit = 0;
+                let mut current_white_gap: PixelUnit = 0;
+                for y in 0..height_usize {
+                    if cur_col[y] || next_col[y] {
+                        num_two_column_black += 1;
+                        if current_white_gap > longest_white_gap {
+                            longest_white_gap = current_white_gap;
+                        }
+                        current_white_gap = 0;
+                    } else {
+                        current_white_gap += 1;
+                    }
+                }
+                if current_white_gap > longest_white_gap {
+                    longest_white_gap = current_white_gap;
+                }
+
+                let two_column_streak_score =
+                    UnitIntervalScore(num_two_column_black as f32 / height as f32);
+                if two_column_streak_score < MIN_TWO_COLUMN_STREAK_SCORE {
+                    None
+                } else if longest_white_gap > MAX_WHITE_GAP_PIXELS {
+                    None
+                } else {
+                    let next_column_streak_score =
+                        UnitIntervalScore(next_black_count as f32 / height as f32);
+                    if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
+                        Some(VerticalStreak {
+                            x_range: x as PixelPosition..=x as PixelPosition,
+                            scores: vec![two_column_streak_score],
+                            longest_white_gaps: vec![longest_white_gap],
+                        })
+                    } else {
+                        Some(VerticalStreak {
+                            x_range: x as PixelPosition..=(x + 1) as PixelPosition,
+                            scores: vec![two_column_streak_score, next_column_streak_score],
+                            longest_white_gaps: vec![longest_white_gap, longest_white_gap],
+                        })
+                    }
+                }
+            };
+
+            // Swap buffers: next becomes current for the next iteration.
+            swap(&mut cur_col, &mut next_col);
+            cur_black_count = next_black_count;
+
+            result
         })
         .coalesce(VerticalStreak::coalesce)
         .collect_vec();
