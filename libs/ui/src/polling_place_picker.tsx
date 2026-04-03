@@ -41,6 +41,8 @@ export interface PollingPlacePickerProps {
   places: readonly PollingPlace[];
   selectedId?: string;
   selectPlace: (id: string) => Promise<void>;
+  searchable?: boolean;
+  style?: React.CSSProperties;
 }
 
 export function PollingPlacePicker({
@@ -49,6 +51,8 @@ export function PollingPlacePicker({
   places,
   selectedId,
   selectPlace,
+  searchable,
+  style = { width: '100%' },
 }: PollingPlacePickerProps): JSX.Element {
   const [showingModal, setShowingModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -112,7 +116,7 @@ export function PollingPlacePicker({
       menuShadow
       disabled={saving || mode === 'disabled'}
       isMulti={false}
-      isSearchable={false}
+      isSearchable={searchable}
       menuPortalTarget={document.body}
       onChange={onChange}
       options={groupedList.map((place) => ({
@@ -129,7 +133,7 @@ export function PollingPlacePicker({
         ),
       }))}
       placeholder={POLLING_PLACE_PICKER_LABEL}
-      style={{ width: '100%' }}
+      style={style}
       value={dropdownCurrentValue}
     />
   );

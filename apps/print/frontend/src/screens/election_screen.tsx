@@ -5,14 +5,20 @@ import {
   P,
   Seal,
   UnconfigureMachineButton,
-  SearchSelect,
+  ChangePrecinctButton,
+  PollingPlacePicker,
 } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
-import { Precinct, PrecinctSelection } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  format,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
   getElectionRecord,
+  getPollingPlaceId,
+  setPollingPlaceId,
   setPrecinctSelection,
   getPrecinctSelection,
   unconfigureMachine,
@@ -30,46 +36,31 @@ const Content = styled(MainContent)`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-
-  /* Ensure SearchSelect dropdown is not cut off */
-  overflow: visible;
 `;
 
-const ALL_PRECINCTS_KEY = '\0all-precincts';
-
 export function ElectionScreen(): JSX.Element | null {
+  const usePollingPlaces = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_POLLING_PLACES
+  );
   const getElectionRecordQuery = getElectionRecord.useQuery();
+  const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
   const selectedPrecinctQuery = getPrecinctSelection.useQuery();
-  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
+  const selectPrecinct = setPrecinctSelection.useMutation().mutateAsync;
+  const selectPollingPlace = setPollingPlaceId.useMutation().mutateAsync;
   const unconfigureMutation = unconfigureMachine.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
-  if (!getElectionRecordQuery.isSuccess || !selectedPrecinctQuery.isSuccess) {
+  if (
+    !getElectionRecordQuery.isSuccess ||
+    !selectedPrecinctQuery.isSuccess ||
+    !pollingPlaceIdQuery.isSuccess
+  ) {
     return null;
   }
 
   const {
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
-
-  // Get precinct options for SearchSelect
-  const precinctOptions = election.precincts.map((precinct: Precinct) => ({
-    value: precinct.id,
-    label: precinct.name,
-  }));
-  if (election.precincts.length > 1) {
-    precinctOptions.unshift({
-      value: ALL_PRECINCTS_KEY,
-      label: 'All Precincts',
-    });
-  }
-
-  // Find currently configured precinct (if any)
-  const selectedPrecinct = selectedPrecinctQuery.data;
-  const configuredPrecinctId =
-    selectedPrecinct?.kind === 'AllPrecincts'
-      ? ALL_PRECINCTS_KEY
-      : selectedPrecinct?.precinctId;
 
   async function unconfigure(): Promise<void> {
     try {
@@ -79,6 +70,32 @@ export function ElectionScreen(): JSX.Element | null {
       // Handled by default query client error handling
     }
   }
+
+  const pollingPlaces = election.pollingPlaces || [];
+  const locationPicker = usePollingPlaces
+    ? pollingPlaces.length > 1 && (
+        <PollingPlacePicker
+          mode="default"
+          places={pollingPlaces}
+          searchable
+          selectedId={pollingPlaceIdQuery.data || undefined}
+          selectPlace={(id) => selectPollingPlace({ id })}
+          style={{ width: '16rem' }}
+        />
+      )
+    : election.precincts.length > 1 && (
+        <ChangePrecinctButton
+          appPrecinctSelection={selectedPrecinctQuery.data || undefined}
+          election={election}
+          mode="default"
+          style={{ width: '16rem' }}
+          searchable
+          updatePrecinctSelection={(precinctSelection) =>
+            selectPrecinct({ precinctSelection })
+          }
+          useMenuPortal
+        />
+      );
 
   return (
     <ScreenWrapper authType="election_manager">
@@ -99,32 +116,8 @@ export function ElectionScreen(): JSX.Element | null {
             </div>
           </Row>
         </Card>
-        <Row style={{ alignItems: 'center', gap: '1rem' }}>
-          {precinctOptions.length > 1 && (
-            <SearchSelect
-              aria-label="Select Precinct"
-              options={precinctOptions}
-              value={configuredPrecinctId}
-              onChange={async (precinctId) => {
-                if (precinctId) {
-                  const precinctSelection: PrecinctSelection =
-                    precinctId === ALL_PRECINCTS_KEY
-                      ? { kind: 'AllPrecincts' }
-                      : { kind: 'SinglePrecinct', precinctId };
-                  try {
-                    await setPrecinctSelectionMutation.mutateAsync({
-                      precinctSelection,
-                    });
-                  } catch {
-                    // Handled by default query client error handling
-                  }
-                }
-              }}
-              placeholder="Select Precinct…"
-              style={{ width: '16rem' }}
-              isSearchable
-            />
-          )}
+        <Row style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+          {locationPicker}
           <UnconfigureMachineButton
             unconfigureMachine={unconfigure}
             isMachineConfigured

@@ -37,6 +37,9 @@ export interface ChangePrecinctButtonProps {
   ) => Promise<void>;
   election: Election;
   mode: ChangePrecinctMode;
+  searchable?: boolean;
+  style?: React.CSSProperties;
+  useMenuPortal?: boolean;
 }
 
 export function ChangePrecinctButton({
@@ -44,6 +47,9 @@ export function ChangePrecinctButton({
   updatePrecinctSelection,
   election,
   mode,
+  searchable,
+  style = { width: '100%' },
+  useMenuPortal,
 }: ChangePrecinctButtonProps): JSX.Element {
   const [isConfirmationModalShowing, setIsConfirmationModalShowing] =
     useState(false);
@@ -91,8 +97,10 @@ export function ChangePrecinctButton({
   const precinctSelectDropdown = (
     <SearchSelect
       isMulti={false}
+      isSearchable={searchable}
       placeholder={SELECT_PRECINCT_TEXT}
       aria-label={SELECT_PRECINCT_TEXT}
+      menuPortalTarget={useMenuPortal ? document.body : undefined}
       options={[
         {
           value: ALL_PRECINCTS_OPTION_VALUE,
@@ -113,7 +121,7 @@ export function ChangePrecinctButton({
       value={dropdownCurrentValue}
       onChange={handlePrecinctSelectionChange}
       disabled={mode === 'disabled'}
-      style={{ width: '100%' }}
+      style={style}
     />
   );
 
