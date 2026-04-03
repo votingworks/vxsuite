@@ -73,5 +73,9 @@ divan = "0.1.15"
 proptest = "1.0.0"
 tempfile = "3.3.0"
 
+[profile.release]
+lto = true
+codegen-units = 1
+
 [lints]
 workspace = true
