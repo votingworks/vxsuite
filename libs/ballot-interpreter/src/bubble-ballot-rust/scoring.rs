@@ -205,22 +205,31 @@ fn compute_match_score(
     y: u32,
     threshold_val: u8,
 ) -> UnitIntervalScore {
-    let width = template.width();
-    let height = template.height();
+    let width = template.width() as usize;
+    let height = template.height() as usize;
     let total_pixels = (width * height) as f32;
+    let img_stride = img.width() as usize;
+    let img_raw = img.as_raw();
+    let tmpl_raw = template.as_raw();
+
     let mut matching_pixels = 0u32;
-    for py in 0..height {
+    let mut img_row_start = y as usize * img_stride + x as usize;
+    let mut tmpl_idx = 0;
+
+    for _py in 0..height {
         for px in 0..width {
-            let source_val = img.get_pixel(x + px, y + py).0[0];
+            let source_val = img_raw[img_row_start + px];
             let binarized = if source_val <= threshold_val {
                 0u8
             } else {
                 255u8
             };
-            if binarized <= template.get_pixel(px, py).0[0] {
+            if binarized <= tmpl_raw[tmpl_idx] {
                 matching_pixels += 1;
             }
+            tmpl_idx += 1;
         }
+        img_row_start += img_stride;
     }
     UnitIntervalScore(matching_pixels as f32 / total_pixels)
 }
