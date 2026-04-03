@@ -834,9 +834,25 @@ impl PaperInfo {
         }
     }
 
+    pub const fn scanned_custom18() -> Self {
+        Self {
+            size: PaperSize::Custom18,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
     pub const fn scanned_custom19() -> Self {
         Self {
             size: PaperSize::Custom19,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    pub const fn scanned_custom20() -> Self {
+        Self {
+            size: PaperSize::Custom20,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -851,12 +867,14 @@ impl PaperInfo {
     }
 
     /// Returns info for all supported scanned paper sizes.
-    pub const fn scanned() -> [Self; 5] {
+    pub const fn scanned() -> [Self; 7] {
         [
             Self::scanned_letter(),
             Self::scanned_legal(),
             Self::scanned_custom17(),
+            Self::scanned_custom18(),
             Self::scanned_custom19(),
+            Self::scanned_custom20(),
             Self::scanned_custom22(),
         ]
     }
