@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
+  BatteryStatus,
   Button,
   Caption,
-  getBatteryIcon,
+  DateTimeDisplay,
   IconName,
   Icons,
+  LockMachineButton,
+  Toolbar as ToolbarContainer,
 } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import type { BatteryInfo } from '@votingworks/backend';
 
 import { type PrinterStatus as PrinterStatusType } from '@votingworks/types';
 import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api';
@@ -34,19 +34,6 @@ const StatusCaption = styled(Caption)`
   font-size: 0.8rem;
   font-weight: 500;
 `;
-
-function useCurrentDate(): Date {
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDate(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return currentDate;
-}
 
 function BasePrinterStatus({
   icon,
@@ -165,29 +152,15 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
   return <PrinterConnectionStatus connected={connected} />;
 }
 
-function BatteryStatus({ status }: { status?: BatteryInfo }) {
-  return (
-    <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
-      {getBatteryIcon(status, true)}
-      {status && !status.discharging && (
-        <Icons.Bolt style={{ fontSize: '0.8em' }} color="inverse" />
-      )}
-      {status && format.percent(status.level)}
-      {status && status.level < 0.25 && status.discharging && (
-        <Icons.Warning color="inverseWarning" />
-      )}
-    </Row>
-  );
-}
-
 type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
-const buttonIconAndText: Record<ExtendedUsbDriveStatus, [IconName, string]> = {
-  no_drive: ['Disabled', 'No USB'],
-  error: ['Disabled', 'No USB'],
-  mounted: ['Eject', 'Eject USB'],
-  ejecting: ['Eject', 'Ejecting...'],
-  ejected: ['Disabled', 'USB Ejected'],
-};
+const BUTTON_ICON_AND_TEXT: Record<ExtendedUsbDriveStatus, [IconName, string]> =
+  {
+    no_drive: ['Disabled', 'No USB'],
+    error: ['Disabled', 'No USB'],
+    mounted: ['Eject', 'Eject USB'],
+    ejecting: ['Eject', 'Ejecting...'],
+    ejected: ['Disabled', 'USB Ejected'],
+  };
 
 function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
   const ejectUsbMutation = ejectUsbDrive.useMutation();
@@ -195,7 +168,7 @@ function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
   const extendedUsbDriveStatus: ExtendedUsbDriveStatus = isEjecting
     ? 'ejecting'
     : status.status;
-  const [icon, text] = buttonIconAndText[extendedUsbDriveStatus];
+  const [icon, text] = BUTTON_ICON_AND_TEXT[extendedUsbDriveStatus];
   return (
     <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
       <ToolbarButton
@@ -210,49 +183,23 @@ function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
   );
 }
 
-function LockMachineButton(): JSX.Element {
+export function Toolbar(): JSX.Element {
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const logOutMutation = logOut.useMutation();
   const history = useHistory();
-  return (
-    <ToolbarButton
-      icon="Lock"
-      onPress={() => {
-        logOutMutation.mutate(undefined, {
-          onSuccess: () => {
-            // Navigate to the root path to ensure on the next login the
-            // user reopens on the home screen, not the previous screen
-            history.replace('/');
-          },
-        });
-      }}
-      color="inverseNeutral"
-    >
-      Lock Machine
-    </ToolbarButton>
-  );
-}
 
-const ToolbarContainer = styled(Row)`
-  position: sticky;
-  top: 0;
-  width: 100%;
-  height: 2.2rem;
-  gap: 1.25rem;
-  justify-content: flex-end;
-  align-items: center;
-  background: ${(p) => p.theme.colors.inverseContainer};
-  color: ${(p) => p.theme.colors.onInverse};
-  padding: 0.25rem 1rem;
-`;
+  function handleLock() {
+    logOutMutation.mutate(undefined, {
+      onSuccess: () => {
+        history.replace('/');
+      },
+    });
+  }
 
-export function Toolbar(): JSX.Element | null {
-  const currentDate = useCurrentDate();
-
-  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   if (!getDeviceStatusesQuery.isSuccess) {
     return (
       <ToolbarContainer>
-        <LockMachineButton />
+        <LockMachineButton onLock={handleLock} />
       </ToolbarContainer>
     );
   }
@@ -262,10 +209,10 @@ export function Toolbar(): JSX.Element | null {
   return (
     <ToolbarContainer>
       <PrinterStatus status={printer} />
-      <BatteryStatus status={battery} />
-      {format.clockDateAndTime(currentDate)}
+      {battery && <BatteryStatus batteryInfo={battery} />}
+      <DateTimeDisplay />
       <UsbControllerButton status={usbDrive} />
-      <LockMachineButton />
+      <LockMachineButton onLock={handleLock} />
     </ToolbarContainer>
   );
 }
