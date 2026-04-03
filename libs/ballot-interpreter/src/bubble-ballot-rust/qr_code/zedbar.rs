@@ -6,7 +6,7 @@ use super::detect::{Detected, DetectionArea, Detector, Error, Result};
 
 /// Uses the `zedbar` QR code library to detect a QR code in the given
 /// detection areas.
-pub fn detect_in_areas(detection_areas: Vec<DetectionArea>) -> Result {
+pub fn detect_in_areas(detection_areas: &[DetectionArea]) -> Result {
     let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
     for area in detection_areas {
         match scan_image_for_qr_codes(area.image()) {

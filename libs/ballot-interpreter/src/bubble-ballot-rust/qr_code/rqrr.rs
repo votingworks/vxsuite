@@ -5,7 +5,7 @@ use super::detect::{Detected, DetectionArea, Detector, Error, Result};
 
 /// Uses the `rqrr` QR code library to detect a QR code in the given detection
 /// areas.
-pub fn detect_in_areas(detection_areas: Vec<DetectionArea>) -> Result {
+pub fn detect_in_areas(detection_areas: &[DetectionArea]) -> Result {
     let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
     for area in detection_areas {
         let mut prepared_img = PreparedImage::prepare(area.image().clone());

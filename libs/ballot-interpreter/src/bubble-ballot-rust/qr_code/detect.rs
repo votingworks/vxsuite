@@ -293,9 +293,9 @@ pub fn detect_with_strategy(
     strategy: SearchStrategy,
     debug: &ImageDebugWriter,
 ) -> Result {
-    let areas_fn = || get_detection_areas_for_strategy(img, strategy);
-    let rqrr_result = rqrr::detect_in_areas(areas_fn());
-    let detect_result = rqrr_result.or_else(|_| zedbar::detect_in_areas(areas_fn()));
+    let areas = get_detection_areas_for_strategy(img, strategy);
+    let rqrr_result = rqrr::detect_in_areas(&areas);
+    let detect_result = rqrr_result.or_else(|_| zedbar::detect_in_areas(&areas));
     let detection_areas = match detect_result {
         Ok(ref qr_code) => qr_code.detection_areas().to_vec(),
         Err(ref e) => e.detection_areas().to_vec(),
@@ -367,6 +367,36 @@ mod test {
         fn test_classify_never_panics(bytes: Vec<u8>) {
             let _ = classify_qr_payload(&bytes);
         }
+    }
+
+    #[test]
+    fn test_hmpb_detection_areas() {
+        let image = GrayImage::new(1000, 2000);
+        let areas = get_hmpb_detection_areas(&image);
+        assert_eq!(areas.len(), 2);
+
+        // Bottom-left corner: 25% width, anchored to bottom
+        assert_eq!(areas[0].bounds(), Rect::new(0, 1750, 250, 250));
+        assert_eq!(areas[0].orientation(), Orientation::Portrait);
+
+        // Top-right corner: 25% width, anchored to top
+        assert_eq!(areas[1].bounds(), Rect::new(750, 0, 250, 250));
+        assert_eq!(areas[1].orientation(), Orientation::PortraitReversed);
+    }
+
+    #[test]
+    fn test_broad_detection_areas() {
+        let image = GrayImage::new(1000, 2000);
+        let areas = get_broad_detection_areas(&image);
+        assert_eq!(areas.len(), 2);
+
+        // Bottom 60%: from 40% to 100% of height, full width
+        assert_eq!(areas[0].bounds(), Rect::new(0, 800, 1000, 1200));
+        assert_eq!(areas[0].orientation(), Orientation::Portrait);
+
+        // Top 50%: from 0% to 50% of height, full width
+        assert_eq!(areas[1].bounds(), Rect::new(0, 0, 1000, 1000));
+        assert_eq!(areas[1].orientation(), Orientation::PortraitReversed);
     }
 
     #[test]
