@@ -302,6 +302,9 @@ test('get/set polling place', () => {
 
   store.setPollingPlaceId(pollingPlace.id);
   expect(store.getPollingPlaceId()).toEqual(pollingPlace.id);
+
+  store.setPollingPlaceId(null);
+  expect(store.getPollingPlaceId()).toBeUndefined();
 });
 
 test('get/set polls state', () => {

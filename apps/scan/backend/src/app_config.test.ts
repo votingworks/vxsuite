@@ -14,6 +14,7 @@ import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
+  suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -237,6 +238,59 @@ test('setPollingPlaceId will reset polls to closed', async () => {
       {
         disposition: 'success',
         message: `User set the polling place for the machine to ${place.name}`,
+      }
+    );
+  });
+});
+
+test('cannot set polling place in polls_closed_final state', async () => {
+  await suppressingConsoleOutput(() =>
+    withApp(async (ctx) => {
+      const { apiClient, mockUsbDrive, mockAuth, workspace } = ctx;
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      const electionRecord = assertDefined(workspace.store.getElectionRecord());
+      const { election } = electionRecord.electionDefinition;
+      const place = assertDefined(election.pollingPlaces)[0];
+
+      workspace.store.transitionPolls({ time: 0, type: 'close_polls' });
+
+      const res = apiClient.setPollingPlaceId({ id: place.id });
+      await expect(res).rejects.toThrow();
+    })
+  );
+});
+
+test('switching ballot casting modes clears polling place selection', async () => {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+
+  await withApp(async (ctx) => {
+    const { apiClient, mockUsbDrive, mockAuth, logger, workspace } = ctx;
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+    const electionRecord = assertDefined(workspace.store.getElectionRecord());
+    const { election } = electionRecord.electionDefinition;
+    const place = assertDefined(election.pollingPlaces)[0];
+
+    await apiClient.setPollingPlaceId({ id: place.id });
+    workspace.store.transitionPolls({ time: 0, type: 'pause_voting' });
+
+    const ballotCastingMode = 'early_voting';
+    const res = await apiClient.setBallotCastingMode({ ballotCastingMode });
+    expect(res).toEqual(ok());
+
+    const config = await apiClient.getConfig();
+    expect(config.pollingPlaceId).toBeUndefined();
+
+    const updatedPolls = await apiClient.getPollsInfo();
+    expect(updatedPolls.pollsState).toEqual('polls_closed_initial');
+
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.SetBallotCastingMode,
+      {
+        disposition: 'success',
+        message: 'Successfully set ballot casting mode to early_voting.',
       }
     );
   });

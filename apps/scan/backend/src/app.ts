@@ -281,6 +281,10 @@ export function buildApi({
     }): Promise<void> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       assert(
+        store.getPollsState() !== 'polls_closed_final',
+        'Attempt to change precinct selection after polls closed'
+      );
+      assert(
         store.getBallotsCounted() === 0,
         'Attempt to change precinct selection after ballots have been cast'
       );
@@ -301,8 +305,12 @@ export function buildApi({
         'Cannot set polling place without an election.'
       );
       assert(
+        store.getPollsState() !== 'polls_closed_final',
+        'Attempt to change polling place after polls closed'
+      );
+      assert(
         store.getBallotsCounted() === 0,
-        'Attempt to change precinct selection after ballots have been cast'
+        'Attempt to change polling place after ballots have been cast'
       );
 
       const { election } = electionDefinition;
@@ -388,6 +396,14 @@ export function buildApi({
       }
 
       store.setBallotCastingMode(input.ballotCastingMode);
+
+      // Any previous polling place selection will no longer be valid after
+      // switching casting modes.
+      const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+      if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+        store.setPollingPlaceId(null);
+        workspace.resetElectionSession();
+      }
 
       await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
         message: `Successfully set ballot casting mode to ${input.ballotCastingMode}.`,

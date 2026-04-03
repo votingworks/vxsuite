@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { Election, ElectionDefinition, PollsState } from '@votingworks/types';
 import {
   Button,
   Modal,
@@ -13,9 +13,13 @@ import {
   TabConfig,
   PowerDownButton,
   SignedHashValidationButton,
+  PollingPlacePicker,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
-import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
+import type {
+  PrecinctScannerConfig,
+  PrecinctScannerStatus,
+} from '@votingworks/scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import styled from 'styled-components';
 import {
@@ -42,6 +46,7 @@ import {
   beginDoubleFeedCalibration,
   useApiClient,
   setBallotCastingMode,
+  setPollingPlaceId,
 } from '../api';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 import { DiagnosticsScreen } from './diagnostics_screen';
@@ -74,7 +79,6 @@ export function ElectionManagerScreen({
   const authStatusQuery = getAuthStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const machineConfigQuery = getMachineConfig.useQuery();
-  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const setIsDoubleFeedDetectionDisabledMutation =
@@ -107,7 +111,6 @@ export function ElectionManagerScreen({
 
   const { election } = electionDefinition;
   const {
-    precinctSelection,
     isTestMode,
     isSoundMuted,
     isDoubleFeedDetectionDisabled,
@@ -147,27 +150,12 @@ export function ElectionManagerScreen({
     }
   }
 
-  const changePrecinctButton = election.precincts.length > 1 && (
-    <ChangePrecinctButton
-      appPrecinctSelection={precinctSelection}
-      updatePrecinctSelection={async (newPrecinctSelection) => {
-        try {
-          await setPrecinctSelectionMutation.mutateAsync({
-            precinctSelection: newPrecinctSelection,
-          });
-        } catch {
-          // Handled by default query client error handling
-        }
-      }}
+  const locationPicker = (
+    <LocationPicker
+      config={configQuery.data}
       election={election}
-      mode={
-        pollsState === 'polls_closed_initial'
-          ? 'default'
-          : pollsState !== 'polls_closed_final' &&
-            scannerStatus.ballotsCounted === 0
-          ? 'confirmation_required'
-          : 'disabled'
-      }
+      pollsState={pollsState}
+      scannerStatus={scannerStatus}
     />
   );
 
@@ -210,6 +198,9 @@ export function ElectionManagerScreen({
         setBallotCastingModeMutation.mutate({
           ballotCastingMode: newBallotCastingMode,
         });
+
+        // [TODO] When polling places are enabled and poll are paused, show a
+        // confirmation modal explaining that polls will be reset to initial.
       }}
       options={[
         { id: 'early_voting', label: 'Early Voting' },
@@ -311,9 +302,9 @@ export function ElectionManagerScreen({
       content: (
         <TabPanel>
           {cvrSyncRequiredWarning}
-          {changePrecinctButton}
-          {ballotMode}
           {ballotCastingModeButton}
+          {locationPicker}
+          {ballotMode}
           {unconfigureElectionButton}
         </TabPanel>
       ),
@@ -438,4 +429,61 @@ export function DefaultPreview(): JSX.Element {
       usbDrive={{ status: 'no_drive' }}
     />
   );
+}
+
+function LocationPicker(props: {
+  config: PrecinctScannerConfig;
+  election: Election;
+  pollsState: PollsState;
+  scannerStatus: PrecinctScannerStatus;
+}) {
+  const { config, election, pollsState, scannerStatus } = props;
+
+  const selectPrecinct = setPrecinctSelection.useMutation();
+  const selectPollingPlace = setPollingPlaceId.useMutation();
+
+  const nLocations = pollingPlacesEnabled()
+    ? election.pollingPlaces?.length || 0
+    : election.precincts.length;
+
+  if (nLocations <= 1) return null;
+
+  const mode = (() => {
+    if (pollsState === 'polls_closed_initial') return 'default';
+    if (pollsState === 'polls_closed_final') return 'disabled';
+    if (scannerStatus.ballotsCounted > 0) return 'disabled';
+    return 'confirmation_required';
+  })();
+
+  if (!pollingPlacesEnabled()) {
+    return (
+      <ChangePrecinctButton
+        appPrecinctSelection={config.precinctSelection}
+        election={election}
+        mode={mode}
+        updatePrecinctSelection={(precinctSelection) =>
+          selectPrecinct.mutateAsync({ precinctSelection })
+        }
+      />
+    );
+  }
+
+  return (
+    <PollingPlacePicker
+      includedTypes={
+        config.ballotCastingMode === 'early_voting'
+          ? ['early_voting']
+          : ['election_day', 'absentee']
+      }
+      mode={mode}
+      places={election.pollingPlaces || []}
+      selectedId={config.pollingPlaceId}
+      selectPlace={(id) => selectPollingPlace.mutateAsync({ id })}
+    />
+  );
+}
+
+function pollingPlacesEnabled() {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  return isFeatureFlagEnabled(ENABLE_POLLING_PLACES);
 }

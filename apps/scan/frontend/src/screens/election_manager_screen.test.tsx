@@ -10,10 +10,20 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { err, ok } from '@votingworks/basics';
-import { mockUsbDriveStatus } from '@votingworks/ui';
+import { assertDefined, err, ok } from '@votingworks/basics';
+import {
+  mockUsbDriveStatus,
+  PollingPlacePicker,
+  PollingPlacePickerMode,
+  PollingPlacePickerProps,
+} from '@votingworks/ui';
 import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
-import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  Election,
+  PollingPlaceType,
+  PollsState,
+} from '@votingworks/types';
 import {
   act,
   render,
@@ -48,11 +58,23 @@ vi.mock('@votingworks/utils', async () => ({
     featureFlagMock.isEnabled(flag),
 }));
 
+vi.mock('@votingworks/ui', async (importActual) => ({
+  ...(await importActual()),
+  PollingPlacePicker: vi.fn(),
+}));
+
+const MOCK_POLLING_PLACE_PICKER_ID = 'MockPollingPlacePicker';
+const MockPollingPlacePicker = vi.mocked(PollingPlacePicker);
+MockPollingPlacePicker.mockReturnValue(
+  <div data-testid={MOCK_POLLING_PLACE_PICKER_ID} />
+);
+
 beforeEach(() => {
   window.kiosk = mockKiosk(vi.fn);
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.EARLY_VOTING
   );
+  setPollingPlacesEnabled(false);
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -147,6 +169,137 @@ test('no option to change precinct if there is only one precinct', async () => {
 
   await screen.findByText('Election Manager Menu');
   expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
+});
+
+test('location picker shown if more than one location is available', async () => {
+  setPollingPlacesEnabled(true);
+
+  apiMock.expectGetConfig({ ballotCastingMode: 'election_day' });
+  const client = apiMock.mockApiClient;
+  const electionDefinition = electionGeneralDefinition;
+  const places = assertDefined(electionDefinition.election.pollingPlaces);
+  const selectedPlace = places[0];
+
+  renderScreen({ electionDefinition });
+  await waitFor(client.assertComplete);
+
+  const includedTypes: PollingPlaceType[] = ['absentee', 'election_day'];
+  const props = expectLocationPickerProps({
+    mode: 'default',
+    places,
+    selectPlace: expect.anything(),
+    includedTypes: expect.arrayContaining(includedTypes),
+  });
+
+  client.setPollingPlaceId.expectCallWith({ id: selectedPlace.id }).resolves();
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetConfig({ pollingPlaceId: selectedPlace.id });
+
+  await act(() => props.selectPlace(selectedPlace.id));
+  await waitFor(client.assertComplete);
+
+  expectLocationPickerProps({
+    mode: 'default',
+    places,
+    selectPlace: expect.anything(),
+    includedTypes: expect.arrayContaining(includedTypes),
+    selectedId: selectedPlace.id,
+  });
+});
+
+test('filters location picker to early_voting based on ballot casting mode', async () => {
+  setPollingPlacesEnabled(true);
+
+  apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
+  const electionDefinition = electionGeneralDefinition;
+  const places = assertDefined(electionDefinition.election.pollingPlaces);
+
+  renderScreen({ electionDefinition });
+  await waitFor(apiMock.mockApiClient.assertComplete);
+
+  expectLocationPickerProps({
+    mode: 'default',
+    places,
+    selectPlace: expect.anything(),
+    includedTypes: ['early_voting'],
+  });
+});
+
+test('location picker requires confirmation if polls are open', async () => {
+  setPollingPlacesEnabled(true);
+
+  apiMock.mockApiClient.getPollsInfo.reset();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
+
+  renderScreen({ electionDefinition: electionGeneralDefinition });
+  await waitFor(apiMock.mockApiClient.assertComplete);
+
+  expectLocationPickerMode('confirmation_required');
+});
+
+test('disables location picker if polls are in final closed state', async () => {
+  setPollingPlacesEnabled(true);
+
+  apiMock.mockApiClient.getPollsInfo.reset();
+  apiMock.expectGetPollsInfo('polls_closed_final');
+  apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
+
+  renderScreen({ electionDefinition: electionGeneralDefinition });
+  await waitFor(apiMock.mockApiClient.assertComplete);
+
+  expectLocationPickerMode('disabled');
+});
+
+test('disables location picker if any ballots have been cast', async () => {
+  setPollingPlacesEnabled(true);
+
+  apiMock.mockApiClient.getPollsInfo.reset();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
+
+  renderScreen({
+    electionDefinition: electionGeneralDefinition,
+    scannerStatus: { ballotsCounted: 1, state: 'waiting_for_ballot' },
+  });
+  await waitFor(apiMock.mockApiClient.assertComplete);
+
+  expectLocationPickerMode('disabled');
+});
+
+test('omits location picker if empty (degrades gracefully for old elections)', async () => {
+  setPollingPlacesEnabled(true);
+
+  apiMock.mockApiClient.getPollsInfo.reset();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
+
+  const baseDefinition = electionGeneralDefinition;
+  const baseElection = electionGeneralDefinition.election;
+  const election: Election = { ...baseElection, pollingPlaces: undefined };
+
+  renderScreen({ electionDefinition: { ...baseDefinition, election } });
+  await waitFor(apiMock.mockApiClient.assertComplete);
+
+  const testId = MOCK_POLLING_PLACE_PICKER_ID;
+  expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
+});
+
+test('omits location picker if only one location is available', async () => {
+  setPollingPlacesEnabled(true);
+
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const electionDefinition = fixtures.makeSinglePrecinctElectionDefinition();
+  const places = assertDefined(electionDefinition.election.pollingPlaces);
+  const pollingPlaceId = places[0].id;
+
+  apiMock.expectGetConfig({ electionDefinition, pollingPlaceId });
+
+  renderScreen({ electionDefinition });
+  await waitFor(() => apiMock.mockApiClient.assertComplete());
+
+  const picker = screen.queryByTestId(MOCK_POLLING_PLACE_PICKER_ID);
+  expect(picker).not.toBeInTheDocument();
 });
 
 test('unconfigure ejects a usb drive', async () => {
@@ -358,7 +511,7 @@ const ballotCastingPeriodButtonDisabledTestCases: BallotCastingPeriodTestConfig[
   ];
 
 test.each(ballotCastingPeriodButtonDisabledTestCases)(
-  '"Ballot Casting Mode" toggle button whenpollsState=$pollsState -> disabled=$buttonDisabled',
+  '"Ballot Casting Mode" toggle: when pollsState=$pollsState -> disabled=$buttonDisabled',
   async ({ pollsState, buttonDisabled }) => {
     featureFlagMock.enableFeatureFlag(
       BooleanEnvironmentVariableName.EARLY_VOTING
@@ -748,3 +901,26 @@ describe('printer management', () => {
     }
   );
 });
+
+function expectLocationPickerProps(expected: PollingPlacePickerProps) {
+  screen.getByTestId(MOCK_POLLING_PLACE_PICKER_ID);
+  const props = assertDefined(MockPollingPlacePicker.mock.lastCall)[0];
+  expect(props).toEqual(expected);
+
+  return props;
+}
+
+function expectLocationPickerMode(mode: PollingPlacePickerMode) {
+  screen.getByTestId(MOCK_POLLING_PLACE_PICKER_ID);
+  const props = assertDefined(MockPollingPlacePicker.mock.lastCall)[0];
+  expect(props.mode).toEqual(mode);
+}
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(ENABLE_POLLING_PLACES);
+  }
+}
