@@ -125,7 +125,6 @@ describe('multi-station adjudication', () => {
     screen.getByRole('button', {
       name: 'Enable Multi-Station Adjudication',
     });
-    screen.getByText('Network: Online');
     screen.getByText('No clients have connected.');
   });
 
@@ -182,7 +181,7 @@ describe('multi-station adjudication', () => {
       apiMock,
     });
 
-    await screen.findByText('Network: Offline');
+    await screen.findByText('Clients');
   });
 
   test('shows connected clients table with status', async () => {
@@ -264,6 +263,5 @@ describe('multi-station adjudication', () => {
     });
 
     await screen.findByText('Load CVRs to begin adjudication.');
-    screen.getByText('Network: Online');
   });
 });

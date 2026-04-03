@@ -13,6 +13,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
 import {
   fireEvent,
@@ -30,6 +31,17 @@ import {
   mockManualResultsMetadata,
 } from '../test/api_mock_data';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
+
+const featureFlagMock = vi.hoisted(() => {
+  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  const { getFeatureFlagMock } = require('@votingworks/utils');
+  return getFeatureFlagMock();
+});
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -584,13 +596,32 @@ test('battery display and alert', async () => {
 
   await apiMock.authenticateAsSystemAdministrator();
 
-  // initial battery level in nav bar
+  // initial battery level in toolbar
   await screen.findByText('100%');
 
   apiMock.setBatteryInfo({ level: 0.1, discharging: true });
   const warning = await screen.findByRole('alertdialog');
   within(warning).getByText('Low Battery');
 
-  // updated battery level in nav bar
+  // updated battery level in toolbar
   await screen.findByText('10%');
+});
+
+test('network status in toolbar', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata();
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive();
+  apiMock.expectGetNetworkStatus();
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
+  await screen.findByText('Network Online');
+
+  apiMock.expectGetNetworkStatus({ isOnline: false });
+  await screen.findByText('Network Offline');
+
+  featureFlagMock.resetFeatureFlags();
 });
