@@ -239,7 +239,9 @@ describe('Ballot layout tab', () => {
       '8.5 x 11 inches (Letter)',
       '8.5 x 14 inches (Legal)',
       '8.5 x 17 inches',
+      '8.5 x 18 inches',
       '8.5 x 19 inches',
+      '8.5 x 20 inches',
       '8.5 x 22 inches',
     ]) {
       expect(
