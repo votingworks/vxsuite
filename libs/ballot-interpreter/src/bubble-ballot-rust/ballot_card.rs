@@ -961,7 +961,8 @@ pub fn get_matching_paper_info_for_image_size(
         })
         .min_by(|(_, (_, height_error1)), (_, (_, height_error2))| {
             height_error1
-                .partial_cmp(height_error2)
+                .abs()
+                .partial_cmp(&height_error2.abs())
                 .unwrap_or(Ordering::Equal)
         })
         .map(|(paper_info, _)| *paper_info)
@@ -993,6 +994,26 @@ mod tests {
         assert_eq!(
             get_matching_paper_info_for_image_size((1696, 2800), &PaperInfo::scanned()),
             Some(PaperInfo::scanned_legal())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 3400), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom17())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 3600), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom18())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 3800), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom19())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 4000), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom20())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 4400), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom22())
         );
         assert_eq!(
             get_matching_paper_info_for_image_size((1500, 1500), &PaperInfo::scanned()),
