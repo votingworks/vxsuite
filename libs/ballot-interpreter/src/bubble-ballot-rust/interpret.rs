@@ -20,7 +20,7 @@ use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::debug::draw_timing_mark_debug_image_mut;
-use crate::image_utils::threshold;
+use crate::image_utils::threshold_and_encode_png;
 use crate::image_utils::Inset;
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
@@ -105,7 +105,7 @@ impl FromStr for WriteInScoring {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
     pub timing_marks: TimingMarks,
@@ -114,7 +114,23 @@ pub struct InterpretedBallotPage {
     pub write_ins: ScoredPositionAreas,
     #[serde(skip_serializing)] // `normalized_image` is returned separately.
     pub normalized_image: GrayImage,
+    /// Pre-encoded PNG bytes of the normalized image. Produced in parallel with
+    /// scoring so that callers can write to disk without re-encoding.
+    #[serde(skip_serializing)]
+    pub encoded_normalized_image: image::ImageResult<Vec<u8>>,
     pub contest_layouts: Vec<InterpretedContestLayout>,
+}
+
+impl std::fmt::Debug for InterpretedBallotPage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("InterpretedBallotPage")
+            .field("timing_marks", &self.timing_marks)
+            .field("metadata", &self.metadata)
+            .field("marks", &self.marks)
+            .field("write_ins", &self.write_ins)
+            .field("contest_layouts", &self.contest_layouts)
+            .finish_non_exhaustive()
+    }
 }
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -423,30 +439,49 @@ pub fn ballot_card(
 
     let sheet_number = u32::from(decoded_qr_codes.first().0.page_number.sheet_number().get());
 
-    let scored_bubble_marks = ballot_card.score_bubble_marks(
-        &timing_marks,
-        &options.bubble_template,
-        grid_layout,
-        &detected_vertical_streaks,
-        sheet_number,
-    )?;
+    // Run scoring and image normalization+encoding in parallel. The PNG
+    // encoding is CPU-heavy and overlaps well with bubble-mark scoring.
+    let (scoring_result, normalized_and_encoded) = rayon::join(
+        || -> Result<(
+            Pair<ScoredBubbleMarks>,
+            Pair<Vec<InterpretedContestLayout>>,
+            Pair<ScoredPositionAreas>,
+        )> {
+            let scored_bubble_marks = ballot_card.score_bubble_marks(
+                &timing_marks,
+                &options.bubble_template,
+                grid_layout,
+                &detected_vertical_streaks,
+                sheet_number,
+            )?;
 
-    let contest_layouts =
-        ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
+            let contest_layouts =
+                ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
 
-    let write_in_area_scores = match options.write_in_scoring {
-        WriteInScoring::Enabled => {
-            ballot_card.score_write_in_areas(&timing_marks, grid_layout, sheet_number)
-        }
-        WriteInScoring::Disabled => Pair::default(),
+            let write_in_area_scores = match options.write_in_scoring {
+                WriteInScoring::Enabled => {
+                    ballot_card.score_write_in_areas(&timing_marks, grid_layout, sheet_number)
+                }
+                WriteInScoring::Disabled => Pair::default(),
+            };
+
+            Ok((scored_bubble_marks, contest_layouts, write_in_area_scores))
+        },
+        || {
+            ballot_card.as_pair().par_map(|ballot_page| {
+                threshold_and_encode_png(
+                    ballot_page.ballot_image().image(),
+                    ballot_page.ballot_image().threshold(),
+                )
+            })
+        },
+    );
+
+    let (scored_bubble_marks, contest_layouts, write_in_area_scores) = scoring_result?;
+    let (normalized_images, encoded_images): (Pair<_>, Pair<_>) = {
+        let ((front_norm, front_enc), (back_norm, back_enc)) = normalized_and_encoded.into();
+        (Pair::new(front_norm, back_norm), Pair::new(front_enc, back_enc))
     };
-
-    let normalized_images = ballot_card.as_pair().par_map(|ballot_page| {
-        threshold(
-            ballot_page.ballot_image().image(),
-            ballot_page.ballot_image().threshold(),
-        )
-    });
 
     Pair::from((
         timing_marks,
@@ -454,16 +489,18 @@ pub fn ballot_card(
         scored_bubble_marks,
         write_in_area_scores,
         normalized_images,
+        encoded_images,
         contest_layouts,
     ))
     .map(
-        |(timing_marks, (metadata, _), marks, write_ins, normalized_image, contest_layouts)| {
+        |(timing_marks, (metadata, _), marks, write_ins, normalized_image, encoded_normalized_image, contest_layouts)| {
             InterpretedBallotPage {
                 timing_marks,
                 metadata: BallotPageMetadata::QrCode(metadata),
                 marks,
                 write_ins,
                 normalized_image,
+                encoded_normalized_image,
                 contest_layouts,
             }
         },

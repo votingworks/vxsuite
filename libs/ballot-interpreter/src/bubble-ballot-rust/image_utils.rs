@@ -1,7 +1,8 @@
+use std::io::Cursor;
 use std::mem::swap;
 use std::ops::RangeInclusive;
 
-use image::{GrayImage, Luma, Rgb};
+use image::{GrayImage, ImageEncoder, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
@@ -462,6 +463,29 @@ pub(crate) fn threshold(image: &GrayImage, thresh: u8) -> GrayImage {
         let p = image.get_pixel(x, y)[0];
         Luma([if p <= thresh { 0u8 } else { 255u8 }])
     })
+}
+
+/// Applies a binary threshold and encodes the result as PNG bytes in one step.
+/// Returns both the thresholded image and its PNG encoding.
+pub(crate) fn threshold_and_encode_png(
+    image: &GrayImage,
+    thresh: u8,
+) -> (GrayImage, image::ImageResult<Vec<u8>>) {
+    let normalized = threshold(image, thresh);
+    let encoded = encode_png(&normalized);
+    (normalized, encoded)
+}
+
+/// Encodes a grayscale image as PNG bytes in memory.
+pub(crate) fn encode_png(image: &GrayImage) -> image::ImageResult<Vec<u8>> {
+    let mut buf = Vec::new();
+    image::codecs::png::PngEncoder::new(Cursor::new(&mut buf)).write_image(
+        image.as_raw(),
+        image.width(),
+        image.height(),
+        image::ExtendedColorType::L8,
+    )?;
+    Ok(buf)
 }
 
 #[cfg(test)]
