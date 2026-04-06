@@ -11,14 +11,7 @@ import {
   removeMockDriveDir,
 } from './file_usb_drive';
 
-function cleanupAllMockDrives(): void {
-  for (const diskName of listMockDrives()) {
-    removeMockDriveDir(diskName);
-  }
-}
-
 test('createMockFileMultiUsbDrive mock flow', async () => {
-  cleanupAllMockDrives();
   const handler = getMockFileUsbDriveHandler('sdb');
   const multiUsbDrive = createMockFileMultiUsbDrive();
 
@@ -77,7 +70,6 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
 });
 
 test('createMockFileMultiUsbDrive multi-drive flow', async () => {
-  cleanupAllMockDrives();
   const multiUsbDrive = createMockFileMultiUsbDrive();
 
   const diskA = addMockDrive();
@@ -114,7 +106,6 @@ test('createMockFileMultiUsbDrive multi-drive flow', async () => {
 });
 
 test('mock flow', async () => {
-  cleanupAllMockDrives();
   const usbDrive = createMockFileUsbDrive();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   await expect(usbDrive.eject()).resolves.toBeUndefined();
