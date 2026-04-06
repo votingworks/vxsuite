@@ -2,7 +2,6 @@ import {
   AdjudicationReason,
   ElectionDefinition,
   MarkThresholds,
-  PrecinctSelection,
 } from '@votingworks/types';
 
 /**
@@ -14,7 +13,7 @@ export interface InterpreterOptions {
   allowOfficialBallotsInTestMode?: boolean;
   disableVerticalStreakDetection?: boolean;
   markThresholds: MarkThresholds;
-  precinctSelection: PrecinctSelection;
+  validPrecinctIds: Set<string>;
   testMode: boolean;
   disableBmdBallotScanning?: boolean;
   minimumDetectedScale?: number;

@@ -46,7 +46,6 @@ import {
   WriteInId,
 } from '@votingworks/types';
 import {
-  ALL_PRECINCTS_SELECTION,
   allContestOptions,
   convertMarksToVotesDict,
   time,
@@ -526,7 +525,7 @@ function validateInterpretResults(
 ): SheetOf<PageInterpretation> {
   const {
     electionDefinition: { ballotHash },
-    precinctSelection,
+    validPrecinctIds,
     testMode,
   } = options;
 
@@ -546,10 +545,7 @@ function validateInterpretResults(
       });
     }
 
-    if (
-      precinctSelection.kind !== ALL_PRECINCTS_SELECTION.kind &&
-      metadata.precinctId !== precinctSelection.precinctId
-    ) {
+    if (!validPrecinctIds.has(metadata.precinctId)) {
       return typedAs<InvalidPrecinctPage>({
         type: 'InvalidPrecinctPage',
         metadata,

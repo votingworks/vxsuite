@@ -14,7 +14,7 @@ export function pollingPlaceBallotStyles(
   election: Election,
   place: PollingPlace
 ): readonly BallotStyle[] {
-  const precinctIds = pollingPlacePrecinctIds(election, place);
+  const precinctIds = pollingPlacePrecinctIds(place);
 
   return election.ballotStyles.filter((bs) =>
     bs.precincts.some((id) => precinctIds.has(id))
@@ -160,16 +160,8 @@ export function pollingPlaceMembers(
  * The set of IDs for all precincts fully or partially covered by the given
  * polling place.
  */
-export function pollingPlacePrecinctIds(
-  election: Election,
-  place: PollingPlace
-): Set<string> {
-  const ids = new Set<string>();
-  for (const member of pollingPlaceMembers(election, place)) {
-    ids.add(member.precinct.id);
-  }
-
-  return ids;
+export function pollingPlacePrecinctIds(place: PollingPlace): Set<string> {
+  return new Set(Object.keys(place.precincts));
 }
 
 export function pollingPlaceTypeName(type: PollingPlaceType): string {
