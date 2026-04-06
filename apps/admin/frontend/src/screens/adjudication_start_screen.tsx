@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import styled from 'styled-components';
 
 import {
   Button,
@@ -33,6 +34,41 @@ import {
 } from '../api';
 import { routerPaths } from '../router_paths';
 
+const Column = styled.div`
+  display: flex;
+  gap: 2rem;
+  flex-direction: column;
+`;
+
+const Row = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const Section = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const InlineColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+`;
+
+const CenteredContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  height: 100%;
+  padding-bottom: 2rem;
+`;
+
 function formatAuthType(authType: string | null): string {
   switch (authType) {
     case 'system_administrator':
@@ -47,8 +83,8 @@ function formatAuthType(authType: string | null): string {
 }
 
 function MultiStationToggleButton(): JSX.Element | null {
-  const networkStatusQuery = getNetworkStatus.useQuery();
   const adjudicationEnabledQuery = getIsClientAdjudicationEnabled.useQuery();
+  const networkStatusQuery = getNetworkStatus.useQuery();
   const setAdjudicationEnabledMutation =
     setIsClientAdjudicationEnabled.useMutation();
 
@@ -71,45 +107,58 @@ function MultiStationToggleButton(): JSX.Element | null {
       }
       style={{ height: '3rem', fontSize: '1.25rem' }}
     >
-      {isEnabled
-        ? 'Disable Multi-Station Adjudication'
-        : 'Enable Multi-Station Adjudication'}
+      {isEnabled ? 'Disable Multi-Station' : 'Enable Multi-Station'}
     </Button>
   );
 }
 
 function NetworkSection(): JSX.Element {
   const networkStatusQuery = getNetworkStatus.useQuery();
+  const adjudicationEnabledQuery = getIsClientAdjudicationEnabled.useQuery();
 
-  if (!networkStatusQuery.isSuccess) {
+  if (!networkStatusQuery.isSuccess || !adjudicationEnabledQuery.isSuccess) {
     return <Loading />;
   }
 
+  const isEnabled = adjudicationEnabledQuery.data;
   const { connectedClients, multipleHostsDetected } = networkStatusQuery.data;
 
   return (
-    <React.Fragment>
-      <H2 style={{ marginTop: 0 }}>Clients</H2>
+    <Section>
+      <H2 style={{ margin: 0 }}>Multi-Station Adjudication</H2>
+      <Row>
+        <MultiStationToggleButton />
+        <InlineColumn>
+          <Font weight="semiBold">Status: {isEnabled ? 'On' : 'Off'}</Font>
+          <Caption>
+            {isEnabled
+              ? 'Clients can adjudicate ballots'
+              : 'Clients cannot adjudicate ballots'}
+          </Caption>
+        </InlineColumn>
+      </Row>
       {multipleHostsDetected && (
         <P>
           <Icons.Danger color="danger" /> Multiple hosts detected on the
           network. Only one host machine should be active at a time.
         </P>
       )}
-      {connectedClients.length === 0 ? (
-        <P>No clients have connected.</P>
-      ) : (
-        <Table>
-          <thead>
+      <Table>
+        <thead>
+          <tr>
+            <TH>Machine ID</TH>
+            <TH>Status</TH>
+            <TH>User Role</TH>
+            <TH>Last Seen</TH>
+          </tr>
+        </thead>
+        <tbody>
+          {connectedClients.length === 0 ? (
             <tr>
-              <TH>Machine ID</TH>
-              <TH>Status</TH>
-              <TH>User Role</TH>
-              <TH>Last Seen</TH>
+              <TD colSpan={4}>No clients have connected.</TD>
             </tr>
-          </thead>
-          <tbody>
-            {connectedClients.map((machine) => {
+          ) : (
+            connectedClients.map((machine) => {
               function renderStatus() {
                 switch (machine.status) {
                   case Admin.ClientMachineStatus.Offline:
@@ -152,11 +201,39 @@ function NetworkSection(): JSX.Element {
                   <TD>{format.relativeTime(machine.lastSeenAt)}</TD>
                 </tr>
               );
-            })}
-          </tbody>
-        </Table>
-      )}
-    </React.Fragment>
+            })
+          )}
+        </tbody>
+      </Table>
+    </Section>
+  );
+}
+
+function AdjudicateBallotsButton(): JSX.Element {
+  return (
+    <LinkButton
+      variant="primary"
+      to={routerPaths.ballotAdjudication}
+      style={{ height: '3rem', width: '14rem', fontSize: '1.25rem' }}
+    >
+      Start Adjudicating
+    </LinkButton>
+  );
+}
+
+function PendingBallotCount({ count }: { count: number }): JSX.Element {
+  return (
+    <Font weight="semiBold">
+      {count} {pluralize('Ballot', count)} Awaiting Review
+    </Font>
+  );
+}
+
+function CompletedBallotCount({ count }: { count: number }): JSX.Element {
+  return (
+    <Caption>
+      {count} {pluralize('Ballot', count)} Completed
+    </Caption>
   );
 }
 
@@ -224,44 +301,35 @@ export function AdjudicationStartScreen(): JSX.Element {
     );
   }
 
+  const completedCount = queryMetadata.totalTally - queryMetadata.pendingTally;
+
+  if (isMultiStationEnabled) {
+    return (
+      <NavigationScreen title="Adjudication">
+        <Column>
+          <Section>
+            <H2 style={{ margin: 0 }}>Ballot Adjudication</H2>
+            <Row>
+              <AdjudicateBallotsButton />
+              <InlineColumn>
+                <PendingBallotCount count={queryMetadata.pendingTally} />
+                <CompletedBallotCount count={completedCount} />
+              </InlineColumn>
+            </Row>
+          </Section>
+          <NetworkSection />
+        </Column>
+      </NavigationScreen>
+    );
+  }
+
   return (
     <NavigationScreen title="Adjudication">
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '1rem',
-          paddingBottom: '5%',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <LinkButton
-            variant="primary"
-            to={routerPaths.ballotAdjudication}
-            style={{ height: '3rem', width: '14rem', fontSize: '1.25rem' }}
-          >
-            Start Adjudication
-          </LinkButton>
-          {isMultiStationEnabled && <MultiStationToggleButton />}
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Font weight="semiBold" style={{ display: 'block' }}>
-            {queryMetadata.pendingTally}{' '}
-            {pluralize('Ballot', queryMetadata.pendingTally)} Awaiting Review
-          </Font>
-          <Caption style={{ display: 'block', marginTop: '0.25rem' }}>
-            {queryMetadata.totalTally - queryMetadata.pendingTally}{' '}
-            {pluralize(
-              'Ballot',
-              queryMetadata.totalTally - queryMetadata.pendingTally
-            )}{' '}
-            Completed
-          </Caption>
-        </div>
-      </div>
-      {isMultiStationEnabled && <NetworkSection />}
+      <CenteredContent>
+        <AdjudicateBallotsButton />
+        <PendingBallotCount count={queryMetadata.pendingTally} />
+        <CompletedBallotCount count={completedCount} />
+      </CenteredContent>
     </NavigationScreen>
   );
 }

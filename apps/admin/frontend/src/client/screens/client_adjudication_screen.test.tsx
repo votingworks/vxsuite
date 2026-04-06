@@ -49,7 +49,7 @@ test('shows enabled start button when adjudication is enabled', async () => {
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   await screen.findByRole('heading', { name: 'Adjudication' });
   const startButton = screen.getByRole('button', {
-    name: 'Start Adjudication',
+    name: 'Start Adjudicating',
   });
   expect(startButton).not.toBeDisabled();
 });
@@ -59,7 +59,7 @@ test('shows waiting message and disabled button when adjudication not enabled', 
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   await screen.findByText('Waiting for host to initiate adjudication.');
   const startButton = screen.getByRole('button', {
-    name: 'Start Adjudication',
+    name: 'Start Adjudicating',
   });
   expect(startButton).toBeDisabled();
 });

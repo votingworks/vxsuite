@@ -96,7 +96,7 @@ test('When ballots need adjudication, shows start button with counts', async () 
     apiMock,
   });
 
-  await screen.findByText('Start Adjudication');
+  await screen.findByText('Start Adjudicating');
   screen.getByText('3 Ballots Awaiting Review');
   screen.getByText('2 Ballots Completed');
 });
@@ -121,9 +121,9 @@ describe('multi-station adjudication', () => {
       apiMock,
     });
 
-    await screen.findByText('Start Adjudication');
+    await screen.findByText('Start Adjudicating');
     screen.getByRole('button', {
-      name: 'Enable Multi-Station Adjudication',
+      name: 'Enable Multi-Station',
     });
     screen.getByText('No clients have connected.');
   });
@@ -142,7 +142,7 @@ describe('multi-station adjudication', () => {
     });
 
     await screen.findByRole('button', {
-      name: 'Disable Multi-Station Adjudication',
+      name: 'Disable Multi-Station',
     });
   });
 
@@ -160,7 +160,7 @@ describe('multi-station adjudication', () => {
     });
 
     const enableButton = await screen.findByRole('button', {
-      name: 'Enable Multi-Station Adjudication',
+      name: 'Enable Multi-Station',
     });
     apiMock.apiClient.setIsClientAdjudicationEnabled
       .expectCallWith({ enabled: true })
@@ -181,7 +181,7 @@ describe('multi-station adjudication', () => {
       apiMock,
     });
 
-    await screen.findByText('Clients');
+    await screen.findByText('Multi-Station Adjudication');
   });
 
   test('shows connected clients table with status', async () => {
@@ -257,6 +257,7 @@ describe('multi-station adjudication', () => {
     });
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectGetNetworkStatus();
+    apiMock.expectGetIsClientAdjudicationEnabled(false);
     renderInAppContext(<AdjudicationStartScreen />, {
       electionDefinition,
       apiMock,
