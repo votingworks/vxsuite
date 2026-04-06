@@ -229,6 +229,14 @@ export const SystemSettingsSchema = z
     disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: z
       .boolean()
       .optional(),
+
+    /**
+     * Enables qualified write-in candidate mode. When enabled, write-in
+     * adjudication in VxAdmin is restricted to a pre-defined list of qualified
+     * candidates managed in VxAdmin, rather than allowing ad-hoc candidate
+     * creation.
+     */
+    areWriteInCandidatesQualified: z.boolean().optional(),
   })
   .refine(
     (settings) =>

@@ -837,6 +837,17 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            <CheckboxButton
+              label="Qualified Write-In Candidate Mode"
+              isChecked={Boolean(systemSettings.areWriteInCandidatesQualified)}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  areWriteInCandidatesQualified: isChecked ? true : undefined,
+                })
+              }
+              disabled={!isEditing}
+            />
           </Column>
         </Card>
       </Row>

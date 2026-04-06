@@ -541,7 +541,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(38);
+  expect(allControls).toHaveLength(39);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
