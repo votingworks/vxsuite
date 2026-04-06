@@ -7,8 +7,11 @@ import {
 } from '@votingworks/bmd-ballot-fixtures';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { BLANK_PAGE_IMAGE_DATA, loadImageData } from '@votingworks/image-utils';
-import { DEFAULT_MARK_THRESHOLDS, asSheet } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import {
+  DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
+  asSheet,
+} from '@votingworks/types';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { tmpDir } from '../test/helpers/tmp';
 import { interpretSheetAndSaveImages } from './interpret';
@@ -31,7 +34,7 @@ test('interprets ballot images and saves images for storage', async () => {
   const result = await interpretSheetAndSaveImages(
     {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
@@ -58,7 +61,7 @@ test('saves images even when interpretation fails', async () => {
   const result = await interpretSheetAndSaveImages(
     {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
@@ -76,3 +79,7 @@ test('saves images even when interpretation fails', async () => {
     (await loadImageData(imagePath)).unsafeUnwrap();
   }
 });
+
+function allPrecinctIds(electionDef: ElectionDefinition) {
+  return new Set(electionDef.election.precincts.map((p) => p.id));
+}

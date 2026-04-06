@@ -11,6 +11,7 @@ import {
   AdjudicationReason,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -18,7 +19,6 @@ import {
   SheetOf,
   asSheet,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -86,7 +86,7 @@ afterEach(async () => {
 test('treats BMD ballot with one blank side as valid', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.normalBmdBallot, {
     electionDefinition: vxFamousNamesFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    validPrecinctIds: allPrecinctIds(vxFamousNamesFixtures.electionDefinition),
     ballotImagesPath,
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -101,7 +101,9 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
     ballotImages.undervoteBmdBallot,
     {
       electionDefinition: vxFamousNamesFixtures.electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(
+        vxFamousNamesFixtures.electionDefinition
+      ),
       ballotImagesPath,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -222,7 +224,7 @@ test('differentiates BMD ballot scanning disabled from other unreadable errors',
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
     electionDefinition: vxFamousNamesFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    validPrecinctIds: allPrecinctIds(vxFamousNamesFixtures.electionDefinition),
     ballotImagesPath,
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -235,7 +237,9 @@ test('NH interpreter with testMode=true', async () => {
   const sheet = (
     await interpret('foo-sheet-id', ballotImages.normalBallot, {
       electionDefinition: vxFamousNamesFixtures.electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(
+        vxFamousNamesFixtures.electionDefinition
+      ),
       ballotImagesPath,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -255,3 +259,7 @@ test('NH interpreter with testMode=true', async () => {
     });
   }
 });
+
+function allPrecinctIds(electionDef: ElectionDefinition) {
+  return new Set(electionDef.election.precincts.map((p) => p.id));
+}

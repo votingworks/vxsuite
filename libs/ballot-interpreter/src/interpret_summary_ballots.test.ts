@@ -19,6 +19,7 @@ import {
   AdjudicationReason,
   BallotStyleId,
   DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
   InterpretedBmdPage,
   InvalidBallotHashPage,
   PageInterpretation,
@@ -32,10 +33,6 @@ import {
   mapSheet,
   vote,
 } from '@votingworks/types';
-import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import { createCanvas, ImageData } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -84,7 +81,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [
@@ -114,7 +111,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [
@@ -146,7 +143,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Undervote],
@@ -181,7 +178,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [
@@ -223,7 +220,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [
@@ -260,7 +257,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.BlankBallot],
@@ -313,7 +310,7 @@ describe('adjudication reporting', () => {
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
       electionDefinition: primaryElectionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(primaryElectionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [
@@ -370,7 +367,7 @@ describe('VX BMD interpretation', () => {
     const interpretation = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -384,7 +381,7 @@ describe('VX BMD interpretation', () => {
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -400,7 +397,7 @@ describe('VX BMD interpretation', () => {
       {
         electionDefinition,
         testMode: true,
-        precinctSelection: singlePrecinctSelectionFor('20'),
+        validPrecinctIds: new Set(['20']),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
@@ -415,7 +412,7 @@ describe('VX BMD interpretation', () => {
       {
         electionDefinition,
         testMode: true,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        validPrecinctIds: new Set([precinctId]),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
@@ -433,7 +430,7 @@ describe('VX BMD interpretation', () => {
           ballotHash: 'd34db33f',
         },
         testMode: true,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        validPrecinctIds: new Set([precinctId]),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
@@ -471,7 +468,7 @@ describe('VX BMD interpretation', () => {
     const interpretation = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -482,7 +479,9 @@ describe('VX BMD interpretation', () => {
 
     expect(interpretation).toMatchSnapshot();
 
-    const outputImageMetadata = (await loadImageMetadata(outputPath)).unsafeUnwrap();
+    const outputImageMetadata = (
+      await loadImageMetadata(outputPath)
+    ).unsafeUnwrap();
     expect({
       width: outputImageMetadata.width,
       height: outputImageMetadata.height,
@@ -510,7 +509,7 @@ describe('VX BMD interpretation', () => {
     {
       description: 'when precinct is wrong',
       interpreterOptionOverrides: {
-        precinctSelection: singlePrecinctSelectionFor('20'),
+        validPrecinctIds: new Set('20'),
       },
     },
     {
@@ -529,7 +528,7 @@ describe('VX BMD interpretation', () => {
         {
           electionDefinition,
           testMode: true,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          validPrecinctIds: new Set([precinctId]),
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
           disableBmdBallotScanning: true,
@@ -553,7 +552,7 @@ describe('VX BMD interpretation', () => {
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -569,7 +568,7 @@ describe('VX BMD interpretation', () => {
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -586,7 +585,7 @@ describe('VX BMD interpretation', () => {
       bmdSummaryBallotPage,
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -601,7 +600,7 @@ describe('VX BMD interpretation', () => {
       allowOfficialBallotsInTestMode: true,
       electionDefinition,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
-      precinctSelection: singlePrecinctSelectionFor(precinctId),
+      validPrecinctIds: new Set([precinctId]),
       testMode: true,
     };
 
@@ -661,7 +660,6 @@ describe('VX BMD interpretation', () => {
         }
         default: {
           throwIllegalValue(rotation);
-          break;
         }
       }
 
@@ -669,7 +667,7 @@ describe('VX BMD interpretation', () => {
         bmdSummaryBallotPageWithLargeBlackArea,
         {
           electionDefinition,
-          precinctSelection: ALL_PRECINCTS_SELECTION,
+          validPrecinctIds: allPrecinctIds(electionDefinition),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -679,3 +677,7 @@ describe('VX BMD interpretation', () => {
     }
   );
 });
+
+function allPrecinctIds(electionDef: ElectionDefinition) {
+  return new Set(electionDef.election.precincts.map((p) => p.id));
+}

@@ -3,7 +3,6 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { DEFAULT_MARK_THRESHOLDS, SheetOf } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { interpretSheet } from './interpret';
@@ -21,11 +20,14 @@ test('blank sheet of paper', async () => {
     await sampleBallotImages.blankPage.asImageData(),
   ];
 
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+  const { precincts } = electionDefinition.election;
+
   const interpretation = await interpretSheet(
     {
-      electionDefinition:
-        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      electionDefinition,
+      validPrecinctIds: new Set(precincts.map((p) => p.id)),
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
