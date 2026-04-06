@@ -78,3 +78,58 @@ fn interpret(bencher: Bencher, fixture: InterpretFixture) {
         );
     });
 }
+
+/// Benchmark that includes writing normalized images to disk, which is the
+/// real-world path when scanning ballots.
+#[divan::bench(args = [
+    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg"),
+    InterpretFixture::new("vxqa-2024-10", "skew", ".png"),
+])]
+fn interpret_and_save(bencher: Bencher, fixture: InterpretFixture) {
+    let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();
+    let tmp_dir = tempfile::tempdir().unwrap();
+    let front_path = tmp_dir.path().join("front.png");
+    let back_path = tmp_dir.path().join("back.png");
+
+    bencher.bench_local(move || {
+        let result = interpreter
+            .interpret(side_a_image.clone(), side_b_image.clone(), None, None)
+            .unwrap();
+
+        // Write the pre-encoded normalized images to disk
+        std::fs::write(
+            &front_path,
+            result.front.encoded_normalized_image.as_ref().unwrap(),
+        )
+        .unwrap();
+        std::fs::write(
+            &back_path,
+            result.back.encoded_normalized_image.as_ref().unwrap(),
+        )
+        .unwrap();
+        black_box(result);
+    });
+}
+
+/// For comparison: the old sequential approach of saving by re-encoding.
+#[divan::bench(args = [
+    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg"),
+    InterpretFixture::new("vxqa-2024-10", "skew", ".png"),
+])]
+fn interpret_and_save_sequential(bencher: Bencher, fixture: InterpretFixture) {
+    let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();
+    let tmp_dir = tempfile::tempdir().unwrap();
+    let front_path = tmp_dir.path().join("front_seq.png");
+    let back_path = tmp_dir.path().join("back_seq.png");
+
+    bencher.bench_local(move || {
+        let result = interpreter
+            .interpret(side_a_image.clone(), side_b_image.clone(), None, None)
+            .unwrap();
+
+        // Simulate the old behavior: encode and save sequentially after interpretation
+        result.front.normalized_image.save(&front_path).unwrap();
+        result.back.normalized_image.save(&back_path).unwrap();
+        black_box(result);
+    });
+}
