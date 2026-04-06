@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   AppLogo,
+  BatteryStatus,
   Button,
-  getBatteryIcon,
+  DateTimeDisplay,
   H1,
   Icons,
   LeftNav,
+  LockMachineButton,
   Main,
   MainHeader,
   Modal,
@@ -16,6 +18,7 @@ import {
   Screen,
   SessionTimeLimitTimer,
   Table,
+  Toolbar as ToolbarContainer,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
@@ -27,7 +30,6 @@ import type {
   PollbookServiceInfo,
 } from '@votingworks/pollbook-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Row } from './layout';
@@ -267,21 +269,6 @@ function NetworkStatus({
   );
 }
 
-function BatteryStatus({ status }: { status?: BatteryInfo }) {
-  return (
-    <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
-      {getBatteryIcon(status, true)}
-      {status && !status.discharging && (
-        <Icons.Bolt style={{ fontSize: '0.8em' }} color="inverse" />
-      )}
-      {status && format.percent(status.level)}
-      {status && status.level < 0.25 && status.discharging && (
-        <Icons.Warning color="inverseWarning" />
-      )}
-    </Row>
-  );
-}
-
 function UsbStatus({ status }: { status: UsbDriveStatus }) {
   return (
     <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
@@ -312,53 +299,13 @@ function PrinterStatus({ status }: { status: PrinterStatus }) {
   );
 }
 
-export function LogOutButton(): JSX.Element {
-  const logOutMutation = logOut.useMutation();
-  return (
-    <Button
-      icon="Lock"
-      onPress={() => logOutMutation.mutate()}
-      color="inverseNeutral"
-      style={{
-        fontSize: '0.8rem',
-        padding: '0.25rem 0.75rem',
-      }}
-    >
-      Lock Machine
-    </Button>
-  );
-}
-
-export const DeviceInfoBar = styled(Row)`
-  justify-content: flex-end;
-  position: sticky;
-  top: 0;
-  width: 100%;
-  background: ${(p) => p.theme.colors.inverseContainer};
-  color: ${(p) => p.theme.colors.onInverse};
-  padding: 0.25rem 1rem;
-`;
-
-function useCurrentDate(): Date {
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDate(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return currentDate;
-}
-
 export function DeviceStatusBar({
   showLogOutButton = true,
 } = {}): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const getPollbookConfigurationInformationQuery =
     getPollbookConfigurationInformation.useQuery();
-  const currentDate = useCurrentDate();
+  const logOutMutation = logOut.useMutation();
   if (
     !getDeviceStatusesQuery.isSuccess ||
     !getPollbookConfigurationInformationQuery.isSuccess
@@ -370,20 +317,20 @@ export function DeviceStatusBar({
   const pollbookConfiguration = getPollbookConfigurationInformationQuery.data;
 
   return (
-    <DeviceInfoBar>
-      <Row style={{ gap: '1.25rem', alignItems: 'center' }}>
-        <NetworkStatus
-          status={network}
-          currentMachineConfiguration={pollbookConfiguration}
-        />
-        <PrinterStatus status={printer} />
-        <BarcodeScannerStatus status={barcodeScanner} />
-        <UsbStatus status={usbDrive} />
-        <BatteryStatus status={battery} />
-        {format.clockDateAndTime(currentDate)}
-        {showLogOutButton && <LogOutButton />}
-      </Row>
-    </DeviceInfoBar>
+    <ToolbarContainer>
+      <NetworkStatus
+        status={network}
+        currentMachineConfiguration={pollbookConfiguration}
+      />
+      <PrinterStatus status={printer} />
+      <BarcodeScannerStatus status={barcodeScanner} />
+      <UsbStatus status={usbDrive} />
+      {battery && <BatteryStatus batteryInfo={battery} />}
+      <DateTimeDisplay />
+      {showLogOutButton && (
+        <LockMachineButton onLock={() => logOutMutation.mutate()} />
+      )}
+    </ToolbarContainer>
   );
 }
 

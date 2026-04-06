@@ -85,28 +85,17 @@ function NetworkSection(): JSX.Element {
     return <Loading />;
   }
 
-  const { isOnline, connectedClients, multipleHostsDetected } =
-    networkStatusQuery.data;
+  const { connectedClients, multipleHostsDetected } = networkStatusQuery.data;
 
   return (
     <React.Fragment>
       <H2 style={{ marginTop: 0 }}>Clients</H2>
-      <P>
-        {multipleHostsDetected ? (
-          <React.Fragment>
-            <Icons.Danger color="danger" /> Multiple hosts detected on the
-            network. Only one host machine should be active at a time.
-          </React.Fragment>
-        ) : isOnline ? (
-          <React.Fragment>
-            <Icons.Done color="success" /> Network: Online
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <Icons.Danger color="danger" /> Network: Offline
-          </React.Fragment>
-        )}
-      </P>
+      {multipleHostsDetected && (
+        <P>
+          <Icons.Danger color="danger" /> Multiple hosts detected on the
+          network. Only one host machine should be active at a time.
+        </P>
+      )}
       {connectedClients.length === 0 ? (
         <P>No clients have connected.</P>
       ) : (

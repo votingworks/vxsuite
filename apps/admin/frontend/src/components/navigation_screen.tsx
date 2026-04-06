@@ -1,18 +1,23 @@
 import React, { useContext } from 'react';
 
 import {
+  BatteryStatus,
   Button,
+  DateTimeDisplay,
+  IconName,
+  Icons,
+  Toolbar,
+  LockMachineButton,
   MainHeader,
   MainContent,
   Screen,
   SessionTimeLimitTimer,
-  UsbControllerButton,
   Main,
   H1,
   Route,
   Breadcrumbs,
-  BatteryDisplay,
 } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -27,8 +32,40 @@ import { throwIllegalValue, assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { sharedEjectUsbDrive, sharedLogOut } from '../shared_api';
+import {
+  sharedEjectUsbDrive,
+  sharedLogOut,
+  systemCallApi,
+} from '../shared_api';
+import { getNetworkStatus } from '../api';
 import { NavItem, Sidebar } from './sidebar';
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  align-items: center;
+`;
+
+function NetworkStatusIndicator(): JSX.Element | null {
+  const networkStatusQuery = getNetworkStatus.useQuery();
+  if (!networkStatusQuery.isSuccess) return null;
+
+  const { isOnline } = networkStatusQuery.data;
+
+  return (
+    <Row>
+      <Icons.Antenna color="inverse" />
+      {isOnline ? (
+        'Network Online'
+      ) : (
+        <React.Fragment>
+          <Icons.Warning color="inverseWarning" /> Network Offline
+        </React.Fragment>
+      )}
+    </Row>
+  );
+}
 
 interface Props {
   children: React.ReactNode;
@@ -98,7 +135,7 @@ function getNavItems(
   }
 }
 
-function shouldShowHeaderActions(
+function shouldShowToolbar(
   machineMode: MachineMode,
   auth: DippedSmartCardAuth.AuthStatus
 ): boolean {
@@ -117,19 +154,52 @@ function shouldShowHeaderActions(
   }
 }
 
+const ToolbarButton = styled(Button)`
+  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+`;
+
+type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
+const USB_BUTTON_ICON_AND_TEXT: Record<
+  ExtendedUsbDriveStatus,
+  [IconName, string]
+> = {
+  no_drive: ['Disabled', 'No USB'],
+  error: ['Disabled', 'No USB'],
+  mounted: ['Eject', 'Eject USB'],
+  ejecting: ['Eject', 'Ejecting...'],
+  ejected: ['Disabled', 'USB Ejected'],
+};
+
+function UsbEjectButton({
+  usbDriveStatus,
+  onEject,
+  isEjecting,
+}: {
+  usbDriveStatus: UsbDriveStatus;
+  onEject: () => void;
+  isEjecting: boolean;
+}): JSX.Element {
+  const extendedStatus: ExtendedUsbDriveStatus = isEjecting
+    ? 'ejecting'
+    : usbDriveStatus.status;
+  const [icon, text] = USB_BUTTON_ICON_AND_TEXT[extendedStatus];
+  return (
+    <ToolbarButton
+      icon={icon}
+      onPress={onEject}
+      color="inverseNeutral"
+      disabled={extendedStatus !== 'mounted' || isEjecting}
+    >
+      {text}
+    </ToolbarButton>
+  );
+}
+
 export const Header = styled(MainHeader)`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding-left: 0.75rem;
-  gap: 0.5rem;
-`;
-
-export const HeaderActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-shrink: 0;
 `;
 
 export function NavigationScreen({
@@ -141,11 +211,32 @@ export function NavigationScreen({
   const { usbDriveStatus, auth, machineMode } = useContext(AppContext);
   const logOutMutation = sharedLogOut.useMutation();
   const ejectUsbDriveMutation = sharedEjectUsbDrive.useMutation();
+  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
+  const isMultiStationEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
 
   return (
     <Screen flexDirection="row">
       <Sidebar navItems={getNavItems(machineMode, auth)} />
       <Main flexColumn>
+        {shouldShowToolbar(machineMode, auth) && (
+          <Toolbar>
+            {machineMode === 'host' && isMultiStationEnabled && (
+              <NetworkStatusIndicator />
+            )}
+            {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
+              <BatteryStatus batteryInfo={batteryInfoQuery.data} />
+            )}
+            <DateTimeDisplay />
+            <UsbEjectButton
+              usbDriveStatus={usbDriveStatus}
+              onEject={() => ejectUsbDriveMutation.mutate()}
+              isEjecting={ejectUsbDriveMutation.isLoading}
+            />
+            <LockMachineButton onLock={() => logOutMutation.mutate()} />
+          </Toolbar>
+        )}
         <SessionTimeLimitTimer authStatus={auth} />
         <Header>
           <div>
@@ -161,21 +252,6 @@ export function NavigationScreen({
               </React.Fragment>
             )}
           </div>
-          <HeaderActions>
-            {shouldShowHeaderActions(machineMode, auth) && (
-              <React.Fragment>
-                <UsbControllerButton
-                  usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-                  usbDriveStatus={usbDriveStatus}
-                  usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-                />
-                <Button onPress={() => logOutMutation.mutate()} icon="Lock">
-                  Lock Machine
-                </Button>
-                <BatteryDisplay />
-              </React.Fragment>
-            )}
-          </HeaderActions>
         </Header>
         <MainContent style={{ padding: noPadding ? 0 : undefined }}>
           {children}
