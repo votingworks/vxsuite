@@ -109,42 +109,6 @@ pub fn bleed(img: &GrayImage, luma: Luma<u8>) -> GrayImage {
     out
 }
 
-/// Generates an image from two images where corresponding pixels in `compare`
-/// that are darker than their counterpart in `base` show up with the luminosity
-/// difference between the two. This is useful for determining where a
-/// light-background form was filled out, for example.
-///
-/// Note that the sizes of the images must be equal.
-///
-/// ```no_compile
-///         BASE                  COMPARE                 DIFF
-/// ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
-/// │                   │  │        █ █ ███    │  │        █ █ ███    │
-/// │ █ █               │  │ █ █    ███  █     │  │        ███  █     │
-/// │  █                │  │  █     █ █ ███    │  │        █ █ ███    │
-/// │ █ █ █████████████ │  │ █ █ █████████████ │  │                   │
-/// └───────────────────┘  └───────────────────┘  └───────────────────┘
-/// ```
-///
-pub fn diff(base: &GrayImage, compare: &GrayImage) -> GrayImage {
-    assert_eq!(base.dimensions(), compare.dimensions());
-
-    let mut out = GrayImage::new(base.width(), base.height());
-
-    base.enumerate_pixels().for_each(|(x, y, base_pixel)| {
-        let compare_pixel = compare.get_pixel(x, y);
-        let diff = if base_pixel.0[0] < compare_pixel.0[0] {
-            u8::MIN
-        } else {
-            base_pixel.0[0] - compare_pixel.0[0]
-        };
-
-        out.put_pixel(x, y, Luma([u8::MAX - diff]));
-    });
-
-    out
-}
-
 /// Contains the result of examining an image for pixels that match a given
 /// criterion.
 #[derive(Debug, Clone, Copy, Default)]
