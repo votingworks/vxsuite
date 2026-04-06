@@ -16,12 +16,15 @@ use ballot_interpreter::{
 use clap::Parser;
 use crossterm::style::Stylize;
 use types_rs::{
+    ballot_card::BallotType,
     bmd::{
         cvr::CastVoteRecord,
+        encoding::BallotAuditId,
+        multi_page::MultiPageCastVoteRecord,
         votes::{CandidateVote, ContestVote},
     },
     coding,
-    election::{Candidate, Contest, Election},
+    election::{BallotStyleId, Candidate, Contest, ContestId, Election, PrecinctId},
 };
 
 #[derive(Debug, clap::Parser)]
@@ -30,11 +33,12 @@ struct Options {
     /// Path to an election definition file.
     election_path: PathBuf,
 
-    /// Path to an image of side A of the scanned ballot.
-    side_a_path: PathBuf,
+    /// Path to an image of the top side of the scanned ballot.
+    top_path: PathBuf,
 
-    /// Path to an image of side B of the scanned ballot.
-    side_b_path: PathBuf,
+    /// Path to an image of the bottom side of the scanned ballot. If omitted,
+    /// only summary ballot interpretation is attempted.
+    bottom_path: Option<PathBuf>,
 
     /// Output debug images.
     #[clap(long, default_value = "false")]
@@ -74,12 +78,15 @@ impl Options {
         Ok(serde_json::from_reader(reader)?)
     }
 
-    fn load_side_a_image(&self) -> color_eyre::Result<image::DynamicImage> {
-        Ok(image::open(&self.side_a_path)?)
+    fn load_top_image(&self) -> color_eyre::Result<image::DynamicImage> {
+        Ok(image::open(&self.top_path)?)
     }
 
-    fn load_side_b_image(&self) -> color_eyre::Result<image::DynamicImage> {
-        Ok(image::open(&self.side_b_path)?)
+    fn load_bottom_image(&self) -> color_eyre::Result<Option<image::DynamicImage>> {
+        match &self.bottom_path {
+            Some(path) => Ok(Some(image::open(path)?)),
+            None => Ok(None),
+        }
     }
 }
 
@@ -88,28 +95,44 @@ fn main() -> color_eyre::Result<()> {
     let election = options.load_election()?;
 
     let start = Instant::now();
-    let side_a_image = options.load_side_a_image()?.into_luma8();
+    let top_image = options.load_top_image()?.into_luma8();
 
-    // Try to detect QR code
-    let exit_code =
-        if let Ok(detected) = qr_code::detect(&side_a_image, &ImageDebugWriter::disabled()) {
-            // Try to decode as CVR first (summary ballot)
-            if let Ok(cvr) = coding::decode_with::<CastVoteRecord>(detected.bytes(), &election) {
-                // Successfully decoded as summary ballot
-                if options.json {
-                    println!("{}", serde_json::to_string_pretty(&cvr)?);
-                } else {
-                    pretty_print_cvr(&cvr, &election);
-                }
-                0
+    // Detect QR code once
+    let detected = qr_code::detect_with_strategy(
+        &top_image,
+        qr_code::SearchStrategy::Broad,
+        &ImageDebugWriter::disabled(),
+    )
+    .ok();
+
+    let exit_code = match detected {
+        Some(ref d) if d.kind() == qr_code::QrCodeKind::SummaryBallot => {
+            let cvr = coding::decode_with::<CastVoteRecord>(d.bytes(), &election)
+                .map_err(|e| color_eyre::eyre::eyre!("failed to decode summary ballot: {e}"))?;
+            print_result(&options, &cvr, |cvr| pretty_print_cvr(cvr, &election))?;
+            0
+        }
+
+        Some(ref d) if d.kind() == qr_code::QrCodeKind::MultiPageSummaryBallot => {
+            let cvr = coding::decode_with::<MultiPageCastVoteRecord>(d.bytes(), &election)
+                .map_err(|e| {
+                    color_eyre::eyre::eyre!("failed to decode multi-page summary ballot: {e}")
+                })?;
+            print_result(&options, &cvr, |cvr| {
+                pretty_print_multi_page_cvr(cvr, &election);
+            })?;
+            0
+        }
+
+        _ => {
+            if options.bottom_path.is_none() {
+                eprintln!("Error: no summary ballot QR code detected");
+                1
             } else {
-                // Not a CVR, fall through to bubble ballot interpretation
-                interpret_bubble_ballot(&options, election, side_a_image)?
+                interpret_bubble_ballot(&options, election, top_image)?
             }
-        } else {
-            // No QR code or failed to detect, interpret as bubble ballot
-            interpret_bubble_ballot(&options, election, side_a_image)?
-        };
+        }
+    };
 
     if !options.json {
         let duration = start.elapsed();
@@ -117,6 +140,19 @@ fn main() -> color_eyre::Result<()> {
     }
 
     process::exit(exit_code)
+}
+
+fn print_result<T: serde::Serialize>(
+    options: &Options,
+    value: &T,
+    pretty_print: impl FnOnce(&T),
+) -> color_eyre::Result<()> {
+    if options.json {
+        println!("{}", serde_json::to_string_pretty(value)?);
+    } else {
+        pretty_print(value);
+    }
+    Ok(())
 }
 
 macro_rules! stringify_vote {
@@ -141,43 +177,100 @@ fn pretty_print_cvr(cvr: &CastVoteRecord, election: &Election) {
     // Ballot metadata
     println!("{}", "📋 Ballot Information".yellow());
 
+    pretty_print_cvr_header(
+        &cvr.ballot_style_id,
+        &cvr.precinct_id,
+        cvr.ballot_type,
+        cvr.is_test_mode,
+        &cvr.ballot_audit_id,
+    );
+
+    println!();
+
+    pretty_print_contest_votes(&cvr.votes, None, election);
+}
+
+fn pretty_print_multi_page_cvr(cvr: &MultiPageCastVoteRecord, election: &Election) {
+    // Ballot metadata
+    println!(
+        "{} (page {}/{})",
+        "📋 Ballot Information".yellow(),
+        cvr.page_number,
+        cvr.total_pages
+    );
+
+    pretty_print_cvr_header(
+        &cvr.ballot_style_id,
+        &cvr.precinct_id,
+        cvr.ballot_type,
+        cvr.is_test_mode,
+        &cvr.ballot_audit_id,
+    );
+
+    println!();
+
+    pretty_print_contest_votes(&cvr.votes, Some(&cvr.contest_ids), election);
+}
+
+fn pretty_print_cvr_header<'a>(
+    ballot_style_id: &BallotStyleId,
+    precinct_id: &PrecinctId,
+    ballot_type: BallotType,
+    is_test_mode: bool,
+    ballot_audit_id: impl Into<Option<&'a BallotAuditId>>,
+) {
     println!(
         "   {} {}",
         "Ballot Style:".bold(),
-        cvr.ballot_style_id.to_string().cyan()
+        ballot_style_id.to_string().cyan()
     );
     println!(
         "   {} {}",
         "Precinct:".bold(),
-        cvr.precinct_id.to_string().cyan()
+        precinct_id.to_string().cyan()
     );
     println!(
         "   {} {}",
         "Ballot Type:".bold(),
-        format!("{:?}", cvr.ballot_type).cyan()
+        format!("{ballot_type:?}").cyan()
     );
 
     println!(
         "   {} {}",
         "Mode:".bold(),
-        if cvr.is_test_mode {
+        if is_test_mode {
             "Test".yellow()
         } else {
             "Official".green()
         }
     );
 
-    if let Some(audit_id) = &cvr.ballot_audit_id {
+    if let Some(audit_id) = ballot_audit_id.into() {
         println!("   {} {}", "Audit ID:".bold(), audit_id.to_string().cyan());
     }
+}
 
-    // Votes section
-    if cvr.votes.is_empty() {
+fn pretty_print_contest_votes(
+    votes: &HashMap<ContestId, ContestVote>,
+    contest_ids: Option<&[ContestId]>,
+    election: &Election,
+) {
+    let contests = match contest_ids {
+        Some(contest_ids) => election
+            .contests
+            .iter()
+            .filter(|c| contest_ids.contains(c.id()))
+            .cloned()
+            .collect(),
+        None => election.contests.clone(),
+    };
+
+    if votes.is_empty() {
         println!("{}", "🗳️ No votes recorded".yellow());
     } else {
-        for (contest_id, vote) in &cvr.votes {
-            if let Some(contest) = election.contests.iter().find(|c| c.id() == contest_id) {
-                print_contest_vote(contest, vote);
+        for (contest_id, vote) in votes {
+            if let Some(contest) = contests.iter().find(|c| c.id() == contest_id) {
+                pretty_print_contest_vote(contest, vote);
             } else {
                 println!(
                     "   {} {}",
@@ -189,7 +282,7 @@ fn pretty_print_cvr(cvr: &CastVoteRecord, election: &Election) {
     }
 }
 
-fn print_contest_vote(contest: &Contest, vote: &ContestVote) {
+fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
     print!("{}", " ▸ ".green());
 
     match contest {
@@ -288,7 +381,7 @@ fn print_contest_vote(contest: &Contest, vote: &ContestVote) {
 fn interpret_bubble_ballot(
     options: &Options,
     election: Election,
-    side_a_image: image::GrayImage,
+    top_image: image::GrayImage,
 ) -> color_eyre::Result<i32> {
     let interpreter = ScanInterpreter::new(
         election,
@@ -303,11 +396,15 @@ fn interpret_bubble_ballot(
         options.retry_streak_width_threshold,
     )?;
 
+    let bottom_image = options
+        .load_bottom_image()?
+        .expect("bubble ballot requires side B image")
+        .into_luma8();
     let result = interpreter.interpret(
-        side_a_image,
-        options.load_side_b_image()?.into_luma8(),
-        options.debug.then_some(options.side_a_path.clone()),
-        options.debug.then_some(options.side_b_path.clone()),
+        top_image,
+        bottom_image,
+        options.debug.then_some(options.top_path.clone()),
+        options.debug.then(|| options.bottom_path.clone()).flatten(),
     );
 
     match result {

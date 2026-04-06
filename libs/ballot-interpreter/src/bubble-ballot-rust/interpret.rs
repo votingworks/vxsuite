@@ -640,7 +640,12 @@ mod test {
     fn test_inferred_missing_metadata_from_one_side() {
         let (mut side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
-        let detected = qr_code::detect(&side_a_image, &ImageDebugWriter::disabled()).unwrap();
+        let detected = qr_code::detect_with_strategy(
+            &side_a_image,
+            qr_code::SearchStrategy::BubbleCorners,
+            &ImageDebugWriter::disabled(),
+        )
+        .unwrap();
         let qr_code_bounds = detected.bounds();
 
         // white out the QR code on side A
