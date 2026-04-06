@@ -192,6 +192,16 @@ export interface WriteInCandidateRecord {
   readonly name: string;
 }
 
+/**
+ * A write-in candidate record enriched with whether any ballots have been
+ * adjudicated for this candidate. Used by the qualified write-in candidate
+ * management UI.
+ */
+export interface QualifiedWriteInCandidateRecord
+  extends WriteInCandidateRecord {
+  readonly hasAdjudicatedVotes: boolean;
+}
+
 interface WriteInRecordBase {
   readonly id: Id;
   readonly contestId: ContestId;

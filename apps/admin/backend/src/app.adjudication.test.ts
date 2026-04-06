@@ -1482,3 +1482,388 @@ test('host claim, release, and getClaimedBallotCvrIds', async () => {
   // Still empty after release
   expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
 });
+
+test('qualified write-in candidate management', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    areWriteInCandidatesQualified: true,
+  };
+
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: manualCastVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const contestId = 'Governor-061a401b';
+
+  // Initially no qualified write-in candidates
+  expect(await apiClient.getQualifiedWriteInCandidates()).toEqual([]);
+
+  // Add qualified candidates via batch update
+  const updateResult = await apiClient.updateQualifiedWriteInCandidates({
+    newCandidates: [
+      { contestId, name: 'Alice' },
+      { contestId, name: 'Bob' },
+    ],
+    deletedCandidateIds: [],
+  });
+  expect(updateResult.affectedBallotCount).toEqual(0);
+
+  // Verify candidates were added
+  const candidates = await apiClient.getQualifiedWriteInCandidates();
+  expect(candidates).toHaveLength(2);
+  expect(candidates.map((c) => c.name).sort()).toEqual(['Alice', 'Bob']);
+  expect(candidates.every((c) => c.contestId === contestId)).toEqual(true);
+  expect(candidates.every((c) => !c.hasAdjudicatedVotes)).toEqual(true);
+
+  // Qualified candidates should appear in write-in summary with 0 tally
+  const summary = await apiClient.getElectionWriteInSummary();
+  const contestSummary = summary.contestWriteInSummaries[contestId];
+  assert(contestSummary !== undefined);
+  for (const candidate of candidates) {
+    expect(contestSummary.candidateTallies[candidate.id]).toEqual({
+      id: candidate.id,
+      name: candidate.name,
+      tally: 0,
+      isWriteIn: true,
+    });
+  }
+
+  // Delete Alice via batch update
+  const aliceCandidate = assertDefined(
+    candidates.find((c) => c.name === 'Alice')
+  );
+  const deleteResult = await apiClient.updateQualifiedWriteInCandidates({
+    newCandidates: [],
+    deletedCandidateIds: [aliceCandidate.id],
+  });
+  expect(deleteResult.affectedBallotCount).toEqual(0);
+
+  // Verify only Bob remains
+  const remainingCandidates = await apiClient.getQualifiedWriteInCandidates();
+  expect(remainingCandidates).toHaveLength(1);
+  const bobCandidate = assertDefined(remainingCandidates[0]);
+  expect(bobCandidate.name).toEqual('Bob');
+
+  // Delete via batch endpoint
+  const directDeleteResult = await apiClient.updateQualifiedWriteInCandidates({
+    newCandidates: [],
+    deletedCandidateIds: [bobCandidate.id],
+  });
+  expect(directDeleteResult.affectedBallotCount).toEqual(0);
+
+  // All candidates removed
+  expect(await apiClient.getQualifiedWriteInCandidates()).toEqual([]);
+});
+
+test('qualified write-in mode: full flow with adjudication, tally reports, and candidate deletion', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    areWriteInCandidatesQualified: true,
+  };
+
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const contestId = 'Governor-061a401b';
+
+  // Find a CVR with a write-in for the Governor contest
+  const cvrIds = await apiClient.getBallotAdjudicationQueue();
+  let maybeCvrId: string | undefined;
+  for (const id of cvrIds) {
+    const data = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const contest = data.contests.find((c) => c.contestId === contestId);
+    const option = contest?.options.find(
+      (o) => o.definition.id === 'write-in-0'
+    );
+    if (option?.writeInRecord) {
+      maybeCvrId = id;
+      break;
+    }
+  }
+  const cvrId = assertDefined(maybeCvrId);
+
+  // Add qualified write-in candidates
+  const alice = await apiClient.addWriteInCandidate({
+    contestId,
+    name: 'Alice',
+  });
+  const bob = await apiClient.addWriteInCandidate({
+    contestId,
+    name: 'Bob',
+  });
+
+  // Before adjudication: qualified candidates appear with 0 tally in write-in summary
+  const summaryBefore = await apiClient.getElectionWriteInSummary();
+  const contestSummaryBefore = summaryBefore.contestWriteInSummaries[contestId];
+  assert(contestSummaryBefore !== undefined);
+  expect(contestSummaryBefore.candidateTallies[alice.id]).toEqual({
+    id: alice.id,
+    name: 'Alice',
+    tally: 0,
+    isWriteIn: true,
+  });
+  expect(contestSummaryBefore.candidateTallies[bob.id]).toEqual({
+    id: bob.id,
+    name: 'Bob',
+    tally: 0,
+    isWriteIn: true,
+  });
+  expect(contestSummaryBefore.pendingTally).toBeGreaterThan(0);
+
+  // Qualified candidates appear with 0 tally in tally report
+  const tallyBefore = (await apiClient.getResultsForTallyReports())[0]
+    ?.scannedResults.contestResults[contestId];
+  assert(tallyBefore !== undefined && tallyBefore.contestType === 'candidate');
+  expect(tallyBefore.tallies[alice.id]).toEqual({
+    id: alice.id,
+    name: 'Alice',
+    tally: 0,
+    isWriteIn: true,
+  });
+  expect(tallyBefore.tallies[bob.id]).toEqual({
+    id: bob.id,
+    name: 'Bob',
+    tally: 0,
+    isWriteIn: true,
+  });
+
+  // Adjudicate a write-in for Alice
+  const initialVotes = (await apiClient.getCastVoteRecordVoteInfo({ cvrId }))
+    .votes;
+  expect(
+    await apiClient.adjudicateCvrContest({
+      adjudicatedContestOptionById: {
+        'Josiah-Bartlett-1bb99985': {
+          type: 'candidate-option',
+          hasVote: !!initialVotes['Josiah-Bartlett-1bb99985'],
+        },
+        'Hannah-Dustin-ab4ef7c8': {
+          type: 'candidate-option',
+          hasVote: !!initialVotes['Hannah-Dustin-ab4ef7c8'],
+        },
+        'John-Spencer-9ffb5970': {
+          type: 'candidate-option',
+          hasVote: !!initialVotes['John-Spencer-9ffb5970'],
+        },
+        'write-in-0': {
+          type: 'write-in-option',
+          hasVote: true,
+          candidateType: 'write-in-candidate',
+          candidateName: 'Alice',
+        },
+      },
+      cvrId,
+      contestId,
+      side: 'front',
+    })
+  ).toEqual(ok());
+
+  // After adjudication: Alice has votes, Bob still at 0
+  const tallyAfter = (await apiClient.getResultsForTallyReports())[0]
+    ?.scannedResults.contestResults[contestId];
+  assert(tallyAfter !== undefined && tallyAfter.contestType === 'candidate');
+  expect(tallyAfter.tallies[alice.id]).toEqual({
+    id: alice.id,
+    name: 'Alice',
+    tally: 1,
+    isWriteIn: true,
+  });
+  expect(tallyAfter.tallies[bob.id]).toEqual({
+    id: bob.id,
+    name: 'Bob',
+    tally: 0,
+    isWriteIn: true,
+  });
+
+  // Remaining pending write-in still shows (1 of 2 adjudicated)
+  expect(tallyAfter.tallies[Tabulation.PENDING_WRITE_IN_ID]).toEqual({
+    ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
+    tally: 1,
+  });
+
+  // Write-in summary also shows Alice with votes and Bob with 0
+  const summaryAfter = await apiClient.getElectionWriteInSummary();
+  const contestSummaryAfter = summaryAfter.contestWriteInSummaries[contestId];
+  assert(contestSummaryAfter !== undefined);
+  expect(contestSummaryAfter.candidateTallies[alice.id]?.tally).toEqual(1);
+  expect(contestSummaryAfter.candidateTallies[bob.id]).toEqual({
+    id: bob.id,
+    name: 'Bob',
+    tally: 0,
+    isWriteIn: true,
+  });
+
+  // Alice now has adjudicated votes
+  const candidatesAfter = await apiClient.getQualifiedWriteInCandidates();
+  const aliceAfter = candidatesAfter.find((c) => c.id === alice.id);
+  assert(aliceAfter !== undefined);
+  expect(aliceAfter.hasAdjudicatedVotes).toEqual(true);
+
+  // Delete Alice — should trigger re-adjudication
+  const deleteResult = await apiClient.updateQualifiedWriteInCandidates({
+    newCandidates: [],
+    deletedCandidateIds: [alice.id],
+  });
+  expect(deleteResult.affectedBallotCount).toEqual(1);
+
+  // Alice's ballot should be back in the queue as not adjudicated
+  const summaryAfterDelete = await apiClient.getElectionWriteInSummary();
+  const contestSummaryAfterDelete =
+    summaryAfterDelete.contestWriteInSummaries[contestId];
+  assert(contestSummaryAfterDelete !== undefined);
+  // Alice is gone from candidates
+  expect(contestSummaryAfterDelete.candidateTallies[alice.id]).toBeUndefined();
+  // Bob still present
+  expect(contestSummaryAfterDelete.candidateTallies[bob.id]).toEqual({
+    id: bob.id,
+    name: 'Bob',
+    tally: 0,
+    isWriteIn: true,
+  });
+});
+
+test('deleting a qualified write-in candidate preserves adjudicated votes on unrelated contests', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    areWriteInCandidatesQualified: true,
+  };
+
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const governorContestId = 'Governor-061a401b';
+
+  // Find a CVR with a write-in on the Governor contest.
+  const cvrIds = await apiClient.getBallotAdjudicationQueue();
+  let maybeCvrId: string | undefined;
+  for (const id of cvrIds) {
+    const data = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    if (
+      data.contests
+        .find((c) => c.contestId === governorContestId)
+        ?.options.find((o) => o.definition.id === 'write-in-0')?.writeInRecord
+    ) {
+      maybeCvrId = id;
+      break;
+    }
+  }
+  const cvrId = assertDefined(maybeCvrId);
+
+  // Adjudicate the Governor write-in for Alice.
+  const alice = await apiClient.addWriteInCandidate({
+    contestId: governorContestId,
+    name: 'Alice',
+  });
+  expect(
+    await apiClient.adjudicateCvrContest({
+      adjudicatedContestOptionById: {
+        'write-in-0': {
+          type: 'write-in-option',
+          hasVote: true,
+          candidateType: 'write-in-candidate',
+          candidateName: 'Alice',
+        },
+      },
+      cvrId,
+      contestId: governorContestId,
+      side: 'front',
+    })
+  ).toEqual(ok());
+
+  // Also adjudicate a different contest on the same CVR, flipping an option
+  // so the change is observable. This puts a second entry into the CVR's
+  // adjudicated_votes JSON alongside the Governor entry.
+  const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+  const otherContest = assertDefined(
+    adjData.contests.find((c) => c.contestId !== governorContestId)
+  );
+  const optionToFlip = assertDefined(
+    otherContest.options.find(
+      (o) => o.definition.type === 'candidate' && !o.initialVote
+    )
+  );
+  expect(
+    await apiClient.adjudicateCvrContest({
+      adjudicatedContestOptionById: {
+        [optionToFlip.definition.id]: {
+          type: 'candidate-option',
+          hasVote: true,
+        },
+      },
+      cvrId,
+      contestId: otherContest.contestId,
+      side: 'front',
+    })
+  ).toEqual(ok());
+
+  // Delete Alice. This resets her contest's entry in adjudicated_votes, but
+  // the unrelated contest's entry should survive.
+  expect(
+    (
+      await apiClient.updateQualifiedWriteInCandidates({
+        newCandidates: [],
+        deletedCandidateIds: [alice.id],
+      })
+    ).affectedBallotCount
+  ).toEqual(1);
+
+  // The unrelated contest's flipped vote should still be adjudicated.
+  const dataAfterDelete = await apiClient.getBallotAdjudicationData({ cvrId });
+  const flippedOptionAfterDelete = assertDefined(
+    assertDefined(
+      dataAfterDelete.contests.find(
+        (c) => c.contestId === otherContest.contestId
+      )
+    ).options.find((o) => o.definition.id === optionToFlip.definition.id)
+  );
+  expect(flippedOptionAfterDelete.voteAdjudication?.isVote).toEqual(true);
+});

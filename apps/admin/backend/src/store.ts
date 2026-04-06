@@ -79,6 +79,7 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
+  QualifiedWriteInCandidateRecord,
   WriteInCandidateRecord,
   WriteInRecord,
   WriteInRecordAdjudicatedInvalid,
@@ -1818,6 +1819,40 @@ export class Store implements BaseStore {
     }));
   }
 
+  getQualifiedWriteInCandidates({
+    electionId,
+  }: {
+    electionId: Id;
+  }): QualifiedWriteInCandidateRecord[] {
+    const rows = this.client.all(
+      `
+        select
+          wc.id,
+          wc.contest_id as contestId,
+          wc.name as name,
+          (case when count(wi.id) > 0 then 1 else 0 end) as hasAdjudicatedVotes
+        from write_in_candidates wc
+        left join write_ins wi on wi.write_in_candidate_id = wc.id
+        where wc.election_id = ?
+        group by wc.id
+      `,
+      electionId
+    ) as Array<{
+      id: Id;
+      contestId: ContestId;
+      name: string;
+      hasAdjudicatedVotes: number;
+    }>;
+
+    return rows.map((row) => ({
+      electionId,
+      id: row.id,
+      contestId: row.contestId,
+      name: row.name,
+      hasAdjudicatedVotes: row.hasAdjudicatedVotes === 1,
+    }));
+  }
+
   addWriteInCandidate({
     electionId,
     contestId,
@@ -1872,6 +1907,109 @@ export class Store implements BaseStore {
         id
       );
     }
+  }
+
+  /**
+   * Deletes a qualified write-in candidate and reverts any write-in records
+   * that were adjudicated for that candidate back to pending status.
+   * Returns the number of affected ballots.
+   */
+  deleteQualifiedWriteInCandidate(id: Id): number {
+    // Find affected write-in records and their CVR/contest pairs
+    const affectedWriteIns = this.client.all(
+      `
+        select distinct cvr_id as cvrId, contest_id as contestId
+        from write_ins
+        where write_in_candidate_id = ?`,
+      id
+    ) as Array<{ cvrId: Id; contestId: string }>;
+
+    // Reset write-in records that reference this candidate back to pending
+    this.client.run(
+      `
+        update write_ins
+        set
+          write_in_candidate_id = null,
+          official_candidate_id = null,
+          is_invalid = 0,
+          adjudicated_at = null
+        where write_in_candidate_id = ?
+      `,
+      id
+    );
+
+    // For each affected CVR, clear adjudicated votes for the contest and
+    // mark the CVR as not adjudicated
+    const affectedCvrIds = new Set<Id>();
+    for (const { cvrId, contestId } of affectedWriteIns) {
+      affectedCvrIds.add(cvrId);
+      const row = this.client.one(
+        `select adjudicated_votes from cvrs where id = ?`,
+        cvrId
+      ) as { adjudicated_votes: string | null };
+      assert(
+        row.adjudicated_votes !== null,
+        'CVR must have adjudicated votes if a write-in was adjudicated for a candidate'
+      );
+      const adjudicatedVotes = JSON.parse(row.adjudicated_votes) as Record<
+        string,
+        unknown
+      >;
+      delete adjudicatedVotes[contestId];
+      const hasRemainingVotes = Object.keys(adjudicatedVotes).length > 0;
+      this.client.run(
+        `update cvrs set adjudicated_votes = ?, is_adjudicated = 0 where id = ?`,
+        hasRemainingVotes ? JSON.stringify(adjudicatedVotes) : null,
+        cvrId
+      );
+    }
+
+    // Delete manual result references
+    this.client.run(
+      `
+        delete from manual_result_write_in_candidate_references
+        where write_in_candidate_id = ?
+      `,
+      id
+    );
+
+    // Delete the candidate
+    this.client.run(`delete from write_in_candidates where id = ?`, id);
+
+    return affectedCvrIds.size;
+  }
+
+  /**
+   * Applies a batch of changes to qualified write-in candidates within a
+   * single transaction. Returns the total number of ballots affected by
+   * deletions (marked for re-adjudication).
+   */
+  updateQualifiedWriteInCandidates({
+    electionId,
+    newCandidates,
+    deletedCandidateIds,
+  }: {
+    electionId: Id;
+    newCandidates: Array<{ contestId: ContestId; name: string }>;
+    deletedCandidateIds: Id[];
+  }): { affectedBallotCount: number } {
+    return this.withTransaction(() => {
+      let affectedBallotCount = 0;
+
+      for (const id of deletedCandidateIds) {
+        affectedBallotCount += this.deleteQualifiedWriteInCandidate(id);
+      }
+
+      for (const candidate of newCandidates) {
+        this.addWriteInCandidate({
+          electionId,
+          contestId: candidate.contestId,
+          name: candidate.name,
+        });
+      }
+
+      return { affectedBallotCount };
+    });
   }
 
   deleteAllWriteInCandidatesNotReferenced(): void {

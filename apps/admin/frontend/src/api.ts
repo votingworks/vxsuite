@@ -369,6 +369,39 @@ export const getWriteInCandidates = {
   },
 } as const;
 
+export const getQualifiedWriteInCandidates = {
+  queryKey(): QueryKey {
+    return ['getQualifiedWriteInCandidates'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getQualifiedWriteInCandidates()
+    );
+  },
+} as const;
+
+export const updateQualifiedWriteInCandidates = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateQualifiedWriteInCandidates, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getWriteInCandidates.queryKey());
+        await queryClient.invalidateQueries(
+          getQualifiedWriteInCandidates.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueueMetadata.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueue.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 type GetBallotAdjudicationDataInput = QueryInput<'getBallotAdjudicationData'>;
 export const getBallotAdjudicationData = {
   queryKey(input?: GetBallotAdjudicationDataInput): QueryKey {

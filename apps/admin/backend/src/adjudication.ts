@@ -89,8 +89,9 @@ function adjudicateWriteIn(
   store: Store,
   logger: BaseLogger
 ): void {
+  const electionId = assertDefined(store.getCurrentElectionId());
   const [initialWriteInRecord] = store.getWriteInRecords({
-    electionId: assertDefined(store.getCurrentElectionId()),
+    electionId,
     writeInId: adjudicationAction.writeInId,
   });
   assert(initialWriteInRecord, 'write-in record does not exist');
@@ -116,9 +117,13 @@ function adjudicateWriteIn(
     }
   }
 
-  // if we are switching away from a write-in candidate, we may have to clean
-  // up the record if it has no other references
+  // If we are switching away from a write-in candidate, we may have to clean
+  // up the record if it has no other references. In qualified mode, candidates
+  // are intentionally managed via the management UI and should not be
+  // auto-deleted.
+  const { areWriteInCandidatesQualified } = store.getSystemSettings(electionId);
   if (
+    !areWriteInCandidatesQualified &&
     initialWriteInRecord.status === 'adjudicated' &&
     initialWriteInRecord.adjudicationType === 'write-in-candidate'
   ) {
