@@ -1,9 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
+import { Precinct } from '@votingworks/types';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   areEqualPrecinctSelections,
+  getPrecinctSelectionIds,
   getPrecinctSelectionName,
   maybeGetPrecinctIdFromSelection,
   singlePrecinctSelectionFor,
@@ -101,4 +103,16 @@ describe('areEqualPrecinctSelections', () => {
       maybeGetPrecinctIdFromSelection(singlePrecinctSelectionFor('precinct-1'))
     ).toEqual('precinct-1');
   });
+});
+
+test('getPrecinctSelectionIds', () => {
+  const p1: Precinct = { id: 'p1', name: 'P1', districtIds: [] };
+  const p2: Precinct = { id: 'p2', name: 'P2', districtIds: [] };
+
+  const allIds = getPrecinctSelectionIds([p1, p2], ALL_PRECINCTS_SELECTION);
+  expect(allIds).toEqual(new Set([p1.id, p2.id]));
+
+  const singleSelection = singlePrecinctSelectionFor(p2.id);
+  const singleId = getPrecinctSelectionIds([p1, p2], singleSelection);
+  expect(singleId).toEqual(new Set([p2.id]));
 });

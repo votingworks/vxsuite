@@ -30,7 +30,7 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { time, Timer } from '@votingworks/utils';
+import { getPrecinctSelectionIds, time, Timer } from '@votingworks/utils';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { v4 as uuid } from 'uuid';
@@ -258,11 +258,15 @@ async function interpretSheet(
     maxCumulativeStreakWidth,
     retryStreakWidthThreshold,
   } = assertDefined(store.getSystemSettings());
+
+  const precinctSelection = assertDefined(store.getPrecinctSelection());
+  const electionRecord = assertDefined(store.getElectionRecord());
+  const { precincts } = electionRecord.electionDefinition.election;
+
   const interpretation = (
     await interpret(sheetId, scanImages, {
-      electionDefinition: assertDefined(store.getElectionRecord())
-        .electionDefinition,
-      precinctSelection: assertDefined(store.getPrecinctSelection()),
+      electionDefinition: electionRecord.electionDefinition,
+      validPrecinctIds: getPrecinctSelectionIds(precincts, precinctSelection),
       testMode: store.getTestMode(),
       disableVerticalStreakDetection,
       ballotImagesPath: workspace.ballotImagesPath,
