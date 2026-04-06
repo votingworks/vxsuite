@@ -1,17 +1,33 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName as Feature,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { formatElectionHashes } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { assertDefined } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library';
 import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar';
 import { makeTheme } from './themes/make_theme';
 
+const featureFlagMock = getFeatureFlagMock();
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (f: Feature) => featureFlagMock.isEnabled(f),
+}));
+
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const mockElectionPackageHash = '1111111111111111111111111';
+
+const { election } = electionGeneralDefinition;
+const pollingPlaces = assertDefined(election.pollingPlaces);
+
+afterEach(() => {
+  featureFlagMock.resetFeatureFlags();
+});
 
 describe('ElectionInfoBar', () => {
   test('Renders with appropriate information', () => {
@@ -54,6 +70,7 @@ describe('ElectionInfoBar', () => {
   });
 
   test('Renders with all precincts when specified', () => {
+    setPollingPlacesEnabled(false);
     render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
@@ -68,6 +85,7 @@ describe('ElectionInfoBar', () => {
   });
 
   test('Renders with specific precinct', () => {
+    setPollingPlacesEnabled(false);
     render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
@@ -79,6 +97,24 @@ describe('ElectionInfoBar', () => {
       />
     );
     screen.getByText('Center Springfield');
+  });
+
+  test('Renders with polling place selection', () => {
+    setPollingPlacesEnabled(true);
+    const place = pollingPlaces[0];
+
+    render(
+      <ElectionInfoBar
+        electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
+        machineId="0002"
+        codeVersion="DEV"
+        mode="admin"
+        pollingPlaceId={place.id}
+      />
+    );
+
+    screen.getByText(place.name);
   });
 
   test('Renders without admin info in default voter mode', () => {
@@ -146,6 +182,7 @@ describe('VerticalElectionInfoBar', () => {
   });
 
   test('Renders with all precincts when specified', () => {
+    setPollingPlacesEnabled(false);
     render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
@@ -160,6 +197,7 @@ describe('VerticalElectionInfoBar', () => {
   });
 
   test('Renders with specific precinct', () => {
+    setPollingPlacesEnabled(false);
     render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
@@ -171,6 +209,24 @@ describe('VerticalElectionInfoBar', () => {
       />
     );
     screen.getByText('Center Springfield');
+  });
+
+  test('Renders with polling place selection', () => {
+    setPollingPlacesEnabled(true);
+    const place = pollingPlaces[0];
+
+    render(
+      <VerticalElectionInfoBar
+        electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
+        machineId="0002"
+        codeVersion="DEV"
+        mode="admin"
+        pollingPlaceId={place.id}
+      />
+    );
+
+    screen.getByText(place.name);
   });
 
   test('Renders without admin info in default voter mode', () => {
@@ -214,3 +270,12 @@ describe('VerticalElectionInfoBar', () => {
     });
   });
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  const { ENABLE_POLLING_PLACES } = Feature;
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(ENABLE_POLLING_PLACES);
+  }
+}
