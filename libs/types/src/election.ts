@@ -498,7 +498,9 @@ export enum HmpbBallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
   Custom17 = 'custom-8.5x17',
+  Custom18 = 'custom-8.5x18',
   Custom19 = 'custom-8.5x19',
+  Custom20 = 'custom-8.5x20',
   Custom22 = 'custom-8.5x22',
 }
 export const HmpbBallotPaperSizeSchema: z.ZodSchema<HmpbBallotPaperSize> =

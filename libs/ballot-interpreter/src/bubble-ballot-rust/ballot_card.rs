@@ -834,9 +834,25 @@ impl PaperInfo {
         }
     }
 
+    pub const fn scanned_custom18() -> Self {
+        Self {
+            size: PaperSize::Custom18,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
     pub const fn scanned_custom19() -> Self {
         Self {
             size: PaperSize::Custom19,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    pub const fn scanned_custom20() -> Self {
+        Self {
+            size: PaperSize::Custom20,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -851,12 +867,14 @@ impl PaperInfo {
     }
 
     /// Returns info for all supported scanned paper sizes.
-    pub const fn scanned() -> [Self; 5] {
+    pub const fn scanned() -> [Self; 7] {
         [
             Self::scanned_letter(),
             Self::scanned_legal(),
             Self::scanned_custom17(),
+            Self::scanned_custom18(),
             Self::scanned_custom19(),
+            Self::scanned_custom20(),
             Self::scanned_custom22(),
         ]
     }
@@ -943,7 +961,8 @@ pub fn get_matching_paper_info_for_image_size(
         })
         .min_by(|(_, (_, height_error1)), (_, (_, height_error2))| {
             height_error1
-                .partial_cmp(height_error2)
+                .abs()
+                .partial_cmp(&height_error2.abs())
                 .unwrap_or(Ordering::Equal)
         })
         .map(|(paper_info, _)| *paper_info)
@@ -975,6 +994,26 @@ mod tests {
         assert_eq!(
             get_matching_paper_info_for_image_size((1696, 2800), &PaperInfo::scanned()),
             Some(PaperInfo::scanned_legal())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 3400), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom17())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 3600), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom18())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 3800), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom19())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 4000), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom20())
+        );
+        assert_eq!(
+            get_matching_paper_info_for_image_size((1696, 4400), &PaperInfo::scanned()),
+            Some(PaperInfo::scanned_custom22())
         );
         assert_eq!(
             get_matching_paper_info_for_image_size((1500, 1500), &PaperInfo::scanned()),

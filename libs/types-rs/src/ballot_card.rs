@@ -276,8 +276,12 @@ pub enum PaperSize {
     Legal,
     #[serde(rename = "custom-8.5x17")]
     Custom17,
+    #[serde(rename = "custom-8.5x18")]
+    Custom18,
     #[serde(rename = "custom-8.5x19")]
     Custom19,
+    #[serde(rename = "custom-8.5x20")]
+    Custom20,
     #[serde(rename = "custom-8.5x22")]
     Custom22,
 }
@@ -297,9 +301,17 @@ impl PaperSize {
                 width: Inch::new(8.5),
                 height: Inch::new(17.0),
             },
+            PaperSize::Custom18 => Size {
+                width: Inch::new(8.5),
+                height: Inch::new(18.0),
+            },
             PaperSize::Custom19 => Size {
                 width: Inch::new(8.5),
                 height: Inch::new(19.0),
+            },
+            PaperSize::Custom20 => Size {
+                width: Inch::new(8.5),
+                height: Inch::new(20.0),
             },
             PaperSize::Custom22 => Size {
                 width: Inch::new(8.5),

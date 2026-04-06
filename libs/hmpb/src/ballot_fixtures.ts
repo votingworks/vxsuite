@@ -835,16 +835,14 @@ export const timingMarkPaperFixtures = (() => {
 
   return {
     fixtureSpecs: [
-      { paperSize: HmpbBallotPaperSize.Letter, paperType: 'standard' },
-      { paperSize: HmpbBallotPaperSize.Legal, paperType: 'standard' },
-      { paperSize: HmpbBallotPaperSize.Custom17, paperType: 'standard' },
-      { paperSize: HmpbBallotPaperSize.Custom19, paperType: 'standard' },
-      { paperSize: HmpbBallotPaperSize.Custom22, paperType: 'standard' },
-      { paperSize: HmpbBallotPaperSize.Letter, paperType: 'qa-overlay' },
-      { paperSize: HmpbBallotPaperSize.Legal, paperType: 'qa-overlay' },
-      { paperSize: HmpbBallotPaperSize.Custom17, paperType: 'qa-overlay' },
-      { paperSize: HmpbBallotPaperSize.Custom19, paperType: 'qa-overlay' },
-      { paperSize: HmpbBallotPaperSize.Custom22, paperType: 'qa-overlay' },
+      ...Object.values(HmpbBallotPaperSize).map((paperSize) => ({
+        paperSize,
+        paperType: 'standard' as const,
+      })),
+      ...Object.values(HmpbBallotPaperSize).map((paperSize) => ({
+        paperSize,
+        paperType: 'qa-overlay' as const,
+      })),
     ] as const,
 
     specPaths,

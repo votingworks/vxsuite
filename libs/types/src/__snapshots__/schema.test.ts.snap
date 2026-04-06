@@ -166,14 +166,16 @@ exports[`supports ballot layout paper size 1`] = `
       "letter",
       "legal",
       "custom-8.5x17",
+      "custom-8.5x18",
       "custom-8.5x19",
+      "custom-8.5x20",
       "custom-8.5x22"
     ],
     "path": [
       "ballotLayout",
       "paperSize"
     ],
-    "message": "Invalid option: expected one of \\"letter\\"|\\"legal\\"|\\"custom-8.5x17\\"|\\"custom-8.5x19\\"|\\"custom-8.5x22\\""
+    "message": "Invalid option: expected one of \\"letter\\"|\\"legal\\"|\\"custom-8.5x17\\"|\\"custom-8.5x18\\"|\\"custom-8.5x19\\"|\\"custom-8.5x20\\"|\\"custom-8.5x22\\""
   }
 ]]
 `;

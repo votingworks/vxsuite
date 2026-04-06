@@ -649,9 +649,17 @@ test('ballotPaperDimensions', () => {
     width: 8.5,
     height: 17,
   });
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom18)).toEqual({
+    width: 8.5,
+    height: 18,
+  });
   expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom19)).toEqual({
     width: 8.5,
     height: 19,
+  });
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom20)).toEqual({
+    width: 8.5,
+    height: 20,
   });
   expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom22)).toEqual({
     width: 8.5,

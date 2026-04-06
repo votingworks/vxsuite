@@ -15,83 +15,23 @@ import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
-describe('Interpret - HMPB - All bubble ballot', () => {
-  const {
-    electionPath,
-    blankBallotPath,
-    filledBallotPath,
-    cyclingTestDeckPath,
-  } = allBubbleBallotFixtures(HmpbBallotPaperSize.Letter);
-  let electionDefinition: ElectionDefinition;
-  beforeAll(async () => {
-    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
-  });
-
-  test('Blank ballot interpretation', async () => {
-    const precinctId = electionDefinition.election.precincts[0]!.id;
-    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-    const [frontResult, backResult] = await interpretSheet(
-      {
-        electionDefinition,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
-        testMode: true,
-        markThresholds: DEFAULT_MARK_THRESHOLDS,
-        adjudicationReasons: [AdjudicationReason.Overvote],
-      },
-      images
-    );
-
-    assert(frontResult.type === 'InterpretedHmpbPage');
-    expect(frontResult.votes).toEqual({
-      'test-contest-page-1': [],
+describe.each(Object.values(HmpbBallotPaperSize))(
+  'Interpret - HMPB - All bubble ballot (%s)',
+  (paperSize) => {
+    const {
+      electionPath,
+      blankBallotPath,
+      filledBallotPath,
+      cyclingTestDeckPath,
+    } = allBubbleBallotFixtures(paperSize);
+    let electionDefinition: ElectionDefinition;
+    beforeAll(async () => {
+      electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
     });
 
-    assert(backResult.type === 'InterpretedHmpbPage');
-    expect(backResult.votes).toEqual({
-      'test-contest-page-2': [],
-    });
-  });
-
-  test('Filled ballot interpretation', async () => {
-    const precinctId = electionDefinition.election.precincts[0]!.id;
-    const [frontContest, backContest] = electionDefinition.election.contests;
-    assert(frontContest?.type === 'candidate');
-    assert(backContest?.type === 'candidate');
-    const images = asSheet(await pdfToPageImages(filledBallotPath).toArray());
-    const [frontResult, backResult] = await interpretSheet(
-      {
-        electionDefinition,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
-        testMode: true,
-        markThresholds: DEFAULT_MARK_THRESHOLDS,
-        adjudicationReasons: [AdjudicationReason.Overvote],
-      },
-      images
-    );
-
-    assert(frontResult.type === 'InterpretedHmpbPage');
-    expect(frontResult.votes).toEqual({
-      [frontContest.id]: frontContest.candidates,
-    });
-
-    assert(backResult.type === 'InterpretedHmpbPage');
-    expect(backResult.votes).toEqual({
-      [backContest.id]: backContest.candidates,
-    });
-  });
-
-  test('Cycling test deck interpretation', async () => {
-    const precinctId = electionDefinition.election.precincts[0]!.id;
-    const [frontContest, backContest] = electionDefinition.election.contests;
-    assert(frontContest?.type === 'candidate');
-    assert(backContest?.type === 'candidate');
-    const votes = {
-      [frontContest.id]: [] as Candidate[],
-      [backContest.id]: [] as Candidate[],
-    } as const;
-
-    const ballotImagePaths = pdfToPageImages(cyclingTestDeckPath);
-    for await (const sheetImages of ballotImagePaths.chunksExact(2)) {
+    test('Blank ballot interpretation', async () => {
+      const precinctId = electionDefinition.election.precincts[0]!.id;
+      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
@@ -100,27 +40,97 @@ describe('Interpret - HMPB - All bubble ballot', () => {
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
         },
-        sheetImages
+        images
       );
 
       assert(frontResult.type === 'InterpretedHmpbPage');
-      assert(backResult.type === 'InterpretedHmpbPage');
+      expect(frontResult.votes).toEqual({
+        'test-contest-page-1': [],
+      });
 
-      for (const [contestId, candidates] of Object.entries({
-        ...frontResult.votes,
-        ...backResult.votes,
-      })) {
-        votes[contestId]!.push(
-          ...((candidates as Optional<CandidateVote>) ?? [])
-        );
-      }
+      assert(backResult.type === 'InterpretedHmpbPage');
+      expect(backResult.votes).toEqual({
+        'test-contest-page-2': [],
+      });
+    }, 30_000);
+
+    // It takes a significant amount of time to test all paper sizes, so we test blank ballot
+    // interpretation for all paper sizes and then filled ballot and cycling test deck
+    // interpretation for only letter.
+    if (paperSize !== HmpbBallotPaperSize.Letter) {
+      return;
     }
 
-    expect(sortVotesDict(votes)).toEqual(
-      sortVotesDict({
+    test('Filled ballot interpretation', async () => {
+      const precinctId = electionDefinition.election.precincts[0]!.id;
+      const [frontContest, backContest] = electionDefinition.election.contests;
+      assert(frontContest?.type === 'candidate');
+      assert(backContest?.type === 'candidate');
+      const images = asSheet(await pdfToPageImages(filledBallotPath).toArray());
+      const [frontResult, backResult] = await interpretSheet(
+        {
+          electionDefinition,
+          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          testMode: true,
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
+          adjudicationReasons: [AdjudicationReason.Overvote],
+        },
+        images
+      );
+
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      expect(frontResult.votes).toEqual({
         [frontContest.id]: frontContest.candidates,
+      });
+
+      assert(backResult.type === 'InterpretedHmpbPage');
+      expect(backResult.votes).toEqual({
         [backContest.id]: backContest.candidates,
-      })
-    );
-  }, 60_000);
-});
+      });
+    }, 30_000);
+
+    test('Cycling test deck interpretation', async () => {
+      const precinctId = electionDefinition.election.precincts[0]!.id;
+      const [frontContest, backContest] = electionDefinition.election.contests;
+      assert(frontContest?.type === 'candidate');
+      assert(backContest?.type === 'candidate');
+      const votes = {
+        [frontContest.id]: [] as Candidate[],
+        [backContest.id]: [] as Candidate[],
+      } as const;
+
+      const ballotImagePaths = pdfToPageImages(cyclingTestDeckPath);
+      for await (const sheetImages of ballotImagePaths.chunksExact(2)) {
+        const [frontResult, backResult] = await interpretSheet(
+          {
+            electionDefinition,
+            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            testMode: true,
+            markThresholds: DEFAULT_MARK_THRESHOLDS,
+            adjudicationReasons: [AdjudicationReason.Overvote],
+          },
+          sheetImages
+        );
+
+        assert(frontResult.type === 'InterpretedHmpbPage');
+        assert(backResult.type === 'InterpretedHmpbPage');
+
+        for (const [contestId, candidates] of Object.entries({
+          ...frontResult.votes,
+          ...backResult.votes,
+        })) {
+          votes[contestId]!.push(
+            ...((candidates as Optional<CandidateVote>) ?? [])
+          );
+        }
+      }
+
+      expect(sortVotesDict(votes)).toEqual(
+        sortVotesDict({
+          [frontContest.id]: frontContest.candidates,
+          [backContest.id]: backContest.candidates,
+        })
+      );
+    }, 60_000);
+  }
+);

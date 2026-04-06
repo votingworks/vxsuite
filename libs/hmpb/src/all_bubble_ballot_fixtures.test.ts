@@ -20,30 +20,27 @@ afterAll(async () => {
 });
 
 // run `pnpm generate-fixtures` if this test fails
-test.each([
-  HmpbBallotPaperSize.Letter,
-  HmpbBallotPaperSize.Legal,
-  HmpbBallotPaperSize.Custom17,
-  HmpbBallotPaperSize.Custom19,
-  HmpbBallotPaperSize.Custom22,
-])('all bubble ballot fixtures: %s', async (paperSize) => {
-  const fixtures = allBubbleBallotFixtures(paperSize);
-  const generated = await fixtures.generate(rendererPool);
+test.each(Object.values(HmpbBallotPaperSize))(
+  'all bubble ballot fixtures: %s',
+  async (paperSize) => {
+    const fixtures = allBubbleBallotFixtures(paperSize);
+    const generated = await fixtures.generate(rendererPool);
 
-  expect(generated.electionDefinition.election).toEqual(
-    (await readElection(fixtures.electionPath)).ok()?.election
-  );
+    expect(generated.electionDefinition.election).toEqual(
+      (await readElection(fixtures.electionPath)).ok()?.election
+    );
 
-  await expectToMatchSavedPdf(
-    generated.blankBallotPdf,
-    fixtures.blankBallotPath
-  );
-  await expectToMatchSavedPdf(
-    generated.filledBallotPdf,
-    fixtures.filledBallotPath
-  );
-  await expectToMatchSavedPdf(
-    generated.cyclingTestDeckPdf,
-    fixtures.cyclingTestDeckPath
-  );
-});
+    await expectToMatchSavedPdf(
+      generated.blankBallotPdf,
+      fixtures.blankBallotPath
+    );
+    await expectToMatchSavedPdf(
+      generated.filledBallotPdf,
+      fixtures.filledBallotPath
+    );
+    await expectToMatchSavedPdf(
+      generated.cyclingTestDeckPdf,
+      fixtures.cyclingTestDeckPath
+    );
+  }
+);
