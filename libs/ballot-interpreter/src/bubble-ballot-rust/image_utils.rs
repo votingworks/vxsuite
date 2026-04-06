@@ -327,12 +327,9 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     fill_column(&mut cur_col, x_range.start as usize);
     let mut cur_black_count: usize = cur_col.iter().filter(|&&b| b).count();
 
-    // Use a for loop so the buffer swap happens unconditionally each
-    // iteration, keeping the scoring logic flat with early continues.
-    // Iterate x up to x_range.end - 1 so that next_col (at x+1) stays
-    // within x_range, matching the original tuple_windows behavior.
     let mut uncoalesced: Vec<VerticalStreak> = Vec::new();
-    for x in x_range.start..=x_range.end {
+    for x in x_range.start..=x_range.end - 2 {
+        debug_assert!(x_range.contains(&(x + 1)));
         fill_column(&mut next_col, (x + 1) as usize);
         let next_black_count: usize = next_col.iter().filter(|&&b| b).count();
 

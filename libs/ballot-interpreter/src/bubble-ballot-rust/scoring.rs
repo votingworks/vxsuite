@@ -221,8 +221,13 @@ impl<'a> BubbleRegion<'a> {
         }
     }
 
-    /// Iterates over each pixel in the region, calling `f(px, py, source_is_dark,
-    /// template_is_white)` for each. Coordinates are relative to the region origin.
+    /// Iterates over each pixel in the region, calling `f(px, py,
+    /// source_is_dark, template_is_white)` for each. Coordinates are relative
+    /// to the region origin.
+    ///
+    /// Using `#[inline(always)]` here because this abstraction prevents the
+    /// compiler from properly optimizing callers if it is not inlined. I've
+    /// measured this using the included project benchmarks on Rust 1.93.
     #[allow(clippy::inline_always)]
     #[inline(always)]
     fn for_each_pixel(&self, mut f: impl FnMut(usize, usize, bool, bool)) {
@@ -445,6 +450,7 @@ mod test {
     use image::{GenericImageView, GrayImage, Luma};
     use proptest::prelude::*;
     use types_rs::ballot_card::BallotSide;
+    use types_rs::geometry::Point;
 
     /// Generates an image from two images where corresponding pixels in `compare`
     /// that are darker than their counterpart in `base` show up with the luminosity
@@ -472,7 +478,6 @@ mod test {
         });
         out
     }
-    use types_rs::geometry::Point;
 
     fn make_ballot_image(width: u32, height: u32) -> BallotImage {
         BallotImage::for_testing(
