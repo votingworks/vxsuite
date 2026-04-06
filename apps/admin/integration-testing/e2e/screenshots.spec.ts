@@ -464,12 +464,12 @@ test('results', async ({ page }) => {
   await screenshot('tally-screen-with-cvrs');
 
   await page.getByText('Adjudication').click();
-  await page.getByText('Start Adjudication').waitFor();
+  await page.getByText('Start Adjudicating').waitFor();
   await screenshot('adjudication-screen-pre-adjudication');
 
   await adjudicateAllWriteIns(page);
 
-  await page.getByText('Start Adjudication').waitFor();
+  await page.getByText('Start Adjudicating').waitFor();
   await screenshot('adjudication-screen-post-adjudication');
 
   await page.getByText('Reports').click();
@@ -625,9 +625,9 @@ test('adjudication', async ({ page }) => {
   await page.getByText('Total CVR Count: 1').waitFor();
 
   await page.getByText('Adjudication').click();
-  await page.getByText('Start Adjudication').waitFor();
+  await page.getByText('Start Adjudicating').waitFor();
 
-  await page.getByText('Start Adjudication').click();
+  await page.getByText('Start Adjudicating').click();
   await page.getByText(/Ballot \d+ of \d+/).waitFor();
   await screenshot('adjudication-view');
 
@@ -653,7 +653,7 @@ test('adjudication', async ({ page }) => {
   // Exit to start screen
   await page.getByRole('button', { name: /Exit/ }).waitFor();
   await page.getByRole('button', { name: /Exit/ }).click();
-  await page.getByText('Start Adjudication').waitFor();
+  await page.getByText('Start Adjudicating').waitFor();
 });
 
 test('manual results', async ({ page }) => {

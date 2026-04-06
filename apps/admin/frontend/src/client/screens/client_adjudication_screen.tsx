@@ -18,7 +18,7 @@ export function ClientAdjudicationScreen(): JSX.Element {
             () => {}
           }
         >
-          Start Adjudication
+          Start Adjudicating
         </Button>
       </P>
       <P>
