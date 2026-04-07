@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -128,6 +128,7 @@ function setupBasicMocks({
   adjudicationData: BallotAdjudicationData;
   isBmd?: boolean;
 }) {
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue(queue);
   apiMock.expectGetNextCvrIdForBallotAdjudication(nextCvrId);
   apiMock.expectGetBallotAdjudicationData(
@@ -137,6 +138,10 @@ function setupBasicMocks({
   apiMock.expectGetBallotImages({ cvrId: adjudicationData.cvrId }, isBmd);
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
+
+  if (nextCvrId) {
+    apiMock.expectClaimBallotForAdjudication({ cvrId: nextCvrId });
+  }
 }
 
 function makeHmpbPageLayout(contestIds: string[]): BallotPageLayout {
@@ -249,13 +254,18 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   const adjData3 = makeBallotAdjudicationData(CVR_ID_3, contestData);
 
   // initial load
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
 
-  // use repeated calls for ballot images since prefetch fires additional requests
+  // Use fake timers to prevent refetchInterval from firing mid-navigation,
+  // which would cause out-of-order refetches incompatible with ordered mocks.
+  vi.useFakeTimers({ shouldAdvanceTime: true, advanceTimeDelta: 1 });
+
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(makeHmpbBallotImages(CVR_ID_1));
@@ -266,6 +276,8 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     .expectRepeatedCallsWith({ cvrId: CVR_ID_3 })
     .resolves(makeHmpbBallotImages(CVR_ID_3));
 
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
   const history = createMemoryHistory();
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -273,10 +285,12 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     history,
   });
 
-  // starts on first ballot showing front image, back is disabled
+  // starts on first ballot showing front image, no Back button on first ballot
   await screen.findByText(/Ballot ID: cvr-/);
   screen.getByText('Ballot 1 of 3');
-  expect(screen.getByRole('button', { name: /Back/ })).toBeDisabled();
+  expect(
+    screen.queryByRole('button', { name: /Back/ })
+  ).not.toBeInTheDocument();
   const ballotImage = screen.getByRole('img', { name: /ballot/i });
   expect(ballotImage.style.backgroundImage).toContain(
     `mock-front-image-${CVR_ID_1}`
@@ -297,6 +311,8 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   );
 
   // skip to second ballot — first pending contest is on back, so opens to back
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 3');
@@ -308,17 +324,26 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   });
 
   // skip to third (last) ballot
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_3 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_3 }, adjData3);
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 3 of 3');
 
-  // back to second ballot (data is cached from earlier visit)
+  // back to second ballot — staleTime: 0 triggers a refetch
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_3 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
   userEvent.click(screen.getByRole('button', { name: /Back/ }));
   await screen.findByText('Ballot 2 of 3');
 
   // exit navigates to adjudication start screen
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   userEvent.click(screen.getByRole('button', { name: /Exit/ }));
-  expect(history.location.pathname).toEqual('/adjudication');
+  await vi.waitFor(() =>
+    expect(history.location.pathname).toEqual('/adjudication')
+  );
+  vi.useRealTimers();
 });
 
 test('accept button state depends on contest resolution', async () => {
@@ -338,6 +363,7 @@ test('accept button state depends on contest resolution', async () => {
 
   await screen.findByText(/Ballot ID/);
   expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   unmount();
 
   // enabled when all contests resolved
@@ -349,6 +375,7 @@ test('accept button state depends on contest resolution', async () => {
     ),
   ]);
   setupBasicMocks({ adjudicationData: resolvedAdjData, nextCvrId: null });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -357,6 +384,9 @@ test('accept button state depends on contest resolution', async () => {
 
   await screen.findByText(/Ballot ID/);
   expect(screen.getByRole('button', { name: /Accept/ })).toBeEnabled();
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('confirmation modal back returns and accept anyway resolves and navigates to start screen', async () => {
@@ -375,12 +405,14 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
     initialEntries: [routerPaths.ballotAdjudication],
   });
 
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(
     <Switch>
@@ -421,6 +453,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
   await screen.findByText('Incomplete Adjudication');
 
   // click Accept Anyway -> resolves ballot and navigates to start screen
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
   // invalidated queries refetch after resolve
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
@@ -462,6 +495,7 @@ test('clicking a contest opens contest adjudication screen', async () => {
   ]);
 
   // Use HMPB images so zoo-council-mammal is on front, best-animal-mammal on back
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
@@ -470,6 +504,7 @@ test('clicking a contest opens contest adjudication screen', async () => {
     .resolves(makeHmpbBallotImages(CVR_ID_1));
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -479,7 +514,6 @@ test('clicking a contest opens contest adjudication screen', async () => {
   await screen.findByText('Zoo Council');
 
   // click front-side contest to open contest adjudication
-  apiMock.expectGetWriteInCandidates([], 'zoo-council-mammal');
   userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByText(/Votes cast:/);
 
@@ -489,7 +523,6 @@ test('clicking a contest opens contest adjudication screen', async () => {
   screen.getByText('Best Animal');
 
   // click back-side contest to open contest adjudication with side='back'
-  apiMock.expectGetWriteInCandidates([], 'best-animal-mammal');
   userEvent.click(screen.getByText('Best Animal'));
   await screen.findByText(/Votes cast:/);
 
@@ -509,6 +542,9 @@ test('clicking a contest opens contest adjudication screen', async () => {
   // keyboard: Enter opens contest adjudication (data cached from first visit)
   fireEvent.keyDown(zooCouncilItem, { key: 'Enter' });
   await screen.findByText(/Votes cast:/);
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('contest hover highlights pending yellow, resolved purple, and back-side no highlight', async () => {
@@ -559,6 +595,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     },
   };
 
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
@@ -567,6 +604,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     .resolves(ballotImages);
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -615,6 +653,9 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   fireEvent.mouseEnter(ballotMeasureItem);
   expect(getHighlightOverlay()).not.toBeInTheDocument();
   fireEvent.mouseLeave(ballotMeasureItem);
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('accept advances to next ballot and blank ballot callout states', async () => {
@@ -678,6 +719,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
     isVote: true,
   };
 
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
@@ -692,6 +734,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_3 })
     .resolves(makeHmpbBallotImages(CVR_ID_3));
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -702,10 +745,12 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   await screen.findByText('Ballot 1 of 3');
   expect(screen.queryByText(/Blank Ballot/)).not.toBeInTheDocument();
 
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
   apiMock.expectGetBallotAdjudicationData(
     { cvrId: CVR_ID_2 },
     adjData2Unresolved
@@ -732,6 +777,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
 
   // Blank ballot with only undervotes counts as allResolved, so Accept
   // directly resolves without a confirmation modal
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   apiMock.expectSetCvrResolved({ cvrId: CVR_ID_2 });
   apiMock.expectGetBallotAdjudicationData(
     { cvrId: CVR_ID_2 },
@@ -739,6 +785,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   );
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_3);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_3 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_3 }, adjData3);
   userEvent.click(screen.getByRole('button', { name: /Accept/ }));
 
@@ -746,6 +793,9 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   await screen.findByText('Ballot 3 of 3');
   await screen.findByText('Blank Ballot Resolved');
   screen.getByText('At least one contest now has a valid vote');
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_3 })
+    .resolves();
 });
 
 test('contest list shows correct status line captions', async () => {
@@ -773,6 +823,7 @@ test('contest list shows correct status line captions', async () => {
     makeContestWithVotes('fishing', [0], [], { hasUndervote: true }),
   ]);
 
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
@@ -782,6 +833,7 @@ test('contest list shows correct status line captions', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.Undervote],
   });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -819,6 +871,9 @@ test('contest list shows correct status line captions', async () => {
 
   // fishing: Undervote Created
   contestItem('Ballot Measure 3').getByText('Undervote Created');
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('contest list suppresses undervote captions when not in system settings', async () => {
@@ -836,6 +891,7 @@ test('contest list suppresses undervote captions when not in system settings', a
     makeContestWithVotes('fishing', [0], [], { hasUndervote: true }),
   ]);
 
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
@@ -843,6 +899,7 @@ test('contest list suppresses undervote captions when not in system settings', a
   apiMock.expectGetWriteInCandidates([]);
   // Default system settings — no AdjudicationReason.Undervote
   apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -865,6 +922,9 @@ test('contest list suppresses undervote captions when not in system settings', a
   expect(
     contestItem('Ballot Measure 3').queryByText('Undervote Created')
   ).not.toBeInTheDocument();
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('contest list shows correct option resolution bullets', async () => {
@@ -1011,6 +1071,7 @@ test('contest list shows correct option resolution bullets', async () => {
     bestAnimal,
   ]);
 
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
@@ -1024,6 +1085,7 @@ test('contest list shows correct option resolution bullets', async () => {
     },
   ]);
   apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -1062,4 +1124,51 @@ test('contest list shows correct option resolution bullets', async () => {
     'Undetected Mark for Horse adjudicated as Valid'
   );
   findTextInContest('Best Animal', 'Mark for Otter adjudicated as Invalid');
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('multi-station mode claims ballots on mount and releases on navigation', async () => {
+  const contestData = [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasWriteIn: true })
+    ),
+  ];
+  const adjData1 = makeBallotAdjudicationData(CVR_ID_1, contestData);
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, contestData);
+
+  // Wrapper-level queries
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+
+  // Data loader queries for ballot 1
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+
+  // Initial mount claims CVR_ID_1
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 1 of 2');
+
+  // Navigate to next — releases CVR_ID_1, claims CVR_ID_2
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_2 }, true);
+
+  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await screen.findByText('Ballot 2 of 2');
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves();
 });

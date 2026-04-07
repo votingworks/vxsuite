@@ -152,7 +152,8 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
   let queue = await apiClient.getBallotAdjudicationQueue();
   expect(queue).toHaveLength(1);
   const firstCvrId = queue[0];
-  let nextForAdjudication = await apiClient.getNextCvrIdForBallotAdjudication();
+  let nextForAdjudication =
+    await apiClient.claimNextCvrIdForBallotAdjudication();
   expect(nextForAdjudication).toEqual(queue[0]);
 
   // create a second cvr that is a bmd with an undervote.
@@ -355,7 +356,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
   expect(queue[2]).toEqual(ballotStyle2CvrId);
   expect(queue[3]).toEqual(bmdCvrId);
   expect(queue[5]).toEqual(blankBallotStyle2CvrId);
-  nextForAdjudication = await apiClient.getNextCvrIdForBallotAdjudication();
+  nextForAdjudication = await apiClient.claimNextCvrIdForBallotAdjudication();
   expect(nextForAdjudication).toEqual(queue[0]);
 });
 
@@ -563,7 +564,7 @@ test('getBallotImages when image is corrupted', async () => {
   });
 });
 
-test('getNextCvrIdForBallotAdjudication', async () => {
+test('claimNextCvrIdForBallotAdjudication', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -1536,20 +1537,24 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
         : { type: 'candidate-option', hasVote: option.initialVote };
     }
 
-    await peerApiClient.adjudicateCvrContest({
-      machineId: 'client-001',
-      cvrId: cvrId1,
-      contestId: contest.contestId,
-      side: 'front', // BMD ballots are always front
-      adjudicatedContestOptionById,
-    });
+    expect(
+      await peerApiClient.adjudicateCvrContest({
+        machineId: 'client-001',
+        cvrId: cvrId1,
+        contestId: contest.contestId,
+        side: 'front', // BMD ballots are always front
+        adjudicatedContestOptionById,
+      })
+    ).toEqual(ok());
   }
 
   // Client 1 resolves ballot tags (marks claim as completed)
-  await peerApiClient.setCvrResolved({
-    machineId: 'client-001',
-    cvrId: cvrId1,
-  });
+  expect(
+    await peerApiClient.setCvrResolved({
+      machineId: 'client-001',
+      cvrId: cvrId1,
+    })
+  ).toEqual(ok());
 
   // Host can see the adjudication results: ballot data shows all contests resolved
   const hostBallotData = await apiClient.getBallotAdjudicationData({
@@ -1566,7 +1571,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   expect(metadataAfter.pendingTally).toEqual(metadataBefore.pendingTally - 1);
 
   // Host's next-CVR-to-adjudicate skips the completed ballot
-  const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication();
+  const nextCvrId = await apiClient.claimNextCvrIdForBallotAdjudication();
   expect(nextCvrId).not.toEqual(cvrId1);
 
   // Release host's claim so clients can claim it
@@ -1605,4 +1610,38 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   assert(cvrId5 !== undefined);
   // Should get an uncompleted, unclaimed ballot (could be cvrId2 or another)
   expect(cvrId5).not.toEqual(cvrId1); // cvrId1 was completed
+});
+
+test('host claim, release, and getClaimedBallotCvrIds', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  expect(queue.length).toBeGreaterThan(0);
+  const cvrId = queue[0]!;
+
+  // Initially no claimed ballots
+  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
+
+  // Host claims a ballot
+  await apiClient.claimBallotForAdjudication({ cvrId });
+
+  // Host's own claim is excluded from getClaimedBallotCvrIds (it excludes
+  // the host's machineId), so still empty from the host's perspective
+  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
+
+  // Release the host claim
+  await apiClient.releaseBallotAdjudicationClaim({ cvrId });
+
+  // Still empty after release
+  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
 });

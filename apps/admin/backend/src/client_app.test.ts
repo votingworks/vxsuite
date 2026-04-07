@@ -3,9 +3,12 @@ import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';
 import tmp from 'tmp';
-import { DEV_MACHINE_ID, SystemSettings } from '@votingworks/types';
+import {
+  DEV_MACHINE_ID,
+  SystemSettings,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { buildClientApp, ClientApi } from './client_app';
