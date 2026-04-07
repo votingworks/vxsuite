@@ -1,7 +1,8 @@
+use std::io::Cursor;
 use std::mem::swap;
 use std::ops::RangeInclusive;
 
-use image::{GrayImage, Luma, Rgb};
+use image::{GrayImage, ImageEncoder, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
@@ -105,42 +106,6 @@ pub fn bleed(img: &GrayImage, luma: Luma<u8>) -> GrayImage {
             out.put_pixel(x, y + 1, *pixel);
         }
     }
-
-    out
-}
-
-/// Generates an image from two images where corresponding pixels in `compare`
-/// that are darker than their counterpart in `base` show up with the luminosity
-/// difference between the two. This is useful for determining where a
-/// light-background form was filled out, for example.
-///
-/// Note that the sizes of the images must be equal.
-///
-/// ```no_compile
-///         BASE                  COMPARE                 DIFF
-/// ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
-/// │                   │  │        █ █ ███    │  │        █ █ ███    │
-/// │ █ █               │  │ █ █    ███  █     │  │        ███  █     │
-/// │  █                │  │  █     █ █ ███    │  │        █ █ ███    │
-/// │ █ █ █████████████ │  │ █ █ █████████████ │  │                   │
-/// └───────────────────┘  └───────────────────┘  └───────────────────┘
-/// ```
-///
-pub fn diff(base: &GrayImage, compare: &GrayImage) -> GrayImage {
-    assert_eq!(base.dimensions(), compare.dimensions());
-
-    let mut out = GrayImage::new(base.width(), base.height());
-
-    base.enumerate_pixels().for_each(|(x, y, base_pixel)| {
-        let compare_pixel = compare.get_pixel(x, y);
-        let diff = if base_pixel.0[0] < compare_pixel.0[0] {
-            u8::MIN
-        } else {
-            base_pixel.0[0] - compare_pixel.0[0]
-        };
-
-        out.put_pixel(x, y, Luma([u8::MAX - diff]));
-    });
 
     out
 }
@@ -340,68 +305,83 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
 
     let (width, height) = ballot_image.dimensions();
+    let height_usize = height as usize;
+    let width_usize = width as usize;
     let x_range = BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE;
-    let binarized_columns = x_range.clone().map(|x| {
-        let binarized_column = (0..height)
-            .map(|y| ballot_image.get_pixel(x, y).is_foreground())
-            .collect::<Vec<_>>();
-        (x as PixelPosition, binarized_column)
-    });
+    let raw = ballot_image.image().as_raw();
+    let thresh = ballot_image.threshold();
 
-    let streaks = binarized_columns
-        .tuple_windows()
-        .filter_map(|((x, column), (_, next_column))| {
-            let num_column_black_pixels = column.iter().filter(|is_black| **is_black).count();
-            let column_streak_score =
-                UnitIntervalScore(num_column_black_pixels as f32 / height as f32);
-            if column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
-                return None;
+    // Two reusable buffers for binarized column data, swapped each iteration
+    // to avoid per-column Vec allocations and re-computing single-column streak
+    // data for each column.
+    let mut cur_col = vec![false; height_usize];
+    let mut next_col = vec![false; height_usize];
+
+    let fill_column = |buf: &mut [bool], x: usize| {
+        let mut idx = x;
+        for slot in buf.iter_mut() {
+            *slot = raw[idx] <= thresh;
+            idx += width_usize;
+        }
+    };
+
+    fill_column(&mut cur_col, x_range.start as usize);
+    let mut cur_black_count: usize = cur_col.iter().filter(|&&b| b).count();
+
+    let mut uncoalesced: Vec<VerticalStreak> = Vec::new();
+    for x in x_range.start..=x_range.end - 2 {
+        debug_assert!(x_range.contains(&(x + 1)));
+        fill_column(&mut next_col, (x + 1) as usize);
+        let next_black_count: usize = next_col.iter().filter(|&&b| b).count();
+
+        let column_streak_score = UnitIntervalScore(cur_black_count as f32 / height as f32);
+        if column_streak_score >= MIN_ONE_COLUMN_STREAK_SCORE {
+            // Compute two-column stats inline without allocating.
+            let mut num_two_column_black = 0u32;
+            let mut longest_white_gap: PixelUnit = 0;
+            let mut current_white_gap: PixelUnit = 0;
+            for y in 0..height_usize {
+                if cur_col[y] || next_col[y] {
+                    num_two_column_black += 1;
+                    if current_white_gap > longest_white_gap {
+                        longest_white_gap = current_white_gap;
+                    }
+                    current_white_gap = 0;
+                } else {
+                    current_white_gap += 1;
+                }
             }
+            longest_white_gap = longest_white_gap.max(current_white_gap);
 
-            let two_column_pixels = column
-                .iter()
-                .zip(next_column.iter())
-                .map(|(is_black, is_black_next)| *is_black || *is_black_next)
-                .collect_vec();
-            let num_two_column_black_pixels = two_column_pixels
-                .iter()
-                .filter(|is_black| **is_black)
-                .count();
             let two_column_streak_score =
-                UnitIntervalScore(num_two_column_black_pixels as f32 / height as f32);
-            if two_column_streak_score < MIN_TWO_COLUMN_STREAK_SCORE {
-                return None;
+                UnitIntervalScore(num_two_column_black as f32 / height as f32);
+            if two_column_streak_score >= MIN_TWO_COLUMN_STREAK_SCORE
+                && longest_white_gap <= MAX_WHITE_GAP_PIXELS
+            {
+                let next_column_streak_score =
+                    UnitIntervalScore(next_black_count as f32 / height as f32);
+                if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
+                    uncoalesced.push(VerticalStreak {
+                        x_range: x as PixelPosition..=x as PixelPosition,
+                        scores: vec![two_column_streak_score],
+                        longest_white_gaps: vec![longest_white_gap],
+                    });
+                } else {
+                    uncoalesced.push(VerticalStreak {
+                        x_range: x as PixelPosition..=(x + 1) as PixelPosition,
+                        scores: vec![two_column_streak_score, next_column_streak_score],
+                        longest_white_gaps: vec![longest_white_gap, longest_white_gap],
+                    });
+                }
             }
+        }
 
-            let longest_white_gap_length = two_column_pixels
-                .iter()
-                .group_by(|is_black| *is_black)
-                .into_iter()
-                .filter(|(is_black, _)| !*is_black)
-                .map(|(_, white_gap)| white_gap.count() as PixelUnit)
-                .max()
-                .unwrap_or(0);
-            if longest_white_gap_length > MAX_WHITE_GAP_PIXELS {
-                return None;
-            }
+        swap(&mut cur_col, &mut next_col);
+        cur_black_count = next_black_count;
+    }
 
-            let next_column_black_pixels = next_column.iter().filter(|is_black| **is_black).count();
-            let next_column_streak_score =
-                UnitIntervalScore(next_column_black_pixels as f32 / height as f32);
-            if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
-                Some(VerticalStreak {
-                    x_range: x..=x,
-                    scores: vec![two_column_streak_score],
-                    longest_white_gaps: vec![longest_white_gap_length],
-                })
-            } else {
-                Some(VerticalStreak {
-                    x_range: x..=x + 1,
-                    scores: vec![two_column_streak_score, next_column_streak_score],
-                    longest_white_gaps: vec![longest_white_gap_length, longest_white_gap_length],
-                })
-            }
-        })
+    let streaks = uncoalesced
+        .into_iter()
         .coalesce(VerticalStreak::coalesce)
         .collect_vec();
 
@@ -462,6 +442,29 @@ pub(crate) fn threshold(image: &GrayImage, thresh: u8) -> GrayImage {
         let p = image.get_pixel(x, y)[0];
         Luma([if p <= thresh { 0u8 } else { 255u8 }])
     })
+}
+
+/// Applies a binary threshold and encodes the result as PNG bytes in one step.
+/// Returns both the thresholded image and its PNG encoding.
+pub(crate) fn threshold_and_encode_png(
+    image: &GrayImage,
+    thresh: u8,
+) -> (GrayImage, image::ImageResult<Vec<u8>>) {
+    let normalized = threshold(image, thresh);
+    let encoded = encode_png(&normalized);
+    (normalized, encoded)
+}
+
+/// Encodes a grayscale image as PNG bytes in memory.
+pub(crate) fn encode_png(image: &GrayImage) -> image::ImageResult<Vec<u8>> {
+    let mut buf = Vec::new();
+    image::codecs::png::PngEncoder::new(Cursor::new(&mut buf)).write_image(
+        image.as_raw(),
+        image.width(),
+        image.height(),
+        image::ExtendedColorType::L8,
+    )?;
+    Ok(buf)
 }
 
 #[cfg(test)]

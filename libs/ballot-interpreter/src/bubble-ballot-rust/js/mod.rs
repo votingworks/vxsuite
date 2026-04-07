@@ -97,7 +97,7 @@ fn interpret(
         },
     );
 
-    let card = match interpret_result {
+    let mut card = match interpret_result {
         Ok(card) => card,
         Err(err) => {
             // Don't throw `interpret::Error`, for better structured & typed handling.
@@ -109,32 +109,46 @@ fn interpret(
         }
     };
 
-    let maybe_save_normalized_image =
-        |path: Option<PathBuf>, image: &GrayImage| -> Result<(), String> {
+    // Extract the pre-encoded PNG bytes. The expensive PNG encoding already
+    // happened in parallel with scoring inside ballot_card().
+    let front_encoded = std::mem::replace(&mut card.front.encoded_normalized_image, Ok(Vec::new()));
+    let back_encoded = std::mem::replace(&mut card.back.encoded_normalized_image, Ok(Vec::new()));
+
+    let maybe_save_encoded_image =
+        |path: Option<PathBuf>, encoded: image::ImageResult<Vec<u8>>| -> Result<(), String> {
             match path {
                 None => Ok(()),
-                Some(ref path) => image.save(path).map_err(|err| {
-                    format!(
-                        "unable to save image to {path}: {err}",
-                        path = path.display()
-                    )
-                }),
+                Some(ref path) => {
+                    let bytes = encoded.map_err(|err| {
+                        format!(
+                            "unable to encode image for {path}: {err}",
+                            path = path.display()
+                        )
+                    })?;
+                    std::fs::write(path, bytes).map_err(|err| {
+                        format!(
+                            "unable to save image to {path}: {err}",
+                            path = path.display()
+                        )
+                    })
+                }
             }
         };
 
+    // Write the pre-encoded PNG bytes to disk.
     match rayon::join(
         || {
-            maybe_save_normalized_image(
+            maybe_save_encoded_image(
                 options
                     .front_normalized_image_output_path
                     .map(PathBuf::from),
-                &card.front.normalized_image,
+                front_encoded,
             )
         },
         || {
-            maybe_save_normalized_image(
+            maybe_save_encoded_image(
                 options.back_normalized_image_output_path.map(PathBuf::from),
-                &card.back.normalized_image,
+                back_encoded,
             )
         },
     ) {

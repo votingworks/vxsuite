@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, Mul};
 
-use image::{GenericImageView, GrayImage};
+use image::GrayImage;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::ballot_card::BallotSide;
@@ -11,13 +11,10 @@ use types_rs::geometry::{
 };
 
 use crate::ballot_card::BallotImage;
-use crate::image_utils::{count_pixels, count_pixels_in_shape, threshold, VerticalStreak};
+use crate::debug;
+use crate::image_utils::{count_pixels_in_shape, VerticalStreak};
 use crate::interpret::{Error, Result};
 use crate::timing_marks::TimingMarks;
-use crate::{
-    debug,
-    image_utils::{diff, BLACK},
-};
 
 #[derive(Clone, Copy, Serialize, Default)]
 #[must_use]
@@ -95,10 +92,6 @@ pub struct ScoredBubbleMark {
     /// The bounds of the bubble mark in the scanned source image that was
     /// determined to be the best match.
     pub matched_bounds: Rect,
-
-    /// The diff image that was used to produce `fill_score`.
-    #[serde(skip)]
-    pub fill_diff_image: GrayImage,
 }
 
 impl Debug for ScoredBubbleMark {
@@ -183,46 +176,123 @@ pub fn score_bubble_marks_from_grid_layout(
             &scored_bubbles,
             detected_vertical_streaks,
             timing_marks,
+            ballot_image,
+            bubble_template,
         );
     });
 
     Ok(scored_bubbles)
 }
 
-/// Computes a match score between a region of the source image and a bubble
-/// template. Equivalent to `threshold` -> `diff` -> counting white pixels, but
-/// without allocating intermediate images.
+/// A region of a ballot image overlaid with a bubble template at a specific
+/// position. Provides semantic operations (match scoring, fill scoring, pixel
+/// iteration) over raw image buffers without allocating intermediate images.
 ///
-/// # Panics
+/// See the "Score Bubble Marks" section of `README.md` for details on the
+/// template matching and fill scoring algorithms.
 ///
-/// Panics if the template-sized region at `(x, y)` extends beyond the image
-/// bounds, i.e. if `x + template.width() > img.width()` or
-/// `y + template.height() > img.height()`.
-fn compute_match_score(
-    img: &GrayImage,
-    template: &GrayImage,
-    x: u32,
-    y: u32,
-    threshold_val: u8,
-) -> UnitIntervalScore {
-    let width = template.width();
-    let height = template.height();
-    let total_pixels = (width * height) as f32;
-    let mut matching_pixels = 0u32;
-    for py in 0..height {
-        for px in 0..width {
-            let source_val = img.get_pixel(x + px, y + py).0[0];
-            let binarized = if source_val <= threshold_val {
-                0u8
-            } else {
-                255u8
-            };
-            if binarized <= template.get_pixel(px, py).0[0] {
-                matching_pixels += 1;
-            }
+/// The bubble template is a binarized image of what a blank (unfilled) bubble
+/// looks like: **black** pixels are the bubble outline, and **white** pixels
+/// are the blank paper inside and outside the bubble.
+///
+/// ## Match score
+///
+/// Measures how well the template aligns with the scanned image at this
+/// position. A pixel "matches" when the scan agrees with the template:
+/// - **Template is white** (blank paper): always matches, since blank paper
+///   can appear light if no mark was made or dark if the area was marked
+///   by the voter. These are "don't care" pixels for alignment purposes.
+/// - **Template is black** (bubble outline): matches only if the scanned
+///   pixel is also dark, confirming the outline is where we expect it.
+///
+/// This gives the condition: `source_is_dark || template_is_white`. A higher
+/// match score means the bubble outline in the scan aligns well with the
+/// template — used to find the best bubble position within a search window.
+///
+/// ## Fill score
+///
+/// Measures how much ink is present where blank paper is expected. A pixel is
+/// "filled" when the template is white (expecting blank paper) but the scan
+/// is dark (ink present). This gives: `source_is_dark && template_is_white`.
+/// A higher fill score means more of the bubble interior has been marked by
+/// the voter.
+pub(crate) struct BubbleRegion<'a> {
+    image_pixels: &'a [u8],
+    image_stride: usize,
+    template_pixels: &'a [u8],
+    width: usize,
+    height: usize,
+    region_x: usize,
+    region_y: usize,
+    threshold: u8,
+}
+
+impl<'a> BubbleRegion<'a> {
+    pub fn new(img: &'a GrayImage, template: &'a GrayImage, x: u32, y: u32, threshold: u8) -> Self {
+        Self {
+            image_pixels: img.as_raw(),
+            image_stride: img.width() as usize,
+            template_pixels: template.as_raw(),
+            width: template.width() as usize,
+            height: template.height() as usize,
+            region_x: x as usize,
+            region_y: y as usize,
+            threshold,
         }
     }
-    UnitIntervalScore(matching_pixels as f32 / total_pixels)
+
+    /// Iterates over each pixel in the region, calling `f(px, py,
+    /// source_is_dark, template_is_white)` for each. Coordinates are relative
+    /// to the region origin.
+    ///
+    /// Using `#[inline(always)]` here because this abstraction prevents the
+    /// compiler from properly optimizing callers if it is not inlined. I've
+    /// measured this using the included project benchmarks on Rust 1.93.
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
+    fn for_each_pixel(&self, mut f: impl FnMut(usize, usize, bool, bool)) {
+        let mut img_row_start = self.region_y * self.image_stride + self.region_x;
+        for py in 0..self.height {
+            let img_row = &self.image_pixels[img_row_start..img_row_start + self.width];
+            let tmpl_row = &self.template_pixels[py * self.width..(py + 1) * self.width];
+            for (px, (&source_val, &tmpl_val)) in img_row.iter().zip(tmpl_row.iter()).enumerate() {
+                f(px, py, source_val <= self.threshold, tmpl_val == 255);
+            }
+            img_row_start += self.image_stride;
+        }
+    }
+
+    /// Computes the match score. See [`BubbleRegion`] for details.
+    pub fn match_score(&self) -> UnitIntervalScore {
+        let mut matching = 0u32;
+        self.for_each_pixel(|_, _, source_dark, tmpl_white| {
+            if source_dark || tmpl_white {
+                matching += 1;
+            }
+        });
+        UnitIntervalScore(matching as f32 / (self.width * self.height) as f32)
+    }
+
+    /// Computes the fill score. See [`BubbleRegion`] for details.
+    pub fn fill_score(&self) -> UnitIntervalScore {
+        let mut filled = 0u32;
+        self.for_each_pixel(|_, _, source_dark, tmpl_white| {
+            if source_dark && tmpl_white {
+                filled += 1;
+            }
+        });
+        UnitIntervalScore(filled as f32 / (self.width * self.height) as f32)
+    }
+
+    /// Calls `f(px, py)` for each filled pixel (template white AND source dark).
+    /// Coordinates are relative to the region origin.
+    pub fn for_each_filled_pixel(&self, mut f: impl FnMut(usize, usize)) {
+        self.for_each_pixel(|px, py, source_dark, tmpl_white| {
+            if source_dark && tmpl_white {
+                f(px, py);
+            }
+        });
+    }
 }
 
 /// Scores a bubble mark within a scanned ballot image.
@@ -279,8 +349,8 @@ pub fn score_bubble_mark(
                 continue;
             }
 
-            let match_score =
-                compute_match_score(img, bubble_template, x as u32, y as u32, threshold_val);
+            let region = BubbleRegion::new(img, bubble_template, x as u32, y as u32, threshold_val);
+            let match_score = region.match_score();
 
             match best_match {
                 None => {
@@ -300,17 +370,14 @@ pub fn score_bubble_mark(
     }
 
     let best_match = best_match?;
-    let source_image = img
-        .view(
-            best_match.bounds.left() as PixelUnit,
-            best_match.bounds.top() as PixelUnit,
-            best_match.bounds.width(),
-            best_match.bounds.height(),
-        )
-        .to_image();
-    let binarized_source_image = threshold(&source_image, ballot_image.threshold());
-    let diff_image = diff(bubble_template, &binarized_source_image);
-    let fill_score = UnitIntervalScore(count_pixels(&diff_image, BLACK).ratio());
+    let best_region = BubbleRegion::new(
+        img,
+        bubble_template,
+        best_match.bounds.left() as u32,
+        best_match.bounds.top() as u32,
+        threshold_val,
+    );
+    let fill_score = best_region.fill_score();
 
     Some(ScoredBubbleMark {
         location: *location,
@@ -318,7 +385,6 @@ pub fn score_bubble_mark(
         fill_score,
         expected_bounds,
         matched_bounds: best_match.bounds,
-        fill_diff_image: diff_image,
     })
 }
 
@@ -399,10 +465,37 @@ fn score_write_in_area(
 mod test {
     use super::*;
     use crate::ballot_card::BallotImage;
-    use image::{GenericImageView, GrayImage};
+    use image::{GenericImageView, GrayImage, Luma};
     use proptest::prelude::*;
     use types_rs::ballot_card::BallotSide;
     use types_rs::geometry::Point;
+
+    /// Generates an image from two images where corresponding pixels in `compare`
+    /// that are darker than their counterpart in `base` show up with the luminosity
+    /// difference between the two. This is useful for determining where a
+    /// light-background form was filled out, for example.
+    ///
+    /// Note that the sizes of the images must be equal.
+    ///
+    /// ```text
+    ///         BASE                  COMPARE                 DIFF
+    /// ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+    /// │                   │  │        █ █ ███    │  │        █ █ ███    │
+    /// │ █ █               │  │ █ █    ███  █     │  │        ███  █     │
+    /// │  █                │  │  █     █ █ ███    │  │        █ █ ███    │
+    /// │ █ █ █████████████ │  │ █ █ █████████████ │  │                   │
+    /// └───────────────────┘  └───────────────────┘  └───────────────────┘
+    /// ```
+    fn diff(base: &GrayImage, compare: &GrayImage) -> GrayImage {
+        assert_eq!(base.dimensions(), compare.dimensions());
+        let mut out = GrayImage::new(base.width(), base.height());
+        base.enumerate_pixels().for_each(|(x, y, base_pixel)| {
+            let compare_pixel = compare.get_pixel(x, y);
+            let d = base_pixel.0[0].saturating_sub(compare_pixel.0[0]);
+            out.put_pixel(x, y, Luma([u8::MAX - d]));
+        });
+        out
+    }
 
     fn make_ballot_image(width: u32, height: u32) -> BallotImage {
         BallotImage::for_testing(
@@ -492,7 +585,7 @@ mod test {
         template: &GrayImage,
         threshold_val: u8,
     ) -> UnitIntervalScore {
-        use crate::image_utils::{count_pixels, diff, threshold};
+        use crate::image_utils::{count_pixels, threshold};
         let white = image::Luma([255u8]);
         let binarized = threshold(source, threshold_val);
         let match_diff = diff(&binarized, template);
@@ -540,7 +633,7 @@ mod test {
             let img = GrayImage::from_raw(100, 100, img_pixels).unwrap();
             let template = GrayImage::from_raw(20, 20, tmpl_pixels).unwrap();
 
-            let actual = compute_match_score(&img, &template, x, y, threshold_val);
+            let actual = BubbleRegion::new(&img, &template, x, y, threshold_val).match_score();
             let expected = reference_match_score(
                 &img.view(x, y, 20, 20).to_image(),
                 &template,
@@ -550,6 +643,37 @@ mod test {
             prop_assert!(
                 (actual.0 - expected.0).abs() < f32::EPSILON,
                 "compute_match_score={} != reference={}", actual.0, expected.0
+            );
+        }
+
+        #[test]
+        fn compute_fill_score_agrees_with_reference_pipeline_proptest(
+            img_pixels in proptest::collection::vec(proptest::num::u8::ANY, 10_000),
+            tmpl_pixels in proptest::collection::vec(
+                proptest::strategy::Union::new([
+                    proptest::strategy::Just(0u8).boxed(),
+                    proptest::strategy::Just(255u8).boxed(),
+                ]),
+                400,
+            ),
+            threshold_val in 1u8..254,
+            x in 0u32..80,
+            y in 0u32..80,
+        ) {
+            use crate::image_utils::{count_pixels, threshold};
+            let img = GrayImage::from_raw(100, 100, img_pixels).unwrap();
+            let template = GrayImage::from_raw(20, 20, tmpl_pixels).unwrap();
+
+            let actual = BubbleRegion::new(&img, &template, x, y, threshold_val).fill_score();
+
+            // Reference: threshold -> diff(template, binarized) -> count black
+            let binarized = threshold(&img.view(x, y, 20, 20).to_image(), threshold_val);
+            let diff_image = diff(&template, &binarized);
+            let expected = UnitIntervalScore(count_pixels(&diff_image, image::Luma([0u8])).ratio());
+
+            prop_assert!(
+                (actual.0 - expected.0).abs() < f32::EPSILON,
+                "compute_fill_score={} != reference={}", actual.0, expected.0
             );
         }
     }

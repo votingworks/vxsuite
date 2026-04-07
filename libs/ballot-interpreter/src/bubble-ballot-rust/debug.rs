@@ -15,11 +15,11 @@ use types_rs::geometry::{
     PixelPosition, PixelUnit, Point, Quadrilateral, Rect, Segment, SubGridUnit, SubPixelUnit,
 };
 
-use crate::ballot_card::Geometry;
+use crate::ballot_card::{BallotImage, Geometry};
 
-use crate::image_utils::{dark_rainbow, rainbow, VerticalStreak, BLACK};
+use crate::image_utils::{dark_rainbow, rainbow, VerticalStreak};
 use crate::layout::InterpretedContestLayout;
-use crate::scoring::UnitIntervalScore;
+use crate::scoring::{BubbleRegion, UnitIntervalScore};
 use crate::timing_marks::scoring::CandidateTimingMark;
 use crate::timing_marks::{Corner, TimingMarks};
 use crate::{
@@ -612,6 +612,8 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
     scored_bubble_marks: &[(GridPosition, Option<ScoredBubbleMark>)],
     streaks: &[VerticalStreak],
     timing_marks: &TimingMarks,
+    ballot_image: &BallotImage,
+    bubble_template: &GrayImage,
 ) {
     for (i, (vertical_streak, color)) in streaks.iter().zip(dark_rainbow()).enumerate() {
         let x_start = *vertical_streak.x_range.start();
@@ -760,15 +762,22 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 WHITE_RGB,
             );
 
-            for (x, y, &luma) in scored_bubble_mark.fill_diff_image.enumerate_pixels() {
-                if luma == BLACK {
-                    let x = scored_bubble_mark.matched_bounds.left() + x as i32;
-                    let y = scored_bubble_mark.matched_bounds.top() + y as i32;
-                    if let (Ok(x), Ok(y)) = (x.try_into(), y.try_into()) {
-                        *canvas.get_pixel_mut(x, y) = PINK;
-                    }
+            let region = BubbleRegion::new(
+                ballot_image.image(),
+                bubble_template,
+                scored_bubble_mark.matched_bounds.left() as u32,
+                scored_bubble_mark.matched_bounds.top() as u32,
+                ballot_image.threshold(),
+            );
+            let bx = scored_bubble_mark.matched_bounds.left();
+            let by = scored_bubble_mark.matched_bounds.top();
+            region.for_each_filled_pixel(|px, py| {
+                if let (Ok(x), Ok(y)) =
+                    (u32::try_from(bx + px as i32), u32::try_from(by + py as i32))
+                {
+                    *canvas.get_pixel_mut(x, y) = PINK;
                 }
-            }
+            });
 
             draw_hollow_rect_mut(
                 canvas,
