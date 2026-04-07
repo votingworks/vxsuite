@@ -27,11 +27,8 @@ import {
   SheetOf,
   ImageData,
   BaseBallotProps,
+  ElectionDefinition,
 } from '@votingworks/types';
-import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import { createCanvas } from 'canvas';
 import {
   electionFamousNames2021Fixtures,
@@ -55,13 +52,9 @@ beforeEach(() => {
 });
 
 describe('HMPB - VX Famous Names', () => {
-  const {
-    electionDefinition,
-    precinctId,
-    votes,
-    blankBallotPath,
-    markedBallotPath,
-  } = vxFamousNamesFixtures;
+  const { electionDefinition, votes, blankBallotPath, markedBallotPath } =
+    vxFamousNamesFixtures;
+  const precinctId = assertDefined(vxFamousNamesFixtures.precinctId);
 
   test.each([false, true])(
     'Blank ballot interpretation',
@@ -73,9 +66,7 @@ describe('HMPB - VX Famous Names', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -129,9 +120,7 @@ describe('HMPB - VX Famous Names', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -162,9 +151,7 @@ describe('HMPB - VX Famous Names', () => {
             ...electionDefinition,
             ballotHash: 'wrong ballot hash',
           },
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -188,9 +175,7 @@ describe('HMPB - VX Famous Names', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            election.precincts[1]!.id
-          ),
+          validPrecinctIds: new Set([election.precincts[1]!.id]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -212,9 +197,7 @@ describe('HMPB - VX Famous Names', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds: new Set([precinctId]),
           testMode: false,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -235,9 +218,7 @@ describe('HMPB - VX Famous Names', () => {
 
       const options: InterpreterOptions = {
         electionDefinition,
-        precinctSelection: singlePrecinctSelectionFor(
-          assertDefined(precinctId)
-        ),
+        validPrecinctIds: new Set([precinctId]),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -281,9 +262,7 @@ describe('HMPB - VX Famous Names', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -447,7 +426,7 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
         const [frontResult, backResult] = await interpretSheet(
           {
             electionDefinition,
-            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            validPrecinctIds: new Set([precinctId]),
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
@@ -536,7 +515,7 @@ describe('HMPB - VX primary election', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -579,7 +558,7 @@ describe('HMPB - VX primary election', () => {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -611,7 +590,7 @@ describe('HMPB - VX primary election', () => {
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -642,7 +621,7 @@ describe('HMPB - VX primary election', () => {
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -680,7 +659,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
         const [frontResult, backResult] = await interpretSheet(
           {
             electionDefinition,
-            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            validPrecinctIds: new Set([precinctId]),
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
@@ -758,7 +737,7 @@ test('Non-consecutive page numbers', async () => {
   const [frontResult, backResult] = await interpretSheet(
     {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
@@ -802,9 +781,7 @@ test('Ballot audit IDs', async () => {
   const [frontResult, backResult] = await interpretSheet(
     {
       electionDefinition: electionDefinitionModified,
-      precinctSelection: singlePrecinctSelectionFor(
-        ballotPropsWithAuditId.precinctId
-      ),
+      validPrecinctIds: new Set([ballotPropsWithAuditId.precinctId]),
       testMode,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
@@ -860,7 +837,7 @@ describe('Contest option bounds', () => {
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -921,7 +898,7 @@ describe('Contest option bounds', () => {
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -934,3 +911,7 @@ describe('Contest option bounds', () => {
     snapshotCandidateOptionCrops(images, [frontResult, backResult]);
   });
 });
+
+function allPrecinctIds(electionDef: ElectionDefinition) {
+  return new Set(electionDef.election.precincts.map((p) => p.id));
+}

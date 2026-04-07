@@ -11,7 +11,6 @@ import {
   ElectionDefinition,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
@@ -35,7 +34,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
@@ -70,7 +69,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          validPrecinctIds: new Set([precinctId]),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
@@ -104,7 +103,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
         const [frontResult, backResult] = await interpretSheet(
           {
             electionDefinition,
-            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            validPrecinctIds: new Set([precinctId]),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.Overvote],

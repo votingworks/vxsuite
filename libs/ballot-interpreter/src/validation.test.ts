@@ -6,7 +6,6 @@ import {
   DEFAULT_MARK_THRESHOLDS,
   PageInterpretation,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { normalizeBallotMode } from './validation';
 import { InterpreterOptions } from './types';
 
@@ -38,12 +37,15 @@ function createInterpreterOptions(spec: {
   allowOfficialBallotsInTestMode: boolean;
   isTestModeInterpreter: boolean;
 }) {
+  const electionDefinition = readElectionGeneralDefinition();
+  const { precincts } = electionDefinition.election;
+
   const options: InterpreterOptions = {
     adjudicationReasons: [],
     allowOfficialBallotsInTestMode: spec.allowOfficialBallotsInTestMode,
-    electionDefinition: readElectionGeneralDefinition(),
+    electionDefinition,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    validPrecinctIds: new Set(precincts.map((p) => p.id)),
     testMode: spec.isTestModeInterpreter,
   };
   return options;

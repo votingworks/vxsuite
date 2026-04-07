@@ -2,13 +2,13 @@ import { test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { interpretSheet } from '../src';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
 
 const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =
   vxFamousNamesFixtures;
+const validPrecinctIds = new Set([assertDefined(precinctId)]);
 
 test('Blank HMPB', async () => {
   const ballotImages = asSheet(
@@ -21,9 +21,7 @@ test('Blank HMPB', async () => {
       await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds,
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
@@ -46,9 +44,7 @@ test('Marked HMPB', async () => {
       await interpretSheet(
         {
           electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(
-            assertDefined(precinctId)
-          ),
+          validPrecinctIds,
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],

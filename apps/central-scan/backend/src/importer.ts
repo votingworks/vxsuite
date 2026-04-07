@@ -219,11 +219,12 @@ export class Importer {
       maxCumulativeStreakWidth,
       retryStreakWidthThreshold,
     } = assertDefined(store.getSystemSettings());
+    const { precincts } = electionDefinition.election;
 
     return await interpretSheetAndSaveImages(
       {
         electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
+        validPrecinctIds: new Set(precincts.map((p) => p.id)),
         testMode: store.getTestMode(),
         disableVerticalStreakDetection,
         adjudicationReasons: store.getAdjudicationReasons(),

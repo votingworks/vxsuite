@@ -45,10 +45,10 @@ import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
+  getPrecinctSelectionIds,
   isCardlessVoterAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
-  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
@@ -379,7 +379,10 @@ async function loadMetadataAndInterpretBallot(context: {
     (await loadImageData(scannedBallotImagePath)).unsafeUnwrap(),
     {
       electionDefinition,
-      precinctSelection,
+      validPrecinctIds: getPrecinctSelectionIds(
+        electionDefinition.election.precincts,
+        precinctSelection
+      ),
       testMode: store.getTestMode(),
       markThresholds,
       adjudicationReasons: precinctScanAdjudicationReasons,
@@ -1200,9 +1203,9 @@ export function buildMachine(
                   const electionDefinition = assertDefined(
                     context.paperHandlerDiagnosticElection
                   );
-                  const precinctSelection = singlePrecinctSelectionFor(
-                    electionDefinition.election.precincts[0].id
-                  );
+                  const validPrecinctIds = new Set([
+                    electionDefinition.election.precincts[0].id,
+                  ]);
 
                   const markThresholds: MarkThresholds = {
                     marginal: 0.05,
@@ -1221,7 +1224,7 @@ export function buildMachine(
                     ).unsafeUnwrap(),
                     {
                       electionDefinition,
-                      precinctSelection,
+                      validPrecinctIds,
                       testMode: true,
                       markThresholds,
                       adjudicationReasons: [],

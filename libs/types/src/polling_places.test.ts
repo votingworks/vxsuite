@@ -254,22 +254,11 @@ test('pollingPlaceMembers', () => {
 });
 
 test('pollingPlacePrecinctIds', () => {
-  const split1 = mockSplit({ id: 's1' });
-  const split2 = mockSplit({ id: 's2' });
-
-  const precinct1 = mockPrecinctNoSplits({ id: 'p1' });
-  const precinct2 = mockPrecinctWithSplits({
-    id: 'p2',
-    splits: [split1, split2],
-  });
-
-  const election = mockElection({ precincts: [precinct1, precinct2] });
-
   function expectPrecinctIds(
     place: Partial<PollingPlace>,
     expected: PrecinctId[]
   ) {
-    expect(pollingPlacePrecinctIds(election, mockPollingPlace(place))).toEqual(
+    expect(pollingPlacePrecinctIds(mockPollingPlace(place))).toEqual(
       new Set(expected)
     );
   }

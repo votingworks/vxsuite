@@ -50,6 +50,17 @@ export function getPrecinctSelectionName(
   return getPrecinctSelection(precincts, precinctSelection).name;
 }
 
+export function getPrecinctSelectionIds(
+  precincts: readonly Precinct[],
+  precinctSelection: PrecinctSelection
+): Set<string> {
+  if (precinctSelection.kind === 'AllPrecincts') {
+    return new Set(precincts.map((p) => p.id));
+  }
+
+  return new Set([precinctSelection.precinctId]);
+}
+
 export function areEqualPrecinctSelections(
   precinctSelectionOne: PrecinctSelection,
   precinctSelectionTwo: PrecinctSelection

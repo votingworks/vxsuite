@@ -4,15 +4,13 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   CandidateContest,
   DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
   InterpretedHmpbPage,
   PageInterpretation,
   VotesDict,
   asSheet,
 } from '@votingworks/types';
-import {
-  ALL_PRECINCTS_SELECTION,
-  CachedElectionLookups,
-} from '@votingworks/utils';
+import { CachedElectionLookups } from '@votingworks/utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
@@ -44,10 +42,11 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     ).toArray()
   );
 
+  const validPrecinctIds = allPrecinctIds(electionDefinition);
   const [bmdPage1Result, bmdPage2Result] = await interpretSheet(
     {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
@@ -70,7 +69,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
   const [hmpbPage1Result, hmpbPage2Result] = await interpretSheet(
     {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
@@ -110,7 +109,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
   const [bmdPage1Result, bmdPage2Result] = await interpretSheet(
     {
       electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       // Mode mismatch
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -126,3 +125,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
     type: 'BlankPage',
   });
 });
+
+function allPrecinctIds(electionDef: ElectionDefinition) {
+  return new Set(electionDef.election.precincts.map((p) => p.id));
+}
