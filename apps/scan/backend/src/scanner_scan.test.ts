@@ -36,6 +36,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
+  mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
@@ -329,7 +330,9 @@ test('ballot with wrong election rejected', async () => {
   );
 });
 
-test('ballot with wrong precinct rejected', async () => {
+test('ballot with wrong precinct rejected (polling places disabled)', async () => {
+  setPollingPlacesEnabled(false);
+
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
@@ -357,6 +360,41 @@ test('ballot with wrong precinct rejected', async () => {
       mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
+      await waitForStatus(apiClient, { state: 'rejected', interpretation });
+    }
+  );
+});
+
+test('ballot with wrong precinct rejected', async () => {
+  setPollingPlacesEnabled(true);
+
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        pollingPlaceId: '22-polling-place',
+        testMode: true,
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeBmd()
+      );
+
+      const interpretation: SheetInterpretation = {
+        type: 'InvalidSheet',
+        reason: 'invalid_precinct',
+      };
+      await waitForStatus(apiClient, { state: 'rejecting', interpretation });
+      expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
+        'toFrontAndHold'
+      );
+
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'rejected', interpretation });
     }
   );
@@ -720,3 +758,12 @@ test('disconnect scanner errors absorbed in unrecoverable_error state', async ()
     }
   );
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  if (enabled) {
+    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+  } else {
+    mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
+  }
+}
