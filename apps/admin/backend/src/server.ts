@@ -129,6 +129,16 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         options.multiUsbDrive ?? detectMultiUsbDrive(logger);
       const printer = options.printer ?? detectPrinter(logger);
 
+      // Release any stale ballot claims from this host machine left over
+      // from a previous process (e.g. crash or restart).
+      const currentElectionId = workspace.store.getCurrentElectionId();
+      if (currentElectionId) {
+        workspace.store.releaseAllClaimsForMachine({
+          electionId: currentElectionId,
+          machineId: getMachineConfig().machineId,
+        });
+      }
+
       const isMultiStationEnabled = isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
       );

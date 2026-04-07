@@ -777,6 +777,7 @@ function buildApi({
       return (
         store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
+          machineId: getMachineConfig().machineId,
         }) ?? null
       );
     },
