@@ -208,21 +208,14 @@ pub async fn interpret_images(
     let election: Election = from_json(election)?;
     let options: JsInterpretOptions = from_json(options)?;
 
+    let side_a_w = as_u32(side_a_image_width)?;
+    let side_a_h = as_u32(side_a_image_height)?;
+    let side_b_w = as_u32(side_b_image_width)?;
+    let side_b_h = as_u32(side_b_image_height)?;
+
     let (side_a_image, side_b_image) = match rayon::join(
-        || {
-            gray_image(
-                side_a_image_width,
-                side_a_image_height,
-                side_a_image_data.to_vec(),
-            )
-        },
-        || {
-            gray_image(
-                side_b_image_width,
-                side_b_image_height,
-                side_b_image_data.to_vec(),
-            )
-        },
+        || gray_image(side_a_w, side_a_h, side_a_image_data.to_vec()),
+        || gray_image(side_b_w, side_b_h, side_b_image_data.to_vec()),
     ) {
         (Err(err), _) | (_, Err(err)) => return Err(err),
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
@@ -284,14 +277,16 @@ pub async fn find_timing_mark_grid_from_image(
     image_data: Buffer,
     debug_path: Option<String>,
 ) -> napi::Result<serde_json::Value> {
-    let image = gray_image(image_width, image_height, image_data.to_vec())?;
+    let image = gray_image(
+        as_u32(image_width)?,
+        as_u32(image_height)?,
+        image_data.to_vec(),
+    )?;
     let timing_marks = find_timing_mark_grid_inner(image, "image", debug_path.map(Into::into))?;
     to_json(&timing_marks)
 }
 
-fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, napi::Error> {
-    let width = as_u32(width)?;
-    let height = as_u32(height)?;
+fn gray_image(width: u32, height: u32, data: Vec<u8>) -> Result<GrayImage, napi::Error> {
     let len = data.len();
     let pixel_count = (width as usize)
         .checked_mul(height as usize)
@@ -432,8 +427,8 @@ mod test {
     proptest! {
         #[test]
         fn gray_image_never_panics(
-            width in proptest::num::f64::ANY,
-            height in proptest::num::f64::ANY,
+            width in proptest::num::u32::ANY,
+            height in proptest::num::u32::ANY,
             data in proptest::collection::vec(proptest::num::u8::ANY, 0..256),
         ) {
             let _ = gray_image(width, height, data);
@@ -447,7 +442,7 @@ mod test {
             (SCAN_WIDTH, SCAN_HEIGHT_22IN),
         ] {
             let data = vec![128u8; w as usize * h as usize];
-            let result = gray_image(f64::from(w), f64::from(h), data);
+            let result = gray_image(w, h, data);
             assert!(result.is_ok());
             let img = result.unwrap();
             assert_eq!(img.width(), w);
@@ -462,7 +457,7 @@ mod test {
             (SCAN_WIDTH, SCAN_HEIGHT_22IN),
         ] {
             let data = vec![128u8; w as usize * h as usize * 4];
-            let result = gray_image(f64::from(w), f64::from(h), data);
+            let result = gray_image(w, h, data);
             assert!(result.is_ok());
             let img = result.unwrap();
             assert_eq!(img.width(), w);
@@ -475,15 +470,13 @@ mod test {
         let pixel_count = SCAN_WIDTH as usize * SCAN_HEIGHT_LETTER as usize;
         // A buffer that is neither 1x nor 4x the pixel count.
         let data = vec![0u8; pixel_count * 2];
-        assert!(gray_image(f64::from(SCAN_WIDTH), f64::from(SCAN_HEIGHT_LETTER), data).is_err());
+        assert!(gray_image(SCAN_WIDTH, SCAN_HEIGHT_LETTER, data).is_err());
     }
 
     #[test]
     fn gray_image_does_not_panic_on_pixel_count_times_4_overflow() {
         // u32::MAX × u32::MAX fits in usize on 64-bit, but multiplying by 4
         // overflows. This must return Err, not panic.
-        let w = f64::from(u32::MAX);
-        let h = f64::from(u32::MAX);
-        assert!(gray_image(w, h, vec![]).is_err());
+        assert!(gray_image(u32::MAX, u32::MAX, vec![]).is_err());
     }
 }
