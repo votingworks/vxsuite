@@ -145,14 +145,17 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   }
   assert(cvrId !== undefined);
   assert(writeIn !== undefined);
-  await apiClient.adjudicateCvrContest({
-    adjudicatedContestOptionById: {
-      [writeIn.optionId]: { hasVote: false, type: 'write-in-option' },
-    },
-    contestId,
-    cvrId,
-    side: 'front',
-  });
+  await apiClient.claimBallotForAdjudication({ cvrId });
+  expect(
+    await apiClient.adjudicateCvrContest({
+      adjudicatedContestOptionById: {
+        [writeIn.optionId]: { hasVote: false, type: 'write-in-option' },
+      },
+      contestId,
+      cvrId,
+      side: 'front',
+    })
+  ).toEqual(ok());
   const resultsExportAfterAdjudication = await getParsedExport({
     apiClient,
     mockUsbDrive,
@@ -161,19 +164,21 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   expect(resultsExportAfterAdjudication).not.toEqual(doubledResultsExport);
 
   // adjudicating a mark as a vote (by un-invalidating the write-in) should clear the cache
-  await apiClient.adjudicateCvrContest({
-    adjudicatedContestOptionById: {
-      [writeIn.optionId]: {
-        hasVote: true,
-        type: 'write-in-option',
-        candidateId: 'Obadiah-Carrigan-5c95145a',
-        candidateType: 'official-candidate',
+  expect(
+    await apiClient.adjudicateCvrContest({
+      adjudicatedContestOptionById: {
+        [writeIn.optionId]: {
+          hasVote: true,
+          type: 'write-in-option',
+          candidateId: 'Obadiah-Carrigan-5c95145a',
+          candidateType: 'official-candidate',
+        },
       },
-    },
-    contestId,
-    cvrId,
-    side: 'front',
-  });
+      contestId,
+      cvrId,
+      side: 'front',
+    })
+  ).toEqual(ok());
   const resultsExportAfterReAdjudication = await getParsedExport({
     apiClient,
     mockUsbDrive,

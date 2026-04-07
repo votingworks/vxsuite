@@ -9,7 +9,7 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, ok } from '@votingworks/basics';
 import {
   BallotStyleGroupId,
   DEV_MACHINE_ID,
@@ -140,46 +140,53 @@ test('general, full election, write in adjudication', async () => {
   const NUM_UNOFFICIAL = 56 - NUM_INVALID - NUM_OFFICIAL;
   for (const [i, writeIn] of writeIns.entries()) {
     const { cvrId, contestId, optionId } = writeIn;
+    await apiClient.claimBallotForAdjudication({ cvrId });
     if (i < NUM_INVALID) {
-      await apiClient.adjudicateCvrContest({
-        cvrId,
-        contestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [optionId]: {
-            type: 'write-in-option',
-            hasVote: false,
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [optionId]: {
+              type: 'write-in-option',
+              hasVote: false,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     } else if (i < NUM_INVALID + NUM_OFFICIAL) {
-      await apiClient.adjudicateCvrContest({
-        cvrId,
-        contestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [optionId]: {
-            type: 'write-in-option',
-            candidateId: officialCandidateId,
-            candidateType: 'official-candidate',
-            hasVote: true,
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [optionId]: {
+              type: 'write-in-option',
+              candidateId: officialCandidateId,
+              candidateType: 'official-candidate',
+              hasVote: true,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     } else {
-      await apiClient.adjudicateCvrContest({
-        cvrId,
-        contestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [optionId]: {
-            type: 'write-in-option',
-            candidateName: unofficialCandidate.name,
-            candidateType: 'write-in-candidate',
-            hasVote: true,
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [optionId]: {
+              type: 'write-in-option',
+              candidateName: unofficialCandidate.name,
+              candidateType: 'write-in-candidate',
+              hasVote: true,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     }
   }
 
@@ -965,19 +972,22 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   const NUM_ADJUDICATED = 3;
   for (const [i, writeIn] of writeIns.entries()) {
     if (i < NUM_ADJUDICATED) {
-      await apiClient.adjudicateCvrContest({
-        cvrId: writeIn.cvrId,
-        contestId: writeInContestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [writeIn.optionId]: {
-            type: 'write-in-option',
-            candidateName: unofficialCandidate.name,
-            candidateType: 'write-in-candidate',
-            hasVote: true,
+      await apiClient.claimBallotForAdjudication({ cvrId: writeIn.cvrId });
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId: writeIn.cvrId,
+          contestId: writeInContestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [writeIn.optionId]: {
+              type: 'write-in-option',
+              candidateName: unofficialCandidate.name,
+              candidateType: 'write-in-candidate',
+              hasVote: true,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     }
   }
 

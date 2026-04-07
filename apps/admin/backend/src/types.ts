@@ -665,3 +665,11 @@ export type ImportCastVoteRecordsError =
 export type ImportElectionResultsReportingError =
   | { type: 'parsing-failed' }
   | { type: 'conversion-failed' };
+
+/**
+ * Errors returned by client proxy endpoints and peer API endpoints
+ * for adjudication operations.
+ */
+export type AdjudicationError =
+  | { type: 'host-disconnect' }
+  | { type: 'no-claim' };

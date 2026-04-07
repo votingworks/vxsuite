@@ -364,21 +364,24 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
       (c) => c.contestId === candidateContestId
     );
     if (!contest) continue;
+    await apiClient.claimBallotForAdjudication({ cvrId });
     for (const option of contest.options) {
       if (option.writeInRecord) {
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId: candidateContestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [option.writeInRecord.optionId]: {
-              type: 'write-in-option',
-              candidateName: writeInCandidate.name,
-              candidateType: 'write-in-candidate',
-              hasVote: true,
+        expect(
+          await apiClient.adjudicateCvrContest({
+            cvrId,
+            contestId: candidateContestId,
+            side: 'front',
+            adjudicatedContestOptionById: {
+              [option.writeInRecord.optionId]: {
+                type: 'write-in-option',
+                candidateName: writeInCandidate.name,
+                candidateType: 'write-in-candidate',
+                hasVote: true,
+              },
             },
-          },
-        });
+          })
+        ).toEqual(ok());
       }
     }
   }

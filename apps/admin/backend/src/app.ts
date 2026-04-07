@@ -85,6 +85,7 @@ import {
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
   AdjudicatedCvrContest,
+  AdjudicationError,
   MachineMode,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
@@ -725,12 +726,37 @@ function buildApi({
       );
     },
 
-    adjudicateCvrContest(input: AdjudicatedCvrContest): void {
+    adjudicateCvrContest(
+      input: AdjudicatedCvrContest
+    ): Result<void, AdjudicationError> {
+      const { machineId } = getMachineConfig();
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      // Allow editing already-adjudicated ballots (completed by any machine)
+      // but require an active claim for in-progress ballots
+      if (
+        !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
+        !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
+      ) {
+        return err({ type: 'no-claim' });
+      }
       adjudicateCvrContest(input, store, logger);
+      return ok();
     },
 
-    setCvrResolved(input: { cvrId: Id }): void {
-      store.setCvrResolved(input);
+    setCvrResolved(input: { cvrId: Id }): Result<void, AdjudicationError> {
+      const { machineId } = getMachineConfig();
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      if (
+        !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
+        !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
+      ) {
+        return err({ type: 'no-claim' });
+      }
+      store.setCvrResolved({
+        ...input,
+        machineId,
+      });
+      return ok();
     },
 
     getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
@@ -770,6 +796,29 @@ function buildApi({
     getBallotAdjudicationQueueMetadata(): BallotAdjudicationQueueMetadata {
       return store.getBallotAdjudicationQueueMetadata({
         electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
+    getClaimedBallotCvrIds(): Id[] {
+      return store.getClaimedBallotCvrIds({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        excludeMachineId: getMachineConfig().machineId,
+      });
+    },
+
+    claimBallotForAdjudication(input: { cvrId: Id }): boolean {
+      return store.claimBallotForAdjudication({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+        machineId: getMachineConfig().machineId,
+      });
+    },
+
+    releaseBallotAdjudicationClaim(input: { cvrId: Id }): void {
+      store.releaseBallotClaim({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+        machineId: getMachineConfig().machineId,
       });
     },
 
