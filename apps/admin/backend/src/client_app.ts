@@ -9,6 +9,7 @@ import {
   assertDefined,
   err,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -20,13 +21,29 @@ import {
   UsbDriveStatus,
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
+import {
+  BallotStyleGroupId,
+  ContestId,
+  ContestOptionId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Id,
+  Side,
+  SystemSettings,
+} from '@votingworks/types';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 import {
   type MachineMode,
+  BallotPageImage,
   ClientConnectionStatus,
   ElectionRecord,
+  AdjudicatedCvrContest,
+  BallotAdjudicationData,
+  BallotImages,
+  WriteInCandidateRecord,
 } from './types';
+import { type HostConnection } from './client_store';
+import type { PeerApi } from './peer_app';
 import { type ClientWorkspace } from './util/workspace';
 import { constructAuthMachineState } from './util/auth';
 
@@ -38,6 +55,59 @@ export type NetworkConnectionStatus =
   | { status: 'online-waiting-for-host' }
   | { status: 'online-connected-to-host'; hostMachineId: string }
   | { status: 'online-multiple-hosts-detected' };
+
+const NOT_CONNECTED_TO_HOST_ERROR = 'Not connected to host.';
+
+/**
+ * Fetches a binary image from the host's peer server and returns it as a
+ * base64 data URL.
+ */
+async function fetchImageAsDataUrl(
+  hostAddress: string,
+  cvrId: Id,
+  side: Side
+): Promise<string | undefined> {
+  const url = `${hostAddress}/api/ballot-image/${cvrId}/${side}`;
+  const response = await fetch(url);
+  /* istanbul ignore next - image fetch failure @preserve */
+  if (!response.ok) return undefined;
+  /* istanbul ignore next - content-type fallback @preserve */
+  const contentType = response.headers.get('content-type') ?? 'image/png';
+  const { Buffer: NodeBuffer } = await import('node:buffer');
+  const buffer = NodeBuffer.from(await response.arrayBuffer());
+  return `data:${contentType};base64,${buffer.toString('base64')}`;
+}
+
+/**
+ * Fetches ballot image metadata from the host via grout, then fetches each
+ * side's binary image and constructs {@link BallotImages} with embedded data
+ * URLs. Binary images are fetched directly to avoid base64-in-JSON overhead.
+ */
+async function fetchBallotImagesFromHost(
+  peerApi: grout.Client<PeerApi>,
+  hostAddress: string,
+  cvrId: Id
+): Promise<BallotImages> {
+  const metadata = await peerApi.getBallotImageMetadata({ cvrId });
+
+  const [frontImageUrl, backImageUrl] = await Promise.all([
+    fetchImageAsDataUrl(hostAddress, cvrId, 'front'),
+    fetchImageAsDataUrl(hostAddress, cvrId, 'back'),
+  ]);
+
+  function withImageUrl(
+    page: BallotPageImage,
+    imageUrl?: string
+  ): BallotPageImage {
+    return { ...page, imageUrl };
+  }
+
+  return {
+    cvrId: metadata.cvrId,
+    front: withImageUrl(metadata.front, frontImageUrl),
+    back: withImageUrl(metadata.back, backImageUrl),
+  };
+}
 
 function buildClientApi({
   auth,
@@ -51,6 +121,19 @@ function buildClientApi({
   multiUsbDrive: MultiUsbDrive;
 }) {
   const { clientStore } = workspace;
+
+  async function requireHostConnection(
+    action: string
+  ): Promise<HostConnection> {
+    const connection = clientStore.getHostConnection();
+    if (!connection) {
+      await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+        message: `Cannot ${action}: not connected to host.`,
+      });
+      throw new Error(NOT_CONNECTED_TO_HOST_ERROR);
+    }
+    return connection;
+  }
 
   const usbDriveAdapter = createUsbDriveAdapter(
     multiUsbDrive,
@@ -111,6 +194,102 @@ function buildClientApi({
         isClientAdjudicationEnabled:
           clientStore.getIsClientAdjudicationEnabled(),
       };
+    },
+
+    getSystemSettings(): SystemSettings {
+      return clientStore.getCachedSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+    },
+
+    // Adjudication proxy endpoints — forward to host peer API
+
+    async claimBallot(input: {
+      currentBallotStyleId?: BallotStyleGroupId;
+      excludeCvrIds?: Id[];
+    }): Promise<Optional<Id>> {
+      const { apiClient: peerApi } =
+        await requireHostConnection('claim ballot');
+      const cvrId = await peerApi.claimBallot({
+        machineId: getMachineConfig().machineId,
+        currentBallotStyleId: input.currentBallotStyleId,
+        excludeCvrIds: input.excludeCvrIds,
+      });
+      await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+        message: cvrId
+          ? `Claimed ballot ${cvrId}.`
+          : 'No ballots available to claim.',
+        disposition: cvrId ? 'success' : 'na',
+      });
+      return cvrId;
+    },
+
+    async releaseBallot(input: { cvrId: Id }): Promise<void> {
+      const { apiClient: peerApi } =
+        await requireHostConnection('release ballot');
+      await peerApi.releaseBallot({ cvrId: input.cvrId });
+      await logger.logAsCurrentRole(LogEventId.AdminBallotReleased, {
+        message: `Released ballot ${input.cvrId}.`,
+      });
+    },
+
+    async getBallotAdjudicationData(input: {
+      cvrId: Id;
+    }): Promise<BallotAdjudicationData> {
+      const { apiClient: peerApi } =
+        await requireHostConnection('fetch ballot data');
+      return peerApi.getBallotAdjudicationData({ cvrId: input.cvrId });
+    },
+
+    async getBallotImages(input: { cvrId: Id }): Promise<BallotImages> {
+      const { address, apiClient: peerApi } = await requireHostConnection(
+        'fetch ballot images'
+      );
+      return fetchBallotImagesFromHost(peerApi, address, input.cvrId);
+    },
+
+    async getMarginalMarks(input: {
+      cvrId: Id;
+      contestId: ContestId;
+    }): Promise<ContestOptionId[]> {
+      const { apiClient: peerApi } = await requireHostConnection(
+        'fetch marginal marks'
+      );
+      return peerApi.getMarginalMarks({
+        cvrId: input.cvrId,
+        contestId: input.contestId,
+      });
+    },
+
+    async getWriteInCandidates(
+      input: { contestId?: ContestId } = {}
+    ): Promise<WriteInCandidateRecord[]> {
+      const { apiClient: peerApi } = await requireHostConnection(
+        'fetch write-in candidates'
+      );
+      return peerApi.getWriteInCandidates(input);
+    },
+
+    async adjudicateCvrContest(input: AdjudicatedCvrContest): Promise<void> {
+      const { apiClient: peerApi } =
+        await requireHostConnection('adjudicate contest');
+      await peerApi.adjudicateCvrContest(input);
+      await logger.logAsCurrentRole(LogEventId.AdminContestAdjudicated, {
+        message: `Adjudicated contest ${input.contestId} on ballot ${input.cvrId}.`,
+        disposition: 'success',
+      });
+    },
+
+    async resolveBallotTags(input: { cvrId: Id }): Promise<void> {
+      const { apiClient: peerApi } = await requireHostConnection(
+        'resolve ballot tags'
+      );
+      await peerApi.resolveBallotTags({ cvrId: input.cvrId });
+      await logger.logAsCurrentRole(
+        LogEventId.AdminBallotAdjudicationComplete,
+        {
+          message: `Ballot ${input.cvrId} adjudication completed.`,
+          disposition: 'success',
+        }
+      );
     },
 
     getAuthStatus() {

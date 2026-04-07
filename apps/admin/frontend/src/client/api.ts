@@ -83,6 +83,16 @@ export const getAdjudicationSessionStatus = {
   },
 } as const;
 
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
 export const setMachineMode = {
   useMutation() {
     const apiClient = useApiClient();
@@ -195,6 +205,84 @@ export const formatUsbDrive = {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
     });
+  },
+} as const;
+
+// Adjudication proxy
+
+export const claimBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.claimBallot);
+  },
+} as const;
+
+export const releaseBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.releaseBallot);
+  },
+} as const;
+
+export const getBallotAdjudicationData = {
+  queryKey(cvrId: string): QueryKey {
+    return ['getBallotAdjudicationData', cvrId];
+  },
+  useQuery(cvrId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(cvrId), () =>
+      apiClient.getBallotAdjudicationData({ cvrId })
+    );
+  },
+} as const;
+
+export const getBallotImages = {
+  queryKey(cvrId: string): QueryKey {
+    return ['getBallotImages', cvrId];
+  },
+  useQuery(cvrId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(cvrId), () =>
+      apiClient.getBallotImages({ cvrId })
+    );
+  },
+} as const;
+
+export const getMarginalMarks = {
+  queryKey(cvrId: string, contestId: string): QueryKey {
+    return ['getMarginalMarks', cvrId, contestId];
+  },
+  useQuery(cvrId: string, contestId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(cvrId, contestId), () =>
+      apiClient.getMarginalMarks({ cvrId, contestId })
+    );
+  },
+} as const;
+
+export const getWriteInCandidates = {
+  queryKey(contestId?: string): QueryKey {
+    return ['getWriteInCandidates', contestId];
+  },
+  useQuery(contestId?: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(contestId), () =>
+      apiClient.getWriteInCandidates({ contestId })
+    );
+  },
+} as const;
+
+export const adjudicateCvrContest = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.adjudicateCvrContest);
+  },
+} as const;
+
+export const resolveBallotTags = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.resolveBallotTags);
   },
 } as const;
 

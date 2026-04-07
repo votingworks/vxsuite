@@ -3,11 +3,13 @@ import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';
 import tmp from 'tmp';
-import { DEV_MACHINE_ID } from '@votingworks/types';
+import { DEV_MACHINE_ID, SystemSettings } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { err, typedAs } from '@votingworks/basics';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { buildClientApp, ClientApi } from './client_app';
+import type { PeerApi } from './peer_app';
 import { createClientWorkspace } from './util/workspace';
 import { ClientConnectionStatus, ElectionRecord } from './types';
 import {
@@ -93,6 +95,24 @@ test('setMachineMode throws when election is configured', async () => {
 test('getAdjudicationSessionStatus returns disabled by default', async () => {
   const result = await env.apiClient.getAdjudicationSessionStatus();
   expect(result).toEqual({ isClientAdjudicationEnabled: false });
+});
+
+test('getSystemSettings returns defaults when no cached settings', async () => {
+  const result = await env.apiClient.getSystemSettings();
+  expect(result).toEqual(DEFAULT_SYSTEM_SETTINGS);
+});
+
+test('getSystemSettings returns cached settings from host', async () => {
+  const customSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    markThresholds: {
+      definite: 0.12,
+      marginal: 0.08,
+    },
+  };
+  env.workspace.clientStore.setCachedSystemSettings(customSettings);
+  const result = await env.apiClient.getSystemSettings();
+  expect(result).toEqual(customSettings);
 });
 
 test('getAuthStatus returns auth status', async () => {
@@ -223,4 +243,188 @@ test('getBatteryInfo returns battery info', async () => {
   const info = await env.apiClient.getBatteryInfo();
   // Returns null in test environment since no real battery
   expect(info === null || typeof info === 'object').toEqual(true);
+});
+
+interface MockPeerApi {
+  claimBallot: ReturnType<typeof vi.fn>;
+  releaseBallot: ReturnType<typeof vi.fn>;
+  getBallotAdjudicationData: ReturnType<typeof vi.fn>;
+  getBallotImageMetadata: ReturnType<typeof vi.fn>;
+  getMarginalMarks: ReturnType<typeof vi.fn>;
+  getWriteInCandidates: ReturnType<typeof vi.fn>;
+  adjudicateCvrContest: ReturnType<typeof vi.fn>;
+  resolveBallotTags: ReturnType<typeof vi.fn>;
+}
+
+function connectToMockHost(): { mockPeerApi: MockPeerApi } {
+  const mockPeerApi: MockPeerApi = {
+    claimBallot: vi.fn(),
+    releaseBallot: vi.fn(),
+    getBallotAdjudicationData: vi.fn(),
+    getBallotImageMetadata: vi.fn(),
+    getMarginalMarks: vi.fn(),
+    getWriteInCandidates: vi.fn(),
+    adjudicateCvrContest: vi.fn(),
+    resolveBallotTags: vi.fn(),
+  };
+  env.workspace.clientStore.setConnection(
+    ClientConnectionStatus.OnlineConnectedToHost,
+    {
+      address: 'http://localhost:3002',
+      machineId: 'HOST-001',
+      apiClient: mockPeerApi as unknown as grout.Client<PeerApi>,
+    }
+  );
+  return { mockPeerApi };
+}
+
+test('claimBallot proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.claimBallot.mockResolvedValue('cvr-1');
+
+  const result = await env.apiClient.claimBallot({});
+  expect(result).toEqual('cvr-1');
+  expect(mockPeerApi.claimBallot).toHaveBeenCalledWith(
+    expect.objectContaining({ machineId: DEV_MACHINE_ID })
+  );
+});
+
+test('claimBallot returns undefined when no ballots available', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.claimBallot.mockResolvedValue(undefined);
+
+  const result = await env.apiClient.claimBallot({});
+  expect(result).toBeUndefined();
+});
+
+test('proxy endpoints throw when not connected to host', async () => {
+  await expect(env.apiClient.claimBallot({})).rejects.toThrow();
+  await expect(
+    env.apiClient.releaseBallot({ cvrId: 'cvr-1' })
+  ).rejects.toThrow();
+  await expect(
+    env.apiClient.getBallotAdjudicationData({ cvrId: 'cvr-1' })
+  ).rejects.toThrow();
+  await expect(
+    env.apiClient.getBallotImages({ cvrId: 'cvr-1' })
+  ).rejects.toThrow();
+  await expect(
+    env.apiClient.getMarginalMarks({ cvrId: 'cvr-1', contestId: 'c-1' })
+  ).rejects.toThrow();
+  await expect(env.apiClient.getWriteInCandidates()).rejects.toThrow();
+  await expect(
+    env.apiClient.adjudicateCvrContest({
+      cvrId: 'cvr-1',
+      contestId: 'c-1',
+      side: 'front',
+      adjudicatedContestOptionById: {},
+    })
+  ).rejects.toThrow();
+  await expect(
+    env.apiClient.resolveBallotTags({ cvrId: 'cvr-1' })
+  ).rejects.toThrow();
+});
+
+test('releaseBallot proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.releaseBallot.mockResolvedValue(undefined);
+
+  await env.apiClient.releaseBallot({ cvrId: 'cvr-1' });
+  expect(mockPeerApi.releaseBallot).toHaveBeenCalledWith({
+    cvrId: 'cvr-1',
+  });
+});
+
+test('getBallotAdjudicationData proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  const mockData = { cvrId: 'cvr-1', contests: [] } as const;
+  mockPeerApi.getBallotAdjudicationData.mockResolvedValue(mockData);
+
+  const result = await env.apiClient.getBallotAdjudicationData({
+    cvrId: 'cvr-1',
+  });
+  expect(result).toEqual(mockData);
+});
+
+test('getBallotImages fetches metadata via grout and binary images via fetch', async () => {
+  const { mockPeerApi } = connectToMockHost();
+
+  const mockMetadata = {
+    cvrId: 'cvr-1',
+    front: {
+      type: 'bmd',
+      ballotCoordinates: { x: 0, y: 0, width: 100, height: 200 },
+      imageUrl: '/api/ballot-image/cvr-1/front',
+    },
+    back: {
+      type: 'bmd',
+      ballotCoordinates: { x: 0, y: 0, width: 100, height: 200 },
+      imageUrl: '/api/ballot-image/cvr-1/back',
+    },
+  } as const;
+  mockPeerApi.getBallotImageMetadata.mockResolvedValue(mockMetadata);
+
+  const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+  const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
+    Promise.resolve(
+      new Response(pngBytes, {
+        headers: { 'content-type': 'image/png' },
+      })
+    )
+  );
+
+  const images = await env.apiClient.getBallotImages({ cvrId: 'cvr-1' });
+  expect(images.cvrId).toEqual('cvr-1');
+  expect(images.front.imageUrl).toMatch(/^data:image\/png;base64,/);
+  expect(images.back.imageUrl).toMatch(/^data:image\/png;base64,/);
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+  fetchSpy.mockRestore();
+});
+
+test('getMarginalMarks proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.getMarginalMarks.mockResolvedValue(['option-1']);
+
+  const result = await env.apiClient.getMarginalMarks({
+    cvrId: 'cvr-1',
+    contestId: 'contest-1',
+  });
+  expect(result).toEqual(['option-1']);
+});
+
+test('getWriteInCandidates proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.getWriteInCandidates.mockResolvedValue([]);
+
+  const result = await env.apiClient.getWriteInCandidates();
+  expect(result).toEqual([]);
+});
+
+test('adjudicateCvrContest proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.adjudicateCvrContest.mockResolvedValue(undefined);
+
+  await env.apiClient.adjudicateCvrContest({
+    cvrId: 'cvr-1',
+    contestId: 'contest-1',
+    side: 'front',
+    adjudicatedContestOptionById: {},
+  });
+  expect(mockPeerApi.adjudicateCvrContest).toHaveBeenCalledWith({
+    cvrId: 'cvr-1',
+    contestId: 'contest-1',
+    side: 'front',
+    adjudicatedContestOptionById: {},
+  });
+});
+
+test('resolveBallotTags proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.resolveBallotTags.mockResolvedValue(undefined);
+
+  await env.apiClient.resolveBallotTags({ cvrId: 'cvr-1' });
+  expect(mockPeerApi.resolveBallotTags).toHaveBeenCalledWith({
+    cvrId: 'cvr-1',
+  });
 });
