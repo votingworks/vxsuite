@@ -188,14 +188,34 @@ pub fn score_bubble_marks_from_grid_layout(
 /// position. Provides semantic operations (match scoring, fill scoring, pixel
 /// iteration) over raw image buffers without allocating intermediate images.
 ///
-/// Each pixel in the region has two properties derived from the source image
-/// and template:
-/// - **source is dark**: the source pixel value is at or below the threshold
-/// - **template is white**: the template pixel value is 255
+/// See the "Score Bubble Marks" section of `README.md` for details on the
+/// template matching and fill scoring algorithms.
 ///
-/// These properties define the scoring operations:
-/// - **match score**: fraction of pixels where source is dark OR template is white
-/// - **fill score**: fraction of pixels where source is dark AND template is white
+/// The bubble template is a binarized image of what a blank (unfilled) bubble
+/// looks like: **black** pixels are the bubble outline, and **white** pixels
+/// are the blank paper inside and outside the bubble.
+///
+/// ## Match score
+///
+/// Measures how well the template aligns with the scanned image at this
+/// position. A pixel "matches" when the scan agrees with the template:
+/// - **Template is white** (blank paper): always matches, since blank paper
+///   can appear light if no mark was made or dark if the area was marked
+///   by the voter. These are "don't care" pixels for alignment purposes.
+/// - **Template is black** (bubble outline): matches only if the scanned
+///   pixel is also dark, confirming the outline is where we expect it.
+///
+/// This gives the condition: `source_is_dark || template_is_white`. A higher
+/// match score means the bubble outline in the scan aligns well with the
+/// template — used to find the best bubble position within a search window.
+///
+/// ## Fill score
+///
+/// Measures how much ink is present where blank paper is expected. A pixel is
+/// "filled" when the template is white (expecting blank paper) but the scan
+/// is dark (ink present). This gives: `source_is_dark && template_is_white`.
+/// A higher fill score means more of the bubble interior has been marked by
+/// the voter.
 pub(crate) struct BubbleRegion<'a> {
     image_pixels: &'a [u8],
     image_stride: usize,
@@ -242,8 +262,7 @@ impl<'a> BubbleRegion<'a> {
         }
     }
 
-    /// Fraction of pixels where the binarized source matches the template.
-    /// A pixel matches when the source is dark or the template is white.
+    /// Computes the match score. See [`BubbleRegion`] for details.
     pub fn match_score(&self) -> UnitIntervalScore {
         let mut matching = 0u32;
         self.for_each_pixel(|_, _, source_dark, tmpl_white| {
@@ -254,8 +273,7 @@ impl<'a> BubbleRegion<'a> {
         UnitIntervalScore(matching as f32 / (self.width * self.height) as f32)
     }
 
-    /// Fraction of pixels where the bubble is filled: the template is white
-    /// (expecting blank paper) and the source is dark (ink present).
+    /// Computes the fill score. See [`BubbleRegion`] for details.
     pub fn fill_score(&self) -> UnitIntervalScore {
         let mut filled = 0u32;
         self.for_each_pixel(|_, _, source_dark, tmpl_white| {
