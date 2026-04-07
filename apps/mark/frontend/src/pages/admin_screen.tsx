@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import {
   P,
-  ChangePrecinctButton,
   ElectionInfoBar,
   Main,
   Screen,
@@ -27,6 +26,7 @@ import {
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
+import { LocationPicker } from '@votingworks/mark-flow-ui';
 import {
   ejectUsbDrive,
   logOut,
@@ -66,6 +66,7 @@ export interface AdminScreenProps {
   isTestMode: boolean;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
+  pollingPlaceId?: string;
   pollsState: PollsState;
   usbDriveStatus: UsbDriveStatus;
 }
@@ -78,6 +79,7 @@ export function AdminScreen({
   isTestMode,
   unconfigure,
   machineConfig,
+  pollingPlaceId,
   pollsState,
   usbDriveStatus,
 }: AdminScreenProps): JSX.Element {
@@ -86,7 +88,8 @@ export function AdminScreen({
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
-  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
+  const selectPrecinct = setPrecinctSelection.useMutation().mutateAsync;
+  const selectPollingPlace = api.setPollingPlaceId.useMutation().mutateAsync;
   const setTestModeMutation = setTestMode.useMutation();
   const systemSettingsQuery = api.getSystemSettings.useQuery();
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
@@ -110,18 +113,6 @@ export function AdminScreen({
     }
   }
 
-  async function updatePrecinctSelection(
-    newPrecinctSelection: PrecinctSelection
-  ) {
-    try {
-      await setPrecinctSelectionMutation.mutateAsync({
-        precinctSelection: newPrecinctSelection,
-      });
-    } catch {
-      // Handled by default query client error handling
-    }
-  }
-
   return (
     <Screen>
       <Main padded>
@@ -134,13 +125,13 @@ export function AdminScreen({
         <H3 as="h2">Configuration</H3>
         {election.precincts.length > 1 && (
           <P>
-            <ChangePrecinctButton
-              appPrecinctSelection={appPrecinct}
-              updatePrecinctSelection={updatePrecinctSelection}
+            <LocationPicker
+              appPrecinct={appPrecinct}
               election={election}
-              mode={
-                pollsState === 'polls_closed_final' ? 'disabled' : 'default'
-              }
+              pollsState={pollsState}
+              pollingPlaceId={pollingPlaceId}
+              selectPollingPlace={(id) => selectPollingPlace({ id })}
+              selectPrecinct={(p) => selectPrecinct({ precinctSelection: p })}
             />
           </P>
         )}
