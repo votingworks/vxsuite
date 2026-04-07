@@ -511,4 +511,54 @@ describe('createBlockDeviceChangeWatcher', () => {
 
     vi.useRealTimers();
   });
+
+  test('stop() clears pending restart timer', () => {
+    vi.useFakeTimers();
+
+    const firstProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+
+    // Simulate process exit, which schedules a restart timer
+    firstProc.emit('exit');
+
+    // stop() should clear the restart timer
+    watcher.stop();
+
+    // Verify no pending timers remain
+    expect(vi.getTimerCount()).toEqual(0);
+
+    vi.useRealTimers();
+  });
+
+  test('kills subprocess on Node.js process exit', () => {
+    const proc = mockChildProcess();
+    const killSpy = vi.spyOn(proc, 'kill');
+    spawnMock.mockReturnValue(proc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    expect(killSpy).not.toHaveBeenCalled();
+
+    // Simulate Node.js process exit — should kill the subprocess
+    process.emit('exit', 0);
+    expect(killSpy).toHaveBeenCalledTimes(1);
+
+    watcher.stop();
+  });
+
+  test('stop() deregisters the process exit handler', () => {
+    const proc = mockChildProcess();
+    const killSpy = vi.spyOn(proc, 'kill');
+    spawnMock.mockReturnValue(proc);
+
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    watcher.stop();
+    expect(killSpy).toHaveBeenCalledTimes(1);
+
+    // After stop(), the exit handler should be deregistered
+    killSpy.mockClear();
+    process.emit('exit', 0);
+    expect(killSpy).not.toHaveBeenCalled();
+  });
 });

@@ -2,7 +2,7 @@ import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
-import { Optional } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
 
 const debug = makeDebug('usb-drive');
@@ -274,6 +274,7 @@ export function createBlockDeviceChangeWatcher(
   onDeviceChange: () => void
 ): BlockDeviceChangeWatcher {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let restartTimer: ReturnType<typeof setTimeout> | undefined;
   let monitorProcess: ChildProcess | undefined;
   let stopped = false;
 
@@ -282,8 +283,15 @@ export function createBlockDeviceChangeWatcher(
     debounceTimer = setTimeout(onDeviceChange, MONITOR_DEBOUNCE_MS);
   }
 
+  function stop(): void {
+    stopped = true;
+    clearTimeout(debounceTimer);
+    clearTimeout(restartTimer);
+    monitorProcess?.kill();
+  }
+
   function startMonitor(): void {
-    if (stopped) return;
+    assert(!stopped, 'startMonitor called after stop');
     const proc = spawn('udevadm', [
       'monitor',
       '--udev',
@@ -299,18 +307,24 @@ export function createBlockDeviceChangeWatcher(
     proc.on('exit', () => {
       monitorProcess = undefined;
       if (!stopped) {
-        setTimeout(startMonitor, MONITOR_RESTART_DELAY_MS);
+        restartTimer = setTimeout(startMonitor, MONITOR_RESTART_DELAY_MS);
       }
     });
   }
 
   startMonitor();
 
+  // Ensure the child process is killed when the parent Node.js process exits,
+  // even if stop() is never called explicitly.
+  function onProcessExit(): void {
+    stop();
+  }
+  process.on('exit', onProcessExit);
+
   return {
     stop(): void {
-      stopped = true;
-      clearTimeout(debounceTimer);
-      monitorProcess?.kill();
+      stop();
+      process.off('exit', onProcessExit);
     },
   };
 }

@@ -27,6 +27,14 @@ function createUdevMonitor(
   // Debounce events from `udevadm monitor` stdout, as a single udev event
   // may produce multiple stdout chunks.
   let eventTimeout: NodeJS.Timeout | undefined;
+  let restartTimeout: NodeJS.Timeout | undefined;
+
+  function stop(): void {
+    stopped = true;
+    clearTimeout(eventTimeout);
+    clearTimeout(restartTimeout);
+    monitorProcess?.kill();
+  }
 
   function start(): void {
     if (stopped) return;
@@ -53,17 +61,22 @@ function createUdevMonitor(
     proc.on('exit', () => {
       monitorProcess = undefined;
       if (!stopped) {
-        setTimeout(start, 1_000);
+        restartTimeout = setTimeout(start, 1_000);
       }
     });
   }
 
   start();
 
+  function onProcessExit(): void {
+    stop();
+  }
+  process.on('exit', onProcessExit);
+
   return {
     stop(): void {
-      stopped = true;
-      monitorProcess?.kill();
+      stop();
+      process.off('exit', onProcessExit);
     },
   };
 }
