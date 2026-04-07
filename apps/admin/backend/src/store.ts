@@ -1982,6 +1982,58 @@ export class Store implements BaseStore {
     return row;
   }
 
+  getClaimedBallotCvrIds({
+    electionId,
+    excludeMachineId,
+  }: {
+    electionId: Id;
+    excludeMachineId?: string;
+  }): Id[] {
+    this.assertElectionExists(electionId);
+    const rows = excludeMachineId
+      ? (this.client.all(
+          `
+            select cvr_id
+            from machine_ballot_adjudication_assignments
+            where election_id = ? and status = 'claimed'
+              and machine_id != ?
+          `,
+          electionId,
+          excludeMachineId
+        ) as Array<{ cvr_id: Id }>)
+      : (this.client.all(
+          `
+            select cvr_id
+            from machine_ballot_adjudication_assignments
+            where election_id = ? and status = 'claimed'
+          `,
+          electionId
+        ) as Array<{ cvr_id: Id }>);
+    return rows.map((r) => r.cvr_id);
+  }
+
+  claimBallotForAdjudication({
+    electionId,
+    cvrId,
+    machineId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+    machineId: string;
+  }): void {
+    this.client.run(
+      `
+        insert or ignore into machine_ballot_adjudication_assignments
+          (cvr_id, election_id, machine_id, claimed_at, status)
+        values (?, ?, ?, ?, 'claimed')
+      `,
+      cvrId,
+      electionId,
+      machineId,
+      getCurrentTime()
+    );
+  }
+
   getBallotAdjudicationData({
     electionId,
     cvrId,
@@ -2106,6 +2158,10 @@ export class Store implements BaseStore {
           union
           select cvr_id from cvr_tags where is_resolved = 0
         )
+        and c.id not in (
+          select cvr_id from machine_ballot_adjudication_assignments
+          where election_id = ? and status = 'claimed'
+        )
         order by
           case when ct.is_blank_ballot = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
@@ -2113,7 +2169,8 @@ export class Store implements BaseStore {
           c.sheet_number,
           c.id
         limit 1
-      `
+      `,
+      electionId
     ) as { cvr_id: Id } | undefined;
 
     debug('queried database for first unresolved cvr id');
@@ -3150,21 +3207,48 @@ export class Store implements BaseStore {
       `select
          machine_id as machineId,
          machine_mode as machineMode,
-         status,
+         case
+           when status = ? and exists (
+             select 1 from machine_ballot_adjudication_assignments
+             where machine_id = machines.machine_id and status = 'claimed'
+           ) then ?
+           else machines.status
+         end as status,
          auth_type as authType,
          last_seen_at as lastSeenAt
-       from machines`
+       from machines`,
+      Admin.ClientMachineStatus.Active,
+      Admin.ClientMachineStatus.Adjudicating
     ) as MachineRecord[];
   }
 
   cleanupStaleMachines(): void {
+    const now = getCurrentTime();
+    const staleMachineIds = (
+      this.client.all(
+        `select machine_id as machineId from machines
+         where status != ? and (? - last_seen_at) > ?`,
+        Admin.ClientMachineStatus.Offline,
+        now,
+        STALE_MACHINE_THRESHOLD_MS
+      ) as Array<{ machineId: string }>
+    ).map((row) => row.machineId);
+
+    if (staleMachineIds.length === 0) return;
+
+    const placeholders = staleMachineIds.map(() => '?').join(', ');
+
+    this.client.run(
+      `delete from machine_ballot_adjudication_assignments
+       where status = 'claimed' and machine_id in (${placeholders})`,
+      ...staleMachineIds
+    );
+
     this.client.run(
       `update machines set status = ?, auth_type = null
-       where status != ? and (? - last_seen_at) > ?`,
+       where machine_id in (${placeholders})`,
       Admin.ClientMachineStatus.Offline,
-      Admin.ClientMachineStatus.Offline,
-      getCurrentTime(),
-      STALE_MACHINE_THRESHOLD_MS
+      ...staleMachineIds
     );
   }
 
@@ -3184,6 +3268,12 @@ export class Store implements BaseStore {
       'update settings set is_client_adjudication_enabled = ?',
       enabled ? 1 : 0
     );
+
+    // Release all claims on toggle in either direction — clean slate
+    const currentElectionId = this.getCurrentElectionId();
+    if (currentElectionId) {
+      this.releaseAllActiveClaims({ electionId: currentElectionId });
+    }
   }
 
   getMultipleHostsDetected(selfMachineId: string): boolean {
@@ -3194,5 +3284,138 @@ export class Store implements BaseStore {
       selfMachineId
     ) as { cnt: number };
     return count.cnt > 0;
+  }
+
+  //
+  // Client ballot adjudication assignments
+  //
+
+  claimBallotForClient({
+    electionId,
+    machineId,
+    preferredBallotStyleId,
+    excludeCvrIds,
+  }: {
+    electionId: Id;
+    machineId: string;
+    preferredBallotStyleId?: BallotStyleGroupId;
+    excludeCvrIds?: Id[];
+  }): Id | undefined {
+    this.assertElectionExists(electionId);
+
+    const excludePlaceholders =
+      excludeCvrIds && excludeCvrIds.length > 0
+        ? `and c.id not in (${excludeCvrIds.map(() => '?').join(', ')})`
+        : '';
+
+    const row = this.client.one(
+      `
+        select c.id as cvr_id
+        from cvrs c
+        left join cvr_tags ct on ct.cvr_id = c.id
+        where c.election_id = ?
+          and c.id in (
+            select cvr_id from cvr_contest_tags where is_resolved = 0
+            union
+            select cvr_id from cvr_tags where is_resolved = 0
+          )
+          and c.id not in (
+            select cvr_id from machine_ballot_adjudication_assignments
+            where election_id = ? and status in ('claimed', 'completed')
+          )
+          ${excludePlaceholders}
+        order by
+          case when c.ballot_style_group_id = ? then 0 else 1 end,
+          case when ct.is_blank_ballot = 1 then 1 else 0 end,
+          case when c.card_type = 'bmd' then 1 else 0 end,
+          c.ballot_style_group_id,
+          c.sheet_number,
+          c.id
+        limit 1
+      `,
+      electionId,
+      electionId,
+      ...(excludeCvrIds ?? []),
+      preferredBallotStyleId ?? null
+    ) as { cvr_id: Id } | undefined;
+
+    if (!row) return undefined;
+
+    this.client.run(
+      `
+        insert into machine_ballot_adjudication_assignments
+          (cvr_id, election_id, machine_id, claimed_at, status)
+        values (?, ?, ?, ?, 'claimed')
+      `,
+      row.cvr_id,
+      electionId,
+      machineId,
+      getCurrentTime()
+    );
+
+    return row.cvr_id;
+  }
+
+  completeBallotClaim({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): void {
+    this.client.run(
+      `
+        update machine_ballot_adjudication_assignments
+        set status = 'completed', completed_at = ?
+        where cvr_id = ? and election_id = ? and status = 'claimed'
+      `,
+      getCurrentTime(),
+      cvrId,
+      electionId
+    );
+  }
+
+  releaseBallotClaim({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): void {
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where cvr_id = ? and election_id = ? and status = 'claimed'
+      `,
+      cvrId,
+      electionId
+    );
+  }
+
+  releaseAllClaimsForMachine({
+    electionId,
+    machineId,
+  }: {
+    electionId: Id;
+    machineId: string;
+  }): void {
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where election_id = ? and machine_id = ? and status = 'claimed'
+      `,
+      electionId,
+      machineId
+    );
+  }
+
+  releaseAllActiveClaims({ electionId }: { electionId: Id }): void {
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where election_id = ? and status = 'claimed'
+      `,
+      electionId
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
@@ -6,6 +6,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
+  Admin,
   CandidateContest,
   Tabulation,
   DEFAULT_SYSTEM_SETTINGS,
@@ -15,7 +16,7 @@ import {
   Election,
   ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
-import { find, typedAs } from '@votingworks/basics';
+import { assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
@@ -25,12 +26,15 @@ import {
   getFeatureFlagMock,
   getGroupedBallotStyles,
 } from '@votingworks/utils';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file';
 import { Store } from './store';
 import {
   ElectionRecord,
   ManualResultsVotingMethod,
   ScannerBatch,
 } from './types';
+import { getCurrentTime } from './get_current_time';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -38,6 +42,8 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
+
+vi.mock('./get_current_time');
 
 featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
 
@@ -726,6 +732,350 @@ describe('getFilteredContests', () => {
         },
       }),
       ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']
+    );
+  });
+});
+
+describe('machine ballot adjudication assignments', () => {
+  let store: Store;
+  let electionId: Id;
+
+  function addCvrWithUnresolvedTag(
+    ballotStyleGroupId = '1M' as BallotStyleGroupId
+  ): string {
+    const cvrIds = addMockCvrFileToStore({
+      electionId,
+      store,
+      mockCastVoteRecordFile: [
+        {
+          ballotStyleGroupId,
+          batchId: 'batch-1',
+          scannerId: 'scanner-1',
+          precinctId: 'precinct-1',
+          votingMethod: 'precinct',
+          votes: { 'zoo-council-mammal': ['write-in-0'] },
+          card: { type: 'bmd' },
+        },
+      ],
+    });
+    return assertDefined(cvrIds[0]);
+  }
+
+  beforeEach(() => {
+    vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
+
+    store = Store.memoryStore(makeTemporaryDirectory());
+    const electionDefinition =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    electionId = store.addElection({
+      electionData: electionDefinition.electionData,
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageFileContents: Buffer.of(),
+      electionPackageHash: 'test-hash',
+    });
+    store.setCurrentElectionId(electionId);
+  });
+
+  test('claims the next unresolved CVR and skips already-claimed', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    const cvr2 = addCvrWithUnresolvedTag();
+
+    const first = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+    expect([cvr1, cvr2]).toContain(first);
+
+    const second = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-002',
+    });
+    expect([cvr1, cvr2]).toContain(second);
+    expect(second).not.toEqual(first);
+
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-003' })
+    ).toBeUndefined();
+  });
+
+  test('released ballot can be re-claimed', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-001' })
+    ).toEqual(cvr1);
+
+    store.releaseBallotClaim({ electionId, cvrId: cvr1 });
+
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-002' })
+    ).toEqual(cvr1);
+  });
+
+  test('completed ballot cannot be re-claimed', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    const cvr2 = addCvrWithUnresolvedTag();
+    const first = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+    expect([cvr1, cvr2]).toContain(first);
+
+    store.completeBallotClaim({ electionId, cvrId: first! });
+
+    // Next claim should skip completed ballot and get the other
+    const second = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-002',
+    });
+    expect([cvr1, cvr2]).toContain(second);
+    expect(second).not.toEqual(first);
+  });
+
+  test('releaseAllClaimsForMachine only releases that machines claims', () => {
+    addCvrWithUnresolvedTag();
+    addCvrWithUnresolvedTag();
+    const claimed1 = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+    store.claimBallotForClient({ electionId, machineId: 'client-002' });
+
+    store.releaseAllClaimsForMachine({ electionId, machineId: 'client-001' });
+
+    // client-001's ballot is free, client-002's still claimed
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-003' })
+    ).toEqual(claimed1);
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-004' })
+    ).toBeUndefined();
+  });
+
+  test('releaseAllActiveClaims releases all claimed ballots', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    const cvr2 = addCvrWithUnresolvedTag();
+    expect([cvr1, cvr2]).toContain(
+      store.claimBallotForClient({ electionId, machineId: 'client-001' })
+    );
+    expect([cvr1, cvr2]).toContain(
+      store.claimBallotForClient({ electionId, machineId: 'client-002' })
+    );
+
+    store.releaseAllActiveClaims({ electionId });
+
+    expect([cvr1, cvr2]).toContain(
+      store.claimBallotForClient({
+        electionId,
+        machineId: 'client-003',
+      })
+    );
+    expect([cvr1, cvr2]).toContain(
+      store.claimBallotForClient({
+        electionId,
+        machineId: 'client-004',
+      })
+    );
+  });
+
+  test('prefers matching ballot style when provided', () => {
+    const cvrA = addCvrWithUnresolvedTag('1M' as BallotStyleGroupId);
+    const cvrB = addCvrWithUnresolvedTag('2F' as BallotStyleGroupId);
+
+    expect(
+      store.claimBallotForClient({
+        electionId,
+        machineId: 'client-001',
+        preferredBallotStyleId: '2F' as BallotStyleGroupId,
+      })
+    ).toEqual(cvrB);
+    store.releaseAllActiveClaims({ electionId });
+
+    expect(
+      store.claimBallotForClient({
+        electionId,
+        machineId: 'client-001',
+        preferredBallotStyleId: '1M' as BallotStyleGroupId,
+      })
+    ).toEqual(cvrA);
+  });
+
+  test('excludes specified CVR IDs when claiming', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    const cvr2 = addCvrWithUnresolvedTag();
+
+    // Exclude cvr1 — should get cvr2
+    expect(
+      store.claimBallotForClient({
+        electionId,
+        machineId: 'client-001',
+        excludeCvrIds: [cvr1],
+      })
+    ).toEqual(cvr2);
+
+    // Exclude both — should get nothing
+    store.releaseBallotClaim({ cvrId: cvr2, electionId });
+    expect(
+      store.claimBallotForClient({
+        electionId,
+        machineId: 'client-002',
+        excludeCvrIds: [cvr1, cvr2],
+      })
+    ).toBeUndefined();
+  });
+
+  test('cleanupStaleMachines releases claims for stale machines', () => {
+    addCvrWithUnresolvedTag();
+    addCvrWithUnresolvedTag();
+
+    store.setNetworkedMachineStatus(
+      'client-001',
+      'client',
+      Admin.ClientMachineStatus.Active
+    );
+    const claimed = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+
+    // Advance time past the stale threshold
+    vi.mocked(getCurrentTime).mockImplementation(
+      () => Date.now() + STALE_MACHINE_THRESHOLD_MS + 1
+    );
+    store.cleanupStaleMachines();
+
+    // The claim should have been released — same ballot is now available
+    vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-002' })
+    ).toEqual(claimed);
+  });
+
+  test('disabling client adjudication releases all active claims', () => {
+    addCvrWithUnresolvedTag();
+    addCvrWithUnresolvedTag();
+    store.claimBallotForClient({ electionId, machineId: 'client-001' });
+    store.claimBallotForClient({ electionId, machineId: 'client-002' });
+
+    store.setIsClientAdjudicationEnabled(false);
+
+    // Both claims should be released — can claim again
+    expect(
+      store.claimBallotForClient({ electionId, machineId: 'client-003' })
+    ).toBeDefined();
+  });
+
+  test('host queue includes claimed CVRs for stable display', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    const cvr2 = addCvrWithUnresolvedTag();
+    const claimed = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+    expect([cvr1, cvr2]).toContain(claimed);
+
+    // Queue includes claimed ballots so "X of N" is stable
+    const queue = store.getBallotAdjudicationQueue({ electionId });
+    expect(queue).toContain(cvr1);
+    expect(queue).toContain(cvr2);
+
+    // Next unresolved skips claimed ballots
+    const next = store.getNextCvrIdForBallotAdjudication({ electionId });
+    expect([cvr1, cvr2]).toContain(next);
+    expect(next).not.toEqual(claimed);
+  });
+
+  test('getClaimedBallotCvrIds returns actively claimed CVR IDs', () => {
+    addCvrWithUnresolvedTag();
+    addCvrWithUnresolvedTag();
+
+    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([]);
+
+    const first = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([first]);
+
+    const second = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-002',
+    });
+    expect(store.getClaimedBallotCvrIds({ electionId })).toHaveLength(2);
+    expect(store.getClaimedBallotCvrIds({ electionId })).toContain(first);
+    expect(store.getClaimedBallotCvrIds({ electionId })).toContain(second);
+
+    store.releaseBallotClaim({ cvrId: first!, electionId });
+    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([second]);
+  });
+
+  test('claimBallotForAdjudication claims a specific CVR for the host', () => {
+    const cvr1 = addCvrWithUnresolvedTag();
+    addCvrWithUnresolvedTag();
+
+    store.claimBallotForAdjudication({
+      electionId,
+      cvrId: cvr1,
+      machineId: 'host-001',
+    });
+
+    // Host claim blocks clients from claiming the same ballot
+    const clientClaim = store.claimBallotForClient({
+      electionId,
+      machineId: 'client-001',
+    });
+    expect(clientClaim).not.toEqual(cvr1);
+
+    // Duplicate claim is ignored (INSERT OR IGNORE)
+    store.claimBallotForAdjudication({
+      electionId,
+      cvrId: cvr1,
+      machineId: 'host-001',
+    });
+  });
+
+  test('getMachines returns Adjudicating status for machines with active claims', () => {
+    addCvrWithUnresolvedTag();
+
+    store.setNetworkedMachineStatus(
+      'client-001',
+      'client',
+      Admin.ClientMachineStatus.Active
+    );
+    store.setNetworkedMachineStatus(
+      'client-002',
+      'client',
+      Admin.ClientMachineStatus.Active
+    );
+
+    // Before any claims, both machines are Active
+    let machines = store.getMachines();
+    expect(machines.find((m) => m.machineId === 'client-001')?.status).toEqual(
+      Admin.ClientMachineStatus.Active
+    );
+    expect(machines.find((m) => m.machineId === 'client-002')?.status).toEqual(
+      Admin.ClientMachineStatus.Active
+    );
+
+    // client-001 claims a ballot
+    store.claimBallotForClient({ electionId, machineId: 'client-001' });
+
+    // Now client-001 should show as Adjudicating, client-002 still Active
+    machines = store.getMachines();
+    expect(machines.find((m) => m.machineId === 'client-001')?.status).toEqual(
+      Admin.ClientMachineStatus.Adjudicating
+    );
+    expect(machines.find((m) => m.machineId === 'client-002')?.status).toEqual(
+      Admin.ClientMachineStatus.Active
+    );
+
+    // After releasing, client-001 goes back to Active
+    store.releaseAllClaimsForMachine({
+      electionId,
+      machineId: 'client-001',
+    });
+    machines = store.getMachines();
+    expect(machines.find((m) => m.machineId === 'client-001')?.status).toEqual(
+      Admin.ClientMachineStatus.Active
     );
   });
 });
