@@ -376,9 +376,11 @@ export function resolveBallotTags(
   { cvrId }: { cvrId: Id },
   store: Store
 ): void {
+  const electionId = assertDefined(store.getCurrentElectionId());
   store.withTransaction(() => {
     store.resolveAllCvrContestTags({ cvrId });
     store.resolveCvrTag({ cvrId });
+    store.completeBallotClaim({ electionId, cvrId });
   });
 }
 

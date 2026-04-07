@@ -16,6 +16,7 @@ import {
 } from '@votingworks/utils';
 import {
   AdjudicationReason,
+  BallotStyleGroupId,
   ContestOptionId,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
@@ -38,6 +39,9 @@ import {
   AdjudicatedCvrContest,
   BallotAdjudicationData,
 } from './types';
+import { getCurrentTime } from './get_current_time';
+
+vi.mock('./get_current_time');
 
 vi.setConfig({
   testTimeout: 30_000,
@@ -56,6 +60,7 @@ const MANUAL_CAST_VOTE_RECORD_EXPORT_ID =
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -1415,4 +1420,168 @@ test('getMarginalMarks returns an empty list for a bmd without mark scores', asy
     contestId,
   });
   expect(marginalMarks).toHaveLength(0);
+});
+
+test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures', async () => {
+  const { auth, apiClient, peerApiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  expect(queue.length).toBeGreaterThan(1);
+
+  // Verify host sees all ballots as pending before adjudication
+  const metadataBefore = await apiClient.getBallotAdjudicationQueueMetadata();
+  expect(metadataBefore.pendingTally).toEqual(metadataBefore.totalTally);
+
+  // Two clients claim different ballots
+  const cvrId1 = await peerApiClient.claimBallot({
+    machineId: 'client-001',
+  });
+  assert(cvrId1 !== undefined);
+  expect(cvrId1).toEqual(queue[0]);
+
+  const cvrId2 = await peerApiClient.claimBallot({
+    machineId: 'client-002',
+  });
+  assert(cvrId2 !== undefined);
+  expect(cvrId2).toEqual(queue[1]);
+  expect(cvrId2).not.toEqual(cvrId1);
+
+  // Client 1 fetches ballot data via peer API
+  const ballotData = await peerApiClient.getBallotAdjudicationData({
+    cvrId: cvrId1,
+  });
+  expect(ballotData.cvrId).toEqual(cvrId1);
+  expect(ballotData.contests.length).toBeGreaterThan(0);
+
+  // Client 1 fetches ballot image metadata via peer API
+  const images = await peerApiClient.getBallotImageMetadata({ cvrId: cvrId1 });
+  expect(images.cvrId).toEqual(cvrId1);
+
+  // Client 1 fetches write-in candidates via peer API
+  const writeInCandidates = await peerApiClient.getWriteInCandidates();
+  expect(writeInCandidates).toEqual([]);
+
+  // Client 1 fetches marginal marks for the first contest (BMD ballots have none)
+  const firstContest = ballotData.contests[0];
+  assert(firstContest !== undefined);
+  const marginalMarks = await peerApiClient.getMarginalMarks({
+    cvrId: cvrId1,
+    contestId: firstContest.contestId,
+  });
+  expect(marginalMarks).toEqual([]);
+
+  // Client 1 adjudicates each contest on their claimed ballot
+  for (const contest of ballotData.contests) {
+    const adjudicatedContestOptionById: Record<
+      string,
+      AdjudicatedContestOption
+    > = {};
+    for (const option of contest.options) {
+      const isWriteIn =
+        option.definition.type === 'candidate' && option.definition.isWriteIn;
+      adjudicatedContestOptionById[option.definition.id] = isWriteIn
+        ? { type: 'write-in-option', hasVote: false }
+        : { type: 'candidate-option', hasVote: option.initialVote };
+    }
+
+    await peerApiClient.adjudicateCvrContest({
+      cvrId: cvrId1,
+      contestId: contest.contestId,
+      side: 'front', // BMD ballots are always front
+      adjudicatedContestOptionById,
+    });
+  }
+
+  // Client 1 resolves ballot tags (marks claim as completed)
+  await peerApiClient.resolveBallotTags({ cvrId: cvrId1 });
+
+  // Host can see the adjudication results: ballot data shows all contests resolved
+  const hostBallotData = await apiClient.getBallotAdjudicationData({
+    cvrId: cvrId1,
+  });
+  for (const contest of hostBallotData.contests) {
+    if (contest.tag) {
+      expect(contest.tag.isResolved).toEqual(true);
+    }
+  }
+
+  // Host queue metadata reflects one fewer pending ballot
+  const metadataAfter = await apiClient.getBallotAdjudicationQueueMetadata();
+  expect(metadataAfter.pendingTally).toEqual(metadataBefore.pendingTally - 1);
+
+  // Host's next-CVR-to-adjudicate skips the completed ballot
+  const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication();
+  expect(nextCvrId).not.toEqual(cvrId1);
+
+  // Completed ballot is permanently removed from the claimable pool.
+  // Client 3 claims next and gets queue[2] (queue[1] is still held by client 2).
+  const cvrId3 = await peerApiClient.claimBallot({
+    machineId: 'client-003',
+  });
+  assert(cvrId3 !== undefined);
+  expect(cvrId3).toEqual(queue[2]);
+
+  // Release client 2's claim — the ballot returns to the pool.
+  await peerApiClient.releaseBallot({ cvrId: cvrId2 });
+
+  // Client 4 claims with ballot style affinity for '2F'. The queue is ordered
+  // by ballot_style_group_id ('1M' before '2F'), but affinity should prefer
+  // a '2F' ballot over the next '1M' ballot in queue order.
+  const cvrId4 = await peerApiClient.claimBallot({
+    machineId: 'client-004',
+    currentBallotStyleId: '2F' as BallotStyleGroupId,
+  });
+  assert(cvrId4 !== undefined);
+
+  const claim4VoteInfo = await apiClient.getCastVoteRecordVoteInfo({
+    cvrId: cvrId4,
+  });
+  expect(claim4VoteInfo.ballotStyleGroupId).toEqual('2F');
+
+  // Released ballot (cvrId2) is available again
+  const cvrId5 = await peerApiClient.claimBallot({
+    machineId: 'client-005',
+  });
+  assert(cvrId5 !== undefined);
+  expect(cvrId5).toEqual(cvrId2);
+});
+
+test('host claim/release/getClaimedBallotCvrIds endpoints', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  expect(queue.length).toBeGreaterThan(0);
+  const cvrId = assertDefined(queue[0]);
+
+  // Initially no claims
+  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
+
+  // Host claims a ballot
+  await apiClient.claimBallotForAdjudication({ cvrId });
+
+  // getClaimedBallotCvrIds excludes the host's own machine, so it's still empty
+  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
+
+  // Release the claim
+  await apiClient.releaseBallotAdjudicationClaim({ cvrId });
 });
