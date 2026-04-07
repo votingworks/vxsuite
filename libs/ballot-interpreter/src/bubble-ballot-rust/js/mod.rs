@@ -208,21 +208,14 @@ pub async fn interpret_images(
     let election: Election = from_json(election)?;
     let options: JsInterpretOptions = from_json(options)?;
 
+    let side_a_w = as_u32(side_a_image_width)?;
+    let side_a_h = as_u32(side_a_image_height)?;
+    let side_b_w = as_u32(side_b_image_width)?;
+    let side_b_h = as_u32(side_b_image_height)?;
+
     let (side_a_image, side_b_image) = match rayon::join(
-        || {
-            gray_image(
-                side_a_image_width,
-                side_a_image_height,
-                side_a_image_data.to_vec(),
-            )
-        },
-        || {
-            gray_image(
-                side_b_image_width,
-                side_b_image_height,
-                side_b_image_data.to_vec(),
-            )
-        },
+        || gray_image(side_a_w, side_a_h, side_a_image_data.to_vec()),
+        || gray_image(side_b_w, side_b_h, side_b_image_data.to_vec()),
     ) {
         (Err(err), _) | (_, Err(err)) => return Err(err),
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
@@ -284,33 +277,42 @@ pub async fn find_timing_mark_grid_from_image(
     image_data: Buffer,
     debug_path: Option<String>,
 ) -> napi::Result<serde_json::Value> {
-    let image = gray_image(image_width, image_height, image_data.to_vec())?;
+    let image = gray_image(
+        as_u32(image_width)?,
+        as_u32(image_height)?,
+        image_data.to_vec(),
+    )?;
     let timing_marks = find_timing_mark_grid_inner(image, "image", debug_path.map(Into::into))?;
     to_json(&timing_marks)
 }
 
-fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, napi::Error> {
-    let width = as_u32(width)?;
-    let height = as_u32(height)?;
+fn gray_image(width: u32, height: u32, data: Vec<u8>) -> Result<GrayImage, napi::Error> {
     let len = data.len();
-
-    match len / (width as usize * height as usize) {
-        1 => Ok(GrayImage::from_vec(width, height, data).ok_or_else(|| {
+    let pixel_count = (width as usize)
+        .checked_mul(height as usize)
+        .ok_or_else(|| {
             napi::Error::from_reason(format!(
-                "Could not construct GrayImage with dimensions: width={width} height={height} buffer length={len}",
+                "Image dimensions overflow: width={width} height={height}"
             ))
-        })?),
-        4 => Ok(DynamicImage::ImageRgba8(
-            RgbaImage::from_vec(width, height, data).ok_or_else(|| {
-                napi::Error::from_reason(format!(
-                    "Could not construct RgbaImage with dimensions: width={width} height={height} buffer length={len}",
-                ))
-            })?,
-        )
-        .into_luma8()),
-        _ => Err(napi::Error::from_reason(format!(
-            "Could not construct image dimensions: width={width} height={height} buffer length={len}"
-        ))),
+        })?;
+
+    if len == pixel_count {
+        GrayImage::from_vec(width, height, data).ok_or_else(|| {
+            napi::Error::from_reason(format!(
+                "Could not construct GrayImage: width={width} height={height} buffer length={len}",
+            ))
+        })
+    } else if Some(len) == pixel_count.checked_mul(4) {
+        let rgba = RgbaImage::from_vec(width, height, data).ok_or_else(|| {
+            napi::Error::from_reason(format!(
+                "Could not construct RgbaImage: width={width} height={height} buffer length={len}",
+            ))
+        })?;
+        Ok(DynamicImage::ImageRgba8(rgba).into_luma8())
+    } else {
+        Err(napi::Error::from_reason(format!(
+            "Unexpected buffer length for image: width={width} height={height} buffer length={len}"
+        )))
     }
 }
 
@@ -410,4 +412,71 @@ pub async fn encode_bmd_ballot_data(
     .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
 
     Ok(Buffer::from(bytes))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use proptest::prelude::*;
+
+    // 200 DPI scan dimensions for 8.5" wide × 11"–22" tall sheets.
+    const SCAN_WIDTH: u32 = 1700;
+    const SCAN_HEIGHT_LETTER: u32 = 2200;
+    const SCAN_HEIGHT_22IN: u32 = 4400;
+
+    proptest! {
+        #[test]
+        fn gray_image_never_panics(
+            width in proptest::num::u32::ANY,
+            height in proptest::num::u32::ANY,
+            data in proptest::collection::vec(proptest::num::u8::ANY, 0..256),
+        ) {
+            let _ = gray_image(width, height, data);
+        }
+    }
+
+    #[test]
+    fn gray_image_accepts_valid_gray_data() {
+        for (w, h) in [
+            (SCAN_WIDTH, SCAN_HEIGHT_LETTER),
+            (SCAN_WIDTH, SCAN_HEIGHT_22IN),
+        ] {
+            let data = vec![128u8; w as usize * h as usize];
+            let result = gray_image(w, h, data);
+            assert!(result.is_ok());
+            let img = result.unwrap();
+            assert_eq!(img.width(), w);
+            assert_eq!(img.height(), h);
+        }
+    }
+
+    #[test]
+    fn gray_image_accepts_valid_rgba_data() {
+        for (w, h) in [
+            (SCAN_WIDTH, SCAN_HEIGHT_LETTER),
+            (SCAN_WIDTH, SCAN_HEIGHT_22IN),
+        ] {
+            let data = vec![128u8; w as usize * h as usize * 4];
+            let result = gray_image(w, h, data);
+            assert!(result.is_ok());
+            let img = result.unwrap();
+            assert_eq!(img.width(), w);
+            assert_eq!(img.height(), h);
+        }
+    }
+
+    #[test]
+    fn gray_image_rejects_mismatched_buffer() {
+        let pixel_count = SCAN_WIDTH as usize * SCAN_HEIGHT_LETTER as usize;
+        // A buffer that is neither 1x nor 4x the pixel count.
+        let data = vec![0u8; pixel_count * 2];
+        assert!(gray_image(SCAN_WIDTH, SCAN_HEIGHT_LETTER, data).is_err());
+    }
+
+    #[test]
+    fn gray_image_does_not_panic_on_pixel_count_times_4_overflow() {
+        // u32::MAX × u32::MAX fits in usize on 64-bit, but multiplying by 4
+        // overflows. This must return Err, not panic.
+        assert!(gray_image(u32::MAX, u32::MAX, vec![]).is_err());
+    }
 }
