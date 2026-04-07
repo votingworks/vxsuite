@@ -17,14 +17,28 @@ export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
 export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';
 // libs/usb-drive/src/mocks/ is 4 levels below the repo root
 const REPO_ROOT = join(__dirname, '../../../..');
-export const MOCK_USB_DRIVE_DIR = join(
-  getMockStateRootDir(REPO_ROOT),
-  'usb-drive'
-);
+const MOCK_USB_DRIVE_DIR = join(getMockStateRootDir(REPO_ROOT), 'usb-drive');
 export const DEV_MOCK_USB_DRIVE_GLOB_PATTERN = join(MOCK_USB_DRIVE_DIR, '**/*');
 
-function getMockUsbDirPath(): string {
-  return MOCK_USB_DRIVE_DIR;
+let mockUsbDriveDirOverride: string | undefined;
+
+/**
+ * Overrides the mock USB drive directory. Use in test setup to isolate
+ * tests from each other when they run in parallel.
+ */
+export function setMockUsbDriveDir(dir: string): void {
+  mockUsbDriveDirOverride = dir;
+}
+
+/**
+ * Clears the mock USB drive directory override, reverting to the default.
+ */
+export function resetMockUsbDriveDir(): void {
+  mockUsbDriveDirOverride = undefined;
+}
+
+export function getMockUsbDirPath(): string {
+  return mockUsbDriveDirOverride ?? MOCK_USB_DRIVE_DIR;
 }
 
 function getMockDriveDirPath(diskName: string): string {

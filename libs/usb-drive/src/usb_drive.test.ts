@@ -9,7 +9,7 @@ import {
 import { detectUsbDrive } from './usb_drive';
 import { UsbDiskDeviceInfo } from './block_devices';
 import {
-  MOCK_USB_DRIVE_DIR,
+  getMockUsbDirPath,
   MOCK_USB_DRIVE_STATE_FILENAME,
 } from './mocks/file_usb_drive';
 
@@ -43,7 +43,7 @@ test('uses MockFileUsbDrive when feature flag is set', async () => {
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
   const stateFilePath = join(
-    MOCK_USB_DRIVE_DIR,
+    getMockUsbDirPath(),
     'sdb',
     MOCK_USB_DRIVE_STATE_FILENAME
   );
