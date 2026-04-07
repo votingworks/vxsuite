@@ -35,18 +35,23 @@ import {
   extractErrorMessage,
 } from '@votingworks/basics';
 import {
+  Election,
   ElectionDefinition,
   MarkThresholds,
   PageInterpretation,
   PageInterpretationType,
+  pollingPlaceFromElection,
+  pollingPlacePrecinctIds,
   SheetOf,
 } from '@votingworks/types';
 import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
+  BooleanEnvironmentVariableName as Feature,
   getPrecinctSelectionIds,
   isCardlessVoterAuth,
+  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -78,6 +83,7 @@ import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_
 import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error';
 import { DiagnosticError } from './diagnostic/diagnostic_error';
 import { getNodeEnv } from '../globals';
+import { Store } from '../store';
 
 interface CoverStatus {
   isOpen: boolean;
@@ -365,12 +371,6 @@ async function loadMetadataAndInterpretBallot(context: {
   const { store } = workspace;
   const { electionDefinition } = assertDefined(store.getElectionRecord());
 
-  const precinctSelection = store.getPrecinctSelection();
-  assert(
-    precinctSelection,
-    'Expected precinctSelection to be defined in store'
-  );
-
   const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
     store.getSystemSettings()
   );
@@ -379,15 +379,31 @@ async function loadMetadataAndInterpretBallot(context: {
     (await loadImageData(scannedBallotImagePath)).unsafeUnwrap(),
     {
       electionDefinition,
-      validPrecinctIds: getPrecinctSelectionIds(
-        electionDefinition.election.precincts,
-        precinctSelection
-      ),
+      validPrecinctIds: getValidPrecinctIds(store, electionDefinition.election),
       testMode: store.getTestMode(),
       markThresholds,
       adjudicationReasons: precinctScanAdjudicationReasons,
     }
   );
+}
+
+function getValidPrecinctIds(store: Store, election: Election) {
+  if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
+    const precinctSelection = assertDefined(
+      store.getPrecinctSelection(),
+      'Expected precinctSelection to be defined in store'
+    );
+
+    return getPrecinctSelectionIds(election.precincts, precinctSelection);
+  }
+
+  const pollingPlaceId = assertDefined(
+    store.getPollingPlaceId(),
+    'scan attempted with no polling place configured'
+  );
+  const pollingPlace = pollingPlaceFromElection(election, pollingPlaceId);
+
+  return pollingPlacePrecinctIds(pollingPlace);
 }
 
 async function scanAndInterpretInsertedSheet(

@@ -25,7 +25,14 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { assert, Deferred, deferred, iter, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Deferred,
+  deferred,
+  iter,
+  sleep,
+} from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireHudsonFixtures,
   makeTemporaryDirectory,
@@ -101,6 +108,11 @@ import { BmdModelNumber } from '../types';
 import { getNodeEnv } from '../globals';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
+const { election } = electionGeneralDefinition;
+
+const [pollingPlace] = assertDefined(election.pollingPlaces);
+const precinctId = electionGeneralDefinition.election.precincts[0].id;
+assert(precinctId in pollingPlace.precincts);
 
 vi.mock('../globals');
 
@@ -148,7 +160,6 @@ let ballotPdfData: Uint8Array;
 let scannedBallotFixtureFilepaths: string;
 let clock: SimulatedClock;
 
-const precinctId = electionGeneralDefinition.election.precincts[1].id;
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
@@ -225,6 +236,7 @@ beforeEach(async () => {
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
   });
+  workspace.store.setPollingPlaceId(pollingPlace.id);
   workspace.store.setPrecinctSelection(singlePrecinctSelectionFor(precinctId));
   workspace.store.setSystemSettings(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
@@ -609,6 +621,9 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
   });
+  workspace.store.setPollingPlaceId(
+    assertDefined(electionDefinition.election.pollingPlaces)[0].id
+  );
   workspace.store.setPrecinctSelection(
     singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
   );
@@ -1442,3 +1457,49 @@ describe('unrecoverable_error', () => {
     await waitForStatus('unrecoverable_error');
   });
 });
+
+describe('polling place smoke tests', () => {
+  test('polling place configured, no precinct selection - print-scan succeeds', async () => {
+    setPollingPlacesEnabled(true);
+
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionGeneralDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-election-package-hash',
+    });
+
+    workspace.store.setPollingPlaceId(pollingPlace.id);
+
+    await executePrintBallotAndAssert(
+      ballotPdfData,
+      scannedBallotFixtureFilepaths
+    );
+  });
+
+  test('polling place NOT configured, with precinct selection - print-scan fails', async () => {
+    setPollingPlacesEnabled(true);
+
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionGeneralDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-election-package-hash',
+    });
+
+    workspace.store.setPrecinctSelection(
+      singlePrecinctSelectionFor(precinctId)
+    );
+
+    await expect(() =>
+      executePrintBallotAndAssert(ballotPdfData, scannedBallotFixtureFilepaths)
+    ).rejects.toThrow();
+  });
+});
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(ENABLE_POLLING_PLACES);
+  }
+}
