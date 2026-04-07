@@ -2,7 +2,7 @@
 
 **Author:** @caroline
 
-**Status:** `planning`
+**Status:** `in-progress`
 
 ## Problem
 
@@ -17,8 +17,8 @@ adjudicate simultaneously over a private wired ethernet network.
 ### Architecture: Pure Client/Server
 
 - **Host:** Full VxAdmin functionality. Owns database, CVRs, ballot images.
-  Manages adjudication sessions, assigns ballots, saves results from clients.
-  Can perform all regular VxAdmin tasks while adjudication runs.
+  Assigns ballots to clients, saves results from clients. Can perform all
+  regular VxAdmin tasks while adjudication runs.
 - **Client:** Adjudication-only mode. Configured from host over network (no
   USB). Fetches ballots on-demand, adjudicates, posts results back to host. No
   local CVR storage or ballot images.
@@ -31,8 +31,8 @@ adjudicate simultaneously over a private wired ethernet network.
 `VxAdmin-{machineId}`). Clients discover hosts by browsing for this service
 type, then initiate a connection handshake (`connectToHost`). Hosts also browse
 for `_vxadmin._http._tcp` to detect conflicts (multiple hosts on the same
-network). Hosts track connected clients via the `adjudication_stations` table,
-populated when clients call `connectToHost` and kept alive via heartbeats.
+network). Hosts track connected clients via the `machines` table, populated when
+clients call `connectToHost` and kept alive via polling.
 
 **Dual-Server Architecture** (following pollbook pattern): local API on PORT
 (frontend Grout API) and peer API on PEER_PORT (host-client communication). Both
@@ -45,89 +45,231 @@ wireless mesh to wired ethernet.
 
 ### Database Schema Changes (Host)
 
+The existing `machines` table tracks connected client machines:
+
 ```sql
-CREATE TABLE adjudication_sessions (
-  id TEXT PRIMARY KEY,
-  election_id TEXT NOT NULL REFERENCES elections(id),
-  started_at TEXT NOT NULL DEFAULT (datetime('now')),
-  ended_at TEXT,
-  status TEXT NOT NULL DEFAULT 'active'
-    CHECK (status IN ('active', 'paused', 'completed'))
-);
-
-CREATE TABLE adjudication_stations (
-  id TEXT PRIMARY KEY,
-  session_id TEXT NOT NULL REFERENCES adjudication_sessions(id),
+CREATE TABLE machines (
   machine_id TEXT NOT NULL,
-  name TEXT NOT NULL,
-  last_seen_at TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'connected'
-    CHECK (status IN ('connected', 'disconnected', 'locked'))
-);
-
-CREATE TABLE ballot_claims (
-  cvr_id TEXT NOT NULL REFERENCES cvrs(id),
-  session_id TEXT NOT NULL REFERENCES adjudication_sessions(id),
-  claimed_by_station_id TEXT REFERENCES adjudication_stations(id),
-  claimed_at TEXT,
-  status TEXT NOT NULL DEFAULT 'unclaimed'
-    CHECK (status IN ('unclaimed', 'claimed', 'completed', 'released')),
-  PRIMARY KEY (cvr_id, session_id)
+  machine_mode TEXT NOT NULL CHECK (machine_mode IN ('host', 'client')),
+  status TEXT NOT NULL
+    CHECK (status IN ('offline', 'online_locked', 'active', 'adjudicating')),
+  auth_type TEXT,
+  last_seen_at INTEGER NOT NULL
 );
 ```
+
+One new table for tracking ballot assignments to machines (host and clients) and
+maintaining an audit trail of which machine adjudicated which ballot:
+
+```sql
+CREATE TABLE machine_ballot_adjudication_assignments (
+  cvr_id TEXT NOT NULL REFERENCES cvrs(id) ON DELETE CASCADE,
+  election_id TEXT NOT NULL REFERENCES elections(id) ON DELETE CASCADE,
+  machine_id TEXT NOT NULL,
+  claimed_at INTEGER NOT NULL,
+  completed_at INTEGER,
+  status TEXT NOT NULL DEFAULT 'claimed'
+    CHECK (status IN ('claimed', 'completed')),
+  PRIMARY KEY (cvr_id, election_id)
+);
+```
+
+Foreign keys use `ON DELETE CASCADE` so that deleting CVRs or elections
+automatically cleans up assignment rows.
 
 ### Peer API (Host Endpoints)
 
 ```typescript
 function buildPeerApi(context: PeerAppContext) {
   return grout.createApi({
-    // Configuration
-    getElectionConfiguration(): { electionDefinition; electionKey; systemSettings },
+    // Connection & Configuration
+    connectToHost(input: { machineId; status; authType }):
+      MachineConfig & { isClientAdjudicationEnabled: boolean },
+    getElectionPackageHash(): Optional<string>,
+    getCurrentElectionMetadata(): Optional<ElectionRecord>,
+    getSystemSettings(): Optional<SystemSettings>,
 
-    // Session
-    connectToHost(input: { machineId: string }): { sessionId; stationId },
-    heartbeat(input: { stationId: string }): { sessionActive: boolean },
-
-    // Adjudication
-    claimBallot(input: { stationId; currentBallotStyleId? }): { cvrId; contestIds; ballotStyleId } | null,
-    submitBallotAdjudication(input: { stationId; cvrId; adjudicatedContests }): void,
-    releaseBallot(input: { stationId; cvrId }): void,
+    // Ballot Claiming
+    claimBallot(input: { machineId; currentBallotStyleId?; excludeCvrIds? }):
+      Optional<Id>,
+    releaseBallot(input: { cvrId }): void,
 
     // Ballot Data
-    getBallotImage(input: { cvrId; side }): Buffer,
-    getCvrVoteInfo(input: { cvrId }): CastVoteRecordVoteInfo,
-    getCvrWriteIns(input: { cvrId }): WriteInRecord[],
-    getWriteInCandidates(input: { contestId }): WriteInCandidate[],
+    getBallotAdjudicationData(input: { cvrId }): BallotAdjudicationData,
+    getBallotImageMetadata(input: { cvrId }): Promise<BallotImages>,
     getMarginalMarks(input: { cvrId; contestId }): ContestOptionId[],
+    getWriteInCandidates(input: { contestId? }): WriteInCandidateRecord[],
+
+    // Adjudication Submission
+    adjudicateCvrContest(input: AdjudicatedCvrContest): void,
+    resolveBallotTags(input: { cvrId }): void,
   });
 }
+
+// Binary ballot image endpoint (Express, outside grout)
+GET /api/ballot-image/:cvrId/:side → raw image bytes with Content-Type
 ```
+
+`getBallotImageMetadata` returns layout, coordinates, and image URLs pointing to
+the binary endpoint (e.g. `/api/ballot-image/{cvrId}/front`). Actual image bytes
+are served via Express to avoid base64-in-JSON overhead through grout.
 
 ### Ballot Assignment Logic
 
-**Claiming:** Client calls `claimBallot`. Host finds unclaimed CVR with ballot
-style affinity preference, atomically marks as claimed, returns metadata. Client
-fetches image and vote data via separate calls.
+**Claiming:** Client calls `claimBallot`. Host selects the next unclaimed,
+unresolved CVR using a SELECT with `LIMIT 1` (SQLite's single-writer guarantee
+prevents double-claiming). Ballot style affinity is implemented via ORDER BY
+preference when a `currentBallotStyleId` is provided. An optional
+`excludeCvrIds` parameter allows the client to skip specific ballots (used by
+the skip feature to avoid re-claiming the same ballot).
 
-**Release:** Ballots released when client calls `releaseBallot`, screen locks
-(heartbeat timeout), client disconnects, or session ends.
+```sql
+SELECT c.id AS cvr_id
+FROM cvrs c
+LEFT JOIN cvr_tags ct ON ct.cvr_id = c.id
+WHERE c.election_id = ?
+  AND c.id IN (
+    SELECT cvr_id FROM cvr_contest_tags WHERE is_resolved = 0
+    UNION
+    SELECT cvr_id FROM cvr_tags WHERE is_resolved = 0
+  )
+  AND c.id NOT IN (
+    SELECT cvr_id FROM machine_ballot_adjudication_assignments
+    WHERE election_id = ? AND status IN ('claimed', 'completed')
+  )
+  AND c.id NOT IN (?, ?, ...)  -- excludeCvrIds (optional, for skip)
+ORDER BY
+  CASE WHEN c.ballot_style_group_id = ? THEN 0 ELSE 1 END,
+  CASE WHEN ct.is_blank_ballot = 1 THEN 1 ELSE 0 END,
+  CASE WHEN c.card_type = 'bmd' THEN 1 ELSE 0 END,
+  c.ballot_style_group_id,
+  c.sheet_number,
+  c.id
+LIMIT 1
+```
 
-**Submission:** Client calls `submitBallotAdjudication` with all contest
-adjudications. Host validates claim, calls existing `adjudicateCvrContest()` per
-contest, marks claim completed.
+The host's adjudication queue (`getBallotAdjudicationQueue`) includes claimed
+ballots so the "Ballot X of N" display is stable regardless of client activity.
+`getNextCvrIdForBallotAdjudication` excludes claimed ballots so the host starts
+at an unclaimed ballot. When multi-station adjudication is enabled, the host
+also claims the ballot it is currently adjudicating (via
+`claimBallotForAdjudication`) and releases on navigation or exit, preventing
+clients from claiming the same ballot. `getClaimedBallotCvrIds` (excluding the
+host's own machine ID) provides the set of ballots claimed by other machines for
+the blocking UI. Stale host claims from a previous process are released on
+server startup.
+
+**Completion:** When `resolveBallotTags` is called, the claim is marked
+`status = 'completed'` with a `completed_at` timestamp within the same
+transaction as tag resolution. Completed claims are preserved as an audit trail
+of which machine adjudicated which ballot.
+
+**Release:** Claimed (but not completed) ballots are released (row deleted)
+when: client calls `releaseBallot`, client exits the adjudication screen, host
+navigates away from a ballot, client machine goes offline (detected by stale
+machine cleanup), or multi-station adjudication is toggled. Bulk release
+functions (`releaseAllClaimsForMachine`, `releaseAllActiveClaims`) only delete
+rows with `status = 'claimed'`, preserving completed audit records.
+
+**Skip:** Client tracks skipped CVR IDs in a session-scoped set. On skip, the
+current ballot is released and the next claim passes all skipped IDs as
+`excludeCvrIds`. When all ballots have been skipped, the set clears and the
+cycle restarts. This ensures skipped ballots don't reappear until other options
+are exhausted.
+
+### Client Machine Status on Host
+
+The `connectToHost` heartbeat includes the client's auth-derived status
+(`Active` / `OnlineLocked`). The host overrides this to `Adjudicating` when the
+client has active ballot claims in `machine_ballot_adjudication_assignments`.
+This allows the host's clients table to show real-time adjudication activity
+without the client needing to explicitly report UI state.
 
 ### Frontend Changes
 
-**Host:** Mode selector (unconfigured only), online/offline indicator, host
-conflict warning, "Start Networked Adjudication" toggle, connected clients list
-with status, adjudication progress display.
+**Host:** The Adjudication screen shows "Start Adjudication" (primary) and
+"Enable/Disable Multi-Station Adjudication" buttons side by side when the
+feature flag is enabled. Below, a "Clients" section shows network status
+(online/offline, multiple host conflict warnings) and a connected clients table
+with machine ID, status (active/locked/disconnected/adjudicating), user role,
+and relative last-seen time. The host can also adjudicate ballots itself in
+parallel with clients. The host claims each ballot it navigates to (via
+`claimBallotForAdjudication`) and releases on navigation or exit. When the host
+navigates to a ballot claimed by another machine, the ballot image is still
+shown but the contest list is replaced with a "currently being adjudicated by
+another machine" message and adjudication is disabled — only Next/Back
+navigation is available. Host adjudication queue queries
+(`getBallotAdjudicationQueue`, `getBallotAdjudicationQueueMetadata`,
+`getNextCvrIdForBallotAdjudication`, `getClaimedBallotCvrIds`) poll every 1
+second with `staleTime: 0` so the host sees queue changes from client activity
+without manual refresh.
 
-**Client:** "Searching for Host..." connecting screen, auto-configured from
-host, adjudication UI reusing existing `ContestAdjudicationScreen` with data
-fetched from host peer API, "Next Ballot" flow.
+**Client:** Shows adjudication status and a "Start Adjudication" button (enabled
+when host has enabled client adjudication). When clicked, claims a ballot from
+the host before navigating — if successful, navigates to the ballot adjudication
+screen with the claimed CVR ID in the route.
 
-**Client API pattern:** Local backend proxies adjudication requests to host,
-avoiding CORS issues. Frontend only talks to its own local backend.
+1. "Start Adjudication" button claims a ballot (`claimBallot`), navigates to
+   `/adjudication/ballots/:cvrId`
+2. `ClientBallotAdjudicationScreen` reads `cvrId` from route params, starts in
+   `adjudicating` state immediately (no mount-time claim)
+3. `ClientBallotAdjudicationDataLoader` fetches data via client `api.ts` hooks
+   and passes as props to the shared `BallotAdjudicationScreen`
+4. User can: **Accept** (resolves tags, completes claim, auto-claims next),
+   **Skip** (releases claim, claims next excluding skipped IDs), or **Exit**
+   (releases claim, navigates back)
+5. When no ballots remain, shows completion screen with nav back to adjudication
+
+**Shared adjudication screen (data as props):** `BallotAdjudicationScreen` was
+refactored from an internal component with queue awareness to an exported
+component that accepts all data and mutation callbacks as props:
+`ballotAdjudicationData`, `ballotImages`, `writeInCandidates`, `systemSettings`,
+`onResolveBallotTags`, `onAdjudicateCvrContest`, plus navigation callbacks
+(`onAcceptDone`, `onSkip?`, `onBack?`, `onExit`). It has no hooks and no
+knowledge of where data comes from.
+
+The host wraps it in `HostBallotAdjudicationScreenDataLoader` (fetches data via
+host `api.ts` hooks, manages queue navigation, claims ballots when multi-station
+is enabled). The client wraps it in `ClientBallotAdjudicationDataLoader`
+(fetches data via client `api.ts` hooks).
+
+`ContestAdjudicationScreen` similarly accepts `writeInCandidates` (pre-filtered
+by contest) and `onAdjudicateCvrContest` as props — no internal data fetching.
+
+**Client error handling:** Client proxy endpoints throw on host disconnection
+(`requireHostConnection` throws if the host connection is unavailable). This
+matches the host's API return types — both host and client return plain values
+for adjudication methods, no Result wrapping. In practice, host disconnection is
+handled by the backend: the networking layer clears the cached election record,
+which causes the auth state to transition to `logged_out`, logging the user out
+before any grout error reaches the UI.
+
+**Client API pattern:** Local backend proxies adjudication requests to host's
+peer API. Proxy endpoints throw on host disconnection rather than returning
+errors — grout surfaces the throw as an error to the frontend. `getBallotImages`
+fetches metadata via the grout `getBallotImageMetadata` endpoint and binary
+images via the Express `GET /api/ballot-image/:cvrId/:side` endpoint in
+parallel, then reconstructs data URLs locally. Frontend only talks to its own
+local backend, avoiding CORS issues.
+
+### Logging
+
+Eight new log event types for multi-station adjudication:
+
+| Event ID                          | Type               | Description                                           |
+| --------------------------------- | ------------------ | ----------------------------------------------------- |
+| `AdminNetworkStatus`              | application-status | Network connection state changes, client heartbeats   |
+| `AdminMachineModeChanged`         | user-action        | Host/client mode switch                               |
+| `AdminClientAdjudicationToggled`  | user-action        | Enable/disable multi-station adjudication             |
+| `AdminBallotClaimed`              | application-action | Ballot claimed by client (logged on both host+client) |
+| `AdminContestAdjudicated`         | application-action | A contest on a ballot was adjudicated                 |
+| `AdminBallotAdjudicationComplete` | application-action | Ballot adjudication completed (both host+client)      |
+| `AdminBallotReleased`             | application-action | Ballot released back to queue                         |
+| `AdminAdjudicationProxyError`     | application-status | Client proxy request failed (no host connection)      |
+
+Logging occurs on both sides: the host peer API logs claim/release/complete
+events with the client machine ID, and the client proxy endpoints log the same
+events from the client's perspective.
 
 ### Scale
 
@@ -155,14 +297,13 @@ adjudication-only thin proxies.
 
 #### Server Architecture
 
-**Host mode** — two Express servers in the same process, sharing one `HostStore`
+**Host mode** — two Express servers in the same process, sharing one `Store`
 instance (single SQLite DB, no sync needed):
 
-- **Local API** on PORT (`app.ts`) — existing full VxAdmin API + new session
-  management endpoints
+- **Local API** on PORT (`app.ts`) — existing full VxAdmin API + multi-station
+  management endpoints (`getNetworkStatus`, `setIsClientAdjudicationEnabled`)
 - **Peer API** on PEER_PORT (`peer_app.ts`) — serves client requests. Calls the
-  same shared functions (e.g. `adjudicateCvrContest()`) as the local API — no
-  adjudication logic duplication.
+  same store methods as the local API — no adjudication logic duplication.
 
 **Client mode** — one Express server only:
 
@@ -171,7 +312,8 @@ instance (single SQLite DB, no sync needed):
      Uses shared API builders (`createSystemCallApi`, etc.) identical to the
      host.
   2. **Adjudication proxy endpoints** — transparent forwarding to the host's
-     peer API via a `grout.Client<PeerApi>`.
+     peer API via a `grout.Client<PeerApi>`. Throws on host disconnection
+     (matching the host's plain return types).
 
 #### Machine Mode
 
@@ -181,35 +323,37 @@ bootstrapping problem: mode must be known before creating a store, since hosts
 and clients use different store classes with different schemas.
 
 Both `app.ts` and `client_app.ts` expose `getMachineMode()` / `setMachineMode()`
-endpoints. `setMachineMode()` writes the file and triggers a backend restart.
+endpoints. `setMachineMode()` writes the file and requires a machine restart.
 Only changeable by System Administrator when unconfigured. Default is `'host'`.
 Feature flag `ENABLE_MULTI_STATION_ADMIN` gates the entire feature.
 
 #### Startup Flow (`server.ts`)
 
 1. Read mode from file before creating any store
-2. **Host:** create `HostStore` → start peer server on PEER_PORT → start local
-   server on PORT → start host networking (avahi advertise, heartbeat
-   monitoring)
+2. **Host:** create `Store` → start peer server on PEER_PORT → start local
+   server on PORT → start host networking (avahi advertise, conflict detection,
+   stale machine cleanup)
 3. **Client:** create `ClientStore` → start client networking (avahi discover,
-   heartbeat) → start client local server on PORT
+   connect to host, sync election data) → start client local server on PORT
 
 #### Store Classes
 
-**`HostStore`** — existing `Store` class (renamed) plus new methods for the
-adjudication session tables. Full `schema.sql`.
+**`Store`** — existing store class. The only schema addition for multi-station
+is the `machine_ballot_adjudication_assignments` table. Existing `machines` and
+`settings` tables already handle client tracking and the adjudication toggle.
 
-**`ClientStore`** — minimal store for diagnostics only. Small
-`client_schema.sql` with no election/CVR/adjudication tables.
+**`ClientStore`** — in-memory store holding ephemeral connection state, cached
+election data synced from host, and cached system settings. No local database.
 
 #### Networking (`networking.ts`)
 
-Follows pollbook's `setupMachineNetworking` pattern with two functions:
+Two functions with structured logging via `LogEventId.AdminNetworkStatus`:
 
-- **`startHostNetworking`:** avahi advertise, poll for host conflicts, monitor
-  heartbeat timeouts and release stale ballot claims
-- **`startClientNetworking`:** avahi discover host, connect, send heartbeats,
-  reconnect on disconnect
+- **`startHostNetworking`:** avahi advertise, poll for host conflicts, stale
+  machine cleanup (marks offline, releases ballot claims for stale machines),
+  online/offline transition logging
+- **`startClientNetworking`:** avahi discover host, connect via `connectToHost`,
+  sync election data on hash change, connection state transition logging
 
 #### Frontend
 
@@ -220,68 +364,7 @@ client gets its own component tree:
 - `index.tsx` queries `getMachineMode()`, renders `<App />` (host, unchanged) or
   `<ClientApp />` (new)
 - `client/` directory: own app shell, app root, API file, and screens
-  (connecting, adjudication flow, mode selector)
-- `host/` directory: new host-only multi-station screens (session management,
-  connected clients)
-- Shared adjudication components (e.g. `ContestAdjudicationScreen`) are reused
-  by the client without modification
-
-## Task Breakdown
-
-### Hardware
-
-- [ ] Test candidate ethernet switches with current laptop setup
-- [ ] Test USB-C to ethernet adapters
-- [ ] Finalize ethernet switch, cable, and adapter certification decisions
-- [ ] Handle packaging and presentation of networking peripherals
-
-### System Level
-
-- [x] Prototype networking stack changes from pollbook for ethernet in VxDev
-- [x] Determine if ethernet switches require configuration
-- [ ] Upgrade to FIPS compliance in strongswan implementation
-- [ ] Add networking changes to VxAdmin image build script (conditional on ENV)
-
-### Application Networking Setup & Configuration
-
-- [ ] Add feature flag for multi-station (`ENABLE_MULTI_STATION_ADMIN`)
-- [ ] Add host/client mode toggle with networking connections over avahi
-- [ ] Host tracking of connected clients
-- [ ] Client configuration from host (election info, auth setup)
-- [ ] Basic client screens
-- [ ] Basic host monitoring screen for viewing clients
-
-### Adjudication MVP
-
-- [ ] Database schema for adjudication sessions, stations, ballot claims
-- [ ] Implement peer API on host
-- [ ] Host UI to start and manage adjudication session
-- [ ] Host views for adjudication progress
-- [ ] Client ballot fetch, assignment, adjudication screen integration, result
-      submission
-- [ ] Ballot assignment logic with ballot style affinity
-- [ ] Ballot release on disconnect/lock (heartbeat timeout)
-- [ ] Ballot image serving endpoint on host
-
-### Adjudication Parallelism
-
-- [ ] Allow viewing reports with partial adjudicated results during adjudication
-- [ ] Allow importing CVRs in parallel with other tasks
-- [ ] Address polish/feedback from initial workflow passes
-
-## Key Files
-
-| File                                     | Role                                          |
-| ---------------------------------------- | --------------------------------------------- |
-| `libs/networking/src/avahi.ts`           | Shared avahi publish/discover/online-check    |
-| `apps/admin/backend/src/server.ts`       | Entry point — mode-aware startup              |
-| `apps/admin/backend/src/app.ts`          | Host local API                                |
-| `apps/admin/backend/src/peer_app.ts`     | **NEW** — Host peer API                       |
-| `apps/admin/backend/src/client_app.ts`   | **NEW** — Client local API (sysadmin + proxy) |
-| `apps/admin/backend/src/networking.ts`   | **NEW** — Avahi advertisement/discovery       |
-| `apps/admin/backend/src/machine_mode.ts` | **NEW** — File-based mode read/write          |
-| `apps/admin/backend/src/host_store.ts`   | Host store (renamed from store.ts)            |
-| `apps/admin/backend/src/client_store.ts` | **NEW** — Client store (minimal)              |
-| `apps/admin/frontend/src/client/`        | **NEW** — Client frontend app                 |
-| `apps/admin/frontend/src/host/`          | **NEW** — Host multi-station screens          |
-| `apps/pollbook/backend/src/`             | Reference: pollbook peer API + networking     |
+  (adjudication, ballot adjudication flow, settings, diagnostics)
+- Shared adjudication components (`BallotAdjudicationScreen`,
+  `ContestAdjudicationScreen`, `BallotStaticImageViewer`) accept all data as
+  props — each parent (host/client) fetches using its own API hooks
