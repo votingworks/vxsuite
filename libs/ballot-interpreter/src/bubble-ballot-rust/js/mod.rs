@@ -293,24 +293,31 @@ fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, napi:
     let width = as_u32(width)?;
     let height = as_u32(height)?;
     let len = data.len();
-
-    match len / (width as usize * height as usize) {
-        1 => Ok(GrayImage::from_vec(width, height, data).ok_or_else(|| {
+    let pixel_count = (width as usize)
+        .checked_mul(height as usize)
+        .ok_or_else(|| {
             napi::Error::from_reason(format!(
-                "Could not construct GrayImage with dimensions: width={width} height={height} buffer length={len}",
+                "Image dimensions overflow: width={width} height={height}"
             ))
-        })?),
-        4 => Ok(DynamicImage::ImageRgba8(
-            RgbaImage::from_vec(width, height, data).ok_or_else(|| {
-                napi::Error::from_reason(format!(
-                    "Could not construct RgbaImage with dimensions: width={width} height={height} buffer length={len}",
-                ))
-            })?,
-        )
-        .into_luma8()),
-        _ => Err(napi::Error::from_reason(format!(
-            "Could not construct image dimensions: width={width} height={height} buffer length={len}"
-        ))),
+        })?;
+
+    if len == pixel_count {
+        GrayImage::from_vec(width, height, data).ok_or_else(|| {
+            napi::Error::from_reason(format!(
+                "Could not construct GrayImage: width={width} height={height} buffer length={len}",
+            ))
+        })
+    } else if Some(len) == pixel_count.checked_mul(4) {
+        let rgba = RgbaImage::from_vec(width, height, data).ok_or_else(|| {
+            napi::Error::from_reason(format!(
+                "Could not construct RgbaImage: width={width} height={height} buffer length={len}",
+            ))
+        })?;
+        Ok(DynamicImage::ImageRgba8(rgba).into_luma8())
+    } else {
+        Err(napi::Error::from_reason(format!(
+            "Unexpected buffer length for image: width={width} height={height} buffer length={len}"
+        )))
     }
 }
 
@@ -410,4 +417,73 @@ pub async fn encode_bmd_ballot_data(
     .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
 
     Ok(Buffer::from(bytes))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use proptest::prelude::*;
+
+    // 200 DPI scan dimensions for 8.5" wide × 11"–22" tall sheets.
+    const SCAN_WIDTH: u32 = 1700;
+    const SCAN_HEIGHT_LETTER: u32 = 2200;
+    const SCAN_HEIGHT_22IN: u32 = 4400;
+
+    proptest! {
+        #[test]
+        fn gray_image_never_panics(
+            width in proptest::num::f64::ANY,
+            height in proptest::num::f64::ANY,
+            data in proptest::collection::vec(proptest::num::u8::ANY, 0..256),
+        ) {
+            let _ = gray_image(width, height, data);
+        }
+    }
+
+    #[test]
+    fn gray_image_accepts_valid_gray_data() {
+        for (w, h) in [
+            (SCAN_WIDTH, SCAN_HEIGHT_LETTER),
+            (SCAN_WIDTH, SCAN_HEIGHT_22IN),
+        ] {
+            let data = vec![128u8; w as usize * h as usize];
+            let result = gray_image(f64::from(w), f64::from(h), data);
+            assert!(result.is_ok());
+            let img = result.unwrap();
+            assert_eq!(img.width(), w);
+            assert_eq!(img.height(), h);
+        }
+    }
+
+    #[test]
+    fn gray_image_accepts_valid_rgba_data() {
+        for (w, h) in [
+            (SCAN_WIDTH, SCAN_HEIGHT_LETTER),
+            (SCAN_WIDTH, SCAN_HEIGHT_22IN),
+        ] {
+            let data = vec![128u8; w as usize * h as usize * 4];
+            let result = gray_image(f64::from(w), f64::from(h), data);
+            assert!(result.is_ok());
+            let img = result.unwrap();
+            assert_eq!(img.width(), w);
+            assert_eq!(img.height(), h);
+        }
+    }
+
+    #[test]
+    fn gray_image_rejects_mismatched_buffer() {
+        let pixel_count = SCAN_WIDTH as usize * SCAN_HEIGHT_LETTER as usize;
+        // A buffer that is neither 1x nor 4x the pixel count.
+        let data = vec![0u8; pixel_count * 2];
+        assert!(gray_image(f64::from(SCAN_WIDTH), f64::from(SCAN_HEIGHT_LETTER), data).is_err());
+    }
+
+    #[test]
+    fn gray_image_does_not_panic_on_pixel_count_times_4_overflow() {
+        // u32::MAX × u32::MAX fits in usize on 64-bit, but multiplying by 4
+        // overflows. This must return Err, not panic.
+        let w = f64::from(u32::MAX);
+        let h = f64::from(u32::MAX);
+        assert!(gray_image(w, h, vec![]).is_err());
+    }
 }
