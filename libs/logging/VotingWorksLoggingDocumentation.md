@@ -674,6 +674,26 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user enabled or disabled multi-station client adjudication.
 **Machines:** vx-admin
+### admin-ballot-claimed
+**Type:** [application-action](#application-action)
+**Description:** A ballot was claimed for adjudication by a client machine.
+**Machines:** vx-admin
+### admin-ballot-adjudication-complete
+**Type:** [application-action](#application-action)
+**Description:** A client machine completed adjudication of a ballot and resolved it.
+**Machines:** vx-admin
+### admin-ballot-released
+**Type:** [application-action](#application-action)
+**Description:** A claimed ballot was released back to the adjudication queue.
+**Machines:** vx-admin
+### admin-adjudication-proxy-error
+**Type:** [application-status](#application-status)
+**Description:** A client adjudication proxy request failed because the host is not connected.
+**Machines:** vx-admin
+### admin-contest-adjudicated
+**Type:** [application-action](#application-action)
+**Description:** A contest on a ballot was adjudicated.
+**Machines:** vx-admin
 ### low-disk-space
 **Type:** [system-status](#system-status)
 **Description:** Free disk space is low.
