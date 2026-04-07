@@ -1,6 +1,6 @@
 import { Mocked, expect, vi } from 'vitest';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { iter, ok } from '@votingworks/basics';
+import { assertDefined, iter, ok } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -15,9 +15,12 @@ import {
   SheetOf,
   asSheet,
   constructElectionKey,
+  pollingPlaceFromElection,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
@@ -73,11 +76,13 @@ export async function configureApp(
   mockUsbDrive: MockUsbDrive,
   {
     electionPackage = electionFamousNames2021Fixtures.electionJson.toElectionPackage(),
+    pollingPlaceId,
     precinctId,
     testMode = false,
     openPolls = true,
   }: {
     electionPackage?: ElectionPackage;
+    pollingPlaceId?: string;
     precinctId?: PrecinctId;
     testMode?: boolean;
     openPolls?: boolean;
@@ -103,11 +108,22 @@ export async function configureApp(
     ok()
   );
 
-  await apiClient.setPrecinctSelection({
-    precinctSelection: precinctId
-      ? singlePrecinctSelectionFor(precinctId)
-      : ALL_PRECINCTS_SELECTION,
-  });
+  const { election } = electionPackage.electionDefinition;
+  const pollingPlace = pollingPlaceId
+    ? pollingPlaceFromElection(election, pollingPlaceId)
+    : assertDefined(election.pollingPlaces)[0];
+
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+    await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+  } else {
+    await apiClient.setPrecinctSelection({
+      precinctSelection: precinctId
+        ? singlePrecinctSelectionFor(precinctId)
+        : ALL_PRECINCTS_SELECTION,
+    });
+  }
+
   await apiClient.setTestMode({ isTestMode: testMode });
   if (openPolls) {
     (await apiClient.openPolls()).unsafeUnwrap();

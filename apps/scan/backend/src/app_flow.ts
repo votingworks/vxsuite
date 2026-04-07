@@ -1,6 +1,10 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { Store } from './store';
 import { constructAuthMachineState } from './util/auth';
 
@@ -32,10 +36,12 @@ export async function isReadyToScan({
     return false;
   }
 
-  const precinctSelection = store.getPrecinctSelection();
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  const locationConfigured = isFeatureFlagEnabled(ENABLE_POLLING_PLACES)
+    ? store.getPollingPlaceId()
+    : store.getPrecinctSelection();
 
-  // If there is no precinct selection, we can't scan.
-  if (!precinctSelection) {
+  if (!locationConfigured) {
     return false;
   }
 

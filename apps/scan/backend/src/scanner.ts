@@ -28,9 +28,18 @@ import {
   SheetOf,
   ballotPaperDimensions,
   mapSheet,
+  pollingPlacePrecinctIds,
+  pollingPlaceFromElection,
+  Election,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { getPrecinctSelectionIds, time, Timer } from '@votingworks/utils';
+import {
+  getPrecinctSelectionIds,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  time,
+  Timer,
+} from '@votingworks/utils';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { v4 as uuid } from 'uuid';
@@ -259,14 +268,13 @@ async function interpretSheet(
     retryStreakWidthThreshold,
   } = assertDefined(store.getSystemSettings());
 
-  const precinctSelection = assertDefined(store.getPrecinctSelection());
   const electionRecord = assertDefined(store.getElectionRecord());
-  const { precincts } = electionRecord.electionDefinition.election;
+  const { election } = electionRecord.electionDefinition;
 
   const interpretation = (
     await interpret(sheetId, scanImages, {
       electionDefinition: electionRecord.electionDefinition,
-      validPrecinctIds: getPrecinctSelectionIds(precincts, precinctSelection),
+      validPrecinctIds: validPrecinctIds(store, election),
       testMode: store.getTestMode(),
       disableVerticalStreakDetection,
       ballotImagesPath: workspace.ballotImagesPath,
@@ -286,6 +294,20 @@ async function interpretSheet(
     ...interpretation,
     sheetId,
   };
+}
+
+function validPrecinctIds(store: Store, election: Election) {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+
+  if (!isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+    const precinctSelection = assertDefined(store.getPrecinctSelection());
+    return getPrecinctSelectionIds(election.precincts, precinctSelection);
+  }
+
+  const pollingPlaceId = assertDefined(store.getPollingPlaceId());
+  const pollingPlace = pollingPlaceFromElection(election, pollingPlaceId);
+
+  return pollingPlacePrecinctIds(pollingPlace);
 }
 
 function anyRearSensorCovered(status: ScannerStatus): boolean {
