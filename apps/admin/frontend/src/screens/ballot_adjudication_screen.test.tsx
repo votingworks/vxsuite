@@ -125,6 +125,7 @@ function setupBasicMocks({
   isBmd?: boolean;
 }) {
   apiMock.expectGetBallotAdjudicationQueue(queue);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(nextCvrId);
   apiMock.expectGetBallotAdjudicationData(
     { cvrId: adjudicationData.cvrId },
@@ -246,6 +247,7 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
 
   // initial load
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetWriteInCandidates([]);
@@ -269,10 +271,12 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     history,
   });
 
-  // starts on first ballot showing front image, back is disabled
+  // starts on first ballot showing front image, no back button on first ballot
   await screen.findByText(/Ballot ID: cvr-/);
   screen.getByText('Ballot 1 of 3');
-  expect(screen.getByRole('button', { name: /Back/ })).toBeDisabled();
+  expect(
+    screen.queryByRole('button', { name: /Back/ })
+  ).not.toBeInTheDocument();
   const ballotImage = screen.getByAltText('Full ballot');
   expect(ballotImage).toHaveAttribute('src', `mock-front-image-${CVR_ID_1}`);
 
@@ -364,6 +368,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
   });
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
@@ -451,6 +456,7 @@ test('clicking a contest opens contest adjudication screen', async () => {
 
   // Use HMPB images so zoo-council-mammal is on front, best-animal-mammal on back
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
@@ -467,7 +473,6 @@ test('clicking a contest opens contest adjudication screen', async () => {
   await screen.findByText('Zoo Council');
 
   // click front-side contest to open contest adjudication
-  apiMock.expectGetWriteInCandidates([], 'zoo-council-mammal');
   userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByText(/Votes cast:/);
 
@@ -477,7 +482,6 @@ test('clicking a contest opens contest adjudication screen', async () => {
   screen.getByText('Best Animal');
 
   // click back-side contest to open contest adjudication with side='back'
-  apiMock.expectGetWriteInCandidates([], 'best-animal-mammal');
   userEvent.click(screen.getByText('Best Animal'));
   await screen.findByText(/Votes cast:/);
 
@@ -548,6 +552,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   };
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
@@ -668,6 +673,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   };
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetWriteInCandidates([]);
@@ -757,6 +763,7 @@ test('contest list shows correct status line captions', async () => {
   ]);
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
@@ -820,6 +827,7 @@ test('contest list suppresses undervote captions when not in system settings', a
   ]);
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
@@ -995,6 +1003,7 @@ test('contest list shows correct option resolution bullets', async () => {
   ]);
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);

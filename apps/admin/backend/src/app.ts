@@ -777,6 +777,28 @@ function buildApi({
       });
     },
 
+    getClaimedBallotCvrIds(): Id[] {
+      return store.getClaimedBallotCvrIds({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        excludeMachineId: getMachineConfig().machineId,
+      });
+    },
+
+    claimBallotForAdjudication(input: { cvrId: Id }): void {
+      store.claimBallotForAdjudication({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+        machineId: getMachineConfig().machineId,
+      });
+    },
+
+    releaseBallotAdjudicationClaim(input: { cvrId: Id }): void {
+      store.releaseBallotClaim({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+      });
+    },
+
     getNextCvrIdForBallotAdjudication(): Id | null {
       return (
         store.getNextCvrIdForBallotAdjudication({

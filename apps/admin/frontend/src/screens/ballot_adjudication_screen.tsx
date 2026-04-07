@@ -1,29 +1,38 @@
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
+import type {
+  AdjudicatedCvrContest,
+  BallotAdjudicationData,
+  BallotImages,
+  ContestAdjudicationData,
+  CvrContestTag,
+  WriteInCandidateRecord,
+} from '@votingworks/admin-backend';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   AdjudicationReason,
   ContestId,
   Election,
   Id,
   Side,
+  SystemSettings,
 } from '@votingworks/types';
+import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import type {
-  BallotImages,
-  ContestAdjudicationData,
-  CvrContestTag,
-} from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
-import { assert, assertDefined, find } from '@votingworks/basics';
 import {
-  resolveBallotTags,
-  getBallotAdjudicationData,
+  adjudicateCvrContest,
+  claimBallotForAdjudication,
+  getBallotAdjudicationData as getBallotAdjudicationDataQuery,
   getBallotAdjudicationQueue,
-  getBallotImages,
+  getBallotImages as getBallotImagesQuery,
+  getClaimedBallotCvrIds,
+  getIsClientAdjudicationEnabled,
   getNextCvrIdForBallotAdjudication,
-  getSystemSettings,
-  getWriteInCandidates,
+  getSystemSettings as getSystemSettingsQuery,
+  getWriteInCandidates as getWriteInCandidatesQuery,
+  releaseBallotAdjudicationClaim,
+  resolveBallotTags,
 } from '../api';
 import { routerPaths } from '../router_paths';
 import {
@@ -118,6 +127,17 @@ const ModalActions = styled.div`
   }
 `;
 
+const ClaimedBallotOverlay = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: ${(p) => p.theme.colors.onBackground};
+  opacity: 0.8;
+`;
+
 function groupContestsBySide(
   ballotImages: BallotImages,
   contestAdjudicationData: ContestAdjudicationData[],
@@ -161,8 +181,15 @@ function isContestTagOnlyUndervote(tag: CvrContestTag) {
 export function BallotAdjudicationScreenWrapper(): JSX.Element {
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
   const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
+  const multiStationQuery = getIsClientAdjudicationEnabled.useQuery();
+  const isMultiStation = multiStationQuery.data;
+  const claimedCvrIdsQuery = getClaimedBallotCvrIds.useQuery();
 
-  if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
+  if (
+    !ballotQueueQuery.isSuccess ||
+    !nextCvrIdQuery.isSuccess ||
+    !claimedCvrIdsQuery.isSuccess
+  ) {
     return (
       <Screen>
         <Main flexRow>
@@ -174,33 +201,212 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
 
   const queue = ballotQueueQuery.data;
   const nextCvrId = nextCvrIdQuery.data;
+  const claimedCvrIds = isMultiStation
+    ? new Set(claimedCvrIdsQuery.data)
+    : new Set<Id>();
   const initialQueueIndex = nextCvrId
     ? Math.max(0, queue.indexOf(nextCvrId))
     : 0;
 
   return (
-    <BallotAdjudicationScreen
+    <HostBallotAdjudicationScreen
       queue={queue}
       initialQueueIndex={initialQueueIndex}
+      claimedCvrIds={claimedCvrIds}
+      isMultiStation={Boolean(isMultiStation)}
     />
   );
 }
 
-interface BallotAdjudicationScreenProps {
-  queue: Id[];
-  initialQueueIndex: number;
-}
-
-function BallotAdjudicationScreen({
+function HostBallotAdjudicationScreen({
   queue,
   initialQueueIndex,
+  claimedCvrIds,
+  isMultiStation,
+}: {
+  queue: Id[];
+  initialQueueIndex: number;
+  claimedCvrIds: Set<Id>;
+  isMultiStation: boolean;
+}): JSX.Element {
+  const history = useHistory();
+  const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
+  const currentCvrId = queue[queueIndex];
+  const { mutateAsync: claimBallotMutation } =
+    claimBallotForAdjudication.useMutation();
+  const { mutateAsync: releaseClaimMutation } =
+    releaseBallotAdjudicationClaim.useMutation();
+  const claimedCvrIdRef = useRef<Id | null>(null);
+
+  async function claimAndRelease(nextCvrId?: Id): Promise<void> {
+    if (!isMultiStation) return;
+    const prevCvrId = claimedCvrIdRef.current;
+    if (prevCvrId) {
+      claimedCvrIdRef.current = null;
+      try {
+        await releaseClaimMutation({ cvrId: prevCvrId });
+      } catch {
+        // Best-effort release
+      }
+    }
+    if (nextCvrId && !claimedCvrIds.has(nextCvrId)) {
+      try {
+        await claimBallotMutation({ cvrId: nextCvrId });
+        claimedCvrIdRef.current = nextCvrId;
+      } catch {
+        // Best-effort claim
+      }
+    }
+  }
+
+  // Claim the initial ballot on mount
+  useEffect(() => {
+    if (currentCvrId) {
+      void claimAndRelease(currentCvrId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!currentCvrId) {
+    history.push(routerPaths.adjudication);
+    return (
+      <Screen>
+        <Main flexRow>
+          <Loading isFullscreen />
+        </Main>
+      </Screen>
+    );
+  }
+
+  function navigateTo(nextIndex: number): void {
+    const nextCvrId = queue[nextIndex];
+    void claimAndRelease(nextCvrId);
+    setQueueIndex(nextIndex);
+  }
+
+  function navigateNext(): void {
+    if (queueIndex >= queue.length - 1) {
+      void claimAndRelease();
+      history.push(routerPaths.adjudication);
+    } else {
+      navigateTo(queueIndex + 1);
+    }
+  }
+
+  function navigateExit(): void {
+    void claimAndRelease();
+    history.push(routerPaths.adjudication);
+  }
+
+  const isClaimed = claimedCvrIds.has(currentCvrId);
+  const statusText = `Ballot ${format.count(queueIndex + 1)} of ${format.count(
+    queue.length
+  )}`;
+
+  return (
+    <HostBallotAdjudicationScreenDataLoader
+      cvrId={currentCvrId}
+      statusText={statusText}
+      isClaimed={isClaimed}
+      isLastBallot={queueIndex >= queue.length - 1}
+      onAcceptDone={navigateNext}
+      onSkip={navigateNext}
+      onBack={queueIndex > 0 ? () => navigateTo(queueIndex - 1) : undefined}
+      onExit={navigateExit}
+    />
+  );
+}
+
+function HostBallotAdjudicationScreenDataLoader({
+  cvrId,
+  ...rest
+}: {
+  cvrId: Id;
+  statusText: string;
+  isClaimed: boolean;
+  isLastBallot: boolean;
+  onAcceptDone: () => void;
+  onSkip: () => void;
+  onBack?: () => void;
+  onExit: () => void;
+}): JSX.Element {
+  const adjudicationDataQuery = getBallotAdjudicationDataQuery.useQuery({
+    cvrId,
+  });
+  const ballotImagesQuery = getBallotImagesQuery.useQuery({ cvrId });
+  const writeInCandidatesQuery = getWriteInCandidatesQuery.useQuery();
+  const systemSettingsQuery = getSystemSettingsQuery.useQuery();
+
+  const { mutateAsync: resolveBallotTagsMutation } =
+    resolveBallotTags.useMutation();
+  const { mutateAsync: adjudicateCvrContestMutation } =
+    adjudicateCvrContest.useMutation();
+
+  if (
+    !adjudicationDataQuery.isSuccess ||
+    !ballotImagesQuery.isSuccess ||
+    !writeInCandidatesQuery.isSuccess ||
+    !systemSettingsQuery.isSuccess
+  ) {
+    return (
+      <Screen>
+        <Main flexRow>
+          <Loading isFullscreen />
+        </Main>
+      </Screen>
+    );
+  }
+
+  return (
+    <BallotAdjudicationScreen
+      cvrId={cvrId}
+      ballotAdjudicationData={adjudicationDataQuery.data}
+      ballotImages={ballotImagesQuery.data}
+      writeInCandidates={writeInCandidatesQuery.data}
+      systemSettings={systemSettingsQuery.data}
+      onResolveBallotTags={() => resolveBallotTagsMutation({ cvrId })}
+      onAdjudicateCvrContest={(input) => adjudicateCvrContestMutation(input)}
+      {...rest}
+    />
+  );
+}
+
+export interface BallotAdjudicationScreenProps {
+  cvrId: Id;
+  ballotAdjudicationData: BallotAdjudicationData;
+  ballotImages: BallotImages;
+  writeInCandidates: WriteInCandidateRecord[];
+  systemSettings: SystemSettings;
+  statusText?: string;
+  isClaimed?: boolean;
+  isLastBallot?: boolean;
+  onResolveBallotTags: () => Promise<void>;
+  onAdjudicateCvrContest: (input: AdjudicatedCvrContest) => Promise<void>;
+  onAcceptDone: () => void;
+  onSkip?: () => void;
+  onBack?: () => void;
+  onExit: () => void;
+}
+
+export function BallotAdjudicationScreen({
+  cvrId,
+  ballotAdjudicationData,
+  ballotImages,
+  writeInCandidates,
+  systemSettings,
+  statusText,
+  isClaimed,
+  isLastBallot,
+  onResolveBallotTags,
+  onAdjudicateCvrContest,
+  onAcceptDone,
+  onSkip,
+  onBack,
+  onExit,
 }: BallotAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   const election = assertDefined(electionDefinition?.election);
-  const history = useHistory();
 
-  const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
-  const currentCvrId = queue[queueIndex];
   const [selectedSide, setSelectedSide] = useState<Side>('front');
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
@@ -210,39 +416,9 @@ function BallotAdjudicationScreen({
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const ballotAdjudicationDataQuery = getBallotAdjudicationData.useQuery({
-    cvrId: currentCvrId,
-  });
-  const ballotImagesQuery = getBallotImages.useQuery({
-    cvrId: currentCvrId,
-  });
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery();
-  const systemSettingsQuery = getSystemSettings.useQuery();
-  const resolveBallotTagsMutation = resolveBallotTags.useMutation();
-
-  // Prefetch the next and previous ballot images
-  const prefetchImageViews = getBallotImages.usePrefetch();
-  useEffect(() => {
-    const nextCvrId = queue[queueIndex + 1];
-    if (nextCvrId) {
-      void prefetchImageViews({ cvrId: nextCvrId });
-    }
-    const prevCvrId = queue[queueIndex - 1];
-    if (prevCvrId) {
-      void prefetchImageViews({ cvrId: prevCvrId });
-    }
-  }, [queueIndex, queue, prefetchImageViews]);
-
   // Default to back side if the first pending contest is on the back
   useEffect(() => {
-    if (
-      !ballotAdjudicationDataQuery.isSuccess ||
-      !ballotImagesQuery.isSuccess
-    ) {
-      return;
-    }
-    const { contests } = ballotAdjudicationDataQuery.data;
-    const ballotImages = ballotImagesQuery.data;
+    const { contests } = ballotAdjudicationData;
     const { backContests: back } = groupContestsBySide(
       ballotImages,
       contests,
@@ -257,49 +433,21 @@ function BallotAdjudicationScreen({
     } else {
       setSelectedSide('front');
     }
-  }, [
-    currentCvrId,
-    ballotAdjudicationDataQuery.isSuccess,
-    ballotAdjudicationDataQuery.data,
-    ballotImagesQuery.isSuccess,
-    ballotImagesQuery.data,
-    election,
-  ]);
+  }, [cvrId, ballotAdjudicationData, ballotImages, election]);
 
-  if (
-    !ballotAdjudicationDataQuery.isSuccess ||
-    !ballotImagesQuery.isSuccess ||
-    !writeInCandidatesQuery.isSuccess ||
-    !systemSettingsQuery.isSuccess
-  ) {
-    return (
-      <Screen>
-        <Main flexRow>
-          <Loading isFullscreen />
-        </Main>
-      </Screen>
-    );
-  }
-
-  const onFirstBallot = queueIndex <= 0;
-  const onLastBallot = queueIndex >= queue.length - 1;
-
-  const cvrId = currentCvrId;
-  const cvrTag = ballotAdjudicationDataQuery.data.tag;
-  const ballotImages = ballotImagesQuery.data;
+  const cvrTag = ballotAdjudicationData.tag;
   const { front, back } = ballotImages;
   const visibleImage = selectedSide === 'front' ? front : back;
 
-  const contestAdjudicationData = ballotAdjudicationDataQuery.data.contests;
+  const contestAdjudicationData = ballotAdjudicationData.contests;
   const { frontContests: frontContestItems, backContests: backContestItems } =
     groupContestsBySide(ballotImages, contestAdjudicationData, election);
   const writeInCandidateNamesById = new Map(
-    writeInCandidatesQuery.data.map((c) => [c.id, c.name])
+    writeInCandidates.map((c) => [c.id, c.name])
   );
-  const showUndervoteStatus =
-    systemSettingsQuery.data.adminAdjudicationReasons.includes(
-      AdjudicationReason.Undervote
-    );
+  const showUndervoteStatus = systemSettings.adminAdjudicationReasons.includes(
+    AdjudicationReason.Undervote
+  );
 
   const allResolved =
     contestAdjudicationData.every((c) => !c.tag || c.tag.isResolved) ||
@@ -315,24 +463,6 @@ function BallotAdjudicationScreen({
       (c.tag.hasWriteIn || c.tag.hasUnmarkedWriteIn)
   );
 
-  function onBack(): void {
-    if (!onFirstBallot) {
-      setQueueIndex(queueIndex - 1);
-    }
-  }
-
-  function navigateNext(): void {
-    if (onLastBallot) {
-      history.push(routerPaths.adjudication);
-    } else {
-      setQueueIndex(queueIndex + 1);
-    }
-  }
-
-  function onSkip(): void {
-    navigateNext();
-  }
-
   function onAcceptAndNext(): void {
     if (!allResolved) {
       setShowConfirmModal(true);
@@ -344,15 +474,11 @@ function BallotAdjudicationScreen({
   async function confirmAcceptAndNext(): Promise<void> {
     setShowConfirmModal(false);
     try {
-      await resolveBallotTagsMutation.mutateAsync({ cvrId });
-      navigateNext();
+      await onResolveBallotTags();
+      onAcceptDone();
     } catch {
-      // Handled by default query client error handling
+      // Handled by caller
     }
-  }
-
-  function onExit(): void {
-    history.push(routerPaths.adjudication);
   }
 
   function onCloseContest(): void {
@@ -387,7 +513,7 @@ function BallotAdjudicationScreen({
   const ballotBounds =
     visibleImage.type === 'hmpb' ? visibleImage.ballotCoordinates : undefined;
 
-  if (selectedContestId) {
+  if (selectedContestId && !isClaimed) {
     return (
       <ContestAdjudicationScreen
         cvrId={cvrId}
@@ -404,6 +530,10 @@ function BallotAdjudicationScreen({
           (c) => c.contestId === selectedContestId
         )}
         ballotImages={ballotImages}
+        writeInCandidates={writeInCandidates.filter(
+          (c) => c.contestId === selectedContestId
+        )}
+        onAdjudicateCvrContest={onAdjudicateCvrContest}
       />
     );
   }
@@ -440,43 +570,69 @@ function BallotAdjudicationScreen({
               Exit
             </Button>
           </PanelHeader>
-          <AdjudicationContestList
-            key={cvrId}
-            backContests={backContestItems}
-            cvrTag={cvrTag}
-            election={election}
-            frontContests={frontContestItems}
-            onHover={onContestHover}
-            onSelect={(contestId) => setSelectedContestId(contestId)}
-            onSelectSide={setSelectedSide}
-            selectedSide={selectedSide}
-            showUndervoteStatus={showUndervoteStatus}
-            writeInCandidateNamesById={writeInCandidateNamesById}
-          />
+          {isClaimed ? (
+            <ClaimedBallotOverlay>
+              <P>
+                This ballot is currently being adjudicated by another machine.
+              </P>
+            </ClaimedBallotOverlay>
+          ) : (
+            <AdjudicationContestList
+              key={cvrId}
+              backContests={backContestItems}
+              cvrTag={cvrTag}
+              election={election}
+              frontContests={frontContestItems}
+              onHover={onContestHover}
+              onSelect={(contestId) => setSelectedContestId(contestId)}
+              onSelectSide={setSelectedSide}
+              selectedSide={selectedSide}
+              showUndervoteStatus={showUndervoteStatus}
+              writeInCandidateNamesById={writeInCandidateNamesById}
+            />
+          )}
           <PanelFooter>
-            <SmallText>
-              Ballot {format.count(queueIndex + 1)} of{' '}
-              {format.count(queue.length)}
-            </SmallText>
+            {statusText && <SmallText>{statusText}</SmallText>}
             <FooterNav>
-              <PrimaryNavButton
-                icon="Done"
-                onPress={onAcceptAndNext}
-                disabled={hasUnresolvedWriteIns}
-                variant={allResolved ? 'primary' : 'neutral'}
-              >
-                Accept
-              </PrimaryNavButton>
-              <SecondaryNavButton onPress={onSkip} rightIcon="Next">
-                Skip
-              </SecondaryNavButton>
-              <SecondaryNavButton
-                disabled={onFirstBallot}
-                icon="Previous"
-                onPress={onBack}
-              >
-                Back
-              </SecondaryNavButton>
+              {isClaimed ? (
+                <React.Fragment>
+                  {onSkip && (
+                    <PrimaryNavButton
+                      onPress={onSkip}
+                      rightIcon={isLastBallot ? 'Done' : 'Next'}
+                      variant="primary"
+                    >
+                      {isLastBallot ? 'Done' : 'Next'}
+                    </PrimaryNavButton>
+                  )}
+                  {onBack && (
+                    <SecondaryNavButton icon="Previous" onPress={onBack}>
+                      Back
+                    </SecondaryNavButton>
+                  )}
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <PrimaryNavButton
+                    icon="Done"
+                    onPress={onAcceptAndNext}
+                    disabled={hasUnresolvedWriteIns}
+                    variant={allResolved ? 'primary' : 'neutral'}
+                  >
+                    Accept
+                  </PrimaryNavButton>
+                  {onSkip && (
+                    <SecondaryNavButton onPress={onSkip} rightIcon="Next">
+                      Skip
+                    </SecondaryNavButton>
+                  )}
+                  {onBack && (
+                    <SecondaryNavButton icon="Previous" onPress={onBack}>
+                      Back
+                    </SecondaryNavButton>
+                  )}
+                </React.Fragment>
+              )}
             </FooterNav>
           </PanelFooter>
         </AdjudicationPanel>

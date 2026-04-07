@@ -312,7 +312,7 @@ export function createApiMock(
 
     expectGetSystemSettings(systemSettings?: SystemSettings) {
       apiClient.getSystemSettings
-        .expectCallWith()
+        .expectRepeatedCallsWith()
         .resolves(systemSettings ?? DEFAULT_SYSTEM_SETTINGS);
     },
 
@@ -330,11 +330,11 @@ export function createApiMock(
     ) {
       if (contestId) {
         apiClient.getWriteInCandidates
-          .expectCallWith({ contestId })
+          .expectRepeatedCallsWith({ contestId })
           .resolves(writeInCandidates);
       } else {
         apiClient.getWriteInCandidates
-          .expectCallWith()
+          .expectRepeatedCallsWith()
           .resolves(writeInCandidates);
       }
     },
@@ -360,11 +360,48 @@ export function createApiMock(
       apiClient.getBallotAdjudicationQueue.expectCallWith().resolves(cvrIds);
     },
 
+    expectGetClaimedBallotCvrIds(cvrIds: Id[] = []) {
+      apiClient.getClaimedBallotCvrIds
+        .expectRepeatedCallsWith()
+        .resolves(cvrIds);
+    },
+
+    expectGetIsClientAdjudicationEnabled(enabled = false) {
+      apiClient.getIsClientAdjudicationEnabled
+        .expectRepeatedCallsWith()
+        .resolves(enabled);
+    },
+
+    expectClaimBallotForAdjudication() {
+      const client = apiClient as Record<string, unknown>;
+      // eslint-disable-next-line no-param-reassign
+      client['claimBallotForAdjudication'] = vi
+        .fn()
+        .mockResolvedValue(undefined);
+    },
+
+    expectReleaseBallotAdjudicationClaim() {
+      const client = apiClient as Record<string, unknown>;
+      // eslint-disable-next-line no-param-reassign
+      client['releaseBallotAdjudicationClaim'] = vi
+        .fn()
+        .mockResolvedValue(undefined);
+    },
+
+    expectAdjudicationScreenQueries(claimedCvrIds: Id[] = []) {
+      this.expectGetClaimedBallotCvrIds(claimedCvrIds);
+      this.expectGetIsClientAdjudicationEnabled();
+      this.expectClaimBallotForAdjudication();
+      this.expectReleaseBallotAdjudicationClaim();
+    },
+
     expectGetBallotAdjudicationData(
       input: { cvrId: Id },
       data: BallotAdjudicationData
     ) {
-      apiClient.getBallotAdjudicationData.expectCallWith(input).resolves(data);
+      apiClient.getBallotAdjudicationData
+        .expectRepeatedCallsWith(input)
+        .resolves(data);
     },
 
     expectResolveBallotTags(input: { cvrId: Id }) {
