@@ -14,11 +14,15 @@ import tmp from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  pollingPlaceBallotStyles,
+  pollingPlacePrecinctIds,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName as Feature,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
@@ -26,10 +30,17 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 
+import { assertDefined, sleep } from '@votingworks/basics';
 import { setUpBarcodeActivation } from './activation';
 import { createWorkspace, Workspace } from '../util/workspace';
 import { getUserRole } from '../util/auth';
 import { BarcodeReader } from './types';
+
+const featureFlagMock = getFeatureFlagMock();
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (f: Feature) => featureFlagMock.isEnabled(f),
+}));
 
 // Mock the Client class to avoid actually starting worker threads
 type MockBarcodeClient = EventEmitter<{
@@ -59,6 +70,10 @@ interface Context {
   workspace: Workspace;
 }
 
+beforeEach(() => {
+  featureFlagMock.resetFeatureFlags();
+});
+
 describe('setUpBarcodeActivation', () => {
   let workspace: Workspace;
   let mockAuth: InsertedSmartCardAuthApi;
@@ -68,6 +83,7 @@ describe('setUpBarcodeActivation', () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
 
   beforeEach(() => {
     workspace = createWorkspace(
@@ -155,6 +171,7 @@ describe('setUpBarcodeActivation', () => {
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
     });
+    workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
     workspace.store.setPollsState('polls_open');
     // System settings default has bmdEnableQrBallotActivation as undefined/false
@@ -203,6 +220,7 @@ describe('setUpBarcodeActivation', () => {
       electionPackageHash: 'test-hash',
     });
     workspace.store.setSystemSettings(systemSettings);
+    workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
     workspace.store.setPollsState('polls_closed_initial');
 
@@ -242,6 +260,7 @@ describe('setUpBarcodeActivation', () => {
       electionPackageHash: 'test-hash',
     });
     workspace.store.setSystemSettings(systemSettings);
+    workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
     workspace.store.setPollsState('polls_open');
 
@@ -275,7 +294,9 @@ describe('setUpBarcodeActivation', () => {
     expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
   });
 
-  test('starts voter session on valid barcode scan when feature is enabled', async () => {
+  test('starts voter session on valid barcode scan when barcode feature is enabled (polling places disabled)', async () => {
+    setPollingPlacesEnabled(false);
+
     // Configure election with feature enabled and polls open
     const systemSettings: SystemSettings = {
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -346,6 +367,81 @@ describe('setUpBarcodeActivation', () => {
     );
   });
 
+  test('starts voter session on valid barcode scan when feature is enabled', async () => {
+    setPollingPlacesEnabled(true);
+
+    // Configure election with feature enabled and polls open
+    const systemSettings: SystemSettings = {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      bmdEnableQrBallotActivation: true,
+    };
+
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-hash',
+    });
+    workspace.store.setSystemSettings(systemSettings);
+    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollsState('polls_open');
+
+    // Mock no current auth session initially, then voter session after start
+    let sessionStarted = false;
+    vi.mocked(mockAuth.getAuthStatus).mockImplementation(() => {
+      if (sessionStarted) {
+        return Promise.resolve({
+          status: 'logged_in' as const,
+          user: mockCardlessVoterUser({
+            ballotStyleId: election.ballotStyles[0].id,
+            precinctId: election.ballotStyles[0].precincts[0],
+          }),
+          sessionExpiresAt: mockSessionExpiresAt(),
+        });
+      }
+      return Promise.resolve({
+        status: 'logged_out' as const,
+        reason: 'no_card' as const,
+      });
+    });
+
+    const mockStartSession = vi.mocked(mockAuth.startCardlessVoterSession);
+    mockStartSession.mockImplementation(() => {
+      sessionStarted = true;
+      return Promise.resolve();
+    });
+
+    const ctx: Context = {
+      auth: mockAuth,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
+      logger,
+      workspace,
+    };
+
+    setUpBarcodeActivation(ctx);
+
+    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+
+    await sleep(0);
+    expect(mockAuth.startCardlessVoterSession).toHaveBeenCalled();
+
+    const precinctIds = pollingPlacePrecinctIds(pollingPlace);
+    const ballotStyles = pollingPlaceBallotStyles(election, pollingPlace);
+    const ballotStyleIds = ballotStyles.map((bs) => bs.id);
+
+    const startSessionInput = mockStartSession.mock.calls[0][1];
+    expect(ballotStyleIds).toContain(startSessionInput.ballotStyleId);
+    expect(precinctIds).toContain(startSessionInput.precinctId);
+    expect(startSessionInput.skipPollWorkerCheck).toEqual(true);
+
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        message: 'voter session started successfully',
+        disposition: 'success',
+      })
+    );
+  });
+
   test('logs error when starting voter session fails', async () => {
     // Configure election with feature enabled and polls open
     const systemSettings: SystemSettings = {
@@ -359,6 +455,7 @@ describe('setUpBarcodeActivation', () => {
       electionPackageHash: 'test-hash',
     });
     workspace.store.setSystemSettings(systemSettings);
+    workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
     workspace.store.setPollsState('polls_open');
 
@@ -450,3 +547,11 @@ describe('setUpBarcodeActivation', () => {
     });
   });
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}
