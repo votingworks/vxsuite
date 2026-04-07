@@ -6,7 +6,12 @@ import {
   MockWritable,
   mockWritable,
 } from '@votingworks/test-utils';
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import {
+  Deferred,
+  deferred,
+  Optional,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { fileSync } from 'tmp';
@@ -176,6 +181,102 @@ export function makeMockChildProcess(): MockChildProcess {
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;
+}
+
+/**
+ * A mock scanner where each `scanSheet()` call blocks until the test resolves
+ * a deferred, giving precise control over scan timing.
+ */
+export interface DeferredMockScanner extends BatchScanner {
+  /**
+   * Adds a sheet to the scan queue. Returns a deferred whose resolution makes
+   * the sheet available to the scan loop.
+   */
+  addSheet(sheet: ScannedSheetInfo): Deferred<void>;
+  /**
+   * Signals that no more sheets will be added. The next `scanSheet()` call
+   * after all added sheets have been consumed will return `undefined`.
+   */
+  endSession(): void;
+}
+
+export function makeDeferredMockScanner(): DeferredMockScanner {
+  interface QueueEntry {
+    sheet: ScannedSheetInfo;
+    ready: Deferred<void>;
+  }
+
+  const queue: QueueEntry[] = [];
+  let sessionEnded = false;
+  let scanIndex = 0;
+  let endBatchCalled = false;
+  // Waiters are resolved when a new sheet is added or the session ends,
+  // unblocking any scanSheet() call that found an empty queue.
+  let queueChangedWaiters: Array<Deferred<void>> = [];
+
+  function notifyQueueChanged(): void {
+    const waiters = queueChangedWaiters;
+    queueChangedWaiters = [];
+    for (const waiter of waiters) {
+      waiter.resolve();
+    }
+  }
+
+  return {
+    isAttached(): boolean {
+      return true;
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async isImprinterAttached(): Promise<boolean> {
+      return false;
+    },
+
+    scanSheets(): BatchControl {
+      scanIndex = 0;
+      endBatchCalled = false;
+
+      return {
+        async scanSheet(): Promise<ScannedSheetInfo | undefined> {
+          if (endBatchCalled) return undefined;
+          if (!queue[scanIndex]) {
+            if (sessionEnded) return undefined;
+            // Wait for a sheet to be added or session to end
+            const waiter = deferred<void>();
+            queueChangedWaiters.push(waiter);
+            await waiter.promise;
+            if (endBatchCalled || (sessionEnded && !queue[scanIndex])) {
+              return undefined;
+            }
+          }
+          const current = queue[scanIndex];
+          if (!current) return undefined;
+          await current.ready.promise;
+          if (endBatchCalled) return undefined;
+          scanIndex += 1;
+          return current.sheet;
+        },
+
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async endBatch(): Promise<void> {
+          endBatchCalled = true;
+          notifyQueueChanged();
+        },
+      };
+    },
+
+    addSheet(sheet: ScannedSheetInfo): Deferred<void> {
+      const ready = deferred<void>();
+      queue.push({ sheet, ready });
+      notifyQueueChanged();
+      return ready;
+    },
+
+    endSession(): void {
+      sessionEnded = true;
+      notifyQueueChanged();
+    },
+  };
 }
 
 export async function makeImageFile(): Promise<string> {
