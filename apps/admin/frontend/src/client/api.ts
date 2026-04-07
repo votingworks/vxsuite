@@ -83,6 +83,19 @@ export const getAdjudicationSessionStatus = {
   },
 } as const;
 
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings(), {
+      staleTime: 0,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+    });
+  },
+} as const;
+
 export const setMachineMode = {
   useMutation() {
     const apiClient = useApiClient();
@@ -179,6 +192,7 @@ export const ejectUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
+      /* istanbul ignore next - tested via shared UI components @preserve */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
@@ -191,10 +205,89 @@ export const formatUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.formatUsbDrive, {
+      /* istanbul ignore next - tested via shared UI components @preserve */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
     });
+  },
+} as const;
+
+// Adjudication proxy
+
+export const claimBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.claimBallot);
+  },
+} as const;
+
+export const releaseBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.releaseBallot);
+  },
+} as const;
+
+export const getBallotAdjudicationData = {
+  queryKey(cvrId: string): QueryKey {
+    return ['getBallotAdjudicationData', cvrId];
+  },
+  useQuery(cvrId: string) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(cvrId),
+      () => apiClient.getBallotAdjudicationData({ cvrId }),
+      { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+    );
+  },
+} as const;
+
+export const getBallotImages = {
+  queryKey(cvrId: string): QueryKey {
+    return ['getBallotImages', cvrId];
+  },
+  useQuery(cvrId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(cvrId), () =>
+      apiClient.getBallotImages({ cvrId })
+    );
+  },
+} as const;
+
+export const getWriteInCandidates = {
+  queryKey(contestId?: string): QueryKey {
+    return ['getWriteInCandidates', contestId];
+  },
+  useQuery(contestId?: string) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(contestId),
+      () => apiClient.getWriteInCandidates({ contestId }),
+      { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+    );
+  },
+} as const;
+
+export const adjudicateCvrContest = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.adjudicateCvrContest, {
+      async onSuccess(_data, variables) {
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationData.queryKey(variables.cvrId)
+        );
+        await queryClient.invalidateQueries(getWriteInCandidates.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setCvrResolved = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.setCvrResolved);
   },
 } as const;
 
