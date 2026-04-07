@@ -1075,6 +1075,36 @@ eventType = "user-action"
 documentationMessage = "A user enabled or disabled multi-station client adjudication."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.AdminBallotClaimed]
+eventId = "admin-ballot-claimed"
+eventType = "application-action"
+documentationMessage = "A ballot was claimed for adjudication by a client machine."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminBallotAdjudicationComplete]
+eventId = "admin-ballot-adjudication-complete"
+eventType = "application-action"
+documentationMessage = "A client machine completed adjudication of a ballot and resolved its tags."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminBallotReleased]
+eventId = "admin-ballot-released"
+eventType = "application-action"
+documentationMessage = "A claimed ballot was released back to the adjudication queue."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminAdjudicationProxyError]
+eventId = "admin-adjudication-proxy-error"
+eventType = "application-status"
+documentationMessage = "A client adjudication proxy request failed because the host is not connected."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminContestAdjudicated]
+eventId = "admin-contest-adjudicated"
+eventType = "application-action"
+documentationMessage = "A contest on a ballot was adjudicated."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.LowDiskSpace]
 eventId = "low-disk-space"
 eventType = "system-status"

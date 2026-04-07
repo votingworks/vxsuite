@@ -445,6 +445,16 @@ pub enum EventId {
     AdminMachineModeChanged,
     #[serde(rename = "admin-client-adjudication-toggled")]
     AdminClientAdjudicationToggled,
+    #[serde(rename = "admin-ballot-claimed")]
+    AdminBallotClaimed,
+    #[serde(rename = "admin-ballot-adjudication-complete")]
+    AdminBallotAdjudicationComplete,
+    #[serde(rename = "admin-ballot-released")]
+    AdminBallotReleased,
+    #[serde(rename = "admin-adjudication-proxy-error")]
+    AdminAdjudicationProxyError,
+    #[serde(rename = "admin-contest-adjudicated")]
+    AdminContestAdjudicated,
     #[serde(rename = "low-disk-space")]
     LowDiskSpace,
 }

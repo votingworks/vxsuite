@@ -1,680 +1,974 @@
-
 # VotingWorks Log Documentation
+
 ## Event Types
+
 Types are logged with each log line to categorize the log.
+
 ### user-action
-**Description:** A log that results from a user taking an action, i.e. an election admin uploading an election definition to a machine.
+
+**Description:** A log that results from a user taking an action, i.e. an
+election admin uploading an election definition to a machine.
+
 ### system-action
-**Description:** A log that results from the system taking some action, i.e. the machine booting.
+
+**Description:** A log that results from the system taking some action, i.e. the
+machine booting.
+
 ### system-status
-**Description:** A log that results from the system updating on the status of a process it is running, i.e. completion of machine shutdown or boot.
+
+**Description:** A log that results from the system updating on the status of a
+process it is running, i.e. completion of machine shutdown or boot.
+
 ### application-status
-**Description:** Status update or message that the application took without user action.
+
+**Description:** Status update or message that the application took without user
+action.
+
 ### application-action
-**Description:** Action taken by the votingworks application automatically when a certain condition is met. Example: When a new USB drive is detected, the application will automatically mount it.
+
+**Description:** Action taken by the votingworks application automatically when
+a certain condition is met. Example: When a new USB drive is detected, the
+application will automatically mount it.
+
 ## Event IDs
+
 IDs are logged with each log to identify the log being written.
+
 ### election-configured
-**Type:** [user-action](#user-action)
-**Description:** The user has configured the machine with a new election definition (or failed to do so). Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has configured
+the machine with a new election definition (or failed to do so). Success or
+failure indicated by disposition. **Machines:** All
+
 ### election-unconfigured
-**Type:** [user-action](#user-action)
-**Description:** The user has unconfigured the machine, removing the current election definition and all other data (or failed to do so). Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has unconfigured
+the machine, removing the current election definition and all other data (or
+failed to do so). Success or failure indicated by disposition. **Machines:** All
+
 ### auth-pin-entry
-**Type:** [user-action](#user-action)
-**Description:** A user entered a PIN to log in.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A user entered a PIN to
+log in. **Machines:** All
+
 ### auth-pin-entry-lockout
-**Type:** [user-action](#user-action)
-**Description:** A user entered an incorrect PIN to log in, locking out their account until the indicated time.
+
+**Type:** [user-action](#user-action) **Description:** A user entered an
+incorrect PIN to log in, locking out their account until the indicated time.
 **Machines:** All
+
 ### auth-login
-**Type:** [user-action](#user-action)
-**Description:** A user logged in (or failed to log in). An optional reason key may be provided for failures.
+
+**Type:** [user-action](#user-action) **Description:** A user logged in (or
+failed to log in). An optional reason key may be provided for failures.
 **Machines:** All
+
 ### auth-voter-session-updated
-**Type:** [user-action](#user-action)
-**Description:** Session parameters for a logged in voter were updated.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** Session parameters for a
+logged in voter were updated. **Machines:** All
+
 ### auth-logout
-**Type:** [user-action](#user-action)
-**Description:** A user logged out (or failed to log out).
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A user logged out (or
+failed to log out). **Machines:** All
+
 ### usb-drive-eject-init
-**Type:** [user-action](#user-action)
-**Description:** A request to eject the current USB drive was made by the user, the USB drive will now be ejected.
+
+**Type:** [user-action](#user-action) **Description:** A request to eject the
+current USB drive was made by the user, the USB drive will now be ejected.
 **Machines:** All
+
 ### usb-drive-eject-complete
-**Type:** [application-status](#application-status)
-**Description:** Attempt to eject USB drive complete. Success or failure indicated by disposition.
+
+**Type:** [application-status](#application-status) **Description:** Attempt to
+eject USB drive complete. Success or failure indicated by disposition.
 **Machines:** All
+
 ### usb-drive-mount-init
-**Type:** [application-action](#application-action)
-**Description:** The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.
-**Machines:** All
+
+**Type:** [application-action](#application-action) **Description:** The USB
+drive is attempting to mount. This action is taken automatically by the
+application when a new USB drive is detected. **Machines:** All
+
 ### usb-drive-mount-complete
-**Type:** [application-status](#application-status)
-**Description:** Attempt to mount USB drive mount complete. Success or failure indicated by disposition.
+
+**Type:** [application-status](#application-status) **Description:** Attempt to
+mount USB drive mount complete. Success or failure indicated by disposition.
 **Machines:** All
+
 ### usb-drive-format-init
-**Type:** [user-action](#user-action)
-**Description:** A request to format the current USB drive was made by the user. The usb drive will now be reformatted for compatibility with VotingWorks software.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A request to format the
+current USB drive was made by the user. The usb drive will now be reformatted
+for compatibility with VotingWorks software. **Machines:** All
+
 ### usb-drive-format-complete
-**Type:** [application-status](#application-status)
-**Description:** Attempt to reformat USB drive complete. Success or failure indicated by disposition.
+
+**Type:** [application-status](#application-status) **Description:** Attempt to
+reformat USB drive complete. Success or failure indicated by disposition.
 **Machines:** All
+
 ### application-startup
-**Type:** [application-status](#application-status)
-**Description:** Application finished starting up, success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Application
+finished starting up, success or failure indicated by disposition. **Machines:**
+All
+
 ### printer-config-added
-**Type:** [application-status](#application-status)
-**Description:** Application saw a printer configuration added to the system, current connection status of that printer is logged.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Application
+saw a printer configuration added to the system, current connection status of
+that printer is logged. **Machines:** All
+
 ### printer-config-removed
-**Type:** [application-status](#application-status)
-**Description:** Application saw a printer configuration removed from the system.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Application
+saw a printer configuration removed from the system. **Machines:** All
+
 ### printer-status-changed
-**Type:** [application-status](#application-status)
-**Description:** Application saw a change in the status of the currently connected printer.
-**Machines:** vx-scan
+
+**Type:** [application-status](#application-status) **Description:** Application
+saw a change in the status of the currently connected printer. **Machines:**
+vx-scan
+
 ### printer-print-request
-**Type:** [user-action](#user-action)
-**Description:** A print request was triggered.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A print request was
+triggered. **Machines:** All
+
 ### printer-print-complete
-**Type:** [user-action](#user-action)
-**Description:** A print request was completed. Success or failure is indicated by disposition.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A print request was
+completed. Success or failure is indicated by disposition. **Machines:** All
+
 ### device-attached
-**Type:** [application-status](#application-status)
-**Description:** Application saw a device attached to the system.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Application
+saw a device attached to the system. **Machines:** All
+
 ### device-unattached
-**Type:** [application-status](#application-status)
-**Description:** Application saw a device unattached from the system.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Application
+saw a device unattached from the system. **Machines:** All
+
 ### workspace-config
-**Type:** [application-status](#application-status)
-**Description:** Message from the backend service about how it is configured while starting up.
+
+**Type:** [application-status](#application-status) **Description:** Message
+from the backend service about how it is configured while starting up.
 **Machines:** All
+
 ### toggle-test-mode-init
-**Type:** [user-action](#user-action)
-**Description:** User has initiated toggling between test mode and live mode in the current application.
+
+**Type:** [user-action](#user-action) **Description:** User has initiated
+toggling between test mode and live mode in the current application.
 **Machines:** vx-central-scan, vx-mark, vx-mark-scan, vx-scan
+
 ### toggled-test-mode
-**Type:** [user-action](#user-action)
-**Description:** User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.
-**Machines:** vx-central-scan, vx-mark, vx-mark-scan, vx-scan
+
+**Type:** [user-action](#user-action) **Description:** User has finished
+toggling between live mode and test mode in the given application. Success or
+failure is indicated by the disposition. **Machines:** vx-central-scan, vx-mark,
+vx-mark-scan, vx-scan
+
 ### file-saved
-**Type:** [user-action](#user-action)
-**Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** File is saved to a USB
+drive. Success or failure indicated by disposition. Type of file specified with
+"fileType" key. For success logs the saved filename specified with "filename"
+key. **Machines:** All
+
 ### convert-log-cdf-complete
-**Type:** [user-action](#user-action)
-**Description:** The user has converted the log file to a CDF format for saving. Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has converted
+the log file to a CDF format for saving. Success or failure indicated by
+disposition. **Machines:** All
+
 ### convert-log-cdf-log-line-error
-**Type:** [user-action](#user-action)
-**Description:** Error seen when converting a single log to the CDF format. This log line will be skipped. Disposition of this log is always failure.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** Error seen when
+converting a single log to the CDF format. This log line will be skipped.
+Disposition of this log is always failure. **Machines:** All
+
 ### reboot-machine
-**Type:** [user-action](#user-action)
-**Description:** User has triggered a reboot of the machine.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** User has triggered a
+reboot of the machine. **Machines:** All
+
 ### power-down-machine
-**Type:** [user-action](#user-action)
-**Description:** User has triggered the machine to power down.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** User has triggered the
+machine to power down. **Machines:** All
+
 ### diagnostic-init
-**Type:** [user-action](#user-action)
-**Description:** The user has started a hardware diagnostic.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has started a
+hardware diagnostic. **Machines:** All
+
 ### diagnostic-error
-**Type:** [user-action](#user-action)
-**Description:** An error occurred when running a diagnostic.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** An error occurred when
+running a diagnostic. **Machines:** All
+
 ### diagnostic-complete
-**Type:** [user-action](#user-action)
-**Description:** The user has completed a hardware diagnostic.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has completed a
+hardware diagnostic. **Machines:** All
+
 ### readiness-report-printed
-**Type:** [user-action](#user-action)
-**Description:** The user has printed an equipment readiness report.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has printed an
+equipment readiness report. **Machines:** All
+
 ### readiness-report-saved
-**Type:** [user-action](#user-action)
-**Description:** The user has saved an equipment readiness report.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has saved an
+equipment readiness report. **Machines:** All
+
 ### audio-device-detection-error
-**Type:** [application-status](#application-status)
-**Description:** Error while attempting to detect audio devices.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Error while
+attempting to detect audio devices. **Machines:** All
+
 ### audio-device-missing
-**Type:** [application-status](#application-status)
-**Description:** An expected audio device was not detected.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** An expected
+audio device was not detected. **Machines:** All
+
 ### audio-device-selected
-**Type:** [application-status](#application-status)
-**Description:** A default audio output device was selected.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** A default
+audio output device was selected. **Machines:** All
+
 ### audio-device-selection-error
-**Type:** [application-status](#application-status)
-**Description:** Error while attempting to select a default audio output device.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Error while
+attempting to select a default audio output device. **Machines:** All
+
 ### audio-volume-changed
-**Type:** [application-status](#application-status)
-**Description:** The volume level for an audio output device was changed.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** The volume
+level for an audio output device was changed. **Machines:** All
+
 ### audio-volume-change-error
-**Type:** [application-status](#application-status)
-**Description:** Error while attempting to change the volume of an audio output device.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Error while
+attempting to change the volume of an audio output device. **Machines:** All
+
 ### audio-playback-error
-**Type:** [application-status](#application-status)
-**Description:** Error while attempting to play audio.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Error while
+attempting to play audio. **Machines:** All
+
 ### unknown-error
-**Type:** [application-status](#application-status)
-**Description:** Machine encountered an unknown error.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** Machine
+encountered an unknown error. **Machines:** All
+
 ### permission-denied
-**Type:** [system-status](#system-status)
-**Description:** Permission denied when performing a system action.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** Permission denied
+when performing a system action. **Machines:** All
+
 ### parse-error
-**Type:** [system-action](#system-action)
-**Description:** A system action failed to parse data.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** A system action
+failed to parse data. **Machines:** All
+
 ### database-connect-init
-**Type:** [system-action](#system-action)
-**Description:** Initiating connection to the database.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** Initiating connection
+to the database. **Machines:** All
+
 ### database-connect-complete
-**Type:** [system-action](#system-action)
-**Description:** Database connection established. Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** Database connection
+established. Success or failure indicated by disposition. **Machines:** All
+
 ### database-create-init
-**Type:** [system-action](#system-action)
-**Description:** Initiating creation of the database.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** Initiating creation
+of the database. **Machines:** All
+
 ### database-create-complete
-**Type:** [system-action](#system-action)
-**Description:** Database created and setup. Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** Database created and
+setup. Success or failure indicated by disposition. **Machines:** All
+
 ### database-reset-init
-**Type:** [system-action](#system-action)
-**Description:** Initiating reset of the database.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** Initiating reset of
+the database. **Machines:** All
+
 ### database-reset-complete
-**Type:** [system-action](#system-action)
-**Description:** Database reset. Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** Database reset.
+Success or failure indicated by disposition. **Machines:** All
+
 ### file-read-error
-**Type:** [system-action](#system-action)
-**Description:** A system action failed to read a file from disk.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** A system action
+failed to read a file from disk. **Machines:** All
+
 ### dmverity-boot
-**Type:** [system-status](#system-status)
-**Description:** The system either successfully booted with dm-verity enabled or failed to do so, as indicated by the disposition.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** The system either
+successfully booted with dm-verity enabled or failed to do so, as indicated by
+the disposition. **Machines:** All
+
 ### machine-boot-init
-**Type:** [system-action](#system-action)
-**Description:** The machine is beginning the boot process.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** The machine is
+beginning the boot process. **Machines:** All
+
 ### machine-boot-complete
-**Type:** [system-status](#system-status)
-**Description:** The machine has completed the boot process.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** The machine has
+completed the boot process. **Machines:** All
+
 ### machine-shutdown-init
-**Type:** [system-action](#system-action)
-**Description:** The machine is beginning the shutdown process to power down or reboot, as indicated by the message.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** The machine is
+beginning the shutdown process to power down or reboot, as indicated by the
+message. **Machines:** All
+
 ### machine-shutdown-complete
-**Type:** [system-status](#system-status)
-**Description:** The machine has completed all the steps to shutdown and will now power down or reboot.
+
+**Type:** [system-status](#system-status) **Description:** The machine has
+completed all the steps to shutdown and will now power down or reboot.
 **Machines:** All
+
 ### usb-device-reconnect-attempted
-**Type:** [system-action](#system-action)
-**Description:** A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device.
-**Machines:** All
+
+**Type:** [system-action](#system-action) **Description:** A message from the
+machine kernel about an application-initiated attempt to reconnect an
+externally-connected USB device. **Machines:** All
+
 ### usb-device-change-detected
-**Type:** [system-status](#system-status)
-**Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A message from the
+machine kernel about an externally-connected USB device, usually when a new
+device is connected or disconnected. **Machines:** All
+
 ### usb-port-status
-**Type:** [system-status](#system-status)
-**Description:** The status of the USB ports on the machine, either enabled or disabled.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** The status of the USB
+ports on the machine, either enabled or disabled. **Machines:** All
+
 ### usb-ports-toggled
-**Type:** [user-action](#user-action)
-**Description:** The user has either enabled or disabled USB ports.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** The user has either
+enabled or disabled USB ports. **Machines:** All
+
 ### info
-**Type:** [system-status](#system-status)
-**Description:** The process is reporting general status.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** The process is
+reporting general status. **Machines:** All
+
 ### heartbeat
-**Type:** [system-status](#system-status)
-**Description:** The process sent a heartbeat
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** The process sent a
+heartbeat **Machines:** All
+
 ### process-started
-**Type:** [system-action](#system-action)
-**Description:** A VotingWorks-authored process (eg. hardware daemon) has been started.
+
+**Type:** [system-action](#system-action) **Description:** A
+VotingWorks-authored process (eg. hardware daemon) has been started.
 **Machines:** All
+
 ### process-terminated
-**Type:** [system-action](#system-action)
-**Description:** A VotingWorks-authored process (eg. hardware daemon) has been terminated.
+
+**Type:** [system-action](#system-action) **Description:** A
+VotingWorks-authored process (eg. hardware daemon) has been terminated.
 **Machines:** All
+
 ### sudo-action
-**Type:** [user-action](#user-action)
-**Description:** A command was executed with sudo privileges.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A command was executed
+with sudo privileges. **Machines:** All
+
 ### password-change
-**Type:** [user-action](#user-action)
-**Description:** A password change was executed.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** A password change was
+executed. **Machines:** All
+
 ### save-election-package-init
-**Type:** [user-action](#user-action)
-**Description:** Saving the election package is initiated.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Saving the election
+package is initiated. **Machines:** vx-admin
+
 ### save-election-package-complete
-**Type:** [user-action](#user-action)
-**Description:** Saving the election package completed, success or failure is indicated by the disposition.
+
+**Type:** [user-action](#user-action) **Description:** Saving the election
+package completed, success or failure is indicated by the disposition.
 **Machines:** vx-admin
+
 ### smart-card-program-init
-**Type:** [user-action](#user-action)
-**Description:** A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** A smart card is being
+programmed. The new smart card user role is indicated by the programmedUserRole
+key. **Machines:** vx-admin
+
 ### smart-card-program-complete
-**Type:** [user-action](#user-action)
-**Description:** A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** A smart card has been
+programmed (or failed to be programmed). The new smart card user role is
+indicated by the programmedUserRole key. **Machines:** vx-admin
+
 ### smart-card-unprogram-init
-**Type:** [user-action](#user-action)
-**Description:** A smart card is being unprogrammed. The current smart card user role is indicated by the programmedUserRole key.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** A smart card is being
+unprogrammed. The current smart card user role is indicated by the
+programmedUserRole key. **Machines:** vx-admin
+
 ### smart-card-unprogram-complete
-**Type:** [user-action](#user-action)
-**Description:** A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure).
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** A smart card has been
+unprogrammed (or failed to be unprogrammed). The previous (or current in the
+case of failure) smart card user role is indicated by the
+previousProgrammedUserRole key (or programmedUserRole key in the case of
+failure). **Machines:** vx-admin
+
 ### list-cast-vote-record-exports-on-usb-drive
-**Type:** [user-action](#user-action)
-**Description:** Cast vote record exports on the inserted USB drive were listed.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Cast vote record exports
+on the inserted USB drive were listed. **Machines:** vx-admin
+
 ### import-cast-vote-records-init
-**Type:** [user-action](#user-action)
-**Description:** Cast vote records are being imported from a USB drive.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Cast vote records are
+being imported from a USB drive. **Machines:** vx-admin
+
 ### import-cast-vote-records-mark-score-distribution
-**Type:** [user-action](#user-action)
-**Description:** Cast vote records have been imported and the associated mark scores have been consolidated into a distribution map.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Cast vote records have
+been imported and the associated mark scores have been consolidated into a
+distribution map. **Machines:** vx-admin
+
 ### import-cast-vote-records-complete
-**Type:** [user-action](#user-action)
-**Description:** Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Cast vote records have
+been imported from a USB drive (or failed to be imported). Success or failure
+indicated by disposition. **Machines:** vx-admin
+
 ### clear-imported-cast-vote-records-init
-**Type:** [user-action](#user-action)
-**Description:** Imported cast vote records are being cleared.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Imported cast vote
+records are being cleared. **Machines:** vx-admin
+
 ### clear-imported-cast-vote-records-complete
-**Type:** [user-action](#user-action)
-**Description:** Imported cast vote records have been cleared (or failed to be cleared). Success or failure indicated by disposition.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Imported cast vote
+records have been cleared (or failed to be cleared). Success or failure
+indicated by disposition. **Machines:** vx-admin
+
 ### manual-tally-data-edited
-**Type:** [user-action](#user-action)
-**Description:** User added or edited manually entered tally data to be included in the results alongside loaded CVR files.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** User added or edited
+manually entered tally data to be included in the results alongside loaded CVR
+files. **Machines:** vx-admin
+
 ### manual-tally-data-removed
-**Type:** [user-action](#user-action)
-**Description:** User removed manual tally data that was previously entered.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** User removed manual tally
+data that was previously entered. **Machines:** vx-admin
+
 ### election-results-reporting-tally-file-imported
-**Type:** [user-action](#user-action)
-**Description:** User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** User imported an Election
+Results Reporting file with tally data to be included in the results alongside
+loaded CVR files. **Machines:** vx-admin
+
 ### marked-tally-results-official
-**Type:** [user-action](#user-action)
-**Description:** User marked the tally results as official. This disables loading more CVR files or editing manual tally data.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** User marked the tally
+results as official. This disables loading more CVR files or editing manual
+tally data. **Machines:** vx-admin
+
 ### election-report-previewed
-**Type:** [user-action](#user-action)
-**Description:** Report previewed by the user.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Report previewed by the
+user. **Machines:** vx-admin
+
 ### election-report-printed
-**Type:** [user-action](#user-action)
-**Description:** Report printed by the user.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** Report printed by the
+user. **Machines:** vx-admin
+
 ### write-in-adjudicated
-**Type:** [user-action](#user-action)
-**Description:** User adjudicated a write-in.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** User adjudicated a
+write-in. **Machines:** vx-admin
+
 ### clear-ballot-data-init
-**Type:** [user-action](#user-action)
-**Description:** User has initiated clearing ballot data in the current application.
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** User has initiated
+clearing ballot data in the current application. **Machines:** vx-central-scan
+
 ### clear-ballot-data-complete
-**Type:** [user-action](#user-action)
-**Description:** User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** User has finished
+clearing ballot data in the given application. Success or failure is indicated
+by the disposition. **Machines:** vx-central-scan
+
 ### delete-cvr-batch-init
-**Type:** [user-action](#user-action)
-**Description:** User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** User has initiated
+deleting a scanning batch. Number of ballots in batch specified by keep
+`numberOfBallotsInBatch`. Batch ID specified by `batchId` **Machines:**
+vx-central-scan
+
 ### delete-cvr-batch-complete
-**Type:** [user-action](#user-action)
-**Description:** User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** User has completed
+deleting a scanning batch. Number of ballots in batch specified by keep
+`numberOfBallotsInBatch`. Batch ID specified by `batchId`. **Machines:**
+vx-central-scan
+
 ### scan-batch-init
-**Type:** [user-action](#user-action)
-**Description:** The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** The user has begun
+scanning a new batch of ballots. Success or failure of beginning the process of
+scanning indicated by disposition. Batch ID for next scanned batch indicated in
+batchId. **Machines:** vx-central-scan
+
 ### scan-sheet-complete
-**Type:** [user-action](#user-action)
-**Description:** A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** A single sheet in a batch
+has completed scanning. Success or failure of the scanning indicated by
+disposition. Ballots rejected due to being unreadable, configured for the wrong
+election, needed resolution, etc. marked as `failure`. Current batch specified
+by `batchId` and sheet in batch specified by `sheetCount`. **Machines:**
+vx-central-scan
+
 ### scan-batch-complete
-**Type:** [user-action](#user-action)
-**Description:** A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.
+
+**Type:** [user-action](#user-action) **Description:** A batch of scanned sheets
+has finished scanning. Success or failure indicated by disposition.
 **Machines:** vx-central-scan
+
 ### scan-batch-continue
-**Type:** [user-action](#user-action)
-**Description:** Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.
-**Machines:** vx-central-scan
+
+**Type:** [user-action](#user-action) **Description:** Scanning continued by
+user after errors and/or warning stopped scanning. Log will indicate if the
+sheet was tabulated with warnings, or if the user indicated removing the ballot
+in order to continue scanning. **Machines:** vx-central-scan
+
 ### scan-adjudication-info
-**Type:** [application-status](#application-status)
-**Description:** Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest).
-**Machines:** vx-central-scan
+
+**Type:** [application-status](#application-status) **Description:** Information
+about a ballot sheet that needs adjudication from the user. The possible
+unresolvable errors are InvalidTestModePage when a test mode ballot is seen when
+scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the
+wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct
+is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or
+BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose
+to tabulate with a ballot include MarginalMark, Overvote, Undervote, and
+BlankBallot (a ballot where there are no votes for any contest). **Machines:**
+vx-central-scan
+
 ### fujitsu-scan-init
-**Type:** [application-action](#application-action)
-**Description:** Application is initiating a new scanning batch on the fujitsu scanner.
-**Machines:** vx-central-scan
+
+**Type:** [application-action](#application-action) **Description:** Application
+is initiating a new scanning batch on the fujitsu scanner. **Machines:**
+vx-central-scan
+
 ### fujitsu-scan-sheet-scanned
-**Type:** [application-status](#application-status)
-**Description:** A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition.
-**Machines:** vx-central-scan
+
+**Type:** [application-status](#application-status) **Description:** A scanned
+image has returned while scanning from a fujitsu scanner, or an error was seen
+while scanning. Success or failure indicated by disposition. **Machines:**
+vx-central-scan
+
 ### fujitsu-scan-batch-complete
-**Type:** [application-status](#application-status)
-**Description:** A batch of sheets has completed scanning on the fujitsu scanner.
-**Machines:** vx-central-scan
+
+**Type:** [application-status](#application-status) **Description:** A batch of
+sheets has completed scanning on the fujitsu scanner. **Machines:**
+vx-central-scan
+
 ### fujitsu-scan-message
-**Type:** [application-status](#application-status)
-**Description:** Message from the driver handling the fujitsu scanner regarding scanning progress.
+
+**Type:** [application-status](#application-status) **Description:** Message
+from the driver handling the fujitsu scanner regarding scanning progress.
 **Machines:** vx-central-scan
+
 ### imprinter-status
-**Type:** [application-status](#application-status)
-**Description:** Indicates the status of the imprinter, namely whether or not it is registering as attached.
-**Machines:** vx-central-scan
+
+**Type:** [application-status](#application-status) **Description:** Indicates
+the status of the imprinter, namely whether or not it is registering as
+attached. **Machines:** vx-central-scan
+
 ### election-package-load-from-usb-complete
-**Type:** [user-action](#user-action)
-**Description:** The election package has been read from the USB drive. Success or failure indicated by disposition.
+
+**Type:** [user-action](#user-action) **Description:** The election package has
+been read from the USB drive. Success or failure indicated by disposition.
 **Machines:** vx-central-scan, vx-scan
+
 ### export-cast-vote-records-init
-**Type:** [user-action](#user-action)
-**Description:** Cast vote records are being exported to a USB drive.
-**Machines:** vx-central-scan, vx-scan
+
+**Type:** [user-action](#user-action) **Description:** Cast vote records are
+being exported to a USB drive. **Machines:** vx-central-scan, vx-scan
+
 ### export-cast-vote-records-complete
-**Type:** [user-action](#user-action)
-**Description:** Cast vote records have been exported to a USB drive (or failed to be exported).
-**Machines:** vx-central-scan, vx-scan
+
+**Type:** [user-action](#user-action) **Description:** Cast vote records have
+been exported to a USB drive (or failed to be exported). **Machines:**
+vx-central-scan, vx-scan
+
 ### polls-opened
-**Type:** [user-action](#user-action)
-**Description:** User has opened the polls.
-**Machines:** vx-mark, vx-scan, vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** User has opened the
+polls. **Machines:** vx-mark, vx-scan, vx-mark-scan
+
 ### voting-paused
-**Type:** [user-action](#user-action)
-**Description:** User has paused voting and polls are now paused.
-**Machines:** vx-mark, vx-scan, vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** User has paused voting
+and polls are now paused. **Machines:** vx-mark, vx-scan, vx-mark-scan
+
 ### voting-resumed
-**Type:** [user-action](#user-action)
-**Description:** User has resumed voting and polls are now open.
-**Machines:** vx-mark, vx-scan, vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** User has resumed voting
+and polls are now open. **Machines:** vx-mark, vx-scan, vx-mark-scan
+
 ### polls-closed
-**Type:** [user-action](#user-action)
-**Description:** User has closed the polls.
-**Machines:** vx-mark, vx-scan, vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** User has closed the
+polls. **Machines:** vx-mark, vx-scan, vx-mark-scan
+
 ### reset-polls-to-paused
-**Type:** [user-action](#user-action)
-**Description:** User has reset the polls from closed to paused.
-**Machines:** vx-mark, vx-scan, vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** User has reset the polls
+from closed to paused. **Machines:** vx-mark, vx-scan, vx-mark-scan
+
 ### ballot-box-emptied
-**Type:** [user-action](#user-action)
-**Description:** Poll worker confirmed that they emptied the ballot box.
-**Machines:** vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** Poll worker confirmed
+that they emptied the ballot box. **Machines:** vx-mark-scan
+
 ### precinct-configuration-changed
-**Type:** [user-action](#user-action)
-**Description:** User has changed the precinct setting.
-**Machines:** vx-mark, vx-scan, vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** User has changed the
+precinct setting. **Machines:** vx-mark, vx-scan, vx-mark-scan
+
 ### scanner-batch-started
-**Type:** [system-action](#system-action)
-**Description:** The precinct scanner has started a new batch.
-**Machines:** vx-scan
+
+**Type:** [system-action](#system-action) **Description:** The precinct scanner
+has started a new batch. **Machines:** vx-scan
+
 ### scanner-batch-ended
-**Type:** [system-action](#system-action)
-**Description:** The precinct scanner has ended the current batch.
-**Machines:** vx-scan
+
+**Type:** [system-action](#system-action) **Description:** The precinct scanner
+has ended the current batch. **Machines:** vx-scan
+
 ### scanner-state-machine-event
-**Type:** [application-action](#application-action)
-**Description:** Precinct scanner state machine received an event.
-**Machines:** vx-scan
+
+**Type:** [application-action](#application-action) **Description:** Precinct
+scanner state machine received an event. **Machines:** vx-scan
+
 ### scanner-state-machine-transition
-**Type:** [application-status](#application-status)
-**Description:** Precinct scanner state machine transitioned states.
-**Machines:** vx-scan
+
+**Type:** [application-status](#application-status) **Description:** Precinct
+scanner state machine transitioned states. **Machines:** vx-scan
+
 ### sound-toggled
-**Type:** [application-status](#application-status)
-**Description:** Sounds on the precinct scanner were toggled on or off as indicated.
-**Machines:** vx-scan
+
+**Type:** [application-status](#application-status) **Description:** Sounds on
+the precinct scanner were toggled on or off as indicated. **Machines:** vx-scan
+
 ### double-sheet-toggled
-**Type:** [application-status](#application-status)
-**Description:** Double sheet detection toggled on or off as indicated.
-**Machines:** vx-scan
+
+**Type:** [application-status](#application-status) **Description:** Double
+sheet detection toggled on or off as indicated. **Machines:** vx-scan
+
 ### continuous-export-toggled
-**Type:** [application-status](#application-status)
-**Description:** Continuous export paused or resumed as indicated.
-**Machines:** vx-scan
+
+**Type:** [application-status](#application-status) **Description:** Continuous
+export paused or resumed as indicated. **Machines:** vx-scan
+
 ### mark-scan-state-machine-event
-**Type:** [system-status](#system-status)
-**Description:** Event fired by the mark-scan state machine.
-**Machines:** vx-mark-scan
+
+**Type:** [system-status](#system-status) **Description:** Event fired by the
+mark-scan state machine. **Machines:** vx-mark-scan
+
 ### pat-device-error
-**Type:** [system-status](#system-status)
-**Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself
+
+**Type:** [system-status](#system-status) **Description:** VxMarkScan
+encountered an error with the built-in PAT device port or the device itself
 **Machines:** vx-mark-scan
+
 ### paper-handler-state-machine-transition
-**Type:** [application-status](#application-status)
-**Description:** Precinct print/scan BMD state machine transitioned states.
-**Machines:** vx-mark-scan
+
+**Type:** [application-status](#application-status) **Description:** Precinct
+print/scan BMD state machine transitioned states. **Machines:** vx-mark-scan
+
 ### vote-cast
-**Type:** [user-action](#user-action)
-**Description:** Vote was cast on a BMD.
+
+**Type:** [user-action](#user-action) **Description:** Vote was cast on a BMD.
 **Machines:** vx-mark-scan
+
 ### ballot-invalidated
-**Type:** [user-action](#user-action)
-**Description:** A vote was canceled during verification.
-**Machines:** vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** A vote was canceled
+during verification. **Machines:** vx-mark-scan
+
 ### poll-worker-confirmed-ballot-removal
-**Type:** [user-action](#user-action)
-**Description:** A poll worker confirmed the invalid ballot was removed during ballot invalidation.
-**Machines:** vx-mark-scan
+
+**Type:** [user-action](#user-action) **Description:** A poll worker confirmed
+the invalid ballot was removed during ballot invalidation. **Machines:**
+vx-mark-scan
+
 ### blank-sheet-interpretation
-**Type:** [system-status](#system-status)
-**Description:** Interpretation of a printed ballot was blank.
-**Machines:** vx-mark-scan
+
+**Type:** [system-status](#system-status) **Description:** Interpretation of a
+printed ballot was blank. **Machines:** vx-mark-scan
+
 ### paper-handler-connection
-**Type:** [system-status](#system-status)
-**Description:** Connection to paper handler device was resolved.
-**Machines:** vx-mark-scan
+
+**Type:** [system-status](#system-status) **Description:** Connection to paper
+handler device was resolved. **Machines:** vx-mark-scan
+
 ### create-virtual-uinput-device-init
-**Type:** [system-action](#system-action)
-**Description:** A hardware daemon attempted to create a uinput virtual device.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** A hardware daemon
+attempted to create a uinput virtual device. **Machines:** vx-mark-scan
+
 ### create-virtual-uinput-device-complete
-**Type:** [system-action](#system-action)
-**Description:** A hardware daemon finished creating a uinput virtual device.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** A hardware daemon
+finished creating a uinput virtual device. **Machines:** vx-mark-scan
+
 ### connect-to-gpio-pin-init
-**Type:** [system-action](#system-action)
-**Description:** mark-scan PAT daemon initiated connection a specific GPIO pin.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan PAT daemon
+initiated connection a specific GPIO pin. **Machines:** vx-mark-scan
+
 ### connect-to-gpio-pin-complete
-**Type:** [system-action](#system-action)
-**Description:** mark-scan PAT daemon completed connection a specific GPIO pin.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan PAT daemon
+completed connection a specific GPIO pin. **Machines:** vx-mark-scan
+
 ### connect-to-pat-input-init
-**Type:** [system-action](#system-action)
-**Description:** mark-scan PAT daemon initiated connection to the PAT device input.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan PAT daemon
+initiated connection to the PAT device input. **Machines:** vx-mark-scan
+
 ### connect-to-pat-input-complete
-**Type:** [system-action](#system-action)
-**Description:** mark-scan PAT daemon completed connection to the PAT device input.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan PAT daemon
+completed connection to the PAT device input. **Machines:** vx-mark-scan
+
 ### controller-connection-init
-**Type:** [system-action](#system-action)
-**Description:** mark-scan controller daemon initiated connection to the accessible controller.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan controller
+daemon initiated connection to the accessible controller. **Machines:**
+vx-mark-scan
+
 ### controller-connection-complete
-**Type:** [system-action](#system-action)
-**Description:** mark-scan controller daemon completed connection to the accessible controller.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan controller
+daemon completed connection to the accessible controller. **Machines:**
+vx-mark-scan
+
 ### controller-handshake-init
-**Type:** [system-action](#system-action)
-**Description:** mark-scan controller daemon initiated handshake with controller.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan controller
+daemon initiated handshake with controller. **Machines:** vx-mark-scan
+
 ### controller-handshake-complete
-**Type:** [system-action](#system-action)
-**Description:** mark-scan controller daemon received handshake response from controller.
-**Machines:** vx-mark-scan
+
+**Type:** [system-action](#system-action) **Description:** mark-scan controller
+daemon received handshake response from controller. **Machines:** vx-mark-scan
+
 ### error-setting-sigint-handler
-**Type:** [system-status](#system-status)
-**Description:** mark-scan controller daemon encountered an error when setting SIGINT handler.
-**Machines:** vx-mark-scan
+
+**Type:** [system-status](#system-status) **Description:** mark-scan controller
+daemon encountered an error when setting SIGINT handler. **Machines:**
+vx-mark-scan
+
 ### unexpected-hardware-device-response
-**Type:** [system-status](#system-status)
-**Description:** A connected hardware device returned an unexpected response.
-**Machines:** vx-pollbook
+
+**Type:** [system-status](#system-status) **Description:** A connected hardware
+device returned an unexpected response. **Machines:** vx-pollbook
+
 ### no-pid
-**Type:** [system-status](#system-status)
-**Description:** No PID was readable from PID file, or PID file did not exist.
-**Machines:** vx-mark-scan
+
+**Type:** [system-status](#system-status) **Description:** No PID was readable
+from PID file, or PID file did not exist. **Machines:** vx-mark-scan
+
 ### signed-hash-validation-init
-**Type:** [user-action](#user-action)
-**Description:** Initiating signed hash validation.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** Initiating signed hash
+validation. **Machines:** All
+
 ### signed-hash-validation-complete
-**Type:** [user-action](#user-action)
-**Description:** Signed hash validation completed. Success or failure indicated by disposition.
-**Machines:** All
+
+**Type:** [user-action](#user-action) **Description:** Signed hash validation
+completed. Success or failure indicated by disposition. **Machines:** All
+
 ### background-task-started
-**Type:** [system-status](#system-status)
-**Description:** A background task has started.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A background task has
+started. **Machines:** All
+
 ### background-task-completed
-**Type:** [system-status](#system-status)
-**Description:** A background task has completed.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A background task has
+completed. **Machines:** All
+
 ### background-task-failure
-**Type:** [system-status](#system-status)
-**Description:** A background task has failed.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A background task has
+failed. **Machines:** All
+
 ### background-task-success
-**Type:** [system-status](#system-status)
-**Description:** A background task has succeeded.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A background task has
+succeeded. **Machines:** All
+
 ### background-task-cancelled
-**Type:** [system-status](#system-status)
-**Description:** A background task has been cancelled.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A background task has
+been cancelled. **Machines:** All
+
 ### background-task-status
-**Type:** [system-status](#system-status)
-**Description:** A background task has reported an arbitrary status.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** A background task has
+reported an arbitrary status. **Machines:** All
+
 ### api-call
-**Type:** [application-action](#application-action)
-**Description:** An API call was made.
-**Machines:** vx-design
+
+**Type:** [application-action](#application-action) **Description:** An API call
+was made. **Machines:** vx-design
+
 ### socket-client-connect-init
-**Type:** [application-action](#application-action)
-**Description:** An application attempted to connect a client to a socket.
-**Machines:** All
+
+**Type:** [application-action](#application-action) **Description:** An
+application attempted to connect a client to a socket. **Machines:** All
+
 ### socket-client-connected
-**Type:** [application-status](#application-status)
-**Description:** An attempt by an application to connect to a socket was resolved.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** An attempt
+by an application to connect to a socket was resolved. **Machines:** All
+
 ### socket-client-disconnected
-**Type:** [application-status](#application-status)
-**Description:** A socket client was disconnected.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** A socket
+client was disconnected. **Machines:** All
+
 ### socket-client-error
-**Type:** [application-status](#application-status)
-**Description:** An error was reported by a socket client.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** An error
+was reported by a socket client. **Machines:** All
+
 ### socket-server-bind
-**Type:** [application-action](#application-action)
-**Description:** A process attempted to bind a socket.
-**Machines:** All
+
+**Type:** [application-action](#application-action) **Description:** A process
+attempted to bind a socket. **Machines:** All
+
 ### socket-server-close
-**Type:** [application-action](#application-action)
-**Description:** A socket server was closed.
-**Machines:** All
+
+**Type:** [application-action](#application-action) **Description:** A socket
+server was closed. **Machines:** All
+
 ### socket-server-awaiting-client
-**Type:** [application-status](#application-status)
-**Description:** A socket server is awaiting a client.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** A socket
+server is awaiting a client. **Machines:** All
+
 ### socket-server-error
-**Type:** [application-status](#application-status)
-**Description:** An error was reported by a socket server.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** An error
+was reported by a socket server. **Machines:** All
+
 ### barcode-scanned
-**Type:** [application-status](#application-status)
-**Description:** A barcode was scanned.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** A barcode
+was scanned. **Machines:** All
+
 ### pollbook-network-status
-**Type:** [application-status](#application-status)
-**Description:** A status message indicating an update to the pollbook network.
-**Machines:** vx-pollbook
+
+**Type:** [application-status](#application-status) **Description:** A status
+message indicating an update to the pollbook network. **Machines:** vx-pollbook
+
 ### pollbook-configuration-status
-**Type:** [application-status](#application-status)
-**Description:** A status message indicating an update to the pollbook configuration.
-**Machines:** vx-pollbook
+
+**Type:** [application-status](#application-status) **Description:** A status
+message indicating an update to the pollbook configuration. **Machines:**
+vx-pollbook
+
 ### pollbook-paper-backup-status
-**Type:** [application-status](#application-status)
-**Description:** A status message indicating an update to the pollbook paper backup.
-**Machines:** vx-pollbook
+
+**Type:** [application-status](#application-status) **Description:** A status
+message indicating an update to the pollbook paper backup. **Machines:**
+vx-pollbook
+
 ### navigation-page-change
-**Type:** [application-status](#application-status)
-**Description:** A status message indicating change to the frontend navigation page.
-**Machines:** All
+
+**Type:** [application-status](#application-status) **Description:** A status
+message indicating change to the frontend navigation page. **Machines:** All
+
 ### pollbook-duplicate-check-in-detected
-**Type:** [application-status](#application-status)
-**Description:** More then one check in event (ignoring undone checkins) for the same voter was detected in the system.
-**Machines:** vx-pollbook
+
+**Type:** [application-status](#application-status) **Description:** More then
+one check in event (ignoring undone checkins) for the same voter was detected in
+the system. **Machines:** vx-pollbook
+
 ### data-check-on-startup
-**Type:** [application-status](#application-status)
-**Description:** Whether election results or scanned ballot data is present in the database at machine startup.
-**Machines:** vx-central-scan, vx-admin
+
+**Type:** [application-status](#application-status) **Description:** Whether
+election results or scanned ballot data is present in the database at machine
+startup. **Machines:** vx-central-scan, vx-admin
+
 ### set-ballot-casting-mode
-**Type:** [user-action](#user-action)
-**Description:** A user has changed the ballot casting mode.
-**Machines:** vx-scan
+
+**Type:** [user-action](#user-action) **Description:** A user has changed the
+ballot casting mode. **Machines:** vx-scan
+
 ### admin-network-status
-**Type:** [application-status](#application-status)
-**Description:** A status message indicating an update to the multi-station admin network, such as host discovery, client connection changes, or multiple host detection.
-**Machines:** vx-admin
+
+**Type:** [application-status](#application-status) **Description:** A status
+message indicating an update to the multi-station admin network, such as host
+discovery, client connection changes, or multiple host detection. **Machines:**
+vx-admin
+
 ### admin-machine-mode-changed
-**Type:** [user-action](#user-action)
-**Description:** A user changed the VxAdmin machine mode between host and client.
-**Machines:** vx-admin
+
+**Type:** [user-action](#user-action) **Description:** A user changed the
+VxAdmin machine mode between host and client. **Machines:** vx-admin
+
 ### admin-client-adjudication-toggled
-**Type:** [user-action](#user-action)
-**Description:** A user enabled or disabled multi-station client adjudication.
+
+**Type:** [user-action](#user-action) **Description:** A user enabled or
+disabled multi-station client adjudication. **Machines:** vx-admin
+
+### admin-ballot-claimed
+
+**Type:** [application-action](#application-action) **Description:** A ballot
+was claimed for adjudication by a client machine. **Machines:** vx-admin
+
+### admin-ballot-adjudication-complete
+
+**Type:** [application-action](#application-action) **Description:** A client
+machine completed adjudication of a ballot and resolved its tags. **Machines:**
+vx-admin
+
+### admin-ballot-released
+
+**Type:** [application-action](#application-action) **Description:** A claimed
+ballot was released back to the adjudication queue. **Machines:** vx-admin
+
+### admin-adjudication-proxy-error
+
+**Type:** [application-status](#application-status) **Description:** A client
+adjudication proxy request failed because the host is not connected.
 **Machines:** vx-admin
+
+### admin-contest-adjudicated
+
+**Type:** [application-action](#application-action) **Description:** A contest
+on a ballot was adjudicated. **Machines:** vx-admin
+
 ### low-disk-space
-**Type:** [system-status](#system-status)
-**Description:** Free disk space is low.
-**Machines:** All
+
+**Type:** [system-status](#system-status) **Description:** Free disk space is
+low. **Machines:** All
