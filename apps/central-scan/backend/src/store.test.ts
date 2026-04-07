@@ -13,10 +13,6 @@ import {
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
-import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
@@ -105,32 +101,6 @@ test('get/set is sounds muted mode', () => {
 
   store.setIsSoundMuted(false);
   expect(store.getIsSoundMuted()).toEqual(false);
-});
-
-test('get/set precinct selection', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getPrecinctSelection()).toEqual(undefined);
-  expect(() =>
-    store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
-  ).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  expect(store.getPrecinctSelection()).toEqual(undefined);
-
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  expect(store.getPrecinctSelection()).toEqual(ALL_PRECINCTS_SELECTION);
-
-  const precinctSelection = singlePrecinctSelectionFor('precinct-1');
-  store.setPrecinctSelection(precinctSelection);
-  expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
 });
 
 test('get/set polls state', () => {

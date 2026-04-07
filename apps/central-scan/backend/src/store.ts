@@ -14,8 +14,6 @@ import {
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
   PollsStateSchema,
-  PrecinctSelection as PrecinctSelectionType,
-  PrecinctSelectionSchema,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -381,50 +379,6 @@ export class Store {
   getAdjudicationReasons(): readonly AdjudicationReason[] {
     return assertDefined(this.getSystemSettings())
       .centralScanAdjudicationReasons;
-  }
-
-  /**
-   * Gets the current precinct `scan` is accepting ballots for. If set to
-   * `undefined`, ballots from all precincts will be accepted (this is the
-   * default).
-   */
-  getPrecinctSelection(): Optional<PrecinctSelectionType> {
-    const electionRow = this.client.one(
-      'select precinct_selection as rawPrecinctSelection from election'
-    ) as { rawPrecinctSelection: string } | undefined;
-
-    const rawPrecinctSelection = electionRow?.rawPrecinctSelection;
-
-    if (!rawPrecinctSelection) {
-      // precinct selection is undefined when there is no election
-      return undefined;
-    }
-
-    const precinctSelectionParseResult = safeParseJson(
-      rawPrecinctSelection,
-      PrecinctSelectionSchema
-    );
-
-    if (precinctSelectionParseResult.isErr()) {
-      throw new Error('Unable to parse stored precinct selection.');
-    }
-
-    return precinctSelectionParseResult.ok();
-  }
-
-  /**
-   * Sets the current precinct `scan` is accepting ballots for. Set to
-   * `undefined` to accept from all precincts (this is the default).
-   */
-  setPrecinctSelection(precinctSelection?: PrecinctSelectionType): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set precinct selection without an election.');
-    }
-
-    this.client.run(
-      'update election set precinct_selection = ?',
-      precinctSelection ? JSON.stringify(precinctSelection) : null
-    );
   }
 
   /**
