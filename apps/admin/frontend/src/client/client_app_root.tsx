@@ -28,6 +28,7 @@ import { routerPaths } from '../router_paths';
 import { ClientSettingsScreen } from './screens/client_settings_screen';
 import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen';
 import { ClientAdjudicationScreen } from './screens/client_adjudication_screen';
+import { ClientBallotAdjudicationScreen } from './screens/client_ballot_adjudication_screen';
 
 export function ClientAppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
@@ -163,6 +164,9 @@ export function ClientAppRoot(): JSX.Element | null {
           <Route exact path={routerPaths.adjudication}>
             <ClientAdjudicationScreen />
           </Route>
+          <Route exact path={`${routerPaths.ballotAdjudication}/:cvrId`}>
+            <ClientBallotAdjudicationScreen />
+          </Route>
           <Route exact path={routerPaths.settings}>
             <ClientSettingsScreen />
           </Route>
@@ -180,6 +184,9 @@ export function ClientAppRoot(): JSX.Element | null {
       <Switch>
         <Route exact path={routerPaths.adjudication}>
           <ClientAdjudicationScreen />
+        </Route>
+        <Route exact path={`${routerPaths.ballotAdjudication}/:cvrId`}>
+          <ClientBallotAdjudicationScreen />
         </Route>
         <Redirect to={routerPaths.adjudication} />
       </Switch>

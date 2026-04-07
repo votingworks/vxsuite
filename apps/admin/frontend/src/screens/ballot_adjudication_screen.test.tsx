@@ -1055,3 +1055,53 @@ test('contest list shows correct option resolution bullets', async () => {
   );
   findTextInContest('Best Animal', 'Mark for Otter adjudicated as Invalid');
 });
+
+test('shows claimed ballot overlay when ballot is claimed by another machine', async () => {
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData('zoo-council-mammal'),
+  ]);
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetClaimedBallotCvrIds([CVR_ID_1]);
+  apiMock.expectGetIsClientAdjudicationEnabled(true);
+  apiMock.expectClaimBallotForAdjudication();
+  apiMock.expectReleaseBallotAdjudicationClaim();
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(
+    'This ballot is currently being adjudicated by another machine.'
+  );
+});
+
+test('host claims ballot when multi-station is enabled', async () => {
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData('zoo-council-mammal'),
+  ]);
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetClaimedBallotCvrIds();
+  apiMock.expectGetIsClientAdjudicationEnabled(true);
+  apiMock.expectClaimBallotForAdjudication();
+  apiMock.expectReleaseBallotAdjudicationClaim();
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(/Ballot ID:/);
+});

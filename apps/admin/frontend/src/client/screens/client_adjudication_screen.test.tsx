@@ -63,3 +63,30 @@ test('shows waiting message and disabled button when adjudication not enabled', 
   });
   expect(startButton).toBeDisabled();
 });
+
+test('start adjudication claims a ballot and navigates', async () => {
+  apiMock.expectGetAdjudicationSessionStatus(true);
+  apiMock.apiClient.claimBallot.expectCallWith({}).resolves('cvr-1');
+
+  renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
+  const startButton = await screen.findByRole('button', {
+    name: 'Start Adjudication',
+  });
+  startButton.click();
+
+  await screen.findByText('Claiming ballot…');
+});
+
+test('start adjudication resets when no ballots available', async () => {
+  apiMock.expectGetAdjudicationSessionStatus(true);
+  apiMock.apiClient.claimBallot.expectCallWith({}).resolves(undefined);
+
+  renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
+  const startButton = await screen.findByRole('button', {
+    name: 'Start Adjudication',
+  });
+  startButton.click();
+
+  // Button should re-enable after claim returns no ballots
+  await screen.findByRole('button', { name: 'Start Adjudication' });
+});

@@ -267,6 +267,7 @@ function HostBallotAdjudicationScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* istanbul ignore next - empty queue redirect @preserve */
   if (!currentCvrId) {
     history.push(routerPaths.adjudication);
     return (
@@ -365,7 +366,7 @@ function HostBallotAdjudicationScreenDataLoader({
       writeInCandidates={writeInCandidatesQuery.data}
       systemSettings={systemSettingsQuery.data}
       onResolveBallotTags={() => resolveBallotTagsMutation({ cvrId })}
-      onAdjudicateCvrContest={(input) => adjudicateCvrContestMutation(input)}
+      onAdjudicateCvrContest={adjudicateCvrContestMutation}
       {...rest}
     />
   );

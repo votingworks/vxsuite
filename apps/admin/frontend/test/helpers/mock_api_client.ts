@@ -366,12 +366,6 @@ export function createApiMock(
         .resolves(cvrIds);
     },
 
-    expectGetIsClientAdjudicationEnabled(enabled = false) {
-      apiClient.getIsClientAdjudicationEnabled
-        .expectRepeatedCallsWith()
-        .resolves(enabled);
-    },
-
     expectClaimBallotForAdjudication() {
       const client = apiClient as Record<string, unknown>;
       // eslint-disable-next-line no-param-reassign
