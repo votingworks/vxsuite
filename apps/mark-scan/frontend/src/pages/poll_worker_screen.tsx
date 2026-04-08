@@ -49,17 +49,6 @@ import {
 } from '../ballot_reinsertion_flow';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
-const {
-  EnableLiveModeModal,
-  ScreenBeginVoting,
-  ScreenVotingInProgress,
-  SectionHeader,
-  SectionPollsState,
-  SectionSessionStart,
-  SectionSystem,
-  VotingSession,
-} = pollWorkerComponents;
-
 const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
   paperTypes: ['BlankPage', 'InterpretedBmdPage'] as AcceptedPaperType[],
 } as const;
@@ -100,6 +89,17 @@ export function PollWorkerScreen({
   pollingPlaceId,
   setVotes,
 }: PollworkerScreenProps): JSX.Element | null {
+  const {
+    EnableLiveModeModal,
+    ScreenBeginVoting,
+    ScreenVotingInProgress,
+    SectionHeader,
+    SectionPollsState,
+    SectionSessionStart,
+    SectionSystem,
+    VotingSession,
+  } = pollWorkerComponents;
+
   const { election } = electionDefinition;
 
   const apiClient = api.useApiClient();

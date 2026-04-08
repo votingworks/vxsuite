@@ -20,16 +20,6 @@ import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import React from 'react';
 import { setPollsState, setTestMode, useApiClient } from '../api';
 
-const {
-  EnableLiveModeModal,
-  ScreenBeginVoting,
-  ScreenVotingInProgress,
-  SectionHeader,
-  SectionPollsState,
-  SectionSessionStart,
-  SectionSystem,
-} = pollWorkerComponents;
-
 export interface PollworkerScreenProps {
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;
   activateCardlessVoterSession: (
@@ -62,6 +52,16 @@ export function PollWorkerScreen({
   hasVotes,
   pollingPlaceId,
 }: PollworkerScreenProps): JSX.Element {
+  const {
+    EnableLiveModeModal,
+    ScreenBeginVoting,
+    ScreenVotingInProgress,
+    SectionHeader,
+    SectionPollsState,
+    SectionSessionStart,
+    SectionSystem,
+  } = pollWorkerComponents;
+
   const { election } = electionDefinition;
 
   const apiClient = useApiClient();

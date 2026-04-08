@@ -17,8 +17,9 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { DateWithoutTime } from '@votingworks/basics';
-import { fireEvent, screen } from '../../test/react_testing_library';
+import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
+import { act, fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 
@@ -28,6 +29,12 @@ import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiProvider } from '../api_provider';
+
+const MOCK_SECTION_SESSION_START_ID = 'MockSectionSessionStart';
+const MockSectionSessionStart = vi.spyOn(
+  pollWorkerComponents,
+  'SectionSessionStart'
+);
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
@@ -39,6 +46,10 @@ beforeEach(() => {
     shouldAdvanceTime: true,
   });
   apiMock = createApiMock();
+
+  MockSectionSessionStart.mockImplementation(() => (
+    <div data-testid={MOCK_SECTION_SESSION_START_ID} />
+  ));
 });
 
 afterEach(() => {
@@ -140,5 +151,37 @@ test('Shows election info', () => {
       electionGeneralDefinition.ballotHash,
       'test-election-package-hash'
     )
+  );
+});
+
+test('renders session start section', () => {
+  const [precinct] = election.precincts;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+
+  const activateCardlessVoterSession = vi.fn();
+  const appPrecinct = singlePrecinctSelectionFor(precinct.id);
+  const pollingPlaceId = pollingPlace.id;
+
+  renderScreen({
+    activateCardlessVoterSession,
+    pollingPlaceId,
+    appPrecinct,
+  });
+
+  screen.getByTestId(MOCK_SECTION_SESSION_START_ID);
+
+  const props = assertDefined(MockSectionSessionStart.mock.lastCall)[0];
+  expect(props).toEqual<pollWorkerComponents.SectionSessionStartProps>({
+    election,
+    onChooseBallotStyle: expect.any(Function),
+    pollingPlaceId,
+    precinctSelection: appPrecinct,
+  });
+  expect(activateCardlessVoterSession).not.toHaveBeenCalled();
+
+  act(() => props.onChooseBallotStyle('some-precinct', 'some-ballot-style'));
+  expect(activateCardlessVoterSession).toHaveBeenCalledWith(
+    'some-precinct',
+    'some-ballot-style'
   );
 });
