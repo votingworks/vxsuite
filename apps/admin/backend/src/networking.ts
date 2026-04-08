@@ -198,6 +198,10 @@ export function startClientNetworking({
     message: `Starting client networking for machine ${machineId}.`,
   });
 
+  clientStore.setOnDisconnect(() => {
+    auth.logOut(constructAuthMachineState(clientStore));
+  });
+
   let isPolling = false;
 
   interface ClientNetworkState {
