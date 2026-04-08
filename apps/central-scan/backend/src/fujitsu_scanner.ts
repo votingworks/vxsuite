@@ -156,6 +156,13 @@ export class FujitsuScanner implements BatchScanner {
      * everything. Scanning extra is safe because the HMPB interpreter trims any extra scan area.
      */
     const HMPB_HEIGHT_BUFFER_INCHES = 0.25;
+    /**
+     * The physical infeed guides of the fi-7600 and fi-8950 can be moved independently and aren't
+     * guaranteed to be centered. We add a wider width margin to allow for human error that can
+     * result in the page being translated left or right. Without the margin we might
+     * clip timing marks.
+     */
+    const HMPB_WIDTH_BUFFER_INCHES = 2;
     const MM_PER_INCH = 25.4;
 
     function toMillimeters(inches: number): string {
@@ -168,7 +175,7 @@ export class FujitsuScanner implements BatchScanner {
     );
     args.push(
       '--page-width',
-      toMillimeters(width),
+      toMillimeters(width + HMPB_WIDTH_BUFFER_INCHES),
       '--page-height',
       toMillimeters(
         Math.max(hmpbHeight + HMPB_HEIGHT_BUFFER_INCHES, bmdbHeight)
