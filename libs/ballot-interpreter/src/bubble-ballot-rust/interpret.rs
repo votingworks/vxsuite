@@ -364,7 +364,14 @@ pub fn ballot_card(
         VerticalStreakDetection::Disabled => Pair::default(),
     };
 
-    let mut timing_marks = match ballot_card.find_timing_marks() {
+    // Run timing mark detection and QR code detection in parallel since they
+    // are independent operations on the same ballot images.
+    let (timing_marks_result, decoded_qr_codes_result) = rayon::join(
+        || ballot_card.find_timing_marks(),
+        || ballot_card.decode_ballot_barcodes(&options.election),
+    );
+
+    let mut timing_marks = match timing_marks_result {
         Ok(marks) => marks,
         Err(Error::MissingTimingMarks { reason }) => {
             // If timing marks couldn't be found, retry streak detection with a lower threshold
@@ -389,8 +396,7 @@ pub fn ballot_card(
         ballot_card.check_minimum_scale(&timing_marks, minimum_detected_scale)?;
     }
 
-    // Find the metadata and validate it.
-    let mut decoded_qr_codes = ballot_card.decode_ballot_barcodes(&options.election)?;
+    let mut decoded_qr_codes = decoded_qr_codes_result?;
 
     // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
     // them so they're right-side up.

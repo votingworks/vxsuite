@@ -533,7 +533,7 @@ impl BallotCard {
         election: &Election,
     ) -> Result<Pair<(bubble_ballot::Metadata, Orientation)>> {
         self.as_pair()
-            .map(|ballot_page| {
+            .par_map(|ballot_page| {
                 let qr_code = qr_code::detect_with_strategy(
                     ballot_page.ballot_image().image(),
                     SearchStrategy::BubbleCorners,
