@@ -3124,19 +3124,19 @@ export class Store implements BaseStore {
   }: {
     electionId: Id;
     cvrId: Id;
-    machineId?: string;
+    machineId: string;
   }): void {
-    const machineClause = machineId ? 'and machine_id = ?' : '';
-    const params = [getCurrentTime(), cvrId, electionId];
-    if (machineId) params.push(machineId);
     this.client.run(
       `
         update machine_ballot_adjudication_assignments
         set status = 'completed', completed_at = ?
         where cvr_id = ? and election_id = ? and status = 'claimed'
-        ${machineClause}
+        and machine_id = ?
       `,
-      ...params
+      getCurrentTime(),
+      cvrId,
+      electionId,
+      machineId
     );
   }
 

@@ -234,12 +234,12 @@ function buildClientApi({
           currentBallotStyleId: input.currentBallotStyleId,
           excludeCvrIds: input.excludeCvrIds,
         });
-        await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
-          message: cvrId
-            ? `Claimed ballot ${cvrId}.`
-            : 'No ballots available to claim.',
-          disposition: cvrId ? 'success' : 'na',
-        });
+        if (cvrId) {
+          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+            message: `Claimed ballot ${cvrId}.`,
+            disposition: 'success',
+          });
+        }
         return cvrId;
       });
     },

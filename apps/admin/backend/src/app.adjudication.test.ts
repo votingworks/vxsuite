@@ -152,8 +152,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
   let queue = await apiClient.getBallotAdjudicationQueue();
   expect(queue).toHaveLength(1);
   const firstCvrId = queue[0];
-  let nextForAdjudication =
-    await apiClient.claimNextCvrIdForBallotAdjudication();
+  let nextForAdjudication = await apiClient.getNextCvrIdForBallotAdjudication();
   expect(nextForAdjudication).toEqual(queue[0]);
 
   // create a second cvr that is a bmd with an undervote.
@@ -356,7 +355,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
   expect(queue[2]).toEqual(ballotStyle2CvrId);
   expect(queue[3]).toEqual(bmdCvrId);
   expect(queue[5]).toEqual(blankBallotStyle2CvrId);
-  nextForAdjudication = await apiClient.claimNextCvrIdForBallotAdjudication();
+  nextForAdjudication = await apiClient.getNextCvrIdForBallotAdjudication();
   expect(nextForAdjudication).toEqual(queue[0]);
 });
 
@@ -564,7 +563,7 @@ test('getBallotImages when image is corrupted', async () => {
   });
 });
 
-test('claimNextCvrIdForBallotAdjudication', async () => {
+test('getNextCvrIdForBallotAdjudication', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -1571,7 +1570,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   expect(metadataAfter.pendingTally).toEqual(metadataBefore.pendingTally - 1);
 
   // Host's next-CVR-to-adjudicate skips the completed ballot
-  const nextCvrId = await apiClient.claimNextCvrIdForBallotAdjudication();
+  const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication();
   expect(nextCvrId).not.toEqual(cvrId1);
 
   // Release host's claim so clients can claim it

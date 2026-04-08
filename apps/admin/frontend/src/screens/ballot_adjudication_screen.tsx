@@ -370,12 +370,6 @@ function HostBallotAdjudicationScreenDataLoader({
     );
   }
 
-  // Prefetch the next and previous ballot images
-  const prefetchImageViews = getBallotImages.usePrefetch();
-  useEffect(() => {
-    // Prefetching handled at data-loader level — parent passes queue info via callbacks
-  }, [prefetchImageViews]);
-
   if (
     !adjudicationDataQuery.isSuccess ||
     !ballotImagesQuery.isSuccess ||
