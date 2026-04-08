@@ -56,6 +56,10 @@ export function createSimpleScannerClient(): SimpleScannerClient {
       (await client.disableScanning()).unsafeUnwrap();
     },
 
+    /**
+     * Ejects paper and rescans it if paper is present. Returns true if paper
+     * was present, false otherwise.
+     */
     async ejectAndRescanPaperIfPresent() {
       assert(client, 'Scanner client is not connected');
 
@@ -68,6 +72,10 @@ export function createSimpleScannerClient(): SimpleScannerClient {
       return false;
     },
 
+    /**
+     * Ejects paper according to `ejectMotion` if paper is present. Returns true
+     * if paper was present, false otherwise.
+     */
     async ejectPaper(ejectMotion: EjectMotion) {
       assert(client, 'Scanner client is not connected');
 
