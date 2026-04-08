@@ -37,6 +37,7 @@ const SOURCE: Source = Source::VxMarkScanControllerDaemon;
 const FAI_100_VID: u16 = 0x28cd;
 const FAI_100_PID: u16 = 0x4002;
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
+const PAT_DEBOUNCE_DURATION: Duration = Duration::from_millis(225);
 const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(5 * 60); // 5 mins; from_mins is a nightly build feature
 const BUFFER_MAX_BYTES: usize = 64;
 const PAT_CONNECTION_STATUS_FILENAME: &str = "_pat_connection.status";
@@ -261,6 +262,8 @@ struct CurrentStatus {
     puff: SipAndPuffSignalStatus,
     sip_puff_device_connected: SipAndPuffDeviceStatus,
     sip_puff_device_connection_time: Option<Instant>,
+    pending_sip_active_time: Option<Instant>,
+    pending_puff_active_time: Option<Instant>,
 }
 
 struct KeypressSpec {
@@ -369,6 +372,8 @@ fn handle_status_response(
         current_status.sip = SipAndPuffSignalStatus::Idle;
         current_status.puff = SipAndPuffSignalStatus::Idle;
         current_status.button_pressed = ButtonSignal::NoButton;
+        current_status.pending_sip_active_time = None;
+        current_status.pending_puff_active_time = None;
 
         current_status.sip_puff_device_connection_time = match new_connection_status {
             SipAndPuffDeviceStatus::Connected => Some(Instant::now()),
@@ -405,35 +410,63 @@ fn handle_status_response(
     // sip/puff values are inverted when no device is connected.
     // Even if values were consistent, logically no sip/puff signal can be sent without a connected device.
     if current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected {
-        // Send keypress for new sip event
-        if new_sip_status == SipAndPuffSignalStatus::Active
-            && current_status.sip == SipAndPuffSignalStatus::Idle
-            && connection_signal_delay_elapsed
-        {
-            send_keystroke(
-                &KeypressSpec {
-                    key: keyboard::Key::_1,
-                    send_shift: false,
-                },
-                keyboard,
-            );
+        // Debounced sip: require signal to remain Active for PAT_DEBOUNCE_DURATION before sending keypress.
+        // current_status.sip is only set to Active after the debounce passes, so the Idle check keeps
+        // re-evaluating each poll while the signal is held.
+        match new_sip_status {
+            SipAndPuffSignalStatus::Active
+                if current_status.sip == SipAndPuffSignalStatus::Idle =>
+            {
+                let pending_time = current_status
+                    .pending_sip_active_time
+                    .get_or_insert_with(Instant::now);
+                if pending_time.elapsed() >= PAT_DEBOUNCE_DURATION
+                    && connection_signal_delay_elapsed
+                {
+                    send_keystroke(
+                        &KeypressSpec {
+                            key: keyboard::Key::_1,
+                            send_shift: false,
+                        },
+                        keyboard,
+                    );
+                    current_status.sip = SipAndPuffSignalStatus::Active;
+                }
+            }
+            SipAndPuffSignalStatus::Idle => {
+                current_status.sip = SipAndPuffSignalStatus::Idle;
+                current_status.pending_sip_active_time = None;
+            }
+            SipAndPuffSignalStatus::Active => {}
         }
-        current_status.sip = new_sip_status;
 
-        // Send keypress for new puff event
-        if new_puff_status == SipAndPuffSignalStatus::Active
-            && current_status.puff == SipAndPuffSignalStatus::Idle
-            && connection_signal_delay_elapsed
-        {
-            send_keystroke(
-                &KeypressSpec {
-                    key: keyboard::Key::_2,
-                    send_shift: false,
-                },
-                keyboard,
-            );
+        // Debounced puff: same pattern as sip.
+        match new_puff_status {
+            SipAndPuffSignalStatus::Active
+                if current_status.puff == SipAndPuffSignalStatus::Idle =>
+            {
+                let pending_time = current_status
+                    .pending_puff_active_time
+                    .get_or_insert_with(Instant::now);
+                if pending_time.elapsed() >= PAT_DEBOUNCE_DURATION
+                    && connection_signal_delay_elapsed
+                {
+                    send_keystroke(
+                        &KeypressSpec {
+                            key: keyboard::Key::_2,
+                            send_shift: false,
+                        },
+                        keyboard,
+                    );
+                    current_status.puff = SipAndPuffSignalStatus::Active;
+                }
+            }
+            SipAndPuffSignalStatus::Idle => {
+                current_status.puff = SipAndPuffSignalStatus::Idle;
+                current_status.pending_puff_active_time = None;
+            }
+            SipAndPuffSignalStatus::Active => {}
         }
-        current_status.puff = new_puff_status;
     }
 
     Ok(false)
@@ -460,6 +493,8 @@ fn run_event_loop(
         puff: SipAndPuffSignalStatus::Idle,
         sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
         sip_puff_device_connection_time: None,
+        pending_sip_active_time: None,
+        pending_puff_active_time: None,
     };
 
     loop {
@@ -590,6 +625,8 @@ mod tests {
             puff: SipAndPuffSignalStatus::Idle,
             sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
             sip_puff_device_connection_time: None,
+            pending_sip_active_time: None,
+            pending_puff_active_time: None,
         };
         let new_status = NotificationStatusResponse {
             button_pressed: ButtonSignal::Help,
@@ -618,6 +655,8 @@ mod tests {
             puff: SipAndPuffSignalStatus::Idle,
             sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
             sip_puff_device_connection_time: None,
+            pending_sip_active_time: None,
+            pending_puff_active_time: None,
         };
         let new_status = NotificationStatusResponse {
             button_pressed: ButtonSignal::Left,
@@ -633,5 +672,205 @@ mod tests {
             mock_keyboard.keystrokes,
             vec![(keyboard::Key::Left, vec![])]
         );
+    }
+
+    fn make_current_status_with_pat_connected() -> CurrentStatus {
+        CurrentStatus {
+            button_pressed: ButtonSignal::NoButton,
+            sip: SipAndPuffSignalStatus::Idle,
+            puff: SipAndPuffSignalStatus::Idle,
+            sip_puff_device_connected: SipAndPuffDeviceStatus::Connected,
+            // Set connection time far enough in the past that connection_signal_delay_elapsed is true
+            sip_puff_device_connection_time: Some(Instant::now() - Duration::from_secs(3)),
+            pending_sip_active_time: None,
+            pending_puff_active_time: None,
+        }
+    }
+
+    fn make_active_sip_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Active,
+            puff_status: SipAndPuffSignalStatus::Idle,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
+    fn make_idle_sip_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Idle,
+            puff_status: SipAndPuffSignalStatus::Idle,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
+    fn make_active_puff_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Idle,
+            puff_status: SipAndPuffSignalStatus::Active,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
+    fn make_idle_puff_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Idle,
+            puff_status: SipAndPuffSignalStatus::Idle,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
+    #[test]
+    fn test_sip_not_triggered_before_debounce() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut make_current_status_with_pat_connected();
+
+        // First Active poll — debounce timer starts but has not elapsed
+        handle_status_response(
+            make_active_sip_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+
+        assert!(mock_keyboard.keystrokes.is_empty());
+        assert!(current_status.pending_sip_active_time.is_some());
+    }
+
+    #[test]
+    fn test_sip_triggered_after_debounce() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut make_current_status_with_pat_connected();
+
+        // Simulate debounce already elapsed by backdating the pending time
+        current_status.pending_sip_active_time =
+            Some(Instant::now() - PAT_DEBOUNCE_DURATION - Duration::from_millis(1));
+
+        handle_status_response(
+            make_active_sip_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+
+        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_1, vec![])]);
+    }
+
+    #[test]
+    fn test_sip_debounce_cancelled_by_idle() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut make_current_status_with_pat_connected();
+
+        // First Active poll — starts timer
+        handle_status_response(
+            make_active_sip_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+        assert!(current_status.pending_sip_active_time.is_some());
+
+        // Signal drops to Idle — timer is cancelled
+        handle_status_response(
+            make_idle_sip_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+        assert!(current_status.pending_sip_active_time.is_none());
+
+        // Active again — fresh timer, no keypress yet
+        handle_status_response(
+            make_active_sip_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+
+        assert!(mock_keyboard.keystrokes.is_empty());
+    }
+
+    #[test]
+    fn test_puff_not_triggered_before_debounce() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut make_current_status_with_pat_connected();
+
+        handle_status_response(
+            make_active_puff_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+
+        assert!(mock_keyboard.keystrokes.is_empty());
+        assert!(current_status.pending_puff_active_time.is_some());
+    }
+
+    #[test]
+    fn test_puff_triggered_after_debounce() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut make_current_status_with_pat_connected();
+
+        current_status.pending_puff_active_time =
+            Some(Instant::now() - PAT_DEBOUNCE_DURATION - Duration::from_millis(1));
+
+        handle_status_response(
+            make_active_puff_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+
+        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_2, vec![])]);
+    }
+
+    #[test]
+    fn test_puff_debounce_cancelled_by_idle() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut make_current_status_with_pat_connected();
+
+        handle_status_response(
+            make_active_puff_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+        assert!(current_status.pending_puff_active_time.is_some());
+
+        handle_status_response(
+            make_idle_puff_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+        assert!(current_status.pending_puff_active_time.is_none());
+
+        handle_status_response(
+            make_active_puff_status(),
+            current_status,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
+
+        assert!(mock_keyboard.keystrokes.is_empty());
     }
 }
