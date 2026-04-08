@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
+import { Route, Switch } from 'react-router-dom';
 
 import {
   Button,
@@ -11,6 +12,8 @@ import {
   LinkButton,
   Loading,
   P,
+  RouterTabBar,
+  TabPanel,
   Table,
   TD,
   TH,
@@ -30,13 +33,15 @@ import {
   getBallotAdjudicationQueueMetadata,
   getIsClientAdjudicationEnabled,
   getNetworkStatus,
+  getSystemSettings,
   setIsClientAdjudicationEnabled,
 } from '../api';
 import { routerPaths } from '../router_paths';
+import { WriteInCandidatesTab } from './write_in_candidates_tab';
 
 const Column = styled.div`
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   flex-direction: column;
 `;
 
@@ -57,6 +62,13 @@ const InlineColumn = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 0.25rem;
+`;
+
+const TabbedContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem 1rem 0;
 `;
 
 const CenteredContent = styled.div`
@@ -237,12 +249,13 @@ function CompletedBallotCount({ count }: { count: number }): JSX.Element {
   );
 }
 
-export function AdjudicationStartScreen(): JSX.Element {
+function BallotAdjudicationContent(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
 
   const isMultiStationEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
   );
+  const systemSettingsQuery = getSystemSettings.useQuery();
 
   const adjudicationQueueMetadataQuery =
     getBallotAdjudicationQueueMetadata.useQuery();
@@ -251,13 +264,10 @@ export function AdjudicationStartScreen(): JSX.Element {
 
   if (
     !adjudicationQueueMetadataQuery.isSuccess ||
-    !castVoteRecordFilesQuery.isSuccess
+    !castVoteRecordFilesQuery.isSuccess ||
+    !systemSettingsQuery.isSuccess
   ) {
-    return (
-      <NavigationScreen title="Adjudication">
-        <Loading isFullscreen />
-      </NavigationScreen>
-    );
+    return <Loading isFullscreen />;
   }
 
   const queryMetadata = adjudicationQueueMetadataQuery.data;
@@ -294,42 +304,91 @@ export function AdjudicationStartScreen(): JSX.Element {
   const callout = renderCallout();
   if (callout) {
     return (
-      <NavigationScreen title="Adjudication">
+      <Column style={{ gap: '1rem' }}>
         {callout}
         {isMultiStationEnabled && <NetworkSection />}
-      </NavigationScreen>
+      </Column>
     );
   }
 
+  const inQualifiedWriteInMode =
+    systemSettingsQuery.data.areWriteInCandidatesQualified ?? false;
   const completedCount = queryMetadata.totalTally - queryMetadata.pendingTally;
 
   if (isMultiStationEnabled) {
     return (
-      <NavigationScreen title="Adjudication">
-        <Column>
-          <Section>
+      <Column>
+        <Section>
+          {!inQualifiedWriteInMode && (
             <H2 style={{ margin: 0 }}>Ballot Adjudication</H2>
-            <Row>
-              <AdjudicateBallotsButton />
-              <InlineColumn>
-                <PendingBallotCount count={queryMetadata.pendingTally} />
-                <CompletedBallotCount count={completedCount} />
-              </InlineColumn>
-            </Row>
-          </Section>
-          <NetworkSection />
-        </Column>
+          )}
+          <Row>
+            <AdjudicateBallotsButton />
+            <InlineColumn>
+              <PendingBallotCount count={queryMetadata.pendingTally} />
+              <CompletedBallotCount count={completedCount} />
+            </InlineColumn>
+          </Row>
+        </Section>
+        <NetworkSection />
+      </Column>
+    );
+  }
+
+  return (
+    <CenteredContent>
+      <AdjudicateBallotsButton />
+      <PendingBallotCount count={queryMetadata.pendingTally} />
+      <CompletedBallotCount count={completedCount} />
+    </CenteredContent>
+  );
+}
+
+export function AdjudicationStartScreen(): JSX.Element {
+  const systemSettingsQuery = getSystemSettings.useQuery();
+  const areWriteInCandidatesQualified =
+    systemSettingsQuery.data?.areWriteInCandidatesQualified ?? false;
+
+  if (areWriteInCandidatesQualified) {
+    return (
+      <NavigationScreen
+        title="Adjudication"
+        noPadding
+        style={{ overflow: 'hidden' }}
+      >
+        <TabbedContent>
+          <RouterTabBar
+            tabs={[
+              {
+                title: 'Ballot Adjudication',
+                path: routerPaths.adjudication,
+              },
+              {
+                title: 'Write-In Candidates',
+                path: routerPaths.adjudicationCandidates,
+              },
+            ]}
+          />
+          <Switch>
+            <Route
+              exact
+              path={routerPaths.adjudicationCandidates}
+              component={WriteInCandidatesTab}
+            />
+            <Route path={routerPaths.adjudication}>
+              <TabPanel style={{ paddingTop: '1rem' }}>
+                <BallotAdjudicationContent />
+              </TabPanel>
+            </Route>
+          </Switch>
+        </TabbedContent>
       </NavigationScreen>
     );
   }
 
   return (
     <NavigationScreen title="Adjudication">
-      <CenteredContent>
-        <AdjudicateBallotsButton />
-        <PendingBallotCount count={queryMetadata.pendingTally} />
-        <CompletedBallotCount count={completedCount} />
-      </CenteredContent>
+      <BallotAdjudicationContent />
     </NavigationScreen>
   );
 }

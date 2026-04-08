@@ -139,15 +139,15 @@ export function AppRoutes(): JSX.Element | null {
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
       ) && (
-        <Route exact path={routerPaths.adjudication}>
-          <AdjudicationStartScreen />
+        <Route exact path={routerPaths.ballotAdjudication}>
+          <BallotAdjudicationScreen />
         </Route>
       )}
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
       ) && (
-        <Route exact path={routerPaths.ballotAdjudication}>
-          <BallotAdjudicationScreen />
+        <Route path={routerPaths.adjudication}>
+          <AdjudicationStartScreen />
         </Route>
       )}
       <Route

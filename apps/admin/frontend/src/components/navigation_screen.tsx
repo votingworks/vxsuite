@@ -72,6 +72,7 @@ interface Props {
   title?: string;
   parentRoutes?: Route[];
   noPadding?: boolean;
+  style?: React.CSSProperties;
 }
 
 const HOST_SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
@@ -207,6 +208,7 @@ export function NavigationScreen({
   title,
   parentRoutes,
   noPadding,
+  style,
 }: Props): JSX.Element {
   const { usbDriveStatus, auth, machineMode } = useContext(AppContext);
   const logOutMutation = sharedLogOut.useMutation();
@@ -253,7 +255,12 @@ export function NavigationScreen({
             )}
           </div>
         </Header>
-        <MainContent style={{ padding: noPadding ? 0 : undefined }}>
+        <MainContent
+          style={{
+            ...(style ?? {}),
+            padding: noPadding ? 0 : undefined,
+          }}
+        >
           {children}
         </MainContent>
       </Main>
