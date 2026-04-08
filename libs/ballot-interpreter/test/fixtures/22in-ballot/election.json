@@ -1,0 +1,3397 @@
+{
+  "ballotLayout": {
+    "paperSize": "custom-8.5x22",
+    "metadataEncoding": "qr-code"
+  },
+  "ballotStrings": {
+    "en": {
+      "ballotStyleId": {
+        "1_en": "1"
+      },
+      "candidateName": {
+        "vblek2ofqctt": "Candidate 1",
+        "vqaflmgwr2dq": "Candidate 2",
+        "eaofkbyfjw56": "Candidate 3",
+        "hd0fwi43ud0x": "Candidate 4",
+        "1tk37q1tuqq9": "Candidate 5",
+        "ye82ef7ll6wm": "Candidate 6",
+        "ne4iqkwwc2jl": "Candidate 7",
+        "f6liscddd6vc": "Candidate 1",
+        "qn66bff6cksl": "Candidate 2",
+        "jhmy46rk4ou0": "Candidate 3",
+        "f2a4xj4mdnas": "Candidate 4",
+        "klfopn68uiae": "Candidate 5",
+        "tafqfpeebjog": "Candidate 6",
+        "ost3dlfypo0l": "Candidate 7",
+        "0hh42r9bawnw": "Candidate 1",
+        "82swqg8lo1mo": "Candidate 2",
+        "l8z0p08vpsxv": "Candidate 3",
+        "gckckyfboi1q": "Candidate 4",
+        "m2d7px42zpi3": "Candidate 5",
+        "vv6wb00c25w0": "Candidate 6",
+        "khc4if3b60d6": "Candidate 1",
+        "mnghyjdnrw3b": "Candidate 2",
+        "7k1zi1354ure": "Candidate 3",
+        "95kqtz8d9w62": "Candidate 4",
+        "ioqr8kp8luzt": "Candidate 5",
+        "gij8rb0namg2": "Candidate 1",
+        "lshq1e9wtn78": "Candidate 2",
+        "oob3rqy3bdch": "Candidate 3",
+        "x6wn2105uf6i": "Candidate 4",
+        "6jwfpeu1qg0p": "Candidate 5",
+        "yjsryenkodjl": "Candidate 1",
+        "w3mi3wajl9wq": "Candidate 2",
+        "3udclqbnggbr": "Candidate 3",
+        "qz1h6j68uncr": "Candidate 1",
+        "pwbdnlnuy8rf": "Candidate 2",
+        "rsm1avotf6hk": "Candidate 3",
+        "2tjsk7ha70i2": "Candidate 1",
+        "twp10exqv9zv": "Candidate 2",
+        "an2pxndo2cvf": "Candidate 3",
+        "upeofnopa0zx": "Candidate 4",
+        "1kymwnpo82nt": "Candidate 5",
+        "jfx7w4wwtdnx": "Candidate 6",
+        "9j076x9e1iqh": "Candidate 7",
+        "4j3hghzcwdf2": "Candidate 8",
+        "7ia3fo4d4t90": "Candidate 9",
+        "96mpre1dum2m": "Candidate 10",
+        "7bf8vnsu1bv5": "Candidate 1",
+        "khknbu56jlup": "Candidate 2",
+        "hkk3gn0u9b0b": "Candidate 3",
+        "08vy0x88bpw7": "Candidate 4",
+        "rrf4c2ii6h0y": "Candidate 5",
+        "nlxlixajr8w4": "Candidate 6",
+        "nhzg2uzqk1x6": "Candidate 7",
+        "jjjnh1znvq90": "Candidate 8",
+        "98nmldzl5cxt": "Candidate 9",
+        "m8g28ont02pt": "Candidate 10",
+        "jkekwmdn3mvl": "Candidate 1",
+        "md1skhd4obxh": "Candidate 2",
+        "z6hk74vp5gri": "Candidate 3",
+        "hqkxaw6heis9": "Candidate 4",
+        "87kmbqynwi5p": "Candidate 5",
+        "ppocd4kkheq9": "Candidate 6",
+        "ggva3ix03reh": "Candidate 7",
+        "pqs7u8zwbb83": "Candidate 8",
+        "scj94scczwk8": "Candidate 9",
+        "2a718vo5c1xi": "Candidate 1",
+        "palrjohenzeq": "Candidate 2",
+        "6luqijgo0dwq": "Candidate 3",
+        "mpdiq40cr23e": "Candidate 4",
+        "z6iay0wsneri": "Candidate 5",
+        "uem45zb3refk": "Candidate 6",
+        "mgfgpw5t88t0": "Candidate 7",
+        "ltpg388m1iqe": "Candidate 8",
+        "7l9yqcuibndm": "Candidate 9",
+        "qpfnjj5jhwff": "Candidate 1",
+        "74r2x35o48ee": "Candidate 2",
+        "lrs53bubp1a4": "Candidate 3",
+        "0v10xhkly4wd": "Candidate 1",
+        "7jb13sdkao7l": "Candidate 2",
+        "r8at9dnjo9qh": "Candidate 1",
+        "7xw9r2b1ul15": "Candidate 2",
+        "zs29os51r21o": "Candidate 3",
+        "p4f5ywq76zhu": "Candidate 4",
+        "0bp096ie0me7": "Candidate 5",
+        "yxl6usx8cgfc": "Candidate 6",
+        "pcn1s7d8lu2y": "Candidate 7",
+        "66tdq1g2itbp": "Candidate 1",
+        "nozcpins0ey9": "Candidate 2",
+        "6q46m00rt0tk": "Candidate 1",
+        "8450vmyjo37h": "Candidate 2",
+        "uk47h7xvk1du": "Candidate 3",
+        "hj2jbq86naej": "Candidate 1",
+        "p0q9k5wuvjad": "Candidate 2",
+        "922lgv1dz4dk": "Candidate 3",
+        "dm234ez6iiaw": "Candidate 4",
+        "o8ju7mj7mywt": "Candidate 5",
+        "vpxcfwdfmkg1": "Candidate 6",
+        "mnj07i3q9wy8": "Candidate 7",
+        "nemwxm7hbeu3": "Candidate 8",
+        "0ujb225u0jje": "Candidate 9",
+        "7kifo5gbl6qh": "Candidate 10",
+        "nqs1ubouqq87": "Candidate 1",
+        "pah9hz0nmnro": "Candidate 2",
+        "sxg2yvw91b4g": "Candidate 1",
+        "w4rywxw30yqy": "Candidate 2",
+        "o6tr3l7h5wm0": "Candidate 1",
+        "cwbm6llmp6j2": "Candidate 2",
+        "hfmadl1o3cjy": "Candidate 1",
+        "vs0x9xwm4fmy": "Candidate 2",
+        "yp53vwz4u7q7": "Candidate 3",
+        "zoqhwvxlqugk": "Candidate 4",
+        "wwy6c4vrmnmv": "Candidate 1",
+        "mkf4i7t638wk": "Candidate 2",
+        "z8oudydcao21": "Candidate 1",
+        "r5zsvb5ts1jr": "Candidate 2",
+        "dqajhlqncxpp": "Candidate 3",
+        "xhqs4x0fefjx": "Candidate 4",
+        "bdrpq39d9imi": "Candidate 5",
+        "x91ztpb31f3v": "Candidate 6",
+        "dg8y28sl9zg4": "Candidate 7",
+        "leongfg16n2m": "Candidate 8",
+        "43omim9diyi1": "Candidate 9",
+        "emo27xnxebll": "Candidate 10",
+        "pjpu841w6w19": "Candidate 11",
+        "jzvuoazdv93u": "Candidate 12",
+        "0355rp3asysu": "Candidate 1",
+        "f1j3ho8hawii": "Candidate 2",
+        "rv7x0s5glui4": "Candidate 3",
+        "bck7j2li29vw": "Candidate 1",
+        "iuqxxtpkrx6s": "Candidate 2",
+        "7nzma19xo0mk": "Candidate 1",
+        "bdapsi5u4px6": "Candidate 2",
+        "10cfowp15mzs": "Candidate 3",
+        "a1cxqk9k9lcb": "Candidate 4",
+        "uu30tf0clcmm": "Candidate 5",
+        "okda4dj489oz": "Candidate 6",
+        "mz94103pb2vq": "Candidate 7",
+        "h2mguc7h83wr": "Candidate 8",
+        "eemznil07w5o": "Candidate 9",
+        "qrerpq94he9c": "Candidate 10",
+        "mk1mosuxuss9": "Candidate 11",
+        "z351710z632m": "Candidate 1",
+        "95102rpkua4w": "Candidate 2",
+        "xqglk11dz7nu": "Candidate 1",
+        "ke3y90nk2tif": "Candidate 2",
+        "gesyj39jd8xp": "Candidate 1",
+        "g90osfhc5za1": "Candidate 2",
+        "l7fptxggtxu1": "Candidate 1",
+        "8q8wtj9pzpc4": "Candidate 2",
+        "6kb105w1spcq": "Candidate 1",
+        "rcavenaa4vxj": "Candidate 2"
+      },
+      "contestTitle": {
+        "3kksdukirs18": "Contest 1",
+        "2p34mzesmrn3": "Contest 2",
+        "rlm5y4cvcjdj": "Contest 3",
+        "dgtj1k9n6c91": "Contest 4",
+        "qv6ykz0eufi2": "Contest 5",
+        "17yv3kedj66l": "Contest 6",
+        "eo8aifluwzip": "Contest 7",
+        "hsr5uxtdf8yl": "Contest 8",
+        "7vc6wr5n1zng": "Contest 9",
+        "d75ghk6kmn7m": "Contest 10",
+        "8k5dqcq9joqd": "Contest 11",
+        "59p64udjyqmn": "Contest 12",
+        "27tjf7w2j10y": "Contest 13",
+        "b7n75gck0g28": "Contest 14",
+        "htrtskmcbk7r": "Contest 15",
+        "vkuc7pu5vh4g": "Contest 16",
+        "d88h31trr5yo": "Contest 17",
+        "orn6e7kvpdis": "Contest 18",
+        "t6rutdduvmxd": "Contest 19",
+        "z5k4b1vlrbl3": "Contest 20",
+        "yv01enk0wuri": "Contest 21",
+        "ctf9frneaw80": "Contest 22",
+        "t5bsm5qmdeg7": "Contest 23",
+        "thznf2s1bjmc": "Contest 24",
+        "e5rw7ql7lg1i": "Contest 25",
+        "e0dd6reiy44m": "Contest 26",
+        "cmwb9fyqyu8s": "Contest 27",
+        "1kevru25w1bg": "Contest 28",
+        "jdnc064by7hm": "Contest 29",
+        "31u6c9vgonko": "Contest 30",
+        "rlsejssle0ue": "Contest 31"
+      },
+      "countyName": "Dev Jurisdiction - DEMO",
+      "districtName": {
+        "dr29ozqz37x8": "District 1"
+      },
+      "electionTitle": "Michigan Tabulator Speed Test 22\" (20\" Proxy)",
+      "precinctName": {
+        "ldjk1qxh55xc": "Precinct 1"
+      },
+      "stateName": "DEMO",
+      "ballotLanguage": {
+        "en": "English"
+      },
+      "electionDate": "February 18, 2026",
+      "hmpb10WillBeElected": "Ten will be elected",
+      "hmpb2WillBeElected": "Two will be elected",
+      "hmpb3WillBeElected": "Three will be elected",
+      "hmpb4WillBeElected": "Four will be elected",
+      "hmpb5WillBeElected": "Five will be elected",
+      "hmpb6WillBeElected": "Six will be elected",
+      "hmpb7WillBeElected": "Seven will be elected",
+      "hmpb8WillBeElected": "Eight will be elected",
+      "hmpb9WillBeElected": "Nine will be elected",
+      "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
+      "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
+      "hmpbInstructions": "Instructions",
+      "hmpbInstructionsToVoteText": "To vote, completely fill in the oval next to your choice.",
+      "hmpbInstructionsToVoteTitle": "To Vote:",
+      "hmpbInstructionsWriteInText": "To vote for a person whose name is not on the ballot, write the person’s name on the \"Write-in\" line and completely fill in the oval next to the line.",
+      "hmpbInstructionsWriteInTitle": "To Vote for a Write-in:",
+      "hmpbOfficialAbsenteeBallot": "Official Absentee Ballot",
+      "hmpbOfficialBallot": "Official Ballot",
+      "hmpbOfficialProvisionalBallot": "Official Provisional Ballot",
+      "hmpbPage": "Page",
+      "hmpbPageIntentionallyBlank": "This page intentionally left blank",
+      "hmpbSampleAbsenteeBallot": "Sample Absentee Ballot",
+      "hmpbSampleBallot": "Sample Ballot",
+      "hmpbSampleProvisionalBallot": "Sample Provisional Ballot",
+      "hmpbTestAbsenteeBallot": "Test Absentee Ballot",
+      "hmpbTestBallot": "Test Ballot",
+      "hmpbTestProvisionalBallot": "Test Provisional Ballot",
+      "hmpbVoteFor1": "Vote for 1",
+      "hmpbVoteFor10": "Vote for up to 10",
+      "hmpbVoteFor2": "Vote for up to 2",
+      "hmpbVoteFor3": "Vote for up to 3",
+      "hmpbVoteFor4": "Vote for up to 4",
+      "hmpbVoteFor5": "Vote for up to 5",
+      "hmpbVoteFor6": "Vote for up to 6",
+      "hmpbVoteFor7": "Vote for up to 7",
+      "hmpbVoteFor8": "Vote for up to 8",
+      "hmpbVoteFor9": "Vote for up to 9",
+      "hmpbVoteForNotMoreThan1": "Vote for not more than 1",
+      "hmpbVotingComplete": "You have completed voting.",
+      "hmpbWriteIn": "Write-in"
+    }
+  },
+  "ballotStyles": [
+    {
+      "id": "1_en",
+      "groupId": "1",
+      "precincts": ["ldjk1qxh55xc"],
+      "districts": ["dr29ozqz37x8"],
+      "languages": ["en"],
+      "orderedCandidatesByContest": {
+        "3kksdukirs18": [
+          {
+            "id": "vblek2ofqctt"
+          },
+          {
+            "id": "vqaflmgwr2dq"
+          },
+          {
+            "id": "eaofkbyfjw56"
+          },
+          {
+            "id": "hd0fwi43ud0x"
+          },
+          {
+            "id": "1tk37q1tuqq9"
+          },
+          {
+            "id": "ye82ef7ll6wm"
+          },
+          {
+            "id": "ne4iqkwwc2jl"
+          }
+        ],
+        "2p34mzesmrn3": [
+          {
+            "id": "f6liscddd6vc"
+          },
+          {
+            "id": "qn66bff6cksl"
+          },
+          {
+            "id": "jhmy46rk4ou0"
+          },
+          {
+            "id": "f2a4xj4mdnas"
+          },
+          {
+            "id": "klfopn68uiae"
+          },
+          {
+            "id": "tafqfpeebjog"
+          },
+          {
+            "id": "ost3dlfypo0l"
+          }
+        ],
+        "rlm5y4cvcjdj": [
+          {
+            "id": "0hh42r9bawnw"
+          },
+          {
+            "id": "82swqg8lo1mo"
+          },
+          {
+            "id": "l8z0p08vpsxv"
+          },
+          {
+            "id": "gckckyfboi1q"
+          },
+          {
+            "id": "m2d7px42zpi3"
+          },
+          {
+            "id": "vv6wb00c25w0"
+          }
+        ],
+        "dgtj1k9n6c91": [
+          {
+            "id": "khc4if3b60d6"
+          },
+          {
+            "id": "mnghyjdnrw3b"
+          },
+          {
+            "id": "7k1zi1354ure"
+          },
+          {
+            "id": "95kqtz8d9w62"
+          },
+          {
+            "id": "ioqr8kp8luzt"
+          }
+        ],
+        "qv6ykz0eufi2": [
+          {
+            "id": "gij8rb0namg2"
+          },
+          {
+            "id": "lshq1e9wtn78"
+          },
+          {
+            "id": "oob3rqy3bdch"
+          },
+          {
+            "id": "x6wn2105uf6i"
+          },
+          {
+            "id": "6jwfpeu1qg0p"
+          }
+        ],
+        "17yv3kedj66l": [
+          {
+            "id": "yjsryenkodjl"
+          },
+          {
+            "id": "w3mi3wajl9wq"
+          },
+          {
+            "id": "3udclqbnggbr"
+          }
+        ],
+        "eo8aifluwzip": [
+          {
+            "id": "qz1h6j68uncr"
+          },
+          {
+            "id": "pwbdnlnuy8rf"
+          },
+          {
+            "id": "rsm1avotf6hk"
+          }
+        ],
+        "hsr5uxtdf8yl": [
+          {
+            "id": "2tjsk7ha70i2"
+          },
+          {
+            "id": "twp10exqv9zv"
+          },
+          {
+            "id": "an2pxndo2cvf"
+          },
+          {
+            "id": "upeofnopa0zx"
+          },
+          {
+            "id": "1kymwnpo82nt"
+          },
+          {
+            "id": "jfx7w4wwtdnx"
+          },
+          {
+            "id": "9j076x9e1iqh"
+          },
+          {
+            "id": "4j3hghzcwdf2"
+          },
+          {
+            "id": "7ia3fo4d4t90"
+          },
+          {
+            "id": "96mpre1dum2m"
+          }
+        ],
+        "7vc6wr5n1zng": [
+          {
+            "id": "7bf8vnsu1bv5"
+          },
+          {
+            "id": "khknbu56jlup"
+          },
+          {
+            "id": "hkk3gn0u9b0b"
+          },
+          {
+            "id": "08vy0x88bpw7"
+          },
+          {
+            "id": "rrf4c2ii6h0y"
+          },
+          {
+            "id": "nlxlixajr8w4"
+          },
+          {
+            "id": "nhzg2uzqk1x6"
+          },
+          {
+            "id": "jjjnh1znvq90"
+          },
+          {
+            "id": "98nmldzl5cxt"
+          },
+          {
+            "id": "m8g28ont02pt"
+          }
+        ],
+        "d75ghk6kmn7m": [
+          {
+            "id": "jkekwmdn3mvl"
+          },
+          {
+            "id": "md1skhd4obxh"
+          },
+          {
+            "id": "z6hk74vp5gri"
+          },
+          {
+            "id": "hqkxaw6heis9"
+          },
+          {
+            "id": "87kmbqynwi5p"
+          },
+          {
+            "id": "ppocd4kkheq9"
+          },
+          {
+            "id": "ggva3ix03reh"
+          },
+          {
+            "id": "pqs7u8zwbb83"
+          },
+          {
+            "id": "scj94scczwk8"
+          }
+        ],
+        "8k5dqcq9joqd": [
+          {
+            "id": "2a718vo5c1xi"
+          },
+          {
+            "id": "palrjohenzeq"
+          },
+          {
+            "id": "6luqijgo0dwq"
+          },
+          {
+            "id": "mpdiq40cr23e"
+          },
+          {
+            "id": "z6iay0wsneri"
+          },
+          {
+            "id": "uem45zb3refk"
+          },
+          {
+            "id": "mgfgpw5t88t0"
+          },
+          {
+            "id": "ltpg388m1iqe"
+          },
+          {
+            "id": "7l9yqcuibndm"
+          }
+        ],
+        "59p64udjyqmn": [
+          {
+            "id": "qpfnjj5jhwff"
+          },
+          {
+            "id": "74r2x35o48ee"
+          },
+          {
+            "id": "lrs53bubp1a4"
+          }
+        ],
+        "27tjf7w2j10y": [
+          {
+            "id": "0v10xhkly4wd"
+          },
+          {
+            "id": "7jb13sdkao7l"
+          }
+        ],
+        "b7n75gck0g28": [
+          {
+            "id": "r8at9dnjo9qh"
+          },
+          {
+            "id": "7xw9r2b1ul15"
+          },
+          {
+            "id": "zs29os51r21o"
+          },
+          {
+            "id": "p4f5ywq76zhu"
+          },
+          {
+            "id": "0bp096ie0me7"
+          },
+          {
+            "id": "yxl6usx8cgfc"
+          },
+          {
+            "id": "pcn1s7d8lu2y"
+          }
+        ],
+        "htrtskmcbk7r": [
+          {
+            "id": "66tdq1g2itbp"
+          },
+          {
+            "id": "nozcpins0ey9"
+          }
+        ],
+        "vkuc7pu5vh4g": [
+          {
+            "id": "6q46m00rt0tk"
+          },
+          {
+            "id": "8450vmyjo37h"
+          },
+          {
+            "id": "uk47h7xvk1du"
+          }
+        ],
+        "d88h31trr5yo": [
+          {
+            "id": "hj2jbq86naej"
+          },
+          {
+            "id": "p0q9k5wuvjad"
+          },
+          {
+            "id": "922lgv1dz4dk"
+          },
+          {
+            "id": "dm234ez6iiaw"
+          },
+          {
+            "id": "o8ju7mj7mywt"
+          },
+          {
+            "id": "vpxcfwdfmkg1"
+          },
+          {
+            "id": "mnj07i3q9wy8"
+          },
+          {
+            "id": "nemwxm7hbeu3"
+          },
+          {
+            "id": "0ujb225u0jje"
+          },
+          {
+            "id": "7kifo5gbl6qh"
+          }
+        ],
+        "orn6e7kvpdis": [
+          {
+            "id": "nqs1ubouqq87"
+          },
+          {
+            "id": "pah9hz0nmnro"
+          }
+        ],
+        "t6rutdduvmxd": [
+          {
+            "id": "sxg2yvw91b4g"
+          },
+          {
+            "id": "w4rywxw30yqy"
+          }
+        ],
+        "z5k4b1vlrbl3": [
+          {
+            "id": "o6tr3l7h5wm0"
+          },
+          {
+            "id": "cwbm6llmp6j2"
+          }
+        ],
+        "yv01enk0wuri": [
+          {
+            "id": "hfmadl1o3cjy"
+          },
+          {
+            "id": "vs0x9xwm4fmy"
+          },
+          {
+            "id": "yp53vwz4u7q7"
+          },
+          {
+            "id": "zoqhwvxlqugk"
+          }
+        ],
+        "ctf9frneaw80": [
+          {
+            "id": "wwy6c4vrmnmv"
+          },
+          {
+            "id": "mkf4i7t638wk"
+          }
+        ],
+        "t5bsm5qmdeg7": [
+          {
+            "id": "z8oudydcao21"
+          },
+          {
+            "id": "r5zsvb5ts1jr"
+          },
+          {
+            "id": "dqajhlqncxpp"
+          },
+          {
+            "id": "xhqs4x0fefjx"
+          },
+          {
+            "id": "bdrpq39d9imi"
+          },
+          {
+            "id": "x91ztpb31f3v"
+          },
+          {
+            "id": "dg8y28sl9zg4"
+          },
+          {
+            "id": "leongfg16n2m"
+          },
+          {
+            "id": "43omim9diyi1"
+          },
+          {
+            "id": "emo27xnxebll"
+          },
+          {
+            "id": "pjpu841w6w19"
+          },
+          {
+            "id": "jzvuoazdv93u"
+          }
+        ],
+        "thznf2s1bjmc": [
+          {
+            "id": "0355rp3asysu"
+          },
+          {
+            "id": "f1j3ho8hawii"
+          },
+          {
+            "id": "rv7x0s5glui4"
+          }
+        ],
+        "e5rw7ql7lg1i": [
+          {
+            "id": "bck7j2li29vw"
+          },
+          {
+            "id": "iuqxxtpkrx6s"
+          }
+        ],
+        "e0dd6reiy44m": [
+          {
+            "id": "7nzma19xo0mk"
+          },
+          {
+            "id": "bdapsi5u4px6"
+          },
+          {
+            "id": "10cfowp15mzs"
+          },
+          {
+            "id": "a1cxqk9k9lcb"
+          },
+          {
+            "id": "uu30tf0clcmm"
+          },
+          {
+            "id": "okda4dj489oz"
+          },
+          {
+            "id": "mz94103pb2vq"
+          },
+          {
+            "id": "h2mguc7h83wr"
+          },
+          {
+            "id": "eemznil07w5o"
+          },
+          {
+            "id": "qrerpq94he9c"
+          },
+          {
+            "id": "mk1mosuxuss9"
+          }
+        ],
+        "cmwb9fyqyu8s": [
+          {
+            "id": "z351710z632m"
+          },
+          {
+            "id": "95102rpkua4w"
+          }
+        ],
+        "1kevru25w1bg": [
+          {
+            "id": "xqglk11dz7nu"
+          },
+          {
+            "id": "ke3y90nk2tif"
+          }
+        ],
+        "jdnc064by7hm": [
+          {
+            "id": "gesyj39jd8xp"
+          },
+          {
+            "id": "g90osfhc5za1"
+          }
+        ],
+        "31u6c9vgonko": [
+          {
+            "id": "l7fptxggtxu1"
+          },
+          {
+            "id": "8q8wtj9pzpc4"
+          }
+        ],
+        "rlsejssle0ue": [
+          {
+            "id": "6kb105w1spcq"
+          },
+          {
+            "id": "rcavenaa4vxj"
+          }
+        ]
+      }
+    }
+  ],
+  "contests": [
+    {
+      "id": "3kksdukirs18",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 1",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "vblek2ofqctt",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "vqaflmgwr2dq",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "eaofkbyfjw56",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "hd0fwi43ud0x",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "1tk37q1tuqq9",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "ye82ef7ll6wm",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "ne4iqkwwc2jl",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "2p34mzesmrn3",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "f6liscddd6vc",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "qn66bff6cksl",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "jhmy46rk4ou0",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "f2a4xj4mdnas",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "klfopn68uiae",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "tafqfpeebjog",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "ost3dlfypo0l",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "rlm5y4cvcjdj",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 3",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "0hh42r9bawnw",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "82swqg8lo1mo",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "l8z0p08vpsxv",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "gckckyfboi1q",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "m2d7px42zpi3",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "vv6wb00c25w0",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "dgtj1k9n6c91",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 4",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "khc4if3b60d6",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "mnghyjdnrw3b",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "7k1zi1354ure",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "95kqtz8d9w62",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "ioqr8kp8luzt",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "qv6ykz0eufi2",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 5",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "gij8rb0namg2",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "lshq1e9wtn78",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "oob3rqy3bdch",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "x6wn2105uf6i",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "6jwfpeu1qg0p",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "17yv3kedj66l",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 6",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "yjsryenkodjl",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "w3mi3wajl9wq",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "3udclqbnggbr",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "eo8aifluwzip",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 7",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "qz1h6j68uncr",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "pwbdnlnuy8rf",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "rsm1avotf6hk",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "hsr5uxtdf8yl",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 8",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "2tjsk7ha70i2",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "twp10exqv9zv",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "an2pxndo2cvf",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "upeofnopa0zx",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "1kymwnpo82nt",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "jfx7w4wwtdnx",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "9j076x9e1iqh",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "4j3hghzcwdf2",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "7ia3fo4d4t90",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        },
+        {
+          "id": "96mpre1dum2m",
+          "name": "Candidate 10",
+          "firstName": "Candidate",
+          "lastName": "10"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "7vc6wr5n1zng",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 9",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "7bf8vnsu1bv5",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "khknbu56jlup",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "hkk3gn0u9b0b",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "08vy0x88bpw7",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "rrf4c2ii6h0y",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "nlxlixajr8w4",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "nhzg2uzqk1x6",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "jjjnh1znvq90",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "98nmldzl5cxt",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        },
+        {
+          "id": "m8g28ont02pt",
+          "name": "Candidate 10",
+          "firstName": "Candidate",
+          "lastName": "10"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "d75ghk6kmn7m",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 10",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "jkekwmdn3mvl",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "md1skhd4obxh",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "z6hk74vp5gri",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "hqkxaw6heis9",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "87kmbqynwi5p",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "ppocd4kkheq9",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "ggva3ix03reh",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "pqs7u8zwbb83",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "scj94scczwk8",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "8k5dqcq9joqd",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 11",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "2a718vo5c1xi",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "palrjohenzeq",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "6luqijgo0dwq",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "mpdiq40cr23e",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "z6iay0wsneri",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "uem45zb3refk",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "mgfgpw5t88t0",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "ltpg388m1iqe",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "7l9yqcuibndm",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "59p64udjyqmn",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 12",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "qpfnjj5jhwff",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "74r2x35o48ee",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "lrs53bubp1a4",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "27tjf7w2j10y",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 13",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "0v10xhkly4wd",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "7jb13sdkao7l",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "b7n75gck0g28",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 14",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "r8at9dnjo9qh",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "7xw9r2b1ul15",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "zs29os51r21o",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "p4f5ywq76zhu",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "0bp096ie0me7",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "yxl6usx8cgfc",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "pcn1s7d8lu2y",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "htrtskmcbk7r",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 15",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "66tdq1g2itbp",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "nozcpins0ey9",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "vkuc7pu5vh4g",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 16",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "6q46m00rt0tk",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "8450vmyjo37h",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "uk47h7xvk1du",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "d88h31trr5yo",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 17",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "hj2jbq86naej",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "p0q9k5wuvjad",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "922lgv1dz4dk",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "dm234ez6iiaw",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "o8ju7mj7mywt",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "vpxcfwdfmkg1",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "mnj07i3q9wy8",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "nemwxm7hbeu3",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "0ujb225u0jje",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        },
+        {
+          "id": "7kifo5gbl6qh",
+          "name": "Candidate 10",
+          "firstName": "Candidate",
+          "lastName": "10"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "orn6e7kvpdis",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 18",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "nqs1ubouqq87",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "pah9hz0nmnro",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "t6rutdduvmxd",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 19",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "sxg2yvw91b4g",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "w4rywxw30yqy",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "z5k4b1vlrbl3",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 20",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "o6tr3l7h5wm0",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "cwbm6llmp6j2",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "yv01enk0wuri",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 21",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "hfmadl1o3cjy",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "vs0x9xwm4fmy",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "yp53vwz4u7q7",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "zoqhwvxlqugk",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "ctf9frneaw80",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 22",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "wwy6c4vrmnmv",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "mkf4i7t638wk",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "t5bsm5qmdeg7",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 23",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "z8oudydcao21",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "r5zsvb5ts1jr",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "dqajhlqncxpp",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "xhqs4x0fefjx",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "bdrpq39d9imi",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "x91ztpb31f3v",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "dg8y28sl9zg4",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "leongfg16n2m",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "43omim9diyi1",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        },
+        {
+          "id": "emo27xnxebll",
+          "name": "Candidate 10",
+          "firstName": "Candidate",
+          "lastName": "10"
+        },
+        {
+          "id": "pjpu841w6w19",
+          "name": "Candidate 11",
+          "firstName": "Candidate",
+          "lastName": "11"
+        },
+        {
+          "id": "jzvuoazdv93u",
+          "name": "Candidate 12",
+          "firstName": "Candidate",
+          "lastName": "12"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "thznf2s1bjmc",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 24",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "0355rp3asysu",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "f1j3ho8hawii",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "rv7x0s5glui4",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "e5rw7ql7lg1i",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 25",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "bck7j2li29vw",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "iuqxxtpkrx6s",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "e0dd6reiy44m",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 26",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "7nzma19xo0mk",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "bdapsi5u4px6",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        },
+        {
+          "id": "10cfowp15mzs",
+          "name": "Candidate 3",
+          "firstName": "Candidate",
+          "lastName": "3"
+        },
+        {
+          "id": "a1cxqk9k9lcb",
+          "name": "Candidate 4",
+          "firstName": "Candidate",
+          "lastName": "4"
+        },
+        {
+          "id": "uu30tf0clcmm",
+          "name": "Candidate 5",
+          "firstName": "Candidate",
+          "lastName": "5"
+        },
+        {
+          "id": "okda4dj489oz",
+          "name": "Candidate 6",
+          "firstName": "Candidate",
+          "lastName": "6"
+        },
+        {
+          "id": "mz94103pb2vq",
+          "name": "Candidate 7",
+          "firstName": "Candidate",
+          "lastName": "7"
+        },
+        {
+          "id": "h2mguc7h83wr",
+          "name": "Candidate 8",
+          "firstName": "Candidate",
+          "lastName": "8"
+        },
+        {
+          "id": "eemznil07w5o",
+          "name": "Candidate 9",
+          "firstName": "Candidate",
+          "lastName": "9"
+        },
+        {
+          "id": "qrerpq94he9c",
+          "name": "Candidate 10",
+          "firstName": "Candidate",
+          "lastName": "10"
+        },
+        {
+          "id": "mk1mosuxuss9",
+          "name": "Candidate 11",
+          "firstName": "Candidate",
+          "lastName": "11"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "cmwb9fyqyu8s",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 27",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "z351710z632m",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "95102rpkua4w",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "1kevru25w1bg",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 28",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "xqglk11dz7nu",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "ke3y90nk2tif",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "jdnc064by7hm",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 29",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "gesyj39jd8xp",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "g90osfhc5za1",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "31u6c9vgonko",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 30",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "l7fptxggtxu1",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "8q8wtj9pzpc4",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "rlsejssle0ue",
+      "districtId": "dr29ozqz37x8",
+      "title": "Contest 31",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "6kb105w1spcq",
+          "name": "Candidate 1",
+          "firstName": "Candidate",
+          "lastName": "1"
+        },
+        {
+          "id": "rcavenaa4vxj",
+          "name": "Candidate 2",
+          "firstName": "Candidate",
+          "lastName": "2"
+        }
+      ],
+      "allowWriteIns": false
+    }
+  ],
+  "gridLayouts": [
+    {
+      "ballotStyleId": "1_en",
+      "optionBoundsFromTargetMark": {
+        "top": 0.5265188042430087,
+        "right": 9.256875077074856,
+        "bottom": 0.5265188042430087,
+        "left": 0.7013195215192995
+      },
+      "gridPositions": [
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 9.89627531340405,
+          "contestId": "3kksdukirs18",
+          "optionId": "vblek2ofqctt"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 10.989814368370299,
+          "contestId": "3kksdukirs18",
+          "optionId": "vqaflmgwr2dq"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 12.083353423336549,
+          "contestId": "3kksdukirs18",
+          "optionId": "eaofkbyfjw56"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 13.176892478302797,
+          "contestId": "3kksdukirs18",
+          "optionId": "hd0fwi43ud0x"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 14.270431533269045,
+          "contestId": "3kksdukirs18",
+          "optionId": "1tk37q1tuqq9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 15.363970588235295,
+          "contestId": "3kksdukirs18",
+          "optionId": "ye82ef7ll6wm"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 16.457509643201544,
+          "contestId": "3kksdukirs18",
+          "optionId": "ne4iqkwwc2jl"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 19.944431051108968,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "f6liscddd6vc"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 21.037970106075218,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "qn66bff6cksl"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 22.131509161041468,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "jhmy46rk4ou0"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 23.225048216007714,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "f2a4xj4mdnas"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 24.318587270973964,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "klfopn68uiae"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 25.412126325940214,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "tafqfpeebjog"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 26.50566538090646,
+          "contestId": "2p34mzesmrn3",
+          "optionId": "ost3dlfypo0l"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 29.992586788813888,
+          "contestId": "rlm5y4cvcjdj",
+          "optionId": "0hh42r9bawnw"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 31.086125843780135,
+          "contestId": "rlm5y4cvcjdj",
+          "optionId": "82swqg8lo1mo"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 32.17966489874638,
+          "contestId": "rlm5y4cvcjdj",
+          "optionId": "l8z0p08vpsxv"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 33.27320395371263,
+          "contestId": "rlm5y4cvcjdj",
+          "optionId": "gckckyfboi1q"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 34.36674300867888,
+          "contestId": "rlm5y4cvcjdj",
+          "optionId": "m2d7px42zpi3"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 35.46028206364513,
+          "contestId": "rlm5y4cvcjdj",
+          "optionId": "vv6wb00c25w0"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 38.947203471552555,
+          "contestId": "dgtj1k9n6c91",
+          "optionId": "khc4if3b60d6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 40.040742526518805,
+          "contestId": "dgtj1k9n6c91",
+          "optionId": "mnghyjdnrw3b"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 41.134281581485055,
+          "contestId": "dgtj1k9n6c91",
+          "optionId": "7k1zi1354ure"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 42.227820636451305,
+          "contestId": "dgtj1k9n6c91",
+          "optionId": "95kqtz8d9w62"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 43.32135969141755,
+          "contestId": "dgtj1k9n6c91",
+          "optionId": "ioqr8kp8luzt"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 46.80828109932498,
+          "contestId": "qv6ykz0eufi2",
+          "optionId": "gij8rb0namg2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 47.90182015429123,
+          "contestId": "qv6ykz0eufi2",
+          "optionId": "lshq1e9wtn78"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 48.99535920925747,
+          "contestId": "qv6ykz0eufi2",
+          "optionId": "oob3rqy3bdch"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 50.08889826422372,
+          "contestId": "qv6ykz0eufi2",
+          "optionId": "x6wn2105uf6i"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 51.18243731918997,
+          "contestId": "qv6ykz0eufi2",
+          "optionId": "6jwfpeu1qg0p"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 54.669358727097396,
+          "contestId": "17yv3kedj66l",
+          "optionId": "yjsryenkodjl"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 55.762897782063646,
+          "contestId": "17yv3kedj66l",
+          "optionId": "w3mi3wajl9wq"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 56.8564368370299,
+          "contestId": "17yv3kedj66l",
+          "optionId": "3udclqbnggbr"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 60.34335824493732,
+          "contestId": "eo8aifluwzip",
+          "optionId": "qz1h6j68uncr"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 61.43689729990357,
+          "contestId": "eo8aifluwzip",
+          "optionId": "pwbdnlnuy8rf"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 62.53043635486982,
+          "contestId": "eo8aifluwzip",
+          "optionId": "rsm1avotf6hk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 66.01735776277724,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "2tjsk7ha70i2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 67.1108968177435,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "twp10exqv9zv"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 68.20443587270974,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "an2pxndo2cvf"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 69.297974927676,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "upeofnopa0zx"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 70.39151398264224,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "1kymwnpo82nt"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 71.4850530376085,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "jfx7w4wwtdnx"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 72.57859209257474,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "9j076x9e1iqh"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 73.67213114754098,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "4j3hghzcwdf2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 74.76567020250724,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "7ia3fo4d4t90"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.6563078061413246,
+          "row": 75.85920925747348,
+          "contestId": "hsr5uxtdf8yl",
+          "optionId": "96mpre1dum2m"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 9.89627531340405,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "7bf8vnsu1bv5"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 10.989814368370299,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "khknbu56jlup"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 12.083353423336549,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "hkk3gn0u9b0b"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 13.176892478302797,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "08vy0x88bpw7"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 14.270431533269045,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "rrf4c2ii6h0y"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 15.363970588235295,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "nlxlixajr8w4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 16.457509643201544,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "nhzg2uzqk1x6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 17.551048698167794,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "jjjnh1znvq90"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 18.64458775313404,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "98nmldzl5cxt"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 19.73812680810029,
+          "contestId": "7vc6wr5n1zng",
+          "optionId": "m8g28ont02pt"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 23.225048216007714,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "jkekwmdn3mvl"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 24.318587270973964,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "md1skhd4obxh"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 25.412126325940214,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "z6hk74vp5gri"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 26.50566538090646,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "hqkxaw6heis9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 27.59920443587271,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "87kmbqynwi5p"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 28.69274349083896,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "ppocd4kkheq9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 29.786282545805207,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "ggva3ix03reh"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 30.879821600771457,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "pqs7u8zwbb83"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 31.973360655737707,
+          "contestId": "d75ghk6kmn7m",
+          "optionId": "scj94scczwk8"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 35.46028206364513,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "2a718vo5c1xi"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 36.55382111861138,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "palrjohenzeq"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 37.64736017357763,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "6luqijgo0dwq"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 38.740899228543874,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "mpdiq40cr23e"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 39.834438283510124,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "z6iay0wsneri"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 40.927977338476374,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "uem45zb3refk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 42.021516393442624,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "mgfgpw5t88t0"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 43.115055448408874,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "ltpg388m1iqe"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 44.208594503375124,
+          "contestId": "8k5dqcq9joqd",
+          "optionId": "7l9yqcuibndm"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 47.69551591128255,
+          "contestId": "59p64udjyqmn",
+          "optionId": "qpfnjj5jhwff"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 48.7890549662488,
+          "contestId": "59p64udjyqmn",
+          "optionId": "74r2x35o48ee"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 49.88259402121504,
+          "contestId": "59p64udjyqmn",
+          "optionId": "lrs53bubp1a4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 53.36951542912247,
+          "contestId": "27tjf7w2j10y",
+          "optionId": "0v10xhkly4wd"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 54.463054484088715,
+          "contestId": "27tjf7w2j10y",
+          "optionId": "7jb13sdkao7l"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 57.94997589199615,
+          "contestId": "b7n75gck0g28",
+          "optionId": "r8at9dnjo9qh"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 59.0435149469624,
+          "contestId": "b7n75gck0g28",
+          "optionId": "7xw9r2b1ul15"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 60.13705400192864,
+          "contestId": "b7n75gck0g28",
+          "optionId": "zs29os51r21o"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 61.23059305689489,
+          "contestId": "b7n75gck0g28",
+          "optionId": "p4f5ywq76zhu"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 62.32413211186114,
+          "contestId": "b7n75gck0g28",
+          "optionId": "0bp096ie0me7"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 63.41767116682739,
+          "contestId": "b7n75gck0g28",
+          "optionId": "yxl6usx8cgfc"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 64.51121022179363,
+          "contestId": "b7n75gck0g28",
+          "optionId": "pcn1s7d8lu2y"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 67.99813162970106,
+          "contestId": "htrtskmcbk7r",
+          "optionId": "66tdq1g2itbp"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 69.0916706846673,
+          "contestId": "htrtskmcbk7r",
+          "optionId": "nozcpins0ey9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 72.57859209257474,
+          "contestId": "vkuc7pu5vh4g",
+          "optionId": "6q46m00rt0tk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 73.67213114754098,
+          "contestId": "vkuc7pu5vh4g",
+          "optionId": "8450vmyjo37h"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.222222222222223,
+          "row": 74.76567020250724,
+          "contestId": "vkuc7pu5vh4g",
+          "optionId": "uk47h7xvk1du"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 9.89627531340405,
+          "contestId": "d88h31trr5yo",
+          "optionId": "hj2jbq86naej"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 10.989814368370299,
+          "contestId": "d88h31trr5yo",
+          "optionId": "p0q9k5wuvjad"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 12.083353423336549,
+          "contestId": "d88h31trr5yo",
+          "optionId": "922lgv1dz4dk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 13.176892478302797,
+          "contestId": "d88h31trr5yo",
+          "optionId": "dm234ez6iiaw"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 14.270431533269045,
+          "contestId": "d88h31trr5yo",
+          "optionId": "o8ju7mj7mywt"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 15.363970588235295,
+          "contestId": "d88h31trr5yo",
+          "optionId": "vpxcfwdfmkg1"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 16.457509643201544,
+          "contestId": "d88h31trr5yo",
+          "optionId": "mnj07i3q9wy8"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 17.551048698167794,
+          "contestId": "d88h31trr5yo",
+          "optionId": "nemwxm7hbeu3"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 18.64458775313404,
+          "contestId": "d88h31trr5yo",
+          "optionId": "0ujb225u0jje"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 19.73812680810029,
+          "contestId": "d88h31trr5yo",
+          "optionId": "7kifo5gbl6qh"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 23.225048216007714,
+          "contestId": "orn6e7kvpdis",
+          "optionId": "nqs1ubouqq87"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 24.318587270973964,
+          "contestId": "orn6e7kvpdis",
+          "optionId": "pah9hz0nmnro"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 27.805508678881388,
+          "contestId": "t6rutdduvmxd",
+          "optionId": "sxg2yvw91b4g"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 28.899047733847638,
+          "contestId": "t6rutdduvmxd",
+          "optionId": "w4rywxw30yqy"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 32.38596914175506,
+          "contestId": "z5k4b1vlrbl3",
+          "optionId": "o6tr3l7h5wm0"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 33.47950819672131,
+          "contestId": "z5k4b1vlrbl3",
+          "optionId": "cwbm6llmp6j2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 36.966429604628736,
+          "contestId": "yv01enk0wuri",
+          "optionId": "hfmadl1o3cjy"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 38.059968659594986,
+          "contestId": "yv01enk0wuri",
+          "optionId": "vs0x9xwm4fmy"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 39.153507714561236,
+          "contestId": "yv01enk0wuri",
+          "optionId": "yp53vwz4u7q7"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 40.247046769527486,
+          "contestId": "yv01enk0wuri",
+          "optionId": "zoqhwvxlqugk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 43.73396817743491,
+          "contestId": "ctf9frneaw80",
+          "optionId": "wwy6c4vrmnmv"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 44.82750723240116,
+          "contestId": "ctf9frneaw80",
+          "optionId": "mkf4i7t638wk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 48.314428640308584,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "z8oudydcao21"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 49.407967695274834,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "r5zsvb5ts1jr"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 50.501506750241084,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "dqajhlqncxpp"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 51.59504580520733,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "xhqs4x0fefjx"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 52.68858486017358,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "bdrpq39d9imi"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 53.78212391513983,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "x91ztpb31f3v"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 54.87566297010608,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "dg8y28sl9zg4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 55.96920202507233,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "leongfg16n2m"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 57.06274108003858,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "43omim9diyi1"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 58.15628013500482,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "emo27xnxebll"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 59.24981918997107,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "pjpu841w6w19"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 60.34335824493732,
+          "contestId": "t5bsm5qmdeg7",
+          "optionId": "jzvuoazdv93u"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 63.830279652844744,
+          "contestId": "thznf2s1bjmc",
+          "optionId": "0355rp3asysu"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 64.923818707811,
+          "contestId": "thznf2s1bjmc",
+          "optionId": "f1j3ho8hawii"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 66.01735776277724,
+          "contestId": "thznf2s1bjmc",
+          "optionId": "rv7x0s5glui4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 69.50427917068467,
+          "contestId": "e5rw7ql7lg1i",
+          "optionId": "bck7j2li29vw"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 22.788136638303122,
+          "row": 70.59781822565091,
+          "contestId": "e5rw7ql7lg1i",
+          "optionId": "iuqxxtpkrx6s"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 3.0414054966248796,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "7nzma19xo0mk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 4.134944551591128,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "bdapsi5u4px6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 5.228483606557377,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "10cfowp15mzs"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 6.322022661523626,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "a1cxqk9k9lcb"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 7.415561716489875,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "uu30tf0clcmm"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 8.509100771456124,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "okda4dj489oz"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 9.602639826422372,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "mz94103pb2vq"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 10.69617888138862,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "h2mguc7h83wr"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 11.78971793635487,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "eemznil07w5o"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 12.883256991321119,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "qrerpq94he9c"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.6563078061413246,
+          "row": 13.976796046287367,
+          "contestId": "e0dd6reiy44m",
+          "optionId": "mk1mosuxuss9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 12.222222222222223,
+          "row": 3.0414054966248796,
+          "contestId": "cmwb9fyqyu8s",
+          "optionId": "z351710z632m"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 12.222222222222223,
+          "row": 4.134944551591128,
+          "contestId": "cmwb9fyqyu8s",
+          "optionId": "95102rpkua4w"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 12.222222222222223,
+          "row": 7.621865959498554,
+          "contestId": "1kevru25w1bg",
+          "optionId": "xqglk11dz7nu"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 12.222222222222223,
+          "row": 8.715405014464803,
+          "contestId": "1kevru25w1bg",
+          "optionId": "ke3y90nk2tif"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 12.222222222222223,
+          "row": 12.202326422372227,
+          "contestId": "jdnc064by7hm",
+          "optionId": "gesyj39jd8xp"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 12.222222222222223,
+          "row": 13.295865477338477,
+          "contestId": "jdnc064by7hm",
+          "optionId": "g90osfhc5za1"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 22.788136638303122,
+          "row": 3.0414054966248796,
+          "contestId": "31u6c9vgonko",
+          "optionId": "l7fptxggtxu1"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 22.788136638303122,
+          "row": 4.134944551591128,
+          "contestId": "31u6c9vgonko",
+          "optionId": "8q8wtj9pzpc4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 22.788136638303122,
+          "row": 7.621865959498554,
+          "contestId": "rlsejssle0ue",
+          "optionId": "6kb105w1spcq"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 22.788136638303122,
+          "row": 8.715405014464803,
+          "contestId": "rlsejssle0ue",
+          "optionId": "rcavenaa4vxj"
+        }
+      ]
+    }
+  ],
+  "county": {
+    "id": "county-id",
+    "name": "Dev Jurisdiction - DEMO"
+  },
+  "date": "2026-02-18",
+  "districts": [
+    {
+      "id": "dr29ozqz37x8",
+      "name": "District 1"
+    }
+  ],
+  "id": "rnln5347jfhw",
+  "parties": [],
+  "precincts": [
+    {
+      "districtIds": ["dr29ozqz37x8"],
+      "id": "ldjk1qxh55xc",
+      "name": "Precinct 1"
+    }
+  ],
+  "seal": "<svg width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#clip0_16_239)\"><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"#6638B6\"></circle><path d=\"M51.9217 85.0882C51.4956 85.0882 51.0629 85.0036 50.6433 84.8278C48.9585 84.1249 48.1718 82.1983 48.8798 80.5255L71.72 26.5934H64.784L40.8622 83.077C40.3443 84.2941 39.1446 85.0882 37.8138 85.0882C36.483 85.0882 35.2833 84.2941 34.7654 83.077L21.2606 51.1707C20.8279 50.1554 20.9393 48.9968 21.5556 48.079C22.1653 47.1613 23.2011 46.6146 24.309 46.6146H37.5188C39.3413 46.6146 40.8228 48.0856 40.8228 49.9015C40.8228 51.7175 39.3413 53.1885 37.5188 53.1885H29.2848L37.8203 73.3398L59.5394 22.0373C60.0573 20.8201 61.257 20.026 62.5878 20.026H76.6958C77.8037 20.026 78.8395 20.5793 79.4492 21.4905C80.0588 22.4083 80.1703 23.5668 79.7442 24.5822L54.9701 83.077C54.4391 84.3332 53.2132 85.0882 51.9217 85.0882ZM49.9877 31.8265C49.9877 25.3047 45.3266 20 39.6035 20C33.8803 20 29.2127 25.3047 29.2127 31.8265C29.2127 38.3484 33.8738 43.653 39.5969 43.653C45.3201 43.653 49.9877 38.3484 49.9877 31.8265ZM43.3796 31.8265C43.3796 34.6774 41.6489 37.0856 39.6035 37.0856C37.5581 37.0856 35.8274 34.6774 35.8274 31.8265C35.8274 28.9757 37.5581 26.5674 39.6035 26.5674C41.6489 26.5674 43.3796 28.9757 43.3796 31.8265Z\" fill=\"white\"></path></g><defs><rect width=\"100\" height=\"100\" fill=\"white\"></rect></defs></svg>",
+  "state": "DEMO",
+  "title": "Michigan Tabulator Speed Test 22\" (20\" Proxy)",
+  "type": "general",
+  "additionalHashInput": {
+    "precinctSplitSeals": {},
+    "precinctSplitSignatureImages": {},
+    "contestDescriptionsForContestsWithAdditionalOptions": {}
+  }
+}
