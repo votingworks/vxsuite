@@ -87,12 +87,12 @@ const MAX_SHEETS_PER_SESSION = 100;
 
 export class ScanningSession {
   private readonly sheets: Array<
-    SheetOf<{ path: string; analysis: ScannedPageAnalysis }>
+    SheetOf<{ path: string; analysis?: ScannedPageAnalysis }>
   > = [];
 
   addSheetAnalysis(
-    analyzedPaths: SheetOf<{ path: string; analysis: ScannedPageAnalysis }>
-  ): SheetOf<{ path: string; analysis: ScannedPageAnalysis }> | undefined {
+    analyzedPaths: SheetOf<{ path: string; analysis?: ScannedPageAnalysis }>
+  ): SheetOf<{ path: string; analysis?: ScannedPageAnalysis }> | undefined {
     this.sheets.push(analyzedPaths);
 
     if (this.sheets.length > MAX_SHEETS_PER_SESSION) {
@@ -121,10 +121,13 @@ export class ScanningSession {
       return { sheets: [], stats: undefined };
     }
 
-    const pageStats = this.sheets.flatMap((sheet) => [
-      sheet[0].analysis,
-      sheet[1].analysis,
-    ]);
+    const pageStats = this.sheets.flatMap((sheet) =>
+      mapSheet(sheet, ({ analysis }) => analysis).filter((a) => a !== undefined)
+    );
+
+    if (pageStats.length === 0) {
+      return { sheets: this.sheets, stats: undefined };
+    }
 
     return {
       sheets: this.sheets,
@@ -156,7 +159,7 @@ export interface Stat {
 }
 
 export interface ScanningSessionData {
-  sheets: Array<SheetOf<{ path: string; analysis: ScannedPageAnalysis }>>;
+  sheets: Array<SheetOf<{ path: string; analysis?: ScannedPageAnalysis }>>;
   stats?: { [K in keyof ScannedPageAnalysis]: Stat };
 }
 

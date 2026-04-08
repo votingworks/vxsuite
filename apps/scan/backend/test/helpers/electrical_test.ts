@@ -18,8 +18,9 @@ function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
     disconnect: vi.fn(),
     enableScanning: vi.fn(),
     disableScanning: vi.fn(),
-    ejectPaper: vi.fn(),
-    ejectAndRescanPaperIfPresent: vi.fn(),
+    ejectPaper: vi.fn().mockResolvedValue(false),
+    ejectAndRescanPaperIfPresent: vi.fn().mockResolvedValue(false),
+    isFrontSensorCovered: vi.fn().mockResolvedValue(false),
   };
 }
 
