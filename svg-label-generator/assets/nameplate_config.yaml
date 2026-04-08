@@ -1,0 +1,163 @@
+products:
+  VxScan:
+    dimensions:
+      width: 85.0
+      height: 50.0
+      corner_radius: 2.54
+      hole_diameter: 4.0
+      hole_center_distance: 70.0
+    layout:
+      top_section_margin: 0.1
+      middle_section_margin: 0.15
+      bottom_section_margin: 0.05
+      logo_padding_horizontal: -0.1
+      logo_padding_vertical: 0.15
+      square_padding_top: 0.1
+      square_padding_right: -0.05
+      textbox1_logo_overlap: 0.01
+      textbox1_to_square_padding: 0.04
+      textbox1_height_ratio: 0.55
+      textbox3_bottom_margin: 0.25
+      textbox2_lines:
+      - product_line
+      - serial_line
+      - rating_line
+    text:
+      company_name: VotingWorks
+      product_line:
+        label: VxScan
+        value: v4.0.3
+        label_bold: true
+        value_bold: false
+      serial_line:
+        label: 'S/N:'
+        value: SC-14-XXX
+        label_bold: true
+        value_bold: false
+      rating_line:
+        label: 'Rating:'
+        value: AC 110-120V~, 60HZ, 6.5A MAX
+        label_bold: true
+        value_bold: false
+      warning_text: Review all user manuals and receive training on this device before
+        operation
+  VxPollBook:
+    dimensions:
+      width: 85.0
+      height: 50.0
+      corner_radius: 2.54
+      hole_diameter: 4.0
+      hole_center_distance: 70.0
+    layout:
+      top_section_margin: 0.1
+      middle_section_margin: 0.15
+      bottom_section_margin: 0.1
+      logo_padding_horizontal: -0.1
+      logo_padding_vertical: 0.2
+      square_padding_top: 0.1
+      square_padding_right: -0.05
+      textbox1_logo_overlap: 0.01
+      textbox1_to_square_padding: 0.04
+      textbox1_height_ratio: 0.65
+      textbox3_bottom_margin: 0.2
+      textbox2_lines:
+      - product_line
+      - serial_line
+      warning_lines: 2
+    text:
+      company_name: VotingWorks
+      product_line:
+        label: VxPollBook
+        value: v1.2.0
+        label_bold: true
+        value_bold: false
+      serial_line:
+        label: 'S/N:'
+        value: PB-05-XXX
+        label_bold: true
+        value_bold: false
+      rating_line:
+        label: ' '
+        value: ' '
+        label_bold: true
+        value_bold: false
+      warning_text: See documentation for setup and operating instructions
+  VxMark:
+    dimensions:
+      width: 85.0
+      height: 50.0
+      corner_radius: 2.54
+      hole_diameter: 4.0
+      hole_center_distance: 70.0
+    layout:
+      top_section_margin: 0.1
+      middle_section_margin: 0.15
+      bottom_section_margin: 0.05
+      logo_padding_horizontal: -0.1
+      logo_padding_vertical: 0.15
+      square_padding_top: 0.1
+      square_padding_right: -0.05
+      textbox1_logo_overlap: 0.01
+      textbox1_to_square_padding: 0.04
+      textbox1_height_ratio: 0.55
+      textbox3_bottom_margin: 0.25
+      textbox2_lines:
+      - product_line
+      - serial_line
+      - rating_line
+    text:
+      company_name: VotingWorks
+      product_line:
+        label: VxMark
+        value: v4.0.4
+        label_bold: true
+        value_bold: false
+      serial_line:
+        label: 'S/N:'
+        value: MK-14-XXX
+        label_bold: true
+        value_bold: false
+      rating_line:
+        label: 'Rating:'
+        value: AC 110-120V~, 60HZ, 4.5A MAX
+        label_bold: true
+        value_bold: false
+      warning_text: Review all user manuals and receive training on this device before
+        operation
+  VxBox:
+    dimensions:
+      width: 92.0
+      height: 38.0
+      corner_radius: 2.54
+      hole_diameter: 4.0
+      hole_center_distance: 82.0
+    layout:
+      top_section_margin: 0.1
+      middle_section_margin: 0.1
+      bottom_section_margin: 0.1
+      logo_padding_horizontal: 0
+      logo_padding_vertical: 0.15
+      square_padding_top: 0.05
+      square_padding_right: 0.02
+      textbox1_logo_overlap: -0.02
+      textbox1_to_square_padding: 0
+      textbox1_height_ratio: 0.52
+      textbox3_bottom_margin: 0.5
+      textbox2_lines:
+      - product_line
+      - serial_line
+      textbox2_max_font_size_ratio: 0.035
+    text:
+      company_name: VotingWorks
+      product_line:
+        label: VxBox
+        value: v1.0.2
+        label_bold: true
+        value_bold: false
+      serial_line:
+        label: 'S/N:'
+        value: BB-05-XXX
+        label_bold: true
+        value_bold: false
+      warning_text: Review all user manuals and receive training on this device before
+        operation
