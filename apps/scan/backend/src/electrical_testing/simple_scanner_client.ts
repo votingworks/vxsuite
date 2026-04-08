@@ -12,8 +12,9 @@ export interface SimpleScannerClient {
   disconnect(): Promise<void>;
   enableScanning(): Promise<void>;
   disableScanning(): Promise<void>;
-  ejectAndRescanPaperIfPresent(): Promise<void>;
-  ejectPaper(ejectMotion: EjectMotion): Promise<void>;
+  ejectAndRescanPaperIfPresent(): Promise<boolean>;
+  ejectPaper(ejectMotion: EjectMotion): Promise<boolean>;
+  isFrontSensorCovered(): Promise<boolean>;
 }
 
 export function createSimpleScannerClient(): SimpleScannerClient {
@@ -62,7 +63,9 @@ export function createSimpleScannerClient(): SimpleScannerClient {
 
       if (status.rearLeftSensorCovered || status.rearRightSensorCovered) {
         (await client.ejectDocument('toFrontAndRescan')).unsafeUnwrap();
+        return true;
       }
+      return false;
     },
 
     async ejectPaper(ejectMotion: EjectMotion) {
@@ -72,7 +75,23 @@ export function createSimpleScannerClient(): SimpleScannerClient {
 
       if (status.rearLeftSensorCovered || status.rearRightSensorCovered) {
         (await client.ejectDocument(ejectMotion)).unsafeUnwrap();
+        return true;
       }
+      return false;
+    },
+
+    async isFrontSensorCovered() {
+      assert(client, 'Scanner client is not connected');
+
+      const status = (await client.getScannerStatus()).unsafeUnwrap();
+
+      return (
+        status.frontLeftSensorCovered ||
+        status.frontM1SensorCovered ||
+        status.frontM2SensorCovered ||
+        status.frontM3SensorCovered ||
+        status.frontM4SensorCovered
+      );
     },
   };
 }

@@ -234,28 +234,32 @@ function ScannerControls({
           </thead>
           <tbody>
             {(() => {
+              const NO_ANALYSIS_ROWS = (
+                <React.Fragment>
+                  <tr>
+                    <td>Top Error</td>
+                    <td>n/a</td>
+                    <td>n/a</td>
+                  </tr>
+                  <tr>
+                    <td>Horizontal Alignment Error</td>
+                    <td>n/a</td>
+                    <td>n/a</td>
+                  </tr>
+                  <tr>
+                    <td>Average Error</td>
+                    <td>n/a</td>
+                    <td>n/a</td>
+                  </tr>
+                </React.Fragment>
+              );
               if (!latestSheet) {
-                return (
-                  <React.Fragment>
-                    <tr>
-                      <td>Top Error</td>
-                      <td>n/a</td>
-                      <td>n/a</td>
-                    </tr>
-                    <tr>
-                      <td>Horizontal Alignment Error</td>
-                      <td>n/a</td>
-                      <td>n/a</td>
-                    </tr>
-                    <tr>
-                      <td>Average Error</td>
-                      <td>n/a</td>
-                      <td>n/a</td>
-                    </tr>
-                  </React.Fragment>
-                );
+                return NO_ANALYSIS_ROWS;
               }
               const [top, bottom] = latestSheet;
+              if (!top.analysis || !bottom.analysis) {
+                return NO_ANALYSIS_ROWS;
+              }
               return (
                 <React.Fragment>
                   <tr>

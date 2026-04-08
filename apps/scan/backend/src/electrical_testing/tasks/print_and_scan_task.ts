@@ -10,7 +10,7 @@ import {
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
-import { mapSheet } from '@votingworks/types';
+import { mapSheet, SheetOf } from '@votingworks/types';
 import { createCanvas, ImageData } from 'canvas';
 import { DateTime } from 'luxon';
 import { mkdir, unlink } from 'node:fs/promises';
@@ -20,7 +20,11 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { analyzeScannedPage, writeScanPageAnalyses } from '../analysis/scan';
+import {
+  analyzeScannedPage,
+  ScannedPageAnalysis,
+  writeScanPageAnalyses,
+} from '../analysis/scan';
 import type { ScanningMode, ServerContext } from '../context';
 import { resultToString } from '../utils';
 
@@ -69,8 +73,18 @@ export async function runPrintAndScanTask({
   let lastScannerErrorTime: DateTime | undefined;
   let lastMode: ScanningMode | undefined;
   let shouldResetScanning = true;
+  let isProcessingScannerEvent = false;
 
   async function onScannerEvent(scannerEvent: ScannerEvent) {
+    isProcessingScannerEvent = true;
+    try {
+      await onScannerEventInner(scannerEvent);
+    } finally {
+      isProcessingScannerEvent = false;
+    }
+  }
+
+  async function onScannerEventInner(scannerEvent: ScannerEvent) {
     workspace.store.setElectricalTestingStatusMessage(
       'scanner',
       `Received event: ${scannerEvent.event}`
@@ -95,14 +109,24 @@ export async function runPrintAndScanTask({
         images: scannerEvent.images,
       });
 
-      const analyses = await mapSheet([front, back], async (image) =>
-        analyzeScannedPage(await findTimingMarkGrid(image))
-      );
+      let analyses: SheetOf<ScannedPageAnalysis> | undefined;
+      try {
+        analyses = await mapSheet([front, back], async (image) =>
+          analyzeScannedPage(await findTimingMarkGrid(image))
+        );
+      } catch (error) {
+        // Analysis can fail (e.g. MissingTimingMarks), and we still want to
+        // store the images in the session so they show up in the frontend.
+        workspace.store.setElectricalTestingStatusMessage(
+          'scanner',
+          `Failed to detect timing mark grid: ${extractErrorMessage(error)}`
+        );
+      }
 
       const droppedSheet = session.addSheetAnalysis(
-        mapSheet(savedImagePaths, analyses, (path, analysis) => ({
+        mapSheet(savedImagePaths, (path, _side, index) => ({
           path,
-          analysis,
+          analysis: analyses?.[index],
         }))
       );
 
@@ -123,6 +147,7 @@ export async function runPrintAndScanTask({
       }
 
       if (
+        analyses &&
         isFeatureFlagEnabled(
           BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS
         )
@@ -161,24 +186,27 @@ export async function runPrintAndScanTask({
     }
   }
 
-  async function ejectPaper() {
+  async function ejectPaper(): Promise<boolean> {
     const { mode } = scannerTask.getState();
     switch (mode) {
-      case 'shoe-shine':
-        await scannerClient.ejectAndRescanPaperIfPresent();
+      case 'shoe-shine': {
+        const ejected = await scannerClient.ejectAndRescanPaperIfPresent();
         await scannerClient.enableScanning();
-        break;
-      case 'manual-front':
-        await scannerClient.ejectPaper('toFront');
+        return ejected;
+      }
+      case 'manual-front': {
+        const ejected = await scannerClient.ejectPaper('toFront');
         await scannerClient.enableScanning();
-        break;
-      case 'manual-rear':
-        await scannerClient.ejectPaper('toRear');
+        return ejected;
+      }
+      case 'manual-rear': {
+        const ejected = await scannerClient.ejectPaper('toRear');
         await scannerClient.enableScanning();
-        break;
+        return ejected;
+      }
       case 'disabled':
         await scannerClient.disableScanning();
-        break;
+        return false;
       default:
         throwIllegalValue(mode);
     }
@@ -300,36 +328,66 @@ export async function runPrintAndScanTask({
 
       if (
         lastScanTime &&
+        !isProcessingScannerEvent &&
         DateTime.now().diff(lastScanTime).as('milliseconds') >
           DELAY_AFTER_ACCEPT_MS
       ) {
         if (mode !== 'disabled') {
-          await ejectPaper();
+          try {
+            const paperWasPresent = await ejectPaper();
 
-          switch (mode) {
-            case 'shoe-shine':
-              workspace.store.setElectricalTestingStatusMessage(
-                'scanner',
-                'Ejected document to re-scan'
-              );
-              break;
+            if (!paperWasPresent) {
+              const frontSensorCovered =
+                await scannerClient.isFrontSensorCovered();
+              if (frontSensorCovered) {
+                // Paper is at the front but not the rear — a
+                // disconnect/reconnect cycle will re-initialize the feeder
+                // so it detects and pulls the paper back through.
+                workspace.store.setElectricalTestingStatusMessage(
+                  'scanner',
+                  'Paper detected at front but not rear; resetting to re-feed'
+                );
+                shouldResetScanning = true;
+              } else {
+                workspace.store.setElectricalTestingStatusMessage(
+                  'scanner',
+                  'No paper detected on sensors; waiting for paper'
+                );
+              }
+            } else {
+              switch (mode) {
+                case 'shoe-shine':
+                  workspace.store.setElectricalTestingStatusMessage(
+                    'scanner',
+                    'Ejected document to re-scan'
+                  );
+                  break;
 
-            case 'manual-front':
-              workspace.store.setElectricalTestingStatusMessage(
-                'scanner',
-                'Ejected document to front'
-              );
-              break;
+                case 'manual-front':
+                  workspace.store.setElectricalTestingStatusMessage(
+                    'scanner',
+                    'Ejected document to front'
+                  );
+                  break;
 
-            case 'manual-rear':
-              workspace.store.setElectricalTestingStatusMessage(
-                'scanner',
-                'Ejected document to rear'
-              );
-              break;
+                case 'manual-rear':
+                  workspace.store.setElectricalTestingStatusMessage(
+                    'scanner',
+                    'Ejected document to rear'
+                  );
+                  break;
 
-            default:
-              throwIllegalValue(mode);
+                default:
+                  throwIllegalValue(mode);
+              }
+            }
+          } catch (error) {
+            workspace.store.setElectricalTestingStatusMessage(
+              'scanner',
+              `Error while ejecting paper: ${extractErrorMessage(error)}`
+            );
+            shouldResetScanning = true;
+            lastScannerErrorTime = DateTime.now();
           }
         }
 
