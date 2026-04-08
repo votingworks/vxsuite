@@ -13,7 +13,6 @@ import {
   PageInterpretationWithFiles,
   SheetOf,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'node:path';
@@ -91,8 +90,6 @@ export class Importer {
       jurisdiction,
       electionPackageHash,
     });
-    // Central scanner only uses all precinct mode, set on every configure
-    this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
 
   async setTestMode(testMode: boolean): Promise<void> {

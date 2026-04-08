@@ -49,8 +49,10 @@ test('screenshots', async ({ page }) => {
       electionFamousNames2021Fixtures.electionJson.toElectionPackage()
     )
   );
-  await page.getByText(/Configuring/).waitFor();
-  await screenshot('em-configuring');
+  // [TODO] A screenshot of the "Configuring..." progress screen was previously
+  // generated here, but began failing as it relied on a long-enough delay in
+  // the configuration process, which was recently shortened. Need to figure out
+  // a way to capture the screenshot in a less brittle manner.
 
   await page.getByRole('button', { name: 'Settings' }).click();
   await page.getByText('Official Ballot Mode').click();
