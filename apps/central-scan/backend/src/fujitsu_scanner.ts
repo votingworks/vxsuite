@@ -142,6 +142,28 @@ export class FujitsuScanner implements BatchScanner {
       `--batch-prompt`,
       // If the sheet is smaller than the given size fill in extra image space with black
       `--bgcolor=black`,
+
+      // From `scanimage --help --device-name fujitsu`:
+      //
+      //   --prepick Default|Off|On [Default] [advanced]
+      //       Request scanner to grab next page from ADF
+      //
+      // Tell the scanner to pick up the next sheet as soon as possible rather
+      // than waiting for an explicit signal to begin scanning the next sheet.
+      // Verified that this improves performance with the fi-8170 from 1.3s to
+      // 0.8s per sheet along with `--buffermode=ON`.
+      '--prepick=ON',
+
+      // From `scanimage --help --device-name fujitsu`:
+      //
+      //   --buffermode Default|Off|On [Off] [advanced]
+      //       Request scanner to read pages quickly from ADF into internal memory
+      //
+      // Tell the scanner to read image data into internal memory instead of
+      // streaming over USB and waiting for the bytes to cross the wire before
+      // continuing. Verified that this improves performance with the fi-8170
+      // from 1.3s to 0.8s per sheet along with `--prepick=ON`.
+      '--buffermode=ON',
     ];
 
     if (imprintIdPrefix !== undefined) {
