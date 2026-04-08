@@ -543,13 +543,6 @@ export function createApiMock(
       }
     },
 
-    expectGetMarginalMarks(
-      input: { contestId: ContestId; cvrId: Id },
-      marginalMarks: ContestOptionId[]
-    ) {
-      apiClient.getMarginalMarks.expectCallWith(input).resolves(marginalMarks);
-    },
-
     expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {
       apiClient.adjudicateCvrContest.expectCallWith(input).resolves(ok());
     },
