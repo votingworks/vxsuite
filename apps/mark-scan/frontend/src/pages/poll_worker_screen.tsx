@@ -82,6 +82,7 @@ export interface PollworkerScreenProps {
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
   precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
   setVotes: (votes: VotesDict) => void;
 }
 
@@ -96,6 +97,7 @@ export function PollWorkerScreen({
   machineConfig,
   hasVotes,
   precinctSelection,
+  pollingPlaceId,
   setVotes,
 }: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
@@ -224,6 +226,7 @@ export function PollWorkerScreen({
               <SectionSessionStart
                 election={election}
                 onChooseBallotStyle={onChooseBallotStyle}
+                pollingPlaceId={pollingPlaceId}
                 precinctSelection={precinctSelection}
                 disabled={voterSessionActionsDisabled}
               />
@@ -267,6 +270,7 @@ export function PollWorkerScreen({
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
+        pollingPlaceId={pollingPlaceId}
         precinctSelection={precinctSelection}
       />
     </Screen>
