@@ -1,9 +1,9 @@
-import { encodeImageData, ImageData } from '@votingworks/image-utils';
+import { ImageData } from '@votingworks/image-utils';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { writeImageDataToPng } from './bubble-ballot-ts';
 
 const debug = makeDebug('ballot-interpreter:save-images');
 
@@ -29,10 +29,8 @@ export async function saveSheetImages({
       ballotImagesPath,
       `${sheetId}-${side}.png`
     );
-    const buffer = await encodeImageData(image, 'image/png');
-    sideTimer.checkpoint('writeImageDataToBuffer');
-    await writeFile(destinationImagePath, buffer);
-    sideTimer.checkpoint('writeFile');
+    await writeImageDataToPng(destinationImagePath, image);
+    sideTimer.checkpoint('writeImageToPng');
     return destinationImagePath;
   });
   timer.end();
