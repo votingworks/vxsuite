@@ -413,7 +413,6 @@ export const setPrecinctSelection = {
   },
 } as const;
 
-/* istanbul ignore next - WIP - @preserve */
 export const setPollingPlaceId = {
   useMutation() {
     const apiClient = useApiClient();

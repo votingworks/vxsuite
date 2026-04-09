@@ -13,8 +13,10 @@ import {
 
 import { useHistory } from 'react-router-dom';
 import {
+  BooleanEnvironmentVariableName as Feature,
   isElectionManagerAuth,
   isCardlessVoterAuth,
+  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
@@ -41,6 +43,8 @@ import {
   useSessionSettingsManager,
   useBallotStyleManager,
   VoterScreen,
+  InsertCardScreen,
+  UnconfiguredPrecinctScreen,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-backend';
 import {
@@ -66,13 +70,11 @@ import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import { BallotContext } from './contexts/ballot_context';
 import { AdminScreen } from './pages/admin_screen';
-import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { SetupPrinterPage } from './pages/setup_printer_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
-import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
 import { InternalConnectionProblemScreen } from './pages/internal_connection_problem_screen';
 
 export interface VotingState {
@@ -214,6 +216,7 @@ export function AppRoot(): JSX.Element | null {
   const electionStateQuery = getElectionState.useQuery();
   const {
     precinctSelection: appPrecinct,
+    pollingPlaceId,
     ballotsPrintedCount,
     isTestMode,
     pollsState,
@@ -495,6 +498,7 @@ export function AppRoot(): JSX.Element | null {
         electionPackageHash={electionPackageHash}
         usbDriveStatus={usbDriveStatus}
         precinctSelection={appPrecinct}
+        pollingPlaceId={pollingPlaceId}
       />
     );
   }
@@ -528,13 +532,20 @@ export function AppRoot(): JSX.Element | null {
         isTestMode={isTestMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
+        pollingPlaceId={pollingPlaceId}
         pollsState={pollsState}
         usbDriveStatus={usbDriveStatus}
       />
     );
   }
+
+  const usePollingPlaces = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES);
+  const locationConfigured = usePollingPlaces
+    ? !!pollingPlaceId
+    : !!appPrecinct;
+
   if (electionDefinition) {
-    if (!appPrecinct) {
+    if (!locationConfigured) {
       return (
         <UnconfiguredPrecinctScreen
           electionDefinition={electionDefinition}
@@ -560,6 +571,7 @@ export function AppRoot(): JSX.Element | null {
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
+          pollingPlaceId={pollingPlaceId}
           electionDefinition={electionDefinition}
           electionPackageHash={assertDefined(electionPackageHash)}
           isLiveMode={!isTestMode}
@@ -622,6 +634,7 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
         isLiveMode={!isTestMode}
+        pollingPlaceId={pollingPlaceId}
         pollsState={pollsState}
       />
     );

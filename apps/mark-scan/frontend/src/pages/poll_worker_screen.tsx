@@ -70,7 +70,7 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
-  precinctSelection: PrecinctSelection;
+  precinctSelection?: PrecinctSelection;
   pollingPlaceId?: string;
   setVotes: (votes: VotesDict) => void;
 }

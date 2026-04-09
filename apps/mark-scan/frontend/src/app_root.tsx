@@ -12,8 +12,10 @@ import {
 
 import { useHistory } from 'react-router-dom';
 import {
+  BooleanEnvironmentVariableName as Feature,
   isElectionManagerAuth,
   isCardlessVoterAuth,
+  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
@@ -30,7 +32,9 @@ import {
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
+  InsertCardScreen,
   mergeMsEitherNeitherContests,
+  UnconfiguredPrecinctScreen,
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
@@ -56,7 +60,6 @@ import {
 
 import { handleKeyboardEvent } from './lib/assistive_technology';
 import { AdminScreen } from './pages/admin_screen';
-import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
@@ -74,7 +77,6 @@ import { VoterFlow } from './voter_flow';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
 import { UnrecoverableErrorPage } from './pages/unrecoverable_error_page';
-import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
 
 /**
  * These states require the poll worker to stay logged in until the voter
@@ -203,10 +205,15 @@ export function AppRoot(): JSX.Element | null {
     getElectionRecordQuery.data ?? {};
 
   const electionStateQuery = getElectionState.useQuery();
-  const { precinctSelection, ballotsPrintedCount, isTestMode, pollsState } =
-    electionStateQuery.isSuccess
-      ? electionStateQuery.data
-      : initialElectionState;
+  const {
+    precinctSelection,
+    pollingPlaceId,
+    ballotsPrintedCount,
+    isTestMode,
+    pollsState,
+  } = electionStateQuery.isSuccess
+    ? electionStateQuery.data
+    : initialElectionState;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -408,6 +415,7 @@ export function AppRoot(): JSX.Element | null {
         electionPackageHash={electionPackageHash}
         usbDriveStatus={usbDriveStatus}
         precinctSelection={precinctSelection}
+        pollingPlaceId={pollingPlaceId}
       />
     );
   }
@@ -432,6 +440,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <AdminScreen
         appPrecinct={precinctSelection}
+        pollingPlaceId={pollingPlaceId}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
@@ -470,8 +479,13 @@ export function AppRoot(): JSX.Element | null {
     return <PollWorkerAuthEndedUnexpectedlyPage />;
   }
 
+  const usePollingPlaces = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES);
+  const locationConfigured = usePollingPlaces
+    ? !!pollingPlaceId
+    : !!precinctSelection;
+
   if (electionDefinition) {
-    if (!precinctSelection) {
+    if (!locationConfigured) {
       return (
         <UnconfiguredPrecinctScreen
           electionDefinition={electionDefinition}
@@ -538,6 +552,7 @@ export function AppRoot(): JSX.Element | null {
           machineConfig={machineConfig}
           hasVotes={!!votes}
           precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           setVotes={setVotes}
         />
       );
@@ -576,9 +591,11 @@ export function AppRoot(): JSX.Element | null {
     return (
       <InsertCardScreen
         appPrecinct={precinctSelection}
+        cardInsertionDirection="up"
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
         isLiveMode={!isTestMode}
+        pollingPlaceId={pollingPlaceId}
         pollsState={pollsState}
       />
     );
