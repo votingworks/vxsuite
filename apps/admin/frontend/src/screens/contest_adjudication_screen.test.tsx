@@ -254,6 +254,7 @@ function renderScreen(
   contestAdjudicationData: ContestAdjudicationData,
   cvrId: Id,
   {
+    areWriteInCandidatesQualified = false,
     ballotImages,
     side = 'front' as Side,
     electionDef = electionDefinition,
@@ -261,6 +262,7 @@ function renderScreen(
     writeInCandidates = [] as WriteInCandidateRecord[],
     onAdjudicateCvrContest = vi.fn(),
   }: {
+    areWriteInCandidatesQualified?: boolean;
     ballotImages?: BallotImages;
     side?: Side;
     electionDef?: ElectionDefinition;
@@ -277,6 +279,7 @@ function renderScreen(
     onAdjudicateCvrContest,
     ...renderInAppContext(
       <ContestAdjudicationScreen
+        areWriteInCandidatesQualified={areWriteInCandidatesQualified}
         contestAdjudicationData={contestAdjudicationData}
         cvrId={cvrId}
         onClose={onClose}
@@ -636,6 +639,31 @@ describe('hmpb write-in adjudication', () => {
         },
       })
     );
+  });
+
+  test('qualified write-in mode does not allow adding new write-in candidates', async () => {
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      areWriteInCandidatesQualified: true,
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
+    });
+
+    await waitForBallotById('id-174');
+    const writeInSearchSelect = screen.getByRole('combobox');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    // Type a name that doesn't match any existing candidate
+    userEvent.type(writeInSearchSelect, 'NewCandidate');
+
+    // "Press enter to add" option should not appear
+    expect(screen.queryByText(/press enter to add/i)).not.toBeInTheDocument();
+    // Should show "No candidates match" instead
+    screen.getByText('No candidates match');
   });
 });
 

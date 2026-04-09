@@ -203,6 +203,7 @@ function renderContestOptionButtonCaption({
 }
 
 interface ContestAdjudicationScreenProps {
+  areWriteInCandidatesQualified: boolean;
   contestAdjudicationData: ContestAdjudicationData;
   cvrId: Id;
   onClose: () => void;
@@ -213,6 +214,7 @@ interface ContestAdjudicationScreenProps {
 }
 
 export function ContestAdjudicationScreen({
+  areWriteInCandidatesQualified,
   onClose,
   contestAdjudicationData,
   cvrId,
@@ -512,6 +514,9 @@ export function ContestAdjudicationScreen({
                 return (
                   <WriteInAdjudicationButton
                     key={optionId + cvrId}
+                    areWriteInCandidatesQualified={
+                      areWriteInCandidatesQualified
+                    }
                     label={writeInRecord?.machineMarkedText}
                     writeInStatus={writeInStatus}
                     marginalMarkStatus={marginalMarkStatus}

@@ -249,13 +249,16 @@ function CompletedBallotCount({ count }: { count: number }): JSX.Element {
   );
 }
 
-function BallotAdjudicationContent(): JSX.Element {
+function BallotAdjudicationContent({
+  inQualifiedWriteInMode,
+}: {
+  inQualifiedWriteInMode: boolean;
+}): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
 
   const isMultiStationEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
   );
-  const systemSettingsQuery = getSystemSettings.useQuery();
 
   const adjudicationQueueMetadataQuery =
     getBallotAdjudicationQueueMetadata.useQuery();
@@ -264,8 +267,7 @@ function BallotAdjudicationContent(): JSX.Element {
 
   if (
     !adjudicationQueueMetadataQuery.isSuccess ||
-    !castVoteRecordFilesQuery.isSuccess ||
-    !systemSettingsQuery.isSuccess
+    !castVoteRecordFilesQuery.isSuccess
   ) {
     return <Loading isFullscreen />;
   }
@@ -304,20 +306,18 @@ function BallotAdjudicationContent(): JSX.Element {
   const callout = renderCallout();
   if (callout) {
     return (
-      <Column style={{ gap: '1rem' }}>
+      <Column>
         {callout}
         {isMultiStationEnabled && <NetworkSection />}
       </Column>
     );
   }
 
-  const inQualifiedWriteInMode =
-    systemSettingsQuery.data.areWriteInCandidatesQualified ?? false;
   const completedCount = queryMetadata.totalTally - queryMetadata.pendingTally;
 
   if (isMultiStationEnabled) {
     return (
-      <Column>
+      <Column style={{ gap: inQualifiedWriteInMode ? '1rem' : '2rem' }}>
         <Section>
           {!inQualifiedWriteInMode && (
             <H2 style={{ margin: 0 }}>Ballot Adjudication</H2>
@@ -346,10 +346,19 @@ function BallotAdjudicationContent(): JSX.Element {
 
 export function AdjudicationStartScreen(): JSX.Element {
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const areWriteInCandidatesQualified =
-    systemSettingsQuery.data?.areWriteInCandidatesQualified ?? false;
 
-  if (areWriteInCandidatesQualified) {
+  if (!systemSettingsQuery.isSuccess) {
+    return (
+      <NavigationScreen title="Adjudication">
+        <Loading isFullscreen />
+      </NavigationScreen>
+    );
+  }
+
+  const { areWriteInCandidatesQualified: inQualifiedWriteInMode } =
+    systemSettingsQuery.data;
+
+  if (inQualifiedWriteInMode) {
     return (
       <NavigationScreen
         title="Adjudication"
@@ -377,7 +386,7 @@ export function AdjudicationStartScreen(): JSX.Element {
             />
             <Route path={routerPaths.adjudication}>
               <TabPanel style={{ paddingTop: '1rem' }}>
-                <BallotAdjudicationContent />
+                <BallotAdjudicationContent inQualifiedWriteInMode />
               </TabPanel>
             </Route>
           </Switch>
@@ -388,7 +397,7 @@ export function AdjudicationStartScreen(): JSX.Element {
 
   return (
     <NavigationScreen title="Adjudication">
-      <BallotAdjudicationContent />
+      <BallotAdjudicationContent inQualifiedWriteInMode={false} />
     </NavigationScreen>
   );
 }

@@ -6,7 +6,7 @@ import {
   getContestDistrictName,
   Id,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import {
   Button,
   Callout,
@@ -209,11 +209,9 @@ function CandidatesForm({
   }
 
   function confirmDeleteWithAdjudications() {
-    assert(candidateToDelete !== null);
-    setDeletedIds(new Set([...deletedIds, candidateToDelete.id]));
-    setEditedCandidates(
-      editedCandidates.filter((d) => d.id !== candidateToDelete.id)
-    );
+    const candidate = assertDefined(candidateToDelete);
+    setDeletedIds(new Set([...deletedIds, candidate.id]));
+    setEditedCandidates(editedCandidates.filter((d) => d.id !== candidate.id));
     setCandidateToDelete(null);
   }
 
@@ -352,7 +350,7 @@ function CandidatesForm({
                               updateCandidateName(i, e.target.value.trim())
                             }
                             // eslint-disable-next-line jsx-a11y/no-autofocus
-                            autoFocus={candidate.isNew && candidate.name === ''}
+                            autoFocus={candidate.name === ''}
                             autoComplete="off"
                             style={{
                               borderColor: error

@@ -551,6 +551,9 @@ export function BallotAdjudicationScreen({
   if (selectedContestId && !isClaimed) {
     return (
       <ContestAdjudicationScreen
+        areWriteInCandidatesQualified={
+          systemSettings.areWriteInCandidatesQualified ?? false
+        }
         cvrId={cvrId}
         side={
           frontContestItems.some(

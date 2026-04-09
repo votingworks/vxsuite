@@ -67,6 +67,7 @@ interface Props {
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
   hasInvalidEntry: boolean;
+  areWriteInCandidatesQualified: boolean;
   caption?: React.ReactNode;
   disabled?: boolean;
   label?: string;
@@ -85,6 +86,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       officialCandidates,
       writeInCandidates,
       hasInvalidEntry,
+      areWriteInCandidatesQualified,
       caption,
       disabled,
       label,
@@ -145,6 +147,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     // 'Press enter to add: NEW_CANDIDATE' entry if there is no exact match
     let addCandidateOption: SearchOption | undefined;
     if (
+      !areWriteInCandidatesQualified &&
       inputValue &&
       inputValue.length < MAX_WRITE_IN_NAME_LENGTH &&
       !candidateOptions.some(
@@ -229,11 +232,17 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
               }
             }}
             noOptionsMessage={() =>
-              `Entry exceeds max character length of ${MAX_WRITE_IN_NAME_LENGTH}`
+              areWriteInCandidatesQualified
+                ? 'No candidates match'
+                : `Entry exceeds max character length of ${MAX_WRITE_IN_NAME_LENGTH}`
             }
             placeholder={
               isFocused ? (
-                'Type to search or add candidate…'
+                areWriteInCandidatesQualified ? (
+                  'Type to search…'
+                ) : (
+                  'Type to search or add candidate…'
+                )
               ) : (
                 <React.Fragment>
                   <Icons.Warning
