@@ -681,7 +681,9 @@ mod tests {
             puff: SipAndPuffSignalStatus::Idle,
             sip_puff_device_connected: SipAndPuffDeviceStatus::Connected,
             // Set connection time far enough in the past that connection_signal_delay_elapsed is true
-            sip_puff_device_connection_time: Some(Instant::now() - Duration::from_secs(3)),
+            sip_puff_device_connection_time: Some(
+                Instant::now().checked_sub(Duration::from_secs(3)).unwrap(),
+            ),
             pending_sip_active_time: None,
             pending_puff_active_time: None,
         }
@@ -749,8 +751,13 @@ mod tests {
         let current_status = &mut make_current_status_with_pat_connected();
 
         // Simulate debounce already elapsed by backdating the pending time
-        current_status.pending_sip_active_time =
-            Some(Instant::now() - PAT_DEBOUNCE_DURATION - Duration::from_millis(1));
+        current_status.pending_sip_active_time = Some(
+            Instant::now()
+                .checked_sub(PAT_DEBOUNCE_DURATION)
+                .unwrap()
+                .checked_sub(Duration::from_millis(1))
+                .unwrap(),
+        );
 
         handle_status_response(
             make_active_sip_status(),
@@ -825,8 +832,13 @@ mod tests {
         let mut mock_keyboard = MockKeyboard::new();
         let current_status = &mut make_current_status_with_pat_connected();
 
-        current_status.pending_puff_active_time =
-            Some(Instant::now() - PAT_DEBOUNCE_DURATION - Duration::from_millis(1));
+        current_status.pending_puff_active_time = Some(
+            Instant::now()
+                .checked_sub(PAT_DEBOUNCE_DURATION)
+                .unwrap()
+                .checked_sub(Duration::from_millis(1))
+                .unwrap(),
+        );
 
         handle_status_response(
             make_active_puff_status(),
