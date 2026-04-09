@@ -583,3 +583,4 @@ module.exports.findTimingMarkGridFromPath = nativeBinding.findTimingMarkGridFrom
 module.exports.interpretImages = nativeBinding.interpretImages
 module.exports.interpretPaths = nativeBinding.interpretPaths
 module.exports.runBlankPaperDiagnosticFromPath = nativeBinding.runBlankPaperDiagnosticFromPath
+module.exports.writeImageToPng = nativeBinding.writeImageToPng

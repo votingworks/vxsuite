@@ -20,3 +20,14 @@ export async function findTimingMarkGrid(
         debugBasePath
       );
 }
+
+/**
+ * Encodes image data (RGBA or grayscale) as a grayscale PNG and writes it to
+ * disk.
+ */
+export async function writeImageDataToPng(
+  path: string,
+  image: ImageData
+): Promise<void> {
+  await napi.writeImageToPng(path, image.width, image.height, image.data);
+}

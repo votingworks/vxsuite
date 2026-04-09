@@ -41,3 +41,6 @@ export declare function interpretImages(election: Election, sideAImageWidth: num
 export declare function interpretPaths(election: Election, sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions): Promise<BridgeInterpretResult>
 
 export declare function runBlankPaperDiagnosticFromPath(imagePath: string, debugPath?: string): Promise<boolean>
+
+/** Encodes image data (RGBA or grayscale) as a grayscale PNG and writes it to disk. */
+export declare function writeImageToPng(path: string, width: number, height: number, data: Buffer | Uint8ClampedArray): Promise<void>

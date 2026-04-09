@@ -5,10 +5,11 @@ use std::borrow::Cow;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 
-use image::{DynamicImage, GrayImage, RgbaImage};
+use image::{DynamicImage, GrayImage, ImageEncoder, RgbaImage};
 use napi::bindgen_prelude::Buffer;
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
+use std::io::Cursor;
 use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
 use types_rs::coding;
@@ -426,6 +427,33 @@ pub async fn encode_bmd_ballot_data(
     .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
 
     Ok(Buffer::from(bytes))
+}
+
+/// Encodes image data (RGBA or grayscale) as a grayscale PNG and writes it to disk.
+#[napi(
+    ts_args_type = "path: string, width: number, height: number, data: Buffer | Uint8ClampedArray",
+    ts_return_type = "Promise<void>"
+)]
+pub async fn write_image_to_png(
+    path: String,
+    width: f64,
+    height: f64,
+    data: Buffer,
+) -> napi::Result<()> {
+    let width = as_u32(width)?;
+    let height = as_u32(height)?;
+    let image = gray_image(width, height, data.to_vec())?;
+
+    let mut buf = Vec::new();
+    image::codecs::png::PngEncoder::new(Cursor::new(&mut buf))
+        .write_image(image.as_raw(), width, height, image::ExtendedColorType::L8)
+        .map_err(|err| napi::Error::from_reason(format!("PNG encoding failed: {err}")))?;
+
+    tokio::fs::write(&path, buf)
+        .await
+        .map_err(|err| napi::Error::from_reason(format!("Failed to write {path}: {err}")))?;
+
+    Ok(())
 }
 
 #[cfg(test)]

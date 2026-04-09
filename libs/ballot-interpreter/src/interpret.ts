@@ -9,7 +9,7 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
-import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
+import { fromGrayScale } from '@votingworks/image-utils';
 import {
   AdjudicationInfo,
   AdjudicationReason,
@@ -69,6 +69,7 @@ import {
   ScoredBubbleMark,
   ScoredBubbleMarks,
   ScoredPositionArea,
+  writeImageDataToPng,
 } from './bubble-ballot-ts';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
@@ -626,12 +627,12 @@ async function interpretBmdBallot(
 
   if (interpretResult.isErr()) {
     // In case of an error, just write the original images.
-    if (frontNormalizedImageOutputPath) {
-      await writeImageData(frontNormalizedImageOutputPath, ballotImages[0]);
-    }
-    if (backNormalizedImageOutputPath) {
-      await writeImageData(backNormalizedImageOutputPath, ballotImages[1]);
-    }
+    await Promise.all([
+      frontNormalizedImageOutputPath &&
+        writeImageDataToPng(frontNormalizedImageOutputPath, ballotImages[0]),
+      backNormalizedImageOutputPath &&
+        writeImageDataToPng(backNormalizedImageOutputPath, ballotImages[1]),
+    ]);
 
     const error = interpretResult.err();
     switch (error.type) {
@@ -731,12 +732,12 @@ async function interpretBmdBallot(
     type: 'BlankPage',
   };
 
-  if (frontNormalizedImageOutputPath) {
-    await writeImageData(frontNormalizedImageOutputPath, summaryBallotImage);
-  }
-  if (backNormalizedImageOutputPath) {
-    await writeImageData(backNormalizedImageOutputPath, blankPageImage);
-  }
+  await Promise.all([
+    frontNormalizedImageOutputPath &&
+      writeImageDataToPng(frontNormalizedImageOutputPath, summaryBallotImage),
+    backNormalizedImageOutputPath &&
+      writeImageDataToPng(backNormalizedImageOutputPath, blankPageImage),
+  ]);
 
   return validateInterpretResults([front, back], options);
 }
@@ -888,7 +889,7 @@ export async function interpretSheet(
           options.backNormalizedImageOutputPath,
         ],
         async (imageData, path) =>
-          path && (await writeImageData(path, imageData))
+          path && (await writeImageDataToPng(path, imageData))
       );
       return hmpbInterpretation;
     }
