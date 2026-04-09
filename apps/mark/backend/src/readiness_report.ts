@@ -1,5 +1,6 @@
 import { UsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { generateReadinessReportFilename } from '@votingworks/utils';
 import { MarkReadinessReport } from '@votingworks/ui';
 import {
   ExportDataResult,
@@ -8,7 +9,6 @@ import {
   VX_MACHINE_ID,
 } from '@votingworks/backend';
 import { Printer, renderToPdf } from '@votingworks/printing';
-import { generateReadinessReportFilename } from '@votingworks/utils';
 import { Workspace } from './util/workspace';
 import {
   isAccessibleControllerAttached,
@@ -38,6 +38,7 @@ export async function saveReadinessReport({
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
   const precinctSelection = store.getPrecinctSelection();
+  const pollingPlaceId = store.getPollingPlaceId();
   const printerStatus = await printer.status();
 
   const report = MarkReadinessReport({
@@ -77,6 +78,7 @@ export async function saveReadinessReport({
     electionDefinition,
     electionPackageHash,
     precinctSelection,
+    pollingPlaceId,
   });
   // Readiness report PDF shouldn't be too long, so we don't expect a render error
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
