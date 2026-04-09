@@ -20,16 +20,6 @@ import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import React from 'react';
 import { setPollsState, setTestMode, useApiClient } from '../api';
 
-const {
-  EnableLiveModeModal,
-  ScreenBeginVoting,
-  ScreenVotingInProgress,
-  SectionHeader,
-  SectionPollsState,
-  SectionSessionStart,
-  SectionSystem,
-} = pollWorkerComponents;
-
 export interface PollworkerScreenProps {
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;
   activateCardlessVoterSession: (
@@ -45,6 +35,7 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
+  pollingPlaceId?: string;
 }
 
 export function PollWorkerScreen({
@@ -59,7 +50,18 @@ export function PollWorkerScreen({
   ballotsPrintedCount,
   machineConfig,
   hasVotes,
+  pollingPlaceId,
 }: PollworkerScreenProps): JSX.Element {
+  const {
+    EnableLiveModeModal,
+    ScreenBeginVoting,
+    ScreenVotingInProgress,
+    SectionHeader,
+    SectionPollsState,
+    SectionSessionStart,
+    SectionSystem,
+  } = pollWorkerComponents;
+
   const { election } = electionDefinition;
 
   const apiClient = useApiClient();
@@ -115,6 +117,7 @@ export function PollWorkerScreen({
             <SectionSessionStart
               election={election}
               onChooseBallotStyle={onChooseBallotStyle}
+              pollingPlaceId={pollingPlaceId}
               precinctSelection={appPrecinct}
             />
           )}
@@ -140,6 +143,7 @@ export function PollWorkerScreen({
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
+        pollingPlaceId={pollingPlaceId}
         precinctSelection={appPrecinct}
       />
     </Screen>

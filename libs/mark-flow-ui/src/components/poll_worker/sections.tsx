@@ -1,5 +1,3 @@
-/* istanbul ignore file - @preserve - currently tested via apps. */
-
 import {
   Font,
   H2,
@@ -13,16 +11,21 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import {
+  BooleanEnvironmentVariableName as Feature,
   format,
   getPollsStateName,
   getPollTransitionsFromState,
+  isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import {
   Election,
   getAllPrecinctsAndSplits,
+  pollingPlaceFromElection,
+  pollingPlaceMembers,
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
+import { assert, assertDefined } from '@votingworks/basics';
 import { BallotStyleSelect, OnBallotStyleSelect } from './ballot_style_select';
 import { ButtonGrid, VotingSession } from './elements';
 import { UpdatePollsButton } from './update_polls_button';
@@ -31,6 +34,7 @@ export interface HeaderProps {
   ballotsPrintedCount: number;
 }
 
+/* istanbul ignore next - @preserve - currently tested via apps. */
 export function SectionHeader(props: HeaderProps): JSX.Element {
   const { ballotsPrintedCount } = props;
 
@@ -51,6 +55,7 @@ export interface SectionPollsStateProps {
   updatePollsState: (pollsState: PollsState) => void;
 }
 
+/* istanbul ignore next - @preserve - currently tested via apps. */
 export function SectionPollsState(props: SectionPollsStateProps): JSX.Element {
   const { pollsState, updatePollsState } = props;
 
@@ -78,34 +83,52 @@ export function SectionPollsState(props: SectionPollsStateProps): JSX.Element {
 export interface SectionSessionStartProps {
   election: Election;
   onChooseBallotStyle: OnBallotStyleSelect;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
   disabled?: boolean;
 }
 
-function getConfiguredPrecinctsAndSplits(
-  election: Election,
-  selection: PrecinctSelection
-) {
-  const all = getAllPrecinctsAndSplits(election);
-  if (selection.kind === 'AllPrecincts') return all;
+function getConfiguredPrecinctsAndSplits(p: {
+  election: Election;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
+}) {
+  if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
+    const selection = assertDefined(p.precinctSelection);
 
-  return all.filter(({ precinct }) => selection.precinctId === precinct.id);
+    const all = getAllPrecinctsAndSplits(p.election);
+    if (selection.kind === 'AllPrecincts') return all;
+
+    return all.filter(({ precinct }) => selection.precinctId === precinct.id);
+  }
+
+  assert(!!p.pollingPlaceId);
+  const pollingPlace = pollingPlaceFromElection(p.election, p.pollingPlaceId);
+
+  return pollingPlaceMembers(p.election, pollingPlace);
 }
 
 export function SectionSessionStart(
   props: SectionSessionStartProps
 ): JSX.Element {
-  const { election, onChooseBallotStyle, precinctSelection, disabled } = props;
+  const {
+    election,
+    onChooseBallotStyle,
+    pollingPlaceId,
+    precinctSelection,
+    disabled,
+  } = props;
 
   return (
     <VotingSession>
       <H4 as="h2">Start a New Voting Session</H4>
       <BallotStyleSelect
         election={election}
-        configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits(
+        configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
           election,
-          precinctSelection
-        )}
+          pollingPlaceId,
+          precinctSelection,
+        })}
         onSelect={onChooseBallotStyle}
         disabled={disabled}
       />
@@ -118,6 +141,7 @@ interface SystemButtonsProps {
   includePowerButton?: boolean;
 }
 
+/* istanbul ignore next - @preserve - currently tested via apps. */
 function SystemButtons({
   apiClient,
   includePowerButton = true,
@@ -141,6 +165,7 @@ export interface SectionSystemProps {
 /**
  * System section with H3 heading (for poll worker screen).
  */
+/* istanbul ignore next - @preserve - currently tested via apps. */
 export function SectionSystem(props: SectionSystemProps): JSX.Element {
   const { apiClient, includePowerButton } = props;
 
@@ -159,6 +184,7 @@ export function SectionSystem(props: SectionSystemProps): JSX.Element {
  * System section with H6 heading (for admin screen).
  * Uses H6 visual styling while allowing semantic heading level to be set via `as` prop.
  */
+/* istanbul ignore next - @preserve - currently tested via apps. */
 export function H6SectionSystem(props: SectionSystemProps): JSX.Element {
   const { apiClient, includePowerButton } = props;
 

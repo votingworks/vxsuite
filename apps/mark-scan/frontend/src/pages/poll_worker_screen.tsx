@@ -49,17 +49,6 @@ import {
 } from '../ballot_reinsertion_flow';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
-const {
-  EnableLiveModeModal,
-  ScreenBeginVoting,
-  ScreenVotingInProgress,
-  SectionHeader,
-  SectionPollsState,
-  SectionSessionStart,
-  SectionSystem,
-  VotingSession,
-} = pollWorkerComponents;
-
 const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
   paperTypes: ['BlankPage', 'InterpretedBmdPage'] as AcceptedPaperType[],
 } as const;
@@ -82,6 +71,7 @@ export interface PollworkerScreenProps {
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
   precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
   setVotes: (votes: VotesDict) => void;
 }
 
@@ -96,8 +86,20 @@ export function PollWorkerScreen({
   machineConfig,
   hasVotes,
   precinctSelection,
+  pollingPlaceId,
   setVotes,
 }: PollworkerScreenProps): JSX.Element | null {
+  const {
+    EnableLiveModeModal,
+    ScreenBeginVoting,
+    ScreenVotingInProgress,
+    SectionHeader,
+    SectionPollsState,
+    SectionSessionStart,
+    SectionSystem,
+    VotingSession,
+  } = pollWorkerComponents;
+
   const { election } = electionDefinition;
 
   const apiClient = api.useApiClient();
@@ -224,6 +226,7 @@ export function PollWorkerScreen({
               <SectionSessionStart
                 election={election}
                 onChooseBallotStyle={onChooseBallotStyle}
+                pollingPlaceId={pollingPlaceId}
                 precinctSelection={precinctSelection}
                 disabled={voterSessionActionsDisabled}
               />
@@ -267,6 +270,7 @@ export function PollWorkerScreen({
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
+        pollingPlaceId={pollingPlaceId}
         precinctSelection={precinctSelection}
       />
     </Screen>

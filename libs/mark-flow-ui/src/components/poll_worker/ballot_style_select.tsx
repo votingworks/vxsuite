@@ -1,5 +1,3 @@
-/* istanbul ignore file - @preserve - currently tested via apps. */
-
 import {
   assert,
   assertDefined,

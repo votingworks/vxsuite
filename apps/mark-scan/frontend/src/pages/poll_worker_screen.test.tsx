@@ -7,12 +7,10 @@ import {
 import {
   ElectionDefinition,
   formatElectionHashes,
-  hasSplits,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
 import {
-  ALL_PRECINCTS_SELECTION,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -22,9 +20,15 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { assert, DateWithoutTime } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { fireEvent, screen, waitFor } from '../../test/react_testing_library';
+import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 
@@ -62,6 +66,12 @@ vi.mock(import('../ballot_reinsertion_flow.js'), async (importActual) => ({
   BallotReinsertionFlow: () => <div>MockBallotReinsertionFlow</div>,
 }));
 
+const MOCK_SECTION_SESSION_START_ID = 'MockSectionSessionStart';
+const MockSectionSessionStart = vi.spyOn(
+  pollWorkerComponents,
+  'SectionSessionStart'
+);
+
 beforeEach(() => {
   vi.useFakeTimers({
     shouldAdvanceTime: true,
@@ -69,6 +79,10 @@ beforeEach(() => {
   apiMock = createApiMock();
 
   mockFeatureFlagger.resetFeatureFlags();
+
+  MockSectionSessionStart.mockImplementation(() => (
+    <div data-testid={MOCK_SECTION_SESSION_START_ID} />
+  ));
 });
 
 afterEach(() => {
@@ -180,230 +194,38 @@ test('returns null if status is unhandled', () => {
   expect(screen.queryByText('Poll Worker Menu')).toBeNull();
 });
 
-describe('start voter session with blank sheet: general election', () => {
-  const electionDefinition = electionGeneralDefinition;
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const { election } = electionDefinition;
+test('renders session start section', async () => {
+  const [precinct] = election.precincts;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
 
-  test('single precinct configuration', async () => {
-    const precinct = election.precincts[0];
-    const ballotStyle = election.ballotStyles[0];
-    const activateCardlessVoterSessionMock = vi.fn();
-    renderScreen({
-      electionDefinition,
-      activateCardlessVoterSession: activateCardlessVoterSessionMock,
-      precinctSelection: singlePrecinctSelectionFor(precinct.id),
-    });
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenCalledWith(
-      precinct.id,
-      ballotStyle.id
-    );
+  const activateCardlessVoterSession = vi.fn();
+  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  const pollingPlaceId = pollingPlace.id;
+
+  renderScreen({
+    activateCardlessVoterSession,
+    pollingPlaceId,
+    precinctSelection,
   });
 
-  test('single precinct configuration with splits', async () => {
-    const precinct = election.precincts[1];
-    assert(hasSplits(precinct));
-    const [ballotStyle1, ballotStyle2] = election.ballotStyles;
-    const activateCardlessVoterSessionMock = vi.fn();
-    renderScreen({
-      electionDefinition,
-      activateCardlessVoterSession: activateCardlessVoterSessionMock,
-      precinctSelection: singlePrecinctSelectionFor(precinct.id),
-    });
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText('Select ballot style…'));
-    userEvent.click(screen.getByText(precinct.splits[0].name));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct.id,
-      ballotStyle2.id
-    );
-
-    // Reopen dropdown to select another option. (Normally activating the session
-    // would navigate away from the screen, so this is just a shortcut for
-    // testing, not a realistic flow)
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText(precinct.splits[0].name));
-    userEvent.click(screen.getByText(precinct.splits[1].name));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledTimes(2)
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct.id,
-      ballotStyle1.id
-    );
+  const props = expectSessionStartSection();
+  expect(props).toEqual<pollWorkerComponents.SectionSessionStartProps>({
+    disabled: false,
+    election,
+    onChooseBallotStyle: expect.any(Function),
+    pollingPlaceId,
+    precinctSelection,
   });
+  expect(activateCardlessVoterSession).not.toHaveBeenCalled();
 
-  test('all precincts configuration', async () => {
-    const [precinct1, precinct2] = election.precincts;
-    assert(hasSplits(precinct2));
-    const [ballotStyle1, ballotStyle2] = election.ballotStyles;
-    const activateCardlessVoterSessionMock = vi.fn();
-    renderScreen({
-      electionDefinition,
-      activateCardlessVoterSession: activateCardlessVoterSessionMock,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-    });
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText('Select ballot style…'));
-    userEvent.click(screen.getByText(precinct1.name));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct1.id,
-      ballotStyle1.id
-    );
+  apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+  act(() => props.onChooseBallotStyle('some-precinct', 'some-ballot-style'));
+  await waitFor(apiMock.mockApiClient.assertComplete);
 
-    // Reopen dropdown to select another option. (Normally activating the session
-    // would navigate away from the screen, so this is just a shortcut for
-    // testing, not a realistic flow)
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText(precinct1.name));
-    userEvent.click(screen.getByText(precinct2.splits[0].name));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct2.id,
-      ballotStyle2.id
-    );
-
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText(precinct2.splits[0].name));
-    userEvent.click(screen.getByText(precinct2.splits[1].name));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledTimes(2)
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct2.id,
-      ballotStyle1.id
-    );
-  });
-});
-
-describe('start voter session with blank sheet: primary election', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const { election } = electionDefinition;
-
-  test('single precinct configuration', async () => {
-    const precinct = election.precincts[0];
-    const activateCardlessVoterSessionMock = vi.fn();
-    renderScreen({
-      electionDefinition,
-      activateCardlessVoterSession: activateCardlessVoterSessionMock,
-      precinctSelection: singlePrecinctSelectionFor(precinct.id),
-    });
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    screen.getByText('Select ballot style:');
-    screen.getButton('Fish');
-    userEvent.click(screen.getButton('Mammal'));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenCalledWith(
-      precinct.id,
-      '1-Ma_en'
-    );
-  });
-
-  test('single precinct configuration with splits', async () => {
-    const [, , , precinct] = election.precincts;
-    assert(hasSplits(precinct));
-    const activateCardlessVoterSessionMock = vi.fn();
-    renderScreen({
-      electionDefinition,
-      activateCardlessVoterSession: activateCardlessVoterSessionMock,
-      precinctSelection: singlePrecinctSelectionFor(precinct.id),
-    });
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText("Select voter's precinct…"));
-    userEvent.click(screen.getByText(precinct.splits[0].name));
-    screen.getByText('Select ballot style:');
-    screen.getButton('Fish');
-    userEvent.click(screen.getButton('Mammal'));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct.id,
-      '3-Ma_en'
-    );
-
-    // Reopen dropdown to select another option. (Normally activating the session
-    // would navigate away from the screen, so this is just a shortcut for
-    // testing, not a realistic flow)
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText(precinct.splits[0].name));
-    userEvent.click(screen.getByText(precinct.splits[1].name));
-    screen.getByText('Select ballot style:');
-    userEvent.click(screen.getButton('Fish'));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledTimes(2)
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct.id,
-      '4-F_en'
-    );
-  });
-
-  test('all precincts configuration', async () => {
-    const [precinct1, , , precinct4] = election.precincts;
-    assert(hasSplits(precinct4));
-    const activateCardlessVoterSessionMock = vi.fn();
-    renderScreen({
-      electionDefinition,
-      activateCardlessVoterSession: activateCardlessVoterSessionMock,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-    });
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText("Select voter's precinct…"));
-    userEvent.click(screen.getByText(precinct1.name));
-    userEvent.click(screen.getButton('Mammal'));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct1.id,
-      '1-Ma_en'
-    );
-
-    // Reopen dropdown to select another option. (Normally activating the session
-    // would navigate away from the screen, so this is just a shortcut for
-    // testing, not a realistic flow)
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText(precinct1.name));
-    userEvent.click(screen.getByText(precinct4.splits[0].name));
-    userEvent.click(screen.getButton('Mammal'));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct4.id,
-      '3-Ma_en'
-    );
-
-    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText(precinct4.splits[0].name));
-    userEvent.click(screen.getByText(precinct4.splits[1].name));
-    userEvent.click(screen.getButton('Fish'));
-    await waitFor(() =>
-      expect(activateCardlessVoterSessionMock).toHaveBeenCalledTimes(2)
-    );
-    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
-      precinct4.id,
-      '4-F_en'
-    );
-  });
+  expect(activateCardlessVoterSession).toHaveBeenCalledWith(
+    'some-precinct',
+    'some-ballot-style'
+  );
 });
 
 const blockingStates: Array<{ state: SimpleServerStatus }> = [
@@ -419,67 +241,22 @@ describe.each(blockingStates)(
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const { election } = electionDefinition;
 
-    test('single precinct configuration - general', async () => {
-      const precinct = electionGeneralDefinition.election.precincts[0];
-      apiMock.setPaperHandlerState(state);
-      renderScreen({
-        electionDefinition: electionGeneralDefinition,
-        activateCardlessVoterSession: vi.fn(),
-        precinctSelection: singlePrecinctSelectionFor(precinct.id),
-      });
-
-      const startButton = await screen.findButton(
-        `Start Voting Session: ${precinct.name}`
-      );
-      expect(startButton).toBeDisabled();
-    });
-
-    test('single precinct configuration - primary', async () => {
+    test('ballot style picker is disabled', async () => {
       const precinct = election.precincts[0];
+      const precinctSelection = singlePrecinctSelectionFor(precinct.id);
       apiMock.setPaperHandlerState(state);
       renderScreen({
         electionDefinition,
         activateCardlessVoterSession: vi.fn(),
-        precinctSelection: singlePrecinctSelectionFor(precinct.id),
+        precinctSelection,
       });
 
-      await screen.findByText('Select ballot style:');
-      const styleOneButton = screen.getButton('Fish');
-      expect(styleOneButton).toBeDisabled();
-      const styleTwoButton = screen.getButton('Mammal');
-      expect(styleTwoButton).toBeDisabled();
-    });
+      await waitFor(apiMock.mockApiClient.assertComplete);
 
-    test('single precinct with splits - primary', async () => {
-      const [, , , precinct] = election.precincts;
-      assert(hasSplits(precinct));
-      apiMock.setPaperHandlerState(state);
-      renderScreen({
-        electionDefinition,
-        activateCardlessVoterSession: vi.fn(),
-        precinctSelection: singlePrecinctSelectionFor(precinct.id),
-      });
-
-      const ballotStyleSelect = await screen.findByRole('combobox', {
-        name: "Select voter's precinct",
-      });
-      await vi.waitFor(() => expect(ballotStyleSelect).toBeDisabled());
-    });
-
-    test('all precincts - primary', async () => {
-      const [, , , precinct4] = election.precincts;
-      assert(hasSplits(precinct4));
-      apiMock.setPaperHandlerState(state);
-      renderScreen({
-        electionDefinition,
-        activateCardlessVoterSession: vi.fn(),
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-      });
-
-      const ballotStyleSelect = await screen.findByRole('combobox', {
-        name: "Select voter's precinct",
-      });
-      await vi.waitFor(() => expect(ballotStyleSelect).toBeDisabled());
+      const props = expectSessionStartSection();
+      expect(props.election).toEqual(election);
+      expect(props.precinctSelection).toEqual(precinctSelection);
+      expect(props.disabled).toEqual(true);
     });
 
     test('insert pre-printed ballot button is disabled', async () => {
@@ -558,3 +335,10 @@ test('Shows election info', () => {
     )
   );
 });
+
+function expectSessionStartSection() {
+  screen.getByTestId(MOCK_SECTION_SESSION_START_ID);
+  const props = MockSectionSessionStart.mock.lastCall?.[0];
+
+  return assertDefined(props);
+}
