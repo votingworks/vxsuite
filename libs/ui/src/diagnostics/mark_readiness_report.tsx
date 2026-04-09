@@ -45,6 +45,7 @@ interface ReportContentsProps
     PrinterSectionProps,
     UpsSectionProps {
   accessibleControllerProps: NonpresentationalSectionProps;
+  isFeatureEnabled?: (f: BooleanEnvironmentVariableName) => boolean;
   patInputProps: NonpresentationalSectionProps;
   barcodeReaderProps: NonpresentationalSectionProps;
   headphoneInputProps: AudioDeviceInputProps;
@@ -59,6 +60,7 @@ export function MarkReadinessReportContents(
   const {
     accessibleControllerProps,
     electionDefinition,
+    isFeatureEnabled = isFeatureFlagEnabled,
     patInputProps,
     barcodeReaderProps,
     headphoneInputProps,
@@ -71,7 +73,7 @@ export function MarkReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props}>
-        {isFeatureFlagEnabled(ENABLE_POLLING_PLACES) ? (
+        {isFeatureEnabled(ENABLE_POLLING_PLACES) ? (
           <PollingPlaceSection
             election={election}
             pollingPlaceId={pollingPlaceId}

@@ -10,6 +10,7 @@ import {
   UninterruptiblePowerSupplyScreen,
 } from '@votingworks/ui';
 import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
   getDiskSpaceSummary,
@@ -31,10 +32,12 @@ import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_scr
 import { PatDeviceCalibrationPageWrapper } from '../pat_device_calibration_page_wrapper';
 
 export interface DiagnosticsScreenProps {
+  isFeatureEnabled?: (f: BooleanEnvironmentVariableName) => boolean;
   onBackButtonPress: () => void;
 }
 
 export function DiagnosticsScreen({
+  isFeatureEnabled,
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
   const electionRecordQuery = getElectionRecord.useQuery();
@@ -99,7 +102,7 @@ export function DiagnosticsScreen({
 
   const { electionDefinition, electionPackageHash } =
     electionRecordQuery.data ?? {};
-  const { precinctSelection } = electionStateQuery.data;
+  const { precinctSelection, pollingPlaceId } = electionStateQuery.data;
   const diskSpaceSummary = diskSpaceQuery.data;
   const isAccessibleControllerInputDetected =
     isAccessibleControllerInputDetectedQuery.data;
@@ -151,6 +154,8 @@ export function DiagnosticsScreen({
             <MarkScanReadinessReportContents
               electionDefinition={electionDefinition}
               electionPackageHash={electionPackageHash}
+              isFeatureEnabled={isFeatureEnabled}
+              pollingPlaceId={pollingPlaceId}
               precinctSelection={precinctSelection}
               diskSpaceSummary={diskSpaceSummary}
               accessibleControllerProps={{
