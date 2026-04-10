@@ -6,7 +6,6 @@ import {
   MockChildProcess,
 } from '@votingworks/test-utils';
 import { err, iter, ok, sleep } from '@votingworks/basics';
-import { fromGrayScale } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
 import {
   createPdiScannerClient,
@@ -303,13 +302,22 @@ test('converts image data from scanComplete event', async () => {
   };
   mockStdoutResponse(scanCompleteEvent);
   await backendWaitFor(() => {
-    expect(listener).toHaveBeenCalledWith({
-      event: 'scanComplete',
-      images: [
-        fromGrayScale(rawImageGrayscalePixels, SCAN_IMAGE_WIDTH, imageHeight),
-        fromGrayScale(rawImageGrayscalePixels, SCAN_IMAGE_WIDTH, imageHeight),
-      ],
-    });
+    expect(listener).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'scanComplete',
+      })
+    );
+    const call = listener.mock.calls[0] as [
+      ScannerEvent & { event: 'scanComplete' },
+    ];
+    const [front, back] = call[0].images;
+    expect(front.width).toEqual(SCAN_IMAGE_WIDTH);
+    expect(front.height).toEqual(imageHeight);
+    expect(front.data).toEqual(Uint8ClampedArray.from(rawImageGrayscalePixels));
+    expect(JSON.stringify(front)).toEqual(
+      `"[ImageData ${SCAN_IMAGE_WIDTH}x${imageHeight}]"`
+    );
+    expect(back.data).toEqual(front.data);
   });
 });
 

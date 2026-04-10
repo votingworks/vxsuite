@@ -10,11 +10,7 @@ import {
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
-import {
-  ImageData,
-  createImageData,
-  fromGrayScale,
-} from '@votingworks/image-utils';
+import { ImageData } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -276,16 +272,25 @@ export function createPdiScannerClient() {
           event: 'scanComplete',
           images: mapSheet(message.imageData, (imageData) => {
             const buffer = Buffer.from(imageData, 'base64');
-            const grayscaleImage = createImageData(
-              Uint8ClampedArray.from(buffer),
-              SCAN_IMAGE_WIDTH,
-              buffer.length / SCAN_IMAGE_WIDTH
+            // Create a Uint8ClampedArray view over the same memory
+            // instead of copying with Uint8ClampedArray.from(buffer)
+            const data = new Uint8ClampedArray(
+              buffer.buffer,
+              buffer.byteOffset,
+              buffer.byteLength
             );
-            return fromGrayScale(
-              grayscaleImage.data,
-              grayscaleImage.width,
-              grayscaleImage.height
-            );
+            const width = SCAN_IMAGE_WIDTH;
+            const height = data.length / SCAN_IMAGE_WIDTH;
+            return {
+              width,
+              height,
+              data,
+
+              // Define `toJSON` such that `JSON.stringify` does not try to
+              // serialize all the bytes in `data` as an array of numbers.
+              // eslint-disable-next-line vx/gts-identifiers
+              toJSON: () => `[ImageData ${width}x${height}]`,
+            };
           }),
         });
         break;

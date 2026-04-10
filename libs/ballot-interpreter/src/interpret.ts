@@ -9,7 +9,7 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
-import { fromGrayScale } from '@votingworks/image-utils';
+import { fromGrayScale, isRgba } from '@votingworks/image-utils';
 import {
   AdjudicationInfo,
   AdjudicationReason,
@@ -606,6 +606,16 @@ async function interpretHmpb(
 }
 
 /**
+ * Ensures an image is in RGBA format. Returns the image unchanged if it's
+ * already RGBA, or converts from grayscale if needed. The summary ballot
+ * interpreter assumes RGBA layout for pixel operations (crop, rotate, etc.).
+ */
+function ensureRgba(image: ImageData): ImageData {
+  if (isRgba(image)) return image;
+  return fromGrayScale(image.data, image.width, image.height);
+}
+
+/**
  * Interpret a ballot sheet and convert the result into
  * the result format used by the rest of VxSuite.
  */
@@ -619,9 +629,11 @@ async function interpretBmdBallot(
     frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath,
   } = options;
+  // The summary ballot interpreter assumes RGBA for pixel operations
+  const rgbaImages = mapSheet(ballotImages, ensureRgba);
   const interpretResult = await interpretVxBmdBallotSheet(
     electionDefinition,
-    ballotImages,
+    rgbaImages,
     disableBmdBallotScanning
   );
 
