@@ -85,6 +85,70 @@ test('renders write-in candidates', () => {
   expect(screen.queryByText('Invalid')).not.toBeInTheDocument();
 });
 
+test('renders zero-tally qualified candidates when showZeroTallyCandidates is set', () => {
+  render(
+    <ContestWriteInSummaryTable
+      election={electionTwoPartyPrimary}
+      showZeroTallyCandidates
+      contestWriteInSummary={{
+        contestId: 'zoo-council-mammal',
+        totalTally: 10,
+        pendingTally: 0,
+        invalidTally: 5,
+        candidateTallies: {
+          chimera: {
+            id: 'chimera',
+            name: 'Chimera',
+            tally: 5,
+            isWriteIn: true,
+          },
+          unicorn: {
+            id: 'unicorn',
+            name: 'Unicorn',
+            tally: 0,
+            isWriteIn: true,
+          },
+        },
+      }}
+    />
+  );
+
+  screen.getByText('Write-In Candidates');
+  within(screen.getByText('Chimera').closest('tr')!).getByText('5');
+  within(screen.getByText('Unicorn').closest('tr')!).getByText('0');
+});
+
+test('hides zero-tally candidates by default', () => {
+  render(
+    <ContestWriteInSummaryTable
+      election={electionTwoPartyPrimary}
+      contestWriteInSummary={{
+        contestId: 'zoo-council-mammal',
+        totalTally: 10,
+        pendingTally: 0,
+        invalidTally: 5,
+        candidateTallies: {
+          chimera: {
+            id: 'chimera',
+            name: 'Chimera',
+            tally: 5,
+            isWriteIn: true,
+          },
+          unicorn: {
+            id: 'unicorn',
+            name: 'Unicorn',
+            tally: 0,
+            isWriteIn: true,
+          },
+        },
+      }}
+    />
+  );
+
+  screen.getByText('Chimera');
+  expect(screen.queryByText('Unicorn')).not.toBeInTheDocument();
+});
+
 test('renders headers only if none adjudicated', () => {
   render(
     <ContestWriteInSummaryTable

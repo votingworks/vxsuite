@@ -11,6 +11,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { getEmptyElectionResults } from '@votingworks/utils';
 import {
   convertContestWriteInSummaryToWriteInTallies,
@@ -460,6 +461,187 @@ test('modifyElectionResultsWithWriteInSummary', () => {
     undervotes: 6,
     votesAllowed: 3,
   });
+});
+
+test('modifyElectionResultsWithWriteInSummary in qualified mode - before adjudication', () => {
+  const election = electionTwoPartyPrimary;
+  const electionResults = getEmptyElectionResults(election);
+
+  electionResults.cardCounts.bmd = [112];
+  electionResults.contestResults['zoo-council-mammal'] = {
+    contestId: 'zoo-council-mammal',
+    ballots: 112,
+    overvotes: 0,
+    undervotes: 0,
+    contestType: 'candidate',
+    votesAllowed: 3,
+    tallies: {
+      lion: {
+        id: 'lion',
+        name: 'Lion',
+        tally: 56,
+      },
+      [Tabulation.GENERIC_WRITE_IN_ID]: {
+        ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
+        tally: 56,
+      },
+    },
+  };
+
+  // Before adjudication: all write-ins pending
+  const writeInSummary: Tabulation.ElectionWriteInSummary = {
+    contestWriteInSummaries: {
+      'zoo-council-mammal': {
+        contestId: 'zoo-council-mammal',
+        totalTally: 56,
+        pendingTally: 56,
+        invalidTally: 0,
+        candidateTallies: {},
+      },
+    },
+  };
+
+  const qualifiedCandidates = [
+    {
+      id: 'chimera',
+      electionId: 'test',
+      contestId: 'zoo-council-mammal',
+      name: 'Chimera',
+    },
+    {
+      id: 'unicorn',
+      electionId: 'test',
+      contestId: 'zoo-council-mammal',
+      name: 'Unicorn',
+    },
+  ];
+
+  const modifiedResults = modifyElectionResultsWithWriteInSummary(
+    electionResults,
+    writeInSummary,
+    qualifiedCandidates
+  );
+
+  const contestResults = assertDefined(
+    modifiedResults.contestResults['zoo-council-mammal']
+  ) as Tabulation.CandidateContestResults;
+
+  // Qualified candidates appear with 0 tally
+  expect(contestResults.tallies['chimera']).toEqual({
+    id: 'chimera',
+    name: 'Chimera',
+    tally: 0,
+    isWriteIn: true,
+  });
+  expect(contestResults.tallies['unicorn']).toEqual({
+    id: 'unicorn',
+    name: 'Unicorn',
+    tally: 0,
+    isWriteIn: true,
+  });
+
+  // Pending write-ins still show as unadjudicated
+  expect(contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID]).toEqual({
+    ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
+    tally: 56,
+  });
+});
+
+test('modifyElectionResultsWithWriteInSummary in qualified mode - after adjudication', () => {
+  const election = electionTwoPartyPrimary;
+  const electionResults = getEmptyElectionResults(election);
+
+  electionResults.cardCounts.bmd = [112];
+  electionResults.contestResults['zoo-council-mammal'] = {
+    contestId: 'zoo-council-mammal',
+    ballots: 112,
+    overvotes: 0,
+    undervotes: 0,
+    contestType: 'candidate',
+    votesAllowed: 3,
+    tallies: {
+      lion: {
+        id: 'lion',
+        name: 'Lion',
+        tally: 56,
+      },
+      [Tabulation.GENERIC_WRITE_IN_ID]: {
+        ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
+        tally: 56,
+      },
+    },
+  };
+
+  // After adjudication: some votes for chimera, none for unicorn, no pending
+  const writeInSummary: Tabulation.ElectionWriteInSummary = {
+    contestWriteInSummaries: {
+      'zoo-council-mammal': {
+        contestId: 'zoo-council-mammal',
+        totalTally: 56,
+        pendingTally: 0,
+        invalidTally: 46,
+        candidateTallies: {
+          chimera: {
+            id: 'chimera',
+            name: 'Chimera',
+            isWriteIn: true,
+            tally: 10,
+          },
+        },
+      },
+    },
+  };
+
+  const qualifiedCandidates = [
+    {
+      id: 'chimera',
+      electionId: 'test',
+      contestId: 'zoo-council-mammal',
+      name: 'Chimera',
+    },
+    {
+      id: 'unicorn',
+      electionId: 'test',
+      contestId: 'zoo-council-mammal',
+      name: 'Unicorn',
+    },
+  ];
+
+  const modifiedResults = modifyElectionResultsWithWriteInSummary(
+    electionResults,
+    writeInSummary,
+    qualifiedCandidates
+  );
+
+  const contestResults = assertDefined(
+    modifiedResults.contestResults['zoo-council-mammal']
+  ) as Tabulation.CandidateContestResults;
+
+  // Chimera has adjudicated votes
+  expect(contestResults.tallies['chimera']).toEqual({
+    id: 'chimera',
+    name: 'Chimera',
+    tally: 10,
+    isWriteIn: true,
+  });
+
+  // Unicorn appears with 0 tally
+  expect(contestResults.tallies['unicorn']).toEqual({
+    id: 'unicorn',
+    name: 'Unicorn',
+    tally: 0,
+    isWriteIn: true,
+  });
+
+  // No generic "write-ins" bucket — no pending write-ins
+  expect(
+    contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID]
+  ).toBeUndefined();
+
+  // No generic write-in bucket either
+  expect(
+    contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+  ).toBeUndefined();
 });
 
 test('combineElectionWriteInSummaries', () => {

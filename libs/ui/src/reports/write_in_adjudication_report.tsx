@@ -43,6 +43,7 @@ export interface WriteInAdjudicationReportProps {
   generatedAtTime: Date;
   isOfficial: boolean;
   isTest: boolean;
+  showZeroTallyCandidates?: boolean;
 }
 
 export function WriteInAdjudicationReport({
@@ -52,6 +53,7 @@ export function WriteInAdjudicationReport({
   generatedAtTime,
   isOfficial,
   isTest,
+  showZeroTallyCandidates,
 }: WriteInAdjudicationReportProps): JSX.Element {
   const { election } = electionDefinition;
   const allWriteInContests = election.contests.filter(
@@ -107,6 +109,7 @@ export function WriteInAdjudicationReport({
                         contest.id
                       ] || getEmptyContestWriteInSummary(contest)
                     }
+                    showZeroTallyCandidates={showZeroTallyCandidates}
                   />
                 ))}
               </TallyReportColumns>

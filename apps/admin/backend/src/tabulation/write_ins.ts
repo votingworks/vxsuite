@@ -14,7 +14,11 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
-import { WriteInForTally, WriteInTally } from '../types';
+import {
+  WriteInCandidateRecord,
+  WriteInForTally,
+  WriteInTally,
+} from '../types';
 import { Store } from '../store';
 import { extractWriteInSummary, tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
@@ -288,7 +292,8 @@ export function tabulateWriteInTallies({
  */
 export function modifyElectionResultsWithWriteInSummary(
   results: Tabulation.ElectionResults,
-  writeInSummary: Tabulation.ElectionWriteInSummary
+  writeInSummary: Tabulation.ElectionWriteInSummary,
+  qualifiedWriteInCandidates?: WriteInCandidateRecord[]
 ): Tabulation.ElectionResults {
   const modifiedElectionResults: Tabulation.ElectionResults = {
     ...results,
@@ -343,6 +348,24 @@ export function modifyElectionResultsWithWriteInSummary(
         for (const writeInCandidateTally of writeInCandidateTallies) {
           modifiedCandidateTallies[writeInCandidateTally.id] =
             writeInCandidateTally;
+        }
+      }
+    }
+
+    // In qualified mode, ensure all qualified candidates appear in results
+    // even if they have 0 votes
+    if (qualifiedWriteInCandidates) {
+      for (const candidate of qualifiedWriteInCandidates) {
+        if (
+          candidate.contestId === contestId &&
+          !modifiedCandidateTallies[candidate.id]
+        ) {
+          modifiedCandidateTallies[candidate.id] = {
+            id: candidate.id,
+            name: candidate.name,
+            tally: 0,
+            isWriteIn: true,
+          };
         }
       }
     }

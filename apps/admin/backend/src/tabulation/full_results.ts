@@ -133,9 +133,14 @@ export async function tabulateElectionResults({
       groupedWriteInSummaries,
       (electionResults, writeInSummary) => {
         assert(electionResults); // results must exist if there is write-in data
+        const systemSettings = store.getSystemSettings(electionId);
+        const qualifiedCandidates = systemSettings.areWriteInCandidatesQualified
+          ? store.getWriteInCandidates({ electionId })
+          : undefined;
         return modifyElectionResultsWithWriteInSummary(
           electionResults,
-          writeInSummary ?? getEmptyElectionWriteInSummary(election)
+          writeInSummary ?? getEmptyElectionWriteInSummary(election),
+          qualifiedCandidates
         );
       }
     );

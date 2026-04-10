@@ -26,6 +26,7 @@ function buildWriteInAdjudicationReport({
   const { electionDefinition, electionPackageHash, isOfficialResults } =
     electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
+  const systemSettings = store.getSystemSettings(electionId);
 
   return WriteInAdjudicationReport({
     electionDefinition,
@@ -34,6 +35,7 @@ function buildWriteInAdjudicationReport({
     isTest,
     generatedAtTime: new Date(getCurrentTime()),
     electionWriteInSummary,
+    showZeroTallyCandidates: systemSettings.areWriteInCandidatesQualified,
   });
 }
 
