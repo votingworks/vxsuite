@@ -15,12 +15,14 @@ import {
   isPaperInScanner,
   isPaperJammed,
   isPaperReadyToLoad,
+  isPaperAnywhere,
 } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { DateTime } from 'luxon';
 import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
   printBallotChunks,
+  resetAndReconnect,
   scanAndSave,
 } from '../custom-paper-handler/application_driver';
 import { ServerContext } from './context';
@@ -143,12 +145,20 @@ export async function runPrintAndScanTask({
   );
   await fs.writeFile(join(outputDir, 'test-document.pdf'), testPdfBytes);
 
-  const driver = await getPaperHandlerDriver();
+  let driver = await getPaperHandlerDriver();
   if (driver === undefined) {
     setPaperHandlerStatusMessage('Could not connect to paper handler');
 
     return;
   }
+
+  // Simulate the effects of a full power cycle on the printer-scanner in case we're returning to
+  // the app via a software restart rather than a true power cycle. We auto-restart the HWTA on
+  // crash, but that does us no good for hardware testing if the printer-scanner doesn't
+  // auto-resume shoeshine. Testing has shown the two commands below to be necessary to reliably
+  // get the printer-scanner back to a working state.
+  await driver.clearGenericInBuffer();
+  driver = await resetAndReconnect(driver);
 
   /**
    * Checks paper handler status for jam state.
@@ -184,54 +194,68 @@ export async function runPrintAndScanTask({
     return;
   }
 
-  // Wait for user to put paper in input
-  // Subtract log duration so we immediately get a log
-  let logStart = DateTime.now().minus(PAPER_LOAD_LOG_INTERVAL_MS);
-  while (!isPaperReadyToLoad(status)) {
-    if (
-      DateTime.now().diff(logStart).as('milliseconds') >=
-      PAPER_LOAD_LOG_INTERVAL_MS
-    ) {
-      await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
-        message: 'Waiting for paper load',
-      });
-      setPaperHandlerStatusMessage(
-        'Please load a sheet of 8x11" thermal paper'
-      );
-      logStart = DateTime.now();
-    }
-
-    await sleep(PAPER_HANDLER_POLL_INTERVAL_MS);
-    status = await driver.getPaperHandlerStatus();
+  // If paper is already in the scanner, e.g., after a crash/restart mid-shoeshine, park it to
+  // reach a known state and skip straight to the shoeshine loop.
+  if (isPaperAnywhere(status)) {
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+      message:
+        'Paper already in scanner on startup, parking and resuming shoeshine',
+    });
+    setPaperHandlerStatusMessage('Paper detected in scanner, resuming');
+    await driver.parkPaper();
     if ((await errorIfPaperJam()).isErr()) {
       return;
     }
-  }
+  } else {
+    // Wait for user to put paper in input
+    // Subtract log duration so we immediately get a log
+    let logStart = DateTime.now().minus(PAPER_LOAD_LOG_INTERVAL_MS);
+    while (!isPaperReadyToLoad(status)) {
+      if (
+        DateTime.now().diff(logStart).as('milliseconds') >=
+        PAPER_LOAD_LOG_INTERVAL_MS
+      ) {
+        await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+          message: 'Waiting for paper load',
+        });
+        setPaperHandlerStatusMessage(
+          'Please load a sheet of 8x11" thermal paper'
+        );
+        logStart = DateTime.now();
+      }
 
-  setPaperHandlerStatusMessage('Loading paper');
-  // Once paper is detected in input, grasp paper and move to inside the device
-  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
-    message: 'Loading paper',
-  });
-  await driver.loadPaper();
-  if ((await errorIfPaperJam()).isErr()) {
-    return;
-  }
+      await sleep(PAPER_HANDLER_POLL_INTERVAL_MS);
+      status = await driver.getPaperHandlerStatus();
+      if ((await errorIfPaperJam()).isErr()) {
+        return;
+      }
+    }
 
-  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
-    message: 'Parking paper',
-  });
-  await driver.parkPaper();
-  if ((await errorIfPaperJam()).isErr()) {
-    return;
-  }
+    setPaperHandlerStatusMessage('Loading paper');
+    // Once paper is detected in input, grasp paper and move to inside the device
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+      message: 'Loading paper',
+    });
+    await driver.loadPaper();
+    if ((await errorIfPaperJam()).isErr()) {
+      return;
+    }
 
-  status = await driver.getPaperHandlerStatus();
-  if (!isPaperInScanner(status)) {
-    setPaperHandlerStatusMessage(
-      'Could not detect paper in scanner after loading'
-    );
-    return;
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+      message: 'Parking paper',
+    });
+    await driver.parkPaper();
+    if ((await errorIfPaperJam()).isErr()) {
+      return;
+    }
+
+    status = await driver.getPaperHandlerStatus();
+    if (!isPaperInScanner(status)) {
+      setPaperHandlerStatusMessage(
+        'Could not detect paper in scanner after loading'
+      );
+      return;
+    }
   }
 
   const startMessage = 'Beginning print and scan loop';
