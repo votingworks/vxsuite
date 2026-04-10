@@ -44,7 +44,8 @@ const Contents = styled.div`
 interface Props {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
   totalBallotsScanned: number;
   pollsTransition: PollsSuspensionTransitionType;
   pollsTransitionedTime: number;
@@ -56,6 +57,7 @@ interface Props {
 export function PrecinctScannerBallotCountReport({
   electionDefinition,
   electionPackageHash,
+  pollingPlaceId,
   precinctSelection,
   totalBallotsScanned,
   pollsTransition,
@@ -70,6 +72,7 @@ export function PrecinctScannerBallotCountReport({
         <PrecinctScannerReportHeader
           electionDefinition={electionDefinition}
           electionPackageHash={electionPackageHash}
+          pollingPlaceId={pollingPlaceId}
           precinctSelection={precinctSelection}
           pollsTransition={pollsTransition}
           isLiveMode={isLiveMode}

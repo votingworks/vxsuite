@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
@@ -6,13 +6,21 @@ import {
 import { formatElectionHashes, PartyId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName as Feature,
   buildElectionResultsFixture,
-  singlePrecinctSelectionFor,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { assertDefined } from '@votingworks/basics';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
+
+const mockFeatureFlagger = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (f: Feature) => mockFeatureFlagger.isEnabled(f),
+}));
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -46,6 +54,10 @@ const generalElectionResults = buildElectionResultsFixture({
 });
 
 test('renders as expected for a single precinct in a general election', () => {
+  setPollingPlacesEnabled(true);
+
+  const [pollingPlace] = assertDefined(generalElection.pollingPlaces);
+
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
@@ -53,9 +65,7 @@ test('renders as expected for a single precinct in a general election', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={singlePrecinctSelectionFor(
-        generalElection.precincts[0].id
-      )}
+      pollingPlaceId={pollingPlace.id}
       pollsTransition="open_polls"
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
@@ -64,7 +74,7 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Test Report');
-  screen.getByText('Polls Opened Report • North Lincoln');
+  screen.getByText(`Polls Opened Report • ${pollingPlace.name}`);
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
@@ -123,6 +133,10 @@ const primaryElectionResults = buildElectionResultsFixture({
 });
 
 test('renders as expected for all precincts in a primary election', () => {
+  setPollingPlacesEnabled(true);
+
+  const [pollingPlace] = assertDefined(electionTwoPartyPrimary.pollingPlaces);
+
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
@@ -130,7 +144,7 @@ test('renders as expected for all precincts in a primary election', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={pollingPlace.id}
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}
@@ -140,7 +154,7 @@ test('renders as expected for all precincts in a primary election', () => {
       partyId={'0' as PartyId}
     />
   );
-  screen.getByText('Polls Opened Report • All Precincts');
+  screen.getByText(`Polls Opened Report • ${pollingPlace.name}`);
   screen.getByText('Mammal Party');
   screen.getByText(
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
@@ -178,6 +192,10 @@ test('renders as expected for all precincts in a primary election', () => {
 });
 
 test('displays only passed contests', () => {
+  setPollingPlacesEnabled(true);
+
+  const [pollingPlace] = assertDefined(electionTwoPartyPrimary.pollingPlaces);
+
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
@@ -185,7 +203,7 @@ test('displays only passed contests', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={pollingPlace.id}
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}
@@ -199,3 +217,32 @@ test('displays only passed contests', () => {
   screen.getByTestId('results-table-best-animal-mammal');
   expect(screen.getAllByTestId(/results-table-/)).toHaveLength(1);
 });
+
+test('renders precinct selection name', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerTallyReport
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      precinctScannerMachineId="SC-01-000"
+      electionDefinition={generalElectionDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollsTransition="open_polls"
+      isLiveMode={false}
+      scannedElectionResults={generalElectionResults}
+      contests={generalElection.contests}
+    />
+  );
+
+  screen.getByText('Polls Opened Report • All Precincts');
+});
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}

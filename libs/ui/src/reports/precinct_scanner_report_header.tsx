@@ -1,7 +1,9 @@
 import {
+  Election,
   ElectionDefinition,
   formatElectionHashes,
   PartyId,
+  pollingPlaceFromElection,
   PollsTransitionType,
   PrecinctSelection,
 } from '@votingworks/types';
@@ -11,9 +13,12 @@ import {
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
   getPrecinctSelectionName,
+  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName as Feature,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
+import { assertDefined } from '@votingworks/basics';
 import { LogoMark } from '../logo_mark';
 import { CertificationSignatures } from './certification_signatures';
 import {
@@ -30,7 +35,8 @@ interface Props {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   partyId?: PartyId;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
   pollsTransition: PollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
@@ -42,6 +48,7 @@ export function PrecinctScannerReportHeader({
   electionDefinition,
   electionPackageHash,
   partyId,
+  pollingPlaceId,
   precinctSelection,
   pollsTransition,
   isLiveMode,
@@ -52,13 +59,14 @@ export function PrecinctScannerReportHeader({
   const { election } = electionDefinition;
   const showTallies =
     pollsTransition === 'open_polls' || pollsTransition === 'close_polls';
-  const precinctName = getPrecinctSelectionName(
-    election.precincts,
-    precinctSelection
-  );
+  const locationName = precinctScannerLocationName({
+    election,
+    pollingPlaceId,
+    precinctSelection,
+  });
   const reportTitle = `${getPollsReportTitle(
     pollsTransition
-  )} • ${precinctName}`;
+  )} • ${locationName}`;
   const partyLabel =
     showTallies && election.type === 'primary'
       ? partyId
@@ -103,4 +111,20 @@ export function PrecinctScannerReportHeader({
       </ReportHeader>
     </React.Fragment>
   );
+}
+
+export function precinctScannerLocationName(p: {
+  election: Election;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
+}): string {
+  if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
+    const selection = assertDefined(p.precinctSelection);
+    return getPrecinctSelectionName(p.election.precincts, selection);
+  }
+
+  const pollingPlaceId = assertDefined(p.pollingPlaceId);
+  const pollingPlace = pollingPlaceFromElection(p.election, pollingPlaceId);
+
+  return pollingPlace.name;
 }
