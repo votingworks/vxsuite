@@ -41,6 +41,10 @@ const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(5 * 60); // 5 mins
 const BUFFER_MAX_BYTES: usize = 64;
 const PAT_CONNECTION_STATUS_FILENAME: &str = "_pat_connection.status";
 const PID_FILENAME: &str = "vx_accessible_controller_daemon.pid";
+// Number of consecutive active statuses required before sending a sip or puff
+// keystroke. This filters out false positives caused by ESD (electrostatic
+// discharge).
+const CONSECUTIVE_STATUS_THRESHOLD: u8 = 3;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -257,8 +261,8 @@ fn validate_connection(usb_device: &mut UsbDevice) -> Result<(), io::Error> {
 #[derive(Debug)]
 struct CurrentStatus {
     button_pressed: ButtonSignal,
-    sip: SipAndPuffSignalStatus,
-    puff: SipAndPuffSignalStatus,
+    consecutive_sip_active_count: u8,
+    consecutive_puff_active_count: u8,
     sip_puff_device_connected: SipAndPuffDeviceStatus,
     sip_puff_device_connection_time: Option<Instant>,
 }
@@ -331,6 +335,30 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
     }
 }
 
+/// Tracks consecutive active statuses for a sip or puff signal and sends a
+/// keystroke once the threshold is reached. Resets the counter on idle status.
+fn handle_sip_or_puff_signal(
+    signal_status: &SipAndPuffSignalStatus,
+    consecutive_count: &mut u8,
+    key: keyboard::Key,
+    keyboard: &mut impl VirtualKeyboard,
+) {
+    if *signal_status == SipAndPuffSignalStatus::Active {
+        *consecutive_count = consecutive_count.saturating_add(1);
+        if *consecutive_count == CONSECUTIVE_STATUS_THRESHOLD {
+            send_keystroke(
+                &KeypressSpec {
+                    key,
+                    send_shift: false,
+                },
+                keyboard,
+            );
+        }
+    } else {
+        *consecutive_count = 0;
+    }
+}
+
 /// Checks new status for changed statuses in button press, sip, puff, and sip & puff device connection.
 /// If changing from inactive to active, sends the appropriate event (keypress or system file update).
 /// If changing from active to inactive or no status change, does nothing.
@@ -366,8 +394,8 @@ fn handle_status_response(
     //    responsible for pausing polling until the status report is reliable again.
     if new_connection_status != current_status.sip_puff_device_connected {
         current_status.sip_puff_device_connected = new_connection_status;
-        current_status.sip = SipAndPuffSignalStatus::Idle;
-        current_status.puff = SipAndPuffSignalStatus::Idle;
+        current_status.consecutive_sip_active_count = 0;
+        current_status.consecutive_puff_active_count = 0;
         current_status.button_pressed = ButtonSignal::NoButton;
 
         current_status.sip_puff_device_connection_time = match new_connection_status {
@@ -404,36 +432,21 @@ fn handle_status_response(
     // Only check for sip & puff actions when the device is connected because
     // sip/puff values are inverted when no device is connected.
     // Even if values were consistent, logically no sip/puff signal can be sent without a connected device.
-    if current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected {
-        // Send keypress for new sip event
-        if new_sip_status == SipAndPuffSignalStatus::Active
-            && current_status.sip == SipAndPuffSignalStatus::Idle
-            && connection_signal_delay_elapsed
-        {
-            send_keystroke(
-                &KeypressSpec {
-                    key: keyboard::Key::_1,
-                    send_shift: false,
-                },
-                keyboard,
-            );
-        }
-        current_status.sip = new_sip_status;
-
-        // Send keypress for new puff event
-        if new_puff_status == SipAndPuffSignalStatus::Active
-            && current_status.puff == SipAndPuffSignalStatus::Idle
-            && connection_signal_delay_elapsed
-        {
-            send_keystroke(
-                &KeypressSpec {
-                    key: keyboard::Key::_2,
-                    send_shift: false,
-                },
-                keyboard,
-            );
-        }
-        current_status.puff = new_puff_status;
+    if current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected
+        && connection_signal_delay_elapsed
+    {
+        handle_sip_or_puff_signal(
+            &new_sip_status,
+            &mut current_status.consecutive_sip_active_count,
+            keyboard::Key::_1,
+            keyboard,
+        );
+        handle_sip_or_puff_signal(
+            &new_puff_status,
+            &mut current_status.consecutive_puff_active_count,
+            keyboard::Key::_2,
+            keyboard,
+        );
     }
 
     Ok(false)
@@ -456,8 +469,8 @@ fn run_event_loop(
     let mut last_log_time = Instant::now();
     let mut current_status = CurrentStatus {
         button_pressed: ButtonSignal::NoButton,
-        sip: SipAndPuffSignalStatus::Idle,
-        puff: SipAndPuffSignalStatus::Idle,
+        consecutive_sip_active_count: 0,
+        consecutive_puff_active_count: 0,
         sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
         sip_puff_device_connection_time: None,
     };
@@ -579,18 +592,59 @@ mod tests {
         }
     }
 
+    fn default_current_status() -> CurrentStatus {
+        CurrentStatus {
+            button_pressed: ButtonSignal::NoButton,
+            consecutive_sip_active_count: 0,
+            consecutive_puff_active_count: 0,
+            sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
+            sip_puff_device_connection_time: None,
+        }
+    }
+
+    fn connected_current_status() -> CurrentStatus {
+        CurrentStatus {
+            sip_puff_device_connected: SipAndPuffDeviceStatus::Connected,
+            sip_puff_device_connection_time: Some(
+                Instant::now().checked_sub(Duration::from_secs(10)).unwrap(),
+            ),
+            ..default_current_status()
+        }
+    }
+
+    fn sip_active_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Active,
+            puff_status: SipAndPuffSignalStatus::Idle,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
+    fn puff_active_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Idle,
+            puff_status: SipAndPuffSignalStatus::Active,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
+    fn idle_status() -> NotificationStatusResponse {
+        NotificationStatusResponse {
+            button_pressed: ButtonSignal::NoButton,
+            sip_status: SipAndPuffSignalStatus::Idle,
+            puff_status: SipAndPuffSignalStatus::Idle,
+            sip_puff_device_connection_status: SipAndPuffDeviceStatus::Connected,
+        }
+    }
+
     #[test]
     fn test_press_help() {
         set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
 
-        let current_status = &mut CurrentStatus {
-            button_pressed: ButtonSignal::NoButton,
-            sip: SipAndPuffSignalStatus::Idle,
-            puff: SipAndPuffSignalStatus::Idle,
-            sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
-            sip_puff_device_connection_time: None,
-        };
+        let current_status = &mut default_current_status();
         let new_status = NotificationStatusResponse {
             button_pressed: ButtonSignal::Help,
             sip_status: SipAndPuffSignalStatus::Idle,
@@ -612,13 +666,7 @@ mod tests {
         set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
 
-        let current_status = &mut CurrentStatus {
-            button_pressed: ButtonSignal::NoButton,
-            sip: SipAndPuffSignalStatus::Idle,
-            puff: SipAndPuffSignalStatus::Idle,
-            sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
-            sip_puff_device_connection_time: None,
-        };
+        let current_status = &mut default_current_status();
         let new_status = NotificationStatusResponse {
             button_pressed: ButtonSignal::Left,
             sip_status: SipAndPuffSignalStatus::Idle,
@@ -633,5 +681,135 @@ mod tests {
             mock_keyboard.keystrokes,
             vec![(keyboard::Key::Left, vec![])]
         );
+    }
+
+    #[test]
+    fn test_sip_requires_consecutive_statuses() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut connected_current_status();
+        let workspace = temp_dir();
+
+        // Pre-threshold active statuses should not trigger a keystroke
+        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+            handle_status_response(
+                sip_active_status(),
+                current_status,
+                &mut mock_keyboard,
+                &workspace,
+            )
+            .unwrap();
+            assert!(mock_keyboard.keystrokes.is_empty());
+        }
+
+        // Threshold-meeting active status should trigger a keystroke
+        handle_status_response(
+            sip_active_status(),
+            current_status,
+            &mut mock_keyboard,
+            &workspace,
+        )
+        .unwrap();
+        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_1, vec![])]);
+
+        // Further active status should not trigger a keystroke
+        handle_status_response(
+            sip_active_status(),
+            current_status,
+            &mut mock_keyboard,
+            &workspace,
+        )
+        .unwrap();
+        assert_eq!(mock_keyboard.keystrokes.len(), 1);
+    }
+
+    #[test]
+    fn test_puff_requires_consecutive_statuses() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut connected_current_status();
+        let workspace = temp_dir();
+
+        // Pre-threshold active statuses should not trigger a keystroke
+        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+            handle_status_response(
+                puff_active_status(),
+                current_status,
+                &mut mock_keyboard,
+                &workspace,
+            )
+            .unwrap();
+            assert!(mock_keyboard.keystrokes.is_empty());
+        }
+
+        // Threshold-meeting active status should trigger a keystroke
+        handle_status_response(
+            puff_active_status(),
+            current_status,
+            &mut mock_keyboard,
+            &workspace,
+        )
+        .unwrap();
+        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_2, vec![])]);
+
+        // Further active status should not trigger a keystroke
+        handle_status_response(
+            puff_active_status(),
+            current_status,
+            &mut mock_keyboard,
+            &workspace,
+        )
+        .unwrap();
+        assert_eq!(mock_keyboard.keystrokes.len(), 1);
+    }
+
+    #[test]
+    fn test_sip_counter_resets_on_idle() {
+        set_source(SOURCE);
+        let mut mock_keyboard = MockKeyboard::new();
+        let current_status = &mut connected_current_status();
+        let workspace = temp_dir();
+
+        // Get close to the threshold
+        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+            handle_status_response(
+                sip_active_status(),
+                current_status,
+                &mut mock_keyboard,
+                &workspace,
+            )
+            .unwrap();
+        }
+
+        // Idle status should reset the counter
+        handle_status_response(
+            idle_status(),
+            current_status,
+            &mut mock_keyboard,
+            &workspace,
+        )
+        .unwrap();
+
+        // Get close to the threshold again
+        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+            handle_status_response(
+                sip_active_status(),
+                current_status,
+                &mut mock_keyboard,
+                &workspace,
+            )
+            .unwrap();
+        }
+        assert!(mock_keyboard.keystrokes.is_empty());
+
+        // Meet the threshold
+        handle_status_response(
+            sip_active_status(),
+            current_status,
+            &mut mock_keyboard,
+            &workspace,
+        )
+        .unwrap();
+        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_1, vec![])]);
     }
 }
