@@ -1,19 +1,34 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  BooleanEnvironmentVariableName,
+  BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { Logger, LogEventId } from '@votingworks/logging';
-import { DiagnosticRecord } from '@votingworks/types';
+import {
+  constructElectionKey,
+  DEFAULT_SYSTEM_SETTINGS,
+  DiagnosticRecord,
+  ElectionPackage,
+} from '@votingworks/types';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { getDiskSpaceSummary } from '@votingworks/backend';
+import {
+  getDiskSpaceSummary,
+  mockElectionPackageFileTree,
+} from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+} from '@votingworks/test-utils';
+import { assertDefined } from '@votingworks/basics';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { MockBarcodeClient } from './barcodes/mock_client';
@@ -57,6 +72,7 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 
 let apiClient: grout.Client<Api>;
 let logger: Logger;
+let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
@@ -78,14 +94,16 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
 }));
 
 beforeEach(() => {
+  mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+    Feature.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
   vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
 
   ({
     apiClient,
+    mockAuth,
     mockUsbDrive,
     mockBarcodeClient,
     mockPrinterHandler,
@@ -219,7 +237,7 @@ test('printTestPage prints and logs', async () => {
   );
 });
 
-test('saveReadinessReport success', async () => {
+test('saveReadinessReport - machine not configured', async () => {
   mockUsbDrive.insertUsbDrive({});
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
@@ -236,8 +254,53 @@ test('saveReadinessReport success', async () => {
 
   const exportPath = result.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'mark-readiness-report',
+    customSnapshotIdentifier: 'mark-readiness-report-not-configured',
   });
+});
+
+test('saveReadinessReport - machine configured', async () => {
+  setPollingPlacesEnabled(true);
+
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+
+  const electionKey = constructElectionKey(electionDefinition.election);
+  vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
+    status: 'logged_in',
+    user: mockElectionManagerUser({ electionKey }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+
+  const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+  const electionPkg: ElectionPackage = { electionDefinition, systemSettings };
+  mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(electionPkg));
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
+
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+
+  vi.useFakeTimers().setSystemTime(mockTime.getTime());
+  await apiClient.addDiagnosticRecord({
+    type: 'mark-pat-input',
+    outcome: 'pass',
+  });
+  await apiClient.addDiagnosticRecord({
+    type: 'mark-headphone-input',
+    outcome: 'pass',
+  });
+  vi.useRealTimers();
+
+  const result = (await apiClient.saveReadinessReport()).unsafeUnwrap();
+
+  const exportPath = result[0];
+  await expect(exportPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'mark-readiness-report-configured',
+  });
+
+  mockUsbDrive.removeUsbDrive();
 });
 
 test('saveReadinessReport failure logs error', async () => {
@@ -287,3 +350,11 @@ test('clearLastBarcodeScan clears the scan data', async () => {
   // Verify it's cleared
   expect(await apiClient.getMostRecentBarcodeScan()).toBeNull();
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}

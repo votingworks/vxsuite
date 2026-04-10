@@ -26,6 +26,7 @@ import {
   constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
+  Election,
 } from '@votingworks/types';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
@@ -151,7 +152,7 @@ export async function configureApp(
   mockAuth: InsertedSmartCardAuthApi,
   mockUsbDrive: MockUsbDrive,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
-): Promise<void> {
+): Promise<{ election: Election }> {
   const jurisdiction = TEST_JURISDICTION;
   const election = electionFamousNames2021Fixtures.readElection();
   const { electionJson } = electionFamousNames2021Fixtures;
@@ -178,6 +179,8 @@ export async function configureApp(
       reason: 'no_card',
     })
   );
+
+  return { election };
 }
 
 export async function waitForStatus(

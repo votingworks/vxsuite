@@ -2,7 +2,18 @@ import { afterEach, beforeEach, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus, Keybinding } from '@votingworks/ui';
-import { fireEvent, render, screen } from '../../test/react_testing_library';
+import {
+  BooleanEnvironmentVariableName as Feature,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { assertDefined } from '@votingworks/basics';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -15,18 +26,27 @@ import {
 
 let apiMock: ApiMock;
 
+const featureFlagMock = getFeatureFlagMock();
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
     provideApi(
       apiMock,
       <MemoryRouter>
-        <DiagnosticsScreen onBackButtonPress={vi.fn()} {...props} />
+        <DiagnosticsScreen
+          isFeatureEnabled={featureFlagMock.isEnabled}
+          onBackButtonPress={vi.fn()}
+          {...props}
+        />
       </MemoryRouter>
     )
   );
 }
 
 beforeEach(() => {
+  featureFlagMock.resetFeatureFlags();
+
   vi.useFakeTimers({
     shouldAdvanceTime: true,
     now: new Date('2022-03-23T11:23:00.000'),
@@ -514,3 +534,30 @@ test('UPS diagnostic - fail', async () => {
   userEvent.click(screen.getByRole('button', { name: 'No' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
+
+test('election configuration info', async () => {
+  setPollingPlacesEnabled(true);
+
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+
+  apiMock.mockApiClient.getElectionRecord.reset();
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.mockApiClient.getElectionState.reset();
+  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace.id });
+  apiMock.expectGetMachineConfig();
+
+  renderScreen();
+  await waitFor(() => apiMock.mockApiClient.assertComplete());
+
+  screen.getByText(election.title, { exact: false });
+  screen.getByText(pollingPlace.name, { exact: false });
+});
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}

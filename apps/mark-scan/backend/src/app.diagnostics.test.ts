@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName,
+  BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
@@ -61,8 +61,7 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
+  isFeatureFlagEnabled: (flag: Feature) => featureFlagMock.isEnabled(flag),
 }));
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
@@ -114,8 +113,9 @@ async function waitForStatus(
 beforeEach(async () => {
   vi.resetAllMocks();
 
+  featureFlagMock.resetFeatureFlags();
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+    Feature.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
   const mockWorkspaceDir = makeTemporaryDirectory();
@@ -215,7 +215,9 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
-test('saving the readiness report', async () => {
+test('saving the readiness report (with precinct selection)', async () => {
+  setPollingPlacesEnabled(false);
+
   vi.useFakeTimers({
     shouldAdvanceTime: true,
     now: reportPrintedTime.getTime(),
@@ -248,7 +250,7 @@ test('saving the readiness report', async () => {
 
   const exportPath = exportResult.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'readiness-report',
+    customSnapshotIdentifier: 'readiness-report-precinct-selection',
     failureThreshold: 0.0001,
   });
 
@@ -258,6 +260,48 @@ test('saving the readiness report', async () => {
   expect(pdfContents).toContain('All Precincts');
   expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
   expect(pdfContents).toContain('Connected');
+
+  mockUsbDrive.removeUsbDrive();
+});
+
+test('saving the readiness report', async () => {
+  setPollingPlacesEnabled(true);
+
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: reportPrintedTime.getTime(),
+  });
+  await apiClient.addDiagnosticRecord({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'pass',
+  });
+  await apiClient.addDiagnosticRecord({
+    type: 'mark-scan-paper-handler',
+    outcome: 'pass',
+  });
+  vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
+  vi.useRealTimers();
+
+  const { election } = await configureApp(apiClient, auth, mockUsbDrive);
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const exportResult = await apiClient.saveReadinessReport();
+  expect(exportResult).toEqual(ok(expect.anything()));
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.ReadinessReportSaved,
+    {
+      disposition: 'success',
+      message: 'User saved the equipment readiness report to a USB drive.',
+    }
+  );
+
+  const exportPath = exportResult.ok()![0];
+  await expect(exportPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'readiness-report',
+    failureThreshold: 0.0001,
+  });
 
   mockUsbDrive.removeUsbDrive();
 });
@@ -477,3 +521,11 @@ describe('paper handler diagnostic', () => {
     }
   );
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}

@@ -39,6 +39,7 @@ type ReportContentsProps = ConfigurationSectionProps &
   PollingPlaceSectionProps &
   StorageSectionProps & {
     accessibleControllerProps: NonpresentationalSectionProps;
+    isFeatureEnabled?: (f: BooleanEnvironmentVariableName) => boolean;
     paperHandlerProps: NonpresentationalSectionProps;
     patInputProps: NonpresentationalSectionProps;
     headphoneInputProps: HeadphoneInputSectionProps;
@@ -53,6 +54,7 @@ export function MarkScanReadinessReportContents(
     accessibleControllerProps,
     electionDefinition,
     headphoneInputProps,
+    isFeatureEnabled = isFeatureFlagEnabled,
     paperHandlerProps,
     patInputProps,
     pollingPlaceId,
@@ -64,7 +66,7 @@ export function MarkScanReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props}>
-        {isFeatureFlagEnabled(ENABLE_POLLING_PLACES) ? (
+        {isFeatureEnabled(ENABLE_POLLING_PLACES) ? (
           <PollingPlaceSection
             election={election}
             pollingPlaceId={pollingPlaceId}
