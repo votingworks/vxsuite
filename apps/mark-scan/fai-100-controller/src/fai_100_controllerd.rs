@@ -334,6 +334,33 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
     }
 }
 
+// Debounced action: require signal to remain Active for PAT_DEBOUNCE_DURATION
+// before sending keypress.  current_status is only set to Active after the
+// debounce passes, so the Idle check keeps re-evaluating each poll while the
+// signal is held.
+fn debounce_action(
+    new_status: SipAndPuffSignalStatus,
+    current_status: &mut SipAndPuffSignalStatus,
+    pending_action_active_time: &mut Option<Instant>,
+    connection_signal_delay_elapsed: bool,
+    do_action: impl FnOnce() -> (),
+) {
+    match new_status {
+        SipAndPuffSignalStatus::Active if *current_status == SipAndPuffSignalStatus::Idle => {
+            let pending_time = pending_action_active_time.get_or_insert_with(Instant::now);
+            if pending_time.elapsed() >= PAT_DEBOUNCE_DURATION && connection_signal_delay_elapsed {
+                do_action();
+                *current_status = SipAndPuffSignalStatus::Active;
+            }
+        }
+        SipAndPuffSignalStatus::Idle => {
+            *current_status = SipAndPuffSignalStatus::Active;
+            *pending_action_active_time = None;
+        }
+        SipAndPuffSignalStatus::Active => {}
+    }
+}
+
 /// Checks new status for changed statuses in button press, sip, puff, and sip & puff device connection.
 /// If changing from inactive to active, sends the appropriate event (keypress or system file update).
 /// If changing from active to inactive or no status change, does nothing.
@@ -410,63 +437,37 @@ fn handle_status_response(
     // sip/puff values are inverted when no device is connected.
     // Even if values were consistent, logically no sip/puff signal can be sent without a connected device.
     if current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected {
-        // Debounced sip: require signal to remain Active for PAT_DEBOUNCE_DURATION before sending keypress.
-        // current_status.sip is only set to Active after the debounce passes, so the Idle check keeps
-        // re-evaluating each poll while the signal is held.
-        match new_sip_status {
-            SipAndPuffSignalStatus::Active
-                if current_status.sip == SipAndPuffSignalStatus::Idle =>
-            {
-                let pending_time = current_status
-                    .pending_sip_active_time
-                    .get_or_insert_with(Instant::now);
-                if pending_time.elapsed() >= PAT_DEBOUNCE_DURATION
-                    && connection_signal_delay_elapsed
-                {
-                    send_keystroke(
-                        &KeypressSpec {
-                            key: keyboard::Key::_1,
-                            send_shift: false,
-                        },
-                        keyboard,
-                    );
-                    current_status.sip = SipAndPuffSignalStatus::Active;
-                }
-            }
-            SipAndPuffSignalStatus::Idle => {
-                current_status.sip = SipAndPuffSignalStatus::Idle;
-                current_status.pending_sip_active_time = None;
-            }
-            SipAndPuffSignalStatus::Active => {}
-        }
+        debounce_action(
+            new_sip_status,
+            &mut current_status.sip,
+            &mut current_status.pending_sip_active_time,
+            connection_signal_delay_elapsed,
+            || {
+                send_keystroke(
+                    &KeypressSpec {
+                        key: keyboard::Key::_1,
+                        send_shift: false,
+                    },
+                    keyboard,
+                )
+            },
+        );
 
-        // Debounced puff: same pattern as sip.
-        match new_puff_status {
-            SipAndPuffSignalStatus::Active
-                if current_status.puff == SipAndPuffSignalStatus::Idle =>
-            {
-                let pending_time = current_status
-                    .pending_puff_active_time
-                    .get_or_insert_with(Instant::now);
-                if pending_time.elapsed() >= PAT_DEBOUNCE_DURATION
-                    && connection_signal_delay_elapsed
-                {
-                    send_keystroke(
-                        &KeypressSpec {
-                            key: keyboard::Key::_2,
-                            send_shift: false,
-                        },
-                        keyboard,
-                    );
-                    current_status.puff = SipAndPuffSignalStatus::Active;
-                }
-            }
-            SipAndPuffSignalStatus::Idle => {
-                current_status.puff = SipAndPuffSignalStatus::Idle;
-                current_status.pending_puff_active_time = None;
-            }
-            SipAndPuffSignalStatus::Active => {}
-        }
+        debounce_action(
+            new_puff_status,
+            &mut current_status.puff,
+            &mut current_status.pending_puff_active_time,
+            connection_signal_delay_elapsed,
+            || {
+                send_keystroke(
+                    &KeypressSpec {
+                        key: keyboard::Key::_2,
+                        send_shift: false,
+                    },
+                    keyboard,
+                )
+            },
+        );
     }
 
     Ok(false)
