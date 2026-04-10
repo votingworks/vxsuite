@@ -40,6 +40,7 @@ export async function saveReadinessReport({
     electionDefinition: electionRecord?.electionDefinition,
     electionPackageHash: electionRecord?.electionPackageHash,
     precinctSelection: store.getPrecinctSelection(),
+    pollingPlaceId: store.getPollingPlaceId(),
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     scannerStatus: machine.status(),
     mostRecentScannerDiagnostic:
