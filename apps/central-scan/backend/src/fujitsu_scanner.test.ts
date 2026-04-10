@@ -116,7 +116,7 @@ test('fujitsu scanner can scans with expected params on letter size election', (
     'scanimage',
     expect.arrayContaining([
       '--page-width',
-      '215.9',
+      '266.7',
       '--page-height',
       '336.55',
       '--bgcolor=black',
@@ -145,9 +145,38 @@ test('fujitsu scanner can scan with expected params on legal size election', () 
     'scanimage',
     expect.arrayContaining([
       '--page-width',
-      '215.9',
+      '266.7',
       '--page-height',
       '361.95',
+      '--bgcolor=black',
+    ])
+  );
+});
+
+test('fujitsu scanner can scan with expected params on 22" size election', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Custom22 });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining([
+      '--page-width',
+      '266.7',
+      '--page-height',
+      '565.15',
       '--bgcolor=black',
     ])
   );
