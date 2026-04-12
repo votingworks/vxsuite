@@ -683,8 +683,10 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_sip_requires_consecutive_statuses() {
+    fn assert_requires_consecutive_statuses(
+        active_status: fn() -> NotificationStatusResponse,
+        expected_key: keyboard::Key,
+    ) {
         set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
         let current_status = &mut connected_current_status();
@@ -693,7 +695,7 @@ mod tests {
         // Pre-threshold active statuses should not trigger a keystroke
         for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
             handle_status_response(
-                sip_active_status(),
+                active_status(),
                 current_status,
                 &mut mock_keyboard,
                 &workspace,
@@ -704,17 +706,17 @@ mod tests {
 
         // Threshold-meeting active status should trigger a keystroke
         handle_status_response(
-            sip_active_status(),
+            active_status(),
             current_status,
             &mut mock_keyboard,
             &workspace,
         )
         .unwrap();
-        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_1, vec![])]);
+        assert_eq!(mock_keyboard.keystrokes, vec![(expected_key, vec![])]);
 
         // Further active status should not trigger a keystroke
         handle_status_response(
-            sip_active_status(),
+            active_status(),
             current_status,
             &mut mock_keyboard,
             &workspace,
@@ -723,48 +725,10 @@ mod tests {
         assert_eq!(mock_keyboard.keystrokes.len(), 1);
     }
 
-    #[test]
-    fn test_puff_requires_consecutive_statuses() {
-        set_source(SOURCE);
-        let mut mock_keyboard = MockKeyboard::new();
-        let current_status = &mut connected_current_status();
-        let workspace = temp_dir();
-
-        // Pre-threshold active statuses should not trigger a keystroke
-        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
-            handle_status_response(
-                puff_active_status(),
-                current_status,
-                &mut mock_keyboard,
-                &workspace,
-            )
-            .unwrap();
-            assert!(mock_keyboard.keystrokes.is_empty());
-        }
-
-        // Threshold-meeting active status should trigger a keystroke
-        handle_status_response(
-            puff_active_status(),
-            current_status,
-            &mut mock_keyboard,
-            &workspace,
-        )
-        .unwrap();
-        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_2, vec![])]);
-
-        // Further active status should not trigger a keystroke
-        handle_status_response(
-            puff_active_status(),
-            current_status,
-            &mut mock_keyboard,
-            &workspace,
-        )
-        .unwrap();
-        assert_eq!(mock_keyboard.keystrokes.len(), 1);
-    }
-
-    #[test]
-    fn test_sip_counter_resets_on_idle() {
+    fn assert_counter_resets_on_idle(
+        active_status: fn() -> NotificationStatusResponse,
+        expected_key: keyboard::Key,
+    ) {
         set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
         let current_status = &mut connected_current_status();
@@ -773,7 +737,7 @@ mod tests {
         // Get close to the threshold
         for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
             handle_status_response(
-                sip_active_status(),
+                active_status(),
                 current_status,
                 &mut mock_keyboard,
                 &workspace,
@@ -793,7 +757,7 @@ mod tests {
         // Get close to the threshold again
         for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
             handle_status_response(
-                sip_active_status(),
+                active_status(),
                 current_status,
                 &mut mock_keyboard,
                 &workspace,
@@ -804,12 +768,32 @@ mod tests {
 
         // Meet the threshold
         handle_status_response(
-            sip_active_status(),
+            active_status(),
             current_status,
             &mut mock_keyboard,
             &workspace,
         )
         .unwrap();
-        assert_eq!(mock_keyboard.keystrokes, vec![(keyboard::Key::_1, vec![])]);
+        assert_eq!(mock_keyboard.keystrokes, vec![(expected_key, vec![])]);
+    }
+
+    #[test]
+    fn test_sip_requires_consecutive_statuses() {
+        assert_requires_consecutive_statuses(sip_active_status, keyboard::Key::_1);
+    }
+
+    #[test]
+    fn test_puff_requires_consecutive_statuses() {
+        assert_requires_consecutive_statuses(puff_active_status, keyboard::Key::_2);
+    }
+
+    #[test]
+    fn test_sip_counter_resets_on_idle() {
+        assert_counter_resets_on_idle(sip_active_status, keyboard::Key::_1);
+    }
+
+    #[test]
+    fn test_puff_counter_resets_on_idle() {
+        assert_counter_resets_on_idle(puff_active_status, keyboard::Key::_2);
     }
 }
