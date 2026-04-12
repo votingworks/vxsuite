@@ -4,6 +4,7 @@ import {
   HeadphoneCalibrationButton,
   Icons,
   InputControls,
+  MinTouchDurationGuard,
   P,
 } from '@votingworks/ui';
 import { useState } from 'react';
@@ -71,67 +72,69 @@ export function AppRoot(): JSX.Element {
   const usbDriveStatus = getElectricalTestingStatusesQuery.data?.usbDrive;
 
   return (
-    <ElectricalTestingScreen
-      header={
-        <CpuMetricsDisplay
-          metrics={getCpuMetricsQuery.data}
-          orientation="portrait"
-        />
-      }
-      tasks={[
-        {
-          id: 'paperHandler',
-          icon: <Icons.File />,
-          title: 'Paper Handler',
-          statusMessage: paperHandlerStatus?.statusMessage ?? 'Unknown',
-          isRunning: paperHandlerStatus?.taskStatus === 'running',
-          toggleIsRunning: togglePaperHandlerTaskRunning,
-          updatedAt: paperHandlerStatus?.updatedAt,
-        },
-        {
-          id: 'card',
-          icon: <Icons.SimCard />,
-          title: 'Card Reader',
-          statusMessage: cardStatus?.statusMessage ?? 'Unknown',
-          isRunning: cardStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleCardReaderTaskRunning,
-          updatedAt: cardStatus?.updatedAt,
-        },
-        {
-          id: 'usbDrive',
-          icon: <Icons.Print />,
-          title: 'USB Drive',
-          statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
-          isRunning: usbDriveStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleUsbDriveTaskRunning,
-          updatedAt: usbDriveStatus?.updatedAt,
-        },
-        {
-          id: 'sound',
-          icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
-          title: 'Sound',
-          body: (
-            <div>
-              <P>{isSoundEnabled ? 'Enabled' : 'Disabled'}</P>
-              <HeadphoneCalibrationButton
-                audioUrl="/sounds/tts-sample.mp3"
-                onBegin={() => setCalibratingHeadphones(true)}
-                onEnd={() => setCalibratingHeadphones(false)}
-              />
-            </div>
-          ),
-          isRunning: isSoundEnabled,
-          toggleIsRunning: toggleSoundEnabled,
-        },
-        {
-          id: 'inputs',
-          icon: <Icons.Mouse />,
-          title: 'Inputs',
-          body: <InputControls />,
-        },
-      ]}
-      usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
-      apiClient={apiClient}
-    />
+    <MinTouchDurationGuard style={{ height: '100%' }}>
+      <ElectricalTestingScreen
+        header={
+          <CpuMetricsDisplay
+            metrics={getCpuMetricsQuery.data}
+            orientation="portrait"
+          />
+        }
+        tasks={[
+          {
+            id: 'paperHandler',
+            icon: <Icons.File />,
+            title: 'Paper Handler',
+            statusMessage: paperHandlerStatus?.statusMessage ?? 'Unknown',
+            isRunning: paperHandlerStatus?.taskStatus === 'running',
+            toggleIsRunning: togglePaperHandlerTaskRunning,
+            updatedAt: paperHandlerStatus?.updatedAt,
+          },
+          {
+            id: 'card',
+            icon: <Icons.SimCard />,
+            title: 'Card Reader',
+            statusMessage: cardStatus?.statusMessage ?? 'Unknown',
+            isRunning: cardStatus?.taskStatus === 'running',
+            toggleIsRunning: toggleCardReaderTaskRunning,
+            updatedAt: cardStatus?.updatedAt,
+          },
+          {
+            id: 'usbDrive',
+            icon: <Icons.Print />,
+            title: 'USB Drive',
+            statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
+            isRunning: usbDriveStatus?.taskStatus === 'running',
+            toggleIsRunning: toggleUsbDriveTaskRunning,
+            updatedAt: usbDriveStatus?.updatedAt,
+          },
+          {
+            id: 'sound',
+            icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
+            title: 'Sound',
+            body: (
+              <div>
+                <P>{isSoundEnabled ? 'Enabled' : 'Disabled'}</P>
+                <HeadphoneCalibrationButton
+                  audioUrl="/sounds/tts-sample.mp3"
+                  onBegin={() => setCalibratingHeadphones(true)}
+                  onEnd={() => setCalibratingHeadphones(false)}
+                />
+              </div>
+            ),
+            isRunning: isSoundEnabled,
+            toggleIsRunning: toggleSoundEnabled,
+          },
+          {
+            id: 'inputs',
+            icon: <Icons.Mouse />,
+            title: 'Inputs',
+            body: <InputControls />,
+          },
+        ]}
+        usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
+        apiClient={apiClient}
+      />
+    </MinTouchDurationGuard>
   );
 }
