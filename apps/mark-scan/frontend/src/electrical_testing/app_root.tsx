@@ -1,4 +1,5 @@
 import {
+  Button,
   CpuMetricsDisplay,
   ElectricalTestingScreen,
   HeadphoneCalibrationButton,
@@ -8,16 +9,29 @@ import {
   P,
 } from '@votingworks/ui';
 import { useState } from 'react';
+import styled from 'styled-components';
 import useInterval from 'use-interval';
 import {
   getCpuMetrics,
   getElectricalTestingStatuses,
+  getMinTouchDurationMs,
   setCardReaderTaskRunning,
+  setMinTouchDurationMs,
   setPaperHandlerTaskRunning,
   setUsbDriveTaskRunning,
   useApiClient,
 } from './api';
 import { useSound } from '../hooks/use_sound';
+
+const MIN_TOUCH_DURATION_STEP_MS = 10;
+const MIN_TOUCH_DURATION_MIN_MS = 0;
+const MIN_TOUCH_DURATION_MAX_MS = 500;
+
+const SettingsRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
 
 const SOUND_INTERVAL_SECONDS = 5;
 
@@ -34,6 +48,10 @@ export function AppRoot(): JSX.Element {
 
   const [calibratingHeadphones, setCalibratingHeadphones] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const getMinTouchDurationMsQuery = getMinTouchDurationMs.useQuery();
+  const setMinTouchDurationMsMutation = setMinTouchDurationMs.useMutation();
+  const minTouchDurationMs = getMinTouchDurationMsQuery.data;
   const playSound = useSound('success-5s');
 
   function togglePaperHandlerTaskRunning() {
@@ -72,7 +90,10 @@ export function AppRoot(): JSX.Element {
   const usbDriveStatus = getElectricalTestingStatusesQuery.data?.usbDrive;
 
   return (
-    <MinTouchDurationGuard style={{ height: '100%' }}>
+    <MinTouchDurationGuard
+      minTouchDurationMs={minTouchDurationMs}
+      style={{ height: '100%' }}
+    >
       <ElectricalTestingScreen
         header={
           <CpuMetricsDisplay
@@ -130,6 +151,52 @@ export function AppRoot(): JSX.Element {
             icon: <Icons.Mouse />,
             title: 'Inputs',
             body: <InputControls />,
+          },
+          {
+            id: 'advancedSettings',
+            icon: <Icons.Settings />,
+            title: 'Advanced Settings',
+            body: (
+              <div>
+                <Button
+                  onPress={() => setShowAdvancedSettings((prev) => !prev)}
+                >
+                  {showAdvancedSettings ? 'Hide' : 'Show'}
+                </Button>
+                {showAdvancedSettings && minTouchDurationMs !== undefined && (
+                  <SettingsRow style={{ marginTop: '0.5rem' }}>
+                    <span>Min Touch Duration:</span>
+                    <Button
+                      onPress={() =>
+                        setMinTouchDurationMsMutation.mutate(
+                          Math.max(
+                            MIN_TOUCH_DURATION_MIN_MS,
+                            minTouchDurationMs - MIN_TOUCH_DURATION_STEP_MS
+                          )
+                        )
+                      }
+                      disabled={minTouchDurationMs <= MIN_TOUCH_DURATION_MIN_MS}
+                    >
+                      -
+                    </Button>
+                    <span>{minTouchDurationMs}ms</span>
+                    <Button
+                      onPress={() =>
+                        setMinTouchDurationMsMutation.mutate(
+                          Math.min(
+                            MIN_TOUCH_DURATION_MAX_MS,
+                            minTouchDurationMs + MIN_TOUCH_DURATION_STEP_MS
+                          )
+                        )
+                      }
+                      disabled={minTouchDurationMs >= MIN_TOUCH_DURATION_MAX_MS}
+                    >
+                      +
+                    </Button>
+                  </SettingsRow>
+                )}
+              </div>
+            ),
           },
         ]}
         usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}

@@ -32,6 +32,8 @@ import { join } from 'node:path';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
+const DEFAULT_MIN_TOUCH_DURATION_MS = 50;
+
 export interface ElectionRecord {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
@@ -447,6 +449,25 @@ export class Store {
       `,
       component,
       statusMessage
+    );
+  }
+
+  getMinTouchDurationMs(): number {
+    const row = this.client.one(
+      'select min_touch_duration_ms as minTouchDurationMs from electrical_testing_settings'
+    ) as { minTouchDurationMs: number } | undefined;
+    return row?.minTouchDurationMs ?? DEFAULT_MIN_TOUCH_DURATION_MS;
+  }
+
+  setMinTouchDurationMs(minTouchDurationMs: number): void {
+    this.client.run(
+      `
+      insert or replace into electrical_testing_settings (
+        id,
+        min_touch_duration_ms
+      ) values (1, ?)
+      `,
+      minTouchDurationMs
     );
   }
 }

@@ -55,3 +55,9 @@ create table electrical_testing_status_messages (
   status_message text not null,
   updated_at datetime default current_timestamp not null
 );
+
+create table electrical_testing_settings (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  min_touch_duration_ms integer not null
+);

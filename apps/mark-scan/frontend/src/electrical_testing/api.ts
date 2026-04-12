@@ -109,6 +109,32 @@ export const setUsbDriveTaskRunning = {
   },
 } as const;
 
+export const getMinTouchDurationMs = {
+  queryKey(): QueryKey {
+    return ['getMinTouchDurationMs'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMinTouchDurationMs());
+  },
+} as const;
+
+export const setMinTouchDurationMs = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (minTouchDurationMs: number) =>
+        apiClient.setMinTouchDurationMs({ minTouchDurationMs }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(getMinTouchDurationMs.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
 export const getCpuMetrics = {
   queryKey(): QueryKey {
     return ['getCpuMetrics'];

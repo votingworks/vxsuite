@@ -88,6 +88,14 @@ function buildApi({
       }
     },
 
+    getMinTouchDurationMs(): number {
+      return store.getMinTouchDurationMs();
+    },
+
+    setMinTouchDurationMs(input: { minTouchDurationMs: number }) {
+      store.setMinTouchDurationMs(input.minTouchDurationMs);
+    },
+
     async getCpuMetrics(): Promise<CpuMetrics> {
       return getCpuMetrics();
     },
