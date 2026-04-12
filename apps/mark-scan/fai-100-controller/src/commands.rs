@@ -102,7 +102,7 @@ pub enum ButtonSignal {
     NoButton = 0xff,
 }
 
-#[derive(Debug, num_enum::TryFromPrimitive, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, num_enum::TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
 pub enum SipAndPuffSignalStatus {
     // Documented as Active = 0x01, Idle = 0x00, but based on experimentation the signals are flipped
