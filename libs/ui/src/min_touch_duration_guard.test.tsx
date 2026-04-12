@@ -43,7 +43,7 @@ test('allows clicks from touches at the default minimum duration', () => {
 
 test('allows clicks from touches above the default minimum duration', () => {
   const { onClick } = renderWithButton();
-  pointerDownThenClick(DEFAULT_MIN_TOUCH_DURATION_MS * 2);
+  pointerDownThenClick(DEFAULT_MIN_TOUCH_DURATION_MS + 1);
   expect(onClick).toHaveBeenCalledOnce();
 });
 

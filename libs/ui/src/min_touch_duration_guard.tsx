@@ -12,7 +12,7 @@ interface MinTouchDurationGuardProps {
 }
 
 /**
- * Wraps children and blocks click events from touches shorter than {@link minPressDurationMs}.
+ * Wraps children and blocks click events from touches shorter than {@link minTouchDurationMs}.
  * Useful for filtering out electrostatic discharge (ESD) events that manifest as very brief
  * touches.
  *
