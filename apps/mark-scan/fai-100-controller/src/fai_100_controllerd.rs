@@ -338,12 +338,12 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
 /// Tracks consecutive active statuses for a sip or puff signal and sends a
 /// keystroke once the threshold is reached. Resets the counter on idle status.
 fn handle_sip_or_puff_signal(
-    signal_status: &SipAndPuffSignalStatus,
+    signal_status: SipAndPuffSignalStatus,
     consecutive_count: &mut u8,
     key: keyboard::Key,
     keyboard: &mut impl VirtualKeyboard,
 ) {
-    if *signal_status == SipAndPuffSignalStatus::Active {
+    if signal_status == SipAndPuffSignalStatus::Active {
         *consecutive_count = consecutive_count.saturating_add(1);
         if *consecutive_count == CONSECUTIVE_STATUS_THRESHOLD {
             send_keystroke(
@@ -436,13 +436,13 @@ fn handle_status_response(
         && connection_signal_delay_elapsed
     {
         handle_sip_or_puff_signal(
-            &new_sip_status,
+            new_sip_status,
             &mut current_status.consecutive_sip_active_count,
             keyboard::Key::_1,
             keyboard,
         );
         handle_sip_or_puff_signal(
-            &new_puff_status,
+            new_puff_status,
             &mut current_status.consecutive_puff_active_count,
             keyboard::Key::_2,
             keyboard,
