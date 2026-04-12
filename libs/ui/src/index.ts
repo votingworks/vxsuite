@@ -57,6 +57,7 @@ export * from './left_nav';
 export * from './link_button';
 export * from './list';
 export * from './list_item';
+export * from './min_touch_duration_guard';
 export * from './signed_hash_validation_button';
 export * from './loading';
 export * from './loading_animation';
