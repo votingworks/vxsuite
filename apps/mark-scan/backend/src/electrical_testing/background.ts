@@ -152,11 +152,11 @@ export async function runPrintAndScanTask({
     return;
   }
 
-  // Simulate the effects of a full power cycle on the printer-scanner in case we're returning to
-  // the app via a software restart rather than a true power cycle. We auto-restart the HWTA on
-  // crash, but that does us no good for hardware testing if the printer-scanner doesn't
-  // auto-resume shoeshine. Testing has shown the two commands below to be necessary to reliably
-  // get the printer-scanner back to a working state.
+  // Hard reset the paper handler in case we're returning to the app via a software restart rather
+  // than a full power cycle. We auto-restart the HWTA on crash, but that does us no good for
+  // hardware testing if the paper handler doesn't auto-resume shoeshine. Testing has shown the two
+  // commands below to be necessary to get the paper handler back to a working state in the absence
+  // of a full power cycle.
   await driver.clearGenericInBuffer();
   driver = await resetAndReconnect(driver);
 
@@ -194,8 +194,8 @@ export async function runPrintAndScanTask({
     return;
   }
 
-  // If paper is already in the scanner, e.g., after a crash/restart mid-shoeshine, park it to
-  // reach a known state and skip straight to the shoeshine loop.
+  // If paper is already in the paper handler, e.g., after a crash/restart mid-shoeshine, park it
+  // to reach a known state and skip straight to the shoeshine loop.
   if (isPaperAnywhere(status)) {
     await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message:
