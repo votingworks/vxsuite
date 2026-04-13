@@ -6,6 +6,7 @@ import {
   CompressedTallyEntry,
   ContestId,
   Election,
+  PrecinctId,
   PrecinctSelection,
   Tabulation,
   unsafeParse,
@@ -16,17 +17,25 @@ import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import { getContestsForPrecinctAndElection } from './contest_filtering';
+import { singlePrecinctSelectionFor } from '../precinct_selection';
 
 const MAX_UINT16 = 0xffff;
+const UINT16_BITS = 16;
 
-// TODO(CARO) Set to 1 for first stable version after initial VxQR development is complete.
-const COMPRESSED_TALLY_VERSION = 0; // Increment this if the format changes and make sure the reading code can handle multiple versions.
+/**
+ * V0: single precinct selection. Layout: [0, contest_entries...]
+ */
+const COMPRESSED_TALLY_V0 = 0;
 
-export function encodeCompressedTally(
-  compressedTally: CompressedTally,
+/**
+ * V1: per-precinct bitmap format. Layout: [1, bitmap_words..., precinct_entries...]
+ */
+const COMPRESSED_TALLY_V1 = 1;
+
+function encodeUint16ArrayToPages(
+  flatArray: number[],
   numPages: number
 ): string[] {
-  const flatArray = [COMPRESSED_TALLY_VERSION, ...compressedTally.flat()];
   for (const value of flatArray) {
     assert(
       Number.isInteger(value) && value >= 0 && value <= MAX_UINT16,
@@ -51,8 +60,17 @@ export function encodeCompressedTally(
   return sections;
 }
 
+export function encodeV0CompressedTally(
+  compressedTally: CompressedTally,
+  numPages: number
+): string[] {
+  const flatArray = [COMPRESSED_TALLY_V0, ...compressedTally.flat()];
+  return encodeUint16ArrayToPages(flatArray, numPages);
+}
+
 /**
- * Compresses election results
+ * Compresses election results for a given set of contests determined by
+ * precinctSelection.
  */
 export function compressTally(
   election: Election,
@@ -107,7 +125,7 @@ export function compressTally(
 }
 
 /**
- * Compresses and encodes election results
+ * Compresses and encodes election results in V0 format.
  */
 export function compressAndEncodeTally({
   election,
@@ -121,7 +139,90 @@ export function compressAndEncodeTally({
   numPages: number;
 }): string[] {
   const compressedTally = compressTally(election, results, precinctSelection);
-  return encodeCompressedTally(compressedTally, numPages);
+  return encodeV0CompressedTally(compressedTally, numPages);
+}
+
+/**
+ * Builds a bitmap of uint16 words indicating which precincts have data.
+ * Bit i (in word floor(i/16), bit position i%16) is set when
+ * election.precincts[i].id exists in the resultsByPrecinct keys.
+ */
+export function buildPrecinctBitmap(
+  election: Election,
+  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
+): Uint16Array {
+  const numWords = Math.ceil(election.precincts.length / UINT16_BITS);
+  const bitmap = new Uint16Array(numWords); // initialized to 0
+  for (const [i, precinct] of election.precincts.entries()) {
+    if (resultsByPrecinct[precinct.id] !== undefined) {
+      const wordIndex = Math.floor(i / UINT16_BITS);
+      const bitIndex = i % UINT16_BITS;
+      const current = bitmap[wordIndex];
+      assert(current !== undefined);
+      // eslint-disable-next-line no-bitwise
+      bitmap[wordIndex] = current | (1 << bitIndex);
+    }
+  }
+  return bitmap;
+}
+
+/**
+ * Reads a precinct bitmap from a uint16 array at the given offset.
+ */
+export function readPrecinctBitmap(
+  uint16Array: Uint16Array,
+  offset: number,
+  numPrecincts: number
+): { bitmap: boolean[]; nextOffset: number } {
+  const numWords = Math.ceil(numPrecincts / UINT16_BITS);
+  const bitmap: boolean[] = [];
+  for (let i = 0; i < numPrecincts; i += 1) {
+    const wordIndex = Math.floor(i / UINT16_BITS);
+    const bitIndex = i % UINT16_BITS;
+    const word = uint16Array[offset + wordIndex];
+    assert(word !== undefined, 'Bitmap data truncated');
+    // eslint-disable-next-line no-bitwise
+    bitmap.push(((word >> bitIndex) & 1) === 1);
+  }
+  return { bitmap, nextOffset: offset + numWords };
+}
+
+/**
+ * Compresses and encodes per-precinct election results using V1 bitmap
+ * format. Layout: [version=1, bitmap_words..., precinct_entries...]
+ *
+ * The bitmap flags which precincts have data. Each precinct's tally
+ * entries are concatenated in election.precincts order.
+ */
+export function compressAndEncodePerPrecinctTally({
+  election,
+  resultsByPrecinct,
+  numPages,
+}: {
+  election: Election;
+  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>;
+  numPages: number;
+}): string[] {
+  const bitmap = buildPrecinctBitmap(election, resultsByPrecinct);
+  const tallyEntries: number[] = [];
+
+  for (const precinct of election.precincts) {
+    const precinctResults = resultsByPrecinct[precinct.id];
+    if (precinctResults) {
+      const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+      const compressedTally = compressTally(
+        election,
+        precinctResults,
+        precinctSelection
+      );
+      tallyEntries.push(...compressedTally.flat());
+    }
+  }
+
+  return encodeUint16ArrayToPages(
+    [COMPRESSED_TALLY_V1, ...bitmap, ...tallyEntries],
+    numPages
+  );
 }
 
 function getContestTalliesForCompressedContest(
@@ -215,7 +316,10 @@ function getNumberOfEntriesInContest(contest: AnyContest): number {
   }
 }
 
-export function decodeCompressedTally(
+/**
+ * Decodes a V0-format encoded tally (version byte + flat contest entries).
+ */
+export function decodeV0CompressedTally(
   encodedCompressedTally: string,
   precinctSelection: PrecinctSelection,
   election: Election
@@ -228,11 +332,9 @@ export function decodeCompressedTally(
   );
   const compressedTally: CompressedTally = [];
   const encodedVersion = uint16Array[0];
-  // Currently we only support one version, so this is just a check that the version is correct. As breaking changes occur after
-  // initial VxQR development is complete, this function will need to handle reading multiple versions for backwards compatibility.
   assert(
-    encodedVersion === COMPRESSED_TALLY_VERSION,
-    `Unsupported compressed tally version ${encodedVersion}`
+    encodedVersion === COMPRESSED_TALLY_V0,
+    `Unsupported compressed tally version ${encodedVersion} for V0 decode`
   );
   let offset = 1;
   const contests = getContestsForPrecinctAndElection(
@@ -272,9 +374,90 @@ export function decodeCompressedTally(
 }
 
 /**
- * Creates a tally from a serialized tally read from a smart card. If a
- * `partyId` is provided, only includes contests associated with that party.
- * If `partyId` is undefined, only includes nonpartisan races.
+ * Decodes contest entries from a uint16 array for a given set of contests,
+ * starting at the given offset.
+ */
+function decodeContestEntriesFromUint16Array(
+  uint16Array: Uint16Array,
+  contests: readonly AnyContest[],
+  offset: number
+): { contestResults: Record<ContestId, ContestResults>; nextOffset: number } {
+  const contestResults: Record<ContestId, ContestResults> = {};
+  let currentOffset = offset;
+  for (const contest of contests) {
+    const tallyLength = getNumberOfEntriesInContest(contest);
+    const entryArray = Array.from(
+      uint16Array.slice(currentOffset, currentOffset + tallyLength)
+    );
+    let compressedEntry: CompressedTallyEntry;
+    if (contest.type === 'yesno') {
+      compressedEntry = entryArray as YesNoContestCompressedTally;
+    } else {
+      compressedEntry = entryArray as CandidateContestCompressedTally;
+    }
+    contestResults[contest.id] = getContestTalliesForCompressedContest(
+      contest,
+      compressedEntry
+    );
+    currentOffset += tallyLength;
+  }
+  return { contestResults, nextOffset: currentOffset };
+}
+
+/**
+ * Decodes a V1 bitmap-format encoded tally into per-precinct contest results.
+ * Layout: [version=1, bitmap_words..., precinct_entries...]
+ */
+function decodeBitmapTally(
+  uint16Array: Uint16Array,
+  election: Election
+): Record<PrecinctId, Record<ContestId, ContestResults>> {
+  // Skip version byte at offset 0
+  const { bitmap, nextOffset: dataOffset } = readPrecinctBitmap(
+    uint16Array,
+    1,
+    election.precincts.length
+  );
+
+  const result: Record<PrecinctId, Record<ContestId, ContestResults>> = {};
+  let offset = dataOffset;
+
+  for (const [i, precinct] of election.precincts.entries()) {
+    if (bitmap[i]) {
+      const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+      const contests = getContestsForPrecinctAndElection(
+        election,
+        precinctSelection
+      );
+      const { contestResults, nextOffset } =
+        decodeContestEntriesFromUint16Array(uint16Array, contests, offset);
+      result[precinct.id] = contestResults;
+      offset = nextOffset;
+    }
+  }
+
+  assert(
+    offset === uint16Array.length,
+    `Expected to consume all data, but ${
+      uint16Array.length - offset
+    } entries remain`
+  );
+
+  return result;
+}
+
+function decodeEncodedTallyToUint16Array(encodedTally: string): Uint16Array {
+  const buffer = Buffer.from(encodedTally, 'base64url');
+  return new Uint16Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.byteLength / Uint16Array.BYTES_PER_ELEMENT
+  );
+}
+
+/**
+ * Decodes an encoded compressed tally and returns aggregated contest results.
+ * Auto-detects format: version 0 -> V0, version 1 -> V1 bitmap.
  */
 export function decodeAndReadCompressedTally({
   election,
@@ -285,7 +468,11 @@ export function decodeAndReadCompressedTally({
   precinctSelection: PrecinctSelection;
   encodedTally: string;
 }): Record<ContestId, ContestResults> {
-  const compressedTally = decodeCompressedTally(
+  const uint16Array = decodeEncodedTallyToUint16Array(encodedTally);
+  const version = uint16Array[0];
+
+  assert(version === COMPRESSED_TALLY_V0);
+  const compressedTally = decodeV0CompressedTally(
     encodedTally,
     precinctSelection,
     election
@@ -294,16 +481,34 @@ export function decodeAndReadCompressedTally({
     election,
     precinctSelection
   );
-  const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
+  const allContestResults: Record<ContestId, ContestResults> = {};
   for (const [contestIdx, contest] of contests.entries()) {
     const serializedContestTally = compressedTally[contestIdx];
     assert(serializedContestTally);
-    const contestResults = getContestTalliesForCompressedContest(
+    allContestResults[contest.id] = getContestTalliesForCompressedContest(
       contest,
       serializedContestTally
     );
-    allContestResults[contest.id] = contestResults;
   }
-
   return allContestResults;
+}
+
+/**
+ * Decodes a V1 bitmap-format encoded tally and returns per-precinct contest
+ * results. Asserts the data is V1 format.
+ */
+export function decodeAndReadPerPrecinctCompressedTally({
+  election,
+  encodedTally,
+}: {
+  election: Election;
+  encodedTally: string;
+}): Record<PrecinctId, Record<ContestId, ContestResults>> {
+  const uint16Array = decodeEncodedTallyToUint16Array(encodedTally);
+  const version = uint16Array[0];
+  assert(
+    version === COMPRESSED_TALLY_V1,
+    `Per-precinct decode requires V1 bitmap format, got version ${version}`
+  );
+  return decodeBitmapTally(uint16Array, election);
 }
