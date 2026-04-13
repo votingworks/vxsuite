@@ -1,15 +1,6 @@
 /* eslint-disable no-labels */
 import { iter, assertDefined, assert, range, find } from '@votingworks/basics';
 
-function findLastIndex<T>(arr: T[], keyFn: (item: T) => boolean): number {
-  for (let i = arr.length - 1; i >= 0; i -= 1) {
-    if (keyFn(arr[i])) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 /**
  * Builds a comparator that compares two items by multiple scoring functions.
  * If the first scoring function returns a tie, uses the second scoring function
@@ -32,6 +23,18 @@ interface ElementWithHeight {
 }
 
 type Column<Element extends ElementWithHeight> = Element[];
+
+function columnHeight<Element extends ElementWithHeight>(
+  column: Column<Element>,
+  elementGap: number
+): number {
+  return (
+    iter(column)
+      .map((e) => e.height)
+      .sum() +
+    Math.max(column.length - 1, 0) * elementGap
+  );
+}
 
 /**
  * Lay out elements with fixed heights in columns, with the following constraints:
@@ -63,21 +66,12 @@ export async function layOutInColumns<Element extends ElementWithHeight>({
     return range(0, numColumns).map(() => []);
   }
 
-  function columnHeight(column: Column<Element>): number {
-    return (
-      iter(column)
-        .map((e) => e.height)
-        .sum() +
-      Math.max(column.length - 1, 0) * elementGap
-    );
-  }
-
   function isColumnOverflowing(column: Column<Element>): boolean {
-    return columnHeight(column) > maxColumnHeight;
+    return columnHeight(column, elementGap) > maxColumnHeight;
   }
 
   function heightOfTallestColumn(columns: Array<Column<Element>>): number {
-    return Math.max(...columns.map(columnHeight));
+    return Math.max(...columns.map((c) => columnHeight(c, elementGap)));
   }
 
   // First, try a greedy approach of filling columns to the max height
@@ -124,8 +118,7 @@ export async function layOutInColumns<Element extends ElementWithHeight>({
     const [nextElement, ...restElements] = elementsLeft;
 
     // If there's a current column being filled, try adding the next element to it
-    const lastNonEmptyColumnIndex = findLastIndex(
-      columnsSoFar,
+    const lastNonEmptyColumnIndex = columnsSoFar.findLastIndex(
       (column) => column.length > 0
     );
     if (lastNonEmptyColumnIndex !== -1) {
@@ -163,7 +156,8 @@ export async function layOutInColumns<Element extends ElementWithHeight>({
         // Shortest overall height
         (columns) => heightOfTallestColumn(columns),
         // Least difference in height among columns
-        (columns) => spread(columns.map(columnHeight)),
+        (columns) =>
+          spread(columns.map((column) => columnHeight(column, elementGap))),
         // Least gaps (empty columns in the middle)
         (columns) => columns.findIndex((column) => column.length === 0),
       ])
@@ -188,6 +182,17 @@ export interface Subsection<Element> {
 interface SectionIndex {
   subsectionIndex: number;
   elementIndex: number;
+}
+
+function assertSectionsNonEmpty<Element>(
+  sections: Array<Section<Element>>
+): void {
+  for (const section of sections) {
+    assert(section.subsections.length > 0, 'Section must have subsections');
+    for (const subsection of section.subsections) {
+      assert(subsection.elements.length > 0, 'Subsection must have elements');
+    }
+  }
 }
 
 export function sectionIndexOf<E>(
@@ -291,21 +296,7 @@ export function layOutSectionsInColumns<Element extends ElementWithHeight>({
   columns: Array<Column<Element>>;
   leftoverSections: Array<Section<Element>>;
 } {
-  for (const section of sections) {
-    assert(section.subsections.length > 0, 'Section must have subsections');
-    for (const subsection of section.subsections) {
-      assert(subsection.elements.length > 0, 'Subsection must have elements');
-    }
-  }
-
-  function columnHeight(column: Column<Element>): number {
-    return (
-      iter(column)
-        .map((e) => e.height)
-        .sum() +
-      Math.max(column.length - 1, 0) * elementGap
-    );
-  }
+  assertSectionsNonEmpty(sections);
 
   const columns: Array<Column<Element>> = range(0, numColumns).map(() => []);
 
@@ -313,7 +304,7 @@ export function layOutSectionsInColumns<Element extends ElementWithHeight>({
 
   function fitsInCurrentColumn(elementsToAdd: Element[]): boolean {
     return (
-      columnHeight(columns[columnIndex].concat(elementsToAdd)) <=
+      columnHeight(columns[columnIndex].concat(elementsToAdd), elementGap) <=
       maxColumnHeight
     );
   }
@@ -332,21 +323,17 @@ export function layOutSectionsInColumns<Element extends ElementWithHeight>({
     columns[columnIndex].push(section.header);
 
     for (const subsection of section.subsections) {
-      while (
-        !fitsInCurrentColumn([subsection.header, subsection.elements[0]])
-      ) {
-        columnIndex += 1;
-        if (columnIndex >= numColumns) break sectionLoop;
-      }
-      columns[columnIndex].push(subsection.header);
-      for (const element of subsection.elements) {
-        while (!fitsInCurrentColumn([element])) {
+      for (const [elementIndex, element] of subsection.elements.entries()) {
+        let elementsToAdd =
+          elementIndex === 0 ? [subsection.header, element] : [element];
+        while (!fitsInCurrentColumn(elementsToAdd)) {
           columnIndex += 1;
           if (columnIndex >= numColumns) break sectionLoop;
-          // Repeat subsection header at top of new column
-          columns[columnIndex].push(subsection.header);
+          // If we split a subsection across columns, repeat the header at the
+          // top of the new column
+          elementsToAdd = [subsection.header, element];
         }
-        columns[columnIndex].push(element);
+        columns[columnIndex].push(...elementsToAdd);
       }
     }
   }
@@ -393,27 +380,15 @@ export function layOutSectionsInParallelColumns<
   columns: Array<Column<Element>>;
   leftoverSections: Array<Section<Element>>;
 } {
-  for (const section of sections) {
-    assert(section.subsections.length > 0, 'Section must have subsections');
-    for (const subsection of section.subsections) {
-      assert(subsection.elements.length > 0, 'Subsection must have elements');
-    }
-  }
-
-  function columnHeight(column: Column<Element>): number {
-    return (
-      iter(column)
-        .map((e) => e.height)
-        .sum() +
-      Math.max(column.length - 1, 0) * elementGap
-    );
-  }
+  assertSectionsNonEmpty(sections);
 
   function fitsInColumn(
     column: Column<Element>,
     elementsToAdd: Element[]
   ): boolean {
-    return columnHeight(column.concat(elementsToAdd)) <= maxColumnHeight;
+    return (
+      columnHeight(column.concat(elementsToAdd), elementGap) <= maxColumnHeight
+    );
   }
 
   const columns: Array<Column<Element>> = sections.map(() => []);

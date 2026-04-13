@@ -375,6 +375,32 @@ test('layOutSectionsInColumns avoids dangling subsection headers', () => {
   ]);
 });
 
+test('layOutSectionsInColumns does not leave dangling repeated subsection headers', () => {
+  const tallElement: TestElement = { id: 'tall', height: 4 };
+  const result = layOutSectionsInColumns({
+    sections: [
+      {
+        header: h1,
+        subsections: [{ header: sh1, elements: [e1, tallElement] }],
+      },
+    ],
+    // Column 1: h1(1) + sh1(1) + e1(2) = 4. tallElement(4) doesn't fit.
+    // Column 2: sh1(1) + tallElement(4) = 5 > 4, doesn't fit either.
+    // tallElement becomes leftover, and column 2 should stay empty (no
+    // dangling repeated sh1).
+    numColumns: 2,
+    maxColumnHeight: 4,
+  });
+
+  expect(result.columns).toEqual([[h1, sh1, e1], []]);
+  expect(result.leftoverSections).toEqual([
+    {
+      header: h1,
+      subsections: [{ header: sh1, elements: [tallElement] }],
+    },
+  ]);
+});
+
 test('layOutSectionsInParallelColumns fills columns in lockstep', () => {
   const result = layOutSectionsInParallelColumns({
     sections: [

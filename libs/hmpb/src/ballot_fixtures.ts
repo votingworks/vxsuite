@@ -826,10 +826,6 @@ export const miOpenPrimaryFixtures = (() => {
 
   const election = electionOpenPrimaryFixtures.readElection();
 
-  // For open primaries, ballot styles have no partyId, so getContests only
-  // returns nonpartisan contests. The MI template renders all contests from all
-  // parties by filtering by district directly. We create votes for all contests
-  // on the ballot style's districts.
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
@@ -845,10 +841,7 @@ export const miOpenPrimaryFixtures = (() => {
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
   );
-  const allContests = election.contests.filter((c) =>
-    ballotStyle.districts.includes(c.districtId)
-  );
-  const { votes } = createTestVotes(allContests);
+  const { votes } = createTestVotes(getContests({ election, ballotStyle }));
 
   return {
     dir,

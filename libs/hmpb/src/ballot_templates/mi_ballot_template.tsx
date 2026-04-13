@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   assertDefined,
   err,
@@ -63,6 +62,9 @@ import { Watermark } from './watermark';
 import { BaseStyles as BaseStylesComponent } from '../base_styles';
 import { ArrowDown } from '../svg_assets';
 
+// MI has specific ballot styling requirements (e.g. font sizes and tints for
+// various elements), so we encode those all as styled components here.
+
 const Box = styled.div<{
   fill?: 'transparent' | 'tinted';
 }>`
@@ -87,99 +89,58 @@ const ContestColumn = styled.div`
   }
 `;
 
+// Use compact styles to set the base font-size to 10pt
 function BaseStyles(): JSX.Element {
   return <BaseStylesComponent compact />;
 }
 
-// 60% fill, centered, bold, white sans serif, 11pt
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <Box
-      style={{
-        background: Colors.INVERSE_GRAY,
-        color: Colors.WHITE,
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '11pt',
-        padding: '0.25rem 0.5rem',
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
+const SectionHeader = styled(Box)`
+  background: ${Colors.INVERSE_GRAY};
+  color: ${Colors.WHITE};
+  text-align: center;
+  font-weight: bold;
+  font-size: 11pt;
+  padding: 0.25rem 0.5rem;
+`;
 
-function PartySectionHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <Box
-      style={{
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '11pt',
-        padding: '0.25rem 0.5rem',
-        borderTop: 'none',
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
+const PartySectionHeader = styled(Box)`
+  text-align: center;
+  font-weight: bold;
+  font-size: 11pt;
+  padding: 0.25rem 0.5rem;
+  border-top: none;
+`;
 
-// 40% fill, centered, bold, black sans serif, 11pt
-function DivisionalHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <Box
-      style={{
-        background: Colors.DARKER_GRAY,
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '11pt',
-        padding: '0.25rem 0.5rem',
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
+const DivisionalHeader = styled(Box)`
+  background: ${Colors.DARKER_GRAY};
+  text-align: center;
+  font-weight: bold;
+  font-size: 11pt;
+  padding: 0.25rem 0.5rem;
+`;
 
-// 20% fill, centered, bold, black sans serif, 10pt
-function ContestHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        background: Colors.LIGHT_GRAY,
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '10pt',
-        padding: '0.25rem 0.5rem',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
+const ContestHeader = styled.div`
+  background: ${Colors.LIGHT_GRAY};
+  text-align: center;
+  font-weight: bold;
+  font-size: 10pt;
+  padding: 0.25rem 0.5rem;
+`;
 
-function VoteFor({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        textAlign: 'center',
-        fontWeight: 'normal',
-        fontSize: '8pt',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
+const VoteFor = styled.div`
+  text-align: center;
+  font-weight: normal;
+  font-size: 8pt;
+`;
 
-function CandidateName({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontWeight: 'bold', fontSize: '9pt' }}>{children}</div>;
-}
+const CandidateName = styled.div`
+  font-weight: bold;
+  font-size: 9pt;
+`;
 
-function ProposalDescription({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: '9pt' }}>{children}</div>;
-}
+const ProposalDescription = styled.div`
+  font-size: 9pt;
+`;
 
 function Header({
   election,
@@ -496,6 +457,9 @@ function Contest({
   }
 }
 
+const NUM_COLUMNS = 4;
+const MAX_PARTISAN_COLUMNS = NUM_COLUMNS - 1;
+
 interface ContestSection {
   isPartisan: boolean;
   header: string;
@@ -516,6 +480,11 @@ function buildContestSections(
       (contest) => contest.type === 'candidate' && contest.partyId === party.id
     ),
   }));
+  if (partySections.length > MAX_PARTISAN_COLUMNS) {
+    throw new Error(
+      `Too many parties to fit on ballot: ${partySections.length}`
+    );
+  }
 
   return [
     ...partySections,
@@ -651,8 +620,6 @@ async function measureSectionElements(
 
   return measuredSections;
 }
-
-const NUM_COLUMNS = 4;
 
 async function BallotPageContent(
   props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
