@@ -4,12 +4,16 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
+  PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
+  combineElectionResults,
   convertVotesDictToTabulationVotes,
+  getBallotCount,
   getBallotStyleIdPartyIdLookup,
+  getGroupSpecifierFromGroupKey,
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
@@ -75,18 +79,12 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   [BallotType.Provisional]: 'provisional',
 };
 
-type ScannerResultsByParty = Tabulation.GroupList<Tabulation.ElectionResults>;
-
-export async function getScannerResults({
-  store,
-}: {
-  store: Store;
-}): Promise<ScannerResultsByParty> {
+function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
-  const cvrs = iter(store.forEachAcceptedSheet()).map((resultSheet) => {
+  return iter(store.forEachAcceptedSheet()).map((resultSheet) => {
     const [frontInterpretation, backInterpretation] =
       resultSheet.interpretation;
 
@@ -178,6 +176,18 @@ export async function getScannerResults({
         BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });
   });
+}
+
+type ScannerResultsByParty = Tabulation.GroupList<Tabulation.ElectionResults>;
+
+export async function getScannerResults({
+  store,
+}: {
+  store: Store;
+}): Promise<ScannerResultsByParty> {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const cvrs = buildCvrsFromStore(store);
 
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
@@ -202,4 +212,54 @@ export function getScannerResultsMemoized({
     store,
     store.getBallotsCounted()
   );
+}
+
+/**
+ * Returns per-precinct election results and total ballot count. For
+ * primary elections, results within each precinct are combined across
+ * parties.
+ */
+export async function getScannerResultsByPrecinct({
+  store,
+}: {
+  store: Store;
+}): Promise<{
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>;
+  ballotCount: number;
+}> {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const cvrs = buildCvrsFromStore(store);
+
+  const resultsByPrecinctGroupMap = await tabulateCastVoteRecords({
+    election,
+    groupBy: { groupByPrecinct: true },
+    cvrs,
+  });
+
+  const resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults> = {};
+  let totalBallotCount = 0;
+
+  for (const [groupKey, groupResults] of Object.entries(
+    resultsByPrecinctGroupMap
+  )) {
+    const groupSpecifier = getGroupSpecifierFromGroupKey(groupKey);
+    const {precinctId} = groupSpecifier;
+    assert(precinctId !== undefined);
+    const existing = resultsByPrecinct[precinctId];
+    if (existing) {
+      resultsByPrecinct[precinctId] = combineElectionResults({
+        election,
+        allElectionResults: [existing, groupResults],
+      });
+    } else {
+      resultsByPrecinct[precinctId] = groupResults;
+    }
+  }
+
+  for (const precinctResults of Object.values(resultsByPrecinct)) {
+    totalBallotCount += getBallotCount(precinctResults.cardCounts);
+  }
+
+  return { resultsByPrecinct, ballotCount: totalBallotCount };
 }
