@@ -28,8 +28,17 @@ import {
 import { useParams, Switch, Route } from 'react-router-dom';
 import React, { useState } from 'react';
 import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
-import { formatBallotHash, PollsTransitionType } from '@votingworks/types';
-import { format, groupContestsByParty } from '@votingworks/utils';
+import {
+  formatBallotHash,
+  PollsTransitionType,
+  PrecinctSelection,
+} from '@votingworks/types';
+import {
+  format,
+  getContestsForPrecinctAndElection,
+  getPrecinctSelectionName,
+  groupContestsByParty,
+} from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
 import type {
   GetExportedElectionError,
@@ -573,7 +582,14 @@ interface ResultsTabProps {
 function LiveReportsResultsScreen({
   electionId,
 }: ResultsTabProps): JSX.Element {
-  const getLiveResultsReportsQuery = getLiveResultsReports.useQuery(electionId);
+  const { precinctId } = useParams<{ precinctId: string }>();
+  const precinctSelection: PrecinctSelection = precinctId
+    ? { kind: 'SinglePrecinct', precinctId }
+    : { kind: 'AllPrecincts' };
+  const getLiveResultsReportsQuery = getLiveResultsReports.useQuery(
+    electionId,
+    precinctSelection
+  );
 
   if (!getLiveResultsReportsQuery.isSuccess) {
     // We don't know test/live mode yet or have the election data yet so show a generic title.
@@ -600,16 +616,26 @@ function LiveReportsResultsScreen({
   }
 
   const aggregatedResults = getLiveResultsReportsQuery.data.ok();
+  const contests = getContestsForPrecinctAndElection(
+    aggregatedResults.election,
+    precinctSelection
+  );
   const contestsByParty = groupContestsByParty(
     aggregatedResults.election,
-    aggregatedResults.election.contests
+    contests
   );
   const partyNamesById = aggregatedResults.election.parties.reduce<
     Record<string, string>
   >((acc, party) => ({ ...acc, [party.id]: party.fullName }), {});
   const testLivePrefix = aggregatedResults.isLive ? '' : 'Test ';
 
-  const reportTitle = `Unofficial ${testLivePrefix}Tally Report`;
+  const reportTitle =
+    precinctSelection.kind === 'AllPrecincts'
+      ? `Unofficial ${testLivePrefix}Tally Report`
+      : `Unofficial ${testLivePrefix}${getPrecinctSelectionName(
+          aggregatedResults.election.precincts,
+          precinctSelection
+        )} Tally Report`;
 
   return (
     <React.Fragment>

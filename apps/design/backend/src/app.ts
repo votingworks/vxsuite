@@ -23,6 +23,7 @@ import {
   ElectionRegisteredVotersCounts,
   District,
   PrecinctId,
+  PrecinctSelection,
   Party,
   AnyContest,
   AnyContestSchema,
@@ -37,6 +38,7 @@ import {
   formatBallotHash,
   PollingPlaceSchema,
   PollingPlace,
+  Tabulation,
   hasPartialRegisteredVoterCounts,
 } from '@votingworks/types';
 import express, { Application } from 'express';
@@ -67,8 +69,12 @@ import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import {
   ALL_PRECINCTS_SELECTION,
-  getExportedCastVoteRecordIds,
+  compressTally,
   decodeAndReadCompressedTally,
+  decodeAndReadPerPrecinctCompressedTally,
+  encodeV0CompressedTally,
+  getExportedCastVoteRecordIds,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -979,6 +985,7 @@ export function buildApi(ctx: AppContext) {
 
     async getLiveResultsReports(input: {
       electionId: ElectionId;
+      precinctSelection: PrecinctSelection;
     }): Promise<Result<AggregatedReportedResults, GetExportedElectionError>> {
       const exportedElectionDefinitionResult =
         await store.getExportedElectionDefinition(input.electionId);
@@ -994,6 +1001,7 @@ export function buildApi(ctx: AppContext) {
         await store.getLiveReportTalliesForElection(
           election,
           ballotHash,
+          input.precinctSelection,
           isLive
         );
       return ok({
@@ -1193,6 +1201,40 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
     ],
   };
 
+  /**
+   * Splits a V1 per-precinct tally blob into individual V0 tally blobs,
+   * one per precinct. Returns the list for storage as separate rows.
+   */
+  function splitV1TallyIntoPerPrecinctV0(
+    election: Election,
+    encodedTally: string
+  ): Array<{ precinctId: string; encodedTally: string }> {
+    const perPrecinctResults = decodeAndReadPerPrecinctCompressedTally({
+      election,
+      encodedTally,
+    });
+
+    const results: Array<{ precinctId: string; encodedTally: string }> = [];
+    for (const [precinctId, contestResults] of Object.entries(
+      perPrecinctResults
+    )) {
+      const precinctElectionResults: Tabulation.ElectionResults = {
+        cardCounts: { bmd: [], hmpb: [] },
+        contestResults,
+      };
+      const precinctSelection = singlePrecinctSelectionFor(precinctId);
+      const compressed = compressTally(
+        election,
+        precinctElectionResults,
+        precinctSelection
+      );
+      const encoded = encodeV0CompressedTally(compressed, 1)[0];
+      assert(encoded !== undefined);
+      results.push({ precinctId, encodedTally: encoded });
+    }
+    return results;
+  }
+
   // Only add methods to this API that should be publicly accessible with no oauth integration.
   const methods = {
     async processQrCodeReport({
@@ -1323,15 +1365,20 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           const combinedBuffer = Buffer.concat(allBuffers);
           const allEncoded = combinedBuffer.toString('base64url');
 
+          const perPrecinctTallies = splitV1TallyIntoPerPrecinctV0(
+            election,
+            allEncoded
+          );
+
           await store.saveQuickResultsReportingTally({
             electionId,
             pollingPlaceId,
             ballotHash,
-            encodedCompressedTally: allEncoded,
             machineId,
             isLive,
             signedTimestamp,
             pollsTransitionType,
+            perPrecinctTallies,
           });
 
           const contestResults = decodeAndReadCompressedTally({
@@ -1355,19 +1402,24 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         }
 
         // Non-paginated path
-        await store.saveQuickResultsReportingTally({
-          electionId,
-          pollingPlaceId,
-          ballotHash,
-          encodedCompressedTally,
-          machineId,
-          isLive,
-          signedTimestamp,
-          pollsTransitionType,
-        });
-
         switch (pollsTransitionType) {
           case 'close_polls': {
+            const perPrecinctTallies = splitV1TallyIntoPerPrecinctV0(
+              election,
+              encodedCompressedTally
+            );
+
+            await store.saveQuickResultsReportingTally({
+              electionId,
+              pollingPlaceId,
+              ballotHash,
+              machineId,
+              isLive,
+              signedTimestamp,
+              pollsTransitionType,
+              perPrecinctTallies,
+            });
+
             const contestResults = decodeAndReadCompressedTally({
               election,
               precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -1389,6 +1441,17 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           case 'open_polls':
           case 'pause_voting':
           case 'resume_voting': {
+            await store.saveQuickResultsReportingTally({
+              electionId,
+              pollingPlaceId,
+              ballotHash,
+              machineId,
+              isLive,
+              signedTimestamp,
+              pollsTransitionType,
+              perPrecinctTallies: [],
+            });
+
             return ok({
               pollsTransitionType,
               ballotHash,

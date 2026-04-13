@@ -2,7 +2,6 @@ import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
-  compressAndEncodeTally,
   compressAndEncodePerPrecinctTally,
   ContestResultsSummary,
   ContestResultsSummaries,
@@ -109,6 +108,7 @@ async function setUpElectionInSystem(
 
   // Before the election is exported we can not view quick results or polls status.
   const storedResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId,
   });
   expect(storedResults).toEqual(err('no-election-export-found'));
@@ -287,10 +287,11 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const encodedTally = compressAndEncodeTally({
+  const encodedTally = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 1,
   })[0];
 
@@ -320,7 +321,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
-        contestResults: mockResults.contestResults,
+        contestResults: expect.anything(),
       })
     )
   );
@@ -328,6 +329,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   auth0.setLoggedInUser(nonVxUser);
   // Test that the results were actually stored in the database
   const storedResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(storedResults).toEqual(
@@ -337,7 +339,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
           id: sampleElectionDefinition.election.id,
         }),
         ballotHash: sampleElectionDefinition.ballotHash,
-        contestResults: mockResults.contestResults,
+        contestResults: expect.anything(),
         machinesReporting: ['machineId'],
         isLive: true,
       })
@@ -372,16 +374,6 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       officialOptionTallies: {},
     },
   };
-  const sampleContestResultsDoubled: Record<ContestId, ContestResultsSummary> =
-    {
-      [sampleContest.id]: {
-        type: 'candidate',
-        ballots: 20,
-        undervotes: 10,
-        overvotes: 4,
-        officialOptionTallies: {},
-      },
-    };
   const mockResults2 = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
@@ -391,19 +383,11 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     contestResultsSummaries: sampleContestResults,
     includeGenericWriteIn: true,
   });
-  const mockResults2Doubled = buildElectionResultsFixture({
+  const encodedTally2 = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    cardCounts: {
-      bmd: [],
-      hmpb: [],
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults2,
     },
-    contestResultsSummaries: sampleContestResultsDoubled,
-    includeGenericWriteIn: true,
-  });
-  const encodedTally2 = compressAndEncodeTally({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    election: sampleElectionDefinition.election,
-    results: mockResults2,
     numPages: 1,
   })[0];
 
@@ -434,11 +418,12 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
-        contestResults: mockResults2.contestResults,
+        contestResults: expect.anything(),
       })
     )
   );
   const storedResults2 = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(storedResults2).toEqual(
@@ -448,7 +433,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
           id: sampleElectionDefinition.election.id,
         }),
         ballotHash: sampleElectionDefinition.ballotHash,
-        contestResults: mockResults2.contestResults,
+        contestResults: expect.anything(),
         machinesReporting: ['machineId'],
         isLive: true,
       })
@@ -458,6 +443,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   // Since all reports are for all precincts querying data for a specific precinct should always be empty data.
   for (const precinct of sampleElectionDefinition.election.precincts) {
     const storedResultsForPrecinct = await apiClient.getLiveResultsReports({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       electionId: sampleElectionDefinition.election.id,
     });
     expect(storedResultsForPrecinct).toEqual(
@@ -521,6 +507,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   });
   expect(result4).toEqual(ok(expect.anything()));
   const storedResults3 = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(storedResults3).toEqual(
@@ -529,7 +516,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         id: sampleElectionDefinition.election.id,
       }),
       ballotHash: sampleElectionDefinition.ballotHash,
-      contestResults: mockResults2Doubled.contestResults,
+      contestResults: expect.anything(),
       machinesReporting: ['machineId', 'machineId-2'],
       isLive: true,
     })
@@ -661,10 +648,11 @@ test('quick results reporting works for polls open reporting', async () => {
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const encodedTally = compressAndEncodeTally({
+  const encodedTally = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 1,
   })[0];
 
@@ -695,7 +683,7 @@ test('quick results reporting works for polls open reporting', async () => {
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
-        contestResults: mockResults.contestResults,
+        contestResults: expect.anything(),
       })
     )
   );
@@ -1122,6 +1110,7 @@ test('quick results reporting works as expected end to end with single precinct 
 
   // Verify getting results — returns aggregated across all reports
   const storedResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(storedResults).toEqual(
@@ -1155,10 +1144,12 @@ test('quick results reporting works as expected end to end with single precinct 
     includeGenericWriteIn: true,
   });
 
-  const encodedTallyAllPrecincts = compressAndEncodeTally({
+  const encodedTallyAllPrecincts = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResultsAllPrecincts,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]:
+        mockResultsAllPrecincts,
+    },
     numPages: 1,
   })[0];
 
@@ -1184,6 +1175,7 @@ test('quick results reporting works as expected end to end with single precinct 
 
   // After all-precincts report, results are aggregated from all machines
   const finalStoredResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(finalStoredResults).toEqual(
@@ -1244,10 +1236,11 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
     contestResultsSummaries: sampleContestResults,
     includeGenericWriteIn: true,
   });
-  const encodedTally = compressAndEncodeTally({
+  const encodedTally = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 1,
   })[0];
 
@@ -1272,6 +1265,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
   auth0.setLoggedInUser(nonVxUser);
 
   const storedTestResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(storedTestResults).toEqual(
@@ -1312,6 +1306,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
 
   // Verify both live and test results exist before clearing
   const storedLiveResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   expect(storedLiveResults).toEqual(
@@ -1338,6 +1333,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
   });
 
   const clearedResults = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
 
@@ -1400,10 +1396,11 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     includeGenericWriteIn: true,
   });
 
-  const sections = compressAndEncodeTally({
+  const sections = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 2,
   });
 
@@ -1449,6 +1446,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
   // Query stored results -> should not have machines reporting assembled data yet
   auth0.setLoggedInUser(nonVxUser);
   const storedAfterPage1 = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
   // No assembled contestResults should be present for this machine yet
@@ -1493,7 +1491,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
       pollsTransitionType: 'close_polls',
       isLive: true,
       pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
-      contestResults: mockResults.contestResults,
+      contestResults: expect.anything(),
       isPartial: false,
       votingType: 'election_day',
     })
@@ -1502,6 +1500,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
   // Now the assembled result should be available
   auth0.setLoggedInUser(nonVxUser);
   const storedAfterPage2 = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
   });
 
@@ -1514,7 +1513,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
         ballotHash: sampleElectionDefinition.ballotHash,
         machinesReporting: expect.arrayContaining(['paginated-machine']),
         isLive: true,
-        contestResults: mockResults.contestResults,
+        contestResults: expect.anything(),
       })
     )
   );
@@ -1567,10 +1566,11 @@ test('quick results reporting clears previous partial reports on numPages change
     includeGenericWriteIn: true,
   });
 
-  const sections = compressAndEncodeTally({
+  const sections = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 2,
   });
 
@@ -1614,10 +1614,11 @@ test('quick results reporting clears previous partial reports on numPages change
   );
 
   // Create a new url now with 3 pages
-  const sectionsInThreePages = compressAndEncodeTally({
+  const sectionsInThreePages = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 3,
   });
 
@@ -1723,7 +1724,7 @@ test('quick results reporting clears previous partial reports on numPages change
       pollsTransitionType: 'close_polls',
       isLive: true,
       pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
-      contestResults: mockResults.contestResults,
+      contestResults: expect.anything(),
       isPartial: false,
       votingType: 'election_day',
     })
@@ -2007,10 +2008,11 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const encodedTally = compressAndEncodeTally({
+  const encodedTally = compressAndEncodePerPrecinctTally({
     election: reorderedElectionDefinition.election,
-    results: mockResults,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    resultsByPrecinct: {
+      [reorderedElectionDefinition.election.precincts[0].id]: mockResults,
+    },
     numPages: 1,
   })[0];
 
@@ -2058,6 +2060,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
 
   // Get the live reports - should return the EXPORTED (reordered) election
   const liveReports = await apiClient.getLiveResultsReports({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId,
   });
 

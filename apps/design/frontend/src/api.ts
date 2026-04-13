@@ -18,6 +18,7 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
+  PrecinctSelection,
   TtsEditKey,
 } from '@votingworks/types';
 import { generateId } from './utils';
@@ -149,16 +150,26 @@ export const getLiveReportsSummary = {
 } as const;
 
 export const getLiveResultsReports = {
-  queryKey(id: ElectionId): QueryKey {
-    return ['getLiveResultsReports', id];
+  queryKey(id: ElectionId, precinctSelection?: PrecinctSelection): QueryKey {
+    if (!precinctSelection) {
+      return ['getLiveResultsReports', id];
+    }
+    return [
+      'getLiveResultsReports',
+      id,
+      precinctSelection.kind === 'AllPrecincts'
+        ? ''
+        : precinctSelection.precinctId,
+    ];
   },
-  useQuery(id: ElectionId) {
+  useQuery(id: ElectionId, precinctSelection: PrecinctSelection) {
     const apiClient = useApiClient();
     return useQuery(
-      this.queryKey(id),
+      this.queryKey(id, precinctSelection),
       () =>
         apiClient.getLiveResultsReports({
           electionId: id,
+          precinctSelection,
         }),
       { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
     );
