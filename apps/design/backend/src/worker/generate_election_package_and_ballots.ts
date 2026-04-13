@@ -45,7 +45,7 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
-import { generateId, getBallotPdfFileName } from '../utils';
+import { getBallotPdfFileName } from '../utils';
 import {
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
@@ -276,7 +276,7 @@ export async function generateElectionPackageAndBallots(
         pollingPlaces: pollingPlacesGenerateFromPrecincts(
           electionRecord.election.precincts,
           'election_day',
-          generateId
+          (p) => `${p.id}-polling-place`
         ),
       };
 
