@@ -9,15 +9,12 @@ import {
   Election,
 } from '@votingworks/types';
 import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
   buildElectionResultsFixture,
   type ContestResultsSummaries,
-  getContestsForPrecinctAndElection,
 } from '@votingworks/utils';
 import type { QuickReportedPollStatus } from '@votingworks/design-backend';
 import { err, ok } from '@votingworks/basics';
-import { ALL_PRECINCTS_REPORT_KEY } from './utils';
+import { NO_POLLING_PLACE_REPORT_KEY } from './utils';
 import { render } from '../test/react_testing_library';
 import {
   MockApiClient,
@@ -119,18 +116,18 @@ function createMockAggregatedResults(
 
 // Helper function to create mock polls status data
 function createMockPollsStatus(electionItem: Election, isLive = false) {
-  const reportsByPrecinct: Record<string, QuickReportedPollStatus[]> = {};
+  const reportsByPollingPlace: Record<string, QuickReportedPollStatus[]> = {};
 
   // Add empty arrays for each precinct
   for (const precinct of electionItem.precincts) {
-    reportsByPrecinct[precinct.id] = [];
+    reportsByPollingPlace[precinct.id] = [];
   }
 
   return {
     election: electionItem,
     ballotHash: 'abc123def456',
     isLive,
-    reportsByPrecinct,
+    reportsByPollingPlace,
   };
 }
 
@@ -217,20 +214,18 @@ describe('Polls status summary display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: false,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         // First precinct has reports (polls closed)
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[0].id
-            ),
+            pollingPlaceId: election.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
@@ -239,9 +234,7 @@ describe('Polls status summary display', () => {
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'open_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[1].id
-            ),
+            pollingPlaceId: election.precincts[1].id,
             signedTimestamp: new Date('2024-01-01T17:30:00Z'),
           },
         ],
@@ -293,28 +286,24 @@ describe('Polls status summary display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: true,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         // All individual precincts have closed polls
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'open_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[0].id
-            ),
+            pollingPlaceId: election.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'open_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[1].id
-            ),
+            pollingPlaceId: election.precincts[1].id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
@@ -323,32 +312,28 @@ describe('Polls status summary display', () => {
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[2].id
-            ),
+            pollingPlaceId: election.precincts[2].id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
           {
             machineId: 'VxScan-005',
             pollsTransitionType: 'close_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[2].id
-            ),
+            pollingPlaceId: election.precincts[2].id,
             signedTimestamp: new Date('2024-01-01T18:11:00Z'),
           },
         ],
-        [ALL_PRECINCTS_REPORT_KEY]: [
+        [NO_POLLING_PLACE_REPORT_KEY]: [
           {
             machineId: 'VxScan-004',
             pollsTransitionType: 'close_polls',
-            precinctSelection: ALL_PRECINCTS_SELECTION,
+            pollingPlaceId: undefined,
             signedTimestamp: new Date('2024-01-01T17:45:00Z'),
           },
 
           {
             machineId: 'VxScan-006',
             pollsTransitionType: 'open_polls',
-            precinctSelection: ALL_PRECINCTS_SELECTION,
+            pollingPlaceId: undefined,
             signedTimestamp: new Date('2024-01-01T17:48:00Z'),
           },
         ],
@@ -418,13 +403,13 @@ describe('Animation behavior', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const initialData: Record<string, QuickReportedPollStatus[]> = {
-      ...mockPollsStatus.reportsByPrecinct,
+      ...mockPollsStatus.reportsByPollingPlace,
     };
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls',
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        pollingPlaceId: election.precincts[0].id,
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
@@ -433,12 +418,12 @@ describe('Animation behavior', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: false,
-      reportsByPrecinct: initialData,
+      reportsByPollingPlace: initialData,
     };
 
     apiMock.getLiveReportsSummary
@@ -464,9 +449,7 @@ describe('Animation behavior', () => {
         {
           machineId: 'VxScan-002',
           pollsTransitionType: 'open_polls',
-          precinctSelection: singlePrecinctSelectionFor(
-            election.precincts[1].id
-          ),
+          pollingPlaceId: election.precincts[1].id,
           signedTimestamp: new Date('2024-01-01T18:00:00Z'),
         },
       ],
@@ -477,7 +460,7 @@ describe('Animation behavior', () => {
       .resolves(
         ok({
           ...initialPollsStatus,
-          reportsByPrecinct: updatedData,
+          reportsByPollingPlace: updatedData,
         })
       );
 
@@ -500,12 +483,12 @@ describe('Animation behavior', () => {
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
 
-    const initialData = mockPollsStatus.reportsByPrecinct;
+    const initialData = mockPollsStatus.reportsByPollingPlace;
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls' as const,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        pollingPlaceId: election.precincts[0].id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -515,12 +498,12 @@ describe('Animation behavior', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: false,
-      reportsByPrecinct: initialData,
+      reportsByPollingPlace: initialData,
     };
 
     apiMock.getLiveReportsSummary
@@ -538,7 +521,7 @@ describe('Animation behavior', () => {
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls' as const,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        pollingPlaceId: election.precincts[0].id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -548,10 +531,10 @@ describe('Animation behavior', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       ...testModeData,
-      reportsByPrecinct: initialData,
+      reportsByPollingPlace: initialData,
       isLive: true,
     };
 
@@ -588,12 +571,12 @@ describe('Animation behavior', () => {
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
 
-    const initialData = mockPollsStatus.reportsByPrecinct;
+    const initialData = mockPollsStatus.reportsByPollingPlace;
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls' as const,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        pollingPlaceId: election.precincts[0].id,
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
@@ -604,7 +587,7 @@ describe('Animation behavior', () => {
           election,
           isLive: false,
           ballotHash: 'abc123def456',
-          reportsByPrecinct: initialData,
+          reportsByPollingPlace: initialData,
         })
       );
 
@@ -625,7 +608,7 @@ describe('Animation behavior', () => {
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls' as const,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        pollingPlaceId: election.precincts[0].id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'), // Later timestamp
       },
     ];
@@ -637,7 +620,7 @@ describe('Animation behavior', () => {
           election,
           ballotHash: 'abc123def456',
           isLive: true,
-          reportsByPrecinct: initialData,
+          reportsByPollingPlace: initialData,
         })
       );
     vi.advanceTimersByTime(VXQR_REFETCH_INTERVAL_MS);
@@ -664,12 +647,12 @@ describe('Animation behavior', () => {
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
 
-    const initialData = mockPollsStatus.reportsByPrecinct;
+    const initialData = mockPollsStatus.reportsByPollingPlace;
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls',
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        pollingPlaceId: election.precincts[0].id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -681,7 +664,7 @@ describe('Animation behavior', () => {
           election,
           ballotHash: 'abc123def456',
           isLive: true,
-          reportsByPrecinct: initialData,
+          reportsByPollingPlace: initialData,
         })
       );
 
@@ -702,13 +685,11 @@ describe('Animation behavior', () => {
     // Add precinct not specified data
     const updatedData: Record<string, QuickReportedPollStatus[]> = {
       ...initialData,
-      [ALL_PRECINCTS_REPORT_KEY]: [
+      [NO_POLLING_PLACE_REPORT_KEY]: [
         {
           machineId: 'VxScan-999',
           pollsTransitionType: 'open_polls',
-          precinctSelection: singlePrecinctSelectionFor(
-            election.precincts[0].id
-          ),
+          pollingPlaceId: election.precincts[0].id,
           signedTimestamp: new Date('2024-01-01T19:00:00Z'),
         },
       ],
@@ -721,7 +702,7 @@ describe('Animation behavior', () => {
           election,
           ballotHash: 'abc123def456',
           isLive: true,
-          reportsByPrecinct: updatedData,
+          reportsByPollingPlace: updatedData,
         })
       );
     vi.advanceTimersByTime(VXQR_REFETCH_INTERVAL_MS);
@@ -750,25 +731,23 @@ describe('Results navigation and display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: false,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls',
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[0].id
-            ),
+            pollingPlaceId: election.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
         [election.precincts[1].id]: [],
         [election.precincts[2].id]: [],
-        [ALL_PRECINCTS_REPORT_KEY]: [],
+        [NO_POLLING_PLACE_REPORT_KEY]: [],
       },
     };
 
@@ -794,7 +773,6 @@ describe('Results navigation and display', () => {
     apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
       })
       .resolves(ok(mockSinglePrecinctResults));
 
@@ -802,9 +780,7 @@ describe('Results navigation and display', () => {
     userEvent.click(viewTallyReportButton);
 
     // Wait for the API call to be made, confirming navigation attempt worked
-    await screen.findAllByText(
-      'Unofficial Test Center Springfield Tally Report'
-    );
+    await screen.findAllByText('Unofficial Tally Report');
 
     // In a general election we do not show Nonpartisan Contests as a header
     expect(screen.queryByText('Nonpartisan Contests')).not.toBeInTheDocument();
@@ -823,19 +799,17 @@ describe('Results navigation and display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: true,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[0].id
-            ),
+            pollingPlaceId: election.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
@@ -843,9 +817,7 @@ describe('Results navigation and display', () => {
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[1].id
-            ),
+            pollingPlaceId: election.precincts[1].id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
@@ -853,14 +825,12 @@ describe('Results navigation and display', () => {
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[2].id
-            ),
+            pollingPlaceId: election.precincts[2].id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
 
-        [ALL_PRECINCTS_REPORT_KEY]: [],
+        [NO_POLLING_PLACE_REPORT_KEY]: [],
       },
     };
 
@@ -883,7 +853,6 @@ describe('Results navigation and display', () => {
     apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(mockAllPrecinctsResults));
 
@@ -910,19 +879,17 @@ describe('Results navigation and display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election: primaryElection,
       ballotHash: 'abc123def456',
       isLive: true,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         [primaryElection.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              primaryElection.precincts[0].id
-            ),
+            pollingPlaceId: primaryElection.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
@@ -930,9 +897,7 @@ describe('Results navigation and display', () => {
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              primaryElection.precincts[1].id
-            ),
+            pollingPlaceId: primaryElection.precincts[1].id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
@@ -940,13 +905,11 @@ describe('Results navigation and display', () => {
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              primaryElection.precincts[2].id
-            ),
+            pollingPlaceId: primaryElection.precincts[2].id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
-        [ALL_PRECINCTS_REPORT_KEY]: [],
+        [NO_POLLING_PLACE_REPORT_KEY]: [],
       },
     };
 
@@ -974,7 +937,6 @@ describe('Results navigation and display', () => {
     apiMock.getLiveResultsReports
       .expectCallWith({
         electionId: primaryElection.id,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(mockAllPrecinctsResults));
 
@@ -1005,19 +967,17 @@ describe('Results navigation and display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election: primaryElection,
       ballotHash: 'abc123def456',
       isLive: true,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         [primaryElection.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              primaryElection.precincts[0].id
-            ),
+            pollingPlaceId: primaryElection.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
@@ -1025,9 +985,7 @@ describe('Results navigation and display', () => {
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              primaryElection.precincts[1].id
-            ),
+            pollingPlaceId: primaryElection.precincts[1].id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
@@ -1035,13 +993,11 @@ describe('Results navigation and display', () => {
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              primaryElection.precincts[2].id
-            ),
+            pollingPlaceId: primaryElection.precincts[2].id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
-        [ALL_PRECINCTS_REPORT_KEY]: [],
+        [NO_POLLING_PLACE_REPORT_KEY]: [],
       },
     };
 
@@ -1075,9 +1031,6 @@ describe('Results navigation and display', () => {
     apiMock.getLiveResultsReports
       .expectCallWith({
         electionId: primaryElection.id,
-        precinctSelection: singlePrecinctSelectionFor(
-          primaryElection.precincts[0].id
-        ),
       })
       .resolves(ok(mockPrecinct0Results));
 
@@ -1085,26 +1038,16 @@ describe('Results navigation and display', () => {
     userEvent.click(precinct0TallyButton);
 
     // Wait for the API call to be made, confirming navigation attempt worked
-    await screen.findAllByText('Unofficial Precinct 1 Tally Report');
+    await screen.findAllByText('Unofficial Tally Report');
 
-    // In a general election we do not show Nonpartisan Contests as a header
+    // In a primary election, show party headers
     await screen.findByText('Nonpartisan Contests');
     await screen.findByText('Mammal Party Contests');
     await screen.findByText('Fish Party Contests');
 
-    const contestsInPrecinct = getContestsForPrecinctAndElection(
-      primaryElection,
-      singlePrecinctSelectionFor(primaryElection.precincts[0].id)
-    );
-    const contestsOutsidePrecinct = election.contests.filter(
-      (c) => !contestsInPrecinct.some((cp) => cp.id === c.id)
-    );
-    // Contests in the precinct should have results listed.
-    for (const contest of contestsInPrecinct) {
+    // All contests should be shown since we no longer filter by precinct
+    for (const contest of primaryElection.contests) {
       await screen.findByText(contest.title);
-    }
-    for (const contest of contestsOutsidePrecinct) {
-      expect(screen.queryByText(contest.title)).not.toBeInTheDocument();
     }
   });
 
@@ -1117,25 +1060,23 @@ describe('Results navigation and display', () => {
       election: typeof election;
       ballotHash: string;
       isLive: boolean;
-      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+      reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
     } = {
       election,
       ballotHash: 'abc123def456',
       isLive: false,
-      reportsByPrecinct: {
+      reportsByPollingPlace: {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            precinctSelection: singlePrecinctSelectionFor(
-              election.precincts[0].id
-            ),
+            pollingPlaceId: election.precincts[0].id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
         [election.precincts[1].id]: [],
         [election.precincts[2].id]: [],
-        [ALL_PRECINCTS_REPORT_KEY]: [],
+        [NO_POLLING_PLACE_REPORT_KEY]: [],
       },
     };
 

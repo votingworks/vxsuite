@@ -1,12 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import { err, ok } from '@votingworks/basics';
-import {
-  ALL_PRECINCTS_SELECTION,
-  buildElectionResultsFixture,
-  getContestsForPrecinctAndElection,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { buildElectionResultsFixture } from '@votingworks/utils';
 import type { ReceivedReportInfo } from '@votingworks/design-backend';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { render } from '../test/react_testing_library';
@@ -46,7 +41,7 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T08:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+
   isPartial: false,
   ballotCount: 42,
   votingType: 'election_day',
@@ -59,7 +54,7 @@ const mockPollsPausedReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T12:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+
   isPartial: false,
   ballotCount: 108,
   votingType: 'early_voting',
@@ -72,7 +67,7 @@ const mockVotingResumedReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T13:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+
   isPartial: false,
   ballotCount: 150,
   votingType: 'election_day',
@@ -85,7 +80,7 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+
   contestResults: buildElectionResultsFixture({
     election,
     contestResultsSummaries: {},
@@ -106,7 +101,7 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+
   isPartial: true,
   numPages: 4,
   pageIndex: 1,
@@ -122,9 +117,6 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election: primaryElection,
-  precinctSelection: singlePrecinctSelectionFor(
-    primaryElection.precincts[0].id
-  ),
   contestResults: buildElectionResultsFixture({
     election: primaryElection,
     contestResultsSummaries: {},
@@ -326,7 +318,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     });
 
     // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+
     expect(screen.getByText('VxScan-001')).toBeInTheDocument();
     // The ballot hash might be truncated by formatBallotHash function
     expect(screen.getByText(/abc123d/)).toBeInTheDocument();
@@ -392,7 +384,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     });
 
     // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+
     expect(screen.getByText('VxScan-001')).toBeInTheDocument();
     expect(screen.getByText(/abc123d/)).toBeInTheDocument();
     expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
@@ -455,7 +447,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     });
 
     // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+
     expect(screen.getByText('VxScan-001')).toBeInTheDocument();
     expect(screen.getByText(/abc123d/)).toBeInTheDocument();
     expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
@@ -494,7 +486,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     });
 
     // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+
     expect(screen.getByText('VxScan-001')).toBeInTheDocument();
     // The ballot hash might be truncated by formatBallotHash function
     expect(screen.getByText(/abc123d/)).toBeInTheDocument();
@@ -526,7 +518,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     });
 
     // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+
     expect(screen.getByText('VxScan-001')).toBeInTheDocument();
     // The ballot hash might be truncated by formatBallotHash function
     expect(screen.getByText(/abc123d/)).toBeInTheDocument();
@@ -591,9 +583,6 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     });
 
     // Check report details
-    expect(
-      screen.getByText(primaryElection.precincts[0].name)
-    ).toBeInTheDocument();
     expect(screen.getByText('VxScan-002')).toBeInTheDocument();
     // The ballot hash might be truncated by formatBallotHash function
     expect(screen.getByText(/abc123d/)).toBeInTheDocument();
@@ -602,19 +591,9 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     const tables = screen.getAllByRole('table');
     expect(tables.length).toBeGreaterThan(0);
 
-    const contestsInPrecinct = getContestsForPrecinctAndElection(
-      primaryElection,
-      singlePrecinctSelectionFor(primaryElection.precincts[0].id)
-    );
-    const contestsOutsidePrecinct = election.contests.filter(
-      (c) => !contestsInPrecinct.some((cp) => cp.id === c.id)
-    );
-    // Contests in the precinct should have results listed.
-    for (const contest of contestsInPrecinct) {
+    // All contests should be listed since we show all contests now
+    for (const contest of primaryElection.contests) {
       expect(screen.queryByText(contest.title)).toBeInTheDocument();
-    }
-    for (const contest of contestsOutsidePrecinct) {
-      expect(screen.queryByText(contest.title)).not.toBeInTheDocument();
     }
     // Contests should have headers, this election has non partisan contests.
     await screen.findByText('Mammal Party Contests');
