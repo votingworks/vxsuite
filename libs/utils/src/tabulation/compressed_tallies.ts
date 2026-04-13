@@ -20,6 +20,7 @@ import { getContestsForPrecinctAndElection } from './contest_filtering';
 import { singlePrecinctSelectionFor } from '../precinct_selection';
 
 const MAX_UINT16 = 0xffff;
+const UINT16_BITS = 16;
 
 /**
  * V0: single precinct selection. Layout: [0, contest_entries...]
@@ -150,12 +151,12 @@ export function buildPrecinctBitmap(
   election: Election,
   resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
 ): Uint16Array {
-  const numWords = Math.ceil(election.precincts.length / 16);
+  const numWords = Math.ceil(election.precincts.length / UINT16_BITS);
   const bitmap = new Uint16Array(numWords); // initialized to 0
   for (const [i, precinct] of election.precincts.entries()) {
     if (resultsByPrecinct[precinct.id] !== undefined) {
-      const wordIndex = Math.floor(i / 16);
-      const bitIndex = i % 16;
+      const wordIndex = Math.floor(i / UINT16_BITS);
+      const bitIndex = i % UINT16_BITS;
       const current = bitmap[wordIndex];
       assert(current !== undefined);
       // eslint-disable-next-line no-bitwise
@@ -173,11 +174,11 @@ export function readPrecinctBitmap(
   offset: number,
   numPrecincts: number
 ): { bitmap: boolean[]; nextOffset: number } {
-  const numWords = Math.ceil(numPrecincts / 16);
+  const numWords = Math.ceil(numPrecincts / UINT16_BITS);
   const bitmap: boolean[] = [];
   for (let i = 0; i < numPrecincts; i += 1) {
-    const wordIndex = Math.floor(i / 16);
-    const bitIndex = i % 16;
+    const wordIndex = Math.floor(i / UINT16_BITS);
+    const bitIndex = i % UINT16_BITS;
     const word = uint16Array[offset + wordIndex];
     assert(word !== undefined, 'Bitmap data truncated');
     // eslint-disable-next-line no-bitwise
