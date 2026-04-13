@@ -728,32 +728,34 @@ function buildApi({
     adjudicateCvrContest(
       input: AdjudicatedCvrContest
     ): Result<void, AdjudicationError> {
-      const { machineId } = getMachineConfig();
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      // Allow editing already-adjudicated ballots (completed by any machine)
-      // but require an active claim for in-progress ballots
-      if (
-        !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
-        !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
-      ) {
-        return err({ type: 'no-claim' });
+      if (store.getIsClientAdjudicationEnabled()) {
+        const { machineId } = getMachineConfig();
+        const electionId = loadCurrentElectionIdOrThrow(workspace);
+        if (
+          !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
+          !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
+        ) {
+          return err({ type: 'no-claim' });
+        }
       }
       adjudicateCvrContest(input, store, logger);
       return ok();
     },
 
     setCvrResolved(input: { cvrId: Id }): Result<void, AdjudicationError> {
-      const { machineId } = getMachineConfig();
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      if (
-        !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
-        !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
-      ) {
-        return err({ type: 'no-claim' });
+      if (store.getIsClientAdjudicationEnabled()) {
+        const { machineId } = getMachineConfig();
+        const electionId = loadCurrentElectionIdOrThrow(workspace);
+        if (
+          !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
+          !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
+        ) {
+          return err({ type: 'no-claim' });
+        }
       }
       store.setCvrResolved({
         ...input,
-        machineId,
+        machineId: getMachineConfig().machineId,
       });
       return ok();
     },
@@ -806,6 +808,7 @@ function buildApi({
     },
 
     claimBallotForAdjudication(input: { cvrId: Id }): boolean {
+      if (!store.getIsClientAdjudicationEnabled()) return true;
       return store.claimBallotForAdjudication({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         cvrId: input.cvrId,
@@ -814,6 +817,7 @@ function buildApi({
     },
 
     releaseBallotAdjudicationClaim(input: { cvrId: Id }): void {
+      if (!store.getIsClientAdjudicationEnabled()) return;
       store.releaseBallotClaim({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         cvrId: input.cvrId,

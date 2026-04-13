@@ -580,6 +580,7 @@ test('getNextCvrIdForBallotAdjudication', async () => {
     undefined,
     systemSettings
   );
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -640,6 +641,7 @@ test('adjudicateCvrContest and setCvrResolved require active claim', async () =>
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -664,6 +666,40 @@ test('adjudicateCvrContest and setCvrResolved require active claim', async () =>
   expect(await apiClient.setCvrResolved({ cvrId })).toEqual(
     err({ type: 'no-claim' })
   );
+});
+
+test('claim and release are no-ops when multi-station is disabled', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  const cvrId = assertDefined(queue[0]);
+
+  // claim always succeeds when multi-station is disabled
+  expect(await apiClient.claimBallotForAdjudication({ cvrId })).toEqual(true);
+
+  // release is a no-op
+  await apiClient.releaseBallotAdjudicationClaim({ cvrId });
+
+  // adjudication succeeds without a real claim
+  expect(
+    await apiClient.adjudicateCvrContest({
+      contestId: 'contest-1',
+      cvrId,
+      adjudicatedContestOptionById: {},
+      side: 'front',
+    })
+  ).toEqual(ok());
 });
 
 test('handling unmarked write-ins', async () => {
@@ -1279,6 +1315,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -1417,6 +1454,7 @@ test('host claim, release, and getClaimedBallotCvrIds', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
 
   (
     await apiClient.addCastVoteRecordFile({
