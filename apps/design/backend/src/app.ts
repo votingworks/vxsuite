@@ -32,7 +32,6 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
-  PrecinctSelection,
   safeParseElection,
   BallotStyle,
   formatBallotHash,
@@ -67,9 +66,9 @@ import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import {
+  ALL_PRECINCTS_SELECTION,
   getExportedCastVoteRecordIds,
   decodeAndReadCompressedTally,
-  maybeGetPrecinctIdFromSelection,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -962,20 +961,17 @@ export function buildApi(ctx: AppContext) {
         return err(exportedElectionDefinitionResult.err());
       }
       const { election, ballotHash } = exportedElectionDefinitionResult.ok();
-      // Check if live data for ANY precinct has been reported, if so we should
-      // return live results to the frontend.
       const isLive = await store.electionHasLiveReportData(
         election.id,
         ballotHash
       );
-      const reportsByPrecinct = await store.getPollsStatusForElection(
-        election,
+      const reportsByPollingPlace = await store.getPollsStatusForElection(
         ballotHash,
         isLive
       );
       return ok({
         ballotHash,
-        reportsByPrecinct,
+        reportsByPollingPlace,
         election,
         isLive,
       });
@@ -983,7 +979,6 @@ export function buildApi(ctx: AppContext) {
 
     async getLiveResultsReports(input: {
       electionId: ElectionId;
-      precinctSelection: PrecinctSelection;
     }): Promise<Result<AggregatedReportedResults, GetExportedElectionError>> {
       const exportedElectionDefinitionResult =
         await store.getExportedElectionDefinition(input.electionId);
@@ -991,8 +986,6 @@ export function buildApi(ctx: AppContext) {
         return err(exportedElectionDefinitionResult.err());
       }
       const { election, ballotHash } = exportedElectionDefinitionResult.ok();
-      // Check if live data for ANY precinct has been reported, if so we should
-      // return live results to the frontend.
       const isLive = await store.electionHasLiveReportData(
         election.id,
         ballotHash
@@ -1001,7 +994,6 @@ export function buildApi(ctx: AppContext) {
         await store.getLiveReportTalliesForElection(
           election,
           ballotHash,
-          input.precinctSelection,
           isLive
         );
       return ok({
@@ -1229,7 +1221,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           isLive,
           pollsTransitionTime,
           encodedCompressedTally,
-          precinctSelection,
+          pollingPlaceId,
           pollsTransitionType,
           ballotCount,
           numPages,
@@ -1269,7 +1261,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           // finalize; otherwise return early.
           await store.savePartialQuickResultsReportingPage({
             electionId,
-            precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
+            pollingPlaceId,
             ballotHash,
             encodedCompressedTally,
             machineId,
@@ -1286,28 +1278,13 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             isLive,
             pollsTransitionType,
           });
-          const expectedPrecinctId =
-            maybeGetPrecinctIdFromSelection(precinctSelection);
 
           const seenIndexes = new Set<number>();
           for (const partial of partials) {
-            // Each partial should report the expected total number of pages
             assert(
               partial.numPages === numPages,
               `Partial page has unexpected numPages: ${partial.numPages} (expected ${numPages})`
             );
-            if (expectedPrecinctId) {
-              assert(
-                partial.precinctId === expectedPrecinctId,
-                `Partial page has unexpected precinctId: ${partial.precinctId} (expected ${expectedPrecinctId})`
-              );
-            } else {
-              assert(
-                !partial.precinctId,
-                `Partial page has unexpected precinctId: ${partial.precinctId} (expected none)`
-              );
-            }
-            // Ensure pageIndex is an integer and in the valid 1..numPages range
             assert(
               partial.pageIndex >= 0 && partial.pageIndex < numPages,
               `Invalid pageIndex: ${partial.pageIndex} (expected 0..${
@@ -1324,9 +1301,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-
               pollsTransitionTime,
-              precinctSelection,
+              pollingPlaceId,
               election,
               numPages,
               pageIndex,
@@ -1334,11 +1310,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               votingType,
             });
           }
-          // It should be impossible to have more than numPages partials
           assert(partials.length === numPages);
           assert(seenIndexes.size === numPages);
 
-          // Sort a copy of partials by pageIndex to assemble in the correct order
           const sortedPartials = [...partials].sort(
             (a, b) => a.pageIndex - b.pageIndex
           );
@@ -1349,10 +1323,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           const combinedBuffer = Buffer.concat(allBuffers);
           const allEncoded = combinedBuffer.toString('base64url');
 
-          // Save the final assembled report.
           await store.saveQuickResultsReportingTally({
             electionId,
-            precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
+            pollingPlaceId,
             ballotHash,
             encodedCompressedTally: allEncoded,
             machineId,
@@ -1363,7 +1336,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
 
           const contestResults = decodeAndReadCompressedTally({
             election,
-            precinctSelection,
+            precinctSelection: ALL_PRECINCTS_SELECTION,
             encodedTally: allEncoded,
           });
 
@@ -1372,10 +1345,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             ballotHash,
             machineId,
             isLive,
-            reportCreatedAt,
             pollsTransitionTime,
             contestResults,
-            precinctSelection,
+            pollingPlaceId,
             election,
             isPartial: false,
             votingType,
@@ -1385,7 +1357,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         // Non-paginated path
         await store.saveQuickResultsReportingTally({
           electionId,
-          precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
+          pollingPlaceId,
           ballotHash,
           encodedCompressedTally,
           machineId,
@@ -1398,7 +1370,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           case 'close_polls': {
             const contestResults = decodeAndReadCompressedTally({
               election,
-              precinctSelection,
+              precinctSelection: ALL_PRECINCTS_SELECTION,
               encodedTally: encodedCompressedTally,
             });
             return ok({
@@ -1406,10 +1378,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-
               pollsTransitionTime,
               contestResults,
-              precinctSelection,
+              pollingPlaceId,
               election,
               isPartial: false,
               votingType,
@@ -1423,9 +1394,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-
               pollsTransitionTime,
-              precinctSelection,
+              pollingPlaceId,
               election,
               isPartial: false,
               ballotCount,
