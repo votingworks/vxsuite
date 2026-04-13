@@ -132,7 +132,7 @@ test('everything but voting', async ({ page }) => {
   );
 
   // Select precinct and capture screenshot in test mode
-  await page.getByText('Select a precinct…').click({ force: true });
+  await page.getByText(/select a polling place/i).click({ force: true });
   await page.getByText('North Lincoln', { exact: true }).click();
   mockCardRemoval();
   await page.getByText(/poll worker card/).waitFor();
@@ -277,7 +277,7 @@ test('voting session', async ({ page }) => {
   await page.getByText('Election Manager Menu').waitFor();
 
   await page.getByText('Official Ballot Mode').click();
-  await page.getByText('Select a precinct…').click({ force: true });
+  await page.getByText(/select a polling place/i).click({ force: true });
   await page.getByText('Precinct 1', { exact: true }).click();
 
   // Open polls as Poll Worker

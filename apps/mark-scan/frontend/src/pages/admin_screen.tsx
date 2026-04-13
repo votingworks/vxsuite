@@ -168,6 +168,7 @@ export function AdminScreen({
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
+        pollingPlaceId={pollingPlaceId}
         precinctSelection={appPrecinct}
       />
       {isConfirmingModeSwitch && (

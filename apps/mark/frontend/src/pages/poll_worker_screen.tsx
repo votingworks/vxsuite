@@ -27,7 +27,7 @@ export interface PollworkerScreenProps {
     ballotStyleId: BallotStyleId
   ) => void;
   resetCardlessVoterSession: () => void;
-  appPrecinct: PrecinctSelection;
+  appPrecinct?: PrecinctSelection;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   hasVotes: boolean;

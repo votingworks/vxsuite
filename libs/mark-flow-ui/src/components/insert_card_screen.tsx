@@ -12,23 +12,28 @@ import {
   H1,
   P,
   TestModeBanner,
+  CardInsertionDirection,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
 
 interface Props {
-  appPrecinct: PrecinctSelection;
+  appPrecinct?: PrecinctSelection;
+  cardInsertionDirection?: CardInsertionDirection;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   isLiveMode: boolean;
+  pollingPlaceId?: string;
   pollsState: PollsState;
 }
 
 export function InsertCardScreen({
   appPrecinct,
+  cardInsertionDirection,
   electionDefinition,
   electionPackageHash,
   isLiveMode,
+  pollingPlaceId,
   pollsState,
 }: Props): JSX.Element | null {
   const mainText = (() => {
@@ -56,8 +61,8 @@ export function InsertCardScreen({
             <P>Voting is complete.</P>
           </React.Fragment>
         );
+      /* istanbul ignore next - @preserve */
       default: {
-        /* istanbul ignore next - compile time check for completeness @preserve */
         throwIllegalValue(pollsState);
       }
     }
@@ -68,13 +73,14 @@ export function InsertCardScreen({
       {!isLiveMode && <TestModeBanner />}
       <Main centerChild>
         <P>
-          <InsertCardImage cardInsertionDirection="up" />
+          <InsertCardImage cardInsertionDirection={cardInsertionDirection} />
         </P>
         {mainText}
       </Main>
       <ElectionInfoBar
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
+        pollingPlaceId={pollingPlaceId}
         precinctSelection={appPrecinct}
       />
     </Screen>

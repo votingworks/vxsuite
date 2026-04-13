@@ -4,25 +4,22 @@ import {
   mockElectionManagerUser,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   BallotStyleId,
   constructElectionKey,
+  ElectionDefinition,
   getContestDistrictName,
   getPrecinctById,
+  pollingPlaceBallotStyles,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
-
 import { App } from './app';
-
 import { withMarkup } from '../test/helpers/with_markup';
-
 import { advanceTimersAndPromises } from '../test/helpers/timers';
-
 import {
   presidentContest,
   countyCommissionersContest,
@@ -51,10 +48,22 @@ vi.setConfig({
   testTimeout: 60_000,
 });
 
+// [TODO] Move to browser integration test.
 test('MarkAndPrint end-to-end flow', async () => {
+  setPollingPlacesEnabled(true);
+
   const logger = mockBaseLogger({ fn: vi.fn });
-  const electionDefinition = electionGeneralDefinition;
+
+  const electionDefinition: ElectionDefinition = {
+    ...electionGeneralDefinition,
+    election: {
+      ...electionGeneralDefinition.election,
+      seal: '<svg>seal</svg', // Make debug outputs less noisy.
+    },
+  };
+  const { election } = electionDefinition;
   const electionKey = constructElectionKey(electionDefinition.election);
+
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
@@ -108,31 +117,36 @@ test('MarkAndPrint end-to-end flow', async () => {
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
   await screen.findByText('Election Manager Menu');
 
-  // Remove card and expect not configured because precinct not selected
+  // Remove card and expect not configured because polling place not selected
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an election manager card to select a precinct.'
+    'Insert an election manager card to select a polling place.'
   );
 
   // ---------------
 
   // Configure election with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByLabelText('Select a precinct…');
+  await screen.findByLabelText(/select a polling place/i);
   screen.queryByText(`Election ID: ${expectedBallotHash}`);
   screen.queryByText('Machine ID: 000');
 
-  // Select precinct
-  const precinctSelection = singlePrecinctSelectionFor('23');
-  apiMock.expectSetPrecinctSelection(precinctSelection);
-  apiMock.expectGetElectionState({
-    precinctSelection,
-  });
+  // Select polling place
   screen.getByText('State of Hamilton');
-  userEvent.click(screen.getByText('Select a precinct…'));
-  userEvent.click(screen.getByText('Center Springfield'));
+
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+  apiMock.mockApiClient.setPollingPlaceId
+    .expectCallWith({ id: pollingPlace.id })
+    .resolves();
+  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace.id });
+
+  userEvent.click(screen.getByText(/select a polling place/i));
+  userEvent.click(screen.getByText(pollingPlace.name));
+
+  await waitFor(apiMock.mockApiClient.assertComplete);
   await within(screen.getByTestId('electionInfoBar')).findByText(
-    /Center Springfield/
+    pollingPlace.name,
+    { exact: false }
   );
 
   apiMock.expectSetTestMode(false);
@@ -190,34 +204,28 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Complete Voter Happy Path
 
+  const ballotStyleId = pollingPlaceBallotStyles(election, pollingPlace)[0].id;
+  const [precinctId] = Object.keys(pollingPlace.precincts);
+  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+
   // Start voter session
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId, precinctId })
     .resolves();
 
-  const precinctName = assertDefined(
-    getPrecinctById({
-      election: electionDefinition.election,
-      precinctId: precinctSelection.precinctId,
-    })
-  ).name;
   userEvent.click(
-    await screen.findButton(`Start Voting Session: ${precinctName}`)
+    await screen.findButton(`Start Voting Session: ${pollingPlace.name}`)
   );
+  await waitFor(apiMock.mockApiClient.assertComplete);
+
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
-      precinctId: '23',
-    },
+    cardlessVoterUserParams: { ballotStyleId, precinctId },
   });
-  apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
-    precinctId: '23',
-  });
+  apiMock.setAuthStatusCardlessVoterLoggedIn({ ballotStyleId, precinctId });
 
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  screen.getByText(/Center Springfield/);
+  screen.getByText(precinct.name, { exact: false });
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));
@@ -358,7 +366,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Election Manager Menu');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an election manager card to select a precinct.'
+    'Insert an election manager card to select a polling place.'
   );
 
   // Unconfigure with System Administrator card
@@ -385,4 +393,15 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByText('Insert a USB drive containing an election package');
+
+  setPollingPlacesEnabled(false);
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  // The mock feature flagger doesn't seem to work when an external package
+  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
+  // directly.
+  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
+    ? 'TRUE'
+    : 'FALSE';
+}

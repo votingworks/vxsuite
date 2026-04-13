@@ -27,6 +27,7 @@ interface Props {
   electionDefinition?: ElectionDefinition;
   electionPackageHash?: string;
   machineConfig: MachineConfig;
+  pollingPlaceId?: string;
   precinctSelection?: PrecinctSelection;
 }
 
@@ -41,6 +42,7 @@ export function SystemAdministratorScreen({
   electionDefinition,
   electionPackageHash,
   machineConfig,
+  pollingPlaceId,
   precinctSelection,
 }: Props): JSX.Element {
   const apiClient = useApiClient();
@@ -90,6 +92,7 @@ export function SystemAdministratorScreen({
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
+        pollingPlaceId={pollingPlaceId}
         precinctSelection={precinctSelection}
       />
     </Screen>
