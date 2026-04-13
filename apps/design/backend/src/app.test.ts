@@ -3808,7 +3808,8 @@ test('export - polling places auto-generated when EDIT_POLLING_PLACES === false'
   const expectedPlaces = pollingPlacesGenerateFromPrecincts(
     precincts,
     'election_day',
-    (precinct) => expect.not.stringMatching(precinct.id)
+    // Should be consistent to guarantee a consistent ballot hash:
+    (p) => `${p.id}-polling-place`
   );
   expect(outElection.pollingPlaces).toEqual(expectedPlaces);
 
