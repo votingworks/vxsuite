@@ -4041,6 +4041,9 @@ importers:
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../auth
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../../backend
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../basics

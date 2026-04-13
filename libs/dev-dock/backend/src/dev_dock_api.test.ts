@@ -12,6 +12,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   backendWaitFor,
   mockElectionManagerUser,
@@ -39,13 +40,16 @@ import {
   getMockFileFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
-import { listMockDrives, removeMockDriveDir } from '@votingworks/usb-drive';
+import {
+  getMockFileUsbDriveHandler,
+  listMockDrives,
+  removeMockDriveDir,
+} from '@votingworks/usb-drive';
 import {
   Api,
   useDevDockRouter,
   MockSpec,
   MockBatchScannerApi,
-  DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
   DEV_DOCK_ELECTION_FILE_NAME,
   PdiScannerStatus,
 } from './dev_dock_api';
@@ -204,15 +208,48 @@ test('election fixture references', async () => {
     },
   ];
 
-  await expect(
-    apiClient.getCurrentFixtureElectionPaths()
-  ).resolves.toMatchObject(
+  await expect(apiClient.getAvailableElections()).resolves.toMatchObject(
     expectedFixtures.map(({ path, title }) => ({
+      title: expect.stringContaining(title),
       inputPath: expect.stringContaining(path),
-      title,
-      resolvedPath: expect.any(String),
     }))
   );
+});
+
+test('detects election packages on mock USB drive', async () => {
+  const { apiClient } = setup();
+  const usbDrive = getMockFileUsbDriveHandler();
+  const fileTree = await mockElectionPackageFileTree(
+    electionFamousNames2021Fixtures.toElectionPackage()
+  );
+  usbDrive.insert(fileTree);
+
+  const result = await apiClient.getAvailableElections();
+
+  expect(result).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        title: expect.stringMatching(/^USB sdb:/),
+        inputPath: expect.stringContaining('.zip'),
+      }),
+    ])
+  );
+});
+
+test('skips unmounted USB drives and drives without election packages', async () => {
+  const { apiClient } = setup();
+
+  // Insert and then remove a drive — should be skipped (not mounted)
+  const usbDrive = getMockFileUsbDriveHandler();
+  usbDrive.insert();
+  usbDrive.remove();
+
+  // Insert a second drive with no election packages — should be skipped
+  const secondDrive = getMockFileUsbDriveHandler('sdc');
+  secondDrive.insert();
+
+  const result = await apiClient.getAvailableElections();
+  expect(result.every((e) => !e.title.startsWith('USB '))).toEqual(true);
 });
 
 test('election setting', async () => {
@@ -222,7 +259,6 @@ test('election setting', async () => {
   const defaultElection = await apiClient.getElection();
   expect(defaultElection).toMatchObject({
     title: electionGeneral.title,
-    inputPath: DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
     resolvedPath: expect.any(String),
   });
 
@@ -233,8 +269,6 @@ test('election setting', async () => {
   const updatedElection = await apiClient.getElection();
   expect(updatedElection).toMatchObject({
     title: election.title,
-    inputPath:
-      './libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
     resolvedPath: expect.any(String),
   });
 
@@ -274,7 +308,6 @@ test('election loading from zip file', async () => {
   const expectedElectionPath = join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME);
   expect(loadedElection).toMatchObject({
     title: election.title,
-    inputPath: zipPath,
     resolvedPath: expectedElectionPath,
   });
   expect(loadedElection?.resolvedPath).toBeDefined();

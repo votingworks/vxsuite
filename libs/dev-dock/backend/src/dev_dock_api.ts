@@ -2,7 +2,14 @@ import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
-import { join, extname, isAbsolute, relative, basename } from 'node:path';
+import {
+  join,
+  extname,
+  isAbsolute,
+  relative,
+  basename,
+  dirname,
+} from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
   asSheet,
@@ -25,8 +32,10 @@ import {
   getFileByName,
   readTextEntry,
 } from '@votingworks/utils';
+import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
   addMockDrive,
+  createMockFileUsbDrive,
   getMockFileUsbDriveHandler,
   listMockDrives,
   removeMockDriveDir,
@@ -61,11 +70,14 @@ export interface DevDockUsbDriveInfo {
   devPath: string;
   status: DevDockUsbDriveStatus;
 }
-export interface DevDockElectionInfo {
+export interface DevDockElectionOption {
   title: string;
   /** The path that appears in the file picker and is passed to the backend */
   inputPath: string;
-  /** The actual path to the election.json file (may be extracted from zip to temp file) */
+}
+
+export interface DevDockElectionInfo extends DevDockElectionOption {
+  /** The path to a readable election.json file (extracted from zip if needed) */
   resolvedPath: string;
 }
 
@@ -250,9 +262,9 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       return getElection(devDockDir);
     },
 
-    getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
+    async getAvailableElections(): Promise<DevDockElectionOption[]> {
       const baseFixturePath = join(__dirname, '../../../../libs/fixtures/data');
-      return fs
+      const fixtureElections: DevDockElectionOption[] = fs
         .readdirSync(baseFixturePath, {
           withFileTypes: true,
         })
@@ -263,16 +275,37 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
             /^(electionGenerated.*|election)\.json$/.test(file)
           );
           if (electionFile) {
-            const resolvedPath = join(baseFixturePath, item.name, electionFile);
+            const inputPath = electionAbsolutePathToRelative(
+              join(baseFixturePath, item.name, electionFile)
+            );
             return {
-              title: item.name,
-              inputPath: electionAbsolutePathToRelative(resolvedPath),
-              resolvedPath,
+              title: `${item.name} - ${inputPath}`,
+              inputPath,
             };
           }
           return undefined;
         })
         .filter((item) => item !== undefined);
+
+      // Also scan mock USB drives for election packages
+      const usbElections = await iter(listMockDrives())
+        .async()
+        .filterMap(async (diskName) => {
+          const handler = getMockFileUsbDriveHandler(diskName);
+          if (handler.status().status !== 'mounted') return undefined;
+          const mockUsbDrive = createMockFileUsbDrive(diskName);
+          const result =
+            await getMostRecentElectionPackageFilepath(mockUsbDrive);
+          if (result.isErr()) return undefined;
+          const zipPath = result.ok();
+          return {
+            title: `USB ${diskName}: ${basename(dirname(dirname(zipPath)))}`,
+            inputPath: zipPath,
+          };
+        })
+        .toArray();
+
+      return [...usbElections, ...fixtureElections];
     },
 
     getCardStatus(): CardStatus {

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
