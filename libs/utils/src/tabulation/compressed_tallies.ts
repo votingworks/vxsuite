@@ -472,10 +472,11 @@ function aggregatePerPrecinctResults(
       ) {
         existing.yesTally += contestResults.yesTally;
         existing.noTally += contestResults.noTally;
-      } else if (
-        existing.contestType === 'candidate' &&
-        contestResults.contestType === 'candidate'
-      ) {
+      } else {
+        assert(
+          existing.contestType === 'candidate' &&
+            contestResults.contestType === 'candidate'
+        );
         for (const [candidateId, candidateTally] of Object.entries(
           contestResults.tallies
         )) {

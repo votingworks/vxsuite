@@ -736,4 +736,88 @@ describe('per-precinct tally encoding (V1)', () => {
       expect(decoded[contest.id]).toBeDefined();
     }
   });
+
+  test('V1 tally auto-detected by decodeAndReadCompressedTally returns aggregated results', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+    const precinct1Id = '6522';
+    const precinct2Id = '6525';
+
+    const results1 = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [10], hmpb: [] },
+      contestResultsSummaries: {
+        '750000017': {
+          type: 'yesno',
+          ballots: 10,
+          undervotes: 0,
+          overvotes: 0,
+          yesTally: 6,
+          noTally: 4,
+        },
+        '775020876': {
+          type: 'candidate',
+          ballots: 10,
+          undervotes: 1,
+          overvotes: 0,
+          officialOptionTallies: { '775031988': 5, '775031987': 3 },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+    const results2 = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [5], hmpb: [] },
+      contestResultsSummaries: {
+        '750000017': {
+          type: 'yesno',
+          ballots: 5,
+          undervotes: 1,
+          overvotes: 0,
+          yesTally: 2,
+          noTally: 2,
+        },
+        '775020876': {
+          type: 'candidate',
+          ballots: 5,
+          undervotes: 0,
+          overvotes: 1,
+          officialOptionTallies: { '775031988': 2, '775031987': 1 },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const encoded = compressAndEncodePerPrecinctTally({
+      election: electionEitherNeither,
+      resultsByPrecinct: {
+        [precinct1Id]: results1,
+        [precinct2Id]: results2,
+      },
+      numPages: 1,
+    });
+
+    // decodeAndReadCompressedTally should auto-detect V1 and aggregate
+    const aggregated = decodeAndReadCompressedTally({
+      election: electionEitherNeither,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      encodedTally: assertDefined(encoded[0]),
+    });
+
+    const yesNoResult = aggregated['750000017'];
+    assert(yesNoResult?.contestType === 'yesno');
+    expect(yesNoResult.ballots).toEqual(15);
+    expect(yesNoResult.undervotes).toEqual(1);
+    expect(yesNoResult.yesTally).toEqual(8);
+    expect(yesNoResult.noTally).toEqual(6);
+
+    // Verify candidate contest aggregation
+    const candidateResult = aggregated['775020876'];
+    assert(candidateResult?.contestType === 'candidate');
+    expect(candidateResult.ballots).toEqual(15);
+    expect(candidateResult.undervotes).toEqual(1);
+    expect(candidateResult.overvotes).toEqual(1);
+    expect(candidateResult.tallies['775031988']?.tally).toEqual(7);
+    expect(candidateResult.tallies['775031987']?.tally).toEqual(4);
+  });
 });
