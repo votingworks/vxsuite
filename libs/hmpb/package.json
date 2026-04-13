@@ -73,7 +73,7 @@
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
     "util": "^0.12.4",
-    "vite": "8.0.1",
+    "vite": "8.0.5",
     "vitest": "^3.1.4"
   },
   "engines": {
