@@ -69,12 +69,8 @@ const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
 const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
 
 /**
- * The previous message format (10 fields with precinctSelection in field 5).
- */
-export const QR_MESSAGE_FORMAT_V2 = 'qr2';
-
-/**
- * The current message format (10 fields with pollingPlaceId in field 5).
+ * The current message format (10 fields with pollingPlaceId in field 5,
+ * bitmap-format per-precinct tally data).
  */
 export const QR_MESSAGE_FORMAT = 'qr3';
 
@@ -252,7 +248,6 @@ export function decodeQuickResultsMessage(payload: string): DecodedFields {
 
   switch (messageType) {
     case QR_MESSAGE_FORMAT:
-    case QR_MESSAGE_FORMAT_V2:
       return decodeV2Message(messagePayload);
     default:
       throw new Error(`Unknown QR message format: ${messageType}`);

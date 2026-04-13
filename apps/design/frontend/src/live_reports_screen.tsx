@@ -28,17 +28,8 @@ import {
 import { useParams, Switch, Route } from 'react-router-dom';
 import React, { useState } from 'react';
 import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
-import {
-  formatBallotHash,
-  PollsTransitionType,
-  PrecinctSelection,
-} from '@votingworks/types';
-import {
-  getContestsForPrecinctAndElection,
-  getPrecinctSelectionName,
-  format,
-  groupContestsByParty,
-} from '@votingworks/utils';
+import { formatBallotHash, PollsTransitionType } from '@votingworks/types';
+import { format, groupContestsByParty } from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
 import type {
   GetExportedElectionError,
@@ -54,7 +45,7 @@ import {
 } from './api';
 import { useTitle } from './hooks/use_title';
 import { Row } from './layout';
-import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
+import { NO_POLLING_PLACE_REPORT_KEY, useSound } from './utils';
 
 const PollsStatusLabel = styled.span`
   font-size: 1rem;
@@ -185,7 +176,7 @@ function LiveReportsSummaryScreen({
         ? [
             ...pollsStatusData.election.precincts,
             {
-              id: ALL_PRECINCTS_REPORT_KEY,
+              id: NO_POLLING_PLACE_REPORT_KEY,
               name: 'Precinct Not Specified',
               splits: [],
             },
@@ -198,14 +189,14 @@ function LiveReportsSummaryScreen({
   useQueryChangeListener(getLiveReportsSummaryQuery, {
     // Could also select `isLive` too if that's relevant
     select: (result) => ({
-      reportsByPrecinct: result.ok()?.reportsByPrecinct,
+      reportsByPollingPlace: result.ok()?.reportsByPollingPlace,
       isLive: result.ok()?.isLive,
     }),
     onChange: (newData, oldData) => {
       if (!oldData) return;
-      const { reportsByPrecinct: newReportsByPrecinct, isLive: newIsLive } =
+      const { reportsByPollingPlace: newReportsByPrecinct, isLive: newIsLive } =
         newData;
-      const { reportsByPrecinct: oldReportsByPrecinct, isLive: oldIsLive } =
+      const { reportsByPollingPlace: oldReportsByPrecinct, isLive: oldIsLive } =
         oldData;
       if (!newReportsByPrecinct) return;
       const switchedLive = newIsLive && !oldIsLive;
@@ -234,7 +225,7 @@ function LiveReportsSummaryScreen({
   /* // Animation hooks (always called)
   const precinctAnimations = usePrecinctAnimations(
     precinctsWithNonSpecified,
-    reportsByPrecinct,
+    reportsByPollingPlace,
     reportsIsLive,
     playSound
   ); */
@@ -289,7 +280,9 @@ function LiveReportsSummaryScreen({
 
   assert(pollsStatusData !== null);
 
-  const allEntries = Object.values(pollsStatusData.reportsByPrecinct).flat();
+  const allEntries = Object.values(
+    pollsStatusData.reportsByPollingPlace
+  ).flat();
 
   return (
     <div>
@@ -335,7 +328,7 @@ function LiveReportsSummaryScreen({
                         <Icons.Warning color="warning" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter((entries) => entries.length === 0).length
                         }
                       </H1>
@@ -349,7 +342,7 @@ function LiveReportsSummaryScreen({
                         <Icons.Circle color="success" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
@@ -371,7 +364,7 @@ function LiveReportsSummaryScreen({
                         <Icons.CircleDot color="primary" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
@@ -397,7 +390,7 @@ function LiveReportsSummaryScreen({
                         <Icons.Done color="primary" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
@@ -455,10 +448,10 @@ function LiveReportsSummaryScreen({
                 {precinctsWithNonSpecified.map((precinct) => {
                   // Only show the "Precinct Not Specified" row if there is data for it
                   const reportsForPrecinct =
-                    pollsStatusData.reportsByPrecinct[precinct.id] || [];
+                    pollsStatusData.reportsByPollingPlace[precinct.id] || [];
 
                   if (
-                    precinct.id === ALL_PRECINCTS_REPORT_KEY &&
+                    precinct.id === NO_POLLING_PLACE_REPORT_KEY &&
                     reportsForPrecinct.length === 0
                   ) {
                     return null;
@@ -580,14 +573,7 @@ interface ResultsTabProps {
 function LiveReportsResultsScreen({
   electionId,
 }: ResultsTabProps): JSX.Element {
-  const { precinctId } = useParams<{ precinctId: string }>();
-  const precinctSelection: PrecinctSelection = precinctId
-    ? { kind: 'SinglePrecinct', precinctId }
-    : { kind: 'AllPrecincts' };
-  const getLiveResultsReportsQuery = getLiveResultsReports.useQuery(
-    electionId,
-    precinctSelection
-  );
+  const getLiveResultsReportsQuery = getLiveResultsReports.useQuery(electionId);
 
   if (!getLiveResultsReportsQuery.isSuccess) {
     // We don't know test/live mode yet or have the election data yet so show a generic title.
@@ -614,26 +600,16 @@ function LiveReportsResultsScreen({
   }
 
   const aggregatedResults = getLiveResultsReportsQuery.data.ok();
-  const contests = getContestsForPrecinctAndElection(
-    aggregatedResults.election,
-    precinctSelection
-  );
   const contestsByParty = groupContestsByParty(
     aggregatedResults.election,
-    contests
+    aggregatedResults.election.contests
   );
   const partyNamesById = aggregatedResults.election.parties.reduce<
     Record<string, string>
   >((acc, party) => ({ ...acc, [party.id]: party.fullName }), {});
   const testLivePrefix = aggregatedResults.isLive ? '' : 'Test ';
 
-  const reportTitle =
-    precinctSelection.kind === 'AllPrecincts'
-      ? `Unofficial ${testLivePrefix}Tally Report`
-      : `Unofficial ${testLivePrefix}${getPrecinctSelectionName(
-          aggregatedResults.election.precincts,
-          precinctSelection
-        )} Tally Report`;
+  const reportTitle = `Unofficial ${testLivePrefix}Tally Report`;
 
   return (
     <React.Fragment>
