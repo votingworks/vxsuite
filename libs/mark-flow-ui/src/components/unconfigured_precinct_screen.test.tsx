@@ -6,7 +6,7 @@ import {
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionInfoBar, ElectionInfoBarProps } from '@votingworks/ui';
-import { UnconfiguredPrecinctScreen } from './unconfigured_precinct_screen';
+import { UnconfiguredPollingPlaceScreen } from './unconfigured_polling_place_screen';
 import { render, screen } from '../../test/react_testing_library';
 
 const featureFlagMock = getFeatureFlagMock();
@@ -35,7 +35,7 @@ test('renders note + election info (with precinct selection)', () => {
   featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
 
   render(
-    <UnconfiguredPrecinctScreen
+    <UnconfiguredPollingPlaceScreen
       electionDefinition={electionDefinition}
       electionPackageHash="test-hash"
     />
@@ -55,7 +55,7 @@ test('renders note + election info', () => {
   featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
 
   render(
-    <UnconfiguredPrecinctScreen
+    <UnconfiguredPollingPlaceScreen
       electionDefinition={electionDefinition}
       electionPackageHash="test-hash"
     />

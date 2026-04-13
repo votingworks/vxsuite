@@ -10,7 +10,7 @@ interface Props {
   electionPackageHash: string;
 }
 
-export function UnconfiguredPrecinctScreen({
+export function UnconfiguredPollingPlaceScreen({
   electionDefinition,
   electionPackageHash,
 }: Props): JSX.Element {

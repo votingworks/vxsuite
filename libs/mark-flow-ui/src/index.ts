@@ -6,7 +6,7 @@ export * from './components/centered_page_layout';
 export * from './components/insert_card_screen';
 export * from './components/location_picker';
 export * from './components/poll_worker_prompt';
-export * from './components/unconfigured_precinct_screen';
+export * from './components/unconfigured_polling_place_screen';
 export * from './components/voter_settings_button';
 export * from './components/review';
 export * from './components/voter_screen';

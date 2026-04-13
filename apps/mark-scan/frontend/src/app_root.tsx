@@ -34,7 +34,7 @@ import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   InsertCardScreen,
   mergeMsEitherNeitherContests,
-  UnconfiguredPrecinctScreen,
+  UnconfiguredPollingPlaceScreen,
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
@@ -487,7 +487,7 @@ export function AppRoot(): JSX.Element | null {
   if (electionDefinition) {
     if (!locationConfigured) {
       return (
-        <UnconfiguredPrecinctScreen
+        <UnconfiguredPollingPlaceScreen
           electionDefinition={electionDefinition}
           electionPackageHash={assertDefined(electionPackageHash)}
         />

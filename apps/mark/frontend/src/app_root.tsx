@@ -44,7 +44,7 @@ import {
   useBallotStyleManager,
   VoterScreen,
   InsertCardScreen,
-  UnconfiguredPrecinctScreen,
+  UnconfiguredPollingPlaceScreen,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-backend';
 import {
@@ -547,7 +547,7 @@ export function AppRoot(): JSX.Element | null {
   if (electionDefinition) {
     if (!locationConfigured) {
       return (
-        <UnconfiguredPrecinctScreen
+        <UnconfiguredPollingPlaceScreen
           electionDefinition={electionDefinition}
           electionPackageHash={assertDefined(electionPackageHash)}
         />
