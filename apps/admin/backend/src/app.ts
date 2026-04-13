@@ -14,7 +14,6 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
-  ContestOptionId,
   getContests,
 } from '@votingworks/types';
 import {
@@ -85,6 +84,7 @@ import {
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
   AdjudicatedCvrContest,
+  AdjudicationError,
   MachineMode,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
@@ -112,7 +112,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateCvrContest, getMarginalMarks } from './adjudication';
+import { adjudicateCvrContest } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -725,12 +725,39 @@ function buildApi({
       );
     },
 
-    adjudicateCvrContest(input: AdjudicatedCvrContest): void {
+    adjudicateCvrContest(
+      input: AdjudicatedCvrContest
+    ): Result<void, AdjudicationError> {
+      if (store.getIsClientAdjudicationEnabled()) {
+        const { machineId } = getMachineConfig();
+        const electionId = loadCurrentElectionIdOrThrow(workspace);
+        if (
+          !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
+          !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
+        ) {
+          return err({ type: 'no-claim' });
+        }
+      }
       adjudicateCvrContest(input, store, logger);
+      return ok();
     },
 
-    setCvrResolved(input: { cvrId: Id }): void {
-      store.setCvrResolved(input);
+    setCvrResolved(input: { cvrId: Id }): Result<void, AdjudicationError> {
+      if (store.getIsClientAdjudicationEnabled()) {
+        const { machineId } = getMachineConfig();
+        const electionId = loadCurrentElectionIdOrThrow(workspace);
+        if (
+          !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
+          !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
+        ) {
+          return err({ type: 'no-claim' });
+        }
+      }
+      store.setCvrResolved({
+        ...input,
+        machineId: getMachineConfig().machineId,
+      });
+      return ok();
     },
 
     getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
@@ -773,10 +800,36 @@ function buildApi({
       });
     },
 
+    getClaimedBallotCvrIds(): Id[] {
+      return store.getClaimedBallotCvrIds({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        excludeMachineId: getMachineConfig().machineId,
+      });
+    },
+
+    claimBallotForAdjudication(input: { cvrId: Id }): boolean {
+      if (!store.getIsClientAdjudicationEnabled()) return true;
+      return store.claimBallotForAdjudication({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+        machineId: getMachineConfig().machineId,
+      });
+    },
+
+    releaseBallotAdjudicationClaim(input: { cvrId: Id }): void {
+      if (!store.getIsClientAdjudicationEnabled()) return;
+      store.releaseBallotClaim({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+        machineId: getMachineConfig().machineId,
+      });
+    },
+
     getNextCvrIdForBallotAdjudication(): Id | null {
       return (
         store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
+          machineId: getMachineConfig().machineId,
         }) ?? null
       );
     },
@@ -792,17 +845,6 @@ function buildApi({
       return getBallotImages({
         store: workspace.store,
         cvrId: input.cvrId,
-      });
-    },
-
-    getMarginalMarks(input: {
-      cvrId: Id;
-      contestId: ContestId;
-    }): ContestOptionId[] {
-      return getMarginalMarks({
-        store: workspace.store,
-        cvrId: input.cvrId,
-        contestId: input.contestId,
       });
     },
 

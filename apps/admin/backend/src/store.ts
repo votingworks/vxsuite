@@ -2093,19 +2093,24 @@ export class Store implements BaseStore {
 
   getNextCvrIdForBallotAdjudication({
     electionId,
+    machineId,
   }: {
     electionId: Id;
+    machineId: string;
   }): Optional<Id> {
     this.assertElectionExists(electionId);
-    debug('querying database for first unresolved cvr id for adjudication');
     const filter = this.getAdjudicationQueueFilter(electionId);
 
     const row = this.client.one(
       `
         select c.id as cvr_id
         from cvrs c
+        left join machine_ballot_adjudication_assignments mba
+          on mba.cvr_id = c.id and mba.status = 'claimed'
+          and mba.machine_id != ?
         where (${filter})
           and c.is_adjudicated = 0
+          and mba.cvr_id is null
         order by
           case when c.is_blank = 1 then 1 else 0 end,
           case when c.card_type = 'bmd' then 1 else 0 end,
@@ -2113,10 +2118,10 @@ export class Store implements BaseStore {
           c.sheet_number,
           c.id
         limit 1
-      `
+      `,
+      machineId
     ) as { cvr_id: Id } | undefined;
 
-    debug('queried database for first unresolved cvr id');
     return row?.cvr_id;
   }
 
@@ -2414,6 +2419,8 @@ export class Store implements BaseStore {
       votes: string;
       markScores: string | null;
     };
+
+    assert(row !== undefined, `CVR ${cvrId} not found`);
 
     return {
       id: row.id,
@@ -2769,8 +2776,21 @@ export class Store implements BaseStore {
     }));
   }
 
-  setCvrResolved({ cvrId }: { cvrId: Id }): void {
-    this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
+  setCvrResolved({
+    cvrId,
+    machineId,
+  }: {
+    cvrId: Id;
+    machineId?: string;
+  }): void {
+    this.withTransaction(() => {
+      this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
+
+      const electionId = this.getCurrentElectionId();
+      if (electionId && machineId) {
+        this.completeBallotClaim({ electionId, cvrId, machineId });
+      }
+    });
   }
 
   /**
@@ -2878,21 +2898,48 @@ export class Store implements BaseStore {
       `select
          machine_id as machineId,
          machine_mode as machineMode,
-         status,
+         case
+           when status = ? and exists (
+             select 1 from machine_ballot_adjudication_assignments
+             where machine_id = machines.machine_id and status = 'claimed'
+           ) then ?
+           else machines.status
+         end as status,
          auth_type as authType,
          last_seen_at as lastSeenAt
-       from machines`
+       from machines`,
+      Admin.ClientMachineStatus.Active,
+      Admin.ClientMachineStatus.Adjudicating
     ) as MachineRecord[];
   }
 
   cleanupStaleMachines(): void {
+    const now = getCurrentTime();
+    const staleMachineIds = (
+      this.client.all(
+        `select machine_id as machineId from machines
+         where status != ? and (? - last_seen_at) > ?`,
+        Admin.ClientMachineStatus.Offline,
+        now,
+        STALE_MACHINE_THRESHOLD_MS
+      ) as Array<{ machineId: string }>
+    ).map((row) => row.machineId);
+
+    if (staleMachineIds.length === 0) return;
+
+    const placeholders = staleMachineIds.map(() => '?').join(', ');
+
+    this.client.run(
+      `delete from machine_ballot_adjudication_assignments
+       where status = 'claimed' and machine_id in (${placeholders})`,
+      ...staleMachineIds
+    );
+
     this.client.run(
       `update machines set status = ?, auth_type = null
-       where status != ? and (? - last_seen_at) > ?`,
+       where machine_id in (${placeholders})`,
       Admin.ClientMachineStatus.Offline,
-      Admin.ClientMachineStatus.Offline,
-      getCurrentTime(),
-      STALE_MACHINE_THRESHOLD_MS
+      ...staleMachineIds
     );
   }
 
@@ -2912,6 +2959,12 @@ export class Store implements BaseStore {
       'update settings set is_client_adjudication_enabled = ?',
       enabled ? 1 : 0
     );
+
+    // Release all claims on toggle in either direction — clean slate
+    const currentElectionId = this.getCurrentElectionId();
+    if (currentElectionId) {
+      this.releaseAllActiveClaims({ electionId: currentElectionId });
+    }
   }
 
   getMultipleHostsDetected(selfMachineId: string): boolean {
@@ -2922,5 +2975,247 @@ export class Store implements BaseStore {
       selfMachineId
     ) as { cnt: number };
     return count.cnt > 0;
+  }
+
+  //
+  // Client ballot adjudication assignments
+  //
+
+  getClaimedBallotCvrIds({
+    electionId,
+    excludeMachineId,
+  }: {
+    electionId: Id;
+    excludeMachineId?: string;
+  }): Id[] {
+    this.assertElectionExists(electionId);
+    const rows = excludeMachineId
+      ? (this.client.all(
+          `
+            select cvr_id
+            from machine_ballot_adjudication_assignments
+            where election_id = ? and status = 'claimed'
+              and machine_id != ?
+          `,
+          electionId,
+          excludeMachineId
+        ) as Array<{ cvr_id: Id }>)
+      : (this.client.all(
+          `
+            select cvr_id
+            from machine_ballot_adjudication_assignments
+            where election_id = ? and status = 'claimed'
+          `,
+          electionId
+        ) as Array<{ cvr_id: Id }>);
+    return rows.map((r) => r.cvr_id);
+  }
+
+  claimBallotForAdjudication({
+    electionId,
+    cvrId,
+    machineId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+    machineId: string;
+  }): boolean {
+    const existing = this.client.one(
+      `
+        select machine_id, status
+        from machine_ballot_adjudication_assignments
+        where cvr_id = ? and election_id = ?
+      `,
+      cvrId,
+      electionId
+    ) as { machine_id: string; status: string } | undefined;
+
+    if (existing) {
+      if (existing.status === 'completed') return true;
+      return existing.machine_id === machineId;
+    }
+
+    try {
+      this.client.run(
+        `
+          insert into machine_ballot_adjudication_assignments
+            (cvr_id, election_id, machine_id, claimed_at, status)
+          values (?, ?, ?, ?, 'claimed')
+        `,
+        cvrId,
+        electionId,
+        machineId,
+        getCurrentTime()
+      );
+      return true;
+    } catch {
+      /* istanbul ignore next - race condition fallback @preserve */
+      return false;
+    }
+  }
+
+  claimBallotForClient({
+    electionId,
+    machineId,
+    preferredBallotStyleId,
+    excludeCvrIds,
+  }: {
+    electionId: Id;
+    machineId: string;
+    preferredBallotStyleId?: BallotStyleGroupId;
+    excludeCvrIds?: Id[];
+  }): Id | undefined {
+    this.assertElectionExists(electionId);
+    const filter = this.getAdjudicationQueueFilter(electionId);
+
+    const excludePlaceholders =
+      excludeCvrIds && excludeCvrIds.length > 0
+        ? `and c.id not in (${excludeCvrIds.map(() => '?').join(', ')})`
+        : '';
+
+    return this.client.transaction(() => {
+      const row = this.client.one(
+        `
+          select c.id as cvr_id
+          from cvrs c
+          where (${filter})
+            and c.is_adjudicated = 0
+            and c.id not in (
+              select cvr_id from machine_ballot_adjudication_assignments
+              where election_id = ? and status in ('claimed', 'completed')
+            )
+            ${excludePlaceholders}
+          order by
+            case when c.ballot_style_group_id = ? then 0 else 1 end,
+            case when c.is_blank = 1 then 1 else 0 end,
+            case when c.card_type = 'bmd' then 1 else 0 end,
+            c.ballot_style_group_id,
+            c.sheet_number,
+            c.id
+          limit 1
+        `,
+        electionId,
+        ...(excludeCvrIds ?? []),
+        preferredBallotStyleId ?? null
+      ) as { cvr_id: Id } | undefined;
+
+      if (!row) return undefined;
+
+      this.client.run(
+        `
+          insert into machine_ballot_adjudication_assignments
+            (cvr_id, election_id, machine_id, claimed_at, status)
+          values (?, ?, ?, ?, 'claimed')
+        `,
+        row.cvr_id,
+        electionId,
+        machineId,
+        getCurrentTime()
+      );
+
+      return row.cvr_id;
+    });
+  }
+
+  completeBallotClaim({
+    electionId,
+    cvrId,
+    machineId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+    machineId: string;
+  }): void {
+    this.client.run(
+      `
+        update machine_ballot_adjudication_assignments
+        set status = 'completed', completed_at = ?
+        where cvr_id = ? and election_id = ? and status = 'claimed'
+        and machine_id = ?
+      `,
+      getCurrentTime(),
+      cvrId,
+      electionId,
+      machineId
+    );
+  }
+
+  releaseBallotClaim({
+    electionId,
+    cvrId,
+    machineId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+    machineId?: string;
+  }): void {
+    const machineClause = machineId ? 'and machine_id = ?' : '';
+    const params: string[] = [cvrId, electionId];
+    if (machineId) params.push(machineId);
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where cvr_id = ? and election_id = ? and status = 'claimed'
+        ${machineClause}
+      `,
+      ...params
+    );
+  }
+
+  isCvrAdjudicated({ cvrId }: { cvrId: Id }): boolean {
+    const row = this.client.one(
+      `select is_adjudicated from cvrs where id = ?`,
+      cvrId
+    ) as { is_adjudicated: number } | undefined;
+    return row?.is_adjudicated === 1;
+  }
+
+  hasBallotClaim({
+    electionId,
+    cvrId,
+    machineId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+    machineId: string;
+  }): boolean {
+    const row = this.client.one(
+      `
+        select 1 from machine_ballot_adjudication_assignments
+        where cvr_id = ? and election_id = ? and machine_id = ?
+          and status = 'claimed'
+      `,
+      cvrId,
+      electionId,
+      machineId
+    );
+    return row !== undefined;
+  }
+
+  releaseAllClaimsForMachine({
+    electionId,
+    machineId,
+  }: {
+    electionId: Id;
+    machineId: string;
+  }): void {
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where election_id = ? and machine_id = ? and status = 'claimed'
+      `,
+      electionId,
+      machineId
+    );
+  }
+
+  releaseAllActiveClaims({ electionId }: { electionId: Id }): void {
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where election_id = ? and status = 'claimed'
+      `,
+      electionId
+    );
   }
 }

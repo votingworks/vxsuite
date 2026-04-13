@@ -9,7 +9,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
-import { assert, err } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
@@ -154,46 +154,53 @@ test('write-in adjudication report', async () => {
   // generate some adjudication information
   for (const [i, writeIn] of writeIns.entries()) {
     const { optionId, cvrId, contestId } = writeIn;
+    await apiClient.claimBallotForAdjudication({ cvrId });
     if (i < 24) {
-      await apiClient.adjudicateCvrContest({
-        cvrId,
-        contestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [optionId]: {
-            type: 'write-in-option',
-            candidateName: unofficialCandidate1.name,
-            candidateType: 'write-in-candidate',
-            hasVote: true,
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [optionId]: {
+              type: 'write-in-option',
+              candidateName: unofficialCandidate1.name,
+              candidateType: 'write-in-candidate',
+              hasVote: true,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     } else if (i < 48) {
-      await apiClient.adjudicateCvrContest({
-        cvrId,
-        contestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [optionId]: {
-            type: 'write-in-option',
-            candidateId: 'Obadiah-Carrigan-5c95145a',
-            candidateType: 'official-candidate',
-            hasVote: true,
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [optionId]: {
+              type: 'write-in-option',
+              candidateId: 'Obadiah-Carrigan-5c95145a',
+              candidateType: 'official-candidate',
+              hasVote: true,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     } else {
-      await apiClient.adjudicateCvrContest({
-        cvrId,
-        contestId,
-        side: 'front',
-        adjudicatedContestOptionById: {
-          [optionId]: {
-            type: 'write-in-option',
-            hasVote: false,
+      expect(
+        await apiClient.adjudicateCvrContest({
+          cvrId,
+          contestId,
+          side: 'front',
+          adjudicatedContestOptionById: {
+            [optionId]: {
+              type: 'write-in-option',
+              hasVote: false,
+            },
           },
-        },
-      });
+        })
+      ).toEqual(ok());
     }
   }
 

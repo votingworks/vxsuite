@@ -29,6 +29,7 @@ export class ClientStore implements BaseStore {
   private cachedElectionRecord?: ElectionRecord;
   private cachedSystemSettings?: SystemSettings;
   private isClientAdjudicationEnabled = false;
+  private onDisconnect?: () => void;
 
   getCurrentElectionId(): Optional<Id> {
     return this.cachedElectionRecord?.id;
@@ -72,16 +73,25 @@ export class ClientStore implements BaseStore {
     return this.hostConnection;
   }
 
+  setOnDisconnect(callback: () => void): void {
+    this.onDisconnect = callback;
+  }
+
   setConnection(
     status: ClientConnectionStatus,
     hostConnection?: HostConnection
   ): void {
+    const wasConnected =
+      this.status === ClientConnectionStatus.OnlineConnectedToHost;
     this.status = status;
     this.hostConnection = hostConnection;
     if (status !== ClientConnectionStatus.OnlineConnectedToHost) {
       this.cachedElectionRecord = undefined;
       this.cachedSystemSettings = undefined;
       this.isClientAdjudicationEnabled = false;
+      if (wasConnected) {
+        this.onDisconnect?.();
+      }
     }
   }
 

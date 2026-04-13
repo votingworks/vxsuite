@@ -261,6 +261,17 @@ create table machines (
   last_seen_at integer not null
 );
 
+create table machine_ballot_adjudication_assignments (
+  cvr_id text not null references cvrs(id) on delete cascade,
+  election_id text not null references elections(id) on delete cascade,
+  machine_id text not null,
+  claimed_at integer not null,
+  completed_at integer,
+  status text not null default 'claimed'
+    check (status in ('claimed', 'completed')),
+  primary key (cvr_id, election_id)
+);
+
 -- to track data changes in order to invalidate cached data
 create table data_versions (
   election_id varchar(36),

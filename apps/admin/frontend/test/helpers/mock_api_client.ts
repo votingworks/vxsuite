@@ -330,11 +330,11 @@ export function createApiMock(
     ) {
       if (contestId) {
         apiClient.getWriteInCandidates
-          .expectCallWith({ contestId })
+          .expectRepeatedCallsWith({ contestId })
           .resolves(writeInCandidates);
       } else {
         apiClient.getWriteInCandidates
-          .expectCallWith()
+          .expectRepeatedCallsWith()
           .resolves(writeInCandidates);
       }
     },
@@ -352,7 +352,7 @@ export function createApiMock(
       metadata: BallotAdjudicationQueueMetadata
     ) {
       return apiClient.getBallotAdjudicationQueueMetadata
-        .expectCallWith()
+        .expectRepeatedCallsWith()
         .resolves(metadata);
     },
 
@@ -368,7 +368,7 @@ export function createApiMock(
     },
 
     expectSetCvrResolved(input: { cvrId: Id }) {
-      apiClient.setCvrResolved.expectCallWith(input).resolves();
+      apiClient.setCvrResolved.expectCallWith(input).resolves(ok());
     },
 
     expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {
@@ -543,15 +543,8 @@ export function createApiMock(
       }
     },
 
-    expectGetMarginalMarks(
-      input: { contestId: ContestId; cvrId: Id },
-      marginalMarks: ContestOptionId[]
-    ) {
-      apiClient.getMarginalMarks.expectCallWith(input).resolves(marginalMarks);
-    },
-
     expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {
-      apiClient.adjudicateCvrContest.expectCallWith(input).resolves();
+      apiClient.adjudicateCvrContest.expectCallWith(input).resolves(ok());
     },
 
     expectMarkResultsOfficial() {
@@ -791,6 +784,33 @@ export function createApiMock(
       apiClient.getIsClientAdjudicationEnabled
         .expectRepeatedCallsWith()
         .resolves(enabled);
+    },
+
+    expectGetClaimedBallotCvrIds(cvrIds: Id[] = []): void {
+      apiClient.getClaimedBallotCvrIds
+        .expectRepeatedCallsWith()
+        .resolves(cvrIds);
+    },
+
+    expectClaimBallotForAdjudication(
+      input: { cvrId: Id },
+      result = true
+    ): void {
+      apiClient.claimBallotForAdjudication
+        .expectCallWith(input)
+        .resolves(result);
+    },
+
+    expectReleaseBallotAdjudicationClaim(input: { cvrId: Id }): void {
+      apiClient.releaseBallotAdjudicationClaim.expectCallWith(input).resolves();
+    },
+
+    expectAdjudicationScreenQueries({
+      claimedCvrIds = [],
+    }: {
+      claimedCvrIds?: Id[];
+    } = {}): void {
+      this.expectGetClaimedBallotCvrIds(claimedCvrIds);
     },
   };
 }

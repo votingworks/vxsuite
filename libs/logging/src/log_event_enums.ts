@@ -231,6 +231,11 @@ export enum LogEventId {
   AdminNetworkStatus = 'admin-network-status',
   AdminMachineModeChanged = 'admin-machine-mode-changed',
   AdminClientAdjudicationToggled = 'admin-client-adjudication-toggled',
+  AdminBallotClaimed = 'admin-ballot-claimed',
+  AdminBallotAdjudicationComplete = 'admin-ballot-adjudication-complete',
+  AdminBallotReleased = 'admin-ballot-released',
+  AdminAdjudicationProxyError = 'admin-adjudication-proxy-error',
+  AdminContestAdjudicated = 'admin-contest-adjudicated',
   LowDiskSpace = 'low-disk-space',
 }
 
@@ -1455,6 +1460,45 @@ const AdminClientAdjudicationToggled: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const AdminBallotClaimed: LogDetails = {
+  eventId: LogEventId.AdminBallotClaimed,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'A ballot was claimed for adjudication by a client machine.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminBallotAdjudicationComplete: LogDetails = {
+  eventId: LogEventId.AdminBallotAdjudicationComplete,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'A client machine completed adjudication of a ballot and resolved it.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminBallotReleased: LogDetails = {
+  eventId: LogEventId.AdminBallotReleased,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'A claimed ballot was released back to the adjudication queue.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminAdjudicationProxyError: LogDetails = {
+  eventId: LogEventId.AdminAdjudicationProxyError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A client adjudication proxy request failed because the host is not connected.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminContestAdjudicated: LogDetails = {
+  eventId: LogEventId.AdminContestAdjudicated,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'A contest on a ballot was adjudicated.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const LowDiskSpace: LogDetails = {
   eventId: LogEventId.LowDiskSpace,
   eventType: LogEventType.SystemStatus,
@@ -1793,6 +1837,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return AdminMachineModeChanged;
     case LogEventId.AdminClientAdjudicationToggled:
       return AdminClientAdjudicationToggled;
+    case LogEventId.AdminBallotClaimed:
+      return AdminBallotClaimed;
+    case LogEventId.AdminBallotAdjudicationComplete:
+      return AdminBallotAdjudicationComplete;
+    case LogEventId.AdminBallotReleased:
+      return AdminBallotReleased;
+    case LogEventId.AdminAdjudicationProxyError:
+      return AdminAdjudicationProxyError;
+    case LogEventId.AdminContestAdjudicated:
+      return AdminContestAdjudicated;
     case LogEventId.LowDiskSpace:
       return LowDiskSpace;
     default:

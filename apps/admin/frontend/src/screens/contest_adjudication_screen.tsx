@@ -23,10 +23,10 @@ import type {
   BallotImages,
   ContestAdjudicationData,
   HmpbBallotPageImage,
+  WriteInCandidateRecord,
   WriteInRecord,
 } from '@votingworks/admin-backend';
 import { format } from '@votingworks/utils';
-import { getWriteInCandidates, adjudicateCvrContest } from '../api';
 import { AppContext } from '../contexts/app_context';
 import {
   BallotStaticImageViewer,
@@ -208,6 +208,8 @@ interface ContestAdjudicationScreenProps {
   onClose: () => void;
   ballotImages: BallotImages;
   side: Side;
+  writeInCandidates: WriteInCandidateRecord[];
+  onAdjudicateCvrContest: (input: AdjudicatedCvrContest) => Promise<void>;
 }
 
 export function ContestAdjudicationScreen({
@@ -216,6 +218,8 @@ export function ContestAdjudicationScreen({
   cvrId,
   ballotImages,
   side,
+  writeInCandidates,
+  onAdjudicateCvrContest,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
@@ -224,12 +228,6 @@ export function ContestAdjudicationScreen({
   const { options: contestOptions, contestId, tag } = contestAdjudicationData;
   const contest = find(election.contests, (c) => c.id === contestId);
   const isCandidateContest = contest.type === 'candidate';
-
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery({
-    contestId,
-  });
-
-  const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
 
   const officialOptions = useMemo(() => {
     const optionDefinitions = contestOptions.map((o) => o.definition);
@@ -271,12 +269,10 @@ export function ContestAdjudicationScreen({
       numberOfWriteIns: isCandidateContest ? contest.seats : 0,
       officialOptions,
     },
-    !writeInCandidatesQuery.isSuccess
-      ? undefined
-      : {
-          contestAdjudicationData,
-          writeInCandidates: writeInCandidatesQuery.data,
-        }
+    {
+      contestAdjudicationData,
+      writeInCandidates,
+    }
   );
 
   // Vote and write-in state for adjudication management
@@ -312,8 +308,6 @@ export function ContestAdjudicationScreen({
       });
     }
   }, [firstOptionIdPendingAdjudication]);
-
-  const writeInCandidates = writeInCandidatesQuery.data;
 
   const seatCount = isCandidateContest ? contest.seats : 1;
   const isOvervote = isStateReady ? voteCount > seatCount : false;
@@ -386,7 +380,7 @@ export function ContestAdjudicationScreen({
       }
     }
     try {
-      await adjudicateCvrContestMutation.mutateAsync(adjudicatedCvrContest);
+      await onAdjudicateCvrContest(adjudicatedCvrContest);
       onClose();
     } catch {
       // Handled by default query client error handling
@@ -454,7 +448,7 @@ export function ContestAdjudicationScreen({
               </Label>
             )}
           </BallotVoteCount>
-          {!isStateReady || !writeInCandidates ? (
+          {!isStateReady ? (
             <ContestOptionButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </ContestOptionButtonList>

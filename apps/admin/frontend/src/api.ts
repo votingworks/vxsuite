@@ -308,9 +308,28 @@ export const getBallotAdjudicationQueueMetadata = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getBallotAdjudicationQueueMetadata()
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getBallotAdjudicationQueueMetadata(),
+      {
+        staleTime: 0,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
     );
+  },
+} as const;
+
+export const getClaimedBallotCvrIds = {
+  queryKey(): QueryKey {
+    return ['getClaimedBallotCvrIds'];
+  },
+  useQuery({ enabled }: { enabled?: boolean } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getClaimedBallotCvrIds(), {
+      staleTime: 0,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      enabled,
+    });
   },
 } as const;
 
@@ -323,7 +342,11 @@ export const getNextCvrIdForBallotAdjudication = {
     return useQuery(
       this.queryKey(),
       () => apiClient.getNextCvrIdForBallotAdjudication(),
-      { cacheTime: 0 }
+      {
+        cacheTime: 0,
+        staleTime: 0,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
     );
   },
 } as const;
@@ -335,8 +358,13 @@ export const getWriteInCandidates = {
   },
   useQuery(input?: GetWriteInCandidatesInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInCandidates(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getWriteInCandidates(input),
+      {
+        staleTime: 0,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
     );
   },
 } as const;
@@ -359,7 +387,12 @@ export const getBallotAdjudicationData = {
             })
         : /* istanbul ignore next - @preserve */
           () => fail('input is required'),
-      { enabled: !!input, keepPreviousData: true }
+      {
+        enabled: !!input,
+        keepPreviousData: true,
+        staleTime: 0,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
     );
   },
 } as const;
@@ -411,24 +444,6 @@ export const getCastVoteRecordVoteInfo = {
               cvrId: input.cvrId,
             }) /* istanbul ignore next - @preserve */
         : () => fail('input is required'),
-      { enabled: !!input, keepPreviousData: true }
-    );
-  },
-} as const;
-
-type GetMarginalMarksInput = QueryInput<'getMarginalMarks'>;
-export const getMarginalMarks = {
-  queryKey(input?: GetMarginalMarksInput): QueryKey {
-    return input ? ['getMarginalMarks', input] : ['getMarginalMarks'];
-  },
-  useQuery(input?: GetMarginalMarksInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      input
-        ? () => apiClient.getMarginalMarks(input)
-        : /* istanbul ignore next - @preserve */
-          () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
   },
@@ -799,16 +814,18 @@ export const adjudicateCvrContest = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateCvrContest, {
       async onSuccess(_data, variables) {
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(
+            getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
+          ),
+          invalidateWriteInQueries(queryClient),
+        ]);
         await queryClient.invalidateQueries(
           getBallotAdjudicationQueueMetadata.queryKey()
         );
         await queryClient.invalidateQueries(
           getNextCvrIdForBallotAdjudication.queryKey()
         );
-        await invalidateWriteInQueries(queryClient);
       },
     });
   },
@@ -834,6 +851,20 @@ export const setCvrResolved = {
         );
       },
     });
+  },
+} as const;
+
+export const claimBallotForAdjudication = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.claimBallotForAdjudication);
+  },
+} as const;
+
+export const releaseBallotAdjudicationClaim = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.releaseBallotAdjudicationClaim);
   },
 } as const;
 

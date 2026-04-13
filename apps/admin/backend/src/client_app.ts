@@ -9,6 +9,7 @@ import {
   assertDefined,
   err,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -20,13 +21,29 @@ import {
   UsbDriveStatus,
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
+import {
+  BallotStyleGroupId,
+  ContestId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Id,
+  Side,
+  SystemSettings,
+} from '@votingworks/types';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 import {
   type MachineMode,
+  BallotPageImage,
   ClientConnectionStatus,
   ElectionRecord,
+  AdjudicatedCvrContest,
+  BallotAdjudicationData,
+  BallotImages,
+  AdjudicationError,
+  WriteInCandidateRecord,
 } from './types';
+import { type HostConnection } from './client_store';
+import type { PeerApi } from './peer_app';
 import { type ClientWorkspace } from './util/workspace';
 import { constructAuthMachineState } from './util/auth';
 
@@ -38,6 +55,85 @@ export type NetworkConnectionStatus =
   | { status: 'online-waiting-for-host' }
   | { status: 'online-connected-to-host'; hostMachineId: string }
   | { status: 'online-multiple-hosts-detected' };
+
+/**
+ * Wraps a proxy call to the host, catching connection and network errors
+ * and returning them as typed {@link AdjudicationError} results.
+ */
+async function proxyToHost<T>(
+  clientStore: { getHostConnection(): HostConnection | undefined },
+  logger: Logger,
+  action: string,
+  fn: (connection: HostConnection) => Promise<T>
+): Promise<Result<T, AdjudicationError>> {
+  const connection = clientStore.getHostConnection();
+  if (!connection) {
+    await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+      message: `Cannot ${action}: not connected to host.`,
+    });
+    return err({ type: 'host-disconnect' });
+  }
+  try {
+    return ok(await fn(connection));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+      message: `Error during ${action}: ${message}`,
+    });
+    return err({ type: 'host-disconnect' });
+  }
+}
+
+/**
+ * Fetches a binary image from the host's peer server and returns it as a
+ * base64 data URL.
+ */
+async function fetchImageAsDataUrl(
+  hostAddress: string,
+  cvrId: Id,
+  side: Side
+): Promise<string | undefined> {
+  const url = `${hostAddress}/api/ballot-image/${cvrId}/${side}`;
+  const response = await fetch(url);
+  /* istanbul ignore next - image fetch failure @preserve */
+  if (!response.ok) return undefined;
+  /* istanbul ignore next - content-type fallback @preserve */
+  const contentType = response.headers.get('content-type') ?? 'image/png';
+  const { Buffer: NodeBuffer } = await import('node:buffer');
+  const buffer = NodeBuffer.from(await response.arrayBuffer());
+  return `data:${contentType};base64,${buffer.toString('base64')}`;
+}
+
+/**
+ * Fetches ballot image metadata from the host via grout, then fetches each
+ * side's binary image and constructs {@link BallotImages} with embedded data
+ * URLs. Binary images are fetched directly to avoid base64-in-JSON overhead.
+ */
+async function fetchBallotImagesFromHost(
+  peerApi: grout.Client<PeerApi>,
+  hostAddress: string,
+  cvrId: Id
+): Promise<BallotImages> {
+  const metadata = await peerApi.getBallotImageMetadata({ cvrId });
+
+  const [frontImageUrl, backImageUrl] = await Promise.all([
+    fetchImageAsDataUrl(hostAddress, cvrId, 'front'),
+    fetchImageAsDataUrl(hostAddress, cvrId, 'back'),
+  ]);
+
+  function withImageUrl(
+    page: BallotPageImage,
+    imageUrl?: string
+  ): BallotPageImage {
+    return { ...page, imageUrl };
+  }
+
+  return {
+    cvrId: metadata.cvrId,
+    front: withImageUrl(metadata.front, frontImageUrl),
+    back: withImageUrl(metadata.back, backImageUrl),
+  };
+}
 
 function buildClientApi({
   auth,
@@ -51,6 +147,13 @@ function buildClientApi({
   multiUsbDrive: MultiUsbDrive;
 }) {
   const { clientStore } = workspace;
+
+  function proxy<T>(
+    action: string,
+    fn: (connection: HostConnection) => Promise<T>
+  ): Promise<Result<T, AdjudicationError>> {
+    return proxyToHost(clientStore, logger, action, fn);
+  }
 
   const usbDriveAdapter = createUsbDriveAdapter(
     multiUsbDrive,
@@ -111,6 +214,136 @@ function buildClientApi({
         isClientAdjudicationEnabled:
           clientStore.getIsClientAdjudicationEnabled(),
       };
+    },
+
+    getSystemSettings(): SystemSettings {
+      return clientStore.getCachedSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+    },
+
+    // Adjudication proxy endpoints — forward to host peer API.
+    // Return Result<T, AdjudicationError> so the frontend can handle
+    // disconnect and claim errors without crashing to the error boundary.
+
+    async claimBallot(input: {
+      currentBallotStyleId?: BallotStyleGroupId;
+      excludeCvrIds?: Id[];
+    }): Promise<Result<Optional<Id>, AdjudicationError>> {
+      return proxy('claim ballot', async ({ apiClient: peerApi }) => {
+        const cvrId = await peerApi.claimBallot({
+          machineId: getMachineConfig().machineId,
+          currentBallotStyleId: input.currentBallotStyleId,
+          excludeCvrIds: input.excludeCvrIds,
+        });
+        if (cvrId) {
+          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+            message: `Claimed ballot ${cvrId}.`,
+            disposition: 'success',
+          });
+        }
+        return cvrId;
+      });
+    },
+
+    async releaseBallot(input: {
+      cvrId: Id;
+    }): Promise<Result<void, AdjudicationError>> {
+      return proxy('release ballot', async ({ apiClient: peerApi }) => {
+        await peerApi.releaseBallot({
+          machineId: getMachineConfig().machineId,
+          cvrId: input.cvrId,
+        });
+        await logger.logAsCurrentRole(LogEventId.AdminBallotReleased, {
+          message: `Released ballot ${input.cvrId}.`,
+        });
+      });
+    },
+
+    async getBallotAdjudicationData(input: {
+      cvrId: Id;
+    }): Promise<Result<BallotAdjudicationData, AdjudicationError>> {
+      return proxy('fetch ballot data', async ({ apiClient: peerApi }) =>
+        peerApi.getBallotAdjudicationData({ cvrId: input.cvrId })
+      );
+    },
+
+    async getBallotImages(input: {
+      cvrId: Id;
+    }): Promise<Result<BallotImages, AdjudicationError>> {
+      return proxy(
+        'fetch ballot images',
+        async ({ address, apiClient: peerApi }) =>
+          fetchBallotImagesFromHost(peerApi, address, input.cvrId)
+      );
+    },
+
+    async getWriteInCandidates(
+      input: { contestId?: ContestId } = {}
+    ): Promise<Result<WriteInCandidateRecord[], AdjudicationError>> {
+      return proxy(
+        'fetch write-in candidates',
+        async ({ apiClient: peerApi }) => peerApi.getWriteInCandidates(input)
+      );
+    },
+
+    async adjudicateCvrContest(
+      input: AdjudicatedCvrContest
+    ): Promise<Result<void, AdjudicationError>> {
+      const connection = clientStore.getHostConnection();
+      if (!connection) {
+        await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+          message: 'Cannot adjudicate contest: not connected to host.',
+        });
+        return err({ type: 'host-disconnect' });
+      }
+      try {
+        const result = await connection.apiClient.adjudicateCvrContest({
+          ...input,
+          machineId: getMachineConfig().machineId,
+        });
+        if (result.isErr()) return result;
+      } catch {
+        await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+          message: 'Error during adjudicate contest: lost connection to host.',
+        });
+        return err({ type: 'host-disconnect' });
+      }
+      await logger.logAsCurrentRole(LogEventId.AdminContestAdjudicated, {
+        message: `Adjudicated contest ${input.contestId} on ballot ${input.cvrId}.`,
+        disposition: 'success',
+      });
+      return ok();
+    },
+
+    async setCvrResolved(input: {
+      cvrId: Id;
+    }): Promise<Result<void, AdjudicationError>> {
+      const connection = clientStore.getHostConnection();
+      if (!connection) {
+        await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+          message: 'Cannot resolve ballot: not connected to host.',
+        });
+        return err({ type: 'host-disconnect' });
+      }
+      try {
+        const result = await connection.apiClient.setCvrResolved({
+          machineId: getMachineConfig().machineId,
+          cvrId: input.cvrId,
+        });
+        if (result.isErr()) return result;
+      } catch {
+        await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
+          message: 'Error during resolve ballot: lost connection to host.',
+        });
+        return err({ type: 'host-disconnect' });
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.AdminBallotAdjudicationComplete,
+        {
+          message: `Ballot ${input.cvrId} adjudication completed.`,
+          disposition: 'success',
+        }
+      );
+      return ok();
     },
 
     getAuthStatus() {
