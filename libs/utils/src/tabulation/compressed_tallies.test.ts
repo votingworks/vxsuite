@@ -16,6 +16,7 @@ import {
 import { find, assert, assertDefined } from '@votingworks/basics';
 import fc from 'fast-check';
 import {
+  buildPrecinctBitmap,
   compressAndEncodeTally,
   compressAndEncodePerPrecinctTally,
   compressTally,
@@ -23,8 +24,7 @@ import {
   encodeV0CompressedTally,
   decodeAndReadCompressedTally,
   decodeAndReadPerPrecinctCompressedTally,
-  encodePrecinctBitmap,
-  getPrecinctIdsFromBitmap,
+  readPrecinctBitmap,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -548,8 +548,8 @@ test('compresses and decompresses tally for a single precinct', () => {
   `);
 });
 
-describe('precinct bitmap encoding', () => {
-  test('encodePrecinctBitmap and getPrecinctIdsFromBitmap round-trip', () => {
+describe('precinct bitmap', () => {
+  test('buildPrecinctBitmap and readPrecinctBitmap round-trip with subset of precincts', () => {
     const election = readElectionGeneral();
     const precinctIds = election.precincts.map((p) => p.id);
     const selectedIds = [precinctIds[0], precinctIds[2]];
@@ -561,12 +561,19 @@ describe('precinct bitmap encoding', () => {
       resultsByPrecinct[id] = getEmptyElectionResults(election);
     }
 
-    const encoded = encodePrecinctBitmap(election, resultsByPrecinct);
-    const decoded = getPrecinctIdsFromBitmap(election, encoded);
-    expect(decoded).toEqual(selectedIds);
+    const bitmap = buildPrecinctBitmap(election, resultsByPrecinct);
+    const { bitmap: booleanBitmap } = readPrecinctBitmap(
+      bitmap,
+      0,
+      election.precincts.length
+    );
+    const decodedIds = election.precincts
+      .filter((_p, i) => booleanBitmap[i])
+      .map((p) => p.id);
+    expect(decodedIds).toEqual(selectedIds);
   });
 
-  test('bitmap with all precincts returns all IDs', () => {
+  test('buildPrecinctBitmap with all precincts sets all bits', () => {
     const election = readElectionGeneral();
     const resultsByPrecinct: Partial<
       Record<string, Tabulation.ElectionResults>
@@ -575,16 +582,24 @@ describe('precinct bitmap encoding', () => {
       resultsByPrecinct[precinct.id] = getEmptyElectionResults(election);
     }
 
-    const encoded = encodePrecinctBitmap(election, resultsByPrecinct);
-    const decoded = getPrecinctIdsFromBitmap(election, encoded);
-    expect(decoded).toEqual(election.precincts.map((p) => p.id));
+    const bitmap = buildPrecinctBitmap(election, resultsByPrecinct);
+    const { bitmap: booleanBitmap } = readPrecinctBitmap(
+      bitmap,
+      0,
+      election.precincts.length
+    );
+    expect(booleanBitmap.every(Boolean)).toEqual(true);
   });
 
-  test('bitmap with no precincts returns empty array', () => {
+  test('buildPrecinctBitmap with no precincts produces all-zero bitmap', () => {
     const election = readElectionGeneral();
-    const encoded = encodePrecinctBitmap(election, {});
-    const decoded = getPrecinctIdsFromBitmap(election, encoded);
-    expect(decoded).toEqual([]);
+    const bitmap = buildPrecinctBitmap(election, {});
+    const { bitmap: booleanBitmap } = readPrecinctBitmap(
+      bitmap,
+      0,
+      election.precincts.length
+    );
+    expect(booleanBitmap.every((b) => !b)).toEqual(true);
   });
 });
 

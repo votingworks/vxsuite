@@ -146,7 +146,7 @@ export function compressAndEncodeTally({
  * Bit i (in word floor(i/16), bit position i%16) is set when
  * election.precincts[i].id exists in the resultsByPrecinct keys.
  */
-function buildPrecinctBitmap(
+export function buildPrecinctBitmap(
   election: Election,
   resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
 ): Uint16Array {
@@ -168,7 +168,7 @@ function buildPrecinctBitmap(
 /**
  * Reads a precinct bitmap from a uint16 array at the given offset.
  */
-function readPrecinctBitmap(
+export function readPrecinctBitmap(
   uint16Array: Uint16Array,
   offset: number,
   numPrecincts: number
@@ -184,43 +184,6 @@ function readPrecinctBitmap(
     bitmap.push(((word >> bitIndex) & 1) === 1);
   }
   return { bitmap, nextOffset: offset + numWords };
-}
-
-/**
- * Encodes the precinct bitmap as a standalone base64url string.
- */
-export function encodePrecinctBitmap(
-  election: Election,
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
-): string {
-  const bitmap = buildPrecinctBitmap(election, resultsByPrecinct);
-  return Buffer.from(
-    bitmap.buffer,
-    bitmap.byteOffset,
-    bitmap.byteLength
-  ).toString('base64url');
-}
-
-/**
- * Decodes a base64url-encoded precinct bitmap and returns the precinct IDs
- * that have data according to the bitmap.
- */
-export function getPrecinctIdsFromBitmap(
-  election: Election,
-  encodedBitmap: string
-): PrecinctId[] {
-  const bitmapBuffer = Buffer.from(encodedBitmap, 'base64url');
-  const bitmapUint16 = new Uint16Array(
-    bitmapBuffer.buffer,
-    bitmapBuffer.byteOffset,
-    bitmapBuffer.byteLength / Uint16Array.BYTES_PER_ELEMENT
-  );
-  const { bitmap } = readPrecinctBitmap(
-    bitmapUint16,
-    0,
-    election.precincts.length
-  );
-  return election.precincts.filter((_p, i) => bitmap[i]).map((p) => p.id);
 }
 
 /**
