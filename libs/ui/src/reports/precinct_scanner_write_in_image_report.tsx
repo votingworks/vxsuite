@@ -7,7 +7,6 @@ import { unique } from '@votingworks/basics';
 import {
   CachedElectionLookups,
   formatFullDateTimeZone,
-  getPrecinctSelectionName,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
@@ -23,6 +22,7 @@ import {
   ReportTitle,
   TestModeReportBanner,
 } from './report_header';
+import { precinctScannerLocationName } from './precinct_scanner_report_header';
 
 export interface WriteInEntry {
   type: 'image' | 'text';
@@ -40,7 +40,8 @@ export interface ContestWriteIns {
 interface PrecinctScannerWriteInImageReportProps {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
   isLiveMode: boolean;
   reportPrintedTime: number;
   precinctScannerMachineId: string;
@@ -83,6 +84,7 @@ const WriteInTextBox = styled.div`
 export function PrecinctScannerWriteInImageReport({
   electionDefinition,
   electionPackageHash,
+  pollingPlaceId,
   precinctSelection,
   isLiveMode,
   reportPrintedTime,
@@ -90,10 +92,11 @@ export function PrecinctScannerWriteInImageReport({
   contestWriteIns,
 }: PrecinctScannerWriteInImageReportProps): JSX.Element {
   const { election } = electionDefinition;
-  const precinctName = getPrecinctSelectionName(
-    election.precincts,
-    precinctSelection
-  );
+  const locationName = precinctScannerLocationName({
+    election,
+    pollingPlaceId,
+    precinctSelection,
+  });
 
   const relevantPartyIds = unique(contestWriteIns.map((c) => c.partyId));
 
@@ -103,7 +106,7 @@ export function PrecinctScannerWriteInImageReport({
         {!isLiveMode && <TestModeReportBanner />}
         <LogoMark />
         <ReportHeader>
-          <ReportTitle>Write-In Image Report &bull; {precinctName}</ReportTitle>
+          <ReportTitle>Write-In Image Report &bull; {locationName}</ReportTitle>
           <ReportElectionInfo election={election} />
           <ReportMetadata>
             <LabeledValue

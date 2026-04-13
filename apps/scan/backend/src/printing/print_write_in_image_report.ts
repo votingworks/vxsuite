@@ -1,4 +1,4 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { PrecinctScannerWriteInImageReport } from '@votingworks/ui';
 import { PAPER_DIMENSIONS, renderToPdf } from '@votingworks/printing';
 import {
@@ -21,7 +21,7 @@ export async function printWriteInImageReport({
     store.getElectionRecord()
   );
   const precinctSelection = store.getPrecinctSelection();
-  assert(precinctSelection);
+  const pollingPlaceId = store.getPollingPlaceId();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
 
@@ -30,6 +30,7 @@ export async function printWriteInImageReport({
   const report = PrecinctScannerWriteInImageReport({
     electionDefinition,
     electionPackageHash,
+    pollingPlaceId,
     precinctSelection,
     isLiveMode,
     reportPrintedTime: getCurrentTime(),

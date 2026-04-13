@@ -5,13 +5,21 @@ import {
 } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
+  BooleanEnvironmentVariableName as Feature,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
+import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ContestWriteIns,
   PrecinctScannerWriteInImageReport,
 } from './precinct_scanner_write_in_image_report';
+
+const mockFeatureFlagger = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (f: Feature) => mockFeatureFlagger.isEnabled(f),
+}));
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();
@@ -26,6 +34,9 @@ const electionDefinition =
 
 const REPORT_PRINTED_TIME = new Date('2021-01-01T00:00:00.000').getTime();
 
+const { election } = electionDefinition;
+const [pollingPlace] = assertDefined(election.pollingPlaces);
+
 const DEFAULT_PROPS: Omit<
   Parameters<typeof PrecinctScannerWriteInImageReport>[0],
   'contestWriteIns'
@@ -33,12 +44,15 @@ const DEFAULT_PROPS: Omit<
   electionDefinition,
   electionPackageHash: 'test-package-hash',
   precinctSelection: ALL_PRECINCTS_SELECTION,
+  pollingPlaceId: pollingPlace.id,
   isLiveMode: true,
   reportPrintedTime: REPORT_PRINTED_TIME,
   precinctScannerMachineId: 'SC-00-000',
 };
 
 test('renders contest heading with inline write-in count', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -59,11 +73,12 @@ test('renders contest heading with inline write-in count', () => {
   expect(heading.textContent).toContain('Mayor');
   expect(heading.textContent).toContain('3');
 
-  // Renders All Precincts heading
-  screen.getByText(/All Precincts/);
+  screen.getByText(`Write-In Image Report • ${pollingPlace.name}`);
 });
 
 test('renders image write-ins as img elements', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -76,18 +91,17 @@ test('renders image write-ins as img elements', () => {
     PrecinctScannerWriteInImageReport({
       ...DEFAULT_PROPS,
       contestWriteIns,
-      precinctSelection: singlePrecinctSelectionFor(
-        electionDefinition.election.precincts[0].id
-      ),
     })
   );
 
   const img = screen.getByAltText('Write-in for Mayor');
   expect(img.getAttribute('src')).toEqual('data:image/png;base64,testimage');
-  screen.getByText(new RegExp(electionDefinition.election.precincts[0].name));
+  screen.getByText(`Write-In Image Report • ${pollingPlace.name}`);
 });
 
 test('renders text write-ins with "Summary Ballot Write-In" label', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -105,6 +119,8 @@ test('renders text write-ins with "Summary Ballot Write-In" label', () => {
 });
 
 test('renders contests with 0 write-ins without a grid', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -132,6 +148,8 @@ test('renders contests with 0 write-ins without a grid', () => {
 });
 
 test('intermixes image and text entries in a single grid', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -154,6 +172,8 @@ test('intermixes image and text entries in a single grid', () => {
 });
 
 test('shows test mode banner when not in live mode', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [];
 
   render(
@@ -168,6 +188,8 @@ test('shows test mode banner when not in live mode', () => {
 });
 
 test('does not show test mode banner in live mode', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [];
 
   render(
@@ -182,6 +204,8 @@ test('does not show test mode banner in live mode', () => {
 });
 
 test('renders multiple contests in order', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -214,8 +238,13 @@ test('renders multiple contests in order', () => {
 });
 
 test('renders party headers for primary elections', () => {
+  setPollingPlacesEnabled(true);
+
   const primaryElectionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const [primaryPollingPlace] = assertDefined(
+    primaryElectionDefinition.election.pollingPlaces
+  );
 
   const contestWriteIns: ContestWriteIns[] = [
     {
@@ -236,7 +265,7 @@ test('renders party headers for primary elections', () => {
     PrecinctScannerWriteInImageReport({
       electionDefinition: primaryElectionDefinition,
       electionPackageHash: 'test-package-hash',
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: primaryPollingPlace.id,
       isLiveMode: true,
       reportPrintedTime: REPORT_PRINTED_TIME,
       precinctScannerMachineId: 'SC-00-000',
@@ -251,6 +280,8 @@ test('renders party headers for primary elections', () => {
 });
 
 test('does not render party headers for general elections', () => {
+  setPollingPlacesEnabled(true);
+
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -268,3 +299,26 @@ test('does not render party headers for general elections', () => {
   expect(screen.queryByText('Mammal Party')).toBeNull();
   expect(screen.queryByText('Fish Party')).toBeNull();
 });
+
+test('renders precinct selection name', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    PrecinctScannerWriteInImageReport({
+      ...DEFAULT_PROPS,
+      pollingPlaceId: undefined,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      contestWriteIns: [],
+    })
+  );
+
+  screen.getByText('Write-In Image Report • All Precincts');
+});
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  if (enabled) {
+    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  } else {
+    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
+  }
+}

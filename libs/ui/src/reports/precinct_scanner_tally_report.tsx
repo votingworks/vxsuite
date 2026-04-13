@@ -21,7 +21,8 @@ interface Props {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   partyId?: PartyId;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
+  precinctSelection?: PrecinctSelection;
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
   pollsTransition: StandardPollsTransitionType;
@@ -39,6 +40,7 @@ export function PrecinctScannerTallyReport({
   electionDefinition,
   electionPackageHash,
   partyId,
+  pollingPlaceId,
   precinctSelection,
   contests,
   scannedElectionResults,
@@ -49,20 +51,16 @@ export function PrecinctScannerTallyReport({
   precinctScannerMachineId,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
-  const precinctId =
-    precinctSelection.kind === 'SinglePrecinct'
-      ? precinctSelection.precinctId
-      : undefined;
-
   const { cardCounts } = scannedElectionResults;
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>
-      <PrintedReport data-testid={`tally-report-${partyId}-${precinctId}`}>
+      <PrintedReport>
         <PrecinctScannerReportHeader
           electionDefinition={electionDefinition}
           electionPackageHash={electionPackageHash}
           partyId={partyId}
+          pollingPlaceId={pollingPlaceId}
           precinctSelection={precinctSelection}
           pollsTransition={pollsTransition}
           isLiveMode={isLiveMode}

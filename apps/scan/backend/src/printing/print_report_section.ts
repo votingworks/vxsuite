@@ -1,9 +1,11 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import {
+  BooleanEnvironmentVariableName as Feature,
   combineElectionResults,
   getContestsForPrecinct,
   getEmptyElectionResults,
   groupContestsByParty,
+  isFeatureFlagEnabled,
   isPollsSuspensionTransition,
 } from '@votingworks/utils';
 import {
@@ -15,6 +17,11 @@ import {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
+import {
+  Election,
+  pollingPlaceContests,
+  pollingPlaceFromElection,
+} from '@votingworks/types';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
 import { getScannerResultsMemoized } from '../util/results';
@@ -33,7 +40,7 @@ async function getReportSection(
   );
   const { election } = electionDefinition;
   const precinctSelection = store.getPrecinctSelection();
-  assert(precinctSelection);
+  const pollingPlaceId = store.getPollingPlaceId();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
   const pollsTransition = store.getLastPollsTransition();
@@ -47,6 +54,7 @@ async function getReportSection(
     return PrecinctScannerBallotCountReport({
       electionDefinition,
       electionPackageHash,
+      pollingPlaceId,
       precinctSelection,
       totalBallotsScanned: pollsTransition.ballotCount,
       pollsTransition: pollsTransition.type,
@@ -64,10 +72,12 @@ async function getReportSection(
     allElectionResults: scannerResultsByParty,
   });
 
-  const fullReportContests = getContestsForPrecinct(
-    electionDefinition,
-    precinctSelection
-  );
+  const fullReportContests = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
+    ? contestsForPollingPlace(electionDefinition.election, pollingPlaceId)
+    : getContestsForPrecinct(
+        electionDefinition,
+        assertDefined(precinctSelection)
+      );
 
   const { partyId, contests: reportSectionContests } = groupContestsByParty(
     election,
@@ -82,6 +92,7 @@ async function getReportSection(
   return PrecinctScannerTallyReport({
     electionDefinition,
     electionPackageHash,
+    pollingPlaceId,
     precinctSelection,
     partyId,
     pollsTransition: pollsTransition.type,
@@ -92,6 +103,11 @@ async function getReportSection(
     precinctScannerMachineId: machineId,
     scannedElectionResults,
   });
+}
+
+function contestsForPollingPlace(election: Election, placeId?: string) {
+  const place = pollingPlaceFromElection(election, assertDefined(placeId));
+  return pollingPlaceContests(election, place);
 }
 
 export async function printReportSection({
