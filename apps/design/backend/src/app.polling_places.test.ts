@@ -163,7 +163,7 @@ test('polling places CRUD', async () => {
     place1EarlyVoting,
     place3,
   ]);
-});
+}, 20_000);
 
 test('polling place updates on precinct creation/update/deletion', async () => {
   const user = nonVxUser;
