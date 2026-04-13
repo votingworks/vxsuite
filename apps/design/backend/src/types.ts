@@ -111,8 +111,7 @@ export interface ReceivedReportInfoBase {
   ballotHash: string;
   machineId: string;
   isLive: boolean;
-  reportCreatedAt?: Date;
-  pollsTransitionTime?: Date;
+  pollsTransitionTime: Date;
   election: Election;
   precinctSelection: PrecinctSelection;
   votingType: LiveReportVotingType;

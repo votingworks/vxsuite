@@ -91,8 +91,7 @@ function getTimestampLabel(pollsTransition: PollsTransitionType): string {
 interface ReportDetailsProps {
   ballotHash: string;
   machineId: string;
-  reportCreatedAt?: Date;
-  pollsTransitionTime?: Date;
+  pollsTransitionTime: Date;
   election: Election;
   precinctSelection: PrecinctSelection;
   votingType: LiveReportVotingType;
@@ -102,7 +101,6 @@ interface ReportDetailsProps {
 function ReportDetails({
   ballotHash,
   machineId,
-  reportCreatedAt,
   pollsTransitionTime,
   election,
   precinctSelection,
@@ -114,10 +112,8 @@ function ReportDetails({
     precinctSelection
   );
 
-  const timestamp = pollsTransitionTime ?? reportCreatedAt;
-  const timestampLabel = pollsTransitionTime
-    ? getTimestampLabel(pollsTransitionType)
-    : 'Report Created At';
+  const timestamp = pollsTransitionTime;
+  const timestampLabel = getTimestampLabel(pollsTransitionType);
 
   return (
     <div>
@@ -210,7 +206,7 @@ function PollsOpenReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
   precinctSelection,
@@ -229,7 +225,6 @@ function PollsOpenReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           precinctSelection={precinctSelection}
@@ -251,7 +246,7 @@ function PollsPausedReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
   precinctSelection,
@@ -270,7 +265,6 @@ function PollsPausedReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           precinctSelection={precinctSelection}
@@ -292,7 +286,7 @@ function VotingResumedReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
   precinctSelection,
@@ -311,7 +305,6 @@ function VotingResumedReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           precinctSelection={precinctSelection}
@@ -333,7 +326,7 @@ function PollsClosedPartialReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
   precinctSelection,
@@ -361,7 +354,6 @@ function PollsClosedPartialReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           precinctSelection={precinctSelection}
@@ -377,7 +369,7 @@ function PollsClosedReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
   precinctSelection,
@@ -406,7 +398,6 @@ function PollsClosedReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           precinctSelection={precinctSelection}
@@ -538,7 +529,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
@@ -553,7 +543,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
@@ -568,7 +557,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
@@ -584,7 +572,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             ballotHash={reportData.ballotHash}
             machineId={reportData.machineId}
             isLive={reportData.isLive}
-            reportCreatedAt={reportData.reportCreatedAt}
             pollsTransitionTime={reportData.pollsTransitionTime}
             election={reportData.election}
             precinctSelection={reportData.precinctSelection}
@@ -599,7 +586,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}

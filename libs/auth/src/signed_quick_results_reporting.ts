@@ -53,34 +53,11 @@ interface SignedQuickResultsReportingInput {
   maxQrCodeLength?: number; // Provided as a prop for ease in testing
 }
 
-/**
- * Non-tally primaryMessage values (both new transition types and old polls
- * state strings for backwards compatibility).
- */
 const NON_TALLY_PRIMARY_MESSAGES = [
   'open_polls',
   'pause_voting',
   'resume_voting',
-  'polls_open',
-  'polls_paused',
 ] as const;
-
-/**
- * Maps old polls-state-based primaryMessage strings to transition types for
- * backwards compatibility with older QR messages.
- */
-export function normalizePollsTransitionType(
-  primaryMessage: string
-): PollsTransitionType {
-  switch (primaryMessage) {
-    case 'polls_open':
-      return 'open_polls';
-    case 'polls_paused':
-      return 'pause_voting';
-    default:
-      return primaryMessage as PollsTransitionType;
-  }
-}
 
 const MAXIMUM_BYTES_IN_MEDIUM_QR_CODE = 2300;
 const MAX_PARTS_FOR_QR_CODE = 25;
@@ -94,11 +71,6 @@ const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
  * and provides a safe delimiter for URL-safe payloads.
  */
 const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
-
-/**
- * The v1 message format (8 fields, no ballot count or voting type).
- */
-export const QR_MESSAGE_FORMAT_V1 = 'qr1';
 
 /**
  * The current message format (10 fields: base fields, ballot count, and voting type).
@@ -161,7 +133,6 @@ interface DecodedBaseFields {
   ballotHash: string;
   machineId: string;
   isLive: boolean;
-  reportCreatedAt?: Date;
   encodedCompressedTally: string;
   precinctSelection: PrecinctSelection;
   pollsTransitionType: PollsTransitionType;
@@ -170,8 +141,8 @@ interface DecodedBaseFields {
 }
 
 interface DecodedFields extends DecodedBaseFields {
-  pollsTransitionTime?: Date;
-  ballotCount?: number;
+  pollsTransitionTime: Date;
+  ballotCount: number;
   votingType: LiveReportVotingType;
 }
 
@@ -224,8 +195,8 @@ function decodeBaseFields(
   const isNonTallyMessage = (
     NON_TALLY_PRIMARY_MESSAGES as readonly string[]
   ).includes(primaryMessage);
-  const pollsTransitionType = isNonTallyMessage
-    ? normalizePollsTransitionType(primaryMessage)
+  const pollsTransitionType: PollsTransitionType = isNonTallyMessage
+    ? (primaryMessage as PollsTransitionType)
     : 'close_polls';
 
   return {
@@ -240,22 +211,6 @@ function decodeBaseFields(
     pollsTransitionType,
     numPages,
     pageIndex,
-  };
-}
-
-function decodeV1Message(messagePayload: string): DecodedFields {
-  const parts = messagePayload.split(
-    SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
-  );
-  if (parts.length !== 8) {
-    throw new Error('Invalid message payload format');
-  }
-  const { timestamp, ...base } = decodeBaseFields(parts);
-  return {
-    ...base,
-    reportCreatedAt: timestamp,
-    ballotCount: undefined,
-    votingType: 'election_day',
   };
 }
 
@@ -295,8 +250,6 @@ export function decodeQuickResultsMessage(payload: string): DecodedFields {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
   switch (messageType) {
-    case QR_MESSAGE_FORMAT_V1:
-      return decodeV1Message(messagePayload);
     case QR_MESSAGE_FORMAT:
       return decodeV2Message(messagePayload);
     default:

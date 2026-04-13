@@ -12,7 +12,6 @@ import {
   decodeQuickResultsMessage,
   encodeQuickResultsMessage,
   QR_MESSAGE_FORMAT,
-  QR_MESSAGE_FORMAT_V1,
 } from './signed_quick_results_reporting';
 import { constructPrefixedMessage } from './signatures';
 
@@ -334,7 +333,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
   const certificate = url.searchParams.get('c') ?? '';
 
   // Use a tampered payload
-  const tamperedPayload = 'qr1:tamperedData';
+  const tamperedPayload = 'qr2:tamperedData';
 
   const vxCertAuthorityCertPath = getTestFilePath({
     fileType: 'vx-cert-authority-cert.pem',
@@ -360,12 +359,6 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
       constructPrefixedMessage('invalidFormat', 'data')
     );
   }).toThrow();
-
-  expect(() => {
-    decodeQuickResultsMessage(
-      constructPrefixedMessage(QR_MESSAGE_FORMAT_V1, 'data')
-    );
-  }).toThrow('Invalid message payload format');
 
   const timeInSeconds = new Date('2024-01-01T00:00:00Z').getTime() / 1000;
   const encodedMessage = encodeQuickResultsMessage({
@@ -721,85 +714,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle resume_voti
         "kind": "SinglePrecinct",
         "precinctId": "mockPrecinctId",
       },
-      "votingType": "election_day",
-    }
-  `);
-});
-
-test('decodeQuickResultsMessage handles old polls_open primaryMessage for backwards compatibility', () => {
-  const encoded = encodeQuickResultsMessage({
-    ballotHash: 'mockBallotHash',
-    signingMachineId: 'machineId',
-    isLiveMode: false,
-    timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-    primaryMessage: 'polls_open',
-    precinctSelection: { kind: 'AllPrecincts' },
-    numPages: 1,
-    pageIndex: 0,
-    ballotCount: 0,
-    votingType: 'election_day',
-  });
-
-  const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
-  );
-  expect(decoded.pollsTransitionType).toEqual('open_polls');
-  expect(decoded.encodedCompressedTally).toEqual('');
-});
-
-test('decodeQuickResultsMessage handles old polls_paused primaryMessage for backwards compatibility', () => {
-  const encoded = encodeQuickResultsMessage({
-    ballotHash: 'mockBallotHash',
-    signingMachineId: 'machineId',
-    isLiveMode: false,
-    timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-    primaryMessage: 'polls_paused',
-    precinctSelection: { kind: 'AllPrecincts' },
-    numPages: 1,
-    pageIndex: 0,
-    ballotCount: 0,
-    votingType: 'election_day',
-  });
-
-  const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
-  );
-  expect(decoded.pollsTransitionType).toEqual('pause_voting');
-  expect(decoded.encodedCompressedTally).toEqual('');
-});
-
-test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount, defaults votingType to election_day', () => {
-  // Simulate a qr1 message with 8 fields as older VxScan would generate
-  const v1MessageParts = [
-    encodeURIComponent('mockBallotHash'),
-    encodeURIComponent('machineId'),
-    '0',
-    (new Date('2024-01-01T00:00:00Z').getTime() / 1000).toString(),
-    'polls_open',
-    encodeURIComponent('mockPrecinctId'),
-    '1',
-    '0',
-  ];
-  // Null byte separator used in the QR message format
-  const v1Payload = v1MessageParts.join('\x00');
-  const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT_V1, v1Payload)
-  );
-  expect(decoded).toMatchInlineSnapshot(`
-    {
-      "ballotCount": undefined,
-      "ballotHash": "mockBallotHash",
-      "encodedCompressedTally": "",
-      "isLive": false,
-      "machineId": "machineId",
-      "numPages": 1,
-      "pageIndex": 0,
-      "pollsTransitionType": "open_polls",
-      "precinctSelection": {
-        "kind": "SinglePrecinct",
-        "precinctId": "mockPrecinctId",
-      },
-      "reportCreatedAt": 2024-01-01T00:00:00.000Z,
       "votingType": "election_day",
     }
   `);

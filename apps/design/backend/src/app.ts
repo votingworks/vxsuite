@@ -1227,7 +1227,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           ballotHash,
           machineId,
           isLive,
-          reportCreatedAt,
           pollsTransitionTime,
           encodedCompressedTally,
           precinctSelection,
@@ -1238,8 +1237,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           votingType,
         } = decodeQuickResultsMessage(payload);
 
-        const signedTimestamp = pollsTransitionTime ?? reportCreatedAt;
-        assert(signedTimestamp);
+        const signedTimestamp = pollsTransitionTime;
 
         // First get the election ID for this hash
         const electionId = await store.getElectionIdFromBallotHash(ballotHash);
@@ -1326,7 +1324,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-              reportCreatedAt,
+
               pollsTransitionTime,
               precinctSelection,
               election,
@@ -1408,7 +1406,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-              reportCreatedAt,
+
               pollsTransitionTime,
               contestResults,
               precinctSelection,
@@ -1425,7 +1423,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-              reportCreatedAt,
+
               pollsTransitionTime,
               precinctSelection,
               election,
