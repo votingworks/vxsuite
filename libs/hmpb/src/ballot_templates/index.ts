@@ -1,3 +1,4 @@
+import { miBallotTemplate } from './mi_ballot_template';
 import { msBallotTemplate } from './ms_ballot_template';
 import { nhBallotTemplate } from './nh_ballot_template';
 import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
@@ -11,6 +12,7 @@ export const ballotTemplates = {
   VxDefaultBallot: vxDefaultBallotTemplate,
   NhBallot: nhBallotTemplate,
   MsBallot: msBallotTemplate,
+  MiBallot: miBallotTemplate,
 } as const;
 
 /**

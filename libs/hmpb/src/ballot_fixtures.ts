@@ -9,10 +9,14 @@ import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  electionTwoPartyPrimaryFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import {
   BaseBallotProps,
+  CandidateContest,
+  ContestId,
+  DistrictId,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
@@ -41,6 +45,7 @@ import {
 } from './ballot_templates/nh_ballot_template';
 import { convertPdfToCmyk } from './pdf_conversion';
 import { generateBallotStyles } from './ballot_styles';
+import { miBallotTemplate } from './ballot_templates/mi_ballot_template';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
@@ -812,6 +817,134 @@ export const msGeneralElectionFixtures = (() => {
         markedBallotPath,
         blankBallotPdf,
         markedBallotPdf,
+      };
+    },
+  };
+})();
+
+export const miClosedPrimaryElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'mi-closed-primary-election');
+  const electionPath = join(dir, 'election.json');
+
+  const baseElection = electionTwoPartyPrimaryFixtures.readElection();
+  const nonpartisanContest: CandidateContest = {
+    id: 'zoo-director' as ContestId,
+    districtId: 'district-1' as DistrictId,
+    type: 'candidate',
+    title: 'Zoo Director',
+    seats: 1,
+    allowWriteIns: true,
+    candidates: [
+      { id: 'frank-the-flamingo', name: 'Frank the Flamingo' },
+      { id: 'pearl-the-penguin', name: 'Pearl the Penguin' },
+    ],
+  };
+  const election: Election = {
+    ...baseElection,
+    contests: [...baseElection.contests, nonpartisanContest],
+  };
+  const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map(
+      (precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })
+    )
+  );
+
+  function makePartyFixtureSpec(partyLabel: string, ballotStyle: BallotStyle) {
+    const blankBallotPath = join(dir, `${partyLabel}-blank-ballot.pdf`);
+    const markedBallotPath = join(dir, `${partyLabel}-marked-ballot.pdf`);
+    const precinctId = assertDefined(ballotStyle.precincts[0]);
+    const contests = getContests({ election, ballotStyle });
+    const { votes } = createTestVotes(contests);
+
+    return {
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      blankBallotPath,
+      markedBallotPath,
+      votes,
+    };
+  }
+
+  const mammalParty = makePartyFixtureSpec(
+    'mammal',
+    assertDefined(
+      getBallotStyle({ election, ballotStyleId: '1M' as BallotStyleId })
+    )
+  );
+  const fishParty = makePartyFixtureSpec(
+    'fish',
+    assertDefined(
+      getBallotStyle({ election, ballotStyleId: '2F' as BallotStyleId })
+    )
+  );
+
+  return {
+    dir,
+    electionPath,
+    allBallotProps,
+    mammalParty,
+    fishParty,
+
+    async generate(rendererPool: RendererPool) {
+      const { ballotContents, electionDefinition } =
+        await layOutBallotsAndCreateElectionDefinition(
+          rendererPool,
+          miBallotTemplate,
+          allBallotProps,
+          'vxf'
+        );
+
+      async function generatePartyFixtures(
+        spec: ReturnType<typeof makePartyFixtureSpec>
+      ) {
+        const [blankBallotContents, ballotProps] = assertDefined(
+          iter(ballotContents)
+            .zip(allBallotProps)
+            .find(
+              ([, props]) =>
+                props.ballotStyleId === spec.ballotStyleId &&
+                props.precinctId === spec.precinctId
+            )
+        );
+
+        return rendererPool.runTask(async (renderer) => {
+          const ballotDocument =
+            await renderer.loadDocumentFromContent(blankBallotContents);
+
+          debug(`Generating: ${spec.blankBallotPath}`);
+          const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+            ballotProps,
+            ballotDocument,
+            electionDefinition
+          );
+
+          debug(`Generating: ${spec.markedBallotPath}`);
+          await markBallotDocument(ballotDocument, spec.votes);
+          const markedBallotPdf = await ballotDocument.renderToPdf();
+
+          return { blankBallotPdf, markedBallotPdf };
+        });
+      }
+
+      const mammalResult = await generatePartyFixtures(mammalParty);
+      const fishResult = await generatePartyFixtures(fishParty);
+
+      return {
+        electionDefinition,
+        mammalParty: {
+          ...mammalParty,
+          ...mammalResult,
+        },
+        fishParty: {
+          ...fishParty,
+          ...fishResult,
+        },
       };
     },
   };
