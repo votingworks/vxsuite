@@ -176,6 +176,7 @@ export function AppRoot(): JSX.Element | null {
     systemSettings,
     isTestMode,
     precinctSelection,
+    pollingPlaceId,
     isSoundMuted,
     isContinuousExportEnabled,
     ballotCastingMode,
@@ -331,7 +332,9 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
+  if (!precinctSelection && !pollingPlaceId) {
+    return <UnconfiguredPrecinctScreen />;
+  }
 
   if (isPollWorkerAuth(authStatus)) {
     return (
