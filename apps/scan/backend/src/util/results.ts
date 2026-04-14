@@ -211,11 +211,7 @@ export function getScannerResultsMemoized({
   );
 }
 
-/**
- * Returns per-precinct election results. For primary elections, results
- * within each precinct are combined across parties.
- */
-export async function getScannerResultsByPrecinct({
+async function getScannerResultsByPrecinctUncached({
   store,
 }: {
   store: Store;
@@ -239,4 +235,23 @@ export async function getScannerResultsByPrecinct({
   }
 
   return resultsByPrecinct;
+}
+
+const getScannerResultsByPrecinctMemoized = memoizeOne(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (store: Store, _ballotCount: number) =>
+    getScannerResultsByPrecinctUncached({ store })
+);
+
+/**
+ * Returns per-precinct election results, memoized by ballot count.
+ * For primary elections, results within each precinct are combined
+ * across parties.
+ */
+export function getScannerResultsByPrecinct({
+  store,
+}: {
+  store: Store;
+}): Promise<Record<PrecinctId, Tabulation.ElectionResults>> {
+  return getScannerResultsByPrecinctMemoized(store, store.getBallotsCounted());
 }
