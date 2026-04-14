@@ -9,6 +9,7 @@ import {
 } from './all_bubble_ballot_fixtures';
 import {
   calibrationSheetFixtures,
+  miClosedPrimaryElectionFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   timingMarkPaperFixtures,
@@ -147,6 +148,22 @@ async function generateNhGeneralElectionFixtures(rendererPool: RendererPool) {
   }
 }
 
+async function generateMiClosedPrimaryElectionFixtures(
+  rendererPool: RendererPool
+) {
+  const fixtures = miClosedPrimaryElectionFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  for (const party of [generated.mammalParty, generated.fishParty]) {
+    await writeFile(party.blankBallotPath, party.blankBallotPdf);
+    await writeFile(party.markedBallotPath, party.markedBallotPdf);
+  }
+}
+
 async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = msGeneralElectionFixtures;
   const generated = await fixtures.generate(rendererPool);
@@ -200,6 +217,7 @@ type Fixture =
   | 'vx-general-election'
   | 'vx-primary-election'
   | 'nh-general-election'
+  | 'mi-closed-primary-election'
   | 'ms-general-election'
   | 'calibration-sheet';
 
@@ -244,6 +262,11 @@ export async function main(): Promise<number> {
 
       case '--nh-general-election': {
         fixtures.add('nh-general-election');
+        break;
+      }
+
+      case '--mi-closed-primary-election': {
+        fixtures.add('mi-closed-primary-election');
         break;
       }
 
@@ -299,6 +322,14 @@ export async function main(): Promise<number> {
       force: true,
     });
     await generateNhGeneralElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('mi-closed-primary-election')) {
+    await rm(miClosedPrimaryElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateMiClosedPrimaryElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('ms-general-election')) {
