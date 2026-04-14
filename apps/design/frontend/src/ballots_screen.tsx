@@ -18,9 +18,11 @@ import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
+import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
   getBallotsFinalizedAt,
   getBallotLayoutSettings,
+  getBallotTemplate,
   updateBallotLayoutSettings,
   listBallotStyles,
   listPrecincts,
@@ -39,6 +41,7 @@ function BallotDesignForm({
   electionId,
   savedLayoutSettings,
   ballotsFinalizedAt,
+  ballotTemplateId,
 }: {
   electionId: ElectionId;
   savedLayoutSettings: {
@@ -46,6 +49,7 @@ function BallotDesignForm({
     compact: boolean;
   };
   ballotsFinalizedAt: Date | null;
+  ballotTemplateId: BallotTemplateId;
 }): JSX.Element | null {
   const [isEditing, setIsEditing] = useState(false);
   const [layoutSettings, setLayoutSettings] = useState(savedLayoutSettings);
@@ -103,29 +107,31 @@ function BallotDesignForm({
           disabled={!isEditing}
         />
       </div>
-      <div style={{ maxWidth: '16.5rem' }}>
-        <RadioGroup
-          label="Density"
-          options={[
-            {
-              label: 'Default',
-              value: 'default',
-            },
-            {
-              label: 'Compact',
-              value: 'compact',
-            },
-          ]}
-          value={layoutSettings.compact ? 'compact' : 'default'}
-          onChange={(value) =>
-            setLayoutSettings({
-              ...layoutSettings,
-              compact: value === 'compact',
-            })
-          }
-          disabled={!isEditing}
-        />
-      </div>
+      {ballotTemplateId !== 'MiBallot' && (
+        <div style={{ maxWidth: '16.5rem' }}>
+          <RadioGroup
+            label="Density"
+            options={[
+              {
+                label: 'Default',
+                value: 'default',
+              },
+              {
+                label: 'Compact',
+                value: 'compact',
+              },
+            ]}
+            value={layoutSettings.compact ? 'compact' : 'default'}
+            onChange={(value) =>
+              setLayoutSettings({
+                ...layoutSettings,
+                compact: value === 'compact',
+              })
+            }
+            disabled={!isEditing}
+          />
+        </div>
+      )}
       {isEditing ? (
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
@@ -335,11 +341,13 @@ function BallotLayoutTab(): JSX.Element | null {
   const getBallotLayoutSettingsQuery =
     getBallotLayoutSettings.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
   if (
     !(
       getBallotLayoutSettingsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getBallotTemplateQuery.isSuccess
     )
   ) {
     return null;
@@ -347,6 +355,7 @@ function BallotLayoutTab(): JSX.Element | null {
 
   const layoutSettings = getBallotLayoutSettingsQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const ballotTemplateId = getBallotTemplateQuery.data;
 
   return (
     <TabPanel>
@@ -354,6 +363,7 @@ function BallotLayoutTab(): JSX.Element | null {
         electionId={electionId}
         savedLayoutSettings={layoutSettings}
         ballotsFinalizedAt={ballotsFinalizedAt}
+        ballotTemplateId={ballotTemplateId}
       />
     </TabPanel>
   );
