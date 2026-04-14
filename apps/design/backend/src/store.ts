@@ -3160,6 +3160,10 @@ export class Store {
                 polls_transition,
                 precinct_id
               ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+              on conflict (ballot_hash, machine_id, is_live_mode, polls_transition, precinct_id)
+              do update set
+                signed_at = excluded.signed_at,
+                polling_place_id = excluded.polling_place_id
             `,
             ballotHash,
             electionId,
@@ -3187,6 +3191,11 @@ export class Store {
                   polls_transition,
                   precinct_id
                 ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                on conflict (ballot_hash, machine_id, is_live_mode, polls_transition, precinct_id)
+                do update set
+                  signed_at = excluded.signed_at,
+                  encoded_compressed_tally = excluded.encoded_compressed_tally,
+                  polling_place_id = excluded.polling_place_id
               `,
               ballotHash,
               electionId,
