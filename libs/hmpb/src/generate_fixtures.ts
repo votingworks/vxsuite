@@ -10,6 +10,7 @@ import {
 import {
   calibrationSheetFixtures,
   miClosedPrimaryElectionFixtures,
+  miOpenPrimaryElectionFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   timingMarkPaperFixtures,
@@ -164,6 +165,20 @@ async function generateMiClosedPrimaryElectionFixtures(
   }
 }
 
+async function generateMiOpenPrimaryElectionFixtures(
+  rendererPool: RendererPool
+) {
+  const fixtures = miOpenPrimaryElectionFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+}
+
 async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = msGeneralElectionFixtures;
   const generated = await fixtures.generate(rendererPool);
@@ -218,6 +233,7 @@ type Fixture =
   | 'vx-primary-election'
   | 'nh-general-election'
   | 'mi-closed-primary-election'
+  | 'mi-open-primary-election'
   | 'ms-general-election'
   | 'calibration-sheet';
 
@@ -267,6 +283,11 @@ export async function main(): Promise<number> {
 
       case '--mi-closed-primary-election': {
         fixtures.add('mi-closed-primary-election');
+        break;
+      }
+
+      case '--mi-open-primary-election': {
+        fixtures.add('mi-open-primary-election');
         break;
       }
 
@@ -330,6 +351,14 @@ export async function main(): Promise<number> {
       force: true,
     });
     await generateMiClosedPrimaryElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('mi-open-primary-election')) {
+    await rm(miOpenPrimaryElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateMiOpenPrimaryElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('ms-general-election')) {

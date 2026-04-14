@@ -9,7 +9,7 @@
   },
   "date": "2025-08-12",
   "ballotLayout": {
-    "paperSize": "letter",
+    "paperSize": "legal",
     "metadataEncoding": "qr-code"
   },
   "districts": [
