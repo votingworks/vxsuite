@@ -378,7 +378,10 @@ function PollsClosedReportConfirmation({
   contestResults: Record<ContestId, Tabulation.ContestResults>;
   isLive: boolean;
 }): JSX.Element {
-  const contestsByParty = groupContestsByParty(election, election.contests);
+  const contestsWithResults = election.contests.filter(
+    (c) => contestResults[c.id] !== undefined
+  );
+  const contestsByParty = groupContestsByParty(election, contestsWithResults);
   const reportTitle = getPollsReportTitle('close_polls');
   const partyNamesById = election.parties.reduce<Record<string, string>>(
     (acc, party) => ({ ...acc, [party.id]: party.fullName }),
