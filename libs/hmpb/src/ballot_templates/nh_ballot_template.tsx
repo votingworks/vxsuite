@@ -1029,7 +1029,7 @@ async function BallotPageContent(
     else if (heightUsed === 0 || splitResult.err().error !== 'contestTooLong') {
       return splitResult;
     }
-  } else if (contestsLeftToLayout.length > 0 && heightUsed === 0) {
+  } else if (heightUsed === 0) {
     return err({
       error: 'contestTooLong',
       contest: nextContest,

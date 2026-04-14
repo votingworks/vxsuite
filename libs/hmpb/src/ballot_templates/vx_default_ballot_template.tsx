@@ -563,7 +563,7 @@ async function BallotPageContent(
   }
 
   const contestsLeftToLayout = contestSections.flat();
-  if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
+  if (heightUsed === 0) {
     return err({
       error: 'contestTooLong',
       contest: contestsLeftToLayout[0],
