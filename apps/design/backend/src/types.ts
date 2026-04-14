@@ -147,7 +147,7 @@ export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: false;
-  contestResults: Record<ContestId, ContestResults>;
+  contestResultsByPrecinct: Record<string, Record<ContestId, ContestResults>>;
 }
 
 export type ReceivedReportInfo =

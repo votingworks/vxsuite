@@ -68,9 +68,7 @@ import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import {
-  ALL_PRECINCTS_SELECTION,
   compressTally,
-  decodeAndReadCompressedTally,
   decodeAndReadPerPrecinctCompressedTally,
   encodeV0CompressedTally,
   getExportedCastVoteRecordIds,
@@ -1381,11 +1379,11 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             perPrecinctTallies,
           });
 
-          const contestResults = decodeAndReadCompressedTally({
-            election,
-            precinctSelection: ALL_PRECINCTS_SELECTION,
-            encodedTally: allEncoded,
-          });
+          const contestResultsByPrecinct =
+            decodeAndReadPerPrecinctCompressedTally({
+              election,
+              encodedTally: allEncoded,
+            });
 
           return ok({
             pollsTransitionType,
@@ -1393,7 +1391,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             machineId,
             isLive,
             pollsTransitionTime,
-            contestResults,
+            contestResultsByPrecinct,
             pollingPlaceId,
             election,
             isPartial: false,
@@ -1420,18 +1418,18 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               perPrecinctTallies,
             });
 
-            const contestResults = decodeAndReadCompressedTally({
-              election,
-              precinctSelection: ALL_PRECINCTS_SELECTION,
-              encodedTally: encodedCompressedTally,
-            });
+            const contestResultsByPrecinct =
+              decodeAndReadPerPrecinctCompressedTally({
+                election,
+                encodedTally: encodedCompressedTally,
+              });
             return ok({
               pollsTransitionType,
               ballotHash,
               machineId,
               isLive,
               pollsTransitionTime,
-              contestResults,
+              contestResultsByPrecinct,
               pollingPlaceId,
               election,
               isPartial: false,

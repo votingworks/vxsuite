@@ -14,7 +14,7 @@ import {
   TestModeReportBanner,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
   Election,
@@ -25,9 +25,13 @@ import {
 } from '@votingworks/types';
 import {
   formatFullDateTimeZone,
+  getContestsForPrecinctAndElection,
+  getEmptyElectionResults,
   getPollsReportTitle,
   groupContestsByParty,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { pollingPlacePrecinctIds } from '@votingworks/types';
 import styled from 'styled-components';
 import { processQrCodeReport } from './public_api';
 
@@ -363,6 +367,61 @@ function PollsClosedPartialReportConfirmation({
   );
 }
 
+function PrecinctTallySection({
+  election,
+  precinctId,
+  precinctName,
+  contestResults,
+}: {
+  election: Election;
+  precinctId: string;
+  precinctName: string;
+  contestResults?: Record<ContestId, Tabulation.ContestResults>;
+}): JSX.Element {
+  const precinctSelection = singlePrecinctSelectionFor(precinctId);
+  const contests = getContestsForPrecinctAndElection(
+    election,
+    precinctSelection
+  );
+  const contestsByParty = groupContestsByParty(election, contests);
+  const partyNamesById = election.parties.reduce<Record<string, string>>(
+    (acc, party) => ({ ...acc, [party.id]: party.fullName }),
+    {}
+  );
+
+  // Use empty (zero) results for precincts with no transmitted data
+  const emptyResults = getEmptyElectionResults(election).contestResults;
+  const effectiveResults = contestResults ?? emptyResults;
+
+  return (
+    <div>
+      <h2>{precinctName}</h2>
+      {contestsByParty.map(({ partyId, contests: partyContests }) => (
+        <div key={partyId || 'nonpartisan'}>
+          {partyId && <h3>{partyNamesById[partyId]} Contests</h3>}
+          {!partyId && contestsByParty.length > 1 && (
+            <h3>Nonpartisan Contests</h3>
+          )}
+          <TallyReportColumns>
+            {partyContests.map((contest) => {
+              const currentContestResults = effectiveResults[contest.id];
+              if (!currentContestResults) return null;
+              return (
+                <ContestResultsTable
+                  key={contest.id}
+                  election={election}
+                  contest={contest}
+                  scannedContestResults={currentContestResults}
+                />
+              );
+            })}
+          </TallyReportColumns>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PollsClosedReportConfirmation({
   ballotHash,
   machineId,
@@ -373,20 +432,24 @@ function PollsClosedReportConfirmation({
   pollingPlaceId,
   votingType,
   pollsTransitionType,
-  contestResults,
+  contestResultsByPrecinct,
 }: ReportDetailsProps & {
-  contestResults: Record<ContestId, Tabulation.ContestResults>;
+  contestResultsByPrecinct: Record<
+    string,
+    Record<ContestId, Tabulation.ContestResults>
+  >;
   isLive: boolean;
 }): JSX.Element {
-  const contestsWithResults = election.contests.filter(
-    (c) => contestResults[c.id] !== undefined
-  );
-  const contestsByParty = groupContestsByParty(election, contestsWithResults);
   const reportTitle = getPollsReportTitle('close_polls');
-  const partyNamesById = election.parties.reduce<Record<string, string>>(
-    (acc, party) => ({ ...acc, [party.id]: party.fullName }),
-    {}
+
+  // Determine which precincts to show: all precincts in the polling place
+  // (if configured), falling back to just the precincts with data.
+  const pollingPlace = election.pollingPlaces?.find(
+    (p) => p.id === pollingPlaceId
   );
+  const pollingPlacePrecincts = pollingPlace
+    ? [...pollingPlacePrecinctIds(pollingPlace)]
+    : Object.keys(contestResultsByPrecinct);
 
   return (
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
@@ -401,31 +464,18 @@ function PollsClosedReportConfirmation({
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
-        {contestsByParty.map(({ partyId, contests }) => (
-          <div key={partyId || 'nonpartisan'}>
-            {partyId && <h2>{partyNamesById[partyId]} Contests</h2>}
-            {!partyId && contestsByParty.length > 1 && (
-              <h2>Nonpartisan Contests</h2>
-            )}
-            <TallyReportColumns>
-              {contests.map((contest) => {
-                const currentContestResults = contestResults[contest.id];
-                assert(
-                  currentContestResults,
-                  `missing scanned results for contest ${contest.id}`
-                );
-                return (
-                  <ContestResultsTable
-                    key={contest.id}
-                    election={election}
-                    contest={contest}
-                    scannedContestResults={currentContestResults}
-                  />
-                );
-              })}
-            </TallyReportColumns>
-          </div>
-        ))}
+        {pollingPlacePrecincts.map((precinctId) => {
+          const precinct = election.precincts.find((p) => p.id === precinctId);
+          return (
+            <PrecinctTallySection
+              key={precinctId}
+              election={election}
+              precinctId={precinctId}
+              precinctName={precinct?.name ?? precinctId}
+              contestResults={contestResultsByPrecinct[precinctId]}
+            />
+          );
+        })}
       </MainContent>
     </ResultsScreen>
   );
@@ -572,7 +622,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             pollsTransitionTime={reportData.pollsTransitionTime}
             election={reportData.election}
             pollingPlaceId={reportData.pollingPlaceId}
-            contestResults={reportData.contestResults}
+            contestResultsByPrecinct={reportData.contestResultsByPrecinct}
             votingType={reportData.votingType}
             pollsTransitionType={reportData.pollsTransitionType}
           />

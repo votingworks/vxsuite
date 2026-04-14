@@ -321,7 +321,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
       })
     )
   );
@@ -339,7 +339,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
           id: sampleElectionDefinition.election.id,
         }),
         ballotHash: sampleElectionDefinition.ballotHash,
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
         machinesReporting: ['machineId'],
         isLive: true,
       })
@@ -418,7 +418,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
       })
     )
   );
@@ -433,7 +433,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
           id: sampleElectionDefinition.election.id,
         }),
         ballotHash: sampleElectionDefinition.ballotHash,
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
         machinesReporting: ['machineId'],
         isLive: true,
       })
@@ -452,7 +452,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
           id: sampleElectionDefinition.election.id,
         }),
         ballotHash: sampleElectionDefinition.ballotHash,
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
         machinesReporting: expect.anything(),
         isLive: true, // Even though there is no data for this precinct there is live data for the election overall
       })
@@ -516,7 +516,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         id: sampleElectionDefinition.election.id,
       }),
       ballotHash: sampleElectionDefinition.ballotHash,
-      contestResults: expect.anything(),
+      contestResultsByPrecinct: expect.anything(),
       machinesReporting: ['machineId', 'machineId-2'],
       isLive: true,
     })
@@ -683,7 +683,7 @@ test('quick results reporting works for polls open reporting', async () => {
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
       })
     )
   );
@@ -1491,7 +1491,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
       pollsTransitionType: 'close_polls',
       isLive: true,
       pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
-      contestResults: expect.anything(),
+      contestResultsByPrecinct: expect.anything(),
       isPartial: false,
       votingType: 'election_day',
     })
@@ -1513,7 +1513,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
         ballotHash: sampleElectionDefinition.ballotHash,
         machinesReporting: expect.arrayContaining(['paginated-machine']),
         isLive: true,
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
       })
     )
   );
@@ -1724,7 +1724,7 @@ test('quick results reporting clears previous partial reports on numPages change
       pollsTransitionType: 'close_polls',
       isLive: true,
       pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
-      contestResults: expect.anything(),
+      contestResultsByPrecinct: expect.anything(),
       isPartial: false,
       votingType: 'election_day',
     })
@@ -1895,7 +1895,7 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     ok(
       expect.objectContaining({
         isPartial: false,
-        contestResults: expect.anything(),
+        contestResultsByPrecinct: expect.anything(),
       })
     )
   );

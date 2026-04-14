@@ -18,6 +18,12 @@ exports.up = (pgm) => {
     polling_place_id: { type: 'text' },
   });
 
+  // Drop the old precinct_id from partials — it stored the scanner's
+  // configured precinct which is now replaced by polling_place_id.
+  // Per-precinct splitting happens after page assembly, not at the
+  // partial page level.
+  pgm.dropColumn('results_reports_partial', 'precinct_id');
+
   // Backfill precinct_id to empty string for existing rows that have NULL,
   // then make it NOT NULL so it can be part of the primary key.
   pgm.sql(
