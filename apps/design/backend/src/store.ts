@@ -62,9 +62,7 @@ import {
 import type { PrecinctRegisteredVotersCountEntry } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
-  ALL_PRECINCTS_SELECTION,
   combineAndDecodeCompressedElectionResults,
-  getContestsForPrecinctAndElection,
 } from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -72,7 +70,6 @@ import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
-  ALL_PRECINCTS_REPORT_KEY,
   ExternalElectionSource,
   ElectionInfo,
   ElectionListing,
@@ -2980,12 +2977,14 @@ export class Store {
     return !!rows.rowCount;
   }
 
+  /**
+   * Returns the most recent polls transition status for each machine,
+   * grouped by polling place.
+   */
   async getPollsStatusForElection(
-    election: Election,
     ballotHash: string,
     isLive: boolean
   ): Promise<Record<string, QuickReportedPollStatus[]>> {
-    const queryParams = [ballotHash, election.id, isLive];
     const rows = (
       await this.db.withClient((client) =>
         client.query(
@@ -2994,56 +2993,53 @@ export class Store {
               polls_transition as "pollsTransitionType",
               machine_id as "machineId",
               signed_at as "signedAt",
-              precinct_id as "precinctId"
+              polling_place_id as "pollingPlaceId"
             from (
               select
                 polls_transition,
                 machine_id,
                 signed_at,
-                precinct_id,
+                polling_place_id,
                 row_number() over (partition by machine_id, ballot_hash order by signed_at desc) as rn
               from results_reports
               where
                 ballot_hash = $1 and
-                election_id = $2 and
-                is_live_mode = $3
+                is_live_mode = $2
             ) ranked_results
             where rn = 1
             order by signed_at desc
           `,
-          ...queryParams
+          ballotHash,
+          isLive
         )
       )
     ).rows as Array<{
       pollsTransitionType: string;
       machineId: string;
-      precinctId: string | null;
+      pollingPlaceId: string;
       signedAt: Date;
     }>;
-    const reportsByPrecinctId: Record<string, QuickReportedPollStatus[]> = {};
-    for (const precinct of election.precincts) {
-      reportsByPrecinctId[precinct.id] = [];
-    }
 
+    const reportsByPollingPlace: Record<string, QuickReportedPollStatus[]> = {};
     for (const status of rows) {
-      if (
-        !status.precinctId &&
-        !reportsByPrecinctId[ALL_PRECINCTS_REPORT_KEY]
-      ) {
-        reportsByPrecinctId[ALL_PRECINCTS_REPORT_KEY] = [];
+      const key = status.pollingPlaceId;
+      if (!reportsByPollingPlace[key]) {
+        reportsByPollingPlace[key] = [];
       }
-      reportsByPrecinctId[status.precinctId ?? ALL_PRECINCTS_REPORT_KEY].push({
+      reportsByPollingPlace[key].push({
         machineId: status.machineId,
+        pollingPlaceId: status.pollingPlaceId,
         signedTimestamp: status.signedAt,
-        precinctSelection: status.precinctId
-          ? singlePrecinctSelectionFor(status.precinctId)
-          : ALL_PRECINCTS_SELECTION,
         pollsTransitionType: status.pollsTransitionType as PollsTransitionType,
       });
     }
-    return reportsByPrecinctId;
+    return reportsByPollingPlace;
   }
 
+  /**
+   * Returns aggregated tally results from the per-precinct tallies table,
+   * optionally filtered by precinct selection.
+   */
   async getLiveReportTalliesForElection(
     election: Election,
     electionBallotHash: string,
@@ -3054,11 +3050,13 @@ export class Store {
     machinesReporting: string[];
   }> {
     let precinctWhereClause = '';
-    const queryParams = [electionBallotHash, election.id, isLive];
+    const queryParams: Array<string | boolean> = [
+      electionBallotHash,
+      election.id,
+      isLive,
+    ];
     if (precinctSelection.kind === 'SinglePrecinct') {
-      precinctWhereClause = `
-        and precinct_id = $4
-      `;
+      precinctWhereClause = 'and precinct_id = $4';
       queryParams.push(precinctSelection.precinctId);
     }
     const rows = (
@@ -3069,11 +3067,10 @@ export class Store {
               encoded_compressed_tally as "encodedCompressedTally",
               machine_id as "machineId",
               precinct_id as "precinctId"
-            from results_reports
+            from results_report_tallies
             where
               ballot_hash = $1 and
               election_id = $2 and
-              polls_transition = 'close_polls' and
               is_live_mode = $3
               ${precinctWhereClause}
             order by signed_at desc
@@ -3084,57 +3081,58 @@ export class Store {
     ).rows as Array<{
       encodedCompressedTally: string;
       machineId: string;
-      precinctId: string | null;
+      precinctId: string;
     }>;
+
+    // Each row is a V0 single-precinct tally. Decode and combine.
     const contestResults = combineAndDecodeCompressedElectionResults({
       election,
       encodedCompressedTallies: rows.map((r) => ({
         encodedTally: r.encodedCompressedTally,
-        precinctSelection: r.precinctId
-          ? singlePrecinctSelectionFor(r.precinctId)
-          : ALL_PRECINCTS_SELECTION,
+        precinctSelection: singlePrecinctSelectionFor(r.precinctId),
       })),
     });
-    const contestIdsForPrecinct = getContestsForPrecinctAndElection(
-      election,
-      precinctSelection
-    ).map((contest) => contest.id);
 
-    const filteredContestResults: Record<ContestId, ContestResults> = {};
-    for (const contestId of contestIdsForPrecinct) {
-      assert(contestId in contestResults, 'Missing contest results');
-      filteredContestResults[contestId] = contestResults[contestId];
-    }
+    // Deduplicate machine IDs
+    const machinesReporting = [...new Set(rows.map((r) => r.machineId))];
 
     return {
-      contestResults: filteredContestResults,
-      machinesReporting: rows.map((r) => r.machineId),
+      contestResults,
+      machinesReporting,
     };
   }
 
-  // Save the provided quick results report, overwriting one for the given election ballot hash, machine and isLive toggle if one already exists.
+  /**
+   * Saves a machine status report (open/pause/resume/close_polls) and,
+   * for close_polls, per-precinct V0 tally rows in the separate tallies
+   * table.
+   */
   async saveQuickResultsReportingTally({
     electionId,
     ballotHash,
-    encodedCompressedTally,
     machineId,
     isLive,
     signedTimestamp,
-    precinctId,
+    pollingPlaceId,
     pollsTransitionType,
+    perPrecinctTallies,
   }: {
     electionId: string;
     ballotHash: string;
-    encodedCompressedTally: string;
     machineId: string;
     isLive: boolean;
     signedTimestamp: Date;
-    precinctId?: string;
+    pollingPlaceId: string;
     pollsTransitionType: PollsTransitionType;
+    perPrecinctTallies: Array<{
+      precinctId: string;
+      encodedTally: string;
+    }>;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
-        const { rowCount } = await client.query(
+        // Upsert the machine status row
+        await client.query(
           `
             insert into results_reports (
               ballot_hash,
@@ -3142,29 +3140,75 @@ export class Store {
               machine_id,
               is_live_mode,
               signed_at,
-              encoded_compressed_tally,
-              precinct_id,
-              polls_transition
-            ) values ($1, $2, $3, $4, $5, $6, $7, $8)
+              polls_transition,
+              polling_place_id
+            ) values ($1, $2, $3, $4, $5, $6, $7)
             on conflict (ballot_hash, machine_id, is_live_mode, polls_transition)
             do update set
               signed_at = excluded.signed_at,
-              encoded_compressed_tally = excluded.encoded_compressed_tally,
-              precinct_id = excluded.precinct_id,
-              polls_transition = excluded.polls_transition
+              polling_place_id = excluded.polling_place_id
           `,
           ballotHash,
           electionId,
           machineId,
           isLive,
           signedTimestamp.toISOString(),
-          encodedCompressedTally,
-          precinctId || null,
-          pollsTransitionType
+          pollsTransitionType,
+          pollingPlaceId
         );
-        assert(rowCount === 1, 'Failed to insert results report');
 
-        // Clean up partial reports, if relevant, for this machine.
+        // For close_polls, upsert per-precinct tally rows
+        for (const { precinctId, encodedTally } of perPrecinctTallies) {
+          await client.query(
+            `
+              insert into results_report_tallies (
+                ballot_hash,
+                election_id,
+                machine_id,
+                is_live_mode,
+                polling_place_id,
+                precinct_id,
+                encoded_compressed_tally,
+                signed_at
+              ) values ($1, $2, $3, $4, $5, $6, $7, $8)
+              on conflict (ballot_hash, machine_id, is_live_mode, precinct_id)
+              do update set
+                encoded_compressed_tally = excluded.encoded_compressed_tally,
+                polling_place_id = excluded.polling_place_id,
+                signed_at = excluded.signed_at
+            `,
+            ballotHash,
+            electionId,
+            machineId,
+            isLive,
+            pollingPlaceId,
+            precinctId,
+            encodedTally,
+            signedTimestamp.toISOString()
+          );
+        }
+
+        // Delete tally rows for precincts no longer in the report
+        if (perPrecinctTallies.length > 0) {
+          const precinctIds = perPrecinctTallies.map((t) => t.precinctId);
+          const placeholders = precinctIds.map((_id, i) => `$${i + 4}`);
+          await client.query(
+            `
+            delete from results_report_tallies
+            where
+              ballot_hash = $1 and
+              machine_id = $2 and
+              is_live_mode = $3 and
+              precinct_id not in (${placeholders.join(', ')})
+          `,
+            ballotHash,
+            machineId,
+            isLive,
+            ...precinctIds
+          );
+        }
+
+        // Clean up partial reports for this machine.
         await client.query(
           `
           delete from results_reports_partial
@@ -3184,10 +3228,12 @@ export class Store {
     );
   }
 
-  // Save a single partial page of a multi-page QR results report. Each page is
-  // stored separately in `results_reports_partial` and identified by its
-  // page_index and num_pages. This allows assembling the final report when the
-  // last page is received.
+  /**
+   * Save a single partial page of a multi-page QR results report. Each page
+   * is stored separately in `results_reports_partial` and identified by its
+   * page_index and num_pages. This allows assembling the final report when
+   * the last page is received.
+   */
   async savePartialQuickResultsReportingPage({
     electionId,
     ballotHash,
@@ -3195,7 +3241,7 @@ export class Store {
     machineId,
     isLive,
     signedTimestamp,
-    precinctId,
+    pollingPlaceId,
     pollsTransitionType,
     pageIndex,
     numPages,
@@ -3206,14 +3252,15 @@ export class Store {
     machineId: string;
     isLive: boolean;
     signedTimestamp: Date;
-    precinctId?: string;
+    pollingPlaceId: string;
     pollsTransitionType: PollsTransitionType;
     pageIndex: number;
     numPages: number;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
-        // If any existing partial row has a different num_pages, or precinct_id delete it so the new report will override.
+        // If any existing partial row has a different num_pages or
+        // polling_place_id, delete it so the new report will override.
         await client.query(
           `
           delete from results_reports_partial
@@ -3222,14 +3269,14 @@ export class Store {
           machine_id = $2 and
           is_live_mode = $3 and
           polls_transition = $4 and
-          (num_pages != $5 OR precinct_id IS DISTINCT FROM $6)
+          (num_pages != $5 OR polling_place_id IS DISTINCT FROM $6)
             `,
           ballotHash,
           machineId,
           isLive,
           pollsTransitionType,
           numPages,
-          precinctId || null
+          pollingPlaceId
         );
         const { rowCount } = await client.query(
           `
@@ -3240,7 +3287,7 @@ export class Store {
               is_live_mode,
               signed_at,
               encoded_compressed_tally,
-              precinct_id,
+              polling_place_id,
               polls_transition,
               page_index,
               num_pages
@@ -3249,7 +3296,7 @@ export class Store {
             do update set
               signed_at = excluded.signed_at,
               encoded_compressed_tally = excluded.encoded_compressed_tally,
-              precinct_id = excluded.precinct_id,
+              polling_place_id = excluded.polling_place_id,
               polls_transition = excluded.polls_transition,
               num_pages = excluded.num_pages
           `,
@@ -3259,7 +3306,7 @@ export class Store {
           isLive,
           signedTimestamp.toISOString(),
           encodedCompressedTally,
-          precinctId || null,
+          pollingPlaceId,
           pollsTransitionType,
           pageIndex,
           numPages
@@ -3270,9 +3317,10 @@ export class Store {
     );
   }
 
-  // Fetch all partial pages for the given ballot_hash/machine/is_live/polls_transition
-  // combination ordered by page_index. Returns rows with encoded_compressed_tally
-  // and precinct_id.
+  /**
+   * Fetch all partial pages for the given ballot_hash/machine/is_live/
+   * polls_transition combination ordered by page_index.
+   */
   async fetchPartialPages({
     ballotHash,
     machineId,
@@ -3286,7 +3334,7 @@ export class Store {
   }): Promise<
     Array<{
       encodedCompressedTally: string;
-      precinctId: string | null;
+      pollingPlaceId: string;
       numPages: number;
       pageIndex: number;
     }>
@@ -3296,7 +3344,7 @@ export class Store {
         `
           select
             encoded_compressed_tally as "encodedCompressedTally",
-            precinct_id as "precinctId",
+            polling_place_id as "pollingPlaceId",
             page_index as "pageIndex",
             num_pages as "numPages"
           from results_reports_partial
@@ -3314,7 +3362,7 @@ export class Store {
       );
       return res.rows as Array<{
         encodedCompressedTally: string;
-        precinctId: string | null;
+        pollingPlaceId: string;
         numPages: number;
         pageIndex: number;
       }>;
@@ -3327,16 +3375,15 @@ export class Store {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         await client.query(
-          `
-          delete from results_reports
-          where election_id = $1
-        `,
+          `delete from results_reports where election_id = $1`,
           electionId
         );
         await client.query(
-          `delete from results_reports_partial
-        where election_id = $1
-      `,
+          `delete from results_report_tallies where election_id = $1`,
+          electionId
+        );
+        await client.query(
+          `delete from results_reports_partial where election_id = $1`,
           electionId
         );
         return true;

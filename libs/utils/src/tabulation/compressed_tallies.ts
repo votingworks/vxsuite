@@ -512,3 +512,37 @@ export function decodeAndReadPerPrecinctCompressedTally({
   );
   return decodeBitmapTally(uint16Array, election);
 }
+
+/**
+ * Splits a V1 per-precinct tally blob into individual V0 tally blobs,
+ * one per precinct. Returns the list for storage as separate rows.
+ */
+export function splitV1TallyIntoPerPrecinctV0(
+  election: Election,
+  encodedTally: string
+): Array<{ precinctId: PrecinctId; encodedTally: string }> {
+  const perPrecinctResults = decodeAndReadPerPrecinctCompressedTally({
+    election,
+    encodedTally,
+  });
+
+  const results: Array<{ precinctId: PrecinctId; encodedTally: string }> = [];
+  for (const [precinctId, contestResults] of Object.entries(
+    perPrecinctResults
+  )) {
+    const precinctElectionResults: Tabulation.ElectionResults = {
+      cardCounts: { bmd: [], hmpb: [] },
+      contestResults,
+    };
+    const precinctSelection = singlePrecinctSelectionFor(precinctId);
+    const compressed = compressTally(
+      election,
+      precinctElectionResults,
+      precinctSelection
+    );
+    const encoded = encodeV0CompressedTally(compressed, 1)[0];
+    assert(encoded !== undefined);
+    results.push({ precinctId, encodedTally: encoded });
+  }
+  return results;
+}

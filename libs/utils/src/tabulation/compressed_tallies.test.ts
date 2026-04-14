@@ -25,6 +25,7 @@ import {
   decodeAndReadCompressedTally,
   decodeAndReadPerPrecinctCompressedTally,
   readPrecinctBitmap,
+  splitV1TallyIntoPerPrecinctV0,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -735,5 +736,63 @@ describe('per-precinct tally encoding (V1)', () => {
     for (const contest of election.contests) {
       expect(decoded[contest.id]).toBeDefined();
     }
+  });
+
+  test('splitV1TallyIntoPerPrecinctV0 produces valid V0 tallies', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+    const precinct1Id = '6522';
+    const precinct2Id = '6525';
+
+    const results1 = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [10], hmpb: [] },
+      contestResultsSummaries: {
+        '750000017': {
+          type: 'yesno',
+          ballots: 10,
+          undervotes: 0,
+          overvotes: 0,
+          yesTally: 7,
+          noTally: 3,
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+    const results2 = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [5], hmpb: [] },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const encoded = compressAndEncodePerPrecinctTally({
+      election: electionEitherNeither,
+      resultsByPrecinct: {
+        [precinct1Id]: results1,
+        [precinct2Id]: results2,
+      },
+      numPages: 1,
+    });
+
+    const splits = splitV1TallyIntoPerPrecinctV0(
+      electionEitherNeither,
+      assertDefined(encoded[0])
+    );
+
+    expect(splits).toHaveLength(2);
+    expect(splits[0]?.precinctId).toEqual(precinct1Id);
+    expect(splits[1]?.precinctId).toEqual(precinct2Id);
+
+    // Each split should decode as a valid V0 tally
+    const decoded1 = readV0CompressedTallyAsContestResults({
+      election: electionEitherNeither,
+      precinctSelection: singlePrecinctSelectionFor(precinct1Id),
+      encodedTally: assertDefined(splits[0]).encodedTally,
+    });
+    const yesNoResult = decoded1['750000017'];
+    assert(yesNoResult?.contestType === 'yesno');
+    expect(yesNoResult.yesTally).toEqual(7);
+    expect(yesNoResult.noTally).toEqual(3);
   });
 });

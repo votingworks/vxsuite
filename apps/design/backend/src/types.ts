@@ -5,7 +5,6 @@ import {
   Election,
   ContestId,
   LiveReportVotingType,
-  PrecinctSelection,
   PollsTransitionType,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
@@ -111,30 +110,29 @@ export interface ReceivedReportInfoBase {
   ballotHash: string;
   machineId: string;
   isLive: boolean;
-  reportCreatedAt?: Date;
-  pollsTransitionTime?: Date;
+  pollsTransitionTime: Date;
   election: Election;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId: string;
   votingType: LiveReportVotingType;
 }
 
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
   pollsTransitionType: 'open_polls';
   isPartial: false;
-  ballotCount?: number;
+  ballotCount: number;
 }
 
 export interface ReceivedVotingResumedReportInfo
   extends ReceivedReportInfoBase {
   pollsTransitionType: 'resume_voting';
   isPartial: false;
-  ballotCount?: number;
+  ballotCount: number;
 }
 
 export interface ReceivedPollsPausedReportInfo extends ReceivedReportInfoBase {
   pollsTransitionType: 'pause_voting';
   isPartial: false;
-  ballotCount?: number;
+  ballotCount: number;
 }
 
 export interface ReceivedPollsClosedPartialReportInfo
@@ -149,7 +147,7 @@ export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: false;
-  contestResults: Record<ContestId, ContestResults>;
+  contestResultsByPrecinct: Record<string, Record<ContestId, ContestResults>>;
 }
 
 export type ReceivedReportInfo =
@@ -168,7 +166,7 @@ export interface AggregatedReportedResults {
 }
 
 export interface AggregatedReportedPollsStatus {
-  reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+  reportsByPollingPlace: Record<string, QuickReportedPollStatus[]>;
   election: Election;
   isLive: boolean;
   ballotHash: string;
@@ -176,12 +174,10 @@ export interface AggregatedReportedPollsStatus {
 
 export interface QuickReportedPollStatus {
   machineId: string;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId: string;
   signedTimestamp: Date;
   pollsTransitionType: PollsTransitionType;
 }
-
-export const ALL_PRECINCTS_REPORT_KEY = '';
 
 export type GetExportedElectionError =
   | 'no-election-export-found'
