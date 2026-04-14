@@ -1,3 +1,4 @@
+/* istanbul ignore file - @preserve - Page under construction */
 import {
   Button,
   ContestResultsTable,
@@ -34,9 +35,9 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import {
+  format,
   getContestsForPrecinctAndElection,
   getPrecinctSelectionName,
-  format,
   groupContestsByParty,
 } from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
@@ -54,7 +55,7 @@ import {
 } from './api';
 import { useTitle } from './hooks/use_title';
 import { Row } from './layout';
-import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
+import { useSound } from './utils';
 
 const PollsStatusLabel = styled.span`
   font-size: 1rem;
@@ -178,34 +179,20 @@ function LiveReportsSummaryScreen({
       ? getLiveReportsSummaryQuery.data.ok()
       : null
     : null;
-  // Memoize precincts so it only recalculates when pollsStatusData changes
-  const precinctsWithNonSpecified = React.useMemo(
-    () =>
-      pollsStatusData
-        ? [
-            ...pollsStatusData.election.precincts,
-            {
-              id: ALL_PRECINCTS_REPORT_KEY,
-              name: 'Precinct Not Specified',
-              splits: [],
-            },
-          ]
-        : [],
-    [pollsStatusData]
-  );
+  const precincts = pollsStatusData ? pollsStatusData.election.precincts : [];
 
   const playSound = useSound('happy-ping');
   useQueryChangeListener(getLiveReportsSummaryQuery, {
     // Could also select `isLive` too if that's relevant
     select: (result) => ({
-      reportsByPrecinct: result.ok()?.reportsByPrecinct,
+      reportsByPollingPlace: result.ok()?.reportsByPollingPlace,
       isLive: result.ok()?.isLive,
     }),
     onChange: (newData, oldData) => {
       if (!oldData) return;
-      const { reportsByPrecinct: newReportsByPrecinct, isLive: newIsLive } =
+      const { reportsByPollingPlace: newReportsByPrecinct, isLive: newIsLive } =
         newData;
-      const { reportsByPrecinct: oldReportsByPrecinct, isLive: oldIsLive } =
+      const { reportsByPollingPlace: oldReportsByPrecinct, isLive: oldIsLive } =
         oldData;
       if (!newReportsByPrecinct) return;
       const switchedLive = newIsLive && !oldIsLive;
@@ -233,8 +220,8 @@ function LiveReportsSummaryScreen({
 
   /* // Animation hooks (always called)
   const precinctAnimations = usePrecinctAnimations(
-    precinctsWithNonSpecified,
-    reportsByPrecinct,
+    precincts,
+    reportsByPollingPlace,
     reportsIsLive,
     playSound
   ); */
@@ -289,7 +276,9 @@ function LiveReportsSummaryScreen({
 
   assert(pollsStatusData !== null);
 
-  const allEntries = Object.values(pollsStatusData.reportsByPrecinct).flat();
+  const allEntries = Object.values(
+    pollsStatusData.reportsByPollingPlace
+  ).flat();
 
   return (
     <div>
@@ -335,7 +324,7 @@ function LiveReportsSummaryScreen({
                         <Icons.Warning color="warning" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter((entries) => entries.length === 0).length
                         }
                       </H1>
@@ -349,7 +338,7 @@ function LiveReportsSummaryScreen({
                         <Icons.Circle color="success" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
@@ -371,7 +360,7 @@ function LiveReportsSummaryScreen({
                         <Icons.CircleDot color="primary" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
@@ -397,7 +386,7 @@ function LiveReportsSummaryScreen({
                         <Icons.Done color="primary" />{' '}
                         {
                           Object.values(
-                            pollsStatusData.reportsByPrecinct
+                            pollsStatusData.reportsByPollingPlace
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
@@ -452,17 +441,9 @@ function LiveReportsSummaryScreen({
                 </tr>
               </thead>
               <tbody>
-                {precinctsWithNonSpecified.map((precinct) => {
-                  // Only show the "Precinct Not Specified" row if there is data for it
+                {precincts.map((precinct) => {
                   const reportsForPrecinct =
-                    pollsStatusData.reportsByPrecinct[precinct.id] || [];
-
-                  if (
-                    precinct.id === ALL_PRECINCTS_REPORT_KEY &&
-                    reportsForPrecinct.length === 0
-                  ) {
-                    return null;
-                  }
+                    pollsStatusData.reportsByPollingPlace[precinct.id] || [];
 
                   const pollsOpenCount = reportsForPrecinct.filter((entry) =>
                     POLLS_OPEN_TRANSITIONS.includes(entry.pollsTransitionType)

@@ -54,8 +54,6 @@ export function reorderElement<T>(
   return result;
 }
 
-export const ALL_PRECINCTS_REPORT_KEY = '';
-
 export type SoundType = 'happy-ping';
 
 export function useSound(sound: SoundType): () => void {
