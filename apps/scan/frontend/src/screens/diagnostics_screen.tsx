@@ -83,6 +83,7 @@ export function DiagnosticsScreen({
   const {
     electionDefinition,
     precinctSelection,
+    pollingPlaceId,
     electionPackageHash,
     systemSettings,
   } = configQuery.data;
@@ -122,6 +123,7 @@ export function DiagnosticsScreen({
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         precinctSelection={precinctSelection}
+        pollingPlaceId={pollingPlaceId}
         diskSpaceSummary={diskSpaceQuery.data}
         scannerStatus={scannerStatus}
         scannerActionChildren={
