@@ -12,7 +12,13 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { assertDefined } from '@votingworks/basics';
+import {
+  configure,
+  render,
+  screen,
+  waitFor,
+} from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -20,7 +26,14 @@ import {
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 
+configure({ asyncUtilTimeout: 800 });
+
 const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
+const [pollingPlace] = assertDefined(electionGeneral.pollingPlaces);
+const defaultConfig: Partial<PrecinctScannerConfig> = {
+  pollingPlaceId: pollingPlace.id,
+};
 
 let apiMock: ApiMock;
 
@@ -38,9 +51,14 @@ function renderApp(props: Partial<AppProps> = {}) {
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
+
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.EARLY_VOTING
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_POLLING_PLACES
+  );
+
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -94,13 +112,14 @@ test.each<{
 }>([
   {
     description: 'machine is configured',
-    defaultConfigOverrides: {},
+    defaultConfigOverrides: defaultConfig,
     expectedHeadingWhenNoCard: 'Polls Closed',
   },
   {
     description: 'machine is unconfigured',
     defaultConfigOverrides: {
       electionDefinition: undefined,
+      pollingPlaceId: undefined,
       precinctSelection: undefined,
     },
     expectedHeadingWhenNoCard:
@@ -146,7 +165,7 @@ test.each<{
 );
 
 test('show card backwards screen when card connection error occurs', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
@@ -165,7 +184,7 @@ test('show card backwards screen when card connection error occurs', async () =>
 });
 
 test('shows message when printer cover is open', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus({ state: 'cover-open' });
@@ -226,7 +245,7 @@ test('shows internal wiring message when there is no scanner', async () => {
 });
 
 test('shows internal wiring message when there is no printer', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus({
@@ -256,7 +275,7 @@ test('shows internal wiring message when there is no printer', async () => {
 });
 
 test('shows internal wiring message when there is no printer or scanner', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
@@ -296,7 +315,7 @@ for (const printerError of [
   'temperature',
 ]) {
   test(`shows internal wiring message when printer shows hardware error: ${printerError}`, async () => {
-    apiMock.expectGetConfig();
+    apiMock.expectGetConfig(defaultConfig);
     apiMock.expectGetPollsInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
     apiMock.setPrinterStatus({
@@ -327,7 +346,7 @@ for (const printerError of [
 }
 
 test('shows message when scanner cover is open', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
@@ -356,7 +375,7 @@ test('shows message when scanner cover is open', async () => {
 });
 
 test('shows instructions to restart when the scanner client crashed', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,

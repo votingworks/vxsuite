@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockSystemAdministratorUser } from '@votingworks/test-utils';
@@ -13,12 +12,13 @@ import {
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
   ElectionPackageConfigurationError,
   SheetInterpretation,
   SystemSettings,
   formatElectionHashes,
 } from '@votingworks/types';
-import { Result, deferred, err, ok } from '@votingworks/basics';
+import { Result, assertDefined, deferred, err, ok } from '@votingworks/basics';
 
 import type {
   PrecinctScannerConfig,
@@ -45,8 +45,24 @@ import { App, AppProps } from './app';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 import { DELAY_ACCEPTED_SCREEN_MS } from './screens/voter_screen';
 
-const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneralDefinitionBase = readElectionGeneralDefinition();
+const electionGeneralDefinition: ElectionDefinition = {
+  ...electionGeneralDefinitionBase,
+  election: {
+    ...electionGeneralDefinitionBase.election,
+    seal: '<svg>seal</svg', // Make debug outputs less noisy.
+  },
+};
+
 const electionGeneral = electionGeneralDefinition.election;
+const electionGeneralPollingPlaces = assertDefined(
+  electionGeneral.pollingPlaces
+);
+const [electionGeneralPollingPlace] = electionGeneralPollingPlaces;
+const defaultConfig: Partial<PrecinctScannerConfig> = {
+  pollingPlaceId: electionGeneralPollingPlace.id,
+};
+
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
@@ -75,6 +91,7 @@ beforeEach(() => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.EARLY_VOTING
   );
+  setPollingPlacesEnabled(true);
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
@@ -108,7 +125,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
 });
 
 test('shows insert USB Drive screen when there is no USB drive', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -168,49 +185,48 @@ test('app can load and configure from a usb stick', async () => {
     )
   );
 
-  // Select precinct
-  const precinct = electionGeneral.precincts[0];
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor(precinct.id));
-  apiMock.expectGetConfig({
-    precinctSelection: singlePrecinctSelectionFor(precinct.id),
-  });
+  // Select polling place
+  apiMock.mockApiClient.setPollingPlaceId
+    .expectCallWith({ id: electionGeneralPollingPlace.id })
+    .resolves();
+  apiMock.expectGetConfig({ pollingPlaceId: electionGeneralPollingPlace.id });
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.click(screen.getByLabelText('Select a precinct…'));
-  userEvent.click(screen.getByText(precinct.name));
+  userEvent.click(screen.getByLabelText(/select a polling place/i));
+  userEvent.click(screen.getByText(electionGeneralPollingPlace.name));
   apiMock.removeCard();
 
   await screen.findByText('Polls Closed');
 });
 
-test('election manager must set precinct', async () => {
-  apiMock.expectGetConfig({
-    precinctSelection: undefined,
-  });
+test('election manager must set polling place', async () => {
+  apiMock.expectGetConfig({ pollingPlaceId: undefined });
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
   renderApp();
-  await screen.findByText('No Precinct Selected');
+  await screen.findByText('No Polling Place Selected');
 
   // Poll worker card does nothing
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
-  await screen.findByText('No Precinct Selected');
+  await screen.findByText('No Polling Place Selected');
   apiMock.removeCard();
 
-  // Insert election manager card and set precinct
+  // Insert election manager card and set polling place
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Menu');
-  const precinct = electionGeneral.precincts[0];
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor(precinct.id));
-  apiMock.expectGetConfig({
-    precinctSelection: singlePrecinctSelectionFor(precinct.id),
-  });
+
+  apiMock.mockApiClient.setPollingPlaceId
+    .expectCallWith({ id: electionGeneralPollingPlace.id })
+    .resolves();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.click(screen.getByLabelText('Select a precinct…'));
-  userEvent.click(screen.getByText(precinct.name));
+
+  userEvent.click(screen.getByLabelText(/select a polling place/i));
+  userEvent.click(screen.getByText(electionGeneralPollingPlace.name));
   apiMock.removeCard();
+
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
   screen.getByText('Center Springfield');
@@ -223,7 +239,11 @@ test('election manager must set precinct', async () => {
 
 test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionGeneralDefinition;
-  let config: Partial<PrecinctScannerConfig> = { electionDefinition };
+  const [place1, place2, place3] = electionGeneralPollingPlaces;
+  let config: Partial<PrecinctScannerConfig> = {
+    electionDefinition,
+    pollingPlaceId: place1.id,
+  };
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -252,15 +272,15 @@ test('election manager and poll worker configuration', async () => {
     selected: true,
   });
 
-  // Change precinct as election manager
-  const precinct = electionDefinition.election.precincts[0];
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-  apiMock.expectSetPrecinct(precinctSelection);
-  config = { ...config, precinctSelection };
+  // Change polling place as election manager
+  apiMock.mockApiClient.setPollingPlaceId
+    .expectCallWith({ id: place2.id })
+    .resolves();
+  config = { ...config, pollingPlaceId: place2.id };
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.click(screen.getByLabelText('Select a precinct…'));
-  userEvent.click(screen.getByText(precinct.name));
+  userEvent.click(screen.getByLabelText(/select a polling place/i));
+  userEvent.click(screen.getByText(place2.name));
   apiMock.removeCard();
 
   // Open the polls
@@ -276,29 +296,27 @@ test('election manager and poll worker configuration', async () => {
   );
   apiMock.removeCard();
 
-  // Change precinct as election manager with polls open
-  const otherPrecinct = electionDefinition.election.precincts[1];
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor(otherPrecinct.id));
-  config = {
-    ...config,
-    precinctSelection: singlePrecinctSelectionFor(otherPrecinct.id),
-  };
+  // Change polling place as election manager with polls open
+  apiMock.mockApiClient.setPollingPlaceId
+    .expectCallWith({ id: place3.id })
+    .resolves();
+  config = { ...config, pollingPlaceId: place3.id };
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Menu');
-  userEvent.click(screen.getByText('Change Precinct'));
+  userEvent.click(screen.getByText('Change Polling Place'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Change Precinct' });
-  userEvent.click(within(modal).getByText(precinct.name));
-  userEvent.click(within(modal).getByText(otherPrecinct.name));
+  within(modal).getByRole('heading', { name: 'Change Polling Place' });
+  userEvent.click(screen.getByLabelText(/select a polling place/i));
+  userEvent.click(screen.getByText(place3.name));
   userEvent.click(within(modal).getButton('Confirm'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
-  await screen.findByText(otherPrecinct.name);
+  await screen.findByText(place3.name);
 
   // Open the polls again
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -322,7 +340,7 @@ test('election manager and poll worker configuration', async () => {
   });
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Menu');
-  screen.getButton('Change Precinct');
+  screen.getButton('Change Polling Place');
 
   userEvent.click(await screen.findByText('Unconfigure Machine'));
   userEvent.click(await screen.findByText('Cancel'));
@@ -369,8 +387,11 @@ async function scanBallot() {
 
 test('voter can cast a ballot that scans successfully', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
   apiMock.expectGetConfig({
     electionDefinition,
+    pollingPlaceId: pollingPlace.id,
   });
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -446,7 +467,7 @@ test('voter can cast a ballot that scans successfully', async () => {
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -493,7 +514,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 });
 
 test('voter tries to cast ballot that is rejected', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -527,7 +548,7 @@ test('voter tries to cast ballot that is rejected', async () => {
 });
 
 test('voter can cast another ballot while the success screen is showing', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(
@@ -559,7 +580,7 @@ test('voter can cast another ballot while the success screen is showing', async 
 });
 
 test('scanning is not triggered when polls closed or cards present', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
@@ -584,7 +605,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 });
 
 test('poll worker can open and close polls without scanning any ballots', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -637,6 +658,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
+    pollingPlaceId: electionGeneralPollingPlace.id,
   });
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -679,7 +701,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
 });
 
 test('poll worker can open, pause, unpause, and close poll without scanning any ballots', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -753,6 +775,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   apiMock.expectGetConfig({
     electionDefinition,
     isTestMode: true,
+    pollingPlaceId: electionGeneralPollingPlace.id,
   });
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -821,7 +844,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
 });
 
 test('system administrator can log in and unconfigure machine', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -895,7 +918,7 @@ test('system administrator sees log export button', async () => {
 });
 
 test('system administrator can reset polls to paused', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_final');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -955,7 +978,7 @@ test('system administrator open diagnostics screen', async () => {
 });
 
 test('election manager cannot auth onto machine with different election', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -971,7 +994,7 @@ test('election manager cannot auth onto machine with different election', async 
 });
 
 test('requires CVR sync if necessary', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted', {
@@ -1005,7 +1028,7 @@ test('requires CVR sync if necessary', async () => {
 });
 
 test('clears CVR sync required screen if no longer required', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted', {
@@ -1023,7 +1046,7 @@ test('clears CVR sync required screen if no longer required', async () => {
 });
 
 test('double feed detection calibration success', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1071,7 +1094,7 @@ test('double feed detection calibration success', async () => {
 });
 
 test('double feed detection calibration failure', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1118,7 +1141,7 @@ test('double feed detection calibration failure', async () => {
 });
 
 test('image sensor calibration success', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1160,7 +1183,7 @@ test('image sensor calibration success', async () => {
 });
 
 test('image sensor calibration failure', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1207,7 +1230,7 @@ test('image sensor calibration failure', async () => {
 });
 
 test('"Test" voter settings are cleared when a voter finishes', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus();
@@ -1228,7 +1251,7 @@ test('"Test" voter settings are cleared when a voter finishes', async () => {
 });
 
 test('"Test" voter settings are cached when election official logs in and restored on log out', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1250,7 +1273,7 @@ test('"Test" voter settings are cached when election official logs in and restor
 });
 
 test('"Test" voter settings are not reset when scanner status changes from paused to waiting_for_ballot', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus();
@@ -1269,7 +1292,7 @@ test('"Test" voter settings are not reset when scanner status changes from pause
 });
 
 test('"Test" voter settings are not reset when voting begins', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus();
@@ -1282,7 +1305,7 @@ test('"Test" voter settings are not reset when voting begins', async () => {
 });
 
 test('audio-only mode', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus();
@@ -1370,6 +1393,7 @@ test.each<{
   },
 ])('alarms - $description', async (testConfig) => {
   apiMock.expectGetConfig({
+    pollingPlaceId: electionGeneralPollingPlace.id,
     systemSettings: {
       ...DEFAULT_SYSTEM_SETTINGS,
       ...testConfig.systemSettings,
@@ -1436,7 +1460,7 @@ test.each<{
 });
 
 test('accessibility input alarm does not trigger if accessibility input was not connected to begin with', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted', {
     isAccessibilityInputConnected: undefined,
@@ -1461,7 +1485,7 @@ test('PAT device tutorial is shown when PAT key is pressed and can be completed'
     isPatCalibrationComplete: false,
   });
 
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1486,7 +1510,7 @@ test('PAT device tutorial is displayed when showingPatCalibration is true', asyn
     isPatCalibrationComplete: false,
   });
 
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1510,7 +1534,7 @@ test('PAT device tutorial is not triggered when calibration is already complete'
     isPatCalibrationComplete: true,
   });
 
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1525,7 +1549,7 @@ test('PAT device tutorial is not triggered when calibration is already complete'
 });
 
 test('voter help button', async () => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1545,6 +1569,7 @@ test('voter help button', async () => {
 
 test('voter help button hidden when relevant system setting is set', async () => {
   apiMock.expectGetConfig({
+    pollingPlaceId: electionGeneralPollingPlace.id,
     systemSettings: {
       ...DEFAULT_SYSTEM_SETTINGS,
       disableVoterHelpButtons: true,
@@ -1578,6 +1603,7 @@ test.each([
   'voter settings audio tab - $description',
   async ({ precinctScanDisableScreenReaderAudio, isAudioTabPresent }) => {
     apiMock.expectGetConfig({
+      pollingPlaceId: electionGeneralPollingPlace.id,
       systemSettings: {
         ...DEFAULT_SYSTEM_SETTINGS,
         precinctScanDisableScreenReaderAudio,
@@ -1614,7 +1640,7 @@ test('keyboard nav enabled for voter settings', async () => {
     showingPatCalibration: false,
   });
 
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1640,6 +1666,7 @@ test('shows early voting label in election info bar', async () => {
   );
   apiMock.expectGetConfig({
     ballotCastingMode: 'early_voting',
+    pollingPlaceId: electionGeneralPollingPlace.id,
   });
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -1649,3 +1676,20 @@ test('shows early voting label in election info bar', async () => {
   await screen.findByText(/Insert Your Ballot/i);
   screen.getByText('Early Voting');
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  // The mock feature flagger doesn't seem to work when an external package
+  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
+  // directly.
+  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
+    ? 'TRUE'
+    : 'FALSE';
+
+  // Set feature flag for in-package usage.
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  if (enabled) {
+    featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
+  } else {
+    featureFlagMock.disableFeatureFlag(ENABLE_POLLING_PLACES);
+  }
+}
