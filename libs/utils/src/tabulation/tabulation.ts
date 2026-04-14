@@ -20,7 +20,7 @@ import {
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
-import { decodeAndReadCompressedTally } from './compressed_tallies';
+import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -758,7 +758,7 @@ export function combineAndDecodeCompressedElectionResults({
 }): Tabulation.ElectionResults['contestResults'] {
   const allElectionContestResults = encodedCompressedTallies.map(
     ({ encodedTally, precinctSelection }) =>
-      decodeAndReadCompressedTally({
+      readV0CompressedTallyAsContestResults({
         election,
         precinctSelection,
         encodedTally,

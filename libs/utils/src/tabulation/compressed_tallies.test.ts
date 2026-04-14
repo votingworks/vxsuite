@@ -22,7 +22,7 @@ import {
   compressTally,
   decodeV0CompressedTally,
   encodeV0CompressedTally,
-  decodeAndReadCompressedTally,
+  readV0CompressedTallyAsContestResults,
   decodeAndReadPerPrecinctCompressedTally,
   readPrecinctBitmap,
   splitV1TallyIntoPerPrecinctV0,
@@ -261,7 +261,7 @@ describe('readCompressTally', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
     const zeroTally = getZeroCompressedTally(electionEitherNeither);
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(encodeV0CompressedTally(zeroTally, 1)[0]),
@@ -295,7 +295,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === '775020876'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(
@@ -342,7 +342,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === 'president'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(
@@ -418,7 +418,7 @@ describe('readCompressTally', () => {
     compressedTally[yesNoContestIdx] = [6, 4, 20, 3, 7];
     const yesNoContest = electionEitherNeither.contests[yesNoContestIdx];
     assert(yesNoContest?.type === 'yesno');
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(
@@ -465,7 +465,7 @@ test('primary tally can compress and be read back and end with the original tall
   expect(compressedTallies).toHaveLength(1);
   const [compressedTally] = compressedTallies;
   assert(typeof compressedTally === 'string');
-  const decompressedTally = decodeAndReadCompressedTally({
+  const decompressedTally = readV0CompressedTallyAsContestResults({
     election,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     encodedTally: compressedTally,
@@ -508,12 +508,12 @@ test('compresses and decompresses tally for a single precinct', () => {
     compressedTallyPrecinct2,
     1
   );
-  const decodedTally = decodeAndReadCompressedTally({
+  const decodedTally = readV0CompressedTallyAsContestResults({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection,
     encodedTally: assertDefined(encodedTally[0]),
   });
-  const decodedTallyPrecinct2 = decodeAndReadCompressedTally({
+  const decodedTallyPrecinct2 = readV0CompressedTallyAsContestResults({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection2,
     encodedTally: assertDefined(encodedTallyPrecinct2[0]),
@@ -711,7 +711,7 @@ describe('per-precinct tally encoding (V1)', () => {
     ).toThrow('Per-precinct decode requires V1 bitmap format');
   });
 
-  test('V0 tally still works through decodeAndReadCompressedTally', () => {
+  test('V0 tally still works through readV0CompressedTallyAsContestResults', () => {
     const election = readElectionGeneral();
     const results = buildElectionResultsFixture({
       election,
@@ -726,7 +726,7 @@ describe('per-precinct tally encoding (V1)', () => {
       numPages: 1,
     });
 
-    const decoded = decodeAndReadCompressedTally({
+    const decoded = readV0CompressedTallyAsContestResults({
       election,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(encoded[0]),

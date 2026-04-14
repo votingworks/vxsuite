@@ -459,7 +459,7 @@ function decodeEncodedTallyToUint16Array(encodedTally: string): Uint16Array {
  * Decodes an encoded compressed tally and returns aggregated contest results.
  * Auto-detects format: version 0 -> V0, version 1 -> V1 bitmap.
  */
-export function decodeAndReadCompressedTally({
+export function readV0CompressedTallyAsContestResults({
   election,
   precinctSelection,
   encodedTally,
