@@ -446,6 +446,54 @@ function decodeBitmapTally(
   return result;
 }
 
+/**
+ * Aggregates per-precinct contest results into a single set of contest results.
+ * For contests that appear in multiple precincts, tallies are summed.
+ */
+function aggregatePerPrecinctResults(
+  perPrecinctResults: Record<PrecinctId, Record<ContestId, ContestResults>>
+): Record<ContestId, ContestResults> {
+  const aggregated: Record<ContestId, ContestResults> = {};
+  for (const precinctContestResults of Object.values(perPrecinctResults)) {
+    for (const [contestId, contestResults] of Object.entries(
+      precinctContestResults
+    )) {
+      const existing = aggregated[contestId];
+      if (!existing) {
+        aggregated[contestId] = structuredClone(contestResults);
+        continue;
+      }
+      existing.ballots += contestResults.ballots;
+      existing.undervotes += contestResults.undervotes;
+      existing.overvotes += contestResults.overvotes;
+      if (
+        existing.contestType === 'yesno' &&
+        contestResults.contestType === 'yesno'
+      ) {
+        existing.yesTally += contestResults.yesTally;
+        existing.noTally += contestResults.noTally;
+      } else {
+        assert(
+          existing.contestType === 'candidate' &&
+            contestResults.contestType === 'candidate'
+        );
+        for (const [candidateId, candidateTally] of Object.entries(
+          contestResults.tallies
+        )) {
+          const existingCandidate = existing.tallies[candidateId];
+          if (existingCandidate) {
+            existingCandidate.tally += candidateTally.tally;
+          } else {
+            /* istanbul ignore next - @preserve */
+            existing.tallies[candidateId] = { ...candidateTally };
+          }
+        }
+      }
+    }
+  }
+  return aggregated;
+}
+
 function decodeEncodedTallyToUint16Array(encodedTally: string): Uint16Array {
   const buffer = Buffer.from(encodedTally, 'base64url');
   return new Uint16Array(
@@ -471,26 +519,34 @@ export function decodeAndReadCompressedTally({
   const uint16Array = decodeEncodedTallyToUint16Array(encodedTally);
   const version = uint16Array[0];
 
-  assert(version === COMPRESSED_TALLY_V0);
-  const compressedTally = decodeV0CompressedTally(
-    encodedTally,
-    precinctSelection,
-    election
-  );
-  const contests = getContestsForPrecinctAndElection(
-    election,
-    precinctSelection
-  );
-  const allContestResults: Record<ContestId, ContestResults> = {};
-  for (const [contestIdx, contest] of contests.entries()) {
-    const serializedContestTally = compressedTally[contestIdx];
-    assert(serializedContestTally);
-    allContestResults[contest.id] = getContestTalliesForCompressedContest(
-      contest,
-      serializedContestTally
+  if (version === COMPRESSED_TALLY_V0) {
+    const compressedTally = decodeV0CompressedTally(
+      encodedTally,
+      precinctSelection,
+      election
     );
+    const contests = getContestsForPrecinctAndElection(
+      election,
+      precinctSelection
+    );
+    const allContestResults: Record<ContestId, ContestResults> = {};
+    for (const [contestIdx, contest] of contests.entries()) {
+      const serializedContestTally = compressedTally[contestIdx];
+      assert(serializedContestTally);
+      allContestResults[contest.id] = getContestTalliesForCompressedContest(
+        contest,
+        serializedContestTally
+      );
+    }
+    return allContestResults;
   }
-  return allContestResults;
+
+  assert(
+    version === COMPRESSED_TALLY_V1,
+    `Unsupported compressed tally version: ${version}`
+  );
+  const perPrecinctResults = decodeBitmapTally(uint16Array, election);
+  return aggregatePerPrecinctResults(perPrecinctResults);
 }
 
 /**
