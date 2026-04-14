@@ -1,10 +1,11 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { test, expect } from 'vitest';
+import { afterAll, beforeAll, test, expect } from 'vitest';
 import {
   BALLOT_MODES,
   BallotType,
   BaseBallotProps,
   CandidateContest,
+  ContestId,
   Election,
   getBallotStyle,
   getContests,
@@ -30,10 +31,8 @@ import {
   layOutMinimalBallotsToCreateElectionDefinition,
   renderBallotTemplate,
 } from './render_ballot';
-import {
-  createPlaywrightRenderer,
-  createPlaywrightRendererPool,
-} from './playwright_renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer';
+import { RendererPool } from './renderer';
 import { BallotTemplateId, ballotTemplates } from './ballot_templates';
 import {
   miClosedPrimaryElectionFixtures,
@@ -51,6 +50,14 @@ import {
   OptionInfo,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
+
+let rendererPool: RendererPool;
+beforeAll(async () => {
+  rendererPool = await createPlaywrightRendererPool();
+});
+afterAll(async () => {
+  await rendererPool.close();
+});
 
 function getOptionInfoFromElement(element: ParsedHTMLElement): OptionInfo {
   const bubbleElement = assertDefined(
@@ -116,7 +123,6 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
 test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
   const fixtureElectionDefinition = vxFamousNamesFixtures.electionDefinition;
   const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
-  const rendererPool = await createPlaywrightRendererPool();
   const electionDefinition =
     await layOutMinimalBallotsToCreateElectionDefinition(
       rendererPool,
@@ -146,7 +152,6 @@ test('reorder candidates based on rotation from template', async () => {
     },
   };
   const allBallotProps = allBaseBallotProps(fixtureElection);
-  const rendererPool = await createPlaywrightRendererPool();
   const { election } = await layOutMinimalBallotsToCreateElectionDefinition(
     rendererPool,
     ballotTemplates.NhBallot,
@@ -220,28 +225,65 @@ test('ballot measure contests with additional options are transformed into candi
   ]);
 });
 
-const optionEncodingTestProps: Record<BallotTemplateId, BaseBallotProps> = {
+const templateSpecificTestProps: Record<BallotTemplateId, BaseBallotProps> = {
   VxDefaultBallot: vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
   NhBallot: nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
   MsBallot: msGeneralElectionFixtures.allBallotProps[0],
   MiBallot: miClosedPrimaryElectionFixtures.allBallotProps[0],
 };
-const optionEncodingTestCases = Object.entries(optionEncodingTestProps).map(
+const templateSpecificTestCases = Object.entries(templateSpecificTestProps).map(
   ([templateName, ballotProps]) => ({
     templateName: templateName as BallotTemplateId,
     ballotProps,
   })
 );
-test.each(optionEncodingTestCases)(
+
+test.each(templateSpecificTestCases)(
+  "returns contestTooLong error if contest doesn't fit on page - $templateName",
+  async ({ templateName, ballotProps }) => {
+    const { election, ballotStyleId } = ballotProps;
+    const ballotStyle = assertDefined(
+      getBallotStyle({ election, ballotStyleId })
+    );
+    const oversizedContest: CandidateContest = {
+      id: 'contest-oversized' as ContestId,
+      type: 'candidate',
+      districtId: ballotStyle.districts[0],
+      title: 'Oversized Contest',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: range(0, 100).map((i) => ({
+        id: `candidate-${i}`,
+        name: `Candidate ${i}`,
+      })),
+    };
+    const template = ballotTemplates[templateName];
+    const result = await rendererPool.runTask((renderer) =>
+      renderBallotTemplate(renderer, template, {
+        ...ballotProps,
+        election: {
+          ...election,
+          contests: [...election.contests, oversizedContest],
+        },
+      })
+    );
+    expect(result.err()).toEqual({
+      error: 'contestTooLong',
+      contest: oversizedContest,
+    });
+  }
+);
+
+test.each(templateSpecificTestCases)(
   'contest options are encoded correctly - $templateName',
   async ({ templateName, ballotProps }) => {
     const template = ballotTemplates[templateName];
-    const renderer = await createPlaywrightRenderer();
-    const document = (
-      await renderBallotTemplate(renderer, template, ballotProps)
-    ).unsafeUnwrap();
-    const content = await document.getContent();
-    await renderer.close();
+    const content = await rendererPool.runTask(async (renderer) => {
+      const document = (
+        await renderBallotTemplate(renderer, template, ballotProps)
+      ).unsafeUnwrap();
+      return document.getContent();
+    });
     const root = parseHtml(content);
 
     const candidateOptionElements = root.querySelectorAll(
