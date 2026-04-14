@@ -14,23 +14,24 @@ import {
   TestModeReportBanner,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
   Election,
   LiveReportVotingType,
   PollsTransitionType,
-  PrecinctSelection,
   Tabulation,
   ContestId,
 } from '@votingworks/types';
 import {
   formatFullDateTimeZone,
   getContestsForPrecinctAndElection,
+  getEmptyElectionResults,
   getPollsReportTitle,
-  getPrecinctSelectionName,
   groupContestsByParty,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { pollingPlacePrecinctIds } from '@votingworks/types';
 import styled from 'styled-components';
 import { processQrCodeReport } from './public_api';
 
@@ -91,10 +92,9 @@ function getTimestampLabel(pollsTransition: PollsTransitionType): string {
 interface ReportDetailsProps {
   ballotHash: string;
   machineId: string;
-  reportCreatedAt?: Date;
-  pollsTransitionTime?: Date;
+  pollsTransitionTime: Date;
   election: Election;
-  precinctSelection: PrecinctSelection;
+  pollingPlaceId?: string;
   votingType: LiveReportVotingType;
   pollsTransitionType: PollsTransitionType;
 }
@@ -102,29 +102,27 @@ interface ReportDetailsProps {
 function ReportDetails({
   ballotHash,
   machineId,
-  reportCreatedAt,
   pollsTransitionTime,
   election,
-  precinctSelection,
+  pollingPlaceId,
   votingType,
   pollsTransitionType,
 }: ReportDetailsProps): JSX.Element {
-  const precinctName = getPrecinctSelectionName(
-    election.precincts,
-    precinctSelection
+  const pollingPlace = election.pollingPlaces?.find(
+    (p) => p.id === pollingPlaceId
   );
 
-  const timestamp = pollsTransitionTime ?? reportCreatedAt;
-  const timestampLabel = pollsTransitionTime
-    ? getTimestampLabel(pollsTransitionType)
-    : 'Report Created At';
+  const timestamp = pollsTransitionTime;
+  const timestampLabel = getTimestampLabel(pollsTransitionType);
 
   return (
     <div>
       <ReportElectionInfo election={election} />
       <ReportMetadata>
         <ColumnSpan>
-          <LabeledValue label="Precinct" value={precinctName} />
+          {pollingPlace && (
+            <LabeledValue label="Polling Place" value={pollingPlace.name} />
+          )}
           {timestamp && (
             <LabeledValue
               label={timestampLabel}
@@ -210,10 +208,10 @@ function PollsOpenReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
-  precinctSelection,
+  pollingPlaceId,
   votingType,
   pollsTransitionType,
   ballotCount,
@@ -229,10 +227,9 @@ function PollsOpenReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
-          precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
@@ -251,10 +248,10 @@ function PollsPausedReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
-  precinctSelection,
+  pollingPlaceId,
   votingType,
   pollsTransitionType,
   ballotCount,
@@ -270,10 +267,9 @@ function PollsPausedReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
-          precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
@@ -292,10 +288,10 @@ function VotingResumedReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
-  precinctSelection,
+  pollingPlaceId,
   votingType,
   pollsTransitionType,
   ballotCount,
@@ -311,10 +307,9 @@ function VotingResumedReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
-          precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
@@ -333,10 +328,10 @@ function PollsClosedPartialReportConfirmation({
   ballotHash,
   machineId,
   isLive,
-  reportCreatedAt,
+
   pollsTransitionTime,
   election,
-  precinctSelection,
+  pollingPlaceId,
   votingType,
   pollsTransitionType,
   numPages,
@@ -361,10 +356,9 @@ function PollsClosedPartialReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
-          precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
@@ -373,31 +367,89 @@ function PollsClosedPartialReportConfirmation({
   );
 }
 
-function PollsClosedReportConfirmation({
-  ballotHash,
-  machineId,
-  isLive,
-  reportCreatedAt,
-  pollsTransitionTime,
+function PrecinctTallySection({
   election,
-  precinctSelection,
-  votingType,
-  pollsTransitionType,
+  precinctId,
+  precinctName,
   contestResults,
-}: ReportDetailsProps & {
-  contestResults: Record<ContestId, Tabulation.ContestResults>;
-  isLive: boolean;
+}: {
+  election: Election;
+  precinctId: string;
+  precinctName: string;
+  contestResults?: Record<ContestId, Tabulation.ContestResults>;
 }): JSX.Element {
-  const contestsForPrecinct = getContestsForPrecinctAndElection(
+  const precinctSelection = singlePrecinctSelectionFor(precinctId);
+  const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
   );
-  const contestsByParty = groupContestsByParty(election, contestsForPrecinct);
-  const reportTitle = getPollsReportTitle('close_polls');
+  const contestsByParty = groupContestsByParty(election, contests);
   const partyNamesById = election.parties.reduce<Record<string, string>>(
     (acc, party) => ({ ...acc, [party.id]: party.fullName }),
     {}
   );
+
+  // Use empty (zero) results for precincts with no transmitted data
+  const emptyResults = getEmptyElectionResults(election).contestResults;
+  const effectiveResults = contestResults ?? emptyResults;
+
+  return (
+    <div>
+      <h2>{precinctName}</h2>
+      {contestsByParty.map(({ partyId, contests: partyContests }) => (
+        <div key={partyId || 'nonpartisan'}>
+          {partyId && <h3>{partyNamesById[partyId]} Contests</h3>}
+          {!partyId && contestsByParty.length > 1 && (
+            <h3>Nonpartisan Contests</h3>
+          )}
+          <TallyReportColumns>
+            {partyContests.map((contest) => {
+              const currentContestResults = effectiveResults[contest.id];
+              if (!currentContestResults) return null;
+              return (
+                <ContestResultsTable
+                  key={contest.id}
+                  election={election}
+                  contest={contest}
+                  scannedContestResults={currentContestResults}
+                />
+              );
+            })}
+          </TallyReportColumns>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PollsClosedReportConfirmation({
+  ballotHash,
+  machineId,
+  isLive,
+
+  pollsTransitionTime,
+  election,
+  pollingPlaceId,
+  votingType,
+  pollsTransitionType,
+  contestResultsByPrecinct,
+}: ReportDetailsProps & {
+  contestResultsByPrecinct: Record<
+    string,
+    Record<ContestId, Tabulation.ContestResults>
+  >;
+  isLive: boolean;
+}): JSX.Element {
+  const reportTitle = getPollsReportTitle('close_polls');
+
+  // Determine which precincts to show: all precincts in the polling place
+  // (if configured), falling back to just the precincts with data.
+  const pollingPlace = election.pollingPlaces?.find(
+    (p) => p.id === pollingPlaceId
+  );
+  const pollingPlacePrecincts = pollingPlace
+    ? [...pollingPlacePrecinctIds(pollingPlace)]
+    : Object.keys(contestResultsByPrecinct);
 
   return (
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
@@ -406,38 +458,24 @@ function PollsClosedReportConfirmation({
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
-          reportCreatedAt={reportCreatedAt}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
-          precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
-        {contestsByParty.map(({ partyId, contests }) => (
-          <div key={partyId || 'nonpartisan'}>
-            {partyId && <h2>{partyNamesById[partyId]} Contests</h2>}
-            {!partyId && contestsByParty.length > 1 && (
-              <h2>Nonpartisan Contests</h2>
-            )}
-            <TallyReportColumns>
-              {contests.map((contest) => {
-                const currentContestResults = contestResults[contest.id];
-                assert(
-                  currentContestResults,
-                  `missing scanned results for contest ${contest.id}`
-                );
-                return (
-                  <ContestResultsTable
-                    key={contest.id}
-                    election={election}
-                    contest={contest}
-                    scannedContestResults={currentContestResults}
-                  />
-                );
-              })}
-            </TallyReportColumns>
-          </div>
-        ))}
+        {pollingPlacePrecincts.map((precinctId) => {
+          const precinct = election.precincts.find((p) => p.id === precinctId);
+          return (
+            <PrecinctTallySection
+              key={precinctId}
+              election={election}
+              precinctId={precinctId}
+              precinctName={precinct?.name ?? precinctId}
+              contestResults={contestResultsByPrecinct[precinctId]}
+            />
+          );
+        })}
       </MainContent>
     </ResultsScreen>
   );
@@ -538,10 +576,9 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
-          precinctSelection={reportData.precinctSelection}
+          pollingPlaceId={reportData.pollingPlaceId}
           ballotCount={reportData.ballotCount}
           votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
@@ -553,10 +590,9 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
-          precinctSelection={reportData.precinctSelection}
+          pollingPlaceId={reportData.pollingPlaceId}
           ballotCount={reportData.ballotCount}
           votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
@@ -568,10 +604,9 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
-          precinctSelection={reportData.precinctSelection}
+          pollingPlaceId={reportData.pollingPlaceId}
           ballotCount={reportData.ballotCount}
           votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
@@ -584,11 +619,10 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             ballotHash={reportData.ballotHash}
             machineId={reportData.machineId}
             isLive={reportData.isLive}
-            reportCreatedAt={reportData.reportCreatedAt}
             pollsTransitionTime={reportData.pollsTransitionTime}
             election={reportData.election}
-            precinctSelection={reportData.precinctSelection}
-            contestResults={reportData.contestResults}
+            pollingPlaceId={reportData.pollingPlaceId}
+            contestResultsByPrecinct={reportData.contestResultsByPrecinct}
             votingType={reportData.votingType}
             pollsTransitionType={reportData.pollsTransitionType}
           />
@@ -599,10 +633,9 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
-          reportCreatedAt={reportData.reportCreatedAt}
           pollsTransitionTime={reportData.pollsTransitionTime}
           election={reportData.election}
-          precinctSelection={reportData.precinctSelection}
+          pollingPlaceId={reportData.pollingPlaceId}
           numPages={reportData.numPages}
           pageIndex={reportData.pageIndex}
           votingType={reportData.votingType}
