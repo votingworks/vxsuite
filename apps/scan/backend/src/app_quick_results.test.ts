@@ -44,12 +44,14 @@ beforeEach(() => {
 });
 
 test('getQuickResultsReportingUrl returns expected results when system setting flag is set', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, workspace }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, {
       testMode: true,
       openPolls: true,
       electionPackage: electionPackageWithQuickResults,
     });
+    // Live results reporting requires a configured polling place
+    workspace.store.setPollingPlaceId('test-polling-place');
     expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
       pollsState: 'polls_open',
       lastPollsTransition: {

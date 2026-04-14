@@ -4,6 +4,7 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
+  PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
@@ -75,18 +76,12 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   [BallotType.Provisional]: 'provisional',
 };
 
-type ScannerResultsByParty = Tabulation.GroupList<Tabulation.ElectionResults>;
-
-export async function getScannerResults({
-  store,
-}: {
-  store: Store;
-}): Promise<ScannerResultsByParty> {
+function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
-  const cvrs = iter(store.forEachAcceptedSheet()).map((resultSheet) => {
+  return iter(store.forEachAcceptedSheet()).map((resultSheet) => {
     const [frontInterpretation, backInterpretation] =
       resultSheet.interpretation;
 
@@ -178,6 +173,18 @@ export async function getScannerResults({
         BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });
   });
+}
+
+type ScannerResultsByParty = Tabulation.GroupList<Tabulation.ElectionResults>;
+
+export async function getScannerResults({
+  store,
+}: {
+  store: Store;
+}): Promise<ScannerResultsByParty> {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const cvrs = buildCvrsFromStore(store);
 
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
@@ -202,4 +209,34 @@ export function getScannerResultsMemoized({
     store,
     store.getBallotsCounted()
   );
+}
+
+/**
+ * Returns per-precinct election results. For primary elections, results
+ * within each precinct are combined across parties.
+ */
+export async function getScannerResultsByPrecinct({
+  store,
+}: {
+  store: Store;
+}): Promise<Record<PrecinctId, Tabulation.ElectionResults>> {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const cvrs = buildCvrsFromStore(store);
+
+  const groupList = groupMapToGroupList(
+    await tabulateCastVoteRecords({
+      election,
+      groupBy: { groupByPrecinct: true },
+      cvrs,
+    })
+  );
+
+  const resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults> = {};
+  for (const result of groupList) {
+    assert(result.precinctId !== undefined);
+    resultsByPrecinct[result.precinctId] = result;
+  }
+
+  return resultsByPrecinct;
 }

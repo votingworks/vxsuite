@@ -13,7 +13,6 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  combineElectionResults,
   getPrecinctSelectionName,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
@@ -76,7 +75,7 @@ import {
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
 import { Player as AudioPlayer, SoundName } from './audio/player';
-import { getScannerResultsMemoized } from './util/results';
+import { getScannerResultsByPrecinct } from './util/results';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -662,8 +661,6 @@ export function buildApi({
     async getQuickResultsReportingUrl(): Promise<string[]> {
       const { machineId } = getMachineConfig();
       const { electionDefinition } = assertDefined(store.getElectionRecord());
-      const precinctSelection = store.getPrecinctSelection();
-      assert(precinctSelection !== undefined);
       const systemSettings = store.getSystemSettings();
       const pollsState = store.getPollsState();
       if (!systemSettings || !systemSettings.quickResultsReportingUrl) {
@@ -672,22 +669,26 @@ export function buildApi({
       if (!doesPollsStateSupportLiveReporting(pollsState)) {
         return [];
       }
+      // Live results reporting requires a configured polling place
+      // TODO (CARO) - Change to an assert when polling places are shipped
+      const pollingPlaceId = store.getPollingPlaceId();
+      /* istanbul ignore else - @preserve - temporary fallback while polling places is not shipped */
+      if (!pollingPlaceId) {
+        return [];
+      }
       const lastPollsTransition = store.getLastPollsTransition();
       assert(lastPollsTransition !== null);
-      const scannerResultsByParty = await getScannerResultsMemoized({ store });
 
-      const combinedResults = combineElectionResults({
-        election: electionDefinition.election,
-        allElectionResults: scannerResultsByParty,
-      });
+      const resultsByPrecinct = await getScannerResultsByPrecinct({ store });
+
       const signedQuickResultsReportingUrls =
         await generateSignedQuickResultsReportingUrl({
           electionDefinition,
           quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
           signingMachineId: machineId,
           isLiveMode: !store.getTestMode(),
-          precinctSelection,
-          results: combinedResults,
+          pollingPlaceId,
+          resultsByPrecinct,
           pollsTransitionType: lastPollsTransition.type,
           votingType: store.getBallotCastingMode(),
           pollsTransitionTimestamp: lastPollsTransition.time,
