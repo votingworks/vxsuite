@@ -256,9 +256,85 @@ test('fujitsu scanner does imprint as expected when given an imprint ID prefix',
     expect.arrayContaining(['--endorser=yes'])
   );
 
+  // Prefix is under the 34-char limit, so it is used as-is
   expect(exec).toHaveBeenCalledWith(
     'scanimage',
     expect.arrayContaining(['--endorser-string', 'TEST-BATCH-ID_%04ud'])
+  );
+});
+
+test('fujitsu scanner shortens UUID imprint prefix to first and last segments when it exceeds the limit', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  // UUID is 36 chars, which exceeds the 34-char limit, so it is shortened
+  // to the first and last hyphen-separated segments
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets({
+    imprintIdPrefix: 'b28733b5-dc01-4901-b433-ea179942993b',
+  });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string', 'b28733b5-ea179942993b_%04ud'])
+  );
+});
+
+test('fujitsu scanner passes through imprint prefix unchanged when it has no hyphens', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets({ imprintIdPrefix: 'SIMPLEBATCH' });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string', 'SIMPLEBATCH_%04ud'])
+  );
+});
+
+test('fujitsu scanner truncates imprint prefix to fit within endorser string limit', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  // 40-char prefix with no hyphens — truncated to 34 chars to leave room for '_%04ud'
+  const longPrefix = 'A'.repeat(40);
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets({ imprintIdPrefix: longPrefix });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string', `${'A'.repeat(34)}_%04ud`])
   );
 });
 
