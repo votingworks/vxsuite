@@ -8,6 +8,8 @@ import {
   MainContent,
   CheckboxButton,
   SearchSelect,
+  Modal,
+  P,
 } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import {
@@ -119,12 +121,15 @@ export function SystemSettingsForm({
   const [isEditing, setIsEditing] = useState(false);
   const [systemSettings, setSystemSettings] =
     useState<SystemSettings>(savedSystemSettings);
+  const [isConfirmingAmPollsCloseTime, setIsConfirmingAmPollsCloseTime] =
+    useState(false);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getResultsReportingUrlQuery = getResultsReportingUrl.useQuery();
 
   const maxCumulativeStreakWidthInputRef = useRef<HTMLInputElement>(null);
   const retryStreakWidthThresholdInputRef = useRef<HTMLInputElement>(null);
+  const electionDayPollsCloseTimeInputRef = useRef<HTMLInputElement>(null);
 
   function validateStreakSettings(settings: SystemSettings) {
     const parseResult = safeParse(SystemSettingsSchema, settings);
@@ -171,11 +176,33 @@ export function SystemSettingsForm({
   }
   const features = getUserFeaturesQuery.data;
 
-  function onSubmit() {
+  function validatePollsCloseTime(closeTime?: string) {
+    const input = electionDayPollsCloseTimeInputRef.current;
+    if (!input) return;
+    if (closeTime && new Date(closeTime) <= new Date()) {
+      input.setCustomValidity('Polls close time must be in the future.');
+    } else {
+      input.setCustomValidity('');
+    }
+  }
+
+  function saveSettings() {
     updateSystemSettingsMutation.mutate(
       { electionId, systemSettings },
       { onSuccess: () => setIsEditing(false) }
     );
+  }
+
+  function onSubmit() {
+    const { electionDayPollsCloseTime } = systemSettings;
+    if (electionDayPollsCloseTime) {
+      const hour = new Date(electionDayPollsCloseTime).getHours();
+      if (hour < 12) {
+        setIsConfirmingAmPollsCloseTime(true);
+        return;
+      }
+    }
+    saveSettings();
   }
 
   const adjudicationReasonOptions = [
@@ -215,6 +242,7 @@ export function SystemSettingsForm({
       onReset={(e) => {
         e.preventDefault();
         setSystemSettings(savedSystemSettings);
+        validatePollsCloseTime(savedSystemSettings.electionDayPollsCloseTime);
         setIsEditing(false);
       }}
     >
@@ -560,6 +588,61 @@ export function SystemSettingsForm({
           </Column>
         </Card>
         <Card>
+          <H2>Polls Close Time</H2>
+          <Column style={{ gap: '1.5rem' }}>
+            <InputGroup label="Election Day Polls Close Time">
+              <input
+                ref={electionDayPollsCloseTimeInputRef}
+                type="datetime-local"
+                aria-label="Election Day Polls Close Time"
+                value={
+                  systemSettings.electionDayPollsCloseTime?.slice(0, 16) ?? ''
+                }
+                onChange={(e) => {
+                  const closeTime = e.target.value
+                    ? `${e.target.value}:00`
+                    : undefined;
+                  validatePollsCloseTime(closeTime);
+                  setSystemSettings({
+                    ...systemSettings,
+                    electionDayPollsCloseTime: closeTime,
+                  });
+                }}
+                disabled={!isEditing}
+              />
+            </InputGroup>
+            <CheckboxButton
+              label="Disallow Closing Polls Before Election Day Polls Close Time"
+              isChecked={Boolean(
+                systemSettings.disallowClosingPollsBeforeElectionDayPollsCloseTime
+              )}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  disallowClosingPollsBeforeElectionDayPollsCloseTime: isChecked
+                    ? true
+                    : undefined,
+                })
+              }
+              disabled={!isEditing || !systemSettings.electionDayPollsCloseTime}
+            />
+            <CheckboxButton
+              label="Disallow VxAdmin Tabulation Before Election Day Polls Close Time"
+              isChecked={Boolean(
+                systemSettings.disallowVxAdminTabulationBeforeElectionDayPollsCloseTime
+              )}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  disallowVxAdminTabulationBeforeElectionDayPollsCloseTime:
+                    isChecked ? true : undefined,
+                })
+              }
+              disabled={!isEditing || !systemSettings.electionDayPollsCloseTime}
+            />
+          </Column>
+        </Card>
+        <Card>
           <H2>Other</H2>
           <Column style={{ gap: '1.5rem' }}>
             <CheckboxButton
@@ -770,6 +853,38 @@ export function SystemSettingsForm({
             Edit
           </Button>
         </FormActionsRow>
+      )}
+      {isConfirmingAmPollsCloseTime && (
+        <Modal
+          title="Polls Close Time Is In The Morning"
+          content={
+            <P>
+              The polls close time is set to the morning. Are you sure this is
+              correct?
+            </P>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                variant="primary"
+                icon="Done"
+                onPress={() => {
+                  setIsConfirmingAmPollsCloseTime(false);
+                  saveSettings();
+                }}
+              >
+                Save
+              </Button>
+              <Button onPress={() => setIsConfirmingAmPollsCloseTime(false)}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={
+            /* istanbul ignore next - @preserve */
+            () => setIsConfirmingAmPollsCloseTime(false)
+          }
+        />
       )}
     </Form>
   );
