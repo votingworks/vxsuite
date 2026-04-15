@@ -17,6 +17,12 @@ const debug = makeDebug('scan:scanner');
 export const FUJITSU_VENDOR_ID = 0x4c5;
 export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
 export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
+const SEQUENTIAL_BALLOT_ID_STRING = '_%04ud';
+// The fi-8950 silently fails to imprint if the --endorserString option
+// exceeds this character limit.
+const FI_8950_ENDORSER_STRING_CHAR_LIMIT = 40;
+const MAX_PREFIX_LENGTH =
+  FI_8950_ENDORSER_STRING_CHAR_LIMIT - SEQUENTIAL_BALLOT_ID_STRING.length;
 
 export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
   'attempted to set readonly option endorser';
@@ -163,13 +169,25 @@ export class FujitsuScanner implements BatchScanner {
       // streaming over USB and waiting for the bytes to cross the wire before
       // continuing. Verified that this improves performance with the fi-8170
       // from 1.3s to 0.8s per sheet along with `--prepick=ON`.
-      '--buffermode=ON',
+      // '--buffermode=ON',
     ];
 
     if (imprintIdPrefix !== undefined) {
+      // Truncate the prefix to a safe length. Then imprint the safe prefix
+      // followed by a sequential index for each page in the batch.
+      let safeImprintIdPrefix = imprintIdPrefix;
+      if (imprintIdPrefix.length > MAX_PREFIX_LENGTH) {
+        const idParts = imprintIdPrefix.split('-');
+        safeImprintIdPrefix = (
+          idParts.length > 1
+            ? `${idParts[0]}-${idParts.at(-1)}`
+            : imprintIdPrefix
+        ).substring(0, MAX_PREFIX_LENGTH);
+      }
+      const endorserString = `${safeImprintIdPrefix}${SEQUENTIAL_BALLOT_ID_STRING}`;
+
       args.push('--endorser=yes');
-      // Imprint the prefix followed by a sequential index for each page in the batch
-      args.push('--endorser-string', `${imprintIdPrefix}_%04ud`);
+      args.push('--endorser-string', endorserString);
     }
 
     /**
