@@ -1,5 +1,6 @@
 # Generated files — formatting is controlled by the generator, not prettier.
 **/.circleci/config.yml
+pnpm-lock.yaml
 .github/pull_request_template.md
 libs/logging-utils/index.d.ts
 libs/logging-utils/index.js
