@@ -1,5 +1,29 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`disallows enforcement flags without polls close time 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "disallowClosingPollsBeforeElectionDayPollsCloseTime"
+    ],
+    "message": "Election day polls close time must be set when disallowing closing polls before that time"
+  }
+]]
+`;
+
+exports[`disallows enforcement flags without polls close time 2`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "disallowVxAdminTabulationBeforeElectionDayPollsCloseTime"
+    ],
+    "message": "Election day polls close time must be set when disallowing VxAdmin tabulation before that time"
+  }
+]]
+`;
+
 exports[`disallows invalid adjudication reasons 1`] = `
 [ZodError: [
   {
