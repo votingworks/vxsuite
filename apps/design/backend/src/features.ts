@@ -155,6 +155,11 @@ export interface StateFeaturesConfig {
    * Hides the registered voter count fields in the precinct form.
    */
   DISABLE_REGISTERED_VOTERS_COUNTS?: boolean;
+  /**
+   * Allow creating open primary elections, where all parties' contests are on
+   * the same ballot rather than having a separate ballot for each party.
+   */
+  OPEN_PRIMARIES?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
@@ -194,7 +199,9 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     EDIT_POLLING_PLACES: true,
   },
 
-  MI: {},
+  MI: {
+    OPEN_PRIMARIES: true,
+  },
 
   MS: {
     AUDIO_ENABLED: true,
