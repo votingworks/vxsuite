@@ -8,6 +8,7 @@ import {
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
   readElectionGeneral,
@@ -946,6 +947,90 @@ export const miClosedPrimaryElectionFixtures = (() => {
           ...fishResult,
         },
       };
+    },
+  };
+})();
+
+export const miOpenPrimaryElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'mi-open-primary-election');
+  const electionPath = join(dir, 'election.json');
+
+  const election = electionOpenPrimaryFixtures.readElection();
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      election,
+      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+    })
+  );
+  const precinctId = assertDefined(ballotStyle.precincts[0]);
+  const allBallotProps = election.ballotStyles.flatMap((bs) =>
+    bs.precincts.map(
+      (pid): BaseBallotProps => ({
+        election,
+        ballotStyleId: bs.id,
+        precinctId: pid,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })
+    )
+  );
+
+  const contests = getContests({ election, ballotStyle });
+  const { votes } = createTestVotes(contests);
+
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  const markedBallotPath = join(dir, 'marked-ballot.pdf');
+
+  return {
+    dir,
+    electionPath,
+    allBallotProps,
+    blankBallotPath,
+    markedBallotPath,
+    ballotStyleId: ballotStyle.id,
+    precinctId,
+    votes,
+
+    async generate(rendererPool: RendererPool) {
+      const { ballotContents, electionDefinition } =
+        await layOutBallotsAndCreateElectionDefinition(
+          rendererPool,
+          miBallotTemplate,
+          allBallotProps,
+          'vxf'
+        );
+
+      const [blankBallotContents, ballotProps] = assertDefined(
+        iter(ballotContents)
+          .zip(allBallotProps)
+          .find(
+            ([, props]) =>
+              props.ballotStyleId === ballotStyle.id &&
+              props.precinctId === precinctId
+          )
+      );
+
+      return rendererPool.runTask(async (renderer) => {
+        const ballotDocument =
+          await renderer.loadDocumentFromContent(blankBallotContents);
+
+        debug(`Generating: ${blankBallotPath}`);
+        const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          ballotProps,
+          ballotDocument,
+          electionDefinition
+        );
+
+        debug(`Generating: ${markedBallotPath}`);
+        await markBallotDocument(ballotDocument, votes);
+        const markedBallotPdf = await ballotDocument.renderToPdf();
+
+        return {
+          electionDefinition,
+          blankBallotPdf,
+          markedBallotPdf,
+        };
+      });
     },
   };
 })();

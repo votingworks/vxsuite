@@ -321,6 +321,30 @@ test('getContests', () => {
       election: electionTwoPartyPrimary,
     }).map((c) => c.id)
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
+
+  // open primary (ballot styles have no partyId) — returns all contests
+  const openPrimaryElection: Election = {
+    ...electionTwoPartyPrimary,
+    ballotStyles: electionTwoPartyPrimary.ballotStyles.map((bs) => ({
+      ...bs,
+      partyId: undefined,
+    })),
+  };
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '1M' as BallotStyleId,
+        election: openPrimaryElection,
+      })!,
+      election: openPrimaryElection,
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'best-animal-fish',
+    'zoo-council-mammal',
+    'aquarium-council-fish',
+    'fishing',
+  ]);
 });
 
 test('getContestsFromIds', () => {
