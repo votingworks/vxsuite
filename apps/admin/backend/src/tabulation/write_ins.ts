@@ -14,11 +14,7 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
-import {
-  WriteInCandidateRecord,
-  WriteInForTally,
-  WriteInTally,
-} from '../types';
+import { WriteInForTally, WriteInTally } from '../types';
 import { Store } from '../store';
 import { extractWriteInSummary, tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
@@ -259,25 +255,46 @@ export function tabulateWriteInTallies({
       });
     }
     electionWriteInSummaryGroupMap[GROUP_KEY_ROOT] = electionWriteInSummary;
-    return electionWriteInSummaryGroupMap;
+  } else {
+    // general case, grouping results by specified group by clause
+    for (const writeIn of writeIns) {
+      const groupKey = getGroupKey(writeIn, groupBy);
+
+      const existingSummary = electionWriteInSummaryGroupMap[groupKey];
+      const summary =
+        existingSummary ?? getEmptyElectionWriteInSummary(election);
+
+      electionWriteInSummaryGroupMap[groupKey] =
+        addWriteInToElectionWriteInSummary({
+          store,
+          electionId,
+          electionDefinition,
+          electionWriteInSummary: summary,
+          writeIn,
+          includeUnallocablePendingWriteInsAsPending,
+        });
+    }
   }
 
-  // general case, grouping results by specified group by clause
-  for (const writeIn of writeIns) {
-    const groupKey = getGroupKey(writeIn, groupBy);
-
-    const existingSummary = electionWriteInSummaryGroupMap[groupKey];
-    const summary = existingSummary ?? getEmptyElectionWriteInSummary(election);
-
-    electionWriteInSummaryGroupMap[groupKey] =
-      addWriteInToElectionWriteInSummary({
-        store,
-        electionId,
-        electionDefinition,
-        electionWriteInSummary: summary,
-        writeIn,
-        includeUnallocablePendingWriteInsAsPending,
-      });
+  // In qualified mode, ensure all qualified candidates appear in summaries
+  // even if they have 0 votes
+  const systemSettings = store.getSystemSettings(electionId);
+  if (systemSettings.areWriteInCandidatesQualified) {
+    const qualifiedCandidates = store.getWriteInCandidates({ electionId });
+    for (const summary of Object.values(electionWriteInSummaryGroupMap)) {
+      for (const candidate of qualifiedCandidates) {
+        const contestSummary =
+          summary.contestWriteInSummaries[candidate.contestId];
+        if (contestSummary && !contestSummary.candidateTallies[candidate.id]) {
+          contestSummary.candidateTallies[candidate.id] = {
+            id: candidate.id,
+            name: candidate.name,
+            tally: 0,
+            isWriteIn: true,
+          };
+        }
+      }
+    }
   }
 
   return electionWriteInSummaryGroupMap;
@@ -292,8 +309,7 @@ export function tabulateWriteInTallies({
  */
 export function modifyElectionResultsWithWriteInSummary(
   results: Tabulation.ElectionResults,
-  writeInSummary: Tabulation.ElectionWriteInSummary,
-  qualifiedWriteInCandidates?: WriteInCandidateRecord[]
+  writeInSummary: Tabulation.ElectionWriteInSummary
 ): Tabulation.ElectionResults {
   const modifiedElectionResults: Tabulation.ElectionResults = {
     ...results,
@@ -348,24 +364,6 @@ export function modifyElectionResultsWithWriteInSummary(
         for (const writeInCandidateTally of writeInCandidateTallies) {
           modifiedCandidateTallies[writeInCandidateTally.id] =
             writeInCandidateTally;
-        }
-      }
-    }
-
-    // In qualified mode, ensure all qualified candidates appear in results
-    // even if they have 0 votes
-    if (qualifiedWriteInCandidates) {
-      for (const candidate of qualifiedWriteInCandidates) {
-        if (
-          candidate.contestId === contestId &&
-          !modifiedCandidateTallies[candidate.id]
-        ) {
-          modifiedCandidateTallies[candidate.id] = {
-            id: candidate.id,
-            name: candidate.name,
-            tally: 0,
-            isWriteIn: true,
-          };
         }
       }
     }

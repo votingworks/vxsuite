@@ -43,6 +43,7 @@ export interface AdminTallyReportProps {
   customFilter?: Admin.FrontendReportingFilter;
   scannerBatches?: LabeledScannerBatch[]; // Only needed when customFilter is present
   includeSignatureLines?: boolean;
+  aggregateInsignificantWriteIns?: boolean;
 }
 
 export function AdminTallyReport({
@@ -62,6 +63,7 @@ export function AdminTallyReport({
   customFilter,
   scannerBatches,
   includeSignatureLines,
+  aggregateInsignificantWriteIns,
 }: AdminTallyReportProps): JSX.Element {
   const { election } = electionDefinition;
   const cardCounts = cardCountsOverride ?? {
@@ -115,6 +117,7 @@ export function AdminTallyReport({
                 contest={contest}
                 scannedContestResults={scannedContestResults}
                 manualContestResults={manualContestResults}
+                aggregateInsignificantWriteIns={aggregateInsignificantWriteIns}
               />
             );
           })}

@@ -229,32 +229,10 @@ function buildApi({
 
   function getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
     const electionId = loadCurrentElectionIdOrThrow(workspace);
-    const summary = getOverallElectionWriteInSummary({
+    return getOverallElectionWriteInSummary({
       electionId,
       store,
     });
-
-    // In qualified mode, ensure all qualified candidates appear in the
-    // summary even if they have 0 votes
-    const systemSettings = store.getSystemSettings(electionId);
-    if (systemSettings.areWriteInCandidatesQualified) {
-      const candidates = store.getWriteInCandidates({ electionId });
-      for (const candidate of candidates) {
-        const contestSummary = assertDefined(
-          summary.contestWriteInSummaries[candidate.contestId]
-        );
-        if (!contestSummary.candidateTallies[candidate.id]) {
-          contestSummary.candidateTallies[candidate.id] = {
-            id: candidate.id,
-            name: candidate.name,
-            tally: 0,
-            isWriteIn: true,
-          };
-        }
-      }
-    }
-
-    return summary;
   }
 
   return grout.createApi({

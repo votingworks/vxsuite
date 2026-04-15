@@ -42,6 +42,7 @@ function buildTallyReport({
     electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
   const scannerBatches = store.getScannerBatches(electionId);
+  const { areWriteInCandidatesQualified } = store.getSystemSettings(electionId);
 
   const allReports: JSX.Element[] = [];
 
@@ -84,6 +85,7 @@ function buildTallyReport({
         customFilter: displayedFilter,
         includeSignatureLines,
         generatedAtTime: new Date(getCurrentTime()),
+        aggregateInsignificantWriteIns: !areWriteInCandidatesQualified,
       })
     );
   }

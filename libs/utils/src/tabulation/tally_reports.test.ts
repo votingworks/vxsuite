@@ -103,6 +103,65 @@ test('getTallyReportRows - no aggregation', () => {
   ]);
 });
 
+test('getTallyReportRows - no aggregation emits zero-tally write-in candidates even when winners have votes', () => {
+  // Regression guard for qualified-write-in mode: a qualified candidate
+  // adjudicated to 0 votes must still appear as its own row rather than being
+  // bucketed into an (empty, and therefore dropped) "Other Write-In" row.
+  // This is the case where aggregation would hide the candidate because
+  // leastNumberVotesForWinner > 0 and tally 0 falls below the threshold.
+  const scannedContestResults = buildContestResultsFixture({
+    contest,
+    includeGenericWriteIn: false,
+    contestResultsSummary: {
+      type: 'candidate',
+      ballots: 100,
+      officialOptionTallies: {
+        zebra: 50,
+        lion: 30,
+        kangaroo: 10,
+        elephant: 5,
+      },
+      writeInOptionTallies: {
+        'qualified-writein': {
+          name: 'Qualified Candidate',
+          tally: 0,
+        },
+      },
+    },
+  }) as Tabulation.CandidateContestResults;
+
+  expect(
+    getTallyReportCandidateRows({
+      contest,
+      scannedContestResults,
+      aggregateInsignificantWriteIns: false,
+    }).map(shorthandTallyReportCandidateRow)
+  ).toEqual([
+    ['zebra', 'Zebra', 50, 0],
+    ['lion', 'Lion', 30, 0],
+    ['kangaroo', 'Kangaroo', 10, 0],
+    ['elephant', 'Elephant', 5, 0],
+    ['qualified-writein', 'Qualified Candidate (Write-In)', 0, 0],
+  ]);
+
+  // Contrast: with aggregation, the same 0-tally write-in is dropped — the
+  // qualified candidate's name no longer appears. The report falls back to a
+  // generic "Write-In" placeholder row.
+  expect(
+    getTallyReportCandidateRows({
+      contest,
+      scannedContestResults,
+      aggregateInsignificantWriteIns: true,
+    }).map(shorthandTallyReportCandidateRow)
+  ).toEqual([
+    ['zebra', 'Zebra', 50, 0],
+    ['lion', 'Lion', 30, 0],
+    ['kangaroo', 'Kangaroo', 10, 0],
+    ['elephant', 'Elephant', 5, 0],
+    ['write-in', 'Write-In', 0, 0],
+  ]);
+});
+
 describe('getTallyReportRows - aggregating insignificant write-ins', () => {
   const preAdjudicationScannedContestResults: Tabulation.CandidateContestResults =
     buildContestResultsFixture({
