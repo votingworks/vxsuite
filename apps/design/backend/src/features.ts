@@ -194,6 +194,8 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     EDIT_POLLING_PLACES: true,
   },
 
+  MI: {},
+
   MS: {
     AUDIO_ENABLED: true,
     EXPORT_TEST_BALLOTS: true,

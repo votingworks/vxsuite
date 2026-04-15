@@ -137,6 +137,7 @@ import {
   msJurisdiction,
   nonVxOrganizationUser,
   supportUser,
+  miJurisdiction,
 } from '../test/mocks';
 import {
   SLI_DEFAULT_SYSTEM_SETTINGS,
@@ -4706,6 +4707,7 @@ test('listJurisdictions', async () => {
   auth0.setLoggedInUser(nonVxOrganizationUser);
   expect(await apiClient.listJurisdictions()).toEqual([
     anotherNonVxJurisdiction,
+    miJurisdiction,
     msJurisdiction,
     nhJurisdiction,
     nonVxJurisdiction,
@@ -4740,6 +4742,9 @@ test('feature configs and default system settings', async () => {
   expect(
     await apiClient.getSystemSettings({ electionId: vxElectionId })
   ).toEqual(stateDefaultSystemSettings.DEMO);
+  expect(
+    await apiClient.getBallotTemplate({ electionId: vxElectionId })
+  ).toEqual('VxDefaultBallot');
 
   const sliElectionId = (
     await apiClient.createElection({
@@ -4753,6 +4758,9 @@ test('feature configs and default system settings', async () => {
   expect(
     await apiClient.getSystemSettings({ electionId: sliElectionId })
   ).toEqual(SLI_DEFAULT_SYSTEM_SETTINGS);
+  expect(
+    await apiClient.getBallotTemplate({ electionId: sliElectionId })
+  ).toEqual('VxDefaultBallot');
 
   const nhElectionId = (
     await apiClient.createElection({
@@ -4766,6 +4774,9 @@ test('feature configs and default system settings', async () => {
   expect(
     await apiClient.getSystemSettings({ electionId: nhElectionId })
   ).toEqual(stateDefaultSystemSettings.NH);
+  expect(
+    await apiClient.getBallotTemplate({ electionId: nhElectionId })
+  ).toEqual('NhBallot');
 
   const msElectionId = (
     await apiClient.createElection({
@@ -4773,13 +4784,31 @@ test('feature configs and default system settings', async () => {
       jurisdictionId: msJurisdiction.id,
     })
   ).unsafeUnwrap();
-
   expect(
     await apiClient.getStateFeatures({ electionId: msElectionId })
   ).toEqual(stateFeatureConfigs.MS);
   expect(
     await apiClient.getSystemSettings({ electionId: msElectionId })
   ).toEqual(stateDefaultSystemSettings.MS);
+  expect(
+    await apiClient.getBallotTemplate({ electionId: msElectionId })
+  ).toEqual('MsBallot');
+
+  const miElectionId = (
+    await apiClient.createElection({
+      id: 'mi-election-id' as ElectionId,
+      jurisdictionId: miJurisdiction.id,
+    })
+  ).unsafeUnwrap();
+  expect(
+    await apiClient.getStateFeatures({ electionId: miElectionId })
+  ).toEqual(stateFeatureConfigs.MI);
+  expect(
+    await apiClient.getSystemSettings({ electionId: miElectionId })
+  ).toEqual(stateDefaultSystemSettings.MI);
+  expect(
+    await apiClient.getBallotTemplate({ electionId: miElectionId })
+  ).toEqual('MiBallot');
 });
 
 test('getResultsReportingUrl', async () => {

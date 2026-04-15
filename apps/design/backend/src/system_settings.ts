@@ -54,6 +54,27 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     quickResultsReportingUrl: resultsReportingUrl(),
   },
 
+  MI: {
+    ...commonSettings,
+    ...commonCustomerSettings,
+
+    markThresholds: DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
+    ],
+    disallowCastingOvervotes: false,
+    centralScanAdjudicationReasons: [],
+    adminAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
+      AdjudicationReason.MarginalMark,
+    ],
+
+    bmdPrintMode: 'bubble_ballot',
+  },
+
   MS: {
     ...commonSettings,
     ...commonCustomerSettings,

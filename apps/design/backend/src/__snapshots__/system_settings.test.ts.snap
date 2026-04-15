@@ -39,6 +39,42 @@ exports[`Default system settings for 'DEMO' - If a change is intentional, update
 }
 `;
 
+exports[`Default system settings for 'MI' - If a change is intentional, update snapshot 1`] = `
+{
+  "adminAdjudicationReasons": [
+    "Overvote",
+    "BlankBallot",
+    "MarginalMark",
+  ],
+  "auth": {
+    "arePollWorkerCardPinsEnabled": false,
+    "inactiveSessionTimeLimitMinutes": 30,
+    "numIncorrectPinAttemptsAllowedBeforeCardLockout": 5,
+    "overallSessionTimeLimitHours": 12,
+    "startingCardLockoutDurationSeconds": 15,
+  },
+  "bmdPrintMode": "bubble_ballot",
+  "centralScanAdjudicationReasons": [],
+  "disableSystemLimitChecks": true,
+  "disableVoterHelpButtons": true,
+  "disallowCastingOvervotes": false,
+  "markThresholds": {
+    "definite": 0.1,
+    "marginal": 0.05,
+    "writeInTextArea": 0.05,
+  },
+  "maxCumulativeStreakWidth": 5,
+  "precinctScanAdjudicationReasons": [
+    "Overvote",
+    "BlankBallot",
+  ],
+  "precinctScanDisableAlarms": true,
+  "precinctScanDisableScreenReaderAudio": true,
+  "precinctScanEnableBmdBallotScanning": true,
+  "retryStreakWidthThreshold": 1,
+}
+`;
+
 exports[`Default system settings for 'MS' - If a change is intentional, update snapshot 1`] = `
 {
   "adminAdjudicationReasons": [],
