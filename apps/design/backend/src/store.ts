@@ -89,6 +89,7 @@ import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
 import { generateId } from './utils';
 import { getStateFeaturesConfig } from './features';
+import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
 
 export interface ElectionRecord {
   jurisdictionId: string;
@@ -2991,6 +2992,66 @@ export class Store {
       )
     );
     return !!rows.rowCount;
+  }
+
+  /**
+   * Returns all polls transition reports for the election, ordered by
+   * timestamp descending. Used for the activity log. Optionally filtered
+   * to a specific polling place voting group.
+   */
+  async getAllReportsForElection(
+    ballotHash: string,
+    isLive: boolean,
+    votingGroup?: PollingPlaceType
+  ): Promise<QuickReportedPollStatus[]> {
+    const queryParams: Array<string | boolean | number> = [
+      ballotHash,
+      isLive,
+      MAX_LIVE_REPORT_ACTIVITY_ITEMS,
+    ];
+    let pollingPlaceJoin = '';
+    let pollingPlaceWhereClause = '';
+    if (votingGroup) {
+      queryParams.push(votingGroup);
+      pollingPlaceJoin =
+        'inner join polling_places on polling_places.id = results_reports.polling_place_id';
+      pollingPlaceWhereClause = 'and polling_places.type = $4';
+    }
+
+    const rows = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              results_reports.polls_transition as "pollsTransitionType",
+              results_reports.machine_id as "machineId",
+              results_reports.signed_at as "signedAt",
+              results_reports.polling_place_id as "pollingPlaceId"
+            from results_reports
+            ${pollingPlaceJoin}
+            where
+              results_reports.ballot_hash = $1 and
+              results_reports.is_live_mode = $2
+              ${pollingPlaceWhereClause}
+            order by results_reports.signed_at desc
+            limit $3
+          `,
+          ...queryParams
+        )
+      )
+    ).rows as Array<{
+      pollsTransitionType: string;
+      machineId: string;
+      pollingPlaceId: string;
+      signedAt: Date;
+    }>;
+
+    return rows.map((row) => ({
+      machineId: row.machineId,
+      pollingPlaceId: row.pollingPlaceId,
+      signedTimestamp: row.signedAt,
+      pollsTransitionType: row.pollsTransitionType as PollsTransitionType,
+    }));
   }
 
   /**

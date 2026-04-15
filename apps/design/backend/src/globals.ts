@@ -200,3 +200,8 @@ export const WORKSPACE =
  * The max Postgres index key size is 8191 bytes, so this leaves a little buffer.
  */
 export const MAX_POSTGRES_INDEX_KEY_BYTES = 8000;
+
+/**
+ * Maximum number of activity log items returned in the live reports summary.
+ */
+export const MAX_LIVE_REPORT_ACTIVITY_ITEMS = 50;
