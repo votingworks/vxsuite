@@ -27,8 +27,12 @@ async function getReadinessReport({
   const { store } = workspace;
   const electionRecord = store.getElectionRecord();
   const { electionDefinition, electionPackageHash } = electionRecord ?? {};
+  const precinctSelection = store.getPrecinctSelection();
+  const pollingPlaceId = store.getPollingPlaceId();
 
   return PrintReadinessReport({
+    precinctSelection,
+    pollingPlaceId,
     batteryInfo:
       (await getBatteryInfo({ logger })) ??
       /* istanbul ignore next - @preserve */
