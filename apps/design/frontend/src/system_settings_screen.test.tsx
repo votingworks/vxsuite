@@ -950,6 +950,66 @@ describe('election day polls close time', () => {
     const updatedSettings: SystemSettings = {
       ...initialSettings,
       electionDayPollsCloseTime: undefined,
+      disallowClosingPollsBeforeElectionDayPollsCloseTime: undefined,
+      disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: undefined,
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: updatedSettings })
+      .resolves();
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(updatedSettings);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByRole('button', { name: 'Edit' });
+  });
+
+  test('clearing close time also unchecks enforcement options', async () => {
+    const initialSettings: SystemSettings = {
+      ...electionRecord.systemSettings,
+      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+      disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
+    };
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(initialSettings);
+    renderScreen();
+    await screen.findByRole('heading', { name: 'System Settings' });
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Disallow Closing Polls Before Election Day Polls Close Time',
+      })
+    ).toBeChecked();
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Disallow VxAdmin Tabulation Before Election Day Polls Close Time',
+      })
+    ).toBeChecked();
+
+    fireEvent.change(screen.getByLabelText('Election Day Polls Close Time'), {
+      target: { value: '' },
+    });
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Disallow Closing Polls Before Election Day Polls Close Time',
+      })
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Disallow VxAdmin Tabulation Before Election Day Polls Close Time',
+      })
+    ).not.toBeChecked();
+
+    const updatedSettings: SystemSettings = {
+      ...initialSettings,
+      electionDayPollsCloseTime: undefined,
+      disallowClosingPollsBeforeElectionDayPollsCloseTime: undefined,
+      disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: undefined,
     };
     apiMock.updateSystemSettings
       .expectCallWith({ electionId, systemSettings: updatedSettings })

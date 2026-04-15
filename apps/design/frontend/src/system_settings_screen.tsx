@@ -608,6 +608,14 @@ export function SystemSettingsForm({
                   setSystemSettings({
                     ...systemSettings,
                     electionDayPollsCloseTime: closeTime,
+                    ...(closeTime === undefined
+                      ? {
+                          disallowClosingPollsBeforeElectionDayPollsCloseTime:
+                            undefined,
+                          disallowVxAdminTabulationBeforeElectionDayPollsCloseTime:
+                            undefined,
+                        }
+                      : {}),
                   });
                 }}
                 disabled={!isEditing}
