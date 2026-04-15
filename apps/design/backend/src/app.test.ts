@@ -3471,6 +3471,10 @@ test('Election package and ballots export', async () => {
   const expectedElectionWithoutBallotStrings: Election = {
     ...electionWithLegalPaper,
     id: electionId,
+    county: {
+      ...electionWithLegalPaper.county,
+      id: `${electionId}-county`,
+    },
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
     // definition
     ballotStyles,
