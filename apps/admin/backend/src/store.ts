@@ -1924,8 +1924,8 @@ export class Store implements BaseStore {
       id
     ) as Array<{ cvrId: Id; contestId: string }>;
 
-    // Delete the candidate — ON DELETE SET NULL on the FK resets
-    // write_in_candidate_id back to null (pending) automatically
+    // Delete the candidate — which resets the write-in record's
+    // write_in_candidate_id back to pending automatically
     this.client.run(`delete from write_in_candidates where id = ?`, id);
 
     // For each affected CVR, clear adjudicated votes for the contest and
@@ -1933,6 +1933,21 @@ export class Store implements BaseStore {
     const affectedCvrIds = new Set<Id>();
     for (const { cvrId, contestId } of affectedWriteIns) {
       affectedCvrIds.add(cvrId);
+
+      // Reset all write-ins in this CVR-contest to pending
+      this.client.run(
+        `
+          update write_ins
+          set
+            write_in_candidate_id = null,
+            official_candidate_id = null,
+            is_invalid = 0
+          where cvr_id = ? and contest_id = ?
+        `,
+        cvrId,
+        contestId
+      );
+
       const row = this.client.one(
         `select adjudicated_votes from cvrs where id = ?`,
         cvrId

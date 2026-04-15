@@ -300,6 +300,132 @@ test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
   );
 });
 
+test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-contest, not just those adjudicated for the deleted candidate', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // CVR has two write-ins on a single multi-seat contest (zoo-council-mammal
+  // has 3 seats, so up to 3 write-in slots per ballot).
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': ['write-in-0', 'write-in-1'] },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  const alice = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Alice',
+  });
+  const bob = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Bob',
+  });
+
+  // Adjudicate write-in-0 → Alice (the to-be-deleted candidate) and
+  // write-in-1 → Bob (the candidate that will remain).
+  const allFalse: Record<ContestOptionId, AdjudicatedContestOption> = {
+    kangaroo: { type: 'candidate-option', hasVote: false },
+    elephant: { type: 'candidate-option', hasVote: false },
+    lion: { type: 'candidate-option', hasVote: false },
+    zebra: { type: 'candidate-option', hasVote: false },
+    'write-in-0': { type: 'write-in-option', hasVote: false },
+    'write-in-1': { type: 'write-in-option', hasVote: false },
+    'write-in-2': { type: 'write-in-option', hasVote: false },
+  };
+  adjudicateCvrContest(
+    {
+      adjudicatedContestOptionById: {
+        ...allFalse,
+        'write-in-0': {
+          type: 'write-in-option',
+          hasVote: true,
+          candidateType: 'write-in-candidate',
+          candidateName: 'Alice',
+        },
+        'write-in-1': {
+          type: 'write-in-option',
+          hasVote: true,
+          candidateType: 'write-in-candidate',
+          candidateName: 'Bob',
+        },
+      },
+      cvrId,
+      contestId,
+      side: 'front',
+    },
+    store,
+    logger
+  );
+
+  // Sanity: both write-ins are now adjudicated for their respective candidates.
+  const writeInsBefore = store.getWriteInRecords({
+    electionId,
+    castVoteRecordId: cvrId,
+    contestId,
+  });
+  const aliceWriteInBefore = writeInsBefore.find(
+    (wi) => wi.optionId === 'write-in-0'
+  );
+  const bobWriteInBefore = writeInsBefore.find(
+    (wi) => wi.optionId === 'write-in-1'
+  );
+  assert(
+    aliceWriteInBefore?.status === 'adjudicated' &&
+      aliceWriteInBefore.adjudicationType === 'write-in-candidate' &&
+      aliceWriteInBefore.candidateId === alice.id
+  );
+  assert(
+    bobWriteInBefore?.status === 'adjudicated' &&
+      bobWriteInBefore.adjudicationType === 'write-in-candidate' &&
+      bobWriteInBefore.candidateId === bob.id
+  );
+
+  // Delete Alice. The CVR-contest is going to be re-adjudicated as a whole
+  // (adjudicated_votes is cleared for this contest), so both write-ins must
+  // also reset to pending to keep the write_ins table consistent. Otherwise
+  // the re-adjudication UI would show write-in-1 as already adjudicated
+  // while the CVR says nothing is adjudicated for this contest.
+  const affectedBallotCount = store.deleteQualifiedWriteInCandidate(alice.id);
+  expect(affectedBallotCount).toEqual(1);
+
+  const writeInsAfter = store.getWriteInRecords({
+    electionId,
+    castVoteRecordId: cvrId,
+    contestId,
+  });
+  const aliceWriteInAfter = writeInsAfter.find(
+    (wi) => wi.optionId === 'write-in-0'
+  );
+  const bobWriteInAfter = writeInsAfter.find(
+    (wi) => wi.optionId === 'write-in-1'
+  );
+  expect(aliceWriteInAfter?.status).toEqual('pending');
+  expect(bobWriteInAfter?.status).toEqual('pending');
+});
+
 test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
