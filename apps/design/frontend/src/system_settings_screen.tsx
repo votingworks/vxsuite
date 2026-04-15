@@ -121,8 +121,10 @@ export function SystemSettingsForm({
   const [isEditing, setIsEditing] = useState(false);
   const [systemSettings, setSystemSettings] =
     useState<SystemSettings>(savedSystemSettings);
-  const [isConfirmingAmPollsCloseTime, setIsConfirmingAmPollsCloseTime] =
-    useState(false);
+  const [
+    isConfirmingMorningPollsCloseTime,
+    setIsConfirmingMorningPollsCloseTime,
+  ] = useState(false);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getResultsReportingUrlQuery = getResultsReportingUrl.useQuery();
@@ -198,7 +200,7 @@ export function SystemSettingsForm({
     if (electionDayPollsCloseTime) {
       const hour = new Date(electionDayPollsCloseTime).getHours();
       if (hour < 12) {
-        setIsConfirmingAmPollsCloseTime(true);
+        setIsConfirmingMorningPollsCloseTime(true);
         return;
       }
     }
@@ -854,7 +856,7 @@ export function SystemSettingsForm({
           </Button>
         </FormActionsRow>
       )}
-      {isConfirmingAmPollsCloseTime && (
+      {isConfirmingMorningPollsCloseTime && (
         <Modal
           title="Polls Close Time Is In The Morning"
           content={
@@ -869,20 +871,22 @@ export function SystemSettingsForm({
                 variant="primary"
                 icon="Done"
                 onPress={() => {
-                  setIsConfirmingAmPollsCloseTime(false);
+                  setIsConfirmingMorningPollsCloseTime(false);
                   saveSettings();
                 }}
               >
                 Save
               </Button>
-              <Button onPress={() => setIsConfirmingAmPollsCloseTime(false)}>
+              <Button
+                onPress={() => setIsConfirmingMorningPollsCloseTime(false)}
+              >
                 Cancel
               </Button>
             </React.Fragment>
           }
           onOverlayClick={
             /* istanbul ignore next - @preserve */
-            () => setIsConfirmingAmPollsCloseTime(false)
+            () => setIsConfirmingMorningPollsCloseTime(false)
           }
         />
       )}

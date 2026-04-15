@@ -1025,10 +1025,13 @@ describe('election day polls close time', () => {
       'Election Day Polls Close Time'
     );
 
-    // Set a time that is clearly in the past
     fireEvent.change(input, { target: { value: '2000-01-01T08:00' } });
     expect(input.validity.valid).toEqual(false);
     expect(input.validationMessage).toContain('must be in the future');
+
+    // Form submission is blocked — updateSystemSettings should never be called
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    // (apiMock.assertComplete() in afterEach will catch any unexpected calls)
   });
 });
 
