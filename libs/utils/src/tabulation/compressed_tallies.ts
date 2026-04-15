@@ -149,7 +149,7 @@ export function compressAndEncodeTally({
  */
 export function buildPrecinctBitmap(
   election: Election,
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>
 ): Uint16Array {
   const numWords = Math.ceil(election.precincts.length / UINT16_BITS);
   const bitmap = new Uint16Array(numWords); // initialized to 0
@@ -200,7 +200,7 @@ export function compressAndEncodePerPrecinctTally({
   numPages,
 }: {
   election: Election;
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>;
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>;
   numPages: number;
 }): string[] {
   const bitmap = buildPrecinctBitmap(election, resultsByPrecinct);
@@ -514,10 +514,10 @@ export function decodeAndReadPerPrecinctCompressedTally({
 }
 
 /**
- * Splits a V1 per-precinct tally blob into individual V0 tally blobs,
+ * Splits a per-precinct tally blob into individual single-precinct tally blobs,
  * one per precinct. Returns the list for storage as separate rows.
  */
-export function splitV1TallyIntoPerPrecinctV0(
+export function splitPerPrecinctTallyIntoSinglePrecinctTallies(
   election: Election,
   encodedTally: string
 ): Array<{ precinctId: PrecinctId; encodedTally: string }> {

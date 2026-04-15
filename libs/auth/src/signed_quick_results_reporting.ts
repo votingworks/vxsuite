@@ -42,7 +42,7 @@ interface SignedQuickResultsReportingInput {
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   quickResultsReportingUrl: string;
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>;
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>;
   signingMachineId: string;
   pollingPlaceId: string;
   pollsTransitionType: PollsTransitionType;
@@ -294,12 +294,13 @@ async function signAndBuildUrl(
  * Computes the total ballot count from per-precinct results.
  */
 function getTotalBallotCount(
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>
 ): number {
   let total = 0;
   for (const results of Object.values(resultsByPrecinct)) {
-    if (!results) continue;
-    total += getBallotCount(results.cardCounts);
+    if (results) {
+      total += getBallotCount(results.cardCounts);
+    }
   }
   return total;
 }

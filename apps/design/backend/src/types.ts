@@ -5,6 +5,7 @@ import {
   Election,
   ContestId,
   LiveReportVotingType,
+  PrecinctId,
   PollsTransitionType,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
@@ -147,7 +148,10 @@ export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: false;
-  contestResultsByPrecinct: Record<string, Record<ContestId, ContestResults>>;
+  contestResultsByPrecinct: Record<
+    PrecinctId,
+    Record<ContestId, ContestResults>
+  >;
 }
 
 export type ReceivedReportInfo =

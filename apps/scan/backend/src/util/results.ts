@@ -211,7 +211,7 @@ export function getScannerResultsMemoized({
   );
 }
 
-async function getScannerResultsByPrecinctUncached({
+async function getScannerResultsByPrecinct({
   store,
 }: {
   store: Store;
@@ -237,10 +237,9 @@ async function getScannerResultsByPrecinctUncached({
   return resultsByPrecinct;
 }
 
-const getScannerResultsByPrecinctMemoized = memoizeOne(
+const getScannerResultsByPrecinctMemoizedByBallotCount = memoizeOne(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (store: Store, _ballotCount: number) =>
-    getScannerResultsByPrecinctUncached({ store })
+  (store: Store, _ballotCount: number) => getScannerResultsByPrecinct({ store })
 );
 
 /**
@@ -248,10 +247,13 @@ const getScannerResultsByPrecinctMemoized = memoizeOne(
  * For primary elections, results within each precinct are combined
  * across parties.
  */
-export function getScannerResultsByPrecinct({
+export function getScannerResultsByPrecinctMemoized({
   store,
 }: {
   store: Store;
 }): Promise<Record<PrecinctId, Tabulation.ElectionResults>> {
-  return getScannerResultsByPrecinctMemoized(store, store.getBallotsCounted());
+  return getScannerResultsByPrecinctMemoizedByBallotCount(
+    store,
+    store.getBallotsCounted()
+  );
 }

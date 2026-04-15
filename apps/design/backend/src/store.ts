@@ -3050,13 +3050,9 @@ export class Store {
     machinesReporting: string[];
   }> {
     let precinctWhereClause = '';
-    const queryParams: Array<string | boolean> = [
-      electionBallotHash,
-      election.id,
-      isLive,
-    ];
+    const queryParams: Array<string | boolean> = [electionBallotHash, isLive];
     if (precinctSelection.kind === 'SinglePrecinct') {
-      precinctWhereClause = 'and precinct_id = $4';
+      precinctWhereClause = 'and precinct_id = $3';
       queryParams.push(precinctSelection.precinctId);
     }
     const rows = (
@@ -3070,8 +3066,7 @@ export class Store {
             from results_report_tallies
             where
               ballot_hash = $1 and
-              election_id = $2 and
-              is_live_mode = $3
+              is_live_mode = $2
               ${precinctWhereClause}
             order by signed_at desc
           `,

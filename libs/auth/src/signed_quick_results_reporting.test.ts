@@ -47,14 +47,15 @@ const vxScanTestConfig: SignedQuickResultsReportingConfig = {
 };
 
 const electionDefinition = electionGeneralFixtures.readElectionDefinition();
-const mockedResultsByPrecinct: Partial<
-  Record<string, Tabulation.ElectionResults>
-> = {
+const mockedResultsByPrecinct: Record<string, Tabulation.ElectionResults> = {
   'precinct-1': {
     contestResults: {},
     cardCounts: { bmd: [10], hmpb: [5] },
   },
-  'precinct-2': undefined,
+  'precinct-2': {
+    contestResults: {},
+    cardCounts: { bmd: [], hmpb: [] },
+  },
 };
 
 test.each<{ isLiveMode: boolean }>([

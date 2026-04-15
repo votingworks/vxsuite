@@ -25,7 +25,7 @@ import {
   readV0CompressedTallyAsContestResults,
   decodeAndReadPerPrecinctCompressedTally,
   readPrecinctBitmap,
-  splitV1TallyIntoPerPrecinctV0,
+  splitPerPrecinctTallyIntoSinglePrecinctTallies,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -554,9 +554,7 @@ describe('precinct bitmap', () => {
     const election = readElectionGeneral();
     const precinctIds = election.precincts.map((p) => p.id);
     const selectedIds = [precinctIds[0], precinctIds[2]];
-    const resultsByPrecinct: Partial<
-      Record<string, Tabulation.ElectionResults>
-    > = {};
+    const resultsByPrecinct: Record<string, Tabulation.ElectionResults> = {};
     for (const id of selectedIds) {
       assert(id !== undefined);
       resultsByPrecinct[id] = getEmptyElectionResults(election);
@@ -576,9 +574,7 @@ describe('precinct bitmap', () => {
 
   test('buildPrecinctBitmap with all precincts sets all bits', () => {
     const election = readElectionGeneral();
-    const resultsByPrecinct: Partial<
-      Record<string, Tabulation.ElectionResults>
-    > = {};
+    const resultsByPrecinct: Record<string, Tabulation.ElectionResults> = {};
     for (const precinct of election.precincts) {
       resultsByPrecinct[precinct.id] = getEmptyElectionResults(election);
     }
@@ -738,7 +734,7 @@ describe('per-precinct tally encoding (V1)', () => {
     }
   });
 
-  test('splitV1TallyIntoPerPrecinctV0 produces valid V0 tallies', () => {
+  test('splitPerPrecinctTallyIntoSinglePrecinctTallies produces valid V0 tallies', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
     const precinct1Id = '6522';
@@ -775,7 +771,7 @@ describe('per-precinct tally encoding (V1)', () => {
       numPages: 1,
     });
 
-    const splits = splitV1TallyIntoPerPrecinctV0(
+    const splits = splitPerPrecinctTallyIntoSinglePrecinctTallies(
       electionEitherNeither,
       assertDefined(encoded[0])
     );

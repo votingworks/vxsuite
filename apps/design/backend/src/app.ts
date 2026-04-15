@@ -68,7 +68,7 @@ import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import {
   getExportedCastVoteRecordIds,
-  splitV1TallyIntoPerPrecinctV0,
+  splitPerPrecinctTallyIntoSinglePrecinctTallies,
   decodeAndReadPerPrecinctCompressedTally,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
@@ -1338,10 +1338,11 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           const combinedBuffer = Buffer.concat(allBuffers);
           const allEncoded = combinedBuffer.toString('base64url');
 
-          const perPrecinctTallies = splitV1TallyIntoPerPrecinctV0(
-            election,
-            allEncoded
-          );
+          const perPrecinctTallies =
+            splitPerPrecinctTallyIntoSinglePrecinctTallies(
+              election,
+              allEncoded
+            );
 
           // Save the final assembled report.
           await store.saveQuickResultsReportingTally({
@@ -1378,10 +1379,11 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         // Non-paginated path
         switch (pollsTransitionType) {
           case 'close_polls': {
-            const perPrecinctTallies = splitV1TallyIntoPerPrecinctV0(
-              election,
-              encodedCompressedTally
-            );
+            const perPrecinctTallies =
+              splitPerPrecinctTallyIntoSinglePrecinctTallies(
+                election,
+                encodedCompressedTally
+              );
 
             await store.saveQuickResultsReportingTally({
               electionId,

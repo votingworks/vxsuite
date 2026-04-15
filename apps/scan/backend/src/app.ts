@@ -75,7 +75,7 @@ import {
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
 import { Player as AudioPlayer, SoundName } from './audio/player';
-import { getScannerResultsByPrecinct } from './util/results';
+import { getScannerResultsByPrecinctMemoized } from './util/results';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -679,7 +679,9 @@ export function buildApi({
       const lastPollsTransition = store.getLastPollsTransition();
       assert(lastPollsTransition !== null);
 
-      const resultsByPrecinct = await getScannerResultsByPrecinct({ store });
+      const resultsByPrecinct = await getScannerResultsByPrecinctMemoized({
+        store,
+      });
 
       const signedQuickResultsReportingUrls =
         await generateSignedQuickResultsReportingUrl({

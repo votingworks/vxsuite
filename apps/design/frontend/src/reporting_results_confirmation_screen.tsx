@@ -14,7 +14,7 @@ import {
   TestModeReportBanner,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
   Election,
@@ -394,8 +394,8 @@ function PrecinctTallySection({
   const effectiveResults = contestResults ?? emptyResults;
 
   return (
-    <div>
-      <h2>{precinctName}</h2>
+    <div style={{ marginTop: '1.5rem' }}>
+      <h2 style={{ marginBottom: '0.5rem' }}>{precinctName}</h2>
       {contestsByParty.map(({ partyId, contests: partyContests }) => (
         <div key={partyId || 'nonpartisan'}>
           {partyId && <h3>{partyNamesById[partyId]} Contests</h3>}
@@ -442,14 +442,10 @@ function PollsClosedReportConfirmation({
 }): JSX.Element {
   const reportTitle = getPollsReportTitle('close_polls');
 
-  // Determine which precincts to show: all precincts in the polling place
-  // (if configured), falling back to just the precincts with data.
-  const pollingPlace = election.pollingPlaces?.find(
-    (p) => p.id === pollingPlaceId
+  const pollingPlace = assertDefined(
+    election.pollingPlaces?.find((p) => p.id === pollingPlaceId)
   );
-  const pollingPlacePrecincts = pollingPlace
-    ? [...pollingPlacePrecinctIds(pollingPlace)]
-    : Object.keys(contestResultsByPrecinct);
+  const pollingPlacePrecincts = [...pollingPlacePrecinctIds(pollingPlace)];
 
   return (
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
@@ -465,13 +461,15 @@ function PollsClosedReportConfirmation({
           pollsTransitionType={pollsTransitionType}
         />
         {pollingPlacePrecincts.map((precinctId) => {
-          const precinct = election.precincts.find((p) => p.id === precinctId);
+          const precinct = assertDefined(
+            election.precincts.find((p) => p.id === precinctId)
+          );
           return (
             <PrecinctTallySection
               key={precinctId}
               election={election}
               precinctId={precinctId}
-              precinctName={precinct?.name ?? precinctId}
+              precinctName={precinct.name}
               contestResults={contestResultsByPrecinct[precinctId]}
             />
           );
