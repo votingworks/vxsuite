@@ -5,6 +5,7 @@ import { z } from 'zod/v4';
 
 import { Result, throwIllegalValue } from '@votingworks/basics';
 import {
+  isPrimary,
   ElectionId,
   AnyContest,
   DistrictId,
@@ -399,7 +400,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
 
         {contest.type === 'candidate' && (
           <React.Fragment>
-            {electionInfo.type === 'primary' && (
+            {isPrimary(electionInfo.type) && (
               <InputGroup label="Party">
                 <SearchSelect
                   aria-label="Party"

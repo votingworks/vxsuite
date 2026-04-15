@@ -10,6 +10,7 @@ import {
   BallotStyleIdSchema,
   PrecinctIdSchema,
   AnyContest,
+  isPrimary,
 } from '@votingworks/types';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -426,7 +427,7 @@ export function BallotScreen(): JSX.Element | null {
             {precinct.name}
           </div>
 
-          {electionInfo.type === 'primary' && (
+          {isPrimary(electionInfo.type) && (
             <div>
               <FieldName>Party</FieldName>
               {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
