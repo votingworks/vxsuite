@@ -1,4 +1,9 @@
-import { Optional, DateWithoutTime, iter } from '@votingworks/basics';
+import {
+  Optional,
+  DateWithoutTime,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
 import {
@@ -700,9 +705,65 @@ export const PollingPlacesSchema = z
     }
   });
 
-export const ELECTION_TYPES = ['general', 'primary'] as const;
-export type ElectionType = (typeof ELECTION_TYPES)[number];
-const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
+const ELECTION_TYPES_V4_0 = ['general', 'primary'] as const;
+type ElectionTypeV4p0 = (typeof ELECTION_TYPES_V4_0)[number];
+const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
+  z.enum(ELECTION_TYPES_V4_0);
+
+export const ELECTION_TYPES_V4_1 = [
+  'general',
+  'closed-primary',
+  'open-primary',
+] as const;
+export type ElectionTypeV4p1 = (typeof ELECTION_TYPES_V4_1)[number];
+export const ElectionTypeSchemaV4p1: z.ZodSchema<ElectionTypeV4p1> =
+  z.enum(ELECTION_TYPES_V4_1);
+
+// Election types migration plan:
+// 1. Implement VxDesign support for 'open-primary' election type.
+// 2. Implement support for 'open-primary' in the rest of VxSuite
+//    - Switch ElectionType to point to 4.1 types.
+//    - Deprecate 4.0 types.
+// 3. Change VxDesign to export versioned election types based on jurisdiction's
+// deployed software version.
+export const ELECTION_TYPES = ELECTION_TYPES_V4_0;
+export type ElectionType = ElectionTypeV4p0;
+export const ElectionTypeSchema = ElectionTypeSchemaV4p0;
+
+export function electionTypeV4p1ToV4p0(type: ElectionTypeV4p1): ElectionType {
+  switch (type) {
+    case 'general':
+      return 'general';
+    case 'closed-primary':
+    case 'open-primary':
+      return 'primary';
+    default:
+      throwIllegalValue(type);
+  }
+}
+
+export function electionTypeV4p0ToV4p1(
+  type: ElectionTypeV4p0
+): ElectionTypeV4p1 {
+  switch (type) {
+    case 'general':
+      return 'general';
+    case 'primary':
+      return 'closed-primary';
+    default:
+      throwIllegalValue(type);
+  }
+}
+
+export function isPrimary(
+  electionType: ElectionType | ElectionTypeV4p1
+): boolean {
+  return (
+    electionType === 'primary' ||
+    electionType === 'closed-primary' ||
+    electionType === 'open-primary'
+  );
+}
 
 export interface Election {
   readonly ballotLayout: BallotLayout;
