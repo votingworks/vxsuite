@@ -207,7 +207,49 @@ export const SystemSettingsSchema = z
      * not be using headphones with VxScan.
      */
     precinctScanDisableScreenReaderAudio: z.boolean().optional(),
+
+    /**
+     * The date and time at which polls close on election day, stored as a
+     * timezone-agnostic ISO 8601 datetime string (e.g. "2026-11-03T20:00:00").
+     * Interpreted in the local time of the machine.
+     */
+    electionDayPollsCloseTime: z.string().datetime({ local: true }).optional(),
+
+    /**
+     * When true, machines with a close-polls action (VxScan, VxMark, VxMarkScan)
+     * will block poll workers from closing polls before
+     * {@link SystemSettings.electionDayPollsCloseTime}.
+     */
+    disallowClosingPollsBeforeElectionDayPollsCloseTime: z.boolean().optional(),
+
+    /**
+     * When true, VxAdmin will block tabulation before
+     * {@link SystemSettings.electionDayPollsCloseTime} has passed.
+     */
+    disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: z
+      .boolean()
+      .optional(),
   })
+  .refine(
+    (settings) =>
+      !settings.disallowClosingPollsBeforeElectionDayPollsCloseTime ||
+      settings.electionDayPollsCloseTime !== undefined,
+    {
+      message:
+        'Election day polls close time must be set when disallowing closing polls before that time',
+      path: ['disallowClosingPollsBeforeElectionDayPollsCloseTime'],
+    }
+  )
+  .refine(
+    (settings) =>
+      !settings.disallowVxAdminTabulationBeforeElectionDayPollsCloseTime ||
+      settings.electionDayPollsCloseTime !== undefined,
+    {
+      message:
+        'Election day polls close time must be set when disallowing VxAdmin tabulation before that time',
+      path: ['disallowVxAdminTabulationBeforeElectionDayPollsCloseTime'],
+    }
+  )
   .refine(
     (settings) => {
       // Validate that retry streak threshold is strictly less than max cumulative streak width
