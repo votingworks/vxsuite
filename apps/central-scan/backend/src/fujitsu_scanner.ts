@@ -18,6 +18,8 @@ export const FUJITSU_VENDOR_ID = 0x4c5;
 export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
 export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
 const SEQUENTIAL_BALLOT_ID_STRING = '_%04ud';
+// The fi-8950 silently fails to imprint if the --endorserString option
+// exceeds this character limit.
 const FI_8950_ENDORSER_STRING_CHAR_LIMIT = 40;
 const MAX_PREFIX_LENGTH =
   FI_8950_ENDORSER_STRING_CHAR_LIMIT - SEQUENTIAL_BALLOT_ID_STRING.length;
@@ -174,8 +176,6 @@ export class FujitsuScanner implements BatchScanner {
       // Truncate the prefix to a safe length. Then imprint the safe prefix
       // followed by a sequential index for each page in the batch.
       let safeImprintIdPrefix = imprintIdPrefix;
-      // The fi-8950 silently fails to imprint if the endorser string is too long.
-      // Truncate the prefix if too long.
       if (imprintIdPrefix.length > MAX_PREFIX_LENGTH) {
         const idParts = imprintIdPrefix.split('-');
         safeImprintIdPrefix = (
