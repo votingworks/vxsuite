@@ -16,6 +16,7 @@ import {
 } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
@@ -3072,6 +3073,40 @@ test('cloneElection', async () => {
       })
     ).rejects.toThrow('auth:forbidden')
   );
+});
+
+test('open primary elections', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(supportUser);
+
+  // Loading a VxF open primary election stores open-primary type
+  const electionId = (
+    await apiClient.loadElection({
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+      },
+      newId: 'open-primary-election' as ElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    })
+  ).unsafeUnwrap();
+  expect((await apiClient.getElectionInfo({ electionId })).type).toEqual(
+    'open-primary'
+  );
+
+  // Cloning preserves the open-primary type
+  const clonedElectionId = await apiClient.cloneElection({
+    electionId,
+    destElectionId: 'cloned-open-primary' as ElectionId,
+    destJurisdictionId: nonVxJurisdiction.id,
+  });
+  expect(
+    (await apiClient.getElectionInfo({ electionId: clonedElectionId })).type
+  ).toEqual('open-primary');
 });
 
 test('Election package management', async () => {

@@ -41,6 +41,8 @@ import {
   hasPartialRegisteredVoterCounts,
   ElectionTypeSchemaV4p1,
   electionTypeV4p0ToV4p1,
+  ElectionTypeV4p1,
+  isOpenPrimary,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -353,12 +355,19 @@ export function buildApi(ctx: AppContext) {
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
-        const election = ((): Election => {
+        const { election, electionType } = ((): {
+          election: Election;
+          electionType: ElectionTypeV4p1;
+        } => {
           switch (input.upload.format) {
             case 'vxf': {
               const sourceElection = safeParseElection(
                 input.upload.electionFileContents
               ).unsafeUnwrap();
+              // eslint-disable-next-line @typescript-eslint/no-shadow
+              const electionType = isOpenPrimary(sourceElection)
+                ? 'open-primary'
+                : electionTypeV4p0ToV4p1(sourceElection.type);
 
               const { districts, precincts, parties, contests, pollingPlaces } =
                 regenerateElectionIds(sourceElection, stateFeatures);
@@ -387,7 +396,8 @@ export function buildApi(ctx: AppContext) {
                 }
               );
 
-              return {
+              // eslint-disable-next-line @typescript-eslint/no-shadow
+              const election: Election = {
                 ...sourceElection,
                 id: input.newId,
                 county: {
@@ -407,14 +417,24 @@ export function buildApi(ctx: AppContext) {
                 seal: sourceElection.seal ?? '',
                 signature: sourceElection.signature,
               };
+
+              return {
+                election,
+                electionType,
+              };
             }
 
             case 'ms-sems': {
-              return convertMsElection(
+              // eslint-disable-next-line @typescript-eslint/no-shadow
+              const election = convertMsElection(
                 input.newId,
                 input.upload.electionFileContents,
                 input.upload.candidateFileContents
               );
+              return {
+                election,
+                electionType: electionTypeV4p0ToV4p1(election.type),
+              };
             }
 
             default: {
@@ -427,6 +447,7 @@ export function buildApi(ctx: AppContext) {
         await store.createElection({
           jurisdictionId: input.jurisdictionId,
           election,
+          electionType,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
@@ -463,8 +484,11 @@ export function buildApi(ctx: AppContext) {
       },
       context: ApiContext
     ): Promise<ElectionId> {
-      const { election: sourceElection, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const {
+        election: sourceElection,
+        type: electionType,
+        ballotTemplateId,
+      } = await store.getElection(input.electionId);
 
       const destJurisdiction = await store.getJurisdiction(
         input.destJurisdictionId
@@ -487,6 +511,7 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdictionId: input.destJurisdictionId,
         election,
+        electionType,
         ballotTemplateId,
         systemSettings: defaultSystemSettings(destJurisdiction),
       });
