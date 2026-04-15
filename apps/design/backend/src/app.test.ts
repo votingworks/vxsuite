@@ -55,6 +55,7 @@ import {
   PrecinctWithoutSplits,
   PrecinctWithSplits,
   ElectionRegisteredVotersCounts,
+  electionTypeV4p0ToV4p1,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -391,7 +392,7 @@ test('create/list/delete elections', async () => {
     electionId: importedElectionNewId,
     title: sliElection.title,
     date: sliElection.date,
-    type: sliElection.type,
+    type: electionTypeV4p0ToV4p1(sliElection.type),
     countyName: sliElection.county.name,
     state: sliElection.state,
     status: 'inProgress',
@@ -458,7 +459,7 @@ test('create/list/delete elections', async () => {
     languageCodes: [LanguageCode.ENGLISH],
     state: sliElection.state,
     seal: sliElection.seal,
-    type: sliElection.type,
+    type: electionTypeV4p0ToV4p1(sliElection.type),
   });
   const election2Districts = await apiClient.listDistricts({
     electionId: sliElectionId,
@@ -684,7 +685,7 @@ test('update election info', async () => {
     countyName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
-    type: 'primary',
+    type: 'closed-primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
@@ -697,7 +698,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -718,7 +719,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -731,7 +732,7 @@ test('update election info', async () => {
     countyName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
-    type: 'primary',
+    type: 'closed-primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     signatureCaption: 'New Caption',
@@ -750,7 +751,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
       signatureCaption: 'New Caption',
@@ -773,7 +774,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -800,7 +801,7 @@ test('update election info', async () => {
       apiClient.updateElectionInfo({
         jurisdictionId: nonVxJurisdiction.id,
         electionId,
-        type: 'primary',
+        type: 'closed-primary',
         title: '',
         countyName: '  ',
         state: '',
@@ -3965,7 +3966,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
       countyName: baseElectionDefinition.election.county.name,
       state: baseElectionDefinition.election.state,
       seal: baseElectionDefinition.election.seal,
-      type: baseElectionDefinition.election.type,
+      type: electionTypeV4p0ToV4p1(baseElectionDefinition.election.type),
       date: baseElectionDefinition.election.date,
       languageCodes: [LanguageCode.ENGLISH],
       signatureImage: 'test-signature-image',
@@ -4711,7 +4712,6 @@ test('listJurisdictions', async () => {
   auth0.setLoggedInUser(nonVxOrganizationUser);
   expect(await apiClient.listJurisdictions()).toEqual([
     anotherNonVxJurisdiction,
-    miJurisdiction,
     msJurisdiction,
     nhJurisdiction,
     nonVxJurisdiction,

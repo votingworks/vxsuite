@@ -39,6 +39,8 @@ import {
   PollingPlaceSchema,
   PollingPlace,
   hasPartialRegisteredVoterCounts,
+  ElectionTypeSchemaV4p1,
+  electionTypeV4p0ToV4p1,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -93,9 +95,9 @@ import {
   AggregatedReportedResults,
   ElectionInfo,
   ElectionListing,
+  ElectionUpload,
   ExportQaRun,
   GetExportedElectionError,
-  ElectionUpload,
   Jurisdiction,
   ReceivedReportInfo,
   ResultsReportingError,
@@ -170,7 +172,7 @@ const TextInput = z
 
 const UpdateElectionInfoInputSchema = z.object({
   electionId: ElectionIdSchema,
-  type: z.union([z.literal('general'), z.literal('primary')]),
+  type: ElectionTypeSchemaV4p1,
   date: DateWithoutTimeSchema,
   title: TextInput,
   state: TextInput,
@@ -446,6 +448,7 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdictionId: input.jurisdictionId,
         election,
+        electionType: electionTypeV4p0ToV4p1(election.type),
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
         systemSettings: defaultSystemSettings(jurisdiction),
       });
@@ -495,6 +498,7 @@ export function buildApi(ctx: AppContext) {
     }): Promise<ElectionInfo> {
       const {
         election,
+        type,
         ballotLanguageConfigs,
         jurisdictionId,
         externalSource,
@@ -504,7 +508,7 @@ export function buildApi(ctx: AppContext) {
         electionId: election.id,
         title: election.title,
         date: election.date,
-        type: election.type,
+        type,
         state: election.state,
         countyName: election.county.name,
         seal: election.seal,

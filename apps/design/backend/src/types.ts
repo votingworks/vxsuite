@@ -1,12 +1,12 @@
 import {
   LanguageCode,
-  ElectionType,
   ElectionId,
   Election,
   ContestId,
   LiveReportVotingType,
   PrecinctId,
   PollsTransitionType,
+  ElectionTypeV4p1,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -70,7 +70,7 @@ export interface ElectionListing {
   electionId: ElectionId;
   title: string;
   date: DateWithoutTime;
-  type: ElectionType;
+  type: ElectionTypeV4p1;
   countyName: string;
   state: string;
   status: ElectionStatus;
@@ -80,7 +80,7 @@ export interface ElectionListing {
 export interface ElectionInfo {
   jurisdictionId: string;
   electionId: ElectionId;
-  type: ElectionType;
+  type: ElectionTypeV4p1;
   date: DateWithoutTime;
   title: string;
   state: string;

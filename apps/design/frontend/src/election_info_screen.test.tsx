@@ -5,11 +5,12 @@ import {
   ElectionId,
   ElectionStringKey,
   LanguageCode,
+  electionTypeV4p0ToV4p1,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
-import { ElectionInfo } from '@votingworks/design-backend';
+import type { ElectionInfo } from '@votingworks/design-backend';
 import {
   MockApiClient,
   createMockApiClient,
@@ -216,7 +217,7 @@ test('edit and save election', async () => {
     electionId,
     title: 'New Title',
     date: new DateWithoutTime('2023-09-06'),
-    type: 'primary',
+    type: 'closed-primary',
     state: 'New State',
     countyName: 'New County',
     seal: '<svg>updated seal</svg>',
@@ -283,7 +284,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     electionId,
     title: election.title,
     date: election.date,
-    type: election.type,
+    type: electionTypeV4p0ToV4p1(election.type),
     state: election.state,
     countyName: election.county.name,
     seal: election.seal,
@@ -458,6 +459,63 @@ test('handles duplicate title+date error', async () => {
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
+});
+
+test('election type selector with features.OPEN_PRIMARIES enabled', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+  mockStateFeatures(apiMock, electionId, { OPEN_PRIMARIES: true });
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromRecord(electionRecord));
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Election Info' });
+
+  const typeInput = screen.getByRole('listbox', { name: 'Type' });
+  within(typeInput).getByRole('option', { name: 'General', selected: true });
+  within(typeInput).getByRole('option', { name: 'Closed Primary' });
+  within(typeInput).getByRole('option', { name: 'Open Primary' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  // Select Open Primary
+  userEvent.click(
+    within(typeInput).getByRole('option', { name: 'Open Primary' })
+  );
+  const openPrimaryInfo: ElectionInfo = {
+    ...electionInfoFromRecord(electionRecord),
+    type: 'open-primary',
+  };
+  apiMock.updateElectionInfo.expectCallWith(openPrimaryInfo).resolves(ok());
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(openPrimaryInfo);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await screen.findByRole('option', { name: 'Open Primary', selected: true });
+
+  // Select Closed Primary
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  userEvent.click(
+    within(typeInput).getByRole('option', { name: 'Closed Primary' })
+  );
+  const closedPrimaryInfo: ElectionInfo = {
+    ...openPrimaryInfo,
+    type: 'closed-primary',
+  };
+  apiMock.updateElectionInfo.expectCallWith(closedPrimaryInfo).resolves(ok());
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(closedPrimaryInfo);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await screen.findByRole('option', { name: 'Closed Primary', selected: true });
 });
 
 describe('audio editing', () => {

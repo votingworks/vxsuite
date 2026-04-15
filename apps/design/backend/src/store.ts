@@ -35,7 +35,6 @@ import {
   PartyId,
   YesNoContest,
   CandidateContest,
-  ElectionType,
   Signature,
   TtsEdit,
   TtsEditKey,
@@ -58,8 +57,10 @@ import {
   ElectionRegisteredVotersCounts,
   isPrecinctCount,
   isSplitCounts,
+  PrecinctRegisteredVotersCountEntry,
+  electionTypeV4p1ToV4p0,
+  ElectionTypeV4p1,
 } from '@votingworks/types';
-import type { PrecinctRegisteredVotersCountEntry } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
   combineAndDecodeCompressedElectionResults,
@@ -92,6 +93,7 @@ import { getStateFeaturesConfig } from './features';
 export interface ElectionRecord {
   jurisdictionId: string;
   election: Election;
+  type: ElectionTypeV4p1;
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
@@ -905,7 +907,7 @@ export class Store {
         )
       ).rows[0] as {
         jurisdictionId: string;
-        type: ElectionType;
+        type: ElectionTypeV4p1;
         title: string;
         date: Date;
         countyName: string;
@@ -1146,7 +1148,7 @@ export class Store {
       const ballotStyles = generateBallotStyles({
         ballotLanguageConfigs,
         contests,
-        electionType: electionRow.type,
+        electionType: electionTypeV4p1ToV4p0(electionRow.type),
         parties,
         precincts,
         ballotTemplateId: electionRow.ballotTemplateId,
@@ -1160,7 +1162,7 @@ export class Store {
       // (e.g. rendering ballots)
       const election: Election = {
         id: electionId,
-        type: electionRow.type,
+        type: electionTypeV4p1ToV4p0(electionRow.type),
         title: electionRow.title,
         date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
         county: {
@@ -1193,6 +1195,7 @@ export class Store {
 
       return {
         election,
+        type: electionRow.type,
         precincts,
         ballotStyles,
         systemSettings,
@@ -1317,12 +1320,14 @@ export class Store {
   async createElection({
     jurisdictionId,
     election,
+    electionType,
     ballotTemplateId,
     systemSettings,
     externalSource,
   }: {
     jurisdictionId: string;
     election: Election;
+    electionType: ElectionTypeV4p1;
     ballotTemplateId: BallotTemplateId;
     systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
@@ -1373,7 +1378,7 @@ export class Store {
         `,
           election.id,
           jurisdictionId,
-          election.type,
+          electionType,
           electionTitle,
           election.date.toISOString(),
           election.county.name,
