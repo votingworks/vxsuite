@@ -1924,19 +1924,9 @@ export class Store implements BaseStore {
       id
     ) as Array<{ cvrId: Id; contestId: string }>;
 
-    // Reset write-in records that reference this candidate back to pending
-    this.client.run(
-      `
-        update write_ins
-        set
-          write_in_candidate_id = null,
-          official_candidate_id = null,
-          is_invalid = 0,
-          adjudicated_at = null
-        where write_in_candidate_id = ?
-      `,
-      id
-    );
+    // Delete the candidate — ON DELETE SET NULL on the FK resets
+    // write_in_candidate_id back to null (pending) automatically
+    this.client.run(`delete from write_in_candidates where id = ?`, id);
 
     // For each affected CVR, clear adjudicated votes for the contest and
     // mark the CVR as not adjudicated
@@ -1963,18 +1953,6 @@ export class Store implements BaseStore {
         cvrId
       );
     }
-
-    // Delete manual result references
-    this.client.run(
-      `
-        delete from manual_result_write_in_candidate_references
-        where write_in_candidate_id = ?
-      `,
-      id
-    );
-
-    // Delete the candidate
-    this.client.run(`delete from write_in_candidates where id = ?`, id);
 
     return affectedCvrIds.size;
   }
@@ -2421,8 +2399,7 @@ export class Store implements BaseStore {
           write_ins.is_invalid as isInvalid,
           write_ins.is_unmarked as isUnmarked,
           write_ins.is_undetected as isUndetected,
-          write_ins.machine_marked_text as machineMarkedText,
-          datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
+          write_ins.machine_marked_text as machineMarkedText
         from write_ins
         where
           ${whereParts.join(' and ')}
@@ -2442,7 +2419,6 @@ export class Store implements BaseStore {
       machineMarkedText?: string;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
-      adjudicatedAt: Iso8601Timestamp | null;
     }>;
     debug('queried database for write-in records');
 
@@ -2615,8 +2591,7 @@ export class Store implements BaseStore {
         set
           is_invalid = 0,
           official_candidate_id = ?,
-          write_in_candidate_id = null,
-          adjudicated_at = current_timestamp
+          write_in_candidate_id = null
         where id = ?
       `,
       candidateId,
@@ -2634,8 +2609,7 @@ export class Store implements BaseStore {
         set
           is_invalid = 0,
           official_candidate_id = null,
-          write_in_candidate_id = ?,
-          adjudicated_at = current_timestamp
+          write_in_candidate_id = ?
         where id = ?
       `,
       candidateId,
@@ -2652,8 +2626,7 @@ export class Store implements BaseStore {
         set
           is_invalid = 1,
           official_candidate_id = null,
-          write_in_candidate_id = null,
-          adjudicated_at = current_timestamp
+          write_in_candidate_id = null
         where id = ?
       `,
       writeInId

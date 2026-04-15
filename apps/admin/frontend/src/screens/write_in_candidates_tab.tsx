@@ -11,7 +11,6 @@ import {
   Button,
   Callout,
   DesktopPalette,
-  Icons,
   Modal,
   P,
   TabPanel,
@@ -128,16 +127,9 @@ function getWriteInContests(
 interface Candidate {
   id: Id;
   name: string;
-  isNew?: boolean;
 }
 
-function CandidatesForm({
-  contestId,
-  contestTitle,
-}: {
-  contestId: ContestId;
-  contestTitle: string;
-}): JSX.Element {
+function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
   const theme = useCurrentTheme();
   const qualifiedCandidatesQuery = getQualifiedWriteInCandidates.useQuery();
   const updateCandidatesMutation =
@@ -154,16 +146,13 @@ function CandidatesForm({
     .filter((c) => c.contestId === contestId)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  function startEditing(options?: { withEmptyCandidate: boolean }) {
-    setEditedCandidates([
-      ...savedCandidates.map((c) => ({
+  function startEditing() {
+    setEditedCandidates(
+      savedCandidates.map((c) => ({
         id: c.id,
         name: c.name,
-      })),
-      ...(options?.withEmptyCandidate
-        ? [{ id: crypto.randomUUID(), name: '', isNew: true }]
-        : []),
-    ]);
+      }))
+    );
     setDeletedIds(new Set());
     setErrors(new Map());
     setEditing(true);
@@ -177,9 +166,9 @@ function CandidatesForm({
   }
 
   function addEmptyCandidate() {
-    setEditedCandidates([
-      ...editedCandidates,
-      { id: crypto.randomUUID(), name: '', isNew: true },
+    setEditedCandidates((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), name: '' },
     ]);
   }
 
@@ -197,9 +186,9 @@ function CandidatesForm({
 
   function deleteCandidate(index: number) {
     const edited = editedCandidates[index];
-    if (!edited.isNew) {
-      const saved = savedCandidates.find((c) => c.id === edited.id);
-      if (saved?.hasAdjudicatedVotes) {
+    const saved = savedCandidates.find((c) => c.id === edited.id);
+    if (saved) {
+      if (saved.hasAdjudicatedVotes) {
         setCandidateToDelete(saved);
         return;
       }
@@ -236,7 +225,6 @@ function CandidatesForm({
 
     // Check for renamed candidates with adjudicated votes
     for (const candidate of editedCandidates) {
-      if (candidate.isNew) continue;
       const saved = savedCandidates.find((c) => c.id === candidate.id);
       if (
         saved &&
@@ -245,7 +233,7 @@ function CandidatesForm({
       ) {
         validationErrors.set(
           candidate.id,
-          'Candidates with adjudicated votes cannot have names changed. If the name needs to be updated, please delete this candidate and add a new one with the correct name.'
+          'This candidate has adjudicated votes, so its name cannot be changed. Instead, delete this candidate and add a new one with the updated name.'
         );
       }
     }
@@ -261,14 +249,17 @@ function CandidatesForm({
     }
 
     const renamedCandidates = editedCandidates.filter((d) => {
-      if (d.isNew) return false;
       const saved = savedCandidates.find((c) => c.id === d.id);
       return saved && d.name.trim() !== saved.name;
     });
 
     const newCandidates = [
       ...editedCandidates
-        .filter((d) => d.isNew && d.name.trim().length > 0)
+        .filter(
+          (d) =>
+            !savedCandidates.some((c) => c.id === d.id) &&
+            d.name.trim().length > 0
+        )
         .map((d) => ({ contestId, name: d.name.trim() })),
       ...renamedCandidates.map((d) => ({ contestId, name: d.name.trim() })),
     ];
@@ -296,10 +287,9 @@ function CandidatesForm({
 
   function handleAddCandidate() {
     if (!editing) {
-      startEditing({ withEmptyCandidate: true });
-    } else {
-      addEmptyCandidate();
+      startEditing();
     }
+    addEmptyCandidate();
   }
 
   return (
@@ -388,18 +378,14 @@ function CandidatesForm({
                   ))}
             </CandidateList>
           )}
-          {!editing && savedCandidates.length === 0 && (
-            <Callout color="warning">
-              <P>
-                <Icons.Info />
-              </P>
-              <P>
-                No qualified write-in candidates have been entered for this
-                contest. All write-ins for this contest will be adjudicated as
-                undervotes.
-              </P>
-            </Callout>
-          )}
+          {qualifiedCandidatesQuery.isSuccess &&
+            !editing &&
+            savedCandidates.length === 0 && (
+              <Callout icon="Info" color="neutral">
+                You have not added any write-in candidates for this contest.
+                Write-ins for this contest will be counted as undervotes.
+              </Callout>
+            )}
         </FormBody>
         <FormFooter>
           {editing ? (
@@ -426,9 +412,9 @@ function CandidatesForm({
           title="Delete Write-In Candidate"
           content={
             <P>
-              This write-in candidate has at least one adjudicated vote for{' '}
-              <strong>{contestTitle}</strong>. Deleting will require ballots
-              with votes adjudicated for this candidate to be adjudicated again.
+              Votes have already been adjudicated for this write-in. If you
+              delete this candidate, those votes will be deleted and you will
+              have to adjudicate those ballots again.
             </P>
           }
           actions={
@@ -454,9 +440,9 @@ export function WriteInCandidatesTab(): JSX.Element {
   );
   const writeInContests = getWriteInContests(candidateContests);
 
-  const [selectedContestId, setSelectedContestId] = useState<ContestId>(
-    writeInContests[0]?.id ?? ('' as ContestId)
-  );
+  const [selectedContestId, setSelectedContestId] = useState<
+    ContestId | undefined
+  >(writeInContests[0]?.id);
 
   if (writeInContests.length === 0) {
     return (
@@ -489,7 +475,6 @@ export function WriteInCandidatesTab(): JSX.Element {
                     selected={contest.id === selectedContestId}
                     onSelect={setSelectedContestId}
                     autoScrollIntoView={contest.id === selectedContestId}
-                    hasWarning={false}
                   >
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       {party && (
@@ -509,10 +494,7 @@ export function WriteInCandidatesTab(): JSX.Element {
           </EntityList.Box>
         </ContestListContainer>
         <CandidatesContainer>
-          <CandidatesForm
-            contestId={selectedContest.id}
-            contestTitle={selectedContest.title}
-          />
+          <CandidatesForm contestId={selectedContest.id} />
         </CandidatesContainer>
       </Container>
     </TabPanel>

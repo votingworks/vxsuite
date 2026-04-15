@@ -51,10 +51,7 @@ const Caption = styled(CaptionBase)`
   color: ${(p) => p.theme.colors.onBackgroundMuted};
 `;
 
-const ItemContainer = styled.li<{
-  hasWarning: boolean;
-  selected?: boolean;
-}>`
+const ItemContainer = styled.li<{ hasWarning?: boolean }>`
   /* stylelint-disable value-keyword-case */
 
   align-items: center;
@@ -111,7 +108,7 @@ export interface EntityListItemProps {
   onSelect: (id: string) => void;
   onHover?: (id: string | null) => void;
   autoScrollIntoView: boolean;
-  hasWarning: boolean;
+  hasWarning?: boolean;
   selected?: boolean;
 }
 

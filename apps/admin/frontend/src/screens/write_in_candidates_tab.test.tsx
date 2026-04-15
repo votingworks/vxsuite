@@ -57,7 +57,7 @@ describe('contest list', () => {
     renderTab();
 
     // Initially shows first contest (President) which has no candidates
-    screen.getByText(/No qualified write-in candidates/);
+    await screen.findByText(/You have not added any write-in candidates/);
 
     // Click on Senate
     userEvent.click(screen.getByText(/Senate/));
@@ -98,11 +98,11 @@ describe('contest list', () => {
 });
 
 describe('view mode', () => {
-  test('shows empty state callout when no candidates', () => {
+  test('shows empty state callout when no candidates', async () => {
     expectGetQualifiedWriteInCandidates();
     renderTab();
 
-    screen.getByText(/No qualified write-in candidates/);
+    await screen.findByText(/You have not added any write-in candidates/);
     expect(
       screen.getByRole('button', { name: 'Edit Candidates' })
     ).toBeDisabled();
@@ -272,7 +272,7 @@ describe('edit mode', () => {
     // Modal should appear
     const modal = screen.getByRole('alertdialog');
     within(modal).getByText('Delete Write-In Candidate');
-    within(modal).getByText(/at least one adjudicated vote/);
+    within(modal).getByText(/Votes have already been adjudicated/);
 
     // Confirm deletion
     userEvent.click(
@@ -349,7 +349,7 @@ describe('validation', () => {
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     screen.getByText(
-      /Candidates with adjudicated votes cannot have names changed/
+      /This candidate has adjudicated votes, so its name cannot be changed/
     );
   });
 

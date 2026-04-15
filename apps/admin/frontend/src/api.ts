@@ -445,10 +445,7 @@ export const updateQualifiedWriteInCandidates = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateQualifiedWriteInCandidates, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getWriteInCandidates.queryKey());
-        await queryClient.invalidateQueries(
-          getQualifiedWriteInCandidates.queryKey()
-        );
+        await invalidateWriteInQueries(queryClient);
         await queryClient.invalidateQueries(
           getBallotAdjudicationQueueMetadata.queryKey()
         );
@@ -457,6 +454,9 @@ export const updateQualifiedWriteInCandidates = {
         );
         await queryClient.invalidateQueries(
           getBallotAdjudicationData.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getNextCvrIdForBallotAdjudication.queryKey()
         );
       },
     });
