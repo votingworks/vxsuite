@@ -1318,20 +1318,31 @@ export class Store {
   }
 
   async createElection({
-    jurisdictionId,
+    jurisdiction,
     election,
     electionType,
     ballotTemplateId,
     systemSettings,
     externalSource,
   }: {
-    jurisdictionId: string;
+    jurisdiction: Jurisdiction;
     election: Election;
     electionType: ElectionTypeV4p1;
     ballotTemplateId: BallotTemplateId;
     systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
   }): Promise<void> {
+    if (electionType === 'open-primary') {
+      const features = getStateFeaturesConfig(jurisdiction);
+      if (!features.OPEN_PRIMARIES) {
+        throw new Error(
+          'Open primary elections are not supported for this jurisdiction'
+        );
+      }
+    }
+
+    const jurisdictionId = jurisdiction.id;
+
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         const electionTitle = await this.generateUniqueElectionCopyTitle(

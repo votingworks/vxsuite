@@ -364,6 +364,7 @@ export function buildApi(ctx: AppContext) {
               const sourceElection = safeParseElection(
                 input.upload.electionFileContents
               ).unsafeUnwrap();
+
               // eslint-disable-next-line @typescript-eslint/no-shadow
               const electionType = isOpenPrimary(sourceElection)
                 ? 'open-primary'
@@ -445,7 +446,7 @@ export function buildApi(ctx: AppContext) {
         })();
 
         await store.createElection({
-          jurisdictionId: input.jurisdictionId,
+          jurisdiction,
           election,
           electionType,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
@@ -467,7 +468,7 @@ export function buildApi(ctx: AppContext) {
       const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
       const election = createBlankElection(input.id, jurisdiction);
       await store.createElection({
-        jurisdictionId: input.jurisdictionId,
+        jurisdiction,
         election,
         electionType: electionTypeV4p0ToV4p1(election.type),
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
@@ -509,7 +510,7 @@ export function buildApi(ctx: AppContext) {
         pollingPlaces,
       };
       await store.createElection({
-        jurisdictionId: input.destJurisdictionId,
+        jurisdiction: destJurisdiction,
         election,
         electionType,
         ballotTemplateId,

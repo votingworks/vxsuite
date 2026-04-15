@@ -3083,7 +3083,7 @@ test('open primary elections', async () => {
   });
   auth0.setLoggedInUser(supportUser);
 
-  // Loading a VxF open primary election stores open-primary type
+  // Loading an open primary into a jurisdiction with OPEN_PRIMARIES stores open-primary type
   const electionId = (
     await apiClient.loadElection({
       upload: {
@@ -3091,22 +3091,49 @@ test('open primary elections', async () => {
         electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
       },
       newId: 'open-primary-election' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
+      jurisdictionId: miJurisdiction.id,
     })
   ).unsafeUnwrap();
   expect((await apiClient.getElectionInfo({ electionId })).type).toEqual(
     'open-primary'
   );
 
+  // Loading an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  expect(
+    await apiClient.loadElection({
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+      },
+      newId: 'not-open-primary-election' as ElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    })
+  ).toEqual(
+    err(
+      expect.objectContaining({
+        message: expect.stringContaining('Open primary'),
+      })
+    )
+  );
+
   // Cloning preserves the open-primary type
   const clonedElectionId = await apiClient.cloneElection({
     electionId,
     destElectionId: 'cloned-open-primary' as ElectionId,
-    destJurisdictionId: nonVxJurisdiction.id,
+    destJurisdictionId: miJurisdiction.id,
   });
   expect(
     (await apiClient.getElectionInfo({ electionId: clonedElectionId })).type
   ).toEqual('open-primary');
+
+  // Cloning an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  await expect(
+    apiClient.cloneElection({
+      electionId,
+      destElectionId: 'should-fail' as ElectionId,
+      destJurisdictionId: nonVxJurisdiction.id,
+    })
+  ).rejects.toThrow('Open primary');
 });
 
 test('Election package management', async () => {

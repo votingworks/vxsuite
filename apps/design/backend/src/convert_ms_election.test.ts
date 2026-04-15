@@ -34,7 +34,7 @@ afterAll(async () => {
 
 async function expectValidElection(election: Election) {
   await store.createElection({
-    jurisdictionId: jurisdiction.id,
+    jurisdiction,
     election,
     electionType: electionTypeV4p0ToV4p1(election.type),
     ballotTemplateId: 'VxDefaultBallot',
