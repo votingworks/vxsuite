@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
@@ -6,9 +6,31 @@ import {
   getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
-import { DiagnosticRecord } from '@votingworks/types';
-import { DiskSpaceSummary } from '@votingworks/utils';
-import { buildTestEnvironment, mockSystemAdministratorAuth } from '../test/app';
+import {
+  DiagnosticRecord,
+  EncodedBallotEntry,
+  LanguageCode,
+} from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName as Feature,
+  DiskSpaceSummary,
+  getFeatureFlagMock,
+  getMockMultiLanguageElectionDefinition,
+} from '@votingworks/utils';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { assertDefined } from '@votingworks/basics';
+import {
+  buildBallotsForElection,
+  buildTestEnvironment,
+  configureMachine,
+  mockSystemAdministratorAuth,
+} from '../test/app';
+
+const mockFeatures = getFeatureFlagMock();
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (f: Feature) => mockFeatures.isEnabled(f),
+}));
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -39,7 +61,24 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   available: 9 * 1_000_000,
 };
 
+const electionDefinition = getMockMultiLanguageElectionDefinition(
+  electionFamousNames2021Fixtures.readElectionDefinition(),
+  [LanguageCode.ENGLISH]
+);
+
+let ballots: EncodedBallotEntry[];
+
+beforeAll(async () => {
+  ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+});
+
 beforeEach(() => {
+  mockFeatures.resetFeatureFlags();
+  mockFeatures.enableFeatureFlag(Feature.SKIP_ELECTION_PACKAGE_AUTHENTICATION);
+
   vi.mocked(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
@@ -171,13 +210,28 @@ test('test-page print', async () => {
   });
 });
 
-test('save readiness report', async () => {
-  const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive } =
+test('save readiness report (with precinct selection)', async () => {
+  setPollingPlacesEnabled(true);
+
+  const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive, server } =
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await apiClient.printTestPage();
+
   vi.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
   await apiClient.addDiagnosticRecord({
     type: 'test-print',
@@ -189,9 +243,9 @@ test('save readiness report', async () => {
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportFileResult = await apiClient.saveReadinessReport();
   exportFileResult.assertOk('error saving readiness report to USB');
-  expect(logger.log).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ReadinessReportSaved,
-    'system_administrator',
+    'election_manager',
     {
       disposition: 'success',
       message: 'User saved the equipment readiness report to a USB drive.',
@@ -212,6 +266,8 @@ test('save readiness report', async () => {
   expect(pdfContents).toContain('Ready to print');
   expect(pdfContents).toContain('Toner Level: 100%');
   expect(pdfContents).toContain('Test print successful, 1/1/2021, 12:00:00 AM');
+
+  server.close();
 });
 
 test('save readiness report failure logging', async () => {
@@ -239,3 +295,12 @@ test('getDiskSpaceSummary', async () => {
     MOCK_DISK_SPACE_SUMMARY
   );
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  // The mock feature flagger doesn't seem to work when an external package
+  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
+  // directly.
+  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
+    ? 'TRUE'
+    : 'FALSE';
+}
