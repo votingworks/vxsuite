@@ -225,6 +225,9 @@ describe('Ballot layout tab', () => {
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('VxDefaultBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -303,6 +306,9 @@ describe('Ballot layout tab', () => {
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('VxDefaultBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -328,6 +334,26 @@ describe('Ballot layout tab', () => {
     ).toBeChecked();
   });
 
+  test('hides density for MI ballot template', async () => {
+    mockStateFeatures(apiMock, electionId, {});
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+    });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('MiBallot');
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+    await screen.findByRole('radiogroup', { name: 'Paper Size' });
+    expect(
+      screen.queryByRole('radiogroup', { name: 'Density' })
+    ).not.toBeInTheDocument();
+  });
+
   test('cancelling', async () => {
     mockStateFeatures(apiMock, electionId, {});
     mockUserFeatures(apiMock, {});
@@ -335,6 +361,9 @@ describe('Ballot layout tab', () => {
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('VxDefaultBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 

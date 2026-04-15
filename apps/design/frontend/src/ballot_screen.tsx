@@ -227,12 +227,18 @@ function formContestTooLongErrorMessage(
   contest: AnyContest,
   ballotTemplateId: BallotTemplateId
 ): string {
-  const baseMessage = `Contest "${contest.title}" was too long to fit on the page. Try a longer paper size or higher density`;
+  const issue = `Contest "${contest.title}" was too long to fit on the page.`;
+  let suggestion = 'Try a longer paper size or higher density.';
   // Only the NH template supports flowing ballot measure content onto another page
   if (contest.type === 'yesno' && ballotTemplateId === 'NhBallot') {
-    return `${baseMessage}, or add a line break to your content.`;
+    suggestion =
+      'Try a longer paper size, higher density, or adding a line break to the contest description.';
   }
-  return `${baseMessage}.`;
+  // The MI template doesn't support density settings
+  if (ballotTemplateId === 'MiBallot') {
+    suggestion = 'Try a longer paper size.';
+  }
+  return `${issue} ${suggestion}`;
 }
 
 function ErrorMessage({
