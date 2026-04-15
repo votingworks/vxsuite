@@ -111,6 +111,7 @@ function ElectionInfoBar({
   electionDefinition,
   electionPackageHash,
   precinctSelection,
+  pollingPlaceId,
   codeVersion,
   machineId,
   showEarlyVotingBanner,
@@ -121,6 +122,7 @@ function ElectionInfoBar({
         <ElectionInfo
           electionDefinition={electionDefinition}
           precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
         />
       )}
       {showEarlyVotingBanner && (
@@ -181,6 +183,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     electionDefinition,
     electionPackageHash,
     precinctSelection,
+    pollingPlaceId,
     systemSettings,
   } = configQuery.data;
 
@@ -267,6 +270,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         <ElectionInfoBar
           mode={infoBarMode}
           precinctSelection={precinctSelection}
+          pollingPlaceId={pollingPlaceId}
           electionDefinition={electionDefinition}
           electionPackageHash={electionPackageHash}
           codeVersion={codeVersion}

@@ -1,7 +1,7 @@
 import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
+import { assertDefined } from '@votingworks/basics';
 import {
   ApiMock,
   createApiMock,
@@ -27,6 +27,7 @@ beforeEach(() => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
   apiMock.expectGetUsbDriveStatus('mounted');
+  setPollingPlacesEnabled(true);
 });
 
 afterEach(() => {
@@ -34,6 +35,10 @@ afterEach(() => {
 });
 
 test('renders provided information', async () => {
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+
   apiMock.setDiskSpaceSummary({
     available: 99.2 * 1_000_000,
     used: 0.08 * 1_000_000,
@@ -45,13 +50,13 @@ test('renders provided information', async () => {
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig({
     electionDefinition: readElectionTwoPartyPrimaryDefinition(),
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+    pollingPlaceId: pollingPlace.id,
   });
 
   renderScreen();
   await screen.findByText('Configuration');
   screen.getByText(/Election: Example Primary Election/);
-  screen.getByText('Precinct: Precinct 1');
+  screen.getByText('Polling Place: Precinct 1');
   screen.getByText('Ballot Styles: 1M, 2F');
 
   screen.getByText('Free Disk Space: 99% (99.2 GB / 100 GB)');
@@ -214,3 +219,12 @@ test('can save readiness report', async () => {
   userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  // The mock feature flagger doesn't seem to work when an external package
+  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
+  // directly.
+  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
+    ? 'TRUE'
+    : 'FALSE';
+}
