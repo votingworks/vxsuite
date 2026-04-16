@@ -21,6 +21,8 @@ export function defaultBallotTemplate(
   switch (jurisdiction.stateCode) {
     case 'DEMO':
       return 'VxDefaultBallot';
+    case 'MI':
+      return 'MiBallot';
     case 'MS':
       return 'MsBallot';
     case 'NH':

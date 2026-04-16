@@ -67,6 +67,12 @@ export const msJurisdiction: Jurisdiction = {
   stateCode: 'MS',
   organization: nonVxOrganization,
 };
+export const miJurisdiction: Jurisdiction = {
+  id: 'mi-jurisdiction-id',
+  name: 'Michigan Jurisdiction',
+  stateCode: 'MI',
+  organization: nonVxOrganization,
+};
 export const anotherNonVxUser: JurisdictionUser = {
   ...nonVxUser,
   id: 'auth0|another-non-vx-user-id',
@@ -114,6 +120,7 @@ export const jurisdictions: Jurisdiction[] = [
   sliJurisdiction,
   nhJurisdiction,
   msJurisdiction,
+  miJurisdiction,
 ];
 
 export const users: User[] = [
