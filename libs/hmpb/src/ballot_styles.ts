@@ -31,7 +31,7 @@ import { getAllPossibleCandidateOrderings } from './ballot_rotation';
  * The ballot template defines what rotation rules are applied. Rotation by
  * precinct may cause more ballot styles to need to be created.
  *
- * Each ballot styles should have a unique set of contests or uniquely rotated
+ * Each ballot style should have a unique set of contests or uniquely rotated
  * version of contests. Contests are specified per district. We generate ballot
  * styles by looking at the district list for each precinct/precinct split. If
  * the district list is unique, it gets its own ballot style. Otherwise, we
