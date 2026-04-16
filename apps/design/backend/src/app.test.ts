@@ -4774,6 +4774,7 @@ test('listJurisdictions', async () => {
   auth0.setLoggedInUser(nonVxOrganizationUser);
   expect(await apiClient.listJurisdictions()).toEqual([
     anotherNonVxJurisdiction,
+    miJurisdiction,
     msJurisdiction,
     nhJurisdiction,
     nonVxJurisdiction,
