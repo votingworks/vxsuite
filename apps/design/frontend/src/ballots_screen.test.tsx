@@ -184,7 +184,7 @@ describe('Ballot styles tab', () => {
         )
     ).toEqual([
       ['Precinct 1', '1_en', 'View Ballot'],
-      ['Precinct 2', '1_en', 'View Ballot'],
+      ['Precinct 2', '2_en', 'View Ballot'],
     ]);
   });
 

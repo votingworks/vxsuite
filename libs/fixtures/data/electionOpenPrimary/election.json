@@ -27,11 +27,15 @@
     },
     {
       "id": "district-county",
-      "name": "Sample County"
+      "name": "North Sample County"
     },
     {
       "id": "district-judicial",
       "name": "Judicial District"
+    },
+    {
+      "id": "district-county-south",
+      "name": "South Sample County"
     }
   ],
   "parties": [
@@ -601,6 +605,164 @@
         "id": "ballot-measure-3-no",
         "label": "No"
       }
+    },
+    {
+      "id": "county-commissioner-democratic-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "County Commissioner (South)",
+      "seats": 2,
+      "partyId": "democratic-party",
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "ada-reeves",
+          "name": "Ada Reeves"
+        },
+        {
+          "id": "ben-hoyt",
+          "name": "Ben Hoyt"
+        },
+        {
+          "id": "cara-lynd",
+          "name": "Cara Lynd"
+        }
+      ]
+    },
+    {
+      "id": "county-commissioner-republican-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "County Commissioner (South)",
+      "seats": 2,
+      "partyId": "republican-party",
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "dean-strode",
+          "name": "Dean Strode"
+        },
+        {
+          "id": "erin-vale",
+          "name": "Erin Vale"
+        }
+      ]
+    },
+    {
+      "id": "county-commissioner-libertarian-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "County Commissioner (South)",
+      "seats": 2,
+      "partyId": "libertarian-party",
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "finn-oakes",
+          "name": "Finn Oakes"
+        },
+        {
+          "id": "gina-platt",
+          "name": "Gina Platt"
+        }
+      ]
+    },
+    {
+      "id": "delegate-convention-democratic-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "Delegate to County Convention (South)",
+      "seats": 3,
+      "partyId": "democratic-party",
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "delegate-convention-republican-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "Delegate to County Convention (South)",
+      "seats": 2,
+      "partyId": "republican-party",
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "delegate-convention-libertarian-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "Delegate to County Convention (South)",
+      "seats": 2,
+      "partyId": "libertarian-party",
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "school-board-south",
+      "districtId": "district-county-south",
+      "type": "candidate",
+      "title": "Board of Education Member (South)",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "harper-rhodes",
+          "name": "Harper Rhodes"
+        },
+        {
+          "id": "iris-lamb",
+          "name": "Iris Lamb"
+        },
+        {
+          "id": "jack-munoz",
+          "name": "Jack Munoz"
+        }
+      ]
+    },
+    {
+      "id": "ballot-measure-1-south",
+      "districtId": "district-county-south",
+      "type": "yesno",
+      "title": "County Road Millage Renewal (South)",
+      "description": "Shall the County of Sample renew the previously authorized millage of 1.5 mills ($1.50 per $1,000 of taxable value) for a period of 10 years, 2026 through 2035 inclusive, for the purpose of funding road maintenance, repair, and improvement throughout the county? It is estimated that this millage would raise approximately $3,200,000 in the first year.",
+      "yesOption": {
+        "id": "ballot-measure-1-yes-south",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ballot-measure-1-no-south",
+        "label": "No"
+      }
+    },
+    {
+      "id": "ballot-measure-2-south",
+      "districtId": "district-county-south",
+      "type": "yesno",
+      "title": "Public Safety Millage (South)",
+      "description": "Shall the County of Sample levy a new millage of 0.75 mills ($0.75 per $1,000 of taxable value) for a period of 5 years, 2026 through 2030 inclusive, for the purpose of funding police, fire, and emergency medical services throughout the county? It is estimated that this millage would raise approximately $1,600,000 in the first year. This is a new additional millage.",
+      "yesOption": {
+        "id": "ballot-measure-2-yes-south",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ballot-measure-2-no-south",
+        "label": "No"
+      }
+    },
+    {
+      "id": "ballot-measure-3-south",
+      "districtId": "district-county-south",
+      "type": "yesno",
+      "title": "Library Millage Renewal (South)",
+      "description": "Shall the County of Sample renew the previously authorized millage of 0.5 mills ($0.50 per $1,000 of taxable value) for a period of 8 years, 2026 through 2033 inclusive, for the purpose of providing funds for the operation, maintenance, and improvement of the county library system?",
+      "yesOption": {
+        "id": "ballot-measure-3-yes-south",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ballot-measure-3-no-south",
+        "label": "No"
+      }
     }
   ],
   "precincts": [
@@ -622,7 +784,7 @@
         "district-state",
         "district-congressional",
         "district-legislative",
-        "district-county",
+        "district-county-south",
         "district-judicial"
       ]
     }
@@ -652,7 +814,7 @@
         "district-state",
         "district-congressional",
         "district-legislative",
-        "district-county",
+        "district-county-south",
         "district-judicial"
       ]
     }
