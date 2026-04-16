@@ -298,9 +298,7 @@ function getTotalBallotCount(
 ): number {
   let total = 0;
   for (const results of Object.values(resultsByPrecinct)) {
-    if (results) {
-      total += getBallotCount(results.cardCounts);
-    }
+    total += getBallotCount(results.cardCounts);
   }
   return total;
 }
