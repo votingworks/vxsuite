@@ -71,7 +71,7 @@
     "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
     "@types/micromatch": "^4.0.10",
-    "@types/node": "20.17.31",
+    "@types/node": "25.6.0",
     "@types/object-hash": "^3.0.6",
     "@types/react": "18.3.3",
     "@types/supertest": "^2.0.10",

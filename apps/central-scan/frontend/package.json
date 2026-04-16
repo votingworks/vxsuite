@@ -78,7 +78,7 @@
     "@types/fast-text-encoding": "^1.0.1",
     "@types/history": "4.7.11",
     "@types/kiosk-browser": "workspace:*",
-    "@types/node": "20.17.31",
+    "@types/node": "25.6.0",
     "@types/pify": "^3.0.2",
     "@types/pluralize": "^0.0.29",
     "@types/react": "18.3.3",

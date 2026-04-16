@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
-    "@types/node": "20.17.31",
+    "@types/node": "25.6.0",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",

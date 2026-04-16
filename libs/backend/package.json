@@ -64,7 +64,7 @@
     "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
     "@types/micromatch": "^4.0.10",
-    "@types/node": "20.17.31",
+    "@types/node": "25.6.0",
     "@types/stream-chain": "^2.0.1",
     "@types/stream-chopper": "workspace:*",
     "@types/stream-json": "^1.7.3",

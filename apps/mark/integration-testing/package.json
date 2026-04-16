@@ -25,7 +25,7 @@
     "dotenv": "16.3.1"
   },
   "devDependencies": {
-    "@types/node": "20.17.31",
+    "@types/node": "25.6.0",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0"
   },
