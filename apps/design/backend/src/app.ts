@@ -351,7 +351,7 @@ export function buildApi(ctx: AppContext) {
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
-        const election: Election = (() => {
+        const election = ((): Election => {
           switch (input.upload.format) {
             case 'vxf': {
               const sourceElection = safeParseElection(
@@ -390,8 +390,8 @@ export function buildApi(ctx: AppContext) {
                 id: input.newId,
                 county: {
                   ...sourceElection.county,
-                  // County ID needs to be deterministic, but doesn't actually get used anywhere
-                  countyId: `${input.newId}-county`,
+                  // County ID needs to be deterministic
+                  id: `${input.newId}-county`,
                 },
                 districts,
                 pollingPlaces,
