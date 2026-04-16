@@ -149,7 +149,7 @@ export function compressAndEncodeTally({
  */
 export function buildPrecinctBitmap(
   election: Election,
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>
 ): Uint16Array {
   const numWords = Math.ceil(election.precincts.length / UINT16_BITS);
   const bitmap = new Uint16Array(numWords); // initialized to 0
@@ -200,7 +200,7 @@ export function compressAndEncodePerPrecinctTally({
   numPages,
 }: {
   election: Election;
-  resultsByPrecinct: Partial<Record<PrecinctId, Tabulation.ElectionResults>>;
+  resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults>;
   numPages: number;
 }): string[] {
   const bitmap = buildPrecinctBitmap(election, resultsByPrecinct);
@@ -459,7 +459,7 @@ function decodeEncodedTallyToUint16Array(encodedTally: string): Uint16Array {
  * Decodes an encoded compressed tally and returns aggregated contest results.
  * Auto-detects format: version 0 -> V0, version 1 -> V1 bitmap.
  */
-export function decodeAndReadCompressedTally({
+export function readV0CompressedTallyAsContestResults({
   election,
   precinctSelection,
   encodedTally,
@@ -511,4 +511,38 @@ export function decodeAndReadPerPrecinctCompressedTally({
     `Per-precinct decode requires V1 bitmap format, got version ${version}`
   );
   return decodeBitmapTally(uint16Array, election);
+}
+
+/**
+ * Splits a per-precinct tally blob into individual single-precinct tally blobs,
+ * one per precinct. Returns the list for storage as separate rows.
+ */
+export function splitPerPrecinctTallyIntoSinglePrecinctTallies(
+  election: Election,
+  encodedTally: string
+): Array<{ precinctId: PrecinctId; encodedTally: string }> {
+  const perPrecinctResults = decodeAndReadPerPrecinctCompressedTally({
+    election,
+    encodedTally,
+  });
+
+  const results: Array<{ precinctId: PrecinctId; encodedTally: string }> = [];
+  for (const [precinctId, contestResults] of Object.entries(
+    perPrecinctResults
+  )) {
+    const precinctElectionResults: Tabulation.ElectionResults = {
+      cardCounts: { bmd: [], hmpb: [] },
+      contestResults,
+    };
+    const precinctSelection = singlePrecinctSelectionFor(precinctId);
+    const compressed = compressTally(
+      election,
+      precinctElectionResults,
+      precinctSelection
+    );
+    const encoded = encodeV0CompressedTally(compressed, 1)[0];
+    assert(encoded !== undefined);
+    results.push({ precinctId, encodedTally: encoded });
+  }
+  return results;
 }

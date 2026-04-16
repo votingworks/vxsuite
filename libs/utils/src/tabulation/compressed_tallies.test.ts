@@ -22,9 +22,10 @@ import {
   compressTally,
   decodeV0CompressedTally,
   encodeV0CompressedTally,
-  decodeAndReadCompressedTally,
+  readV0CompressedTallyAsContestResults,
   decodeAndReadPerPrecinctCompressedTally,
   readPrecinctBitmap,
+  splitPerPrecinctTallyIntoSinglePrecinctTallies,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -260,7 +261,7 @@ describe('readCompressTally', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
     const zeroTally = getZeroCompressedTally(electionEitherNeither);
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(encodeV0CompressedTally(zeroTally, 1)[0]),
@@ -294,7 +295,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === '775020876'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(
@@ -341,7 +342,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === 'president'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(
@@ -417,7 +418,7 @@ describe('readCompressTally', () => {
     compressedTally[yesNoContestIdx] = [6, 4, 20, 3, 7];
     const yesNoContest = electionEitherNeither.contests[yesNoContestIdx];
     assert(yesNoContest?.type === 'yesno');
-    const tally = decodeAndReadCompressedTally({
+    const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(
@@ -464,7 +465,7 @@ test('primary tally can compress and be read back and end with the original tall
   expect(compressedTallies).toHaveLength(1);
   const [compressedTally] = compressedTallies;
   assert(typeof compressedTally === 'string');
-  const decompressedTally = decodeAndReadCompressedTally({
+  const decompressedTally = readV0CompressedTallyAsContestResults({
     election,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     encodedTally: compressedTally,
@@ -507,12 +508,12 @@ test('compresses and decompresses tally for a single precinct', () => {
     compressedTallyPrecinct2,
     1
   );
-  const decodedTally = decodeAndReadCompressedTally({
+  const decodedTally = readV0CompressedTallyAsContestResults({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection,
     encodedTally: assertDefined(encodedTally[0]),
   });
-  const decodedTallyPrecinct2 = decodeAndReadCompressedTally({
+  const decodedTallyPrecinct2 = readV0CompressedTallyAsContestResults({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection2,
     encodedTally: assertDefined(encodedTallyPrecinct2[0]),
@@ -553,9 +554,7 @@ describe('precinct bitmap', () => {
     const election = readElectionGeneral();
     const precinctIds = election.precincts.map((p) => p.id);
     const selectedIds = [precinctIds[0], precinctIds[2]];
-    const resultsByPrecinct: Partial<
-      Record<string, Tabulation.ElectionResults>
-    > = {};
+    const resultsByPrecinct: Record<string, Tabulation.ElectionResults> = {};
     for (const id of selectedIds) {
       assert(id !== undefined);
       resultsByPrecinct[id] = getEmptyElectionResults(election);
@@ -575,9 +574,7 @@ describe('precinct bitmap', () => {
 
   test('buildPrecinctBitmap with all precincts sets all bits', () => {
     const election = readElectionGeneral();
-    const resultsByPrecinct: Partial<
-      Record<string, Tabulation.ElectionResults>
-    > = {};
+    const resultsByPrecinct: Record<string, Tabulation.ElectionResults> = {};
     for (const precinct of election.precincts) {
       resultsByPrecinct[precinct.id] = getEmptyElectionResults(election);
     }
@@ -710,7 +707,7 @@ describe('per-precinct tally encoding (V1)', () => {
     ).toThrow('Per-precinct decode requires V1 bitmap format');
   });
 
-  test('V0 tally still works through decodeAndReadCompressedTally', () => {
+  test('V0 tally still works through readV0CompressedTallyAsContestResults', () => {
     const election = readElectionGeneral();
     const results = buildElectionResultsFixture({
       election,
@@ -725,7 +722,7 @@ describe('per-precinct tally encoding (V1)', () => {
       numPages: 1,
     });
 
-    const decoded = decodeAndReadCompressedTally({
+    const decoded = readV0CompressedTallyAsContestResults({
       election,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       encodedTally: assertDefined(encoded[0]),
@@ -735,5 +732,63 @@ describe('per-precinct tally encoding (V1)', () => {
     for (const contest of election.contests) {
       expect(decoded[contest.id]).toBeDefined();
     }
+  });
+
+  test('splitPerPrecinctTallyIntoSinglePrecinctTallies produces valid V0 tallies', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+    const precinct1Id = '6522';
+    const precinct2Id = '6525';
+
+    const results1 = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [10], hmpb: [] },
+      contestResultsSummaries: {
+        '750000017': {
+          type: 'yesno',
+          ballots: 10,
+          undervotes: 0,
+          overvotes: 0,
+          yesTally: 7,
+          noTally: 3,
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+    const results2 = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [5], hmpb: [] },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const encoded = compressAndEncodePerPrecinctTally({
+      election: electionEitherNeither,
+      resultsByPrecinct: {
+        [precinct1Id]: results1,
+        [precinct2Id]: results2,
+      },
+      numPages: 1,
+    });
+
+    const splits = splitPerPrecinctTallyIntoSinglePrecinctTallies(
+      electionEitherNeither,
+      assertDefined(encoded[0])
+    );
+
+    expect(splits).toHaveLength(2);
+    expect(splits[0]?.precinctId).toEqual(precinct1Id);
+    expect(splits[1]?.precinctId).toEqual(precinct2Id);
+
+    // Each split should decode as a valid V0 tally
+    const decoded1 = readV0CompressedTallyAsContestResults({
+      election: electionEitherNeither,
+      precinctSelection: singlePrecinctSelectionFor(precinct1Id),
+      encodedTally: assertDefined(splits[0]).encodedTally,
+    });
+    const yesNoResult = decoded1['750000017'];
+    assert(yesNoResult?.contestType === 'yesno');
+    expect(yesNoResult.yesTally).toEqual(7);
+    expect(yesNoResult.noTally).toEqual(3);
   });
 });

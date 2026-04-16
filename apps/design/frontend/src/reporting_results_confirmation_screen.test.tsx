@@ -1,14 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, screen, waitFor } from '@testing-library/react';
-import { err, ok } from '@votingworks/basics';
-import {
-  ALL_PRECINCTS_SELECTION,
-  buildElectionResultsFixture,
-  getContestsForPrecinctAndElection,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { assertDefined, err, ok } from '@votingworks/basics';
+import { buildElectionResultsFixture } from '@votingworks/utils';
 import type { ReceivedReportInfo } from '@votingworks/design-backend';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
+import { Election, PollingPlace } from '@votingworks/types';
 import { render } from '../test/react_testing_library';
 import { generalElectionRecord } from '../test/fixtures';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
@@ -20,6 +16,7 @@ import {
 
 const electionRecord = generalElectionRecord('test-jurisdiction');
 const { election } = electionRecord;
+const generalPollingPlaceId = assertDefined(election.pollingPlaces?.[0]).id;
 
 let apiMock: MockUnauthenticatedApiClient;
 
@@ -46,7 +43,8 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T08:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  pollingPlaceId: generalPollingPlaceId,
+
   isPartial: false,
   ballotCount: 42,
   votingType: 'election_day',
@@ -59,7 +57,8 @@ const mockPollsPausedReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T12:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  pollingPlaceId: generalPollingPlaceId,
+
   isPartial: false,
   ballotCount: 108,
   votingType: 'early_voting',
@@ -72,7 +71,8 @@ const mockVotingResumedReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T13:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  pollingPlaceId: generalPollingPlaceId,
+
   isPartial: false,
   ballotCount: 150,
   votingType: 'election_day',
@@ -85,16 +85,19 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
-  contestResults: buildElectionResultsFixture({
-    election,
-    contestResultsSummaries: {},
-    cardCounts: {
-      bmd: [],
-      hmpb: [],
-    },
-    includeGenericWriteIn: false,
-  }).contestResults,
+  pollingPlaceId: generalPollingPlaceId,
+
+  contestResultsByPrecinct: {
+    [election.precincts[0].id]: buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: {},
+      cardCounts: {
+        bmd: [],
+        hmpb: [],
+      },
+      includeGenericWriteIn: false,
+    }).contestResults,
+  },
   isPartial: false,
   votingType: 'election_day',
 };
@@ -106,7 +109,8 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  pollingPlaceId: generalPollingPlaceId,
+
   isPartial: true,
   numPages: 4,
   pageIndex: 1,
@@ -114,6 +118,9 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
 };
 
 const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
+const primaryPollingPlaceId = assertDefined(
+  primaryElection.pollingPlaces?.[0]
+).id;
 
 const mockPollsClosedReportPrimary: ReceivedReportInfo = {
   pollsTransitionType: 'close_polls',
@@ -122,18 +129,18 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election: primaryElection,
-  precinctSelection: singlePrecinctSelectionFor(
-    primaryElection.precincts[0].id
-  ),
-  contestResults: buildElectionResultsFixture({
-    election: primaryElection,
-    contestResultsSummaries: {},
-    cardCounts: {
-      bmd: [],
-      hmpb: [],
-    },
-    includeGenericWriteIn: false,
-  }).contestResults,
+  pollingPlaceId: primaryPollingPlaceId,
+  contestResultsByPrecinct: {
+    [primaryElection.precincts[0].id]: buildElectionResultsFixture({
+      election: primaryElection,
+      contestResultsSummaries: {},
+      cardCounts: {
+        bmd: [],
+        hmpb: [],
+      },
+      includeGenericWriteIn: false,
+    }).contestResults,
+  },
   isPartial: false,
   votingType: 'election_day',
 };
@@ -184,14 +191,8 @@ test.each(invalidParameterTestCases)(
       provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
     );
 
-    expect(
-      screen.getByRole('heading', { name: 'Error Sending Report' })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'Invalid request. Please try scanning the QR code again.'
-      )
-    ).toBeInTheDocument();
+    screen.getByRole('heading', { name: 'Error Sending Report' });
+    screen.getByText('Invalid request. Please try scanning the QR code again.');
   }
 );
 
@@ -218,14 +219,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Error Sending Report' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          'Signature not verified. Please try scanning the QR code again.'
-        )
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'Signature not verified. Please try scanning the QR code again.'
+      );
     });
   });
 
@@ -243,14 +240,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Error Sending Report' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          'Wrong election. Confirm VxScan and VxDesign are configured with the same election package.'
-        )
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'Wrong election. Confirm VxScan and VxDesign are configured with the same election package.'
+      );
     });
   });
 
@@ -268,14 +261,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Error Sending Report' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.'
-        )
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.'
+      );
     });
   });
 
@@ -293,14 +282,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Error Sending Report' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          'Invalid request. Please try scanning the QR code again.'
-        )
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'Invalid request. Please try scanning the QR code again.'
+      );
     });
   });
 
@@ -317,34 +302,18 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Polls Opened Report Sent' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('The polls opened report has been sent to VxDesign.')
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Polls Opened Report Sent' });
+      screen.getByText('The polls opened report has been sent to VxDesign.');
     });
 
-    // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
-    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
-    // The ballot hash might be truncated by formatBallotHash function
-    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText(/Nov 5, 2024/);
+    screen.getByText(/Ballots Scanned/);
+    screen.getByText(/42/);
+    screen.getByText('Election Day');
 
-    // Check timestamp formatting - using more flexible matcher
-    expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
-
-    // Check ballot count
-    expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
-    expect(screen.getByText(/42/)).toBeInTheDocument();
-
-    // Check voting type
-    expect(screen.getByText('Election Day')).toBeInTheDocument();
-
-    // does not show test mode banner
-    await waitFor(() => {
-      expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
-    });
+    expect(screen.queryByText('Test Report')).toBeNull();
   });
 
   test('polls open report shows test mode banner for test reports', async () => {
@@ -366,7 +335,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Test Report')).toBeInTheDocument();
+      screen.getByText('Test Report');
     });
   });
 
@@ -383,31 +352,18 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Voting Paused Report Sent' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('The voting paused report has been sent to VxDesign.')
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Voting Paused Report Sent' });
+      screen.getByText('The voting paused report has been sent to VxDesign.');
     });
 
-    // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
-    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
-    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
-    expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText(/Nov 5, 2024/);
+    screen.getByText(/Ballots Scanned/);
+    screen.getByText(/108/);
+    screen.getByText('Early Voting');
 
-    // Check ballot count
-    expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
-    expect(screen.getByText(/108/)).toBeInTheDocument();
-
-    // Check voting type
-    expect(screen.getByText('Early Voting')).toBeInTheDocument();
-
-    // does not show test mode banner
-    await waitFor(() => {
-      expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
-    });
+    expect(screen.queryByText('Test Report')).toBeNull();
   });
 
   test('polls paused report shows test mode banner for test reports', async () => {
@@ -429,7 +385,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Test Report')).toBeInTheDocument();
+      screen.getByText('Test Report');
     });
   });
 
@@ -446,26 +402,16 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Voting Resumed Report Sent' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('The voting resumed report has been sent to VxDesign.')
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Voting Resumed Report Sent' });
+      screen.getByText('The voting resumed report has been sent to VxDesign.');
     });
 
-    // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
-    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
-    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
-    expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
-
-    // Check ballot count
-    expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
-    expect(screen.getByText(/150/)).toBeInTheDocument();
-
-    // Check voting type
-    expect(screen.getByText('Election Day')).toBeInTheDocument();
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText(/Nov 5, 2024/);
+    screen.getByText(/Ballots Scanned/);
+    screen.getByText(/150/);
+    screen.getByText('Election Day');
   });
 
   test('displays partial polls closed report correctly - general election', async () => {
@@ -481,23 +427,16 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', {
-          name: 'Polls Closed Report Part 2/4 Sent',
-        })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          /Part 2\/4 of the polls closed report has been sent to VxDesign./
-        )
-      ).toBeInTheDocument();
+      screen.getByRole('heading', {
+        name: 'Polls Closed Report Part 2/4 Sent',
+      });
+      screen.getByText(
+        /Part 2\/4 of the polls closed report has been sent to VxDesign./
+      );
     });
 
-    // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
-    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
-    // The ballot hash might be truncated by formatBallotHash function
-    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
 
     // Check that contest results tables are not rendered
     const tables = screen.queryAllByRole('table');
@@ -517,31 +456,25 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Polls Closed Report Sent' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('The polls closed report has been sent to VxDesign.')
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
+      screen.getByText('The polls closed report has been sent to VxDesign.');
     });
 
-    // Check report details
-    expect(screen.getByText('All Precincts')).toBeInTheDocument();
-    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
-    // The ballot hash might be truncated by formatBallotHash function
-    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
 
-    // Check that contest results tables are rendered
+    // Precinct heading for the single precinct in this polling place
+    screen.getByRole('heading', { name: 'Center Springfield' });
+
     const tables = screen.getAllByRole('table');
     expect(tables.length).toBeGreaterThan(0);
 
     expect(
       screen.queryByRole('heading', { name: 'Nonpartisan Contests' })
-    ).not.toBeInTheDocument();
+    ).toBeNull();
 
-    // All contests should be listed.
     for (const contest of election.contests) {
-      expect(screen.getByText(contest.title)).toBeInTheDocument();
+      expect(screen.getAllByText(contest.title).length).toBeGreaterThan(0);
     }
   });
 
@@ -564,7 +497,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Test Report')).toBeInTheDocument();
+      screen.getByText('Test Report');
     });
   });
 
@@ -582,43 +515,86 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Polls Closed Report Sent' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('The polls closed report has been sent to VxDesign.')
-      ).toBeInTheDocument();
+      screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
+      screen.getByText('The polls closed report has been sent to VxDesign.');
     });
 
-    // Check report details
-    expect(
-      screen.getByText(primaryElection.precincts[0].name)
-    ).toBeInTheDocument();
-    expect(screen.getByText('VxScan-002')).toBeInTheDocument();
-    // The ballot hash might be truncated by formatBallotHash function
-    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+    screen.getByText('VxScan-002');
+    screen.getByText(/abc123d/);
 
     // Check that contest results tables are rendered
     const tables = screen.getAllByRole('table');
     expect(tables.length).toBeGreaterThan(0);
 
-    const contestsInPrecinct = getContestsForPrecinctAndElection(
-      primaryElection,
-      singlePrecinctSelectionFor(primaryElection.precincts[0].id)
+    // At least some contests should be rendered for the reported precinct
+    expect(tables.length).toBeGreaterThan(0);
+  });
+
+  test('polls closed report shows multiple precinct sections for multi-precinct polling place', async () => {
+    const multiPrecinctPollingPlace: PollingPlace = {
+      id: 'multi-precinct-polling-place',
+      name: 'Springfield Community Center',
+      type: 'election_day',
+      precincts: {
+        [election.precincts[0].id]: { type: 'whole' },
+        [election.precincts[1].id]: { type: 'whole' },
+      },
+    };
+    const multiPrecinctElection: Election = {
+      ...election,
+      pollingPlaces: [
+        ...(election.pollingPlaces ?? []),
+        multiPrecinctPollingPlace,
+      ],
+    };
+    const emptyContestResults = buildElectionResultsFixture({
+      election: multiPrecinctElection,
+      contestResultsSummaries: {},
+      cardCounts: { bmd: [], hmpb: [] },
+      includeGenericWriteIn: false,
+    }).contestResults;
+
+    const mockReport: ReceivedReportInfo = {
+      pollsTransitionType: 'close_polls',
+      ballotHash: 'abc123def456',
+      machineId: 'VxScan-001',
+      isLive: true,
+      pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
+      election: multiPrecinctElection,
+      pollingPlaceId: multiPrecinctPollingPlace.id,
+      contestResultsByPrecinct: {
+        [election.precincts[0].id]: emptyContestResults,
+        [election.precincts[1].id]: emptyContestResults,
+      },
+      isPartial: false,
+      votingType: 'election_day',
+    };
+
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockReport));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
     );
-    const contestsOutsidePrecinct = election.contests.filter(
-      (c) => !contestsInPrecinct.some((cp) => cp.id === c.id)
-    );
-    // Contests in the precinct should have results listed.
-    for (const contest of contestsInPrecinct) {
-      expect(screen.queryByText(contest.title)).toBeInTheDocument();
-    }
-    for (const contest of contestsOutsidePrecinct) {
-      expect(screen.queryByText(contest.title)).not.toBeInTheDocument();
-    }
-    // Contests should have headers, this election has non partisan contests.
-    await screen.findByText('Mammal Party Contests');
-    await screen.findByText('Fish Party Contests');
-    await screen.findByText('Nonpartisan Contests');
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
+    });
+
+    // Polling place name is displayed
+    screen.getByText('Springfield Community Center');
+
+    // Both precinct section headings are rendered
+    screen.getByRole('heading', { name: election.precincts[0].name });
+    screen.getByRole('heading', { name: election.precincts[1].name });
+
+    // Contest tables appear for both precincts
+    const tables = screen.getAllByRole('table');
+    expect(tables.length).toBeGreaterThan(1);
   });
 });

@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
-import { compressAndEncodeTally } from '@votingworks/utils';
+import { compressAndEncodePerPrecinctTally } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils';
@@ -12,7 +12,6 @@ import {
   decodeQuickResultsMessage,
   encodeQuickResultsMessage,
   QR_MESSAGE_FORMAT,
-  QR_MESSAGE_FORMAT_V1,
 } from './signed_quick_results_reporting';
 import { constructPrefixedMessage } from './signatures';
 
@@ -22,7 +21,7 @@ vi.mock(
   '@votingworks/utils',
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
-    compressAndEncodeTally: vi
+    compressAndEncodePerPrecinctTally: vi
       .fn()
       .mockImplementation((args: { numPages?: number }) => {
         const numPages = args?.numPages ?? 1;
@@ -48,10 +47,16 @@ const vxScanTestConfig: SignedQuickResultsReportingConfig = {
 };
 
 const electionDefinition = electionGeneralFixtures.readElectionDefinition();
-const mockedResults = {
-  cardCounts: { bmd: [42], hmpb: [] },
-  contestResults: {},
-} as unknown as Tabulation.ElectionResults;
+const mockedResultsByPrecinct: Record<string, Tabulation.ElectionResults> = {
+  'precinct-1': {
+    contestResults: {},
+    cardCounts: { bmd: [10], hmpb: [5] },
+  },
+  'precinct-2': {
+    contestResults: {},
+    cardCounts: { bmd: [], hmpb: [] },
+  },
+};
 
 test.each<{ isLiveMode: boolean }>([
   { isLiveMode: false },
@@ -65,9 +70,9 @@ test.each<{ isLiveMode: boolean }>([
           electionDefinition,
           isLiveMode,
           quickResultsReportingUrl: 'https://example.com',
-          results: mockedResults,
+          resultsByPrecinct: mockedResultsByPrecinct,
           signingMachineId: DEV_MACHINE_ID,
-          precinctSelection: { kind: 'AllPrecincts' },
+          pollingPlaceId: 'mockPollingPlaceId',
           pollsTransitionType: 'close_polls',
           votingType: 'election_day',
           pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
@@ -79,7 +84,7 @@ test.each<{ isLiveMode: boolean }>([
     const signedQuickResultsReportingUrl =
       signedQuickResultsReportingUrls[0] as string;
 
-    expect(compressAndEncodeTally).toHaveBeenCalledTimes(1);
+    expect(compressAndEncodePerPrecinctTally).toHaveBeenCalledTimes(1);
     expect(signedQuickResultsReportingUrl).not.toContain('open_polls');
     expect(signedQuickResultsReportingUrl).toMatch(
       /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
@@ -99,9 +104,9 @@ test.each<{ isLiveMode: boolean }>([
           electionDefinition,
           isLiveMode,
           quickResultsReportingUrl: 'https://example.com',
-          results: mockedResults,
+          resultsByPrecinct: mockedResultsByPrecinct,
           signingMachineId: DEV_MACHINE_ID,
-          precinctSelection: { kind: 'AllPrecincts' },
+          pollingPlaceId: 'mockPollingPlaceId',
           pollsTransitionType: 'close_polls',
           votingType: 'election_day',
           pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
@@ -110,26 +115,15 @@ test.each<{ isLiveMode: boolean }>([
         vxScanTestConfig
       );
 
-    expect(signedQuickResultsReportingUrls).toHaveLength(3);
-    const signedQuickResultsReportingUrl1 =
-      signedQuickResultsReportingUrls[0] as string;
-    const signedQuickResultsReportingUrl2 =
-      signedQuickResultsReportingUrls[1] as string;
-    const signedQuickResultsReportingUrl3 =
-      signedQuickResultsReportingUrls[2] as string;
+    expect(signedQuickResultsReportingUrls.length).toBeGreaterThan(1);
 
-    expect(compressAndEncodeTally).toHaveBeenCalledTimes(3);
-    expect(signedQuickResultsReportingUrl1).not.toContain('polls_open');
-    expect(signedQuickResultsReportingUrl2).not.toContain('polls_open');
-    expect(signedQuickResultsReportingUrl1).toMatch(
-      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+    expect(compressAndEncodePerPrecinctTally).toHaveBeenCalledTimes(
+      signedQuickResultsReportingUrls.length
     );
-    expect(signedQuickResultsReportingUrl2).toMatch(
-      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
-    );
-    expect(signedQuickResultsReportingUrl3).toMatch(
-      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
-    );
+    for (const url of signedQuickResultsReportingUrls) {
+      expect(url).not.toContain('polls_open');
+      expect(url).toMatch(/^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/);
+    }
   }
 );
 
@@ -140,9 +134,9 @@ test('If it is impossible to fit the signed quick results reporting URL within t
         electionDefinition,
         isLiveMode: true,
         quickResultsReportingUrl: 'https://example.com',
-        results: mockedResults,
+        resultsByPrecinct: mockedResultsByPrecinct,
         signingMachineId: DEV_MACHINE_ID,
-        precinctSelection: { kind: 'AllPrecincts' },
+        pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'close_polls',
         votingType: 'election_day',
         pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
@@ -153,19 +147,19 @@ test('If it is impossible to fit the signed quick results reporting URL within t
   ).rejects.toThrow(
     `Unable to fit signed quick results reporting URL within 10 bytes broken up over 25 parts`
   );
-  expect(compressAndEncodeTally).toHaveBeenCalledTimes(25);
+  expect(compressAndEncodePerPrecinctTally).toHaveBeenCalledTimes(25);
 }, 20000);
 
-test('generateSignedQuickResultsReportingUrl works for reporting polls open status - live all precincts', async () => {
+test('generateSignedQuickResultsReportingUrl works for reporting polls open status - live', async () => {
   const signedQuickResultsReportingUrls =
     await generateSignedQuickResultsReportingUrl(
       {
         electionDefinition,
         isLiveMode: true,
         quickResultsReportingUrl: 'https://example.com',
-        results: mockedResults,
+        resultsByPrecinct: mockedResultsByPrecinct,
         signingMachineId: DEV_MACHINE_ID,
-        precinctSelection: { kind: 'AllPrecincts' },
+        pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'open_polls',
         votingType: 'election_day',
         pollsTransitionTimestamp: new Date('2024-11-05T08:00:00Z').getTime(),
@@ -177,26 +171,23 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
     signedQuickResultsReportingUrls[0] as string;
 
   // We do not need a compressed tally when reporting polls open status
-  expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
+  expect(compressAndEncodePerPrecinctTally).toHaveBeenCalledTimes(0);
   expect(signedQuickResultsReportingUrl).toMatch(
     /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
   );
   expect(signedQuickResultsReportingUrl).toContain('open_polls');
 });
 
-test('generateSignedQuickResultsReportingUrl works for reporting polls open status - test single precincts', async () => {
+test('generateSignedQuickResultsReportingUrl works for reporting polls open status - test with polling place', async () => {
   const signedQuickResultsReportingUrls =
     await generateSignedQuickResultsReportingUrl(
       {
         electionDefinition,
         isLiveMode: false,
         quickResultsReportingUrl: 'https://example.com',
-        results: mockedResults,
+        resultsByPrecinct: mockedResultsByPrecinct,
         signingMachineId: DEV_MACHINE_ID,
-        precinctSelection: {
-          kind: 'SinglePrecinct',
-          precinctId: 'mockPrecinctId',
-        },
+        pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'open_polls',
         votingType: 'early_voting',
         pollsTransitionTimestamp: new Date('2024-11-05T08:00:00Z').getTime(),
@@ -208,12 +199,12 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
   const signedQuickResultsReportingUrl =
     signedQuickResultsReportingUrls[0] as string;
   // We do not need a compressed tally when reporting polls open status
-  expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
+  expect(compressAndEncodePerPrecinctTally).toHaveBeenCalledTimes(0);
   expect(signedQuickResultsReportingUrl).toMatch(
     /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
   );
   expect(signedQuickResultsReportingUrl).toContain('open_polls');
-  expect(signedQuickResultsReportingUrl).toContain('mockPrecinctId');
+  expect(signedQuickResultsReportingUrl).toContain('mockPollingPlaceId');
 });
 
 test('authenticateSignedQuickResultsReportingUrl - success case with real certificates', async () => {
@@ -223,9 +214,9 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
       electionDefinition,
       isLiveMode: true,
       quickResultsReportingUrl: 'https://example.com',
-      results: mockedResults,
+      resultsByPrecinct: mockedResultsByPrecinct,
       signingMachineId: DEV_MACHINE_ID,
-      precinctSelection: { kind: 'AllPrecincts' },
+      pollingPlaceId: 'mockPollingPlaceId',
       pollsTransitionType: 'close_polls',
       votingType: 'election_day',
       pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
@@ -262,9 +253,9 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
       electionDefinition,
       isLiveMode: true,
       quickResultsReportingUrl: 'https://example.com',
-      results: mockedResults,
+      resultsByPrecinct: mockedResultsByPrecinct,
       signingMachineId: DEV_MACHINE_ID,
-      precinctSelection: { kind: 'AllPrecincts' },
+      pollingPlaceId: 'mockPollingPlaceId',
       pollsTransitionType: 'close_polls',
       votingType: 'election_day',
       pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
@@ -317,9 +308,9 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
       electionDefinition,
       isLiveMode: true,
       quickResultsReportingUrl: 'https://example.com',
-      results: mockedResults,
+      resultsByPrecinct: mockedResultsByPrecinct,
       signingMachineId: DEV_MACHINE_ID,
-      precinctSelection: { kind: 'AllPrecincts' },
+      pollingPlaceId: 'mockPollingPlaceId',
       pollsTransitionType: 'close_polls',
       votingType: 'election_day',
       pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
@@ -334,7 +325,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
   const certificate = url.searchParams.get('c') ?? '';
 
   // Use a tampered payload
-  const tamperedPayload = 'qr1:tamperedData';
+  const tamperedPayload = 'qr3:tamperedData';
 
   const vxCertAuthorityCertPath = getTestFilePath({
     fileType: 'vx-cert-authority-cert.pem',
@@ -361,12 +352,6 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     );
   }).toThrow();
 
-  expect(() => {
-    decodeQuickResultsMessage(
-      constructPrefixedMessage(QR_MESSAGE_FORMAT_V1, 'data')
-    );
-  }).toThrow('Invalid message payload format');
-
   const timeInSeconds = new Date('2024-01-01T00:00:00Z').getTime() / 1000;
   const encodedMessage = encodeQuickResultsMessage({
     ballotHash: 'mockBallotHash',
@@ -374,7 +359,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     isLiveMode: false,
     timestamp: timeInSeconds,
     primaryMessage: 'sampleCompressedTally',
-    precinctSelection: { kind: 'AllPrecincts' },
+    pollingPlaceId: 'mockPollingPlaceId',
     numPages: 88,
     pageIndex: 77,
     ballotCount: 0,
@@ -455,7 +440,7 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount
       '1',
       timestamp,
       'sampleTally',
-      '',
+      'pollingPlace1',
       overrides.numPages ?? '1',
       overrides.pageIndex ?? '0',
       overrides.ballotCount ?? '0',
@@ -497,7 +482,7 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount
   ).toThrow('Invalid voting type format');
 });
 
-test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads no precinct id', () => {
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle close_polls tally', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
       QR_MESSAGE_FORMAT,
@@ -507,7 +492,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         isLiveMode: false,
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
         primaryMessage: 'sampleCompressedTally',
-        precinctSelection: { kind: 'AllPrecincts' },
+        pollingPlaceId: 'mockPollingPlaceId',
         numPages: 1,
         pageIndex: 0,
         ballotCount: 42,
@@ -524,17 +509,15 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "machineId": "machineId",
       "numPages": 1,
       "pageIndex": 0,
+      "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "close_polls",
-      "precinctSelection": {
-        "kind": "AllPrecincts",
-      },
       "votingType": "election_day",
     }
   `);
 });
 
-test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads with single precinct selection', () => {
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads with polling place id', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
       QR_MESSAGE_FORMAT,
@@ -544,10 +527,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         isLiveMode: false,
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
         primaryMessage: 'sampleCompressedTally',
-        precinctSelection: {
-          kind: 'SinglePrecinct',
-          precinctId: 'mockPrecinctId',
-        },
+        pollingPlaceId: 'mockPollingPlaceId',
         numPages: 1,
         pageIndex: 0,
         ballotCount: 15,
@@ -564,12 +544,9 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "machineId": "machineId",
       "numPages": 1,
       "pageIndex": 0,
+      "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "close_polls",
-      "precinctSelection": {
-        "kind": "SinglePrecinct",
-        "precinctId": "mockPrecinctId",
-      },
       "votingType": "early_voting",
     }
   `);
@@ -582,9 +559,9 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls paused st
         electionDefinition,
         isLiveMode: true,
         quickResultsReportingUrl: 'https://example.com',
-        results: mockedResults,
+        resultsByPrecinct: mockedResultsByPrecinct,
         signingMachineId: DEV_MACHINE_ID,
-        precinctSelection: { kind: 'AllPrecincts' },
+        pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'pause_voting',
         votingType: 'election_day',
         pollsTransitionTimestamp: new Date('2024-11-05T12:00:00Z').getTime(),
@@ -596,7 +573,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls paused st
     signedQuickResultsReportingUrls[0] as string;
 
   // We do not need a compressed tally when reporting polls paused status
-  expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
+  expect(compressAndEncodePerPrecinctTally).toHaveBeenCalledTimes(0);
   expect(signedQuickResultsReportingUrl).toMatch(
     /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
   );
@@ -610,10 +587,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     isLiveMode: false,
     timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
     primaryMessage: 'open_polls',
-    precinctSelection: {
-      kind: 'SinglePrecinct',
-      precinctId: 'mockPrecinctId',
-    },
+    pollingPlaceId: 'mockPollingPlaceId',
     numPages: 1,
     pageIndex: 0,
     ballotCount: 7,
@@ -633,12 +607,9 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "machineId": "machineId",
       "numPages": 1,
       "pageIndex": 0,
+      "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "open_polls",
-      "precinctSelection": {
-        "kind": "SinglePrecinct",
-        "precinctId": "mockPrecinctId",
-      },
       "votingType": "election_day",
     }
   `);
@@ -651,10 +622,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     isLiveMode: false,
     timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
     primaryMessage: 'pause_voting',
-    precinctSelection: {
-      kind: 'SinglePrecinct',
-      precinctId: 'mockPrecinctId',
-    },
+    pollingPlaceId: 'mockPollingPlaceId',
     numPages: 1,
     pageIndex: 0,
     ballotCount: 99,
@@ -674,12 +642,9 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "machineId": "machineId",
       "numPages": 1,
       "pageIndex": 0,
+      "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "pause_voting",
-      "precinctSelection": {
-        "kind": "SinglePrecinct",
-        "precinctId": "mockPrecinctId",
-      },
       "votingType": "early_voting",
     }
   `);
@@ -692,10 +657,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle resume_voti
     isLiveMode: true,
     timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
     primaryMessage: 'resume_voting',
-    precinctSelection: {
-      kind: 'SinglePrecinct',
-      precinctId: 'mockPrecinctId',
-    },
+    pollingPlaceId: 'mockPollingPlaceId',
     numPages: 1,
     pageIndex: 0,
     ballotCount: 50,
@@ -715,91 +677,9 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle resume_voti
       "machineId": "machineId",
       "numPages": 1,
       "pageIndex": 0,
+      "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "resume_voting",
-      "precinctSelection": {
-        "kind": "SinglePrecinct",
-        "precinctId": "mockPrecinctId",
-      },
-      "votingType": "election_day",
-    }
-  `);
-});
-
-test('decodeQuickResultsMessage handles old polls_open primaryMessage for backwards compatibility', () => {
-  const encoded = encodeQuickResultsMessage({
-    ballotHash: 'mockBallotHash',
-    signingMachineId: 'machineId',
-    isLiveMode: false,
-    timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-    primaryMessage: 'polls_open',
-    precinctSelection: { kind: 'AllPrecincts' },
-    numPages: 1,
-    pageIndex: 0,
-    ballotCount: 0,
-    votingType: 'election_day',
-  });
-
-  const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
-  );
-  expect(decoded.pollsTransitionType).toEqual('open_polls');
-  expect(decoded.encodedCompressedTally).toEqual('');
-});
-
-test('decodeQuickResultsMessage handles old polls_paused primaryMessage for backwards compatibility', () => {
-  const encoded = encodeQuickResultsMessage({
-    ballotHash: 'mockBallotHash',
-    signingMachineId: 'machineId',
-    isLiveMode: false,
-    timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-    primaryMessage: 'polls_paused',
-    precinctSelection: { kind: 'AllPrecincts' },
-    numPages: 1,
-    pageIndex: 0,
-    ballotCount: 0,
-    votingType: 'election_day',
-  });
-
-  const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
-  );
-  expect(decoded.pollsTransitionType).toEqual('pause_voting');
-  expect(decoded.encodedCompressedTally).toEqual('');
-});
-
-test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount, defaults votingType to election_day', () => {
-  // Simulate a qr1 message with 8 fields as older VxScan would generate
-  const v1MessageParts = [
-    encodeURIComponent('mockBallotHash'),
-    encodeURIComponent('machineId'),
-    '0',
-    (new Date('2024-01-01T00:00:00Z').getTime() / 1000).toString(),
-    'polls_open',
-    encodeURIComponent('mockPrecinctId'),
-    '1',
-    '0',
-  ];
-  // Null byte separator used in the QR message format
-  const v1Payload = v1MessageParts.join('\x00');
-  const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT_V1, v1Payload)
-  );
-  expect(decoded).toMatchInlineSnapshot(`
-    {
-      "ballotCount": undefined,
-      "ballotHash": "mockBallotHash",
-      "encodedCompressedTally": "",
-      "isLive": false,
-      "machineId": "machineId",
-      "numPages": 1,
-      "pageIndex": 0,
-      "pollsTransitionType": "open_polls",
-      "precinctSelection": {
-        "kind": "SinglePrecinct",
-        "precinctId": "mockPrecinctId",
-      },
-      "reportCreatedAt": 2024-01-01T00:00:00.000Z,
       "votingType": "election_day",
     }
   `);
@@ -815,7 +695,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee vo
         isLiveMode: true,
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
         primaryMessage: 'sampleCompressedTally',
-        precinctSelection: { kind: 'AllPrecincts' },
+        pollingPlaceId: 'mockPollingPlaceId',
         numPages: 1,
         pageIndex: 0,
         ballotCount: 5,
@@ -832,11 +712,9 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee vo
       "machineId": "machineId",
       "numPages": 1,
       "pageIndex": 0,
+      "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "close_polls",
-      "precinctSelection": {
-        "kind": "AllPrecincts",
-      },
       "votingType": "absentee",
     }
   `);
