@@ -71,6 +71,26 @@ test('disallows invalid adjudication reasons', () => {
   ).toMatchSnapshot();
 });
 
+test('disallows enforcement flags without polls close time', () => {
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchSnapshot();
+
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchSnapshot();
+});
+
 test('disallows retry streak threshold greater than or equal to normal threshold', () => {
   // Valid: retry threshold less than normal threshold
   expect(
