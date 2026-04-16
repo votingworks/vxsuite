@@ -216,8 +216,16 @@ function ElectionInfoForm({
         <SegmentedButton
           label="Type"
           options={[
-            { label: 'General', id: 'general' },
-            { label: 'Primary', id: 'primary' },
+            { label: 'General', id: 'general' as const },
+            ...(features.OPEN_PRIMARIES
+              ? [
+                  {
+                    label: 'Closed Primary',
+                    id: 'closed-primary' as const,
+                  },
+                  { label: 'Open Primary', id: 'open-primary' as const },
+                ]
+              : [{ label: 'Primary', id: 'closed-primary' as const }]),
           ]}
           selectedOptionId={electionInfo.type}
           onChange={(type) => setElectionInfo({ ...electionInfo, type })}

@@ -6,10 +6,7 @@ import type {
 } from '@votingworks/design-backend';
 import { createBlankElection } from '@votingworks/design-backend';
 import {
-  electionPrimaryPrecinctSplitsFixtures,
-  readElectionGeneral,
-} from '@votingworks/fixtures';
-import {
+  electionTypeV4p0ToV4p1,
   BallotLanguageConfigs,
   Candidate,
   DEFAULT_SYSTEM_SETTINGS,
@@ -17,6 +14,10 @@ import {
   Id,
   LanguageCode,
 } from '@votingworks/types';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneral,
+} from '@votingworks/fixtures';
 import { generateBallotStyles } from '@votingworks/hmpb';
 import { generateId } from '../src/utils';
 
@@ -64,6 +65,7 @@ export function makeElectionRecord(
   };
   return {
     election,
+    type: electionTypeV4p0ToV4p1(baseElection.type),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
@@ -79,7 +81,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     electionId: election.id,
     title: election.title,
     date: election.date,
-    type: election.type,
+    type: electionTypeV4p0ToV4p1(election.type),
     state: election.state,
     countyName: election.county.name,
     seal: election.seal,
@@ -92,6 +94,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
 export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
   return {
     ...electionInfoFromElection(record.election),
+    type: record.type,
     jurisdictionId: record.jurisdictionId,
   };
 }
@@ -99,14 +102,14 @@ export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
 export function electionListing(
   electionRecord: ElectionRecord
 ): ElectionListing {
-  const { election, jurisdictionId } = electionRecord;
+  const { election, type, jurisdictionId } = electionRecord;
   return {
     jurisdictionId,
     jurisdictionName: `${jurisdictionId} Name`,
     electionId: election.id,
     title: election.title,
     date: election.date,
-    type: election.type,
+    type,
     state: election.state,
     countyName: election.county.name,
     status: 'inProgress',

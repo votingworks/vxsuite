@@ -16,6 +16,7 @@ import {
 } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
@@ -55,6 +56,7 @@ import {
   PrecinctWithoutSplits,
   PrecinctWithSplits,
   ElectionRegisteredVotersCounts,
+  electionTypeV4p0ToV4p1,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -391,7 +393,7 @@ test('create/list/delete elections', async () => {
     electionId: importedElectionNewId,
     title: sliElection.title,
     date: sliElection.date,
-    type: sliElection.type,
+    type: electionTypeV4p0ToV4p1(sliElection.type),
     countyName: sliElection.county.name,
     state: sliElection.state,
     status: 'inProgress',
@@ -458,7 +460,7 @@ test('create/list/delete elections', async () => {
     languageCodes: [LanguageCode.ENGLISH],
     state: sliElection.state,
     seal: sliElection.seal,
-    type: sliElection.type,
+    type: electionTypeV4p0ToV4p1(sliElection.type),
   });
   const election2Districts = await apiClient.listDistricts({
     electionId: sliElectionId,
@@ -684,7 +686,7 @@ test('update election info', async () => {
     countyName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
-    type: 'primary',
+    type: 'closed-primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
@@ -697,7 +699,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -718,7 +720,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -731,7 +733,7 @@ test('update election info', async () => {
     countyName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
-    type: 'primary',
+    type: 'closed-primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     signatureCaption: 'New Caption',
@@ -750,7 +752,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
       signatureCaption: 'New Caption',
@@ -773,7 +775,7 @@ test('update election info', async () => {
       countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
-      type: 'primary',
+      type: 'closed-primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -800,7 +802,7 @@ test('update election info', async () => {
       apiClient.updateElectionInfo({
         jurisdictionId: nonVxJurisdiction.id,
         electionId,
-        type: 'primary',
+        type: 'closed-primary',
         title: '',
         countyName: '  ',
         state: '',
@@ -3073,6 +3075,67 @@ test('cloneElection', async () => {
   );
 });
 
+test('open primary elections', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(supportUser);
+
+  // Loading an open primary into a jurisdiction with OPEN_PRIMARIES stores open-primary type
+  const electionId = (
+    await apiClient.loadElection({
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+      },
+      newId: 'open-primary-election' as ElectionId,
+      jurisdictionId: miJurisdiction.id,
+    })
+  ).unsafeUnwrap();
+  expect((await apiClient.getElectionInfo({ electionId })).type).toEqual(
+    'open-primary'
+  );
+
+  // Loading an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  expect(
+    await apiClient.loadElection({
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+      },
+      newId: 'not-open-primary-election' as ElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    })
+  ).toEqual(
+    err(
+      expect.objectContaining({
+        message: expect.stringContaining('Open primary'),
+      })
+    )
+  );
+
+  // Cloning preserves the open-primary type
+  const clonedElectionId = await apiClient.cloneElection({
+    electionId,
+    destElectionId: 'cloned-open-primary' as ElectionId,
+    destJurisdictionId: miJurisdiction.id,
+  });
+  expect(
+    (await apiClient.getElectionInfo({ electionId: clonedElectionId })).type
+  ).toEqual('open-primary');
+
+  // Cloning an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  await expect(
+    apiClient.cloneElection({
+      electionId,
+      destElectionId: 'should-fail' as ElectionId,
+      destJurisdictionId: nonVxJurisdiction.id,
+    })
+  ).rejects.toThrow('Open primary');
+});
+
 test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -3965,7 +4028,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
       countyName: baseElectionDefinition.election.county.name,
       state: baseElectionDefinition.election.state,
       seal: baseElectionDefinition.election.seal,
-      type: baseElectionDefinition.election.type,
+      type: electionTypeV4p0ToV4p1(baseElectionDefinition.election.type),
       date: baseElectionDefinition.election.date,
       languageCodes: [LanguageCode.ENGLISH],
       signatureImage: 'test-signature-image',

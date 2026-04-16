@@ -6,6 +6,7 @@ import {
   ContestId,
   Contests,
   YesNoContest,
+  isPrimary,
 } from '@votingworks/types';
 import styled from 'styled-components';
 import { FixedViewport, ListActionsRow, Row } from './layout';
@@ -204,7 +205,7 @@ function Content(): JSX.Element | null {
               style={{ minWidth: '8rem' }}
               disabled={isReordering}
             />
-            {electionInfo.type === 'primary' && (
+            {isPrimary(electionInfo.type) && (
               <SearchSelect
                 options={[
                   { value: FILTER_ALL, label: 'All Parties' },
@@ -269,7 +270,7 @@ function Content(): JSX.Element | null {
             <NoContests>
               <Callout color="neutral" icon="Info">
                 There are no contests for the district
-                {electionInfo.type === 'primary' ? '/party' : ''} you selected.
+                {isPrimary(electionInfo.type) ? '/party' : ''} you selected.
               </Callout>
               <div>
                 <Button

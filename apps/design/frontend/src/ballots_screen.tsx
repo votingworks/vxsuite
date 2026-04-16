@@ -14,7 +14,12 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  ElectionId,
+  hasSplits,
+  isPrimary,
+} from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
@@ -210,7 +215,7 @@ function BallotStylesTab(): JSX.Element | null {
               <tr>
                 <TH>Precinct</TH>
                 <TH>Ballot Style</TH>
-                {electionInfo.type === 'primary' && <TH>Party</TH>}
+                {isPrimary(electionInfo.type) && <TH>Party</TH>}
                 <TH />
               </tr>
             </thead>
@@ -230,7 +235,7 @@ function BallotStylesTab(): JSX.Element | null {
                         </TD>
                         {
                           /* istanbul ignore next - @preserve */
-                          electionInfo.type === 'primary' && <TD />
+                          isPrimary(electionInfo.type) && <TD />
                         }
                         <TD />
                       </tr>
@@ -241,7 +246,7 @@ function BallotStylesTab(): JSX.Element | null {
                     <tr key={precinct.id + ballotStyle.id}>
                       <TD>{precinct.name}</TD>
                       <TD>{ballotStyle.id}</TD>
-                      {electionInfo.type === 'primary' && (
+                      {isPrimary(electionInfo.type) && (
                         <TD>
                           {
                             find(
@@ -269,7 +274,7 @@ function BallotStylesTab(): JSX.Element | null {
                   <tr key={precinct.id}>
                     <TD>{precinct.name}</TD>
                     <TD />
-                    {electionInfo.type === 'primary' && <TD />}
+                    {isPrimary(electionInfo.type) && <TD />}
                     <TD />
                   </tr>
                 );
@@ -291,7 +296,7 @@ function BallotStylesTab(): JSX.Element | null {
                         </TD>
                         {
                           /* istanbul ignore next - @preserve */
-                          electionInfo.type === 'primary' && <TD />
+                          isPrimary(electionInfo.type) && <TD />
                         }
                         <TD />
                       </NestedTr>
@@ -302,7 +307,7 @@ function BallotStylesTab(): JSX.Element | null {
                     <NestedTr key={split.id + ballotStyle.id}>
                       <TD>{split.name}</TD>
                       <TD>{ballotStyle.id}</TD>
-                      {electionInfo.type === 'primary' && (
+                      {isPrimary(electionInfo.type) && (
                         <TD>
                           {
                             find(

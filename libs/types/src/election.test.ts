@@ -56,6 +56,9 @@ import {
   Election,
   PollingPlace,
   PollingPlacesSchema,
+  isPrimary,
+  electionTypeV4p1ToV4p0,
+  electionTypeV4p0ToV4p1,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -278,6 +281,24 @@ test('isOpenPrimary', () => {
     })),
   };
   expect(isOpenPrimary(openPrimaryElection)).toEqual(true);
+});
+
+test('isPrimary', () => {
+  expect(isPrimary('general')).toEqual(false);
+  expect(isPrimary('primary')).toEqual(true);
+  expect(isPrimary('closed-primary')).toEqual(true);
+  expect(isPrimary('open-primary')).toEqual(true);
+});
+
+test('electionTypeV4p1ToV4p0', () => {
+  expect(electionTypeV4p1ToV4p0('general')).toEqual('general');
+  expect(electionTypeV4p1ToV4p0('closed-primary')).toEqual('primary');
+  expect(electionTypeV4p1ToV4p0('open-primary')).toEqual('primary');
+});
+
+test('electionTypeV4p0ToV4p1', () => {
+  expect(electionTypeV4p0ToV4p1('general')).toEqual('general');
+  expect(electionTypeV4p0ToV4p1('primary')).toEqual('closed-primary');
 });
 
 test('getGroupIdFromBallotStyleId', () => {

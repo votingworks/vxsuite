@@ -1,6 +1,10 @@
 import { test, expect, vi, beforeAll, afterAll } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Election, safeParseElection } from '@votingworks/types';
+import {
+  Election,
+  electionTypeV4p0ToV4p1,
+  safeParseElection,
+} from '@votingworks/types';
 import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
 import { Jurisdiction } from './types';
@@ -30,8 +34,9 @@ afterAll(async () => {
 
 async function expectValidElection(election: Election) {
   await store.createElection({
-    jurisdictionId: jurisdiction.id,
+    jurisdiction,
     election,
+    electionType: electionTypeV4p0ToV4p1(election.type),
     ballotTemplateId: 'VxDefaultBallot',
     systemSettings: defaultSystemSettings(jurisdiction),
   });
