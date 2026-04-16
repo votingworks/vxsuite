@@ -4,3 +4,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
+    # This only applies to the number of open regular version-update PRs.
+    # Security update PRs will continue to be created, since they have a
+    # separate limit:
+    # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#open-pull-requests-limit-
+    open-pull-requests-limit: 0
