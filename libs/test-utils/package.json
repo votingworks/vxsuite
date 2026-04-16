@@ -35,13 +35,13 @@
     "jest-diff": "^29.6.2",
     "js-sha256": "^0.9.0",
     "jszip": "^3.9.1",
-    "luxon": "^3.0.0",
+    "luxon": "^3.7.2",
     "react": "18.3.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.1",
     "@types/kiosk-browser": "workspace:*",
-    "@types/luxon": "^3.0.0",
+    "@types/luxon": "^3.7.1",
     "@types/node": "20.17.31",
     "@types/react": "18.3.3",
     "@types/zip-stream": "workspace:*",
