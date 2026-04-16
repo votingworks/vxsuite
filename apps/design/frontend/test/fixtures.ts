@@ -52,7 +52,7 @@ export function makeElectionRecord(
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests,
-    electionType: baseElection.type,
+    electionType: electionTypeV4p0ToV4p1(baseElection.type),
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',

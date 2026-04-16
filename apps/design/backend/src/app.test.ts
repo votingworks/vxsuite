@@ -538,7 +538,7 @@ test('create/list/delete elections', async () => {
     generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
-      electionType: sliElection.type,
+      electionType: electionTypeV4p0ToV4p1(sliElection.type),
       parties: election2Parties,
       precincts: [...election2Precincts],
       ballotTemplateId: 'VxDefaultBallot',
@@ -3097,6 +3097,16 @@ test('open primary elections', async () => {
   expect((await apiClient.getElectionInfo({ electionId })).type).toEqual(
     'open-primary'
   );
+
+  // Open primary elections generate one ballot style per precinct with no
+  // partyId — voters see all parties' contests on a single ballot.
+  const openPrimaryBallotStyles = await apiClient.listBallotStyles({
+    electionId,
+  });
+  expect(openPrimaryBallotStyles.length).toBeGreaterThan(0);
+  for (const ballotStyle of openPrimaryBallotStyles) {
+    expect(ballotStyle.partyId).toBeUndefined();
+  }
 
   // Loading an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
   expect(

@@ -1148,7 +1148,7 @@ export class Store {
       const ballotStyles = generateBallotStyles({
         ballotLanguageConfigs,
         contests,
-        electionType: electionTypeV4p1ToV4p0(electionRow.type),
+        electionType: electionRow.type,
         parties,
         precincts,
         ballotTemplateId: electionRow.ballotTemplateId,
