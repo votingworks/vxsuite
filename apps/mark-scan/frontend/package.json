@@ -102,7 +102,7 @@
     "chalk": "4.1.2",
     "concurrently": "7.6.0",
     "eslint-plugin-vx": "workspace:*",
-    "fetch-mock": "9.11.0",
+    "fetch-mock": "12.6.0",
     "is-ci-cli": "2.2.0",
     "node-fetch": "^2.6.0",
     "sort-package-json": "^1.50.0",

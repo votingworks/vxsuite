@@ -60,7 +60,7 @@
     "dotenv": "16.3.1",
     "dotenv-expand": "9.0.0",
     "events": "3.3.0",
-    "fetch-mock": "9.11.0",
+    "fetch-mock": "12.6.0",
     "fs-extra": "11.1.1",
     "history": "4.10.1",
     "http-proxy-middleware": "3.0.3",
