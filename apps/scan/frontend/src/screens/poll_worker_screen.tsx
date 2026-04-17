@@ -6,6 +6,7 @@ import {
   Loading,
   LoadingAnimation,
   H1,
+  Modal,
   P,
   PowerDownButton,
   FullScreenIconWrapper,
@@ -347,6 +348,9 @@ function PollWorkerScreenContents({
     Optional<PollWorkerFlowState>
   >(initialPollWorkerFlowState());
 
+  const [isClosePollsWarningModalOpen, setIsClosePollsWarningModalOpen] =
+    useState(false);
+
   // Track which QR index we're viewing when multiple quick-results reports exist.
   const [currentQrIndex, setCurrentQrIndex] = useState(0);
 
@@ -402,6 +406,11 @@ function PollWorkerScreenContents({
   const isPastPollsCloseTime =
     !isTestMode && pollsCloseTime !== undefined && now >= pollsCloseTime;
 
+  const shouldShowClosePollsWarning =
+    isTestMode &&
+    pollsCloseTime !== undefined &&
+    systemSettings.disallowClosingPollsBeforeElectionDayPollsCloseTime;
+
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
   }
@@ -453,6 +462,19 @@ function PollWorkerScreenContents({
       printResult,
     });
     startNewVoterSession();
+  }
+
+  function handleClosePollsPress() {
+    if (shouldShowClosePollsWarning) {
+      setIsClosePollsWarningModalOpen(true);
+    } else {
+      void closePolls();
+    }
+  }
+
+  async function handleConfirmClosePollsFromModal() {
+    setIsClosePollsWarningModalOpen(false);
+    await closePolls();
   }
 
   async function pauseVoting() {
@@ -524,6 +546,31 @@ function PollWorkerScreenContents({
     return BallotsAlreadyScannedScreen;
   }
 
+  const closePollsWarningModal = isClosePollsWarningModalOpen ? (
+    <Modal
+      title="Close Polls"
+      content={
+        <P>
+          On Election Day polls won&apos;t be closable until{' '}
+          {pollsCloseTime?.toLocaleString(DateTime.TIME_SIMPLE)},{' '}
+          {pollsCloseTime?.toLocaleString(DateTime.DATE_SHORT)}. Confirm the
+          configured polls close time is correct.
+        </P>
+      }
+      actions={
+        <React.Fragment>
+          <Button variant="primary" onPress={handleConfirmClosePollsFromModal}>
+            Close Polls
+          </Button>
+          <Button onPress={() => setIsClosePollsWarningModalOpen(false)}>
+            Cancel
+          </Button>
+        </React.Fragment>
+      }
+      onOverlayClick={() => setIsClosePollsWarningModalOpen(false)}
+    />
+  ) : null;
+
   if (
     isClosingPollsBlocked &&
     pollWorkerFlowState?.type === 'close-polls-prompt'
@@ -552,12 +599,15 @@ function PollWorkerScreenContents({
       case 'close-polls-prompt':
         if (ballotCastingMode === 'election_day' || isPastPollsCloseTime) {
           return (
-            <ClosePollsPromptScreen
-              onConfirm={closePolls}
-              onClose={showAllPollWorkerActions}
-              printerSummary={printerSummary}
-              mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
-            />
+            <React.Fragment>
+              {closePollsWarningModal}
+              <ClosePollsPromptScreen
+                onConfirm={handleClosePollsPress}
+                onClose={showAllPollWorkerActions}
+                printerSummary={printerSummary}
+                mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
+              />
+            </React.Fragment>
           );
         }
         return (
@@ -759,12 +809,13 @@ function PollWorkerScreenContents({
             <ButtonGrid>{commonActions}</ButtonGrid>
           </Container>
         );
-      case 'polls_open':
+      case 'polls_open': {
         // Do not disable Pausing Voting if shouldAllowTogglingPolls is false as in the unlikely event of an internal connection failure
         // officials may want to pause voting on the machine.
         if (ballotCastingMode === 'election_day' || isPastPollsCloseTime) {
           return (
             <Container>
+              {closePollsWarningModal}
               <P>
                 {isClosingPollsBlocked ? (
                   <React.Fragment>
@@ -782,7 +833,7 @@ function PollWorkerScreenContents({
               <ButtonGrid>
                 <Button
                   variant="primary"
-                  onPress={closePolls}
+                  onPress={handleClosePollsPress}
                   disabled={
                     isClosingPollsBlocked ||
                     !shouldAllowTogglingPolls(
@@ -805,6 +856,7 @@ function PollWorkerScreenContents({
 
         return (
           <Container>
+            {closePollsWarningModal}
             <P>
               The polls are <Font weight="bold">open</Font>.
             </P>
@@ -816,7 +868,7 @@ function PollWorkerScreenContents({
             <H5>Other Actions</H5>
             <ButtonGrid>
               <Button
-                onPress={closePolls}
+                onPress={handleClosePollsPress}
                 disabled={
                   !shouldAllowTogglingPolls(
                     printerSummary,
@@ -830,6 +882,7 @@ function PollWorkerScreenContents({
             </ButtonGrid>
           </Container>
         );
+      }
 
       case 'polls_paused':
         return (
@@ -854,7 +907,7 @@ function PollWorkerScreenContents({
             <H6>Other Actions</H6>
             <ButtonGrid>
               <Button
-                onPress={closePolls}
+                onPress={handleClosePollsPress}
                 disabled={
                   !shouldAllowTogglingPolls(
                     printerSummary,
