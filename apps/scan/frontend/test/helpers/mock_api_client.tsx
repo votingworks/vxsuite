@@ -64,6 +64,9 @@ export const statusNoPaper: PrecinctScannerStatus = {
 };
 
 type MockApiClient = Omit<MockClient<Api>, 'getDiskSpaceSummary'> & {
+  // Re-declare assertComplete to restore the correct void return type, which is
+  // lost when Omit flattens the MockClient intersection type.
+  assertComplete(): void;
   // Because this is polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getDiskSpaceSummary: Mock;

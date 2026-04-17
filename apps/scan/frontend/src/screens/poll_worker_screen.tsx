@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
 
 import {
   Button,
@@ -14,6 +15,7 @@ import {
   Font,
   H5,
   QrCode,
+  useNow,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import {
@@ -308,6 +310,7 @@ function PollWorkerScreenContents({
   pollsInfo: PrecinctScannerPollsInfo;
 }): JSX.Element {
   const apiClient = useApiClient();
+  const now = useNow();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const configQuery = getConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -376,10 +379,28 @@ function PollWorkerScreenContents({
   const printerStatus = printerStatusQuery.data;
   const printerSummary = getPollsFlowPrinterSummary(printerStatus);
   const { pollsState } = pollsInfo;
-  const { isContinuousExportEnabled, ballotCastingMode, systemSettings } =
-    configQuery.data;
+  const {
+    isContinuousExportEnabled,
+    ballotCastingMode,
+    systemSettings,
+    isTestMode,
+  } = configQuery.data;
   const mustInsertUsbDriveToContinue =
     isContinuousExportEnabled && usbDriveStatus.status !== 'mounted';
+
+  const pollsCloseTime = systemSettings.electionDayPollsCloseTime
+    ? DateTime.fromISO(systemSettings.electionDayPollsCloseTime)
+    : undefined;
+
+  const isClosingPollsBlocked =
+    !isTestMode &&
+    ballotCastingMode === 'election_day' &&
+    systemSettings.disallowClosingPollsBeforeElectionDayPollsCloseTime &&
+    pollsCloseTime !== undefined &&
+    now < pollsCloseTime;
+
+  const isPastPollsCloseTime =
+    !isTestMode && pollsCloseTime !== undefined && now >= pollsCloseTime;
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
@@ -503,7 +524,18 @@ function PollWorkerScreenContents({
     return BallotsAlreadyScannedScreen;
   }
 
-  if (pollWorkerFlowState) {
+  if (
+    pollWorkerFlowState &&
+    !(
+      // When polls close time enforcement is active, the flow state may have been
+      // initialized to 'close-polls-prompt' before system settings were available.
+      // Skip it here so we fall through to the poll worker menu instead.
+      (
+        pollWorkerFlowState.type === 'close-polls-prompt' &&
+        isClosingPollsBlocked
+      )
+    )
+  ) {
     switch (pollWorkerFlowState.type) {
       case 'open-polls-prompt':
         return (
@@ -524,7 +556,7 @@ function PollWorkerScreenContents({
           />
         );
       case 'close-polls-prompt':
-        if (ballotCastingMode === 'election_day') {
+        if (ballotCastingMode === 'election_day' || isPastPollsCloseTime) {
           return (
             <ClosePollsPromptScreen
               onConfirm={closePolls}
@@ -736,18 +768,29 @@ function PollWorkerScreenContents({
       case 'polls_open':
         // Do not disable Pausing Voting if shouldAllowTogglingPolls is false as in the unlikely event of an internal connection failure
         // officials may want to pause voting on the machine.
-        if (ballotCastingMode === 'election_day') {
+        if (ballotCastingMode === 'election_day' || isPastPollsCloseTime) {
           return (
             <Container>
               <P>
-                The polls are <Font weight="bold">open</Font>. Close the polls
-                to end voting.
+                {isClosingPollsBlocked ? (
+                  <React.Fragment>
+                    The polls are <Font weight="bold">open</Font>. Polls cannot
+                    be closed until{' '}
+                    {pollsCloseTime.toLocaleString(DateTime.TIME_SIMPLE)}.
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    The polls are <Font weight="bold">open</Font>. Close the
+                    polls to end voting.
+                  </React.Fragment>
+                )}
               </P>
               <ButtonGrid>
                 <Button
                   variant="primary"
                   onPress={closePolls}
                   disabled={
+                    isClosingPollsBlocked ||
                     !shouldAllowTogglingPolls(
                       printerSummary,
                       mustInsertUsbDriveToContinue
