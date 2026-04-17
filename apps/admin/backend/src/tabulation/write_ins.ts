@@ -255,25 +255,46 @@ export function tabulateWriteInTallies({
       });
     }
     electionWriteInSummaryGroupMap[GROUP_KEY_ROOT] = electionWriteInSummary;
-    return electionWriteInSummaryGroupMap;
+  } else {
+    // general case, grouping results by specified group by clause
+    for (const writeIn of writeIns) {
+      const groupKey = getGroupKey(writeIn, groupBy);
+
+      const existingSummary = electionWriteInSummaryGroupMap[groupKey];
+      const summary =
+        existingSummary ?? getEmptyElectionWriteInSummary(election);
+
+      electionWriteInSummaryGroupMap[groupKey] =
+        addWriteInToElectionWriteInSummary({
+          store,
+          electionId,
+          electionDefinition,
+          electionWriteInSummary: summary,
+          writeIn,
+          includeUnallocablePendingWriteInsAsPending,
+        });
+    }
   }
 
-  // general case, grouping results by specified group by clause
-  for (const writeIn of writeIns) {
-    const groupKey = getGroupKey(writeIn, groupBy);
-
-    const existingSummary = electionWriteInSummaryGroupMap[groupKey];
-    const summary = existingSummary ?? getEmptyElectionWriteInSummary(election);
-
-    electionWriteInSummaryGroupMap[groupKey] =
-      addWriteInToElectionWriteInSummary({
-        store,
-        electionId,
-        electionDefinition,
-        electionWriteInSummary: summary,
-        writeIn,
-        includeUnallocablePendingWriteInsAsPending,
-      });
+  // In qualified mode, ensure all qualified candidates appear in summaries
+  // even if they have 0 votes
+  const systemSettings = store.getSystemSettings(electionId);
+  if (systemSettings.areWriteInCandidatesQualified) {
+    const qualifiedCandidates = store.getWriteInCandidates({ electionId });
+    for (const summary of Object.values(electionWriteInSummaryGroupMap)) {
+      for (const candidate of qualifiedCandidates) {
+        const contestSummary =
+          summary.contestWriteInSummaries[candidate.contestId];
+        if (contestSummary && !contestSummary.candidateTallies[candidate.id]) {
+          contestSummary.candidateTallies[candidate.id] = {
+            id: candidate.id,
+            name: candidate.name,
+            tally: 0,
+            isWriteIn: true,
+          };
+        }
+      }
+    }
   }
 
   return electionWriteInSummaryGroupMap;

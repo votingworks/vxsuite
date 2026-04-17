@@ -69,6 +69,7 @@ const ContestTable = styled.table`
 interface Props {
   election: Election;
   contestWriteInSummary: Tabulation.ContestWriteInSummary;
+  showZeroTallyCandidates?: boolean;
 }
 
 function TallyRow({
@@ -102,6 +103,7 @@ function TallyRow({
 export function ContestWriteInSummaryTable({
   election,
   contestWriteInSummary,
+  showZeroTallyCandidates,
 }: Props): JSX.Element {
   const contest = find(
     election.contests,
@@ -110,7 +112,7 @@ export function ContestWriteInSummaryTable({
 
   const candidateTallies = Object.values(
     contestWriteInSummary.candidateTallies
-  ).filter((c) => c.tally > 0);
+  ).filter((c) => showZeroTallyCandidates || c.tally > 0);
   const officialCandidateTallies = candidateTallies.filter((c) => !c.isWriteIn);
   const writeInCandidateTallies = candidateTallies.filter((c) => c.isWriteIn);
 

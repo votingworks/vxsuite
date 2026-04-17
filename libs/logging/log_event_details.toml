@@ -598,6 +598,12 @@ eventType = "user-action"
 documentationMessage = "User adjudicated a write-in."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.QualifiedWriteInCandidateUpdated]
+eventId = "qualified-write-in-candidate-updated"
+eventType = "user-action"
+documentationMessage = "User updated a qualified write-in candidate."
+restrictInDocumentationToApps = ["vx-admin"]
+
 # VxCentralScan-specific user action logs
 [Events.ClearingBallotData]
 eventId = "clear-ballot-data-init"

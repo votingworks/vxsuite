@@ -51,7 +51,7 @@ const Caption = styled(CaptionBase)`
   color: ${(p) => p.theme.colors.onBackgroundMuted};
 `;
 
-const ItemContainer = styled.li<{ hasWarning: boolean }>`
+const ItemContainer = styled.li<{ hasWarning?: boolean }>`
   /* stylelint-disable value-keyword-case */
 
   align-items: center;
@@ -84,12 +84,18 @@ const ItemContainer = styled.li<{ hasWarning: boolean }>`
     outline: none;
   }
 
-  :active {
+  :active,
+  &[aria-selected='true'] {
     background-color: ${(p) =>
       p.hasWarning ? DesktopPalette.Orange10 : DesktopPalette.Purple10};
     box-shadow: inset 0.35rem 0 0
       ${(p) =>
         p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60};
+
+    ${Label} {
+      font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
+    }
+
     ${Caption} {
       color: ${(p) => p.theme.colors.onBackground};
     }
@@ -100,14 +106,22 @@ export interface EntityListItemProps {
   children: React.ReactNode;
   id: string;
   onSelect: (id: string) => void;
-  onHover: (id: string | null) => void;
+  onHover?: (id: string | null) => void;
   autoScrollIntoView: boolean;
-  hasWarning: boolean;
+  hasWarning?: boolean;
+  selected?: boolean;
 }
 
 function Item(props: EntityListItemProps): React.ReactNode {
-  const { children, id, onSelect, onHover, autoScrollIntoView, hasWarning } =
-    props;
+  const {
+    children,
+    id,
+    onSelect,
+    onHover,
+    autoScrollIntoView,
+    hasWarning,
+    selected,
+  } = props;
 
   const ref = React.useRef<HTMLLIElement>(null);
 
@@ -135,11 +149,12 @@ function Item(props: EntityListItemProps): React.ReactNode {
 
   return (
     <ItemContainer
+      aria-selected={selected}
       hasWarning={hasWarning}
       onClick={() => onSelect(id)}
       onKeyDown={onKeyDown}
-      onMouseEnter={() => onHover(id)}
-      onMouseLeave={() => onHover(null)}
+      onMouseEnter={onHover ? () => onHover(id) : undefined}
+      onMouseLeave={onHover ? () => onHover(null) : undefined}
       ref={autoScrollIntoView ? ref : undefined}
       tabIndex={0}
     >

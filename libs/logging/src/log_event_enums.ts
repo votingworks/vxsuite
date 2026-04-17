@@ -151,6 +151,7 @@ export enum LogEventId {
   ElectionReportPreviewed = 'election-report-previewed',
   ElectionReportPrinted = 'election-report-printed',
   WriteInAdjudicated = 'write-in-adjudicated',
+  QualifiedWriteInCandidateUpdated = 'qualified-write-in-candidate-updated',
   ClearingBallotData = 'clear-ballot-data-init',
   ClearedBallotData = 'clear-ballot-data-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
@@ -835,6 +836,13 @@ const WriteInAdjudicated: LogDetails = {
   eventId: LogEventId.WriteInAdjudicated,
   eventType: LogEventType.UserAction,
   documentationMessage: 'User adjudicated a write-in.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const QualifiedWriteInCandidateUpdated: LogDetails = {
+  eventId: LogEventId.QualifiedWriteInCandidateUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User updated a qualified write-in candidate.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1677,6 +1685,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionReportPrinted;
     case LogEventId.WriteInAdjudicated:
       return WriteInAdjudicated;
+    case LogEventId.QualifiedWriteInCandidateUpdated:
+      return QualifiedWriteInCandidateUpdated;
     case LogEventId.ClearingBallotData:
       return ClearingBallotData;
     case LogEventId.ClearedBallotData:

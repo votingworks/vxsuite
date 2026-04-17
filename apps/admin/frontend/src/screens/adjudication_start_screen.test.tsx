@@ -42,6 +42,7 @@ afterEach(async () => {
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetSystemSettings();
 });
 
 test('No CVRs loaded', async () => {

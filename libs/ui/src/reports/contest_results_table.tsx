@@ -171,6 +171,7 @@ interface Props {
   contest: AnyContest;
   scannedContestResults: Tabulation.ContestResults;
   manualContestResults?: Tabulation.ContestResults;
+  aggregateInsignificantWriteIns?: boolean;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -183,6 +184,7 @@ export function ContestResultsTable({
   contest,
   scannedContestResults,
   manualContestResults,
+  aggregateInsignificantWriteIns = true,
 }: Props): JSX.Element {
   // When there are manual results, the metadata is included as table rows
   // rather than as an above table caption.
@@ -230,7 +232,7 @@ export function ContestResultsTable({
         contest,
         scannedContestResults,
         manualContestResults,
-        aggregateInsignificantWriteIns: true,
+        aggregateInsignificantWriteIns,
       });
       for (const candidateReportTally of candidateReportTallies) {
         const key = `${contest.id}-${candidateReportTally.id}`;

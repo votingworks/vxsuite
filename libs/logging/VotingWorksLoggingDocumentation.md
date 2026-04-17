@@ -354,6 +354,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** User adjudicated a write-in.
 **Machines:** vx-admin
+### qualified-write-in-candidate-updated
+**Type:** [user-action](#user-action)
+**Description:** User updated a qualified write-in candidate.
+**Machines:** vx-admin
 ### clear-ballot-data-init
 **Type:** [user-action](#user-action)
 **Description:** User has initiated clearing ballot data in the current application.

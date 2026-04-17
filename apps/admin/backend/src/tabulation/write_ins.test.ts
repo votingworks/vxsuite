@@ -11,6 +11,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { getEmptyElectionResults } from '@votingworks/utils';
 import {
   convertContestWriteInSummaryToWriteInTallies,
@@ -460,6 +461,160 @@ test('modifyElectionResultsWithWriteInSummary', () => {
     undervotes: 6,
     votesAllowed: 3,
   });
+});
+
+test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candidates appear with 0 tally', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      areWriteInCandidatesQualified: true,
+    }),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const contestId = 'zoo-council-mammal';
+
+  // One pending write-in, nothing adjudicated yet.
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        batchId: 'batch-1-1',
+        scannerId: 'scanner-1',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { [contestId]: ['write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 1,
+      },
+    ],
+    store,
+  });
+
+  const chimera = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Chimera',
+  });
+  const unicorn = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Unicorn',
+  });
+
+  const summaries = tabulateWriteInTallies({ electionId, store });
+  const contestSummary = assertDefined(
+    assertDefined(summaries['root']).contestWriteInSummaries[contestId]
+  );
+
+  // Both qualified candidates show up with tally: 0
+  expect(contestSummary.candidateTallies).toEqual({
+    [chimera.id]: {
+      id: chimera.id,
+      name: 'Chimera',
+      tally: 0,
+      isWriteIn: true,
+    },
+    [unicorn.id]: {
+      id: unicorn.id,
+      name: 'Unicorn',
+      tally: 0,
+      isWriteIn: true,
+    },
+  });
+  // Pending write-in is still counted separately
+  expect(contestSummary.pendingTally).toEqual(1);
+});
+
+test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies while injecting 0 for unadjudicated qualified candidates', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      areWriteInCandidatesQualified: true,
+    }),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const contestId = 'zoo-council-mammal';
+
+  // Two pending write-ins on two separate ballots.
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        batchId: 'batch-1-1',
+        scannerId: 'scanner-1',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { [contestId]: ['write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 2,
+      },
+    ],
+    store,
+  });
+
+  const chimera = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Chimera',
+  });
+  const unicorn = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Unicorn',
+  });
+
+  // Adjudicate both pending write-ins to Chimera. Unicorn is registered as a
+  // qualified candidate but has received no adjudications.
+  const pendingWriteIns = store.getWriteInRecords({ electionId, contestId });
+  expect(pendingWriteIns).toHaveLength(2);
+  for (const writeIn of pendingWriteIns) {
+    store.setWriteInRecordUnofficialCandidate({
+      writeInId: writeIn.id,
+      candidateId: chimera.id,
+      type: 'write-in-candidate',
+    });
+  }
+
+  const summaries = tabulateWriteInTallies({ electionId, store });
+  const contestSummary = assertDefined(
+    assertDefined(summaries['root']).contestWriteInSummaries[contestId]
+  );
+
+  // Chimera keeps its adjudicated tally (2); Unicorn is injected with tally: 0.
+  // Crucially, the injection does NOT overwrite Chimera's real tally.
+  expect(contestSummary.candidateTallies).toEqual({
+    [chimera.id]: {
+      id: chimera.id,
+      name: 'Chimera',
+      tally: 2,
+      isWriteIn: true,
+    },
+    [unicorn.id]: {
+      id: unicorn.id,
+      name: 'Unicorn',
+      tally: 0,
+      isWriteIn: true,
+    },
+  });
+  expect(contestSummary.pendingTally).toEqual(0);
 });
 
 test('combineElectionWriteInSummaries', () => {

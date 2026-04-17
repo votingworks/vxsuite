@@ -351,24 +351,6 @@ export const getNextCvrIdForBallotAdjudication = {
   },
 } as const;
 
-type GetWriteInCandidatesInput = QueryInput<'getWriteInCandidates'>;
-export const getWriteInCandidates = {
-  queryKey(input?: GetWriteInCandidatesInput): QueryKey {
-    return input ? ['getWriteInCandidates', input] : ['getWriteInCandidates'];
-  },
-  useQuery(input?: GetWriteInCandidatesInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getWriteInCandidates(input),
-      {
-        staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      }
-    );
-  },
-} as const;
-
 type GetBallotAdjudicationDataInput = QueryInput<'getBallotAdjudicationData'>;
 export const getBallotAdjudicationData = {
   queryKey(input?: GetBallotAdjudicationDataInput): QueryKey {
@@ -424,6 +406,60 @@ export const getBallotImages = {
         queryKey: getBallotImages.queryKey(input),
         queryFn: () => apiClient.getBallotImages(input),
       });
+  },
+} as const;
+
+type GetWriteInCandidatesInput = QueryInput<'getWriteInCandidates'>;
+export const getWriteInCandidates = {
+  queryKey(input?: GetWriteInCandidatesInput): QueryKey {
+    return input ? ['getWriteInCandidates', input] : ['getWriteInCandidates'];
+  },
+  useQuery(input?: GetWriteInCandidatesInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getWriteInCandidates(input),
+      {
+        staleTime: 0,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
+    );
+  },
+} as const;
+
+export const getQualifiedWriteInCandidates = {
+  queryKey(): QueryKey {
+    return ['getQualifiedWriteInCandidates'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getQualifiedWriteInCandidates()
+    );
+  },
+} as const;
+
+export const updateQualifiedWriteInCandidates = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateQualifiedWriteInCandidates, {
+      async onSuccess() {
+        await invalidateWriteInQueries(queryClient);
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueueMetadata.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueue.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationData.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getNextCvrIdForBallotAdjudication.queryKey()
+        );
+      },
+    });
   },
 } as const;
 
@@ -649,6 +685,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
+    queryClient.invalidateQueries(getQualifiedWriteInCandidates.queryKey()),
   ];
 
   return Promise.all(invalidations);

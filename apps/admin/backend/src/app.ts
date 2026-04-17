@@ -79,6 +79,7 @@ import {
   ManualResultsIdentifier,
   ManualResultsRecord,
   ScannerBatch,
+  QualifiedWriteInCandidateRecord,
   WriteInCandidateRecord,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
@@ -778,6 +779,12 @@ function buildApi({
       });
     },
 
+    getQualifiedWriteInCandidates(): QualifiedWriteInCandidateRecord[] {
+      return store.getQualifiedWriteInCandidates({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
     addWriteInCandidate(input: {
       contestId: ContestId;
       name: string;
@@ -786,6 +793,25 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });
+    },
+
+    async updateQualifiedWriteInCandidates(input: {
+      newCandidates: Array<{ contestId: ContestId; name: string }>;
+      deletedCandidateIds: Id[];
+    }): Promise<{ affectedBallotCount: number }> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const result = store.updateQualifiedWriteInCandidates({
+        electionId,
+        ...input,
+      });
+      await logger.logAsCurrentRole(
+        LogEventId.QualifiedWriteInCandidateUpdated,
+        {
+          message: `Updated qualified write-in candidates: ${input.newCandidates.length} added, ${input.deletedCandidateIds.length} deleted. ${result.affectedBallotCount} ballot(s) marked for re-adjudication.`,
+          disposition: 'success',
+        }
+      );
+      return result;
     },
 
     getBallotAdjudicationQueue(): Id[] {

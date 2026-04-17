@@ -285,6 +285,8 @@ pub enum EventId {
     ElectionReportPrinted,
     #[serde(rename = "write-in-adjudicated")]
     WriteInAdjudicated,
+    #[serde(rename = "qualified-write-in-candidate-updated")]
+    QualifiedWriteInCandidateUpdated,
     #[serde(rename = "clear-ballot-data-init")]
     ClearingBallotData,
     #[serde(rename = "clear-ballot-data-complete")]

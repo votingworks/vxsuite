@@ -115,14 +115,14 @@ create table write_ins (
   write_in_candidate_id varchar(36),
   is_invalid boolean not null default false,
   is_undetected boolean not null default false,
-  adjudicated_at timestamp,
   created_at timestamp not null default current_timestamp,
   machine_marked_text text,
   foreign key (election_id) references elections(id),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
   foreign key (cvr_id, side) references ballot_images(cvr_id, side),
-  foreign key (write_in_candidate_id) references write_in_candidates(id),
+  foreign key (write_in_candidate_id) references write_in_candidates(id)
+    on delete set null,
   unique (cvr_id, contest_id, option_id),
   check (
     (
