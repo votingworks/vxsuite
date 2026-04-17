@@ -525,17 +525,11 @@ function PollWorkerScreenContents({
   }
 
   if (
-    pollWorkerFlowState &&
-    !(
-      // When polls close time enforcement is active, the flow state may have been
-      // initialized to 'close-polls-prompt' before system settings were available.
-      // Skip it here so we fall through to the poll worker menu instead.
-      (
-        pollWorkerFlowState.type === 'close-polls-prompt' &&
-        isClosingPollsBlocked
-      )
-    )
+    isClosingPollsBlocked &&
+    pollWorkerFlowState?.type === 'close-polls-prompt'
   ) {
+    // Skip the close-polls prompt and fall through to render the pollworker menu below
+  } else if (pollWorkerFlowState) {
     switch (pollWorkerFlowState.type) {
       case 'open-polls-prompt':
         return (
