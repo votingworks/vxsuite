@@ -86,6 +86,8 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
     },
   };
 
+  const finishBatchSpy = vi.spyOn(workspace.store, 'finishBatch');
+
   const importer = new Importer({
     workspace,
     scanner,
@@ -95,12 +97,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
 
   await importer.startImport();
 
-  // At this point, scanOneSheet found no sheets and called finishBatch.
-  // finishBatch should have cleared currentBatch immediately, even though
-  // endBatch hasn't resolved yet.
-  const finishBatchSpy = vi.spyOn(workspace.store, 'finishBatch');
-
-  // Wait a tick to let the fire-and-forget scanOneSheet promise run
+  // Wait for the scan loop to call finishBatch (fire-and-forget)
   await vi.waitFor(() => {
     expect(endBatchMock).toHaveBeenCalled();
   });
@@ -109,7 +106,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
   expect(importer.getStatus().ongoingBatchId).toBeUndefined();
 
   // store.finishBatch should have been called exactly once
-  // (the call happened before our spy, so check the batch was finished)
+  expect(finishBatchSpy).toHaveBeenCalledTimes(1);
   const batches = workspace.store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0]!.endedAt).toBeDefined();
@@ -119,7 +116,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
   await importer.waitForEndOfBatchOrScanningPause();
 
   // No additional finishBatch calls should have been made
-  expect(finishBatchSpy).not.toHaveBeenCalled();
+  expect(finishBatchSpy).toHaveBeenCalledTimes(1);
 });
 
 test('startImport cleans up batch on failure after addBatch', async () => {

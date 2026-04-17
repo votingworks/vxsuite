@@ -1,5 +1,4 @@
 import {
-  assert,
   assertDefined,
   extractErrorMessage,
   Optional,
@@ -26,6 +25,7 @@ import {
   BatchScanner,
   ScannedSheetInfo,
 } from './fujitsu_scanner';
+import { NODE_ENV } from './globals';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,
@@ -36,10 +36,33 @@ import { ScanStatus } from './types';
 
 const debug = makeDebug('scan:importer');
 
+export const DEFAULT_MAX_SCAN_AHEAD = 0;
+
 export interface Options {
   workspace: Workspace;
   scanner: BatchScanner;
   logger: Logger;
+  /**
+   * Maximum number of sheets the scanner can scan ahead of the interpreter.
+   * - `0` (default): sequential (scan, interpret, scan, interpret, …)
+   * - `1`+: allow bounded parallelism
+   * - `Infinity`: scan as fast as possible
+   *
+   * **Caution:** With values > 0, if an unexpected interpretation error occurs,
+   * up to `maxScanAhead` additional sheets may have been physically pulled
+   * through the scanner without being recorded. The operator has no way to
+   * identify which sheets in the output tray were counted and which weren't.
+   * The default of 0 avoids this problem. Before increasing this value in
+   * production, a reconciliation strategy is needed (e.g. re-scanning the
+   * entire batch on failure, or imprinting sheet IDs for reconciliation).
+   */
+  maxScanAhead?: number;
+  /**
+   * Artificial delay (ms) added before each interpretation. Useful for
+   * simulating slow interpretation on fast development machines. Ignored in
+   * production mode.
+   */
+  artificialInterpretDelayMs?: number;
 }
 
 interface CurrentBatch {
@@ -68,13 +91,26 @@ export class Importer {
   private readonly workspace: Workspace;
   private readonly scanner: BatchScanner;
   private readonly logger: Logger;
+  private readonly maxScanAhead: number;
+  private readonly artificialInterpretDelayMs: number;
   private isStartingBatch = false;
   private currentBatch?: CurrentBatch;
+  private readonly inFlightInterpretations = new Set<Promise<void>>();
+  private interpretationError?: string;
+  private scanLoopPromise?: Promise<void>;
 
-  constructor({ workspace, scanner, logger }: Options) {
+  constructor({
+    workspace,
+    scanner,
+    logger,
+    maxScanAhead,
+    artificialInterpretDelayMs,
+  }: Options) {
     this.workspace = workspace;
     this.scanner = scanner;
     this.logger = logger;
+    this.maxScanAhead = maxScanAhead ?? DEFAULT_MAX_SCAN_AHEAD;
+    this.artificialInterpretDelayMs = artificialInterpretDelayMs ?? 0;
   }
 
   /**
@@ -296,6 +332,7 @@ export class Importer {
       return;
     }
     this.currentBatch = undefined;
+    this.inFlightInterpretations.clear();
 
     this.workspace.store.finishBatch({
       batchId: currentBatch.batchId,
@@ -310,26 +347,94 @@ export class Importer {
   }
 
   /**
-   * Scan a single sheet and see how it looks
+   * Runs the scan-and-interpret pipeline for the current batch. The scanner
+   * runs ahead of interpretation by up to {@link maxScanAhead} sheets.
+   * Interpretation is fire-and-forget; the loop pauses when adjudication is
+   * needed or when in-flight interpretations reach the limit.
    */
-  private async scanOneSheet(): Promise<void> {
-    const { currentBatch } = this;
-    assert(typeof currentBatch !== 'undefined');
+  private async runScanLoop(): Promise<void> {
+    while (this.currentBatch) {
+      const { currentBatch } = this;
 
-    const sheet = await currentBatch.sheetGenerator.scanSheet();
-    if (!sheet) {
-      debug('closing batch %s', currentBatch.batchId);
-      await this.finishBatch();
-    } else {
-      debug('got a ballot card: %o', sheet);
-      const sheetId = await this.sheetAdded(sheet, currentBatch.batchId);
-      debug('got a ballot card: %o, %s', sheet, sheetId);
-
-      const adjudicationStatus = this.workspace.store.adjudicationStatus();
-      if (adjudicationStatus.remaining === 0) {
-        this.continueImport({ forceAccept: false });
+      // Back-pressure: wait if too many in-flight interpretations
+      while (this.inFlightInterpretations.size > this.maxScanAhead) {
+        await Promise.race([...this.inFlightInterpretations]);
+        if (this.interpretationError) break;
       }
+
+      // Abort the batch if any interpretation failed
+      if (this.interpretationError) {
+        await this.failBatch(this.interpretationError);
+        return;
+      }
+
+      // Pause if any sheet needs adjudication
+      const adjudicationStatus = this.workspace.store.adjudicationStatus();
+      if (adjudicationStatus.remaining > 0) {
+        return;
+      }
+
+      // Scan next sheet
+      const sheet = await currentBatch.sheetGenerator.scanSheet();
+
+      if (!sheet) {
+        debug(
+          'no more sheets, waiting for %d in-flight interpretations',
+          this.inFlightInterpretations.size
+        );
+        // Drain in-flight interpretations, bailing on first error
+        while (this.inFlightInterpretations.size > 0) {
+          await Promise.race([...this.inFlightInterpretations]);
+          if (this.interpretationError) {
+            await this.failBatch(this.interpretationError);
+            return;
+          }
+        }
+        // Check if any completed interpretation needs adjudication
+        if (this.workspace.store.adjudicationStatus().remaining > 0) {
+          return;
+        }
+        debug('closing batch %s', currentBatch.batchId);
+        await this.finishBatch();
+        return;
+      }
+
+      // Fire-and-forget interpretation — errors are recorded and checked
+      // by the scan loop on its next iteration, centralizing batch
+      // termination in a single code path.
+      debug('got a ballot card: %o', sheet);
+      const { batchId } = currentBatch;
+      const promise: Promise<void> = this.interpretAndStore(sheet, batchId)
+        .catch((error) => {
+          const message = extractErrorMessage(error);
+          debug('interpretation failed: %s', message);
+          if (!this.interpretationError) {
+            this.interpretationError = message;
+          }
+        })
+        .finally(() => {
+          this.inFlightInterpretations.delete(promise);
+        });
+      this.inFlightInterpretations.add(promise);
     }
+  }
+
+  private async failBatch(error: string): Promise<void> {
+    void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
+      disposition: 'failure',
+      message: `Processing sheet failed: ${error}`,
+    });
+    await this.finishBatch(error);
+  }
+
+  private async interpretAndStore(
+    sheetInfo: ScannedSheetInfo,
+    batchId: string
+  ): Promise<void> {
+    if (this.artificialInterpretDelayMs > 0 && NODE_ENV !== 'production') {
+      await sleep(this.artificialInterpretDelayMs);
+    }
+    await this.sheetAdded(sheetInfo, batchId);
   }
 
   /**
@@ -381,7 +486,7 @@ export class Importer {
         sheetGenerator,
         directory: batchScanDirectory,
       };
-      this.continueImport({ forceAccept: false });
+      this.startScanLoop();
 
       return batchId;
     } catch (error) {
@@ -422,21 +527,15 @@ export class Importer {
       }
     }
 
-    this.scanOneSheet().catch((error) => {
+    this.startScanLoop();
+  }
+
+  private startScanLoop(): void {
+    this.interpretationError = undefined;
+    this.scanLoopPromise = this.runScanLoop().catch(async (error) => {
       const message = extractErrorMessage(error);
-      debug('processing sheet failed with error: %s', message);
-      void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
-        disposition: 'failure',
-        message: `Processing sheet failed: ${message}`,
-      });
-      void this.finishBatch(message).catch((finishError) => {
-        void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
-          disposition: 'failure',
-          message: `Additionally, finishing batch failed: ${extractErrorMessage(
-            finishError
-          )}`,
-        });
-      });
+      debug('scan loop failed: %s', message);
+      await this.failBatch(message);
     });
   }
 
@@ -444,14 +543,10 @@ export class Importer {
    * this is really for testing
    */
   async waitForEndOfBatchOrScanningPause(): Promise<void> {
-    while (this.currentBatch) {
-      const adjudicationStatus = this.workspace.store.adjudicationStatus();
-      if (adjudicationStatus.remaining > 0) {
-        break;
-      }
-
-      await sleep(200);
+    if (this.scanLoopPromise) {
+      await this.scanLoopPromise;
     }
+    await Promise.all([...this.inFlightInterpretations]);
   }
 
   /**

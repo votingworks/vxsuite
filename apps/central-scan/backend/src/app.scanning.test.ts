@@ -98,13 +98,15 @@ test('continueScanning after invalid ballot', async () => {
       expect(status.adjudicationsRemaining).toEqual(1);
       expect(status.canUnconfigure).toEqual(true);
       expect(status.batches.length).toEqual(1);
+      // With the default maxScanAhead (0), scanning is sequential, so only
+      // 2 sheets are processed before the adjudication check pauses.
       expect(status.batches[0]).toEqual<BatchInfo>({
         id: expect.any(String),
         batchNumber: 1,
         label: 'Batch 1',
         count: 2,
         startedAt: expect.any(String),
-        endedAt: undefined, // not ended
+        endedAt: undefined, // not ended — paused for adjudication
       });
     }
     await apiClient.continueScanning({ forceAccept: false });
