@@ -9,6 +9,70 @@ use typst_library::visualize::{
 
 use crate::text::FontSet;
 
+/// Strip HTML tags from a string, converting basic elements to plain text.
+fn strip_html(html: &str) -> String {
+    let mut result = String::new();
+    let mut in_tag = false;
+    let mut last_was_block = false;
+
+    let lower = html.to_lowercase();
+    let chars: Vec<char> = html.chars().collect();
+    let lower_chars: Vec<char> = lower.chars().collect();
+    let mut i = 0;
+
+    while i < chars.len() {
+        if chars[i] == '<' {
+            in_tag = true;
+            // Check for block elements that should add newlines
+            let rest: String = lower_chars[i..].iter().collect();
+            if rest.starts_with("<p>") || rest.starts_with("<br") || rest.starts_with("<li>") || rest.starts_with("<tr>") {
+                if !result.is_empty() && !last_was_block {
+                    result.push('\n');
+                }
+                last_was_block = true;
+            } else {
+                last_was_block = false;
+            }
+        } else if chars[i] == '>' {
+            in_tag = false;
+        } else if !in_tag {
+            result.push(chars[i]);
+            last_was_block = false;
+        }
+        i += 1;
+    }
+
+    // Decode basic HTML entities
+    result
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#39;", "'")
+        .replace("&nbsp;", " ")
+}
+
+/// Format a date string like "2020-11-03" or "DateWithoutTime(2020-11-03)" to "November 3, 2020"
+fn format_date(date_str: &str) -> String {
+    // Extract YYYY-MM-DD from various formats
+    let digits: String = date_str.chars().filter(|c| c.is_ascii_digit() || *c == '-').collect();
+    let parts: Vec<&str> = digits.split('-').filter(|s| !s.is_empty()).collect();
+    if parts.len() >= 3 {
+        let month = parts[1].parse::<u32>().unwrap_or(1);
+        let day = parts[2].parse::<u32>().unwrap_or(1);
+        let year = parts[0];
+        let month_name = match month {
+            1 => "January", 2 => "February", 3 => "March", 4 => "April",
+            5 => "May", 6 => "June", 7 => "July", 8 => "August",
+            9 => "September", 10 => "October", 11 => "November", 12 => "December",
+            _ => "Unknown",
+        };
+        format!("{month_name} {day}, {year}")
+    } else {
+        date_str.to_string()
+    }
+}
+
 // ─── Constants (all in points unless noted) ─────────────────────────────────
 
 const TM_W_IN: f64 = 0.1875;
@@ -352,13 +416,14 @@ fn measure_candidate_contest(fonts: &FontSet, c: &CandidateContest, col_w: f64) 
 
 fn measure_yesno_contest(fonts: &FontSet, c: &YesNoContest, col_w: f64) -> f64 {
     let inner = col_w - 2.0 * OPTION_PAD_H;
+    let desc = strip_html(&c.description);
     let mut h = 0.0;
     h += 2.25; // top border
     h += CONTEST_HDR_PAD;
     h += measure_text_block(fonts, &c.title, H3, inner, true);
     h += CONTEST_HDR_PAD;
     h += OPTION_PAD_H;
-    h += measure_text_block(fonts, &c.description, BASE, inner, false);
+    h += measure_text_block(fonts, &desc, BASE, inner, false);
     h += OPTION_PAD_H;
     h += 0.25 * BASE;
     // Yes + No
@@ -486,9 +551,10 @@ fn draw_yesno_contest(frame: &mut Frame, fonts: &FontSet, c: &YesNoContest, x: f
     push_text_block(frame, fonts, x + OPTION_PAD_H, cy, &c.title, H3, inner, true);
     cy += hdr_h + CONTEST_HDR_PAD;
 
-    // Description
+    // Description (strip HTML)
+    let desc = strip_html(&c.description);
     cy += OPTION_PAD_H;
-    cy += push_text_block(frame, fonts, x + OPTION_PAD_H, cy, &c.description, BASE, inner, false);
+    cy += push_text_block(frame, fonts, x + OPTION_PAD_H, cy, &desc, BASE, inner, false);
     cy += OPTION_PAD_H + 0.25 * BASE;
 
     // Yes/No options
@@ -566,7 +632,8 @@ fn draw_header(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, data: &Ball
     ty += H1 * LH;
     push_text_block(frame, fonts, text_x, ty, &data.election.title, H2, text_w, true);
     ty += H2 * LH;
-    push_text_block(frame, fonts, text_x, ty, &data.election.date, H2, text_w, true);
+    let formatted_date = format_date(&data.election.date);
+    push_text_block(frame, fonts, text_x, ty, &formatted_date, H2, text_w, true);
     ty += H2 * LH;
     let loc = format!("{}, {}", data.election.county.name, data.election.state);
     push_text_block(frame, fonts, text_x, ty, &loc, BASE, text_w, false);
@@ -607,7 +674,8 @@ fn draw_footer(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, page_num: u
     // Metadata
     let meta_y = footer_y + qr_size + 4.0;
     let precinct = data.election.precincts.iter().find(|p| p.id == data.precinct_id).map(|p| p.name.as_str()).unwrap_or(&data.precinct_id);
-    let left = format!("00000000000000000000 · {}, {} · {}, {}", data.election.title, data.election.date, data.election.county.name, data.election.state);
+    let fdate = format_date(&data.election.date);
+    let left = format!("00000000000000000000 · {}, {} · {}, {}", data.election.title, fdate, data.election.county.name, data.election.state);
     push_text(frame, fonts, ca.x, meta_y, &left, 8.0, true);
     let right = format!("{precinct} · {} · English", data.ballot_style_id);
     let rw = fonts.bold.measure_width(&right, pt(8.0)).to_pt();
@@ -728,6 +796,7 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
         // Draw contest sections
         for (section_contests, num_cols, columns) in &pc.sections {
             let col_w = (ca.w - GAP * (*num_cols - 1) as f64) / *num_cols as f64;
+            let mut section_max_h = 0.0_f64;
             for (ci, col) in columns.iter().enumerate() {
                 let col_x = ca.x + ci as f64 * (col_w + GAP);
                 let mut col_y = cy;
@@ -739,7 +808,9 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
                     };
                     col_y += h + GAP;
                 }
+                section_max_h = section_max_h.max(col_y - cy);
             }
+            cy += section_max_h + GAP;
         }
 
         // Blank page message
