@@ -400,7 +400,7 @@ export function generateAllPrecinctsTallyReportRows(
         contest: contest.title,
         contestId: contest.id,
       } as const;
-      const overvotesAndUndervotesRows = [
+      const overvotesUndervotesAndBallotsCastRows = [
         {
           ...rowBase,
           selection: 'Overvotes',
@@ -411,6 +411,12 @@ export function generateAllPrecinctsTallyReportRows(
           ...rowBase,
           selection: 'Undervotes',
           selectionId: 'undervotes',
+          totalVotes: `${contestIndex}`,
+        },
+        {
+          ...rowBase,
+          selection: 'Ballots Cast',
+          selectionId: 'ballots-cast',
           totalVotes: `${contestIndex}`,
         },
       ];
@@ -449,7 +455,7 @@ export function generateAllPrecinctsTallyReportRows(
                   },
                 ]
               : []),
-            ...overvotesAndUndervotesRows,
+            ...overvotesUndervotesAndBallotsCastRows,
           ];
         }
         case 'yesno': {
@@ -472,7 +478,7 @@ export function generateAllPrecinctsTallyReportRows(
               selectionId: contest.noOption.id,
               totalVotes: `${contestIndex + 1}`,
             },
-            ...overvotesAndUndervotesRows,
+            ...overvotesUndervotesAndBallotsCastRows,
           ];
         }
         default: {

@@ -186,7 +186,7 @@ test('convert MS results', async () => {
     expect(
       (unexpectedErrorResult.err() as Error).message
     ).toMatchInlineSnapshot(
-      `"Invalid Record Length: columns length is 7, got 1 on line 867"`
+      `"Invalid Record Length: columns length is 7, got 1 on line 987"`
     );
   });
 });
