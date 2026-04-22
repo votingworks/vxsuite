@@ -11,6 +11,7 @@ members = [
 ]
 exclude = [
   "libs/ballot-interpreter",
+  "libs/hmpb-render",
   "libs/hmpb-typst",
   "libs/pdi-scanner",
   "libs/types-rs",
