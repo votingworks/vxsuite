@@ -68,6 +68,14 @@ impl FontBundle {
         Abs::pt(total / units_per_em * size.to_pt())
     }
 
+    /// Get the ascent of the font at a given size (distance from baseline to top).
+    pub fn ascent(&self, size: Abs) -> Abs {
+        let face = self.face();
+        let units_per_em = f64::from(face.units_per_em());
+        let ascender = f64::from(face.ascender());
+        Abs::pt(ascender / units_per_em * size.to_pt())
+    }
+
     /// Create a TextItem for rendering.
     pub fn text_item(&self, text: &str, size: Abs, fill: Paint) -> TextItem {
         let glyphs = self.shape(text, size);

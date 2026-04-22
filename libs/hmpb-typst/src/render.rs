@@ -253,7 +253,10 @@ fn push_rect(frame: &mut Frame, x: f64, y: f64, w: f64, h: f64, fill: Option<Pai
 fn push_text(frame: &mut Frame, fonts: &FontSet, x: f64, y: f64, text: &str, size: f64, bold: bool) {
     let bundle = if bold { &fonts.bold } else { &fonts.regular };
     let item = bundle.text_item(text, pt(size), black());
-    frame.push(Point::new(pt(x), pt(y)), FrameItem::Text(item));
+    // typst positions text at its baseline; offset y by ascent so the
+    // top of the text aligns with the requested y coordinate
+    let ascent = bundle.ascent(pt(size)).to_pt();
+    frame.push(Point::new(pt(x), pt(y + ascent)), FrameItem::Text(item));
 }
 
 /// Draw a block of word-wrapped text. Returns height used in pt.
@@ -261,9 +264,10 @@ fn push_text_block(frame: &mut Frame, fonts: &FontSet, x: f64, y: f64, text: &st
     let bundle = if bold { &fonts.bold } else { &fonts.regular };
     let lines = bundle.wrap_text(text, pt(size), pt(max_w));
     let line_h = size * LH;
+    let ascent = bundle.ascent(pt(size)).to_pt();
     for (i, line) in lines.iter().enumerate() {
         let item = bundle.text_item(line, pt(size), black());
-        frame.push(Point::new(pt(x), pt(y + i as f64 * line_h)), FrameItem::Text(item));
+        frame.push(Point::new(pt(x), pt(y + i as f64 * line_h + ascent)), FrameItem::Text(item));
     }
     lines.len() as f64 * line_h
 }
