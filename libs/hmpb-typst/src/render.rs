@@ -9,47 +9,258 @@ use typst_library::visualize::{
 
 use crate::text::FontSet;
 
-/// Strip HTML tags from a string, converting basic elements to plain text.
-fn strip_html(html: &str) -> String {
-    let mut result = String::new();
-    let mut in_tag = false;
-    let mut last_was_block = false;
-
-    let lower = html.to_lowercase();
-    let chars: Vec<char> = html.chars().collect();
-    let lower_chars: Vec<char> = lower.chars().collect();
-    let mut i = 0;
-
-    while i < chars.len() {
-        if chars[i] == '<' {
-            in_tag = true;
-            // Check for block elements that should add newlines
-            let rest: String = lower_chars[i..].iter().collect();
-            if rest.starts_with("<p>") || rest.starts_with("<br") || rest.starts_with("<li>") || rest.starts_with("<tr>") {
-                if !result.is_empty() && !last_was_block {
-                    result.push('\n');
-                }
-                last_was_block = true;
-            } else {
-                last_was_block = false;
-            }
-        } else if chars[i] == '>' {
-            in_tag = false;
-        } else if !in_tag {
-            result.push(chars[i]);
-            last_was_block = false;
-        }
-        i += 1;
-    }
-
-    // Decode basic HTML entities
-    result
-        .replace("&amp;", "&")
+/// Decode HTML entities in a string.
+fn decode_entities(s: &str) -> String {
+    s.replace("&amp;", "&")
         .replace("&lt;", "<")
         .replace("&gt;", ">")
         .replace("&quot;", "\"")
         .replace("&#39;", "'")
         .replace("&nbsp;", " ")
+}
+
+// ─── Rich Text HTML Renderer ────────────────────────────────────────────────
+
+/// A parsed rich text block from HTML.
+enum RichBlock {
+    Paragraph { text: String, bold: bool, italic: bool, underline: bool, strikethrough: bool },
+    ListItem { text: String, bold: bool, italic: bool, underline: bool, strikethrough: bool, ordered: bool, index: usize },
+    TableRow { cells: Vec<(String, bool)> }, // (text, is_header)
+}
+
+/// Parse HTML into structured blocks for rendering.
+fn parse_html_blocks(html: &str) -> Vec<RichBlock> {
+    let mut blocks = Vec::new();
+    let mut bold = false;
+    let mut italic = false;
+    let mut underline = false;
+    let mut strikethrough = false;
+    let mut in_ordered_list = false;
+    let mut in_unordered_list = false;
+    let mut list_counter = 0usize;
+    let mut current_text = String::new();
+    // Track formatting of the current block (captured when text is added)
+    let mut block_bold = false;
+    let mut block_italic = false;
+    let mut block_underline = false;
+    let mut block_strikethrough = false;
+    let mut in_table_row = false;
+    let mut row_cells: Vec<(String, bool)> = Vec::new();
+    let mut cell_is_header = false;
+    let mut in_cell = false;
+
+    let tag_re = regex_lite::Regex::new(r"<(/?)(\w+)[^>]*>|([^<]+)").unwrap();
+
+    for cap in tag_re.captures_iter(html) {
+        if let Some(text_match) = cap.get(3) {
+            let text = decode_entities(text_match.as_str()).replace('\n', " ");
+            let trimmed = text.trim();
+            if !trimmed.is_empty() {
+                if current_text.is_empty() {
+                    // Capture formatting state from when text first appears
+                    block_bold = bold;
+                    block_italic = italic;
+                    block_underline = underline;
+                    block_strikethrough = strikethrough;
+                }
+                current_text.push_str(trimmed);
+            }
+            continue;
+        }
+
+        let closing = cap.get(1).map_or("", |m| m.as_str()) == "/";
+        let tag = cap.get(2).map_or("", |m| m.as_str()).to_lowercase();
+
+        match tag.as_str() {
+            "strong" | "b" => bold = !closing,
+            "em" | "i" => italic = !closing,
+            "u" => underline = !closing,
+            "s" => strikethrough = !closing,
+            "p" | "div" if closing => {
+                let text = current_text.trim().to_string();
+                let in_list = in_ordered_list || in_unordered_list;
+                if !text.is_empty() && !in_cell && !in_table_row && !in_list {
+                    blocks.push(RichBlock::Paragraph {
+                        text, bold: block_bold, italic: block_italic,
+                        underline: block_underline, strikethrough: block_strikethrough,
+                    });
+                    current_text.clear();
+                }
+            }
+            "ol" if !closing => { in_ordered_list = true; list_counter = 0; }
+            "ol" if closing => { in_ordered_list = false; }
+            "ul" if !closing => { in_unordered_list = true; list_counter = 0; }
+            "ul" if closing => { in_unordered_list = false; }
+            "li" if !closing => { current_text.clear(); list_counter += 1; }
+            "li" if closing => {
+                let text = current_text.trim().to_string();
+                if !text.is_empty() {
+                    blocks.push(RichBlock::ListItem {
+                        text, bold: block_bold, italic: block_italic,
+                        underline: block_underline, strikethrough: block_strikethrough,
+                        ordered: in_ordered_list, index: list_counter,
+                    });
+                }
+                current_text.clear();
+            }
+            "tr" if !closing => { in_table_row = true; row_cells.clear(); }
+            "tr" if closing => {
+                if !row_cells.is_empty() {
+                    blocks.push(RichBlock::TableRow { cells: row_cells.clone() });
+                }
+                in_table_row = false;
+            }
+            "th" if !closing => { in_cell = true; cell_is_header = true; current_text.clear(); }
+            "th" if closing => {
+                row_cells.push((current_text.trim().to_string(), true));
+                current_text.clear(); in_cell = false; cell_is_header = false;
+            }
+            "td" if !closing => { in_cell = true; cell_is_header = false; current_text.clear(); }
+            "td" if closing => {
+                row_cells.push((current_text.trim().to_string(), cell_is_header));
+                current_text.clear(); in_cell = false;
+            }
+            _ => {}
+        }
+    }
+
+    // Flush remaining text
+    let text = current_text.trim().to_string();
+    if !text.is_empty() && !in_cell {
+        blocks.push(RichBlock::Paragraph {
+            text, bold: block_bold, italic: block_italic,
+            underline: block_underline, strikethrough: block_strikethrough,
+        });
+    }
+
+    blocks
+}
+
+/// Measure the height of rich text HTML content.
+fn measure_rich_text(fonts: &FontSet, html: &str, size: f64, max_w: f64) -> f64 {
+    let blocks = parse_html_blocks(html);
+    let line_h = size * LH;
+    let para_gap = size * 0.4;
+    let list_indent = size * 1.8;
+    let mut h = 0.0;
+
+    for block in &blocks {
+        match block {
+            RichBlock::Paragraph { text, bold, .. } => {
+                let bundle = if *bold { &fonts.bold } else { &fonts.regular };
+                let lines = bundle.wrap_text(text, pt(size), pt(max_w));
+                h += lines.len() as f64 * line_h + para_gap;
+            }
+            RichBlock::ListItem { text, bold, .. } => {
+                let bundle = if *bold { &fonts.bold } else { &fonts.regular };
+                let lines = bundle.wrap_text(text, pt(size), pt(max_w - list_indent));
+                h += lines.len() as f64 * line_h;
+            }
+            RichBlock::TableRow { cells } => {
+                let cell_w = max_w / cells.len().max(1) as f64;
+                let max_cell_h: f64 = cells.iter().map(|(text, is_hdr)| {
+                    let bundle = if *is_hdr { &fonts.bold } else { &fonts.regular };
+                    let lines = bundle.wrap_text(text, pt(size), pt(cell_w - 6.0));
+                    lines.len() as f64 * line_h
+                }).fold(0.0_f64, f64::max);
+                h += max_cell_h + size * 0.5 + 0.75; // padding + border
+            }
+        }
+    }
+    h
+}
+
+/// Draw rich text HTML content. Returns height used.
+fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64, size: f64, max_w: f64) -> f64 {
+    let blocks = parse_html_blocks(html);
+    let line_h = size * LH;
+    let para_gap = size * 0.4;
+    let list_indent = size * 1.8;
+    let mut cy = y;
+
+    for block in &blocks {
+        match block {
+            RichBlock::Paragraph { text, bold, underline, strikethrough, .. } => {
+                let bundle = if *bold { &fonts.bold } else { &fonts.regular };
+                let is_bold = *bold;
+                let lines = bundle.wrap_text(text, pt(size), pt(max_w));
+                for line in &lines {
+                    push_text(frame, fonts, x, cy, line, size, is_bold);
+                    if *underline {
+                        let tw = bundle.measure_width(line, pt(size)).to_pt();
+                        push_line(frame, x, cy + size * 1.05, x + tw, cy + size * 1.05, 0.5);
+                    }
+                    if *strikethrough {
+                        let tw = bundle.measure_width(line, pt(size)).to_pt();
+                        push_line(frame, x, cy + size * 0.5, x + tw, cy + size * 0.5, 0.5);
+                    }
+                    cy += line_h;
+                }
+                cy += para_gap;
+            }
+            RichBlock::ListItem { text, bold, italic, underline, strikethrough, ordered, index } => {
+                let is_bold = *bold;
+                let bundle = if is_bold { &fonts.bold } else { &fonts.regular };
+                let prefix = if *ordered { format!("{}.", index) } else { "•".to_string() };
+                let prefix_w = fonts.regular.measure_width(&prefix, pt(size)).to_pt();
+                push_text(frame, fonts, x + list_indent - prefix_w - 3.0, cy, &prefix, size, false);
+
+                let lines = bundle.wrap_text(text, pt(size), pt(max_w - list_indent));
+                for line in &lines {
+                    push_text(frame, fonts, x + list_indent, cy, line, size, is_bold);
+                    if *underline {
+                        let tw = bundle.measure_width(line, pt(size)).to_pt();
+                        push_line(frame, x + list_indent, cy + size * 1.05, x + list_indent + tw, cy + size * 1.05, 0.5);
+                    }
+                    if *strikethrough {
+                        let tw = bundle.measure_width(line, pt(size)).to_pt();
+                        push_line(frame, x + list_indent, cy + size * 0.5, x + list_indent + tw, cy + size * 0.5, 0.5);
+                    }
+                    if *italic {
+                        // Draw with italic indicator (we only have regular/bold, so mark with slant)
+                        // For now, just use regular font (italic font not loaded)
+                    }
+                    cy += line_h;
+                }
+            }
+            RichBlock::TableRow { cells } => {
+                let num_cols = cells.len().max(1);
+                let cell_w = max_w / num_cols as f64;
+                let cell_pad = 3.0;
+
+                // Measure row height
+                let max_cell_h: f64 = cells.iter().map(|(text, is_hdr)| {
+                    let bundle = if *is_hdr { &fonts.bold } else { &fonts.regular };
+                    let lines = bundle.wrap_text(text, pt(size), pt(cell_w - 2.0 * cell_pad));
+                    lines.len() as f64 * line_h
+                }).fold(0.0_f64, f64::max);
+
+                let row_h = max_cell_h + 2.0 * cell_pad;
+
+                // Header background
+                if cells.iter().any(|(_, is_hdr)| *is_hdr) {
+                    push_rect(frame, x, cy, max_w, row_h, Some(light_gray()), None);
+                }
+
+                // Cell content
+                for (ci, (text, is_hdr)) in cells.iter().enumerate() {
+                    let cell_x = x + ci as f64 * cell_w;
+                    let is_bold = *is_hdr;
+                    push_text_block(frame, fonts, cell_x + cell_pad, cy + cell_pad, text, size, cell_w - 2.0 * cell_pad, is_bold);
+                }
+
+                // Borders
+                push_rect(frame, x, cy, max_w, row_h, None, Some(stroke_of(black(), 0.75)));
+                for ci in 1..num_cols {
+                    let div_x = x + ci as f64 * cell_w;
+                    push_line(frame, div_x, cy, div_x, cy + row_h, 0.75);
+                }
+
+                cy += row_h;
+            }
+        }
+    }
+    cy - y
 }
 
 /// Format a date string like "2020-11-03" or "DateWithoutTime(2020-11-03)" to "November 3, 2020"
@@ -420,14 +631,18 @@ fn measure_candidate_contest(fonts: &FontSet, c: &CandidateContest, col_w: f64) 
 
 fn measure_yesno_contest(fonts: &FontSet, c: &YesNoContest, col_w: f64) -> f64 {
     let inner = col_w - 2.0 * OPTION_PAD_H;
-    let desc = strip_html(&c.description);
+    let is_html = c.description.contains('<');
     let mut h = 0.0;
     h += 2.25; // top border
     h += CONTEST_HDR_PAD;
     h += measure_text_block(fonts, &c.title, H3, inner, true);
     h += CONTEST_HDR_PAD;
     h += OPTION_PAD_H;
-    h += measure_text_block(fonts, &desc, BASE, inner, false);
+    if is_html {
+        h += measure_rich_text(fonts, &c.description, BASE, inner);
+    } else {
+        h += measure_text_block(fonts, &c.description, BASE, inner, false);
+    }
     h += OPTION_PAD_H;
     h += 0.25 * BASE;
     // Yes + No
@@ -555,10 +770,14 @@ fn draw_yesno_contest(frame: &mut Frame, fonts: &FontSet, c: &YesNoContest, x: f
     push_text_block(frame, fonts, x + OPTION_PAD_H, cy, &c.title, H3, inner, true);
     cy += hdr_h + CONTEST_HDR_PAD;
 
-    // Description (strip HTML)
-    let desc = strip_html(&c.description);
+    // Description (render rich text if HTML)
     cy += OPTION_PAD_H;
-    cy += push_text_block(frame, fonts, x + OPTION_PAD_H, cy, &desc, BASE, inner, false);
+    let is_html = c.description.contains('<');
+    if is_html {
+        cy += draw_rich_text(frame, fonts, &c.description, x + OPTION_PAD_H, cy, BASE, inner);
+    } else {
+        cy += push_text_block(frame, fonts, x + OPTION_PAD_H, cy, &c.description, BASE, inner, false);
+    }
     cy += OPTION_PAD_H + 0.25 * BASE;
 
     // Yes/No options
@@ -650,6 +869,88 @@ fn draw_header(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, data: &Ball
     header_h
 }
 
+// ─── Instructions ───────────────────────────────────────────────────────────
+
+const INSTR_TO_VOTE: &str = "To vote, completely fill in the oval next to your choice.";
+const INSTR_WRITE_IN_TITLE: &str = "To Vote for a Write-in:";
+const INSTR_WRITE_IN_TEXT: &str = "To vote for a person whose name is not on the ballot, write the person\u{2019}s name on the \u{201C}Write-in\u{201D} line and completely fill in the oval next to the line.";
+
+fn measure_instructions(ca: &ContentArea, fonts: &FontSet) -> f64 {
+    let pad = CONTEST_HDR_PAD;
+    let col_gap = GAP;
+    let inner_w = ca.w - 2.0 * pad;
+    let col2_w = 7.0 * BASE; // diagram column
+    let col4_w = 7.5 * BASE;
+    let fr_total = inner_w - col2_w - col4_w - 3.0 * col_gap;
+    let col1_w = fr_total * (1.0 / 2.9);
+    let col3_w = fr_total * (1.9 / 2.9);
+
+    let left_h = H2 * LH
+        + BASE * LH
+        + measure_text_block(fonts, INSTR_TO_VOTE, BASE, col1_w, false);
+
+    let right_h = BASE * LH
+        + measure_text_block(fonts, INSTR_WRITE_IN_TEXT, BASE, col3_w, false);
+
+    let grid_h = f64::max(left_h, right_h);
+
+    2.25 + pad + grid_h + pad + 0.75 // border-top + padding + content + padding + border-bottom
+}
+
+fn draw_instructions(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, x: f64, y: f64) -> f64 {
+    let h = measure_instructions(ca, fonts);
+    let pad = CONTEST_HDR_PAD;
+    let col_gap = GAP;
+    let inner_w = ca.w - 2.0 * pad;
+    let col2_w = 7.0 * BASE;
+    let col4_w = 7.5 * BASE;
+    let fr_total = inner_w - col2_w - col4_w - 3.0 * col_gap;
+    let col1_w = fr_total * (1.0 / 2.9);
+    let col3_w = fr_total * (1.9 / 2.9);
+
+    // Box: 3px top border + tinted background
+    push_rect(frame, x, y, ca.w, 2.25, Some(black()), None);
+    push_rect(frame, x, y + 2.25, ca.w, h - 2.25 - 0.75, Some(light_gray()), None);
+    push_rect(frame, x, y, ca.w, h, None, Some(stroke_of(black(), 0.75)));
+
+    let cy = y + 2.25 + pad;
+    let col1_x = x + pad;
+
+    // Column 1: heading + To Vote: + text
+    let mut c1y = cy;
+    c1y += push_text_block(frame, fonts, col1_x, c1y, "Instructions", H2, col1_w, true);
+    c1y += push_text_block(frame, fonts, col1_x, c1y, "To Vote:", BASE, col1_w, true);
+    push_text_block(frame, fonts, col1_x, c1y, INSTR_TO_VOTE, BASE, col1_w, false);
+
+    // Column 2: fill bubble diagram
+    let col2_x = col1_x + col1_w + col_gap;
+    let content_h = h - 2.25 - 2.0 * pad - 0.75;
+    let diag_mid_y = cy + content_h / 2.0;
+    let bh = bubble_h().to_pt();
+    // Filled bubble
+    push_bubble(frame, col2_x + 10.0, diag_mid_y - bh / 2.0 - 2.0);
+    // Fill it (draw a filled rect on top)
+    let bw_pt = bubble_w().to_pt();
+    push_rect(frame, col2_x + 10.0 + 1.0, diag_mid_y - bh / 2.0 + 0.5, bw_pt - 2.0, bh - 3.0, Some(black()), None);
+    // Empty bubble
+    push_bubble(frame, col2_x + 10.0 + bw_pt + 8.0, diag_mid_y - bh / 2.0 - 2.0);
+
+    // Column 3: write-in instructions
+    let col3_x = col2_x + col2_w + col_gap;
+    let mut c3y = cy;
+    c3y += push_text_block(frame, fonts, col3_x, c3y, INSTR_WRITE_IN_TITLE, BASE, col3_w, true);
+    push_text_block(frame, fonts, col3_x, c3y, INSTR_WRITE_IN_TEXT, BASE, col3_w, false);
+
+    // Column 4: write-in diagram
+    let col4_x = col3_x + col3_w + col_gap;
+    // Filled bubble + line
+    push_bubble(frame, col4_x + 6.0, diag_mid_y - bh / 2.0);
+    push_rect(frame, col4_x + 6.0 + 1.0, diag_mid_y - bh / 2.0 + 0.5, bw_pt - 2.0, bh - 3.0, Some(black()), None);
+    push_line(frame, col4_x + 6.0 + bw_pt + 6.0, diag_mid_y + 4.0, col4_x + col4_w - 4.0, diag_mid_y + 4.0, 0.75);
+
+    h
+}
+
 fn footer_height() -> f64 {
     let qr_size = 0.6 * 72.0; // 43.2pt
     let meta_h = 8.0 * LH; // 9.6pt
@@ -733,7 +1034,7 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
         h += f64::max(5.0 * BASE, H1 * LH + H2 * LH * 2.0 + BASE * LH);
         h
     };
-    let instructions_h = 60.0; // approximate
+    let instructions_h = measure_instructions(&ca, fonts);
     let footer_h = footer_height();
 
     // Paginate
@@ -806,15 +1107,8 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
         if pc.is_first {
             let hdr_h = draw_header(&mut frame, fonts, &ca, data);
             cy += hdr_h + GAP;
-            // Simplified instructions placeholder
-            push_rect(&mut frame, ca.x, cy, ca.w, 2.25, Some(black()), None);
-            push_rect(&mut frame, ca.x, cy + 2.25, ca.w, instructions_h - 2.25, Some(light_gray()), None);
-            push_rect(&mut frame, ca.x, cy, ca.w, instructions_h, None, Some(stroke_of(black(), 0.75)));
-            push_text_block(&mut frame, fonts, ca.x + OPTION_PAD_H, cy + 2.25 + OPTION_PAD_H, "Instructions", H2, ca.w - 2.0 * OPTION_PAD_H, true);
-            let instr_text_y = cy + 2.25 + OPTION_PAD_H + H2 * LH;
-            push_text_block(&mut frame, fonts, ca.x + OPTION_PAD_H, instr_text_y, "To Vote:", BASE, ca.w * 0.25, true);
-            push_text_block(&mut frame, fonts, ca.x + OPTION_PAD_H, instr_text_y + BASE * LH, "To vote, completely fill in the oval next to your choice.", BASE, ca.w * 0.25, false);
-            cy += instructions_h + GAP;
+            let instr_h = draw_instructions(&mut frame, fonts, &ca, ca.x, cy);
+            cy += instr_h + GAP;
         }
 
         // Draw contest sections
