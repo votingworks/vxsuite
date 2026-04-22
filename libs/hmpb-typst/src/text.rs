@@ -76,6 +76,23 @@ impl FontBundle {
         Abs::pt(ascender / units_per_em * size.to_pt())
     }
 
+    /// Get the underline position (offset below baseline, positive = below) and thickness.
+    pub fn underline_metrics(&self, size: Abs) -> (Abs, Abs) {
+        let metrics = self.font.metrics();
+        let pos = metrics.underline.position.at(size);
+        let thickness = metrics.underline.thickness.at(size);
+        // position is positive upward from baseline; we want downward offset from top
+        (pos, thickness)
+    }
+
+    /// Get the strikethrough position and thickness.
+    pub fn strikethrough_metrics(&self, size: Abs) -> (Abs, Abs) {
+        let metrics = self.font.metrics();
+        let pos = metrics.strikethrough.position.at(size);
+        let thickness = metrics.strikethrough.thickness.at(size);
+        (pos, thickness)
+    }
+
     /// Create a TextItem for rendering.
     pub fn text_item(&self, text: &str, size: Abs, fill: Paint) -> TextItem {
         let glyphs = self.shape(text, size);

@@ -4,7 +4,8 @@ use typst_library::layout::{Abs, Axes, Frame, FrameItem, Page, PagedDocument, Po
 use typst_library::model::DocumentInfo;
 use typst_library::text::Font;
 use typst_library::visualize::{
-    Color, Curve, CurveItem, FillRule, FixedStroke, Geometry, Paint, Shape,
+    Color, Curve, CurveItem, FillRule, FixedStroke, Geometry, Image, Paint, Shape,
+    SvgImage,
 };
 
 use crate::text::FontSet;
@@ -25,7 +26,16 @@ fn decode_entities(s: &str) -> String {
 enum RichBlock {
     Paragraph { text: String, bold: bool, italic: bool, underline: bool, strikethrough: bool },
     ListItem { text: String, bold: bool, italic: bool, underline: bool, strikethrough: bool, ordered: bool, index: usize },
-    TableRow { cells: Vec<(String, bool)> }, // (text, is_header)
+    TableRow { cells: Vec<TableCell> },
+    Image { size: f64 }, // embedded image placeholder
+}
+
+#[derive(Clone)]
+struct TableCell {
+    text: String,
+    is_header: bool,
+    bold: bool,
+    underline: bool,
 }
 
 /// Parse HTML into structured blocks for rendering.
@@ -45,8 +55,10 @@ fn parse_html_blocks(html: &str) -> Vec<RichBlock> {
     let mut block_underline = false;
     let mut block_strikethrough = false;
     let mut in_table_row = false;
-    let mut row_cells: Vec<(String, bool)> = Vec::new();
+    let mut row_cells: Vec<TableCell> = Vec::new();
     let mut cell_is_header = false;
+    let mut cell_bold = false;
+    let mut cell_underline = false;
     let mut in_cell = false;
 
     let tag_re = regex_lite::Regex::new(r"<(/?)(\w+)[^>]*>|([^<]+)").unwrap();
@@ -62,6 +74,10 @@ fn parse_html_blocks(html: &str) -> Vec<RichBlock> {
                     block_italic = italic;
                     block_underline = underline;
                     block_strikethrough = strikethrough;
+                    if in_cell {
+                        cell_bold = bold;
+                        cell_underline = underline;
+                    }
                 }
                 current_text.push_str(trimmed);
             }
@@ -110,15 +126,31 @@ fn parse_html_blocks(html: &str) -> Vec<RichBlock> {
                 }
                 in_table_row = false;
             }
-            "th" if !closing => { in_cell = true; cell_is_header = true; current_text.clear(); }
+            "th" if !closing => { in_cell = true; cell_is_header = true; cell_bold = false; cell_underline = false; current_text.clear(); }
             "th" if closing => {
-                row_cells.push((current_text.trim().to_string(), true));
+                row_cells.push(TableCell { text: current_text.trim().to_string(), is_header: true, bold: cell_bold || bold, underline: cell_underline || underline });
                 current_text.clear(); in_cell = false; cell_is_header = false;
             }
-            "td" if !closing => { in_cell = true; cell_is_header = false; current_text.clear(); }
+            "td" if !closing => { in_cell = true; cell_is_header = false; cell_bold = bold; cell_underline = underline; current_text.clear(); }
             "td" if closing => {
-                row_cells.push((current_text.trim().to_string(), cell_is_header));
+                row_cells.push(TableCell { text: current_text.trim().to_string(), is_header: cell_is_header, bold: cell_bold || bold, underline: cell_underline || underline });
                 current_text.clear(); in_cell = false;
+            }
+            "img" if !closing => {
+                // Extract width/height from attributes if available, default to 36pt
+                let size_str = cap.get(0).map_or("", |m| m.as_str());
+                let img_size = if size_str.contains("width=") || size_str.contains("height=") {
+                    // Parse width or height attribute
+                    let re = regex_lite::Regex::new(r#"(?:width|height)="(\d+)""#).unwrap();
+                    re.captures(size_str)
+                        .and_then(|c| c.get(1))
+                        .and_then(|m| m.as_str().parse::<f64>().ok())
+                        .map(|v| v * 0.75) // px to pt
+                        .unwrap_or(36.0)
+                } else {
+                    36.0
+                };
+                blocks.push(RichBlock::Image { size: img_size });
             }
             _ => {}
         }
@@ -142,9 +174,16 @@ fn measure_rich_text(fonts: &FontSet, html: &str, size: f64, max_w: f64) -> f64 
     let line_h = size * LH;
     let para_gap = size * 0.4;
     let list_indent = size * 1.8;
+    let list_gap = size * 0.3;
     let mut h = 0.0;
+    let mut prev_was_list = false;
 
     for block in &blocks {
+        let is_list = matches!(block, RichBlock::ListItem { .. });
+        if prev_was_list && !is_list {
+            h += list_gap;
+        }
+        prev_was_list = is_list;
         match block {
             RichBlock::Paragraph { text, bold, .. } => {
                 let bundle = if *bold { &fonts.bold } else { &fonts.regular };
@@ -158,12 +197,15 @@ fn measure_rich_text(fonts: &FontSet, html: &str, size: f64, max_w: f64) -> f64 
             }
             RichBlock::TableRow { cells } => {
                 let cell_w = max_w / cells.len().max(1) as f64;
-                let max_cell_h: f64 = cells.iter().map(|(text, is_hdr)| {
-                    let bundle = if *is_hdr { &fonts.bold } else { &fonts.regular };
-                    let lines = bundle.wrap_text(text, pt(size), pt(cell_w - 6.0));
+                let max_cell_h: f64 = cells.iter().map(|cell| {
+                    let bundle = if cell.is_header || cell.bold { &fonts.bold } else { &fonts.regular };
+                    let lines = bundle.wrap_text(&cell.text, pt(size), pt(cell_w - 6.0));
                     lines.len() as f64 * line_h
                 }).fold(0.0_f64, f64::max);
                 h += max_cell_h + size * 0.5 + 0.75; // padding + border
+            }
+            RichBlock::Image { size: img_size } => {
+                h += img_size + para_gap;
             }
         }
     }
@@ -176,32 +218,46 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
     let line_h = size * LH;
     let para_gap = size * 0.4;
     let list_indent = size * 1.8;
+    let list_gap = size * 0.3; // margin after a list section
     let mut cy = y;
+    let mut prev_was_list = false;
 
     for block in &blocks {
+        // Add gap when transitioning from list to non-list
+        let is_list = matches!(block, RichBlock::ListItem { .. });
+        if prev_was_list && !is_list {
+            cy += list_gap;
+        }
+        prev_was_list = is_list;
         match block {
             RichBlock::Paragraph { text, bold, underline, strikethrough, .. } => {
                 let bundle = if *bold { &fonts.bold } else { &fonts.regular };
                 let is_bold = *bold;
+                let ascent = bundle.ascent(pt(size)).to_pt();
                 let lines = bundle.wrap_text(text, pt(size), pt(max_w));
                 for line in &lines {
                     push_text(frame, fonts, x, cy, line, size, is_bold);
                     if *underline {
                         let tw = bundle.measure_width(line, pt(size)).to_pt();
-                        push_line(frame, x, cy + size * 1.05, x + tw, cy + size * 1.05, 0.5);
+                        let (ul_pos, ul_thick) = bundle.underline_metrics(pt(size));
+                        let ul_y = cy + ascent - ul_pos.to_pt();
+                        push_line(frame, x, ul_y, x + tw, ul_y, ul_thick.to_pt());
                     }
                     if *strikethrough {
                         let tw = bundle.measure_width(line, pt(size)).to_pt();
-                        push_line(frame, x, cy + size * 0.5, x + tw, cy + size * 0.5, 0.5);
+                        let (st_pos, st_thick) = bundle.strikethrough_metrics(pt(size));
+                        let st_y = cy + ascent - st_pos.to_pt();
+                        push_line(frame, x, st_y, x + tw, st_y, st_thick.to_pt());
                     }
                     cy += line_h;
                 }
                 cy += para_gap;
             }
-            RichBlock::ListItem { text, bold, italic, underline, strikethrough, ordered, index } => {
+            RichBlock::ListItem { text, bold, italic: _, underline, strikethrough, ordered, index } => {
                 let is_bold = *bold;
                 let bundle = if is_bold { &fonts.bold } else { &fonts.regular };
-                let prefix = if *ordered { format!("{}.", index) } else { "•".to_string() };
+                let ascent = bundle.ascent(pt(size)).to_pt();
+                let prefix = if *ordered { format!("{}.", index) } else { "\u{2022}".to_string() };
                 let prefix_w = fonts.regular.measure_width(&prefix, pt(size)).to_pt();
                 push_text(frame, fonts, x + list_indent - prefix_w - 3.0, cy, &prefix, size, false);
 
@@ -210,15 +266,15 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
                     push_text(frame, fonts, x + list_indent, cy, line, size, is_bold);
                     if *underline {
                         let tw = bundle.measure_width(line, pt(size)).to_pt();
-                        push_line(frame, x + list_indent, cy + size * 1.05, x + list_indent + tw, cy + size * 1.05, 0.5);
+                        let (ul_pos, ul_thick) = bundle.underline_metrics(pt(size));
+                        let ul_y = cy + ascent - ul_pos.to_pt();
+                        push_line(frame, x + list_indent, ul_y, x + list_indent + tw, ul_y, ul_thick.to_pt());
                     }
                     if *strikethrough {
                         let tw = bundle.measure_width(line, pt(size)).to_pt();
-                        push_line(frame, x + list_indent, cy + size * 0.5, x + list_indent + tw, cy + size * 0.5, 0.5);
-                    }
-                    if *italic {
-                        // Draw with italic indicator (we only have regular/bold, so mark with slant)
-                        // For now, just use regular font (italic font not loaded)
+                        let (st_pos, st_thick) = bundle.strikethrough_metrics(pt(size));
+                        let st_y = cy + ascent - st_pos.to_pt();
+                        push_line(frame, x + list_indent, st_y, x + list_indent + tw, st_y, st_thick.to_pt());
                     }
                     cy += line_h;
                 }
@@ -229,24 +285,33 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
                 let cell_pad = 3.0;
 
                 // Measure row height
-                let max_cell_h: f64 = cells.iter().map(|(text, is_hdr)| {
-                    let bundle = if *is_hdr { &fonts.bold } else { &fonts.regular };
-                    let lines = bundle.wrap_text(text, pt(size), pt(cell_w - 2.0 * cell_pad));
+                let max_cell_h: f64 = cells.iter().map(|cell| {
+                    let bundle = if cell.is_header || cell.bold { &fonts.bold } else { &fonts.regular };
+                    let lines = bundle.wrap_text(&cell.text, pt(size), pt(cell_w - 2.0 * cell_pad));
                     lines.len() as f64 * line_h
                 }).fold(0.0_f64, f64::max);
 
                 let row_h = max_cell_h + 2.0 * cell_pad;
 
                 // Header background
-                if cells.iter().any(|(_, is_hdr)| *is_hdr) {
+                if cells.iter().any(|cell| cell.is_header) {
                     push_rect(frame, x, cy, max_w, row_h, Some(light_gray()), None);
                 }
 
                 // Cell content
-                for (ci, (text, is_hdr)) in cells.iter().enumerate() {
+                for (ci, cell) in cells.iter().enumerate() {
                     let cell_x = x + ci as f64 * cell_w;
-                    let is_bold = *is_hdr;
-                    push_text_block(frame, fonts, cell_x + cell_pad, cy + cell_pad, text, size, cell_w - 2.0 * cell_pad, is_bold);
+                    let is_bold = cell.is_header || cell.bold;
+                    let bundle = if is_bold { &fonts.bold } else { &fonts.regular };
+                    let text_y = cy + cell_pad;
+                    push_text_block(frame, fonts, cell_x + cell_pad, text_y, &cell.text, size, cell_w - 2.0 * cell_pad, is_bold);
+                    if cell.underline && !cell.text.is_empty() {
+                        let tw = bundle.measure_width(&cell.text, pt(size)).to_pt();
+                        let ascent = bundle.ascent(pt(size)).to_pt();
+                        let (ul_pos, ul_thick) = bundle.underline_metrics(pt(size));
+                        let ul_y = text_y + ascent - ul_pos.to_pt();
+                        push_line(frame, cell_x + cell_pad, ul_y, cell_x + cell_pad + tw, ul_y, ul_thick.to_pt());
+                    }
                 }
 
                 // Borders
@@ -257,6 +322,14 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
                 }
 
                 cy += row_h;
+            }
+            RichBlock::Image { size: img_size } => {
+                // Draw a placeholder icon (money bag shape approximation)
+                let s = *img_size;
+                push_rect(frame, x, cy, s, s, None, Some(stroke_of(black(), 0.75)));
+                // Draw "$" symbol centered in the box
+                push_text(frame, fonts, x + s * 0.3, cy + s * 0.15, "$", s * 0.6, true);
+                cy += s + para_gap;
             }
         }
     }
@@ -845,6 +918,20 @@ fn draw_header(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, data: &Ball
     let text_x = ca.x + seal_size + GAP;
     let text_w = ca.w - seal_size - GAP;
 
+    // Embed seal SVG if available
+    if let Some(ref seal_svg) = data.election.seal {
+        let seal_bytes = typst_library::foundations::Bytes::new(seal_svg.as_bytes().to_vec());
+        if let Ok(svg_img) = SvgImage::new(seal_bytes) {
+            let image = Image::plain(svg_img);
+            let img_size = Axes::new(pt(seal_size), pt(seal_size));
+            let seal_y = ca.y; // will be adjusted after measuring text
+            frame.push(
+                Point::new(pt(ca.x), pt(seal_y)),
+                FrameItem::Image(image, img_size, span()),
+            );
+        }
+    }
+
     // Measure text height for centering
     let mut text_h = 0.0;
     text_h += H1 * LH;
@@ -922,18 +1009,24 @@ fn draw_instructions(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, x: f6
     c1y += push_text_block(frame, fonts, col1_x, c1y, "To Vote:", BASE, col1_w, true);
     push_text_block(frame, fonts, col1_x, c1y, INSTR_TO_VOTE, BASE, col1_w, false);
 
-    // Column 2: fill bubble diagram
+    // Column 2: fill bubble diagram (SVG illustration)
     let col2_x = col1_x + col1_w + col_gap;
     let content_h = h - 2.25 - 2.0 * pad - 0.75;
-    let diag_mid_y = cy + content_h / 2.0;
-    let bh = bubble_h().to_pt();
-    // Filled bubble
-    push_bubble(frame, col2_x + 10.0, diag_mid_y - bh / 2.0 - 2.0);
-    // Fill it (draw a filled rect on top)
-    let bw_pt = bubble_w().to_pt();
-    push_rect(frame, col2_x + 10.0 + 1.0, diag_mid_y - bh / 2.0 + 0.5, bw_pt - 2.0, bh - 3.0, Some(black()), None);
-    // Empty bubble
-    push_bubble(frame, col2_x + 10.0 + bw_pt + 8.0, diag_mid_y - bh / 2.0 - 2.0);
+    {
+        let svg_data = include_bytes!("../assets/fill_bubble_diagram.svg");
+        let svg_bytes = typst_library::foundations::Bytes::new(svg_data.to_vec());
+        if let Ok(svg_img) = SvgImage::new(svg_bytes) {
+            let image = Image::plain(svg_img);
+            // Scale to fit the column, centered vertically
+            let img_w = col2_w;
+            let img_h = img_w * (122.73 / 259.2); // preserve aspect ratio from viewBox
+            let img_y = cy + (content_h - img_h) / 2.0;
+            frame.push(
+                Point::new(pt(col2_x), pt(img_y)),
+                FrameItem::Image(image, Axes::new(pt(img_w), pt(img_h)), span()),
+            );
+        }
+    }
 
     // Column 3: write-in instructions
     let col3_x = col2_x + col2_w + col_gap;
@@ -941,12 +1034,22 @@ fn draw_instructions(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, x: f6
     c3y += push_text_block(frame, fonts, col3_x, c3y, INSTR_WRITE_IN_TITLE, BASE, col3_w, true);
     push_text_block(frame, fonts, col3_x, c3y, INSTR_WRITE_IN_TEXT, BASE, col3_w, false);
 
-    // Column 4: write-in diagram
+    // Column 4: write-in diagram (SVG illustration)
     let col4_x = col3_x + col3_w + col_gap;
-    // Filled bubble + line
-    push_bubble(frame, col4_x + 6.0, diag_mid_y - bh / 2.0);
-    push_rect(frame, col4_x + 6.0 + 1.0, diag_mid_y - bh / 2.0 + 0.5, bw_pt - 2.0, bh - 3.0, Some(black()), None);
-    push_line(frame, col4_x + 6.0 + bw_pt + 6.0, diag_mid_y + 4.0, col4_x + col4_w - 4.0, diag_mid_y + 4.0, 0.75);
+    {
+        let svg_data = include_bytes!("../assets/write_in_diagram.svg");
+        let svg_bytes = typst_library::foundations::Bytes::new(svg_data.to_vec());
+        if let Ok(svg_img) = SvgImage::new(svg_bytes) {
+            let image = Image::plain(svg_img);
+            let img_w = col4_w;
+            let img_h = img_w * (92.0 / 260.0); // preserve aspect ratio from viewBox
+            let img_y = cy + (content_h - img_h) / 2.0;
+            frame.push(
+                Point::new(pt(col4_x), pt(img_y)),
+                FrameItem::Image(image, Axes::new(pt(img_w), pt(img_h)), span()),
+            );
+        }
+    }
 
     h
 }
