@@ -10,6 +10,31 @@ use typst_library::visualize::{
 
 use crate::text::FontSet;
 
+// ─── Cached Assets ──────────────────────────────────────────────────────────
+
+/// Pre-parsed assets that are reused across render calls.
+pub struct CachedAssets {
+    pub fill_bubble_image: Image,
+    pub write_in_image: Image,
+}
+
+impl CachedAssets {
+    pub fn new() -> Result<Self, String> {
+        let fill_svg = include_bytes!("../assets/fill_bubble_diagram.svg");
+        let fill_bytes = typst_library::foundations::Bytes::new(fill_svg.to_vec());
+        let fill_img = SvgImage::new(fill_bytes).map_err(|e| format!("fill bubble SVG: {e:?}"))?;
+
+        let write_svg = include_bytes!("../assets/write_in_diagram.svg");
+        let write_bytes = typst_library::foundations::Bytes::new(write_svg.to_vec());
+        let write_img = SvgImage::new(write_bytes).map_err(|e| format!("write-in SVG: {e:?}"))?;
+
+        Ok(Self {
+            fill_bubble_image: Image::plain(fill_img),
+            write_in_image: Image::plain(write_img),
+        })
+    }
+}
+
 /// Decode HTML entities in a string.
 fn decode_entities(s: &str) -> String {
     s.replace("&amp;", "&")
@@ -1022,7 +1047,7 @@ fn measure_instructions(ca: &ContentArea, fonts: &FontSet) -> f64 {
     2.25 + pad + grid_h + pad + 0.75 // border-top + padding + content + padding + border-bottom
 }
 
-fn draw_instructions(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, x: f64, y: f64) -> f64 {
+fn draw_instructions(frame: &mut Frame, fonts: &FontSet, assets: &CachedAssets, ca: &ContentArea, x: f64, y: f64) -> f64 {
     let h = measure_instructions(ca, fonts);
     let pad = CONTEST_HDR_PAD;
     let col_gap = GAP;
@@ -1047,23 +1072,17 @@ fn draw_instructions(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, x: f6
     c1y += push_text_block(frame, fonts, col1_x, c1y, "To Vote:", BASE, col1_w, true);
     push_text_block(frame, fonts, col1_x, c1y, INSTR_TO_VOTE, BASE, col1_w, false);
 
-    // Column 2: fill bubble diagram (SVG illustration)
+    // Column 2: fill bubble diagram (cached SVG)
     let col2_x = col1_x + col1_w + col_gap;
     let content_h = h - 2.25 - 2.0 * pad - 0.75;
     {
-        let svg_data = include_bytes!("../assets/fill_bubble_diagram.svg");
-        let svg_bytes = typst_library::foundations::Bytes::new(svg_data.to_vec());
-        if let Ok(svg_img) = SvgImage::new(svg_bytes) {
-            let image = Image::plain(svg_img);
-            // Scale to fit the column, centered vertically
-            let img_w = col2_w;
-            let img_h = img_w * (122.73 / 259.2); // preserve aspect ratio from viewBox
-            let img_y = cy + (content_h - img_h) / 2.0;
-            frame.push(
-                Point::new(pt(col2_x), pt(img_y)),
-                FrameItem::Image(image, Axes::new(pt(img_w), pt(img_h)), span()),
-            );
-        }
+        let img_w = col2_w;
+        let img_h = img_w * (122.73 / 259.2);
+        let img_y = cy + (content_h - img_h) / 2.0;
+        frame.push(
+            Point::new(pt(col2_x), pt(img_y)),
+            FrameItem::Image(assets.fill_bubble_image.clone(), Axes::new(pt(img_w), pt(img_h)), span()),
+        );
     }
 
     // Column 3: write-in instructions
@@ -1072,21 +1091,16 @@ fn draw_instructions(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, x: f6
     c3y += push_text_block(frame, fonts, col3_x, c3y, INSTR_WRITE_IN_TITLE, BASE, col3_w, true);
     push_text_block(frame, fonts, col3_x, c3y, INSTR_WRITE_IN_TEXT, BASE, col3_w, false);
 
-    // Column 4: write-in diagram (SVG illustration)
+    // Column 4: write-in diagram (cached SVG)
     let col4_x = col3_x + col3_w + col_gap;
     {
-        let svg_data = include_bytes!("../assets/write_in_diagram.svg");
-        let svg_bytes = typst_library::foundations::Bytes::new(svg_data.to_vec());
-        if let Ok(svg_img) = SvgImage::new(svg_bytes) {
-            let image = Image::plain(svg_img);
-            let img_w = col4_w;
-            let img_h = img_w * (92.0 / 260.0); // preserve aspect ratio from viewBox
-            let img_y = cy + (content_h - img_h) / 2.0;
-            frame.push(
-                Point::new(pt(col4_x), pt(img_y)),
-                FrameItem::Image(image, Axes::new(pt(img_w), pt(img_h)), span()),
-            );
-        }
+        let img_w = col4_w;
+        let img_h = img_w * (92.0 / 260.0);
+        let img_y = cy + (content_h - img_h) / 2.0;
+        frame.push(
+            Point::new(pt(col4_x), pt(img_y)),
+            FrameItem::Image(assets.write_in_image.clone(), Axes::new(pt(img_w), pt(img_h)), span()),
+        );
     }
 
     h
@@ -1144,7 +1158,7 @@ fn draw_footer(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, page_num: u
 
 // ─── Main Render ────────────────────────────────────────────────────────────
 
-pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, String> {
+pub fn render_ballot(fonts: &FontSet, assets: &CachedAssets, data: &BallotData) -> Result<Vec<u8>, String> {
     let (pw, ph) = paper_dims(&data.election.ballot_layout.paper_size);
     let ca = content_area(pw, ph);
     let hide_tm = data.ballot_mode == "sample";
@@ -1249,7 +1263,7 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
         if pc.is_first {
             let hdr_h = draw_header(&mut frame, fonts, &ca, data);
             cy += hdr_h + GAP;
-            let instr_h = draw_instructions(&mut frame, fonts, &ca, ca.x, cy);
+            let instr_h = draw_instructions(&mut frame, fonts, assets, &ca, ca.x, cy);
             cy += instr_h + GAP;
         }
 

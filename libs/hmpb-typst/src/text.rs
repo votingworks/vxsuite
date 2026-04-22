@@ -95,7 +95,8 @@ impl FontBundle {
 
     /// Create a TextItem for rendering.
     pub fn text_item(&self, text: &str, size: Abs, fill: Paint) -> TextItem {
-        let glyphs = self.shape(text, size);
+        let face = self.face();
+        let glyphs = self.shape_with_face(&face, text, size);
         TextItem {
             font: self.font.clone(),
             size,
@@ -108,29 +109,106 @@ impl FontBundle {
         }
     }
 
-    /// Word-wrap text to fit within max_width, returning lines.
-    pub fn wrap_text(&self, text: &str, size: Abs, max_width: Abs) -> Vec<String> {
-        let words: Vec<&str> = text.split_whitespace().collect();
-        if words.is_empty() {
-            return vec![];
-        }
+    /// Shape text using a pre-parsed face (avoids re-parsing on each call).
+    pub fn shape_with_face(&self, face: &Face<'_>, text: &str, _size: Abs) -> Vec<Glyph> {
+        let mut buffer = UnicodeBuffer::new();
+        buffer.push_str(text);
+        let output = rustybuzz::shape(face, &[], buffer);
+        let infos = output.glyph_infos();
+        let positions = output.glyph_positions();
+        let units_per_em = f64::from(face.units_per_em());
 
+        infos.iter().zip(positions.iter()).map(|(info, pos)| Glyph {
+            id: info.glyph_id.try_into().unwrap_or(0),
+            x_advance: Em::new(f64::from(pos.x_advance) / units_per_em),
+            x_offset: Em::new(f64::from(pos.x_offset) / units_per_em),
+            y_advance: Em::new(f64::from(pos.y_advance) / units_per_em),
+            y_offset: Em::new(f64::from(pos.y_offset) / units_per_em),
+            range: 0..text.len() as u16,
+            span: (typst_syntax::Span::detached(), 0),
+        }).collect()
+    }
+
+    /// Measure width using a pre-parsed face.
+    pub fn measure_width_with_face(&self, face: &Face<'_>, text: &str, size: Abs) -> Abs {
+        let mut buffer = UnicodeBuffer::new();
+        buffer.push_str(text);
+        let output = rustybuzz::shape(face, &[], buffer);
+        let units_per_em = f64::from(face.units_per_em());
+        let total: f64 = output.glyph_positions().iter().map(|p| f64::from(p.x_advance)).sum();
+        Abs::pt(total / units_per_em * size.to_pt())
+    }
+
+    /// Create a TextItem using a pre-parsed face.
+    pub fn text_item_with_face(&self, face: &Face<'_>, text: &str, size: Abs, fill: Paint) -> TextItem {
+        let glyphs = self.shape_with_face(face, text, size);
+        TextItem {
+            font: self.font.clone(),
+            size, fill, stroke: None,
+            lang: typst_library::text::Lang::ENGLISH,
+            region: None, text: text.into(), glyphs,
+        }
+    }
+
+    /// Wrap text using a pre-parsed face.
+    pub fn wrap_text_with_face(&self, face: &Face<'_>, text: &str, size: Abs, max_width: Abs) -> Vec<String> {
+        let words: Vec<&str> = text.split_whitespace().collect();
+        if words.is_empty() { return vec![]; }
         let mut lines: Vec<String> = Vec::new();
         let mut current_line = String::new();
-        let space_width = self.measure_width(" ", size);
-
+        let space_width = self.measure_width_with_face(face, " ", size);
         for word in &words {
-            let word_width = self.measure_width(word, size);
+            let word_width = self.measure_width_with_face(face, word, size);
             if current_line.is_empty() {
                 current_line = (*word).to_string();
             } else {
-                let line_width = self.measure_width(&current_line, size) + space_width + word_width;
+                let line_width = self.measure_width_with_face(face, &current_line, size) + space_width + word_width;
                 if line_width <= max_width {
                     current_line.push(' ');
                     current_line.push_str(word);
                 } else {
                     lines.push(current_line);
                     current_line = (*word).to_string();
+                }
+            }
+        }
+        if !current_line.is_empty() { lines.push(current_line); }
+        lines
+    }
+
+    /// Word-wrap text to fit within max_width, returning lines.
+    /// Optimized to track running width instead of re-measuring the whole line.
+    pub fn wrap_text(&self, text: &str, size: Abs, max_width: Abs) -> Vec<String> {
+        let face = self.face();
+        self.wrap_text_impl(&face, text, size, max_width)
+    }
+
+    fn wrap_text_impl(&self, face: &Face<'_>, text: &str, size: Abs, max_width: Abs) -> Vec<String> {
+        let words: Vec<&str> = text.split_whitespace().collect();
+        if words.is_empty() {
+            return vec![];
+        }
+
+        let space_width = self.measure_width_with_face(face, " ", size);
+        let mut lines: Vec<String> = Vec::new();
+        let mut current_line = String::new();
+        let mut current_width = Abs::zero();
+
+        for word in &words {
+            let word_width = self.measure_width_with_face(face, word, size);
+            if current_line.is_empty() {
+                current_line = (*word).to_string();
+                current_width = word_width;
+            } else {
+                let new_width = current_width + space_width + word_width;
+                if new_width <= max_width {
+                    current_line.push(' ');
+                    current_line.push_str(word);
+                    current_width = new_width;
+                } else {
+                    lines.push(current_line);
+                    current_line = (*word).to_string();
+                    current_width = word_width;
                 }
             }
         }
@@ -154,4 +232,19 @@ impl FontSet {
             bold: FontBundle::new(include_bytes!("../fonts/Roboto-Bold.ttf").to_vec())?,
         })
     }
+
+    /// Create scoped font faces for use within a single render call.
+    /// This avoids re-parsing the face table on every text operation.
+    pub fn scoped_faces(&self) -> ScopedFaces<'_> {
+        ScopedFaces {
+            regular: self.regular.face(),
+            bold: self.bold.face(),
+        }
+    }
+}
+
+/// Pre-parsed font faces that are valid for the lifetime of a render call.
+pub struct ScopedFaces<'a> {
+    pub regular: Face<'a>,
+    pub bold: Face<'a>,
 }
