@@ -27,7 +27,7 @@ enum RichBlock {
     Paragraph { text: String, bold: bool, italic: bool, underline: bool, strikethrough: bool },
     ListItem { text: String, bold: bool, italic: bool, underline: bool, strikethrough: bool, ordered: bool, index: usize },
     TableRow { cells: Vec<TableCell> },
-    Image { size: f64 }, // embedded image placeholder
+    Image { size: f64, data: Option<Vec<u8>> }, // embedded image with optional SVG data
 }
 
 #[derive(Clone)]
@@ -137,20 +137,25 @@ fn parse_html_blocks(html: &str) -> Vec<RichBlock> {
                 current_text.clear(); in_cell = false;
             }
             "img" if !closing => {
-                // Extract width/height from attributes if available, default to 36pt
-                let size_str = cap.get(0).map_or("", |m| m.as_str());
-                let img_size = if size_str.contains("width=") || size_str.contains("height=") {
-                    // Parse width or height attribute
+                let full_tag = cap.get(0).map_or("", |m| m.as_str());
+                // Extract size
+                let img_size = {
                     let re = regex_lite::Regex::new(r#"(?:width|height)="(\d+)""#).unwrap();
-                    re.captures(size_str)
+                    re.captures(full_tag)
                         .and_then(|c| c.get(1))
                         .and_then(|m| m.as_str().parse::<f64>().ok())
                         .map(|v| v * 0.75) // px to pt
                         .unwrap_or(36.0)
-                } else {
-                    36.0
                 };
-                blocks.push(RichBlock::Image { size: img_size });
+                // Extract SVG data from src="data:image/svg+xml;base64,..."
+                let data = {
+                    let src_re = regex_lite::Regex::new(r#"src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)""#).unwrap();
+                    src_re.captures(full_tag).and_then(|c| {
+                        use base64::Engine;
+                        c.get(1).and_then(|m| base64::engine::general_purpose::STANDARD.decode(m.as_str()).ok())
+                    })
+                };
+                blocks.push(RichBlock::Image { size: img_size, data });
             }
             _ => {}
         }
@@ -177,13 +182,17 @@ fn measure_rich_text(fonts: &FontSet, html: &str, size: f64, max_w: f64) -> f64 
     let list_gap = size * 0.3;
     let mut h = 0.0;
     let mut prev_was_list = false;
+    let mut prev_was_table = false;
+    let table_margin = size * 0.5;
 
     for block in &blocks {
         let is_list = matches!(block, RichBlock::ListItem { .. });
-        if prev_was_list && !is_list {
-            h += list_gap;
-        }
+        let is_table = matches!(block, RichBlock::TableRow { .. });
+        if prev_was_list && !is_list { h += list_gap; }
+        if is_table && !prev_was_table { h += table_margin; }
+        if prev_was_table && !is_table { h += table_margin; }
         prev_was_list = is_list;
+        prev_was_table = is_table;
         match block {
             RichBlock::Paragraph { text, bold, .. } => {
                 let bundle = if *bold { &fonts.bold } else { &fonts.regular };
@@ -204,7 +213,7 @@ fn measure_rich_text(fonts: &FontSet, html: &str, size: f64, max_w: f64) -> f64 
                 }).fold(0.0_f64, f64::max);
                 h += max_cell_h + size * 0.5 + 0.75; // padding + border
             }
-            RichBlock::Image { size: img_size } => {
+            RichBlock::Image { size: img_size, .. } => {
                 h += img_size + para_gap;
             }
         }
@@ -221,14 +230,26 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
     let list_gap = size * 0.3; // margin after a list section
     let mut cy = y;
     let mut prev_was_list = false;
+    let mut prev_was_table = false;
+    let table_margin = size * 0.5;
 
     for block in &blocks {
         // Add gap when transitioning from list to non-list
         let is_list = matches!(block, RichBlock::ListItem { .. });
+        let is_table = matches!(block, RichBlock::TableRow { .. });
         if prev_was_list && !is_list {
             cy += list_gap;
         }
+        // Add margin before first table row
+        if is_table && !prev_was_table {
+            cy += table_margin;
+        }
+        // Add margin after last table row
+        if prev_was_table && !is_table {
+            cy += table_margin;
+        }
         prev_was_list = is_list;
+        prev_was_table = is_table;
         match block {
             RichBlock::Paragraph { text, bold, underline, strikethrough, .. } => {
                 let bundle = if *bold { &fonts.bold } else { &fonts.regular };
@@ -258,8 +279,9 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
                 let bundle = if is_bold { &fonts.bold } else { &fonts.regular };
                 let ascent = bundle.ascent(pt(size)).to_pt();
                 let prefix = if *ordered { format!("{}.", index) } else { "\u{2022}".to_string() };
-                let prefix_w = fonts.regular.measure_width(&prefix, pt(size)).to_pt();
-                push_text(frame, fonts, x + list_indent - prefix_w - 3.0, cy, &prefix, size, false);
+                let prefix_size = if *ordered { size } else { size * 1.3 }; // larger bullets
+                let prefix_w = fonts.regular.measure_width(&prefix, pt(prefix_size)).to_pt();
+                push_text(frame, fonts, x + list_indent - prefix_w - 3.0, cy, &prefix, prefix_size, false);
 
                 let lines = bundle.wrap_text(text, pt(size), pt(max_w - list_indent));
                 for line in &lines {
@@ -323,12 +345,22 @@ fn draw_rich_text(frame: &mut Frame, fonts: &FontSet, html: &str, x: f64, y: f64
 
                 cy += row_h;
             }
-            RichBlock::Image { size: img_size } => {
-                // Draw a placeholder icon (money bag shape approximation)
+            RichBlock::Image { size: img_size, data } => {
                 let s = *img_size;
-                push_rect(frame, x, cy, s, s, None, Some(stroke_of(black(), 0.75)));
-                // Draw "$" symbol centered in the box
-                push_text(frame, fonts, x + s * 0.3, cy + s * 0.15, "$", s * 0.6, true);
+                if let Some(svg_data) = data {
+                    let svg_bytes = typst_library::foundations::Bytes::new(svg_data.clone());
+                    if let Ok(svg_img) = SvgImage::new(svg_bytes) {
+                        let image = Image::plain(svg_img);
+                        frame.push(
+                            Point::new(pt(x), pt(cy)),
+                            FrameItem::Image(image, Axes::new(pt(s), pt(s)), span()),
+                        );
+                    }
+                } else {
+                    // Fallback placeholder
+                    push_rect(frame, x, cy, s, s, None, Some(stroke_of(black(), 0.75)));
+                    push_text(frame, fonts, x + s * 0.3, cy + s * 0.15, "$", s * 0.6, true);
+                }
                 cy += s + para_gap;
             }
         }
@@ -394,6 +426,8 @@ fn black() -> Paint { Paint::Solid(Color::BLACK) }
 fn white() -> Paint { Paint::Solid(Color::WHITE) }
 fn light_gray() -> Paint { Paint::Solid(Color::from_u8(0xED, 0xED, 0xED, 0xFF)) }
 fn dark_gray() -> Paint { Paint::Solid(Color::from_u8(0xDA, 0xDA, 0xDA, 0xFF)) }
+
+const SEPARATOR_THICKNESS: f64 = 0.375; // lighter than box borders
 
 fn span() -> typst_syntax::Span { typst_syntax::Span::detached() }
 
@@ -564,13 +598,17 @@ fn measure_text_block(fonts: &FontSet, text: &str, size: f64, max_w: f64, bold: 
 }
 
 fn push_line(frame: &mut Frame, x1: f64, y1: f64, x2: f64, y2: f64, thickness: f64) {
+    push_line_colored(frame, x1, y1, x2, y2, thickness, black());
+}
+
+fn push_line_colored(frame: &mut Frame, x1: f64, y1: f64, x2: f64, y2: f64, thickness: f64, color: Paint) {
     let dx = x2 - x1;
     let dy = y2 - y1;
     let shape = Shape {
         geometry: Geometry::Line(Point::new(pt(dx), pt(dy))),
         fill: None,
         fill_rule: FillRule::NonZero,
-        stroke: Some(stroke_of(black(), thickness)),
+        stroke: Some(stroke_of(color, thickness)),
     };
     frame.push(Point::new(pt(x1), pt(y1)), FrameItem::Shape(shape, span()));
 }
@@ -771,7 +809,7 @@ fn draw_candidate_contest(frame: &mut Frame, fonts: &FontSet, c: &CandidateConte
     // Candidates
     for (i, candidate) in c.candidates.iter().enumerate() {
         if i > 0 {
-            push_line(frame, x, cy, x + col_w, cy, 0.5);
+            push_line_colored(frame, x, cy, x + col_w, cy, SEPARATOR_THICKNESS, dark_gray());
         }
         cy += OPTION_PAD_V;
         let line_h = BASE * LH;
@@ -800,7 +838,7 @@ fn draw_candidate_contest(frame: &mut Frame, fonts: &FontSet, c: &CandidateConte
     // Write-ins
     if c.allow_write_ins {
         for _ in 0..c.seats {
-            push_line(frame, x, cy, x + col_w, cy, 0.5);
+            push_line_colored(frame, x, cy, x + col_w, cy, SEPARATOR_THICKNESS, dark_gray());
             cy += 0.75;
             cy += 0.9 * BASE;
 
@@ -855,7 +893,7 @@ fn draw_yesno_contest(frame: &mut Frame, fonts: &FontSet, c: &YesNoContest, x: f
 
     // Yes/No options
     for opt in [&c.yes_option, &c.no_option] {
-        push_line(frame, x, cy, x + col_w, cy, 0.5);
+        push_line_colored(frame, x, cy, x + col_w, cy, SEPARATOR_THICKNESS, dark_gray());
         cy += OPTION_PAD_V;
         let line_h = BASE * LH;
         let bubble_y = cy + (line_h - bh) / 2.0;
@@ -918,20 +956,6 @@ fn draw_header(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, data: &Ball
     let text_x = ca.x + seal_size + GAP;
     let text_w = ca.w - seal_size - GAP;
 
-    // Embed seal SVG if available
-    if let Some(ref seal_svg) = data.election.seal {
-        let seal_bytes = typst_library::foundations::Bytes::new(seal_svg.as_bytes().to_vec());
-        if let Ok(svg_img) = SvgImage::new(seal_bytes) {
-            let image = Image::plain(svg_img);
-            let img_size = Axes::new(pt(seal_size), pt(seal_size));
-            let seal_y = ca.y; // will be adjusted after measuring text
-            frame.push(
-                Point::new(pt(ca.x), pt(seal_y)),
-                FrameItem::Image(image, img_size, span()),
-            );
-        }
-    }
-
     // Measure text height for centering
     let mut text_h = 0.0;
     text_h += H1 * LH;
@@ -940,6 +964,20 @@ fn draw_header(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, data: &Ball
     text_h += BASE * LH;
 
     let header_h = f64::max(text_h, seal_size);
+
+    // Embed seal SVG, vertically centered within header
+    if let Some(ref seal_svg) = data.election.seal {
+        let seal_bytes = typst_library::foundations::Bytes::new(seal_svg.as_bytes().to_vec());
+        if let Ok(svg_img) = SvgImage::new(seal_bytes) {
+            let image = Image::plain(svg_img);
+            let img_size = Axes::new(pt(seal_size), pt(seal_size));
+            let seal_y = ca.y + (header_h - seal_size) / 2.0;
+            frame.push(
+                Point::new(pt(ca.x), pt(seal_y)),
+                FrameItem::Image(image, img_size, span()),
+            );
+        }
+    }
     let text_offset = (header_h - text_h) / 2.0;
 
     let mut ty = ca.y + text_offset;
@@ -1076,20 +1114,21 @@ fn draw_footer(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, page_num: u
     push_rect(frame, box_x, footer_y + 2.25, box_w, qr_size - 2.25, Some(light_gray()), None);
     push_rect(frame, box_x, footer_y, box_w, qr_size, None, Some(stroke_of(black(), 0.75)));
 
-    // Page number
-    let page_label_y = footer_y + (qr_size - BASE * 0.85 * LH - H1 * LH) / 2.0;
-    push_text_block(frame, fonts, box_x + OPTION_PAD_H, page_label_y, "Page", 0.85 * BASE, box_w, false);
-    push_text_block(frame, fonts, box_x + OPTION_PAD_H, page_label_y + BASE * 0.85 * LH, &format!("{page_num}/{total_pages}"), H1, box_w, true);
+    // Page number and voter instruction (skip for blank trailing pages)
+    if total_pages > 0 {
+        let page_label_y = footer_y + (qr_size - BASE * 0.85 * LH - H1 * LH) / 2.0;
+        push_text_block(frame, fonts, box_x + OPTION_PAD_H, page_label_y, "Page", 0.85 * BASE, box_w, false);
+        push_text_block(frame, fonts, box_x + OPTION_PAD_H, page_label_y + BASE * 0.85 * LH, &format!("{page_num}/{total_pages}"), H1, box_w, true);
 
-    // Voter instruction
-    if page_num == total_pages {
-        let text = "You have completed voting.";
-        let tw = fonts.bold.measure_width(text, pt(H3)).to_pt();
-        push_text(frame, fonts, box_x + box_w - tw - OPTION_PAD_H, footer_y + (qr_size - H3) / 2.0, text, H3, true);
-    } else {
-        let text = if page_num % 2 == 1 { "Turn ballot over and continue voting" } else { "Continue voting on next ballot sheet" };
-        let tw = fonts.bold.measure_width(text, pt(H3)).to_pt();
-        push_text(frame, fonts, box_x + box_w - tw - OPTION_PAD_H, footer_y + (qr_size - H3) / 2.0, text, H3, true);
+        if page_num == total_pages {
+            let text = "You have completed voting.";
+            let tw = fonts.bold.measure_width(text, pt(H3)).to_pt();
+            push_text(frame, fonts, box_x + box_w - tw - OPTION_PAD_H, footer_y + (qr_size - H3) / 2.0, text, H3, true);
+        } else {
+            let text = if page_num % 2 == 1 { "Turn ballot over and continue voting" } else { "Continue voting on next ballot sheet" };
+            let tw = fonts.bold.measure_width(text, pt(H3)).to_pt();
+            push_text(frame, fonts, box_x + box_w - tw - OPTION_PAD_H, footer_y + (qr_size - H3) / 2.0, text, H3, true);
+        }
     }
 
     // Metadata
@@ -1241,10 +1280,9 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
             push_text(&mut frame, fonts, ca.x + (ca.w - tw) / 2.0, ca.y + ca.h / 2.0, msg, H1, true);
         }
 
-        // Footer
-        if !pc.sections.is_empty() || pc.is_first {
-            draw_footer(&mut frame, fonts, &ca, page_num, total_pages, data);
-        }
+        // Footer — always draw, but blank pages get metadata only (no page number/voting text)
+        let is_content_page = !pc.sections.is_empty() || pc.is_first;
+        draw_footer(&mut frame, fonts, &ca, page_num, if is_content_page { total_pages } else { 0 }, data);
 
         pages.push(Page {
             frame,
