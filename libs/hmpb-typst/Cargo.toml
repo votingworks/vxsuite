@@ -1,0 +1,53 @@
+[workspace]
+resolver = "2"
+
+[workspace.package]
+license = "GPL-3.0-only"
+
+[workspace.lints.rust]
+dead_code = "deny"
+unused_assignments = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+
+[package]
+name = "hmpb-typst"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
+[dependencies]
+napi = { version = "3.8.0", default-features = false, features = [
+  "napi4",
+  "async",
+  "serde-json",
+] }
+napi-derive = "3.5.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rustybuzz = "0.20"
+ttf-parser = "0.24"
+typst-library = "0.14"
+typst-pdf = "0.14"
+typst-syntax = "0.14"
+
+[build-dependencies]
+napi-build = "2.3.1"
+
+# Relaxed lints for prototype
+[lints.rust]
+dead_code = "warn"
+unused_assignments = "warn"
+unused_imports = "warn"
+unused_variables = "warn"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "warn"

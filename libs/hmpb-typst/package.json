@@ -1,0 +1,26 @@
+{
+  "name": "@votingworks/hmpb-typst",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
+  "scripts": {
+    "build:rust-addon": "napi build --platform --release",
+    "build:self": "pnpm build:rust-addon",
+    "test": "node -e \"require('./index.js')\""
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.5.1"
+  },
+  "napi": {
+    "binaryName": "hmpb-typst",
+    "targets": [
+      "x86_64-unknown-linux-gnu"
+    ]
+  }
+}
