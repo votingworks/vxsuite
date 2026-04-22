@@ -590,10 +590,15 @@ fn layout_in_columns(heights: &[f64], num_cols: usize, max_h: f64) -> ColumnLayo
     let mut used = 0;
 
     for (i, &h) in heights.iter().enumerate() {
-        if col_h + h > max_h && col_h > 0.0 {
-            col += 1;
-            col_h = 0.0;
-            if col >= num_cols { break; }
+        if col_h + h > max_h {
+            if col_h > 0.0 {
+                // Current column is full, try the next one
+                col += 1;
+                col_h = 0.0;
+                if col >= num_cols { break; }
+            }
+            // If the contest doesn't fit even in an empty column, stop
+            if h > max_h { break; }
         }
         columns[col].push(i);
         col_h += h + GAP;
@@ -645,8 +650,16 @@ fn draw_header(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, data: &Ball
     header_h
 }
 
+fn footer_height() -> f64 {
+    let qr_size = 0.6 * 72.0; // 43.2pt
+    let meta_h = 8.0 * LH; // 9.6pt
+    let meta_gap = 4.0; // gap between QR row and metadata
+    qr_size + meta_gap + meta_h
+}
+
 fn draw_footer(frame: &mut Frame, fonts: &FontSet, ca: &ContentArea, page_num: usize, total_pages: usize, data: &BallotData) {
-    let footer_y = ca.y + ca.h - 43.2 - 8.0 * LH - 4.0;
+    let fh = footer_height();
+    let footer_y = ca.y + ca.h - fh;
     let qr_size = 0.6 * 72.0;
 
     // QR placeholder
@@ -721,7 +734,7 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
         h
     };
     let instructions_h = 60.0; // approximate
-    let footer_h = 0.6 * 72.0 + 8.0 * LH + 8.0;
+    let footer_h = footer_height();
 
     // Paginate
     struct PageContent<'a> {
@@ -748,6 +761,13 @@ pub fn render_ballot(fonts: &FontSet, data: &BallotData) -> Result<Vec<u8>, Stri
             let layout = layout_in_columns(&heights, num_cols, avail - height_used);
 
             let used_count: usize = layout.columns.iter().map(|c| c.len()).sum();
+
+            if used_count == 0 {
+                // Nothing fit — put the whole section back and go to next page
+                remaining_sections.insert(0, (section_contests, num_cols));
+                break;
+            }
+
             if used_count < section_contests.len() {
                 let leftover: Vec<&Contest> = section_contests[used_count..].to_vec();
                 remaining_sections.insert(0, (leftover, num_cols));
