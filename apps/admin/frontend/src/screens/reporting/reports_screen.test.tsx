@@ -4,7 +4,11 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { ElectionDefinition } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
+  SystemSettings,
+} from '@votingworks/types';
 import { isVoterTurnoutReportEnabled, ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -100,6 +104,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -114,6 +119,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -128,6 +134,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -147,6 +154,7 @@ describe('voter turnout report link', () => {
       'precinct-1': 100,
       'precinct-2': 200,
     });
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -164,6 +172,7 @@ describe('voter turnout report link', () => {
       'precinct-1': 100,
       'precinct-2': 200,
     });
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -179,6 +188,7 @@ describe('voter turnout report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -200,6 +210,7 @@ describe('showing WIA report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -214,6 +225,7 @@ describe('showing WIA report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     const electionDefinitionWithoutWriteIns: ElectionDefinition = {
       ...electionDefinition,
@@ -239,5 +251,95 @@ describe('showing WIA report link', () => {
 
     await screen.findButton('Full Election Tally Report');
     expect(screen.queryByText(BUTTON_TEXT)).not.toBeInTheDocument();
+  });
+});
+
+describe('polls close time enforcement', () => {
+  const POLLS_CLOSE_TIME = '2020-11-03T23:00:00';
+  const systemSettingsWithBlock: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
+    electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+  };
+
+  // beforeEach sets fake timers to 2020-11-03T22:22:00, which is before
+  // POLLS_CLOSE_TIME
+
+  test('tally report buttons disabled and message shown in official mode before polls close', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await vi.waitFor(() => {
+      expect(screen.getButton('Full Election Tally Report')).toBeDisabled();
+    });
+    expect(screen.getButton('All Precincts Tally Report')).toBeDisabled();
+    expect(screen.getButton('Single Precinct Tally Report')).toBeDisabled();
+    expect(screen.getButton('Tally Report Builder')).toBeDisabled();
+    expect(
+      screen.getButton('Unofficial Write-In Adjudication Report')
+    ).toBeDisabled();
+    screen.getByText(
+      /On Election Day, tally reports and official results are unavailable until/
+    );
+  });
+
+  test('ballot count report buttons remain enabled before polls close', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await vi.waitFor(() => apiMock.assertComplete());
+    expect(screen.getButton('Precinct Ballot Count Report')).toBeEnabled();
+    expect(screen.getButton('Voting Method Ballot Count Report')).toBeEnabled();
+    expect(screen.getButton('Ballot Count Report Builder')).toBeEnabled();
+  });
+
+  test('tally report buttons not disabled in test mode before polls close', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await vi.waitFor(() => apiMock.assertComplete());
+    expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
+  });
+
+  test('tally report buttons not disabled after polls close time', async () => {
+    vi.setSystemTime(new Date('2020-11-03T23:30:00'));
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await vi.waitFor(() => apiMock.assertComplete());
+    expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
+  });
+
+  test('tally report buttons not disabled when setting is not enabled', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await vi.waitFor(() => apiMock.assertComplete());
+    expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
   });
 });

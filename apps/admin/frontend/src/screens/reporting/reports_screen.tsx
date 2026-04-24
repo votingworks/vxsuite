@@ -18,9 +18,11 @@ import {
   getTotalBallotCount,
   getCastVoteRecordFileMode,
   getRegisteredVoterCounts,
+  getSystemSettings,
 } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 import { OfficialResultsCard } from '../../components/official_results_card';
+import { areClosedPollsActionsBlocked } from '../../utils/closed_polls_actions';
 
 const Section = styled.section`
   margin-bottom: 2rem;
@@ -53,9 +55,14 @@ export function ReportsScreen(): JSX.Element {
   const totalBallotCountQuery = getTotalBallotCount.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const registeredVoterCountsQuery = getRegisteredVoterCounts.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
   const fileMode = castVoteRecordFileModeQuery.data;
+  const closedPollsActionsBlocked = areClosedPollsActionsBlocked(
+    fileMode,
+    systemSettingsQuery.data
+  );
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
     (c) => c.type === 'candidate' && c.allowWriteIns
@@ -96,21 +103,49 @@ export function ReportsScreen(): JSX.Element {
         )}
         <MarkResultsOfficialButton />
       </OfficialResultsCard>
+      {closedPollsActionsBlocked &&
+        systemSettingsQuery.data?.electionDayPollsCloseTime && (
+          <P>
+            <Icons.Info /> On Election Day, tally reports and official results
+            are unavailable until{' '}
+            {format.localeTime(
+              new Date(systemSettingsQuery.data.electionDayPollsCloseTime)
+            )}{' '}
+            (
+            {format.localeDate(
+              new Date(systemSettingsQuery.data.electionDayPollsCloseTime)
+            )}
+            ).
+          </P>
+        )}
       <Section>
         <H2>{statusPrefix} Tally Reports</H2>
         <P>
-          <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
+          <LinkButton
+            variant="primary"
+            to={routerPaths.tallyFullReport}
+            disabled={closedPollsActionsBlocked}
+          >
             Full Election Tally Report
           </LinkButton>{' '}
-          <LinkButton to={routerPaths.tallyAllPrecinctsReport}>
+          <LinkButton
+            to={routerPaths.tallyAllPrecinctsReport}
+            disabled={closedPollsActionsBlocked}
+          >
             All Precincts Tally Report
           </LinkButton>{' '}
-          <LinkButton to={routerPaths.tallySinglePrecinctReport}>
+          <LinkButton
+            to={routerPaths.tallySinglePrecinctReport}
+            disabled={closedPollsActionsBlocked}
+          >
             Single Precinct Tally Report
           </LinkButton>
         </P>
         <P>
-          <LinkButton to={routerPaths.tallyReportBuilder}>
+          <LinkButton
+            to={routerPaths.tallyReportBuilder}
+            disabled={closedPollsActionsBlocked}
+          >
             Tally Report Builder
           </LinkButton>
         </P>
@@ -137,7 +172,10 @@ export function ReportsScreen(): JSX.Element {
           <H2>Other Reports</H2>
           {electionHasWriteInContest && (
             <P>
-              <LinkButton to={routerPaths.tallyWriteInReport}>
+              <LinkButton
+                to={routerPaths.tallyWriteInReport}
+                disabled={closedPollsActionsBlocked}
+              >
                 {statusPrefix} Write-In Adjudication Report
               </LinkButton>
             </P>
