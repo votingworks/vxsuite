@@ -347,6 +347,17 @@ pub enum Outgoing {
     /// No response.
     SetScannerImageDensityToHalfNativeResolutionRequest,
 
+    /// Pagescan 5 only: This command sets the scanner mode for scanning
+    /// documents at the medium resolution or 300 dpi. This only influences the
+    /// vertical resolution, horizontally the scanner will still be in 400 DPI.
+    ///
+    /// `ASCII character @ = (40H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    SetScannerImageDensityToMediumResolutionRequest,
+
     /// This command sets the scanner mode for scanning documents at the full
     /// native resolution. For the Pagescan 5 this will mean 400 dpi, for the
     /// Ultrascan this will mean 300 dpi, and for the color scanner this will
@@ -596,6 +607,9 @@ pub enum Outgoing {
     /// Requests the double feed detection threshold value (`n3a90`).
     GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
 
+    /// Requests the double feed detection sensor count (`n3a40`).
+    GetDoubleFeedDetectionSensorsCountRequest,
+
     /// Requests the value of the register at the given index.
     ReadRegisterDataRequest(RegisterIndex),
 
@@ -708,6 +722,10 @@ impl Outgoing {
             Self::SetScannerImageDensityToHalfNativeResolutionRequest => checked!(
                 Command::new(b"A"),
                 parsers::set_scanner_image_density_to_half_native_resolution_request
+            ),
+            Self::SetScannerImageDensityToMediumResolutionRequest => checked!(
+                Command::new(b"@"),
+                parsers::set_scanner_image_density_to_medium_resolution_request
             ),
             Self::SetScannerImageDensityToNativeResolutionRequest => checked!(
                 Command::new(b"B"),
@@ -847,6 +865,10 @@ impl Outgoing {
                 Command::new(b"n3a90"),
                 parsers::get_double_feed_detection_double_sheet_threshold_value_request
             ),
+            Self::GetDoubleFeedDetectionSensorsCountRequest => checked!(
+                Command::new(b"n3a40"),
+                parsers::get_double_feed_detection_sensors_count_request
+            ),
             Self::ReadRegisterDataRequest(register_index) => checked!(
                 Command::new(b"<").with_data(format!("{:03x}", register_index.get()).as_bytes()),
                 parsers::get_register_data_request
@@ -855,9 +877,13 @@ impl Outgoing {
                 Command::new(b">")
                     .with_data(format!("{:03x}{:08x}", register_index.get(), value).as_bytes()),
                 |input| -> nom::IResult<&[u8], Register> {
-                    if let Ok((&[], register)) = parsers::write_data_to_register_request(input) {
-                        if register.index() == *register_index && register.value() == *value {
-                            return Ok((&[], register));
+                    if let Ok((
+                        &[],
+                        Outgoing::WriteRegisterDataRequest(parsed_register_index, parsed_value),
+                    )) = parsers::write_data_to_register_request(input)
+                    {
+                        if parsed_register_index == *register_index && parsed_value == *value {
+                            return Ok((&[], Register::new(parsed_register_index, parsed_value)));
                         }
                     }
 
@@ -1145,6 +1171,10 @@ pub enum Incoming {
     /// threshold value.
     GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(u16),
 
+    /// Response to the `n3a40` command to get the double feed detection
+    /// sensor count.
+    GetDoubleFeedDetectionSensorsCountResponse(u16),
+
     /// Response to the `<XXX` command to get the value of register XXX.
     ReadRegisterDataResponse(Register),
 
@@ -1165,6 +1195,7 @@ pub enum Incoming {
     FpgaOutOfDateEvent,
     CalibrationOkEvent,
     CalibrationShortCalibrationDocumentEvent,
+    CalibrationShortDocumentBackArrayEvent,
     CalibrationDocumentRemovedEvent,
     CalibrationPixelErrorFrontArrayBlack,
     CalibrationPixelErrorFrontArrayWhite,
@@ -1270,6 +1301,7 @@ impl Incoming {
             | Self::CalibrationSpeedValueError
             | Self::CalibrationSpeedBoxError
             | Self::CalibrationShortCalibrationDocumentEvent
+            | Self::CalibrationShortDocumentBackArrayEvent
             | Self::CalibrationDocumentRemovedEvent
             | Self::CalibrationPixelErrorFrontArrayBlack
             | Self::CalibrationPixelErrorFrontArrayWhite
@@ -1304,6 +1336,7 @@ impl Incoming {
             | Self::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(_)
             | Self::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(_)
             | Self::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(_)
+            | Self::GetDoubleFeedDetectionSensorsCountResponse(_)
             | Self::ReadRegisterDataResponse(_)
             | Self::WriteRegisterDataResponse(_) => IncomingType::Response,
 
