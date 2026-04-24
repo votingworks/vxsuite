@@ -4740,6 +4740,12 @@ importers:
         specifier: ^3.1.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.17.31)(jsdom@20.0.1)
 
+  libs/hmpb-typst:
+    devDependencies:
+      '@napi-rs/cli':
+        specifier: ^3.5.1
+        version: 3.5.1(@types/node@20.17.31)
+
   libs/image-utils:
     dependencies:
       '@votingworks/basics':
