@@ -104,10 +104,15 @@ export function ReportsScreen(): JSX.Element {
         <MarkResultsOfficialButton />
       </OfficialResultsCard>
       {closedPollsActionsBlocked &&
+        // `electionDayPollsCloseTime` is guaranteed by `closedPollsActionsBlocked`
+        // but we re-check for type safety
         systemSettingsQuery.data?.electionDayPollsCloseTime && (
           <P>
-            <Icons.Info /> On Election Day, tally reports and official results
-            are unavailable until{' '}
+            <Icons.Warning /> On Election Day,
+            {electionHasWriteInContest
+              ? ' certain reports '
+              : ' tally reports '}
+            and official results are unavailable until{' '}
             {format.localeTime(
               new Date(systemSettingsQuery.data.electionDayPollsCloseTime)
             )}{' '}

@@ -265,7 +265,7 @@ describe('polls close time enforcement', () => {
   // beforeEach sets fake timers to 2020-11-03T22:22:00, which is before
   // POLLS_CLOSE_TIME
 
-  test('tally report buttons disabled and message shown in official mode before polls close', async () => {
+  test('tally report + WIA report buttons disabled and message shown in official mode before polls close', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
@@ -283,9 +283,42 @@ describe('polls close time enforcement', () => {
     expect(
       screen.getButton('Unofficial Write-In Adjudication Report')
     ).toBeDisabled();
+    // electionDefinition has write-in contests, so message uses "certain reports"
     screen.getByText(
-      /On Election Day, tally reports and official results are unavailable until/
+      /On Election Day, certain reports and official results are unavailable until/
     );
+  });
+
+  test('shows "tally reports" in message when election has no write-in contests', async () => {
+    const electionDefinitionWithoutWriteIns: ElectionDefinition = {
+      ...electionDefinition,
+      election: {
+        ...electionDefinition.election,
+        contests: electionDefinition.election.contests.map((contest) => {
+          if (contest.type === 'candidate') {
+            return { ...contest, allowWriteIns: false };
+          }
+          return contest;
+        }),
+      },
+    };
+
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition: electionDefinitionWithoutWriteIns,
+      apiMock,
+    });
+
+    await vi.waitFor(() => {
+      screen.getByText(
+        /On Election Day, tally reports and official results are unavailable until/
+      );
+    });
   });
 
   test('ballot count report buttons remain enabled before polls close', async () => {
