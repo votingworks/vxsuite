@@ -1,9 +1,15 @@
 /* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
+  Button,
+  Caption,
+  electionStrings,
+  Font,
   LinkButton,
   H1,
+  Modal,
+  P,
   WithScrollButtons,
   appStrings,
   AudioOnly,
@@ -12,11 +18,12 @@ import {
   AssistiveTechInstructions,
 } from '@votingworks/ui';
 
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 
 import {
   BallotStyleId,
   ElectionDefinition,
+  PartyId,
   PrecinctId,
   VotesDict,
   getBallotStyle,
@@ -29,6 +36,14 @@ const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
 `;
 
+const PartyRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+`;
+
 export interface ReviewPageProps {
   backUrl?: string;
   contests: ContestsWithMsEitherNeither;
@@ -39,6 +54,8 @@ export interface ReviewPageProps {
   returnToContest?: ReviewProps['returnToContest'];
   votes: VotesDict;
   VoterHelpScreen?: VoterHelpScreenType;
+  selectedPartyId?: PartyId;
+  partySelectionScreenUrl?: string;
 }
 
 export function ReviewPage(props: ReviewPageProps): JSX.Element {
@@ -52,7 +69,11 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     returnToContest,
     votes,
     VoterHelpScreen,
+    selectedPartyId,
+    partySelectionScreenUrl,
   } = props;
+
+  const [isChangePartyModalOpen, setIsChangePartyModalOpen] = useState(false);
 
   assert(
     typeof precinctId !== 'undefined',
@@ -62,8 +83,9 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     typeof ballotStyleId !== 'undefined',
     'ballotStyleId is required to render ReviewPage'
   );
+  const { election } = electionDefinition;
   const ballotStyle = getBallotStyle({
-    election: electionDefinition.election,
+    election,
     ballotStyleId,
   });
   assert(ballotStyle, `Ballot style with id ${ballotStyleId} not found`);
@@ -118,9 +140,29 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           />
         </AudioOnly>
       </ContentHeader>
+      {partySelectionScreenUrl && (
+        <PartyRow>
+          <div>
+            <Caption>Party</Caption>
+            <div>
+              <Font weight="bold">
+                {electionStrings.partyFullName(
+                  find(
+                    election.parties,
+                    (party) => party.id === assertDefined(selectedPartyId)
+                  )
+                )}
+              </Font>
+            </div>
+          </div>
+          <Button icon="Edit" onPress={() => setIsChangePartyModalOpen(true)}>
+            Change Party
+          </Button>
+        </PartyRow>
+      )}
       <WithScrollButtons>
         <Review
-          election={electionDefinition.election}
+          election={election}
           contests={contests}
           precinctId={precinctId}
           votes={votes}
@@ -128,6 +170,23 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           ballotStyle={ballotStyle}
         />
       </WithScrollButtons>
+      {isChangePartyModalOpen && (
+        <Modal
+          title="Change Party?"
+          content={<P>Changing your party will clear all of your votes.</P>}
+          actions={
+            <React.Fragment>
+              <LinkButton variant="primary" to={partySelectionScreenUrl}>
+                Change Party
+              </LinkButton>
+              <Button onPress={() => setIsChangePartyModalOpen(false)}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => setIsChangePartyModalOpen(false)}
+        />
+      )}
     </VoterScreen>
   );
 }
