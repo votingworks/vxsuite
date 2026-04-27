@@ -32,7 +32,7 @@ const ContentHeader = styled(ReadOnLoad)`
 export interface ReviewPageProps {
   backUrl?: string;
   contests: ContestsWithMsEitherNeither;
-  electionDefinition?: ElectionDefinition;
+  electionDefinition: ElectionDefinition;
   precinctId?: PrecinctId;
   ballotStyleId?: BallotStyleId;
   printScreenUrl: string;
@@ -54,10 +54,6 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     VoterHelpScreen,
   } = props;
 
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render ReviewPage'
-  );
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render ReviewPage'
