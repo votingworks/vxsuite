@@ -1,9 +1,15 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { hasSplits, Precinct, PrecinctOrSplit } from '@votingworks/types';
+import {
+  BallotStyleId,
+  hasSplits,
+  Precinct,
+  PrecinctOrSplit,
+} from '@votingworks/types';
 
 import userEvent from '@testing-library/user-event';
 
@@ -176,6 +182,51 @@ describe('primary election', () => {
     userEvent.click(screen.getButton('Fish'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p4.id, '4-F_en');
+  });
+});
+
+describe('open primary election', () => {
+  const electionDefinitionOpenPrimary =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinitionOpenPrimary;
+
+  test('single precinct configuration', () => {
+    const precinct = election.precincts[0];
+    const onSelect = vi.fn();
+
+    renderSelect({
+      election,
+      onSelect,
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
+    });
+
+    // No party picker — pressing the precinct button immediately selects the
+    // precinct's single (partyless) ballot style.
+    userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
+    expect(onSelect).toHaveBeenCalledOnce();
+    expect(onSelect).toHaveBeenCalledWith(
+      precinct.id,
+      'ballot-style-1' as BallotStyleId
+    );
+  });
+
+  test('multiple precincts configuration', () => {
+    const [p1, p2] = election.precincts;
+    const onSelect = vi.fn();
+
+    renderSelect({
+      election,
+      onSelect,
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1, p2]),
+    });
+
+    userEvent.click(screen.getByText('Select ballot style…'));
+    userEvent.click(screen.getByText(p2.name));
+    expect(onSelect).toHaveBeenCalledOnce();
+    expect(onSelect).toHaveBeenLastCalledWith(
+      p2.id,
+      'ballot-style-2' as BallotStyleId
+    );
   });
 });
 

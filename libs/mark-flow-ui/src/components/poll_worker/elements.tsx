@@ -9,6 +9,7 @@ import {
   Election,
   getBallotStyle,
   getPartyForBallotStyle,
+  isOpenPrimary,
 } from '@votingworks/types';
 import { electionStrings, P, Font } from '@votingworks/ui';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
@@ -33,7 +34,9 @@ export function BallotStyleLabel(props: BallotStyleLabelProps): JSX.Element {
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
 
-  if (election.type === 'general') {
+  // Open primary ballot styles have no party, so show just the precinct name
+  // like in a general election.
+  if (election.type === 'general' || isOpenPrimary(election)) {
     return (
       <P>
         <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
