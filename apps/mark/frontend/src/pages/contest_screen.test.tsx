@@ -1,9 +1,13 @@
 import { expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
-import { readElectionGeneral } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  readElectionGeneral,
+} from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
+import { BallotStyleId, PartyId } from '@votingworks/types';
 import { screen } from '../../test/react_testing_library';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 
@@ -121,4 +125,43 @@ test('renders as voter screen', () => {
   );
 
   screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
+});
+
+test('Back from first contest goes to start screen when no party selected', () => {
+  const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
+
+  renderWithBallotContext(
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
+    {
+      history,
+      route: '/contests/0',
+      precinctId: electionGeneral.precincts[0].id,
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
+    }
+  );
+
+  userEvent.click(screen.getButton(/back/i));
+  expect(history.location.pathname).toEqual('/');
+});
+
+test('Back from first contest goes to party selection when a party is selected', () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
+
+  renderWithBallotContext(
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
+    {
+      electionDefinition,
+      contests: electionDefinition.election.contests,
+      history,
+      route: '/contests/0',
+      precinctId: 'precinct-1',
+      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+      selectedPartyId: 'democratic-party' as PartyId,
+    }
+  );
+
+  userEvent.click(screen.getButton(/back/i));
+  expect(history.location.pathname).toEqual('/party-selection');
 });

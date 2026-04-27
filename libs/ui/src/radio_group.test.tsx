@@ -105,6 +105,22 @@ test('desktop, inverse', () => {
   expect(option).toHaveStyle(`border-width: ${theme.sizes.bordersRem.thin}rem`);
 });
 
+test('forwards className for styled-components support', () => {
+  render(
+    <RadioGroup
+      className="custom-class"
+      label="Pick a card:"
+      onChange={vi.fn()}
+      options={[{ value: 'hearts-4', label: 'Four of Hearts' }]}
+      value="hearts-4"
+    />
+  );
+
+  expect(screen.getByRole('radiogroup', { name: 'Pick a card:' })).toHaveClass(
+    'custom-class'
+  );
+});
+
 test('works with accessible controller interaction pattern', () => {
   const onChange = vi.fn();
 
