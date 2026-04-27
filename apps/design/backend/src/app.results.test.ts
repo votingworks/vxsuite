@@ -18,6 +18,8 @@ import {
   ContestId,
   ElectionDefinition,
   ElectionId,
+  PollingPlace,
+  PollingPlaceType,
   PrecinctId,
   safeParseElectionDefinition,
   Tabulation,
@@ -26,6 +28,8 @@ import { encodeQuickResultsMessage } from '@votingworks/auth';
 import { electionWithMsEitherNeitherFixtures } from '@votingworks/fixtures';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { renderAllBallotPdfsAndCreateElectionDefinition } from '@votingworks/hmpb';
+import type * as grout from '@votingworks/grout';
+import type { UnauthenticatedApi } from './app';
 import {
   ApiClient,
   exportElectionPackage,
@@ -41,6 +45,7 @@ import {
   organizations,
   users,
 } from '../test/mocks';
+import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -138,6 +143,11 @@ async function setUpElectionInSystem(
     electionId,
   });
   expect(storedPollStatus).toEqual(err('no-election-export-found'));
+
+  const storedActivityLog = await apiClient.getLiveReportsActivityLog({
+    electionId,
+  });
+  expect(storedActivityLog).toEqual(err('no-election-export-found'));
 
   const exportMeta = await exportElectionPackage({
     electionId,
@@ -565,6 +575,21 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       },
     })
   );
+  const activityLogStatus = await apiClient.getLiveReportsActivityLog({
+    electionId: sampleElectionDefinition.election.id,
+  });
+  expect(activityLogStatus).toEqual(
+    ok({
+      activityLog: [
+        {
+          machineId: 'machineId',
+          pollingPlaceId: 'test-polling-place',
+          pollsTransitionType: 'close_polls',
+          signedTimestamp: new Date('2024-01-02T12:00:00.000Z'),
+        },
+      ],
+    })
+  );
 
   // Report from a different machine should be added to the list of machines reporting
   const result4 = await unauthenticatedApiClient.processQrCodeReport({
@@ -698,30 +723,53 @@ test('quick results reporting works for polls open reporting', async () => {
     electionId: sampleElectionDefinition.election.id,
   });
   expect(pollsStatus).toEqual(
+    ok(
+      expect.objectContaining({
+        election: expect.objectContaining({
+          id: sampleElectionDefinition.election.id,
+        }),
+        ballotHash: sampleElectionDefinition.ballotHash,
+        isLive: false,
+        reportsByPollingPlace: expect.objectContaining({
+          [precinctId]: [
+            {
+              machineId: 'mock-02',
+              pollingPlaceId: precinctId,
+              pollsTransitionType: 'open_polls',
+              signedTimestamp: new Date('2024-05-04T09:00:00Z'),
+            },
+          ],
+          'test-polling-place': [
+            {
+              machineId: 'mock-01',
+              pollingPlaceId: 'test-polling-place',
+              pollsTransitionType: 'open_polls',
+              signedTimestamp: new Date('2024-05-04T08:00:00Z'),
+            },
+          ],
+        }),
+      })
+    )
+  );
+  const activityLogStatus = await apiClient.getLiveReportsActivityLog({
+    electionId: sampleElectionDefinition.election.id,
+  });
+  expect(activityLogStatus).toEqual(
     ok({
-      election: expect.objectContaining({
-        id: sampleElectionDefinition.election.id,
-      }),
-      ballotHash: sampleElectionDefinition.ballotHash,
-      isLive: false,
-      reportsByPollingPlace: expect.objectContaining({
-        [precinctId]: [
-          {
-            machineId: 'mock-02',
-            pollingPlaceId: precinctId,
-            pollsTransitionType: 'open_polls',
-            signedTimestamp: new Date('2024-05-04T09:00:00Z'),
-          },
-        ],
-        'test-polling-place': [
-          {
-            machineId: 'mock-01',
-            pollingPlaceId: 'test-polling-place',
-            pollsTransitionType: 'open_polls',
-            signedTimestamp: new Date('2024-05-04T08:00:00Z'),
-          },
-        ],
-      }),
+      activityLog: [
+        {
+          machineId: 'mock-02',
+          pollingPlaceId: precinctId,
+          pollsTransitionType: 'open_polls',
+          signedTimestamp: new Date('2024-05-04T09:00:00Z'),
+        },
+        {
+          machineId: 'mock-01',
+          pollingPlaceId: 'test-polling-place',
+          pollsTransitionType: 'open_polls',
+          signedTimestamp: new Date('2024-05-04T08:00:00Z'),
+        },
+      ],
     })
   );
 
@@ -857,23 +905,40 @@ test('quick results reporting works for polls open reporting', async () => {
   });
 
   expect(pollsStatusLiveMode).toEqual(
-    ok({
-      election: expect.objectContaining({
-        id: sampleElectionDefinition.election.id,
-      }),
-      isLive: true,
-      ballotHash: sampleElectionDefinition.ballotHash,
-      reportsByPollingPlace: expect.objectContaining({
-        'test-polling-place': [
-          {
-            machineId: 'mock-01',
+    ok(
+      expect.objectContaining({
+        election: expect.objectContaining({
+          id: sampleElectionDefinition.election.id,
+        }),
+        isLive: true,
+        ballotHash: sampleElectionDefinition.ballotHash,
+        reportsByPollingPlace: expect.objectContaining({
+          'test-polling-place': [
+            {
+              machineId: 'mock-01',
 
-            pollingPlaceId: 'test-polling-place',
-            pollsTransitionType: 'open_polls',
-            signedTimestamp: new Date('2024-05-05T08:00:00Z'),
-          },
-        ],
-      }),
+              pollingPlaceId: 'test-polling-place',
+              pollsTransitionType: 'open_polls',
+              signedTimestamp: new Date('2024-05-05T08:00:00Z'),
+            },
+          ],
+        }),
+      })
+    )
+  );
+  const activityLogLiveMode = await apiClient.getLiveReportsActivityLog({
+    electionId: sampleElectionDefinition.election.id,
+  });
+  expect(activityLogLiveMode).toEqual(
+    ok({
+      activityLog: [
+        {
+          machineId: 'mock-01',
+          pollingPlaceId: 'test-polling-place',
+          pollsTransitionType: 'open_polls',
+          signedTimestamp: new Date('2024-05-05T08:00:00Z'),
+        },
+      ],
     })
   );
 });
@@ -2204,5 +2269,389 @@ test('LiveReports uses modified exported election, not original vxdesign electio
         election: reorderedElectionDefinition.election,
       })
     )
+  );
+});
+
+// --- Activity log and votingGroup filter tests ---
+
+async function sendTransitionReport(
+  unauthenticatedApiClient: grout.Client<UnauthenticatedApi>,
+  {
+    ballotHash,
+    machineId,
+    pollingPlaceId,
+    timestamp,
+    transition = 'open_polls',
+    isLive = true,
+    ballotCount = 0,
+  }: {
+    ballotHash: string;
+    machineId: string;
+    pollingPlaceId: string;
+    timestamp: Date;
+    transition?: 'open_polls' | 'pause_voting' | 'resume_voting';
+    isLive?: boolean;
+    ballotCount?: number;
+  }
+): Promise<void> {
+  const result = await unauthenticatedApiClient.processQrCodeReport({
+    payload: `1//qr3//${encodeQuickResultsMessage({
+      ballotHash,
+      signingMachineId: machineId,
+      timestamp: timestamp.getTime() / 1000,
+      isLiveMode: isLive,
+      primaryMessage: transition,
+      numPages: 1,
+      pageIndex: 0,
+      pollingPlaceId,
+      ballotCount,
+      votingType: 'election_day',
+    })}`,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  result.unsafeUnwrap();
+}
+
+test('getLiveReportsActivityLog returns activity log ordered by timestamp desc', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  const { ballotHash } = sampleElectionDefinition;
+  const electionId = sampleElectionDefinition.election.id;
+
+  // Submit three reports out of chronological order
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-b',
+    pollingPlaceId: 'pp-b',
+    timestamp: new Date('2024-01-01T09:00:00Z'),
+  });
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-a',
+    pollingPlaceId: 'pp-a',
+    timestamp: new Date('2024-01-01T07:00:00Z'),
+  });
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-c',
+    pollingPlaceId: 'pp-c',
+    timestamp: new Date('2024-01-01T08:00:00Z'),
+  });
+
+  const activityLogStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+  });
+  expect(activityLogStatus.unsafeUnwrap().activityLog).toEqual([
+    {
+      machineId: 'machine-b',
+      pollingPlaceId: 'pp-b',
+      pollsTransitionType: 'open_polls',
+      signedTimestamp: new Date('2024-01-01T09:00:00Z'),
+    },
+    {
+      machineId: 'machine-c',
+      pollingPlaceId: 'pp-c',
+      pollsTransitionType: 'open_polls',
+      signedTimestamp: new Date('2024-01-01T08:00:00Z'),
+    },
+    {
+      machineId: 'machine-a',
+      pollingPlaceId: 'pp-a',
+      pollsTransitionType: 'open_polls',
+      signedTimestamp: new Date('2024-01-01T07:00:00Z'),
+    },
+  ]);
+});
+
+test('getLiveReportsActivityLog includes every state change for a machine', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  const { ballotHash } = sampleElectionDefinition;
+  const electionId = sampleElectionDefinition.election.id;
+
+  // Same machine: open, then pause, then resume
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-a',
+    pollingPlaceId: 'pp-a',
+    timestamp: new Date('2024-01-01T07:00:00Z'),
+  });
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-a',
+    pollingPlaceId: 'pp-a',
+    timestamp: new Date('2024-01-01T12:00:00Z'),
+    transition: 'pause_voting',
+  });
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-a',
+    pollingPlaceId: 'pp-a',
+    timestamp: new Date('2024-01-01T13:00:00Z'),
+    transition: 'resume_voting',
+    ballotCount: 10,
+  });
+
+  const activityLogStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+  });
+  const { activityLog } = activityLogStatus.unsafeUnwrap();
+  expect(activityLog).toHaveLength(3);
+  expect(activityLog.map((entry) => entry.pollsTransitionType)).toEqual([
+    'resume_voting',
+    'pause_voting',
+    'open_polls',
+  ]);
+
+  // reportsByPollingPlace still only returns the latest per machine
+  const pollsStatus = await apiClient.getLiveReportsSummary({ electionId });
+  const reports =
+    pollsStatus.unsafeUnwrap().reportsByPollingPlace['pp-a'] ?? [];
+  expect(reports).toHaveLength(1);
+  expect(reports[0].pollsTransitionType).toEqual('resume_voting');
+});
+
+test('getLiveReportsActivityLog limits activity log to MAX_LIVE_REPORT_ACTIVITY_ITEMS', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  const { ballotHash } = sampleElectionDefinition;
+  const electionId = sampleElectionDefinition.election.id;
+
+  const totalReports = MAX_LIVE_REPORT_ACTIVITY_ITEMS + 5;
+  const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
+  for (let i = 0; i < totalReports; i += 1) {
+    await sendTransitionReport(unauthenticatedApiClient, {
+      ballotHash,
+      machineId: `machine-${i.toString().padStart(3, '0')}`,
+      pollingPlaceId: `pp-${i.toString().padStart(3, '0')}`,
+      timestamp: new Date(baseTime + i * 60 * 1000),
+    });
+  }
+
+  const activityLogStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+  });
+  const { activityLog } = activityLogStatus.unsafeUnwrap();
+  expect(activityLog).toHaveLength(MAX_LIVE_REPORT_ACTIVITY_ITEMS);
+  // Oldest entries are dropped - only the most recent 50 remain
+  const machineIds = activityLog.map((entry) => entry.machineId);
+  expect(machineIds[0]).toEqual(
+    `machine-${(totalReports - 1).toString().padStart(3, '0')}`
+  );
+  expect(machineIds).not.toContain('machine-000');
+});
+
+test('getLiveReportsActivityLog filters activity log by votingGroup', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  const { ballotHash } = sampleElectionDefinition;
+  const electionId = sampleElectionDefinition.election.id;
+  const firstPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+
+  // Set up polling places of each voting type. The polling places need to
+  // live in the database so the JOIN on polling_places.type works.
+  const placesByType: Record<PollingPlaceType, PollingPlace> = {
+    election_day: {
+      id: 'pp-ed',
+      name: 'Election Day Place',
+      type: 'election_day',
+      precincts: { [firstPrecinctId]: { type: 'whole' } },
+    },
+    early_voting: {
+      id: 'pp-ev',
+      name: 'Early Voting Place',
+      type: 'early_voting',
+      precincts: { [firstPrecinctId]: { type: 'whole' } },
+    },
+    absentee: {
+      id: 'pp-abs',
+      name: 'Absentee Place',
+      type: 'absentee',
+      precincts: { [firstPrecinctId]: { type: 'whole' } },
+    },
+  };
+  for (const place of Object.values(placesByType)) {
+    (await apiClient.setPollingPlace({ electionId, place })).unsafeUnwrap();
+  }
+
+  // Submit one report for each polling place
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-ed',
+    pollingPlaceId: placesByType.election_day.id,
+    timestamp: new Date('2024-01-01T07:00:00Z'),
+  });
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-ev',
+    pollingPlaceId: placesByType.early_voting.id,
+    timestamp: new Date('2024-01-01T08:00:00Z'),
+  });
+  await sendTransitionReport(unauthenticatedApiClient, {
+    ballotHash,
+    machineId: 'machine-abs',
+    pollingPlaceId: placesByType.absentee.id,
+    timestamp: new Date('2024-01-01T09:00:00Z'),
+  });
+
+  // No votingGroup -> all entries
+  const allStatus = await apiClient.getLiveReportsActivityLog({ electionId });
+  expect(
+    allStatus.unsafeUnwrap().activityLog.map((entry) => entry.machineId)
+  ).toEqual(['machine-abs', 'machine-ev', 'machine-ed']);
+
+  // election_day -> only election day entries
+  const edStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+    votingGroup: 'election_day',
+  });
+  expect(edStatus.unsafeUnwrap().activityLog).toEqual([
+    {
+      machineId: 'machine-ed',
+      pollingPlaceId: placesByType.election_day.id,
+      pollsTransitionType: 'open_polls',
+      signedTimestamp: new Date('2024-01-01T07:00:00Z'),
+    },
+  ]);
+
+  // early_voting -> only early voting entries
+  const evStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+    votingGroup: 'early_voting',
+  });
+  expect(evStatus.unsafeUnwrap().activityLog).toEqual([
+    {
+      machineId: 'machine-ev',
+      pollingPlaceId: placesByType.early_voting.id,
+      pollsTransitionType: 'open_polls',
+      signedTimestamp: new Date('2024-01-01T08:00:00Z'),
+    },
+  ]);
+
+  // absentee -> only absentee entries
+  const absStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+    votingGroup: 'absentee',
+  });
+  expect(absStatus.unsafeUnwrap().activityLog).toEqual([
+    {
+      machineId: 'machine-abs',
+      pollingPlaceId: placesByType.absentee.id,
+      pollsTransitionType: 'open_polls',
+      signedTimestamp: new Date('2024-01-01T09:00:00Z'),
+    },
+  ]);
+});
+
+test('getLiveReportsActivityLog filter still honors the MAX limit', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  const { ballotHash } = sampleElectionDefinition;
+  const electionId = sampleElectionDefinition.election.id;
+  const firstPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+
+  const edPlace: PollingPlace = {
+    id: 'pp-ed',
+    name: 'Election Day Place',
+    type: 'election_day',
+    precincts: { [firstPrecinctId]: { type: 'whole' } },
+  };
+  (
+    await apiClient.setPollingPlace({ electionId, place: edPlace })
+  ).unsafeUnwrap();
+
+  const totalReports = MAX_LIVE_REPORT_ACTIVITY_ITEMS + 3;
+  const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
+  for (let i = 0; i < totalReports; i += 1) {
+    await sendTransitionReport(unauthenticatedApiClient, {
+      ballotHash,
+      machineId: `machine-${i.toString().padStart(3, '0')}`,
+      pollingPlaceId: edPlace.id,
+      timestamp: new Date(baseTime + i * 60 * 1000),
+    });
+  }
+
+  const edStatus = await apiClient.getLiveReportsActivityLog({
+    electionId,
+    votingGroup: 'election_day',
+  });
+  expect(edStatus.unsafeUnwrap().activityLog).toHaveLength(
+    MAX_LIVE_REPORT_ACTIVITY_ITEMS
   );
 });

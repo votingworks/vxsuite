@@ -176,6 +176,10 @@ export interface AggregatedReportedPollsStatus {
   ballotHash: string;
 }
 
+export interface AggregatedLiveReportActivityLog {
+  activityLog: QuickReportedPollStatus[];
+}
+
 export interface QuickReportedPollStatus {
   machineId: string;
   pollingPlaceId: string;

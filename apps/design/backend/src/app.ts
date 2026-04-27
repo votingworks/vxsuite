@@ -38,6 +38,7 @@ import {
   formatBallotHash,
   PollingPlaceSchema,
   PollingPlace,
+  PollingPlaceType,
   hasPartialRegisteredVoterCounts,
   ElectionTypeSchemaV4p1,
   electionTypeV4p0ToV4p1,
@@ -93,6 +94,7 @@ import {
   SetPollingPlaceError,
 } from './store';
 import {
+  AggregatedLiveReportActivityLog,
   AggregatedReportedPollsStatus,
   AggregatedReportedResults,
   ElectionInfo,
@@ -1008,6 +1010,30 @@ export function buildApi(ctx: AppContext) {
         election,
         isLive,
       });
+    },
+
+    async getLiveReportsActivityLog(input: {
+      electionId: ElectionId;
+      votingGroup?: PollingPlaceType;
+    }): Promise<
+      Result<AggregatedLiveReportActivityLog, GetExportedElectionError>
+    > {
+      const exportedElectionDefinitionResult =
+        await store.getExportedElectionDefinition(input.electionId);
+      if (exportedElectionDefinitionResult.isErr()) {
+        return err(exportedElectionDefinitionResult.err());
+      }
+      const { election, ballotHash } = exportedElectionDefinitionResult.ok();
+      const isLive = await store.electionHasLiveReportData(
+        election.id,
+        ballotHash
+      );
+      const activityLog = await store.getAllReportsForElection(
+        ballotHash,
+        isLive,
+        input.votingGroup
+      );
+      return ok({ activityLog });
     },
 
     async getLiveResultsReports(input: {

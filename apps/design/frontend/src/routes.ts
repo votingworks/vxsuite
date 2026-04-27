@@ -170,6 +170,10 @@ export const routes = {
           title: 'Live Reports',
           path: `${root}/reports`,
         },
+        votingGroup: (votingGroup: string) => ({
+          title: 'Voting Group',
+          path: `${root}/reports/group/${votingGroup}`,
+        }),
         allPrecinctResults: {
           title: 'All Precincts Tally Report',
           path: `${root}/reports/tally-all-precincts`,

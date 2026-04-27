@@ -18,6 +18,7 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
+  PollingPlaceType,
   PrecinctSelection,
   TtsEditKey,
 } from '@votingworks/types';
@@ -140,9 +141,27 @@ export const getLiveReportsSummary = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(id),
+      () => apiClient.getLiveReportsSummary({ electionId: id }),
+      {
+        refetchInterval: VXQR_REFETCH_INTERVAL_MS,
+        staleTime: 0,
+      }
+    );
+  },
+} as const;
+
+export const getLiveReportsActivityLog = {
+  queryKey(id: ElectionId, votingGroup?: PollingPlaceType): QueryKey {
+    return ['getLiveReportsActivityLog', id, votingGroup ?? ''];
+  },
+  useQuery(id: ElectionId, votingGroup?: PollingPlaceType) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(id, votingGroup),
       () =>
-        apiClient.getLiveReportsSummary({
+        apiClient.getLiveReportsActivityLog({
           electionId: id,
+          ...(votingGroup ? { votingGroup } : {}),
         }),
       { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
     );
