@@ -130,3 +130,44 @@ test('works with accessible controller interaction pattern', () => {
   userEvent.click(screen.getButton('Four of Hearts'));
   expect(onChange).toBeCalledWith('hearts-4');
 });
+
+test('does not fire onChange when re-selecting current option (native radio input)', () => {
+  const onChange = vi.fn();
+
+  render(
+    <RadioGroup
+      label="Pick a card:"
+      onChange={onChange}
+      options={[
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'diamonds-jack', label: 'Jack of Diamonds' },
+      ]}
+      value="diamonds-jack"
+    />
+  );
+
+  userEvent.click(
+    screen.getByRole('radio', { name: 'Jack of Diamonds', checked: true })
+  );
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+test('does not fire onChange when re-selecting current option (touchscreen)', () => {
+  const onChange = vi.fn();
+
+  render(
+    <RadioGroup
+      label="Pick a card:"
+      onChange={onChange}
+      options={[
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'diamonds-jack', label: 'Jack of Diamonds' },
+      ]}
+      value="diamonds-jack"
+    />,
+    { vxTheme: { screenType: 'elo15' } }
+  );
+
+  userEvent.click(screen.getButton('Jack of Diamonds'));
+  expect(onChange).not.toHaveBeenCalled();
+});
