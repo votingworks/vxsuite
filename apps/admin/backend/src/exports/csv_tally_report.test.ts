@@ -424,7 +424,7 @@ test('incorporates manual data', async () => {
           type: 'candidate',
           ballots: 20,
           overvotes: 3,
-          undervotes: 2,
+          undervotes: 42,
           officialOptionTallies: {
             lion: 10,
             kangaroo: 5,
@@ -463,7 +463,8 @@ test('incorporates manual data', async () => {
     ['kangaroo', '5', '1', '6'],
     ['elephant', '0', '1', '1'],
     ['overvotes', '3', '0', '3'],
-    ['undervotes', '2', '0', '2'],
+    ['undervotes', '42', '0', '42'],
+    ['ballots-cast', '20', '1', '21'],
   ]);
 
   expect(
@@ -480,6 +481,7 @@ test('incorporates manual data', async () => {
     ['allow-fishing', '9', '0', '9'],
     ['overvotes', '4', '0', '4'],
     ['undervotes', '6', '0', '6'],
+    ['ballots-cast', '20', '1', '21'],
   ]);
 });
 
@@ -564,6 +566,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
       ['Batch batch-1', 'batch-1', 'scanner-1', 'allow-fishing', '0', '0', '0'],
       ['Batch batch-1', 'batch-1', 'scanner-1', 'overvotes', '0', '0', '0'],
       ['Batch batch-1', 'batch-1', 'scanner-1', 'undervotes', '0', '0', '0'],
+      ['Batch batch-1', 'batch-1', 'scanner-1', 'ballots-cast', '0', '1', '1'],
       [
         'Manual Tallies',
         'NO_BATCH__MANUAL',
@@ -600,6 +603,15 @@ test('separate rows for manual data when grouping by an incompatible dimension',
         '0',
         '0',
       ],
+      [
+        'Manual Tallies',
+        'NO_BATCH__MANUAL',
+        'NO_SCANNER__MANUAL',
+        'ballots-cast',
+        '1',
+        '0',
+        '1',
+      ],
     ]);
   }
 
@@ -626,9 +638,70 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     ['scanner-1', 'allow-fishing', '0', '0', '0'],
     ['scanner-1', 'overvotes', '0', '0', '0'],
     ['scanner-1', 'undervotes', '0', '0', '0'],
+    ['scanner-1', 'ballots-cast', '0', '1', '1'],
     ['NO_SCANNER__MANUAL', 'ban-fishing', '1', '0', '1'],
     ['NO_SCANNER__MANUAL', 'allow-fishing', '0', '0', '0'],
     ['NO_SCANNER__MANUAL', 'overvotes', '0', '0', '0'],
     ['NO_SCANNER__MANUAL', 'undervotes', '0', '0', '0'],
+    ['NO_SCANNER__MANUAL', 'ballots-cast', '1', '0', '1'],
   ]);
+});
+
+test('ballots cast rows reflect per-contest ballot counts across ballot styles', async () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const { electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // 3 CVRs on mammal ballot style, 1 CVR on fish ballot style
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'best-animal-mammal': ['horse'], fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 3,
+    },
+    {
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'best-animal-fish': ['seahorse'], fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  const iterable = generateTallyReportCsv({
+    store,
+    filename: mockFileName(),
+  });
+  const fileContents = await iterableToString(iterable);
+  const { rows } = parseCsv(fileContents);
+
+  function getBallotsCast(contestId: string): string | undefined {
+    return rows.find(
+      (r) =>
+        r['Contest ID'] === contestId && r['Selection ID'] === 'ballots-cast'
+    )?.['Total Votes'];
+  }
+
+  // mammal-only contest: 3 ballots (only 1M ballot style)
+  expect(getBallotsCast('best-animal-mammal')).toEqual('3');
+  // fish-only contest: 1 ballot (only 2F ballot style)
+  expect(getBallotsCast('best-animal-fish')).toEqual('1');
+  // non-partisan contest on both styles: 4 ballots
+  expect(getBallotsCast('fishing')).toEqual('4');
 });

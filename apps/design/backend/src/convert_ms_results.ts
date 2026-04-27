@@ -158,6 +158,12 @@ export function convertMsResults(
     return err('report-contests-mismatch');
   }
 
+  // The SEMS results format has no equivalent of the per-contest "Ballots Cast"
+  // row that VxAdmin's tally report CSV includes, so drop those rows here.
+  allPrecinctsTallyReportRows = allPrecinctsTallyReportRows.filter(
+    (row) => row.selectionId !== 'ballots-cast'
+  );
+
   function extractSemsId(id: string): string {
     const [electionId, semsId] = id.split(MS_ID_SEPARATOR);
     assert(electionId === election.id);

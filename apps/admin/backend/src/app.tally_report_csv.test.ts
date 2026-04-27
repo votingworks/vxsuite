@@ -139,11 +139,12 @@ test('exports expected results for full election', async () => {
     fox: '36',
     overvotes: '8',
     undervotes: '4',
+    'ballots-cast': '56',
   };
   const bestAnimalMammalRows = rows.filter(
     (row) => row['Contest ID'] === 'best-animal-mammal'
   );
-  expect(bestAnimalMammalRows).toHaveLength(5);
+  expect(bestAnimalMammalRows).toHaveLength(6);
   for (const [selectionId, votes] of Object.entries(
     bestAnimalMammalExpectedValues
   )) {
@@ -155,9 +156,10 @@ test('exports expected results for full election', async () => {
     'allow-fishing': '8',
     overvotes: '8',
     undervotes: '88',
+    'ballots-cast': '112',
   };
   const fishingRows = rows.filter((row) => row['Contest ID'] === 'fishing');
-  expect(fishingRows).toHaveLength(4);
+  expect(fishingRows).toHaveLength(5);
   for (const [selectionId, votes] of Object.entries(fishingExpectedValues)) {
     expect(votes).toEqual(fishingExpectedValues[selectionId]);
   }
@@ -576,7 +578,7 @@ test('exports ballot styles grouped by language agnostic parent in multi-languag
   const ballotStyle4fRows = rows.filter(
     (row) => row['Ballot Style ID'] === '4-F'
   );
-  expect(ballotStyle1MaRows).toHaveLength(16);
-  expect(ballotStyle4MaRows).toHaveLength(16);
-  expect(ballotStyle4fRows).toHaveLength(15);
+  expect(ballotStyle1MaRows).toHaveLength(19);
+  expect(ballotStyle4MaRows).toHaveLength(19);
+  expect(ballotStyle4fRows).toHaveLength(18);
 });

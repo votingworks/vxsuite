@@ -206,6 +206,16 @@ function* generateDataRows({
         hasManualResults,
         manualVotes: manualContestResults?.undervotes ?? 0,
       });
+
+      yield buildRow({
+        metadataValues,
+        contest,
+        selection: 'Ballots Cast',
+        selectionId: 'ballots-cast',
+        scannedVotes: scannedContestResults.ballots,
+        hasManualResults,
+        manualVotes: manualContestResults?.ballots ?? 0,
+      });
     }
   }
 }
