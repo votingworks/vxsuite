@@ -8,7 +8,7 @@ import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId, PartyId } from '@votingworks/types';
-import { screen, within } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';
@@ -115,7 +115,7 @@ test('renders as voter screen', () => {
   screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
 });
 
-test('open primary review screen has party row and change-party flow', () => {
+test('open primary review screen shows party row and links to party selection', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,
@@ -130,19 +130,6 @@ test('open primary review screen has party row and change-party flow', () => {
   screen.getByText('Party');
   screen.getByText('Democratic Party');
 
-  // Change Party opens the confirmation modal warning votes will be cleared.
   userEvent.click(screen.getButton(/change party/i));
-  let modal = screen.getByRole('alertdialog');
-  within(modal).getByText(/clear all of your votes/i);
-
-  // Cancel closes the modal and stays on the review screen.
-  userEvent.click(within(modal).getButton(/cancel/i));
-  expect(screen.queryByRole('alertdialog')).toBeNull();
-  expect(history.location.pathname).toEqual('/review');
-
-  // Reopening and confirming navigates to the party selection screen.
-  userEvent.click(screen.getButton(/change party/i));
-  modal = screen.getByRole('alertdialog');
-  userEvent.click(within(modal).getButton(/^change party$/i));
   expect(history.location.pathname).toEqual('/party-selection');
 });

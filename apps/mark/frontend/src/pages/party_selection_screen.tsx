@@ -3,9 +3,12 @@ import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
 import { PartyId } from '@votingworks/types';
 import {
+  Button,
   Caption,
   H2,
   LinkButton,
+  Modal,
+  P,
   PageNavigationButtonId,
   RadioGroup,
   WithScrollButtons,
@@ -24,9 +27,23 @@ const OptionRadioGroup = styled(RadioGroup<PartyId>)`
 `;
 
 export function PartySelectionScreen(): JSX.Element {
-  const { electionDefinition, selectParty, selectedPartyId } =
+  const { electionDefinition, selectParty, selectedPartyId, votes } =
     React.useContext(BallotContext);
   const { election } = assertDefined(electionDefinition);
+  const [partyIdToConfirm, setPartyIdToConfirm] = React.useState<PartyId>();
+
+  function handleSelect(partyId: PartyId) {
+    if (
+      partyId !== selectedPartyId &&
+      Object.values(votes).some(
+        (contestVotes) => contestVotes && contestVotes.length > 0
+      )
+    ) {
+      setPartyIdToConfirm(partyId);
+    } else {
+      selectParty(partyId);
+    }
+  }
 
   return (
     <VoterScreen
@@ -67,9 +84,35 @@ export function PartySelectionScreen(): JSX.Element {
             label: party.fullName,
           }))}
           value={selectedPartyId}
-          onChange={(partyId) => selectParty(partyId)}
+          onChange={handleSelect}
         />
       </WithScrollButtons>
+      {partyIdToConfirm && (
+        <Modal
+          title="Change Party?"
+          content={<P>Changing your party will clear all of your votes.</P>}
+          actions={
+            <React.Fragment>
+              <Button
+                variant="primary"
+                onPress={() => {
+                  selectParty(partyIdToConfirm);
+                  setPartyIdToConfirm(undefined);
+                }}
+              >
+                Change Party
+              </Button>
+              <Button onPress={() => setPartyIdToConfirm(undefined)}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={
+            /* istanbul ignore next - @preserve */
+            () => setPartyIdToConfirm(undefined)
+          }
+        />
+      )}
     </VoterScreen>
   );
 }

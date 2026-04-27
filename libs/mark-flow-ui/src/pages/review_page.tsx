@@ -1,15 +1,12 @@
 /* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
-  Button,
   Caption,
   electionStrings,
   Font,
   LinkButton,
   H1,
-  Modal,
-  P,
   WithScrollButtons,
   appStrings,
   AudioOnly,
@@ -72,8 +69,6 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     selectedPartyId,
     partySelectionScreenUrl,
   } = props;
-
-  const [isChangePartyModalOpen, setIsChangePartyModalOpen] = useState(false);
 
   assert(
     typeof precinctId !== 'undefined',
@@ -155,9 +150,9 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
               </Font>
             </div>
           </div>
-          <Button icon="Edit" onPress={() => setIsChangePartyModalOpen(true)}>
+          <LinkButton icon="Edit" to={partySelectionScreenUrl}>
             Change Party
-          </Button>
+          </LinkButton>
         </PartyRow>
       )}
       <WithScrollButtons>
@@ -170,23 +165,6 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           ballotStyle={ballotStyle}
         />
       </WithScrollButtons>
-      {isChangePartyModalOpen && (
-        <Modal
-          title="Change Party?"
-          content={<P>Changing your party will clear all of your votes.</P>}
-          actions={
-            <React.Fragment>
-              <LinkButton variant="primary" to={partySelectionScreenUrl}>
-                Change Party
-              </LinkButton>
-              <Button onPress={() => setIsChangePartyModalOpen(false)}>
-                Cancel
-              </Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setIsChangePartyModalOpen(false)}
-        />
-      )}
     </VoterScreen>
   );
 }
