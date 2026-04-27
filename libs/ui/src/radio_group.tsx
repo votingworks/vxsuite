@@ -158,7 +158,11 @@ export function RadioOption<T extends RadioGroupValue>(
         // Keyboard navigation will be handled by the radio input,
         // when `shouldUseNativeRadioInteraction === true`:
         tabIndex={shouldUseNativeRadioInteraction ? -1 : undefined}
-        onPress={(newValue: T) => onChange(newValue)}
+        onPress={(newValue: T) => {
+          // Skip onChange when re-selecting the current option to match
+          // native radio input behavior.
+          if (!isSelected) onChange(newValue);
+        }}
         value={value}
       >
         {label}
