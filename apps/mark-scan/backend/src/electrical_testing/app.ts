@@ -7,8 +7,16 @@ import * as grout from '@votingworks/grout';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import express, { Application } from 'express';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ServerContext } from './context';
 import { getMachineConfig } from '../machine_config';
+
+// Must match `PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME` in the FAI 100
+// controller daemon.
+const PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME =
+  '_pat_consecutive_status_threshold';
+const DEFAULT_PAT_CONSECUTIVE_STATUS_THRESHOLD = 3;
 
 function buildApi({
   workspace,
@@ -94,6 +102,27 @@ function buildApi({
 
     setMinTouchDurationMs(input: { minTouchDurationMs: number }) {
       store.setMinTouchDurationMs(input.minTouchDurationMs);
+    },
+
+    getPatConsecutiveStatusThreshold(): number {
+      const filePath = join(
+        workspace.path,
+        PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME
+      );
+      if (!existsSync(filePath)) {
+        return DEFAULT_PAT_CONSECUTIVE_STATUS_THRESHOLD;
+      }
+      const parsed = Number.parseInt(readFileSync(filePath, 'utf8').trim(), 10);
+      return Number.isFinite(parsed)
+        ? parsed
+        : DEFAULT_PAT_CONSECUTIVE_STATUS_THRESHOLD;
+    },
+
+    setPatConsecutiveStatusThreshold(input: { threshold: number }) {
+      writeFileSync(
+        join(workspace.path, PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME),
+        String(input.threshold)
+      );
     },
 
     async getCpuMetrics(): Promise<CpuMetrics> {

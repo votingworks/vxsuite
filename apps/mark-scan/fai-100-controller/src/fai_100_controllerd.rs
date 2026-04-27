@@ -40,11 +40,13 @@ const POLL_INTERVAL: Duration = Duration::from_millis(100);
 const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(5 * 60); // 5 mins; from_mins is a nightly build feature
 const BUFFER_MAX_BYTES: usize = 64;
 const PAT_CONNECTION_STATUS_FILENAME: &str = "_pat_connection.status";
+const PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME: &str = "_pat_consecutive_status_threshold";
 const PID_FILENAME: &str = "vx_accessible_controller_daemon.pid";
-// Number of consecutive active statuses required before sending a sip or puff
-// keystroke. This filters out false positives caused by ESD (electrostatic
-// discharge).
-const CONSECUTIVE_STATUS_THRESHOLD: u8 = 3;
+// Default number of consecutive active statuses required before sending a sip
+// or puff keystroke. This filters out false positives caused by ESD
+// (electrostatic discharge). Can be overridden by writing the desired value to
+// `<workspace_path>/<PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME>`.
+const DEFAULT_CONSECUTIVE_STATUS_THRESHOLD: u8 = 3;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -56,6 +58,17 @@ struct Args {
     /// Path to the directory where `MarkScan`'s working files are stored.
     #[arg(long, env = "MARK_SCAN_WORKSPACE")]
     mark_scan_workspace: PathBuf,
+}
+
+fn read_consecutive_status_threshold(workspace_path: &Path) -> u8 {
+    let path = workspace_path.join(PAT_CONSECUTIVE_STATUS_THRESHOLD_FILENAME);
+    match std::fs::read_to_string(&path) {
+        Ok(contents) => contents
+            .trim()
+            .parse::<u8>()
+            .unwrap_or(DEFAULT_CONSECUTIVE_STATUS_THRESHOLD),
+        Err(_) => DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
+    }
 }
 
 fn write_pat_connection_status(
@@ -340,12 +353,13 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
 fn handle_sip_or_puff_signal(
     signal_status: SipAndPuffSignalStatus,
     consecutive_count: &mut u8,
+    threshold: u8,
     key: keyboard::Key,
     keyboard: &mut impl VirtualKeyboard,
 ) {
     if signal_status == SipAndPuffSignalStatus::Active {
         *consecutive_count = consecutive_count.saturating_add(1);
-        if *consecutive_count == CONSECUTIVE_STATUS_THRESHOLD {
+        if *consecutive_count == threshold {
             send_keystroke(
                 &KeypressSpec {
                     key,
@@ -367,6 +381,7 @@ fn handle_sip_or_puff_signal(
 fn handle_status_response(
     new_status: NotificationStatusResponse,
     current_status: &mut CurrentStatus,
+    consecutive_status_threshold: u8,
     keyboard: &mut impl VirtualKeyboard,
     workspace_path: &Path,
 ) -> Result<bool, CommandError> {
@@ -438,12 +453,14 @@ fn handle_status_response(
         handle_sip_or_puff_signal(
             new_sip_status,
             &mut current_status.consecutive_sip_active_count,
+            consecutive_status_threshold,
             keyboard::Key::_1,
             keyboard,
         );
         handle_sip_or_puff_signal(
             new_puff_status,
             &mut current_status.consecutive_puff_active_count,
+            consecutive_status_threshold,
             keyboard::Key::_2,
             keyboard,
         );
@@ -510,6 +527,7 @@ fn run_event_loop(
                         match handle_status_response(
                             response,
                             &mut current_status,
+                            read_consecutive_status_threshold(workspace_path),
                             keyboard,
                             workspace_path,
                         ) {
@@ -652,8 +670,14 @@ mod tests {
             sip_puff_device_connection_status: SipAndPuffDeviceStatus::Disconnected,
         };
 
-        handle_status_response(new_status, current_status, &mut mock_keyboard, &temp_dir())
-            .unwrap();
+        handle_status_response(
+            new_status,
+            current_status,
+            DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
 
         assert_eq!(
             mock_keyboard.keystrokes,
@@ -674,8 +698,14 @@ mod tests {
             sip_puff_device_connection_status: SipAndPuffDeviceStatus::Disconnected,
         };
 
-        handle_status_response(new_status, current_status, &mut mock_keyboard, &temp_dir())
-            .unwrap();
+        handle_status_response(
+            new_status,
+            current_status,
+            DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
+            &mut mock_keyboard,
+            &temp_dir(),
+        )
+        .unwrap();
 
         assert_eq!(
             mock_keyboard.keystrokes,
@@ -693,10 +723,11 @@ mod tests {
         let workspace = temp_dir();
 
         // Pre-threshold active statuses should not trigger a keystroke
-        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+        for _ in 0..DEFAULT_CONSECUTIVE_STATUS_THRESHOLD - 1 {
             handle_status_response(
                 active_status(),
                 current_status,
+                DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
                 &mut mock_keyboard,
                 &workspace,
             )
@@ -708,6 +739,7 @@ mod tests {
         handle_status_response(
             active_status(),
             current_status,
+            DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
             &mut mock_keyboard,
             &workspace,
         )
@@ -718,6 +750,7 @@ mod tests {
         handle_status_response(
             active_status(),
             current_status,
+            DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
             &mut mock_keyboard,
             &workspace,
         )
@@ -735,10 +768,11 @@ mod tests {
         let workspace = temp_dir();
 
         // Get close to the threshold
-        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+        for _ in 0..DEFAULT_CONSECUTIVE_STATUS_THRESHOLD - 1 {
             handle_status_response(
                 active_status(),
                 current_status,
+                DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
                 &mut mock_keyboard,
                 &workspace,
             )
@@ -749,16 +783,18 @@ mod tests {
         handle_status_response(
             idle_status(),
             current_status,
+            DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
             &mut mock_keyboard,
             &workspace,
         )
         .unwrap();
 
         // Get close to the threshold again
-        for _ in 0..CONSECUTIVE_STATUS_THRESHOLD - 1 {
+        for _ in 0..DEFAULT_CONSECUTIVE_STATUS_THRESHOLD - 1 {
             handle_status_response(
                 active_status(),
                 current_status,
+                DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
                 &mut mock_keyboard,
                 &workspace,
             )
@@ -770,6 +806,7 @@ mod tests {
         handle_status_response(
             active_status(),
             current_status,
+            DEFAULT_CONSECUTIVE_STATUS_THRESHOLD,
             &mut mock_keyboard,
             &workspace,
         )

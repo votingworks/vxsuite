@@ -135,6 +135,36 @@ export const setMinTouchDurationMs = {
   },
 } as const;
 
+export const getPatConsecutiveStatusThreshold = {
+  queryKey(): QueryKey {
+    return ['getPatConsecutiveStatusThreshold'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getPatConsecutiveStatusThreshold()
+    );
+  },
+} as const;
+
+export const setPatConsecutiveStatusThreshold = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (threshold: number) =>
+        apiClient.setPatConsecutiveStatusThreshold({ threshold }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(
+            getPatConsecutiveStatusThreshold.queryKey()
+          );
+        },
+      }
+    );
+  },
+} as const;
+
 export const getCpuMetrics = {
   queryKey(): QueryKey {
     return ['getCpuMetrics'];

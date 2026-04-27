@@ -15,9 +15,11 @@ import {
   getCpuMetrics,
   getElectricalTestingStatuses,
   getMinTouchDurationMs,
+  getPatConsecutiveStatusThreshold,
   setCardReaderTaskRunning,
   setMinTouchDurationMs,
   setPaperHandlerTaskRunning,
+  setPatConsecutiveStatusThreshold,
   setUsbDriveTaskRunning,
   useApiClient,
 } from './api';
@@ -26,6 +28,9 @@ import { useSound } from '../hooks/use_sound';
 const MIN_TOUCH_DURATION_STEP_MS = 10;
 const MIN_TOUCH_DURATION_MIN_MS = 0;
 const MIN_TOUCH_DURATION_MAX_MS = 500;
+
+const PAT_CONSECUTIVE_STATUS_THRESHOLD_MIN = 1;
+const PAT_CONSECUTIVE_STATUS_THRESHOLD_MAX = 20;
 
 const SettingsRow = styled.div`
   display: flex;
@@ -52,6 +57,12 @@ export function AppRoot(): JSX.Element {
   const getMinTouchDurationMsQuery = getMinTouchDurationMs.useQuery();
   const setMinTouchDurationMsMutation = setMinTouchDurationMs.useMutation();
   const minTouchDurationMs = getMinTouchDurationMsQuery.data;
+  const getPatConsecutiveStatusThresholdQuery =
+    getPatConsecutiveStatusThreshold.useQuery();
+  const setPatConsecutiveStatusThresholdMutation =
+    setPatConsecutiveStatusThreshold.useMutation();
+  const patConsecutiveStatusThreshold =
+    getPatConsecutiveStatusThresholdQuery.data;
   const playSound = useSound('success-5s');
 
   function togglePaperHandlerTaskRunning() {
@@ -195,6 +206,45 @@ export function AppRoot(): JSX.Element {
                     </Button>
                   </SettingsRow>
                 )}
+                {showAdvancedSettings &&
+                  patConsecutiveStatusThreshold !== undefined && (
+                    <SettingsRow style={{ marginTop: '0.5rem' }}>
+                      <span>PAT Consecutive Status Threshold:</span>
+                      <Button
+                        onPress={() =>
+                          setPatConsecutiveStatusThresholdMutation.mutate(
+                            Math.max(
+                              PAT_CONSECUTIVE_STATUS_THRESHOLD_MIN,
+                              patConsecutiveStatusThreshold - 1
+                            )
+                          )
+                        }
+                        disabled={
+                          patConsecutiveStatusThreshold <=
+                          PAT_CONSECUTIVE_STATUS_THRESHOLD_MIN
+                        }
+                      >
+                        -
+                      </Button>
+                      <span>{patConsecutiveStatusThreshold}</span>
+                      <Button
+                        onPress={() =>
+                          setPatConsecutiveStatusThresholdMutation.mutate(
+                            Math.min(
+                              PAT_CONSECUTIVE_STATUS_THRESHOLD_MAX,
+                              patConsecutiveStatusThreshold + 1
+                            )
+                          )
+                        }
+                        disabled={
+                          patConsecutiveStatusThreshold >=
+                          PAT_CONSECUTIVE_STATUS_THRESHOLD_MAX
+                        }
+                      >
+                        +
+                      </Button>
+                    </SettingsRow>
+                  )}
               </div>
             ),
           },
