@@ -7,6 +7,7 @@ import {
   CandidateContest,
   ContestId,
   Election,
+  electionTypeV4p0ToV4p1,
   getBallotStyle,
   getContests,
   LanguageCode,
@@ -140,7 +141,7 @@ test('reorder candidates based on rotation from template', async () => {
     ballotStyles: generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       electionId: baseElection.id,
-      electionType: baseElection.type,
+      electionType: electionTypeV4p0ToV4p1(baseElection.type),
       parties: baseElection.parties,
       precincts: [...baseElection.precincts],
       ballotTemplateId: 'NhBallot',

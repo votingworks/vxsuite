@@ -11,10 +11,12 @@ import {
   Candidate,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
+  ElectionTypeV4p1,
   Id,
   LanguageCode,
 } from '@votingworks/types';
 import {
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
@@ -36,7 +38,8 @@ function splitCandidateName(candidate: Candidate): Candidate {
 
 export function makeElectionRecord(
   baseElection: Election,
-  jurisdictionId: Id
+  jurisdictionId: Id,
+  electionType: ElectionTypeV4p1 = electionTypeV4p0ToV4p1(baseElection.type)
 ): ElectionRecord {
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
@@ -52,7 +55,7 @@ export function makeElectionRecord(
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests,
-    electionType: baseElection.type,
+    electionType,
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',
@@ -65,7 +68,7 @@ export function makeElectionRecord(
   };
   return {
     election,
-    type: electionTypeV4p0ToV4p1(baseElection.type),
+    type: electionType,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
@@ -134,6 +137,13 @@ export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
   return makeElectionRecord(
     electionPrimaryPrecinctSplitsFixtures.readElection(),
     jurisdictionId
+  );
+}
+export function openPrimaryElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(
+    electionOpenPrimaryFixtures.readElection(),
+    jurisdictionId,
+    'open-primary'
   );
 }
 export function generalElectionInfo(jurisdictionId: Id): ElectionInfo {

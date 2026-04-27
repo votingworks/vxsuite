@@ -4,7 +4,7 @@ import {
   CandidateContest,
   Contests,
   DistrictId,
-  ElectionType,
+  ElectionTypeV4p1,
   Parties,
   PrecinctOrSplitId,
   Precinct,
@@ -20,22 +20,29 @@ import { BallotTemplateId } from './ballot_templates';
 import { getAllPossibleCandidateOrderings } from './ballot_rotation';
 
 /**
- * Generates ballot styles for the election based on geography data (districts,
- * precincts, and precinct splits), ballot languages, and the ballot template. For primary elections,
- * generates distinct ballot styles for each party. The ballot template defines
- * what rotation rules are applied. Rotation by precinct may cause more ballot styles to need to be created.
+ * - For general elections, generates ballot styles based on geography data
+ * (districts, precincts, and precinct splits), ballot languages, and the ballot
+ * template.
+ * - For closed primary elections, uses the same factors but also generates
+ * distinct ballot styles for each party.
+ * - For open primaries (where voters see contests from all parties on one
+ * ballot), does the same as general elections.
  *
- * Each ballot styles should have a unique set of contests or uniquely rotated version of contests.
- * Contests are specified per district. We generate ballot styles by looking at the
- * district list for each precinct/precinct split. If the district list is
- * unique, it gets its own ballot style. Otherwise, we reuse another ballot
- * style with the same district list. Then we apply rotation rules, if they will result in a unique rotation
- * for a given precinct/split and set of contests it will get its own ballot style.
+ * The ballot template defines what rotation rules are applied. Rotation by
+ * precinct may cause more ballot styles to need to be created.
+ *
+ * Each ballot style should have a unique set of contests or uniquely rotated
+ * version of contests. Contests are specified per district. We generate ballot
+ * styles by looking at the district list for each precinct/precinct split. If
+ * the district list is unique, it gets its own ballot style. Otherwise, we
+ * reuse another ballot style with the same district list. Then we apply
+ * rotation rules, if they will result in a unique rotation for a given
+ * precinct/split and set of contests it will get its own ballot style.
  */
 export function generateBallotStyles(params: {
   contests: Contests;
   ballotLanguageConfigs: BallotLanguageConfigs;
-  electionType: ElectionType;
+  electionType: ElectionTypeV4p1;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;
@@ -85,6 +92,7 @@ export function generateBallotStyles(params: {
 
   switch (electionType) {
     case 'general':
+    case 'open-primary':
       return precinctsOrSplitsByDistricts.flatMap(
         ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
           // Filter contests by district before generating orderings
@@ -136,7 +144,7 @@ export function generateBallotStyles(params: {
         }
       );
 
-    case 'primary':
+    case 'closed-primary':
       return precinctsOrSplitsByDistricts.flatMap(
         ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
           // Filter contests by district before generating orderings

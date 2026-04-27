@@ -16,8 +16,9 @@ import {
   mockStateFeatures,
 } from '../test/api_helpers';
 import {
-  electionInfoFromElection,
+  electionInfoFromRecord,
   generalElectionRecord,
+  openPrimaryElectionRecord,
   primaryElectionRecord,
 } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
@@ -69,7 +70,7 @@ function expectElectionApiCalls(electionRecord: ElectionRecord) {
     .resolves(electionRecord.election.precincts);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
+    .resolves(electionInfoFromRecord(electionRecord));
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
@@ -153,6 +154,37 @@ describe('Ballot styles tab', () => {
       ['Precinct 4 - Split 1', '3-F_en', 'Fish Party', 'View Ballot'],
       ['Precinct 4 - Split 2', '4-Ma_en', 'Mammal Party', 'View Ballot'],
       ['Precinct 4 - Split 2', '4-F_en', 'Fish Party', 'View Ballot'],
+    ]);
+  });
+
+  test('Open primary election hides party column', async () => {
+    const electionRecord = openPrimaryElectionRecord(jurisdiction.id);
+    const electionId = electionRecord.election.id;
+    expectElectionApiCalls(electionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    const table = screen.getByRole('table');
+    const headers = within(table).getAllByRole('columnheader');
+    expect(headers.map((header) => header.textContent)).toEqual([
+      'Precinct',
+      'Ballot Style',
+      '',
+    ]);
+
+    expect(
+      within(table)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) =>
+          within(row)
+            .getAllByRole('cell')
+            .map((cell) => cell.textContent)
+        )
+    ).toEqual([
+      ['Precinct 1', '1_en', 'View Ballot'],
+      ['Precinct 2', '2_en', 'View Ballot'],
     ]);
   });
 

@@ -167,7 +167,7 @@
         "district-state",
         "district-congressional",
         "district-legislative",
-        "district-county",
+        "district-county-south",
         "district-judicial"
       ]
     }
@@ -717,6 +717,164 @@
       },
       "noOption": {
         "id": "ballot-measure-3-no",
+        "label": "No"
+      }
+    },
+    {
+      "id": "county-commissioner-democratic-south",
+      "districtId": "district-county-south",
+      "title": "County Commissioner (South)",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [
+        {
+          "id": "ada-reeves",
+          "name": "Ada Reeves"
+        },
+        {
+          "id": "ben-hoyt",
+          "name": "Ben Hoyt"
+        },
+        {
+          "id": "cara-lynd",
+          "name": "Cara Lynd"
+        }
+      ],
+      "allowWriteIns": true,
+      "partyId": "democratic-party"
+    },
+    {
+      "id": "county-commissioner-republican-south",
+      "districtId": "district-county-south",
+      "title": "County Commissioner (South)",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [
+        {
+          "id": "dean-strode",
+          "name": "Dean Strode"
+        },
+        {
+          "id": "erin-vale",
+          "name": "Erin Vale"
+        }
+      ],
+      "allowWriteIns": true,
+      "partyId": "republican-party"
+    },
+    {
+      "id": "county-commissioner-libertarian-south",
+      "districtId": "district-county-south",
+      "title": "County Commissioner (South)",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [
+        {
+          "id": "finn-oakes",
+          "name": "Finn Oakes"
+        },
+        {
+          "id": "gina-platt",
+          "name": "Gina Platt"
+        }
+      ],
+      "allowWriteIns": true,
+      "partyId": "libertarian-party"
+    },
+    {
+      "id": "delegate-convention-democratic-south",
+      "districtId": "district-county-south",
+      "title": "Delegate to County Convention (South)",
+      "type": "candidate",
+      "seats": 3,
+      "candidates": [],
+      "allowWriteIns": true,
+      "partyId": "democratic-party"
+    },
+    {
+      "id": "delegate-convention-republican-south",
+      "districtId": "district-county-south",
+      "title": "Delegate to County Convention (South)",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [],
+      "allowWriteIns": true,
+      "partyId": "republican-party"
+    },
+    {
+      "id": "delegate-convention-libertarian-south",
+      "districtId": "district-county-south",
+      "title": "Delegate to County Convention (South)",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [],
+      "allowWriteIns": true,
+      "partyId": "libertarian-party"
+    },
+    {
+      "id": "school-board-south",
+      "districtId": "district-county-south",
+      "title": "Board of Education Member (South)",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [
+        {
+          "id": "harper-rhodes",
+          "name": "Harper Rhodes"
+        },
+        {
+          "id": "iris-lamb",
+          "name": "Iris Lamb"
+        },
+        {
+          "id": "jack-munoz",
+          "name": "Jack Munoz"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "ballot-measure-1-south",
+      "districtId": "district-county-south",
+      "title": "County Road Millage Renewal (South)",
+      "type": "yesno",
+      "description": "Shall the County of Sample renew the previously authorized millage of 1.5 mills ($1.50 per $1,000 of taxable value) for a period of 10 years, 2026 through 2035 inclusive, for the purpose of funding road maintenance, repair, and improvement throughout the county? It is estimated that this millage would raise approximately $3,200,000 in the first year.",
+      "yesOption": {
+        "id": "ballot-measure-1-yes-south",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ballot-measure-1-no-south",
+        "label": "No"
+      }
+    },
+    {
+      "id": "ballot-measure-2-south",
+      "districtId": "district-county-south",
+      "title": "Public Safety Millage (South)",
+      "type": "yesno",
+      "description": "Shall the County of Sample levy a new millage of 0.75 mills ($0.75 per $1,000 of taxable value) for a period of 5 years, 2026 through 2030 inclusive, for the purpose of funding police, fire, and emergency medical services throughout the county? It is estimated that this millage would raise approximately $1,600,000 in the first year. This is a new additional millage.",
+      "yesOption": {
+        "id": "ballot-measure-2-yes-south",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ballot-measure-2-no-south",
+        "label": "No"
+      }
+    },
+    {
+      "id": "ballot-measure-3-south",
+      "districtId": "district-county-south",
+      "title": "Library Millage Renewal (South)",
+      "type": "yesno",
+      "description": "Shall the County of Sample renew the previously authorized millage of 0.5 mills ($0.50 per $1,000 of taxable value) for a period of 8 years, 2026 through 2033 inclusive, for the purpose of providing funds for the operation, maintenance, and improvement of the county library system?",
+      "yesOption": {
+        "id": "ballot-measure-3-yes-south",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ballot-measure-3-no-south",
         "label": "No"
       }
     }
@@ -2491,8 +2649,8 @@
           "side": "front",
           "column": 24.995190529041807,
           "row": 20.35604900459418,
-          "contestId": "school-board",
-          "optionId": "angela-morris"
+          "contestId": "school-board-south",
+          "optionId": "harper-rhodes"
         },
         {
           "type": "option",
@@ -2500,8 +2658,8 @@
           "side": "front",
           "column": 24.995190529041807,
           "row": 21.431087289433382,
-          "contestId": "school-board",
-          "optionId": "bruce-newton"
+          "contestId": "school-board-south",
+          "optionId": "iris-lamb"
         },
         {
           "type": "option",
@@ -2509,47 +2667,47 @@
           "side": "front",
           "column": 24.995190529041807,
           "row": 22.506125574272588,
-          "contestId": "school-board",
-          "optionId": "carmen-ortiz"
+          "contestId": "school-board-south",
+          "optionId": "jack-munoz"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 24.995190529041807,
+          "row": 23.64710949464012,
+          "contestId": "school-board-south",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 25.59519052904181,
+            "y": 23.14710949464012,
+            "width": 6.300000000000001,
+            "height": 1
+          }
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 24.995190529041807,
+          "row": 24.854039050535988,
+          "contestId": "school-board-south",
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 25.59519052904181,
+            "y": 24.354039050535988,
+            "width": 6.300000000000001,
+            "height": 1
+          }
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 23.58116385911179,
-          "contestId": "school-board",
-          "optionId": "dwight-perry"
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 24.995190529041807,
-          "row": 24.722147779479325,
-          "contestId": "school-board",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 25.59519052904181,
-            "y": 24.222147779479325,
-            "width": 6.300000000000001,
-            "height": 1
-          }
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 24.995190529041807,
-          "row": 25.92907733537519,
-          "contestId": "school-board",
-          "writeInIndex": 1,
-          "writeInArea": {
-            "x": 25.59519052904181,
-            "y": 25.42907733537519,
-            "width": 6.300000000000001,
-            "height": 1
-          }
+          "row": 36.96626148545176,
+          "contestId": "ballot-measure-1-south",
+          "optionId": "ballot-measure-1-yes-south"
         },
         {
           "type": "option",
@@ -2557,74 +2715,47 @@
           "side": "front",
           "column": 24.995190529041807,
           "row": 38.04129977029096,
-          "contestId": "ballot-measure-1",
-          "optionId": "ballot-measure-1-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 24.995190529041807,
-          "row": 39.116338055130164,
-          "contestId": "ballot-measure-1",
-          "optionId": "ballot-measure-1-no"
+          "contestId": "ballot-measure-1-south",
+          "optionId": "ballot-measure-1-no-south"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 7.670223966309341,
-          "contestId": "county-commissioner-democratic",
-          "optionId": "kelly-marsh"
+          "row": 8.253780627871363,
+          "contestId": "county-commissioner-democratic-south",
+          "optionId": "ada-reeves"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 8.745262251148544,
-          "contestId": "county-commissioner-democratic",
-          "optionId": "liam-foster"
+          "row": 9.328818912710567,
+          "contestId": "county-commissioner-democratic-south",
+          "optionId": "ben-hoyt"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 9.820300535987748,
-          "contestId": "county-commissioner-democratic",
-          "optionId": "mona-sharp"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.6563078061413246,
-          "row": 10.895338820826952,
-          "contestId": "county-commissioner-democratic",
-          "optionId": "neil-cross"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.6563078061413246,
-          "row": 11.970377105666156,
-          "contestId": "county-commissioner-democratic",
-          "optionId": "opal-burke"
+          "row": 10.403857197549769,
+          "contestId": "county-commissioner-democratic-south",
+          "optionId": "cara-lynd"
         },
         {
           "type": "write-in",
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 13.11136102603369,
-          "contestId": "county-commissioner-democratic",
+          "row": 11.544841117917304,
+          "contestId": "county-commissioner-democratic-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 12.61136102603369,
+            "y": 11.044841117917304,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2634,12 +2765,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 14.318290581929555,
-          "contestId": "county-commissioner-democratic",
+          "row": 12.75177067381317,
+          "contestId": "county-commissioner-democratic-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 13.818290581929555,
+            "y": 12.25177067381317,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2649,12 +2780,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 17.46439509954058,
-          "contestId": "delegate-convention-democratic",
+          "row": 15.897875191424195,
+          "contestId": "delegate-convention-democratic-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 16.96439509954058,
+            "y": 15.397875191424195,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2664,12 +2795,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 18.671324655436447,
-          "contestId": "delegate-convention-democratic",
+          "row": 17.10480474732006,
+          "contestId": "delegate-convention-democratic-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 18.171324655436447,
+            "y": 16.60480474732006,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2679,12 +2810,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 19.87825421133231,
-          "contestId": "delegate-convention-democratic",
+          "row": 18.311734303215925,
+          "contestId": "delegate-convention-democratic-south",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 19.37825421133231,
+            "y": 17.811734303215925,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2694,39 +2825,30 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 7.670223966309341,
-          "contestId": "county-commissioner-republican",
-          "optionId": "owen-blake"
+          "row": 8.253780627871363,
+          "contestId": "county-commissioner-republican-south",
+          "optionId": "dean-strode"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 8.745262251148544,
-          "contestId": "county-commissioner-republican",
-          "optionId": "penny-tate"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 9.40677025527192,
-          "row": 9.820300535987748,
-          "contestId": "county-commissioner-republican",
-          "optionId": "roy-simms"
+          "row": 9.328818912710567,
+          "contestId": "county-commissioner-republican-south",
+          "optionId": "erin-vale"
         },
         {
           "type": "write-in",
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 10.961284456355283,
-          "contestId": "county-commissioner-republican",
+          "row": 10.4698028330781,
+          "contestId": "county-commissioner-republican-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 10.461284456355283,
+            "y": 9.9698028330781,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2736,12 +2858,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 12.168214012251148,
-          "contestId": "county-commissioner-republican",
+          "row": 11.676732388973965,
+          "contestId": "county-commissioner-republican-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 11.668214012251148,
+            "y": 11.176732388973965,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2751,12 +2873,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 15.314318529862174,
-          "contestId": "delegate-convention-republican",
+          "row": 14.82283690658499,
+          "contestId": "delegate-convention-republican-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 14.814318529862174,
+            "y": 14.32283690658499,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2766,12 +2888,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 16.52124808575804,
-          "contestId": "delegate-convention-republican",
+          "row": 16.029766462480858,
+          "contestId": "delegate-convention-republican-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 16.02124808575804,
+            "y": 15.529766462480858,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2781,48 +2903,30 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 7.670223966309341,
-          "contestId": "county-commissioner-libertarian",
-          "optionId": "tina-drake"
+          "row": 8.253780627871363,
+          "contestId": "county-commissioner-libertarian-south",
+          "optionId": "finn-oakes"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 8.745262251148544,
-          "contestId": "county-commissioner-libertarian",
-          "optionId": "ulric-fenn"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 17.200641262794427,
-          "row": 9.820300535987748,
-          "contestId": "county-commissioner-libertarian",
-          "optionId": "vera-gold"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 17.200641262794427,
-          "row": 10.895338820826952,
-          "contestId": "county-commissioner-libertarian",
-          "optionId": "wade-knoll"
+          "row": 9.328818912710567,
+          "contestId": "county-commissioner-libertarian-south",
+          "optionId": "gina-platt"
         },
         {
           "type": "write-in",
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 12.036322741194486,
-          "contestId": "county-commissioner-libertarian",
+          "row": 10.4698028330781,
+          "contestId": "county-commissioner-libertarian-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 11.536322741194486,
+            "y": 9.9698028330781,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2832,12 +2936,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 13.243252297090352,
-          "contestId": "county-commissioner-libertarian",
+          "row": 11.676732388973965,
+          "contestId": "county-commissioner-libertarian-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 12.743252297090352,
+            "y": 11.176732388973965,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2847,12 +2951,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 16.389356814701376,
-          "contestId": "delegate-convention-libertarian",
+          "row": 14.82283690658499,
+          "contestId": "delegate-convention-libertarian-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 15.889356814701376,
+            "y": 14.32283690658499,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2862,12 +2966,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 17.59628637059724,
-          "contestId": "delegate-convention-libertarian",
+          "row": 16.029766462480858,
+          "contestId": "delegate-convention-libertarian-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 17.09628637059724,
+            "y": 15.529766462480858,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2877,36 +2981,36 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 12.008949081163859,
-          "contestId": "ballot-measure-2",
-          "optionId": "ballot-measure-2-yes"
+          "row": 12.650985834609495,
+          "contestId": "ballot-measure-2-south",
+          "optionId": "ballot-measure-2-yes-south"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 13.083987366003061,
-          "contestId": "ballot-measure-2",
-          "optionId": "ballot-measure-2-no"
+          "row": 13.726024119448697,
+          "contestId": "ballot-measure-2-south",
+          "optionId": "ballot-measure-2-no-south"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 21.54431470137825,
-          "contestId": "ballot-measure-3",
-          "optionId": "ballot-measure-3-yes"
+          "row": 22.828388208269523,
+          "contestId": "ballot-measure-3-south",
+          "optionId": "ballot-measure-3-yes-south"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 22.619352986217457,
-          "contestId": "ballot-measure-3",
-          "optionId": "ballot-measure-3-no"
+          "row": 23.90342649310873,
+          "contestId": "ballot-measure-3-south",
+          "optionId": "ballot-measure-3-no-south"
         }
       ]
     }
@@ -2931,11 +3035,15 @@
     },
     {
       "id": "district-county",
-      "name": "Sample County"
+      "name": "North Sample County"
     },
     {
       "id": "district-judicial",
       "name": "Judicial District"
+    },
+    {
+      "id": "district-county-south",
+      "name": "South Sample County"
     }
   ],
   "id": "election-open-primary",
@@ -2976,7 +3084,7 @@
         "district-state",
         "district-congressional",
         "district-legislative",
-        "district-county",
+        "district-county-south",
         "district-judicial"
       ],
       "id": "precinct-2",
