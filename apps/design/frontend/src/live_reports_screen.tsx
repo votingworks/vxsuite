@@ -297,10 +297,6 @@ const ActivityEntry = styled.div`
   padding: 0.75rem;
   border-bottom: ${(p) =>
     `${p.theme.sizes.bordersRem.hairline}rem solid ${p.theme.colors.outline}`};
-
-  &:last-child {
-    border-bottom: none;
-  }
 `;
 
 const ProgressBar = styled.div`

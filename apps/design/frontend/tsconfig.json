@@ -12,8 +12,7 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false,
-    "types": ["@testing-library/jest-dom"]
+    "noUncheckedIndexedAccess": false
   },
   "include": ["src", "test"],
   "references": [
