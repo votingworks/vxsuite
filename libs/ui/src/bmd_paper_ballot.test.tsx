@@ -14,6 +14,7 @@ import {
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
   readElectionWithMsEitherNeitherDefinition,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
@@ -136,6 +137,30 @@ test('BmdPaperBallot includes ballot style and language metadata - primary elect
   ).getByText(hasTextAcrossElements('Precinct 1 - Mammal'));
   within(screen.getByText('Language').parentElement!.parentElement!).getByText(
     'Spanish (US)'
+  );
+  // The party short name 'Mammal' is shown only in the ballot-style line,
+  // not as a per-contest label (like in open primaries).
+  expect(screen.getAllByText('Mammal')).toHaveLength(1);
+});
+
+test('BmdPaperBallot labels each partisan contest with its party in open primaries', () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  renderBmdPaperBallot({
+    electionDefinition,
+    ballotStyleId: 'ballot-style-1' as BallotStyleId,
+    precinctId: 'precinct-1',
+    votes: {},
+  });
+
+  // Each Governor contest is labeled with its party. The contest titles
+  // are shared across parties, so the label disambiguates them.
+  screen.getByText(hasTextAcrossElements(/^Democratic[\s\S]*Governor/));
+  screen.getByText(hasTextAcrossElements(/^Republican[\s\S]*Governor/));
+  screen.getByText(hasTextAcrossElements(/^Libertarian[\s\S]*Governor/));
+  // Spot-check another contest title.
+  screen.getByText(
+    hasTextAcrossElements(/^Democratic[\s\S]*Secretary of State/)
   );
 });
 
