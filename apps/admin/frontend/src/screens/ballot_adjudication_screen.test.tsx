@@ -477,12 +477,14 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
       createdAt: new Date().toISOString(),
     },
   ]);
+  apiMock.apiClient.getQualifiedWriteInCandidates
+    .expectRepeatedCallsWith()
+    .resolves([]);
 
   userEvent.click(screen.getByRole('button', { name: 'Accept Anyway' }));
 
-  // verify start screen shows 1 Ballot Completed
-  await screen.findByText('1 Ballot Completed');
-  screen.getByText('0 Ballots Awaiting Review');
+  // verify start screen shows the completed state
+  await screen.findByText('All ballots adjudicated');
 });
 
 test('clicking a contest opens contest adjudication screen', async () => {

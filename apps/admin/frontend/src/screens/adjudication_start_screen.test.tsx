@@ -2,9 +2,12 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep, typedAs } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
-import type { MachineRecord } from '@votingworks/admin-backend';
+import type {
+  MachineRecord,
+  QualifiedWriteInCandidateRecord,
+} from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
-import { Admin } from '@votingworks/types';
+import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { act, screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { AdjudicationStartScreen } from './adjudication_start_screen';
@@ -43,6 +46,9 @@ afterEach(async () => {
 beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
+  apiMock.apiClient.getQualifiedWriteInCandidates
+    .expectRepeatedCallsWith()
+    .resolves([]);
 });
 
 test('No CVRs loaded', async () => {
@@ -71,19 +77,37 @@ test('No ballots flagged for adjudication', async () => {
   await screen.findByText('No ballots flagged for adjudication.');
 });
 
-test('When tally results already marked as official, shows disabled message', async () => {
+test('When tally results already marked as official, adjudication buttons are disabled and multi-station card is hidden', async () => {
+  apiMock = createApiMock();
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    areWriteInCandidatesQualified: true,
+  });
+  apiMock.apiClient.getQualifiedWriteInCandidates
+    .expectRepeatedCallsWith()
+    .resolves([]);
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 3,
     totalTally: 5,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
+  apiMock.expectGetNetworkStatus();
   renderInAppContext(<AdjudicationStartScreen />, {
     electionDefinition,
     isOfficialResults: true,
     apiMock,
   });
 
-  await screen.findByText(/Adjudication is disabled/);
+  expect(
+    await screen.findByRole('button', { name: 'Adjudicate' })
+  ).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Add Candidates' })).toBeDisabled();
+  expect(
+    screen.queryByRole('button', { name: 'Enable Multi-Station' })
+  ).not.toBeInTheDocument();
 });
 
 test('When ballots need adjudication, shows start button with counts', async () => {
@@ -97,9 +121,9 @@ test('When ballots need adjudication, shows start button with counts', async () 
     apiMock,
   });
 
-  await screen.findByText('Start Adjudicating');
-  screen.getByText('3 Ballots Awaiting Review');
-  screen.getByText('2 Ballots Completed');
+  await screen.findByRole('button', { name: 'Adjudicate' });
+  screen.getByText('3 ballots remaining');
+  screen.getByText('2 of 5 adjudicated · 40%');
 });
 
 describe('multi-station adjudication', () => {
@@ -107,44 +131,6 @@ describe('multi-station adjudication', () => {
     featureFlagMock.enableFeatureFlag(
       BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
     );
-  });
-
-  test('shows toggle button and network section when enabled', async () => {
-    apiMock.expectGetBallotAdjudicationQueueMetadata({
-      pendingTally: 3,
-      totalTally: 5,
-    });
-    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
-    apiMock.expectGetNetworkStatus();
-    apiMock.expectGetIsClientAdjudicationEnabled(false);
-    renderInAppContext(<AdjudicationStartScreen />, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await screen.findByText('Start Adjudicating');
-    screen.getByRole('button', {
-      name: 'Enable Multi-Station',
-    });
-    screen.getByText('No clients have connected.');
-  });
-
-  test('shows disable button when adjudication is enabled', async () => {
-    apiMock.expectGetBallotAdjudicationQueueMetadata({
-      pendingTally: 3,
-      totalTally: 5,
-    });
-    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
-    apiMock.expectGetNetworkStatus();
-    apiMock.expectGetIsClientAdjudicationEnabled(true);
-    renderInAppContext(<AdjudicationStartScreen />, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await screen.findByRole('button', {
-      name: 'Disable Multi-Station',
-    });
   });
 
   test('toggles adjudication enabled state', async () => {
@@ -166,7 +152,10 @@ describe('multi-station adjudication', () => {
     apiMock.apiClient.setIsClientAdjudicationEnabled
       .expectCallWith({ enabled: true })
       .resolves();
+    apiMock.expectGetIsClientAdjudicationEnabled(true);
     userEvent.click(enableButton);
+
+    await screen.findByRole('button', { name: 'Disable' });
   });
 
   test('shows network offline status', async () => {
@@ -182,7 +171,11 @@ describe('multi-station adjudication', () => {
       apiMock,
     });
 
-    await screen.findByText('Multi-Station Adjudication');
+    await screen.findByRole('heading', { name: 'Multi-Station Adjudication' });
+    expect(
+      screen.queryByRole('button', { name: 'Enable Multi-Station' })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
   test('shows connected clients table with status', async () => {
@@ -265,5 +258,149 @@ describe('multi-station adjudication', () => {
     });
 
     await screen.findByText('Load CVRs to begin adjudication.');
+    screen.getByRole('heading', { name: 'Multi-Station Adjudication' });
+  });
+
+  test('shows online status when enabled with no real clients', async () => {
+    apiMock.expectGetBallotAdjudicationQueueMetadata({
+      pendingTally: 3,
+      totalTally: 5,
+    });
+    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+    apiMock.expectGetNetworkStatus();
+    apiMock.expectGetIsClientAdjudicationEnabled(true);
+    renderInAppContext(<AdjudicationStartScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByText('Online · Clients Can Adjudicate Ballots');
+    screen.getByRole('table');
+  });
+
+  test('always shows the clients table even when disabled', async () => {
+    apiMock.expectGetBallotAdjudicationQueueMetadata({
+      pendingTally: 3,
+      totalTally: 5,
+    });
+    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+    apiMock.expectGetNetworkStatus();
+    apiMock.expectGetIsClientAdjudicationEnabled(false);
+    renderInAppContext(<AdjudicationStartScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByRole('button', { name: 'Enable Multi-Station' });
+    screen.getByText('Off · Clients Cannot Adjudicate Ballots');
+    screen.getByRole('table');
+  });
+});
+
+test('shows completed state when all ballots adjudicated', async () => {
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 0,
+    totalTally: 5,
+  });
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+  renderInAppContext(<AdjudicationStartScreen />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('All ballots adjudicated');
+  screen.getByRole('button', { name: 'Review' });
+});
+
+describe('qualified write-in candidates card', () => {
+  beforeEach(() => {
+    apiMock = createApiMock();
+    apiMock.expectGetSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      areWriteInCandidatesQualified: true,
+    });
+  });
+
+  function expectGetQualifiedWriteInCandidates(
+    candidates: QualifiedWriteInCandidateRecord[]
+  ) {
+    apiMock.apiClient.getQualifiedWriteInCandidates
+      .expectRepeatedCallsWith()
+      .resolves(candidates);
+  }
+
+  test('shows empty state when no candidates have been added', async () => {
+    apiMock.expectGetBallotAdjudicationQueueMetadata({
+      pendingTally: 3,
+      totalTally: 5,
+    });
+    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+    expectGetQualifiedWriteInCandidates([]);
+    renderInAppContext(<AdjudicationStartScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByText(/Add qualified write-in candidates/);
+    screen.getByRole('button', { name: 'Add Candidates' });
+  });
+
+  test('shows partial state when some contests still need candidates', async () => {
+    apiMock.expectGetBallotAdjudicationQueueMetadata({
+      pendingTally: 3,
+      totalTally: 5,
+    });
+    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+    expectGetQualifiedWriteInCandidates([
+      {
+        id: 'c1',
+        electionId: 'e1',
+        contestId: 'zoo-council-mammal',
+        name: 'Aardvark',
+        hasAdjudicatedVotes: false,
+      },
+    ]);
+    renderInAppContext(<AdjudicationStartScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByText(
+      /1 of 2 write-in contests have qualified candidates/
+    );
+    screen.getByRole('button', { name: 'Edit Candidates' });
+  });
+
+  test('shows completed state when every write-in contest has candidates', async () => {
+    apiMock.expectGetBallotAdjudicationQueueMetadata({
+      pendingTally: 3,
+      totalTally: 5,
+    });
+    apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+    expectGetQualifiedWriteInCandidates([
+      {
+        id: 'c1',
+        electionId: 'e1',
+        contestId: 'zoo-council-mammal',
+        name: 'Aardvark',
+        hasAdjudicatedVotes: false,
+      },
+      {
+        id: 'c2',
+        electionId: 'e1',
+        contestId: 'aquarium-council-fish',
+        name: 'Barracuda',
+        hasAdjudicatedVotes: false,
+      },
+    ]);
+    renderInAppContext(<AdjudicationStartScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByText(
+      /2 of 2 write-in contests have qualified candidates/
+    );
+    screen.getByRole('button', { name: 'Edit Candidates' });
   });
 });

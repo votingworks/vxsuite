@@ -87,7 +87,7 @@ function getPendingContestItems(page: Page): Locator {
 }
 
 export async function adjudicateAllWriteIns(page: Page): Promise<void> {
-  await page.getByText('Start Adjudicating').click();
+  await page.getByRole('button', { name: 'Adjudicate' }).click();
   await page.getByText(/Ballot \d+ of \d+/).waitFor();
 
   let writeInIndex = 0;
@@ -95,8 +95,12 @@ export async function adjudicateAllWriteIns(page: Page): Promise<void> {
   // Process ballots until we return to the adjudication start screen
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    // If we've navigated back to the start screen, adjudication is complete
-    if (await page.getByText('Start Adjudicating').isVisible()) {
+    // If we've navigated back to the start screen, adjudication is complete.
+    if (
+      await page
+        .getByRole('heading', { name: 'Adjudication', level: 1 })
+        .isVisible()
+    ) {
       break;
     }
 
