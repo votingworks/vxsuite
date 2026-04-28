@@ -633,8 +633,10 @@ mod test {
     fn deface_ballot_by_removing_side_timing_marks(image: &mut GrayImage, marks: &TimingMarks) {
         const PADDING: u32 = 10;
         let image_rect = Rect::new(0, 0, image.width(), image.height());
-        let left_side_mark_to_deface = marks.left_marks[marks.left_marks.len() / 2];
-        let right_side_mark_to_deface = marks.right_marks[marks.right_marks.len() / 2];
+        let left_marks = marks.border_marks.left();
+        let right_marks = marks.border_marks.right();
+        let left_side_mark_to_deface = left_marks[left_marks.len() / 2];
+        let right_side_mark_to_deface = right_marks[right_marks.len() / 2];
 
         for mark_to_deface in [left_side_mark_to_deface, right_side_mark_to_deface] {
             let rect = mark_to_deface.rect();
@@ -1055,6 +1057,43 @@ mod test {
         }
     }
 
+    /// Under `CornersOnly` the per-border timing-mark sequences were never
+    /// read, so `border_marks` is `OnlyCorners`, the four accessors return
+    /// empty slices, and the border-based scale computations report `None`
+    /// rather than fabricating a value from corner marks alone.
+    #[test]
+    fn test_corners_only_does_not_fabricate_border_marks() {
+        let (side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        options.grid_strategy = GridStrategy::CornersOnly;
+        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+
+        let tm = &card.front.timing_marks;
+        assert!(matches!(
+            tm.border_marks,
+            timing_marks::BorderMarks::OnlyCorners
+        ));
+        assert!(tm.border_marks.top().is_empty());
+        assert!(tm.border_marks.bottom().is_empty());
+        assert!(tm.border_marks.left().is_empty());
+        assert!(tm.border_marks.right().is_empty());
+
+        for border in [
+            timing_marks::Border::Top,
+            timing_marks::Border::Bottom,
+            timing_marks::Border::Left,
+            timing_marks::Border::Right,
+        ] {
+            assert!(tm.compute_scale_based_on_border(border).is_none());
+        }
+        for axis in [
+            timing_marks::BorderAxis::Horizontal,
+            timing_marks::BorderAxis::Vertical,
+        ] {
+            assert!(tm.compute_scale_based_on_axis(axis).is_none());
+        }
+    }
+
     #[test]
     fn test_fold_through_timing_mark() {
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
@@ -1125,7 +1164,7 @@ mod test {
         // all but the top two and bottom two right timing marks. This preserves
         // some marks so timing detection still succeeds but simulates a streak
         // that breaks bubble scoring in the buggy behavior.
-        let right_marks = &clean_interpretation.front.timing_marks.right_marks;
+        let right_marks = clean_interpretation.front.timing_marks.border_marks.right();
         let black = Luma([0u8]);
         if right_marks.len() > 4 {
             let first_mark = &right_marks[2];
@@ -1166,7 +1205,7 @@ mod test {
         // all but the top two and bottom two right timing marks. This preserves
         // some marks so timing detection can find the corners, but fails because
         // the streak is too wide.
-        let right_marks = &clean_interpretation.front.timing_marks.right_marks;
+        let right_marks = clean_interpretation.front.timing_marks.border_marks.right();
         let black = Luma([0u8]);
         if right_marks.len() > 4 {
             let first_mark = &right_marks[2];
