@@ -12,6 +12,7 @@ use ballot_interpreter::{
         DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     },
     qr_code,
+    scoring::UnitIntervalScore,
 };
 use clap::Parser;
 use crossterm::style::Stylize;
@@ -54,7 +55,7 @@ struct Options {
 
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
-    minimum_detected_scale: Option<f32>,
+    minimum_detected_scale: Option<UnitIntervalScore>,
 
     /// Maximum cumulative width of vertical streaks in pixels before rejecting ballot.
     /// Default value matches `DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH`.

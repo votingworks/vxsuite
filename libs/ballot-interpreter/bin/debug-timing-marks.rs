@@ -15,6 +15,7 @@ use ballot_interpreter::{
     ballot_card::{BallotPage, PaperInfo},
     debug,
     interpret::Error,
+    scoring::UnitIntervalScore,
     timing_marks::{Border, BorderAxis, TimingMarks},
 };
 use clap::Parser;
@@ -37,7 +38,7 @@ struct Options {
 
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
-    minimum_detected_scale: Option<f32>,
+    minimum_detected_scale: Option<UnitIntervalScore>,
 
     /// Detect grid scales using the distance between borders along the given
     /// axis.
@@ -127,7 +128,7 @@ fn process_path<W: Write>(
                 bail!("Warning: multiple scale measurement strategies were provided; please use only border or axis");
             }
         } {
-            if detected_scale.0 < minimum_detected_scale {
+            if detected_scale < minimum_detected_scale {
                 bail!(
                     "Detected scale is too low: {detected_scale} is less than {minimum_detected_scale}",
                     detected_scale = detected_scale.0

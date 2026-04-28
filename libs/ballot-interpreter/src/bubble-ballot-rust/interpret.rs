@@ -253,7 +253,7 @@ pub struct ScanInterpreter {
     write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
     bubble_template_image: &'static GrayImage,
-    minimum_detected_scale: Option<f32>,
+    minimum_detected_scale: Option<UnitIntervalScore>,
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
 }
@@ -265,7 +265,7 @@ impl ScanInterpreter {
         election: Election,
         write_in_scoring: WriteInScoring,
         vertical_streak_detection: VerticalStreakDetection,
-        minimum_detected_scale: Option<f32>,
+        minimum_detected_scale: Option<UnitIntervalScore>,
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
     ) -> Self {
@@ -300,7 +300,7 @@ impl ScanInterpreter {
             debug_side_b_base: debug_side_b_base.into(),
             write_in_scoring: self.write_in_scoring,
             vertical_streak_detection: self.vertical_streak_detection,
-            minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
+            minimum_detected_scale: self.minimum_detected_scale,
             max_cumulative_streak_width: self.max_cumulative_streak_width,
             retry_streak_width_threshold: self.retry_streak_width_threshold,
         };
