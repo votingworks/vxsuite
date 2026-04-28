@@ -41,6 +41,7 @@ import { FullElectionTallyReportScreen } from '../screens/reporting/full_electio
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen';
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
+import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -141,6 +142,13 @@ export function AppRoutes(): JSX.Element | null {
       ) && (
         <Route exact path={routerPaths.ballotAdjudication}>
           <BallotAdjudicationScreen />
+        </Route>
+      )}
+      {isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
+      ) && (
+        <Route exact path={routerPaths.adjudicationCandidates}>
+          <WriteInCandidatesScreen />
         </Route>
       )}
       {isFeatureFlagEnabled(
