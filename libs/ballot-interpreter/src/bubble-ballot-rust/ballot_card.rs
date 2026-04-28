@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
+use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf, sync::LazyLock};
 
 use crate::{
     image_utils::{otsu_level, threshold},
@@ -974,16 +974,24 @@ pub fn get_matching_paper_info_for_image_size(
         .map(|(paper_info, _)| *paper_info)
 }
 
-/// Load the ballot scan bubble image.
+/// Returns the ballot scan bubble template image, decoding and preprocessing it
+/// on first call and caching the result for subsequent calls.
 ///
-/// # Errors
+/// # Panics
 ///
-/// Returns an error if the image cannot be loaded or converted to grayscale.
-pub fn load_ballot_scan_bubble_image() -> Result<GrayImage, image::ImageError> {
-    let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
-    let inner = io::Cursor::new(bubble_image_bytes);
-    let image = image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())?;
-    Ok(bleed(&threshold(&image, otsu_level(&image)), BLACK))
+/// Panics if the embedded `bubble_scan.png` cannot be decoded — this would be a
+/// build-time bug, not a runtime condition.
+#[must_use]
+pub fn ballot_scan_bubble_image() -> &'static GrayImage {
+    static TEMPLATE: LazyLock<GrayImage> = LazyLock::new(|| {
+        let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
+        let inner = io::Cursor::new(bubble_image_bytes);
+        let image = image::load(inner, image::ImageFormat::Png)
+            .map(|image| image.to_luma8())
+            .expect("decoding embedded bubble_scan.png always succeeds");
+        bleed(&threshold(&image, otsu_level(&image)), BLACK)
+    });
+    &TEMPLATE
 }
 
 #[cfg(test)]
@@ -1057,6 +1065,6 @@ mod tests {
 
     #[test]
     fn test_load_bubble_template() {
-        load_ballot_scan_bubble_image().unwrap();
+        let _ = ballot_scan_bubble_image();
     }
 }

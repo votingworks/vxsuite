@@ -5,7 +5,7 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use types_rs::geometry::Rect;
 
 use crate::{
-    ballot_card::{load_ballot_scan_bubble_image, BallotImage},
+    ballot_card::{ballot_scan_bubble_image, BallotImage},
     debug::draw_diagnostic_cells,
     image_utils::{count_pixels, threshold, BLACK},
 };
@@ -75,7 +75,7 @@ fn inspect_cells(ballot_image: &BallotImage, cells: &[Rect]) -> (Vec<Rect>, Vec<
 }
 
 pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
-    let bubble_img = load_ballot_scan_bubble_image().expect("loaded bubble image");
+    let bubble_img = ballot_scan_bubble_image();
     let cell_width = bubble_img.width();
     let cell_height = bubble_img.height();
 

@@ -394,7 +394,7 @@ fn interpret_bubble_ballot(
         options.minimum_detected_scale,
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
-    )?;
+    );
 
     let bottom_image = options
         .load_bottom_image()?

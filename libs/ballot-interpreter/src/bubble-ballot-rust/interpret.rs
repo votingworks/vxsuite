@@ -13,7 +13,7 @@ use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
 use types_rs::pair::Pair;
 
-use crate::ballot_card::load_ballot_scan_bubble_image;
+use crate::ballot_card::ballot_scan_bubble_image;
 use crate::ballot_card::BallotCard;
 use crate::ballot_card::BallotPage;
 use crate::ballot_card::Geometry;
@@ -40,7 +40,7 @@ pub const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD: PixelUnit = 1;
 #[derive(Debug, Clone)]
 pub struct Options {
     pub election: Election,
-    pub bubble_template: GrayImage,
+    pub bubble_template: &'static GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
     pub write_in_scoring: WriteInScoring,
@@ -252,7 +252,7 @@ pub struct ScanInterpreter {
     election: Election,
     write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
-    bubble_template_image: GrayImage,
+    bubble_template_image: &'static GrayImage,
     minimum_detected_scale: Option<f32>,
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
@@ -260,10 +260,7 @@ pub struct ScanInterpreter {
 
 impl ScanInterpreter {
     /// Creates a new `ScanInterpreter` with the given configuration.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the bubble template image could not be loaded.
+    #[must_use]
     pub fn new(
         election: Election,
         write_in_scoring: WriteInScoring,
@@ -271,17 +268,16 @@ impl ScanInterpreter {
         minimum_detected_scale: Option<f32>,
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
-    ) -> Result<Self, image::ImageError> {
-        let bubble_template_image = load_ballot_scan_bubble_image()?;
-        Ok(Self {
+    ) -> Self {
+        Self {
             election,
             write_in_scoring,
             vertical_streak_detection,
-            bubble_template_image,
+            bubble_template_image: ballot_scan_bubble_image(),
             minimum_detected_scale,
             max_cumulative_streak_width,
             retry_streak_width_threshold,
-        })
+        }
     }
 
     /// Interprets a pair of ballot card images.
@@ -299,7 +295,7 @@ impl ScanInterpreter {
     ) -> Result<InterpretedBallotCard> {
         let options = Options {
             election: self.election.clone(),
-            bubble_template: self.bubble_template_image.clone(),
+            bubble_template: self.bubble_template_image,
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
             write_in_scoring: self.write_in_scoring,
@@ -457,7 +453,7 @@ pub fn ballot_card(
         || -> Result<ScoringPairs> {
             let scored_bubble_marks = ballot_card.score_bubble_marks(
                 &timing_marks,
-                &options.bubble_template,
+                options.bubble_template,
                 grid_layout,
                 &detected_vertical_streaks,
                 sheet_number,
@@ -544,7 +540,7 @@ mod test {
     };
 
     use crate::{
-        ballot_card::load_ballot_scan_bubble_image, debug::ImageDebugWriter, qr_code,
+        ballot_card::ballot_scan_bubble_image, debug::ImageDebugWriter, qr_code,
         scoring::UnitIntervalScore, timing_marks::TimingMarks,
     };
 
@@ -570,7 +566,7 @@ mod test {
         let election_path = fixture_path.join(fixture_name).join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let bubble_template = ballot_scan_bubble_image();
         let side_a_path = fixture_path.join(fixture_name).join(side_a_name);
         let side_b_path = fixture_path.join(fixture_name).join(side_b_name);
         let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
@@ -599,7 +595,7 @@ mod test {
         let election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
 
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let bubble_template = ballot_scan_bubble_image();
         let side_a_path = fixture_path.join(format!("blank-ballot-p{starting_page_number}.jpg"));
         let side_b_path =
             fixture_path.join(format!("blank-ballot-p{}.jpg", starting_page_number + 1));
