@@ -393,7 +393,11 @@ function PollWorkerScreenContents({
     isContinuousExportEnabled && usbDriveStatus.status !== 'mounted';
 
   const pollsCloseTime = systemSettings.electionDayPollsCloseTime
-    ? DateTime.fromISO(systemSettings.electionDayPollsCloseTime)
+    ? DateTime.fromISO(
+        `${electionDefinition.election.date.toISOString()}T${
+          systemSettings.electionDayPollsCloseTime
+        }`
+      )
     : undefined;
 
   const isClosingPollsBlocked =

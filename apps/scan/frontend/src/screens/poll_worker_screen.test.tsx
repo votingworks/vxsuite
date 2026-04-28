@@ -1194,9 +1194,9 @@ test('Signed hash validation', async () => {
 });
 
 describe('election day polls close time enforcement', () => {
-  const POLLS_CLOSE_TIME = '2026-11-03T20:00:00';
-  const BEFORE_CLOSE_TIME = new Date('2026-11-03T19:59:00');
-  const AFTER_CLOSE_TIME = new Date('2026-11-03T20:01:00');
+  const POLLS_CLOSE_TIME = '20:00:00';
+  const BEFORE_CLOSE_TIME = new Date('2021-06-06T19:59:00');
+  const AFTER_CLOSE_TIME = new Date('2021-06-06T20:01:00');
 
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
