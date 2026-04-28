@@ -12,6 +12,7 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { assertDefined } from '@votingworks/basics';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -44,6 +45,7 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
+  setPollingPlacesEnabled(false);
 });
 
 let server: Server | undefined;
@@ -75,6 +77,44 @@ test('getAuthStatus', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
+    electionKey,
+    jurisdiction,
+    machineType,
+    isConfigured: true,
+  });
+});
+
+test('getAuthStatus - configured state is based on polling place selection', async () => {
+  setPollingPlacesEnabled(true);
+
+  const env = buildTestEnvironment();
+  server = env.server;
+  const { apiClient, auth, mockUsbDrive } = env;
+
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  await apiClient.getAuthStatus();
+  expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
+    electionKey,
+    jurisdiction,
+    machineType,
+    isConfigured: false,
+  });
+
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+
+  await apiClient.getAuthStatus();
+  expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     electionKey,
     jurisdiction,
@@ -173,3 +213,12 @@ test('updateSessionExpiry', async () => {
     { sessionExpiresAt: expect.any(Date) }
   );
 });
+
+function setPollingPlacesEnabled(enabled: boolean) {
+  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
+  if (enabled) {
+    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
+  } else {
+    mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
+  }
+}

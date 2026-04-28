@@ -9,7 +9,7 @@ import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { BaseLogger, LoggingUserRole } from '@votingworks/logging';
 import {
   isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
+  BooleanEnvironmentVariableName as Feature,
   isIntegrationTest,
 } from '@votingworks/utils';
 import { Workspace } from './workspace';
@@ -19,8 +19,7 @@ import { Store } from '../store';
 export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {
   return new DippedSmartCardAuth({
     card:
-      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-      isIntegrationTest()
+      isFeatureFlagEnabled(Feature.USE_MOCK_CARDS) || isIntegrationTest()
         ? new MockFileCard()
         : new JavaCard(),
     config: {
@@ -43,13 +42,17 @@ export function constructAuthMachineState(
   const machineType = 'print';
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   const jurisdiction = store.getJurisdiction();
-  const requiresPrecinctSelection = store.getPrecinctSelection() === undefined;
+
+  const locationConfigured = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
+    ? !!store.getPollingPlaceId()
+    : !!store.getPrecinctSelection();
+
   return {
     ...systemSettings.auth,
     electionKey,
     jurisdiction,
     machineType,
-    isConfigured: !!electionKey && !requiresPrecinctSelection,
+    isConfigured: !!electionKey && locationConfigured,
   };
 }
 
