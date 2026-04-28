@@ -2,6 +2,7 @@ import { useContext } from 'react';
 
 import { ReviewPage } from '@votingworks/mark-flow-ui';
 import { useHistory, useLocation } from 'react-router-dom';
+import { assertDefined } from '@votingworks/basics';
 
 import { BallotContext } from '../contexts/ballot_context';
 import { useVoterHelpScreen } from './use_voter_help_screen';
@@ -22,7 +23,7 @@ export function ReviewScreen(): JSX.Element {
     <ReviewPage
       backUrl={backUrl}
       contests={contests}
-      electionDefinition={electionDefinition}
+      electionDefinition={assertDefined(electionDefinition)}
       precinctId={precinctId}
       ballotStyleId={ballotStyleId}
       printScreenUrl="/print"

@@ -2,6 +2,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
+  Caption,
+  electionStrings,
+  Font,
   LinkButton,
   H1,
   WithScrollButtons,
@@ -12,11 +15,12 @@ import {
   AssistiveTechInstructions,
 } from '@votingworks/ui';
 
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 
 import {
   BallotStyleId,
   ElectionDefinition,
+  PartyId,
   PrecinctId,
   VotesDict,
   getBallotStyle,
@@ -29,16 +33,26 @@ const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
 `;
 
+const PartyRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+`;
+
 export interface ReviewPageProps {
   backUrl?: string;
   contests: ContestsWithMsEitherNeither;
-  electionDefinition?: ElectionDefinition;
+  electionDefinition: ElectionDefinition;
   precinctId?: PrecinctId;
   ballotStyleId?: BallotStyleId;
   printScreenUrl: string;
   returnToContest?: ReviewProps['returnToContest'];
   votes: VotesDict;
   VoterHelpScreen?: VoterHelpScreenType;
+  selectedPartyId?: PartyId;
+  partySelectionScreenUrl?: string;
 }
 
 export function ReviewPage(props: ReviewPageProps): JSX.Element {
@@ -52,12 +66,10 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     returnToContest,
     votes,
     VoterHelpScreen,
+    selectedPartyId,
+    partySelectionScreenUrl,
   } = props;
 
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render ReviewPage'
-  );
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render ReviewPage'
@@ -66,8 +78,9 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     typeof ballotStyleId !== 'undefined',
     'ballotStyleId is required to render ReviewPage'
   );
+  const { election } = electionDefinition;
   const ballotStyle = getBallotStyle({
-    election: electionDefinition.election,
+    election,
     ballotStyleId,
   });
   assert(ballotStyle, `Ballot style with id ${ballotStyleId} not found`);
@@ -122,9 +135,29 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           />
         </AudioOnly>
       </ContentHeader>
+      {partySelectionScreenUrl && (
+        <PartyRow>
+          <div>
+            <Caption>Party</Caption>
+            <div>
+              <Font weight="bold">
+                {electionStrings.partyFullName(
+                  find(
+                    election.parties,
+                    (party) => party.id === assertDefined(selectedPartyId)
+                  )
+                )}
+              </Font>
+            </div>
+          </div>
+          <LinkButton icon="Edit" to={partySelectionScreenUrl}>
+            Change Party
+          </LinkButton>
+        </PartyRow>
+      )}
       <WithScrollButtons>
         <Review
-          election={electionDefinition.election}
+          election={election}
           contests={contests}
           precinctId={precinctId}
           votes={votes}
