@@ -24,6 +24,8 @@ import {
   faGear,
   faBan,
   faCheckSquare as faCheckSquareSolid,
+  faCircle as faCircleSolid,
+  faSquare as faSquareSolid,
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
@@ -64,11 +66,13 @@ import {
   faMouse,
   faPause,
   faPencil,
+  faPenToSquare,
   faPlay,
   faPowerOff,
   faPrint,
   faRotateRight,
   faSimCard,
+  faSitemap,
   faSort,
   faSortDown,
   faTowerBroadcast,
@@ -96,6 +100,7 @@ import {
   faVolumeDown,
   faClock,
   faHeadphones,
+  faUserPen,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -274,12 +279,17 @@ export const Icons = {
     return <FaIcon {...props} type={faSimCard} />;
   },
 
+  Sitemap(props) {
+    return <FaIcon {...props} type={faSitemap} />;
+  },
+
   CaretDown(props) {
     return <FaIcon {...props} type={faCaretDown} />;
   },
 
-  Circle(props) {
-    return <FaIcon {...props} type={faCircle} />;
+  Circle(props: IconProps & { filled?: boolean }) {
+    const { filled = false } = props;
+    return <FaIcon {...props} type={filled ? faCircleSolid : faCircle} />;
   },
 
   CircleDot(props) {
@@ -517,6 +527,10 @@ export const Icons = {
     return <FaIcon {...props} type={faPause} />;
   },
 
+  PenToSquare(props) {
+    return <FaIcon {...props} type={faPenToSquare} />;
+  },
+
   Print(props) {
     return <FaIcon {...props} type={faPrint} />;
   },
@@ -573,8 +587,9 @@ export const Icons = {
     return <FaIcon {...props} type={faArrowsSplitUpAndLeft} />;
   },
 
-  Square(props) {
-    return <FaIcon {...props} type={faSquare} />;
+  Square(props: IconProps & { filled?: boolean }) {
+    const { filled = false } = props;
+    return <FaIcon {...props} type={filled ? faSquareSolid : faSquare} />;
   },
 
   Strikethrough(props) {
@@ -599,6 +614,10 @@ export const Icons = {
 
   UsbDrive(props) {
     return <FaIcon {...props} type={faUsb} />;
+  },
+
+  UserPen(props) {
+    return <FaIcon {...props} type={faUserPen} />;
   },
 
   VolumeDown(props) {
