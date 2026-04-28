@@ -1,8 +1,20 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { format, getLanguageOptions } from '@votingworks/utils';
-import { BallotType, hasSplits, Id, LanguageCode } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName as Feature,
+  format,
+  getLanguageOptions,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import {
+  BallotType,
+  hasSplits,
+  Id,
+  LanguageCode,
+  pollingPlaceFromElection,
+  pollingPlacePrecinctIds,
+} from '@votingworks/types';
 import {
   Button,
   RadioGroup,
@@ -11,13 +23,14 @@ import {
   Modal,
   Loading,
 } from '@votingworks/ui';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';
 import {
   getDeviceStatuses,
   getElectionRecord,
+  getPollingPlaceId,
   getPrecinctSelection,
   printBallot,
 } from '../api';
@@ -125,16 +138,36 @@ export function PrintScreen({
   const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const configuredPrecinct = getConfiguredPrecinctQuery.data;
+  const pollingPlaceId = getPollingPlaceId.useQuery().data;
 
   const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
 
-  // Default to the configured precinct. Election Managers are still
-  // able to select other precincts.
-  useEffect(() => {
-    if (configuredPrecinct?.kind === 'SinglePrecinct') {
-      setSelectedPrecinctId(configuredPrecinct.precinctId);
+  const precincts = React.useMemo(() => {
+    if (!getElectionRecordQuery.data) return [];
+
+    const { election } = getElectionRecordQuery.data.electionDefinition;
+
+    if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
+      if (configuredPrecinct?.kind === 'SinglePrecinct') {
+        const { precinctId } = configuredPrecinct;
+        return [find(election.precincts, (p) => p.id === precinctId)];
+      }
+
+      return election.precincts;
     }
-  }, [configuredPrecinct]);
+
+    if (!pollingPlaceId) return election.precincts;
+
+    const place = pollingPlaceFromElection(election, pollingPlaceId);
+    const precinctIds = pollingPlacePrecinctIds(place);
+
+    return election.precincts.filter((p) => precinctIds.has(p.id));
+  }, [configuredPrecinct, getElectionRecordQuery.data, pollingPlaceId]);
+
+  if (!selectedPrecinctId && precincts.length > 0) {
+    const defaultSelection = precincts[0].id;
+    setSelectedPrecinctId(defaultSelection);
+  }
 
   if (
     !getElectionRecordQuery.isSuccess ||
@@ -151,7 +184,6 @@ export function PrintScreen({
   const hideLanguageSelection = languages.length === 1;
 
   const parties = getPartyOptions(election);
-  const { precincts } = election;
   const { printer } = getDeviceStatusesQuery.data;
   const hidePartySelection = election.type !== 'primary';
 
@@ -208,43 +240,23 @@ export function PrintScreen({
               }}
             >
               <strong>Precinct</strong>
-              {hidePrecinctSelection ? (
-                /* We still show the ExpandedSelect for ui consistency, but lock it to the configured precinct */
-                <ExpandedSelect
-                  selectedValue={configuredPrecinct.precinctId}
-                  options={[
-                    {
-                      value: configuredPrecinct.precinctId,
-                      label: assertDefined(
-                        precincts.find(
-                          (p) => p.id === configuredPrecinct.precinctId
-                        )
-                      ).name,
-                    },
-                  ]}
-                  onSelect={() => null}
-                />
-              ) : (
-                <ExpandedSelect
-                  selectedValue={selectedPrecinctId}
-                  options={precincts
-                    .map((p) => ({ value: p.id, label: p.name }))
-                    .filter(
-                      (o) =>
-                        !searchValue ||
-                        o.label
-                          .toLowerCase()
-                          .includes(searchValue.toLowerCase())
-                    )}
-                  onSearch={setSearchValue}
-                  onSelect={(value) => {
-                    if (value !== selectedPrecinctId) {
-                      setSelectedPrecinctId(value);
-                      setSelectedSplitId('');
-                    }
-                  }}
-                />
-              )}
+              <ExpandedSelect
+                selectedValue={selectedPrecinctId}
+                options={precincts
+                  .filter(
+                    (p) =>
+                      !searchValue ||
+                      p.name.toLowerCase().includes(searchValue.toLowerCase())
+                  )
+                  .map((p) => ({ value: p.id, label: p.name }))}
+                onSearch={setSearchValue}
+                onSelect={(value) => {
+                  if (value !== selectedPrecinctId) {
+                    setSelectedPrecinctId(value);
+                    setSelectedSplitId('');
+                  }
+                }}
+              />
             </FormSection>
             {hideSplitSelection ? null : (
               <FormSection>
