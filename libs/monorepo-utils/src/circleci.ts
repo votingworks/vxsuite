@@ -306,7 +306,7 @@ version: 2.1
 setup: true
 
 orbs:
-  path-filtering: circleci/path-filtering@1
+  path-filtering: circleci/path-filtering@2
 
 executors:
   nodejs:
