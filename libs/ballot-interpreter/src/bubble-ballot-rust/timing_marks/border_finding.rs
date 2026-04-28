@@ -1,3 +1,5 @@
+use std::{fmt::Display, str::FromStr};
+
 use crate::{
     ballot_card::Geometry,
     draw_utils::draw_filled_rect_mut,
@@ -6,12 +8,15 @@ use crate::{
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
-        corner_finding::BallotGridCorners, mark_finding::BallotGridCandidateMarks,
-        util::mark_distances_to_point, Border, CandidateTimingMark, DefaultForGeometry,
+        corner_finding::BallotGridCorners,
+        mark_finding::BallotGridCandidateMarks,
+        util::{mark_distances_to_point, CornerWise},
+        Border, CandidateTimingMark, DefaultForGeometry,
     },
 };
 use image::RgbImage;
 use itertools::Itertools;
+use serde::{de::IntoDeserializer, Deserialize, Serialize};
 use types_rs::geometry::{Segment, SubPixelUnit};
 
 /// Represents the four borders of a ballot grid.
@@ -29,6 +34,28 @@ impl BallotGridBorders {
     #[allow(clippy::result_large_err)]
     #[allow(clippy::missing_errors_doc)]
     pub fn find_all(
+        geometry: &Geometry,
+        corners: &BallotGridCorners,
+        candidates: &BallotGridCandidateMarks,
+        grid_strategy: GridStrategy,
+        options: &Options,
+    ) -> Result<Self, Error> {
+        match grid_strategy {
+            GridStrategy::FullBorders => {
+                Self::find_all_with_full_border(geometry, corners, candidates, options)
+            }
+            GridStrategy::CornersOnly => {
+                Self::find_all_using_only_corners(geometry, corners, options)
+            }
+        }
+    }
+
+    /// Finds the ballot grid borders using all timing marks along each border.
+    /// Each border is the sequence of marks between two corners, validated
+    /// against the expected center-to-center spacing.
+    #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc)]
+    fn find_all_with_full_border(
         geometry: &Geometry,
         corners: &BallotGridCorners,
         candidates: &BallotGridCandidateMarks,
@@ -144,6 +171,84 @@ impl BallotGridBorders {
         })
     }
 
+    /// Builds borders consisting only of the four corner groupings: each
+    /// border is the two corner marks at its ends plus the two adjacent
+    /// "row"/"column" marks one step in from each corner. No interior marks
+    /// are read, so this strategy works on ballots that have only corner
+    /// timing marks printed. Validates that the row/column marks are within
+    /// the expected center-to-center distance from their corners.
+    #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc)]
+    fn find_all_using_only_corners(
+        geometry: &Geometry,
+        ballot_grid_corners: &BallotGridCorners,
+        options: &Options,
+    ) -> Result<Self, Error> {
+        let max_row_distance = geometry.vertical_timing_mark_center_to_center_pixel_distance()
+            * (1.0 + options.maximum_vertical_timing_mark_center_distance_error_ratio);
+        let max_column_distance = geometry.horizontal_timing_mark_center_to_center_pixel_distance()
+            * (1.0 + options.maximum_horizontal_timing_mark_center_distance_error_ratio);
+
+        for corner in ballot_grid_corners.corners() {
+            let grouping = corner.best_corner_grouping();
+            let corner_mark_center = grouping.corner_mark().rect().center();
+            let row_distance = corner_mark_center.distance_to(&grouping.row_mark().rect().center());
+            let column_distance =
+                corner_mark_center.distance_to(&grouping.column_mark().rect().center());
+
+            if row_distance > max_row_distance || column_distance > max_column_distance {
+                return Err(Error::MissingTimingMarks {
+                    reason: format!(
+                        "Corner mark too far from its neighbors: row distance = {row_distance} \
+                         (max: {max_row_distance}), column distance = {column_distance} \
+                         (max: {max_column_distance}), corner mark center = {corner_mark_center:?}"
+                    ),
+                });
+            }
+        }
+
+        let [top_left, top_right, bottom_left, bottom_right] = ballot_grid_corners.corners();
+
+        Ok(Self {
+            left: GridBorder {
+                border: Border::Left,
+                marks: vec![
+                    *top_left.best_corner_grouping().corner_mark(),
+                    *top_left.best_corner_grouping().column_mark(),
+                    *bottom_left.best_corner_grouping().column_mark(),
+                    *bottom_left.best_corner_grouping().corner_mark(),
+                ],
+            },
+            right: GridBorder {
+                border: Border::Right,
+                marks: vec![
+                    *top_right.best_corner_grouping().corner_mark(),
+                    *top_right.best_corner_grouping().column_mark(),
+                    *bottom_right.best_corner_grouping().column_mark(),
+                    *bottom_right.best_corner_grouping().corner_mark(),
+                ],
+            },
+            top: GridBorder {
+                border: Border::Top,
+                marks: vec![
+                    *top_left.best_corner_grouping().corner_mark(),
+                    *top_left.best_corner_grouping().row_mark(),
+                    *top_right.best_corner_grouping().row_mark(),
+                    *top_right.best_corner_grouping().corner_mark(),
+                ],
+            },
+            bottom: GridBorder {
+                border: Border::Bottom,
+                marks: vec![
+                    *bottom_left.best_corner_grouping().corner_mark(),
+                    *bottom_left.best_corner_grouping().row_mark(),
+                    *bottom_right.best_corner_grouping().row_mark(),
+                    *bottom_right.best_corner_grouping().corner_mark(),
+                ],
+            },
+        })
+    }
+
     pub fn debug_draw(&self, canvas: &mut RgbImage) {
         for (mark, color) in self
             .left
@@ -249,5 +354,67 @@ impl DefaultForGeometry for Options {
             maximum_horizontal_timing_mark_center_distance_error_ratio: 0.5,
             min_border_timing_mark_score: UnitIntervalScore(0.8),
         }
+    }
+}
+
+/// Determines how the timing mark grid is reconstructed from the candidate
+/// timing marks. `FullBorders` reads every mark along all four borders;
+/// `CornersOnly` uses only the four corner groupings and is appropriate for
+/// ballots that print only corner timing marks. `CornersOnly` is faster but
+/// less robust: a single bad corner detection skews the entire grid.
+#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum GridStrategy {
+    #[default]
+    FullBorders,
+    CornersOnly,
+}
+
+impl GridStrategy {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::FullBorders => "full-borders",
+            Self::CornersOnly => "corners-only",
+        }
+    }
+}
+
+impl FromStr for GridStrategy {
+    type Err = serde::de::value::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::deserialize(s.into_deserializer())
+    }
+}
+
+impl Display for GridStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn grid_strategy_round_trips_through_display() {
+        for variant in [GridStrategy::FullBorders, GridStrategy::CornersOnly] {
+            let rendered = variant.to_string();
+            let reparsed: GridStrategy = rendered.parse().unwrap();
+            assert!(matches!(
+                (variant, reparsed),
+                (GridStrategy::FullBorders, GridStrategy::FullBorders)
+                    | (GridStrategy::CornersOnly, GridStrategy::CornersOnly)
+            ));
+        }
+    }
+
+    #[test]
+    fn grid_strategy_from_str_rejects_unknown_values() {
+        assert!("nope".parse::<GridStrategy>().is_err());
+        assert!("FullBorders".parse::<GridStrategy>().is_err()); // PascalCase isn't accepted
+        assert!("".parse::<GridStrategy>().is_err());
     }
 }

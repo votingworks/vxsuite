@@ -2,9 +2,12 @@
 
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
-use ballot_interpreter::interpret::{
-    ScanInterpreter, VerticalStreakDetection, WriteInScoring, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-    DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+use ballot_interpreter::{
+    interpret::{
+        ScanInterpreter, VerticalStreakDetection, WriteInScoring,
+        DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    },
+    timing_marks::border_finding::GridStrategy,
 };
 use divan::{black_box, Bencher};
 use image::GrayImage;
@@ -42,6 +45,7 @@ impl InterpretFixture {
             None,
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+            GridStrategy::default(),
         );
         let side_a_path = fixture_path
             .join(self.election)
