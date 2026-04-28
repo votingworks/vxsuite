@@ -126,9 +126,11 @@ test('open primary review screen shows party row and links to party selection', 
     selectedPartyId: 'democratic-party' as PartyId,
   });
 
-  // Party row shows the selected party.
-  screen.getByText('Party');
-  screen.getByText('Democratic Party');
+  // Party row shows the selected party. Each label appears twice: once
+  // in the visible caption and once in the audio context provided by
+  // WithAltAudio inside the change-party button.
+  expect(screen.getAllByText('Party')).toHaveLength(2);
+  expect(screen.getAllByText('Democratic Party')).toHaveLength(2);
 
   userEvent.click(screen.getButton(/change party/i));
   expect(history.location.pathname).toEqual('/party-selection');

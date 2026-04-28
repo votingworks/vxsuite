@@ -102,6 +102,18 @@ export const appStrings = {
     </UiString>
   ),
 
+  buttonBmdReviewPartyAction: () => (
+    <UiString uiStringKey="buttonBmdReviewPartyAction">
+      Press the select button to change your party.
+    </UiString>
+  ),
+
+  buttonBmdReviewPartyActionPatDevice: () => (
+    <UiString uiStringKey="buttonBmdReviewPartyActionPatDevice">
+      Use the select input to change your party.
+    </UiString>
+  ),
+
   buttonBmdSkipPatCalibration: () => (
     <UiString uiStringKey="buttonBmdSkipPatCalibration">
       Skip Identification
@@ -1040,6 +1052,12 @@ export const appStrings = {
       You've completed your selections on this contest. Press the right arrow
       button to advance to the next contest. You may continue navigating in this
       contest to change your selections.
+    </UiString>
+  ),
+
+  noteBmdPartySelectionCompleted: () => (
+    <UiString uiStringKey="noteBmdPartySelectionCompleted">
+      Press the right arrow button to advance to the first contest.
     </UiString>
   ),
 

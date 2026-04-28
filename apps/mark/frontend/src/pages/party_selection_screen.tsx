@@ -4,6 +4,7 @@ import { assertDefined } from '@votingworks/basics';
 import { PartyId } from '@votingworks/types';
 import {
   appStrings,
+  AudioOnly,
   Button,
   Caption,
   electionStrings,
@@ -13,6 +14,7 @@ import {
   P,
   PageNavigationButtonId,
   RadioGroup,
+  ReadOnLoad,
   WithScrollButtons,
 } from '@votingworks/ui';
 import { useIsReviewMode, VoterScreen } from '@votingworks/mark-flow-ui';
@@ -85,17 +87,34 @@ export function PartySelectionScreen(): JSX.Element {
       }
     >
       <Header>
-        <H2>{appStrings.titleBmdPartySelectionScreen()}</H2>
-        <Caption>{appStrings.instructionsBmdPartySelection()}</Caption>
+        <ReadOnLoad>
+          <H2>{appStrings.titleBmdPartySelectionScreen()}</H2>
+          <Caption>{appStrings.instructionsBmdPartySelection()}</Caption>
+        </ReadOnLoad>
       </Header>
       <WithScrollButtons>
         <OptionRadioGroup
           label="Party"
           hideLabel
-          options={election.parties.map((party) => ({
-            value: party.id,
-            label: electionStrings.partyFullName(party),
-          }))}
+          options={election.parties.map((party) => {
+            const isSelected = party.id === selectedPartyId;
+            return {
+              value: party.id,
+              label: (
+                <React.Fragment>
+                  {isSelected && (
+                    <AudioOnly>{appStrings.labelSelected()}</AudioOnly>
+                  )}
+                  {electionStrings.partyFullName(party)}
+                  {isSelected && !isReviewMode && (
+                    <AudioOnly>
+                      {appStrings.noteBmdPartySelectionCompleted()}
+                    </AudioOnly>
+                  )}
+                </React.Fragment>
+              ),
+            };
+          })}
           value={selectedPartyId}
           onChange={handleSelect}
         />
@@ -108,6 +127,7 @@ export function PartySelectionScreen(): JSX.Element {
             <React.Fragment>
               <Button
                 variant="primary"
+                autoFocus
                 onPress={() => {
                   selectParty(partyIdToConfirm);
                   setPartyIdToConfirm(undefined);

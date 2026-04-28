@@ -13,6 +13,7 @@ import {
   ReadOnLoad,
   PageNavigationButtonId,
   AssistiveTechInstructions,
+  WithAltAudio,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -112,6 +113,10 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     </LinkButton>
   ) : undefined;
 
+  const selectedParty = selectedPartyId
+    ? find(election.parties, (p) => p.id === selectedPartyId)
+    : undefined;
+
   return (
     <VoterScreen
       actionButtons={
@@ -135,23 +140,31 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           />
         </AudioOnly>
       </ContentHeader>
-      {partySelectionScreenUrl && (
+      {selectedParty && (
         <PartyRow>
           <div>
             <Caption>{appStrings.labelParty()}</Caption>
             <div>
               <Font weight="bold">
-                {electionStrings.partyFullName(
-                  find(
-                    election.parties,
-                    (party) => party.id === assertDefined(selectedPartyId)
-                  )
-                )}
+                {electionStrings.partyFullName(selectedParty)}
               </Font>
             </div>
           </div>
-          <LinkButton icon="Edit" to={partySelectionScreenUrl}>
-            {appStrings.buttonChangeParty()}
+          <LinkButton icon="Edit" to={assertDefined(partySelectionScreenUrl)}>
+            <WithAltAudio
+              audioText={
+                <React.Fragment>
+                  {appStrings.labelParty()}:
+                  {electionStrings.partyFullName(selectedParty)}.
+                  <AssistiveTechInstructions
+                    controllerString={appStrings.buttonBmdReviewPartyAction()}
+                    patDeviceString={appStrings.buttonBmdReviewPartyActionPatDevice()}
+                  />
+                </React.Fragment>
+              }
+            >
+              {appStrings.buttonChangeParty()}
+            </WithAltAudio>
           </LinkButton>
         </PartyRow>
       )}
