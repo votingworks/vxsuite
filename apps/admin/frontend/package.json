@@ -86,7 +86,7 @@
     "styled-components": "^5.3.11",
     "use-interval": "1.4.0",
     "util": "^0.12.4",
-    "uuid": "9.0.1",
+    "uuid": "14.0.0",
     "zod": "3.25.42"
   },
   "devDependencies": {
