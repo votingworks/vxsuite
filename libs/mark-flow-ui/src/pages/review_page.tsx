@@ -138,7 +138,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
       {partySelectionScreenUrl && (
         <PartyRow>
           <div>
-            <Caption>Party</Caption>
+            <Caption>{appStrings.labelParty()}</Caption>
             <div>
               <Font weight="bold">
                 {electionStrings.partyFullName(
@@ -151,7 +151,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
             </div>
           </div>
           <LinkButton icon="Edit" to={partySelectionScreenUrl}>
-            Change Party
+            {appStrings.buttonChangeParty()}
           </LinkButton>
         </PartyRow>
       )}

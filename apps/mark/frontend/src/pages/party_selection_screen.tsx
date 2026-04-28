@@ -6,6 +6,7 @@ import {
   appStrings,
   Button,
   Caption,
+  electionStrings,
   H2,
   LinkButton,
   Modal,
@@ -68,7 +69,7 @@ export function PartySelectionScreen(): JSX.Element {
               id={PageNavigationButtonId.PREVIOUS}
               to="/"
             >
-              Back
+              {appStrings.buttonBack()}
             </LinkButton>
             <LinkButton
               rightIcon="Next"
@@ -77,18 +78,15 @@ export function PartySelectionScreen(): JSX.Element {
               to={selectedPartyId ? '/contests/0' : undefined}
               disabled={!selectedPartyId}
             >
-              Next
+              {appStrings.buttonNext()}
             </LinkButton>
           </React.Fragment>
         )
       }
     >
       <Header>
-        <H2>Choose Your Party</H2>
-        <Caption>
-          You will be able to vote for your party&apos;s contests and any
-          nonpartisan contests.
-        </Caption>
+        <H2>{appStrings.titleBmdPartySelectionScreen()}</H2>
+        <Caption>{appStrings.instructionsBmdPartySelection()}</Caption>
       </Header>
       <WithScrollButtons>
         <OptionRadioGroup
@@ -96,7 +94,7 @@ export function PartySelectionScreen(): JSX.Element {
           hideLabel
           options={election.parties.map((party) => ({
             value: party.id,
-            label: party.fullName,
+            label: electionStrings.partyFullName(party),
           }))}
           value={selectedPartyId}
           onChange={handleSelect}
@@ -104,8 +102,8 @@ export function PartySelectionScreen(): JSX.Element {
       </WithScrollButtons>
       {partyIdToConfirm && (
         <Modal
-          title="Confirm Party Change"
-          content={<P>Changing your party will clear all of your votes.</P>}
+          title={appStrings.titleBmdConfirmPartyChange()}
+          content={<P>{appStrings.warningBmdPartyChangeClearsVotes()}</P>}
           actions={
             <React.Fragment>
               <Button
@@ -116,10 +114,10 @@ export function PartySelectionScreen(): JSX.Element {
                   setIsReviewMode(false);
                 }}
               >
-                Change Party
+                {appStrings.buttonChangeParty()}
               </Button>
               <Button onPress={() => setPartyIdToConfirm(undefined)}>
-                Cancel
+                {appStrings.buttonCancel()}
               </Button>
             </React.Fragment>
           }

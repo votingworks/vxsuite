@@ -116,6 +116,10 @@ export const appStrings = {
 
   buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
 
+  buttonChangeParty: () => (
+    <UiString uiStringKey="buttonChangeParty">Change Party</UiString>
+  ),
+
   buttonClose: () => <UiString uiStringKey="buttonClose">Close</UiString>,
 
   buttonContinue: () => (
@@ -423,6 +427,13 @@ export const appStrings = {
   instructionsBmdPaperJam: () => (
     <UiString uiStringKey="instructionsBmdPaperJam">
       Please alert a poll worker to clear the jam.
+    </UiString>
+  ),
+
+  instructionsBmdPartySelection: () => (
+    <UiString uiStringKey="instructionsBmdPartySelection">
+      You will be able to vote for your party's contests and any nonpartisan
+      contests.
     </UiString>
   ),
 
@@ -865,6 +876,8 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelParty: () => <UiString uiStringKey="labelParty">Party</UiString>,
+
   labelRateOfSpeech: () => (
     <UiString uiStringKey="labelRateOfSpeech">Rate of Speech:</UiString>
   ),
@@ -1273,6 +1286,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleBmdConfirmPartyChange: () => (
+    <UiString uiStringKey="titleBmdConfirmPartyChange">
+      Confirm Party Change
+    </UiString>
+  ),
+
   titleBmdIdleScreen: () => (
     <UiString uiStringKey="titleBmdIdleScreen">Are you still voting?</UiString>
   ),
@@ -1312,6 +1331,12 @@ export const appStrings = {
   titleBmdLoadingReinsertedBallotScreen: () => (
     <UiString uiStringKey="titleBmdLoadingReinsertedBallotScreen">
       Loading your ballot...
+    </UiString>
+  ),
+
+  titleBmdPartySelectionScreen: () => (
+    <UiString uiStringKey="titleBmdPartySelectionScreen">
+      Choose Your Party
     </UiString>
   ),
 
@@ -1624,6 +1649,12 @@ export const appStrings = {
   warningBmdInvalidBallotWrongPrecinct: () => (
     <UiString uiStringKey="warningBmdInvalidBallotWrongPrecinct">
       The inserted sheet is a ballot for a different precinct.
+    </UiString>
+  ),
+
+  warningBmdPartyChangeClearsVotes: () => (
+    <UiString uiStringKey="warningBmdPartyChangeClearsVotes">
+      Changing your party will clear all of your votes.
     </UiString>
   ),
 
