@@ -20,6 +20,7 @@ import {
   getCandidateVoteSortedForBallotStyleRotation,
   getContests,
   getPartyForBallotStyle,
+  isOpenPrimary,
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
@@ -424,6 +425,11 @@ const ContestTitle = styled.div`
   margin-bottom: 0.25em;
 `;
 
+const ContestParty = styled.div`
+  font-size: 0.75em;
+  margin-bottom: 0.1em;
+`;
+
 const VoteLine = styled.span`
   display: block;
 
@@ -750,6 +756,8 @@ export function BmdPaperBallot({
 
   const numColumns = Math.ceil(contests.length / ballotLayout.maxRows);
 
+  const isOpenPrimaryElection = isOpenPrimary(election);
+
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
       <Ballot sheetSize={sheetSize} aria-hidden>
@@ -860,44 +868,62 @@ export function BmdPaperBallot({
         </Header>
         <Content layout={ballotLayout}>
           <BallotSelections numColumns={numColumns}>
-            {contests.map((contest) => (
-              <Contest key={contest.id}>
-                <ContestTitle>
-                  <DualLanguageText
-                    primaryLanguage={primaryBallotLanguage}
-                    englishTextWrapper={AdjacentText}
-                  >
-                    <InlineBlockSpan>
-                      {electionStrings.contestTitle(contest)}
-                      {contest.type === 'candidate' &&
-                        contest.termDescription && (
-                          <React.Fragment>
-                            {' '}
-                            | {electionStrings.contestTerm(contest)}
-                          </React.Fragment>
-                        )}
-                    </InlineBlockSpan>
-                  </DualLanguageText>
-                </ContestTitle>
-                {contest.type === 'candidate' && (
-                  <CandidateContestResult
-                    contest={contest}
-                    election={election}
-                    layout={ballotLayout}
-                    primaryBallotLanguage={primaryBallotLanguage}
-                    vote={votes[contest.id] as CandidateVote}
-                    ballotStyle={ballotStyle}
-                  />
-                )}
-                {contest.type === 'yesno' && (
-                  <YesNoContestResult
-                    contest={contest}
-                    primaryBallotLanguage={primaryBallotLanguage}
-                    vote={votes[contest.id] as YesNoVote}
-                  />
-                )}
-              </Contest>
-            ))}
+            {contests.map((contest) => {
+              const contestParty =
+                isOpenPrimaryElection &&
+                contest.type === 'candidate' &&
+                contest.partyId
+                  ? find(election.parties, (p) => p.id === contest.partyId)
+                  : undefined;
+              return (
+                <Contest key={contest.id}>
+                  {contestParty && (
+                    <ContestParty>
+                      <DualLanguageText
+                        primaryLanguage={primaryBallotLanguage}
+                        englishTextWrapper={AdjacentText}
+                      >
+                        {electionStrings.partyName(contestParty)}
+                      </DualLanguageText>
+                    </ContestParty>
+                  )}
+                  <ContestTitle>
+                    <DualLanguageText
+                      primaryLanguage={primaryBallotLanguage}
+                      englishTextWrapper={AdjacentText}
+                    >
+                      <InlineBlockSpan>
+                        {electionStrings.contestTitle(contest)}
+                        {contest.type === 'candidate' &&
+                          contest.termDescription && (
+                            <React.Fragment>
+                              {' '}
+                              | {electionStrings.contestTerm(contest)}
+                            </React.Fragment>
+                          )}
+                      </InlineBlockSpan>
+                    </DualLanguageText>
+                  </ContestTitle>
+                  {contest.type === 'candidate' && (
+                    <CandidateContestResult
+                      contest={contest}
+                      election={election}
+                      layout={ballotLayout}
+                      primaryBallotLanguage={primaryBallotLanguage}
+                      vote={votes[contest.id] as CandidateVote}
+                      ballotStyle={ballotStyle}
+                    />
+                  )}
+                  {contest.type === 'yesno' && (
+                    <YesNoContestResult
+                      contest={contest}
+                      primaryBallotLanguage={primaryBallotLanguage}
+                      vote={votes[contest.id] as YesNoVote}
+                    />
+                  )}
+                </Contest>
+              );
+            })}
           </BallotSelections>
         </Content>
       </Ballot>
