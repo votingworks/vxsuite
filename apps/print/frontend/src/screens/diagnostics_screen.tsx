@@ -1,9 +1,9 @@
 import {
   PrintReadinessReportContents,
   SaveReadinessReportButton,
+  Loading,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Loading } from '@votingworks/ui';
 import { ScreenWrapper } from '../components/screen_wrapper';
 import { TitleBar } from '../components/title_bar';
 import {
@@ -12,6 +12,7 @@ import {
   getDiskSpaceSummary,
   saveReadinessReport,
   getElectionRecord,
+  getPollingPlaceId,
 } from '../api';
 import { PrintTestPageButton } from '../components/print_test_page_button';
 
@@ -36,11 +37,13 @@ export function DiagnosticsScreen({
   const diagnosticRecordQuery = getMostRecentPrinterDiagnostic.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const electionRecordQuery = getElectionRecord.useQuery();
+  const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
 
   if (
     !deviceStatusesQuery.isSuccess ||
     !diagnosticRecordQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
+    !pollingPlaceIdQuery.isSuccess ||
     !electionRecordQuery.isSuccess
   ) {
     return (
@@ -59,6 +62,7 @@ export function DiagnosticsScreen({
   const diskSpaceSummary = diskSpaceQuery.data;
   const mostRecentPrinterDiagnostic = diagnosticRecordQuery.data ?? undefined;
   const electionRecord = electionRecordQuery.data;
+  const pollingPlaceId = pollingPlaceIdQuery.data;
 
   return (
     <ScreenWrapper authType={authType}>
@@ -74,6 +78,7 @@ export function DiagnosticsScreen({
               electionDefinition={electionRecord?.electionDefinition}
               electionPackageHash={electionRecord?.electionPackageHash}
               printerDiagnosticUi={<PrintTestPageButton />}
+              pollingPlaceId={pollingPlaceId || undefined}
             />
           </div>
           <SaveReadinessReportButton

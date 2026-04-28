@@ -17,6 +17,7 @@ import { routeMap } from '../routes';
 import {
   getElectionRecord,
   getMachineConfig,
+  getPollingPlaceId,
   getPrecinctSelection,
 } from '../api';
 
@@ -33,11 +34,13 @@ export function ScreenWrapper({
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+  const getPollingPlaceIdQuery = getPollingPlaceId.useQuery();
 
   if (
     !getElectionRecordQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
-    !getPrecinctSelectionQuery.isSuccess
+    !getPrecinctSelectionQuery.isSuccess ||
+    !getPollingPlaceIdQuery.isSuccess
   ) {
     return null;
   }
@@ -45,6 +48,7 @@ export function ScreenWrapper({
   const electionRecord = getElectionRecordQuery.data;
   const machineConfig = getMachineConfigQuery.data;
   const precinctSelection = getPrecinctSelectionQuery.data;
+  const pollingPlaceId = getPollingPlaceIdQuery.data;
 
   const showNavItems = electionRecord !== null || authType === 'system_admin';
 
@@ -76,6 +80,7 @@ export function ScreenWrapper({
             machineId={machineConfig.machineId}
             inverse
             precinctSelection={precinctSelection || undefined}
+            pollingPlaceId={pollingPlaceId || undefined}
           />
         </div>
       </LeftNav>
