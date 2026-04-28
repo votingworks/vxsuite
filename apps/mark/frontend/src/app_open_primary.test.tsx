@@ -114,6 +114,13 @@ test('poll worker activates session, voter picks party and walks through ballot'
     userEvent.click(screen.getButton(/next/i));
   }
   await screen.findByRole('heading', { name: /review your votes/i });
+
+  // From the review screen, "Change Party" lands on party selection in
+  // review mode with a Review button to return
+  userEvent.click(screen.getButton(/change party/i));
+  await screen.findByRole('heading', { name: 'Choose Your Party' });
+  userEvent.click(screen.getButton(/review/i));
+  await screen.findByRole('heading', { name: /review your votes/i });
 });
 
 test('switching party clears votes from the previous party', async () => {

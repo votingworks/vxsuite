@@ -23,7 +23,7 @@ export function ReviewScreen(): JSX.Element {
   const isFinalReview = !fromContest;
   const backUrl = !isFinalReview ? `/contests/${fromContest}` : undefined;
   const partySelectionScreenUrl = selectedPartyId
-    ? '/party-selection'
+    ? `/party-selection${isFinalReview ? '#review' : ''}`
     : undefined;
 
   return (

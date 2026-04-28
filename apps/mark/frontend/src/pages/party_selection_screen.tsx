@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
 import { PartyId } from '@votingworks/types';
 import {
+  appStrings,
   Button,
   Caption,
   H2,
@@ -13,7 +14,7 @@ import {
   RadioGroup,
   WithScrollButtons,
 } from '@votingworks/ui';
-import { VoterScreen } from '@votingworks/mark-flow-ui';
+import { useIsReviewMode, VoterScreen } from '@votingworks/mark-flow-ui';
 import { BallotContext } from '../contexts/ballot_context';
 
 const Header = styled.div`
@@ -31,6 +32,9 @@ export function PartySelectionScreen(): JSX.Element {
     React.useContext(BallotContext);
   const { election } = assertDefined(electionDefinition);
   const [partyIdToConfirm, setPartyIdToConfirm] = React.useState<PartyId>();
+  // Snapshot the initial review mode state so that we can flip it off if the
+  // voter changes their party
+  const [isReviewMode, setIsReviewMode] = React.useState(useIsReviewMode());
 
   function handleSelect(partyId: PartyId) {
     if (
@@ -48,24 +52,35 @@ export function PartySelectionScreen(): JSX.Element {
   return (
     <VoterScreen
       actionButtons={
-        <React.Fragment>
+        isReviewMode ? (
           <LinkButton
             icon="Previous"
-            id={PageNavigationButtonId.PREVIOUS}
-            to="/"
-          >
-            Back
-          </LinkButton>
-          <LinkButton
-            rightIcon="Next"
             id={PageNavigationButtonId.NEXT}
-            variant={selectedPartyId ? 'primary' : 'neutral'}
-            to={selectedPartyId ? '/contests/0' : undefined}
-            disabled={!selectedPartyId}
+            variant="primary"
+            to="/review"
           >
-            Next
+            {appStrings.buttonReview()}
           </LinkButton>
-        </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <LinkButton
+              icon="Previous"
+              id={PageNavigationButtonId.PREVIOUS}
+              to="/"
+            >
+              Back
+            </LinkButton>
+            <LinkButton
+              rightIcon="Next"
+              id={PageNavigationButtonId.NEXT}
+              variant={selectedPartyId ? 'primary' : 'neutral'}
+              to={selectedPartyId ? '/contests/0' : undefined}
+              disabled={!selectedPartyId}
+            >
+              Next
+            </LinkButton>
+          </React.Fragment>
+        )
       }
     >
       <Header>
@@ -89,7 +104,7 @@ export function PartySelectionScreen(): JSX.Element {
       </WithScrollButtons>
       {partyIdToConfirm && (
         <Modal
-          title="Change Party?"
+          title="Confirm Party Change"
           content={<P>Changing your party will clear all of your votes.</P>}
           actions={
             <React.Fragment>
@@ -98,6 +113,7 @@ export function PartySelectionScreen(): JSX.Element {
                 onPress={() => {
                   selectParty(partyIdToConfirm);
                   setPartyIdToConfirm(undefined);
+                  setIsReviewMode(false);
                 }}
               >
                 Change Party
