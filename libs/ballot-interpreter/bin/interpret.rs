@@ -13,6 +13,7 @@ use ballot_interpreter::{
     },
     qr_code,
     scoring::UnitIntervalScore,
+    timing_marks::border_finding::GridStrategy,
 };
 use clap::Parser;
 use crossterm::style::Stylize;
@@ -66,6 +67,10 @@ struct Options {
     /// Default value matches `DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD`.
     #[clap(long, default_value_t = DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD)]
     retry_streak_width_threshold: u32,
+
+    /// Which strategy to use to determine the timing mark grid.
+    #[clap(long, default_value_t = Default::default())]
+    grid_strategy: GridStrategy,
 
     /// Output as JSON instead of pretty-printed format.
     #[clap(long, short = 'j', default_value_t = false)]
@@ -395,6 +400,7 @@ fn interpret_bubble_ballot(
         options.minimum_detected_scale,
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
+        options.grid_strategy,
     );
 
     let bottom_image = options
