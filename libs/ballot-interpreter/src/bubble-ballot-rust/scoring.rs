@@ -1,5 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
+use std::num::ParseFloatError;
 use std::ops::{Add, Mul};
+use std::str::FromStr;
 
 use image::GrayImage;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
@@ -28,6 +30,20 @@ impl Display for UnitIntervalScore {
             self.0 * 100.0,
             precision = f.precision().unwrap_or(2)
         )
+    }
+}
+
+/// Parses a `UnitIntervalScore` from a bare float (e.g. `"0.5"`) or from a
+/// percentage with a `%` suffix (e.g. `"50%"`). The two forms are equivalent:
+/// both produce `UnitIntervalScore(0.5)`.
+impl FromStr for UnitIntervalScore {
+    type Err = ParseFloatError;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        Ok(Self(match s.strip_suffix('%') {
+            Some(prefix) => prefix.parse::<UnitIntervalValue>()? / 100.0,
+            None => s.parse::<UnitIntervalValue>()?,
+        }))
     }
 }
 
@@ -111,7 +127,7 @@ pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 #[allow(clippy::too_many_arguments, clippy::result_large_err)]
-pub fn score_bubble_marks_from_grid_layout(
+pub(crate) fn score_bubble_marks_from_grid_layout(
     ballot_image: &BallotImage,
     label: &str,
     bubble_template: &GrayImage,
@@ -307,7 +323,7 @@ impl<'a> BubbleRegion<'a> {
 /// We look for the highest match score in the vicinity of where we expect
 /// because the bubble mark may not be exactly where we expect in the scanned
 /// image due to stretching or other distortions.
-pub fn score_bubble_mark(
+pub(crate) fn score_bubble_mark(
     ballot_image: &BallotImage,
     bubble_template: &GrayImage,
     expected_bubble_center: Point<SubPixelUnit>,
@@ -401,7 +417,7 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// Computes scores for all the write-in areas in a scanned ballot image. This could
 /// be used to determine which write-in areas are most likely to contain a write-in
 /// vote even if the bubble is not filled in.
-pub fn score_write_in_areas(
+pub(crate) fn score_write_in_areas(
     ballot_image: &BallotImage,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
@@ -469,6 +485,54 @@ mod test {
     use proptest::prelude::*;
     use types_rs::ballot_card::BallotSide;
     use types_rs::geometry::Point;
+
+    fn approx_eq(a: f32, b: f32) -> bool {
+        (a - b).abs() < 1e-4
+    }
+
+    #[test]
+    fn unit_interval_score_from_str_parses_bare_float() {
+        for (input, expected) in [("0.5", 0.5), ("0", 0.0), ("1", 1.0)] {
+            let parsed = input.parse::<UnitIntervalScore>().unwrap();
+            assert!(
+                approx_eq(parsed.0, expected),
+                "{input} parsed to {parsed:?}, expected ~{expected}",
+            );
+        }
+    }
+
+    #[test]
+    fn unit_interval_score_from_str_parses_percent_suffix() {
+        for (input, expected) in [("50%", 0.5), ("0%", 0.0), ("100%", 1.0), ("12.5%", 0.125)] {
+            let parsed = input.parse::<UnitIntervalScore>().unwrap();
+            assert!(
+                approx_eq(parsed.0, expected),
+                "{input} parsed to {parsed:?}, expected ~{expected}",
+            );
+        }
+    }
+
+    #[test]
+    fn unit_interval_score_from_str_round_trips_through_display() {
+        // `Display` always emits a `%` suffix, and `FromStr` accepts that form.
+        for value in [0.0, 0.123_45, 0.5, 0.999, 1.0] {
+            let original = UnitIntervalScore(value);
+            let rendered = format!("{original}");
+            let reparsed: UnitIntervalScore = rendered.parse().unwrap();
+            assert!(
+                approx_eq(reparsed.0, original.0),
+                "{rendered} reparsed to {reparsed:?}, expected ~{original:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn unit_interval_score_from_str_rejects_garbage() {
+        assert!("".parse::<UnitIntervalScore>().is_err());
+        assert!("%".parse::<UnitIntervalScore>().is_err());
+        assert!("abc".parse::<UnitIntervalScore>().is_err());
+        assert!("50.x%".parse::<UnitIntervalScore>().is_err());
+    }
 
     /// Generates an image from two images where corresponding pixels in `compare`
     /// that are darker than their counterpart in `base` show up with the luminosity
