@@ -209,11 +209,12 @@ export const SystemSettingsSchema = z
     precinctScanDisableScreenReaderAudio: z.boolean().optional(),
 
     /**
-     * The date and time at which polls close on election day, stored as a
-     * timezone-agnostic ISO 8601 datetime string (e.g. "2026-11-03T20:00:00").
+     * The date and time at which polls close on election day, stored as an
+     * ISO 8601 time string.
+     * The date is assumed to be the election definition's election day.
      * Interpreted in the local time of the machine.
      */
-    electionDayPollsCloseTime: z.string().datetime({ local: true }).optional(),
+    electionDayPollsCloseTime: z.iso.time().optional(),
 
     /**
      * When true, machines with a close-polls action (VxScan, VxMark, VxMarkScan)

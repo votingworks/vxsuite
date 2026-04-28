@@ -131,7 +131,6 @@ export function SystemSettingsForm({
 
   const maxCumulativeStreakWidthInputRef = useRef<HTMLInputElement>(null);
   const retryStreakWidthThresholdInputRef = useRef<HTMLInputElement>(null);
-  const electionDayPollsCloseTimeInputRef = useRef<HTMLInputElement>(null);
 
   function validateStreakSettings(settings: SystemSettings) {
     const parseResult = safeParse(SystemSettingsSchema, settings);
@@ -178,16 +177,6 @@ export function SystemSettingsForm({
   }
   const features = getUserFeaturesQuery.data;
 
-  function validatePollsCloseTime(closeTime?: string) {
-    const input = electionDayPollsCloseTimeInputRef.current;
-    if (!input) return;
-    if (closeTime && new Date(closeTime) <= new Date()) {
-      input.setCustomValidity('Polls close time must be in the future.');
-    } else {
-      input.setCustomValidity('');
-    }
-  }
-
   function saveSettings() {
     updateSystemSettingsMutation.mutate(
       { electionId, systemSettings },
@@ -198,7 +187,8 @@ export function SystemSettingsForm({
   function onSubmit() {
     const { electionDayPollsCloseTime } = systemSettings;
     if (electionDayPollsCloseTime) {
-      const hour = new Date(electionDayPollsCloseTime).getHours();
+      const hour =
+        safeParseInt(electionDayPollsCloseTime.split(':')[0]).ok() ?? 0;
       if (hour < 12) {
         setIsConfirmingMorningPollsCloseTime(true);
         return;
@@ -244,7 +234,6 @@ export function SystemSettingsForm({
       onReset={(e) => {
         e.preventDefault();
         setSystemSettings(savedSystemSettings);
-        validatePollsCloseTime(savedSystemSettings.electionDayPollsCloseTime);
         setIsEditing(false);
       }}
     >
@@ -594,17 +583,19 @@ export function SystemSettingsForm({
           <Column style={{ gap: '1.5rem' }}>
             <InputGroup label="Election Day Polls Close Time">
               <input
-                ref={electionDayPollsCloseTimeInputRef}
-                type="datetime-local"
+                // Force remount when edit mode is toggled to clear stale, partial, unsaved input state
+                key={String(isEditing)}
+                type="time"
                 aria-label="Election Day Polls Close Time"
                 value={
-                  systemSettings.electionDayPollsCloseTime?.slice(0, 16) ?? ''
+                  systemSettings.electionDayPollsCloseTime
+                    ? systemSettings.electionDayPollsCloseTime.substring(0, 5)
+                    : ''
                 }
                 onChange={(e) => {
                   const closeTime = e.target.value
                     ? `${e.target.value}:00`
                     : undefined;
-                  validatePollsCloseTime(closeTime);
                   setSystemSettings({
                     ...systemSettings,
                     electionDayPollsCloseTime: closeTime,
