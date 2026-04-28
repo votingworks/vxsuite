@@ -42,7 +42,7 @@ impl InterpretFixture {
             None,
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
-        )?;
+        );
         let side_a_path = fixture_path
             .join(self.election)
             .join(format!("{}-front{}", self.name, self.extension));

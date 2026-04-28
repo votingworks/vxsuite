@@ -15,7 +15,7 @@ use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
 use types_rs::coding;
 use types_rs::election::Election;
 
-use crate::ballot_card::{load_ballot_scan_bubble_image, BallotPage, PaperInfo};
+use crate::ballot_card::{ballot_scan_bubble_image, BallotPage, PaperInfo};
 use crate::interpret::{
     self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
 };
@@ -72,7 +72,7 @@ fn interpret(
         None => None,
     };
 
-    let bubble_template = load_ballot_scan_bubble_image().expect("failed to load bubble template");
+    let bubble_template = ballot_scan_bubble_image();
     let interpret_result = ballot_card(
         side_a_image,
         side_b_image,
