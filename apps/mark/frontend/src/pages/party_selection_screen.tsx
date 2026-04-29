@@ -4,6 +4,7 @@ import { assertDefined } from '@votingworks/basics';
 import { PartyId } from '@votingworks/types';
 import {
   appStrings,
+  AssistiveTechInstructions,
   AudioOnly,
   Button,
   Caption,
@@ -89,7 +90,15 @@ export function PartySelectionScreen(): JSX.Element {
       <Header>
         <ReadOnLoad>
           <H2>{appStrings.titleBmdPartySelectionScreen()}</H2>
-          <Caption>{appStrings.instructionsBmdPartySelection()}</Caption>
+          <Caption>
+            {appStrings.instructionsBmdPartySelection()}
+            <AudioOnly>
+              <AssistiveTechInstructions
+                controllerString={appStrings.instructionsBmdPartySelectionNavigation()}
+                patDeviceString={appStrings.instructionsBmdPartySelectionNavigationPatDevice()}
+              />
+            </AudioOnly>
+          </Caption>
         </ReadOnLoad>
       </Header>
       <WithScrollButtons>
@@ -126,8 +135,8 @@ export function PartySelectionScreen(): JSX.Element {
           actions={
             <React.Fragment>
               <Button
+                id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
                 variant="primary"
-                autoFocus
                 onPress={() => {
                   selectParty(partyIdToConfirm);
                   setPartyIdToConfirm(undefined);
@@ -135,8 +144,17 @@ export function PartySelectionScreen(): JSX.Element {
                 }}
               >
                 {appStrings.buttonChangeParty()}
+                <AudioOnly>
+                  <AssistiveTechInstructions
+                    controllerString={appStrings.instructionsBmdSelectToConfirm()}
+                    patDeviceString={appStrings.instructionsBmdSelectToConfirmPatDevice()}
+                  />
+                </AudioOnly>
               </Button>
-              <Button onPress={() => setPartyIdToConfirm(undefined)}>
+              <Button
+                id={PageNavigationButtonId.PREVIOUS}
+                onPress={() => setPartyIdToConfirm(undefined)}
+              >
                 {appStrings.buttonCancel()}
               </Button>
             </React.Fragment>

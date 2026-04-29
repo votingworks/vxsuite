@@ -449,6 +449,20 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdPartySelectionNavigation: () => (
+    <UiString uiStringKey="instructionsBmdPartySelectionNavigation">
+      To navigate through the party choices, use the down button. To select a
+      party, use the select button.
+    </UiString>
+  ),
+
+  instructionsBmdPartySelectionNavigationPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdPartySelectionNavigationPatDevice">
+      To navigate through the party choices, use the move input. To select a
+      party, use the select input.
+    </UiString>
+  ),
+
   instructionsBmdPatCalibrationConfirmExitScreen: () => (
     <UiString uiStringKey="instructionsBmdPatCalibrationConfirmExitScreen">
       You may continue with voting or go back to the previous screen.
@@ -578,6 +592,18 @@ export const appStrings = {
       your choices and cast your ballot. If there is an error, select the option
       labelled "my ballot is incorrect" to mark this ballot as incorrect and
       alert a poll worker.
+    </UiString>
+  ),
+
+  instructionsBmdSelectToConfirm: () => (
+    <UiString uiStringKey="instructionsBmdSelectToConfirm">
+      Press the select button to confirm.
+    </UiString>
+  ),
+
+  instructionsBmdSelectToConfirmPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdSelectToConfirmPatDevice">
+      Use the select input to confirm.
     </UiString>
   ),
 

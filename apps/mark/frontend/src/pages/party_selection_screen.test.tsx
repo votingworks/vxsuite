@@ -110,7 +110,7 @@ test('changing party with votes cast prompts confirmation before clearing votes'
   // Reopening and confirming applies the new party.
   userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
   modal = screen.getByRole('alertdialog');
-  userEvent.click(within(modal).getButton(/^change party$/i));
+  userEvent.click(within(modal).getButton(/^change party/i));
   expect(selectParty).toHaveBeenCalledWith('republican-party');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
@@ -158,7 +158,7 @@ test('entering from review shows a Review button until a vote-clearing change is
   // Confirming the change clears votes and switches to the standard footer.
   userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
   userEvent.click(
-    within(screen.getByRole('alertdialog')).getButton(/^change party$/i)
+    within(screen.getByRole('alertdialog')).getButton(/^change party/i)
   );
   expect(selectParty).toHaveBeenCalledWith('republican-party');
   expect(screen.queryButton(/review/i)).toBeNull();

@@ -154,7 +154,7 @@ test('switching party clears votes from the previous party', async () => {
   userEvent.click(screen.getButton('Republican Party'));
   // Confirm the change-party modal that appears because there are votes.
   userEvent.click(
-    await screen.findByRole('button', { name: /^change party$/i })
+    await screen.findByRole('button', { name: /^change party/i })
   );
   userEvent.click(screen.getButton(/next/i));
   await screen.findByRole('heading', { name: 'Governor' });
