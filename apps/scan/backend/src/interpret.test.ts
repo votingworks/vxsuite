@@ -19,17 +19,33 @@ import {
   PageInterpretation,
   SheetInterpretation,
   SheetOf,
+  VotesDict,
   asSheet,
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
   vi.setConfig({ testTimeout: 20_000 });
 }
+
+const { election, electionDefinition } = vxFamousNamesFixtures;
+const openPrimaryElection = electionOpenPrimaryFixtures.readElection();
+
+const invalidPageMetadata: HmpbBallotPageMetadata = {
+  ballotStyleId: election.ballotStyles[0].id,
+  precinctId: election.ballotStyles[0].precincts[0],
+  ballotType: BallotType.Precinct,
+  ballotHash: electionDefinition.ballotHash,
+  isTestMode: false,
+  pageNumber: 1,
+};
 
 let ballotImages: {
   overvoteBallot: SheetOf<ImageData>;
@@ -56,13 +72,11 @@ beforeAll(async () => {
       Uint8Array.from(await fs.readFile(vxFamousNamesFixtures.blankBallotPath))
     ),
     normalBmdBallot: await ballotAsSheet(
-      await renderBmdBallotFixture({
-        electionDefinition: vxFamousNamesFixtures.electionDefinition,
-      })
+      await renderBmdBallotFixture({ electionDefinition })
     ),
     undervoteBmdBallot: await ballotAsSheet(
       await renderBmdBallotFixture({
-        electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        electionDefinition,
         precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
         ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
         votes: {
@@ -87,8 +101,8 @@ afterEach(async () => {
 
 test('treats BMD ballot with one blank side as valid', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.normalBmdBallot, {
-    electionDefinition: vxFamousNamesFixtures.electionDefinition,
-    validPrecinctIds: allPrecinctIds(vxFamousNamesFixtures.electionDefinition),
+    electionDefinition,
+    validPrecinctIds: allPrecinctIds(electionDefinition),
     ballotImagesPath,
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -102,10 +116,8 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
     'foo-sheet-id',
     ballotImages.undervoteBmdBallot,
     {
-      electionDefinition: vxFamousNamesFixtures.electionDefinition,
-      validPrecinctIds: allPrecinctIds(
-        vxFamousNamesFixtures.electionDefinition
-      ),
+      electionDefinition,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       ballotImagesPath,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -130,8 +142,8 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
 
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
-    electionDefinition: vxFamousNamesFixtures.electionDefinition,
-    validPrecinctIds: allPrecinctIds(vxFamousNamesFixtures.electionDefinition),
+    electionDefinition,
+    validPrecinctIds: allPrecinctIds(electionDefinition),
     ballotImagesPath,
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -143,10 +155,8 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
 test('NH interpreter with testMode=true', async () => {
   const sheet = (
     await interpret('foo-sheet-id', ballotImages.normalBallot, {
-      electionDefinition: vxFamousNamesFixtures.electionDefinition,
-      validPrecinctIds: allPrecinctIds(
-        vxFamousNamesFixtures.electionDefinition
-      ),
+      electionDefinition,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
       ballotImagesPath,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -175,16 +185,19 @@ function mockHmpbPage({
   numMarks = 1,
   requiresAdjudication = false,
   enabledReasonInfos = [],
+  votes = {},
 }: {
   numMarks?: number;
   requiresAdjudication?: boolean;
   enabledReasonInfos?: AdjudicationReasonInfo[];
+  votes?: VotesDict;
 } = {}): InterpretedHmpbPage {
   // Just mock the fields needed for combinePageInterpretationsForSheet
   // (bypassing the type system)
   return {
     type: 'InterpretedHmpbPage',
     markInfo: { marks: Array.from({ length: numMarks }, () => ({})) },
+    votes,
     adjudicationInfo: {
       requiresAdjudication,
       enabledReasons: [],
@@ -229,12 +242,12 @@ function mockSheet(
 test('treats multi-page BMD ballot with one blank side as valid', () => {
   const printed = mockBmdMultiPagePage();
   expect(
-    combinePageInterpretationsForSheet(mockSheet(printed, blankPage))
+    combinePageInterpretationsForSheet(mockSheet(printed, blankPage), election)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(blankPage, printed))
+    combinePageInterpretationsForSheet(mockSheet(blankPage, printed), election)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });
@@ -254,7 +267,7 @@ test('respects adjudication reasons for a multi-page BMD ballot', () => {
     enabledReasonInfos: reasons,
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(printed, blankPage))
+    combinePageInterpretationsForSheet(mockSheet(printed, blankPage), election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons,
@@ -274,7 +287,7 @@ test('treats HMPB ballot with both sides marked blank as a blank ballot', () => 
     enabledReasonInfos: [blankReason],
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(front, back))
+    combinePageInterpretationsForSheet(mockSheet(front, back), election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.BlankBallot }],
@@ -285,7 +298,7 @@ test('treats HMPB ballot with no marks on either side as a blank ballot', () => 
   const front = mockHmpbPage({ numMarks: 0, requiresAdjudication: true });
   const back = mockHmpbPage({ numMarks: 0, requiresAdjudication: true });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(front, back))
+    combinePageInterpretationsForSheet(mockSheet(front, back), election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.BlankBallot }],
@@ -309,7 +322,7 @@ test('drops blank reason from one side when other side has non-blank reasons', (
     enabledReasonInfos: [overvoteReason],
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(front, back))
+    combinePageInterpretationsForSheet(mockSheet(front, back), election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [overvoteReason],
@@ -324,7 +337,8 @@ test('treats either page being an invalid ballot hash as an invalid sheet', () =
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidBallotHashPage, { type: 'UnreadablePage' })
+      mockSheet(invalidBallotHashPage, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -332,22 +346,14 @@ test('treats either page being an invalid ballot hash as an invalid sheet', () =
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidBallotHashPage)
+      mockSheet({ type: 'UnreadablePage' }, invalidBallotHashPage),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
     reason: 'invalid_ballot_hash',
   });
 });
-
-const invalidPageMetadata: HmpbBallotPageMetadata = {
-  ballotStyleId: vxFamousNamesFixtures.election.ballotStyles[0].id,
-  precinctId: vxFamousNamesFixtures.election.ballotStyles[0].precincts[0],
-  ballotType: BallotType.Precinct,
-  ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
-  isTestMode: false,
-  pageNumber: 1,
-};
 
 test('treats either page being an invalid test mode as an invalid sheet', () => {
   const invalidTestModePage: PageInterpretation = {
@@ -356,7 +362,8 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidTestModePage, { type: 'UnreadablePage' })
+      mockSheet(invalidTestModePage, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -364,7 +371,8 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidTestModePage)
+      mockSheet({ type: 'UnreadablePage' }, invalidTestModePage),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -379,7 +387,8 @@ test('treats either page being an invalid precinct as an invalid sheet', () => {
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidPrecinctPage, { type: 'UnreadablePage' })
+      mockSheet(invalidPrecinctPage, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -387,7 +396,8 @@ test('treats either page being an invalid precinct as an invalid sheet', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidPrecinctPage)
+      mockSheet({ type: 'UnreadablePage' }, invalidPrecinctPage),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -402,7 +412,8 @@ test('treats either page having invalid scale as an invalid sheet', () => {
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidScalePage, { type: 'UnreadablePage' })
+      mockSheet(invalidScalePage, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -410,7 +421,8 @@ test('treats either page having invalid scale as an invalid sheet', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidScalePage)
+      mockSheet({ type: 'UnreadablePage' }, invalidScalePage),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -425,7 +437,8 @@ test('treats either page having BMD ballot scanning disabled as an invalid sheet
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(bmdDisabledPage, { type: 'UnreadablePage' })
+      mockSheet(bmdDisabledPage, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -433,7 +446,8 @@ test('treats either page having BMD ballot scanning disabled as an invalid sheet
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, bmdDisabledPage)
+      mockSheet({ type: 'UnreadablePage' }, bmdDisabledPage),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -448,7 +462,8 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(verticalStreaksPage, { type: 'UnreadablePage' })
+      mockSheet(verticalStreaksPage, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -456,7 +471,8 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, verticalStreaksPage)
+      mockSheet({ type: 'UnreadablePage' }, verticalStreaksPage),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -467,7 +483,8 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
 test('treats unreadable pages as an invalid sheet', () => {
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, { type: 'UnreadablePage' })
+      mockSheet({ type: 'UnreadablePage' }, { type: 'UnreadablePage' }),
+      election
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
@@ -478,9 +495,98 @@ test('treats unreadable pages as an invalid sheet', () => {
 test('treats unmatched page combinations as unknown invalid sheet', () => {
   // Both blank doesn't match any specific case.
   expect(
-    combinePageInterpretationsForSheet(mockSheet(blankPage, blankPage))
+    combinePageInterpretationsForSheet(
+      mockSheet(blankPage, blankPage),
+      election
+    )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
     reason: 'unknown',
+  });
+});
+
+test('flags crossover voting in open primaries', () => {
+  const front = mockHmpbPage({
+    votes: {
+      'governor-democratic': [
+        { id: 'alice-jones', name: 'Alice Jones', partyIds: undefined },
+      ],
+    },
+  });
+  const back = mockHmpbPage({
+    votes: {
+      'governor-republican': [
+        { id: 'dave-wilson', name: 'Dave Wilson', partyIds: undefined },
+      ],
+    },
+  });
+  expect(
+    combinePageInterpretationsForSheet(
+      mockSheet(front, back),
+      openPrimaryElection
+    )
+  ).toEqual<SheetInterpretation>({
+    type: 'NeedsReviewSheet',
+    reasons: [{ type: AdjudicationReason.CrossoverVoting }],
+  });
+});
+
+test('combines crossover voting with other adjudication reasons', () => {
+  const overvoteReason: AdjudicationReasonInfo = {
+    type: AdjudicationReason.Overvote,
+    contestId: 'governor-democratic',
+    expected: 1,
+    optionIds: ['alice-jones', 'jane-smith'],
+  };
+  const front = mockHmpbPage({
+    requiresAdjudication: true,
+    enabledReasonInfos: [overvoteReason],
+    votes: {
+      'governor-democratic': [
+        { id: 'alice-jones', name: 'Alice Jones', partyIds: undefined },
+        { id: 'jane-smith', name: 'Jane Smith', partyIds: undefined },
+      ],
+    },
+  });
+  const back = mockHmpbPage({
+    votes: {
+      'governor-republican': [
+        { id: 'dave-wilson', name: 'Dave Wilson', partyIds: undefined },
+      ],
+    },
+  });
+  expect(
+    combinePageInterpretationsForSheet(
+      mockSheet(front, back),
+      openPrimaryElection
+    )
+  ).toEqual<SheetInterpretation>({
+    type: 'NeedsReviewSheet',
+    reasons: [overvoteReason, { type: AdjudicationReason.CrossoverVoting }],
+  });
+});
+
+test('treats single-party open primary voting as valid', () => {
+  const front = mockHmpbPage({
+    votes: {
+      'governor-democratic': [
+        { id: 'alice-jones', name: 'Alice Jones', partyIds: undefined },
+      ],
+    },
+  });
+  const back = mockHmpbPage({
+    votes: {
+      'secretary-of-state-democratic': [
+        { id: 'james-martin', name: 'James Martin', partyIds: undefined },
+      ],
+    },
+  });
+  expect(
+    combinePageInterpretationsForSheet(
+      mockSheet(front, back),
+      openPrimaryElection
+    )
+  ).toEqual<SheetInterpretation>({
+    type: 'ValidSheet',
   });
 });

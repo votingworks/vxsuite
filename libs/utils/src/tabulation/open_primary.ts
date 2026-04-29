@@ -3,7 +3,7 @@ import {
   CandidateContest,
   Election,
   PartyId,
-  Tabulation,
+  VotesDict,
   isOpenPrimary,
 } from '@votingworks/types';
 
@@ -24,10 +24,7 @@ export const partisanContests = memoizeByObject(
 /**
  * Returns the party IDs of the partisan contests a voter voted in.
  */
-export function votedPartyIds(
-  election: Election,
-  votes: Tabulation.Votes
-): PartyId[] {
+export function votedPartyIds(election: Election, votes: VotesDict): PartyId[] {
   return unique(
     partisanContests(election)
       .filter((contest) => (votes[contest.id]?.length ?? 0) > 0)
@@ -41,7 +38,7 @@ export function votedPartyIds(
  */
 export function hasCrossoverVote(
   election: Election,
-  votes: Tabulation.Votes
+  votes: VotesDict
 ): boolean {
   // Short circuit to avoid doing extra work if it's not an open primary, even
   // though crossover votes aren't possible in general elections/closed primaries.
