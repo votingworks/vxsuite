@@ -1225,7 +1225,6 @@ describe('election day polls close time enforcement', () => {
       apiMock.expectGetPollsInfo('polls_open');
       renderScreen({});
 
-      // Should show menu (Close Polls button present) but not the easy-close prompt
       await screen.findButton('Close Polls');
       expect(
         screen.queryByText('Do you want to close the polls?')
@@ -1262,7 +1261,6 @@ describe('election day polls close time enforcement', () => {
       apiMock.expectGetPollsInfo('polls_open');
       renderScreen({});
 
-      // Test mode: should show easy-close prompt normally
       await screen.findByText('Close Polls');
       expect(
         screen.queryByText(/Polls cannot be closed until/)
@@ -1285,7 +1283,6 @@ describe('election day polls close time enforcement', () => {
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({});
 
-    // After close time: enforcement no longer applies, easy-close prompt shown
     await screen.findByText('Do you want to close the polls?');
   });
 
@@ -1304,8 +1301,9 @@ describe('election day polls close time enforcement', () => {
       apiMock.expectGetPollsInfo('polls_open');
       renderScreen({});
 
-      // Should show easy-close as PauseVotingPromptScreen
-      await screen.findByText('Pause Voting');
+      const pauseVotingButton = await screen.findByText('Pause Voting');
+      expect(pauseVotingButton).toHaveAttribute('data-variant', 'primary');
+
       expect(screen.queryByText('Close Polls')).not.toBeInTheDocument();
     });
 
@@ -1324,9 +1322,12 @@ describe('election day polls close time enforcement', () => {
       renderScreen({});
 
       userEvent.click(await screen.findByText('Menu'));
-      // Close Polls should be the primary button, Pause Voting in other actions
+      // "Close Polls" should be the primary button
       const closePollsButton = await screen.findButton('Close Polls');
       expect(closePollsButton).toHaveAttribute('data-variant', 'primary');
+      // "Pause Voting" button should be in "Other Actions" section
+      const pauseVotingButton = await screen.findByText('Pause Voting');
+      expect(pauseVotingButton).not.toHaveAttribute('data-variant', 'primary');
     });
 
     test('past close time - easy-close shows ClosePollsPromptScreen', async () => {
@@ -1343,7 +1344,6 @@ describe('election day polls close time enforcement', () => {
       apiMock.expectGetPollsInfo('polls_open');
       renderScreen({});
 
-      // Should show ClosePollsPromptScreen (not PauseVotingPromptScreen)
       await screen.findByText('Do you want to close the polls?');
       expect(
         screen.queryByText('Do you want to pause voting?')
