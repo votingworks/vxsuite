@@ -57,7 +57,6 @@ import {
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 import { isHmpbPage, isPageWithVotes } from './util/results';
 import {
@@ -80,7 +79,6 @@ const getSheetsBaseQuery = `
     back_interpretation_json as backInterpretationJson,
     front_image_path as frontImagePath,
     back_image_path as backImagePath,
-    requires_adjudication as requiresAdjudication,
     sheets.deleted_at as deletedAt
   from sheets left join batches on
     sheets.batch_id = batches.id
@@ -93,7 +91,6 @@ interface SheetRow {
   backInterpretationJson: string;
   frontImagePath: string;
   backImagePath: string;
-  requiresAdjudication: 0 | 1;
   deletedAt: Iso8601Timestamp | null;
 }
 
@@ -692,20 +689,16 @@ export class Store {
             front_image_path,
             front_interpretation_json,
             back_image_path,
-            back_interpretation_json,
-            requires_adjudication
+            back_interpretation_json
           ) values (
-            ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
         front.imagePath,
         JSON.stringify(front.interpretation),
         back.imagePath,
-        JSON.stringify(back.interpretation ?? {}),
-        sheetRequiresAdjudication([front.interpretation, back.interpretation])
-          ? 1
-          : 0
+        JSON.stringify(back.interpretation ?? {})
       );
     } catch (error) {
       debug(

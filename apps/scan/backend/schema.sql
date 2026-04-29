@@ -43,9 +43,6 @@ create table sheets (
   front_interpretation_json text not null,
   back_interpretation_json text not null,
 
-  -- Did this sheet require adjudication? This value should never be updated.
-  requires_adjudication boolean,
-
   created_at datetime default current_timestamp not null,
   deleted_at datetime,
 
