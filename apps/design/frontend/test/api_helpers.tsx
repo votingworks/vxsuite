@@ -11,7 +11,7 @@ import type {
   OrganizationUser,
 } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import { AppBase, TestErrorBoundary } from '@votingworks/ui';
+import { TestErrorBoundary } from '@votingworks/ui';
 import { ElectionId } from '@votingworks/types';
 import { SupportUser } from '@votingworks/design-backend';
 import { ApiClientContext, createQueryClient } from '../src/api';
@@ -69,19 +69,13 @@ export function provideApi(
   queryClient: QueryClient = createQueryClient()
 ): JSX.Element {
   return (
-    <AppBase
-      defaultColorMode="desktop"
-      defaultSizeMode="desktop"
-      showScrollBars
-    >
-      <TestErrorBoundary>
-        <ApiClientContext.Provider value={apiMock}>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </TestErrorBoundary>
-    </AppBase>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiMock}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }
 
