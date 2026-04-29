@@ -523,6 +523,7 @@
   "warningScannerAnotherScanInProgress": "Another ballot is being scanned.",
   "warningScannerBlankBallotSubmission": "No votes will be counted from this ballot.",
   "warningScannerBmdBallotScanningDisabled": "The scanner cannot scan BMD ballots. Use a central scanner instead.",
+  "warningScannerCrossoverVoting": "You voted in contests for more than one party. If you cast this ballot, only your nonpartisan votes will count.",
   "warningScannerMismatchedElection": "The scanner is configured for an election that does not match the ballot.",
   "warningScannerMismatchedPrecinct": "The scanner is configured for a precinct that does not match the ballot.",
   "warningScannerNeedsCleaning": "The ballot was not counted. Scan it again after cleaning.",
