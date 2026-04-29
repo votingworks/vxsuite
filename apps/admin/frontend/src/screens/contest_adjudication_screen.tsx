@@ -568,12 +568,16 @@ export function ContestAdjudicationScreen({
                         resolveOptionMarginalMark(optionId);
                       }
                     }}
-                    officialCandidates={(officialOptions as Candidate[]).filter(
-                      (c) =>
-                        !selectedCandidateNames.includes(c.name) ||
-                        (isValidCandidate(writeInStatus) &&
-                          writeInStatus.name === c.name)
-                    )}
+                    officialCandidates={
+                      areWriteInCandidatesQualified
+                        ? []
+                        : (officialOptions as Candidate[]).filter(
+                            (c) =>
+                              !selectedCandidateNames.includes(c.name) ||
+                              (isValidCandidate(writeInStatus) &&
+                                writeInStatus.name === c.name)
+                          )
+                    }
                     writeInCandidates={writeInCandidates.filter(
                       (c) =>
                         !selectedCandidateNames.includes(c.name) ||
