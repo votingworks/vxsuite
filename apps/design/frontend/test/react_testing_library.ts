@@ -22,10 +22,9 @@ export function render(
 ): VxRenderResult {
   return baseRender(ui, {
     ...options,
-    vxTheme: {
+    vxTheme: options.vxTheme ?? {
       colorMode: 'desktop',
       sizeMode: 'desktop',
-      ...(options.vxTheme ?? {}),
     },
   });
 }
