@@ -16,6 +16,7 @@ use crate::ballot_card::BallotImage;
 use crate::debug;
 use crate::image_utils::{count_pixels_in_shape, VerticalStreak};
 use crate::interpret::{Error, Result};
+use crate::timing_marks::border_finding::GridStrategy;
 use crate::timing_marks::TimingMarks;
 
 #[derive(Clone, Copy, Serialize, Default)]
@@ -124,6 +125,19 @@ impl Debug for ScoredBubbleMark {
 
 pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 
+/// Search distance used under [`GridStrategy::CornersOnly`]. Pure 4-corner
+/// bilinear interpolation can mis-place bubbles by more than the standard
+/// jiggle when the corner quadrilateral isn't a perfect rectangle (i.e.
+/// the page is non-uniformly stretched / skewed by the scanner). The
+/// per-bubble search window is widened to absorb that residual error.
+///
+/// Paired with the rectangularity rejection threshold
+/// [`crate::timing_marks::CORNERS_ONLY_MAX_CORNER_QUAD_SHAPE_PARAM`]: the
+/// wider jiggle handles "moderate" distortion (centroid bilinear error up
+/// to roughly this many pixels), and the rectangularity check rejects
+/// ballots whose distortion exceeds what the jiggle can absorb.
+pub const CORNERS_ONLY_MAXIMUM_SEARCH_DISTANCE: u32 = 15;
+
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 #[allow(clippy::too_many_arguments, clippy::result_large_err)]
@@ -137,6 +151,10 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
     sheet_number: u32,
     side: BallotSide,
 ) -> Result<ScoredBubbleMarks> {
+    let search_distance = match timing_marks.grid_strategy() {
+        GridStrategy::FullBorders => DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+        GridStrategy::CornersOnly => CORNERS_ONLY_MAXIMUM_SEARCH_DISTANCE,
+    };
     let scored_bubbles = grid_layout
         .grid_positions
         .par_iter()
@@ -155,7 +173,7 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
                 bubble_template,
                 expected_bubble_center,
                 &location,
-                DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+                search_distance,
             );
 
             Some((grid_position.clone(), scored_bubble_mark))

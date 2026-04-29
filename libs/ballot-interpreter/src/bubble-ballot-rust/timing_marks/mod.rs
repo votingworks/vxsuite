@@ -135,6 +135,19 @@ pub fn find_timing_mark_grid(
         border_marks,
     };
 
+    // Under CornersOnly, bubble positions are bilinearly interpolated
+    // between the four corner marks. That's exact for a rectangular (or
+    // affinely-transformed rectangular) corner quadrilateral, but
+    // increasingly inaccurate as the quad becomes non-rectangular. Reject
+    // ballots whose quad is too distorted for the per-bubble jiggle to
+    // recover.
+    if matches!(timing_marks.grid_strategy(), GridStrategy::CornersOnly) {
+        let shape_param = timing_marks.corner_quad_shape_param();
+        if shape_param > CORNERS_ONLY_MAX_CORNER_QUAD_SHAPE_PARAM {
+            return Err(Error::CornerQuadTooDistorted { shape_param });
+        }
+    }
+
     Ok(timing_marks)
 }
 
@@ -215,11 +228,43 @@ impl BorderMarks {
     }
 }
 
+/// Maximum corner-quad shape parameter (in pixels) under which
+/// [`GridStrategy::CornersOnly`] is allowed to produce bubble scores.
+/// Above this threshold the corner quadrilateral is too non-rectangular
+/// for bilinear interpolation between the corners to land bubbles within
+/// the per-bubble search window; the resulting scores would diverge from
+/// the true bubble positions.
+///
+/// See [`TimingMarks::corner_quad_shape_param`] for the metric definition.
+/// The threshold is paired with
+/// [`crate::scoring::CORNERS_ONLY_MAXIMUM_SEARCH_DISTANCE`]: rejection
+/// kicks in roughly where the centroid bilinear error
+/// (`shape_param / 4`) exceeds the per-bubble jiggle distance.
+pub const CORNERS_ONLY_MAX_CORNER_QUAD_SHAPE_PARAM: f32 = 70.0;
+
 impl TimingMarks {
     /// Returns the grid strategy that produced these timing marks.
     #[must_use]
     pub const fn grid_strategy(&self) -> GridStrategy {
         self.border_marks.grid_strategy()
+    }
+
+    /// Returns the magnitude of the corner quadrilateral's "shape parameter"
+    /// `TL - TR - BL + BR` in pixels. For a parallelogram (or rectangle, or
+    /// rotated rectangle) the four corners satisfy `TL + BR = TR + BL`, so
+    /// the shape parameter is the zero vector. Non-zero values measure how
+    /// non-affine the bilinear surface between the corners is, and
+    /// `shape_param / 4` is the worst-case bilinear-interpolation error at
+    /// the page centroid (in the same pixel units as the corner coordinates).
+    #[must_use]
+    pub fn corner_quad_shape_param(&self) -> f32 {
+        let dx = self.top_left_corner.x - self.top_right_corner.x
+            - self.bottom_left_corner.x
+            + self.bottom_right_corner.x;
+        let dy = self.top_left_corner.y - self.top_right_corner.y
+            - self.bottom_left_corner.y
+            + self.bottom_right_corner.y;
+        (dx * dx + dy * dy).sqrt()
     }
 
     pub fn rotate180(&mut self, image_size: Size<u32>) {

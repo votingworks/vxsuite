@@ -220,6 +220,10 @@ pub enum Error {
 
     #[error("invalid election: {message}")]
     InvalidElection { message: String },
+
+    #[error("corner quadrilateral too distorted for corners-only interpolation: shape_param={shape_param:.2}px")]
+    #[serde(rename_all = "camelCase")]
+    CornerQuadTooDistorted { shape_param: f32 },
 }
 
 impl Error {

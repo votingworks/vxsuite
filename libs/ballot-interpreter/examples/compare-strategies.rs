@@ -78,6 +78,14 @@ struct Args {
     /// matching and are not drawn on the diff image.
     #[arg(long, default_value_t = DEFAULT_DIFF_THRESHOLD)]
     threshold: f32,
+
+    /// Reject ballots whose detected horizontal print scale is below this
+    /// value (matches production's `DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE`).
+    /// Pairs rejected by either strategy will be reported with the
+    /// corresponding `OnlyFullFailed` / `OnlyCornersFailed` / `BothFailed`
+    /// outcome.
+    #[arg(long)]
+    minimum_detected_scale: Option<f32>,
 }
 
 fn main() -> color_eyre::Result<()> {
@@ -105,7 +113,13 @@ fn main() -> color_eyre::Result<()> {
     }
 
     let process = |pair: &BallotPair| {
-        let outcome = run_pair(&election, pair, args.output_dir.as_deref(), args.threshold);
+        let outcome = run_pair(
+            &election,
+            pair,
+            args.output_dir.as_deref(),
+            args.threshold,
+            args.minimum_detected_scale,
+        );
         (pair.clone(), outcome)
     };
     let outcomes: Vec<(BallotPair, Outcome)> = if args.parallel {
@@ -195,6 +209,13 @@ struct PairStats {
     max_match_delta: f32,
     /// Mean `|Δ fill_score|` across paired bubbles.
     mean_fill_delta: f32,
+    /// Maximum corner-quad "shape parameter" `|TL - TR - BL + BR|` across
+    /// the two pages, in pixels. For a parallelogram (or rectangle), this
+    /// is 0 and bilinear interpolation between the corners is exact. For a
+    /// non-parallelogram (trapezoid / general quad), this measures how
+    /// non-affine the bilinear surface is — `shape_param / 4` is the
+    /// approximate worst-case bilinear error at the page centroid.
+    max_shape_param: f32,
 }
 
 fn run_pair(
@@ -202,6 +223,7 @@ fn run_pair(
     pair: &BallotPair,
     output_dir: Option<&Path>,
     threshold: f32,
+    minimum_detected_scale: Option<f32>,
 ) -> Outcome {
     let front = match load_image(&pair.front) {
         Ok(img) => img,
@@ -215,9 +237,21 @@ fn run_pair(
     let full = ballot_card(
         front.clone(),
         back.clone(),
-        &options(election, GridStrategy::FullBorders),
+        &options(
+            election,
+            GridStrategy::FullBorders,
+            minimum_detected_scale,
+        ),
     );
-    let corners = ballot_card(front, back, &options(election, GridStrategy::CornersOnly));
+    let corners = ballot_card(
+        front,
+        back,
+        &options(
+            election,
+            GridStrategy::CornersOnly,
+            minimum_detected_scale,
+        ),
+    );
 
     match (full, corners) {
         (Ok(f), Ok(c)) => {
@@ -373,7 +407,11 @@ fn load_image(path: &Path) -> Result<GrayImage, image::ImageError> {
     image::open(path).map(|img| img.to_luma8())
 }
 
-fn options(election: &Election, strategy: GridStrategy) -> Options {
+fn options(
+    election: &Election,
+    strategy: GridStrategy,
+    minimum_detected_scale: Option<f32>,
+) -> Options {
     Options {
         election: election.clone(),
         bubble_template: ballot_scan_bubble_image(),
@@ -381,11 +419,21 @@ fn options(election: &Election, strategy: GridStrategy) -> Options {
         debug_side_b_base: None,
         write_in_scoring: WriteInScoring::Disabled,
         vertical_streak_detection: VerticalStreakDetection::Enabled,
-        minimum_detected_scale: None,
+        minimum_detected_scale: minimum_detected_scale.map(UnitIntervalScore),
         max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
         retry_streak_width_threshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
         grid_strategy: strategy,
     }
+}
+
+/// `|TL - TR - BL + BR|` (in pixels) — see [`PairStats::max_shape_param`].
+fn page_shape_param(page: &InterpretedBallotPage) -> f32 {
+    let tm = &page.timing_marks;
+    let dx = tm.top_left_corner.x - tm.top_right_corner.x - tm.bottom_left_corner.x
+        + tm.bottom_right_corner.x;
+    let dy = tm.top_left_corner.y - tm.top_right_corner.y - tm.bottom_left_corner.y
+        + tm.bottom_right_corner.y;
+    (dx * dx + dy * dy).sqrt()
 }
 
 fn compare_interpretations(
@@ -400,6 +448,10 @@ fn compare_interpretations(
     let mut presence_mismatch = 0usize;
     let mut diverged_bubbles = 0usize;
     let mut n_bubbles = 0usize;
+    // Use FullBorders' detected corners; they are the same physical corner
+    // marks under both strategies, but FullBorders is the production path.
+    let max_shape_param =
+        page_shape_param(&full.front).max(page_shape_param(&full.back));
 
     for (f_page, c_page) in [(&full.front, &corners.front), (&full.back, &corners.back)] {
         // The two strategies use the same election/grid layout, so the
@@ -452,6 +504,7 @@ fn compare_interpretations(
             let n = paired as f32;
             sum_fill / n
         },
+        max_shape_param,
     }
 }
 
@@ -461,13 +514,14 @@ fn print_outcome(pair: &BallotPair, outcome: &Outcome) {
         Outcome::Compared(s) => {
             let flag = if s.diverged_bubbles == 0 { "OK" } else { "DIFF" };
             println!(
-                "{flag:>4} {label}  diverged={}/{}  Δfill max={:.4} mean={:.4}  Δmatch max={:.4}  presence-mismatch={}",
+                "{flag:>4} {label}  diverged={}/{}  Δfill max={:.4} mean={:.4}  Δmatch max={:.4}  presence-mismatch={}  shape={:.1}px",
                 s.diverged_bubbles,
                 s.n_bubbles,
                 s.max_fill_delta,
                 s.mean_fill_delta,
                 s.max_match_delta,
                 s.presence_mismatch,
+                s.max_shape_param,
             );
         }
         Outcome::LoadFailed(e) => println!("LOAD {label}: {e}"),
@@ -496,6 +550,8 @@ fn print_summary(outcomes: &[(BallotPair, Outcome)]) {
     let mut total_bubbles = 0usize;
     let mut total_diverged = 0usize;
     let mut pairs_with_diff = 0usize;
+    let mut ok_shape_params: Vec<f32> = vec![];
+    let mut diff_shape_params: Vec<f32> = vec![];
 
     for (_, o) in outcomes {
         match o {
@@ -510,6 +566,9 @@ fn print_summary(outcomes: &[(BallotPair, Outcome)]) {
                 total_diverged += s.diverged_bubbles;
                 if s.diverged_bubbles > 0 {
                     pairs_with_diff += 1;
+                    diff_shape_params.push(s.max_shape_param);
+                } else {
+                    ok_shape_params.push(s.max_shape_param);
                 }
             }
             Outcome::LoadFailed(_) => load_failed += 1,
@@ -562,6 +621,67 @@ fn print_summary(outcomes: &[(BallotPair, Outcome)]) {
             percentile(&max_matches, 0.90),
             percentile(&max_matches, 0.99),
             max_match_overall,
+        );
+    }
+
+    print_shape_summary(&ok_shape_params, &diff_shape_params);
+}
+
+/// Prints the corner-quad shape-parameter distribution, broken out into
+/// "OK" pairs (no bubble divergence) vs "DIFF" pairs (at least one diverged
+/// bubble), and shows how many of each would be rejected at a few candidate
+/// thresholds.
+///
+/// `shape_param = |TL - TR - BL + BR|` in pixels. For a parallelogram it's
+/// 0; non-zero values measure how non-affine the bilinear surface between
+/// the corners is, which in turn bounds the worst-case CornersOnly
+/// position error.
+fn print_shape_summary(ok: &[f32], diff: &[f32]) {
+    if ok.is_empty() && diff.is_empty() {
+        return;
+    }
+    let mut ok_sorted: Vec<f32> = ok.to_vec();
+    let mut diff_sorted: Vec<f32> = diff.to_vec();
+    ok_sorted.sort_by(f32::total_cmp);
+    diff_sorted.sort_by(f32::total_cmp);
+
+    println!();
+    println!("Corner-quad shape parameter |TL-TR-BL+BR| (pixels):");
+    if !ok_sorted.is_empty() {
+        println!(
+            "  OK pairs   (n={:>4}):  p50={:.1}  p90={:.1}  p99={:.1}  max={:.1}",
+            ok_sorted.len(),
+            percentile(&ok_sorted, 0.50),
+            percentile(&ok_sorted, 0.90),
+            percentile(&ok_sorted, 0.99),
+            ok_sorted.last().copied().unwrap_or(0.0),
+        );
+    }
+    if !diff_sorted.is_empty() {
+        println!(
+            "  DIFF pairs (n={:>4}):  p50={:.1}  p90={:.1}  p99={:.1}  max={:.1}",
+            diff_sorted.len(),
+            percentile(&diff_sorted, 0.50),
+            percentile(&diff_sorted, 0.90),
+            percentile(&diff_sorted, 0.99),
+            diff_sorted.last().copied().unwrap_or(0.0),
+        );
+    }
+
+    println!();
+    println!("Rejection at various shape thresholds:");
+    println!("  threshold  OK rejected (false positives)  DIFF rejected (true positives)");
+    for &t in &[5.0_f32, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0] {
+        let ok_rej = ok_sorted.iter().filter(|&&v| v >= t).count();
+        let diff_rej = diff_sorted.iter().filter(|&&v| v >= t).count();
+        let ok_total = ok_sorted.len().max(1);
+        let diff_total = diff_sorted.len().max(1);
+        println!(
+            "  {t:>5.0}px      {ok_rej:>4}/{:>4} ({:>5.1}%)              {diff_rej:>3}/{:>3} ({:>5.1}%)",
+            ok_sorted.len(),
+            100.0 * ok_rej as f32 / ok_total as f32,
+            diff_sorted.len(),
+            100.0 * diff_rej as f32 / diff_total as f32,
         );
     }
 }
