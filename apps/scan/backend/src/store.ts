@@ -4,7 +4,6 @@
 
 import { Client as DbClient } from '@votingworks/db';
 import {
-  AdjudicationStatus,
   HmpbBallotPaperSize,
   BatchInfo,
   Iso8601Timestamp,
@@ -875,28 +874,6 @@ export class Store {
       error: info.error || undefined,
       count: info.count,
     }));
-  }
-
-  /**
-   * Gets adjudication status.
-   */
-  adjudicationStatus(): AdjudicationStatus {
-    const { remaining } = this.client.one(`
-        select count(*) as remaining
-        from sheets
-        where
-          requires_adjudication = 1
-          and deleted_at is null
-          and finished_adjudication_at is null
-      `) as { remaining: number };
-    const { adjudicated } = this.client.one(`
-        select count(*) as adjudicated
-        from sheets
-        where
-          requires_adjudication = 1
-          and finished_adjudication_at is not null
-      `) as { adjudicated: number };
-    return { adjudicated, remaining };
   }
 
   /**
