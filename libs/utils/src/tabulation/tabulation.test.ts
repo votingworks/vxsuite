@@ -3,6 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
   electionWithMsEitherNeitherFixtures,
+  readElectionOpenPrimary,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
@@ -48,6 +49,7 @@ import {
   combineAndDecodeCompressedElectionResults,
   getScannedBallotCountForSheet,
 } from './tabulation';
+import { partisanContests } from './open_primary';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -1305,6 +1307,93 @@ describe('tabulateCastVoteRecords', () => {
       'root&precinctId=precinct-1&votingMethod=precinct',
       'root&precinctId=precinct-2&votingMethod=precinct',
     ]);
+  });
+});
+
+describe('open primaries', () => {
+  const openPrimaryElection = readElectionOpenPrimary();
+
+  const baseCvrMetadata = {
+    card: { type: 'bmd' },
+    ballotStyleGroupId: 'ballot-style-1' as BallotStyleGroupId,
+    precinctId: 'precinct-1',
+    votingMethod: BallotType.Precinct,
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+  } as const;
+
+  test('single-party ballot tallies partisan + nonpartisan contests normally', async () => {
+    const results = (
+      await tabulateCastVoteRecords({
+        election: openPrimaryElection,
+        cvrs: [
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': ['alice-jones'],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+        ],
+      })
+    )[GROUP_KEY_ROOT];
+    assert(results);
+
+    expect(results.contestResults['governor-democratic']).toMatchObject({
+      ballots: 1,
+      tallies: expect.objectContaining({
+        'alice-jones': expect.objectContaining({ tally: 1 }),
+      }),
+    });
+    expect(results.contestResults['ballot-measure-1']).toMatchObject({
+      ballots: 1,
+      yesTally: 1,
+      noTally: 0,
+    });
+  });
+
+  test('crossover voting — partisan contests skipped, nonpartisan tallied', async () => {
+    const results = (
+      await tabulateCastVoteRecords({
+        election: openPrimaryElection,
+        cvrs: [
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': ['alice-jones'],
+              'governor-republican': ['dave-wilson'],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+        ],
+      })
+    )[GROUP_KEY_ROOT];
+    assert(results);
+
+    expect(results.contestResults['governor-democratic']).toMatchObject({
+      ballots: 0,
+      tallies: expect.objectContaining({
+        'alice-jones': expect.objectContaining({ tally: 0 }),
+      }),
+    });
+    expect(results.contestResults['governor-republican']).toMatchObject({
+      ballots: 0,
+      tallies: expect.objectContaining({
+        'dave-wilson': expect.objectContaining({ tally: 0 }),
+      }),
+    });
+    expect(results.contestResults['ballot-measure-1']).toMatchObject({
+      ballots: 1,
+      yesTally: 1,
+      noTally: 0,
+    });
+    expect(getBallotCount(results.cardCounts)).toEqual(1);
+
+    // No partisan contest in the election should be counted on a
+    // crossover ballot.
+    for (const contest of partisanContests(openPrimaryElection)) {
+      expect(results.contestResults[contest.id]?.ballots).toEqual(0);
+    }
   });
 });
 

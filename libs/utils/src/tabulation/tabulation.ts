@@ -21,6 +21,7 @@ import {
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
+import { hasCrossoverVote, partisanContests } from './open_primary';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -136,7 +137,8 @@ export function getEmptyManualElectionResults(
  */
 function addCastVoteRecordToElectionResult(
   electionResult: Tabulation.ElectionResults,
-  cvr: Tabulation.CastVoteRecord
+  cvr: Tabulation.CastVoteRecord,
+  election: Election
 ): Tabulation.ElectionResults {
   const { cardCounts } = electionResult;
   if (cvr.card.type === 'bmd') {
@@ -149,7 +151,19 @@ function addCastVoteRecordToElectionResult(
       (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
   }
 
+  // In open primary elections, crossover voting is not allowed (i.e. a voter
+  // may not vote for partisan contests from multiple parties). If that happens,
+  // all of their partisan contest votes are void. Their nonpartisan contest
+  // votes still count.
+  const voidedContestIds = hasCrossoverVote(election, cvr.votes)
+    ? new Set(partisanContests(election).map((contest) => contest.id))
+    : undefined;
+
   for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
+    if (voidedContestIds?.has(contestId)) {
+      continue;
+    }
+
     const contestResult = assertDefined(
       electionResult.contestResults[contestId]
     );
@@ -428,7 +442,7 @@ export async function tabulateCastVoteRecords({
 
     let i = 0;
     for (const cvr of cvrs) {
-      addCastVoteRecordToElectionResult(electionResults, cvr);
+      addCastVoteRecordToElectionResult(electionResults, cvr, election);
 
       i += 1;
       if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
@@ -455,13 +469,13 @@ export async function tabulateCastVoteRecords({
     const existingElectionResult = groupedElectionResults[groupKey];
     if (expectedGroups) {
       assert(existingElectionResult);
-      addCastVoteRecordToElectionResult(existingElectionResult, cvr);
+      addCastVoteRecordToElectionResult(existingElectionResult, cvr, election);
     } else if (existingElectionResult) {
-      addCastVoteRecordToElectionResult(existingElectionResult, cvr);
+      addCastVoteRecordToElectionResult(existingElectionResult, cvr, election);
     } else {
       const electionResult: Tabulation.ElectionResults =
         getEmptyElectionResults(election);
-      addCastVoteRecordToElectionResult(electionResult, cvr);
+      addCastVoteRecordToElectionResult(electionResult, cvr, election);
       groupedElectionResults[groupKey] = electionResult;
     }
 
