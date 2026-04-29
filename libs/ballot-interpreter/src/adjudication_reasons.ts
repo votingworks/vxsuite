@@ -5,7 +5,6 @@ import {
   BallotStyle,
   CandidateVote,
   ContestOption,
-  ContestOptionId,
   Contests,
   MarkStatus,
   VotesDict,
@@ -226,36 +225,4 @@ export function getAllPossibleAdjudicationReasons(
   }
 
   return reasons;
-}
-
-function optionIdsAsSentence(optionIds: readonly ContestOptionId[]) {
-  return optionIds.length
-    ? `${optionIds.length}: ${optionIds.map((id) => `'${id}'`).join(', ')}`
-    : 'none';
-}
-
-export function adjudicationReasonDescription(
-  reason: AdjudicationReasonInfo
-): string {
-  switch (reason.type) {
-    case AdjudicationReason.MarginalMark:
-      return `Contest '${reason.contestId}' has a marginal mark for option '${reason.optionId}'.`;
-
-    case AdjudicationReason.Overvote:
-      return `Contest '${reason.contestId}' is overvoted, expected ${
-        reason.expected
-      } but got ${optionIdsAsSentence(reason.optionIds)}.`;
-
-    case AdjudicationReason.Undervote:
-      return `Contest '${reason.contestId}' is undervoted, expected ${
-        reason.expected
-      } but got ${optionIdsAsSentence(reason.optionIds)}.`;
-
-    case AdjudicationReason.BlankBallot:
-      return `Ballot has no votes.`;
-
-    // istanbul ignore next
-    default:
-      throwIllegalValue(reason);
-  }
 }
