@@ -641,7 +641,7 @@ describe('hmpb write-in adjudication', () => {
     );
   });
 
-  test('qualified write-in mode does not allow adding new write-in candidates', async () => {
+  test('qualified write-in mode does not allow new or official candidates', async () => {
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo', 'write-in-0'],
@@ -656,6 +656,14 @@ describe('hmpb write-in adjudication', () => {
     await waitForBallotById('id-174');
     const writeInSearchSelect = screen.getByRole('combobox');
     fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    // Official candidates should not be selectable in qualified mode
+    expect(
+      screen.queryByRole('option', { name: 'Lion' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: 'Elephant' })
+    ).not.toBeInTheDocument();
 
     // Type a name that doesn't match any existing candidate
     userEvent.type(writeInSearchSelect, 'NewCandidate');
