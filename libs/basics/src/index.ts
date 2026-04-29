@@ -11,6 +11,7 @@ export * from './errors';
 export * from './find';
 export * from './iterators';
 export * from './map_object';
+export * from './memoize';
 export * from './merge_objects';
 export * from './result';
 export * from './range';
