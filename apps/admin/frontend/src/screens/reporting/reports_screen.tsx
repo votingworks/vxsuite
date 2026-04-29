@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { DateTime } from 'luxon';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
@@ -64,6 +65,13 @@ export function ReportsScreen(): JSX.Element {
     systemSettingsQuery.data,
     electionDefinition.election.date
   );
+  const pollsCloseDateTime = systemSettingsQuery.data?.electionDayPollsCloseTime
+    ? DateTime.fromISO(
+        `${electionDefinition.election.date.toISOString()}T${
+          systemSettingsQuery.data.electionDayPollsCloseTime
+        }`
+      ).toJSDate()
+    : undefined;
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
     (c) => c.type === 'candidate' && c.allowWriteIns
@@ -104,26 +112,13 @@ export function ReportsScreen(): JSX.Element {
         )}
         <MarkResultsOfficialButton />
       </OfficialResultsCard>
-      {closedPollsActionsBlocked &&
-        // `electionDayPollsCloseTime` is guaranteed by `closedPollsActionsBlocked`
-        // but we re-check for type safety
-        systemSettingsQuery.data?.electionDayPollsCloseTime && (
-          <P>
-            <Icons.Warning /> On Election Day,
-            {electionHasWriteInContest
-              ? ' certain reports '
-              : ' tally reports '}
-            and official results are unavailable until{' '}
-            {format.localeTime(
-              new Date(systemSettingsQuery.data.electionDayPollsCloseTime)
-            )}{' '}
-            (
-            {format.localeDate(
-              new Date(systemSettingsQuery.data.electionDayPollsCloseTime)
-            )}
-            ).
-          </P>
-        )}
+      {closedPollsActionsBlocked && pollsCloseDateTime && (
+        <P>
+          <Icons.Warning /> Reports containing vote totals are unavailable until{' '}
+          {format.localeTime(pollsCloseDateTime)} on Election Day (
+          {format.localeDate(pollsCloseDateTime)}).
+        </P>
+      )}
       <Section>
         <H2>{statusPrefix} Tally Reports</H2>
         <P>

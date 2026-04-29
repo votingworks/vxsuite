@@ -19,6 +19,7 @@ export function areClosedPollsActionsBlocked(
   if (
     fileMode === undefined ||
     fileMode === 'test' ||
+    fileMode === 'unlocked' ||
     !systemSettings?.disallowVxAdminTabulationBeforeElectionDayPollsCloseTime ||
     !systemSettings?.electionDayPollsCloseTime ||
     !electionDate
