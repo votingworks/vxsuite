@@ -73,6 +73,10 @@ function getVotingTypeLabel(votingType: LiveReportVotingType): string {
   }
 }
 
+function getCloseReportTitle(votingType: LiveReportVotingType): string {
+  return votingType === 'absentee' ? 'Tally Report' : 'Polls Closed Report';
+}
+
 function getTimestampLabel(pollsTransition: PollsTransitionType): string {
   switch (pollsTransition) {
     case 'open_polls':
@@ -132,7 +136,7 @@ function ReportDetails({
               })}
             />
           )}
-          <LabeledValue label="Scanner ID" value={machineId} />
+          <LabeledValue label="Machine ID" value={machineId} />
           <LabeledValue
             label="Election ID"
             value={formatBallotHash(ballotHash)}
@@ -191,9 +195,7 @@ function PartialReportHeader({
     <div style={{ flexDirection: 'column', gap: '1rem', display: 'flex' }}>
       <Callout icon="CircleDot" color="primary">
         Part {pageIndex + 1}/{numPages} of the {lowerCasedReportTitle} has been
-        sent to VxDesign.
-        <br />
-        <br /> Press &apos;Next&apos; on VxScan to send the next part.
+        received. Send the next part to continue.
       </Callout>
       {!isLive && (
         <div>
@@ -225,8 +227,8 @@ function PollsOpenReportConfirmation({
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
         <ReportDetails
-          ballotHash={ballotHash}
           machineId={machineId}
+          ballotHash={ballotHash}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
@@ -265,8 +267,8 @@ function PollsPausedReportConfirmation({
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
         <ReportDetails
-          ballotHash={ballotHash}
           machineId={machineId}
+          ballotHash={ballotHash}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
@@ -305,8 +307,8 @@ function VotingResumedReportConfirmation({
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
         <ReportDetails
-          ballotHash={ballotHash}
           machineId={machineId}
+          ballotHash={ballotHash}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
@@ -341,7 +343,7 @@ function PollsClosedPartialReportConfirmation({
   numPages: number;
   pageIndex: number;
 }): JSX.Element {
-  const reportTitle = getPollsReportTitle('close_polls');
+  const reportTitle = getCloseReportTitle(votingType);
   return (
     <ResultsScreen
       screenTitle={`${reportTitle} Part ${pageIndex + 1}/${numPages} Sent`}
@@ -354,8 +356,8 @@ function PollsClosedPartialReportConfirmation({
           pageIndex={pageIndex}
         />
         <ReportDetails
-          ballotHash={ballotHash}
           machineId={machineId}
+          ballotHash={ballotHash}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
@@ -440,7 +442,7 @@ function PollsClosedReportConfirmation({
   >;
   isLive: boolean;
 }): JSX.Element {
-  const reportTitle = getPollsReportTitle('close_polls');
+  const reportTitle = getCloseReportTitle(votingType);
 
   const pollingPlace = assertDefined(
     election.pollingPlaces?.find((p) => p.id === pollingPlaceId)
@@ -452,8 +454,8 @@ function PollsClosedReportConfirmation({
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
         <ReportDetails
-          ballotHash={ballotHash}
           machineId={machineId}
+          ballotHash={ballotHash}
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
