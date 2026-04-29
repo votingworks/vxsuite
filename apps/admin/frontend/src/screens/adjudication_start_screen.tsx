@@ -70,16 +70,9 @@ const CardHeader = styled(H3)`
 `;
 
 const LargeText = styled.div`
-  font-weight: 700;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
   font-size: 1.5rem;
   line-height: 1;
-`;
-
-const SuccessProgressBar = styled.div`
-  height: 0.75rem;
-  width: 100%;
-  background-color: ${(p) => p.theme.colors.primary};
-  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
 `;
 
 const EmptyTableMessage = styled.div`
@@ -87,6 +80,7 @@ const EmptyTableMessage = styled.div`
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+  margin-top: 0.5rem;
   color: ${(p) => p.theme.colors.onBackgroundMuted};
 `;
 
@@ -94,18 +88,14 @@ const InlineStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-weight: 500;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
-const SuccessInlineStatus = styled(InlineStatus)`
-  color: ${(p) => p.theme.colors.successAccent};
-`;
-
-const StatusDot = styled(Icons.Circle).attrs({ filled: true })`
+const StatusDot = styled(Icons.CircleSolid)`
   font-size: 0.625em;
 `;
 
-const FullWidthTableWrapper = styled.div`
+const TableWrapper = styled.div`
   & th,
   & td {
     padding: 0.625rem 1rem;
@@ -214,13 +204,11 @@ function WriteInCandidatesCard(): JSX.Element | null {
 
   const contestsWithCandidates =
     writeInContests.length - contestsNeedingCandidates.length;
-  const allHaveCandidates = contestsNeedingCandidates.length === 0;
   return (
     <Card>
       {header}
       <CardRow>
         <InlineStatus>
-          {allHaveCandidates && <Icons.Done color="success" />}
           {contestsWithCandidates} of {writeInContests.length} write-in contests
           have qualified candidates
         </InlineStatus>
@@ -312,7 +300,7 @@ function BallotAdjudicationCard({
           <InlineStatus>
             {completedCount} of {totalTally} adjudicated · {percentComplete}%
           </InlineStatus>
-          <SuccessProgressBar />
+          <ProgressBar progress={1} />
         </CardColumn>
       </Card>
     );
@@ -352,7 +340,7 @@ function MultiStationClientsTable({
   isEnabled: boolean;
 }): JSX.Element {
   return (
-    <FullWidthTableWrapper>
+    <TableWrapper>
       <Table>
         <thead>
           <tr>
@@ -393,7 +381,7 @@ function MultiStationClientsTable({
           )}
         </tbody>
       </Table>
-    </FullWidthTableWrapper>
+    </TableWrapper>
   );
 }
 
@@ -428,10 +416,10 @@ function MultiStationCard(): JSX.Element {
               <Icons.Warning color="warning" /> Network Offline
             </InlineStatus>
           ) : isEnabled ? (
-            <SuccessInlineStatus>
+            <InlineStatus>
               <StatusDot color="success" /> Online · Clients Can Adjudicate
               Ballots
-            </SuccessInlineStatus>
+            </InlineStatus>
           ) : (
             <InlineStatus>
               <StatusDot /> Off · Clients Cannot Adjudicate Ballots
@@ -439,7 +427,7 @@ function MultiStationCard(): JSX.Element {
           )}
           {isOnline && (
             <Button
-              icon={isEnabled ? <Icons.Square filled /> : 'Play'}
+              icon={isEnabled ? 'SquareSolid' : 'Play'}
               onPress={() =>
                 setAdjudicationEnabledMutation.mutate({ enabled: !isEnabled })
               }

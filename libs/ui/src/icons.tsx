@@ -100,7 +100,6 @@ import {
   faVolumeDown,
   faClock,
   faHeadphones,
-  faUserPen,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -290,6 +289,10 @@ export const Icons = {
   Circle(props: IconProps & { filled?: boolean }) {
     const { filled = false } = props;
     return <FaIcon {...props} type={filled ? faCircleSolid : faCircle} />;
+  },
+
+  CircleSolid(props) {
+    return <FaIcon {...props} type={faCircleSolid} />;
   },
 
   CircleDot(props) {
@@ -587,9 +590,12 @@ export const Icons = {
     return <FaIcon {...props} type={faArrowsSplitUpAndLeft} />;
   },
 
-  Square(props: IconProps & { filled?: boolean }) {
-    const { filled = false } = props;
-    return <FaIcon {...props} type={filled ? faSquareSolid : faSquare} />;
+  Square(props) {
+    return <FaIcon {...props} type={faSquare} />;
+  },
+
+  SquareSolid(props) {
+    return <FaIcon {...props} type={faSquareSolid} />;
   },
 
   Strikethrough(props) {
@@ -614,10 +620,6 @@ export const Icons = {
 
   UsbDrive(props) {
     return <FaIcon {...props} type={faUsb} />;
-  },
-
-  UserPen(props) {
-    return <FaIcon {...props} type={faUserPen} />;
   },
 
   VolumeDown(props) {
