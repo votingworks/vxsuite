@@ -208,6 +208,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   },
 
   MI: {
+    EDIT_POLLING_PLACES: true,
     OPEN_PRIMARIES: true,
   },
 
