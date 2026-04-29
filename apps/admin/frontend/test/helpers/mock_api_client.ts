@@ -45,6 +45,7 @@ import {
   constructElectionKey,
   ElectionDefinition,
   Id,
+  PollingPlace,
   PrinterConfig,
   PrinterStatus,
   Rect,
@@ -314,6 +315,29 @@ export function createApiMock(
       apiClient.getSystemSettings
         .expectCallWith()
         .resolves(systemSettings ?? DEFAULT_SYSTEM_SETTINGS);
+    },
+
+    expectGetLiveResultsReportingUrls(pollingPlaceId: string, urls: string[]) {
+      apiClient.getLiveResultsReportingUrl
+        .expectCallWith({ pollingPlaceId })
+        .resolves(urls);
+    },
+
+    expectGetLiveResultsReportingUrlsError(
+      pollingPlaceId: string,
+      error: Error
+    ) {
+      apiClient.getLiveResultsReportingUrl
+        .expectCallWith({ pollingPlaceId })
+        .throws(error);
+    },
+
+    expectGetMatchingAbsenteePollingPlaces(
+      result: Result<PollingPlace[], 'no-cvrs-loaded'>
+    ) {
+      apiClient.getMatchingAbsenteePollingPlaces
+        .expectCallWith()
+        .resolves(result);
     },
 
     expectGetCastVoteRecordFileMode(fileMode: CvrFileMode) {

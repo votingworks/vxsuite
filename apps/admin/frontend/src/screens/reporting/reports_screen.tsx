@@ -18,6 +18,7 @@ import {
   getTotalBallotCount,
   getCastVoteRecordFileMode,
   getRegisteredVoterCounts,
+  getSystemSettings,
 } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 import { OfficialResultsCard } from '../../components/official_results_card';
@@ -53,7 +54,11 @@ export function ReportsScreen(): JSX.Element {
   const totalBallotCountQuery = getTotalBallotCount.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const registeredVoterCountsQuery = getRegisteredVoterCounts.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+
+  const isLiveResultsReportingEnabled =
+    !!systemSettingsQuery.data?.quickResultsReportingUrl;
 
   const fileMode = castVoteRecordFileModeQuery.data;
 
@@ -132,7 +137,9 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
       </Section>
-      {(electionHasWriteInContest || voterTurnoutReportEnabled) && (
+      {(electionHasWriteInContest ||
+        voterTurnoutReportEnabled ||
+        isLiveResultsReportingEnabled) && (
         <Section>
           <H2>Other Reports</H2>
           {electionHasWriteInContest && (
@@ -146,6 +153,13 @@ export function ReportsScreen(): JSX.Element {
             <P>
               <LinkButton to={routerPaths.voterTurnoutReport}>
                 {statusPrefix} Voter Turnout Report
+              </LinkButton>
+            </P>
+          )}
+          {isLiveResultsReportingEnabled && (
+            <P>
+              <LinkButton to={routerPaths.sendTallyReports}>
+                Send Tally Reports
               </LinkButton>
             </P>
           )}

@@ -4,7 +4,10 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { ElectionDefinition } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
+} from '@votingworks/types';
 import { isVoterTurnoutReportEnabled, ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -100,6 +103,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -114,6 +118,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -128,6 +133,7 @@ describe('ballot count summary text', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -147,6 +153,7 @@ describe('voter turnout report link', () => {
       'precinct-1': 100,
       'precinct-2': 200,
     });
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -164,6 +171,7 @@ describe('voter turnout report link', () => {
       'precinct-1': 100,
       'precinct-2': 200,
     });
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -179,6 +187,7 @@ describe('voter turnout report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -200,6 +209,7 @@ describe('showing WIA report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -214,6 +224,7 @@ describe('showing WIA report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
 
     const electionDefinitionWithoutWriteIns: ElectionDefinition = {
       ...electionDefinition,
@@ -239,5 +250,41 @@ describe('showing WIA report link', () => {
 
     await screen.findButton('Full Election Tally Report');
     expect(screen.queryByText(BUTTON_TEXT)).not.toBeInTheDocument();
+  });
+});
+
+describe('Send Tally Reports link', () => {
+  test('shown when quickResultsReportingUrl is configured', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      quickResultsReportingUrl: 'https://results.example.com',
+    });
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findButton('Send Tally Reports');
+  });
+
+  test('not shown when quickResultsReportingUrl is not configured', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findButton('Full Election Tally Report');
+    expect(screen.queryByText('Send Tally Reports')).not.toBeInTheDocument();
   });
 });

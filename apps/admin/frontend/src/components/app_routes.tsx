@@ -25,6 +25,7 @@ import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
 import { VoterTurnoutReportScreen } from '../screens/reporting/voter_turnout_report_screen';
+import { SendTallyReportsScreen } from '../screens/reporting/send_tally_reports_screen';
 import { ManualTalliesFormScreen } from '../screens/tally/manual_tallies_form_screen';
 import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
@@ -191,6 +192,9 @@ export function AppRoutes(): JSX.Element | null {
       </Route>
       <Route exact path={routerPaths.voterTurnoutReport}>
         <VoterTurnoutReportScreen />
+      </Route>
+      <Route exact path={routerPaths.sendTallyReports}>
+        <SendTallyReportsScreen />
       </Route>
       <Route exact path={routerPaths.settings}>
         <SettingsScreen />
