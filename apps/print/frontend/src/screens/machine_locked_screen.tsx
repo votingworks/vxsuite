@@ -9,8 +9,13 @@ import {
   Screen,
 } from '@votingworks/ui';
 import {
+  BooleanEnvironmentVariableName as Feature,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import {
   getElectionRecord,
   getMachineConfig,
+  getPollingPlaceId,
   getPrecinctSelection,
 } from '../api';
 
@@ -22,14 +27,17 @@ const LockedImage = styled.img`
 `;
 
 export function MachineLockedScreen(): JSX.Element | null {
+  const usePollingPlaces = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES);
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+  const getPollingPlaceIdQuery = getPollingPlaceId.useQuery();
 
   if (
     !getElectionRecordQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
-    !getPrecinctSelectionQuery.isSuccess
+    !getPrecinctSelectionQuery.isSuccess ||
+    !getPollingPlaceIdQuery.isSuccess
   ) {
     return null;
   }
@@ -37,10 +45,16 @@ export function MachineLockedScreen(): JSX.Element | null {
   const electionDefinition = getElectionRecordQuery.data?.electionDefinition;
   const electionPackageHash = getElectionRecordQuery.data?.electionPackageHash;
   const machineConfig = getMachineConfigQuery.data;
+  const pollingPlaceId = getPollingPlaceIdQuery.data;
   const requiresElectionConfiguration = !electionDefinition;
-  const requiresPrecinctSelection = !getPrecinctSelectionQuery.data;
+  const requiresLocationSelection = usePollingPlaces
+    ? !pollingPlaceId
+    : !getPrecinctSelectionQuery.data;
   const isConfigured =
-    !requiresElectionConfiguration && !requiresPrecinctSelection;
+    !requiresElectionConfiguration && !requiresLocationSelection;
+
+  const locationType = usePollingPlaces ? 'polling place' : 'precinct';
+
   return (
     <Screen>
       <Main centerChild>
@@ -54,8 +68,8 @@ export function MachineLockedScreen(): JSX.Element | null {
           <Font align="center">
             <InsertCardImage cardInsertionDirection="right" />
             <H1 style={{ maxWidth: '27rem', marginTop: '0' }}>
-              {requiresPrecinctSelection
-                ? 'Insert an election manager card to select a precinct.'
+              {requiresLocationSelection
+                ? `Insert an election manager card to select a ${locationType}.`
                 : 'Insert an election manager card to configure VxPrint.'}
             </H1>
           </Font>
@@ -65,6 +79,7 @@ export function MachineLockedScreen(): JSX.Element | null {
         mode="admin"
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
+        pollingPlaceId={pollingPlaceId ?? undefined}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
       />

@@ -19,7 +19,9 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import {
+  BooleanEnvironmentVariableName as Feature,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
@@ -102,12 +104,16 @@ function AppRoot({
       return <MachineLockedScreen />;
     }
 
+    const locationType = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
+      ? 'polling place'
+      : 'precinct';
+
     return (
       <InvalidCardScreen
         reasonAndContext={authStatus}
         recommendedAction={
           authStatus.reason === 'machine_not_configured'
-            ? 'Use an election manager card and select a precinct to finish configuration.'
+            ? `Use an election manager card and select a ${locationType} to finish configuration.`
             : 'Use a valid card.'
         }
         cardInsertionDirection="right"
