@@ -539,6 +539,7 @@ export enum AdjudicationReason {
   Undervote = 'Undervote',
   BlankBallot = 'BlankBallot',
   UnmarkedWriteIn = 'UnmarkedWriteIn',
+  CrossoverVoting = 'CrossoverVoting',
 }
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
   z.enum(AdjudicationReason);
@@ -1175,17 +1176,27 @@ export const BlankBallotAdjudicationReasonInfoSchema: z.ZodSchema<BlankBallotAdj
     type: z.literal(AdjudicationReason.BlankBallot),
   });
 
+export interface CrossoverVotingAdjudicationReasonInfo {
+  type: AdjudicationReason.CrossoverVoting;
+}
+export const CrossoverVotingAdjudicationReasonInfoSchema: z.ZodSchema<CrossoverVotingAdjudicationReasonInfo> =
+  z.object({
+    type: z.literal(AdjudicationReason.CrossoverVoting),
+  });
+
 export type AdjudicationReasonInfo =
   | MarginalMarkAdjudicationReasonInfo
   | OvervoteAdjudicationReasonInfo
   | UndervoteAdjudicationReasonInfo
-  | BlankBallotAdjudicationReasonInfo;
+  | BlankBallotAdjudicationReasonInfo
+  | CrossoverVotingAdjudicationReasonInfo;
 export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
   z.union([
     MarginalMarkAdjudicationReasonInfoSchema,
     OvervoteAdjudicationReasonInfoSchema,
     UndervoteAdjudicationReasonInfoSchema,
     BlankBallotAdjudicationReasonInfoSchema,
+    CrossoverVotingAdjudicationReasonInfoSchema,
   ]);
 
 export type BallotId = string;
