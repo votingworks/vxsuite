@@ -10,6 +10,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DiagnosticRecord,
   Id,
+  PollingPlace,
   PrinterStatus,
   SystemSettings,
   Tabulation,
@@ -117,6 +118,10 @@ import { adjudicateCvrContest } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
+import {
+  generateAdminLiveResultsReportingUrls,
+  getMatchingAbsenteePollingPlaces,
+} from './live_results_reporting';
 import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
 import {
   exportWriteInAdjudicationReportPdf,
@@ -1388,6 +1393,34 @@ function buildApi({
         usbDrive: usbDriveAdapter,
         logger,
       });
+    },
+
+    getMatchingAbsenteePollingPlaces(): Result<
+      PollingPlace[],
+      'no-cvrs-loaded'
+    > {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      return getMatchingAbsenteePollingPlaces({ electionId, store });
+    },
+
+    async getLiveResultsReportingUrl(input: {
+      pollingPlaceId: string;
+    }): Promise<string[]> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const { machineId } = getMachineConfig();
+      const urls = await generateAdminLiveResultsReportingUrls({
+        electionId,
+        store,
+        pollingPlaceId: input.pollingPlaceId,
+        signingMachineId: machineId,
+        pollsTransitionTimestamp: Date.now(),
+      });
+      await logger.logAsCurrentRole(LogEventId.LiveReportingUrlViewer, {
+        message: `Generated signed live results reporting URL for polling place ${input.pollingPlaceId}.`,
+        disposition: 'success',
+        pollingPlaceId: input.pollingPlaceId,
+      });
+      return urls;
     },
 
     ...createSystemCallApi({
