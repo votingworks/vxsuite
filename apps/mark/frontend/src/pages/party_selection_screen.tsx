@@ -4,14 +4,18 @@ import { assertDefined } from '@votingworks/basics';
 import { PartyId } from '@votingworks/types';
 import {
   appStrings,
+  AssistiveTechInstructions,
+  AudioOnly,
   Button,
   Caption,
+  electionStrings,
   H2,
   LinkButton,
   Modal,
   P,
   PageNavigationButtonId,
   RadioGroup,
+  ReadOnLoad,
   WithScrollButtons,
 } from '@votingworks/ui';
 import { useIsReviewMode, VoterScreen } from '@votingworks/mark-flow-ui';
@@ -68,7 +72,7 @@ export function PartySelectionScreen(): JSX.Element {
               id={PageNavigationButtonId.PREVIOUS}
               to="/"
             >
-              Back
+              {appStrings.buttonBack()}
             </LinkButton>
             <LinkButton
               rightIcon="Next"
@@ -77,38 +81,61 @@ export function PartySelectionScreen(): JSX.Element {
               to={selectedPartyId ? '/contests/0' : undefined}
               disabled={!selectedPartyId}
             >
-              Next
+              {appStrings.buttonNext()}
             </LinkButton>
           </React.Fragment>
         )
       }
     >
       <Header>
-        <H2>Choose Your Party</H2>
-        <Caption>
-          You will be able to vote for your party&apos;s contests and any
-          nonpartisan contests.
-        </Caption>
+        <ReadOnLoad>
+          <H2>{appStrings.titleBmdPartySelectionScreen()}</H2>
+          <Caption>
+            {appStrings.instructionsBmdPartySelection()}
+            <AudioOnly>
+              <AssistiveTechInstructions
+                controllerString={appStrings.instructionsBmdPartySelectionNavigation()}
+                patDeviceString={appStrings.instructionsBmdPartySelectionNavigationPatDevice()}
+              />
+            </AudioOnly>
+          </Caption>
+        </ReadOnLoad>
       </Header>
       <WithScrollButtons>
         <OptionRadioGroup
           label="Party"
           hideLabel
-          options={election.parties.map((party) => ({
-            value: party.id,
-            label: party.fullName,
-          }))}
+          options={election.parties.map((party) => {
+            const isSelected = party.id === selectedPartyId;
+            return {
+              value: party.id,
+              label: (
+                <React.Fragment>
+                  {isSelected && (
+                    <AudioOnly>{appStrings.labelSelected()}</AudioOnly>
+                  )}
+                  {electionStrings.partyFullName(party)}
+                  {isSelected && !isReviewMode && (
+                    <AudioOnly>
+                      {appStrings.noteBmdPartySelectionCompleted()}
+                    </AudioOnly>
+                  )}
+                </React.Fragment>
+              ),
+            };
+          })}
           value={selectedPartyId}
           onChange={handleSelect}
         />
       </WithScrollButtons>
       {partyIdToConfirm && (
         <Modal
-          title="Confirm Party Change"
-          content={<P>Changing your party will clear all of your votes.</P>}
+          title={appStrings.titleBmdConfirmPartyChange()}
+          content={<P>{appStrings.warningBmdPartyChangeClearsVotes()}</P>}
           actions={
             <React.Fragment>
               <Button
+                id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
                 variant="primary"
                 onPress={() => {
                   selectParty(partyIdToConfirm);
@@ -116,10 +143,19 @@ export function PartySelectionScreen(): JSX.Element {
                   setIsReviewMode(false);
                 }}
               >
-                Change Party
+                {appStrings.buttonChangeParty()}
+                <AudioOnly>
+                  <AssistiveTechInstructions
+                    controllerString={appStrings.instructionsBmdSelectToConfirm()}
+                    patDeviceString={appStrings.instructionsBmdSelectToConfirmPatDevice()}
+                  />
+                </AudioOnly>
               </Button>
-              <Button onPress={() => setPartyIdToConfirm(undefined)}>
-                Cancel
+              <Button
+                id={PageNavigationButtonId.PREVIOUS}
+                onPress={() => setPartyIdToConfirm(undefined)}
+              >
+                {appStrings.buttonCancel()}
               </Button>
             </React.Fragment>
           }
