@@ -447,7 +447,10 @@ function PollsClosedReportConfirmation({
   const pollingPlace = assertDefined(
     election.pollingPlaces?.find((p) => p.id === pollingPlaceId)
   );
-  const pollingPlacePrecincts = [...pollingPlacePrecinctIds(pollingPlace)];
+  const placePrecinctIds = pollingPlacePrecinctIds(pollingPlace);
+  const orderedPrecincts = election.precincts.filter((p) =>
+    placePrecinctIds.has(p.id)
+  );
 
   return (
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
@@ -462,20 +465,15 @@ function PollsClosedReportConfirmation({
           votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
-        {pollingPlacePrecincts.map((precinctId) => {
-          const precinct = assertDefined(
-            election.precincts.find((p) => p.id === precinctId)
-          );
-          return (
-            <PrecinctTallySection
-              key={precinctId}
-              election={election}
-              precinctId={precinctId}
-              precinctName={precinct.name}
-              contestResults={contestResultsByPrecinct[precinctId]}
-            />
-          );
-        })}
+        {orderedPrecincts.map((precinct) => (
+          <PrecinctTallySection
+            key={precinct.id}
+            election={election}
+            precinctId={precinct.id}
+            precinctName={precinct.name}
+            contestResults={contestResultsByPrecinct[precinct.id]}
+          />
+        ))}
       </MainContent>
     </ResultsScreen>
   );
