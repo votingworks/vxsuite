@@ -150,6 +150,36 @@ test('overvote when casting overvotes is disallowed', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
 });
 
+test('crossover voting (cast ballot)', async () => {
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
+  renderScreen({
+    adjudicationReasonInfo: [{ type: AdjudicationReason.CrossoverVoting }],
+  });
+
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  screen.getByText(
+    'You voted in contests for more than one party. ' +
+      'If you cast this ballot, only your nonpartisan votes will count.'
+  );
+  const castBallotButton = screen.getButton('Cast Ballot');
+  const returnBallotButton = screen.getButton('Return Ballot');
+  expect(isButtonVariantPrimary(returnBallotButton)).toEqual(true);
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
+  userEvent.click(castBallotButton);
+  expect(castBallotButton).toBeDisabled();
+  expect(returnBallotButton).toBeDisabled();
+});
+
+test('crossover voting (return ballot)', async () => {
+  apiMock.mockApiClient.returnBallot.expectCallWith().resolves();
+  renderScreen({
+    adjudicationReasonInfo: [{ type: AdjudicationReason.CrossoverVoting }],
+  });
+
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
+});
+
 test('blank ballot', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   renderScreen({
