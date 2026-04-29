@@ -31,7 +31,11 @@ pub enum BallotGridBorders {
         top: GridBorder,
         bottom: GridBorder,
     },
-    OnlyCorners,
+    CornersOnly,
+    ScanDirectionBordersOnly {
+        left: GridBorder,
+        right: GridBorder,
+    },
 }
 
 impl BallotGridBorders {
@@ -51,20 +55,21 @@ impl BallotGridBorders {
             GridStrategy::CornersOnly => {
                 Self::find_all_using_only_corners(geometry, corners, options)
             }
+            GridStrategy::ScanDirectionBordersOnly => {
+                Self::find_all_using_only_scan_direction_borders(
+                    geometry, corners, candidates, options,
+                )
+            }
         }
     }
 
-    /// Finds the ballot grid borders using all timing marks along each border.
-    /// Each border is the sequence of marks between two corners, validated
-    /// against the expected center-to-center spacing.
-    #[allow(clippy::result_large_err)]
-    #[allow(clippy::missing_errors_doc)]
-    fn find_all_with_full_border(
+    /// Tries to find all the borders, returning edge-wise results (left, right, top, bottom).
+    fn try_find_all_borders(
         geometry: &Geometry,
         corners: &BallotGridCorners,
         candidates: &BallotGridCandidateMarks,
         options: &Options,
-    ) -> Result<Self, Error> {
+    ) -> [Result<GridBorder, Error>; 4] {
         let (top_left, top_right, bottom_left, bottom_right) = corners.corner_marks();
 
         let vertical_timing_mark_center_to_center_distance =
@@ -84,7 +89,7 @@ impl BallotGridBorders {
                 .copied()
                 .collect_vec(),
             (top_left, bottom_left),
-        )?;
+        );
 
         let right = GridBorder::find_between_corners(
             vertical_timing_mark_center_to_center_distance,
@@ -97,7 +102,7 @@ impl BallotGridBorders {
                 .copied()
                 .collect_vec(),
             (top_right, bottom_right),
-        )?;
+        );
 
         // Look for the top and bottom borders by finding the appropriate marks
         // between the corners we used to find the left and right borders. This
@@ -129,7 +134,7 @@ impl BallotGridBorders {
             Border::Top,
             &top_candidates,
             (top_left, top_right),
-        )?;
+        );
 
         let bottom = GridBorder::find_between_corners(
             horizontal_timing_mark_center_to_center_distance,
@@ -137,41 +142,53 @@ impl BallotGridBorders {
             Border::Bottom,
             &bottom_candidates,
             (bottom_left, bottom_right),
-        )?;
+        );
 
-        let actual_left_count = left.marks.len();
-        if actual_left_count != geometry.grid_size.height as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Left timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.height, actual_left_count),
-            });
-        }
+        let validate_mark_count = |gb: GridBorder, expected_count: usize| {
+            let actual_count = gb.marks.len();
+            if actual_count == expected_count {
+                Ok(gb)
+            } else {
+                Err(Error::MissingTimingMarks {
+                    reason: format!(
+                        "{:?} timing mark border has an unexpected number of marks. Expected {} marks, found {}",
+                        gb.border,
+                        geometry.grid_size.height,
+                        actual_count
+                    ),
+                })
+            }
+        };
 
-        let actual_right_count = right.marks.len();
-        if actual_right_count != geometry.grid_size.height as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Right timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.height, actual_right_count),
-            });
-        }
+        let width = geometry.grid_size.width as usize;
+        let height = geometry.grid_size.height as usize;
+        [
+            left.and_then(|border| validate_mark_count(border, height)),
+            right.and_then(|border| validate_mark_count(border, height)),
+            top.and_then(|border| validate_mark_count(border, width)),
+            bottom.and_then(|border| validate_mark_count(border, width)),
+        ]
+    }
 
-        let actual_top_count = top.marks.len();
-        if actual_top_count != geometry.grid_size.width as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Top timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.width, actual_top_count),
-            });
-        }
-
-        let actual_bottom_count = bottom.marks.len();
-        if actual_bottom_count != geometry.grid_size.width as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Bottom timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.width, actual_bottom_count),
-            });
-        }
+    /// Finds the ballot grid borders using all timing marks along each border.
+    /// Each border is the sequence of marks between two corners, validated
+    /// against the expected center-to-center spacing.
+    #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc)]
+    fn find_all_with_full_border(
+        geometry: &Geometry,
+        corners: &BallotGridCorners,
+        candidates: &BallotGridCandidateMarks,
+        options: &Options,
+    ) -> Result<Self, Error> {
+        let [left, right, top, bottom] =
+            Self::try_find_all_borders(geometry, corners, candidates, options);
 
         Ok(Self::Full {
-            left,
-            right,
-            top,
-            bottom,
+            left: left?,
+            right: right?,
+            top: top?,
+            bottom: bottom?,
         })
     }
 
@@ -210,7 +227,24 @@ impl BallotGridBorders {
             }
         }
 
-        Ok(Self::OnlyCorners)
+        Ok(Self::CornersOnly)
+    }
+
+    #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc)]
+    fn find_all_using_only_scan_direction_borders(
+        geometry: &Geometry,
+        corners: &BallotGridCorners,
+        candidates: &BallotGridCandidateMarks,
+        options: &Options,
+    ) -> Result<Self, Error> {
+        let [left, right, _, _] =
+            Self::try_find_all_borders(geometry, corners, candidates, options);
+
+        Ok(Self::ScanDirectionBordersOnly {
+            left: left?,
+            right: right?,
+        })
     }
 
     pub fn debug_draw(&self, canvas: &mut RgbImage) {
@@ -330,16 +364,26 @@ impl DefaultForGeometry for Options {
 }
 
 /// Determines how the timing mark grid is reconstructed from the candidate
-/// timing marks. `FullBorders` reads every mark along all four borders;
-/// `CornersOnly` uses only the four corner groupings and is appropriate for
-/// ballots that print only corner timing marks. `CornersOnly` is faster but
-/// less robust: a single bad corner detection skews the entire grid.
+/// timing marks.
 #[derive(Debug, Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum GridStrategy {
+    /// Ensure every timing mark is found along all four borders. Uses the sides
+    /// parallel to the direction of scanning (always left & right for now) to
+    /// determine the grid for bubble finding purposes.
     #[default]
     FullBorders,
+
+    /// Uses only the corner timing mark groupings, i.e. the corner marks plus
+    /// one in each of the horizontal and vertical directions. This strategy is
+    /// more resilient to issues with timing marks, but is bad at correcting for
+    /// stretching in the image when determining bubble positions.
     CornersOnly,
+
+    /// Uses only the borders paralle to the direction of scan, which is always
+    /// the left and right borders at the moment. Does not bother identifying
+    /// any of the marks in the non-scanning direction except the corners.
+    ScanDirectionBordersOnly,
 }
 
 impl GridStrategy {
@@ -348,6 +392,7 @@ impl GridStrategy {
         match self {
             Self::FullBorders => "full-borders",
             Self::CornersOnly => "corners-only",
+            Self::ScanDirectionBordersOnly => "scan-direction-borders-only",
         }
     }
 }

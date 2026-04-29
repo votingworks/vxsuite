@@ -119,7 +119,13 @@ pub fn find_timing_mark_grid(
             left: left.into_marks(),
             right: right.into_marks(),
         },
-        border_finding::BallotGridBorders::OnlyCorners => BorderMarks::OnlyCorners,
+        border_finding::BallotGridBorders::CornersOnly => BorderMarks::CornersOnly,
+        border_finding::BallotGridBorders::ScanDirectionBordersOnly { left, right } => {
+            BorderMarks::ScanDirectionBordersOnly {
+                left: left.into_marks(),
+                right: right.into_marks(),
+            }
+        }
     };
 
     let timing_marks = TimingMarks {
@@ -166,7 +172,11 @@ pub enum BorderMarks {
         left: Vec<CandidateTimingMark>,
         right: Vec<CandidateTimingMark>,
     },
-    OnlyCorners,
+    CornersOnly,
+    ScanDirectionBordersOnly {
+        left: Vec<CandidateTimingMark>,
+        right: Vec<CandidateTimingMark>,
+    },
 }
 
 impl BorderMarks {
@@ -175,7 +185,7 @@ impl BorderMarks {
     pub fn top(&self) -> &[CandidateTimingMark] {
         match self {
             Self::Full { top, .. } => top,
-            Self::OnlyCorners => &[],
+            Self::CornersOnly | Self::ScanDirectionBordersOnly { .. } => &[],
         }
     }
 
@@ -184,7 +194,7 @@ impl BorderMarks {
     pub fn bottom(&self) -> &[CandidateTimingMark] {
         match self {
             Self::Full { bottom, .. } => bottom,
-            Self::OnlyCorners => &[],
+            Self::CornersOnly | Self::ScanDirectionBordersOnly { .. } => &[],
         }
     }
 
@@ -192,8 +202,8 @@ impl BorderMarks {
     /// `OnlyCorners`.
     pub fn left(&self) -> &[CandidateTimingMark] {
         match self {
-            Self::Full { left, .. } => left,
-            Self::OnlyCorners => &[],
+            Self::CornersOnly => &[],
+            Self::Full { left, .. } | Self::ScanDirectionBordersOnly { left, .. } => left,
         }
     }
 
@@ -201,8 +211,8 @@ impl BorderMarks {
     /// `OnlyCorners`.
     pub fn right(&self) -> &[CandidateTimingMark] {
         match self {
-            Self::Full { right, .. } => right,
-            Self::OnlyCorners => &[],
+            Self::CornersOnly => &[],
+            Self::Full { right, .. } | Self::ScanDirectionBordersOnly { right, .. } => right,
         }
     }
 
@@ -210,7 +220,8 @@ impl BorderMarks {
     pub const fn grid_strategy(&self) -> GridStrategy {
         match self {
             Self::Full { .. } => GridStrategy::FullBorders,
-            Self::OnlyCorners => GridStrategy::CornersOnly,
+            Self::CornersOnly => GridStrategy::CornersOnly,
+            Self::ScanDirectionBordersOnly { .. } => GridStrategy::ScanDirectionBordersOnly,
         }
     }
 }
@@ -246,7 +257,7 @@ impl TimingMarks {
                 .collect()
         };
 
-        let border_marks = match std::mem::replace(&mut self.border_marks, BorderMarks::OnlyCorners)
+        let border_marks = match std::mem::replace(&mut self.border_marks, BorderMarks::CornersOnly)
         {
             BorderMarks::Full {
                 top,
@@ -270,7 +281,17 @@ impl TimingMarks {
                     right: rotated_left,
                 }
             }
-            BorderMarks::OnlyCorners => BorderMarks::OnlyCorners,
+            BorderMarks::CornersOnly => BorderMarks::CornersOnly,
+            BorderMarks::ScanDirectionBordersOnly { left, right } => {
+                let mut rotated_left = rotate_marks(left);
+                let mut rotated_right = rotate_marks(right);
+                rotated_left.sort_by_key(|m| m.rect().top());
+                rotated_right.sort_by_key(|m| m.rect().top());
+                BorderMarks::ScanDirectionBordersOnly {
+                    left: rotated_left,
+                    right: rotated_right,
+                }
+            }
         };
 
         self.top_left_corner = top_left_corner;
@@ -324,14 +345,22 @@ impl TimingMarks {
                 left: left_marks,
                 right: right_marks,
                 ..
-            } => self.point_for_location_with_full_grid(column, row, left_marks, right_marks),
-            BorderMarks::OnlyCorners => {
+            } => self.point_for_location_with_scan_direction_borders(
+                column,
+                row,
+                left_marks,
+                right_marks,
+            ),
+            BorderMarks::CornersOnly => {
                 Some(self.point_for_location_with_corners_only_grid(column, row))
+            }
+            BorderMarks::ScanDirectionBordersOnly { left, right } => {
+                self.point_for_location_with_scan_direction_borders(column, row, left, right)
             }
         }
     }
 
-    fn point_for_location_with_full_grid(
+    fn point_for_location_with_scan_direction_borders(
         &self,
         column: SubGridUnit,
         row: SubGridUnit,
