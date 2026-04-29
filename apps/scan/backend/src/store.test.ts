@@ -336,44 +336,6 @@ test('get/set polls state', () => {
   });
 });
 
-test('batch cleanup works correctly', () => {
-  const dbFile = makeTemporaryFile();
-  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
-
-  store.reset();
-
-  const firstBatchId = store.addBatch();
-  store.addBatch();
-  store.finishBatch({ batchId: firstBatchId });
-  store.cleanupIncompleteBatches();
-
-  const batches = store.getBatches();
-  expect(batches).toHaveLength(1);
-  expect(batches[0].id).toEqual(firstBatchId);
-  expect(batches[0].batchNumber).toEqual(1);
-  expect(batches[0].label).toEqual('Batch 1');
-
-  const thirdBatchId = store.addBatch();
-  store.addBatch();
-  store.finishBatch({ batchId: thirdBatchId });
-  store.cleanupIncompleteBatches();
-  const updatedBatches = store.getBatches();
-  expect(
-    [...updatedBatches].sort((a, b) => a.label.localeCompare(b.label))
-  ).toEqual([
-    expect.objectContaining({
-      id: firstBatchId,
-      batchNumber: 1,
-      label: 'Batch 1',
-    }),
-    expect.objectContaining({
-      id: thirdBatchId,
-      batchNumber: 3,
-      label: 'Batch 3',
-    }),
-  ]);
-});
-
 test('getBatches', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 

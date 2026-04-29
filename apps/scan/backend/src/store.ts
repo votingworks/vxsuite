@@ -742,14 +742,6 @@ export class Store {
   }
 
   /**
-   * Cleanup partial batches
-   */
-  cleanupIncompleteBatches(): void {
-    // cascades to the sheets
-    this.client.run('delete from batches where ended_at is null');
-  }
-
-  /**
    * Gets all batches, including their sheet count.
    */
   getBatches(): BatchInfo[] {
