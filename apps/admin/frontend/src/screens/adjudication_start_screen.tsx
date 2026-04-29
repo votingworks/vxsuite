@@ -106,12 +106,6 @@ const StatusDot = styled(Icons.Circle).attrs({ filled: true })`
 `;
 
 const FullWidthTableWrapper = styled.div`
-  margin: 0 -1rem -1rem;
-
-  & thead {
-    background-color: ${(p) => p.theme.colors.container};
-  }
-
   & th,
   & td {
     padding: 0.625rem 1rem;
@@ -242,14 +236,18 @@ function WriteInCandidatesCard(): JSX.Element | null {
   );
 }
 
-function BallotAdjudicationCard(): JSX.Element {
+function BallotAdjudicationCard({
+  showHeader,
+}: {
+  showHeader: boolean;
+}): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const queueMetadataQuery = getBallotAdjudicationQueueMetadata.useQuery();
   const cvrFilesQuery = getCastVoteRecordFiles.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
   const candidatesQuery = getQualifiedWriteInCandidates.useQuery();
 
-  const header = <CardHeader>Ballot Adjudication</CardHeader>;
+  const header = showHeader && <CardHeader>Ballot Adjudication</CardHeader>;
 
   if (
     !queueMetadataQuery.isSuccess ||
@@ -299,15 +297,9 @@ function BallotAdjudicationCard(): JSX.Element {
         {header}
         <CardColumn>
           <CardRow>
-            <CardColumn>
-              <LargeText>
-                <Icons.Done color="success" /> All ballots adjudicated
-              </LargeText>
-              <div>
-                {completedCount} of {totalTally} adjudicated · {percentComplete}
-                %
-              </div>
-            </CardColumn>
+            <LargeText>
+              <Icons.Done color="success" /> All ballots adjudicated
+            </LargeText>
             <LinkButton
               variant="primary"
               icon="RotateRight"
@@ -317,6 +309,9 @@ function BallotAdjudicationCard(): JSX.Element {
               Review
             </LinkButton>
           </CardRow>
+          <InlineStatus>
+            {completedCount} of {totalTally} adjudicated · {percentComplete}%
+          </InlineStatus>
           <SuccessProgressBar />
         </CardColumn>
       </Card>
@@ -491,13 +486,15 @@ export function AdjudicationStartScreen(): JSX.Element {
   }
 
   const { areWriteInCandidatesQualified } = systemSettingsQuery.data;
+  const showMultiStationCard = isMultiStationEnabled && !isOfficialResults;
+  const hasOtherCards = areWriteInCandidatesQualified || showMultiStationCard;
 
   return (
     <NavigationScreen title="Adjudication">
       <CardStack>
         {areWriteInCandidatesQualified && <WriteInCandidatesCard />}
-        <BallotAdjudicationCard />
-        {isMultiStationEnabled && !isOfficialResults && <MultiStationCard />}
+        <BallotAdjudicationCard showHeader={hasOtherCards} />
+        {showMultiStationCard && <MultiStationCard />}
       </CardStack>
     </NavigationScreen>
   );
