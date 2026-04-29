@@ -7,7 +7,6 @@ import {
 import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
 import {
-  Dictionary,
   Sha256Hash,
   Id,
   IdSchema,
@@ -1122,7 +1121,7 @@ export const VoteSchema: z.ZodSchema<Vote> = z.union([
 export type OptionalVote = Optional<Vote>;
 export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
   VoteSchema.optional();
-export type VotesDict = Dictionary<Vote>;
+export type VotesDict = Record<ContestId, Optional<Vote>>;
 export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(
   z.string(),
   VoteSchema
