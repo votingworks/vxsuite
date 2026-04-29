@@ -373,7 +373,7 @@ export function createApiMock(
 
     expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {
       apiClient.getNextCvrIdForBallotAdjudication
-        .expectCallWith()
+        .expectRepeatedCallsWith()
         .resolves(cvrId);
     },
 
