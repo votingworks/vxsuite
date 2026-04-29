@@ -103,7 +103,7 @@ describe('areClosedPollsActionsBlocked', () => {
     ).toEqual(true);
   });
 
-  test('returns true when before polls close time in unlocked file mode', () => {
+  test('returns false in unlocked file mode', () => {
     vi.setSystemTime(new Date('2026-11-03T18:00:00'));
     expect(
       areClosedPollsActionsBlocked(
@@ -115,7 +115,7 @@ describe('areClosedPollsActionsBlocked', () => {
         },
         ELECTION_DATE
       )
-    ).toEqual(true);
+    ).toEqual(false);
   });
 
   test('returns false when after polls close time', () => {
