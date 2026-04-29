@@ -183,13 +183,6 @@ export class Store {
   }
 
   /**
-   * Writes a copy of the database to the given path.
-   */
-  backup(filepath: string): void {
-    this.client.run('vacuum into ?', filepath);
-  }
-
-  /**
    * Resets the database and any cached data in the store.
    */
   reset(): void {
