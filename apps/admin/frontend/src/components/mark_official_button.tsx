@@ -14,7 +14,7 @@ export const MARK_RESULTS_OFFICIAL_BUTTON_TEXT =
   'Mark Election Results as Official';
 
 export function MarkResultsOfficialButton(): JSX.Element {
-  const { isOfficialResults } = useContext(AppContext);
+  const { electionDefinition, isOfficialResults } = useContext(AppContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const markResultsOfficialMutation = markResultsOfficial.useMutation();
@@ -33,7 +33,8 @@ export function MarkResultsOfficialButton(): JSX.Element {
     !isOfficialResults &&
     !areClosedPollsActionsBlocked(
       castVoteRecordFileModeQuery.data,
-      systemSettingsQuery.data
+      systemSettingsQuery.data,
+      electionDefinition?.election.date
     );
 
   function openModal() {

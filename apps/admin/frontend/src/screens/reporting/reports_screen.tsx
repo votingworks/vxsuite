@@ -61,7 +61,8 @@ export function ReportsScreen(): JSX.Element {
   const fileMode = castVoteRecordFileModeQuery.data;
   const closedPollsActionsBlocked = areClosedPollsActionsBlocked(
     fileMode,
-    systemSettingsQuery.data
+    systemSettingsQuery.data,
+    electionDefinition.election.date
   );
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
