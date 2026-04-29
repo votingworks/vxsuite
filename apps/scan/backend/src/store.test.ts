@@ -418,11 +418,6 @@ test('getBatches', () => {
   batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
-
-  // Confirm that batches marked as deleted are not included
-  store.deleteBatch(batchId);
-  batches = store.getBatches();
-  expect(batches).toHaveLength(0);
 });
 
 test('iterating over sheets', () => {
@@ -525,11 +520,6 @@ test('iterating over sheets', () => {
   expect(Array.from(store.forEachSheet())).toEqual(
     sortSheets([expectedSheet1, expectedSheet2, expectedSheet3])
   );
-
-  // Mark batch as deleted
-  store.deleteBatch(batchId);
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
-  expect(Array.from(store.forEachSheet())).toEqual([]);
 });
 
 test('getSheet', () => {
@@ -714,10 +704,6 @@ test('getBallotsCounted', () => {
   expect(store.getBallotsCounted()).toEqual(2);
   store.finishBatch({ batchId: batch2Id });
   expect(store.getBallotsCounted()).toEqual(2);
-
-  // Delete one of the batches
-  store.deleteBatch(batchId);
-  expect(store.getBallotsCounted()).toEqual(1);
 });
 
 test('getExportDirectoryName and setExportDirectoryName', () => {

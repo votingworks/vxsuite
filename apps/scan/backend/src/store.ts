@@ -666,8 +666,6 @@ export class Store {
         sheets.batch_id = batches.id
       and
         sheets.rejected_at is null
-      where
-        batches.deleted_at is null
     `) as { ballotsCounted: number } | undefined;
 
     return row?.ballotsCounted ?? 0;
@@ -751,22 +749,6 @@ export class Store {
   }
 
   /**
-   * Mark a batch as deleted
-   */
-  deleteBatch(batchId: string): boolean {
-    const { count } = this.client.one(
-      'select count(*) as count from batches where deleted_at is null and id = ?',
-      batchId
-    ) as { count: number };
-
-    this.client.run(
-      'update batches set deleted_at = current_timestamp where id = ?',
-      batchId
-    );
-    return count > 0;
-  }
-
-  /**
    * Cleanup partial batches
    */
   cleanupIncompleteBatches(): void {
@@ -804,8 +786,6 @@ export class Store {
         sheets.batch_id = batches.id
       and
         sheets.rejected_at is null
-      where
-        batches.deleted_at is null
       group by
         batches.id,
         batches.started_at,
@@ -836,7 +816,6 @@ export class Store {
   *forEachAcceptedSheet(): Generator<AcceptedSheet> {
     const sql = `${getSheetsBaseQuery}
       where
-        batches.deleted_at is null and
         sheets.rejected_at is null
       order by sheets.id
     `;
@@ -920,8 +899,6 @@ export class Store {
    */
   *forEachSheet(): Generator<Sheet> {
     const sql = `${getSheetsBaseQuery}
-      where
-        batches.deleted_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {
@@ -936,8 +913,6 @@ export class Store {
     const sql = `${getSheetsBaseQuery}
       inner join pending_continuous_export_operations on
         sheets.id = pending_continuous_export_operations.sheet_id
-      where
-        batches.deleted_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {
