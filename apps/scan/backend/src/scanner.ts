@@ -156,12 +156,6 @@ export async function recordAcceptedSheet(
   store.withTransaction(() => {
     storeInterpretedSheet(store, sheetId, interpretation);
 
-    // If we're storing an accepted sheet that needed review, that means that it was "adjudicated"
-    // (i.e. the voter said to count it without changing anything).
-    if (interpretation.type === 'NeedsReviewSheet') {
-      store.adjudicateSheet(sheetId);
-    }
-
     // Marked as complete within exportCastVoteRecordsToUsbDrive
     store.addPendingContinuousExportOperation(sheetId);
   });

@@ -81,7 +81,6 @@ const getSheetsBaseQuery = `
     front_image_path as frontImagePath,
     back_image_path as backImagePath,
     requires_adjudication as requiresAdjudication,
-    finished_adjudication_at as finishedAdjudicationAt,
     sheets.deleted_at as deletedAt
   from sheets left join batches on
     sheets.batch_id = batches.id
@@ -95,7 +94,6 @@ interface SheetRow {
   frontImagePath: string;
   backImagePath: string;
   requiresAdjudication: 0 | 1;
-  finishedAdjudicationAt: Iso8601Timestamp | null;
   deletedAt: Iso8601Timestamp | null;
 }
 
@@ -125,13 +123,6 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
 }
 
 function sheetRowToSheet(row: SheetRow): Sheet {
-  // Transactions in the scanner state machine guarantee this condition.
-  assert(
-    row.requiresAdjudication === 0 ||
-      row.finishedAdjudicationAt !== null ||
-      row.deletedAt !== null,
-    'Every sheet requiring review should have been either accepted or rejected'
-  );
   return row.deletedAt === null
     ? sheetRowToAcceptedSheet(row)
     : sheetRowToRejectedSheet(row);
@@ -694,14 +685,6 @@ export class Store {
     [front, back]: SheetOf<PageInterpretationWithFiles>
   ): string {
     try {
-      const finishedAdjudicationAt =
-        front.interpretation.type === 'InterpretedHmpbPage' &&
-        back.interpretation.type === 'InterpretedHmpbPage' &&
-        !front.interpretation.adjudicationInfo.requiresAdjudication &&
-        !back.interpretation.adjudicationInfo.requiresAdjudication
-          ? DateTime.now().toISOTime()
-          : undefined;
-
       this.client.run(
         `insert into sheets (
             id,
@@ -710,10 +693,9 @@ export class Store {
             front_interpretation_json,
             back_image_path,
             back_interpretation_json,
-            requires_adjudication,
-            finished_adjudication_at
+            requires_adjudication
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
@@ -723,8 +705,7 @@ export class Store {
         JSON.stringify(back.interpretation ?? {}),
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
           ? 1
-          : 0,
-        finishedAdjudicationAt ?? null
+          : 0
       );
     } catch (error) {
       debug(
@@ -776,24 +757,6 @@ export class Store {
         clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
-  }
-
-  adjudicateSheet(sheetId: string): boolean {
-    debug('finishing adjudication for sheet %s', sheetId);
-
-    this.client.run(
-      `
-      update
-        sheets
-      set
-        finished_adjudication_at = ?
-      where id = ?
-    `,
-      new Date().toISOString(),
-      sheetId
-    );
-
-    return true;
   }
 
   /**
@@ -883,8 +846,7 @@ export class Store {
     const sql = `${getSheetsBaseQuery}
       where
         batches.deleted_at is null and
-        sheets.deleted_at is null and
-        (requires_adjudication = 0 or finished_adjudication_at is not null)
+        sheets.deleted_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {

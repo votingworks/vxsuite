@@ -46,9 +46,6 @@ create table sheets (
   -- Did this sheet require adjudication? This value should never be updated.
   requires_adjudication boolean,
 
-  -- When adjudication is finished, this value is updated to now.
-  finished_adjudication_at datetime,
-
   created_at datetime default current_timestamp not null,
   deleted_at datetime,
 

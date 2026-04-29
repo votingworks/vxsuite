@@ -499,7 +499,6 @@ test('iterating over sheets', () => {
     },
     { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
   ]);
-  store.adjudicateSheet(sheet3Id);
   const expectedSheet3: AcceptedSheet = {
     type: 'accepted',
     id: sheet3Id,
