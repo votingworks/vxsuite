@@ -79,7 +79,7 @@ const getSheetsBaseQuery = `
     back_interpretation_json as backInterpretationJson,
     front_image_path as frontImagePath,
     back_image_path as backImagePath,
-    sheets.deleted_at as deletedAt
+    sheets.rejected_at as rejectedAt
   from sheets left join batches on
     sheets.batch_id = batches.id
 `;
@@ -91,11 +91,11 @@ interface SheetRow {
   backInterpretationJson: string;
   frontImagePath: string;
   backImagePath: string;
-  deletedAt: Iso8601Timestamp | null;
+  rejectedAt: Iso8601Timestamp | null;
 }
 
 function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
-  assert(row.deletedAt === null);
+  assert(row.rejectedAt === null);
   return {
     type: 'accepted',
     id: row.id,
@@ -110,7 +110,7 @@ function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
 }
 
 function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
-  assert(row.deletedAt !== null);
+  assert(row.rejectedAt !== null);
   return {
     type: 'rejected',
     id: row.id,
@@ -120,7 +120,7 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
 }
 
 function sheetRowToSheet(row: SheetRow): Sheet {
-  return row.deletedAt === null
+  return row.rejectedAt === null
     ? sheetRowToAcceptedSheet(row)
     : sheetRowToRejectedSheet(row);
 }
@@ -665,7 +665,7 @@ export class Store {
       on
         sheets.batch_id = batches.id
       and
-        sheets.deleted_at is null
+        sheets.rejected_at is null
       where
         batches.deleted_at is null
     `) as { ballotsCounted: number } | undefined;
@@ -675,7 +675,7 @@ export class Store {
 
   /**
    * Records a scanned sheet with its disposition. Rejected sheets are kept in
-   * the store but excluded from tabulation by setting `deleted_at`.
+   * the store but excluded from tabulation by setting `rejected_at`.
    */
   recordSheet({
     sheetId,
@@ -697,7 +697,7 @@ export class Store {
             front_interpretation_json,
             back_image_path,
             back_interpretation_json,
-            deleted_at
+            rejected_at
           ) values (
             ?, ?, ?, ?, ?, ?, ${isAccepted ? 'null' : 'current_timestamp'}
           )`,
@@ -803,7 +803,7 @@ export class Store {
       on
         sheets.batch_id = batches.id
       and
-        sheets.deleted_at is null
+        sheets.rejected_at is null
       where
         batches.deleted_at is null
       group by
@@ -837,7 +837,7 @@ export class Store {
     const sql = `${getSheetsBaseQuery}
       where
         batches.deleted_at is null and
-        sheets.deleted_at is null
+        sheets.rejected_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {

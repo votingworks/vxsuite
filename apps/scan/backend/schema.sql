@@ -44,7 +44,7 @@ create table sheets (
   back_interpretation_json text not null,
 
   created_at datetime default current_timestamp not null,
-  deleted_at datetime,
+  rejected_at datetime,
 
   foreign key (batch_id)
   references batches (id)
