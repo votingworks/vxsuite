@@ -9,6 +9,8 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
+  BallotMetadata,
+  BallotStyleId,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
@@ -21,7 +23,10 @@ import {
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
@@ -127,7 +132,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
 });
 
 test('treats either page being an invalid test mode as an invalid sheet', () => {
-  const { election } = vxFamousNamesFixtures;
+  const { election } = vxFamousNamesFixtures.electionDefinition;
   const invalidTestModePageInterpretation: PageInterpretation = {
     type: 'InvalidTestModePage',
     metadata: {
@@ -144,31 +149,37 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
   };
 
   expect(
-    combinePageInterpretationsForSheet([
-      {
-        imagePath: 'front.jpeg',
-        interpretation: invalidTestModePageInterpretation,
-      },
-      {
-        imagePath: 'back.jpeg',
-        interpretation: unreadablePage,
-      },
-    ])
+    combinePageInterpretationsForSheet(
+      [
+        {
+          imagePath: 'front.jpeg',
+          interpretation: invalidTestModePageInterpretation,
+        },
+        {
+          imagePath: 'back.jpeg',
+          interpretation: unreadablePage,
+        },
+      ],
+      election
+    )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
     reason: 'invalid_test_mode',
   });
   expect(
-    combinePageInterpretationsForSheet([
-      {
-        imagePath: 'front.jpeg',
-        interpretation: unreadablePage,
-      },
-      {
-        imagePath: 'back.jpeg',
-        interpretation: invalidTestModePageInterpretation,
-      },
-    ])
+    combinePageInterpretationsForSheet(
+      [
+        {
+          imagePath: 'front.jpeg',
+          interpretation: unreadablePage,
+        },
+        {
+          imagePath: 'back.jpeg',
+          interpretation: invalidTestModePageInterpretation,
+        },
+      ],
+      election
+    )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
     reason: 'invalid_test_mode',
@@ -182,16 +193,19 @@ test('differentiates vertical streaks detected from other unreadable errors', ()
     reason: 'verticalStreaksDetected',
   };
   expect(
-    combinePageInterpretationsForSheet([
-      {
-        imagePath: 'front.jpeg',
-        interpretation: verticalStreaksPageInterpretation,
-      },
-      {
-        imagePath: 'back.jpeg',
-        interpretation: verticalStreaksPageInterpretation,
-      },
-    ])
+    combinePageInterpretationsForSheet(
+      [
+        {
+          imagePath: 'front.jpeg',
+          interpretation: verticalStreaksPageInterpretation,
+        },
+        {
+          imagePath: 'back.jpeg',
+          interpretation: verticalStreaksPageInterpretation,
+        },
+      ],
+      vxFamousNamesFixtures.electionDefinition.election
+    )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
     reason: 'vertical_streaks_detected',
@@ -205,16 +219,19 @@ test('differentiates BMD ballot scanning disabled from other unreadable errors',
       reason: 'bmdBallotScanningDisabled',
     };
   expect(
-    combinePageInterpretationsForSheet([
-      {
-        imagePath: 'front.jpeg',
-        interpretation: bmdPageWhenBmdBallotScanningDisabledInterpretation,
-      },
-      {
-        imagePath: 'back.jpeg',
-        interpretation: bmdPageWhenBmdBallotScanningDisabledInterpretation,
-      },
-    ])
+    combinePageInterpretationsForSheet(
+      [
+        {
+          imagePath: 'front.jpeg',
+          interpretation: bmdPageWhenBmdBallotScanningDisabledInterpretation,
+        },
+        {
+          imagePath: 'back.jpeg',
+          interpretation: bmdPageWhenBmdBallotScanningDisabledInterpretation,
+        },
+      ],
+      vxFamousNamesFixtures.electionDefinition.election
+    )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
     reason: 'bmd_ballot_scanning_disabled',
@@ -263,3 +280,110 @@ test('NH interpreter with testMode=true', async () => {
 function allPrecinctIds(electionDef: ElectionDefinition) {
   return new Set(electionDef.election.precincts.map((p) => p.id));
 }
+
+function buildHmpbPage({
+  votes,
+  pageNumber,
+  ballotHash,
+}: {
+  votes: InterpretedHmpbPage['votes'];
+  pageNumber: number;
+  ballotHash: string;
+}): InterpretedHmpbPage {
+  const metadata: BallotMetadata = {
+    ballotStyleId: '1' as BallotStyleId,
+    ballotType: BallotType.Precinct,
+    ballotHash,
+    isTestMode: false,
+    precinctId: 'sample-county',
+  };
+  return {
+    type: 'InterpretedHmpbPage',
+    metadata: { ...metadata, pageNumber },
+    markInfo: {
+      ballotSize: { height: 1584, width: 1224 },
+      marks: [],
+    },
+    votes,
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      enabledReasons: [],
+      enabledReasonInfos: [],
+      ignoredReasonInfos: [],
+    },
+    layout: {
+      pageSize: { width: 0, height: 0 },
+      metadata: { ...metadata, pageNumber },
+      contests: [],
+    },
+  };
+}
+
+test('combinePageInterpretationsForSheet flags crossover voting in open primaries', () => {
+  const election = electionOpenPrimaryFixtures.readElection();
+  const front = buildHmpbPage({
+    votes: {
+      'governor-democratic': [
+        { id: 'alice-jones', name: 'Alice Jones', partyIds: undefined },
+      ],
+    },
+    pageNumber: 1,
+    ballotHash: 'hash',
+  });
+  const back = buildHmpbPage({
+    votes: {
+      'governor-republican': [
+        { id: 'dave-wilson', name: 'Dave Wilson', partyIds: undefined },
+      ],
+    },
+    pageNumber: 2,
+    ballotHash: 'hash',
+  });
+
+  expect(
+    combinePageInterpretationsForSheet(
+      [
+        { imagePath: 'front.jpeg', interpretation: front },
+        { imagePath: 'back.jpeg', interpretation: back },
+      ],
+      election
+    )
+  ).toEqual<SheetInterpretation>({
+    type: 'NeedsReviewSheet',
+    reasons: [{ type: AdjudicationReason.CrossoverVoting }],
+  });
+});
+
+test('combinePageInterpretationsForSheet treats single-party open primary voting as valid', () => {
+  const election = electionOpenPrimaryFixtures.readElection();
+  const front = buildHmpbPage({
+    votes: {
+      'governor-democratic': [
+        { id: 'alice-jones', name: 'Alice Jones', partyIds: undefined },
+      ],
+    },
+    pageNumber: 1,
+    ballotHash: 'hash',
+  });
+  const back = buildHmpbPage({
+    votes: {
+      'secretary-of-state-democratic': [
+        { id: 'james-martin', name: 'James Martin', partyIds: undefined },
+      ],
+    },
+    pageNumber: 2,
+    ballotHash: 'hash',
+  });
+
+  expect(
+    combinePageInterpretationsForSheet(
+      [
+        { imagePath: 'front.jpeg', interpretation: front },
+        { imagePath: 'back.jpeg', interpretation: back },
+      ],
+      election
+    )
+  ).toEqual<SheetInterpretation>({
+    type: 'ValidSheet',
+  });
+});
