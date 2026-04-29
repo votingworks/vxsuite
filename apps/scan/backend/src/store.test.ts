@@ -377,53 +377,47 @@ test('batch cleanup works correctly', () => {
 test('getBatches', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
-  // Create a batch and add a sheet to it
   const batchId = store.addBatch();
-  const sheetId = store.addSheet(uuid(), batchId, [
-    {
-      imagePath: '/tmp/front-page.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-    {
-      imagePath: '/tmp/back-page.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-  ]);
 
-  // Add a second sheet
-  const sheetId2 = store.addSheet(uuid(), batchId, [
-    {
-      imagePath: '/tmp/front-page2.png',
-      interpretation: {
-        type: 'UnreadablePage',
+  // Record an accepted sheet — counts toward the batch
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId,
+    pages: [
+      {
+        imagePath: '/tmp/front-page.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-    {
-      imagePath: '/tmp/back-page2.png',
-      interpretation: {
-        type: 'UnreadablePage',
+      {
+        imagePath: '/tmp/back-page.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-  ]);
+    ],
+    isAccepted: true,
+  });
   let batches = store.getBatches();
-  expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(2);
-
-  // Delete one of the sheets
-  store.deleteSheet(sheetId);
-  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
 
-  // Delete the last sheet, then confirm that store.getBatches() results still include the batch
-  store.deleteSheet(sheetId2);
+  // Record a rejected sheet — does not count toward the batch
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId,
+    pages: [
+      {
+        imagePath: '/tmp/front-page2.png',
+        interpretation: { type: 'UnreadablePage' },
+      },
+      {
+        imagePath: '/tmp/back-page2.png',
+        interpretation: { type: 'UnreadablePage' },
+      },
+    ],
+    isAccepted: false,
+  });
   batches = store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(0);
+  expect(batches[0].count).toEqual(1);
 
   // Confirm that batches marked as deleted are not included
   store.deleteBatch(batchId);
@@ -444,13 +438,18 @@ test('iterating over sheets', () => {
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
   expect(Array.from(store.forEachSheet())).toEqual([]);
 
-  // Add and retrieve an accepted sheet
+  // Record an accepted sheet
   const batchId = store.addBatch();
   const sheet1Id = uuid();
-  store.addSheet(sheet1Id, batchId, [
-    { ...testSheetWithFiles[0], imagePath: '1-front.jpg' },
-    { ...testSheetWithFiles[1], imagePath: '1-back.jpg' },
-  ]);
+  store.recordSheet({
+    sheetId: sheet1Id,
+    batchId,
+    pages: [
+      { ...testSheetWithFiles[0], imagePath: '1-front.jpg' },
+      { ...testSheetWithFiles[1], imagePath: '1-back.jpg' },
+    ],
+    isAccepted: true,
+  });
   const expectedSheet1: AcceptedSheet = {
     type: 'accepted',
     id: sheet1Id,
@@ -462,13 +461,17 @@ test('iterating over sheets', () => {
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
   expect(Array.from(store.forEachSheet())).toEqual([expectedSheet1]);
 
-  // Add and retrieve a rejected sheet
+  // Record a rejected sheet
   const sheet2Id = uuid();
-  store.addSheet(sheet2Id, batchId, [
-    { ...testSheetWithFiles[0], imagePath: '2-front.jpg' },
-    { ...testSheetWithFiles[1], imagePath: '2-back.jpg' },
-  ]);
-  store.deleteSheet(sheet2Id);
+  store.recordSheet({
+    sheetId: sheet2Id,
+    batchId,
+    pages: [
+      { ...testSheetWithFiles[0], imagePath: '2-front.jpg' },
+      { ...testSheetWithFiles[1], imagePath: '2-back.jpg' },
+    ],
+    isAccepted: false,
+  });
   const expectedSheet2: RejectedSheet = {
     type: 'rejected',
     id: sheet2Id,
@@ -480,7 +483,8 @@ test('iterating over sheets', () => {
     sortSheets([expectedSheet1, expectedSheet2])
   );
 
-  // Add and retrieve an accepted adjudicated sheet
+  // Record an accepted sheet that originally needed review (the voter chose
+  // to cast it without changes)
   const sheet3Id = uuid();
   const interpretationRequiringAdjudication: InterpretedHmpbPage = {
     ...(testSheetWithFiles[0].interpretation as InterpretedHmpbPage),
@@ -491,14 +495,19 @@ test('iterating over sheets', () => {
       ignoredReasonInfos: [],
     },
   };
-  store.addSheet(sheet3Id, batchId, [
-    {
-      ...testSheetWithFiles[0],
-      imagePath: '3-front.jpg',
-      interpretation: interpretationRequiringAdjudication,
-    },
-    { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
-  ]);
+  store.recordSheet({
+    sheetId: sheet3Id,
+    batchId,
+    pages: [
+      {
+        ...testSheetWithFiles[0],
+        imagePath: '3-front.jpg',
+        interpretation: interpretationRequiringAdjudication,
+      },
+      { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
+    ],
+    isAccepted: true,
+  });
   const expectedSheet3: AcceptedSheet = {
     type: 'accepted',
     id: sheet3Id,
@@ -525,25 +534,41 @@ test('iterating over sheets', () => {
 
 test('getSheet', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-
   const batchId = store.addBatch();
-  const sheetId = uuid();
-  store.addSheet(sheetId, batchId, testSheetWithFiles);
-  expect(store.getSheet(sheetId)).toEqual({
+
+  // Accepted sheet
+  const acceptedSheetId = uuid();
+  store.recordSheet({
+    sheetId: acceptedSheetId,
+    batchId,
+    pages: testSheetWithFiles,
+    isAccepted: true,
+  });
+  expect(store.getSheet(acceptedSheetId)).toEqual({
     type: 'accepted',
-    id: sheetId,
+    id: acceptedSheetId,
     batchId,
     interpretation: mapSheet(testSheetWithFiles, (page) => page.interpretation),
     frontImagePath: '/front.png',
     backImagePath: '/back.png',
   });
 
-  store.deleteSheet(sheetId);
-  expect(store.getSheet(sheetId)).toEqual({
+  // Rejected sheet
+  const rejectedSheetId = uuid();
+  store.recordSheet({
+    sheetId: rejectedSheetId,
+    batchId,
+    pages: [
+      { ...testSheetWithFiles[0], imagePath: '/front-rejected.png' },
+      { ...testSheetWithFiles[1], imagePath: '/back-rejected.png' },
+    ],
+    isAccepted: false,
+  });
+  expect(store.getSheet(rejectedSheetId)).toEqual({
     type: 'rejected',
-    id: sheetId,
-    frontImagePath: '/front.png',
-    backImagePath: '/back.png',
+    id: rejectedSheetId,
+    frontImagePath: '/front-rejected.png',
+    backImagePath: '/back-rejected.png',
   });
 
   expect(store.getSheet('non-existent-id')).toEqual(undefined);
@@ -574,7 +599,12 @@ test('resetElectionSession', async () => {
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
 
-  store.addSheet(uuid(), batch2Id, testSheetWithFiles);
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId: batch2Id,
+    pages: testSheetWithFiles,
+    isAccepted: true,
+  });
   expect(Array.from(store.forEachSheet())).toHaveLength(1);
 
   store.setExportDirectoryName('export-directory-name');
@@ -622,67 +652,67 @@ test('getBallotsCounted', () => {
 
   expect(store.getBallotsCounted()).toEqual(0);
 
-  // Create a batch and add a sheet to it
+  // Create a batch and record an accepted sheet
   const batchId = store.addBatch();
-  store.addSheet(uuid(), batchId, [
-    {
-      imagePath: '/tmp/front-page.png',
-      interpretation: {
-        type: 'UnreadablePage',
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId,
+    pages: [
+      {
+        imagePath: '/tmp/front-page.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-    {
-      imagePath: '/tmp/back-page.png',
-      interpretation: {
-        type: 'UnreadablePage',
+      {
+        imagePath: '/tmp/back-page.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-  ]);
+    ],
+    isAccepted: true,
+  });
 
   expect(store.getBallotsCounted()).toEqual(1);
   store.finishBatch({ batchId });
   expect(store.getBallotsCounted()).toEqual(1);
 
-  // Create a second batch and add a second and third sheet
+  // Create a second batch with one accepted and one rejected sheet
   const batch2Id = store.addBatch();
-  store.addSheet(uuid(), batch2Id, [
-    {
-      imagePath: '/tmp/front-page2.png',
-      interpretation: {
-        type: 'UnreadablePage',
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId: batch2Id,
+    pages: [
+      {
+        imagePath: '/tmp/front-page2.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-    {
-      imagePath: '/tmp/back-page2.png',
-      interpretation: {
-        type: 'UnreadablePage',
+      {
+        imagePath: '/tmp/back-page2.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-  ]);
+    ],
+    isAccepted: true,
+  });
 
   expect(store.getBallotsCounted()).toEqual(2);
 
-  const sheetId3 = store.addSheet(uuid(), batch2Id, [
-    {
-      imagePath: '/tmp/front-page3.png',
-      interpretation: {
-        type: 'UnreadablePage',
+  // Rejected sheet — does not count
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId: batch2Id,
+    pages: [
+      {
+        imagePath: '/tmp/front-page3.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-    {
-      imagePath: '/tmp/back-page3.png',
-      interpretation: {
-        type: 'UnreadablePage',
+      {
+        imagePath: '/tmp/back-page3.png',
+        interpretation: { type: 'UnreadablePage' },
       },
-    },
-  ]);
+    ],
+    isAccepted: false,
+  });
 
-  expect(store.getBallotsCounted()).toEqual(3);
+  expect(store.getBallotsCounted()).toEqual(2);
   store.finishBatch({ batchId: batch2Id });
-  expect(store.getBallotsCounted()).toEqual(3);
-
-  // Delete one of the sheets
-  store.deleteSheet(sheetId3);
   expect(store.getBallotsCounted()).toEqual(2);
 
   // Delete one of the batches
@@ -773,16 +803,26 @@ test('forEachSheetPendingContinuousExport', () => {
   const batchId = store.addBatch();
 
   const sheet1Id = uuid();
-  store.addSheet(sheet1Id, batchId, [
-    { ...testSheetWithFiles[0], imagePath: '1-front.jpg' },
-    { ...testSheetWithFiles[1], imagePath: '1-back.jpg' },
-  ]);
+  store.recordSheet({
+    sheetId: sheet1Id,
+    batchId,
+    pages: [
+      { ...testSheetWithFiles[0], imagePath: '1-front.jpg' },
+      { ...testSheetWithFiles[1], imagePath: '1-back.jpg' },
+    ],
+    isAccepted: true,
+  });
 
   const sheet2Id = uuid();
-  store.addSheet(sheet2Id, batchId, [
-    { ...testSheetWithFiles[0], imagePath: '2-front.jpg' },
-    { ...testSheetWithFiles[1], imagePath: '2-back.jpg' },
-  ]);
+  store.recordSheet({
+    sheetId: sheet2Id,
+    batchId,
+    pages: [
+      { ...testSheetWithFiles[0], imagePath: '2-front.jpg' },
+      { ...testSheetWithFiles[1], imagePath: '2-back.jpg' },
+    ],
+    isAccepted: true,
+  });
   const expectedSheet2: AcceptedSheet = {
     type: 'accepted',
     id: sheet2Id,
@@ -793,10 +833,15 @@ test('forEachSheetPendingContinuousExport', () => {
   };
 
   const sheet3Id = uuid();
-  store.addSheet(sheet3Id, batchId, [
-    { ...testSheetWithFiles[0], imagePath: '3-front.jpg' },
-    { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
-  ]);
+  store.recordSheet({
+    sheetId: sheet3Id,
+    batchId,
+    pages: [
+      { ...testSheetWithFiles[0], imagePath: '3-front.jpg' },
+      { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
+    ],
+    isAccepted: true,
+  });
   const expectedSheet3: AcceptedSheet = {
     type: 'accepted',
     id: sheet3Id,

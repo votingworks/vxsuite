@@ -674,13 +674,20 @@ export class Store {
   }
 
   /**
-   * Adds a sheet to an existing batch.
+   * Records a scanned sheet with its disposition. Rejected sheets are kept in
+   * the store but excluded from tabulation by setting `deleted_at`.
    */
-  addSheet(
-    sheetId: string,
-    batchId: string,
-    [front, back]: SheetOf<PageInterpretationWithFiles>
-  ): string {
+  recordSheet({
+    sheetId,
+    batchId,
+    pages: [front, back],
+    isAccepted,
+  }: {
+    sheetId: string;
+    batchId: string;
+    pages: SheetOf<PageInterpretationWithFiles>;
+    isAccepted: boolean;
+  }): string {
     try {
       this.client.run(
         `insert into sheets (
@@ -689,9 +696,10 @@ export class Store {
             front_image_path,
             front_interpretation_json,
             back_image_path,
-            back_interpretation_json
+            back_interpretation_json,
+            deleted_at
           ) values (
-            ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ${isAccepted ? 'null' : 'current_timestamp'}
           )`,
         sheetId,
         batchId,
@@ -720,16 +728,6 @@ export class Store {
     }
 
     return sheetId;
-  }
-
-  /**
-   * Mark a sheet as deleted
-   */
-  deleteSheet(sheetId: string): void {
-    this.client.run(
-      'update sheets set deleted_at = current_timestamp where id = ?',
-      sheetId
-    );
   }
 
   resetElectionSession(): void {

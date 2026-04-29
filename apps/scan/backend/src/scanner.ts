@@ -3,7 +3,6 @@ import {
   assert,
   assertDefined,
   extractErrorMessage,
-  Optional,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -18,13 +17,11 @@ import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ExportCastVoteRecordsToUsbDriveError,
   HmpbBallotPaperSize,
-  Id,
   InsertedSmartCardAuth,
   PrecinctScannerState,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
   SheetInterpretation,
-  SheetInterpretationWithPages,
   SheetOf,
   ballotPaperDimensions,
   mapSheet,
@@ -71,21 +68,6 @@ import { Store } from './store';
 import { encryptBallotAuditId } from './export';
 
 const debug = rootDebug.extend('state-machine');
-
-function storeInterpretedSheet(
-  store: Store,
-  sheetId: Id,
-  interpretation: SheetInterpretationWithPages
-): Id {
-  const ongoingBatchId = store.getOngoingBatchId();
-  assert(typeof ongoingBatchId === 'string');
-  const addedSheetId = store.addSheet(
-    sheetId,
-    ongoingBatchId,
-    interpretation.pages
-  );
-  return addedSheetId;
-}
 
 async function exportCastVoteRecordToUsbDriveWithLogging(
   { continuousExportMutex, store }: Workspace,
@@ -144,51 +126,31 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
   });
 }
 
-export async function recordAcceptedSheet(
-  workspace: Workspace,
-  usbDrive: UsbDrive,
-  interpretation: InterpretationResult,
-  logger: Logger
-): Promise<void> {
-  const { store } = workspace;
-  assert(interpretation);
-  const { sheetId } = interpretation;
-  store.withTransaction(() => {
-    storeInterpretedSheet(store, sheetId, interpretation);
-
-    // Marked as complete within exportCastVoteRecordsToUsbDrive
-    store.addPendingContinuousExportOperation(sheetId);
-  });
-
-  if (store.getIsContinuousExportEnabled()) {
-    await exportCastVoteRecordToUsbDriveWithLogging(
-      workspace,
-      usbDrive,
-      sheetId,
-      'accepted',
-      logger
-    );
-  }
-
-  debug('Stored accepted sheet: %s', sheetId);
-}
-
-export async function recordRejectedSheet(
-  workspace: Workspace,
-  usbDrive: UsbDrive,
-  interpretation: Optional<InterpretationResult>,
-  logger: Logger
-): Promise<void> {
-  const { store } = workspace;
+export async function recordScannedSheet({
+  workspace,
+  usbDrive,
+  interpretation,
+  isAccepted,
+  logger,
+}: {
+  workspace: Workspace;
+  usbDrive: UsbDrive;
+  interpretation?: InterpretationResult;
+  isAccepted: boolean;
+  logger: Logger;
+}): Promise<void> {
   if (!interpretation) return;
+  const { store } = workspace;
   const { sheetId } = interpretation;
-  store.withTransaction(() => {
-    storeInterpretedSheet(store, sheetId, interpretation);
+  const acceptedOrRejected = isAccepted ? 'accepted' : 'rejected';
 
-    // We want to keep rejected ballots in the store, but not count them. We accomplish this by
-    // "deleting" them, which just marks them as deleted and is how we indicate that an interpreted
-    // ballot wasn't counted.
-    store.deleteSheet(sheetId);
+  store.withTransaction(() => {
+    store.recordSheet({
+      sheetId,
+      batchId: assertDefined(store.getOngoingBatchId()),
+      pages: interpretation.pages,
+      isAccepted,
+    });
 
     // Marked as complete within exportCastVoteRecordsToUsbDrive
     store.addPendingContinuousExportOperation(sheetId);
@@ -199,12 +161,12 @@ export async function recordRejectedSheet(
       workspace,
       usbDrive,
       sheetId,
-      'rejected',
+      acceptedOrRejected,
       logger
     );
   }
 
-  debug('Stored rejected sheet: %s', sheetId);
+  debug('Stored %s sheet: %s', acceptedOrRejected, sheetId);
 }
 
 export function cleanLogData(key: string, value: unknown): unknown {
@@ -568,12 +530,13 @@ function buildMachine({
     states: {
       starting: {
         entry: (context) =>
-          recordRejectedSheet(
+          recordScannedSheet({
             workspace,
             usbDrive,
-            context.interpretation,
-            logger
-          ),
+            interpretation: context.interpretation,
+            isAccepted: false,
+            logger,
+          }),
         invoke: [
           {
             src: async () => {
@@ -1011,14 +974,15 @@ function buildMachine({
           entry: async (context) => {
             /* istanbul ignore next - @preserve */
             scanAndInterpretTimer?.checkpoint('accepted');
-            await recordAcceptedSheet(
+            await recordScannedSheet({
               workspace,
               usbDrive,
-              assertDefined(context.interpretation),
-              logger
-            );
+              interpretation: assertDefined(context.interpretation),
+              isAccepted: true,
+              logger,
+            });
             /* istanbul ignore next - @preserve */
-            scanAndInterpretTimer?.checkpoint('recordAcceptedSheet complete');
+            scanAndInterpretTimer?.checkpoint('recordScannedSheet complete');
             /* istanbul ignore next - @preserve */
             scanAndInterpretTimer?.end();
             scanAndInterpretTimer = undefined;

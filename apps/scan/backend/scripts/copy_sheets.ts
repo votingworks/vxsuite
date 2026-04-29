@@ -56,16 +56,21 @@ function copySheet(store: Store, sheet: AcceptedSheet): string {
   fs.copyFileSync(sheet.frontImagePath, newSheet.frontImagePath);
   fs.copyFileSync(sheet.backImagePath, newSheet.backImagePath);
 
-  store.addSheet(newSheetId, newSheet.batchId, [
-    {
-      imagePath: newSheet.frontImagePath,
-      interpretation: newSheet.interpretation[0],
-    },
-    {
-      imagePath: newSheet.backImagePath,
-      interpretation: newSheet.interpretation[1],
-    },
-  ]);
+  store.recordSheet({
+    sheetId: newSheetId,
+    batchId: newSheet.batchId,
+    pages: [
+      {
+        imagePath: newSheet.frontImagePath,
+        interpretation: newSheet.interpretation[0],
+      },
+      {
+        imagePath: newSheet.backImagePath,
+        interpretation: newSheet.interpretation[1],
+      },
+    ],
+    isAccepted: true,
+  });
   return newSheetId;
 }
 
