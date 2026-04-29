@@ -7,15 +7,7 @@ import {
   Id,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import {
-  Button,
-  Callout,
-  DesktopPalette,
-  Modal,
-  P,
-  TabPanel,
-  useCurrentTheme,
-} from '@votingworks/ui';
+import { Button, Callout, Modal, P, useCurrentTheme } from '@votingworks/ui';
 import type { QualifiedWriteInCandidateRecord } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { EntityList } from '../components/entity_list';
@@ -23,6 +15,8 @@ import {
   getQualifiedWriteInCandidates,
   updateQualifiedWriteInCandidates,
 } from '../api';
+import { NavigationScreen } from '../components/navigation_screen';
+import { routerPaths } from '../router_paths';
 
 const Container = styled.div`
   display: flex;
@@ -54,7 +48,7 @@ const ActionsRow = styled.div`
     ${(p) => p.theme.colors.outline};
   display: flex;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 1rem;
 `;
 
 const cssViewMode = css`
@@ -88,12 +82,11 @@ const FormBody = styled.div`
 
 const FormFooter = styled.div`
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${DesktopPalette.Gray30};
+    ${(p) => p.theme.colors.outline};
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin: 0 1rem;
-  padding: 1rem 0;
+  padding: 1rem;
 `;
 
 const CandidateList = styled.div`
@@ -431,7 +424,7 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
   );
 }
 
-export function WriteInCandidatesTab(): JSX.Element {
+export function WriteInCandidatesScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
 
@@ -444,13 +437,20 @@ export function WriteInCandidatesTab(): JSX.Element {
     ContestId | undefined
   >(writeInContests[0]?.id);
 
+  const parentRoutes = [
+    { title: 'Adjudication', path: routerPaths.adjudication },
+  ];
+
   if (writeInContests.length === 0) {
     return (
-      <TabPanel>
+      <NavigationScreen
+        title="Qualified Write-In Candidates"
+        parentRoutes={parentRoutes}
+      >
         <Callout icon="Info" color="neutral">
           No contests in this election allow write-in candidates.
         </Callout>
-      </TabPanel>
+      </NavigationScreen>
     );
   }
 
@@ -459,7 +459,12 @@ export function WriteInCandidatesTab(): JSX.Element {
   );
 
   return (
-    <TabPanel style={{ padding: 0, flex: 1, minHeight: 0 }}>
+    <NavigationScreen
+      title="Qualified Write-In Candidates"
+      parentRoutes={parentRoutes}
+      noPadding
+      style={{ overflow: 'hidden' }}
+    >
       <Container>
         <ContestListContainer>
           <EntityList.Box>
@@ -497,6 +502,6 @@ export function WriteInCandidatesTab(): JSX.Element {
           <CandidatesForm contestId={selectedContest.id} />
         </CandidatesContainer>
       </Container>
-    </TabPanel>
+    </NavigationScreen>
   );
 }

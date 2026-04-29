@@ -5,7 +5,7 @@ import type { QualifiedWriteInCandidateRecord } from '@votingworks/admin-backend
 import { Election } from '@votingworks/types';
 import { screen, within, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { WriteInCandidatesTab } from './write_in_candidates_tab';
+import { WriteInCandidatesScreen } from './write_in_candidates_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -20,7 +20,7 @@ afterEach(() => {
 });
 
 function renderTab() {
-  return renderInAppContext(<WriteInCandidatesTab />, {
+  return renderInAppContext(<WriteInCandidatesScreen />, {
     apiMock,
   });
 }
@@ -70,7 +70,7 @@ describe('contest list', () => {
     const primaryElectionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
     expectGetQualifiedWriteInCandidates();
-    renderInAppContext(<WriteInCandidatesTab />, {
+    renderInAppContext(<WriteInCandidatesScreen />, {
       electionDefinition: primaryElectionDefinition,
       apiMock,
     });
@@ -88,7 +88,7 @@ describe('contest list', () => {
         c.type === 'candidate' ? { ...c, allowWriteIns: false } : c
       ),
     };
-    renderInAppContext(<WriteInCandidatesTab />, {
+    renderInAppContext(<WriteInCandidatesScreen />, {
       electionDefinition: { ...electionDefinition, election },
       apiMock,
     });

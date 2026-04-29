@@ -55,7 +55,7 @@ function NetworkStatusIndicator(): JSX.Element | null {
 
   return (
     <Row>
-      <Icons.Antenna color="inverse" />
+      <Icons.Sitemap color="inverse" />
       {isOnline ? (
         'Network Online'
       ) : (

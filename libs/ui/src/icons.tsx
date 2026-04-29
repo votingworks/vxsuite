@@ -24,6 +24,8 @@ import {
   faGear,
   faBan,
   faCheckSquare as faCheckSquareSolid,
+  faCircle as faCircleSolid,
+  faSquare as faSquareSolid,
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
@@ -64,11 +66,13 @@ import {
   faMouse,
   faPause,
   faPencil,
+  faPenToSquare,
   faPlay,
   faPowerOff,
   faPrint,
   faRotateRight,
   faSimCard,
+  faSitemap,
   faSort,
   faSortDown,
   faTowerBroadcast,
@@ -274,12 +278,21 @@ export const Icons = {
     return <FaIcon {...props} type={faSimCard} />;
   },
 
+  Sitemap(props) {
+    return <FaIcon {...props} type={faSitemap} />;
+  },
+
   CaretDown(props) {
     return <FaIcon {...props} type={faCaretDown} />;
   },
 
-  Circle(props) {
-    return <FaIcon {...props} type={faCircle} />;
+  Circle(props: IconProps & { filled?: boolean }) {
+    const { filled = false } = props;
+    return <FaIcon {...props} type={filled ? faCircleSolid : faCircle} />;
+  },
+
+  CircleSolid(props) {
+    return <FaIcon {...props} type={faCircleSolid} />;
   },
 
   CircleDot(props) {
@@ -517,6 +530,10 @@ export const Icons = {
     return <FaIcon {...props} type={faPause} />;
   },
 
+  PenToSquare(props) {
+    return <FaIcon {...props} type={faPenToSquare} />;
+  },
+
   Print(props) {
     return <FaIcon {...props} type={faPrint} />;
   },
@@ -575,6 +592,10 @@ export const Icons = {
 
   Square(props) {
     return <FaIcon {...props} type={faSquare} />;
+  },
+
+  SquareSolid(props) {
+    return <FaIcon {...props} type={faSquareSolid} />;
   },
 
   Strikethrough(props) {
