@@ -17,6 +17,7 @@ export * from './hooks/use_session_settings_manager';
 export * from './pages/cast_ballot_page';
 export * from './pages/contest_page';
 export * from './pages/idle_page';
+export * from './pages/party_selection_page';
 export * from './pages/print_page';
 export * from './pages/review_page';
 export * from './pages/start_page';
