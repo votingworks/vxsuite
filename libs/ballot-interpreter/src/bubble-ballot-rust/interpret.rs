@@ -1142,6 +1142,69 @@ mod test {
         assert!(matches!(error, Error::MissingTimingMarks { .. }));
     }
 
+    /// A ballot with several top and bottom timing marks rendered
+    /// undetectable (e.g. from a fold, smudge, or ink residue at the very
+    /// top or bottom edge) used to be rejected by the full-borders strategy.
+    /// The grid is now reconstructed from the left/right borders and the
+    /// four corners, so as long as those are intact the ballot still
+    /// interprets correctly.
+    #[test]
+    fn test_obscured_top_and_bottom_timing_marks_does_not_break_interpretation() {
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // We no longer record top/bottom marks on `TimingMarks`, so use the
+        // four corners (which we still record) to compute approximate
+        // top/bottom mark positions for a clean ballot.
+        let clean_interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
+                .expect("clean interpretation should succeed");
+        let tm = &clean_interpretation.front.timing_marks;
+        let n_cols = tm.geometry.grid_size.width as i32;
+        let mark_w = tm.geometry.timing_mark_width_pixels().ceil() as i32;
+        let mark_h = tm.geometry.timing_mark_height_pixels().ceil() as i32;
+        let pad = 6_i32; // extra slop so the mark is fully covered
+        let img_w = side_a_image.width() as i32;
+        let img_h = side_a_image.height() as i32;
+        let white = Luma([0xFFu8]);
+
+        // Paint a white rectangle over a handful of middle top marks and the
+        // matching middle bottom marks. We avoid the four corners (still
+        // needed for corner detection) and the left/right marks (still
+        // needed for grid reconstruction).
+        let middle = n_cols / 2;
+        for col in [middle - 2, middle - 1, middle, middle + 1, middle + 2] {
+            let frac = col as f32 / (n_cols - 1) as f32;
+            for (corner_a, corner_b) in [
+                (tm.top_left_corner, tm.top_right_corner),
+                (tm.bottom_left_corner, tm.bottom_right_corner),
+            ] {
+                let cx = (corner_a.x + frac * (corner_b.x - corner_a.x)).round() as i32;
+                let cy = (corner_a.y + frac * (corner_b.y - corner_a.y)).round() as i32;
+                for y in (cy - mark_h / 2 - pad).max(0)..(cy + mark_h / 2 + pad).min(img_h) {
+                    for x in (cx - mark_w / 2 - pad).max(0)..(cx + mark_w / 2 + pad).min(img_w) {
+                        side_a_image.put_pixel(x as u32, y as u32, white);
+                    }
+                }
+            }
+        }
+
+        let interpretation = ballot_card(side_a_image, side_b_image, &options)
+            .expect("interpretation should succeed with several top/bottom marks obscured");
+
+        // Bubble scores on a blank ballot should still be near zero — the
+        // obscured marks are well outside the bubble grid.
+        for (_grid_position, maybe_bubble) in &interpretation.front.marks {
+            if let Some(bubble) = maybe_bubble {
+                assert!(
+                    bubble.fill_score.0 < 0.02,
+                    "Unexpected non-zero bubble score on blank ballot: {}",
+                    bubble.fill_score.0
+                );
+            }
+        }
+    }
+
     #[test]
     fn test_reject_scaled_down_ballots() {
         let (side_a_image, side_b_image, options) =
