@@ -255,17 +255,14 @@ describe('showing WIA report link', () => {
 });
 
 describe('polls close time enforcement', () => {
-  const POLLS_CLOSE_TIME = '2020-11-03T23:00:00';
+  const POLLS_CLOSE_TIME = '23:00:00';
   const systemSettingsWithBlock: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
     electionDayPollsCloseTime: POLLS_CLOSE_TIME,
   };
 
-  // beforeEach sets fake timers to 2020-11-03T22:22:00, which is before
-  // POLLS_CLOSE_TIME
-
-  test('tally report + WIA report buttons disabled and message shown in official mode before polls close', async () => {
+  test('in official mode before polls close: tally/WIA/official sections hidden, callout shown', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
@@ -274,54 +271,24 @@ describe('polls close time enforcement', () => {
 
     renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
 
-    await vi.waitFor(() => {
-      expect(screen.getButton('Full Election Tally Report')).toBeDisabled();
-    });
-    expect(screen.getButton('All Precincts Tally Report')).toBeDisabled();
-    expect(screen.getButton('Single Precinct Tally Report')).toBeDisabled();
-    expect(screen.getButton('Tally Report Builder')).toBeDisabled();
+    await screen.findByRole('heading', { name: 'Polls Still Open' });
+    screen.getByText(/Reports containing vote totals are unavailable until/);
     expect(
-      screen.getButton('Unofficial Write-In Adjudication Report')
-    ).toBeDisabled();
-    // electionDefinition has write-in contests, so message uses "certain reports"
-    screen.getByText(
-      /On Election Day, certain reports and official results are unavailable until/
-    );
+      screen.queryByRole('button', { name: 'Full Election Tally Report' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: 'Unofficial Write-In Adjudication Report',
+      })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: 'Mark Election Results as Official',
+      })
+    ).not.toBeInTheDocument();
   });
 
-  test('shows "tally reports" in message when election has no write-in contests', async () => {
-    const electionDefinitionWithoutWriteIns: ElectionDefinition = {
-      ...electionDefinition,
-      election: {
-        ...electionDefinition.election,
-        contests: electionDefinition.election.contests.map((contest) => {
-          if (contest.type === 'candidate') {
-            return { ...contest, allowWriteIns: false };
-          }
-          return contest;
-        }),
-      },
-    };
-
-    apiMock.expectGetCastVoteRecordFileMode('official');
-    apiMock.expectGetManualResultsMetadata([]);
-    apiMock.expectGetTotalBallotCount(0);
-    apiMock.expectGetRegisteredVoterCounts(null);
-    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
-
-    renderInAppContext(<ReportsScreen />, {
-      electionDefinition: electionDefinitionWithoutWriteIns,
-      apiMock,
-    });
-
-    await vi.waitFor(() => {
-      screen.getByText(
-        /On Election Day, tally reports and official results are unavailable until/
-      );
-    });
-  });
-
-  test('ballot count report buttons remain enabled before polls close', async () => {
+  test('ballot count reports remain visible before polls close', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
@@ -330,27 +297,14 @@ describe('polls close time enforcement', () => {
 
     renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
 
-    await vi.waitFor(() => apiMock.assertComplete());
+    await screen.findByRole('heading', { name: 'Polls Still Open' });
     expect(screen.getButton('Precinct Ballot Count Report')).toBeEnabled();
     expect(screen.getButton('Voting Method Ballot Count Report')).toBeEnabled();
     expect(screen.getButton('Ballot Count Report Builder')).toBeEnabled();
   });
 
-  test('tally report buttons not disabled in test mode before polls close', async () => {
-    apiMock.expectGetCastVoteRecordFileMode('test');
-    apiMock.expectGetManualResultsMetadata([]);
-    apiMock.expectGetTotalBallotCount(0);
-    apiMock.expectGetRegisteredVoterCounts(null);
-    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
-
-    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
-
-    await vi.waitFor(() => apiMock.assertComplete());
-    expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
-  });
-
-  test('tally report buttons not disabled after polls close time', async () => {
-    vi.setSystemTime(new Date('2020-11-03T23:30:00'));
+  test('all reports and official button shown after polls close time', async () => {
+    vi.setSystemTime(new Date('2021-09-08T23:30:00'));
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
@@ -359,11 +313,14 @@ describe('polls close time enforcement', () => {
 
     renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
 
-    await vi.waitFor(() => apiMock.assertComplete());
-    expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
+    await screen.findButton('Full Election Tally Report');
+    expect(
+      screen.queryByRole('heading', { name: 'Polls Still Open' })
+    ).not.toBeInTheDocument();
+    screen.getByRole('button', { name: 'Mark Election Results as Official' });
   });
 
-  test('tally report buttons not disabled when setting is not enabled', async () => {
+  test('all reports shown when setting is not enabled', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
@@ -372,7 +329,63 @@ describe('polls close time enforcement', () => {
 
     renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
 
-    await vi.waitFor(() => apiMock.assertComplete());
+    await screen.findButton('Full Election Tally Report');
+    expect(
+      screen.queryByRole('heading', { name: 'Polls Still Open' })
+    ).not.toBeInTheDocument();
+  });
+
+  test('in test mode: all reports shown and test mode callout displayed', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await screen.findButton('Full Election Tally Report');
     expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
+    expect(
+      screen.getButton('Unofficial Write-In Adjudication Report')
+    ).toBeEnabled();
+    screen.getByRole('button', { name: 'Mark Election Results as Official' });
+    screen.getByText(/Test cast vote records are currently loaded/);
+    expect(
+      screen.queryByRole('heading', { name: 'Polls Still Open' })
+    ).not.toBeInTheDocument();
+  });
+
+  test('testmode callout not shown when setting is not enabled', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await screen.findButton('Full Election Tally Report');
+    expect(
+      screen.queryByText(/Test cast vote records are currently loaded/)
+    ).not.toBeInTheDocument();
+  });
+
+  test('testmode callout not shown when polls close time is not configured', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
+    });
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await screen.findButton('Full Election Tally Report');
+    expect(
+      screen.queryByText(/Test cast vote records are currently loaded/)
+    ).not.toBeInTheDocument();
   });
 });
