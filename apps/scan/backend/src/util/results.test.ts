@@ -11,15 +11,14 @@ import {
   BallotStyleId,
   BallotType,
   CandidateContest,
-  PageInterpretationWithFiles,
   PartyId,
-  SheetOf,
   TEST_JURISDICTION,
   PageInterpretation,
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
 import { Store } from '../store';
+import { makeHmpbSheet } from '../../test/helpers/shared_helpers';
 import {
   getScannerResultsMemoized,
   isBmdMultiPagePage,
@@ -29,46 +28,6 @@ import {
 
 const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
-
-function makeHmpbSheet({
-  metadata,
-  frontVotes = {},
-  backVotes = {},
-}: {
-  metadata: BallotMetadata;
-  frontVotes?: VotesDict;
-  backVotes?: VotesDict;
-}): SheetOf<PageInterpretationWithFiles> {
-  function makePage(
-    pageNumber: number,
-    votes: VotesDict
-  ): PageInterpretationWithFiles {
-    return {
-      imagePath: `/page-${pageNumber}-${uuid()}.png`,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          contests: [],
-          metadata: { ...metadata, pageNumber },
-          pageSize: { width: 0, height: 0 },
-        },
-        markInfo: {
-          ballotSize: { height: 1000, width: 800 },
-          marks: [],
-        },
-        metadata: { ...metadata, pageNumber },
-        votes,
-      },
-    };
-  }
-  return [makePage(1, frontVotes), makePage(2, backVotes)];
-}
 
 const testMetadata: BallotMetadata = {
   ballotStyleId: 'card-number-3' as BallotStyleId,

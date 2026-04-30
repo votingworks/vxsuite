@@ -8,11 +8,15 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
+import { v4 as uuid } from 'uuid';
 import {
+  BallotMetadata,
   ElectionPackage,
+  PageInterpretationWithFiles,
   PrecinctId,
   PrecinctScannerState,
   SheetOf,
+  VotesDict,
   asSheet,
   constructElectionKey,
   pollingPlaceFromElection,
@@ -109,12 +113,11 @@ export async function configureApp(
   );
 
   const { election } = electionPackage.electionDefinition;
-  const pollingPlace = pollingPlaceId
-    ? pollingPlaceFromElection(election, pollingPlaceId)
-    : assertDefined(election.pollingPlaces)[0];
-
   const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
   if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
+    const pollingPlace = pollingPlaceId
+      ? pollingPlaceFromElection(election, pollingPlaceId)
+      : assertDefined(election.pollingPlaces)[0];
     await apiClient.setPollingPlaceId({ id: pollingPlace.id });
   } else {
     await apiClient.setPrecinctSelection({
@@ -188,4 +191,49 @@ export async function pdfToImageSheet(
       .map(({ page }) => page)
       .toArray()
   );
+}
+
+/**
+ * Builds a synthetic two-page HMPB sheet for seeding the store with
+ * post-interpretation ballot data. Generates fresh imagePaths via uuid()
+ * so each call produces a distinct sheet.
+ */
+export function makeHmpbSheet({
+  metadata,
+  frontVotes = {},
+  backVotes = {},
+}: {
+  metadata: BallotMetadata;
+  frontVotes?: VotesDict;
+  backVotes?: VotesDict;
+}): SheetOf<PageInterpretationWithFiles> {
+  function makePage(
+    pageNumber: number,
+    votes: VotesDict
+  ): PageInterpretationWithFiles {
+    return {
+      imagePath: `/page-${pageNumber}-${uuid()}.png`,
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        layout: {
+          contests: [],
+          metadata: { ...metadata, pageNumber },
+          pageSize: { width: 0, height: 0 },
+        },
+        markInfo: {
+          ballotSize: { height: 1000, width: 800 },
+          marks: [],
+        },
+        metadata: { ...metadata, pageNumber },
+        votes,
+      },
+    };
+  }
+  return [makePage(1, frontVotes), makePage(2, backVotes)];
 }

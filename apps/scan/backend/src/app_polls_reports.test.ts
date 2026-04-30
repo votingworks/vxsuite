@@ -5,8 +5,16 @@ import {
 } from '@votingworks/utils';
 import {
   electionFamousNames2021Fixtures,
+  readElectionOpenPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
+import { v4 as uuid } from 'uuid';
+import {
+  BallotMetadata,
+  BallotType,
+  ElectionDefinition,
+  VotesDict,
+} from '@votingworks/types';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
@@ -14,7 +22,12 @@ import {
   renderMultiPageBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
+import {
+  configureApp,
+  makeHmpbSheet,
+  pdfToImageSheet,
+} from '../test/helpers/shared_helpers';
+import type { Store } from './store';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
 import { getScannerResults } from './util/results';
 
@@ -415,6 +428,228 @@ test('can print write-in image report with precinct selection', async () => {
   );
 });
 
+function recordHmpbBallotInStore({
+  store,
+  electionDefinition,
+  ballotStyleId,
+  precinctId,
+  votes,
+}: {
+  store: Store;
+  electionDefinition: ElectionDefinition;
+  ballotStyleId: string;
+  precinctId: string;
+  votes: VotesDict;
+}): void {
+  const metadata: BallotMetadata = {
+    ballotStyleId ,
+    ballotType: BallotType.Precinct,
+    ballotHash: electionDefinition.ballotHash,
+    isTestMode: true,
+    precinctId,
+  };
+  const batchId = store.addBatch();
+  store.recordSheet({
+    sheetId: uuid(),
+    batchId,
+    pages: makeHmpbSheet({ metadata, frontVotes: votes }),
+    isAccepted: true,
+  });
+  store.finishBatch({ batchId });
+}
+
+test('can tabulate results and print polls closed report for closed primary', async () => {
+  setPollingPlacesEnabled(true);
+
+  await withApp(
+    async ({
+      apiClient,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: electionTwoPartyPrimaryDefinition,
+        },
+      });
+
+      // Two mammal ballots and one fish ballot, each with a nonpartisan vote.
+      recordHmpbBallotInStore({
+        store: workspace.store,
+        electionDefinition: electionTwoPartyPrimaryDefinition,
+        ballotStyleId: '1M',
+        precinctId: 'precinct-1',
+        votes: {
+          'best-animal-mammal': ['horse'],
+          'new-zoo-either': ['new-zoo-either-approved'],
+        },
+      });
+      recordHmpbBallotInStore({
+        store: workspace.store,
+        electionDefinition: electionTwoPartyPrimaryDefinition,
+        ballotStyleId: '1M',
+        precinctId: 'precinct-1',
+        votes: {
+          'best-animal-mammal': ['otter'],
+          'new-zoo-either': ['new-zoo-either-approved'],
+        },
+      });
+      recordHmpbBallotInStore({
+        store: workspace.store,
+        electionDefinition: electionTwoPartyPrimaryDefinition,
+        ballotStyleId: '2F',
+        precinctId: 'precinct-1',
+        votes: {
+          'best-animal-fish': ['seahorse'],
+          fishing: ['ban-fishing'],
+        },
+      });
+
+      await apiClient.closePolls();
+
+      // Mammal section
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-closed-twoparty-section-mammal',
+        failureThreshold: 0.0001,
+      });
+
+      // Fish section
+      (await apiClient.printReportSection({ index: 1 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-closed-twoparty-section-fish',
+        failureThreshold: 0.0001,
+      });
+
+      // Nonpartisan section
+      (await apiClient.printReportSection({ index: 2 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-closed-twoparty-section-nonpartisan',
+        failureThreshold: 0.0001,
+      });
+
+      mockFujitsuPrinterHandler.cleanup();
+    }
+  );
+});
+
+test('can tabulate results and print polls closed report for open primary', async () => {
+  // The open primary fixture doesn't define pollingPlaces, so use precinct
+  // selection instead.
+  setPollingPlacesEnabled(false);
+
+  const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
+  await withApp(
+    async ({
+      apiClient,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: electionOpenPrimaryDefinition,
+        },
+        precinctId: 'precinct-1',
+      });
+
+      function record(votes: VotesDict): void {
+        recordHmpbBallotInStore({
+          store: workspace.store,
+          electionDefinition: electionOpenPrimaryDefinition,
+          ballotStyleId: 'ballot-style-1',
+          precinctId: 'precinct-1',
+          votes,
+        });
+      }
+
+      // Two democratic-only ballots
+      record({
+        'governor-democratic': ['alice-jones'],
+        'ballot-measure-1': ['ballot-measure-1-yes'],
+      });
+      record({
+        'governor-democratic': ['alice-jones'],
+        'ballot-measure-1': ['ballot-measure-1-yes'],
+      });
+      // One republican-only ballot
+      record({
+        'governor-republican': ['dave-wilson'],
+        'ballot-measure-1': ['ballot-measure-1-no'],
+      });
+      // One libertarian-only ballot
+      record({
+        'governor-libertarian': ['grace-kim'],
+      });
+      // One crossover ballot — partisan votes voided, nonpartisan counts
+      record({
+        'governor-democratic': ['alice-jones'],
+        'governor-republican': ['dave-wilson'],
+        'ballot-measure-1': ['ballot-measure-1-yes'],
+      });
+      // One nonpartisan-only ballot
+      record({
+        'ballot-measure-1': ['ballot-measure-1-no'],
+      });
+
+      await apiClient.closePolls();
+
+      // Democratic section
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier:
+          'polls-closed-open-primary-section-democratic',
+        failureThreshold: 0.0001,
+      });
+
+      // Republican section
+      (await apiClient.printReportSection({ index: 1 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier:
+          'polls-closed-open-primary-section-republican',
+        failureThreshold: 0.0001,
+      });
+
+      // Libertarian section
+      (await apiClient.printReportSection({ index: 2 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier:
+          'polls-closed-open-primary-section-libertarian',
+        failureThreshold: 0.0001,
+      });
+
+      // Nonpartisan section
+      (await apiClient.printReportSection({ index: 3 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier:
+          'polls-closed-open-primary-section-nonpartisan',
+        failureThreshold: 0.0001,
+      });
+
+      mockFujitsuPrinterHandler.cleanup();
+    }
+  );
+});
+
 function setPollingPlacesEnabled(enabled: boolean) {
   const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
   if (enabled) {
@@ -423,10 +658,3 @@ function setPollingPlacesEnabled(enabled: boolean) {
     mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
   }
 }
-
-/**
- * TODO: Add test coverage for results in a primary election. This will require
- * more robust mocking of ballots for scanning that creates or copies marked
- * ballot images from the HMPB rendering library. Currently we are only testing
- * with ballot images that were individually created and added as fixtures.
- * */
