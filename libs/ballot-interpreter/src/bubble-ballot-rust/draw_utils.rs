@@ -13,7 +13,7 @@ use types_rs::geometry::Rect;
 /// Draws a filled cross (+ shape, 3×3 pixels) on `canvas` at `(x, y)`.
 ///
 /// Handles coordinates outside image bounds.
-pub(crate) fn draw_cross_mut(canvas: &mut RgbImage, color: Rgb<u8>, x: i32, y: i32) {
+pub fn draw_cross_mut(canvas: &mut RgbImage, color: Rgb<u8>, x: i32, y: i32) {
     let (width, height) = canvas.dimensions();
     #[rustfmt::skip]
     let stencil = [
@@ -42,7 +42,7 @@ pub(crate) fn draw_cross_mut(canvas: &mut RgbImage, color: Rgb<u8>, x: i32, y: i
 /// Draws a filled rectangle on `canvas`.
 ///
 /// Clips to image bounds.
-pub(crate) fn draw_filled_rect_mut(canvas: &mut RgbImage, rect: Rect, color: Rgb<u8>) {
+pub fn draw_filled_rect_mut(canvas: &mut RgbImage, rect: Rect, color: Rgb<u8>) {
     let (w, h) = canvas.dimensions();
     let x0 = rect.left().max(0) as u32;
     let y0 = rect.top().max(0) as u32;
@@ -58,7 +58,7 @@ pub(crate) fn draw_filled_rect_mut(canvas: &mut RgbImage, rect: Rect, color: Rgb
 /// Draws the outline of a rectangle on `canvas`.
 ///
 /// Clips to image bounds.
-pub(crate) fn draw_hollow_rect_mut(canvas: &mut RgbImage, rect: Rect, color: Rgb<u8>) {
+pub fn draw_hollow_rect_mut(canvas: &mut RgbImage, rect: Rect, color: Rgb<u8>) {
     let left = rect.left() as f32;
     let right = rect.right() as f32;
     let top = rect.top() as f32;
@@ -72,7 +72,7 @@ pub(crate) fn draw_hollow_rect_mut(canvas: &mut RgbImage, rect: Rect, color: Rgb
 /// Draws a line segment between `start` and `end` using Bresenham's algorithm.
 ///
 /// Clips to image bounds.
-pub(crate) fn draw_line_segment_mut(
+pub fn draw_line_segment_mut(
     canvas: &mut RgbImage,
     start: (f32, f32),
     end: (f32, f32),
@@ -147,18 +147,14 @@ fn layout_glyphs(
 }
 
 /// Returns the pixel `(width, height)` of `text` rendered at `scale`.
-pub(crate) fn text_size(
-    scale: impl Into<PxScale> + Copy,
-    font: &impl Font,
-    text: &str,
-) -> (u32, u32) {
+pub fn text_size(scale: impl Into<PxScale> + Copy, font: &impl Font, text: &str) -> (u32, u32) {
     layout_glyphs(scale, font, text, |_, _| {})
 }
 
 /// Draws `text` on `canvas` at `(x, y)` with the given color.
 ///
 /// Uses sub-pixel anti-aliasing blended against the existing pixel.
-pub(crate) fn draw_text_mut(
+pub fn draw_text_mut(
     canvas: &mut RgbImage,
     color: Rgb<u8>,
     x: i32,
