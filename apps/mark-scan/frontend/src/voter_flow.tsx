@@ -7,6 +7,7 @@ import {
 import {
   BallotStyleId,
   ElectionDefinition,
+  PartyId,
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
@@ -38,6 +39,8 @@ export interface VoterFlowProps {
   endVoterSession: () => Promise<void>;
   stateMachineState: SimpleServerStatus;
   votes: VotesDict;
+  selectedPartyId?: PartyId;
+  selectParty: (partyId: PartyId) => void;
 }
 
 export function VoterFlow(props: VoterFlowProps): React.ReactNode {

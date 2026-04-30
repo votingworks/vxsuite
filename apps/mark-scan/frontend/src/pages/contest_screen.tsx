@@ -25,16 +25,13 @@ function getReviewPageUrl(contestId?: ContestId) {
   return '/review';
 }
 
-function getStartPageUrl() {
-  return '/';
-}
-
 export function ContestScreen(): JSX.Element {
   const {
     ballotStyleId,
     contests,
     electionDefinition,
     precinctId,
+    selectedPartyId,
     updateVote,
     votes,
   } = React.useContext(BallotContext);
@@ -46,6 +43,13 @@ export function ContestScreen(): JSX.Element {
   const isPatDeviceConnected = Boolean(
     api.getIsPatDeviceConnected.useQuery().data
   );
+
+  // In open primaries, Back from the first contest returns to party selection so the
+  // voter can change their party. `selectedPartyId` being set implies the
+  // voter came from the party selection screen.
+  function getStartPageUrl() {
+    return selectedPartyId ? '/party-selection' : '/';
+  }
 
   return (
     <ContestPage

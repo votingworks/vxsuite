@@ -6,6 +6,7 @@ import {
   BallotStyleId,
   Contests,
   ElectionDefinition,
+  PartyId,
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
@@ -33,6 +34,8 @@ export function render(
     machineConfig = mockMachineConfig(),
     precinctId,
     resetBallot = vi.fn(),
+    selectParty = vi.fn(),
+    selectedPartyId,
     updateVote = vi.fn(),
     votes = {},
     apiMock = createApiMock(),
@@ -48,6 +51,8 @@ export function render(
     machineConfig?: MachineConfig;
     precinctId?: PrecinctId;
     resetBallot?(): void;
+    selectedPartyId?: PartyId;
+    selectParty?(partyId: PartyId): void;
     setUserSettings?(): void;
     updateTally?(): void;
     updateVote?(): void;
@@ -69,6 +74,8 @@ export function render(
             endVoterSession,
             precinctId,
             resetBallot,
+            selectParty,
+            selectedPartyId,
             updateVote,
             votes,
           }}
