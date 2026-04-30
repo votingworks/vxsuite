@@ -139,7 +139,10 @@ export async function recordScannedSheet({
   isAccepted: boolean;
   logger: Logger;
 }): Promise<void> {
-  if (!interpretation) return;
+  if (!interpretation) {
+    assert(!isAccepted, 'Interpretation required for accepted sheets');
+    return;
+  }
   const { store } = workspace;
   const { sheetId } = interpretation;
   const acceptedOrRejected = isAccepted ? 'accepted' : 'rejected';
