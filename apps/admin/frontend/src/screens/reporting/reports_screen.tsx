@@ -1,7 +1,8 @@
 import { useContext } from 'react';
+import { DateTime } from 'luxon';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
-import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
+import { Callout, LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
@@ -18,12 +19,18 @@ import {
   getTotalBallotCount,
   getCastVoteRecordFileMode,
   getRegisteredVoterCounts,
+  getSystemSettings,
 } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 import { OfficialResultsCard } from '../../components/official_results_card';
+import { areClosedPollsActionsBlocked } from '../../utils/closed_polls_actions';
 
 const Section = styled.section`
   margin-bottom: 2rem;
+`;
+
+const CalloutIconWrapper = styled.span`
+  margin-top: 0.2em;
 `;
 
 export function isVoterTurnoutReportEnabled(
@@ -53,9 +60,22 @@ export function ReportsScreen(): JSX.Element {
   const totalBallotCountQuery = getTotalBallotCount.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const registeredVoterCountsQuery = getRegisteredVoterCounts.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
   const fileMode = castVoteRecordFileModeQuery.data;
+  const closedPollsActionsBlocked = areClosedPollsActionsBlocked(
+    fileMode,
+    systemSettingsQuery.data,
+    electionDefinition.election.date
+  );
+  const pollsCloseDateTime = systemSettingsQuery.data?.electionDayPollsCloseTime
+    ? DateTime.fromISO(
+        `${electionDefinition.election.date.toISOString()}T${
+          systemSettingsQuery.data.electionDayPollsCloseTime
+        }`
+      ).toJSDate()
+    : undefined;
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
     (c) => c.type === 'candidate' && c.allowWriteIns
@@ -82,39 +102,75 @@ export function ReportsScreen(): JSX.Element {
   return (
     <NavigationScreen title="Election Reports">
       {ballotCountSummaryText}
-      <OfficialResultsCard>
-        {isOfficialResults ? (
-          <H3>
-            <Icons.Done color="success" />
-            Election Results are Official
-          </H3>
-        ) : (
-          <H3>
-            <Icons.Info />
-            Election Results are Unofficial
-          </H3>
+      {!closedPollsActionsBlocked && (
+        <OfficialResultsCard>
+          {isOfficialResults ? (
+            <H3>
+              <Icons.Done color="success" />
+              Election Results are Official
+            </H3>
+          ) : (
+            <H3>
+              <Icons.Info />
+              Election Results are Unofficial
+            </H3>
+          )}
+          <MarkResultsOfficialButton />
+        </OfficialResultsCard>
+      )}
+      {fileMode === 'test' &&
+        systemSettingsQuery.data
+          ?.disallowVxAdminTabulationBeforeElectionDayPollsCloseTime &&
+        pollsCloseDateTime && (
+          <Section>
+            <Callout color="neutral" icon="Info">
+              Test cast vote records are currently loaded; all reports are
+              available. When official cast vote records are loaded, reports
+              containing vote totals will be unavailable until{' '}
+              {format.localeTime(pollsCloseDateTime)} on Election Day (
+              {format.localeDate(pollsCloseDateTime)}). Make sure this time is
+              correct.
+            </Callout>
+          </Section>
         )}
-        <MarkResultsOfficialButton />
-      </OfficialResultsCard>
-      <Section>
-        <H2>{statusPrefix} Tally Reports</H2>
-        <P>
-          <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
-            Full Election Tally Report
-          </LinkButton>{' '}
-          <LinkButton to={routerPaths.tallyAllPrecinctsReport}>
-            All Precincts Tally Report
-          </LinkButton>{' '}
-          <LinkButton to={routerPaths.tallySinglePrecinctReport}>
-            Single Precinct Tally Report
-          </LinkButton>
-        </P>
-        <P>
-          <LinkButton to={routerPaths.tallyReportBuilder}>
-            Tally Report Builder
-          </LinkButton>
-        </P>
-      </Section>
+      {closedPollsActionsBlocked && pollsCloseDateTime && (
+        <Section>
+          <Callout color="neutral">
+            <CalloutIconWrapper>
+              <Icons.Info />
+            </CalloutIconWrapper>
+            <div>
+              <H3>Polls Still Open</H3>
+              <P>
+                Reports containing vote totals are unavailable until{' '}
+                {format.localeTime(pollsCloseDateTime)} on Election Day (
+                {format.localeDate(pollsCloseDateTime)}).
+              </P>
+            </div>
+          </Callout>
+        </Section>
+      )}
+      {!closedPollsActionsBlocked && (
+        <Section>
+          <H2>{statusPrefix} Tally Reports</H2>
+          <P>
+            <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
+              Full Election Tally Report
+            </LinkButton>{' '}
+            <LinkButton to={routerPaths.tallyAllPrecinctsReport}>
+              All Precincts Tally Report
+            </LinkButton>{' '}
+            <LinkButton to={routerPaths.tallySinglePrecinctReport}>
+              Single Precinct Tally Report
+            </LinkButton>
+          </P>
+          <P>
+            <LinkButton to={routerPaths.tallyReportBuilder}>
+              Tally Report Builder
+            </LinkButton>
+          </P>
+        </Section>
+      )}
 
       <Section>
         <H2>{statusPrefix} Ballot Count Reports</H2>
@@ -132,25 +188,29 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
       </Section>
-      {(electionHasWriteInContest || voterTurnoutReportEnabled) && (
-        <Section>
-          <H2>Other Reports</H2>
-          {electionHasWriteInContest && (
-            <P>
-              <LinkButton to={routerPaths.tallyWriteInReport}>
-                {statusPrefix} Write-In Adjudication Report
-              </LinkButton>
-            </P>
-          )}
-          {voterTurnoutReportEnabled && (
-            <P>
-              <LinkButton to={routerPaths.voterTurnoutReport}>
-                {statusPrefix} Voter Turnout Report
-              </LinkButton>
-            </P>
-          )}
-        </Section>
-      )}
+      {!closedPollsActionsBlocked &&
+        (electionHasWriteInContest || voterTurnoutReportEnabled) && (
+          <Section>
+            <H2>Other Reports</H2>
+            {electionHasWriteInContest && (
+              <P>
+                <LinkButton
+                  to={routerPaths.tallyWriteInReport}
+                  disabled={closedPollsActionsBlocked}
+                >
+                  {statusPrefix} Write-In Adjudication Report
+                </LinkButton>
+              </P>
+            )}
+            {voterTurnoutReportEnabled && (
+              <P>
+                <LinkButton to={routerPaths.voterTurnoutReport}>
+                  {statusPrefix} Voter Turnout Report
+                </LinkButton>
+              </P>
+            )}
+          </Section>
+        )}
     </NavigationScreen>
   );
 }
