@@ -1071,7 +1071,7 @@ mod test {
         let tm = &card.front.timing_marks;
         assert!(matches!(
             tm.border_marks,
-            timing_marks::BorderMarks::OnlyCorners
+            timing_marks::BorderMarks::CornersOnly
         ));
         assert!(tm.border_marks.top().is_empty());
         assert!(tm.border_marks.bottom().is_empty());
