@@ -3,8 +3,8 @@
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    ScanInterpreter, VerticalStreakDetection, WriteInScoring,
-    DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    ScanInterpreter, VerticalStreakDetection, WriteInScoring, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 };
 use divan::{black_box, Bencher};
 use image::GrayImage;

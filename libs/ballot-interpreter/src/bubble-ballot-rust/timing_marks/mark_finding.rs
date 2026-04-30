@@ -1,25 +1,21 @@
 use ab_glyph::PxScale;
 use image::RgbImage;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use types_rs::pair::Pair;
 
 use crate::{
     ballot_card::{BallotImage, Geometry},
     debug::monospace_font,
     draw_utils::{draw_filled_rect_mut, draw_text_mut, text_size},
     image_utils::rainbow,
-    impl_edgewise,
-    timing_marks::{shape_finding::BallotGridBorderShapes, util::EdgeWise, CandidateTimingMark},
+    timing_marks::{shape_finding::BallotGridBorderShapes, CandidateTimingMark},
 };
 
 /// Represents the candidate timing marks found on a ballot grid.
 pub struct BallotGridCandidateMarks {
     pub left: Vec<CandidateTimingMark>,
     pub right: Vec<CandidateTimingMark>,
-    pub top: Vec<CandidateTimingMark>,
-    pub bottom: Vec<CandidateTimingMark>,
 }
-
-impl_edgewise!(BallotGridCandidateMarks, Vec<CandidateTimingMark>);
 
 impl BallotGridCandidateMarks {
     /// Converts a set of ballot grid border shapes into a set of candidate
@@ -29,16 +25,20 @@ impl BallotGridCandidateMarks {
     pub fn from_shapes(
         ballot_image: &BallotImage,
         geometry: &Geometry,
-        shapes: BallotGridBorderShapes,
+        BallotGridBorderShapes { left, right }: BallotGridBorderShapes,
     ) -> Self {
         // Since we're scoring the shapes by examining every pixel in every shape,
         // we use parallel processing to speed up the operation.
-        shapes.par_map_edgewise(|shapes| {
-            shapes
-                .par_iter()
-                .map(|shape| shape.to_candidate_timing_mark(ballot_image, geometry))
-                .collect()
-        })
+        let (left, right) = Pair::new(left, right)
+            .par_map(|shapes| {
+                shapes
+                    .par_iter()
+                    .map(|shape| shape.to_candidate_timing_mark(ballot_image, geometry))
+                    .collect()
+            })
+            .into();
+
+        Self { left, right }
     }
 
     pub fn debug_draw(&self, canvas: &mut RgbImage) {
@@ -84,41 +84,6 @@ impl BallotGridCandidateMarks {
                 color,
                 rect.left() - text_width as i32 - padding,
                 rect.top(),
-                scale,
-                &font,
-                &text,
-            );
-        }
-
-        // Top edge - text below (inside the grid)
-        for (mark, color) in self.top.iter().zip(rainbow()) {
-            let rect = mark.rect();
-            draw_filled_rect_mut(canvas, *rect, color);
-
-            let text = format_score(mark.scores().mark_score().0);
-            draw_text_mut(
-                canvas,
-                color,
-                rect.left(),
-                rect.bottom() + padding,
-                scale,
-                &font,
-                &text,
-            );
-        }
-
-        // Bottom edge - text above (inside the grid)
-        for (mark, color) in self.bottom.iter().zip(rainbow()) {
-            let rect = mark.rect();
-            draw_filled_rect_mut(canvas, *rect, color);
-
-            let text = format_score(mark.scores().mark_score().0);
-            let (_, text_height) = text_size(scale, &font, &text);
-            draw_text_mut(
-                canvas,
-                color,
-                rect.left(),
-                rect.top() - text_height as i32 - padding,
                 scale,
                 &font,
                 &text,

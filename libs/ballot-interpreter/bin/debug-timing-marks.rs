@@ -16,7 +16,7 @@ use ballot_interpreter::{
     debug,
     interpret::Error,
     scoring::UnitIntervalScore,
-    timing_marks::{self, Border, BorderAxis, DefaultForGeometry, TimingMarks},
+    timing_marks::{self, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::{eyre::bail, owo_colors::OwoColorize};
@@ -39,15 +39,6 @@ struct Options {
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
     minimum_detected_scale: Option<UnitIntervalScore>,
-
-    /// Detect grid scales using the distance between borders along the given
-    /// axis.
-    #[clap(long)]
-    scale_axis: Option<BorderAxis>,
-
-    /// Detect grid scales using the given border.
-    #[clap(long)]
-    scale_border: Option<Border>,
 
     /// Path for a CSV with various timing mark stats.
     #[clap(long)]
@@ -120,56 +111,24 @@ fn process_path<W: Write>(
     });
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
-        if let Some(detected_scale) = match (options.scale_axis, options.scale_border) {
-            (None, Some(border)) => timing_marks.compute_scale_based_on_border(border),
-            (Some(axis), None) => timing_marks.compute_scale_based_on_axis(axis),
-            (None, None) => {
-                bail!("Warning: minimum scale set but no scale measurement strategy was provided (border vs. axis)");
-            }
-            (Some(_), Some(_)) => {
-                bail!("Warning: multiple scale measurement strategies were provided; please use only border or axis");
-            }
-        } {
-            if detected_scale < minimum_detected_scale {
-                bail!(
+        match timing_marks.compute_scale() {
+            Some(detected_scale) => {
+                if detected_scale < minimum_detected_scale {
+                    bail!(
                     "Detected scale is too low: {detected_scale} is less than {minimum_detected_scale}",
                     detected_scale = detected_scale.0
                 );
+                }
+            }
+            None => {
+                bail!("Unable to detect scale of the printed ballot; cannot compare against minimum ({minimum_detected_scale})");
             }
         }
     }
 
     if let Some(stats) = stats {
-        let top_edge_median_period = timing_marks
-            .compute_scale_based_on_border(Border::Top)
-            .unwrap_or_default();
-        let bottom_edge_median_period = timing_marks
-            .compute_scale_based_on_border(Border::Bottom)
-            .unwrap_or_default();
-        let left_edge_median_period = timing_marks
-            .compute_scale_based_on_border(Border::Left)
-            .unwrap_or_default();
-        let right_edge_median_period = timing_marks
-            .compute_scale_based_on_border(Border::Right)
-            .unwrap_or_default();
-        let horizontal_axis_scale = timing_marks
-            .compute_scale_based_on_axis(BorderAxis::Horizontal)
-            .unwrap_or_default();
-        let vertical_axis_scale = timing_marks
-            .compute_scale_based_on_axis(BorderAxis::Vertical)
-            .unwrap_or_default();
-
-        writeln!(
-            stats,
-            "{},{},{},{},{},{},{}",
-            path.display(),
-            top_edge_median_period,
-            bottom_edge_median_period,
-            left_edge_median_period,
-            right_edge_median_period,
-            horizontal_axis_scale,
-            vertical_axis_scale,
-        )?;
+        let horizontal_axis_scale = timing_marks.compute_scale().unwrap_or_default();
+        writeln!(stats, "{},{}", path.display(), horizontal_axis_scale)?;
     }
 
     Ok(timing_marks)
@@ -202,10 +161,7 @@ fn main() -> color_eyre::Result<()> {
     let mut stats = stats_file.map(BufWriter::new);
 
     if let Some(stats) = &mut stats {
-        writeln!(
-            stats,
-           "path,top edge median period,bottom edge median period,left edge median period,right edge median period,horizontal axis scale,vertical axis scale"
-        )?;
+        writeln!(stats, "path,horizontal axis scale")?;
     }
 
     for path in &options.scanned_page_paths {

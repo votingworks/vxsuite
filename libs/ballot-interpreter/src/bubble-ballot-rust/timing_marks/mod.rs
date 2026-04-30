@@ -281,107 +281,38 @@ impl TimingMarks {
         Some(expected_timing_mark_center)
     }
 
-    /// Computes a ballot page scale by examining the timing marks along one of
-    /// the borders, taking the median value of the distance from each timing
-    /// mark's center to the center of its neighbors.
-    ///
-    /// We don't try to compute by averaging multiple borders together because
-    /// two of the four are in the direction of scan for a roller-based scanner
-    /// and there may be stretching in that direction as a result, leading to
-    /// unreliable scale values for the purposes of detecting mis-scaled
-    /// ballots.
-    ///
-    /// ```text
-    ///       top (or bottom) center-to-center distance
-    ///        ┌───┴───┐
-    ///      █████   █████   █████   █████   …
-    ///
-    ///      █████ ┐
-    ///            ├ left (or right) center-to-center distance
-    ///      █████ ┘
-    ///
-    ///      █████
-    ///
-    ///      …
-    /// ```
-    ///
-    /// Note that, for now, we assume that the direction of scan is vertical
-    /// from top to bottom or bottom to top. This function does not bake in that
-    /// assumption, but its caller likely does.
-    #[must_use]
-    pub fn compute_scale_based_on_border(&self, border: Border) -> Option<UnitIntervalScore> {
-        let marks: &[CandidateTimingMark] = match border {
-            // We no longer record top/bottom border marks.
-            Border::Top | Border::Bottom => &[],
-            Border::Left => &self.border_marks.left,
-            Border::Right => &self.border_marks.right,
-        };
-
-        let actual_mark_period = median(
-            marks
-                .iter()
-                .tuple_windows()
-                .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
-        )?;
-        let expected_mark_period = match border {
-            Border::Top | Border::Bottom => self
-                .geometry
-                .horizontal_timing_mark_center_to_center_pixel_distance(),
-            Border::Left | Border::Right => self
-                .geometry
-                .vertical_timing_mark_center_to_center_pixel_distance(),
-        };
-
-        Some(UnitIntervalScore(actual_mark_period / expected_mark_period))
-    }
-
     /// Computes a ballot page scale by examining the distances between
-    /// corresponding timing marks along horizontal or vertical borders,
+    /// corresponding timing marks along the left and right sides,
     /// taking the median value of the distance from the center of one
     /// mark to the center of the other.
     ///
     /// ```text
-    /// Horizontal:             Vertical:
-    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃     ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
-    /// ▃ ←─────────────→ ▃     ▃ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ▃
-    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃     ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
+    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
     /// ```
-    ///
-    /// We should only use the axis that is perpendicular to the direction of
-    /// scanning as there may be stretching in the direction of scanning,
+    /// We only use the borders that follow the direction of scanning as there
+    /// may be stretching in the direction of scanning (i.e. vertically),
     /// leading to unreliable scale values for the purposes of detecting
     /// mis-scaled ballots.
-    ///
-    /// Note that, for now, we assume that the direction of scan is vertical
-    /// from top to bottom or bottom to top. This function does not bake in that
-    /// assumption, but its caller likely does.
     #[must_use]
-    pub fn compute_scale_based_on_axis(&self, axis: BorderAxis) -> Option<UnitIntervalScore> {
-        match axis {
-            BorderAxis::Horizontal => {
-                let marks = self
-                    .border_marks
-                    .left
-                    .iter()
-                    .zip(self.border_marks.right.iter());
-                let actual = median(
-                    marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
-                )?;
-                let expected = self
-                    .geometry
-                    .left_to_right_center_to_center_pixel_distance();
-                Some(UnitIntervalScore(actual / expected))
-            }
-            // We no longer record top/bottom border marks, so there's
-            // no per-column pair of marks to measure against.
-            BorderAxis::Vertical => None,
-        }
+    pub fn compute_scale(&self) -> Option<UnitIntervalScore> {
+        let marks = self
+            .border_marks
+            .left
+            .iter()
+            .zip(self.border_marks.right.iter());
+        let actual = median(marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())))?;
+        let expected = self
+            .geometry
+            .left_to_right_center_to_center_pixel_distance();
+        Some(UnitIntervalScore(actual / expected))
     }
 }
 
@@ -474,24 +405,6 @@ impl FromStr for Border {
             "top" => Ok(Self::Top),
             "bottom" => Ok(Self::Bottom),
             _ => Err(format!("Invalid border: {s}")),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum BorderAxis {
-    Horizontal,
-    Vertical,
-}
-
-impl FromStr for BorderAxis {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "horizontal" => Ok(Self::Horizontal),
-            "vertical" => Ok(Self::Vertical),
-            _ => Err(format!("Invalid axis: {s}")),
         }
     }
 }

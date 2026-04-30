@@ -20,7 +20,7 @@ use crate::{
         score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
         ScoredPositionAreas, UnitIntervalScore,
     },
-    timing_marks::{self, BorderAxis, TimingMarks},
+    timing_marks,
 };
 
 use types_rs::{
@@ -323,7 +323,10 @@ impl BallotPage {
     /// Fails if the timing mark algorithm is unable to find the
     /// timing mark grid within the image.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(&self, options: &timing_marks::Options) -> Result<TimingMarks> {
+    pub fn find_timing_marks(
+        &self,
+        options: &timing_marks::Options,
+    ) -> Result<timing_marks::TimingMarks> {
         timing_marks::find_timing_mark_grid(&self.ballot_image, &self.geometry, options)
     }
 
@@ -473,7 +476,10 @@ impl BallotCard {
     ///
     /// Fails if timing marks cannot be found on one or both ballot pages.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(&self, options: &timing_marks::Options) -> Result<Pair<TimingMarks>> {
+    pub fn find_timing_marks(
+        &self,
+        options: &timing_marks::Options,
+    ) -> Result<Pair<timing_marks::TimingMarks>> {
         self.as_pair()
             .par_map(|page| page.find_timing_marks(options))
             .into_result()
@@ -489,19 +495,13 @@ impl BallotCard {
     #[allow(clippy::result_large_err)]
     pub fn check_minimum_scale<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         minimum_scale: UnitIntervalScore,
     ) -> Result<()> {
         self.as_pair()
             .zip(timing_marks)
             .map(|(ballot_page, timing_marks)| {
-                // We use the horizontal axis here because it is perpendicular to
-                // the scan direction and therefore stretching should be minimal.
-                //
-                // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
-                if let Some(scale) =
-                    timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal)
-                {
+                if let Some(scale) = timing_marks.compute_scale() {
                     if scale < minimum_scale {
                         return Err(Error::InvalidScale {
                             label: ballot_page.label().to_owned(),
@@ -619,7 +619,7 @@ impl BallotCard {
     #[allow(clippy::result_large_err)]
     pub fn score_bubble_marks<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         bubble_template: &GrayImage,
         grid_layout: &GridLayout,
         detected_vertical_streaks: impl Into<Pair<&'a Vec<VerticalStreak>>>,
@@ -649,7 +649,7 @@ impl BallotCard {
     /// Scores write-in areas in order to detect unmarked write-ins.
     pub fn score_write_in_areas<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         grid_layout: &GridLayout,
         sheet_number: u32,
     ) -> Pair<ScoredPositionAreas> {
@@ -676,7 +676,7 @@ impl BallotCard {
     #[allow(clippy::result_large_err)]
     pub fn build_page_layout<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         grid_layout: &GridLayout,
         sheet_number: u32,
     ) -> Result<Pair<Vec<InterpretedContestLayout>>> {
