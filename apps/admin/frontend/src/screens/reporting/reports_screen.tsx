@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useReducer } from 'react';
 import { DateTime } from 'luxon';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
@@ -57,6 +57,8 @@ export function ReportsScreen(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   assert(electionDefinition && typeof configuredAt === 'string');
 
+  const [, forceUpdate] = useReducer((n: number) => n + 1, 0);
+
   const totalBallotCountQuery = getTotalBallotCount.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const registeredVoterCountsQuery = getRegisteredVoterCounts.useQuery();
@@ -77,8 +79,25 @@ export function ReportsScreen(): JSX.Element {
         `${electionDefinition.election.date.toISOString()}T${
           systemSettingsQuery.data.electionDayPollsCloseTime
         }`
-      ).toJSDate()
+      )
     : undefined;
+  const pollsCloseDateString = pollsCloseDateTime
+    ? `${format.localeTime(
+        pollsCloseDateTime?.toJSDate()
+      )} on Election Day (${format.localeDate(pollsCloseDateTime?.toJSDate())})`
+    : undefined;
+
+  useEffect(() => {
+    if (!closedPollsActionsBlocked || pollsCloseDateTime === undefined) {
+      return;
+    }
+    const diff = pollsCloseDateTime.diffNow();
+    if (diff.toMillis() <= 0 || diff.as('hours') > 24) {
+      return;
+    }
+    const timeout = setTimeout(forceUpdate, diff.toMillis());
+    return () => clearTimeout(timeout);
+  }, [closedPollsActionsBlocked, pollsCloseDateTime, forceUpdate]);
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
     (c) => c.type === 'candidate' && c.allowWriteIns
@@ -130,13 +149,11 @@ export function ReportsScreen(): JSX.Element {
               Test cast vote records are currently loaded; all reports are
               available. When official cast vote records are loaded, reports
               containing vote totals will be unavailable until{' '}
-              {format.localeTime(pollsCloseDateTime)} on Election Day (
-              {format.localeDate(pollsCloseDateTime)}). Make sure this time is
-              correct.
+              {pollsCloseDateString}. Make sure this time is correct.
             </Callout>
           </Section>
         )}
-      {closedPollsActionsBlocked && pollsCloseDateTime && (
+      {closedPollsActionsBlocked && pollsCloseDateString && (
         <Section>
           <Callout color="neutral">
             <CalloutIconWrapper>
@@ -146,8 +163,7 @@ export function ReportsScreen(): JSX.Element {
               <H3>Polls Still Open</H3>
               <P>
                 Reports containing vote totals are unavailable until{' '}
-                {format.localeTime(pollsCloseDateTime)} on Election Day (
-                {format.localeDate(pollsCloseDateTime)}).
+                {pollsCloseDateString}.
               </P>
             </div>
           </Callout>

@@ -385,7 +385,7 @@ describe('polls close time enforcement', () => {
     expect(
       screen.getButton('Unofficial Write-In Adjudication Report')
     ).toBeEnabled();
-    screen.getByRole('button', { name: 'Mark Election Results as Official' });
+    expect(screen.getButton('Mark Election Results as Official')).toBeEnabled();
     screen.getByText(/Test cast vote records are currently loaded/);
     expect(
       screen.queryByRole('heading', { name: 'Polls Still Open' })
@@ -404,6 +404,27 @@ describe('polls close time enforcement', () => {
     await screen.findButton('Full Election Tally Report');
     expect(
       screen.queryByText(/Test cast vote records are currently loaded/)
+    ).not.toBeInTheDocument();
+  });
+
+  test('automatically shows reports when polls close time passes', async () => {
+    vi.setSystemTime(new Date('2021-09-08T22:59:00')); // 1 minute before close
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(0);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings(systemSettingsWithBlock);
+
+    renderInAppContext(<ReportsScreen />, { electionDefinition, apiMock });
+
+    await screen.findByRole('heading', { name: 'Polls Still Open' });
+
+    vi.setSystemTime(new Date('2021-09-08T23:00:01'));
+    await vi.runOnlyPendingTimersAsync();
+
+    await screen.findButton('Full Election Tally Report');
+    expect(
+      screen.queryByRole('heading', { name: 'Polls Still Open' })
     ).not.toBeInTheDocument();
   });
 
