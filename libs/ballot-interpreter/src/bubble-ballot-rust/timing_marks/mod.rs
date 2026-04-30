@@ -119,7 +119,6 @@ pub fn find_timing_mark_grid(
             left: left.into_marks(),
             right: right.into_marks(),
         },
-        border_finding::BallotGridBorders::CornersOnly => BorderMarks::CornersOnly,
         border_finding::BallotGridBorders::ScanDirectionBordersOnly { left, right } => {
             BorderMarks::ScanDirectionBordersOnly {
                 left: left.into_marks(),
@@ -160,9 +159,9 @@ pub struct TimingMarks {
 }
 
 /// The per-border timing-mark sequences. Under [`GridStrategy::FullBorders`]
-/// (`Full`) every detected mark along each border is recorded. Under
-/// [`GridStrategy::CornersOnly`](`OnlyCorners`) there's no additional mark
-/// information to record, so we track only that the corners were used.
+/// every detected mark along each border is recorded. Under
+/// [`GridStrategy::ScanDirectionBordersOnly`] only the left/right sequences
+/// are recorded.
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum BorderMarks {
@@ -172,7 +171,6 @@ pub enum BorderMarks {
         left: Vec<CandidateTimingMark>,
         right: Vec<CandidateTimingMark>,
     },
-    CornersOnly,
     ScanDirectionBordersOnly {
         left: Vec<CandidateTimingMark>,
         right: Vec<CandidateTimingMark>,
@@ -180,38 +178,34 @@ pub enum BorderMarks {
 }
 
 impl BorderMarks {
-    /// Returns the marks along the top border, or an empty slice if this is
-    /// `OnlyCorners`.
+    /// Returns the marks along the top border, or an empty slice when the
+    /// strategy did not record top-border marks.
     pub fn top(&self) -> &[CandidateTimingMark] {
         match self {
             Self::Full { top, .. } => top,
-            Self::CornersOnly | Self::ScanDirectionBordersOnly { .. } => &[],
+            Self::ScanDirectionBordersOnly { .. } => &[],
         }
     }
 
-    /// Returns the marks along the bottom border, or an empty slice if this
-    /// is `OnlyCorners`.
+    /// Returns the marks along the bottom border, or an empty slice when the
+    /// strategy did not record bottom-border marks.
     pub fn bottom(&self) -> &[CandidateTimingMark] {
         match self {
             Self::Full { bottom, .. } => bottom,
-            Self::CornersOnly | Self::ScanDirectionBordersOnly { .. } => &[],
+            Self::ScanDirectionBordersOnly { .. } => &[],
         }
     }
 
-    /// Returns the marks along the left border, or an empty slice if this is
-    /// `OnlyCorners`.
+    /// Returns the marks along the left border.
     pub fn left(&self) -> &[CandidateTimingMark] {
         match self {
-            Self::CornersOnly => &[],
             Self::Full { left, .. } | Self::ScanDirectionBordersOnly { left, .. } => left,
         }
     }
 
-    /// Returns the marks along the right border, or an empty slice if this is
-    /// `OnlyCorners`.
+    /// Returns the marks along the right border.
     pub fn right(&self) -> &[CandidateTimingMark] {
         match self {
-            Self::CornersOnly => &[],
             Self::Full { right, .. } | Self::ScanDirectionBordersOnly { right, .. } => right,
         }
     }
@@ -220,7 +214,6 @@ impl BorderMarks {
     pub const fn grid_strategy(&self) -> GridStrategy {
         match self {
             Self::Full { .. } => GridStrategy::FullBorders,
-            Self::CornersOnly => GridStrategy::CornersOnly,
             Self::ScanDirectionBordersOnly { .. } => GridStrategy::ScanDirectionBordersOnly,
         }
     }
@@ -257,8 +250,11 @@ impl TimingMarks {
                 .collect()
         };
 
-        let border_marks = match std::mem::replace(&mut self.border_marks, BorderMarks::CornersOnly)
-        {
+        let placeholder = BorderMarks::ScanDirectionBordersOnly {
+            left: vec![],
+            right: vec![],
+        };
+        let border_marks = match std::mem::replace(&mut self.border_marks, placeholder) {
             BorderMarks::Full {
                 top,
                 bottom,
@@ -281,7 +277,6 @@ impl TimingMarks {
                     right: rotated_left,
                 }
             }
-            BorderMarks::CornersOnly => BorderMarks::CornersOnly,
             BorderMarks::ScanDirectionBordersOnly { left, right } => {
                 let mut rotated_left = rotate_marks(left);
                 let mut rotated_right = rotate_marks(right);
@@ -325,10 +320,6 @@ impl TimingMarks {
     ///    two rows).
     /// 2. Interpolating horizontally between the left/right timing mark
     ///    positions based on the given column index.
-    ///
-    /// Under [`GridStrategy::CornersOnly`] there are no per-row marks to
-    /// interpolate from, so the position is interpolated bilinearly between
-    /// the four detected corner marks instead.
     #[must_use]
     pub fn point_for_location(
         &self,
@@ -352,9 +343,6 @@ impl TimingMarks {
                 left_marks,
                 right_marks,
             ),
-            BorderMarks::CornersOnly => {
-                Some(self.point_for_location_with_corners_only_grid(column, row))
-            }
             BorderMarks::ScanDirectionBordersOnly { left, right } => {
                 self.point_for_location_with_scan_direction_borders(column, row, left, right)
             }
@@ -403,35 +391,6 @@ impl TimingMarks {
             end: expected_timing_mark_center,
         } = horizontal_segment.with_length(horizontal_segment.length() * distance_percentage);
         Some(expected_timing_mark_center)
-    }
-
-    fn point_for_location_with_corners_only_grid(
-        &self,
-        column: SubGridUnit,
-        row: SubGridUnit,
-    ) -> Point<SubPixelUnit> {
-        let row_percentage = row / (self.geometry.grid_size.height - 1) as SubGridUnit;
-        let column_percentage = column / (self.geometry.grid_size.width - 1) as SubGridUnit;
-
-        let left_border = Segment::new(
-            self.top_left_mark.rect().center(),
-            self.bottom_left_mark.rect().center(),
-        );
-        let right_border = Segment::new(
-            self.top_right_mark.rect().center(),
-            self.bottom_right_mark.rect().center(),
-        );
-        let left = left_border
-            .with_length(left_border.length() * row_percentage)
-            .end;
-        let right = right_border
-            .with_length(right_border.length() * row_percentage)
-            .end;
-
-        let horizontal = Segment::new(left, right);
-        horizontal
-            .with_length(horizontal.length() * column_percentage)
-            .end
     }
 
     /// Computes a ballot page scale by examining the timing marks along one of

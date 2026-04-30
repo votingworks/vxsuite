@@ -9,7 +9,7 @@ use crate::{
     timing_marks::{
         corner_finding::BallotGridCorners,
         mark_finding::BallotGridCandidateMarks,
-        util::{mark_distances_to_point, CornerWise},
+        util::mark_distances_to_point,
         Border, CandidateTimingMark, DefaultForGeometry,
     },
 };
@@ -19,10 +19,9 @@ use serde::{de::IntoDeserializer, Deserialize, Serialize};
 use types_rs::geometry::{Segment, SubPixelUnit};
 
 /// Represents the borders of a ballot grid. Under [`GridStrategy::FullBorders`]
-/// (`Full`) every detected mark along each border is recorded; under
-/// [`GridStrategy::CornersOnly`] (`OnlyCorners`) the per-border mark sequences
-/// are not available — only the four corner marks (held on `TimingMarks`
-/// itself) were used.
+/// every detected mark along each border is recorded; under
+/// [`GridStrategy::ScanDirectionBordersOnly`] only the left/right borders'
+/// marks are recorded.
 #[derive(Debug, Clone)]
 pub enum BallotGridBorders {
     Full {
@@ -31,7 +30,6 @@ pub enum BallotGridBorders {
         top: GridBorder,
         bottom: GridBorder,
     },
-    CornersOnly,
     ScanDirectionBordersOnly {
         left: GridBorder,
         right: GridBorder,
@@ -51,9 +49,6 @@ impl BallotGridBorders {
         match grid_strategy {
             GridStrategy::FullBorders => {
                 Self::find_all_with_full_border(geometry, corners, candidates, options)
-            }
-            GridStrategy::CornersOnly => {
-                Self::find_all_using_only_corners(geometry, corners, options)
             }
             GridStrategy::ScanDirectionBordersOnly => {
                 Self::find_all_using_only_scan_direction_borders(
@@ -190,44 +185,6 @@ impl BallotGridBorders {
             top: top?,
             bottom: bottom?,
         })
-    }
-
-    /// Validates the four corner groupings — each corner mark plus its two
-    /// adjacent "row"/"column" marks must be within the expected
-    /// center-to-center distance — and returns
-    /// [`BallotGridBorders::OnlyCorners`]. Since this algorithm does not look
-    /// for the full timing mark border, we don't record them or infer them.
-    #[allow(clippy::result_large_err)]
-    #[allow(clippy::missing_errors_doc)]
-    fn find_all_using_only_corners(
-        geometry: &Geometry,
-        ballot_grid_corners: &BallotGridCorners,
-        options: &Options,
-    ) -> Result<Self, Error> {
-        let max_row_distance = geometry.vertical_timing_mark_center_to_center_pixel_distance()
-            * (1.0 + options.maximum_vertical_timing_mark_center_distance_error_ratio);
-        let max_column_distance = geometry.horizontal_timing_mark_center_to_center_pixel_distance()
-            * (1.0 + options.maximum_horizontal_timing_mark_center_distance_error_ratio);
-
-        for corner in ballot_grid_corners.corners() {
-            let grouping = corner.best_corner_grouping();
-            let corner_mark_center = grouping.corner_mark().rect().center();
-            let row_distance = corner_mark_center.distance_to(&grouping.row_mark().rect().center());
-            let column_distance =
-                corner_mark_center.distance_to(&grouping.column_mark().rect().center());
-
-            if row_distance > max_row_distance || column_distance > max_column_distance {
-                return Err(Error::MissingTimingMarks {
-                    reason: format!(
-                        "Corner mark too far from its neighbors: row distance = {row_distance} \
-                         (max: {max_row_distance}), column distance = {column_distance} \
-                         (max: {max_column_distance}), corner mark center = {corner_mark_center:?}"
-                    ),
-                });
-            }
-        }
-
-        Ok(Self::CornersOnly)
     }
 
     #[allow(clippy::result_large_err)]
@@ -374,12 +331,6 @@ pub enum GridStrategy {
     #[default]
     FullBorders,
 
-    /// Uses only the corner timing mark groupings, i.e. the corner marks plus
-    /// one in each of the horizontal and vertical directions. This strategy is
-    /// more resilient to issues with timing marks, but is bad at correcting for
-    /// stretching in the image when determining bubble positions.
-    CornersOnly,
-
     /// Uses only the borders paralle to the direction of scan, which is always
     /// the left and right borders at the moment. Does not bother identifying
     /// any of the marks in the non-scanning direction except the corners.
@@ -391,7 +342,6 @@ impl GridStrategy {
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::FullBorders => "full-borders",
-            Self::CornersOnly => "corners-only",
             Self::ScanDirectionBordersOnly => "scan-direction-borders-only",
         }
     }
@@ -417,13 +367,19 @@ mod test {
 
     #[test]
     fn grid_strategy_round_trips_through_display() {
-        for variant in [GridStrategy::FullBorders, GridStrategy::CornersOnly] {
+        for variant in [
+            GridStrategy::FullBorders,
+            GridStrategy::ScanDirectionBordersOnly,
+        ] {
             let rendered = variant.to_string();
             let reparsed: GridStrategy = rendered.parse().unwrap();
             assert!(matches!(
                 (variant, reparsed),
                 (GridStrategy::FullBorders, GridStrategy::FullBorders)
-                    | (GridStrategy::CornersOnly, GridStrategy::CornersOnly)
+                    | (
+                        GridStrategy::ScanDirectionBordersOnly,
+                        GridStrategy::ScanDirectionBordersOnly
+                    )
             ));
         }
     }
