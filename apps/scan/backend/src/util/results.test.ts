@@ -103,7 +103,12 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
   // Add a ballot to the store
   const batchId1 = store.addBatch();
   const sheetId1 = uuid();
-  store.addSheet(sheetId1, batchId1, testSheetWithFiles);
+  store.recordSheet({
+    sheetId: sheetId1,
+    batchId: batchId1,
+    pages: testSheetWithFiles,
+    isAccepted: true,
+  });
   store.finishBatch({ batchId: batchId1 });
 
   expect(store.getBallotsCounted()).toEqual(1);
@@ -131,7 +136,12 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
       imagePath: '/back2.png',
     },
   ];
-  store.addSheet(sheetId2, batchId2, testSheetWithFiles2);
+  store.recordSheet({
+    sheetId: sheetId2,
+    batchId: batchId2,
+    pages: testSheetWithFiles2,
+    isAccepted: true,
+  });
   store.finishBatch({ batchId: batchId2 });
 
   expect(store.getBallotsCounted()).toEqual(2);

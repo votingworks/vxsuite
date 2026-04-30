@@ -79,7 +79,7 @@ function addBmdSheet(store: Store, votes: VotesDict): void {
       interpretation: { type: 'BlankPage' },
     },
   ];
-  store.addSheet(sheetId, batchId, sheet);
+  store.recordSheet({ sheetId, batchId, pages: sheet, isAccepted: true });
 }
 
 test('returns all write-in-eligible contests even with no ballots', async () => {
@@ -249,7 +249,7 @@ test('handles BMD multi-page ballots', async () => {
       interpretation: { type: 'BlankPage' },
     },
   ];
-  store.addSheet(sheetId, batchId, sheet);
+  store.recordSheet({ sheetId, batchId, pages: sheet, isAccepted: true });
 
   const result = await store.getWriteInReportData();
 
@@ -274,7 +274,7 @@ test('skips non-interpreted pages (blank pages)', async () => {
       interpretation: { type: 'BlankPage' },
     },
   ];
-  store.addSheet(sheetId, batchId, sheet);
+  store.recordSheet({ sheetId, batchId, pages: sheet, isAccepted: true });
 
   const result = await store.getWriteInReportData();
   for (const contestData of result) {
@@ -386,7 +386,7 @@ function addHmpbSheet(
       },
     },
   ];
-  store.addSheet(sheetId, batchId, sheet);
+  store.recordSheet({ sheetId, batchId, pages: sheet, isAccepted: true });
 }
 
 test('extracts HMPB write-ins as image entries', async () => {
@@ -498,7 +498,7 @@ function addPrimaryBmdSheet(store: Store, votes: VotesDict): void {
       interpretation: { type: 'BlankPage' },
     },
   ];
-  store.addSheet(sheetId, batchId, sheet);
+  store.recordSheet({ sheetId, batchId, pages: sheet, isAccepted: true });
 }
 
 test('excludes non-write-in candidate contests and yes/no contests', async () => {

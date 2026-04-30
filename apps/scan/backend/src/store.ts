@@ -4,7 +4,6 @@
 
 import { Client as DbClient } from '@votingworks/db';
 import {
-  AdjudicationStatus,
   HmpbBallotPaperSize,
   BatchInfo,
   Iso8601Timestamp,
@@ -58,7 +57,6 @@ import {
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 import { isHmpbPage, isPageWithVotes } from './util/results';
 import {
@@ -81,9 +79,7 @@ const getSheetsBaseQuery = `
     back_interpretation_json as backInterpretationJson,
     front_image_path as frontImagePath,
     back_image_path as backImagePath,
-    requires_adjudication as requiresAdjudication,
-    finished_adjudication_at as finishedAdjudicationAt,
-    sheets.deleted_at as deletedAt
+    sheets.rejected_at as rejectedAt
   from sheets left join batches on
     sheets.batch_id = batches.id
 `;
@@ -95,13 +91,11 @@ interface SheetRow {
   backInterpretationJson: string;
   frontImagePath: string;
   backImagePath: string;
-  requiresAdjudication: 0 | 1;
-  finishedAdjudicationAt: Iso8601Timestamp | null;
-  deletedAt: Iso8601Timestamp | null;
+  rejectedAt: Iso8601Timestamp | null;
 }
 
 function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
-  assert(row.deletedAt === null);
+  assert(row.rejectedAt === null);
   return {
     type: 'accepted',
     id: row.id,
@@ -116,7 +110,7 @@ function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
 }
 
 function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
-  assert(row.deletedAt !== null);
+  assert(row.rejectedAt !== null);
   return {
     type: 'rejected',
     id: row.id,
@@ -126,14 +120,7 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
 }
 
 function sheetRowToSheet(row: SheetRow): Sheet {
-  // Transactions in the scanner state machine guarantee this condition.
-  assert(
-    row.requiresAdjudication === 0 ||
-      row.finishedAdjudicationAt !== null ||
-      row.deletedAt !== null,
-    'Every sheet requiring review should have been either accepted or rejected'
-  );
-  return row.deletedAt === null
+  return row.rejectedAt === null
     ? sheetRowToAcceptedSheet(row)
     : sheetRowToRejectedSheet(row);
 }
@@ -193,13 +180,6 @@ export class Store {
   withTransaction<T>(fn: () => T): T;
   withTransaction<T>(fn: () => T): T {
     return this.client.transaction(() => fn());
-  }
-
-  /**
-   * Writes a copy of the database to the given path.
-   */
-  backup(filepath: string): void {
-    this.client.run('vacuum into ?', filepath);
   }
 
   /**
@@ -678,31 +658,28 @@ export class Store {
       on
         sheets.batch_id = batches.id
       and
-        sheets.deleted_at is null
-      where
-        batches.deleted_at is null
+        sheets.rejected_at is null
     `) as { ballotsCounted: number } | undefined;
 
     return row?.ballotsCounted ?? 0;
   }
 
   /**
-   * Adds a sheet to an existing batch.
+   * Records a scanned sheet with its disposition. Rejected sheets are kept in
+   * the store but excluded from tabulation by setting `rejected_at`.
    */
-  addSheet(
-    sheetId: string,
-    batchId: string,
-    [front, back]: SheetOf<PageInterpretationWithFiles>
-  ): string {
+  recordSheet({
+    sheetId,
+    batchId,
+    pages: [front, back],
+    isAccepted,
+  }: {
+    sheetId: string;
+    batchId: string;
+    pages: SheetOf<PageInterpretationWithFiles>;
+    isAccepted: boolean;
+  }): string {
     try {
-      const finishedAdjudicationAt =
-        front.interpretation.type === 'InterpretedHmpbPage' &&
-        back.interpretation.type === 'InterpretedHmpbPage' &&
-        !front.interpretation.adjudicationInfo.requiresAdjudication &&
-        !back.interpretation.adjudicationInfo.requiresAdjudication
-          ? DateTime.now().toISOTime()
-          : undefined;
-
       this.client.run(
         `insert into sheets (
             id,
@@ -711,21 +688,16 @@ export class Store {
             front_interpretation_json,
             back_image_path,
             back_interpretation_json,
-            requires_adjudication,
-            finished_adjudication_at
+            rejected_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ${isAccepted ? 'null' : 'current_timestamp'}
           )`,
         sheetId,
         batchId,
         front.imagePath,
         JSON.stringify(front.interpretation),
         back.imagePath,
-        JSON.stringify(back.interpretation ?? {}),
-        sheetRequiresAdjudication([front.interpretation, back.interpretation])
-          ? 1
-          : 0,
-        finishedAdjudicationAt ?? null
+        JSON.stringify(back.interpretation ?? {})
       );
     } catch (error) {
       debug(
@@ -749,16 +721,6 @@ export class Store {
     return sheetId;
   }
 
-  /**
-   * Mark a sheet as deleted
-   */
-  deleteSheet(sheetId: string): void {
-    this.client.run(
-      'update sheets set deleted_at = current_timestamp where id = ?',
-      sheetId
-    );
-  }
-
   resetElectionSession(): void {
     if (this.hasElection()) {
       this.client.transaction(() => {
@@ -777,48 +739,6 @@ export class Store {
         clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
-  }
-
-  adjudicateSheet(sheetId: string): boolean {
-    debug('finishing adjudication for sheet %s', sheetId);
-
-    this.client.run(
-      `
-      update
-        sheets
-      set
-        finished_adjudication_at = ?
-      where id = ?
-    `,
-      new Date().toISOString(),
-      sheetId
-    );
-
-    return true;
-  }
-
-  /**
-   * Mark a batch as deleted
-   */
-  deleteBatch(batchId: string): boolean {
-    const { count } = this.client.one(
-      'select count(*) as count from batches where deleted_at is null and id = ?',
-      batchId
-    ) as { count: number };
-
-    this.client.run(
-      'update batches set deleted_at = current_timestamp where id = ?',
-      batchId
-    );
-    return count > 0;
-  }
-
-  /**
-   * Cleanup partial batches
-   */
-  cleanupIncompleteBatches(): void {
-    // cascades to the sheets
-    this.client.run('delete from batches where ended_at is null');
   }
 
   /**
@@ -850,9 +770,7 @@ export class Store {
       on
         sheets.batch_id = batches.id
       and
-        sheets.deleted_at is null
-      where
-        batches.deleted_at is null
+        sheets.rejected_at is null
       group by
         batches.id,
         batches.started_at,
@@ -878,36 +796,12 @@ export class Store {
   }
 
   /**
-   * Gets adjudication status.
-   */
-  adjudicationStatus(): AdjudicationStatus {
-    const { remaining } = this.client.one(`
-        select count(*) as remaining
-        from sheets
-        where
-          requires_adjudication = 1
-          and deleted_at is null
-          and finished_adjudication_at is null
-      `) as { remaining: number };
-    const { adjudicated } = this.client.one(`
-        select count(*) as adjudicated
-        from sheets
-        where
-          requires_adjudication = 1
-          and finished_adjudication_at is not null
-      `) as { adjudicated: number };
-    return { adjudicated, remaining };
-  }
-
-  /**
    * Yields all scanned sheets that were accepted and should be tabulated
    */
   *forEachAcceptedSheet(): Generator<AcceptedSheet> {
     const sql = `${getSheetsBaseQuery}
       where
-        batches.deleted_at is null and
-        sheets.deleted_at is null and
-        (requires_adjudication = 0 or finished_adjudication_at is not null)
+        sheets.rejected_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {
@@ -990,8 +884,6 @@ export class Store {
    */
   *forEachSheet(): Generator<Sheet> {
     const sql = `${getSheetsBaseQuery}
-      where
-        batches.deleted_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {
@@ -1006,8 +898,6 @@ export class Store {
     const sql = `${getSheetsBaseQuery}
       inner join pending_continuous_export_operations on
         sheets.id = pending_continuous_export_operations.sheet_id
-      where
-        batches.deleted_at is null
       order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {

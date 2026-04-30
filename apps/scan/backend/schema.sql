@@ -25,7 +25,6 @@ create table batches (
   label text,
   started_at datetime default current_timestamp not null,
   ended_at datetime,
-  deleted_at datetime,
   ballot_casting_mode text,
   error varchar(4000)
 );
@@ -43,14 +42,8 @@ create table sheets (
   front_interpretation_json text not null,
   back_interpretation_json text not null,
 
-  -- Did this sheet require adjudication? This value should never be updated.
-  requires_adjudication boolean,
-
-  -- When adjudication is finished, this value is updated to now.
-  finished_adjudication_at datetime,
-
   created_at datetime default current_timestamp not null,
-  deleted_at datetime,
+  rejected_at datetime,
 
   foreign key (batch_id)
   references batches (id)
