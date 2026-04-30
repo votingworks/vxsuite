@@ -20,7 +20,6 @@ use crate::interpret::{
     self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::border_finding::GridStrategy;
 use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 
 #[derive(Debug, Deserialize)]
@@ -35,7 +34,6 @@ struct JsInterpretOptions {
     disable_vertical_streak_detection: Option<bool>,
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
-    grid_strategy: GridStrategy,
 }
 
 /// Wraps an interpret error with a pre-computed `is_bubble_ballot` flag so
@@ -97,7 +95,6 @@ fn interpret(
             minimum_detected_scale,
             max_cumulative_streak_width: options.max_cumulative_streak_width,
             retry_streak_width_threshold: options.retry_streak_width_threshold,
-            grid_strategy: options.grid_strategy,
         },
     );
 

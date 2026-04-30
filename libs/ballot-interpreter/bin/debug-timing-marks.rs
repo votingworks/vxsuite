@@ -16,9 +16,7 @@ use ballot_interpreter::{
     debug,
     interpret::Error,
     scoring::UnitIntervalScore,
-    timing_marks::{
-        self, border_finding::GridStrategy, Border, BorderAxis, DefaultForGeometry, TimingMarks,
-    },
+    timing_marks::{self, Border, BorderAxis, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::{eyre::bail, owo_colors::OwoColorize};
@@ -41,10 +39,6 @@ struct Options {
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
     minimum_detected_scale: Option<UnitIntervalScore>,
-
-    /// Which strategy to use to determine the timing mark grid.
-    #[clap(long, default_value_t = Default::default())]
-    grid_strategy: GridStrategy,
 
     /// Detect grid scales using the distance between borders along the given
     /// axis.
@@ -115,10 +109,9 @@ fn process_path<W: Write>(
     *prepare_image_duration += start.elapsed();
 
     let start = Instant::now();
-    let find_result = ballot_page.find_timing_marks(&timing_marks::Options {
-        grid_strategy: options.grid_strategy,
-        ..timing_marks::Options::default_for_geometry(ballot_page.geometry())
-    });
+    let find_result = ballot_page.find_timing_marks(&timing_marks::Options::default_for_geometry(
+        ballot_page.geometry(),
+    ));
     *find_timing_marks_duration += start.elapsed();
 
     let timing_marks = find_result?;

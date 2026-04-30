@@ -26,7 +26,6 @@ use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::border_finding::GridStrategy;
 use crate::timing_marks::TimingMarks;
 use crate::timing_marks::{self, BallotPageMetadata, DefaultForGeometry};
 
@@ -49,7 +48,6 @@ pub struct Options {
     pub minimum_detected_scale: Option<UnitIntervalScore>,
     pub max_cumulative_streak_width: PixelUnit,
     pub retry_streak_width_threshold: PixelUnit,
-    pub grid_strategy: GridStrategy,
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq, Default)]
@@ -258,7 +256,6 @@ pub struct ScanInterpreter {
     minimum_detected_scale: Option<UnitIntervalScore>,
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
-    grid_strategy: GridStrategy,
 }
 
 impl ScanInterpreter {
@@ -271,7 +268,6 @@ impl ScanInterpreter {
         minimum_detected_scale: Option<UnitIntervalScore>,
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
-        grid_strategy: GridStrategy,
     ) -> Self {
         Self {
             election,
@@ -281,7 +277,6 @@ impl ScanInterpreter {
             minimum_detected_scale,
             max_cumulative_streak_width,
             retry_streak_width_threshold,
-            grid_strategy,
         }
     }
 
@@ -308,7 +303,6 @@ impl ScanInterpreter {
             minimum_detected_scale: self.minimum_detected_scale,
             max_cumulative_streak_width: self.max_cumulative_streak_width,
             retry_streak_width_threshold: self.retry_streak_width_threshold,
-            grid_strategy: self.grid_strategy,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -370,10 +364,9 @@ pub fn ballot_card(
     // are independent operations on the same ballot images.
     let (timing_marks_result, decoded_qr_codes_result) = rayon::join(
         || {
-            ballot_card.find_timing_marks(&timing_marks::Options {
-                grid_strategy: options.grid_strategy,
-                ..timing_marks::Options::default_for_geometry(ballot_card.geometry())
-            })
+            ballot_card.find_timing_marks(&timing_marks::Options::default_for_geometry(
+                ballot_card.geometry(),
+            ))
         },
         || ballot_card.decode_ballot_barcodes(&options.election),
     );
@@ -594,7 +587,6 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
-            grid_strategy: GridStrategy::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -625,7 +617,6 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
-            grid_strategy: GridStrategy::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -633,8 +624,8 @@ mod test {
     fn deface_ballot_by_removing_side_timing_marks(image: &mut GrayImage, marks: &TimingMarks) {
         const PADDING: u32 = 10;
         let image_rect = Rect::new(0, 0, image.width(), image.height());
-        let left_marks = marks.border_marks.left();
-        let right_marks = marks.border_marks.right();
+        let left_marks = &marks.border_marks.left;
+        let right_marks = &marks.border_marks.right;
         let left_side_mark_to_deface = left_marks[left_marks.len() / 2];
         let right_side_mark_to_deface = right_marks[right_marks.len() / 2];
 
@@ -1092,7 +1083,7 @@ mod test {
         // all but the top two and bottom two right timing marks. This preserves
         // some marks so timing detection still succeeds but simulates a streak
         // that breaks bubble scoring in the buggy behavior.
-        let right_marks = clean_interpretation.front.timing_marks.border_marks.right();
+        let right_marks = &clean_interpretation.front.timing_marks.border_marks.right;
         let black = Luma([0u8]);
         if right_marks.len() > 4 {
             let first_mark = &right_marks[2];
@@ -1133,7 +1124,7 @@ mod test {
         // all but the top two and bottom two right timing marks. This preserves
         // some marks so timing detection can find the corners, but fails because
         // the streak is too wide.
-        let right_marks = clean_interpretation.front.timing_marks.border_marks.right();
+        let right_marks = &clean_interpretation.front.timing_marks.border_marks.right;
         let black = Luma([0u8]);
         if right_marks.len() > 4 {
             let first_mark = &right_marks[2];

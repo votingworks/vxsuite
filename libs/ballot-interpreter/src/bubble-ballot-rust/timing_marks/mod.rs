@@ -10,7 +10,6 @@ use types_rs::{
 use crate::ballot_card::{BallotImage, Geometry};
 use crate::interpret::Error;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::border_finding::GridStrategy;
 use crate::timing_marks::scoring::CandidateTimingMark;
 
 pub mod border_finding;
@@ -23,7 +22,6 @@ pub mod util;
 use crate::timing_marks::util::CornerWise;
 
 pub struct Options {
-    pub grid_strategy: GridStrategy,
     pub shape: shape_finding::Options,
     pub corner: corner_finding::Options,
     pub border: border_finding::Options,
@@ -32,7 +30,6 @@ pub struct Options {
 impl DefaultForGeometry for Options {
     fn default_for_geometry(geometry: &Geometry) -> Self {
         Self {
-            grid_strategy: GridStrategy::default(),
             shape: shape_finding::Options::default_for_geometry(geometry),
             corner: corner_finding::Options::default_for_geometry(geometry),
             border: border_finding::Options::default_for_geometry(geometry),
@@ -83,7 +80,6 @@ pub fn find_timing_mark_grid(
         geometry,
         &corners,
         &candidates,
-        options.grid_strategy,
         &options.border,
     )?;
 
@@ -107,24 +103,9 @@ pub fn find_timing_mark_grid(
     ]
     .map_cornerwise(|mark| mark.rect().center());
 
-    let border_marks = match borders {
-        border_finding::BallotGridBorders::Full {
-            top,
-            bottom,
-            left,
-            right,
-        } => BorderMarks::Full {
-            top: top.into_marks(),
-            bottom: bottom.into_marks(),
-            left: left.into_marks(),
-            right: right.into_marks(),
-        },
-        border_finding::BallotGridBorders::ScanDirectionBordersOnly { left, right } => {
-            BorderMarks::ScanDirectionBordersOnly {
-                left: left.into_marks(),
-                right: right.into_marks(),
-            }
-        }
+    let border_marks = BorderMarks {
+        left: borders.left.into_marks(),
+        right: borders.right.into_marks(),
     };
 
     let timing_marks = TimingMarks {
@@ -158,74 +139,17 @@ pub struct TimingMarks {
     pub border_marks: BorderMarks,
 }
 
-/// The per-border timing-mark sequences. Under [`GridStrategy::FullBorders`]
-/// every detected mark along each border is recorded. Under
-/// [`GridStrategy::ScanDirectionBordersOnly`] only the left/right sequences
-/// are recorded.
+/// The per-border timing-mark sequences. Only the left and right borders
+/// (i.e. those parallel to the scan direction) are recorded; the grid
+/// is reconstructed from those plus the four corner marks.
 #[derive(Debug, Clone, Serialize)]
-#[serde(tag = "type", rename_all = "camelCase")]
-pub enum BorderMarks {
-    Full {
-        top: Vec<CandidateTimingMark>,
-        bottom: Vec<CandidateTimingMark>,
-        left: Vec<CandidateTimingMark>,
-        right: Vec<CandidateTimingMark>,
-    },
-    ScanDirectionBordersOnly {
-        left: Vec<CandidateTimingMark>,
-        right: Vec<CandidateTimingMark>,
-    },
-}
-
-impl BorderMarks {
-    /// Returns the marks along the top border, or an empty slice when the
-    /// strategy did not record top-border marks.
-    pub fn top(&self) -> &[CandidateTimingMark] {
-        match self {
-            Self::Full { top, .. } => top,
-            Self::ScanDirectionBordersOnly { .. } => &[],
-        }
-    }
-
-    /// Returns the marks along the bottom border, or an empty slice when the
-    /// strategy did not record bottom-border marks.
-    pub fn bottom(&self) -> &[CandidateTimingMark] {
-        match self {
-            Self::Full { bottom, .. } => bottom,
-            Self::ScanDirectionBordersOnly { .. } => &[],
-        }
-    }
-
-    /// Returns the marks along the left border.
-    pub fn left(&self) -> &[CandidateTimingMark] {
-        match self {
-            Self::Full { left, .. } | Self::ScanDirectionBordersOnly { left, .. } => left,
-        }
-    }
-
-    /// Returns the marks along the right border.
-    pub fn right(&self) -> &[CandidateTimingMark] {
-        match self {
-            Self::Full { right, .. } | Self::ScanDirectionBordersOnly { right, .. } => right,
-        }
-    }
-
-    #[must_use]
-    pub const fn grid_strategy(&self) -> GridStrategy {
-        match self {
-            Self::Full { .. } => GridStrategy::FullBorders,
-            Self::ScanDirectionBordersOnly { .. } => GridStrategy::ScanDirectionBordersOnly,
-        }
-    }
+#[serde(rename_all = "camelCase")]
+pub struct BorderMarks {
+    pub left: Vec<CandidateTimingMark>,
+    pub right: Vec<CandidateTimingMark>,
 }
 
 impl TimingMarks {
-    /// Returns the grid strategy that produced these timing marks.
-    #[must_use]
-    pub const fn grid_strategy(&self) -> GridStrategy {
-        self.border_marks.grid_strategy()
-    }
-
     pub fn rotate180(&mut self, image_size: Size<u32>) {
         let rotator = Rotator180::new(image_size);
 
@@ -250,44 +174,21 @@ impl TimingMarks {
                 .collect()
         };
 
-        let placeholder = BorderMarks::ScanDirectionBordersOnly {
-            left: vec![],
-            right: vec![],
-        };
-        let border_marks = match std::mem::replace(&mut self.border_marks, placeholder) {
-            BorderMarks::Full {
-                top,
-                bottom,
-                left,
-                right,
-            } => {
-                let mut rotated_top = rotate_marks(top);
-                let mut rotated_bottom = rotate_marks(bottom);
-                let mut rotated_left = rotate_marks(left);
-                let mut rotated_right = rotate_marks(right);
-                rotated_top.sort_by_key(|m| m.rect().left());
-                rotated_bottom.sort_by_key(|m| m.rect().left());
-                rotated_left.sort_by_key(|m| m.rect().top());
-                rotated_right.sort_by_key(|m| m.rect().top());
-                // Rotation by 180° swaps top/bottom and left/right.
-                BorderMarks::Full {
-                    top: rotated_bottom,
-                    bottom: rotated_top,
-                    left: rotated_right,
-                    right: rotated_left,
-                }
-            }
-            BorderMarks::ScanDirectionBordersOnly { left, right } => {
-                let mut rotated_left = rotate_marks(left);
-                let mut rotated_right = rotate_marks(right);
-                rotated_left.sort_by_key(|m| m.rect().top());
-                rotated_right.sort_by_key(|m| m.rect().top());
-                // Rotation by 180° swaps left/right.
-                BorderMarks::ScanDirectionBordersOnly {
-                    left: rotated_right,
-                    right: rotated_left,
-                }
-            }
+        let BorderMarks { left, right } = std::mem::replace(
+            &mut self.border_marks,
+            BorderMarks {
+                left: vec![],
+                right: vec![],
+            },
+        );
+        let mut rotated_left = rotate_marks(left);
+        let mut rotated_right = rotate_marks(right);
+        rotated_left.sort_by_key(|m| m.rect().top());
+        rotated_right.sort_by_key(|m| m.rect().top());
+        // Rotation by 180° swaps left/right.
+        let border_marks = BorderMarks {
+            left: rotated_right,
+            right: rotated_left,
         };
 
         self.top_left_corner = top_left_corner;
@@ -332,21 +233,8 @@ impl TimingMarks {
             return None;
         }
 
-        match &self.border_marks {
-            BorderMarks::Full {
-                left: left_marks,
-                right: right_marks,
-                ..
-            } => self.point_for_location_with_scan_direction_borders(
-                column,
-                row,
-                left_marks,
-                right_marks,
-            ),
-            BorderMarks::ScanDirectionBordersOnly { left, right } => {
-                self.point_for_location_with_scan_direction_borders(column, row, left, right)
-            }
-        }
+        let BorderMarks { left, right } = &self.border_marks;
+        self.point_for_location_with_scan_direction_borders(column, row, left, right)
     }
 
     fn point_for_location_with_scan_direction_borders(
@@ -422,11 +310,11 @@ impl TimingMarks {
     /// assumption, but its caller likely does.
     #[must_use]
     pub fn compute_scale_based_on_border(&self, border: Border) -> Option<UnitIntervalScore> {
-        let marks = match border {
-            Border::Top => self.border_marks.top(),
-            Border::Bottom => self.border_marks.bottom(),
-            Border::Left => self.border_marks.left(),
-            Border::Right => self.border_marks.right(),
+        let marks: &[CandidateTimingMark] = match border {
+            // We no longer record top/bottom border marks.
+            Border::Top | Border::Bottom => &[],
+            Border::Left => &self.border_marks.left,
+            Border::Right => &self.border_marks.right,
         };
 
         let actual_mark_period = median(
@@ -475,33 +363,25 @@ impl TimingMarks {
     /// assumption, but its caller likely does.
     #[must_use]
     pub fn compute_scale_based_on_axis(&self, axis: BorderAxis) -> Option<UnitIntervalScore> {
-        let marks = match axis {
-            BorderAxis::Horizontal => self
-                .border_marks
-                .left()
-                .iter()
-                .zip(self.border_marks.right()),
-            BorderAxis::Vertical => self
-                .border_marks
-                .top()
-                .iter()
-                .zip(self.border_marks.bottom()),
-        };
-
-        let actual_border_to_border_distance =
-            median(marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())))?;
-        let expected_border_to_border_distance = match axis {
-            BorderAxis::Horizontal => self
-                .geometry
-                .left_to_right_center_to_center_pixel_distance(),
-            BorderAxis::Vertical => self
-                .geometry
-                .top_to_bottom_center_to_center_pixel_distance(),
-        };
-
-        Some(UnitIntervalScore(
-            actual_border_to_border_distance / expected_border_to_border_distance,
-        ))
+        match axis {
+            BorderAxis::Horizontal => {
+                let marks = self
+                    .border_marks
+                    .left
+                    .iter()
+                    .zip(self.border_marks.right.iter());
+                let actual = median(
+                    marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
+                )?;
+                let expected = self
+                    .geometry
+                    .left_to_right_center_to_center_pixel_distance();
+                Some(UnitIntervalScore(actual / expected))
+            }
+            // We no longer record top/bottom border marks, so there's
+            // no per-column pair of marks to measure against.
+            BorderAxis::Vertical => None,
+        }
     }
 }
 
