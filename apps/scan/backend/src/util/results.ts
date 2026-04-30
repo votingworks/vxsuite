@@ -1,4 +1,5 @@
 import {
+  BallotMetadata,
   BallotType,
   InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
@@ -7,11 +8,13 @@ import {
   PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
+  isOpenPrimary,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
+  inferPartyFromVotes,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
 import {
@@ -19,7 +22,6 @@ import {
   assertDefined,
   iter,
   throwIllegalValue,
-  typedAs,
 } from '@votingworks/basics';
 import { VX_MACHINE_ID } from '@votingworks/backend';
 import memoizeOne from 'memoize-one';
@@ -81,6 +83,35 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
+  function buildCvr({
+    card,
+    votes,
+    batchId,
+    metadata,
+  }: {
+    card: Tabulation.Card;
+    votes: Tabulation.Votes;
+    batchId: string;
+    metadata: BallotMetadata;
+  }): Tabulation.CastVoteRecord {
+    const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: metadata.ballotStyleId,
+      election,
+    });
+    return {
+      votes,
+      card,
+      batchId,
+      scannerId: VX_MACHINE_ID,
+      precinctId: metadata.precinctId,
+      ballotStyleGroupId,
+      partyId: isOpenPrimary(election)
+        ? inferPartyFromVotes(election, votes)
+        : ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+      votingMethod: BALLOT_TYPE_TO_VOTING_METHOD[metadata.ballotType],
+    };
+  }
+
   return iter(store.forEachAcceptedSheet()).map((resultSheet) => {
     const [frontInterpretation, backInterpretation] =
       resultSheet.interpretation;
@@ -94,27 +125,19 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
           backInterpretation.metadata.pageNumber
         ) / 2
       );
-      const frontBallotStyleGroupId = getGroupIdFromBallotStyleId({
-        ballotStyleId: frontInterpretation.metadata.ballotStyleId,
-        election,
+      const votes = convertVotesDictToTabulationVotes({
+        ...frontInterpretation.votes,
+        ...backInterpretation.votes,
       });
 
-      return typedAs<Tabulation.CastVoteRecord>({
-        votes: convertVotesDictToTabulationVotes({
-          ...frontInterpretation.votes,
-          ...backInterpretation.votes,
-        }),
+      return buildCvr({
+        votes,
         card: {
           type: 'hmpb',
           sheetNumber,
         },
+        metadata: frontInterpretation.metadata,
         batchId: resultSheet.batchId,
-        scannerId: VX_MACHINE_ID,
-        precinctId: frontInterpretation.metadata.precinctId,
-        ballotStyleGroupId: frontBallotStyleGroupId,
-        partyId: ballotStyleIdPartyIdLookup[frontBallotStyleGroupId],
-        votingMethod:
-          BALLOT_TYPE_TO_VOTING_METHOD[frontInterpretation.metadata.ballotType],
       });
     }
 
@@ -126,13 +149,10 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       const interpretation = isBmdMultiPagePage(frontInterpretation)
         ? frontInterpretation
         : (backInterpretation as InterpretedBmdMultiPagePage);
-      const ballotStyleGroupId = getGroupIdFromBallotStyleId({
-        ballotStyleId: interpretation.metadata.ballotStyleId,
-        election,
-      });
+      const votes = convertVotesDictToTabulationVotes(interpretation.votes);
 
-      return typedAs<Tabulation.CastVoteRecord>({
-        votes: convertVotesDictToTabulationVotes(interpretation.votes),
+      return buildCvr({
+        votes,
         card: {
           type: 'bmd',
           // Include sheet number for multi-page BMD ballots to enable
@@ -140,37 +160,24 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
           sheetNumber: interpretation.metadata.pageNumber,
         },
         batchId: resultSheet.batchId,
-        scannerId: VX_MACHINE_ID,
-        precinctId: interpretation.metadata.precinctId,
-        ballotStyleGroupId,
-        partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
-        votingMethod:
-          BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
+        metadata: interpretation.metadata,
       });
     }
 
-    // we assume that we have a single-page BMD ballot if it's not an HMPB or multi-page BMD ballot
+    // We assume that we have a single-page BMD ballot if it's not an HMPB or multi-page BMD ballot
     const interpretation = isBmdPage(frontInterpretation)
       ? frontInterpretation
       : backInterpretation;
     assert(isBmdPage(interpretation));
-    const bmdBallotStyleGroupId = getGroupIdFromBallotStyleId({
-      ballotStyleId: interpretation.metadata.ballotStyleId,
-      election,
-    });
+    const votes = convertVotesDictToTabulationVotes(interpretation.votes);
 
-    return typedAs<Tabulation.CastVoteRecord>({
-      votes: convertVotesDictToTabulationVotes(interpretation.votes),
+    return buildCvr({
+      votes,
       card: {
         type: 'bmd',
       },
       batchId: resultSheet.batchId,
-      scannerId: VX_MACHINE_ID,
-      precinctId: interpretation.metadata.precinctId,
-      ballotStyleGroupId: bmdBallotStyleGroupId,
-      partyId: ballotStyleIdPartyIdLookup[bmdBallotStyleGroupId],
-      votingMethod:
-        BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
+      metadata: interpretation.metadata,
     });
   });
 }

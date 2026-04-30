@@ -325,7 +325,10 @@ export function getGroupKey(
     keyParts.push(getGroupKeyPart('batchDate', groupSpecifier.batchDate));
   }
 
-  if (groupBy.groupByParty) {
+  // For open primaries, CVR.partyId might be undefined if we can't infer the
+  // voter's party (e.g. if they didn't vote for partisan contests). If so,
+  // omit the partyId from the group key to create a nonpartisan group.
+  if (groupBy.groupByParty && groupSpecifier.partyId !== undefined) {
     keyParts.push(getGroupKeyPart('partyId', groupSpecifier.partyId));
   }
 

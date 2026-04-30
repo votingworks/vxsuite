@@ -9,41 +9,18 @@ import {
   PrecinctSelection,
   PartyId,
   getPartyIdsWithContests,
+  getContests,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { createElectionMetadataLookupFunction } from './lookups';
-
-/**
- * Contests appear on ballots or not based on the district the contest is
- * associated with and the party. This function just covers the party part. Rules:
- *   - ballot measures can appear on ballots of any party
- *   - candidates contests with an associated party can only appear on ballots of the same party
- */
-export function doesContestAppearOnPartyBallot(
-  contest: AnyContest,
-  ballotPartyId?: string
-): boolean {
-  return (
-    contest.type === 'yesno' ||
-    !contest.partyId ||
-    contest.partyId === ballotPartyId
-  );
-}
 
 function buildBallotStyleContestIdsLookup(
   election: Election
 ): Record<BallotStyleId, Set<ContestId>> {
   const lookup: Record<BallotStyleId, Set<ContestId>> = {};
   for (const ballotStyle of election.ballotStyles) {
-    const bsDistricts = new Set(ballotStyle.districts);
-    const contestIds = election.contests
-      .filter(
-        (c) =>
-          bsDistricts.has(c.districtId) &&
-          doesContestAppearOnPartyBallot(c, ballotStyle.partyId)
-      )
-      .map((c) => c.id);
-    lookup[ballotStyle.id] = new Set(contestIds);
+    const contests = getContests({ election, ballotStyle });
+    lookup[ballotStyle.id] = new Set(contests.map((c) => c.id));
   }
   return lookup;
 }
