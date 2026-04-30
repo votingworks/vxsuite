@@ -129,7 +129,6 @@ export async function generateAdminLiveResultsReportingUrls({
     pollingPlaceId,
     resultsByPrecinct,
     pollsTransitionType: 'close_polls',
-    votingType: 'absentee',
     pollsTransitionTimestamp,
   });
 }
