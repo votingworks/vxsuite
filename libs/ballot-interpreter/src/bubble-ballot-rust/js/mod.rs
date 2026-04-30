@@ -20,7 +20,8 @@ use crate::interpret::{
     self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::TimingMarks;
+use crate::timing_marks::border_finding::GridStrategy;
+use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -34,6 +35,7 @@ struct JsInterpretOptions {
     disable_vertical_streak_detection: Option<bool>,
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
+    grid_strategy: GridStrategy,
 }
 
 /// Wraps an interpret error with a pre-computed `is_bubble_ballot` flag so
@@ -95,6 +97,7 @@ fn interpret(
             minimum_detected_scale,
             max_cumulative_streak_width: options.max_cumulative_streak_width,
             retry_streak_width_threshold: options.retry_streak_width_threshold,
+            grid_strategy: options.grid_strategy,
         },
     );
 
@@ -250,7 +253,9 @@ fn find_timing_mark_grid_inner(
             napi::Error::from_reason(format!("Unable to prepare ballot page image: {err}"))
         })?;
 
-    let find_timing_marks_result = ballot_page.find_timing_marks();
+    let find_timing_marks_result = ballot_page.find_timing_marks(
+        &timing_marks::Options::default_for_geometry(ballot_page.geometry()),
+    );
 
     find_timing_marks_result.map_err(|err| {
         napi::Error::from_reason(format!("failed to detect timing mark grid: {err:?}"))

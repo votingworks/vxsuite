@@ -20,7 +20,7 @@ use crate::{
         score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
         ScoredPositionAreas, UnitIntervalScore,
     },
-    timing_marks::{self, BorderAxis, DefaultForGeometry, TimingMarks},
+    timing_marks::{self, BorderAxis, TimingMarks},
 };
 
 use types_rs::{
@@ -323,12 +323,8 @@ impl BallotPage {
     /// Fails if the timing mark algorithm is unable to find the
     /// timing mark grid within the image.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(&self) -> Result<TimingMarks> {
-        timing_marks::find_timing_mark_grid(
-            &self.ballot_image,
-            &self.geometry,
-            &timing_marks::Options::default_for_geometry(&self.geometry),
-        )
+    pub fn find_timing_marks(&self, options: &timing_marks::Options) -> Result<TimingMarks> {
+        timing_marks::find_timing_mark_grid(&self.ballot_image, &self.geometry, options)
     }
 
     /// Gets the ballot geometry information for this page.
@@ -477,9 +473,9 @@ impl BallotCard {
     ///
     /// Fails if timing marks cannot be found on one or both ballot pages.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(&self) -> Result<Pair<TimingMarks>> {
+    pub fn find_timing_marks(&self, options: &timing_marks::Options) -> Result<Pair<TimingMarks>> {
         self.as_pair()
-            .par_map(BallotPage::find_timing_marks)
+            .par_map(|page| page.find_timing_marks(options))
             .into_result()
     }
 

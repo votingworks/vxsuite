@@ -26,8 +26,9 @@ use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::border_finding::GridStrategy;
 use crate::timing_marks::TimingMarks;
+use crate::timing_marks::{self, BallotPageMetadata, DefaultForGeometry};
 
 /// Default maximum cumulative width of vertical streaks in pixels.
 /// This value must match `DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH` in `libs/types/src/system_settings.ts`
@@ -48,6 +49,7 @@ pub struct Options {
     pub minimum_detected_scale: Option<UnitIntervalScore>,
     pub max_cumulative_streak_width: PixelUnit,
     pub retry_streak_width_threshold: PixelUnit,
+    pub grid_strategy: GridStrategy,
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq, Default)]
@@ -256,6 +258,7 @@ pub struct ScanInterpreter {
     minimum_detected_scale: Option<UnitIntervalScore>,
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
+    grid_strategy: GridStrategy,
 }
 
 impl ScanInterpreter {
@@ -268,6 +271,7 @@ impl ScanInterpreter {
         minimum_detected_scale: Option<UnitIntervalScore>,
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
+        grid_strategy: GridStrategy,
     ) -> Self {
         Self {
             election,
@@ -277,6 +281,7 @@ impl ScanInterpreter {
             minimum_detected_scale,
             max_cumulative_streak_width,
             retry_streak_width_threshold,
+            grid_strategy,
         }
     }
 
@@ -303,6 +308,7 @@ impl ScanInterpreter {
             minimum_detected_scale: self.minimum_detected_scale,
             max_cumulative_streak_width: self.max_cumulative_streak_width,
             retry_streak_width_threshold: self.retry_streak_width_threshold,
+            grid_strategy: self.grid_strategy,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -363,7 +369,12 @@ pub fn ballot_card(
     // Run timing mark detection and QR code detection in parallel since they
     // are independent operations on the same ballot images.
     let (timing_marks_result, decoded_qr_codes_result) = rayon::join(
-        || ballot_card.find_timing_marks(),
+        || {
+            ballot_card.find_timing_marks(&timing_marks::Options {
+                grid_strategy: options.grid_strategy,
+                ..timing_marks::Options::default_for_geometry(ballot_card.geometry())
+            })
+        },
         || ballot_card.decode_ballot_barcodes(&options.election),
     );
 
@@ -540,8 +551,11 @@ mod test {
     };
 
     use crate::{
-        ballot_card::ballot_scan_bubble_image, debug::ImageDebugWriter, qr_code,
-        scoring::UnitIntervalScore, timing_marks::TimingMarks,
+        ballot_card::ballot_scan_bubble_image,
+        debug::ImageDebugWriter,
+        qr_code,
+        scoring::UnitIntervalScore,
+        timing_marks::{self, DefaultForGeometry, TimingMarks},
     };
 
     use super::*;
@@ -580,6 +594,7 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
+            grid_strategy: GridStrategy::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -610,6 +625,7 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
+            grid_strategy: GridStrategy::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -1004,6 +1020,41 @@ mod test {
         );
     }
 
+    /// `CornersOnly` interpolates each interior point as a fraction across the
+    /// segments connecting the four detected corner marks. The percentages are
+    /// `column / (grid_width - 1)` and `row / (grid_height - 1)` — the
+    /// `- 1` is what makes the four grid corners map exactly to the four
+    /// detected corner mark centers. Getting this off-by-one wrong skews
+    /// every interior point toward the top-left, with the error compounding
+    /// toward the bottom-right.
+    #[test]
+    fn test_corners_only_grid_maps_corners_to_corner_marks() {
+        let (side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        options.grid_strategy = GridStrategy::CornersOnly;
+        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+
+        let tm = &card.front.timing_marks;
+        let last_col = (tm.geometry.grid_size.width - 1) as f32;
+        let last_row = (tm.geometry.grid_size.height - 1) as f32;
+        let approx_eq = |a: types_rs::geometry::Point<f32>, b: types_rs::geometry::Point<f32>| {
+            (a.x - b.x).abs() < 0.5 && (a.y - b.y).abs() < 0.5
+        };
+
+        for &(col, row, expected_center) in &[
+            (0.0, 0.0, tm.top_left_mark.rect().center()),
+            (last_col, 0.0, tm.top_right_mark.rect().center()),
+            (0.0, last_row, tm.bottom_left_mark.rect().center()),
+            (last_col, last_row, tm.bottom_right_mark.rect().center()),
+        ] {
+            let got = tm.point_for_location(col, row).unwrap();
+            assert!(
+                approx_eq(got, expected_center),
+                "point_for_location({col}, {row}) = {got:?}, expected ~{expected_center:?}",
+            );
+        }
+    }
+
     #[test]
     fn test_fold_through_timing_mark() {
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
@@ -1247,7 +1298,12 @@ mod test {
         .unwrap();
         let timing_marks: (TimingMarks, TimingMarks) = card
             .as_pair()
-            .par_map(|page| page.find_timing_marks().unwrap())
+            .par_map(|page| {
+                page.find_timing_marks(&timing_marks::Options::default_for_geometry(
+                    page.geometry(),
+                ))
+                .unwrap()
+            })
             .into();
         let side_a_timing_marks = &timing_marks.0;
 

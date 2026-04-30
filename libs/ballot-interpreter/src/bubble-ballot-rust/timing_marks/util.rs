@@ -105,6 +105,15 @@ macro_rules! impl_cornerwise {
                     self.bottom_right,
                 ]
             }
+
+            fn corners(&self) -> [&$element; 4] {
+                [
+                    &self.top_left,
+                    &self.top_right,
+                    &self.bottom_left,
+                    &self.bottom_right,
+                ]
+            }
         }
     };
 }
@@ -117,6 +126,7 @@ where
 {
     fn from_array(corners: [T; 4]) -> Self;
     fn into_array(self) -> [T; 4];
+    fn corners(&self) -> [&T; 4];
 
     /// Map each corner in series.
     #[allow(dead_code)]
@@ -154,6 +164,10 @@ impl<T> CornerWise<T> for [T; 4] {
 
     fn into_array(self) -> [T; 4] {
         self
+    }
+
+    fn corners(&self) -> [&T; 4] {
+        [&self[0], &self[1], &self[2], &self[3]]
     }
 }
 

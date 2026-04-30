@@ -10,6 +10,7 @@ use types_rs::{
 use crate::ballot_card::{BallotImage, Geometry};
 use crate::interpret::Error;
 use crate::scoring::UnitIntervalScore;
+use crate::timing_marks::border_finding::GridStrategy;
 use crate::timing_marks::scoring::CandidateTimingMark;
 
 pub mod border_finding;
@@ -22,14 +23,16 @@ pub mod util;
 use crate::timing_marks::util::CornerWise;
 
 pub struct Options {
-    shape: shape_finding::Options,
-    corner: corner_finding::Options,
-    border: border_finding::Options,
+    pub grid_strategy: GridStrategy,
+    pub shape: shape_finding::Options,
+    pub corner: corner_finding::Options,
+    pub border: border_finding::Options,
 }
 
 impl DefaultForGeometry for Options {
     fn default_for_geometry(geometry: &Geometry) -> Self {
         Self {
+            grid_strategy: GridStrategy::default(),
             shape: shape_finding::Options::default_for_geometry(geometry),
             corner: corner_finding::Options::default_for_geometry(geometry),
             border: border_finding::Options::default_for_geometry(geometry),
@@ -80,6 +83,7 @@ pub fn find_timing_mark_grid(
         geometry,
         &corners,
         &candidates,
+        options.grid_strategy,
         &options.border,
     )?;
 
@@ -105,6 +109,7 @@ pub fn find_timing_mark_grid(
 
     let timing_marks = TimingMarks {
         geometry: geometry.clone(),
+        grid_strategy: options.grid_strategy,
         top_left_corner,
         top_right_corner,
         bottom_left_corner,
@@ -126,6 +131,7 @@ pub fn find_timing_mark_grid(
 #[serde(rename_all = "camelCase")]
 pub struct TimingMarks {
     pub geometry: Geometry,
+    pub grid_strategy: GridStrategy,
     pub top_left_corner: Point<f32>,
     pub top_right_corner: Point<f32>,
     pub bottom_left_corner: Point<f32>,
@@ -217,6 +223,10 @@ impl TimingMarks {
     ///    two rows).
     /// 2. Interpolating horizontally between the left/right timing mark
     ///    positions based on the given column index.
+    ///
+    /// Under [`GridStrategy::CornersOnly`] there are no per-row marks to
+    /// interpolate from, so the position is interpolated bilinearly between
+    /// the four detected corner marks instead.
     #[must_use]
     pub fn point_for_location(
         &self,
@@ -229,6 +239,19 @@ impl TimingMarks {
             return None;
         }
 
+        match self.grid_strategy {
+            GridStrategy::FullBorders => self.point_for_location_with_full_grid(column, row),
+            GridStrategy::CornersOnly => {
+                Some(self.point_for_location_with_corners_only_grid(column, row))
+            }
+        }
+    }
+
+    fn point_for_location_with_full_grid(
+        &self,
+        column: SubGridUnit,
+        row: SubGridUnit,
+    ) -> Option<Point<SubPixelUnit>> {
         // Find the left and right timing marks for the given row, interpolating
         // vertically if given a fractional row index
         let row_before = row.floor() as GridUnit;
@@ -264,6 +287,40 @@ impl TimingMarks {
             end: expected_timing_mark_center,
         } = horizontal_segment.with_length(horizontal_segment.length() * distance_percentage);
         Some(expected_timing_mark_center)
+    }
+
+    fn point_for_location_with_corners_only_grid(
+        &self,
+        column: SubGridUnit,
+        row: SubGridUnit,
+    ) -> Point<SubPixelUnit> {
+        // The grid spans (width-1) intervals across and (height-1) intervals
+        // down (e.g. a 34×51 grid has 33 horizontal and 50 vertical
+        // intervals), so the percentages are normalized to those denominators
+        // — getting this wrong is an off-by-one that compounds toward the
+        // bottom-right corner.
+        let row_percentage = row / (self.geometry.grid_size.height - 1) as SubGridUnit;
+        let column_percentage = column / (self.geometry.grid_size.width - 1) as SubGridUnit;
+
+        let left_border = Segment::new(
+            self.top_left_mark.rect().center(),
+            self.bottom_left_mark.rect().center(),
+        );
+        let right_border = Segment::new(
+            self.top_right_mark.rect().center(),
+            self.bottom_right_mark.rect().center(),
+        );
+        let left = left_border
+            .with_length(left_border.length() * row_percentage)
+            .end;
+        let right = right_border
+            .with_length(right_border.length() * row_percentage)
+            .end;
+
+        let horizontal = Segment::new(left, right);
+        horizontal
+            .with_length(horizontal.length() * column_percentage)
+            .end
     }
 
     /// Computes a ballot page scale by examining the timing marks along one of
