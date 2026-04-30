@@ -523,7 +523,7 @@ test('cancelling', async () => {
 test('all controls are disabled until clicking "Edit"', async () => {
   const systemSettings: SystemSettings = {
     ...electionRecord.systemSettings,
-    electionDayPollsCloseTime: '2026-11-03T20:00:00',
+    electionDayPollsCloseTime: '20:00:00',
   };
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -535,7 +535,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allTextBoxes = document.body.querySelectorAll('input');
 
   for (const textbox of allTextBoxes) {
-    expect(textbox.type).toMatch(/^text|number|datetime-local$/);
+    expect(textbox.type).toMatch(/^text|number|time$/);
   }
 
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
@@ -549,7 +549,13 @@ test('all controls are disabled until clicking "Edit"', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  for (const control of allControls) {
+  // Re-query for all controls because the Polls Closed input is
+  // re-rendered after clicking "Edit"
+  const allControlsAfterEdit = [
+    ...document.body.querySelectorAll('input'),
+    ...document.body.querySelectorAll('[role=checkbox]'),
+  ];
+  for (const control of allControlsAfterEdit) {
     expect(control).not.toBeDisabled();
   }
 });
@@ -805,7 +811,7 @@ describe('election day polls close time', () => {
 
     // Setting a close time enables the checkboxes
     fireEvent.change(screen.getByLabelText('Election Day Polls Close Time'), {
-      target: { value: '2026-11-03T20:00' },
+      target: { value: '20:00' },
     });
     expect(
       screen.getByRole('checkbox', {
@@ -822,7 +828,7 @@ describe('election day polls close time', () => {
   test('disallow closing polls before close time', async () => {
     const initialSettings: SystemSettings = {
       ...electionRecord.systemSettings,
-      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      electionDayPollsCloseTime: '20:00:00',
     };
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -859,7 +865,7 @@ describe('election day polls close time', () => {
   test('disallow VxAdmin tabulation before close time', async () => {
     const initialSettings: SystemSettings = {
       ...electionRecord.systemSettings,
-      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      electionDayPollsCloseTime: '20:00:00',
     };
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -896,7 +902,7 @@ describe('election day polls close time', () => {
   test('can set and update polls close time', async () => {
     const initialSettings: SystemSettings = {
       ...electionRecord.systemSettings,
-      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      electionDayPollsCloseTime: '20:00:00',
     };
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -908,17 +914,20 @@ describe('election day polls close time', () => {
       'Election Day Polls Close Time'
     );
     expect(input).toBeDisabled();
-    expect(input).toHaveValue('2026-11-03T20:00');
+    expect(input).toHaveValue('20:00');
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    expect(input).not.toBeDisabled();
+    const inputAfterEdit = screen.getByLabelText<HTMLInputElement>(
+      'Election Day Polls Close Time'
+    );
+    expect(inputAfterEdit).not.toBeDisabled();
 
-    fireEvent.change(input, { target: { value: '2026-11-03T21:30' } });
-    expect(input).toHaveValue('2026-11-03T21:30');
+    fireEvent.change(inputAfterEdit, { target: { value: '21:30' } });
+    expect(inputAfterEdit).toHaveValue('21:30');
 
     const updatedSettings: SystemSettings = {
       ...initialSettings,
-      electionDayPollsCloseTime: '2026-11-03T21:30:00',
+      electionDayPollsCloseTime: '21:30:00',
     };
     apiMock.updateSystemSettings
       .expectCallWith({ electionId, systemSettings: updatedSettings })
@@ -929,13 +938,15 @@ describe('election day polls close time', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('button', { name: 'Edit' });
-    expect(input).toHaveValue('2026-11-03T21:30');
+    expect(
+      screen.getByLabelText<HTMLInputElement>('Election Day Polls Close Time')
+    ).toHaveValue('21:30');
   });
 
   test('clears to undefined when emptied', async () => {
     const initialSettings: SystemSettings = {
       ...electionRecord.systemSettings,
-      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      electionDayPollsCloseTime: '20:00:00',
     };
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -967,7 +978,7 @@ describe('election day polls close time', () => {
   test('clearing close time also unchecks enforcement options', async () => {
     const initialSettings: SystemSettings = {
       ...electionRecord.systemSettings,
-      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      electionDayPollsCloseTime: '20:00:00',
       disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
       disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
     };
@@ -1025,7 +1036,7 @@ describe('election day polls close time', () => {
   test('shows confirmation modal when polls close time is in the morning', async () => {
     const initialSettings: SystemSettings = {
       ...electionRecord.systemSettings,
-      electionDayPollsCloseTime: '2026-11-03T20:00:00',
+      electionDayPollsCloseTime: '20:00:00',
     };
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -1035,7 +1046,7 @@ describe('election day polls close time', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     const input = screen.getByLabelText('Election Day Polls Close Time');
-    fireEvent.change(input, { target: { value: '2026-11-03T08:00' } });
+    fireEvent.change(input, { target: { value: '08:00' } });
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('heading', {
@@ -1058,7 +1069,7 @@ describe('election day polls close time', () => {
 
     const updatedSettings: SystemSettings = {
       ...initialSettings,
-      electionDayPollsCloseTime: '2026-11-03T08:00:00',
+      electionDayPollsCloseTime: '08:00:00',
     };
     apiMock.updateSystemSettings
       .expectCallWith({ electionId, systemSettings: updatedSettings })
@@ -1071,27 +1082,6 @@ describe('election day polls close time', () => {
       screen.getByRole('button', { name: 'Save', hidden: false })
     );
     await screen.findByRole('button', { name: 'Edit' });
-  });
-
-  test('rejects polls close time in the past', async () => {
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(electionRecord.systemSettings);
-    renderScreen();
-    await screen.findByRole('heading', { name: 'System Settings' });
-
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    const input = screen.getByLabelText<HTMLInputElement>(
-      'Election Day Polls Close Time'
-    );
-
-    fireEvent.change(input, { target: { value: '2000-01-01T08:00' } });
-    expect(input.validity.valid).toEqual(false);
-    expect(input.validationMessage).toContain('must be in the future');
-
-    // Form submission is blocked — updateSystemSettings should never be called
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    // (apiMock.assertComplete() in afterEach will catch any unexpected calls)
   });
 });
 
