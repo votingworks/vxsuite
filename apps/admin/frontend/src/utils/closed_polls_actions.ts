@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { DateWithoutTime } from '@votingworks/basics';
+import { assert, DateWithoutTime } from '@votingworks/basics';
 import { SystemSettings } from '@votingworks/types';
 import type { CvrFileMode } from '@votingworks/admin-backend';
 
@@ -28,6 +28,10 @@ export function areClosedPollsActionsBlocked(
   }
   const pollsCloseTime = DateTime.fromISO(
     `${electionDate.toISOString()}T${systemSettings.electionDayPollsCloseTime}`
+  );
+  assert(
+    pollsCloseTime.isValid,
+    `Invalid polls close time: ${pollsCloseTime.invalidExplanation}`
   );
   return DateTime.now() < pollsCloseTime;
 }
