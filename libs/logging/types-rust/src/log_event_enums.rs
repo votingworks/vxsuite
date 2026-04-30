@@ -459,5 +459,7 @@ pub enum EventId {
     AdminContestAdjudicated,
     #[serde(rename = "low-disk-space")]
     LowDiskSpace,
+    #[serde(rename = "live-report-viewed")]
+    LiveReportingUrlViewer,
 }
 derive_display!(EventId);

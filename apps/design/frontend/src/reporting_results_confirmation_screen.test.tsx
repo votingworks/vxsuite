@@ -431,7 +431,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
         name: 'Polls Closed Report Part 2/4 Sent',
       });
       screen.getByText(
-        /Part 2\/4 of the polls closed report has been sent to VxDesign./
+        /Part 2\/4 of the polls closed report has been received\. Send the next part to continue\./
       );
     });
 
@@ -441,6 +441,60 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     // Check that contest results tables are not rendered
     const tables = screen.queryAllByRole('table');
     expect(tables.length).toEqual(0);
+  });
+
+  test('displays "Tally Report" header for absentee polls closed reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsClosedReportGeneral,
+          votingType: 'absentee',
+        })
+      );
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Tally Report Sent' });
+      screen.getByText('The tally report has been sent to VxDesign.');
+    });
+
+    expect(
+      screen.queryByRole('heading', { name: 'Polls Closed Report Sent' })
+    ).toBeNull();
+  });
+
+  test('displays "Tally Report" header for absentee partial polls closed reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsClosedPartialReportGeneral,
+          votingType: 'absentee',
+        })
+      );
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', {
+        name: 'Tally Report Part 2/4 Sent',
+      });
+      screen.getByText(
+        /Part 2\/4 of the tally report has been received\. Send the next part to continue\./
+      );
+    });
   });
 
   test('displays polls closed report correctly - general election', async () => {

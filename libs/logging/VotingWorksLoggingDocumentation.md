@@ -702,3 +702,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)
 **Description:** Free disk space is low.
 **Machines:** All
+### live-report-viewed
+**Type:** [application-action](#application-action)
+**Description:** A user viewed the live reporting QR Code.
+**Machines:** vx-admin, vx-scan

@@ -34,6 +34,7 @@ export const routerPaths = {
   ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
   voterTurnoutReport: '/reports/voter-turnout',
+  sendTallyReports: '/reports/send-tally',
   adjudication: '/adjudication',
   adjudicationCandidates: '/adjudication/candidates',
   ballotAdjudication: '/adjudication/ballots',

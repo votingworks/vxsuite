@@ -1115,3 +1115,9 @@ restrictInDocumentationToApps = ["vx-admin"]
 eventId = "low-disk-space"
 eventType = "system-status"
 documentationMessage = "Free disk space is low."
+
+[Events.LiveReportingUrlViewer]
+eventId = "live-report-viewed"
+eventType = "application-action"
+documentationMessage = "A user viewed the live reporting QR Code."
+restrictInDocumentationToApps = ["vx-admin", "vx-scan"]

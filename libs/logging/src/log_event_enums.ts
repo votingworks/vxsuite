@@ -238,6 +238,7 @@ export enum LogEventId {
   AdminAdjudicationProxyError = 'admin-adjudication-proxy-error',
   AdminContestAdjudicated = 'admin-contest-adjudicated',
   LowDiskSpace = 'low-disk-space',
+  LiveReportingUrlViewer = 'live-report-viewed',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1513,6 +1514,13 @@ const LowDiskSpace: LogDetails = {
   documentationMessage: 'Free disk space is low.',
 };
 
+const LiveReportingUrlViewer: LogDetails = {
+  eventId: LogEventId.LiveReportingUrlViewer,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'A user viewed the live reporting QR Code.',
+  restrictInDocumentationToApps: [AppName.VxAdmin, AppName.VxScan],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1859,6 +1867,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return AdminContestAdjudicated;
     case LogEventId.LowDiskSpace:
       return LowDiskSpace;
+    case LogEventId.LiveReportingUrlViewer:
+      return LiveReportingUrlViewer;
     default:
       throwIllegalValue(eventId);
   }

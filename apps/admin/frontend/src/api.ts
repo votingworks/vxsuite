@@ -1,5 +1,5 @@
 import React from 'react';
-import { deepEqual } from '@votingworks/basics';
+import { deepEqual, fail } from '@votingworks/basics';
 import type { Api } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -495,6 +495,42 @@ export const getSystemSettings = {
   },
 } as const;
 
+type GetLiveResultsReportingUrlInput = QueryInput<'getLiveResultsReportingUrl'>;
+export const getLiveResultsReportingUrl = {
+  queryKeyPrefix: 'getLiveResultsReportingUrl',
+  queryKey(input?: GetLiveResultsReportingUrlInput): QueryKey {
+    return input ? [this.queryKeyPrefix, input] : [this.queryKeyPrefix];
+  },
+  useQuery(input?: GetLiveResultsReportingUrlInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () => apiClient.getLiveResultsReportingUrl(input)
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      {
+        enabled: !!input,
+        // Handle signing failures (e.g. results too large for QR codes)
+        // inline on the screen instead of escalating to the error boundary.
+        useErrorBoundary: false,
+      }
+    );
+  },
+} as const;
+
+export const getMatchingAbsenteePollingPlaces = {
+  queryKey(): QueryKey {
+    return ['getMatchingAbsenteePollingPlaces'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMatchingAbsenteePollingPlaces()
+    );
+  },
+} as const;
+
 type GetManualResultsInput = QueryInput<'getManualResults'>;
 export const getManualResults = {
   queryKey(input?: GetManualResultsInput): QueryKey {
@@ -673,6 +709,11 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     // total ballot count may be affected
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
+    // matching absentee polling places and any signed live-results URLs
+    // depend on which precincts have CVRs
+    queryClient.resetQueries(getMatchingAbsenteePollingPlaces.queryKey()),
+    queryClient.resetQueries(getLiveResultsReportingUrl.queryKey()),
+
     // ballot adjudication queues
     queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey()),
     queryClient.invalidateQueries(
@@ -699,6 +740,11 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
 
     // total ballot count may be affected
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
+
+    // matching absentee polling places and any signed live-results URLs
+    // depend on which precincts have ballots
+    queryClient.resetQueries(getMatchingAbsenteePollingPlaces.queryKey()),
+    queryClient.resetQueries(getLiveResultsReportingUrl.queryKey()),
   ]);
 }
 
