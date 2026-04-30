@@ -107,21 +107,32 @@ pub fn find_timing_mark_grid(
     ]
     .map_cornerwise(|mark| mark.rect().center());
 
+    let border_marks = match borders {
+        border_finding::BallotGridBorders::Full {
+            top,
+            bottom,
+            left,
+            right,
+        } => BorderMarks::Full {
+            top: top.into_marks(),
+            bottom: bottom.into_marks(),
+            left: left.into_marks(),
+            right: right.into_marks(),
+        },
+        border_finding::BallotGridBorders::OnlyCorners => BorderMarks::OnlyCorners,
+    };
+
     let timing_marks = TimingMarks {
         geometry: geometry.clone(),
-        grid_strategy: options.grid_strategy,
         top_left_corner,
         top_right_corner,
         bottom_left_corner,
         bottom_right_corner,
-        top_marks: borders.top.into_marks(),
-        bottom_marks: borders.bottom.into_marks(),
-        left_marks: borders.left.into_marks(),
-        right_marks: borders.right.into_marks(),
         top_left_mark: *top_left_mark,
         top_right_mark: *top_right_mark,
         bottom_left_mark: *bottom_left_mark,
         bottom_right_mark: *bottom_right_mark,
+        border_marks,
     };
 
     Ok(timing_marks)
@@ -131,22 +142,86 @@ pub fn find_timing_mark_grid(
 #[serde(rename_all = "camelCase")]
 pub struct TimingMarks {
     pub geometry: Geometry,
-    pub grid_strategy: GridStrategy,
     pub top_left_corner: Point<f32>,
     pub top_right_corner: Point<f32>,
     pub bottom_left_corner: Point<f32>,
     pub bottom_right_corner: Point<f32>,
-    pub top_marks: Vec<CandidateTimingMark>,
-    pub bottom_marks: Vec<CandidateTimingMark>,
-    pub left_marks: Vec<CandidateTimingMark>,
-    pub right_marks: Vec<CandidateTimingMark>,
     pub top_left_mark: CandidateTimingMark,
     pub top_right_mark: CandidateTimingMark,
     pub bottom_left_mark: CandidateTimingMark,
     pub bottom_right_mark: CandidateTimingMark,
+    pub border_marks: BorderMarks,
+}
+
+/// The per-border timing-mark sequences. Under [`GridStrategy::FullBorders`]
+/// (`Full`) every detected mark along each border is recorded. Under
+/// [`GridStrategy::CornersOnly`](`OnlyCorners`) there's no additional mark
+/// information to record, so we track only that the corners were used.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum BorderMarks {
+    Full {
+        top: Vec<CandidateTimingMark>,
+        bottom: Vec<CandidateTimingMark>,
+        left: Vec<CandidateTimingMark>,
+        right: Vec<CandidateTimingMark>,
+    },
+    OnlyCorners,
+}
+
+impl BorderMarks {
+    /// Returns the marks along the top border, or an empty slice if this is
+    /// `OnlyCorners`.
+    pub fn top(&self) -> &[CandidateTimingMark] {
+        match self {
+            Self::Full { top, .. } => top,
+            Self::OnlyCorners => &[],
+        }
+    }
+
+    /// Returns the marks along the bottom border, or an empty slice if this
+    /// is `OnlyCorners`.
+    pub fn bottom(&self) -> &[CandidateTimingMark] {
+        match self {
+            Self::Full { bottom, .. } => bottom,
+            Self::OnlyCorners => &[],
+        }
+    }
+
+    /// Returns the marks along the left border, or an empty slice if this is
+    /// `OnlyCorners`.
+    pub fn left(&self) -> &[CandidateTimingMark] {
+        match self {
+            Self::Full { left, .. } => left,
+            Self::OnlyCorners => &[],
+        }
+    }
+
+    /// Returns the marks along the right border, or an empty slice if this is
+    /// `OnlyCorners`.
+    pub fn right(&self) -> &[CandidateTimingMark] {
+        match self {
+            Self::Full { right, .. } => right,
+            Self::OnlyCorners => &[],
+        }
+    }
+
+    #[must_use]
+    pub const fn grid_strategy(&self) -> GridStrategy {
+        match self {
+            Self::Full { .. } => GridStrategy::FullBorders,
+            Self::OnlyCorners => GridStrategy::CornersOnly,
+        }
+    }
 }
 
 impl TimingMarks {
+    /// Returns the grid strategy that produced these timing marks.
+    #[must_use]
+    pub const fn grid_strategy(&self) -> GridStrategy {
+        self.border_marks.grid_strategy()
+    }
+
     pub fn rotate180(&mut self, image_size: Size<u32>) {
         let rotator = Rotator180::new(image_size);
 
@@ -164,31 +239,39 @@ impl TimingMarks {
             rotator.rotate_candidate_timing_mark(&self.top_left_mark),
         );
 
-        let mut rotated_top_marks: Vec<CandidateTimingMark> = self
-            .top_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
-        let mut rotated_bottom_marks: Vec<CandidateTimingMark> = self
-            .bottom_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
-        let mut rotated_left_marks: Vec<CandidateTimingMark> = self
-            .left_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
-        let mut rotated_right_marks: Vec<CandidateTimingMark> = self
-            .right_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
+        let rotate_marks = |marks: Vec<CandidateTimingMark>| -> Vec<CandidateTimingMark> {
+            marks
+                .into_iter()
+                .map(|m| rotator.rotate_candidate_timing_mark(&m))
+                .collect()
+        };
 
-        rotated_bottom_marks.sort_by_key(|m| m.rect().left());
-        rotated_top_marks.sort_by_key(|m| m.rect().left());
-        rotated_left_marks.sort_by_key(|m| m.rect().top());
-        rotated_right_marks.sort_by_key(|m| m.rect().top());
+        let border_marks = match std::mem::replace(&mut self.border_marks, BorderMarks::OnlyCorners)
+        {
+            BorderMarks::Full {
+                top,
+                bottom,
+                left,
+                right,
+            } => {
+                let mut rotated_top = rotate_marks(top);
+                let mut rotated_bottom = rotate_marks(bottom);
+                let mut rotated_left = rotate_marks(left);
+                let mut rotated_right = rotate_marks(right);
+                rotated_top.sort_by_key(|m| m.rect().left());
+                rotated_bottom.sort_by_key(|m| m.rect().left());
+                rotated_left.sort_by_key(|m| m.rect().top());
+                rotated_right.sort_by_key(|m| m.rect().top());
+                // Rotation by 180° swaps top/bottom and left/right.
+                BorderMarks::Full {
+                    top: rotated_bottom,
+                    bottom: rotated_top,
+                    left: rotated_right,
+                    right: rotated_left,
+                }
+            }
+            BorderMarks::OnlyCorners => BorderMarks::OnlyCorners,
+        };
 
         self.top_left_corner = top_left_corner;
         self.top_right_corner = top_right_corner;
@@ -198,10 +281,7 @@ impl TimingMarks {
         self.top_right_mark = top_right_mark;
         self.bottom_left_mark = bottom_left_mark;
         self.bottom_right_mark = bottom_right_mark;
-        self.top_marks = rotated_bottom_marks;
-        self.bottom_marks = rotated_top_marks;
-        self.left_marks = rotated_right_marks;
-        self.right_marks = rotated_left_marks;
+        self.border_marks = border_marks;
     }
 
     /// Returns the center of the grid position at the given coordinates. Timing
@@ -239,9 +319,13 @@ impl TimingMarks {
             return None;
         }
 
-        match self.grid_strategy {
-            GridStrategy::FullBorders => self.point_for_location_with_full_grid(column, row),
-            GridStrategy::CornersOnly => {
+        match &self.border_marks {
+            BorderMarks::Full {
+                left: left_marks,
+                right: right_marks,
+                ..
+            } => self.point_for_location_with_full_grid(column, row, left_marks, right_marks),
+            BorderMarks::OnlyCorners => {
                 Some(self.point_for_location_with_corners_only_grid(column, row))
             }
         }
@@ -251,16 +335,18 @@ impl TimingMarks {
         &self,
         column: SubGridUnit,
         row: SubGridUnit,
+        left_marks: &[CandidateTimingMark],
+        right_marks: &[CandidateTimingMark],
     ) -> Option<Point<SubPixelUnit>> {
         // Find the left and right timing marks for the given row, interpolating
         // vertically if given a fractional row index
         let row_before = row.floor() as GridUnit;
         let row_after = row.ceil() as GridUnit;
         let distance_percentage_between_rows = row - row_before as f32;
-        let left_before = self.left_marks.get(row_before as usize)?;
-        let right_before = self.right_marks.get(row_before as usize)?;
-        let left_after = self.left_marks.get(row_after as usize)?;
-        let right_after = self.right_marks.get(row_after as usize)?;
+        let left_before = left_marks.get(row_before as usize)?;
+        let right_before = right_marks.get(row_before as usize)?;
+        let left_after = left_marks.get(row_after as usize)?;
+        let right_after = right_marks.get(row_after as usize)?;
         let left = Rect::new(
             left_before.rect().left(),
             left_before.rect().top()
@@ -294,11 +380,6 @@ impl TimingMarks {
         column: SubGridUnit,
         row: SubGridUnit,
     ) -> Point<SubPixelUnit> {
-        // The grid spans (width-1) intervals across and (height-1) intervals
-        // down (e.g. a 34×51 grid has 33 horizontal and 50 vertical
-        // intervals), so the percentages are normalized to those denominators
-        // — getting this wrong is an off-by-one that compounds toward the
-        // bottom-right corner.
         let row_percentage = row / (self.geometry.grid_size.height - 1) as SubGridUnit;
         let column_percentage = column / (self.geometry.grid_size.width - 1) as SubGridUnit;
 
@@ -353,10 +434,10 @@ impl TimingMarks {
     #[must_use]
     pub fn compute_scale_based_on_border(&self, border: Border) -> Option<UnitIntervalScore> {
         let marks = match border {
-            Border::Top => &self.top_marks,
-            Border::Bottom => &self.bottom_marks,
-            Border::Left => &self.left_marks,
-            Border::Right => &self.right_marks,
+            Border::Top => self.border_marks.top(),
+            Border::Bottom => self.border_marks.bottom(),
+            Border::Left => self.border_marks.left(),
+            Border::Right => self.border_marks.right(),
         };
 
         let actual_mark_period = median(
@@ -406,8 +487,16 @@ impl TimingMarks {
     #[must_use]
     pub fn compute_scale_based_on_axis(&self, axis: BorderAxis) -> Option<UnitIntervalScore> {
         let marks = match axis {
-            BorderAxis::Horizontal => self.left_marks.iter().zip(&self.right_marks),
-            BorderAxis::Vertical => self.top_marks.iter().zip(&self.bottom_marks),
+            BorderAxis::Horizontal => self
+                .border_marks
+                .left()
+                .iter()
+                .zip(self.border_marks.right()),
+            BorderAxis::Vertical => self
+                .border_marks
+                .top()
+                .iter()
+                .zip(self.border_marks.bottom()),
         };
 
         let actual_border_to_border_distance =

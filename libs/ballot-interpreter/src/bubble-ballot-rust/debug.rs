@@ -268,7 +268,7 @@ pub fn draw_timing_mark_debug_image_mut(
     let scale = PxScale::from(font_scale);
 
     let mut text_rects = vec![];
-    for (i, mark) in timing_marks.top_marks.iter().enumerate() {
+    for (i, mark) in timing_marks.border_marks.top().iter().enumerate() {
         let center = mark.rect().center();
         let text = format!(
             "{i} ({m:.0}, {p:.0})",
@@ -301,7 +301,7 @@ pub fn draw_timing_mark_debug_image_mut(
     }
 
     let mut text_rects = vec![];
-    for (i, mark) in timing_marks.bottom_marks.iter().enumerate() {
+    for (i, mark) in timing_marks.border_marks.bottom().iter().enumerate() {
         let center = mark.rect().center();
         let text = format!(
             "{i} ({m:.0}, {p:.0})",
@@ -333,7 +333,7 @@ pub fn draw_timing_mark_debug_image_mut(
         );
     }
 
-    for (i, mark) in timing_marks.left_marks.iter().enumerate() {
+    for (i, mark) in timing_marks.border_marks.left().iter().enumerate() {
         let center = mark.rect().center();
         let text = format!("{i}");
         let (_, text_height) = text_size(scale, font, text.as_str());
@@ -350,7 +350,7 @@ pub fn draw_timing_mark_debug_image_mut(
         );
     }
 
-    for (i, mark) in timing_marks.right_marks.iter().enumerate() {
+    for (i, mark) in timing_marks.border_marks.right().iter().enumerate() {
         let center = mark.rect().center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
@@ -490,7 +490,7 @@ pub fn draw_timing_mark_debug_image_mut(
                 TOP_COLOR,
                 format!(
                     "Top ({}/{} found)",
-                    timing_marks.top_marks.len(),
+                    timing_marks.border_marks.top().len(),
                     geometry.grid_size.width,
                 )
                 .as_str(),
@@ -499,7 +499,7 @@ pub fn draw_timing_mark_debug_image_mut(
                 BOTTOM_COLOR,
                 format!(
                     "Bottom ({}/{} found)",
-                    timing_marks.bottom_marks.len(),
+                    timing_marks.border_marks.bottom().len(),
                     geometry.grid_size.width,
                 )
                 .as_str(),
@@ -508,7 +508,7 @@ pub fn draw_timing_mark_debug_image_mut(
                 LEFT_COLOR,
                 format!(
                     "Left ({}/{} found)",
-                    timing_marks.left_marks.len(),
+                    timing_marks.border_marks.left().len(),
                     geometry.grid_size.height,
                 )
                 .as_str(),
@@ -517,7 +517,7 @@ pub fn draw_timing_mark_debug_image_mut(
                 RIGHT_COLOR,
                 format!(
                     "Right ({}/{} found)",
-                    timing_marks.right_marks.len(),
+                    timing_marks.border_marks.right().len(),
                     geometry.grid_size.height,
                 )
                 .as_str(),
@@ -664,11 +664,12 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
 
     // Draw timing mark centers as bright green crosses
     for mark in timing_marks
-        .top_marks
+        .border_marks
+        .top()
         .iter()
-        .chain(timing_marks.bottom_marks.iter())
-        .chain(timing_marks.left_marks.iter())
-        .chain(timing_marks.right_marks.iter())
+        .chain(timing_marks.border_marks.bottom())
+        .chain(timing_marks.border_marks.left())
+        .chain(timing_marks.border_marks.right())
     {
         let center = mark.rect().center();
         draw_cross_mut(canvas, GREEN, center.x as i32, center.y as i32);

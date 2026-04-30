@@ -4,7 +4,6 @@ use crate::{
     ballot_card::Geometry,
     draw_utils::draw_filled_rect_mut,
     image_utils::rainbow,
-    impl_edgewise,
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
@@ -19,16 +18,21 @@ use itertools::Itertools;
 use serde::{de::IntoDeserializer, Deserialize, Serialize};
 use types_rs::geometry::{Segment, SubPixelUnit};
 
-/// Represents the four borders of a ballot grid.
+/// Represents the borders of a ballot grid. Under [`GridStrategy::FullBorders`]
+/// (`Full`) every detected mark along each border is recorded; under
+/// [`GridStrategy::CornersOnly`] (`OnlyCorners`) the per-border mark sequences
+/// are not available — only the four corner marks (held on `TimingMarks`
+/// itself) were used.
 #[derive(Debug, Clone)]
-pub struct BallotGridBorders {
-    pub left: GridBorder,
-    pub right: GridBorder,
-    pub top: GridBorder,
-    pub bottom: GridBorder,
+pub enum BallotGridBorders {
+    Full {
+        left: GridBorder,
+        right: GridBorder,
+        top: GridBorder,
+        bottom: GridBorder,
+    },
+    OnlyCorners,
 }
-
-impl_edgewise!(BallotGridBorders, GridBorder);
 
 impl BallotGridBorders {
     #[allow(clippy::result_large_err)]
@@ -163,7 +167,7 @@ impl BallotGridBorders {
             });
         }
 
-        Ok(Self {
+        Ok(Self::Full {
             left,
             right,
             top,
@@ -171,12 +175,11 @@ impl BallotGridBorders {
         })
     }
 
-    /// Builds borders consisting only of the four corner groupings: each
-    /// border is the two corner marks at its ends plus the two adjacent
-    /// "row"/"column" marks one step in from each corner. No interior marks
-    /// are read, so this strategy works on ballots that have only corner
-    /// timing marks printed. Validates that the row/column marks are within
-    /// the expected center-to-center distance from their corners.
+    /// Validates the four corner groupings — each corner mark plus its two
+    /// adjacent "row"/"column" marks must be within the expected
+    /// center-to-center distance — and returns
+    /// [`BallotGridBorders::OnlyCorners`]. Since this algorithm does not look
+    /// for the full timing mark border, we don't record them or infer them.
     #[allow(clippy::result_large_err)]
     #[allow(clippy::missing_errors_doc)]
     fn find_all_using_only_corners(
@@ -207,56 +210,25 @@ impl BallotGridBorders {
             }
         }
 
-        let [top_left, top_right, bottom_left, bottom_right] = ballot_grid_corners.corners();
-
-        Ok(Self {
-            left: GridBorder {
-                border: Border::Left,
-                marks: vec![
-                    *top_left.best_corner_grouping().corner_mark(),
-                    *top_left.best_corner_grouping().column_mark(),
-                    *bottom_left.best_corner_grouping().column_mark(),
-                    *bottom_left.best_corner_grouping().corner_mark(),
-                ],
-            },
-            right: GridBorder {
-                border: Border::Right,
-                marks: vec![
-                    *top_right.best_corner_grouping().corner_mark(),
-                    *top_right.best_corner_grouping().column_mark(),
-                    *bottom_right.best_corner_grouping().column_mark(),
-                    *bottom_right.best_corner_grouping().corner_mark(),
-                ],
-            },
-            top: GridBorder {
-                border: Border::Top,
-                marks: vec![
-                    *top_left.best_corner_grouping().corner_mark(),
-                    *top_left.best_corner_grouping().row_mark(),
-                    *top_right.best_corner_grouping().row_mark(),
-                    *top_right.best_corner_grouping().corner_mark(),
-                ],
-            },
-            bottom: GridBorder {
-                border: Border::Bottom,
-                marks: vec![
-                    *bottom_left.best_corner_grouping().corner_mark(),
-                    *bottom_left.best_corner_grouping().row_mark(),
-                    *bottom_right.best_corner_grouping().row_mark(),
-                    *bottom_right.best_corner_grouping().corner_mark(),
-                ],
-            },
-        })
+        Ok(Self::OnlyCorners)
     }
 
     pub fn debug_draw(&self, canvas: &mut RgbImage) {
-        for (mark, color) in self
-            .left
+        let Self::Full {
+            left,
+            right,
+            top,
+            bottom,
+        } = self
+        else {
+            return;
+        };
+        for (mark, color) in left
             .marks
             .iter()
-            .chain(self.right.marks.iter())
-            .chain(self.top.marks.iter())
-            .chain(self.bottom.marks.iter())
+            .chain(right.marks.iter())
+            .chain(top.marks.iter())
+            .chain(bottom.marks.iter())
             .zip(rainbow())
         {
             draw_filled_rect_mut(canvas, *mark.rect(), color);
