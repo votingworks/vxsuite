@@ -1301,7 +1301,7 @@ describe('election day polls close time enforcement', () => {
       apiMock.expectGetPollsInfo('polls_open');
       renderScreen({});
 
-      const pauseVotingButton = await screen.findByText('Pause Voting');
+      const pauseVotingButton = await screen.findButton('Pause Voting');
       expect(pauseVotingButton).toHaveAttribute('data-variant', 'primary');
 
       expect(screen.queryByText('Close Polls')).not.toBeInTheDocument();
@@ -1326,7 +1326,7 @@ describe('election day polls close time enforcement', () => {
       const closePollsButton = await screen.findButton('Close Polls');
       expect(closePollsButton).toHaveAttribute('data-variant', 'primary');
       // "Pause Voting" button should be in "Other Actions" section
-      const pauseVotingButton = await screen.findByText('Pause Voting');
+      const pauseVotingButton = await screen.findButton('Pause Voting');
       expect(pauseVotingButton).not.toHaveAttribute('data-variant', 'primary');
     });
 
