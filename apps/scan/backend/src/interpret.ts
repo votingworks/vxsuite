@@ -6,6 +6,7 @@ import { ok, Result } from '@votingworks/basics';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  Election,
   InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   PageInterpretationWithFiles,
@@ -13,12 +14,13 @@ import {
   SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
-import { time } from '@votingworks/utils';
+import { hasCrossoverVote, time } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import { rootDebug } from './util/debug';
 
 export function combinePageInterpretationsForSheet(
-  pages: SheetOf<PageInterpretationWithFiles>
+  pages: SheetOf<PageInterpretationWithFiles>,
+  election: Election
 ): SheetInterpretation {
   const [front, back] = pages;
   const frontType = front.interpretation.type;
@@ -70,41 +72,49 @@ export function combinePageInterpretationsForSheet(
   ) {
     const frontAdjudication = front.interpretation.adjudicationInfo;
     const backAdjudication = back.interpretation.adjudicationInfo;
+    const reasons: AdjudicationReasonInfo[] = [];
 
     if (
-      !(
-        frontAdjudication.requiresAdjudication ||
-        backAdjudication.requiresAdjudication
-      )
+      frontAdjudication.requiresAdjudication ||
+      backAdjudication.requiresAdjudication
     ) {
-      return { type: 'ValidSheet' };
+      const frontReasons = frontAdjudication.enabledReasonInfos;
+      const backReasons = backAdjudication.enabledReasonInfos;
+
+      // If both sides are blank, the ballot is blank
+      if (
+        (frontReasons.some(
+          (reason) => reason.type === AdjudicationReason.BlankBallot
+        ) ||
+          front.interpretation.markInfo.marks.length === 0) &&
+        (backReasons.some(
+          (reason) => reason.type === AdjudicationReason.BlankBallot
+        ) ||
+          back.interpretation.markInfo.marks.length === 0)
+      ) {
+        reasons.push({ type: AdjudicationReason.BlankBallot });
+      }
+      // Otherwise, we can ignore blank sides
+      else {
+        reasons.push(
+          ...[...frontReasons, ...backReasons].filter(
+            (reason) => reason.type !== AdjudicationReason.BlankBallot
+          )
+        );
+      }
     }
 
-    const frontReasons = frontAdjudication.enabledReasonInfos;
-    const backReasons = backAdjudication.enabledReasonInfos;
-
-    let reasons: AdjudicationReasonInfo[];
-    // If both sides are blank, the ballot is blank
+    // Crossover voting always triggers review in open primaries; it is not
+    // gated on the configured adjudicationReasons.
     if (
-      (frontReasons.some(
-        (reason) => reason.type === AdjudicationReason.BlankBallot
-      ) ||
-        front.interpretation.markInfo.marks.length === 0) &&
-      (backReasons.some(
-        (reason) => reason.type === AdjudicationReason.BlankBallot
-      ) ||
-        back.interpretation.markInfo.marks.length === 0)
+      hasCrossoverVote(election, {
+        ...front.interpretation.votes,
+        ...back.interpretation.votes,
+      })
     ) {
-      reasons = [{ type: AdjudicationReason.BlankBallot }];
-    }
-    // Otherwise, we can ignore blank sides
-    else {
-      reasons = [...frontReasons, ...backReasons].filter(
-        (reason) => reason.type !== AdjudicationReason.BlankBallot
-      );
+      reasons.push({ type: AdjudicationReason.CrossoverVoting });
     }
 
-    // If there are any non-blank reasons, they should be reviewed
     if (reasons.length > 0) {
       return {
         type: 'NeedsReviewSheet',
@@ -210,7 +220,10 @@ export async function interpret(
   timer.end();
 
   return ok({
-    ...combinePageInterpretationsForSheet(pageInterpretations),
+    ...combinePageInterpretationsForSheet(
+      pageInterpretations,
+      options.electionDefinition.election
+    ),
     pages: pageInterpretations,
   });
 }

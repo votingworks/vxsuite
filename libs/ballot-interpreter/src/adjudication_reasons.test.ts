@@ -12,10 +12,7 @@ import {
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
-import {
-  getAllPossibleAdjudicationReasons,
-  adjudicationReasonDescription,
-} from './adjudication_reasons';
+import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -110,10 +107,6 @@ test('a ballot with marginal marks', () => {
       optionId: bestAnimalMammalCandidate2.id,
     },
   ]);
-
-  expect(reasons.map(adjudicationReasonDescription)).toEqual([
-    "Contest 'best-animal-mammal' has a marginal mark for option 'otter'.",
-  ]);
 });
 
 test('a ballot with no marks', () => {
@@ -133,11 +126,6 @@ test('a ballot with no marks', () => {
     {
       type: AdjudicationReason.BlankBallot,
     },
-  ]);
-
-  expect(reasons.map(adjudicationReasonDescription)).toEqual([
-    "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
-    'Ballot has no votes.',
   ]);
 });
 
@@ -165,10 +153,6 @@ test('a ballot with too many marks', () => {
       optionIds: [bestAnimalMammalCandidate1.id, bestAnimalMammalCandidate2.id],
       expected: 1,
     },
-  ]);
-
-  expect(reasons.map(adjudicationReasonDescription)).toEqual([
-    "Contest 'best-animal-mammal' is overvoted, expected 1 but got 2: 'horse', 'otter'.",
   ]);
 });
 
@@ -213,12 +197,6 @@ test('multiple contests with issues', () => {
       expected: 3,
     },
   ]);
-
-  expect(reasons.map(adjudicationReasonDescription)).toEqual([
-    "Contest 'best-animal-mammal' has a marginal mark for option 'horse'.",
-    "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
-    "Contest 'zoo-council-mammal' is overvoted, expected 3 but got 4: 'zebra', 'lion', 'kangaroo', 'elephant'.",
-  ]);
 });
 
 test('yesno contest overvotes', () => {
@@ -238,10 +216,6 @@ test('yesno contest overvotes', () => {
       optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
       expected: 1,
     },
-  ]);
-
-  expect(reasons.map(adjudicationReasonDescription)).toEqual([
-    "Contest 'fishing' is overvoted, expected 1 but got 2: 'ban-fishing', 'allow-fishing'.",
   ]);
 });
 

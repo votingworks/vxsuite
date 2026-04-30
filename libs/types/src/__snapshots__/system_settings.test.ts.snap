@@ -34,13 +34,14 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "Overvote",
       "Undervote",
       "BlankBallot",
-      "UnmarkedWriteIn"
+      "UnmarkedWriteIn",
+      "CrossoverVoting"
     ],
     "path": [
       "adminAdjudicationReasons",
       0
     ],
-    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\""
+    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
   },
   {
     "code": "invalid_value",
@@ -50,13 +51,14 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "Overvote",
       "Undervote",
       "BlankBallot",
-      "UnmarkedWriteIn"
+      "UnmarkedWriteIn",
+      "CrossoverVoting"
     ],
     "path": [
       "centralScanAdjudicationReasons",
       0
     ],
-    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\""
+    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
   },
   {
     "code": "invalid_value",
@@ -66,13 +68,14 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "Overvote",
       "Undervote",
       "BlankBallot",
-      "UnmarkedWriteIn"
+      "UnmarkedWriteIn",
+      "CrossoverVoting"
     ],
     "path": [
       "precinctScanAdjudicationReasons",
       0
     ],
-    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\""
+    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
   }
 ]]
 `;

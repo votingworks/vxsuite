@@ -207,6 +207,66 @@ function BlankBallotWarningScreen({
   );
 }
 
+interface CrossoverVotingWarningScreenProps {
+  isTestMode: boolean;
+  isEarlyVotingMode: boolean;
+}
+
+function CrossoverVotingWarningScreen({
+  isTestMode,
+  isEarlyVotingMode,
+}: CrossoverVotingWarningScreenProps): JSX.Element {
+  const returnBallotMutation = returnBallot.useMutation();
+  const acceptBallotMutation = acceptBallot.useMutation();
+  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+
+  function onCastBallot() {
+    setHasCastBallot(true);
+    acceptBallotMutation.mutate();
+  }
+
+  return (
+    <Screen
+      actionButtons={
+        <React.Fragment>
+          <Button
+            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+            disabled={hasCastBallot}
+          >
+            {appStrings.buttonReturnBallot()}
+          </Button>
+          <Button
+            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+            onPress={onCastBallot}
+            disabled={hasCastBallot}
+          >
+            {appStrings.buttonCastBallot()}
+          </Button>
+        </React.Fragment>
+      }
+      centerContent
+      padded
+      voterFacing
+      showTestModeBanner={isTestMode}
+      showEarlyVotingBanner={isEarlyVotingMode}
+    >
+      <FullScreenPromptLayout
+        title={appStrings.titleScannerBallotWarningsScreen()}
+        image={
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
+          </FullScreenIconWrapper>
+        }
+      >
+        <P>{appStrings.warningScannerCrossoverVoting()}</P>
+        <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
+      </FullScreenPromptLayout>
+    </Screen>
+  );
+}
+
 interface OtherReasonWarningScreenProps {
   isTestMode: boolean;
   isEarlyVotingMode: boolean;
@@ -283,17 +343,29 @@ export function ScanWarningScreen({
   isEarlyVotingMode,
 }: Props): JSX.Element {
   let isBlank = false;
+  let isCrossover = false;
   const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
   const undervoteReasons: UndervoteAdjudicationReasonInfo[] = [];
 
   for (const reason of adjudicationReasonInfo) {
     if (reason.type === AdjudicationReason.BlankBallot) {
       isBlank = true;
+    } else if (reason.type === AdjudicationReason.CrossoverVoting) {
+      isCrossover = true;
     } else if (reason.type === AdjudicationReason.Overvote) {
       overvoteReasons.push(reason);
     } else if (reason.type === AdjudicationReason.Undervote) {
       undervoteReasons.push(reason);
     }
+  }
+
+  if (isCrossover) {
+    return (
+      <CrossoverVotingWarningScreen
+        isTestMode={isTestMode}
+        isEarlyVotingMode={isEarlyVotingMode}
+      />
+    );
   }
 
   if (isBlank) {
@@ -501,6 +573,26 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
           expected: c.seats,
         })),
       ]}
+      isTestMode={false}
+      isEarlyVotingMode={false}
+    />
+  );
+}
+
+/* istanbul ignore next - @preserve */
+export function CrossoverVotingPreview(): JSX.Element {
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
+
+  return (
+    <ScanWarningScreen
+      electionDefinition={electionDefinition}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
+      adjudicationReasonInfo={[{ type: AdjudicationReason.CrossoverVoting }]}
       isTestMode={false}
       isEarlyVotingMode={false}
     />
