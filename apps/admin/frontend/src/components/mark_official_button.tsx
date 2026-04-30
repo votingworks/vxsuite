@@ -3,21 +3,24 @@ import { Button, Modal, P } from '@votingworks/ui';
 import {
   getCastVoteRecordFileMode,
   getManualResultsMetadata,
+  getSystemSettings,
   markResultsOfficial,
   revertResultsToUnofficial,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
+import { areClosedPollsActionsBlocked } from '../utils/closed_polls_actions';
 
 export const MARK_RESULTS_OFFICIAL_BUTTON_TEXT =
   'Mark Election Results as Official';
 
 export function MarkResultsOfficialButton(): JSX.Element {
-  const { isOfficialResults } = useContext(AppContext);
+  const { electionDefinition, isOfficialResults } = useContext(AppContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const markResultsOfficialMutation = markResultsOfficial.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const manualResultsMetadataQuery = getManualResultsMetadata.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
 
   const hasManualTallies =
     manualResultsMetadataQuery.isSuccess &&
@@ -25,8 +28,14 @@ export function MarkResultsOfficialButton(): JSX.Element {
 
   const canMarkResultsOfficial =
     castVoteRecordFileModeQuery.isSuccess &&
+    systemSettingsQuery.isSuccess &&
     (castVoteRecordFileModeQuery.data !== 'unlocked' || hasManualTallies) &&
-    !isOfficialResults;
+    !isOfficialResults &&
+    !areClosedPollsActionsBlocked(
+      castVoteRecordFileModeQuery.data,
+      systemSettingsQuery.data,
+      electionDefinition?.election.date
+    );
 
   function openModal() {
     setIsModalOpen(true);
