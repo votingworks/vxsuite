@@ -1192,3 +1192,162 @@ test('Signed hash validation', async () => {
   userEvent.click(screen.getByText('Signed Hash Validation'));
   await screen.findByText('Done');
 });
+
+describe('election day polls close time enforcement', () => {
+  const POLLS_CLOSE_TIME = '20:00:00';
+  const BEFORE_CLOSE_TIME = new Date('2021-06-06T19:59:00');
+  const AFTER_CLOSE_TIME = new Date('2021-06-06T20:01:00');
+
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  describe('official election day mode, before close time, disallow flag set', () => {
+    beforeEach(() => {
+      vi.setSystemTime(BEFORE_CLOSE_TIME);
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: false,
+        ballotCastingMode: 'election_day',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+          disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+        },
+      });
+    });
+
+    test('poll worker card insert goes directly to menu, not easy-close prompt', async () => {
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      await screen.findButton('Close Polls');
+      expect(
+        screen.queryByText('Do you want to close the polls?')
+      ).not.toBeInTheDocument();
+    });
+
+    test('Close Polls button is disabled in menu', async () => {
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      const closePollsButton = await screen.findButton('Close Polls');
+      expect(closePollsButton).toBeDisabled();
+    });
+
+    test('description shows cannot close until time', async () => {
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      await screen.findByText(/Polls cannot be closed until/);
+      await screen.findByText(/8:00 PM/);
+    });
+
+    test('testmode suppresses enforcement - shows easy-close prompt', async () => {
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: true,
+        ballotCastingMode: 'election_day',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+          disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+        },
+      });
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      await screen.findByText('Close Polls');
+      expect(
+        screen.queryByText(/Polls cannot be closed until/)
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  test('after close time, easy-close prompt appears normally', async () => {
+    vi.setSystemTime(AFTER_CLOSE_TIME);
+    apiMock.mockApiClient.getConfig.reset();
+    apiMock.expectGetConfig({
+      isTestMode: false,
+      ballotCastingMode: 'election_day',
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+        disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+      },
+    });
+    apiMock.expectGetPollsInfo('polls_open');
+    renderScreen({});
+
+    await screen.findByText('Do you want to close the polls?');
+  });
+
+  describe('early voting mode', () => {
+    test('before close time - Pause Voting is primary action', async () => {
+      vi.setSystemTime(BEFORE_CLOSE_TIME);
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: false,
+        ballotCastingMode: 'early_voting',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+        },
+      });
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      const pauseVotingButton = await screen.findByText('Pause Voting');
+      expect(pauseVotingButton).toHaveAttribute('data-variant', 'primary');
+
+      expect(screen.queryByText('Close Polls')).not.toBeInTheDocument();
+    });
+
+    test('past close time - Close Polls is primary action in menu', async () => {
+      vi.setSystemTime(AFTER_CLOSE_TIME);
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: false,
+        ballotCastingMode: 'early_voting',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+        },
+      });
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      userEvent.click(await screen.findByText('Menu'));
+      // "Close Polls" should be the primary button
+      const closePollsButton = await screen.findButton('Close Polls');
+      expect(closePollsButton).toHaveAttribute('data-variant', 'primary');
+      // "Pause Voting" button should be in "Other Actions" section
+      const pauseVotingButton = await screen.findByText('Pause Voting');
+      expect(pauseVotingButton).not.toHaveAttribute('data-variant', 'primary');
+    });
+
+    test('past close time - easy-close shows ClosePollsPromptScreen', async () => {
+      vi.setSystemTime(AFTER_CLOSE_TIME);
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: false,
+        ballotCastingMode: 'early_voting',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+        },
+      });
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      await screen.findByText('Do you want to close the polls?');
+      expect(
+        screen.queryByText('Do you want to pause voting?')
+      ).not.toBeInTheDocument();
+    });
+  });
+});
