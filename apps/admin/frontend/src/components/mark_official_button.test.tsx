@@ -18,6 +18,7 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.assertComplete();
+  vi.useRealTimers();
 });
 
 test('mark results as official', async () => {
@@ -116,7 +117,10 @@ test('mark official results button enabled when manual tallies exist but no CVRs
 });
 
 test('mark official results button disabled before polls close time in official mode', async () => {
-  vi.useFakeTimers({ now: new Date('2020-11-03T22:22:00') });
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2020-11-03T22:22:00'),
+  });
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
@@ -124,7 +128,7 @@ test('mark official results button disabled before polls close time in official 
   apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
     disallowVxAdminTabulationBeforeElectionDayPollsCloseTime: true,
-    electionDayPollsCloseTime: '2020-11-03T23:00:00',
+    electionDayPollsCloseTime: '23:00:00',
   });
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
@@ -132,7 +136,7 @@ test('mark official results button disabled before polls close time in official 
     isOfficialResults: false,
   });
 
-  await vi.waitFor(() => apiMock.assertComplete());
-
-  expect(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT)).toBeDisabled();
+  await vi.waitFor(() => {
+    expect(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT)).toBeDisabled();
+  });
 });
