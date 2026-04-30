@@ -18,6 +18,26 @@ const electionRecord = generalElectionRecord('test-jurisdiction');
 const { election } = electionRecord;
 const generalPollingPlaceId = assertDefined(election.pollingPlaces?.[0]).id;
 
+// Election with the first polling place re-typed as `absentee`, used to verify
+// that the close-polls confirmation screen titles itself "Tally Report" when
+// the polling place is absentee.
+const absenteeElection: Election = {
+  ...election,
+  pollingPlaces: assertDefined(election.pollingPlaces).map(
+    (p, i): PollingPlace => (i === 0 ? { ...p, type: 'absentee' } : p)
+  ),
+};
+
+// Election with the first polling place re-typed as `early_voting`, used to
+// verify that the voting-type label renders "Early Voting" for an early-voting
+// polling place.
+const earlyVotingElection: Election = {
+  ...election,
+  pollingPlaces: assertDefined(election.pollingPlaces).map(
+    (p, i): PollingPlace => (i === 0 ? { ...p, type: 'early_voting' } : p)
+  ),
+};
+
 let apiMock: MockUnauthenticatedApiClient;
 
 // Mock window.location.search
@@ -47,7 +67,6 @@ const mockPollsOpenReport: ReceivedReportInfo = {
 
   isPartial: false,
   ballotCount: 42,
-  votingType: 'election_day',
 };
 
 const mockPollsPausedReport: ReceivedReportInfo = {
@@ -56,12 +75,11 @@ const mockPollsPausedReport: ReceivedReportInfo = {
   machineId: 'VxScan-001',
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T12:00:00Z'),
-  election,
+  election: earlyVotingElection,
   pollingPlaceId: generalPollingPlaceId,
 
   isPartial: false,
   ballotCount: 108,
-  votingType: 'early_voting',
 };
 
 const mockVotingResumedReport: ReceivedReportInfo = {
@@ -75,7 +93,6 @@ const mockVotingResumedReport: ReceivedReportInfo = {
 
   isPartial: false,
   ballotCount: 150,
-  votingType: 'election_day',
 };
 
 const mockPollsClosedReportGeneral: ReceivedReportInfo = {
@@ -99,7 +116,6 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
     }).contestResults,
   },
   isPartial: false,
-  votingType: 'election_day',
 };
 
 const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
@@ -114,7 +130,6 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
   isPartial: true,
   numPages: 4,
   pageIndex: 1,
-  votingType: 'election_day',
 };
 
 const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -142,7 +157,6 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
     }).contestResults,
   },
   isPartial: false,
-  votingType: 'election_day',
 };
 
 beforeEach(() => {
@@ -453,7 +467,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       .resolves(
         ok({
           ...mockPollsClosedReportGeneral,
-          votingType: 'absentee',
+          election: absenteeElection,
         })
       );
     render(
@@ -464,6 +478,8 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       screen.getByRole('heading', { name: 'Tally Report Sent' });
       screen.getByText('The tally report has been sent to VxDesign.');
     });
+
+    screen.getByText('Absentee');
 
     expect(
       screen.queryByRole('heading', { name: 'Polls Closed Report Sent' })
@@ -480,7 +496,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       .resolves(
         ok({
           ...mockPollsClosedPartialReportGeneral,
-          votingType: 'absentee',
+          election: absenteeElection,
         })
       );
     render(
@@ -516,6 +532,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     screen.getByText('VxScan-001');
     screen.getByText(/abc123d/);
+    screen.getByText('Election Day');
 
     // Precinct heading for the single precinct in this polling place
     screen.getByRole('heading', { name: 'Center Springfield' });
@@ -621,7 +638,6 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
         [election.precincts[1].id]: emptyContestResults,
       },
       isPartial: false,
-      votingType: 'election_day',
     };
 
     apiMock.processQrCodeReport

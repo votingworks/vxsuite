@@ -3,7 +3,6 @@ import {
   ElectionId,
   Election,
   ContestId,
-  LiveReportVotingType,
   PrecinctId,
   PollsTransitionType,
   ElectionTypeV4p1,
@@ -114,7 +113,6 @@ export interface ReceivedReportInfoBase {
   pollsTransitionTime: Date;
   election: Election;
   pollingPlaceId: string;
-  votingType: LiveReportVotingType;
 }
 
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {

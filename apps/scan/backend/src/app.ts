@@ -692,7 +692,6 @@ export function buildApi({
           pollingPlaceId,
           resultsByPrecinct,
           pollsTransitionType: lastPollsTransition.type,
-          votingType: store.getBallotCastingMode(),
           pollsTransitionTimestamp: lastPollsTransition.time,
         });
       return signedQuickResultsReportingUrls;

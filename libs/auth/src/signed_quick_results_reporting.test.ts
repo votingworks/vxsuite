@@ -74,7 +74,6 @@ test.each<{ isLiveMode: boolean }>([
           signingMachineId: DEV_MACHINE_ID,
           pollingPlaceId: 'mockPollingPlaceId',
           pollsTransitionType: 'close_polls',
-          votingType: 'election_day',
           pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
         },
         vxScanTestConfig
@@ -108,7 +107,6 @@ test.each<{ isLiveMode: boolean }>([
           signingMachineId: DEV_MACHINE_ID,
           pollingPlaceId: 'mockPollingPlaceId',
           pollsTransitionType: 'close_polls',
-          votingType: 'election_day',
           pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
           maxQrCodeLength: 1000, // Force multi-part by setting a small max length
         },
@@ -138,7 +136,6 @@ test('If it is impossible to fit the signed quick results reporting URL within t
         signingMachineId: DEV_MACHINE_ID,
         pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'close_polls',
-        votingType: 'election_day',
         pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
         maxQrCodeLength: 10, // impossible length
       },
@@ -161,7 +158,6 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
         signingMachineId: DEV_MACHINE_ID,
         pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'open_polls',
-        votingType: 'election_day',
         pollsTransitionTimestamp: new Date('2024-11-05T08:00:00Z').getTime(),
       },
       vxScanTestConfig
@@ -189,7 +185,6 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
         signingMachineId: DEV_MACHINE_ID,
         pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'open_polls',
-        votingType: 'early_voting',
         pollsTransitionTimestamp: new Date('2024-11-05T08:00:00Z').getTime(),
       },
       vxScanTestConfig
@@ -218,7 +213,6 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
       signingMachineId: DEV_MACHINE_ID,
       pollingPlaceId: 'mockPollingPlaceId',
       pollsTransitionType: 'close_polls',
-      votingType: 'election_day',
       pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
     },
     vxScanTestConfig
@@ -257,7 +251,6 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
       signingMachineId: DEV_MACHINE_ID,
       pollingPlaceId: 'mockPollingPlaceId',
       pollsTransitionType: 'close_polls',
-      votingType: 'election_day',
       pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
     },
     vxScanTestConfig
@@ -312,7 +305,6 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
       signingMachineId: DEV_MACHINE_ID,
       pollingPlaceId: 'mockPollingPlaceId',
       pollsTransitionType: 'close_polls',
-      votingType: 'election_day',
       pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
     },
     vxScanTestConfig
@@ -363,7 +355,6 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     numPages: 88,
     pageIndex: 77,
     ballotCount: 0,
-    votingType: 'election_day',
   });
   expect(() => {
     decodeQuickResultsMessage(
@@ -422,7 +413,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   }).toThrow('Invalid timestamp format');
 });
 
-test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount, and votingType values', () => {
+test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, and ballotCount values', () => {
   const SEP = '\x00'; // Null byte separator used in the QR message format
   const timestamp = (
     new Date('2024-01-01T00:00:00Z').getTime() / 1000
@@ -432,7 +423,6 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount
     numPages?: string;
     pageIndex?: string;
     ballotCount?: string;
-    votingType?: string;
   }): string {
     const parts = [
       'ballotHash',
@@ -444,7 +434,6 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount
       overrides.numPages ?? '1',
       overrides.pageIndex ?? '0',
       overrides.ballotCount ?? '0',
-      overrides.votingType ?? '0',
     ];
     return constructPrefixedMessage(QR_MESSAGE_FORMAT, parts.join(SEP));
   }
@@ -469,17 +458,6 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount
   expect(() =>
     decodeQuickResultsMessage(buildPayload({ ballotCount: '-1' }))
   ).toThrow('Invalid ballot count format');
-
-  // votingType must be a valid digit mapping to a known type
-  expect(() =>
-    decodeQuickResultsMessage(buildPayload({ votingType: 'abc' }))
-  ).toThrow('Invalid voting type format');
-  expect(() =>
-    decodeQuickResultsMessage(buildPayload({ votingType: '99' }))
-  ).toThrow('Invalid voting type format');
-  expect(() =>
-    decodeQuickResultsMessage(buildPayload({ votingType: '-1' }))
-  ).toThrow('Invalid voting type format');
 });
 
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle close_polls tally', () => {
@@ -496,7 +474,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle close_polls
         numPages: 1,
         pageIndex: 0,
         ballotCount: 42,
-        votingType: 'election_day',
       })
     )
   );
@@ -512,7 +489,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle close_polls
       "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "close_polls",
-      "votingType": "election_day",
     }
   `);
 });
@@ -531,7 +507,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         numPages: 1,
         pageIndex: 0,
         ballotCount: 15,
-        votingType: 'early_voting',
       })
     )
   );
@@ -547,7 +522,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "close_polls",
-      "votingType": "early_voting",
     }
   `);
 });
@@ -563,7 +537,6 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls paused st
         signingMachineId: DEV_MACHINE_ID,
         pollingPlaceId: 'mockPollingPlaceId',
         pollsTransitionType: 'pause_voting',
-        votingType: 'election_day',
         pollsTransitionTimestamp: new Date('2024-11-05T12:00:00Z').getTime(),
       },
       vxScanTestConfig
@@ -591,7 +564,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     numPages: 1,
     pageIndex: 0,
     ballotCount: 7,
-    votingType: 'election_day',
   });
 
   expect(encoded).toContain('open_polls');
@@ -610,7 +582,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "open_polls",
-      "votingType": "election_day",
     }
   `);
 });
@@ -626,7 +597,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     numPages: 1,
     pageIndex: 0,
     ballotCount: 99,
-    votingType: 'early_voting',
   });
 
   expect(encoded).toContain('pause_voting');
@@ -645,7 +615,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "pause_voting",
-      "votingType": "early_voting",
     }
   `);
 });
@@ -661,7 +630,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle resume_voti
     numPages: 1,
     pageIndex: 0,
     ballotCount: 50,
-    votingType: 'election_day',
   });
 
   expect(encoded).toContain('resume_voting');
@@ -680,12 +648,11 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle resume_voti
       "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "resume_voting",
-      "votingType": "election_day",
     }
   `);
 });
 
-test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee voting type', () => {
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle close_polls tally with absentee polling place id', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
       QR_MESSAGE_FORMAT,
@@ -699,7 +666,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee vo
         numPages: 1,
         pageIndex: 0,
         ballotCount: 5,
-        votingType: 'absentee',
       })
     )
   );
@@ -715,7 +681,6 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee vo
       "pollingPlaceId": "mockPollingPlaceId",
       "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "pollsTransitionType": "close_polls",
-      "votingType": "absentee",
     }
   `);
 });

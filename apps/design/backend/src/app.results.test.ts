@@ -209,7 +209,6 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`, // Bad data
   ];
   for (const payload of invalidPayloads) {
@@ -251,7 +250,6 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -284,7 +282,6 @@ test('processQRCodeReport returns no election found where there is no election f
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -339,7 +336,6 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -420,7 +416,6 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -464,7 +459,6 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -603,7 +597,6 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -664,7 +657,6 @@ test('quick results reporting works for polls open reporting', async () => {
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -680,7 +672,6 @@ test('quick results reporting works for polls open reporting', async () => {
         isLive: false,
         isPartial: false,
         ballotCount: 0,
-        votingType: 'election_day',
       })
     )
   );
@@ -697,7 +688,6 @@ test('quick results reporting works for polls open reporting', async () => {
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
-        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -800,7 +790,6 @@ test('quick results reporting works for polls open reporting', async () => {
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -874,7 +863,6 @@ test('quick results reporting works for polls open reporting', async () => {
         pageIndex: 0,
         pollingPlaceId: 'test-polling-place',
         ballotCount: 0,
-        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -895,7 +883,6 @@ test('quick results reporting works for polls open reporting', async () => {
       }),
       isPartial: false,
       ballotCount: 0,
-      votingType: 'election_day',
     })
   );
 
@@ -974,7 +961,6 @@ test('quick results reporting works for polls paused reporting', async () => {
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1049,7 +1035,6 @@ test('quick results reporting works for voting resumed reporting', async () => {
       numPages: 1,
       pageIndex: 0,
       ballotCount: 50,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1189,7 +1174,6 @@ test('quick results reporting works as expected end to end with single precinct 
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
-        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1235,7 +1219,6 @@ test('quick results reporting works as expected end to end with single precinct 
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
-        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1411,7 +1394,6 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1454,7 +1436,6 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1573,7 +1554,6 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     pageIndex: 0,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const r1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1624,7 +1604,6 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     pageIndex: 1,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   auth0.logOut();
@@ -1659,7 +1638,6 @@ test('quick results reporting supports paginated 2-page reports', async () => {
         }),
       }),
       isPartial: false,
-      votingType: 'election_day',
     })
   );
 
@@ -1767,7 +1745,6 @@ test('quick results reporting clears previous partial reports on numPages change
     pageIndex: 0,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const r1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1808,7 +1785,6 @@ test('quick results reporting clears previous partial reports on numPages change
     pageIndex: 1,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const r2 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1831,7 +1807,6 @@ test('quick results reporting clears previous partial reports on numPages change
       isLive: true,
       pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
       isPartial: true,
-      votingType: 'election_day',
     })
   );
 
@@ -1846,7 +1821,6 @@ test('quick results reporting clears previous partial reports on numPages change
     pageIndex: 2,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const r3 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1869,7 +1843,6 @@ test('quick results reporting clears previous partial reports on numPages change
       isLive: true,
       pollsTransitionTime: new Date('2024-01-01T12:00:02Z'),
       isPartial: true,
-      votingType: 'election_day',
     })
   );
 
@@ -1883,7 +1856,6 @@ test('quick results reporting clears previous partial reports on numPages change
     pageIndex: 0,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   expect(newPayloadPage1).not.toEqual(payloadPage1);
@@ -1913,7 +1885,6 @@ test('quick results reporting clears previous partial reports on numPages change
         ),
       },
       isPartial: false,
-      votingType: 'election_day',
     })
   );
 });
@@ -1966,7 +1937,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const rA1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1978,7 +1948,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     ok(
       expect.objectContaining({
         isPartial: true,
-        votingType: 'election_day',
       })
     )
   );
@@ -2000,7 +1969,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const rB1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2012,7 +1980,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     ok(
       expect.objectContaining({
         isPartial: true,
-        votingType: 'election_day',
       })
     )
   );
@@ -2028,7 +1995,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     pageIndex: 1,
     pollingPlaceId: 'test-polling-place',
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const rC1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2040,7 +2006,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     ok(
       expect.objectContaining({
         isPartial: true,
-        votingType: 'election_day',
       })
     )
   );
@@ -2055,7 +2020,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     ok(
       expect.objectContaining({
         isPartial: true,
-        votingType: 'election_day',
       })
     )
   );
@@ -2071,7 +2035,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     numPages: 2,
     pageIndex: 1,
     ballotCount: 0,
-    votingType: 'election_day',
   })}`;
 
   const rA2 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2091,7 +2054,6 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
             precinctA
           ),
         }),
-        votingType: 'election_day',
       })
     )
   );
@@ -2225,7 +2187,6 @@ test('LiveReports uses modified exported election, not original vxdesign electio
       pageIndex: 0,
       pollingPlaceId: 'test-polling-place',
       ballotCount: 0,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -2305,7 +2266,6 @@ async function sendTransitionReport(
       pageIndex: 0,
       pollingPlaceId,
       ballotCount,
-      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',

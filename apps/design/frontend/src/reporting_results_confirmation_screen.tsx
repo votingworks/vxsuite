@@ -22,6 +22,8 @@ import {
   PollsTransitionType,
   Tabulation,
   ContestId,
+  pollingPlaceFromElection,
+  pollingPlacePrecinctIds,
 } from '@votingworks/types';
 import {
   formatFullDateTimeZone,
@@ -31,7 +33,6 @@ import {
   groupContestsByParty,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { pollingPlacePrecinctIds } from '@votingworks/types';
 import styled from 'styled-components';
 import { processQrCodeReport } from './public_api';
 
@@ -98,8 +99,7 @@ interface ReportDetailsProps {
   machineId: string;
   pollsTransitionTime: Date;
   election: Election;
-  pollingPlaceId?: string;
-  votingType: LiveReportVotingType;
+  pollingPlaceId: string;
   pollsTransitionType: PollsTransitionType;
 }
 
@@ -109,7 +109,6 @@ function ReportDetails({
   pollsTransitionTime,
   election,
   pollingPlaceId,
-  votingType,
   pollsTransitionType,
 }: ReportDetailsProps): JSX.Element {
   const pollingPlace = election.pollingPlaces?.find(
@@ -141,10 +140,12 @@ function ReportDetails({
             label="Election ID"
             value={formatBallotHash(ballotHash)}
           />
-          <LabeledValue
-            label="Voting Type"
-            value={getVotingTypeLabel(votingType)}
-          />
+          {pollingPlace && (
+            <LabeledValue
+              label="Voting Type"
+              value={getVotingTypeLabel(pollingPlace.type)}
+            />
+          )}
         </ColumnSpan>
       </ReportMetadata>
     </div>
@@ -214,7 +215,6 @@ function PollsOpenReportConfirmation({
   pollsTransitionTime,
   election,
   pollingPlaceId,
-  votingType,
   pollsTransitionType,
   ballotCount,
 }: ReportDetailsProps & {
@@ -232,7 +232,6 @@ function PollsOpenReportConfirmation({
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
-          votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
         {ballotCount !== undefined && (
@@ -254,7 +253,6 @@ function PollsPausedReportConfirmation({
   pollsTransitionTime,
   election,
   pollingPlaceId,
-  votingType,
   pollsTransitionType,
   ballotCount,
 }: ReportDetailsProps & {
@@ -272,7 +270,6 @@ function PollsPausedReportConfirmation({
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
-          votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
         {ballotCount !== undefined && (
@@ -294,7 +291,6 @@ function VotingResumedReportConfirmation({
   pollsTransitionTime,
   election,
   pollingPlaceId,
-  votingType,
   pollsTransitionType,
   ballotCount,
 }: ReportDetailsProps & {
@@ -312,7 +308,6 @@ function VotingResumedReportConfirmation({
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
-          votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
         {ballotCount !== undefined && (
@@ -334,7 +329,6 @@ function PollsClosedPartialReportConfirmation({
   pollsTransitionTime,
   election,
   pollingPlaceId,
-  votingType,
   pollsTransitionType,
   numPages,
   pageIndex,
@@ -343,6 +337,10 @@ function PollsClosedPartialReportConfirmation({
   numPages: number;
   pageIndex: number;
 }): JSX.Element {
+  const { type: votingType } = pollingPlaceFromElection(
+    election,
+    pollingPlaceId
+  );
   const reportTitle = getCloseReportTitle(votingType);
   return (
     <ResultsScreen
@@ -361,7 +359,6 @@ function PollsClosedPartialReportConfirmation({
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
-          votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
       </MainContent>
@@ -432,7 +429,6 @@ function PollsClosedReportConfirmation({
   pollsTransitionTime,
   election,
   pollingPlaceId,
-  votingType,
   pollsTransitionType,
   contestResultsByPrecinct,
 }: ReportDetailsProps & {
@@ -442,11 +438,10 @@ function PollsClosedReportConfirmation({
   >;
   isLive: boolean;
 }): JSX.Element {
-  const reportTitle = getCloseReportTitle(votingType);
-
   const pollingPlace = assertDefined(
     election.pollingPlaces?.find((p) => p.id === pollingPlaceId)
   );
+  const reportTitle = getCloseReportTitle(pollingPlace.type);
   const placePrecinctIds = pollingPlacePrecinctIds(pollingPlace);
   const orderedPrecincts = election.precincts.filter((p) =>
     placePrecinctIds.has(p.id)
@@ -462,7 +457,6 @@ function PollsClosedReportConfirmation({
           pollsTransitionTime={pollsTransitionTime}
           election={election}
           pollingPlaceId={pollingPlaceId}
-          votingType={votingType}
           pollsTransitionType={pollsTransitionType}
         />
         {orderedPrecincts.map((precinct) => (
@@ -578,7 +572,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           election={reportData.election}
           pollingPlaceId={reportData.pollingPlaceId}
           ballotCount={reportData.ballotCount}
-          votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
         />
       );
@@ -592,7 +585,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           election={reportData.election}
           pollingPlaceId={reportData.pollingPlaceId}
           ballotCount={reportData.ballotCount}
-          votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
         />
       );
@@ -606,7 +598,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           election={reportData.election}
           pollingPlaceId={reportData.pollingPlaceId}
           ballotCount={reportData.ballotCount}
-          votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
         />
       );
@@ -621,7 +612,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             election={reportData.election}
             pollingPlaceId={reportData.pollingPlaceId}
             contestResultsByPrecinct={reportData.contestResultsByPrecinct}
-            votingType={reportData.votingType}
             pollsTransitionType={reportData.pollsTransitionType}
           />
         );
@@ -636,7 +626,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           pollingPlaceId={reportData.pollingPlaceId}
           numPages={reportData.numPages}
           pageIndex={reportData.pageIndex}
-          votingType={reportData.votingType}
           pollsTransitionType={reportData.pollsTransitionType}
         />
       );

@@ -1289,7 +1289,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           ballotCount,
           numPages,
           pageIndex,
-          votingType,
         } = decodeQuickResultsMessage(payload);
 
         const signedTimestamp = pollsTransitionTime;
@@ -1376,7 +1375,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               numPages,
               pageIndex,
               isPartial: true,
-              votingType,
             });
           }
           // It should be impossible to have more than numPages partials
@@ -1428,7 +1426,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             pollingPlaceId,
             election,
             isPartial: false,
-            votingType,
           });
         }
 
@@ -1467,7 +1464,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               pollingPlaceId,
               election,
               isPartial: false,
-              votingType,
             });
           }
           case 'open_polls':
@@ -1494,7 +1490,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               election,
               isPartial: false,
               ballotCount,
-              votingType,
             });
           }
           /* istanbul ignore next - @preserve */
