@@ -47,3 +47,18 @@ export function hasCrossoverVote(
   }
   return votedPartyIds(election, votes).length > 1;
 }
+
+/**
+ * In open primary elections only, infers the voter's party from their partisan
+ * contest selections. Returns undefined when the ballot has no partisan votes
+ * or has crossover votes.
+ */
+export function inferPartyFromVotes(
+  election: Election,
+  votes: Tabulation.Votes
+): PartyId | undefined {
+  // Short circuit to avoid doing extra work if it's not an open primary
+  if (!isOpenPrimary(election)) return undefined;
+  const parties = votedPartyIds(election, votes);
+  return parties.length === 1 ? parties[0] : undefined;
+}

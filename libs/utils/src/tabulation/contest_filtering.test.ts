@@ -7,7 +7,6 @@ import {
 } from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
 import {
-  doesContestAppearOnPartyBallot,
   getContestIdsForBallotStyle,
   getContestIdsForPrecinct,
   getContestsForPrecinct,
@@ -15,37 +14,6 @@ import {
   groupContestsByParty,
 } from './contest_filtering';
 import { singlePrecinctSelectionFor } from '../precinct_selection';
-
-describe('doesContestAppearOnPartyBallot', () => {
-  test('in a primary election', () => {
-    const { contests } = readElectionTwoPartyPrimary();
-
-    const mammalContest = find(contests, (c) => c.id === 'best-animal-mammal');
-    const fishContest = find(contests, (c) => c.id === 'best-animal-fish');
-    const ballotMeasure = find(contests, (c) => c.id === 'fishing');
-
-    expect(doesContestAppearOnPartyBallot(mammalContest, '0')).toEqual(true);
-    expect(doesContestAppearOnPartyBallot(mammalContest, '1')).toEqual(false);
-
-    expect(doesContestAppearOnPartyBallot(fishContest, '0')).toEqual(false);
-    expect(doesContestAppearOnPartyBallot(fishContest, '1')).toEqual(true);
-
-    expect(doesContestAppearOnPartyBallot(ballotMeasure, '0')).toEqual(true);
-    expect(doesContestAppearOnPartyBallot(ballotMeasure, '1')).toEqual(true);
-  });
-
-  test('in a general election', () => {
-    const { contests } = electionFamousNames2021Fixtures.readElection();
-    const generalElectionCandidateContest = find(
-      contests,
-      (c) => c.type === 'candidate'
-    );
-
-    expect(
-      doesContestAppearOnPartyBallot(generalElectionCandidateContest)
-    ).toEqual(true);
-  });
-});
 
 test('getContestIdsForBallotStyle', () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();

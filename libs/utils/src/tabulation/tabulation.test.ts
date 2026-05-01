@@ -754,6 +754,16 @@ test('mapping from group keys to and from group specifiers', () => {
     ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
     batchId: 'batch-1',
   });
+
+  // groupByParty with undefined partyId (open primary CVRs whose party
+  // can't be inferred) omits the partyId key.
+  expect(getGroupKey({}, { groupByParty: true })).toEqual('root');
+  expect(
+    getGroupKey(
+      { precinctId: 'precinct-1' },
+      { groupByParty: true, groupByPrecinct: true }
+    )
+  ).toEqual('root&precinctId=precinct-1');
 });
 
 type ObjectWithGroupSpecifier = {
@@ -1350,6 +1360,73 @@ describe('open primaries', () => {
       yesTally: 1,
       noTally: 0,
     });
+  });
+
+  test('groupByParty groups CVRs with undefined partyId together (open primaries)', async () => {
+    const democraticPartyId = openPrimaryElection.parties.find(
+      (p) => p.name === 'Democratic'
+    )!.id;
+    const republicanPartyId = openPrimaryElection.parties.find(
+      (p) => p.name === 'Republican'
+    )!.id;
+
+    const groupedResults = await tabulateCastVoteRecords({
+      election: openPrimaryElection,
+      groupBy: { groupByParty: true },
+      cvrs: [
+        {
+          ...baseCvrMetadata,
+          partyId: democraticPartyId,
+          votes: { 'governor-democratic': ['alice-jones'] },
+        },
+        {
+          ...baseCvrMetadata,
+          partyId: republicanPartyId,
+          votes: { 'governor-republican': ['dave-wilson'] },
+        },
+        // Crossover voted ballot — no inferred party
+        {
+          ...baseCvrMetadata,
+          partyId: undefined,
+          votes: {
+            'governor-democratic': ['alice-jones'],
+            'governor-republican': ['dave-wilson'],
+            'ballot-measure-1': ['ballot-measure-1-yes'],
+          },
+        },
+        // Nonpartisan voted ballot — no inferred party
+        {
+          ...baseCvrMetadata,
+          partyId: undefined,
+          votes: {
+            'ballot-measure-1': ['ballot-measure-1-yes'],
+          },
+        },
+      ],
+    });
+
+    expect(Object.keys(groupedResults).sort()).toEqual([
+      GROUP_KEY_ROOT,
+      `${GROUP_KEY_ROOT}&partyId=${democraticPartyId}`,
+      `${GROUP_KEY_ROOT}&partyId=${republicanPartyId}`,
+    ]);
+    expect(
+      groupedResults[`${GROUP_KEY_ROOT}&partyId=${democraticPartyId}`]
+        ?.contestResults['governor-democratic']
+    ).toMatchObject({ ballots: 1 });
+    expect(
+      groupedResults[`${GROUP_KEY_ROOT}&partyId=${republicanPartyId}`]
+        ?.contestResults['governor-republican']
+    ).toMatchObject({ ballots: 1 });
+    // The two CVRs with undefined partyId share the root group; their
+    // partisan votes are voided (crossover) or empty, but the nonpartisan
+    // ballot-measure-1 vote from the crossover ballot still tallies.
+    expect(getBallotCount(groupedResults[GROUP_KEY_ROOT]!.cardCounts)).toEqual(
+      2
+    );
+    expect(
+      groupedResults[GROUP_KEY_ROOT]?.contestResults['ballot-measure-1']
+    ).toMatchObject({ ballots: 2, yesTally: 2 });
   });
 
   test('crossover voting — partisan contests skipped, nonpartisan tallied', async () => {
