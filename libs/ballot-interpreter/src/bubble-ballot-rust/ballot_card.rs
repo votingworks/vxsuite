@@ -270,29 +270,6 @@ impl BallotPage {
     }
 
     /// # Errors
-    /// If there are any vertical streaks in the timing mark inset area.
-    #[allow(clippy::result_large_err)]
-    pub fn reject_vertical_streaks_in_timing_mark_inset(
-        &self,
-        detected_streaks: &[VerticalStreak],
-    ) -> Result<()> {
-        let timing_mark_streak_inset_size = self.geometry.canvas_width_pixels() * 0.1;
-        let left_edge_inset = timing_mark_streak_inset_size as i32;
-        let right_edge_inset =
-            (self.geometry.canvas_width_pixels() - timing_mark_streak_inset_size) as i32;
-        for streak in detected_streaks {
-            if *streak.x_range.start() < left_edge_inset || *streak.x_range.end() > right_edge_inset
-            {
-                return Err(Error::VerticalStreaksDetected {
-                    label: self.label.clone(),
-                    x_coordinates: streak.x_range.clone().collect_vec(),
-                });
-            }
-        }
-        Ok(())
-    }
-
-    /// # Errors
     /// If the cumulative width of vertical streaks exceeds the allowed threshold.
     #[allow(clippy::result_large_err)]
     pub fn reject_vertical_streaks_above_cumulative_threshold(
@@ -449,9 +426,13 @@ impl BallotCard {
             .par_map(|ballot_page| detect_vertical_streaks(ballot_page.ballot_image()))
     }
 
+    /// Rejects ballots whose detected vertical streaks would interfere with
+    /// interpretation. The decision is made before bubble shapes are known,
+    /// so this only applies the cumulative-width threshold; per-bubble
+    /// intersection is checked later, during bubble scoring.
+    ///
     /// # Errors
-    /// - If there are any vertical streaks in the timing mark inset area
-    /// - If the cumulative width of streaks exceeds the allowed threshold
+    /// If the cumulative width of streaks exceeds the allowed threshold.
     #[allow(clippy::result_large_err)]
     pub fn reject_disallowed_vertical_streaks(
         &self,
@@ -461,7 +442,6 @@ impl BallotCard {
         self.as_pair()
             .zip(streaks)
             .par_map(|(ballot_page, page_streaks)| {
-                ballot_page.reject_vertical_streaks_in_timing_mark_inset(page_streaks)?;
                 ballot_page.reject_vertical_streaks_above_cumulative_threshold(
                     page_streaks,
                     max_cumulative_streak_width,

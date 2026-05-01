@@ -547,7 +547,7 @@ mod test {
         ballot_card::ballot_scan_bubble_image,
         debug::ImageDebugWriter,
         qr_code,
-        scoring::UnitIntervalScore,
+        scoring::{self, UnitIntervalScore},
         timing_marks::{self, DefaultForGeometry, TimingMarks},
     };
 
@@ -839,8 +839,12 @@ mod test {
         .unwrap();
     }
 
+    /// A narrow vertical streak running through the left timing-mark column
+    /// is allowed: it doesn't reach the cumulative streak-width threshold
+    /// and it doesn't intersect any bubble. (Previously, any streak in the
+    /// outer 10% of the page was rejected outright.)
     #[test]
-    fn test_vertical_streak_through_left_timing_mark() {
+    fn test_vertical_streak_through_left_timing_mark_is_allowed() {
         let (mut side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
         let timing_mark_x = 60;
@@ -848,21 +852,23 @@ mod test {
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(timing_mark_x, y, black_pixel);
         }
-        match ballot_card(side_a_image, side_b_image, &options) {
-            Ok(_) => panic!("expected vertical streak error, not success"),
-            Err(Error::VerticalStreaksDetected {
-                label,
-                x_coordinates,
-            }) => {
-                assert_eq!(label, "side A");
-                assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+        let interpretation = ballot_card(side_a_image, side_b_image, &options)
+            .expect("interpretation should succeed despite narrow streak through left mark");
+        for (_grid_position, maybe_bubble) in &interpretation.front.marks {
+            if let Some(bubble) = maybe_bubble {
+                assert!(
+                    bubble.fill_score.0 < 0.02,
+                    "Unexpected non-zero bubble score on blank ballot: {}",
+                    bubble.fill_score.0
+                );
             }
-            Err(e) => panic!("wrong error type: {e:?}"),
         }
     }
 
+    /// A narrow vertical streak running through the right timing-mark column
+    /// is allowed for the same reasons as the left-side case.
     #[test]
-    fn test_vertical_streak_through_right_timing_mark() {
+    fn test_vertical_streak_through_right_timing_mark_is_allowed() {
         let (mut side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
         let timing_mark_x = side_a_image.width() - 60;
@@ -870,16 +876,16 @@ mod test {
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(timing_mark_x, y, black_pixel);
         }
-        match ballot_card(side_a_image, side_b_image, &options) {
-            Ok(_) => panic!("expected vertical streak error, not success"),
-            Err(Error::VerticalStreaksDetected {
-                label,
-                x_coordinates,
-            }) => {
-                assert_eq!(label, "side A");
-                assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+        let interpretation = ballot_card(side_a_image, side_b_image, &options)
+            .expect("interpretation should succeed despite narrow streak through right mark");
+        for (_grid_position, maybe_bubble) in &interpretation.front.marks {
+            if let Some(bubble) = maybe_bubble {
+                assert!(
+                    bubble.fill_score.0 < 0.02,
+                    "Unexpected non-zero bubble score on blank ballot: {}",
+                    bubble.fill_score.0
+                );
             }
-            Err(e) => panic!("wrong error type: {e:?}"),
         }
     }
 
@@ -1140,6 +1146,101 @@ mod test {
 
         let error = ballot_card(side_a_image, side_b_image, &options).unwrap_err();
         assert!(matches!(error, Error::MissingTimingMarks { .. }));
+    }
+
+    /// A vertical streak running the full image height through a top and
+    /// bottom timing mark used to be rejected: the streak distorted the
+    /// timing-mark shape past what the full-borders strategy's per-shape
+    /// median filter could recover, so the mark was filtered out and
+    /// `MissingTimingMarks` was returned. With the grid built only from
+    /// the left/right borders and corners, the same streak no longer
+    /// prevents interpretation.
+    ///
+    /// The streak is placed at a layout-gutter column (no contests live
+    /// there), so the per-bubble intersection check during scoring also
+    /// allows it. The streak is wider than the default cumulative-streak
+    /// threshold, so the test raises the threshold — simulating a streak
+    /// that's narrow enough to slip past streak detection in a deployment
+    /// configured for higher tolerance, or wide enough only because of a
+    /// localized printing artifact at top/bottom that gets binarized
+    /// alongside it.
+    #[test]
+    fn test_streak_through_top_and_bottom_marks_does_not_break_interpretation() {
+        const STREAK_HALF_WIDTH: i32 = 5; // 10 px wide, exceeds median filter window (8)
+
+        let (mut side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        options.max_cumulative_streak_width = 20;
+
+        let clean_interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
+                .expect("clean interpretation should succeed");
+        let tm = &clean_interpretation.front.timing_marks;
+        let n_cols = tm.geometry.grid_size.width;
+
+        // Find an interior column whose horizontal extent doesn't overlap
+        // any bubble's matched bounds. We need to avoid the leftmost and
+        // rightmost timing-mark columns (those are still required for grid
+        // reconstruction) and any column that holds a bubble (those would
+        // trip the per-bubble intersection check).
+        let bubble_x_ranges: Vec<(i32, i32)> = clean_interpretation
+            .front
+            .marks
+            .iter()
+            .filter_map(|(_, m)| {
+                m.as_ref()
+                    .map(|m| (m.matched_bounds.left(), m.matched_bounds.right()))
+            })
+            .collect();
+        // Expand the exclusion zone generously: the streak's added darkness
+        // can attract a nearby bubble's matched bounds toward the streak,
+        // and we want clear of both the bubble template's max search
+        // distance AND the bubble template's full width on either side.
+        let bubble_w = options.bubble_template.width() as i32;
+        let exclude_radius = STREAK_HALF_WIDTH
+            + scoring::DEFAULT_MAXIMUM_SEARCH_DISTANCE as i32
+            + bubble_w;
+        let line_x = (1..n_cols - 1)
+            .map(|col| {
+                let frac = col as f32 / (n_cols - 1) as f32;
+                (tm.top_left_corner.x
+                    + frac * (tm.top_right_corner.x - tm.top_left_corner.x))
+                    .round() as i32
+            })
+            .find(|&cx| {
+                let exclude_left = cx - exclude_radius;
+                let exclude_right = cx + exclude_radius;
+                !bubble_x_ranges
+                    .iter()
+                    .any(|(l, r)| *l <= exclude_right && *r >= exclude_left)
+            })
+            .expect("expected at least one interior column with no bubble in its x-range");
+
+        // 10-pixel-wide black streak running the full image height.
+        let black = Luma([0u8]);
+        let img_w = side_a_image.width() as i32;
+        for y in 0..side_a_image.height() as i32 {
+            for dx in -STREAK_HALF_WIDTH..STREAK_HALF_WIDTH {
+                let x = line_x + dx;
+                if x >= 0 && x < img_w {
+                    side_a_image.put_pixel(x as u32, y as u32, black);
+                }
+            }
+        }
+
+        let interpretation = ballot_card(side_a_image, side_b_image, &options).expect(
+            "interpretation should succeed despite streak through top/bottom timing marks",
+        );
+
+        for (_grid_position, maybe_bubble) in &interpretation.front.marks {
+            if let Some(bubble) = maybe_bubble {
+                assert!(
+                    bubble.fill_score.0 < 0.02,
+                    "Unexpected non-zero bubble score on blank ballot: {}",
+                    bubble.fill_score.0
+                );
+            }
+        }
     }
 
     /// A ballot with several top and bottom timing marks rendered
