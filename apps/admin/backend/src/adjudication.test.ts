@@ -859,3 +859,86 @@ test('CVR with only an unmarked write-in appears in adjudication queue', () => {
   const queue = store.getBallotAdjudicationQueue({ electionId });
   expect(queue).toContain(cvrId);
 });
+
+test('adjudicateCvr applies multiple contests in a single transaction and marks resolved', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      markScores: {
+        'zoo-council-mammal': { lion: 1.0, kangaroo: 0.06 },
+        'best-animal-mammal': { horse: 1.0, otter: 0.06 },
+      },
+      votes: {
+        'zoo-council-mammal': ['lion'],
+        'best-animal-mammal': ['horse'],
+      },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  // Sanity: cvr is not yet resolved.
+  expect(store.isCvrAdjudicated({ cvrId })).toEqual(false);
+
+  // Submit two contest adjudications + the resolve mark in one call.
+  adjudicateCvr(
+    {
+      cvrId,
+      contests: [
+        {
+          cvrId,
+          contestId: 'zoo-council-mammal',
+          side: 'front',
+          adjudicatedContestOptionById: {
+            lion: { type: 'candidate-option', hasVote: true },
+            kangaroo: { type: 'candidate-option', hasVote: true },
+          },
+        },
+        {
+          cvrId,
+          contestId: 'best-animal-mammal',
+          side: 'front',
+          adjudicatedContestOptionById: {
+            horse: { type: 'candidate-option', hasVote: false },
+            otter: { type: 'candidate-option', hasVote: true },
+          },
+        },
+      ],
+    },
+    'test-machine',
+    store,
+    logger
+  );
+
+  // Both contests' adjudicated_votes are written.
+  const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+  assert(cvr);
+  expect(new Set(cvr.votes['zoo-council-mammal'])).toEqual(
+    new Set(['lion', 'kangaroo'])
+  );
+  expect(cvr.votes['best-animal-mammal']).toEqual(['otter']);
+
+  // The cvr is marked resolved.
+  expect(store.isCvrAdjudicated({ cvrId })).toEqual(true);
+});
