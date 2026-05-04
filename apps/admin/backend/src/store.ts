@@ -2909,14 +2909,12 @@ export class Store implements BaseStore {
     cvrId: Id;
     machineId?: string;
   }): void {
-    this.withTransaction(() => {
-      this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
+    this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
 
-      const electionId = this.getCurrentElectionId();
-      if (electionId && machineId) {
-        this.completeBallotClaim({ electionId, cvrId, machineId });
-      }
-    });
+    const electionId = this.getCurrentElectionId();
+    if (electionId && machineId) {
+      this.completeBallotClaim({ electionId, cvrId, machineId });
+    }
   }
 
   /**

@@ -422,6 +422,15 @@ export interface AdjudicatedCvrContest {
 }
 
 /**
+ * A fully adjudicated cvr — all per-contest adjudications
+ * for a single ballot.
+ */
+export interface AdjudicatedCvr {
+  cvrId: Id;
+  contests: readonly AdjudicatedCvrContest[];
+}
+
+/**
  * A fully adjudicated candidate or write-in option
  */
 export type AdjudicatedContestOption =

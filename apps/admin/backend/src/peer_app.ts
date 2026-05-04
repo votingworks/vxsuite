@@ -24,13 +24,13 @@ import {
   AdjudicationError,
   ElectionRecord,
   MachineConfig,
-  AdjudicatedCvrContest,
+  AdjudicatedCvr,
   BallotAdjudicationData,
   BallotImages,
   WriteInCandidateRecord,
 } from './types';
 import { rootDebug } from './util/debug';
-import { adjudicateCvrContest } from './adjudication';
+import { adjudicateCvr } from './adjudication';
 import {
   getBallotImageBuffer,
   getBallotImageMetadata,
@@ -170,8 +170,8 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
       return store.getWriteInCandidates({ electionId, ...input });
     },
 
-    adjudicateCvrContest(
-      input: AdjudicatedCvrContest & { machineId: string }
+    adjudicateCvr(
+      input: AdjudicatedCvr & { machineId: string }
     ): Result<void, AdjudicationError> {
       const electionId = assertDefined(store.getCurrentElectionId());
       if (
@@ -183,25 +183,7 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
       ) {
         return err({ type: 'no-claim' });
       }
-      adjudicateCvrContest(input, store, logger);
-      return ok();
-    },
-
-    setCvrResolved(input: {
-      machineId: string;
-      cvrId: Id;
-    }): Result<void, AdjudicationError> {
-      const electionId = assertDefined(store.getCurrentElectionId());
-      if (
-        !store.hasBallotClaim({
-          electionId,
-          cvrId: input.cvrId,
-          machineId: input.machineId,
-        })
-      ) {
-        return err({ type: 'no-claim' });
-      }
-      store.setCvrResolved(input);
+      adjudicateCvr(input, input.machineId, store, logger);
       logger.log(LogEventId.AdminBallotAdjudicationComplete, 'system', {
         message: `Ballot ${input.cvrId} adjudication completed.`,
         disposition: 'success',
