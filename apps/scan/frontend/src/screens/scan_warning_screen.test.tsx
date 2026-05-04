@@ -159,7 +159,7 @@ test('crossover voting (cast ballot)', async () => {
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     'You voted in contests for more than one party. ' +
-      'If you cast this ballot, only your nonpartisan votes will count.'
+      'If you cast this ballot, those votes will not be counted.'
   );
   const castBallotButton = screen.getButton('Cast Ballot');
   const returnBallotButton = screen.getButton('Return Ballot');
