@@ -373,7 +373,6 @@ export const getBallotAdjudicationData = {
         enabled: !!input,
         keepPreviousData: true,
         staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       }
     );
   },
@@ -891,47 +890,25 @@ export const deleteManualResults = {
   },
 } as const;
 
-export const adjudicateCvrContest = {
+export const adjudicateCvr = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.adjudicateCvrContest, {
+    return useMutation(apiClient.adjudicateCvr, {
       async onSuccess(_data, variables) {
         await Promise.all([
           queryClient.invalidateQueries(
             getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
           ),
           invalidateWriteInQueries(queryClient),
+          queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey()),
+          queryClient.invalidateQueries(
+            getBallotAdjudicationQueueMetadata.queryKey()
+          ),
+          queryClient.invalidateQueries(
+            getNextCvrIdForBallotAdjudication.queryKey()
+          ),
         ]);
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationQueueMetadata.queryKey()
-        );
-        await queryClient.invalidateQueries(
-          getNextCvrIdForBallotAdjudication.queryKey()
-        );
-      },
-    });
-  },
-} as const;
-
-export const setCvrResolved = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setCvrResolved, {
-      async onSuccess(_data, variables) {
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
-        );
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationQueue.queryKey()
-        );
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationQueueMetadata.queryKey()
-        );
-        await queryClient.invalidateQueries(
-          getNextCvrIdForBallotAdjudication.queryKey()
-        );
       },
     });
   },

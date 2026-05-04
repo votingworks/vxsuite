@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -260,10 +260,6 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
 
-  // Use fake timers to prevent refetchInterval from firing mid-navigation,
-  // which would cause out-of-order refetches incompatible with ordered mocks.
-  vi.useFakeTimers({ shouldAdvanceTime: true, advanceTimeDelta: 1 });
-
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
 
   apiMock.apiClient.getBallotImages
@@ -340,10 +336,9 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   // exit navigates to adjudication start screen
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   userEvent.click(screen.getByRole('button', { name: /Exit/ }));
-  await vi.waitFor(() =>
+  await waitFor(() =>
     expect(history.location.pathname).toEqual('/adjudication')
   );
-  vi.useRealTimers();
 });
 
 test('accept button state depends on contest resolution', async () => {

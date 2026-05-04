@@ -20,7 +20,7 @@ import type {
 import { useHistory } from 'react-router-dom';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
-  adjudicateCvrContest,
+  adjudicateCvr,
   claimBallotForAdjudication,
   getBallotAdjudicationData,
   getBallotAdjudicationQueue,
@@ -30,7 +30,6 @@ import {
   getSystemSettings,
   getWriteInCandidates,
   releaseBallotAdjudicationClaim,
-  setCvrResolved,
 } from '../api';
 import { routerPaths } from '../router_paths';
 import {
@@ -43,7 +42,10 @@ import {
 } from '../components/adjudication_contest_list';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
-import { isContestTagOnlyUndervote } from '../utils/adjudication';
+import {
+  isContestResolved,
+  isContestTagOnlyUndervote,
+} from '../utils/adjudication';
 
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 const DEFAULT_PADDING = '0.75rem';
@@ -354,9 +356,7 @@ function HostBallotAdjudicationScreenDataLoader({
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
 
-  const { mutateAsync: setCvrResolvedMutation } = setCvrResolved.useMutation();
-  const { mutateAsync: adjudicateCvrContestMutation } =
-    adjudicateCvrContest.useMutation();
+  const { mutateAsync: adjudicateCvrMutation } = adjudicateCvr.useMutation();
   const [saveError, setSaveError] = useState(false);
 
   if (saveError) {
@@ -393,12 +393,8 @@ function HostBallotAdjudicationScreenDataLoader({
       writeInCandidates={writeInCandidatesQuery.data}
       systemSettings={systemSettingsQuery.data}
       isClaimInFlight={isClaimInFlight}
-      onSetCvrResolved={async () => {
-        const result = await setCvrResolvedMutation({ cvrId });
-        if (result.isErr()) setSaveError(true);
-      }}
-      onAdjudicateCvrContest={async (input) => {
-        const result = await adjudicateCvrContestMutation(input);
+      onAccept={async (input) => {
+        const result = await adjudicateCvrMutation(input);
         if (result.isErr()) setSaveError(true);
       }}
       onExit={onExit}
@@ -417,8 +413,10 @@ export interface BallotAdjudicationScreenProps {
   isClaimed?: boolean;
   isClaimInFlight?: boolean;
   isLastBallot?: boolean;
-  onSetCvrResolved: () => Promise<void>;
-  onAdjudicateCvrContest: (input: AdjudicatedCvrContest) => Promise<void>;
+  onAccept: (input: {
+    cvrId: Id;
+    contests: AdjudicatedCvrContest[];
+  }) => Promise<void>;
   onAcceptDone: () => void;
   onSkip?: () => void;
   onBack?: () => void;
@@ -435,8 +433,7 @@ export function BallotAdjudicationScreen({
   isClaimed,
   isClaimInFlight,
   isLastBallot,
-  onSetCvrResolved,
-  onAdjudicateCvrContest,
+  onAccept,
   onAcceptDone,
   onSkip,
   onBack,
@@ -453,6 +450,14 @@ export function BallotAdjudicationScreen({
     null
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [adjudicatedContests, setAdjudicatedContests] = useState<
+    Map<ContestId, AdjudicatedCvrContest>
+  >(new Map());
+
+  // Drop in-progress adjudications when the user moves to a different ballot
+  useEffect(() => {
+    setAdjudicatedContests((prev) => (prev.size === 0 ? prev : new Map()));
+  }, [cvrId]);
 
   // Default to back side if the first pending contest is on the back
   useEffect(() => {
@@ -465,13 +470,19 @@ export function BallotAdjudicationScreen({
     const backIds = new Set(back.map((item) => item.contest.id));
     const firstPending = contests
       .filter((c) => c.tag !== null)
-      .find((c) => c.tag && !c.tag.isResolved);
+      .find((c) => !isContestResolved(c, adjudicatedContests));
     if (firstPending && backIds.has(firstPending.contestId)) {
       setSelectedSide('back');
     } else {
       setSelectedSide('front');
     }
-  }, [cvrId, ballotAdjudicationData, ballotImages, election]);
+  }, [
+    cvrId,
+    ballotAdjudicationData,
+    ballotImages,
+    election,
+    adjudicatedContests,
+  ]);
 
   const cvrTag = ballotAdjudicationData.tag;
   const { front, back } = ballotImages;
@@ -488,16 +499,20 @@ export function BallotAdjudicationScreen({
   );
 
   const allResolved =
-    contestAdjudicationData.every((c) => !c.tag || c.tag.isResolved) ||
+    contestAdjudicationData.every((c) =>
+      isContestResolved(c, adjudicatedContests)
+    ) ||
     (cvrTag?.isBlankBallot &&
       contestAdjudicationData.every(
-        (c) => !c.tag || c.tag.isResolved || isContestTagOnlyUndervote(c.tag)
+        (c) =>
+          isContestResolved(c, adjudicatedContests) ||
+          (c.tag && isContestTagOnlyUndervote(c.tag))
       ));
 
   const hasUnresolvedWriteIns = contestAdjudicationData.some(
     (c) =>
       c.tag &&
-      !c.tag.isResolved &&
+      !isContestResolved(c, adjudicatedContests) &&
       (c.tag.hasWriteIn || c.tag.hasUnmarkedWriteIn)
   );
 
@@ -512,7 +527,10 @@ export function BallotAdjudicationScreen({
   async function confirmAcceptAndNext(): Promise<void> {
     setShowConfirmModal(false);
     try {
-      await onSetCvrResolved();
+      await onAccept({
+        cvrId,
+        contests: [...adjudicatedContests.values()],
+      });
       onAcceptDone();
     } catch {
       // Handled by caller
@@ -543,9 +561,7 @@ export function BallotAdjudicationScreen({
       [...frontContestItems, ...backContestItems],
       (i) => i.contest.id === hoveredContestId
     );
-    return Boolean(
-      item.adjudicationData.tag && !item.adjudicationData.tag.isResolved
-    );
+    return !isContestResolved(item.adjudicationData, adjudicatedContests);
   })();
 
   if (selectedContestId && !isClaimed) {
@@ -567,11 +583,16 @@ export function BallotAdjudicationScreen({
           contestAdjudicationData,
           (c) => c.contestId === selectedContestId
         )}
+        unsavedAdjudication={adjudicatedContests.get(selectedContestId)}
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId
         )}
-        onAdjudicateCvrContest={onAdjudicateCvrContest}
+        onConfirmContest={(input) => {
+          setAdjudicatedContests((prev) =>
+            new Map(prev).set(input.contestId, input)
+          );
+        }}
       />
     );
   }
@@ -621,6 +642,7 @@ export function BallotAdjudicationScreen({
           ) : (
             <AdjudicationContestList
               key={cvrId}
+              adjudicatedContests={adjudicatedContests}
               backContests={backContestItems}
               cvrTag={cvrTag}
               election={election}

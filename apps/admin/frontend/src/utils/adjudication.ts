@@ -1,6 +1,11 @@
-import type { CvrContestTag } from '@votingworks/admin-backend';
+import type {
+  AdjudicatedCvrContest,
+  ContestAdjudicationData,
+  CvrContestTag,
+} from '@votingworks/admin-backend';
 import {
   BallotPageContestOptionLayout,
+  ContestId,
   ContestOptionId,
   Rect,
 } from '@votingworks/types';
@@ -32,4 +37,12 @@ export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
       !tag.hasOvervote) ??
     false
   );
+}
+
+export function isContestResolved(
+  contest: ContestAdjudicationData,
+  unsavedAdjudications: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+): boolean {
+  if (!contest.tag || contest.tag.isResolved) return true;
+  return unsavedAdjudications.has(contest.contestId);
 }

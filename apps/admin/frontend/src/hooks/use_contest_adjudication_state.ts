@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type {
+  AdjudicatedCvrContest,
   ContestAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
@@ -204,7 +205,8 @@ function makeEmptyState(
 export function makeInitialState(
   contestInfo: ContestInfo,
   contestAdjudicationData: ContestAdjudicationData,
-  writeInCandidates: WriteInCandidateRecord[]
+  writeInCandidates: WriteInCandidateRecord[],
+  unsavedAdjudication?: AdjudicatedCvrContest
 ): ContestOptionAdjudicationStateById {
   const state = makeEmptyState(contestInfo);
 
@@ -271,6 +273,52 @@ export function makeInitialState(
       }
     }
   }
+
+  // Overlay any in-progress adjudication the user has Confirmed for this
+  // contest but not yet Accepted on the ballot
+  if (unsavedAdjudication) {
+    for (const [optionId, option] of Object.entries(
+      unsavedAdjudication.adjudicatedContestOptionById
+    )) {
+      const optionState = assertDefined(state.get(optionId));
+      optionState.hasVote = option.hasVote;
+
+      if (option.type === 'candidate-option') {
+        continue;
+      }
+      assert(optionState.isWriteIn);
+
+      if (!option.hasVote) {
+        optionState.writeInAdjudicationStatus = { type: 'invalid' };
+        continue;
+      }
+
+      if (option.candidateType === 'official-candidate') {
+        const candidate = assertDefined(
+          contestInfo.officialOptions.find((o) => o.id === option.candidateId)
+        ) as Candidate;
+        optionState.writeInAdjudicationStatus = {
+          ...candidate,
+          type: 'existing-official',
+        };
+        continue;
+      }
+
+      if (option.candidateType === 'write-in-candidate') {
+        const existing = writeInCandidates.find(
+          (c) => c.name === option.candidateName
+        );
+        optionState.writeInAdjudicationStatus = existing
+          ? { ...existing, type: 'existing-write-in' }
+          : { type: 'new-write-in', name: option.candidateName };
+        continue;
+      }
+
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(option, 'candidateType');
+    }
+  }
+
   return state;
 }
 
@@ -279,6 +327,7 @@ export function useContestAdjudicationState(
   initialValues?: {
     contestAdjudicationData: ContestAdjudicationData;
     writeInCandidates: WriteInCandidateRecord[];
+    unsavedAdjudication?: AdjudicatedCvrContest;
   }
 ): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
@@ -321,7 +370,8 @@ export function useContestAdjudicationState(
       const initialOptionState = makeInitialState(
         contestInfo,
         initialValues.contestAdjudicationData,
-        initialValues.writeInCandidates
+        initialValues.writeInCandidates,
+        initialValues.unsavedAdjudication
       );
       setState({
         optionState: initialOptionState,

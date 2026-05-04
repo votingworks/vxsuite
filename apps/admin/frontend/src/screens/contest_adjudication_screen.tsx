@@ -205,23 +205,25 @@ function renderContestOptionButtonCaption({
 interface ContestAdjudicationScreenProps {
   areWriteInCandidatesQualified: boolean;
   contestAdjudicationData: ContestAdjudicationData;
+  unsavedAdjudication?: AdjudicatedCvrContest;
   cvrId: Id;
   onClose: () => void;
   ballotImages: BallotImages;
   side: Side;
   writeInCandidates: WriteInCandidateRecord[];
-  onAdjudicateCvrContest: (input: AdjudicatedCvrContest) => Promise<void>;
+  onConfirmContest: (input: AdjudicatedCvrContest) => void;
 }
 
 export function ContestAdjudicationScreen({
   areWriteInCandidatesQualified,
   onClose,
   contestAdjudicationData,
+  unsavedAdjudication,
   cvrId,
   ballotImages,
   side,
   writeInCandidates,
-  onAdjudicateCvrContest,
+  onConfirmContest,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
@@ -274,6 +276,7 @@ export function ContestAdjudicationScreen({
     {
       contestAdjudicationData,
       writeInCandidates,
+      unsavedAdjudication,
     }
   );
 
@@ -337,7 +340,7 @@ export function ContestAdjudicationScreen({
         )
       : undefined;
 
-  async function onConfirm(): Promise<void> {
+  function onConfirm(): void {
     const adjudicatedContestOptionById: Record<
       ContestOptionId,
       AdjudicatedContestOption
@@ -381,12 +384,8 @@ export function ContestAdjudicationScreen({
         };
       }
     }
-    try {
-      await onAdjudicateCvrContest(adjudicatedCvrContest);
-      onClose();
-    } catch {
-      // Handled by default query client error handling
-    }
+    onConfirmContest(adjudicatedCvrContest);
+    onClose();
   }
 
   function onCancel(): void {
