@@ -85,8 +85,8 @@ function Header({
   const ballotTypeLabel = isFederalOnlyOffices
     ? 'FEDERAL OFFICE ONLY'
     : ballotType === 'absentee'
-      ? 'ABSENTEE'
-      : undefined;
+    ? 'ABSENTEE'
+    : undefined;
   const ballotTitle = {
     official: 'OFFICIAL BALLOT',
     test: 'TEST BALLOT',
@@ -126,7 +126,9 @@ function Header({
         <h3 style={{ visibility: ballotTypeLabel ? 'visible' : 'hidden' }}>
           {ballotTypeLabel ?? <>&nbsp;</>}
         </h3>
-        <h5 style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}>
+        <h5
+          style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}
+        >
           {ballotTitle} FOR
         </h5>
         <div style={{ lineHeight: '1.3' }}>
@@ -160,7 +162,7 @@ function Header({
         />
         <div
           style={{
-            height: '0.7in',
+            height: '0.4in',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

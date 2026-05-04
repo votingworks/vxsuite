@@ -118,7 +118,9 @@ export function Header({
         <h5 style={{ visibility: ballotTypeLabel ? 'visible' : 'hidden' }}>
           {ballotTypeLabel ?? <>&nbsp;</>}
         </h5>
-        <h5 style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}>
+        <h5
+          style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}
+        >
           {ballotTitle} FOR
         </h5>
         <h1 style={{ fontSize: '18pt' }}>
@@ -147,7 +149,7 @@ export function Header({
         />
         <div
           style={{
-            height: '0.6in',
+            height: '0.4in',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
