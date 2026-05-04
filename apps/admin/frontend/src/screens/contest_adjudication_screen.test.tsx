@@ -260,7 +260,7 @@ function renderScreen(
     electionDef = electionDefinition,
     onClose = vi.fn(),
     writeInCandidates = [] as WriteInCandidateRecord[],
-    onAdjudicateCvrContest = vi.fn(),
+    onConfirmContest = vi.fn(),
   }: {
     areWriteInCandidatesQualified?: boolean;
     ballotImages?: BallotImages;
@@ -268,7 +268,7 @@ function renderScreen(
     electionDef?: ElectionDefinition;
     onClose?: () => void;
     writeInCandidates?: WriteInCandidateRecord[];
-    onAdjudicateCvrContest?: (input: AdjudicatedCvrContest) => Promise<void>;
+    onConfirmContest?: (input: AdjudicatedCvrContest) => void;
   } = {}
 ) {
   const images =
@@ -276,7 +276,7 @@ function renderScreen(
     buildHmpbBallotImages(cvrId, contestAdjudicationData.contestId);
   return {
     onClose,
-    onAdjudicateCvrContest,
+    onConfirmContest,
     ...renderInAppContext(
       <ContestAdjudicationScreen
         areWriteInCandidatesQualified={areWriteInCandidatesQualified}
@@ -286,7 +286,7 @@ function renderScreen(
         ballotImages={images}
         side={side}
         writeInCandidates={writeInCandidates}
-        onAdjudicateCvrContest={onAdjudicateCvrContest}
+        onConfirmContest={onConfirmContest}
       />,
       { electionDefinition: electionDef, apiMock }
     ),
@@ -376,7 +376,7 @@ describe('hmpb write-in adjudication', () => {
   };
 
   test('hmpb write-in can be adjudicated as invalid', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo', 'write-in-0'],
@@ -386,7 +386,7 @@ describe('hmpb write-in adjudication', () => {
     const { onClose } = renderScreen(data, cvrId, {
       ballotImages: buildHmpbBallotImages(cvrId, contestId),
       writeInCandidates,
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -417,7 +417,7 @@ describe('hmpb write-in adjudication', () => {
 
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
       })
@@ -425,7 +425,7 @@ describe('hmpb write-in adjudication', () => {
   });
 
   test('hmpb write-in can be adjudicated as official candidate', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo', 'write-in-0'],
@@ -435,7 +435,7 @@ describe('hmpb write-in adjudication', () => {
     const { onClose } = renderScreen(data, cvrId, {
       ballotImages: buildHmpbBallotImages(cvrId, contestId),
       writeInCandidates,
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -470,7 +470,7 @@ describe('hmpb write-in adjudication', () => {
 
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
@@ -484,7 +484,7 @@ describe('hmpb write-in adjudication', () => {
   });
 
   test('hmpb write-in can be adjudicated as existing write-in using filter and dropdown', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo', 'write-in-0'],
@@ -494,7 +494,7 @@ describe('hmpb write-in adjudication', () => {
     const { onClose } = renderScreen(data, cvrId, {
       ballotImages: buildHmpbBallotImages(cvrId, contestId),
       writeInCandidates,
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -546,7 +546,7 @@ describe('hmpb write-in adjudication', () => {
 
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
@@ -560,7 +560,7 @@ describe('hmpb write-in adjudication', () => {
   });
 
   test('hmpb write-in can be adjudicated as new write-in candidate', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo', 'write-in-0'],
@@ -570,7 +570,7 @@ describe('hmpb write-in adjudication', () => {
     const { onClose } = renderScreen(data, cvrId, {
       ballotImages: buildHmpbBallotImages(cvrId, contestId),
       writeInCandidates,
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -628,7 +628,7 @@ describe('hmpb write-in adjudication', () => {
 
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
@@ -701,7 +701,7 @@ describe('bmd write-in adjudication', () => {
   };
 
   test('bmd write-in can be adjudicated and shows machine marked text', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo', 'write-in-0'],
@@ -711,7 +711,7 @@ describe('bmd write-in adjudication', () => {
     const { onClose } = renderScreen(data, cvrId, {
       ballotImages: buildBmdBallotImages(cvrId),
       writeInCandidates,
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -766,7 +766,7 @@ describe('bmd write-in adjudication', () => {
 
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
@@ -782,7 +782,7 @@ describe('bmd write-in adjudication', () => {
 
 describe('vote adjudication', () => {
   test('hmpb ballot can have votes adjudicated', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const contestId = 'zoo-council-mammal';
     const cvrId = 'id-174';
     const voteAdjudications: VoteAdjudication[] = [
@@ -809,7 +809,7 @@ describe('vote adjudication', () => {
       tag: cvrContestTag,
     });
     const { onClose } = renderScreen(data, cvrId, {
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -856,7 +856,7 @@ describe('vote adjudication', () => {
 
     userEvent.click(primaryButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         lion: { type: 'candidate-option', hasVote: true },
       })
@@ -973,7 +973,7 @@ describe('unmarked and undetected write-ins', () => {
   };
 
   test('unmarked and undetected write-in candidate adjudication', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo'],
@@ -983,7 +983,7 @@ describe('unmarked and undetected write-ins', () => {
     const { onClose } = renderScreen(data, cvrId, {
       ballotImages: buildHmpbBallotImages(cvrId, contestId),
       writeInCandidates,
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -1041,7 +1041,7 @@ describe('unmarked and undetected write-ins', () => {
 
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
@@ -1559,7 +1559,7 @@ describe('marginal mark adjudication', () => {
   const cvrId = 'id-174';
 
   test('hmpb ballot can have marginally marked official option adjudicated', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const marginalMarkOptionIds = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
@@ -1576,7 +1576,7 @@ describe('marginal mark adjudication', () => {
       tag: cvrContestTag,
     });
     const { onClose } = renderScreen(data, cvrId, {
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -1608,7 +1608,7 @@ describe('marginal mark adjudication', () => {
 
     userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
       })
@@ -1616,7 +1616,7 @@ describe('marginal mark adjudication', () => {
   });
 
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
-    const onAdjudicateCvrContest = vi.fn().mockResolvedValue(undefined);
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
 
@@ -1643,7 +1643,7 @@ describe('marginal mark adjudication', () => {
       tag: cvrContestTag,
     });
     const { onClose } = renderScreen(data, cvrId, {
-      onAdjudicateCvrContest,
+      onConfirmContest,
     });
 
     await waitForBallotById('id-174');
@@ -1696,7 +1696,7 @@ describe('marginal mark adjudication', () => {
 
     userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(onAdjudicateCvrContest).toHaveBeenCalledWith(
+    expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest(cvrId, {
         'write-in-0': {
           type: 'write-in-option',

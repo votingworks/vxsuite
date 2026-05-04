@@ -20,6 +20,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { Route, Switch } from 'react-router-dom';
+import { assertDefined } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
@@ -292,18 +293,29 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     `mock-front-image-${CVR_ID_1}`
   );
 
-  // switch to back side
-  const viewButtons = screen.getAllByRole('button', { name: 'View' });
-  // the back side's View button is the second one (front is disabled)
-  userEvent.click(viewButtons[1]);
-  expect(ballotImage.style.backgroundImage).toContain(
-    `mock-back-image-${CVR_ID_1}`
+  // switch to back side — the View button for the currently-hidden side is
+  // the enabled one
+  function enabledViewButton(): HTMLElement {
+    const button = screen
+      .getAllByRole('button', { name: 'View' })
+      .find((b) => !(b as HTMLButtonElement).disabled);
+    return assertDefined(button);
+  }
+  userEvent.click(enabledViewButton());
+  // Re-query inside waitFor so a stale node reference (if React replaces the
+  // button across renders) can't hide a successful state flip.
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_1}`)
   );
 
   // switch back to front side
-  userEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
-  expect(ballotImage.style.backgroundImage).toContain(
-    `mock-front-image-${CVR_ID_1}`
+  userEvent.click(enabledViewButton());
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-front-image-${CVR_ID_1}`)
   );
 
   // skip to second ballot — first pending contest is on back, so opens to back
@@ -449,7 +461,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
 
   // click Accept Anyway -> resolves ballot and navigates to start screen
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
-  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
+  apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_1, contests: [] });
   // invalidated queries refetch after resolve
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotAdjudicationQueue([]);
@@ -743,7 +755,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   expect(screen.queryByText(/Blank Ballot/)).not.toBeInTheDocument();
 
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
-  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
+  apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_1, contests: [] });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
@@ -775,7 +787,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   // Blank ballot with only undervotes counts as allResolved, so Accept
   // directly resolves without a confirmation modal
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
-  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_2 });
+  apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_2, contests: [] });
   apiMock.expectGetBallotAdjudicationData(
     { cvrId: CVR_ID_2 },
     adjData2Resolved
