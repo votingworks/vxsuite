@@ -1778,7 +1778,7 @@ export const appStrings = {
   warningScannerCrossoverVoting: () => (
     <UiString uiStringKey="warningScannerCrossoverVoting">
       You voted in contests for more than one party. If you cast this ballot,
-      only your nonpartisan votes will count.
+      those votes will not be counted.
     </UiString>
   ),
 
