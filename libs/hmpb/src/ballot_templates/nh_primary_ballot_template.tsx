@@ -133,7 +133,11 @@ function Header({
           <h1>{electionStrings.countyName(election.county)}</h1>
           {<h1>{electionStrings.partyName(party)}</h1>}
         </div>
-        <h5>{electionStrings.electionTitle(election)}</h5>
+        <h5 style={{ lineHeight: 1.1 }}>
+          {isFederalOnlyOffices ? 'Federal' : 'State'} Primary
+          <br />
+          Election
+        </h5>
         <h5>{electionStrings.electionDate(election)}</h5>
       </div>
       <div
@@ -154,39 +158,48 @@ function Header({
             backgroundRepeat: 'no-repeat',
           }}
         />
-        {ballotMode === 'sample' ? (
-          <div
-            style={{
-              fontSize: '28pt',
-              fontWeight: 'bold',
-              marginTop: '0.5rem',
-            }}
-          >
-            SAMPLE
-          </div>
-        ) : (
-          <div style={{ textAlign: 'right' }}>
-            <img
-              src={`data:image/svg+xml;base64,${Buffer.from(
-                assertDefined(election.signature).image
-              ).toString('base64')}`}
-              style={{
-                width: '1.5in',
-              }}
-            />
+        <div
+          style={{
+            height: '0.7in',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {ballotMode === 'sample' ? (
             <div
               style={{
-                ...allCaps,
-                fontSize: '6.25pt',
+                fontSize: '24pt',
                 fontWeight: 'bold',
-                marginTop: '-1rem',
-                marginRight: '0.25rem',
+                lineHeight: 1,
               }}
             >
-              {assertDefined(election.signature).caption}
+              SAMPLE
             </div>
-          </div>
-        )}
+          ) : (
+            <div style={{ textAlign: 'right' }}>
+              <img
+                src={`data:image/svg+xml;base64,${Buffer.from(
+                  assertDefined(election.signature).image
+                ).toString('base64')}`}
+                style={{
+                  width: '1.5in',
+                }}
+              />
+              <div
+                style={{
+                  ...allCaps,
+                  fontSize: '6.25pt',
+                  fontWeight: 'bold',
+                  marginTop: '-1rem',
+                  marginRight: '0.25rem',
+                }}
+              >
+                {assertDefined(election.signature).caption}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -229,7 +242,7 @@ function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           timingMarkStyle={
-            isHandCount || ballotMode === 'sample'
+            isHandCount || ballotMode === 'sample' || isFederalOnlyOffices
               ? { visibility: 'hidden' }
               : undefined
           }

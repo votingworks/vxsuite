@@ -145,39 +145,48 @@ export function Header({
             backgroundRepeat: 'no-repeat',
           }}
         />
-        {ballotMode === 'sample' ? (
-          <div
-            style={{
-              fontSize: '24pt',
-              fontWeight: 'bold',
-              marginTop: '0.25rem',
-            }}
-          >
-            SAMPLE
-          </div>
-        ) : (
-          <div style={{ textAlign: 'right' }}>
-            <img
-              src={`data:image/svg+xml;base64,${Buffer.from(
-                assertDefined(election.signature).image
-              ).toString('base64')}`}
-              style={{
-                width: '1.2in',
-              }}
-            />
+        <div
+          style={{
+            height: '0.6in',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {ballotMode === 'sample' ? (
             <div
               style={{
-                ...allCaps,
-                fontSize: '5pt',
+                fontSize: '20pt',
                 fontWeight: 'bold',
-                marginTop: '-1rem',
-                marginRight: '0.25rem',
+                lineHeight: 1,
               }}
             >
-              {assertDefined(election.signature).caption}
+              SAMPLE
             </div>
-          </div>
-        )}
+          ) : (
+            <div style={{ textAlign: 'right' }}>
+              <img
+                src={`data:image/svg+xml;base64,${Buffer.from(
+                  assertDefined(election.signature).image
+                ).toString('base64')}`}
+                style={{
+                  width: '1.2in',
+                }}
+              />
+              <div
+                style={{
+                  ...allCaps,
+                  fontSize: '5pt',
+                  fontWeight: 'bold',
+                  marginTop: '-1rem',
+                  marginRight: '0.25rem',
+                }}
+              >
+                {assertDefined(election.signature).caption}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -288,7 +297,7 @@ function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           timingMarkStyle={
-            isHandCount || ballotMode === 'sample'
+            isHandCount || ballotMode === 'sample' || isFederalOnlyOffices
               ? { visibility: 'hidden' }
               : undefined
           }
