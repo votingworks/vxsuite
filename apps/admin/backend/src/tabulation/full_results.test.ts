@@ -29,7 +29,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { adjudicateCvrContest } from '../adjudication';
+import { adjudicateCvr } from '../adjudication';
 import { AdjudicatedContestOption, WriteInRecord } from '../types';
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
@@ -58,7 +58,7 @@ afterEach(() => {
 });
 
 /**
- * Adjudicates a single write-in through {@link adjudicateCvrContest}.
+ * Adjudicates a single write-in through {@link adjudicateCvr}.
  * Only the target write-in option is specified; other options retain
  * their scanned votes.
  */
@@ -75,15 +75,21 @@ function adjudicateWriteIn({
   adjudicatedOption: AdjudicatedContestOption;
   logger: BaseLogger;
 }): void {
-  adjudicateCvrContest(
+  adjudicateCvr(
     {
-      adjudicatedContestOptionById: {
-        [writeIn.optionId]: adjudicatedOption,
-      },
       cvrId: writeIn.cvrId,
-      contestId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            [writeIn.optionId]: adjudicatedOption,
+          },
+          cvrId: writeIn.cvrId,
+          contestId,
+          side: 'front',
+        },
+      ],
     },
+    'test-machine',
     store,
     logger
   );

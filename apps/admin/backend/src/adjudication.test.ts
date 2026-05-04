@@ -19,7 +19,7 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import { Store } from './store';
-import { adjudicateCvrContest } from './adjudication';
+import { adjudicateCvr } from './adjudication';
 import { AdjudicatedContestOption, WriteInRecord } from '.';
 
 const contestId = 'zoo-council-mammal';
@@ -125,7 +125,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
   });
 });
 
-test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
+test('adjudicateCvr write-in logging and candidate cleanup', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
@@ -170,13 +170,19 @@ test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
     trueVotes: Record<ContestOptionId, AdjudicatedContestOption>
   ): void {
     assert(cvrId !== undefined);
-    adjudicateCvrContest(
+    adjudicateCvr(
       {
-        adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
         cvrId,
-        contestId,
-        side: 'front',
+        contests: [
+          {
+            adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
+            cvrId,
+            contestId,
+            side: 'front',
+          },
+        ],
       },
+      'test-machine',
       store,
       logger
     );
@@ -355,27 +361,33 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
     'write-in-1': { type: 'write-in-option', hasVote: false },
     'write-in-2': { type: 'write-in-option', hasVote: false },
   };
-  adjudicateCvrContest(
+  adjudicateCvr(
     {
-      adjudicatedContestOptionById: {
-        ...allFalse,
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Alice',
-        },
-        'write-in-1': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Bob',
-        },
-      },
       cvrId,
-      contestId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            ...allFalse,
+            'write-in-0': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateType: 'write-in-candidate',
+              candidateName: 'Alice',
+            },
+            'write-in-1': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateType: 'write-in-candidate',
+              candidateName: 'Bob',
+            },
+          },
+          cvrId,
+          contestId,
+          side: 'front',
+        },
+      ],
     },
+    'test-machine',
     store,
     logger
   );
@@ -426,7 +438,7 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
   expect(bobWriteInAfter?.status).toEqual('pending');
 });
 
-test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
+test('adjudicateCvr adjudicates contest and resolves tags', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
@@ -496,22 +508,28 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
     trueVotes: Record<ContestOptionId, AdjudicatedContestOption>
   ): void {
     assert(cvrId !== undefined);
-    adjudicateCvrContest(
+    adjudicateCvr(
       {
-        adjudicatedContestOptionById: {
-          kangaroo: { type: 'candidate-option', hasVote: false },
-          elephant: { type: 'candidate-option', hasVote: false },
-          lion: { type: 'candidate-option', hasVote: false },
-          zebra: { type: 'candidate-option', hasVote: false },
-          'write-in-0': { type: 'write-in-option', hasVote: false },
-          'write-in-1': { type: 'write-in-option', hasVote: false },
-          'write-in-2': { type: 'write-in-option', hasVote: false },
-          ...trueVotes,
-        },
         cvrId,
-        contestId: 'zoo-council-mammal',
-        side: 'front',
+        contests: [
+          {
+            adjudicatedContestOptionById: {
+              kangaroo: { type: 'candidate-option', hasVote: false },
+              elephant: { type: 'candidate-option', hasVote: false },
+              lion: { type: 'candidate-option', hasVote: false },
+              zebra: { type: 'candidate-option', hasVote: false },
+              'write-in-0': { type: 'write-in-option', hasVote: false },
+              'write-in-1': { type: 'write-in-option', hasVote: false },
+              'write-in-2': { type: 'write-in-option', hasVote: false },
+              ...trueVotes,
+            },
+            cvrId,
+            contestId: 'zoo-council-mammal',
+            side: 'front',
+          },
+        ],
       },
+      'test-machine',
       store,
       logger
     );

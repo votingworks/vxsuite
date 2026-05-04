@@ -147,13 +147,18 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   assert(writeIn !== undefined);
   await apiClient.claimBallotForAdjudication({ cvrId });
   expect(
-    await apiClient.adjudicateCvrContest({
-      adjudicatedContestOptionById: {
-        [writeIn.optionId]: { hasVote: false, type: 'write-in-option' },
-      },
-      contestId,
+    await apiClient.adjudicateCvr({
       cvrId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            [writeIn.optionId]: { hasVote: false, type: 'write-in-option' },
+          },
+          contestId,
+          cvrId,
+          side: 'front',
+        },
+      ],
     })
   ).toEqual(ok());
   const resultsExportAfterAdjudication = await getParsedExport({
@@ -165,18 +170,23 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
 
   // adjudicating a mark as a vote (by un-invalidating the write-in) should clear the cache
   expect(
-    await apiClient.adjudicateCvrContest({
-      adjudicatedContestOptionById: {
-        [writeIn.optionId]: {
-          hasVote: true,
-          type: 'write-in-option',
-          candidateId: 'Obadiah-Carrigan-5c95145a',
-          candidateType: 'official-candidate',
-        },
-      },
-      contestId,
+    await apiClient.adjudicateCvr({
       cvrId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            [writeIn.optionId]: {
+              hasVote: true,
+              type: 'write-in-option',
+              candidateId: 'Obadiah-Carrigan-5c95145a',
+              candidateType: 'official-candidate',
+            },
+          },
+          contestId,
+          cvrId,
+          side: 'front',
+        },
+      ],
     })
   ).toEqual(ok());
   const resultsExportAfterReAdjudication = await getParsedExport({

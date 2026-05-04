@@ -254,8 +254,7 @@ interface MockPeerApi {
   getBallotAdjudicationData: ReturnType<typeof vi.fn>;
   getBallotImageMetadata: ReturnType<typeof vi.fn>;
   getWriteInCandidates: ReturnType<typeof vi.fn>;
-  adjudicateCvrContest: ReturnType<typeof vi.fn>;
-  setCvrResolved: ReturnType<typeof vi.fn>;
+  adjudicateCvr: ReturnType<typeof vi.fn>;
 }
 
 function connectToMockHost(): { mockPeerApi: MockPeerApi } {
@@ -265,8 +264,7 @@ function connectToMockHost(): { mockPeerApi: MockPeerApi } {
     getBallotAdjudicationData: vi.fn(),
     getBallotImageMetadata: vi.fn(),
     getWriteInCandidates: vi.fn(),
-    adjudicateCvrContest: vi.fn(),
-    setCvrResolved: vi.fn(),
+    adjudicateCvr: vi.fn(),
   };
   env.workspace.clientStore.setConnection(
     ClientConnectionStatus.OnlineConnectedToHost,
@@ -315,16 +313,18 @@ test('proxy endpoints return host-disconnect error when not connected', async ()
     err({ type: 'host-disconnect' })
   );
   expect(
-    await env.apiClient.adjudicateCvrContest({
+    await env.apiClient.adjudicateCvr({
       cvrId: 'cvr-1',
-      contestId: 'c-1',
-      side: 'front',
-      adjudicatedContestOptionById: {},
+      contests: [
+        {
+          cvrId: 'cvr-1',
+          contestId: 'c-1',
+          side: 'front',
+          adjudicatedContestOptionById: {},
+        },
+      ],
     })
   ).toEqual(err({ type: 'host-disconnect' }));
-  expect(await env.apiClient.setCvrResolved({ cvrId: 'cvr-1' })).toEqual(
-    err({ type: 'host-disconnect' })
-  );
 });
 
 test('proxy returns host-disconnect when peer API throws network error', async () => {
@@ -335,45 +335,25 @@ test('proxy returns host-disconnect when peer API throws network error', async (
   expect(result).toEqual(err({ type: 'host-disconnect' }));
 });
 
-test('adjudicateCvrContest returns no-claim when host has no claim', async () => {
+test('adjudicateCvr returns no-claim when host has no claim', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.adjudicateCvrContest.mockResolvedValue(err({ type: 'no-claim' }));
+  mockPeerApi.adjudicateCvr.mockResolvedValue(err({ type: 'no-claim' }));
 
-  const result = await env.apiClient.adjudicateCvrContest({
+  const result = await env.apiClient.adjudicateCvr({
     cvrId: 'cvr-1',
-    contestId: 'c-1',
-    side: 'front',
-    adjudicatedContestOptionById: {},
+    contests: [],
   });
   expect(result).toEqual(err({ type: 'no-claim' }));
 });
 
-test('setCvrResolved returns no-claim when host has no claim', async () => {
+test('adjudicateCvr returns host-disconnect on network error', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.setCvrResolved.mockResolvedValue(err({ type: 'no-claim' }));
+  mockPeerApi.adjudicateCvr.mockRejectedValue(new Error('fetch failed'));
 
-  const result = await env.apiClient.setCvrResolved({ cvrId: 'cvr-1' });
-  expect(result).toEqual(err({ type: 'no-claim' }));
-});
-
-test('adjudicateCvrContest returns host-disconnect on network error', async () => {
-  const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.adjudicateCvrContest.mockRejectedValue(new Error('fetch failed'));
-
-  const result = await env.apiClient.adjudicateCvrContest({
+  const result = await env.apiClient.adjudicateCvr({
     cvrId: 'cvr-1',
-    contestId: 'c-1',
-    side: 'front',
-    adjudicatedContestOptionById: {},
+    contests: [],
   });
-  expect(result).toEqual(err({ type: 'host-disconnect' }));
-});
-
-test('setCvrResolved returns host-disconnect on network error', async () => {
-  const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.setCvrResolved.mockRejectedValue(new Error('fetch failed'));
-
-  const result = await env.apiClient.setCvrResolved({ cvrId: 'cvr-1' });
   expect(result).toEqual(err({ type: 'host-disconnect' }));
 });
 
@@ -443,32 +423,27 @@ test('getWriteInCandidates proxies to host peer API', async () => {
   expect(result).toEqual(ok([]));
 });
 
-test('adjudicateCvrContest proxies to host peer API', async () => {
+test('adjudicateCvr proxies to host peer API', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.adjudicateCvrContest.mockResolvedValue(ok());
+  mockPeerApi.adjudicateCvr.mockResolvedValue(ok());
 
   (
-    await env.apiClient.adjudicateCvrContest({
+    await env.apiClient.adjudicateCvr({
       cvrId: 'cvr-1',
-      contestId: 'contest-1',
-      side: 'front',
-      adjudicatedContestOptionById: {},
+      contests: [
+        {
+          cvrId: 'cvr-1',
+          contestId: 'contest-1',
+          side: 'front',
+          adjudicatedContestOptionById: {},
+        },
+      ],
     })
   ).unsafeUnwrap();
-  expect(mockPeerApi.adjudicateCvrContest).toHaveBeenCalledWith(
+  expect(mockPeerApi.adjudicateCvr).toHaveBeenCalledWith(
     expect.objectContaining({
       cvrId: 'cvr-1',
-      contestId: 'contest-1',
+      contests: expect.any(Array),
     })
-  );
-});
-
-test('setCvrResolved proxies to host peer API', async () => {
-  const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.setCvrResolved.mockResolvedValue(ok());
-
-  (await env.apiClient.setCvrResolved({ cvrId: 'cvr-1' })).unsafeUnwrap();
-  expect(mockPeerApi.setCvrResolved).toHaveBeenCalledWith(
-    expect.objectContaining({ cvrId: 'cvr-1' })
   );
 });

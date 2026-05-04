@@ -27,6 +27,7 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import { Api } from './app';
+import { AdjudicatedCvrContest } from './types';
 import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
@@ -367,25 +368,22 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     );
     if (!contest) continue;
     await apiClient.claimBallotForAdjudication({ cvrId });
-    for (const option of contest.options) {
-      if (option.writeInRecord) {
-        expect(
-          await apiClient.adjudicateCvrContest({
-            cvrId,
-            contestId: candidateContestId,
-            side: 'front',
-            adjudicatedContestOptionById: {
-              [option.writeInRecord.optionId]: {
-                type: 'write-in-option',
-                candidateName: writeInCandidate.name,
-                candidateType: 'write-in-candidate',
-                hasVote: true,
-              },
-            },
-          })
-        ).toEqual(ok());
-      }
-    }
+    const contests: AdjudicatedCvrContest[] = contest.options
+      .filter((option) => option.writeInRecord)
+      .map((option) => ({
+        cvrId,
+        contestId: candidateContestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [option.writeInRecord!.optionId]: {
+            type: 'write-in-option',
+            candidateName: writeInCandidate.name,
+            candidateType: 'write-in-candidate',
+            hasVote: true,
+          },
+        },
+      }));
+    expect(await apiClient.adjudicateCvr({ cvrId, contests })).toEqual(ok());
   }
 
   // add manual data
