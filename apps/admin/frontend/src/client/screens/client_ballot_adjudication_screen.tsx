@@ -8,7 +8,7 @@ import { BallotAdjudicationScreen } from '../../screens/ballot_adjudication_scre
 import { NavigationScreen } from '../../components/navigation_screen';
 import { routerPaths } from '../../router_paths';
 import {
-  adjudicateCvrContest,
+  adjudicateCvr,
   claimBallot,
   getAdjudicationSessionStatus,
   getBallotAdjudicationData,
@@ -16,7 +16,6 @@ import {
   getSystemSettings,
   getWriteInCandidates,
   releaseBallot,
-  setCvrResolved,
 } from '../api';
 
 function proxyErrorMessage(error: AdjudicationError): string {
@@ -173,9 +172,7 @@ function ClientBallotAdjudicationDataLoader({
   const ballotImagesQuery = getBallotImages.useQuery(cvrId);
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const { mutateAsync: setCvrResolvedAsync } = setCvrResolved.useMutation();
-  const { mutateAsync: adjudicateContestAsync } =
-    adjudicateCvrContest.useMutation();
+  const { mutateAsync: adjudicateCvrAsync } = adjudicateCvr.useMutation();
   const [mutationError, setMutationError] = useState<AdjudicationError>();
 
   if (
@@ -228,15 +225,8 @@ function ClientBallotAdjudicationDataLoader({
       ballotImages={images}
       writeInCandidates={candidates}
       systemSettings={systemSettings}
-      onSetCvrResolved={async () => {
-        const result = await setCvrResolvedAsync({ cvrId });
-        if (result.isErr()) {
-          setMutationError(result.err());
-          throw new Error(result.err().type);
-        }
-      }}
-      onAdjudicateCvrContest={async (input) => {
-        const result = await adjudicateContestAsync(input);
+      onAccept={async (input) => {
+        const result = await adjudicateCvrAsync(input);
         if (result.isErr()) {
           setMutationError(result.err());
           throw new Error(result.err().type);

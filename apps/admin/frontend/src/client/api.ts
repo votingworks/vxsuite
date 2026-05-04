@@ -269,25 +269,20 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-export const adjudicateCvrContest = {
+export const adjudicateCvr = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.adjudicateCvrContest, {
+    return useMutation(apiClient.adjudicateCvr, {
       async onSuccess(_data, variables) {
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationData.queryKey(variables.cvrId)
-        );
-        await queryClient.invalidateQueries(getWriteInCandidates.queryKey());
+        await Promise.all([
+          queryClient.invalidateQueries(
+            getBallotAdjudicationData.queryKey(variables.cvrId)
+          ),
+          queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
+        ]);
       },
     });
-  },
-} as const;
-
-export const setCvrResolved = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.setCvrResolved);
   },
 } as const;
 
