@@ -118,7 +118,9 @@ export function Header({
         <h5 style={{ visibility: ballotTypeLabel ? 'visible' : 'hidden' }}>
           {ballotTypeLabel ?? <>&nbsp;</>}
         </h5>
-        <h5>{ballotTitle} FOR</h5>
+        <h5 style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}>
+          {ballotTitle} FOR
+        </h5>
         <h1 style={{ fontSize: '18pt' }}>
           {electionStrings.countyName(election.county)}
         </h1>
@@ -143,27 +145,39 @@ export function Header({
             backgroundRepeat: 'no-repeat',
           }}
         />
-        <div style={{ textAlign: 'right' }}>
-          <img
-            src={`data:image/svg+xml;base64,${Buffer.from(
-              assertDefined(election.signature).image
-            ).toString('base64')}`}
-            style={{
-              width: '1.2in',
-            }}
-          />
+        {ballotMode === 'sample' ? (
           <div
             style={{
-              ...allCaps,
-              fontSize: '5pt',
+              fontSize: '24pt',
               fontWeight: 'bold',
-              marginTop: '-1rem',
-              marginRight: '0.25rem',
+              marginTop: '0.25rem',
             }}
           >
-            {assertDefined(election.signature).caption}
+            SAMPLE
           </div>
-        </div>
+        ) : (
+          <div style={{ textAlign: 'right' }}>
+            <img
+              src={`data:image/svg+xml;base64,${Buffer.from(
+                assertDefined(election.signature).image
+              ).toString('base64')}`}
+              style={{
+                width: '1.2in',
+              }}
+            />
+            <div
+              style={{
+                ...allCaps,
+                fontSize: '5pt',
+                fontWeight: 'bold',
+                marginTop: '-1rem',
+                marginRight: '0.25rem',
+              }}
+            >
+              {assertDefined(election.signature).caption}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -273,7 +287,11 @@ function BallotPageFrame({
         {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid
           pageDimensions={pageDimensions}
-          timingMarkStyle={isHandCount ? { visibility: 'hidden' } : undefined}
+          timingMarkStyle={
+            isHandCount || ballotMode === 'sample'
+              ? { visibility: 'hidden' }
+              : undefined
+          }
           ballotMode={ballotMode}
         >
           <div
