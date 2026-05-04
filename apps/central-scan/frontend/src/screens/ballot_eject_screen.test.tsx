@@ -806,6 +806,41 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
+test('falls through to "Unreadable" for an UnreadablePage with an unrecognized reason', async () => {
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'some-other-reason',
+        },
+      },
+      back: {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'some-other-reason',
+        },
+      },
+    })
+  );
+
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+
+  await screen.findByText('Unreadable');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because there was a problem reading the ballot.'
+  );
+  expect(screen.getByRole('button').textContent).toEqual(
+    'Confirm Ballot Removed'
+  );
+
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
 test('ballot with invalid scale', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
