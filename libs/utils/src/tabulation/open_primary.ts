@@ -3,6 +3,7 @@ import {
   CandidateContest,
   Election,
   PartyId,
+  Tabulation,
   VotesDict,
   isOpenPrimary,
 } from '@votingworks/types';
