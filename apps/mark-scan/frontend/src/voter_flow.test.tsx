@@ -83,6 +83,7 @@ const TEST_VOTER_FLOW_PROPS: VoterFlowProps = {
   isLiveMode: true,
   machineConfig: mockMachineConfig(),
   resetBallot: vi.fn(),
+  selectParty: vi.fn(),
   stateMachineState: 'waiting_for_ballot_data',
   updateVote: vi.fn(),
   votes: {},

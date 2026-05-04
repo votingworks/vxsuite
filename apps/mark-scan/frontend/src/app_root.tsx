@@ -5,6 +5,8 @@ import {
   getBallotStyle,
   getContests,
   ContestId,
+  isOpenPrimary,
+  PartyId,
   PrecinctId,
   BallotStyleId,
   InsertedSmartCardAuth,
@@ -100,6 +102,8 @@ export const POLL_WORKER_AUTH_REQUIRED_STATES: Readonly<
 
 interface VotingState {
   votes?: VotesDict;
+  // Only set for open primary elections; see BallotContextInterface.
+  selectedPartyId?: PartyId;
 }
 
 export const blankBallotVotes: VotesDict = {};
@@ -113,6 +117,7 @@ export const initialElectionState: Readonly<ElectionState> = {
 
 const initialVotingState: Readonly<VotingState> = {
   votes: undefined,
+  selectedPartyId: undefined,
 };
 
 // Sets State. All side effects done outside: storage, fetching, etc
@@ -120,7 +125,8 @@ type VotingAction =
   | { type: 'unconfigure' }
   | { type: 'setVotes'; votes: VotesDict }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
-  | { type: 'resetBallot' };
+  | { type: 'resetBallot' }
+  | { type: 'selectParty'; partyId: PartyId };
 
 function votingStateReducer(
   state: VotingState,
@@ -152,6 +158,13 @@ function votingStateReducer(
         ...state,
         ...initialVotingState,
       };
+    case 'selectParty':
+      return {
+        ...state,
+        selectedPartyId: action.partyId,
+        // Clear votes on party change to prevent crossover voting
+        votes: {},
+      };
     default: {
       /* istanbul ignore next - compile time check for completeness @preserve */
       throwIllegalValue(action);
@@ -164,7 +177,7 @@ export function AppRoot(): JSX.Element | null {
     votingStateReducer,
     initialVotingState
   );
-  const { votes } = votingState;
+  const { votes, selectedPartyId } = votingState;
 
   const history = useHistory();
 
@@ -236,6 +249,16 @@ export function AppRoot(): JSX.Element | null {
             ballotStyle,
           })
         )
+          // For open primaries, show only partisan contests for the party
+          // selected by the user + nonpartisan contests.
+          .filter((contest) => {
+            if (isOpenPrimary(electionDefinition.election) && selectedPartyId) {
+              return contest.type === 'candidate'
+                ? !contest.partyId || contest.partyId === selectedPartyId
+                : true;
+            }
+            return true;
+          })
       : [];
 
   const { onSessionEnd } = useSessionSettingsManager({ authStatus });
@@ -278,6 +301,10 @@ export function AppRoot(): JSX.Element | null {
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchVotingState({ type: 'updateVote', contestId, vote });
+  }, []);
+
+  const selectParty = useCallback((partyId: PartyId) => {
+    dispatchVotingState({ type: 'selectParty', partyId });
   }, []);
 
   const resetPollsToPaused = useCallback(async () => {
@@ -580,6 +607,8 @@ export function AppRoot(): JSX.Element | null {
             machineConfig={machineConfig}
             precinctId={precinctId}
             resetBallot={resetBallot}
+            selectedPartyId={selectedPartyId}
+            selectParty={selectParty}
             stateMachineState={stateMachineState}
             updateVote={updateVote}
             votes={votes ?? blankBallotVotes}

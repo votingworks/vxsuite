@@ -10,14 +10,23 @@ import { useVoterHelpScreen } from './use_voter_help_screen';
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
-  const { contests, electionDefinition, ballotStyleId, precinctId, votes } =
-    useContext(BallotContext);
+  const {
+    contests,
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    selectedPartyId,
+    votes,
+  } = useContext(BallotContext);
   const VoterHelpScreen = useVoterHelpScreen('PrePrintReviewScreen');
 
   const searchParams = new URLSearchParams(location.search);
   const fromContest = searchParams.get('fromContest');
   const isViewAllMode = !!fromContest;
   const backUrl = fromContest ? `/contests/${fromContest}` : undefined;
+  const partySelectionScreenUrl = selectedPartyId
+    ? `/party-selection${!isViewAllMode ? '#review' : ''}`
+    : undefined;
 
   return (
     <ReviewPage
@@ -36,6 +45,8 @@ export function ReviewScreen(): JSX.Element {
         );
       }}
       votes={votes}
+      selectedPartyId={selectedPartyId}
+      partySelectionScreenUrl={partySelectionScreenUrl}
       VoterHelpScreen={VoterHelpScreen}
     />
   );

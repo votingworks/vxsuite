@@ -9,6 +9,7 @@ import {
 import { IDLE_TIMEOUT_SECONDS } from '@votingworks/mark-flow-ui';
 import { ContestScreen } from '../pages/contest_screen';
 import { IdlePage } from '../pages/idle_page';
+import { PartySelectionScreen } from '../pages/party_selection_screen';
 import { PrintPage } from '../pages/print_page';
 import { ReviewScreen } from '../pages/review_screen';
 import { StartScreen } from '../pages/start_screen';
@@ -53,6 +54,9 @@ export function Ballot(): JSX.Element {
         <Switch>
           <Route path="/" exact>
             <StartScreen />
+          </Route>
+          <Route path="/party-selection">
+            <PartySelectionScreen />
           </Route>
           <Route path="/ready-to-review">
             {/* This page renders a button that lets the voter navigate to /review.

@@ -13,6 +13,7 @@ const ballot: BallotContextInterface = {
   isLiveMode: false,
   endVoterSession: () => Promise.resolve(),
   resetBallot: () => undefined,
+  selectParty: () => undefined,
   updateVote: () => undefined,
   votes: {},
 };
