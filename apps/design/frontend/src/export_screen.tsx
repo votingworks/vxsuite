@@ -42,6 +42,8 @@ const ballotTemplateOptions = {
   NhBallot: 'New Hampshire Ballot',
   MsBallot: 'Mississippi Ballot',
   MiBallot: 'Michigan Ballot',
+  NhPrimaryBallot: 'New Hampshire Primary Ballot',
+  NhGeneralBallot: 'New Hampshire General Ballot',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {

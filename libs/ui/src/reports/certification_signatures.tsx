@@ -16,7 +16,7 @@ const SignatureLines = styled.div`
   gap: 0.3in;
 `;
 
-const SignatureLine = styled.div`
+export const SignatureLine = styled.div`
   flex: 1;
   margin-top: 2em;
   border-bottom: 1px solid #000;
@@ -33,7 +33,7 @@ const SvgContainer = styled.div`
   }
 `;
 
-function SignatureX(): JSX.Element {
+export function SignatureX(): JSX.Element {
   return (
     <SvgContainer>
       <svg

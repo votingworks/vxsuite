@@ -1174,7 +1174,9 @@ export class Store {
         seal: electionRow.seal,
         // Only include signature for the NhBallot
         signature:
-          electionRow.ballotTemplateId === 'NhBallot'
+          electionRow.ballotTemplateId === 'NhBallot' ||
+          electionRow.ballotTemplateId === 'NhPrimaryBallot' ||
+          electionRow.ballotTemplateId === 'NhGeneralBallot'
             ? electionRow.signature || undefined
             : undefined,
         districts,

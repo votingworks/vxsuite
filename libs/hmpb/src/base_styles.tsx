@@ -12,7 +12,7 @@ export function baseLineHeight(compact?: boolean): number {
   return compact ? 1.1 : 1.2;
 }
 
-function baseStyles(params: BaseStylesProps) {
+export function baseStyles(params: BaseStylesProps): string {
   const { compact } = params;
 
   return `
@@ -30,7 +30,7 @@ function baseStyles(params: BaseStylesProps) {
      * 12pt is the Center for Civic Design's recommended default font size, and
      * 10pt is their recommended minimum accessible font size.
      */
-    font-size: ${compact ? 10 : 12}pt;
+    font-size: ${compact ? 11 : 12}pt;
     line-height: ${baseLineHeight(compact)};
   }
 
@@ -64,6 +64,10 @@ function baseStyles(params: BaseStylesProps) {
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  table {
+    border-collapse: collapse;
   }
 `;
 }
