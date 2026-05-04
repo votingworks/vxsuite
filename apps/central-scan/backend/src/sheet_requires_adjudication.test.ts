@@ -1,14 +1,20 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { throwIllegalValue } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
+  AdjudicationReasonInfo,
+  BallotId,
   BallotMetadata,
   BallotStyleId,
   BallotType,
   BlankPage,
+  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  InvalidBallotHashPage,
+  InvalidPrecinctPage,
+  InvalidTestModePage,
   PageInterpretation,
   UnreadablePage,
 } from '@votingworks/types';
@@ -271,4 +277,258 @@ test('sheetRequiresAdjudication catches single-sided blank ballots if undervote 
   expect(
     sheetRequiresAdjudication([hmpbWithVotes, hmpbNoVotesUndervotesFlagged])
   ).toEqual(true);
+});
+
+// ---------------------------------------------------------------------------
+// Exhaustive characterization (gap coverage on top of the tests above).
+// These tests pin every observable branch so the upcoming refactor — which
+// replaces this function with combinePageInterpretationsForSheet from
+// libs/ballot-interpreter — can prove behavior preservation case by case.
+// ---------------------------------------------------------------------------
+
+function hmpbWithReasons(
+  reasons: readonly AdjudicationReasonInfo[],
+  options: { marks?: 'has-marks' | 'zero-marks' } = {}
+): InterpretedHmpbPage {
+  const hasMarks = (options.marks ?? 'has-marks') === 'has-marks';
+  return {
+    ...pageInterpretationBoilerplate,
+    markInfo: {
+      ...pageInterpretationBoilerplate.markInfo,
+      marks: hasMarks ? pageInterpretationBoilerplate.markInfo.marks : [],
+    },
+    adjudicationInfo: {
+      enabledReasons: reasons.map((r) => r.type),
+      enabledReasonInfos: reasons,
+      ignoredReasonInfos: [],
+      requiresAdjudication: reasons.length > 0,
+    },
+  };
+}
+
+const overvoteReason: AdjudicationReasonInfo = {
+  type: AdjudicationReason.Overvote,
+  contestId: '42',
+  optionIds: ['27', '28'],
+  expected: 1,
+};
+const undervoteReason: AdjudicationReasonInfo = {
+  type: AdjudicationReason.Undervote,
+  contestId: '42',
+  optionIds: ['27'],
+  expected: 1,
+};
+const marginalMarkReason: AdjudicationReasonInfo = {
+  type: AdjudicationReason.MarginalMark,
+  contestId: '42',
+  optionId: '42',
+};
+const blankBallotReason: AdjudicationReasonInfo = {
+  type: AdjudicationReason.BlankBallot,
+};
+
+const blankPage: BlankPage = { type: 'BlankPage' };
+const unreadable: UnreadablePage = {
+  type: 'UnreadablePage',
+  reason: 'too many black pixels',
+};
+const invalidTestMode: InvalidTestModePage = {
+  type: 'InvalidTestModePage',
+  metadata,
+};
+const invalidBallotHash: InvalidBallotHashPage = {
+  type: 'InvalidBallotHashPage',
+  expectedBallotHash:
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
+      .ballotHash,
+  actualBallotHash: 'something-else',
+};
+const invalidPrecinct: InvalidPrecinctPage = {
+  type: 'InvalidPrecinctPage',
+  metadata,
+};
+const bmdMulti: InterpretedBmdMultiPagePage = {
+  type: 'InterpretedBmdMultiPagePage',
+  metadata: {
+    ballotHash: '41',
+    precinctId: '12',
+    ballotStyleId: '1' as BallotStyleId,
+    isTestMode: true,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId: 'audit-1' as BallotId,
+    contestIds: ['contest-id'],
+  },
+  votes: {},
+  adjudicationInfo: {
+    requiresAdjudication: false,
+    enabledReasons: [],
+    enabledReasonInfos: [],
+    ignoredReasonInfos: [],
+  },
+};
+
+interface Case {
+  name: string;
+  front: PageInterpretation;
+  back: PageInterpretation;
+  expected: boolean;
+}
+
+describe('non-blank reasons trigger adjudication (each AdjudicationReason)', () => {
+  test.each<Case>([
+    {
+      name: 'Undervote on front',
+      front: hmpbWithReasons([undervoteReason]),
+      back: hmpbWithVotes,
+      expected: true,
+    },
+    {
+      name: 'MarginalMark on front',
+      front: hmpbWithReasons([marginalMarkReason]),
+      back: hmpbWithVotes,
+      expected: true,
+    },
+    {
+      name: 'multiple reasons on one page',
+      front: hmpbWithReasons([overvoteReason, marginalMarkReason]),
+      back: hmpbWithVotes,
+      expected: true,
+    },
+    {
+      name: 'BlankBallot + Undervote (non-blank reason wins)',
+      front: hmpbWithReasons([blankBallotReason, undervoteReason], {
+        marks: 'zero-marks',
+      }),
+      back: hmpbWithVotes,
+      expected: true,
+    },
+  ])('$name', ({ front, back, expected }) => {
+    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+  });
+});
+
+describe('Invalid* pages and unreadable pages trigger adjudication', () => {
+  test.each<Case>([
+    {
+      name: 'UnreadablePage front + clean HMPB back',
+      front: unreadable,
+      back: hmpbWithVotes,
+      expected: true,
+    },
+    {
+      name: 'clean HMPB front + UnreadablePage back',
+      front: hmpbWithVotes,
+      back: unreadable,
+      expected: true,
+    },
+    {
+      name: 'two UnreadablePages',
+      front: unreadable,
+      back: unreadable,
+      expected: true,
+    },
+    {
+      name: 'InvalidTestModePage + clean HMPB',
+      front: invalidTestMode,
+      back: hmpbWithVotes,
+      expected: true,
+    },
+    {
+      name: 'InvalidBallotHashPage + clean HMPB',
+      front: invalidBallotHash,
+      back: hmpbWithVotes,
+      expected: true,
+    },
+    {
+      name: 'InvalidPrecinctPage + clean HMPB',
+      front: invalidPrecinct,
+      back: hmpbWithVotes,
+      expected: true,
+    },
+  ])('$name', ({ front, back, expected }) => {
+    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+  });
+});
+
+test('BMDMulti short-circuits even when the other side is unreadable', () => {
+  // Mirrors the original BMD + UnreadablePage case for the multi-page BMD
+  // variant: when one side scans as BMD/BMDMulti and the other fails to
+  // interpret, the BMD half short-circuits the whole sheet rather than
+  // sending it to adjudication.
+  expect(sheetRequiresAdjudication([bmdMulti, unreadable])).toEqual(false);
+  expect(sheetRequiresAdjudication([unreadable, bmdMulti])).toEqual(false);
+});
+
+describe('zero-marks vs BlankBallot reason: both count as blank', () => {
+  test.each<Case>([
+    {
+      name: 'two HMPB zero-marks pages → blank-both → adjudicate',
+      front: hmpbWithReasons([], { marks: 'zero-marks' }),
+      back: hmpbWithReasons([], { marks: 'zero-marks' }),
+      expected: true,
+    },
+    {
+      name: 'HMPB zero-marks + HMPB BlankBallot reason → blank-both',
+      front: hmpbWithReasons([], { marks: 'zero-marks' }),
+      back: hmpbNoVotes,
+      expected: true,
+    },
+    {
+      name: 'HMPB zero-marks + BlankPage → blank-both',
+      front: hmpbWithReasons([], { marks: 'zero-marks' }),
+      back: blankPage,
+      expected: true,
+    },
+    {
+      name: 'HMPB zero-marks + HMPB with marks → recessive, no adjudication',
+      front: hmpbWithReasons([], { marks: 'zero-marks' }),
+      back: hmpbWithVotes,
+      expected: false,
+    },
+    {
+      name: 'HMPB BlankBallot reason WITH marks (still counts as blank), both sides',
+      front: hmpbWithReasons([blankBallotReason]),
+      back: hmpbWithReasons([blankBallotReason]),
+      expected: true,
+    },
+  ])('$name', ({ front, back, expected }) => {
+    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+  });
+});
+
+describe('ignoredReasonInfos do not trigger adjudication', () => {
+  test.each<Case>([
+    {
+      name: 'Overvote in ignoredReasonInfos (requiresAdjudication=false)',
+      front: {
+        ...pageInterpretationBoilerplate,
+        adjudicationInfo: {
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [overvoteReason],
+          requiresAdjudication: false,
+        },
+      },
+      back: hmpbWithVotes,
+      expected: false,
+    },
+    {
+      name: 'Undervote in ignoredReasonInfos',
+      front: {
+        ...pageInterpretationBoilerplate,
+        adjudicationInfo: {
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [undervoteReason],
+          requiresAdjudication: false,
+        },
+      },
+      back: hmpbWithVotes,
+      expected: false,
+    },
+  ])('$name', ({ front, back, expected }) => {
+    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+  });
 });
