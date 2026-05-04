@@ -66,12 +66,18 @@ export function Header({
   election,
   ballotType,
   ballotMode,
+  isFederalOnlyOffices,
 }: {
   election: Election;
   ballotType: BallotType;
   ballotMode: BallotMode;
+  isFederalOnlyOffices?: boolean;
 }): JSX.Element {
-  const absenteeLabel = ballotType === 'absentee' ? 'ABSENTEE' : undefined;
+  const ballotTypeLabel = isFederalOnlyOffices
+    ? 'FEDERAL OFFICE ONLY'
+    : ballotType === 'absentee'
+    ? 'ABSENTEE'
+    : undefined;
   const ballotTitle = {
     official: 'OFFICIAL BALLOT',
     test: 'TEST BALLOT',
@@ -109,7 +115,9 @@ export function Header({
           padding: '0 2.5rem',
         }}
       >
-        {absenteeLabel && <h5>{absenteeLabel}</h5>}
+        <h5 style={{ visibility: ballotTypeLabel ? 'visible' : 'hidden' }}>
+          {ballotTypeLabel ?? <>&nbsp;</>}
+        </h5>
         <h5>{ballotTitle} FOR</h5>
         <h1 style={{ fontSize: '18pt' }}>
           {electionStrings.countyName(election.county)}
@@ -227,6 +235,7 @@ function BallotPageFrame({
   children,
   watermark,
   isHandCount,
+  isFederalOnlyOffices,
 }: NhGeneralBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -282,6 +291,7 @@ function BallotPageFrame({
                   election={election}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
+                  isFederalOnlyOffices={isFederalOnlyOffices}
                 />
               </>
             )}
