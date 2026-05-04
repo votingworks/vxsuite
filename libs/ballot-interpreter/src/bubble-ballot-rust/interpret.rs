@@ -536,7 +536,7 @@ mod test {
         path::{Path, PathBuf},
     };
 
-    use image::{imageops::FilterType, GenericImage, Luma};
+    use image::{imageops::FilterType, DynamicImage, GenericImage, Luma, Rgb};
     use itertools::Itertools;
     use types_rs::{
         election::{ContestId, OptionId},
@@ -545,7 +545,8 @@ mod test {
 
     use crate::{
         ballot_card::ballot_scan_bubble_image,
-        debug::ImageDebugWriter,
+        debug::{monospace_font, ImageDebugWriter},
+        draw_utils::draw_text_mut,
         qr_code,
         scoring::{self, UnitIntervalScore},
         timing_marks::{self, DefaultForGeometry, TimingMarks},
@@ -1197,14 +1198,12 @@ mod test {
         // and we want clear of both the bubble template's max search
         // distance AND the bubble template's full width on either side.
         let bubble_w = options.bubble_template.width() as i32;
-        let exclude_radius = STREAK_HALF_WIDTH
-            + scoring::DEFAULT_MAXIMUM_SEARCH_DISTANCE as i32
-            + bubble_w;
+        let exclude_radius =
+            STREAK_HALF_WIDTH + scoring::DEFAULT_MAXIMUM_SEARCH_DISTANCE as i32 + bubble_w;
         let line_x = (1..n_cols - 1)
             .map(|col| {
                 let frac = col as f32 / (n_cols - 1) as f32;
-                (tm.top_left_corner.x
-                    + frac * (tm.top_right_corner.x - tm.top_left_corner.x))
+                (tm.top_left_corner.x + frac * (tm.top_right_corner.x - tm.top_left_corner.x))
                     .round() as i32
             })
             .find(|&cx| {
@@ -1228,9 +1227,8 @@ mod test {
             }
         }
 
-        let interpretation = ballot_card(side_a_image, side_b_image, &options).expect(
-            "interpretation should succeed despite streak through top/bottom timing marks",
-        );
+        let interpretation = ballot_card(side_a_image, side_b_image, &options)
+            .expect("interpretation should succeed despite streak through top/bottom timing marks");
 
         for (_grid_position, maybe_bubble) in &interpretation.front.marks {
             if let Some(bubble) = maybe_bubble {
@@ -1245,12 +1243,12 @@ mod test {
 
     /// A ballot with several top and bottom timing marks rendered
     /// undetectable (e.g. from a fold, smudge, or ink residue at the very
-    /// top or bottom edge) used to be rejected by the full-borders strategy.
-    /// The grid is now reconstructed from the left/right borders and the
-    /// four corners, so as long as those are intact the ballot still
+    /// top or bottom edge) used to be rejected by the previous full-borders
+    /// strategy. The grid is now constructed from the left/right borders and
+    /// the four corners, so as long as those are intact the ballot still
     /// interprets correctly.
     #[test]
-    fn test_obscured_top_and_bottom_timing_marks_does_not_break_interpretation() {
+    fn test_missing_top_and_bottom_timing_marks_does_not_break_interpretation() {
         let (mut side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
 
@@ -1306,6 +1304,53 @@ mod test {
         }
     }
 
+    /// A ballot with several top timing marks rendered undetectable from text
+    /// used to be rejected by the previous full-borders strategy. The grid is
+    /// now constructed from the left/right borders and the four corners, so as
+    /// long as those are intact the ballot still interprets correctly.
+    #[test]
+    fn test_obscured_top_and_bottom_timing_marks_does_not_break_interpretation() {
+        let (side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // We no longer record top/bottom marks on `TimingMarks`, so use the
+        // four corners (which we still record) to compute approximate
+        // top/bottom mark positions for a clean ballot.
+        let clean_interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
+                .expect("clean interpretation should succeed");
+        let tm = &clean_interpretation.front.timing_marks;
+        let black = Rgb([0, 0, 0]);
+
+        // Draw text over a handful of top marks similar to how a clerk might
+        // during L&A testing.
+        let mut rgb_image = DynamicImage::ImageLuma8(side_a_image).into_rgb8();
+        draw_text_mut(
+            &mut rgb_image,
+            black,
+            (tm.top_left_corner.x + tm.geometry.timing_mark_width_pixels() * 3.0) as i32,
+            (tm.top_left_corner.y + tm.geometry.timing_mark_height_pixels() - 30.0) as i32,
+            72.0,
+            &monospace_font(),
+            "TEST BALLOT",
+        );
+
+        let side_a_image = DynamicImage::ImageRgb8(rgb_image).into_luma8();
+        let interpretation = ballot_card(side_a_image, side_b_image, &options)
+            .expect("interpretation should succeed with several top marks obscured");
+
+        // Bubble scores on a blank ballot should still be near zero — the
+        // obscured marks are well outside the bubble grid.
+        for (_grid_position, maybe_bubble) in &interpretation.front.marks {
+            if let Some(bubble) = maybe_bubble {
+                assert!(
+                    bubble.fill_score.0 < 0.02,
+                    "Unexpected non-zero bubble score on blank ballot: {}",
+                    bubble.fill_score.0
+                );
+            }
+        }
+    }
     #[test]
     fn test_reject_scaled_down_ballots() {
         let (side_a_image, side_b_image, options) =
