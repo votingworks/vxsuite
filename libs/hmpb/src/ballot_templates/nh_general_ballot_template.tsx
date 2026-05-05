@@ -556,7 +556,8 @@ function CandidateContest({
               </>
             ) : (
               <>
-                Vote for up to <strong>{contest.seats}</strong>;{' '}
+                Vote for up to <strong>{contest.seats}</strong>;
+                <br />
                 <strong>{seatsWord}</strong> will be elected
               </>
             )}
@@ -634,9 +635,16 @@ function CandidateContest({
                     }}
                   >
                     {contest.title ===
-                    'President and Vice-President of the United States'
-                      ? 'President and Vice-President'
-                      : contest.title}
+                    'President and Vice-President of the United States' ? (
+                      <>
+                        President and{' '}
+                        <span style={{ whiteSpace: 'nowrap' }}>
+                          Vice-President
+                        </span>
+                      </>
+                    ) : (
+                      contest.title
+                    )}
                   </div>
                   <div
                     style={{
