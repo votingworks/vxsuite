@@ -233,26 +233,16 @@ impl TimingMarks {
             return None;
         }
 
-        let BorderMarks { left, right } = &self.border_marks;
-        self.point_for_location_with_scan_direction_borders(column, row, left, right)
-    }
-
-    fn point_for_location_with_scan_direction_borders(
-        &self,
-        column: SubGridUnit,
-        row: SubGridUnit,
-        left_marks: &[CandidateTimingMark],
-        right_marks: &[CandidateTimingMark],
-    ) -> Option<Point<SubPixelUnit>> {
         // Find the left and right timing marks for the given row, interpolating
         // vertically if given a fractional row index
+        let BorderMarks { left, right } = &self.border_marks;
         let row_before = row.floor() as GridUnit;
         let row_after = row.ceil() as GridUnit;
         let distance_percentage_between_rows = row - row_before as f32;
-        let left_before = left_marks.get(row_before as usize)?;
-        let right_before = right_marks.get(row_before as usize)?;
-        let left_after = left_marks.get(row_after as usize)?;
-        let right_after = right_marks.get(row_after as usize)?;
+        let left_before = left.get(row_before as usize)?;
+        let right_before = right.get(row_before as usize)?;
+        let left_after = left.get(row_after as usize)?;
+        let right_after = right.get(row_after as usize)?;
         let left = Rect::new(
             left_before.rect().left(),
             left_before.rect().top()
