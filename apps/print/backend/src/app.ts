@@ -105,6 +105,11 @@ export function buildApi(ctx: AppContext) {
         electionPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = electionPackage;
       if (!ballots || ballots.length === 0) {
+        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+          disposition: 'failure',
+          message: 'Error configuring machine: election package has no ballots.',
+          errorDetails: JSON.stringify({ type: 'no_ballots' }),
+        });
         return err({ type: 'no_ballots' });
       }
       assert(systemSettings);
@@ -215,8 +220,13 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    unconfigureMachine(): void {
+    async unconfigureMachine(): Promise<void> {
       store.reset();
+      await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
+        disposition: 'success',
+        message:
+          'User successfully unconfigured the machine to remove the current election and all current ballot data.',
+      });
     },
 
     /* istanbul ignore next - @preserve */
@@ -225,15 +235,22 @@ export function buildApi(ctx: AppContext) {
 
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
-      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
-        electionRecord,
-        softwareVersion: codeVersion,
-      });
-
-      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
-        disposition: 'success',
-      });
-      return qrCodeValue;
+      try {
+        const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+          electionRecord,
+          softwareVersion: codeVersion,
+        });
+        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+          disposition: 'success',
+        });
+        return qrCodeValue;
+      } catch (error) {
+        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+          disposition: 'failure',
+          message: (error as Error).message,
+        });
+        throw error;
+      }
     },
 
     ...createSystemCallApi({
