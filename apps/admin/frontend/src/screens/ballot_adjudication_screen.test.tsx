@@ -387,8 +387,6 @@ test('skip / back / exit prompt to discard when the user has unsaved adjudicatio
 
   await screen.findByText('Ballot 2 of 2');
 
-  // Open the contest, flip a vote, Confirm to buffer the adjudication
-  // locally without hitting the network.
   userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByRole('button', { name: /Confirm/ });
   userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
@@ -421,6 +419,50 @@ test('skip / back / exit prompt to discard when the user has unsaved adjudicatio
   await screen.findByText('Unsaved Changes');
   userEvent.click(screen.getByRole('button', { name: /Discard/ }));
   await screen.findByText('Ballot 1 of 2');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('re-opening a Confirmed contest preserves the in-progress adjudication', async () => {
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(/Ballot ID/);
+
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  expect(screen.getByRole('checkbox', { name: /lion/i })).not.toBeChecked();
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  expect(screen.getByRole('checkbox', { name: /lion/i })).toBeChecked();
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await screen.findByText('Ballot 1 of 1');
+
+  // Re-open the same contest and verify the lion vote is still selected.
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  expect(screen.getByRole('checkbox', { name: /lion/i })).toBeChecked();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })

@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import {
+  AdjudicatedCvrContest,
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
   WriteInCandidateRecord,
@@ -689,4 +690,155 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
       optionId: 'yes',
     })
   ).toEqual(undefined);
+});
+
+test('makeInitialState applies unsavedAdjudication overlay across all option types', () => {
+  const cvrId = 'cvr';
+  const contestId = 'contest';
+  const electionId = 'election';
+
+  const candidateOptions = [
+    { id: 'alice', name: 'Alice' },
+    { id: 'bob', name: 'Bob' },
+  ];
+
+  const writeInCandidates: WriteInCandidateRecord[] = [
+    { id: 'lion', name: 'Lion', electionId, contestId },
+  ];
+
+  const contestInfo: ContestInfo = {
+    officialOptions: candidateOptions,
+    isCandidateContest: true,
+    numberOfWriteIns: 4,
+  };
+
+  const contestAdjudicationData: ContestAdjudicationData = {
+    contestId,
+    tag: { isResolved: false, cvrId, contestId },
+    options: [
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'alice',
+          contestId,
+          name: 'Alice',
+          isWriteIn: false,
+        },
+        { initialVote: false }
+      ),
+      makeOption({
+        type: 'candidate',
+        id: 'write-in-0',
+        contestId,
+        name: 'Write-In',
+        isWriteIn: true,
+        writeInIndex: 0,
+      }),
+      makeOption({
+        type: 'candidate',
+        id: 'write-in-1',
+        contestId,
+        name: 'Write-In',
+        isWriteIn: true,
+        writeInIndex: 1,
+      }),
+      makeOption({
+        type: 'candidate',
+        id: 'write-in-2',
+        contestId,
+        name: 'Write-In',
+        isWriteIn: true,
+        writeInIndex: 2,
+      }),
+      makeOption({
+        type: 'candidate',
+        id: 'write-in-3',
+        contestId,
+        name: 'Write-In',
+        isWriteIn: true,
+        writeInIndex: 3,
+      }),
+    ],
+  };
+
+  const unsavedAdjudication: AdjudicatedCvrContest = {
+    cvrId,
+    contestId,
+    side: 'front',
+    adjudicatedContestOptionById: {
+      // candidate option flipped to a vote
+      alice: { type: 'candidate-option', hasVote: true },
+      // write-in marked invalid
+      'write-in-0': { type: 'write-in-option', hasVote: false },
+      // write-in adjudicated to an official candidate
+      'write-in-1': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'official-candidate',
+        candidateId: 'bob',
+      },
+      // write-in adjudicated to an existing write-in candidate (matched by name)
+      'write-in-2': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'write-in-candidate',
+        candidateName: 'Lion',
+      },
+      // write-in adjudicated to a brand-new write-in candidate (not in list)
+      'write-in-3': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'write-in-candidate',
+        candidateName: 'Mr. Hero',
+      },
+    },
+  };
+
+  const state = makeInitialState(
+    contestInfo,
+    contestAdjudicationData,
+    writeInCandidates,
+    unsavedAdjudication
+  );
+
+  expect(state.get('alice')!.hasVote).toEqual(true);
+
+  {
+    const writeIn = state.get('write-in-0')!;
+    expect(writeIn.hasVote).toEqual(false);
+    expect(writeIn.isWriteIn && writeIn.writeInAdjudicationStatus).toEqual({
+      type: 'invalid',
+    });
+  }
+
+  {
+    const writeIn = state.get('write-in-1')!;
+    expect(writeIn.hasVote).toEqual(true);
+    expect(writeIn.isWriteIn && writeIn.writeInAdjudicationStatus).toEqual({
+      type: 'existing-official',
+      id: 'bob',
+      name: 'Bob',
+    });
+  }
+
+  {
+    const writeIn = state.get('write-in-2')!;
+    expect(writeIn.hasVote).toEqual(true);
+    expect(writeIn.isWriteIn && writeIn.writeInAdjudicationStatus).toEqual({
+      type: 'existing-write-in',
+      id: 'lion',
+      name: 'Lion',
+      electionId,
+      contestId,
+    });
+  }
+
+  {
+    const writeIn = state.get('write-in-3')!;
+    expect(writeIn.hasVote).toEqual(true);
+    expect(writeIn.isWriteIn && writeIn.writeInAdjudicationStatus).toEqual({
+      type: 'new-write-in',
+      name: 'Mr. Hero',
+    });
+  }
 });
