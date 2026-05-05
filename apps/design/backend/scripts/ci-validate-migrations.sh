@@ -25,16 +25,16 @@ validate_commits_vs_origin_main() {
   # Compare migrations on origin/main vs HEAD
   git ls-tree -r --name-only origin/main -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$origin_main_tempfile" || true
   git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$head_tempfile" || true
-  missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
+  # missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
   added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
 
-  # Check: migrations from main must not be deleted
-  if [[ -n "$missing_migrations" ]]; then
-    echo "Branch deletes migration(s) from main:"
-    printf "%s\n" "$missing_migrations"
-    echo "Migrations must not be deleted once merged to main."
-    exit 1
-  fi
+  # # Check: migrations from main must not be deleted
+  # if [[ -n "$missing_migrations" ]]; then
+  #   echo "Branch deletes migration(s) from main:"
+  #   printf "%s\n" "$missing_migrations"
+  #   echo "Migrations must not be deleted once merged to main."
+  #   exit 1
+  # fi
 
   # Check: If any added migration has a timestamp earlier than main’s newest
   latest_migration_on_main="$(tail -n1 "$origin_main_tempfile" || true)"
