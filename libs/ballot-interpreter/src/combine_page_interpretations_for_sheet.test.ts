@@ -167,35 +167,65 @@ test('respects adjudication reasons for a multi-page BMD ballot', () => {
   });
 });
 
-test('treats HMPB ballot with both sides marked blank as a blank ballot', () => {
-  const blankReason: AdjudicationReasonInfo = {
-    type: AdjudicationReason.BlankBallot,
-  };
+const blankBallotReason: AdjudicationReasonInfo = {
+  type: AdjudicationReason.BlankBallot,
+};
+
+test('flags BlankBallot when both sides have bubbles and BlankBallot reason fires on both', () => {
   const front = mockHmpbPage({
     requiresAdjudication: true,
-    enabledReasonInfos: [blankReason],
+    enabledReasonInfos: [blankBallotReason],
   });
   const back = mockHmpbPage({
     requiresAdjudication: true,
-    enabledReasonInfos: [blankReason],
+    enabledReasonInfos: [blankBallotReason],
   });
   expect(
     combinePageInterpretationsForSheet([front, back], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
-    reasons: [{ type: AdjudicationReason.BlankBallot }],
+    reasons: [blankBallotReason],
   });
 });
 
-test('treats HMPB ballot with no marks on either side as a blank ballot', () => {
-  const front = mockHmpbPage({ numMarks: 0, requiresAdjudication: true });
-  const back = mockHmpbPage({ numMarks: 0, requiresAdjudication: true });
+test('flags BlankBallot when one side has bubbles unmarked and the other side has no bubbles', () => {
+  // Realistic for a multi-page HMPB whose back has no contests; the empty
+  // side has no scored reasons, so the combiner falls back to marks.length.
+  const bubbledSide = mockHmpbPage({
+    requiresAdjudication: true,
+    enabledReasonInfos: [blankBallotReason],
+  });
+  const emptySide = mockHmpbPage({ numMarks: 0 });
   expect(
-    combinePageInterpretationsForSheet([front, back], election)
+    combinePageInterpretationsForSheet([bubbledSide, emptySide], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
-    reasons: [{ type: AdjudicationReason.BlankBallot }],
+    reasons: [blankBallotReason],
   });
+  expect(
+    combinePageInterpretationsForSheet([emptySide, bubbledSide], election)
+  ).toEqual<SheetInterpretation>({
+    type: 'NeedsReviewSheet',
+    reasons: [blankBallotReason],
+  });
+});
+
+test('returns ValidSheet when both sides have bubbles unmarked but BlankBallot is not enabled', () => {
+  // BlankBallot adjudication is off → no BlankBallot reason fires →
+  // combiner respects the config and doesn't flag.
+  const front = mockHmpbPage();
+  const back = mockHmpbPage();
+  expect(
+    combinePageInterpretationsForSheet([front, back], election)
+  ).toEqual<SheetInterpretation>({ type: 'ValidSheet' });
+});
+
+test('returns ValidSheet when both sides have no bubbles', () => {
+  const front = mockHmpbPage({ numMarks: 0 });
+  const back = mockHmpbPage({ numMarks: 0 });
+  expect(
+    combinePageInterpretationsForSheet([front, back], election)
+  ).toEqual<SheetInterpretation>({ type: 'ValidSheet' });
 });
 
 test('drops blank reason from one side when other side has non-blank reasons', () => {

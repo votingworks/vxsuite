@@ -64,36 +64,38 @@ export function combinePageInterpretationsForSheet(
   ) {
     const frontAdjudication = front.adjudicationInfo;
     const backAdjudication = back.adjudicationInfo;
-    const reasons: AdjudicationReasonInfo[] = [];
+    const frontReasons = frontAdjudication.enabledReasonInfos;
+    const backReasons = backAdjudication.enabledReasonInfos;
+    const reasons: AdjudicationReasonInfo[] = [
+      ...frontReasons,
+      ...backReasons,
+    ].filter((reason) => reason.type !== AdjudicationReason.BlankBallot);
 
-    if (
-      frontAdjudication.requiresAdjudication ||
-      backAdjudication.requiresAdjudication
-    ) {
-      const frontReasons = frontAdjudication.enabledReasonInfos;
-      const backReasons = backAdjudication.enabledReasonInfos;
+    // If a page is flagged as blank, it means:
+    // - There are bubbles on the page, but none were marked
+    // - BlankBallot is enabled
+    const frontIsBlank = frontAdjudication.enabledReasonInfos.some(
+      (reason) => reason.type === AdjudicationReason.BlankBallot
+    );
+    const backIsBlank = backAdjudication.enabledReasonInfos.some(
+      (reason) => reason.type === AdjudicationReason.BlankBallot
+    );
 
-      // If both sides are blank, the ballot is blank
-      if (
-        (frontReasons.some(
-          (reason) => reason.type === AdjudicationReason.BlankBallot
-        ) ||
-          front.markInfo.marks.length === 0) &&
-        (backReasons.some(
-          (reason) => reason.type === AdjudicationReason.BlankBallot
-        ) ||
-          back.markInfo.marks.length === 0)
-      ) {
-        reasons.push({ type: AdjudicationReason.BlankBallot });
-      }
-      // Otherwise, we can ignore blank sides
-      else {
-        reasons.push(
-          ...[...frontReasons, ...backReasons].filter(
-            (reason) => reason.type !== AdjudicationReason.BlankBallot
-          )
-        );
-      }
+    // Note: There's a markInfo for every bubble on the page
+    // (regardless of whether the voter marked it)
+    const frontHasBubbles = front.markInfo.marks.length > 0;
+    const backHasBubbles = back.markInfo.marks.length > 0;
+
+    // Only flag blank ballots if:
+    // - BlankBallot adjudication is enabled
+    // - At least one side has bubbles to mark
+    // - No bubbles were marked on either side
+    const ballotIsBlank =
+      (frontIsBlank && backIsBlank) ||
+      (frontIsBlank && !backHasBubbles) ||
+      (backIsBlank && !frontHasBubbles);
+    if (ballotIsBlank) {
+      reasons.push({ type: AdjudicationReason.BlankBallot });
     }
 
     // Crossover voting always triggers review in open primaries; it is not
