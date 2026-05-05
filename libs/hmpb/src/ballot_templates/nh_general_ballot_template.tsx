@@ -405,7 +405,9 @@ const CandidateContestRow = styled.div`
   }
 `;
 
-const CandidateListCell = styled.div``;
+const CandidateListCell = styled.div`
+  line-height: 1;
+`;
 
 const ContestTitleCell = styled.div`
   line-height: 1;
@@ -416,28 +418,32 @@ const ContestTitleCell = styled.div`
   align-items: center;
 `;
 
+const OptionList = styled.div<{
+  positioning: 'center' | 'topOffset' | 'top';
+}>`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: ${(props) =>
+    props.positioning === 'topOffset' ? '1.375rem' : undefined};
+  justify-content: ${(props) =>
+    props.positioning === 'center' ? 'center' : 'start'};
+  gap: 0.5rem;
+`;
+
 function CandidateList({
   contestId,
   candidates,
   party,
-  offset,
+  positioning,
 }: {
   contestId: ContestId;
   candidates: Candidate[];
   party?: Party;
-  offset?: boolean;
+  positioning: 'center' | 'topOffset' | 'top';
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        paddingTop: offset && candidates.length > 1 ? '1.375rem' : undefined,
-        justifyContent: candidates.length === 1 ? 'center' : 'start',
-        gap: '0.5rem',
-      }}
-    >
+    <OptionList positioning={positioning} style={{ gap: '0.5rem' }}>
       {candidates.map((candidate) => {
         const optionInfo: OptionInfo = {
           type: 'option',
@@ -485,7 +491,7 @@ function CandidateList({
           </div>
         );
       })}
-    </div>
+    </OptionList>
   );
 }
 
@@ -527,6 +533,14 @@ function CandidateContest({
       !(partyId === democracticPartyId || partyId === republicanPartyId)
   );
 
+  const democraticCandidatesPositioning =
+    contest.seats === 1 ? 'center' : 'topOffset';
+  const republicanCandidatesPositioning =
+    contest.seats === 1 ? 'center' : 'top';
+  const otherCandidatesPositioning =
+    contest.seats === 1 ? 'center' : 'topOffset';
+  const writeInCandidatesPositioning = contest.seats === 1 ? 'center' : 'top';
+
   return (
     <CandidateContestRow>
       <ContestTitleCell>
@@ -556,37 +570,30 @@ function CandidateContest({
         <CandidateList
           contestId={contest.id}
           candidates={democraticCandidates}
-          offset
+          positioning={democraticCandidatesPositioning}
         />
       </CandidateListCell>
       <CandidateListCell>
         <CandidateList
           contestId={contest.id}
           candidates={republicanCandidates}
+          positioning={republicanCandidatesPositioning}
         />
       </CandidateListCell>
       <CandidateListCell>
-        {otherCandidateGroups.map(([partyId, candidates], i) => (
+        {otherCandidateGroups.map(([partyId, candidates]) => (
           <div key={partyId} style={{ height: '100%' }}>
             <CandidateList
               contestId={contest.id}
               candidates={candidates}
               party={find(parties, (p) => p.id === partyId)}
-              offset={i === 0}
+              positioning={otherCandidatesPositioning}
             />
           </div>
         ))}
       </CandidateListCell>
       <CandidateListCell>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: contest.seats === 1 ? 'center' : 'start',
-            height: '100%',
-            gap: '0.5rem',
-          }}
-        >
+        <OptionList positioning={writeInCandidatesPositioning}>
           {contest.allowWriteIns &&
             range(0, contest.seats).map((writeInIndex) => {
               const optionInfo: OptionInfo = {
@@ -642,7 +649,7 @@ function CandidateContest({
                 </div>
               );
             })}
-        </div>
+        </OptionList>
       </CandidateListCell>
     </CandidateContestRow>
   );
