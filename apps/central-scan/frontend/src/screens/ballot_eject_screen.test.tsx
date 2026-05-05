@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -98,9 +97,7 @@ test('says the sheet is unreadable if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Unreadable');
   screen.getByText(
@@ -113,13 +110,6 @@ test('says the sheet is unreadable if it is', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'BlankPage',
-    })
-  );
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
@@ -182,9 +172,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Overvote');
   screen.getByText(
@@ -192,15 +180,6 @@ test('says the ballot sheet is overvoted if it is', async () => {
   );
   screen.getByText(
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
-  );
-
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'Overvote',
-    })
   );
 
   apiMock.expectContinueScanning({ forceAccept: false });
@@ -308,9 +287,7 @@ test('renders both ballot images with highlights on overvoted contests', async (
     ] as const,
   });
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Overvote');
 
@@ -392,9 +369,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Undervote');
   screen.getByText(
@@ -402,15 +377,6 @@ test('says the ballot sheet is undervoted if it is', async () => {
   );
   screen.getByText(
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
-  );
-
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'Undervote',
-    })
   );
 
   apiMock.expectContinueScanning({ forceAccept: false });
@@ -485,9 +451,7 @@ test('says the ballot sheet is blank if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Blank Ballot');
   screen.getByText(
@@ -495,15 +459,6 @@ test('says the ballot sheet is blank if it is', async () => {
   );
   screen.getByText(
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
-  );
-
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'BlankBallot, Undervote',
-    })
   );
 
   apiMock.expectContinueScanning({ forceAccept: false });
@@ -538,9 +493,7 @@ test('calls out official ballot sheets in test mode', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Official Ballot');
   screen.getByText(
@@ -549,15 +502,6 @@ test('calls out official ballot sheets in test mode', async () => {
   screen.getByText('Remove the ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
     'Confirm Ballot Removed'
-  );
-
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'InvalidTestModePage',
-    })
   );
 
   apiMock.expectContinueScanning({ forceAccept: false });
@@ -589,12 +533,7 @@ test('calls out test ballot sheets in live mode', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode={false} />, {
-    apiMock,
-    logger,
-  });
+  renderInAppContext(<BallotEjectScreen isTestMode={false} />, { apiMock });
 
   await screen.findByText('Test Ballot');
   screen.getByText(
@@ -603,15 +542,6 @@ test('calls out test ballot sheets in live mode', async () => {
   screen.getByText('Remove the ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
     'Confirm Ballot Removed'
-  );
-
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'InvalidTestModePage',
-    })
   );
 
   apiMock.expectContinueScanning({ forceAccept: false });
@@ -635,12 +565,7 @@ test('shows invalid election screen when appropriate', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode={false} />, {
-    apiMock,
-    logger,
-  });
+  renderInAppContext(<BallotEjectScreen isTestMode={false} />, { apiMock });
 
   await screen.findByText('Wrong Election');
   screen.getByText('Ballot Election ID');
@@ -651,14 +576,6 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'InvalidBallotHashPage, BlankPage',
-    })
-  );
 
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
@@ -747,9 +664,7 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Overvote');
   screen.getByText(
@@ -781,9 +696,7 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Streak Detected');
   screen.getByText(
@@ -794,14 +707,6 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'UnreadablePage',
-    })
-  );
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
@@ -825,9 +730,7 @@ test('falls through to "Unreadable" for an UnreadablePage with an unrecognized r
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Unreadable');
   screen.getByText(
@@ -860,9 +763,7 @@ test('ballot with invalid scale', async () => {
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Invalid Scale');
   screen.getByText('The last scanned ballot was printed at an invalid scale.');
@@ -871,14 +772,6 @@ test('ballot with invalid scale', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'UnreadablePage',
-    })
-  );
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });

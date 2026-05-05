@@ -31,7 +31,11 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
-import { logBatchComplete, logScanSheetSuccess } from './util/logging';
+import {
+  logBatchComplete,
+  logScanSheetSuccess,
+  logSheetAdjudicationInfo,
+} from './util/logging';
 import { ScanStatus } from './types';
 
 const debug = makeDebug('scan:importer');
@@ -198,6 +202,11 @@ export class Importer {
       backInterpretation,
       ballotAuditId
     );
+
+    await logSheetAdjudicationInfo(this.logger, [
+      frontInterpretation,
+      backInterpretation,
+    ]);
 
     const batch = this.workspace.store.getBatch(batchId);
     await logScanSheetSuccess(this.logger, batch);

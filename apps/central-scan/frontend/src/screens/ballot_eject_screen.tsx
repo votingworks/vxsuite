@@ -1,8 +1,6 @@
-import { LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
   Contest,
-  PageInterpretation,
   Side,
   formatBallotHash,
   mapSheet,
@@ -65,18 +63,10 @@ interface EjectInformation {
   allowBallotDuplication: boolean;
 }
 
-const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
-  'InvalidTestModePage',
-  'InvalidBallotHashPage',
-  'UnreadablePage',
-  'BlankPage',
-];
-
 export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
-  const { auth, logger, electionDefinition } = useContext(AppContext);
+  const { auth, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
 
   const systemSettingsQuery = getSystemSettings.useQuery();
   const getNextReviewSheetQuery = getNextReviewSheet.useQuery();
@@ -91,48 +81,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   }
 
   const reviewInfo = getNextReviewSheetQuery.data;
-
-  // with new reviewInfo, mark each side done if nothing to actually adjudicate
-  if (reviewInfo) {
-    const frontInterpretation = reviewInfo.interpreted.front.interpretation;
-    const backInterpretation = reviewInfo.interpreted.back.interpretation;
-
-    const errorInterpretations = SHEET_ADJUDICATION_ERRORS.filter(
-      (e) => e === frontInterpretation.type || e === backInterpretation.type
-    );
-    if (errorInterpretations.length > 0) {
-      logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
-        message:
-          'Sheet scanned that has unresolvable errors. Sheet must be removed to continue scanning.',
-        adjudicationTypes: errorInterpretations.join(', '),
-      });
-    } else {
-      const adjudicationTypes = new Set<AdjudicationReason>();
-      if (
-        frontInterpretation.type === 'InterpretedHmpbPage' &&
-        frontInterpretation.adjudicationInfo.requiresAdjudication
-      ) {
-        for (const reason of frontInterpretation.adjudicationInfo
-          .enabledReasons) {
-          adjudicationTypes.add(reason);
-        }
-      }
-      if (
-        backInterpretation.type === 'InterpretedHmpbPage' &&
-        backInterpretation.adjudicationInfo.requiresAdjudication
-      ) {
-        for (const reason of backInterpretation.adjudicationInfo
-          .enabledReasons) {
-          adjudicationTypes.add(reason);
-        }
-      }
-      logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
-        message:
-          'Sheet scanned has warnings (ex: undervotes or overvotes). The user can either tabulate it as is or remove the ballot to continue scanning.',
-        adjudicationTypes: [...adjudicationTypes].join(', '),
-      });
-    }
-  }
 
   if (!reviewInfo || !systemSettingsQuery.isSuccess) {
     return null;
