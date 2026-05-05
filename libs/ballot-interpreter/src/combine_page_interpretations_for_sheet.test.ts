@@ -265,7 +265,7 @@ test('treats either page being an invalid ballot hash as an invalid sheet', () =
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_ballot_hash',
+    reason: { type: 'invalid_ballot_hash', actualBallotHash: 'actual' },
   });
   expect(
     combinePageInterpretationsForSheet(
@@ -274,7 +274,7 @@ test('treats either page being an invalid ballot hash as an invalid sheet', () =
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_ballot_hash',
+    reason: { type: 'invalid_ballot_hash', actualBallotHash: 'actual' },
   });
 });
 
@@ -290,7 +290,7 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_test_mode',
+    reason: { type: 'invalid_test_mode' },
   });
   expect(
     combinePageInterpretationsForSheet(
@@ -299,7 +299,7 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_test_mode',
+    reason: { type: 'invalid_test_mode' },
   });
 });
 
@@ -315,7 +315,7 @@ test('treats either page being an invalid precinct as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_precinct',
+    reason: { type: 'invalid_precinct' },
   });
   expect(
     combinePageInterpretationsForSheet(
@@ -324,7 +324,7 @@ test('treats either page being an invalid precinct as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_precinct',
+    reason: { type: 'invalid_precinct' },
   });
 });
 
@@ -340,7 +340,7 @@ test('treats either page having invalid scale as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_scale',
+    reason: { type: 'invalid_scale' },
   });
   expect(
     combinePageInterpretationsForSheet(
@@ -349,7 +349,7 @@ test('treats either page having invalid scale as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'invalid_scale',
+    reason: { type: 'invalid_scale' },
   });
 });
 
@@ -365,7 +365,7 @@ test('treats either page having BMD ballot scanning disabled as an invalid sheet
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'bmd_ballot_scanning_disabled',
+    reason: { type: 'bmd_ballot_scanning_disabled' },
   });
   expect(
     combinePageInterpretationsForSheet(
@@ -374,7 +374,7 @@ test('treats either page having BMD ballot scanning disabled as an invalid sheet
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'bmd_ballot_scanning_disabled',
+    reason: { type: 'bmd_ballot_scanning_disabled' },
   });
 });
 
@@ -390,7 +390,7 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'vertical_streaks_detected',
+    reason: { type: 'vertical_streaks_detected' },
   });
   expect(
     combinePageInterpretationsForSheet(
@@ -399,7 +399,7 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'vertical_streaks_detected',
+    reason: { type: 'vertical_streaks_detected' },
   });
 });
 
@@ -411,20 +411,17 @@ test('treats unreadable pages as an invalid sheet', () => {
     )
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'unreadable',
+    reason: { type: 'unreadable' },
   });
 });
 
 test('treats unmatched page combinations as unknown invalid sheet', () => {
   // Both blank doesn't match any specific case.
   expect(
-    combinePageInterpretationsForSheet(
-      [blankPage, blankPage],
-      election
-    )
+    combinePageInterpretationsForSheet([blankPage, blankPage], election)
   ).toEqual<SheetInterpretation>({
     type: 'InvalidSheet',
-    reason: 'unknown',
+    reason: { type: 'unknown' },
   });
 });
 
@@ -444,10 +441,7 @@ test('flags crossover voting in open primaries', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet(
-      [front, back],
-      openPrimaryElection
-    )
+    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.CrossoverVoting }],
@@ -479,10 +473,7 @@ test('combines crossover voting with other adjudication reasons', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet(
-      [front, back],
-      openPrimaryElection
-    )
+    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [overvoteReason, { type: AdjudicationReason.CrossoverVoting }],
@@ -505,10 +496,7 @@ test('treats single-party open primary voting as valid', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet(
-      [front, back],
-      openPrimaryElection
-    )
+    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });

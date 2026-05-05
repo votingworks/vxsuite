@@ -292,7 +292,10 @@ test('scanner disconnected while rejecting', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_ballot_hash',
+        reason: {
+          type: 'invalid_ballot_hash',
+          actualBallotHash: expect.any(String) as unknown as string,
+        },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
 
@@ -408,7 +411,10 @@ test('scanner disconnected after rejecting', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_ballot_hash',
+        reason: {
+          type: 'invalid_ballot_hash',
+          actualBallotHash: expect.any(String) as unknown as string,
+        },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
 

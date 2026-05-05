@@ -4,7 +4,6 @@ import {
   assertDefined,
   extractErrorMessage,
   Result,
-  throwIllegalValue,
 } from '@votingworks/basics';
 import { Logger, LogEventId, LogLine } from '@votingworks/logging';
 import {
@@ -1607,23 +1606,9 @@ export function createPrecinctScannerStateMachine({
       // Remove interpretation details that are only used internally (e.g. sheetId, pages)
       const interpretationResult: SheetInterpretation | undefined = (() => {
         if (!interpretation) return undefined;
-        switch (interpretation.type) {
-          case 'ValidSheet':
-            return { type: interpretation.type };
-          case 'InvalidSheet':
-            return {
-              type: interpretation.type,
-              reason: interpretation.reason,
-            };
-          case 'NeedsReviewSheet':
-            return {
-              type: interpretation.type,
-              reasons: interpretation.reasons,
-            };
-          /* istanbul ignore next - @preserve */
-          default:
-            return throwIllegalValue(interpretation, 'type');
-        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { sheetId, pages, ...rest } = interpretation;
+        return rest;
       })();
 
       const stateNeedsErrorDetails = [

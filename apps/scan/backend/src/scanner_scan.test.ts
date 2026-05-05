@@ -308,7 +308,10 @@ test('ballot with wrong election rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_ballot_hash',
+        reason: {
+          type: 'invalid_ballot_hash',
+          actualBallotHash: expect.any(String) as unknown as string,
+        },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
@@ -351,7 +354,7 @@ test('ballot with wrong precinct rejected (polling places disabled)', async () =
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_precinct',
+        reason: { type: 'invalid_precinct' },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
@@ -386,7 +389,7 @@ test('ballot with wrong precinct rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_precinct',
+        reason: { type: 'invalid_precinct' },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
@@ -425,7 +428,7 @@ test('BMD ballot rejected when BMD ballot scanning disabled', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'bmd_ballot_scanning_disabled',
+        reason: { type: 'bmd_ballot_scanning_disabled' },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
@@ -464,7 +467,7 @@ test('ballot printed at an invalid scale is rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_scale',
+        reason: { type: 'invalid_scale' },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
@@ -494,7 +497,7 @@ test('blank sheet rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'unreadable',
+        reason: { type: 'unreadable' },
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(

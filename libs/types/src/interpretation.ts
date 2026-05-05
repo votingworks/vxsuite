@@ -193,15 +193,24 @@ export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
   adjudicationReason: AdjudicationReasonSchema.optional(),
 });
 
+export type InvalidInterpretationReasonInfo =
+  | {
+      type: 'invalid_ballot_hash';
+      actualBallotHash: string;
+    }
+  | {
+      type:
+        | 'bmd_ballot_scanning_disabled'
+        | 'invalid_test_mode'
+        | 'invalid_precinct'
+        | 'vertical_streaks_detected'
+        | 'invalid_scale'
+        | 'unreadable'
+        | 'unknown';
+    };
+
 export type InvalidInterpretationReason =
-  | 'bmd_ballot_scanning_disabled'
-  | 'invalid_test_mode'
-  | 'invalid_ballot_hash'
-  | 'invalid_precinct'
-  | 'vertical_streaks_detected'
-  | 'invalid_scale'
-  | 'unreadable'
-  | 'unknown';
+  InvalidInterpretationReasonInfo['type'];
 
 export type SheetInterpretation =
   | {
@@ -209,7 +218,7 @@ export type SheetInterpretation =
     }
   | {
       type: 'InvalidSheet';
-      reason: InvalidInterpretationReason;
+      reason: InvalidInterpretationReasonInfo;
     }
   | {
       type: 'NeedsReviewSheet';

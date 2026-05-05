@@ -152,7 +152,7 @@ export function VoterScreen({
         <ScanErrorScreen
           error={
             scannerStatus.interpretation?.type === 'InvalidSheet'
-              ? scannerStatus.interpretation.reason
+              ? scannerStatus.interpretation.reason.type
               : scannerStatus.error
           }
           {...sharedScreenProps}
