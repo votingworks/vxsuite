@@ -164,14 +164,21 @@ export interface TimingMarks {
   topRightCorner: Point<SubPixelUnit>;
   bottomLeftCorner: Point<SubPixelUnit>;
   bottomRightCorner: Point<SubPixelUnit>;
-  topMarks: CandidateTimingMark[];
-  bottomMarks: CandidateTimingMark[];
-  leftMarks: CandidateTimingMark[];
-  rightMarks: CandidateTimingMark[];
   topLeftMark: CandidateTimingMark;
   topRightMark: CandidateTimingMark;
   bottomLeftMark: CandidateTimingMark;
   bottomRightMark: CandidateTimingMark;
+  borderMarks: BorderMarks;
+}
+
+/**
+ * The per-border timing-mark sequences. Only the borders parallel to the scan
+ * direction (currently left and right) are recorded; the grid is reconstructed
+ * from those plus the four corner marks.
+ */
+export interface BorderMarks {
+  left: CandidateTimingMark[];
+  right: CandidateTimingMark[];
 }
 
 /** A possible timing mark. */
