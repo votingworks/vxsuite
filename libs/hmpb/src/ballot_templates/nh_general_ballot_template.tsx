@@ -51,7 +51,6 @@ import {
 } from '../render_ballot';
 import { Watermark } from './watermark';
 import { PixelDimensions } from '../types';
-import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
 import {
@@ -497,34 +496,16 @@ function CandidateContest({
   election: Election;
   contest: CandidateContestStruct;
 }) {
-  const voteForText = {
-    1: hmpbStrings.hmpbVoteForNotMoreThan1,
-    2: hmpbStrings.hmpbVoteFor2,
-    3: hmpbStrings.hmpbVoteFor3,
-    4: hmpbStrings.hmpbVoteFor4,
-    5: hmpbStrings.hmpbVoteFor5,
-    6: hmpbStrings.hmpbVoteFor6,
-    7: hmpbStrings.hmpbVoteFor7,
-    8: hmpbStrings.hmpbVoteFor8,
-    9: hmpbStrings.hmpbVoteFor9,
-    10: hmpbStrings.hmpbVoteFor10,
-  }[contest.seats];
-  if (!voteForText) {
-    throw new Error(
-      `Unsupported number of seats for contest: ${contest.seats}`
-    );
-  }
-
-  const willBeElectedText = {
-    2: hmpbStrings.hmpb2WillBeElected,
-    3: hmpbStrings.hmpb3WillBeElected,
-    4: hmpbStrings.hmpb4WillBeElected,
-    5: hmpbStrings.hmpb5WillBeElected,
-    6: hmpbStrings.hmpb6WillBeElected,
-    7: hmpbStrings.hmpb7WillBeElected,
-    8: hmpbStrings.hmpb8WillBeElected,
-    9: hmpbStrings.hmpb9WillBeElected,
-    10: hmpbStrings.hmpb10WillBeElected,
+  const seatsWord = {
+    2: 'Two',
+    3: 'Three',
+    4: 'Four',
+    5: 'Five',
+    6: 'Six',
+    7: 'Seven',
+    8: 'Eight',
+    9: 'Nine',
+    10: 'Ten',
   }[contest.seats];
 
   const candidatesByParty = groupBy(
@@ -554,10 +535,18 @@ function CandidateContest({
           <h3 style={{ marginBottom: '0.125rem' }}>
             {electionStrings.contestTitle(contest)}
           </h3>
-          <div style={{ fontSize: '8.75pt' }}>{voteForText}</div>
-          {willBeElectedText && (
-            <div style={{ fontSize: '8.75pt' }}>{willBeElectedText}</div>
-          )}
+          <div style={{ fontSize: '8.75pt' }}>
+            {contest.seats === 1 ? (
+              <>
+                Vote for not more than <strong>1</strong>
+              </>
+            ) : (
+              <>
+                Vote for up to <strong>{contest.seats}</strong>;{' '}
+                <strong>{seatsWord}</strong> will be elected
+              </>
+            )}
+          </div>
           {contest.termDescription && (
             <div>{electionStrings.contestTerm(contest)}</div>
           )}
@@ -637,7 +626,10 @@ function CandidateContest({
                       marginTop: '1.5rem',
                     }}
                   >
-                    {electionStrings.contestTitle(contest)}
+                    {contest.title ===
+                    'President and Vice-President of the United States'
+                      ? 'President and Vice-President'
+                      : contest.title}
                   </div>
                   <div
                     style={{
