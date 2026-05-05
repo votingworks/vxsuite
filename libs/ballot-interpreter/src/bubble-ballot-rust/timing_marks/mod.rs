@@ -22,9 +22,9 @@ pub mod util;
 use crate::timing_marks::util::CornerWise;
 
 pub struct Options {
-    shape: shape_finding::Options,
-    corner: corner_finding::Options,
-    border: border_finding::Options,
+    pub shape: shape_finding::Options,
+    pub corner: corner_finding::Options,
+    pub border: border_finding::Options,
 }
 
 impl DefaultForGeometry for Options {
@@ -103,20 +103,22 @@ pub fn find_timing_mark_grid(
     ]
     .map_cornerwise(|mark| mark.rect().center());
 
+    let border_marks = BorderMarks {
+        left: borders.left.into_marks(),
+        right: borders.right.into_marks(),
+    };
+
     let timing_marks = TimingMarks {
         geometry: geometry.clone(),
         top_left_corner,
         top_right_corner,
         bottom_left_corner,
         bottom_right_corner,
-        top_marks: borders.top.into_marks(),
-        bottom_marks: borders.bottom.into_marks(),
-        left_marks: borders.left.into_marks(),
-        right_marks: borders.right.into_marks(),
         top_left_mark: *top_left_mark,
         top_right_mark: *top_right_mark,
         bottom_left_mark: *bottom_left_mark,
         bottom_right_mark: *bottom_right_mark,
+        border_marks,
     };
 
     Ok(timing_marks)
@@ -130,14 +132,21 @@ pub struct TimingMarks {
     pub top_right_corner: Point<f32>,
     pub bottom_left_corner: Point<f32>,
     pub bottom_right_corner: Point<f32>,
-    pub top_marks: Vec<CandidateTimingMark>,
-    pub bottom_marks: Vec<CandidateTimingMark>,
-    pub left_marks: Vec<CandidateTimingMark>,
-    pub right_marks: Vec<CandidateTimingMark>,
     pub top_left_mark: CandidateTimingMark,
     pub top_right_mark: CandidateTimingMark,
     pub bottom_left_mark: CandidateTimingMark,
     pub bottom_right_mark: CandidateTimingMark,
+    pub border_marks: BorderMarks,
+}
+
+/// The per-border timing-mark sequences. Only the left and right borders
+/// (i.e. those parallel to the scan direction) are recorded; the grid
+/// is reconstructed from those plus the four corner marks.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BorderMarks {
+    pub left: Vec<CandidateTimingMark>,
+    pub right: Vec<CandidateTimingMark>,
 }
 
 impl TimingMarks {
@@ -158,31 +167,29 @@ impl TimingMarks {
             rotator.rotate_candidate_timing_mark(&self.top_left_mark),
         );
 
-        let mut rotated_top_marks: Vec<CandidateTimingMark> = self
-            .top_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
-        let mut rotated_bottom_marks: Vec<CandidateTimingMark> = self
-            .bottom_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
-        let mut rotated_left_marks: Vec<CandidateTimingMark> = self
-            .left_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
-        let mut rotated_right_marks: Vec<CandidateTimingMark> = self
-            .right_marks
-            .iter()
-            .map(|m| rotator.rotate_candidate_timing_mark(m))
-            .collect();
+        let rotate_marks = |marks: Vec<CandidateTimingMark>| -> Vec<CandidateTimingMark> {
+            marks
+                .into_iter()
+                .map(|m| rotator.rotate_candidate_timing_mark(&m))
+                .collect()
+        };
 
-        rotated_bottom_marks.sort_by_key(|m| m.rect().left());
-        rotated_top_marks.sort_by_key(|m| m.rect().left());
-        rotated_left_marks.sort_by_key(|m| m.rect().top());
-        rotated_right_marks.sort_by_key(|m| m.rect().top());
+        let BorderMarks { left, right } = std::mem::replace(
+            &mut self.border_marks,
+            BorderMarks {
+                left: vec![],
+                right: vec![],
+            },
+        );
+        let mut rotated_left = rotate_marks(left);
+        let mut rotated_right = rotate_marks(right);
+        rotated_left.sort_by_key(|m| m.rect().top());
+        rotated_right.sort_by_key(|m| m.rect().top());
+        // Rotation by 180° swaps left/right.
+        let border_marks = BorderMarks {
+            left: rotated_right,
+            right: rotated_left,
+        };
 
         self.top_left_corner = top_left_corner;
         self.top_right_corner = top_right_corner;
@@ -192,10 +199,7 @@ impl TimingMarks {
         self.top_right_mark = top_right_mark;
         self.bottom_left_mark = bottom_left_mark;
         self.bottom_right_mark = bottom_right_mark;
-        self.top_marks = rotated_bottom_marks;
-        self.bottom_marks = rotated_top_marks;
-        self.left_marks = rotated_right_marks;
-        self.right_marks = rotated_left_marks;
+        self.border_marks = border_marks;
     }
 
     /// Returns the center of the grid position at the given coordinates. Timing
@@ -231,13 +235,14 @@ impl TimingMarks {
 
         // Find the left and right timing marks for the given row, interpolating
         // vertically if given a fractional row index
+        let BorderMarks { left, right } = &self.border_marks;
         let row_before = row.floor() as GridUnit;
         let row_after = row.ceil() as GridUnit;
         let distance_percentage_between_rows = row - row_before as f32;
-        let left_before = self.left_marks.get(row_before as usize)?;
-        let right_before = self.right_marks.get(row_before as usize)?;
-        let left_after = self.left_marks.get(row_after as usize)?;
-        let right_after = self.right_marks.get(row_after as usize)?;
+        let left_before = left.get(row_before as usize)?;
+        let right_before = right.get(row_before as usize)?;
+        let left_after = left.get(row_after as usize)?;
+        let right_after = right.get(row_after as usize)?;
         let left = Rect::new(
             left_before.rect().left(),
             left_before.rect().top()
@@ -266,107 +271,38 @@ impl TimingMarks {
         Some(expected_timing_mark_center)
     }
 
-    /// Computes a ballot page scale by examining the timing marks along one of
-    /// the borders, taking the median value of the distance from each timing
-    /// mark's center to the center of its neighbors.
-    ///
-    /// We don't try to compute by averaging multiple borders together because
-    /// two of the four are in the direction of scan for a roller-based scanner
-    /// and there may be stretching in that direction as a result, leading to
-    /// unreliable scale values for the purposes of detecting mis-scaled
-    /// ballots.
-    ///
-    /// ```text
-    ///       top (or bottom) center-to-center distance
-    ///        ┌───┴───┐
-    ///      █████   █████   █████   █████   …
-    ///
-    ///      █████ ┐
-    ///            ├ left (or right) center-to-center distance
-    ///      █████ ┘
-    ///
-    ///      █████
-    ///
-    ///      …
-    /// ```
-    ///
-    /// Note that, for now, we assume that the direction of scan is vertical
-    /// from top to bottom or bottom to top. This function does not bake in that
-    /// assumption, but its caller likely does.
-    #[must_use]
-    pub fn compute_scale_based_on_border(&self, border: Border) -> Option<UnitIntervalScore> {
-        let marks = match border {
-            Border::Top => &self.top_marks,
-            Border::Bottom => &self.bottom_marks,
-            Border::Left => &self.left_marks,
-            Border::Right => &self.right_marks,
-        };
-
-        let actual_mark_period = median(
-            marks
-                .iter()
-                .tuple_windows()
-                .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
-        )?;
-        let expected_mark_period = match border {
-            Border::Top | Border::Bottom => self
-                .geometry
-                .horizontal_timing_mark_center_to_center_pixel_distance(),
-            Border::Left | Border::Right => self
-                .geometry
-                .vertical_timing_mark_center_to_center_pixel_distance(),
-        };
-
-        Some(UnitIntervalScore(actual_mark_period / expected_mark_period))
-    }
-
     /// Computes a ballot page scale by examining the distances between
-    /// corresponding timing marks along horizontal or vertical borders,
+    /// corresponding timing marks along the left and right sides,
     /// taking the median value of the distance from the center of one
     /// mark to the center of the other.
     ///
     /// ```text
-    /// Horizontal:             Vertical:
-    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃     ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
-    /// ▃ ←─────────────→ ▃     ▃ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
-    /// ▃ ←─────────────→ ▃     ▃ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ▃
-    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃     ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
+    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ←─────────────→ ▃
+    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
     /// ```
-    ///
-    /// We should only use the axis that is perpendicular to the direction of
-    /// scanning as there may be stretching in the direction of scanning,
+    /// We only use the borders that follow the direction of scanning as there
+    /// may be stretching in the direction of scanning (i.e. vertically),
     /// leading to unreliable scale values for the purposes of detecting
     /// mis-scaled ballots.
-    ///
-    /// Note that, for now, we assume that the direction of scan is vertical
-    /// from top to bottom or bottom to top. This function does not bake in that
-    /// assumption, but its caller likely does.
     #[must_use]
-    pub fn compute_scale_based_on_axis(&self, axis: BorderAxis) -> Option<UnitIntervalScore> {
-        let marks = match axis {
-            BorderAxis::Horizontal => self.left_marks.iter().zip(&self.right_marks),
-            BorderAxis::Vertical => self.top_marks.iter().zip(&self.bottom_marks),
-        };
-
-        let actual_border_to_border_distance =
-            median(marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())))?;
-        let expected_border_to_border_distance = match axis {
-            BorderAxis::Horizontal => self
-                .geometry
-                .left_to_right_center_to_center_pixel_distance(),
-            BorderAxis::Vertical => self
-                .geometry
-                .top_to_bottom_center_to_center_pixel_distance(),
-        };
-
-        Some(UnitIntervalScore(
-            actual_border_to_border_distance / expected_border_to_border_distance,
-        ))
+    pub fn compute_scale(&self) -> Option<UnitIntervalScore> {
+        let marks = self
+            .border_marks
+            .left
+            .iter()
+            .zip(self.border_marks.right.iter());
+        let actual = median(marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())))?;
+        let expected = self
+            .geometry
+            .left_to_right_center_to_center_pixel_distance();
+        Some(UnitIntervalScore(actual / expected))
     }
 }
 
@@ -459,24 +395,6 @@ impl FromStr for Border {
             "top" => Ok(Self::Top),
             "bottom" => Ok(Self::Bottom),
             _ => Err(format!("Invalid border: {s}")),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum BorderAxis {
-    Horizontal,
-    Vertical,
-}
-
-impl FromStr for BorderAxis {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "horizontal" => Ok(Self::Horizontal),
-            "vertical" => Ok(Self::Vertical),
-            _ => Err(format!("Invalid axis: {s}")),
         }
     }
 }

@@ -2,17 +2,17 @@ use std::ops::RangeInclusive;
 
 use image::RgbImage;
 use itertools::Itertools;
-use types_rs::geometry::{PixelUnit, Point, Rect};
+use types_rs::{
+    geometry::{PixelUnit, Point, Rect},
+    pair::Pair,
+};
 
 use crate::{
     ballot_card::{BallotImage, Geometry},
     image_utils::{rainbow, Inset},
-    impl_edgewise,
     timing_marks::{
-        rect_could_be_timing_mark,
-        shape_finding::shape_list_builder::ShapeListBuilder,
-        util::{median_filter, EdgeWise},
-        CandidateTimingMark, DefaultForGeometry,
+        rect_could_be_timing_mark, shape_finding::shape_list_builder::ShapeListBuilder,
+        util::median_filter, CandidateTimingMark, DefaultForGeometry,
     },
 };
 
@@ -21,13 +21,9 @@ mod shape_list_builder;
 /// Contains possible timing mark shapes found by searching a ballot image
 /// within some inset.
 pub struct BallotGridBorderShapes {
-    left: Vec<TimingMarkShape>,
-    right: Vec<TimingMarkShape>,
-    top: Vec<TimingMarkShape>,
-    bottom: Vec<TimingMarkShape>,
+    pub left: Vec<TimingMarkShape>,
+    pub right: Vec<TimingMarkShape>,
 }
-
-impl_edgewise!(BallotGridBorderShapes, Vec<TimingMarkShape>);
 
 impl BallotGridBorderShapes {
     /// Searches the given ballot image within the given inset area for timing
@@ -44,7 +40,7 @@ impl BallotGridBorderShapes {
         let image = ballot_image.image();
         let (width, height) = image.dimensions();
 
-        let search_areas = [
+        let search_areas = Pair::new(
             Rect::new(0, 0, search_inset.left, height),
             Rect::new(
                 width as i32 - search_inset.right as i32,
@@ -52,29 +48,19 @@ impl BallotGridBorderShapes {
                 search_inset.right,
                 height,
             ),
-            Rect::new(0, 0, width, search_inset.top),
-            Rect::new(
-                0,
-                height as i32 - search_inset.bottom as i32,
-                width,
-                search_inset.bottom,
-            ),
-        ];
+        );
 
-        search_areas.par_map_edgewise(|search_area| {
-            find_timing_mark_shapes(ballot_image, geometry, search_area, options)
-        })
+        let (left, right) = search_areas
+            .par_map(|search_area| {
+                find_timing_mark_shapes(ballot_image, geometry, search_area, options)
+            })
+            .into();
+
+        Self { left, right }
     }
 
     pub fn debug_draw(&self, canvas: &mut RgbImage) {
-        for (shape, color) in self
-            .left
-            .iter()
-            .chain(self.right.iter())
-            .chain(self.top.iter())
-            .chain(self.bottom.iter())
-            .zip(rainbow())
-        {
+        for (shape, color) in self.left.iter().chain(self.right.iter()).zip(rainbow()) {
             for point in shape.points() {
                 canvas.get_pixel_mut(point.x, point.y).0 = color.0;
             }

@@ -20,7 +20,7 @@ use crate::interpret::{
     self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::TimingMarks;
+use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -250,7 +250,9 @@ fn find_timing_mark_grid_inner(
             napi::Error::from_reason(format!("Unable to prepare ballot page image: {err}"))
         })?;
 
-    let find_timing_marks_result = ballot_page.find_timing_marks();
+    let find_timing_marks_result = ballot_page.find_timing_marks(
+        &timing_marks::Options::default_for_geometry(ballot_page.geometry()),
+    );
 
     find_timing_marks_result.map_err(|err| {
         napi::Error::from_reason(format!("failed to detect timing mark grid: {err:?}"))

@@ -2,7 +2,6 @@ use crate::{
     ballot_card::Geometry,
     draw_utils::draw_filled_rect_mut,
     image_utils::rainbow,
-    impl_edgewise,
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
@@ -14,16 +13,14 @@ use image::RgbImage;
 use itertools::Itertools;
 use types_rs::geometry::{Segment, SubPixelUnit};
 
-/// Represents the four borders of a ballot grid.
+/// Represents the borders of a ballot grid. Only the borders parallel to the
+/// scan direction (always left and right at the moment) are recorded; the
+/// top and bottom borders are not used to build the grid.
 #[derive(Debug, Clone)]
 pub struct BallotGridBorders {
     pub left: GridBorder,
     pub right: GridBorder,
-    pub top: GridBorder,
-    pub bottom: GridBorder,
 }
-
-impl_edgewise!(BallotGridBorders, GridBorder);
 
 impl BallotGridBorders {
     #[allow(clippy::result_large_err)]
@@ -53,7 +50,7 @@ impl BallotGridBorders {
                 .copied()
                 .collect_vec(),
             (top_left, bottom_left),
-        )?;
+        );
 
         let right = GridBorder::find_between_corners(
             vertical_timing_mark_center_to_center_distance,
@@ -66,81 +63,26 @@ impl BallotGridBorders {
                 .copied()
                 .collect_vec(),
             (top_right, bottom_right),
-        )?;
+        );
 
-        // Look for the top and bottom borders by finding the appropriate marks
-        // between the corners we used to find the left and right borders. This
-        // ensures that all four borders are congruent.
-        let mut top_candidates = candidates
-            .top
-            .iter()
-            .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
-            .copied()
-            .collect_vec();
-        let mut bottom_candidates = candidates
-            .bottom
-            .iter()
-            .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
-            .copied()
-            .collect_vec();
-        top_candidates.extend_from_slice(&[*top_left, *top_right]);
-        bottom_candidates.extend_from_slice(&[*bottom_left, *bottom_right]);
-
-        let horizontal_timing_mark_center_to_center_distance =
-            geometry.horizontal_timing_mark_center_to_center_pixel_distance();
-        let maximum_timing_mark_center_distance_error =
-            horizontal_timing_mark_center_to_center_distance
-                * options.maximum_horizontal_timing_mark_center_distance_error_ratio;
-
-        let top = GridBorder::find_between_corners(
-            horizontal_timing_mark_center_to_center_distance,
-            maximum_timing_mark_center_distance_error,
-            Border::Top,
-            &top_candidates,
-            (top_left, top_right),
-        )?;
-
-        let bottom = GridBorder::find_between_corners(
-            horizontal_timing_mark_center_to_center_distance,
-            maximum_timing_mark_center_distance_error,
-            Border::Bottom,
-            &bottom_candidates,
-            (bottom_left, bottom_right),
-        )?;
-
-        let actual_left_count = left.marks.len();
-        if actual_left_count != geometry.grid_size.height as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Left timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.height, actual_left_count),
-            });
-        }
-
-        let actual_right_count = right.marks.len();
-        if actual_right_count != geometry.grid_size.height as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Right timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.height, actual_right_count),
-            });
-        }
-
-        let actual_top_count = top.marks.len();
-        if actual_top_count != geometry.grid_size.width as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Top timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.width, actual_top_count),
-            });
-        }
-
-        let actual_bottom_count = bottom.marks.len();
-        if actual_bottom_count != geometry.grid_size.width as usize {
-            return Err(Error::MissingTimingMarks {
-                reason: format!("Bottom timing mark border has an unexpected number of marks. Expected {} marks, found {}", geometry.grid_size.width, actual_bottom_count),
-            });
-        }
+        let height = geometry.grid_size.height as usize;
+        let validate_mark_count = |gb: GridBorder| {
+            let actual_count = gb.marks.len();
+            if actual_count == height {
+                Ok(gb)
+            } else {
+                Err(Error::MissingTimingMarks {
+                    reason: format!(
+                        "{:?} timing mark border has an unexpected number of marks. Expected {} marks, found {}",
+                        gb.border, height, actual_count
+                    ),
+                })
+            }
+        };
 
         Ok(Self {
-            left,
-            right,
-            top,
-            bottom,
+            left: left.and_then(validate_mark_count)?,
+            right: right.and_then(validate_mark_count)?,
         })
     }
 
@@ -150,8 +92,6 @@ impl BallotGridBorders {
             .marks
             .iter()
             .chain(self.right.marks.iter())
-            .chain(self.top.marks.iter())
-            .chain(self.bottom.marks.iter())
             .zip(rainbow())
         {
             draw_filled_rect_mut(canvas, *mark.rect(), color);
@@ -238,7 +178,6 @@ impl GridBorder {
 
 pub struct Options {
     pub maximum_vertical_timing_mark_center_distance_error_ratio: f32,
-    pub maximum_horizontal_timing_mark_center_distance_error_ratio: f32,
     pub min_border_timing_mark_score: UnitIntervalScore,
 }
 
@@ -246,7 +185,6 @@ impl DefaultForGeometry for Options {
     fn default_for_geometry(_geometry: &Geometry) -> Self {
         Self {
             maximum_vertical_timing_mark_center_distance_error_ratio: 0.5,
-            maximum_horizontal_timing_mark_center_distance_error_ratio: 0.5,
             min_border_timing_mark_score: UnitIntervalScore(0.8),
         }
     }

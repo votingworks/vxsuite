@@ -28,7 +28,8 @@ pub struct BallotGridCorners {
 impl_cornerwise!(BallotGridCorners, BallotGridCorner);
 
 impl BallotGridCorners {
-    /// Get the four corner candidate timing marks for the ballot grid.
+    /// Get the four corner candidate timing marks for the ballot grid. Ordered
+    /// cornerwise: TL, TR, BL, BR.
     pub fn corner_marks(
         &self,
     ) -> (
@@ -218,10 +219,14 @@ pub struct CandidateCornerMarkGrouping {
 }
 
 impl CandidateCornerMarkGrouping {
+    /// Gets this grouping's corner candidate timing mark.
     pub const fn corner_mark(&self) -> &CandidateTimingMark {
         &self.corner
     }
 
+    /// Returns an iterator over the three marks contained in this grouping.
+    /// The order is not intended to be deterministic. Use this when you need
+    /// to visit all the marks but in no particular order.
     pub fn iter(&self) -> impl Iterator<Item = &CandidateTimingMark> {
         [&self.corner, &self.row, &self.column].into_iter()
     }

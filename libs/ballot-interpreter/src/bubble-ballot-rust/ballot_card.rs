@@ -20,7 +20,7 @@ use crate::{
         score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
         ScoredPositionAreas, UnitIntervalScore,
     },
-    timing_marks::{self, BorderAxis, DefaultForGeometry, TimingMarks},
+    timing_marks,
 };
 
 use types_rs::{
@@ -270,29 +270,6 @@ impl BallotPage {
     }
 
     /// # Errors
-    /// If there are any vertical streaks in the timing mark inset area.
-    #[allow(clippy::result_large_err)]
-    pub fn reject_vertical_streaks_in_timing_mark_inset(
-        &self,
-        detected_streaks: &[VerticalStreak],
-    ) -> Result<()> {
-        let timing_mark_streak_inset_size = self.geometry.canvas_width_pixels() * 0.1;
-        let left_edge_inset = timing_mark_streak_inset_size as i32;
-        let right_edge_inset =
-            (self.geometry.canvas_width_pixels() - timing_mark_streak_inset_size) as i32;
-        for streak in detected_streaks {
-            if *streak.x_range.start() < left_edge_inset || *streak.x_range.end() > right_edge_inset
-            {
-                return Err(Error::VerticalStreaksDetected {
-                    label: self.label.clone(),
-                    x_coordinates: streak.x_range.clone().collect_vec(),
-                });
-            }
-        }
-        Ok(())
-    }
-
-    /// # Errors
     /// If the cumulative width of vertical streaks exceeds the allowed threshold.
     #[allow(clippy::result_large_err)]
     pub fn reject_vertical_streaks_above_cumulative_threshold(
@@ -323,12 +300,11 @@ impl BallotPage {
     /// Fails if the timing mark algorithm is unable to find the
     /// timing mark grid within the image.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(&self) -> Result<TimingMarks> {
-        timing_marks::find_timing_mark_grid(
-            &self.ballot_image,
-            &self.geometry,
-            &timing_marks::Options::default_for_geometry(&self.geometry),
-        )
+    pub fn find_timing_marks(
+        &self,
+        options: &timing_marks::Options,
+    ) -> Result<timing_marks::TimingMarks> {
+        timing_marks::find_timing_mark_grid(&self.ballot_image, &self.geometry, options)
     }
 
     /// Gets the ballot geometry information for this page.
@@ -450,9 +426,13 @@ impl BallotCard {
             .par_map(|ballot_page| detect_vertical_streaks(ballot_page.ballot_image()))
     }
 
+    /// Rejects ballots whose detected vertical streaks would interfere with
+    /// interpretation. The decision is made before bubble shapes are known,
+    /// so this only applies the cumulative-width threshold; per-bubble
+    /// intersection is checked later, during bubble scoring.
+    ///
     /// # Errors
-    /// - If there are any vertical streaks in the timing mark inset area
-    /// - If the cumulative width of streaks exceeds the allowed threshold
+    /// If the cumulative width of streaks exceeds the allowed threshold.
     #[allow(clippy::result_large_err)]
     pub fn reject_disallowed_vertical_streaks(
         &self,
@@ -462,7 +442,6 @@ impl BallotCard {
         self.as_pair()
             .zip(streaks)
             .par_map(|(ballot_page, page_streaks)| {
-                ballot_page.reject_vertical_streaks_in_timing_mark_inset(page_streaks)?;
                 ballot_page.reject_vertical_streaks_above_cumulative_threshold(
                     page_streaks,
                     max_cumulative_streak_width,
@@ -477,9 +456,12 @@ impl BallotCard {
     ///
     /// Fails if timing marks cannot be found on one or both ballot pages.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(&self) -> Result<Pair<TimingMarks>> {
+    pub fn find_timing_marks(
+        &self,
+        options: &timing_marks::Options,
+    ) -> Result<Pair<timing_marks::TimingMarks>> {
         self.as_pair()
-            .par_map(BallotPage::find_timing_marks)
+            .par_map(|page| page.find_timing_marks(options))
             .into_result()
     }
 
@@ -493,19 +475,13 @@ impl BallotCard {
     #[allow(clippy::result_large_err)]
     pub fn check_minimum_scale<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         minimum_scale: UnitIntervalScore,
     ) -> Result<()> {
         self.as_pair()
             .zip(timing_marks)
             .map(|(ballot_page, timing_marks)| {
-                // We use the horizontal axis here because it is perpendicular to
-                // the scan direction and therefore stretching should be minimal.
-                //
-                // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
-                if let Some(scale) =
-                    timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal)
-                {
+                if let Some(scale) = timing_marks.compute_scale() {
                     if scale < minimum_scale {
                         return Err(Error::InvalidScale {
                             label: ballot_page.label().to_owned(),
@@ -623,7 +599,7 @@ impl BallotCard {
     #[allow(clippy::result_large_err)]
     pub fn score_bubble_marks<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         bubble_template: &GrayImage,
         grid_layout: &GridLayout,
         detected_vertical_streaks: impl Into<Pair<&'a Vec<VerticalStreak>>>,
@@ -653,7 +629,7 @@ impl BallotCard {
     /// Scores write-in areas in order to detect unmarked write-ins.
     pub fn score_write_in_areas<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         grid_layout: &GridLayout,
         sheet_number: u32,
     ) -> Pair<ScoredPositionAreas> {
@@ -680,7 +656,7 @@ impl BallotCard {
     #[allow(clippy::result_large_err)]
     pub fn build_page_layout<'a>(
         &self,
-        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        timing_marks: impl Into<Pair<&'a timing_marks::TimingMarks>>,
         grid_layout: &GridLayout,
         sheet_number: u32,
     ) -> Result<Pair<Vec<InterpretedContestLayout>>> {
