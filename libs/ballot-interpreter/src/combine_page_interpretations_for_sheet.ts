@@ -4,19 +4,19 @@ import {
   Election,
   InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
-  PageInterpretationWithFiles,
+  PageInterpretation,
   SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import { hasCrossoverVote } from '@votingworks/utils';
 
 export function combinePageInterpretationsForSheet(
-  pages: SheetOf<PageInterpretationWithFiles>,
+  pages: SheetOf<PageInterpretation>,
   election: Election
 ): SheetInterpretation {
   const [front, back] = pages;
-  const frontType = front.interpretation.type;
-  const backType = back.interpretation.type;
+  const frontType = front.type;
+  const backType = back.type;
 
   // Exactly one side can be printed on a BMD ballot (single-page).
   if (
@@ -24,8 +24,9 @@ export function combinePageInterpretationsForSheet(
     (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
   ) {
     /* istanbul ignore next - @preserve */
-    const printedPage = frontType === 'InterpretedBmdPage' ? front : back;
-    const interpretation = printedPage.interpretation as InterpretedBmdPage;
+    const interpretation = (
+      front.type === 'InterpretedBmdPage' ? front : back
+    ) as InterpretedBmdPage;
 
     if (interpretation.adjudicationInfo.requiresAdjudication) {
       return {
@@ -43,10 +44,9 @@ export function combinePageInterpretationsForSheet(
     (backType === 'InterpretedBmdMultiPagePage' && frontType === 'BlankPage')
   ) {
     /* istanbul ignore next - @preserve */
-    const printedPage =
-      frontType === 'InterpretedBmdMultiPagePage' ? front : back;
-    const interpretation =
-      printedPage.interpretation as InterpretedBmdMultiPagePage;
+    const interpretation = (
+      front.type === 'InterpretedBmdMultiPagePage' ? front : back
+    ) as InterpretedBmdMultiPagePage;
 
     if (interpretation.adjudicationInfo.requiresAdjudication) {
       return {
@@ -59,11 +59,11 @@ export function combinePageInterpretationsForSheet(
   }
 
   if (
-    frontType === 'InterpretedHmpbPage' &&
-    backType === 'InterpretedHmpbPage'
+    front.type === 'InterpretedHmpbPage' &&
+    back.type === 'InterpretedHmpbPage'
   ) {
-    const frontAdjudication = front.interpretation.adjudicationInfo;
-    const backAdjudication = back.interpretation.adjudicationInfo;
+    const frontAdjudication = front.adjudicationInfo;
+    const backAdjudication = back.adjudicationInfo;
     const reasons: AdjudicationReasonInfo[] = [];
 
     if (
@@ -78,11 +78,11 @@ export function combinePageInterpretationsForSheet(
         (frontReasons.some(
           (reason) => reason.type === AdjudicationReason.BlankBallot
         ) ||
-          front.interpretation.markInfo.marks.length === 0) &&
+          front.markInfo.marks.length === 0) &&
         (backReasons.some(
           (reason) => reason.type === AdjudicationReason.BlankBallot
         ) ||
-          back.interpretation.markInfo.marks.length === 0)
+          back.markInfo.marks.length === 0)
       ) {
         reasons.push({ type: AdjudicationReason.BlankBallot });
       }
@@ -100,8 +100,8 @@ export function combinePageInterpretationsForSheet(
     // gated on the configured adjudicationReasons.
     if (
       hasCrossoverVote(election, {
-        ...front.interpretation.votes,
-        ...back.interpretation.votes,
+        ...front.votes,
+        ...back.votes,
       })
     ) {
       reasons.push({ type: AdjudicationReason.CrossoverVoting });
@@ -147,10 +147,8 @@ export function combinePageInterpretationsForSheet(
   }
 
   if (
-    (front.interpretation.type === 'UnreadablePage' &&
-      front.interpretation.reason === 'invalidScale') ||
-    (back.interpretation.type === 'UnreadablePage' &&
-      back.interpretation.reason === 'invalidScale')
+    (front.type === 'UnreadablePage' && front.reason === 'invalidScale') ||
+    (back.type === 'UnreadablePage' && back.reason === 'invalidScale')
   ) {
     return {
       type: 'InvalidSheet',
@@ -159,10 +157,10 @@ export function combinePageInterpretationsForSheet(
   }
 
   if (
-    (front.interpretation.type === 'UnreadablePage' &&
-      front.interpretation.reason === 'bmdBallotScanningDisabled') ||
-    (back.interpretation.type === 'UnreadablePage' &&
-      back.interpretation.reason === 'bmdBallotScanningDisabled')
+    (front.type === 'UnreadablePage' &&
+      front.reason === 'bmdBallotScanningDisabled') ||
+    (back.type === 'UnreadablePage' &&
+      back.reason === 'bmdBallotScanningDisabled')
   ) {
     return {
       type: 'InvalidSheet',
@@ -171,10 +169,10 @@ export function combinePageInterpretationsForSheet(
   }
 
   if (
-    (front.interpretation.type === 'UnreadablePage' &&
-      front.interpretation.reason === 'verticalStreaksDetected') ||
-    (back.interpretation.type === 'UnreadablePage' &&
-      back.interpretation.reason === 'verticalStreaksDetected')
+    (front.type === 'UnreadablePage' &&
+      front.reason === 'verticalStreaksDetected') ||
+    (back.type === 'UnreadablePage' &&
+      back.reason === 'verticalStreaksDetected')
   ) {
     return {
       type: 'InvalidSheet',

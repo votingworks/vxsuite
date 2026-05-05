@@ -97,25 +97,15 @@ function mockBmdMultiPagePage({
 
 const blankPage: PageInterpretation = { type: 'BlankPage' };
 
-function mockSheet(
-  front: PageInterpretation,
-  back: PageInterpretation
-): Parameters<typeof combinePageInterpretationsForSheet>[0] {
-  return [
-    { imagePath: 'front.jpeg', interpretation: front },
-    { imagePath: 'back.jpeg', interpretation: back },
-  ];
-}
-
 test('treats BMD ballot with one blank side as valid', () => {
   const printed = mockBmdPage();
   expect(
-    combinePageInterpretationsForSheet(mockSheet(printed, blankPage), election)
+    combinePageInterpretationsForSheet([printed, blankPage], election)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(blankPage, printed), election)
+    combinePageInterpretationsForSheet([blankPage, printed], election)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });
@@ -135,7 +125,7 @@ test('respects adjudication reasons for a BMD ballot', () => {
     enabledReasonInfos: reasons,
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(printed, blankPage), election)
+    combinePageInterpretationsForSheet([printed, blankPage], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons,
@@ -145,12 +135,12 @@ test('respects adjudication reasons for a BMD ballot', () => {
 test('treats multi-page BMD ballot with one blank side as valid', () => {
   const printed = mockBmdMultiPagePage();
   expect(
-    combinePageInterpretationsForSheet(mockSheet(printed, blankPage), election)
+    combinePageInterpretationsForSheet([printed, blankPage], election)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(blankPage, printed), election)
+    combinePageInterpretationsForSheet([blankPage, printed], election)
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });
@@ -170,7 +160,7 @@ test('respects adjudication reasons for a multi-page BMD ballot', () => {
     enabledReasonInfos: reasons,
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(printed, blankPage), election)
+    combinePageInterpretationsForSheet([printed, blankPage], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons,
@@ -190,7 +180,7 @@ test('treats HMPB ballot with both sides marked blank as a blank ballot', () => 
     enabledReasonInfos: [blankReason],
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(front, back), election)
+    combinePageInterpretationsForSheet([front, back], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.BlankBallot }],
@@ -201,7 +191,7 @@ test('treats HMPB ballot with no marks on either side as a blank ballot', () => 
   const front = mockHmpbPage({ numMarks: 0, requiresAdjudication: true });
   const back = mockHmpbPage({ numMarks: 0, requiresAdjudication: true });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(front, back), election)
+    combinePageInterpretationsForSheet([front, back], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.BlankBallot }],
@@ -225,7 +215,7 @@ test('drops blank reason from one side when other side has non-blank reasons', (
     enabledReasonInfos: [overvoteReason],
   });
   expect(
-    combinePageInterpretationsForSheet(mockSheet(front, back), election)
+    combinePageInterpretationsForSheet([front, back], election)
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [overvoteReason],
@@ -240,7 +230,7 @@ test('treats either page being an invalid ballot hash as an invalid sheet', () =
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidBallotHashPage, { type: 'UnreadablePage' }),
+      [invalidBallotHashPage, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -249,7 +239,7 @@ test('treats either page being an invalid ballot hash as an invalid sheet', () =
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidBallotHashPage),
+      [{ type: 'UnreadablePage' }, invalidBallotHashPage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -265,7 +255,7 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidTestModePage, { type: 'UnreadablePage' }),
+      [invalidTestModePage, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -274,7 +264,7 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidTestModePage),
+      [{ type: 'UnreadablePage' }, invalidTestModePage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -290,7 +280,7 @@ test('treats either page being an invalid precinct as an invalid sheet', () => {
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidPrecinctPage, { type: 'UnreadablePage' }),
+      [invalidPrecinctPage, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -299,7 +289,7 @@ test('treats either page being an invalid precinct as an invalid sheet', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidPrecinctPage),
+      [{ type: 'UnreadablePage' }, invalidPrecinctPage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -315,7 +305,7 @@ test('treats either page having invalid scale as an invalid sheet', () => {
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(invalidScalePage, { type: 'UnreadablePage' }),
+      [invalidScalePage, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -324,7 +314,7 @@ test('treats either page having invalid scale as an invalid sheet', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, invalidScalePage),
+      [{ type: 'UnreadablePage' }, invalidScalePage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -340,7 +330,7 @@ test('treats either page having BMD ballot scanning disabled as an invalid sheet
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(bmdDisabledPage, { type: 'UnreadablePage' }),
+      [bmdDisabledPage, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -349,7 +339,7 @@ test('treats either page having BMD ballot scanning disabled as an invalid sheet
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, bmdDisabledPage),
+      [{ type: 'UnreadablePage' }, bmdDisabledPage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -365,7 +355,7 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
   };
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(verticalStreaksPage, { type: 'UnreadablePage' }),
+      [verticalStreaksPage, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -374,7 +364,7 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, verticalStreaksPage),
+      [{ type: 'UnreadablePage' }, verticalStreaksPage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -386,7 +376,7 @@ test('treats either page having vertical streaks as an invalid sheet', () => {
 test('treats unreadable pages as an invalid sheet', () => {
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet({ type: 'UnreadablePage' }, { type: 'UnreadablePage' }),
+      [{ type: 'UnreadablePage' }, { type: 'UnreadablePage' }],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -399,7 +389,7 @@ test('treats unmatched page combinations as unknown invalid sheet', () => {
   // Both blank doesn't match any specific case.
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(blankPage, blankPage),
+      [blankPage, blankPage],
       election
     )
   ).toEqual<SheetInterpretation>({
@@ -425,7 +415,7 @@ test('flags crossover voting in open primaries', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(front, back),
+      [front, back],
       openPrimaryElection
     )
   ).toEqual<SheetInterpretation>({
@@ -460,7 +450,7 @@ test('combines crossover voting with other adjudication reasons', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(front, back),
+      [front, back],
       openPrimaryElection
     )
   ).toEqual<SheetInterpretation>({
@@ -486,7 +476,7 @@ test('treats single-party open primary voting as valid', () => {
   });
   expect(
     combinePageInterpretationsForSheet(
-      mockSheet(front, back),
+      [front, back],
       openPrimaryElection
     )
   ).toEqual<SheetInterpretation>({

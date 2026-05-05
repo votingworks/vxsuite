@@ -4,7 +4,11 @@ import {
   interpretSheetAndSaveImages,
 } from '@votingworks/ballot-interpreter';
 import { ok, Result } from '@votingworks/basics';
-import { SheetInterpretationWithPages, SheetOf } from '@votingworks/types';
+import {
+  mapSheet,
+  SheetInterpretationWithPages,
+  SheetOf,
+} from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import { rootDebug } from './util/debug';
@@ -27,7 +31,7 @@ export async function interpret(
 
   return ok({
     ...combinePageInterpretationsForSheet(
-      pageInterpretations,
+      mapSheet(pageInterpretations, (p) => p.interpretation),
       options.electionDefinition.election
     ),
     pages: pageInterpretations,
