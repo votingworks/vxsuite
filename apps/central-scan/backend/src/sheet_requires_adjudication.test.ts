@@ -20,12 +20,14 @@ import {
 } from '@votingworks/types';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 
+const electionDefinition =
+  electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+const { election } = electionDefinition;
+
 const metadata: BallotMetadata = {
   ballotStyleId: '12' as BallotStyleId,
   ballotType: BallotType.Precinct,
-  ballotHash:
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-      .ballotHash,
+  ballotHash: electionDefinition.ballotHash,
   isTestMode: false,
   precinctId: '23',
 };
@@ -141,28 +143,28 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
   };
 
   expect(
-    sheetRequiresAdjudication([
-      withPageNumber(sideYes, 1),
-      withPageNumber(sideNo, 2),
-    ])
+    sheetRequiresAdjudication(
+      [withPageNumber(sideYes, 1), withPageNumber(sideNo, 2)],
+      election
+    )
   ).toEqual(true);
   expect(
-    sheetRequiresAdjudication([
-      withPageNumber(sideNo, 1),
-      withPageNumber(sideYes, 2),
-    ])
+    sheetRequiresAdjudication(
+      [withPageNumber(sideNo, 1), withPageNumber(sideYes, 2)],
+      election
+    )
   ).toEqual(true);
   expect(
-    sheetRequiresAdjudication([
-      withPageNumber(sideYes, 1),
-      withPageNumber(sideYes, 2),
-    ])
+    sheetRequiresAdjudication(
+      [withPageNumber(sideYes, 1), withPageNumber(sideYes, 2)],
+      election
+    )
   ).toEqual(true);
   expect(
-    sheetRequiresAdjudication([
-      withPageNumber(sideNo, 1),
-      withPageNumber(sideNo, 2),
-    ])
+    sheetRequiresAdjudication(
+      [withPageNumber(sideNo, 1), withPageNumber(sideNo, 2)],
+      election
+    )
   ).toEqual(false);
 });
 
@@ -191,30 +193,71 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', () => {
     type: 'BlankPage',
   };
 
-  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toEqual(true);
   expect(
-    sheetRequiresAdjudication([
-      withPageNumber(hmpbNoVotes, 1),
-      withPageNumber(hmpbWithVotes, 2),
-    ])
+    sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes], election)
+  ).toEqual(true);
+  expect(
+    sheetRequiresAdjudication(
+      [withPageNumber(hmpbNoVotes, 1), withPageNumber(hmpbWithVotes, 2)],
+      election
+    )
   ).toEqual(false);
   expect(
-    sheetRequiresAdjudication([
-      withPageNumber(hmpbWithVotes, 1),
-      withPageNumber(hmpbWithVotes, 2),
-    ])
+    sheetRequiresAdjudication(
+      [withPageNumber(hmpbWithVotes, 1), withPageNumber(hmpbWithVotes, 2)],
+      election
+    )
   ).toEqual(false);
 
-  expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toEqual(true);
-  expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toEqual(true);
+  expect(sheetRequiresAdjudication([hmpbNoVotes, blank], election)).toEqual(
+    true
+  );
+  expect(sheetRequiresAdjudication([blank, hmpbNoVotes], election)).toEqual(
+    true
+  );
 
-  expect(sheetRequiresAdjudication([hmpbWithVotes, blank])).toEqual(true);
-  expect(sheetRequiresAdjudication([blank, hmpbWithVotes])).toEqual(true);
+  expect(sheetRequiresAdjudication([hmpbWithVotes, blank], election)).toEqual(
+    true
+  );
+  expect(sheetRequiresAdjudication([blank, hmpbWithVotes], election)).toEqual(
+    true
+  );
 
-  expect(sheetRequiresAdjudication([blank, blank])).toEqual(true);
+  expect(sheetRequiresAdjudication([blank, blank], election)).toEqual(true);
 });
 
-test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
+test('BMD ballot (BMD + BlankPage) does not require adjudication', () => {
+  const bmd: InterpretedBmdPage = {
+    type: 'InterpretedBmdPage',
+    metadata: {
+      ballotHash: '41',
+      precinctId: '12',
+      ballotStyleId: '1' as BallotStyleId,
+      isTestMode: true,
+      ballotType: BallotType.Precinct,
+    },
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      ignoredReasonInfos: [],
+      enabledReasonInfos: [],
+      enabledReasons: [],
+    },
+    votes: {},
+  };
+
+  const blank: BlankPage = {
+    type: 'BlankPage',
+  };
+
+  expect(sheetRequiresAdjudication([bmd, blank], election)).toEqual(false);
+  expect(sheetRequiresAdjudication([blank, bmd], election)).toEqual(false);
+});
+
+test('BMD + UnreadablePage requires adjudication', () => {
+  // Behavior change from the pre-unification implementation, which silently
+  // accepted any sheet with a BMD page (the BMD short-circuit). After
+  // adopting the shared combiner, an unreadable partner page surfaces as an
+  // unreadable sheet.
   const bmd: InterpretedBmdPage = {
     type: 'InterpretedBmdPage',
     metadata: {
@@ -239,14 +282,8 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
       'cause there were a few too many black pixels so it was not filtered',
   };
 
-  const blank: BlankPage = {
-    type: 'BlankPage',
-  };
-
-  expect(sheetRequiresAdjudication([bmd, unreadable])).toEqual(false);
-  expect(sheetRequiresAdjudication([unreadable, bmd])).toEqual(false);
-  expect(sheetRequiresAdjudication([bmd, blank])).toEqual(false);
-  expect(sheetRequiresAdjudication([blank, bmd])).toEqual(false);
+  expect(sheetRequiresAdjudication([bmd, unreadable], election)).toEqual(true);
+  expect(sheetRequiresAdjudication([unreadable, bmd], election)).toEqual(true);
 });
 
 test('sheetRequiresAdjudication catches single-sided blank ballots if undervote adjudication is on', () => {
@@ -271,11 +308,14 @@ test('sheetRequiresAdjudication catches single-sided blank ballots if undervote 
     },
   };
 
-  expect(sheetRequiresAdjudication([hmpbWithVotes, hmpbNoVotes])).toEqual(
-    false
-  );
   expect(
-    sheetRequiresAdjudication([hmpbWithVotes, hmpbNoVotesUndervotesFlagged])
+    sheetRequiresAdjudication([hmpbWithVotes, hmpbNoVotes], election)
+  ).toEqual(false);
+  expect(
+    sheetRequiresAdjudication(
+      [hmpbWithVotes, hmpbNoVotesUndervotesFlagged],
+      election
+    )
   ).toEqual(true);
 });
 
@@ -405,7 +445,9 @@ describe('non-blank reasons trigger adjudication (each AdjudicationReason)', () 
       expected: true,
     },
   ])('$name', ({ front, back, expected }) => {
-    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+    expect(sheetRequiresAdjudication([front, back], election)).toEqual(
+      expected
+    );
   });
 });
 
@@ -448,26 +490,37 @@ describe('Invalid* pages and unreadable pages trigger adjudication', () => {
       expected: true,
     },
   ])('$name', ({ front, back, expected }) => {
-    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+    expect(sheetRequiresAdjudication([front, back], election)).toEqual(
+      expected
+    );
   });
 });
 
-test('BMDMulti short-circuits even when the other side is unreadable', () => {
-  // Mirrors the original BMD + UnreadablePage case for the multi-page BMD
-  // variant: when one side scans as BMD/BMDMulti and the other fails to
-  // interpret, the BMD half short-circuits the whole sheet rather than
-  // sending it to adjudication.
-  expect(sheetRequiresAdjudication([bmdMulti, unreadable])).toEqual(false);
-  expect(sheetRequiresAdjudication([unreadable, bmdMulti])).toEqual(false);
+test('BMDMulti + UnreadablePage requires adjudication', () => {
+  // Same behavior change as the single-page BMD case: the pre-unification
+  // BMD short-circuit accepted these silently; the combiner surfaces the
+  // unreadable side for review.
+  expect(sheetRequiresAdjudication([bmdMulti, unreadable], election)).toEqual(
+    true
+  );
+  expect(sheetRequiresAdjudication([unreadable, bmdMulti], election)).toEqual(
+    true
+  );
 });
 
-describe('zero-marks vs BlankBallot reason: both count as blank', () => {
+describe('blank ballot detection respects BlankBallot adjudication reason', () => {
+  // Behavior change from the pre-unification implementation: blank-both
+  // sheets used to flag unconditionally. The combiner gates blank-both on
+  // BlankBallot being in the configured adjudication reasons (which is the
+  // VxScan default). Central-scan's default `centralScanAdjudicationReasons`
+  // is empty, so zero-marks pages without BlankBallot reasons no longer
+  // flag.
   test.each<Case>([
     {
-      name: 'two HMPB zero-marks pages → blank-both → adjudicate',
+      name: 'two HMPB zero-marks pages without BlankBallot reasons → no adjudication',
       front: hmpbWithReasons([], { marks: 'zero-marks' }),
       back: hmpbWithReasons([], { marks: 'zero-marks' }),
-      expected: true,
+      expected: false,
     },
     {
       name: 'HMPB zero-marks + HMPB BlankBallot reason → blank-both',
@@ -476,13 +529,13 @@ describe('zero-marks vs BlankBallot reason: both count as blank', () => {
       expected: true,
     },
     {
-      name: 'HMPB zero-marks + BlankPage → blank-both',
+      name: 'HMPB zero-marks + BlankPage → mismatched pair flags',
       front: hmpbWithReasons([], { marks: 'zero-marks' }),
       back: blankPage,
       expected: true,
     },
     {
-      name: 'HMPB zero-marks + HMPB with marks → recessive, no adjudication',
+      name: 'HMPB zero-marks + HMPB with marks → no adjudication',
       front: hmpbWithReasons([], { marks: 'zero-marks' }),
       back: hmpbWithVotes,
       expected: false,
@@ -494,7 +547,9 @@ describe('zero-marks vs BlankBallot reason: both count as blank', () => {
       expected: true,
     },
   ])('$name', ({ front, back, expected }) => {
-    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+    expect(sheetRequiresAdjudication([front, back], election)).toEqual(
+      expected
+    );
   });
 });
 
@@ -529,6 +584,8 @@ describe('ignoredReasonInfos do not trigger adjudication', () => {
       expected: false,
     },
   ])('$name', ({ front, back, expected }) => {
-    expect(sheetRequiresAdjudication([front, back])).toEqual(expected);
+    expect(sheetRequiresAdjudication([front, back], election)).toEqual(
+      expected
+    );
   });
 });

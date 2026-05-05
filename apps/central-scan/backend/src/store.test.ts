@@ -175,6 +175,11 @@ test('batch cleanup works correctly', () => {
 
 test('getBatches', () => {
   const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
@@ -747,6 +752,11 @@ test('resetElectionSession', () => {
 
 test('getBallotsCounted', () => {
   const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   expect(store.getBallotsCounted()).toEqual(0);
 

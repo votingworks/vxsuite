@@ -577,10 +577,14 @@ export class Store {
     ballotAuditId?: string
   ): string {
     try {
-      const requiresAdjudication = sheetRequiresAdjudication([
-        front.interpretation,
-        back.interpretation,
-      ]);
+      const {election} = assertDefined(
+        this.getElectionRecord(),
+        'cannot add sheet before election is configured'
+      ).electionDefinition;
+      const requiresAdjudication = sheetRequiresAdjudication(
+        [front.interpretation, back.interpretation],
+        election
+      );
 
       this.client.run(
         `insert into sheets (

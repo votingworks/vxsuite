@@ -391,7 +391,15 @@ test('get next sheet returns null when no adjudication sheet', async () => {
 });
 
 test('getNextReviewSheet includes images', async () => {
-  await withApp(async ({ apiClient, workspace }) => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, importer, workspace }) => {
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     const batchId = workspace.store.addBatch();
     const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
     workspace.store.finishBatch({ batchId });
@@ -433,7 +441,15 @@ test('getNextReviewSheet includes images', async () => {
 });
 
 test('getNextReviewSheet includes layouts for HMPB pages', async () => {
-  await withApp(async ({ apiClient, workspace }) => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, importer, workspace }) => {
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     const batchId = workspace.store.addBatch();
     const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
     workspace.store.finishBatch({ batchId });
