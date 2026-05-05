@@ -5,6 +5,7 @@ import { dirSync } from 'tmp';
 import {
   BmdBallotPaperSize,
   HmpbBallotPaperSize,
+  Tabulation,
   ballotPaperDimensions,
 } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
@@ -175,15 +176,13 @@ export class FujitsuScanner implements BatchScanner {
     if (imprintIdPrefix !== undefined) {
       // Truncate the prefix to a safe length. Then imprint the safe prefix
       // followed by a sequential index for each page in the batch.
-      let safeImprintIdPrefix = imprintIdPrefix;
-      if (imprintIdPrefix.length > MAX_PREFIX_LENGTH) {
-        const idParts = imprintIdPrefix.split('-');
-        safeImprintIdPrefix = (
-          idParts.length > 1
-            ? `${idParts[0]}-${idParts.at(-1)}`
-            : imprintIdPrefix
-        ).substring(0, MAX_PREFIX_LENGTH);
-      }
+      const safeImprintIdPrefix =
+        imprintIdPrefix.length > MAX_PREFIX_LENGTH
+          ? Tabulation.formatBatchId(imprintIdPrefix).substring(
+              0,
+              MAX_PREFIX_LENGTH
+            )
+          : imprintIdPrefix;
       const endorserString = `${safeImprintIdPrefix}${SEQUENTIAL_BALLOT_ID_STRING}`;
 
       args.push('--endorser=yes');

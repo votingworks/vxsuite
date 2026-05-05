@@ -269,3 +269,15 @@ export interface ScannerBatch {
 
 export const BATCH_ID_DISPLAY_LENGTH = 8;
 export const TALLY_REPORT_PRIVACY_THRESHOLD = 10;
+
+/**
+ * Formats a batch ID for display or imprinting. For hyphen-separated
+ * IDs (e.g. UUIDs), keeps only the first and last segments.
+ */
+export function formatBatchId(batchId: string): string {
+  const parts = batchId.split('-');
+  if (parts.length > 1) {
+    return `${parts[0]}-${parts[parts.length - 1]}`;
+  }
+  return batchId;
+}
