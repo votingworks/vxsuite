@@ -184,7 +184,7 @@ export const Box = styled.div<{
 export const ContestHeader = styled.div<{ colorTint?: ColorTint }>`
   background: ${(p) =>
     p.colorTint ? ColorTints[p.colorTint] : Colors.LIGHT_GRAY};
-  padding: 0.25rem 0.375rem 0 0.375rem;
+  padding: 0.25rem 0.125rem 0 0.125rem;
   text-align: center;
   border-bottom: 1px solid ${Colors.BLACK};
 `;
