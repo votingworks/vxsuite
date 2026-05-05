@@ -317,6 +317,13 @@ export class Store {
     }
   }
 
+  getTotalBallotsPrinted(): number {
+    const result = this.client.one(
+      'select coalesce(sum(print_count), 0) as total from ballots'
+    ) as { total: number };
+    return result.total;
+  }
+
   getBallotPrintCounts({
     ballotMode,
   }: {

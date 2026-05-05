@@ -1,5 +1,5 @@
 import express from 'express';
-import { BaseLogger, Logger } from '@votingworks/logging';
+import { BaseLogger, Logger, LogEventId } from '@votingworks/logging';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -38,6 +38,16 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
     workspace,
     printer,
   };
+
+  const totalBallotsPrinted = workspace.store.getTotalBallotsPrinted();
+  baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+    message:
+      totalBallotsPrinted > 0
+        ? 'Printed ballot data is present in the database at machine startup.'
+        : 'No printed ballot data is present in the database at machine startup.',
+    ballotsPrinted: totalBallotsPrinted,
+  });
+
   const app = buildApp(context);
 
   useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
@@ -48,8 +58,10 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
     PORT,
     /* istanbul ignore next - @preserve */
     () => {
-      // eslint-disable-next-line no-console
-      console.log(`VxPrint backend running at http://localhost:${PORT}/`);
+      void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+        message: `VxPrint backend running at http://localhost:${PORT}/`,
+        disposition: 'success',
+      });
     }
   );
 }
