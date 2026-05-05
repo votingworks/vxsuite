@@ -7,6 +7,7 @@ declare namespace NodeJS {
     readonly PEER_PORT?: string;
     readonly PORT?: string;
     readonly VX_CODE_VERSION?: string;
+    readonly VX_CONFIG_ROOT?: string;
     readonly VX_MACHINE_ID?: string;
     readonly VX_MACHINE_JURISDICTION?: string;
   }

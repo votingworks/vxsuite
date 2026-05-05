@@ -91,9 +91,7 @@ test('When tally results already marked as official, adjudication buttons are di
     totalTally: 5,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
+  apiMock.setMultiStationAdjudicationEnabled(true);
   apiMock.expectGetNetworkStatus();
   renderInAppContext(<AdjudicationStartScreen />, {
     electionDefinition,
@@ -128,9 +126,7 @@ test('When ballots need adjudication, shows start button with counts', async () 
 
 describe('multi-station adjudication', () => {
   beforeEach(() => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-    );
+    apiMock.setMultiStationAdjudicationEnabled(true);
   });
 
   test('toggles adjudication enabled state', async () => {

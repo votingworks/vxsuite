@@ -69,12 +69,15 @@ export const MOCK_PRINTER_CONFIG: PrinterConfig = {
 
 type MockApiClient = Omit<
   MockClient<Api>,
-  'getBatteryInfo' | 'getDiskSpaceSummary'
+  'getBatteryInfo' | 'getDiskSpaceSummary' | 'isMultiStationAdjudicationEnabled'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getBatteryInfo: Mock;
   getDiskSpaceSummary: Mock;
+  // Used by NavigationScreen, which is rendered by nearly every screen, so a
+  // standard vitest mock avoids forcing every test to set an expectation.
+  isMultiStationAdjudicationEnabled: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -86,6 +89,9 @@ export function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
+  );
+  (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
+    () => Promise.resolve(false)
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -242,6 +248,10 @@ export function createApiMock(
         discharging: false,
         ...(batteryInfo || {}),
       });
+    },
+
+    setMultiStationAdjudicationEnabled(enabled: boolean) {
+      apiClient.isMultiStationAdjudicationEnabled.mockResolvedValue(enabled);
     },
 
     expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {

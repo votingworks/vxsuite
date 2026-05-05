@@ -16,11 +16,7 @@ import {
 } from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import {
-  BooleanEnvironmentVariableName,
-  format,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 import { Admin, CandidateContest } from '@votingworks/types';
 import type { MachineRecord } from '@votingworks/admin-backend';
 import { NavigationScreen } from '../components/navigation_screen';
@@ -34,6 +30,7 @@ import {
   getSystemSettings,
   setIsClientAdjudicationEnabled,
 } from '../api';
+import { isMultiStationAdjudicationEnabled } from '../shared_api';
 import { routerPaths } from '../router_paths';
 
 const CardStack = styled.div`
@@ -461,11 +458,9 @@ function MultiStationCard(): JSX.Element {
 export function AdjudicationStartScreen(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const isMultiStationEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
+  const multiStationQuery = isMultiStationAdjudicationEnabled.useQuery();
 
-  if (!systemSettingsQuery.isSuccess) {
+  if (!systemSettingsQuery.isSuccess || !multiStationQuery.isSuccess) {
     return (
       <NavigationScreen title="Adjudication">
         <Loading isFullscreen />
@@ -474,6 +469,7 @@ export function AdjudicationStartScreen(): JSX.Element {
   }
 
   const { areWriteInCandidatesQualified } = systemSettingsQuery.data;
+  const isMultiStationEnabled = multiStationQuery.data;
   const showMultiStationCard = isMultiStationEnabled && !isOfficialResults;
   const hasOtherCards = areWriteInCandidatesQualified || showMultiStationCard;
 

@@ -608,9 +608,7 @@ test('battery display and alert', async () => {
 });
 
 test('network status in toolbar', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
+  apiMock.setMultiStationAdjudicationEnabled(true);
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata();
   apiMock.expectListPotentialElectionPackagesOnUsbDrive();
@@ -622,6 +620,4 @@ test('network status in toolbar', async () => {
 
   apiMock.expectGetNetworkStatus({ isOnline: false });
   await screen.findByText('Network Offline');
-
-  featureFlagMock.resetFeatureFlags();
 });

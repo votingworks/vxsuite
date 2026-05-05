@@ -15,11 +15,7 @@ import {
   ToggleUsbPortsButton,
   useSystemCallApi,
 } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
+import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import {
@@ -29,6 +25,7 @@ import {
   setMachineMode,
   useApiClient,
 } from '../api';
+import { isMultiStationAdjudicationEnabled } from '../shared_api';
 
 export function SettingsScreen(): JSX.Element | null {
   const { auth, electionDefinition, usbDriveStatus } = useContext(AppContext);
@@ -36,9 +33,8 @@ export function SettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
   const setMachineModeMutation = setMachineMode.useMutation();
-  const isMultiStationEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
+  const isMultiStationEnabled =
+    isMultiStationAdjudicationEnabled.useQuery().data ?? false;
   const powerDownMutation = useSystemCallApi().powerDown.useMutation();
   const networkStatusQuery = getNetworkStatus.useQuery({
     enabled: isMultiStationEnabled,

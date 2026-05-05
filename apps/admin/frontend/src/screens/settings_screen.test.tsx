@@ -108,13 +108,7 @@ describe('multi-station mode', () => {
   };
 
   beforeEach(() => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-    );
-  });
-
-  afterEach(() => {
-    featureFlagMock.resetFeatureFlags();
+    apiMock.setMultiStationAdjudicationEnabled(true);
   });
 
   function mockNetworkStatusQuery({
@@ -125,7 +119,7 @@ describe('multi-station mode', () => {
     apiMock.expectGetNetworkStatus({ multipleHostsDetected });
   }
 
-  test('shows switch to client mode button when unconfigured', () => {
+  test('shows switch to client mode button when unconfigured', async () => {
     apiMock.expectGetUsbPortStatus();
     mockNetworkStatusQuery();
     renderInAppContext(<SettingsScreen />, {
@@ -133,14 +127,25 @@ describe('multi-station mode', () => {
       auth,
       electionDefinition: null,
     });
-    screen.getByRole('heading', { name: 'Machine Mode' });
+    await screen.findByRole('heading', { name: 'Machine Mode' });
     screen.getByRole('button', { name: 'Switch to Client Mode' });
   });
 
-  test('hides switch to client mode when election configured', () => {
+  test('hides switch to client mode when election configured', async () => {
     apiMock.expectGetUsbPortStatus();
-    mockNetworkStatusQuery();
+    apiMock.apiClient.getNetworkStatus
+      .expectOptionalRepeatedCallsWith()
+      .resolves({
+        isOnline: true,
+        connectedClients: [],
+        multipleHostsDetected: false,
+      });
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
+    await vi.waitFor(() => {
+      expect(
+        apiMock.apiClient.isMultiStationAdjudicationEnabled
+      ).toHaveBeenCalled();
+    });
     expect(
       screen.queryByRole('button', { name: 'Switch to Client Mode' })
     ).not.toBeInTheDocument();
@@ -169,7 +174,7 @@ describe('multi-station mode', () => {
       .expectCallWith({ mode: 'client' })
       .resolves();
     userEvent.click(
-      screen.getByRole('button', { name: 'Switch to Client Mode' })
+      await screen.findByRole('button', { name: 'Switch to Client Mode' })
     );
     await screen.findByText(
       'Machine mode changed, restart the machine to continue.'

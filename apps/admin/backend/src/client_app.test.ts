@@ -12,15 +12,21 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { buildClientApp, ClientApi } from './client_app';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config';
 import type { PeerApi } from './peer_app';
 import { createClientWorkspace } from './util/workspace';
 import { ClientConnectionStatus, ElectionRecord } from './types';
+
 import {
   getMountedUsbDriveDevPath,
   mockMachineLocked,
   mockSystemAdministratorAuth,
   buildMockLogger,
 } from '../test/app';
+
+vi.mock('./multi_station_config', () => ({
+  isMultiStationAdjudicationEnabled: vi.fn(() => false),
+}));
 
 function buildClientTestEnvironment() {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
@@ -72,6 +78,16 @@ test('getMachineMode returns host by default', async () => {
   const mode = await env.apiClient.getMachineMode();
   expect(mode).toEqual('host');
 });
+
+test.each([{ helperReturns: true }, { helperReturns: false }])(
+  'isMultiStationAdjudicationEnabled returns $helperReturns when the helper returns $helperReturns',
+  async ({ helperReturns }) => {
+    vi.mocked(isMultiStationAdjudicationEnabled).mockReturnValue(helperReturns);
+    expect(await env.apiClient.isMultiStationAdjudicationEnabled()).toEqual(
+      helperReturns
+    );
+  }
+);
 
 test('setMachineMode and getMachineMode round-trip', async () => {
   await env.apiClient.setMachineMode({ mode: 'client' });

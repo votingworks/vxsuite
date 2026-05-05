@@ -24,7 +24,8 @@ type SharedMethods =
   | 'getUsbDriveStatus'
   | 'ejectUsbDrive'
   | 'getMachineConfig'
-  | 'getMachineMode';
+  | 'getMachineMode'
+  | 'isMultiStationAdjudicationEnabled';
 
 export type SharedApiClient = Pick<grout.Client<Api>, SharedMethods> &
   Pick<grout.Client<ClientApi>, SharedMethods>;
@@ -61,6 +62,18 @@ export const getMachineMode = {
   useQuery() {
     const apiClient = useSharedApiClient();
     return useQuery(this.queryKey(), () => apiClient.getMachineMode());
+  },
+} as const;
+
+export const isMultiStationAdjudicationEnabled = {
+  queryKey(): QueryKey {
+    return ['isMultiStationAdjudicationEnabled'];
+  },
+  useQuery() {
+    const apiClient = useSharedApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.isMultiStationAdjudicationEnabled()
+    );
   },
 } as const;
 
