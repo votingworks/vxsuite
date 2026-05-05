@@ -10,7 +10,7 @@ import {
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
-import { reportColors } from './layout';
+import { ReportTable } from './layout';
 import { Font } from '../typography';
 
 const DistrictName = styled.p`
@@ -41,14 +41,11 @@ const Contest = styled.div`
   page-break-inside: avoid;
 `;
 
-const ContestTable = styled.table`
+const ContestTable = styled(ReportTable)`
   width: 100%;
   height: 1px; /* mock height, allows TallyContainer to stretch to full height */
-  border-collapse: collapse;
 
   & tr {
-    border-top: 1px solid ${reportColors.outline};
-    border-bottom: 1px solid ${reportColors.outline};
     height: 100%;
   }
 
