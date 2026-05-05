@@ -51,7 +51,7 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { BaseLogger } from '@votingworks/logging';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
+import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
@@ -577,14 +577,15 @@ export class Store {
     ballotAuditId?: string
   ): string {
     try {
-      const {election} = assertDefined(
+      const { election } = assertDefined(
         this.getElectionRecord(),
         'cannot add sheet before election is configured'
       ).electionDefinition;
-      const requiresAdjudication = sheetRequiresAdjudication(
-        [front.interpretation, back.interpretation],
-        election
-      );
+      const requiresAdjudication =
+        combinePageInterpretationsForSheet(
+          [front.interpretation, back.interpretation],
+          election
+        ).type !== 'ValidSheet';
 
       this.client.run(
         `insert into sheets (
