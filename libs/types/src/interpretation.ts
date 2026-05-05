@@ -2,9 +2,7 @@ import { z } from 'zod/v4';
 import {
   AdjudicationInfo,
   AdjudicationInfoSchema,
-  AdjudicationReason,
   AdjudicationReasonInfo,
-  AdjudicationReasonSchema,
   BallotMetadata,
   BallotMetadataSchema,
   BmdMultiPageBallotPageMetadata,
@@ -20,12 +18,6 @@ import {
   WriteInId,
   WriteInIdSchema,
 } from './election';
-import {
-  Id,
-  IdSchema,
-  Iso8601Timestamp,
-  Iso8601TimestampSchema,
-} from './generic';
 import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb';
 
 export interface BlankPage {
@@ -170,28 +162,6 @@ export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWi
     imagePath: z.string(),
     interpretation: PageInterpretationSchema,
   });
-
-export interface BallotPageInfo {
-  interpretation: PageInterpretation;
-  adjudicationFinishedAt?: Iso8601Timestamp;
-}
-export const BallotPageInfoSchema: z.ZodSchema<BallotPageInfo> = z.object({
-  interpretation: PageInterpretationSchema,
-  adjudicationFinishedAt: Iso8601TimestampSchema.optional(),
-});
-
-export interface BallotSheetInfo {
-  id: Id;
-  front: BallotPageInfo;
-  back: BallotPageInfo;
-  adjudicationReason?: AdjudicationReason;
-}
-export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
-  id: IdSchema,
-  front: BallotPageInfoSchema,
-  back: BallotPageInfoSchema,
-  adjudicationReason: AdjudicationReasonSchema.optional(),
-});
 
 export type InvalidInterpretationReasonInfo =
   | {
