@@ -6,6 +6,7 @@ import {
   pollingPlaceFromElection,
   PollsTransitionType,
   PrecinctSelection,
+  Tabulation,
 } from '@votingworks/types';
 import {
   formatFullDateTimeZone,
@@ -42,6 +43,7 @@ interface Props {
   pollsTransitionedTime: number;
   reportPrintedTime: number;
   precinctScannerMachineId: string;
+  batchId?: string;
 }
 
 export function PrecinctScannerReportHeader({
@@ -55,6 +57,7 @@ export function PrecinctScannerReportHeader({
   pollsTransitionedTime,
   reportPrintedTime,
   precinctScannerMachineId,
+  batchId,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const showTallies =
@@ -83,7 +86,7 @@ export function PrecinctScannerReportHeader({
         <ReportTitle>{reportTitle}</ReportTitle>
         {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
         <ReportElectionInfo election={election} />
-        <ReportMetadata>
+        <ReportMetadata wrapItems={!!batchId}>
           <LabeledValue
             label={getPollsTransitionActionPastTense(pollsTransition)}
             value={formatFullDateTimeZone(
@@ -106,6 +109,12 @@ export function PrecinctScannerReportHeader({
               electionPackageHash
             )}
           />
+          {batchId && (
+            <LabeledValue
+              label="Batch ID"
+              value={Tabulation.formatBatchId(batchId)}
+            />
+          )}
         </ReportMetadata>
         <CertificationSignatures />
       </ReportHeader>

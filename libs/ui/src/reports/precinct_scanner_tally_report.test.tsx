@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { formatElectionHashes, PartyId } from '@votingworks/types';
+import { BatchInfo, formatElectionHashes, PartyId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName as Feature,
@@ -70,6 +70,7 @@ test('renders as expected for a single precinct in a general election', () => {
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
       contests={generalElection.contests}
+      batches={[]}
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
@@ -152,6 +153,7 @@ test('renders as expected for all precincts in a primary election', () => {
         (c) => c.type === 'yesno' || c.partyId === '0'
       )}
       partyId={'0' as PartyId}
+      batches={[]}
     />
   );
   screen.getByText(`Polls Opened Report • ${pollingPlace.name}`);
@@ -211,6 +213,7 @@ test('displays only passed contests', () => {
         (c) => c.id === 'best-animal-mammal'
       )}
       partyId={'0' as PartyId}
+      batches={[]}
     />
   );
 
@@ -233,10 +236,106 @@ test('renders precinct selection name', () => {
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
       contests={generalElection.contests}
+      batches={[]}
     />
   );
 
   screen.getByText('Polls Opened Report • All Precincts');
+});
+
+const singleBatch: BatchInfo = {
+  id: 'c1d2e3f4-a5b6-4789-abcd-ef1234567890',
+  batchNumber: 1,
+  label: 'Batch 1',
+  startedAt: '2021-09-19T08:00:00.000Z',
+  endedAt: '2021-09-19T11:05:00.000Z',
+  count: 100,
+};
+
+const multiBatch: BatchInfo[] = [
+  singleBatch,
+  {
+    id: 'd4e5f6a7-b8c9-4012-5678-9a0bcdef0123',
+    batchNumber: 2,
+    label: 'Batch 2',
+    startedAt: '2021-09-19T13:00:00.000Z',
+    endedAt: '2021-09-19T15:00:00.000Z',
+    count: 50,
+  },
+];
+
+test('shows batch ID in header metadata for single batch (close_polls)', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerTallyReport
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      precinctScannerMachineId="SC-01-000"
+      electionDefinition={generalElectionDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollsTransition="close_polls"
+      isLiveMode={false}
+      scannedElectionResults={generalElectionResults}
+      contests={generalElection.contests}
+      batches={[singleBatch]}
+    />
+  );
+
+  const batchIdLabel = screen.getByText('Batch ID:');
+  expect(batchIdLabel.parentElement).toHaveTextContent(
+    'Batch ID: c1d2e3f4-ef1234567890'
+  );
+  expect(screen.queryByText('Batch Summary')).toBeNull();
+});
+
+test('shows batch table (not header batch ID) for multiple batches (close_polls)', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerTallyReport
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      precinctScannerMachineId="SC-01-000"
+      electionDefinition={generalElectionDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollsTransition="close_polls"
+      isLiveMode={false}
+      scannedElectionResults={generalElectionResults}
+      contests={generalElection.contests}
+      batches={multiBatch}
+    />
+  );
+
+  expect(screen.queryByText('Batch ID:')).toBeNull();
+  screen.getByText('Batch ID');
+  screen.getByText('c1d2e3f4-ef1234567890');
+  screen.getByText('d4e5f6a7-9a0bcdef0123');
+});
+
+test('shows no batch info when batches is empty (open_polls)', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerTallyReport
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      precinctScannerMachineId="SC-01-000"
+      electionDefinition={generalElectionDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollsTransition="open_polls"
+      isLiveMode={false}
+      scannedElectionResults={generalElectionResults}
+      contests={generalElection.contests}
+      batches={[]}
+    />
+  );
+
+  expect(screen.queryByText('Batch ID:')).toBeNull();
+  expect(screen.queryByText('Batch ID')).toBeNull();
 });
 
 function setPollingPlacesEnabled(enabled: boolean) {

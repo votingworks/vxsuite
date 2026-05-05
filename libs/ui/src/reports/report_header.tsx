@@ -41,9 +41,11 @@ export function ReportElectionInfo({
   );
 }
 
-export const ReportMetadata = styled.p`
+export const ReportMetadata = styled.p<{ wrapItems?: boolean }>`
   display: flex;
-  gap: 1em;
+  flex-wrap: ${({ wrapItems }) => (wrapItems ? 'wrap' : 'nowrap')};
+  column-gap: ${({ wrapItems }) => (wrapItems ? '1.5em' : '1em')};
+  row-gap: ${({ wrapItems }) => (wrapItems ? '0.25em' : '0')};
 
   > * {
     white-space: nowrap;
