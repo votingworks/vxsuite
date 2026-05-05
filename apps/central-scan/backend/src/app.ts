@@ -16,12 +16,13 @@ import {
   SystemSettings,
   ExportCastVoteRecordsToUsbDriveError,
   DiagnosticRecord,
-  BallotSheetInfo,
   DiagnosticOutcome,
   Rect,
   mapSheet,
+  SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
+import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
@@ -210,7 +211,7 @@ function buildApi({
     },
 
     async getNextReviewSheet(): Promise<{
-      interpreted: BallotSheetInfo;
+      sheetInterpretation: SheetInterpretation;
       images: SheetOf<BallotImage>;
     } | null> {
       const sheet = store.getNextAdjudicationSheet();
@@ -218,6 +219,14 @@ function buildApi({
       if (!sheet) {
         return null;
       }
+
+      const { election } = assertDefined(
+        store.getElectionRecord()
+      ).electionDefinition;
+      const sheetInterpretation = combinePageInterpretationsForSheet(
+        [sheet.front.interpretation, sheet.back.interpretation],
+        election
+      );
 
       const images = await mapSheet(
         [sheet.front, sheet.back],
@@ -246,7 +255,7 @@ function buildApi({
       );
 
       return {
-        interpreted: sheet,
+        sheetInterpretation,
         images,
       };
     },

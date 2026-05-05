@@ -1,11 +1,10 @@
 import {
   AdjudicationReason,
-  Contest,
-  Side,
+  ContestId,
   formatBallotHash,
   mapSheet,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotImage,
   BallotImageHighlight,
@@ -61,6 +60,7 @@ interface EjectInformation {
   header: string;
   body: React.ReactNode;
   allowBallotDuplication: boolean;
+  highlightedContestIds?: Set<ContestId>;
 }
 
 export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
@@ -87,174 +87,121 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   }
 
   const { disallowCastingOvervotes } = systemSettingsQuery.data;
+  const { sheetInterpretation } = reviewInfo;
 
-  let isOvervotedSheet = false;
-  let isUndervotedSheet = false;
-  let verticalStreaksDetected = false;
-  let isFrontBlank = false;
-  let isBackBlank = false;
-  let isInvalidTestModeSheet = false;
-  let isInvalidBallotHashSheet = false;
-  let isInvalidScale = false;
-
-  let actualBallotHash: string | undefined;
-
-  const undervoteContestIds = new Set<Contest['id']>();
-  const overvoteContestIds = new Set<Contest['id']>();
-
-  for (const reviewPageInfo of [
-    {
-      side: 'front' as Side,
-      interpretation: reviewInfo.interpreted.front.interpretation,
-      adjudicationFinishedAt:
-        reviewInfo.interpreted.front.adjudicationFinishedAt,
-    },
-    {
-      side: 'back' as Side,
-      interpretation: reviewInfo.interpreted.back.interpretation,
-      adjudicationFinishedAt:
-        reviewInfo.interpreted.back.adjudicationFinishedAt,
-    },
-  ]) {
-    if (
-      reviewPageInfo.interpretation.type === 'UnreadablePage' &&
-      reviewPageInfo.interpretation.reason === 'verticalStreaksDetected'
-    ) {
-      verticalStreaksDetected = true;
-    } else if (
-      reviewPageInfo.interpretation.type === 'UnreadablePage' &&
-      reviewPageInfo.interpretation.reason === 'invalidScale'
-    ) {
-      isInvalidScale = true;
-    } else if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
-      isInvalidTestModeSheet = true;
-    } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
-      isInvalidBallotHashSheet = true;
-      actualBallotHash = reviewPageInfo.interpretation.actualBallotHash;
-    } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
-      if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
-        for (const adjudicationReason of reviewPageInfo.interpretation
-          .adjudicationInfo.enabledReasonInfos) {
-          if (adjudicationReason.type === AdjudicationReason.Overvote) {
-            isOvervotedSheet = true;
-            overvoteContestIds.add(adjudicationReason.contestId);
-          } else if (adjudicationReason.type === AdjudicationReason.Undervote) {
-            isUndervotedSheet = true;
-            undervoteContestIds.add(adjudicationReason.contestId);
-          } else if (
-            adjudicationReason.type === AdjudicationReason.BlankBallot
-          ) {
-            if (reviewPageInfo.side === 'front') {
-              isFrontBlank = true;
-            } else {
-              isBackBlank = true;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  const backInterpretation = reviewInfo.interpreted.back.interpretation;
-  const isBackIntentionallyLeftBlank =
-    backInterpretation.type === 'InterpretedHmpbPage' &&
-    backInterpretation.markInfo.marks.length === 0;
-  const isBlankSheet =
-    isFrontBlank && (isBackBlank || isBackIntentionallyLeftBlank);
-
-  const highlightedContestIds = new Set<Contest['id']>();
-  if (isOvervotedSheet) {
-    for (const contestId of overvoteContestIds) {
-      highlightedContestIds.add(contestId);
-    }
-  } else if (isUndervotedSheet && !isBlankSheet) {
-    for (const contestId of undervoteContestIds) {
-      highlightedContestIds.add(contestId);
-    }
-  }
+  const unreadableEjectInfo: EjectInformation = {
+    header: 'Unreadable',
+    body: (
+      <React.Fragment>
+        <P>
+          The last scanned ballot was not tabulated because there was a problem
+          reading the ballot.
+        </P>
+        <P>
+          Remove the ballot and reload it into the scanner to try again. If the
+          error persists, remove the ballot for manual adjudication.
+        </P>
+      </React.Fragment>
+    ),
+    allowBallotDuplication: false,
+  };
 
   const ejectInfo: EjectInformation = (() => {
-    if (verticalStreaksDetected) {
-      return {
-        header: 'Streak Detected',
-        body: (
-          <React.Fragment>
-            <P>
-              The last scanned ballot was not tabulated because the scanner
-              needs to be cleaned.
-            </P>
-            <P>Clean the scanner before continuing to scan ballots.</P>
-          </React.Fragment>
-        ),
-        allowBallotDuplication: false,
-      };
-    }
-
-    if (isInvalidScale) {
-      return {
-        header: 'Invalid Scale',
-        body: (
-          <React.Fragment>
-            <P>The last scanned ballot was printed at an invalid scale.</P>
-            <P>Ballots must be printed full-scale.</P>
-          </React.Fragment>
-        ),
-        allowBallotDuplication: false,
-      };
-    }
-
-    if (isInvalidTestModeSheet) {
-      return isTestMode
-        ? {
-            header: 'Official Ballot',
+    if (sheetInterpretation.type === 'InvalidSheet') {
+      const { reason } = sheetInterpretation;
+      switch (reason.type) {
+        case 'vertical_streaks_detected':
+          return {
+            header: 'Streak Detected',
             body: (
               <React.Fragment>
                 <P>
-                  The last scanned ballot was not tabulated because it is an
-                  official ballot but the scanner is in test ballot mode.
+                  The last scanned ballot was not tabulated because the scanner
+                  needs to be cleaned.
                 </P>
-                <P>Remove the ballot before continuing.</P>
+                <P>Clean the scanner before continuing to scan ballots.</P>
               </React.Fragment>
             ),
             allowBallotDuplication: false,
-          }
-        : {
-            header: 'Test Ballot',
+          };
+
+        case 'invalid_scale':
+          return {
+            header: 'Invalid Scale',
+            body: (
+              <React.Fragment>
+                <P>The last scanned ballot was printed at an invalid scale.</P>
+                <P>Ballots must be printed full-scale.</P>
+              </React.Fragment>
+            ),
+            allowBallotDuplication: false,
+          };
+
+        case 'invalid_test_mode':
+          return isTestMode
+            ? {
+                header: 'Official Ballot',
+                body: (
+                  <React.Fragment>
+                    <P>
+                      The last scanned ballot was not tabulated because it is an
+                      official ballot but the scanner is in test ballot mode.
+                    </P>
+                    <P>Remove the ballot before continuing.</P>
+                  </React.Fragment>
+                ),
+                allowBallotDuplication: false,
+              }
+            : {
+                header: 'Test Ballot',
+                body: (
+                  <React.Fragment>
+                    <P>
+                      The last scanned ballot was not tabulated because it is a
+                      test ballot but the scanner is in official ballot mode.
+                    </P>
+                    <P>Remove the ballot before continuing.</P>
+                  </React.Fragment>
+                ),
+                allowBallotDuplication: false,
+              };
+
+        case 'invalid_ballot_hash':
+          return {
+            header: 'Wrong Election',
             body: (
               <React.Fragment>
                 <P>
-                  The last scanned ballot was not tabulated because it is a test
-                  ballot but the scanner is in official ballot mode.
+                  The last scanned ballot was not tabulated because it does not
+                  match the election this scanner is configured for.
                 </P>
+                <H6>Ballot Election ID</H6>
+                <P>{formatBallotHash(reason.actualBallotHash)}</P>
+                <H6>Scanner Election ID</H6>
+                <P>{formatBallotHash(electionDefinition.ballotHash)}</P>
+                <br />
                 <P>Remove the ballot before continuing.</P>
               </React.Fragment>
             ),
             allowBallotDuplication: false,
           };
+
+        case 'invalid_precinct':
+        case 'bmd_ballot_scanning_disabled':
+        case 'unreadable':
+        case 'unknown':
+          return unreadableEjectInfo;
+
+        // istanbul ignore next - @preserve
+        default:
+          throwIllegalValue(reason);
+      }
     }
 
-    if (isInvalidBallotHashSheet) {
-      return {
-        header: 'Wrong Election',
-        body: (
-          <React.Fragment>
-            <P>
-              The last scanned ballot was not tabulated because it does not
-              match the election this scanner is configured for.
-            </P>
-            <H6>Ballot Election ID</H6>
-            <P>{formatBallotHash(actualBallotHash ?? '')}</P>
-            <H6>Scanner Election ID</H6>
-            <P>{formatBallotHash(electionDefinition.ballotHash)}</P>
-            <br />
-            <P>Remove the ballot before continuing.</P>
-          </React.Fragment>
-        ),
-        allowBallotDuplication: false,
-      };
-    }
+    assert(sheetInterpretation.type === 'NeedsReviewSheet');
+    const { reasons } = sheetInterpretation;
 
-    if (isOvervotedSheet) {
+    if (reasons.some((r) => r.type === AdjudicationReason.Overvote)) {
       return {
         header: 'Overvote',
         body: (
@@ -264,10 +211,15 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           </P>
         ),
         allowBallotDuplication: !disallowCastingOvervotes,
+        highlightedContestIds: new Set(
+          reasons
+            .filter((reason) => reason.type === AdjudicationReason.Overvote)
+            .map((reason) => reason.contestId)
+        ),
       };
     }
 
-    if (isBlankSheet) {
+    if (reasons.some((r) => r.type === AdjudicationReason.BlankBallot)) {
       return {
         header: 'Blank Ballot',
         body: (
@@ -280,7 +232,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       };
     }
 
-    if (isUndervotedSheet) {
+    if (reasons.some((r) => r.type === AdjudicationReason.Undervote)) {
       return {
         header: 'Undervote',
         body: (
@@ -290,25 +242,15 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           </P>
         ),
         allowBallotDuplication: true,
+        highlightedContestIds: new Set(
+          reasons
+            .filter((reason) => reason.type === AdjudicationReason.Undervote)
+            .map((reason) => reason.contestId)
+        ),
       };
     }
 
-    return {
-      header: 'Unreadable',
-      body: (
-        <React.Fragment>
-          <P>
-            The last scanned ballot was not tabulated because there was a
-            problem reading the ballot.
-          </P>
-          <P>
-            Remove the ballot and reload it into the scanner to try again. If
-            the error persists, remove the ballot for manual adjudication.
-          </P>
-        </React.Fragment>
-      ),
-      allowBallotDuplication: false,
-    };
+    return unreadableEjectInfo;
   })();
 
   return (
@@ -360,8 +302,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         <BallotImagesContainer>
           {mapSheet(reviewInfo.images, (pageImage, side) => {
             const highlights = pageImage.layout?.contests
-              .filter((contestLayout) =>
-                highlightedContestIds.has(contestLayout.contestId)
+              .filter(
+                (contestLayout) =>
+                  ejectInfo.highlightedContestIds?.has(contestLayout.contestId)
               )
               .map(
                 (contestLayout): BallotImageHighlight => ({
