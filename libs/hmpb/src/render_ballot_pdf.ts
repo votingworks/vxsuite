@@ -112,7 +112,9 @@ const ballotSpecs = [
   ...makePrimaryElectionSpecs('londonderry', 'rep', {
     paperSize: HmpbBallotPaperSize.Legal,
   }),
-  ...makePrimaryElectionSpecs('londonderry', 'dem'),
+  ...makePrimaryElectionSpecs('londonderry', 'dem', {
+    paperSize: HmpbBallotPaperSize.Legal,
+  }),
   ...makeGeneralElectionSpecs('hudson', {
     paperSize: HmpbBallotPaperSize.Custom18,
   }),
