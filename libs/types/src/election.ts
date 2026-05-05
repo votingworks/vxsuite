@@ -1369,17 +1369,6 @@ export const AdjudicationInfoSchema: z.ZodSchema<AdjudicationInfo> = z.object({
   ignoredReasonInfos: z.array(AdjudicationReasonInfoSchema),
 });
 
-export interface AdjudicationStatus {
-  adjudicated: number;
-  remaining: number;
-}
-
-export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> =
-  z.object({
-    adjudicated: z.number(),
-    remaining: z.number(),
-  });
-
 export type Side = 'front' | 'back';
 export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
 
