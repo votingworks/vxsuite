@@ -325,8 +325,7 @@ export class Importer {
       const sheetId = await this.sheetAdded(sheet, currentBatch.batchId);
       debug('got a ballot card: %o, %s', sheet, sheetId);
 
-      const adjudicationStatus = this.workspace.store.adjudicationStatus();
-      if (adjudicationStatus.remaining === 0) {
+      if (this.workspace.store.adjudicationsRemaining() === 0) {
         this.continueImport({ forceAccept: false });
       }
     }
@@ -445,8 +444,7 @@ export class Importer {
    */
   async waitForEndOfBatchOrScanningPause(): Promise<void> {
     while (this.currentBatch) {
-      const adjudicationStatus = this.workspace.store.adjudicationStatus();
-      if (adjudicationStatus.remaining > 0) {
+      if (this.workspace.store.adjudicationsRemaining() > 0) {
         break;
       }
 
@@ -475,8 +473,7 @@ export class Importer {
     return {
       isScannerAttached: this.scanner.isAttached(),
       ongoingBatchId: this.currentBatch?.batchId,
-      adjudicationsRemaining:
-        this.workspace.store.adjudicationStatus().remaining,
+      adjudicationsRemaining: this.workspace.store.adjudicationsRemaining(),
       batches: this.workspace.store.getBatches(),
       canUnconfigure: this.workspace.store.getCanUnconfigure(),
     };
