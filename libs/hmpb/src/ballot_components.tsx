@@ -51,8 +51,10 @@ export const Colors = {
 } as const;
 
 export const ColorTints = {
-  BLUE: '#afdcf3ff',
-  RED: '#f7c2cb',
+  // sRGB equivalents of NH's specified CMYK values, converted via a standard
+  // CMYK profile: Blue PMS 297U / CMYK 41-4-1-0; Red PMS 699U / CMYK 2-28-9-0.
+  BLUE: '#8FD0F1',
+  RED: '#F4C3CC',
 } as const;
 
 export type ColorTint = keyof typeof ColorTints;
