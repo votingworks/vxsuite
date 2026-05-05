@@ -127,15 +127,20 @@ function Header({
           {ballotTypeLabel ?? <>&nbsp;</>}
         </h3>
         <h5
-          style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}
+          style={{
+            visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+            lineHeight: 1,
+          }}
         >
-          {ballotTitle} FOR
+          {ballotTitle}
+          <br />
+          For
         </h5>
         <div style={{ lineHeight: '1.3' }}>
           <h1>{electionStrings.countyName(election.county)}</h1>
           {<h1>{electionStrings.partyName(party)}</h1>}
         </div>
-        <h5 style={{ lineHeight: 1.1 }}>
+        <h5 style={{ lineHeight: 1 }}>
           {isFederalOnlyOffices ? 'Federal' : 'State'} Primary
           <br />
           Election
