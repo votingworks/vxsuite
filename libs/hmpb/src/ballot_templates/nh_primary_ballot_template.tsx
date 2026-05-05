@@ -402,13 +402,12 @@ function CandidateContest({
                   display: 'flex',
                   alignItems: 'center',
                   paddingRight: '1rem',
+                  borderTop: i !== 0 ? `1px solid ${Colors.BLACK}` : undefined,
                 }}
               >
                 <div
                   style={{
                     flex: 1,
-                    borderTop:
-                      i !== 0 ? `1px solid ${Colors.BLACK}` : undefined,
                     padding: '0.125rem 0 ',
                   }}
                 >
@@ -446,6 +445,7 @@ function CandidateContest({
                   textAlign: 'right',
                   alignItems: 'center',
                   paddingRight: '1rem',
+                  borderTop: `1px solid ${Colors.BLACK}`,
                 }}
               >
                 <div
@@ -453,7 +453,6 @@ function CandidateContest({
                     flex: 1,
                     display: 'flex',
                     alignItems: 'end',
-                    borderTop: `1px solid ${Colors.BLACK}`,
                     padding: '0.875rem 0 0.125rem 0',
                   }}
                 >
