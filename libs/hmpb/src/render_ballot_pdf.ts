@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { readElection } from '@votingworks/fs';
 import { writeFile } from 'node:fs/promises';
-import { BallotType, PartyId } from '@votingworks/types';
+import { BallotType, HmpbBallotPaperSize, PartyId } from '@votingworks/types';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import {
   BallotTemplateId,
@@ -16,39 +16,47 @@ interface BallotSpec {
   props: Partial<NhPrimaryBallotProps>;
   ballotTemplateId: BallotTemplateId;
   outputPdfPath: string;
+  paperSize?: HmpbBallotPaperSize;
 }
 
 const dir = '/media/psf/VMSharing/nh-ballots';
 
 function makeGeneralElectionSpecs(
   town: string,
-  props: Partial<NhGeneralBallotProps> = {}
+  {
+    paperSize,
+    ...props
+  }: Partial<NhGeneralBallotProps> & { paperSize?: HmpbBallotPaperSize } = {}
 ): BallotSpec[] {
   const electionPath = `${dir}/${town}-general-election.json`;
   const outputPathPrefix = `${dir}/${town}-general-ballot`;
+  const base: Pick<
+    BallotSpec,
+    'electionPath' | 'ballotTemplateId' | 'paperSize'
+  > = {
+    electionPath,
+    ballotTemplateId: 'NhGeneralBallot',
+    paperSize,
+  };
   return [
     {
-      electionPath,
+      ...base,
       props: { ballotType: BallotType.Precinct, ...props },
-      ballotTemplateId: 'NhGeneralBallot',
       outputPdfPath: `${outputPathPrefix}-precinct.pdf`,
     },
     {
-      electionPath,
+      ...base,
       props: { ballotType: BallotType.Absentee, ...props },
-      ballotTemplateId: 'NhGeneralBallot',
       outputPdfPath: `${outputPathPrefix}-absentee.pdf`,
     },
     {
-      electionPath,
+      ...base,
       props: { isFederalOnlyOffices: true, ...props },
-      ballotTemplateId: 'NhGeneralBallot',
       outputPdfPath: `${outputPathPrefix}-foo.pdf`,
     },
     {
-      electionPath,
+      ...base,
       props: { ballotMode: 'sample', ...props },
-      ballotTemplateId: 'NhGeneralBallot',
       outputPdfPath: `${outputPathPrefix}-sample.pdf`,
     },
   ];
@@ -57,46 +65,62 @@ function makeGeneralElectionSpecs(
 function makePrimaryElectionSpecs(
   town: string,
   party: 'rep' | 'dem',
-  props: Partial<NhPrimaryBallotProps> = {}
+  {
+    paperSize,
+    ...props
+  }: Partial<NhPrimaryBallotProps> & { paperSize?: HmpbBallotPaperSize } = {}
 ): BallotSpec[] {
   const colorTint = party === 'rep' ? 'RED' : 'BLUE';
   const electionPath = `${dir}/${town}-primary-election-${party}.json`;
   const outputPathPrefix = `${dir}/${town}-primary-ballot-${party}`;
+  const base: Pick<
+    BallotSpec,
+    'electionPath' | 'ballotTemplateId' | 'paperSize'
+  > = {
+    electionPath,
+    ballotTemplateId: 'NhPrimaryBallot',
+    paperSize,
+  };
   return [
     {
-      electionPath,
+      ...base,
       props: { ballotType: BallotType.Precinct, colorTint, ...props },
-      ballotTemplateId: 'NhPrimaryBallot',
       outputPdfPath: `${outputPathPrefix}-precinct.pdf`,
     },
     {
-      electionPath,
+      ...base,
       props: { ballotType: BallotType.Absentee, colorTint, ...props },
-      ballotTemplateId: 'NhPrimaryBallot',
       outputPdfPath: `${outputPathPrefix}-absentee.pdf`,
     },
     {
-      electionPath,
+      ...base,
       props: { isFederalOnlyOffices: true, colorTint, ...props },
-      ballotTemplateId: 'NhPrimaryBallot',
       outputPdfPath: `${outputPathPrefix}-foo.pdf`,
     },
     {
-      electionPath,
+      ...base,
       props: { ballotMode: 'sample', colorTint, ...props },
-      ballotTemplateId: 'NhPrimaryBallot',
       outputPdfPath: `${outputPathPrefix}-sample.pdf`,
     },
   ];
 }
 
 const ballotSpecs = [
-  ...makeGeneralElectionSpecs('londonderry'),
-  ...makePrimaryElectionSpecs('londonderry', 'rep'),
+  ...makeGeneralElectionSpecs('londonderry', {
+    paperSize: HmpbBallotPaperSize.Custom18,
+  }),
+  ...makePrimaryElectionSpecs('londonderry', 'rep', {
+    paperSize: HmpbBallotPaperSize.Legal,
+  }),
   ...makePrimaryElectionSpecs('londonderry', 'dem'),
-  ...makeGeneralElectionSpecs('hudson'),
+  ...makeGeneralElectionSpecs('hudson', {
+    paperSize: HmpbBallotPaperSize.Custom18,
+  }),
   ...makePrimaryElectionSpecs('hudson', 'dem'),
-  ...makeGeneralElectionSpecs('monroe', { isHandCount: true }),
+  ...makeGeneralElectionSpecs('monroe', {
+    isHandCount: true,
+    paperSize: HmpbBallotPaperSize.Legal,
+  }),
   ...makePrimaryElectionSpecs('monroe', 'rep', { isHandCount: true }),
   ...makePrimaryElectionSpecs('monroe', 'dem', { isHandCount: true }),
 ];
@@ -133,7 +157,13 @@ export async function main(): Promise<number> {
 
   const renderer = await createPlaywrightRenderer();
   for (const spec of ballotSpecs) {
-    const { election } = (await readElection(spec.electionPath)).unsafeUnwrap();
+    let { election } = (await readElection(spec.electionPath)).unsafeUnwrap();
+    if (spec.paperSize) {
+      election = {
+        ...election,
+        ballotLayout: { ...election.ballotLayout, paperSize: spec.paperSize },
+      };
+    }
     // const document = await render(renderer, {
     //   election,
     //   partyId: election.parties[0]?.id,
