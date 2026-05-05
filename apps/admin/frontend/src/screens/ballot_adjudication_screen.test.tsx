@@ -353,6 +353,80 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   );
 });
 
+test('skip / back / exit prompt to discard when the user has unsaved adjudications', async () => {
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+  const adjData1 = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData('zoo-council-mammal'),
+  ]);
+
+  // Start at ballot 2 of 2 so Skip, Back, and Exit are all visible
+  // (Back only renders past the first ballot in the queue).
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves(makeHmpbBallotImages(CVR_ID_2));
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 2 of 2');
+
+  // Open the contest, flip a vote, Confirm to buffer the adjudication
+  // locally without hitting the network.
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await screen.findByText('Ballot 2 of 2');
+
+  // Skip with un-Accepted edits prompts the discard modal; modal Back
+  // keeps the user on this ballot and preserves the buffer.
+  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await screen.findByText('Unsaved Changes');
+  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await waitFor(() => {
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+  });
+
+  // Exit triggers the same prompt; modal Back again preserves the buffer.
+  userEvent.click(screen.getByRole('button', { name: /Exit/ }));
+  await screen.findByText('Unsaved Changes');
+  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await waitFor(() => {
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+  });
+
+  // Back triggers the prompt; this time Discard clears the buffer and
+  // navigation proceeds to ballot 1.
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+  userEvent.click(screen.getByRole('button', { name: /^Back$/ }));
+  await screen.findByText('Unsaved Changes');
+  userEvent.click(screen.getByRole('button', { name: /Discard/ }));
+  await screen.findByText('Ballot 1 of 2');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
 test('accept button state depends on contest resolution', async () => {
   // disabled when unresolved write-ins exist
   const unresolvedAdjData = makeBallotAdjudicationData(CVR_ID_1, [

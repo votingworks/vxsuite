@@ -18,7 +18,12 @@ import type {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   adjudicateCvr,
   claimBallotForAdjudication,
@@ -46,6 +51,7 @@ import {
   isContestResolved,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
+import { DiscardChangesModal } from '../components/discard_changes_modal';
 
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 const DEFAULT_PADDING = '0.75rem';
@@ -450,6 +456,9 @@ export function BallotAdjudicationScreen({
     null
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingDiscard, setPendingDiscard] = useState<
+    'skip' | 'back' | 'exit' | null
+  >(null);
   const [adjudicatedContests, setAdjudicatedContests] = useState<
     Map<ContestId, AdjudicatedCvrContest>
   >(new Map());
@@ -458,6 +467,24 @@ export function BallotAdjudicationScreen({
   useEffect(() => {
     setAdjudicatedContests((prev) => (prev.size === 0 ? prev : new Map()));
   }, [cvrId]);
+
+  // Wraps a navigation action so we prompt before discarding any
+  // in-progress adjudications the user has Confirmed but not yet Accepted.
+  function onNavigation(
+    type: 'skip' | 'back' | 'exit',
+    action: () => void
+  ): () => void {
+    return () => {
+      if (adjudicatedContests.size > 0) {
+        setPendingDiscard(type);
+      } else {
+        action();
+      }
+    };
+  }
+  const onSkipGuarded = onSkip && onNavigation('skip', onSkip);
+  const onBackGuarded = onBack && onNavigation('back', onBack);
+  const onExitGuarded = onNavigation('exit', onExit);
 
   // Default to back side if the first pending contest is on the back
   useEffect(() => {
@@ -627,7 +654,7 @@ export function BallotAdjudicationScreen({
               fill="outlined"
               color="inverseNeutral"
               icon="X"
-              onPress={onExit}
+              onPress={onExitGuarded}
               style={{ padding: '0.3rem .75rem', fontSize: '.8rem' }}
             >
               Exit
@@ -660,9 +687,9 @@ export function BallotAdjudicationScreen({
             <FooterNav>
               {isClaimed ? (
                 <React.Fragment>
-                  {onSkip && (
+                  {onSkipGuarded && (
                     <PrimaryNavButton
-                      onPress={onSkip}
+                      onPress={onSkipGuarded}
                       disabled={isClaimInFlight}
                       rightIcon={isLastBallot ? 'Done' : 'Next'}
                       variant="primary"
@@ -670,10 +697,10 @@ export function BallotAdjudicationScreen({
                       {isLastBallot ? 'Done' : 'Next'}
                     </PrimaryNavButton>
                   )}
-                  {onBack && (
+                  {onBackGuarded && (
                     <SecondaryNavButton
                       icon="Previous"
-                      onPress={onBack}
+                      onPress={onBackGuarded}
                       disabled={isClaimInFlight}
                     >
                       Back
@@ -690,19 +717,19 @@ export function BallotAdjudicationScreen({
                   >
                     Accept
                   </PrimaryNavButton>
-                  {onSkip && (
+                  {onSkipGuarded && (
                     <SecondaryNavButton
-                      onPress={onSkip}
+                      onPress={onSkipGuarded}
                       rightIcon="Next"
                       disabled={isClaimInFlight}
                     >
                       Skip
                     </SecondaryNavButton>
                   )}
-                  {onBack && (
+                  {onBackGuarded && (
                     <SecondaryNavButton
                       icon="Previous"
-                      onPress={onBack}
+                      onPress={onBackGuarded}
                       disabled={isClaimInFlight}
                     >
                       Back
@@ -731,6 +758,29 @@ export function BallotAdjudicationScreen({
               </Button>
             </ModalActions>
           }
+        />
+      )}
+      {pendingDiscard && (
+        <DiscardChangesModal
+          onBack={() => setPendingDiscard(null)}
+          onDiscard={() => {
+            setPendingDiscard(null);
+            setAdjudicatedContests(new Map());
+            switch (pendingDiscard) {
+              case 'skip':
+                onSkip?.();
+                break;
+              case 'back':
+                onBack?.();
+                break;
+              case 'exit':
+                onExit();
+                break;
+              /* istanbul ignore next - @preserve */
+              default:
+                throwIllegalValue(pendingDiscard);
+            }
+          }}
         />
       )}
     </Screen>
