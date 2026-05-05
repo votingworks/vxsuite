@@ -4,7 +4,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 require('../src/render_ballot_pdf')
-  .main(process.argv.slice(2))
+  .main()
   .then((exitCode) => {
     process.exitCode = exitCode;
   })

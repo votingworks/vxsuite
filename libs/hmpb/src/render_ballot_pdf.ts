@@ -1,12 +1,7 @@
 /* eslint-disable no-console */
 import { readElection } from '@votingworks/fs';
 import { writeFile } from 'node:fs/promises';
-import {
-  BallotType,
-  BaseBallotProps,
-  HmpbBallotPaperSize,
-  PartyId,
-} from '@votingworks/types';
+import { BallotType, PartyId } from '@votingworks/types';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import {
   BallotTemplateId,
@@ -15,8 +10,6 @@ import {
 } from './ballot_templates';
 import { renderBallotPreviewToPdf } from './render_ballot';
 import { render as renderRovForm } from './ballot_templates/nh_rov_form';
-
-const USAGE = `Usage: render-ballot-pdf <ballot-template-id> <election-path> <output-pdf-path>`;
 
 interface BallotSpec {
   electionPath: string;
@@ -102,7 +95,7 @@ const ballotSpecs = [
   ...makePrimaryElectionSpecs('londonderry', 'rep'),
   ...makePrimaryElectionSpecs('londonderry', 'dem'),
   ...makeGeneralElectionSpecs('hudson'),
-  ...makePrimaryElectionSpecs('hudson', 'rep'),
+  ...makePrimaryElectionSpecs('hudson', 'dem'),
   ...makeGeneralElectionSpecs('monroe', { isHandCount: true }),
   ...makePrimaryElectionSpecs('monroe', 'rep', { isHandCount: true }),
   ...makePrimaryElectionSpecs('monroe', 'dem', { isHandCount: true }),
@@ -131,7 +124,7 @@ const rovSpecs: RovSpec[] = [
   },
 ];
 
-export async function main(args: string[]): Promise<number> {
+export async function main(): Promise<number> {
   // if (args.length !== 3) {
   //   console.error(USAGE);
   //   return 1;
@@ -183,4 +176,4 @@ export async function main(args: string[]): Promise<number> {
   return 0;
 }
 
-void main(process.argv.slice(2)).then((code) => process.exit(code));
+void main().then((code) => process.exit(code));
