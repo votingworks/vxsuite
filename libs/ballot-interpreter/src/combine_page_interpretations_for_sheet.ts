@@ -4,6 +4,7 @@ import {
   Election,
   InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
+  InvalidBallotHashPage,
   PageInterpretation,
   SheetInterpretation,
   SheetOf,
@@ -122,9 +123,15 @@ export function combinePageInterpretationsForSheet(
     frontType === 'InvalidBallotHashPage' ||
     backType === 'InvalidBallotHashPage'
   ) {
+    const invalidPage = (
+      front.type === 'InvalidBallotHashPage' ? front : back
+    ) as InvalidBallotHashPage;
     return {
       type: 'InvalidSheet',
-      reason: 'invalid_ballot_hash',
+      reason: {
+        type: 'invalid_ballot_hash',
+        actualBallotHash: invalidPage.actualBallotHash,
+      },
     };
   }
 
@@ -134,7 +141,7 @@ export function combinePageInterpretationsForSheet(
   ) {
     return {
       type: 'InvalidSheet',
-      reason: 'invalid_test_mode',
+      reason: { type: 'invalid_test_mode' },
     };
   }
 
@@ -144,7 +151,7 @@ export function combinePageInterpretationsForSheet(
   ) {
     return {
       type: 'InvalidSheet',
-      reason: 'invalid_precinct',
+      reason: { type: 'invalid_precinct' },
     };
   }
 
@@ -154,7 +161,7 @@ export function combinePageInterpretationsForSheet(
   ) {
     return {
       type: 'InvalidSheet',
-      reason: 'invalid_scale',
+      reason: { type: 'invalid_scale' },
     };
   }
 
@@ -166,7 +173,7 @@ export function combinePageInterpretationsForSheet(
   ) {
     return {
       type: 'InvalidSheet',
-      reason: 'bmd_ballot_scanning_disabled',
+      reason: { type: 'bmd_ballot_scanning_disabled' },
     };
   }
 
@@ -178,19 +185,19 @@ export function combinePageInterpretationsForSheet(
   ) {
     return {
       type: 'InvalidSheet',
-      reason: 'vertical_streaks_detected',
+      reason: { type: 'vertical_streaks_detected' },
     };
   }
 
   if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
     return {
       type: 'InvalidSheet',
-      reason: 'unreadable',
+      reason: { type: 'unreadable' },
     };
   }
 
   return {
     type: 'InvalidSheet',
-    reason: 'unknown',
+    reason: { type: 'unknown' },
   };
 }

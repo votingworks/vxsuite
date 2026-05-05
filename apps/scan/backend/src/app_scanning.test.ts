@@ -93,7 +93,7 @@ test('scanBatch with streaked page', async () => {
         state: 'rejecting',
         interpretation: {
           type: 'InvalidSheet',
-          reason: 'vertical_streaks_detected',
+          reason: { type: 'vertical_streaks_detected' },
         },
       });
     }
