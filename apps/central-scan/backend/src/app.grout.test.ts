@@ -10,6 +10,7 @@ import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
+  AdjudicationReasonInfo,
   BallotMetadata,
   BallotStyleId,
   BallotType,
@@ -390,7 +391,7 @@ test('get next sheet returns null when no adjudication sheet', async () => {
   });
 });
 
-test('getNextReviewSheet includes images', async () => {
+test('getNextReviewSheet returns interpretation and image data for uninterpretable sheets', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
@@ -401,51 +402,37 @@ test('getNextReviewSheet includes images', async () => {
       'test-election-package-hash'
     );
     const batchId = workspace.store.addBatch();
-    const sheetId = workspace.store.addSheet(
-      electionDefinition.election,
-      uuid(),
-      batchId,
-      sheet
-    );
+    workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
+      { imagePath: frontImagePath, interpretation: { type: 'BlankPage' } },
+      { imagePath: backImagePath, interpretation: { type: 'BlankPage' } },
+    ]);
     workspace.store.finishBatch({ batchId });
-
-    vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
-      id: sheetId,
-      front: {
-        interpretation: { type: 'BlankPage' },
-      },
-      back: {
-        interpretation: { type: 'BlankPage' },
-      },
-    });
 
     const result = await apiClient.getNextReviewSheet();
     expect(result).toBeDefined();
+    expect(result!.sheetInterpretation).toEqual({
+      type: 'InvalidSheet',
+      reason: { type: 'unknown' },
+    });
+
     const [frontImage, backImage] = result!.images;
-    expect(frontImage).toMatchObject({
-      imageUrl: expect.stringMatching(/^data:image\//),
-      ballotBounds: {
-        x: 0,
-        y: 0,
-        width: expect.any(Number),
-        height: expect.any(Number),
-      },
-    });
-    expect(backImage).toMatchObject({
-      imageUrl: expect.stringMatching(/^data:image\//),
-      ballotBounds: {
-        x: 0,
-        y: 0,
-        width: expect.any(Number),
-        height: expect.any(Number),
-      },
-    });
+    for (const image of [frontImage, backImage]) {
+      expect(image).toMatchObject({
+        imageUrl: expect.stringMatching(/^data:image\//),
+        ballotBounds: {
+          x: 0,
+          y: 0,
+          width: expect.any(Number),
+          height: expect.any(Number),
+        },
+      });
+    }
     expect(frontImage.layout).toBeUndefined();
     expect(backImage.layout).toBeUndefined();
   });
 });
 
-test('getNextReviewSheet includes layouts for HMPB pages', async () => {
+test('getNextReviewSheet returns interpretation, image data, and layouts for interpretable sheets', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
@@ -456,56 +443,58 @@ test('getNextReviewSheet includes layouts for HMPB pages', async () => {
       'test-election-package-hash'
     );
     const batchId = workspace.store.addBatch();
-    const sheetId = workspace.store.addSheet(
-      electionDefinition.election,
-      uuid(),
-      batchId,
-      sheet
-    );
-    workspace.store.finishBatch({ batchId });
 
     const metadata: BallotMetadata = {
-      ballotHash: 'abcdef',
+      ballotHash: electionDefinition.ballotHash,
       ballotType: BallotType.Precinct,
       ballotStyleId: 'card-number-3' as BallotStyleId,
       precinctId: 'town-id-00701-precinct-id-default',
       isTestMode: false,
     };
-    const hmpbInterpretation: InterpretedHmpbPage = {
-      type: 'InterpretedHmpbPage',
-      metadata: { ...metadata, pageNumber: 1 },
-      markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
-      adjudicationInfo: {
-        requiresAdjudication: true,
-        enabledReasons: [AdjudicationReason.Overvote],
-        enabledReasonInfos: [
-          {
-            type: AdjudicationReason.Overvote,
-            contestId: 'contest-id',
-            expected: 1,
-            optionIds: ['option-id', 'option-id-2'],
-          },
-        ],
-        ignoredReasonInfos: [],
-      },
-      votes: {},
-      layout: {
-        pageSize: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 1 },
-        contests: [],
-      },
+    function buildHmpbPage(
+      pageNumber: number,
+      reasonInfos: AdjudicationReasonInfo[] = []
+    ): InterpretedHmpbPage {
+      return {
+        type: 'InterpretedHmpbPage',
+        metadata: { ...metadata, pageNumber },
+        markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
+        adjudicationInfo: {
+          requiresAdjudication: reasonInfos.length > 0,
+          enabledReasons: reasonInfos.map((r) => r.type),
+          enabledReasonInfos: reasonInfos,
+          ignoredReasonInfos: [],
+        },
+        votes: {},
+        layout: {
+          pageSize: { width: 1, height: 1 },
+          metadata: { ...metadata, pageNumber },
+          contests: [],
+        },
+      };
+    }
+    const overvoteReason: AdjudicationReasonInfo = {
+      type: AdjudicationReason.Overvote,
+      contestId: 'contest-id',
+      expected: 1,
+      optionIds: ['option-id', 'option-id-2'],
     };
+    const frontPage = buildHmpbPage(1, [overvoteReason]);
+    const backPage = buildHmpbPage(2);
 
-    vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
-      id: sheetId,
-      front: { interpretation: hmpbInterpretation },
-      back: { interpretation: { type: 'BlankPage' } },
-    });
+    workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
+      { imagePath: frontImagePath, interpretation: frontPage },
+      { imagePath: backImagePath, interpretation: backPage },
+    ]);
+    workspace.store.finishBatch({ batchId });
 
     const result = await apiClient.getNextReviewSheet();
-    expect(result).toBeDefined();
+    expect(result!.sheetInterpretation).toEqual({
+      type: 'NeedsReviewSheet',
+      reasons: [overvoteReason],
+    });
     const [frontImage, backImage] = result!.images;
-    expect(frontImage.layout).toEqual(hmpbInterpretation.layout);
-    expect(backImage.layout).toBeUndefined();
+    expect(frontImage.layout).toEqual(frontPage.layout);
+    expect(backImage.layout).toEqual(backPage.layout);
   });
 });

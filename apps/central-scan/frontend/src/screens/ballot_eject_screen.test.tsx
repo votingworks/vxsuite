@@ -1,14 +1,12 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import {
   AdjudicationReason,
-  BallotMetadata,
   BallotPageMetadata,
-  BallotSheetInfo,
-  BallotStyleId,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
+  SheetInterpretation,
+  SheetOf,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -24,16 +22,6 @@ type NextReviewSheet = Awaited<
   ReturnType<(typeof apiMock.apiClient)['getNextReviewSheet']>
 >;
 
-function buildBmdMetadata(): BallotMetadata {
-  return {
-    ballotStyleId: '1',
-    precinctId: '1',
-    ballotType: BallotType.Precinct,
-    ballotHash: 'abcde',
-    isTestMode: false,
-  };
-}
-
 function buildHmpMetadataWithPage(pageNumber: number): BallotPageMetadata {
   return {
     ballotStyleId: '1',
@@ -46,33 +34,40 @@ function buildHmpMetadataWithPage(pageNumber: number): BallotPageMetadata {
 }
 
 function buildNextReviewSheet(
-  ballotSheetInfo: BallotSheetInfo
+  sheetInterpretation: SheetInterpretation,
+  contestIdsBySide: SheetOf<readonly string[]> = [[], []]
 ): NextReviewSheet {
-  const frontMetadata: BallotMetadata | BallotPageMetadata =
-    'metadata' in ballotSheetInfo.front.interpretation
-      ? ballotSheetInfo.front.interpretation.metadata
-      : buildHmpMetadataWithPage(1);
-  const backMetadata: BallotMetadata | BallotPageMetadata =
-    'metadata' in ballotSheetInfo.back.interpretation
-      ? ballotSheetInfo.back.interpretation.metadata
-      : buildHmpMetadataWithPage(2);
-  function buildImage(metadata: BallotMetadata | BallotPageMetadata) {
+  function buildImage(pageNumber: number, contestIds: readonly string[]) {
     return {
-      imageUrl: 'data:image/png;base64,',
+      imageUrl: `mock-${pageNumber === 1 ? 'front' : 'back'}-image`,
       ballotBounds: { x: 0, y: 0, width: 1700, height: 2200 },
-      layout:
-        'pageNumber' in metadata
-          ? {
-              contests: [],
-              metadata,
-              pageSize: { width: 1, height: 1 },
-            }
-          : undefined,
+      layout: {
+        contests: contestIds.map((contestId, i) => {
+          const y = 200 + i * 400;
+          return {
+            contestId,
+            bounds: { x: 100, y, width: 500, height: 300 },
+            corners: [
+              { x: 100, y },
+              { x: 600, y },
+              { x: 100, y: y + 300 },
+              { x: 600, y: y + 300 },
+            ] as const,
+            options: [],
+          };
+        }),
+        metadata: buildHmpMetadataWithPage(pageNumber),
+        pageSize: { width: 1700, height: 2200 },
+      },
     };
   }
+  const [frontContestIds, backContestIds] = contestIdsBySide;
   return {
-    interpreted: ballotSheetInfo,
-    images: [buildImage(frontMetadata), buildImage(backMetadata)] as const,
+    sheetInterpretation,
+    images: [
+      buildImage(1, frontContestIds),
+      buildImage(2, backContestIds),
+    ] as const,
   };
 }
 
@@ -88,19 +83,12 @@ afterEach(() => {
 test('says the sheet is unreadable if it is', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: { type: 'BlankPage' },
-      },
-      back: {
-        interpretation: { type: 'BlankPage' },
-      },
+      type: 'InvalidSheet',
+      reason: { type: 'unknown' },
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Unreadable');
   screen.getByText(
@@ -113,13 +101,6 @@ test('says the sheet is unreadable if it is', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'BlankPage',
-    })
-  );
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
@@ -127,64 +108,19 @@ test('says the sheet is unreadable if it is', async () => {
 test('says the ballot sheet is overvoted if it is', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
-          },
-          metadata: buildHmpMetadataWithPage(1),
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Overvote,
-                contestId: '1',
-                optionIds: ['1', '2'],
-                expected: 1,
-              },
-            ],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(1),
-            contests: [],
-          },
+      type: 'NeedsReviewSheet',
+      reasons: [
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: '1',
+          optionIds: ['1', '2'],
+          expected: 1,
         },
-      },
-      back: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
-          },
-          metadata: buildHmpMetadataWithPage(2),
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(2),
-            contests: [],
-          },
-        },
-      },
+      ],
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Overvote');
   screen.getByText(
@@ -192,15 +128,6 @@ test('says the ballot sheet is overvoted if it is', async () => {
   );
   screen.getByText(
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
-  );
-
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'Overvote',
-    })
   );
 
   apiMock.expectContinueScanning({ forceAccept: false });
@@ -211,106 +138,24 @@ test('says the ballot sheet is overvoted if it is', async () => {
 });
 
 test('renders both ballot images with highlights on overvoted contests', async () => {
-  const BALLOT_BOUNDS = { x: 0, y: 0, width: 1700, height: 2200 } as const;
-  const CONTEST_BOUNDS = { x: 100, y: 200, width: 500, height: 300 } as const;
-
-  apiMock.expectGetNextReviewSheet({
-    interpreted: {
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
-          metadata: buildHmpMetadataWithPage(1),
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Overvote,
-                contestId: 'contest-1',
-                optionIds: ['1', '2'],
-                expected: 1,
-              },
-            ],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(1),
-            contests: [],
-          },
-        },
-      },
-      back: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
-          metadata: buildHmpMetadataWithPage(2),
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(2),
-            contests: [],
-          },
-        },
-      },
-    },
-    images: [
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet(
       {
-        imageUrl: 'mock-front-image',
-        ballotBounds: BALLOT_BOUNDS,
-        layout: {
-          pageSize: { width: 1700, height: 2200 },
-          metadata: buildHmpMetadataWithPage(1),
-          contests: [
-            {
-              contestId: 'contest-1',
-              bounds: CONTEST_BOUNDS,
-              corners: [
-                { x: 100, y: 200 },
-                { x: 600, y: 200 },
-                { x: 100, y: 500 },
-                { x: 600, y: 500 },
-              ],
-              options: [],
-            },
-            {
-              contestId: 'contest-2',
-              bounds: { x: 100, y: 600, width: 500, height: 300 },
-              corners: [
-                { x: 100, y: 600 },
-                { x: 600, y: 600 },
-                { x: 100, y: 900 },
-                { x: 600, y: 900 },
-              ],
-              options: [],
-            },
-          ],
-        },
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.Overvote,
+            contestId: 'contest-1',
+            optionIds: ['1', '2'],
+            expected: 1,
+          },
+        ],
       },
-      {
-        imageUrl: 'mock-back-image',
-        ballotBounds: BALLOT_BOUNDS,
-        layout: {
-          pageSize: { width: 1700, height: 2200 },
-          metadata: buildHmpMetadataWithPage(2),
-          contests: [],
-        },
-      },
-    ] as const,
-  });
+      [['contest-1', 'contest-2'], []]
+    )
+  );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Overvote');
 
@@ -336,65 +181,23 @@ test('renders both ballot images with highlights on overvoted contests', async (
 
 test('says the ballot sheet is undervoted if it is', async () => {
   apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
+    buildNextReviewSheet(
+      {
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: '1',
+            optionIds: [],
+            expected: 1,
           },
-          metadata: buildHmpMetadataWithPage(1),
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Undervote,
-                contestId: '1',
-                optionIds: [],
-                expected: 1,
-              },
-            ],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Undervote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(1),
-            contests: [],
-          },
-        },
+        ],
       },
-      back: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
-          },
-          metadata: buildHmpMetadataWithPage(2),
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(2),
-            contests: [],
-          },
-        },
-      },
-    })
+      [['1'], []]
+    )
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Undervote');
   screen.getByText(
@@ -404,14 +207,9 @@ test('says the ballot sheet is undervoted if it is', async () => {
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'Undervote',
-    })
-  );
+  // Undervoted contest is highlighted on the front image
+  const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
+  expect(ballotImages[0].querySelectorAll('div')).toHaveLength(1);
 
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
@@ -422,72 +220,24 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
 test('says the ballot sheet is blank if it is', async () => {
   apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
+    buildNextReviewSheet(
+      {
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: '1',
+            expected: 1,
+            optionIds: [],
           },
-          metadata: buildHmpMetadataWithPage(1),
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Undervote,
-                contestId: '1',
-                expected: 1,
-                optionIds: [],
-              },
-              { type: AdjudicationReason.BlankBallot },
-            ],
-            ignoredReasonInfos: [],
-            enabledReasons: [
-              AdjudicationReason.BlankBallot,
-              AdjudicationReason.Undervote,
-            ],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(1),
-            contests: [],
-          },
-        },
+          { type: AdjudicationReason.BlankBallot },
+        ],
       },
-      back: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
-          },
-          metadata: buildHmpMetadataWithPage(2),
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-            ignoredReasonInfos: [],
-            enabledReasons: [
-              AdjudicationReason.BlankBallot,
-              AdjudicationReason.Undervote,
-            ],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: buildHmpMetadataWithPage(2),
-            contests: [],
-          },
-        },
-      },
-    })
+      [['1'], []]
+    )
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Blank Ballot');
   screen.getByText(
@@ -497,14 +247,10 @@ test('says the ballot sheet is blank if it is', async () => {
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'BlankBallot, Undervote',
-    })
-  );
+  // No highlights on a blank ballot — even though the layout has the
+  // undervoted contest, the Blank Ballot case suppresses highlighting.
+  const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
+  expect(ballotImages[0].querySelector('div')).not.toBeInTheDocument();
 
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
@@ -516,31 +262,12 @@ test('says the ballot sheet is blank if it is', async () => {
 test('calls out official ballot sheets in test mode', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InvalidTestModePage',
-          metadata: {
-            ...buildBmdMetadata(),
-            isTestMode: false,
-          },
-        },
-      },
-      back: {
-        interpretation: {
-          type: 'InvalidTestModePage',
-          metadata: {
-            ...buildBmdMetadata(),
-            isTestMode: false,
-          },
-        },
-      },
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_test_mode' },
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Official Ballot');
   screen.getByText(
@@ -551,15 +278,6 @@ test('calls out official ballot sheets in test mode', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'InvalidTestModePage',
-    })
-  );
-
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
@@ -567,34 +285,12 @@ test('calls out official ballot sheets in test mode', async () => {
 test('calls out test ballot sheets in live mode', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InvalidTestModePage',
-          metadata: {
-            ...buildBmdMetadata(),
-            isTestMode: true,
-          },
-        },
-      },
-      back: {
-        interpretation: {
-          type: 'InvalidTestModePage',
-          metadata: {
-            ...buildBmdMetadata(),
-            isTestMode: true,
-          },
-        },
-      },
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_test_mode' },
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode={false} />, {
-    apiMock,
-    logger,
-  });
+  renderInAppContext(<BallotEjectScreen isTestMode={false} />, { apiMock });
 
   await screen.findByText('Test Ballot');
   screen.getByText(
@@ -605,15 +301,6 @@ test('calls out test ballot sheets in live mode', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'InvalidTestModePage',
-    })
-  );
-
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
@@ -621,26 +308,15 @@ test('calls out test ballot sheets in live mode', async () => {
 test('shows invalid election screen when appropriate', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InvalidBallotHashPage',
-          actualBallotHash: 'this-is-a-hash-hooray',
-          expectedBallotHash: 'something',
-        },
-      },
-      back: {
-        interpretation: { type: 'BlankPage' },
+      type: 'InvalidSheet',
+      reason: {
+        type: 'invalid_ballot_hash',
+        actualBallotHash: 'this-is-a-hash-hooray',
       },
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode={false} />, {
-    apiMock,
-    logger,
-  });
+  renderInAppContext(<BallotEjectScreen isTestMode={false} />, { apiMock });
 
   await screen.findByText('Wrong Election');
   screen.getByText('Ballot Election ID');
@@ -651,14 +327,6 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'InvalidBallotHashPage, BlankPage',
-    })
-  );
 
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
@@ -671,85 +339,21 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
     ...DEFAULT_SYSTEM_SETTINGS,
     disallowCastingOvervotes: true,
   });
-  const metadata: BallotMetadata = {
-    ballotStyleId: '1' as BallotStyleId,
-    precinctId: '1',
-    ballotType: BallotType.Precinct,
-    ballotHash: 'abcde',
-    isTestMode: false,
-  };
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
-          },
-          metadata: {
-            ...metadata,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Overvote,
-                contestId: '1',
-                optionIds: ['1', '2'],
-                expected: 1,
-              },
-            ],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              ...metadata,
-              pageNumber: 1,
-            },
-            contests: [],
-          },
+      type: 'NeedsReviewSheet',
+      reasons: [
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: '1',
+          optionIds: ['1', '2'],
+          expected: 1,
         },
-      },
-      back: {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          markInfo: {
-            ballotSize: { width: 1, height: 1 },
-            marks: [],
-          },
-          metadata: {
-            ...metadata,
-            pageNumber: 2,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-            enabledReasons: [AdjudicationReason.Overvote],
-          },
-          votes: {},
-          layout: {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              ...metadata,
-              pageNumber: 2,
-            },
-            contests: [],
-          },
-        },
-      },
+      ],
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Overvote');
   screen.getByText(
@@ -765,25 +369,12 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
 test('says the scanner needs cleaning if a streak is detected', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: 'verticalStreaksDetected',
-        },
-      },
-      back: {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: 'verticalStreaksDetected',
-        },
-      },
+      type: 'InvalidSheet',
+      reason: { type: 'vertical_streaks_detected' },
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Streak Detected');
   screen.getByText(
@@ -794,14 +385,28 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'UnreadablePage',
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
+test('falls through to "Unreadable" for an UnreadablePage with an unrecognized reason', async () => {
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      type: 'InvalidSheet',
+      reason: { type: 'unreadable' },
     })
   );
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+
+  await screen.findByText('Unreadable');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because there was a problem reading the ballot.'
+  );
+  expect(screen.getByRole('button').textContent).toEqual(
+    'Confirm Ballot Removed'
+  );
+
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
@@ -809,25 +414,12 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
 test('ballot with invalid scale', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
-      id: 'mock-sheet-id',
-      front: {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: 'invalidScale',
-        },
-      },
-      back: {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: 'invalidScale',
-        },
-      },
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_scale' },
     })
   );
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
   await screen.findByText('Invalid Scale');
   screen.getByText('The last scanned ballot was printed at an invalid scale.');
@@ -836,14 +428,6 @@ test('ballot with invalid scale', async () => {
     'Confirm Ballot Removed'
   );
 
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanAdjudicationInfo,
-    'election_manager',
-    expect.objectContaining({
-      adjudicationTypes: 'UnreadablePage',
-    })
-  );
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });

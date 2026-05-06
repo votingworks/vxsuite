@@ -5,10 +5,10 @@
 import { Client as DbClient } from '@votingworks/db';
 import {
   HmpbBallotPaperSize,
-  BallotSheetInfo,
   BatchInfo,
   Iso8601Timestamp,
   mapSheet,
+  PageInterpretation,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
@@ -676,14 +676,15 @@ export class Store {
     return normalizeAndJoin(dirname(this.getDbPath()), row.imagePath);
   }
 
-  getNextAdjudicationSheet(): BallotSheetInfo | undefined {
+  getNextAdjudicationSheet():
+    | { id: string; pages: SheetOf<PageInterpretation> }
+    | undefined {
     const row = this.client.one(
       `
       select
         id,
         front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        finished_adjudication_at as finishedAdjudicationAt
+        back_interpretation_json as backInterpretationJson
       from sheets
       where
         requires_adjudication = 1 and
@@ -697,7 +698,6 @@ export class Store {
           id: string;
           frontInterpretationJson: string;
           backInterpretationJson: string;
-          finishedAdjudicationAt: string | null;
         }
       | undefined;
 
@@ -705,14 +705,10 @@ export class Store {
       debug('got next review sheet requiring adjudication (id=%s)', row.id);
       return {
         id: row.id,
-        front: {
-          interpretation: JSON.parse(row.frontInterpretationJson),
-          adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
-        },
-        back: {
-          interpretation: JSON.parse(row.backInterpretationJson),
-          adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
-        },
+        pages: [
+          JSON.parse(row.frontInterpretationJson),
+          JSON.parse(row.backInterpretationJson),
+        ],
       };
     }
     debug('no review sheets requiring adjudication');

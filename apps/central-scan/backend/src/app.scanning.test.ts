@@ -7,9 +7,9 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
   asSheet,
-  BallotPageInfo,
   BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
+  PageInterpretation,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
@@ -183,14 +183,12 @@ test('scanBatch with streaked page', async () => {
     const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
 
     // adjudication should be needed because of the vertical streak
-    expect(nextAdjudicationSheet?.front).toMatchObject<Partial<BallotPageInfo>>(
-      {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: 'verticalStreaksDetected',
-        },
-      }
-    );
+    expect(nextAdjudicationSheet?.pages[0]).toMatchObject<
+      Partial<PageInterpretation>
+    >({
+      type: 'UnreadablePage',
+      reason: 'verticalStreaksDetected',
+    });
   });
 
   // try again with vertical streak detection disabled
