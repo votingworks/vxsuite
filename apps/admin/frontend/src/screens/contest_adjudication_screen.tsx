@@ -17,6 +17,7 @@ import {
 import { Button, Main, Screen, Font, Icons, H2, H1, P } from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
+  AdjudicatedContestOptions,
   AdjudicatedCvrContest,
   BallotImages,
   ContestAdjudicationData,
@@ -249,6 +250,29 @@ export function ContestAdjudicationScreen({
       .map((o) => o.definition.id);
   }, [contestOptions, isCandidateContest]);
 
+  // In qualified-write-in mode, when this contest has no qualified candidates,
+  // every pending write-in must be invalid: pre-mark them so the user only has
+  // to address the contest's other adjudication reasons.
+  function getInitialAdjudicatedOptions():
+    | AdjudicatedContestOptions
+    | undefined {
+    if (adjudicatedContest) {
+      return adjudicatedContest.adjudicatedContestOptionById;
+    }
+    if (!areWriteInCandidatesQualified || writeInCandidates.length > 0) {
+      return undefined;
+    }
+    const preMarked: AdjudicatedContestOptions = {};
+    for (const option of contestAdjudicationData.options) {
+      if (option.writeInRecord?.status !== 'pending') continue;
+      preMarked[option.definition.id] = {
+        type: 'write-in-option',
+        hasVote: false,
+      };
+    }
+    return Object.keys(preMarked).length > 0 ? preMarked : undefined;
+  }
+
   const {
     isModified,
     getOptionHasVote,
@@ -267,7 +291,7 @@ export function ContestAdjudicationScreen({
     contestAdjudicationData,
     writeInCandidates,
     isCandidateContest,
-    adjudicatedOptions: adjudicatedContest?.adjudicatedContestOptionById,
+    adjudicatedOptions: getInitialAdjudicatedOptions(),
   });
 
   // Vote and write-in state for adjudication management

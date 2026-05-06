@@ -1443,7 +1443,7 @@ function addPendingWriteIns(
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: recordedSlots.includes(i),
+      scannedVote: recordedSlots.includes(i),
       hasMarginalMark: false,
       writeInRecord: recordedSlots.includes(i)
         ? makePendingWriteInRecord(contest.contestId, `write-in-${i}`)
@@ -1461,7 +1461,7 @@ test('auto-resolves a write-in-only contest with no qualified candidates', async
   const contestId = 'zoo-council-mammal';
   const contest = makeContestAdjudicationData(
     contestId,
-    makeContestTag({ contestId, hasWriteIn: true })
+    makeContestTag({ hasWriteIn: true })
   );
   // Two of three write-in slots have a pending record.
   addPendingWriteIns(contest, 3, [0, 1]);
@@ -1470,7 +1470,7 @@ test('auto-resolves a write-in-only contest with no qualified candidates', async
   const adjData2 = makeBallotAdjudicationData(CVR_ID_2, [
     makeContestAdjudicationData(
       contestId,
-      makeContestTag({ contestId, cvrId: CVR_ID_2, hasOvervote: true })
+      makeContestTag({ hasOvervote: true })
     ),
   ]);
 
@@ -1533,7 +1533,6 @@ test('auto-resolves contests flagged with hasUnmarkedWriteIn', async () => {
   const contest = makeContestAdjudicationData(
     contestId,
     makeContestTag({
-      contestId,
       hasWriteIn: false,
       hasUnmarkedWriteIn: true,
     })
@@ -1574,7 +1573,7 @@ test.each([
     const contestId = 'zoo-council-mammal';
     const contest = makeContestAdjudicationData(
       contestId,
-      makeContestTag({ contestId, hasWriteIn: true, [flag]: true })
+      makeContestTag({ hasWriteIn: true, [flag]: true })
     );
     addPendingWriteIns(contest, 3, [0]);
     const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
@@ -1606,7 +1605,7 @@ test('does not auto-resolve when qualified candidates exist for the contest', as
   const contestId = 'zoo-council-mammal';
   const contest = makeContestAdjudicationData(
     contestId,
-    makeContestTag({ contestId, hasWriteIn: true })
+    makeContestTag({ hasWriteIn: true })
   );
   addPendingWriteIns(contest, 3, [0]);
   const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
@@ -1639,7 +1638,7 @@ test('does not auto-resolve when areWriteInCandidatesQualified is false', async 
   const contestId = 'zoo-council-mammal';
   const contest = makeContestAdjudicationData(
     contestId,
-    makeContestTag({ contestId, hasWriteIn: true })
+    makeContestTag({ hasWriteIn: true })
   );
   addPendingWriteIns(contest, 3, [0]);
   const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
