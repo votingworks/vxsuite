@@ -8,6 +8,7 @@ export * from './cast_vote_records';
 export * from './date';
 export * from './disk_space_summary';
 export * from './elections';
+export * from './env_vars';
 export * from './environment_variable';
 export * as format from './format';
 export * from './features';

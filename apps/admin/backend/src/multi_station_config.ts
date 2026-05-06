@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/auth';
 import {
   BooleanEnvironmentVariableName,
+  getRequiredEnvVar,
   isFeatureFlagEnabled,
+  isNodeEnvProduction,
 } from '@votingworks/utils';
 
 const LOCAL_ETHERNET_STATE_FILENAME = 'local-ethernet-state';
