@@ -334,6 +334,13 @@ function buildClientApi({
       return auth.logOut(constructAuthMachineState(clientStore));
     },
 
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
+      return auth.updateSessionExpiry(
+        constructAuthMachineState(clientStore),
+        input
+      );
+    },
+
     getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDriveAdapter.status();
     },

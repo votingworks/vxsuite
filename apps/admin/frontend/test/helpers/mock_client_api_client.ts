@@ -1,10 +1,12 @@
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { ClientApi, MachineConfig } from '@votingworks/admin-backend';
 import {
+  DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   DEV_MACHINE_ID,
   ElectionDefinition,
   Id,
+  SystemSettings,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -110,6 +112,14 @@ export function createClientApiMock(
       apiClient.getAdjudicationSessionStatus
         .expectRepeatedCallsWith()
         .resolves({ isClientAdjudicationEnabled });
+    },
+
+    expectGetSystemSettings(
+      systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
+    ): void {
+      apiClient.getSystemSettings
+        .expectRepeatedCallsWith()
+        .resolves(systemSettings);
     },
   };
 }
