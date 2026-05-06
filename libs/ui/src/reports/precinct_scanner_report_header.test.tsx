@@ -187,6 +187,48 @@ test('renders precinct selection name', () => {
   screen.getByText('Voting Paused Report • All Precincts');
 });
 
+test('renders batch ID in metadata when provided', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerReportHeader
+      electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollsTransition="close_polls"
+      isLiveMode
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      precinctScannerMachineId="SC-01-000"
+      batchId="b28733b5-dc01-4901-b433-ea179942993b"
+    />
+  );
+
+  const batchIdLabel = screen.getByText('Batch ID:');
+  expect(batchIdLabel.parentElement).toHaveTextContent(
+    'Batch ID: b28733b5-ea179942993b'
+  );
+});
+
+test('does not render batch ID when not provided', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerReportHeader
+      electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollsTransition="close_polls"
+      isLiveMode
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      precinctScannerMachineId="SC-01-000"
+    />
+  );
+
+  expect(screen.queryByText('Batch ID:')).toBeNull();
+});
+
 function setPollingPlacesEnabled(enabled: boolean) {
   if (enabled) {
     mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);

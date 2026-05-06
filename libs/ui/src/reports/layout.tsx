@@ -39,6 +39,15 @@ export const reportColors = {
   outline: 'rgb(194, 200, 203)',
 } as const;
 
+export const ReportTable = styled.table`
+  border-collapse: collapse;
+
+  & tr {
+    border-top: 1px solid ${reportColors.outline};
+    border-bottom: 1px solid ${reportColors.outline};
+  }
+`;
+
 export const Box = styled.div`
   background-color: ${reportColors.container};
   border: 1px solid ${reportColors.outline};

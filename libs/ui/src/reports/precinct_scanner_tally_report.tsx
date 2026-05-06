@@ -1,4 +1,5 @@
 import {
+  BatchInfo,
   Contests,
   ElectionDefinition,
   PartyId,
@@ -8,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
+import { BatchSummaryTable } from './batch_summary_table';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import {
   PrintedReport,
@@ -30,6 +32,7 @@ interface Props {
   pollsTransitionedTime: number;
   reportPrintedTime: number;
   precinctScannerMachineId: string;
+  batches: BatchInfo[];
 }
 
 /**
@@ -49,9 +52,11 @@ export function PrecinctScannerTallyReport({
   pollsTransitionedTime,
   reportPrintedTime,
   precinctScannerMachineId,
+  batches,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const { cardCounts } = scannedElectionResults;
+  const singleBatchId = batches.length === 1 ? batches[0].id : undefined;
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>
@@ -67,6 +72,7 @@ export function PrecinctScannerTallyReport({
           pollsTransitionedTime={pollsTransitionedTime}
           reportPrintedTime={reportPrintedTime}
           precinctScannerMachineId={precinctScannerMachineId}
+          batchId={singleBatchId}
         />
         <TallyReportColumns>
           <TallyReportCardCounts cardCounts={cardCounts} />
@@ -87,6 +93,7 @@ export function PrecinctScannerTallyReport({
             );
           })}
         </TallyReportColumns>
+        {batches.length > 1 && <BatchSummaryTable batches={batches} />}
       </PrintedReport>
     </ThemeProvider>
   );

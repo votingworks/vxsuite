@@ -1,44 +1,36 @@
 import {
+  BatchInfo,
   ElectionDefinition,
   PollsSuspensionTransitionType,
   PrecinctSelection,
 } from '@votingworks/types';
-import {
-  formatFullDateTimeZone,
-  getPollsStateName,
-  getPollsTransitionActionPastTense,
-  getPollsTransitionDestinationState,
-} from '@votingworks/utils';
-import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
+import { BatchSummaryTable } from './batch_summary_table';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import { printedReportThemeFn, PrintedReport } from './layout';
 
 const Contents = styled.div`
   padding-top: 2em;
+`;
 
-  & dd {
-    margin: 0 0 1em;
-    font-size: 2em;
-    font-weight: 600;
-  }
+const MetricsContainer = styled.div`
+  align-items: center;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: max-content 1fr;
+  line-height: 1;
+  margin: 0 0 1.5em;
+`;
 
-  & dt {
-    font-size: 1.5em;
-  }
+const Pair = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+`;
 
-  & .ballot-counts {
-    margin-bottom: 2em;
-
-    & dd {
-      margin-bottom: 0;
-      font-size: 6em;
-    }
-
-    & dt {
-      font-size: 3em;
-    }
-  }
+const MetricValue = styled.span`
+  font-size: 1.5rem;
+  font-weight: bold;
 `;
 
 interface Props {
@@ -47,6 +39,8 @@ interface Props {
   pollingPlaceId?: string;
   precinctSelection?: PrecinctSelection;
   totalBallotsScanned: number;
+  mostRecentBatchCount?: number;
+  batches: BatchInfo[];
   pollsTransition: PollsSuspensionTransitionType;
   pollsTransitionedTime: number;
   reportPrintedTime: number;
@@ -60,6 +54,8 @@ export function PrecinctScannerBallotCountReport({
   pollingPlaceId,
   precinctSelection,
   totalBallotsScanned,
+  mostRecentBatchCount,
+  batches,
   pollsTransition,
   pollsTransitionedTime,
   reportPrintedTime,
@@ -81,29 +77,19 @@ export function PrecinctScannerBallotCountReport({
           precinctScannerMachineId={precinctScannerMachineId}
         />
         <Contents>
-          <dl>
-            <div className="ballot-counts">
-              <dt>Sheets Scanned Count</dt>
-              <dd>{totalBallotsScanned}</dd>
-            </div>
-            <div>
-              <dt>Polls Status</dt>
-              <dd>
-                {getPollsStateName(
-                  getPollsTransitionDestinationState(pollsTransition)
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt>Time {getPollsTransitionActionPastTense(pollsTransition)}</dt>
-              <dd>
-                {formatFullDateTimeZone(
-                  DateTime.fromMillis(pollsTransitionedTime),
-                  { includeSeconds: true }
-                )}
-              </dd>
-            </div>
-          </dl>
+          <MetricsContainer>
+            <Pair>
+              <span>Total Sheets Scanned:</span>
+              <MetricValue>{totalBallotsScanned}</MetricValue>
+            </Pair>
+            {mostRecentBatchCount !== undefined && (
+              <Pair>
+                <span>Most Recent Batch:</span>
+                <MetricValue>{mostRecentBatchCount}</MetricValue>
+              </Pair>
+            )}
+          </MetricsContainer>
+          <BatchSummaryTable batches={batches} />
         </Contents>
       </PrintedReport>
     </ThemeProvider>
