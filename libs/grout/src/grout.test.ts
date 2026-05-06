@@ -9,7 +9,6 @@ import waitForExpect from 'wait-for-expect';
 import { createClient, ServerError } from './client';
 import {
   AnyApi,
-  Api,
   buildRouter,
   createApi,
   MiddlewareMethodCall,
@@ -410,10 +409,16 @@ test('can send timeout', async () => {
 });
 
 test('client errors if response is not JSON', async () => {
-  type api = Api<{
-    getStuff(): Promise<number>;
-    getMoreStuff(): Promise<number>;
-  }>;
+  // Mirrors normal grout usage: build the API to derive its type via `typeof`.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+    async getMoreStuff(): Promise<number> {
+      return 42;
+    },
+  });
   const app = express();
   app.post('/api/getStuff', (req, res) => {
     // Send valid JSON, but not the right Content-type
@@ -428,7 +433,7 @@ test('client errors if response is not JSON', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<api>({ baseUrl });
+  const client = createClient<typeof api>({ baseUrl });
 
   await expect(client.getStuff()).rejects.toThrow(
     `Response content type is not JSON for ${baseUrl}/getStuff`
@@ -440,7 +445,12 @@ test('client errors if response is not JSON', async () => {
 });
 
 test('client handles non-JSON error responses', async () => {
-  type api = Api<{ getStuff(): Promise<number> }>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
   const app = express();
   app.post('/api/getStuff', (req, res) => {
     res.set('Content-Type', 'application/json');
@@ -450,13 +460,18 @@ test('client handles non-JSON error responses', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<api>({ baseUrl });
+  const client = createClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow('invalid json response body');
   server.close();
 });
 
 test('client handles other server errors', async () => {
-  type api = Api<{ getStuff(): Promise<number> }>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
   const app = express();
   app.post('/api/getStuff', (req, res) => {
     res.status(500).send();
@@ -464,7 +479,7 @@ test('client handles other server errors', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<api>({ baseUrl });
+  const client = createClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow(
     `Got 500 for ${baseUrl}/getStuff`
   );
@@ -549,7 +564,8 @@ test('middleware runs before and after RPC method, adding context that can be ac
 });
 
 test('before middleware errors are caught, returned to client, and passed to after middleware', async () => {
-  type Context = object;
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Context {}
 
   const authMiddleware = vi.fn(() => {
     throw new UserError('middleware error');

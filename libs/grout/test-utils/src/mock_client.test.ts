@@ -1,16 +1,23 @@
 import { expect, test, vi } from 'vitest';
 import { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
-import { Api, createClient } from '@votingworks/grout';
+import { createApi, createClient } from '@votingworks/grout';
 import { createMockClient } from './mock_client';
 
-type api = Api<{
-  add(input: { num1: number; num2: number }): number;
-  sqrt(input: { num: number }): Promise<number>;
-}>;
+// Mirrors normal grout usage: build the API to derive its type via `typeof`.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const api = createApi({
+  add(input: { num1: number; num2: number }): number {
+    return input.num1 + input.num2;
+  },
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async sqrt(input: { num: number }): Promise<number> {
+    return Math.sqrt(input.num);
+  },
+});
 
 test('creates a mock client', () => {
-  const mockClient = createMockClient<api>();
+  const mockClient = createMockClient<typeof api>();
   // A mock client has a mock function for each method
   expectTypeOf(mockClient.add).toEqualTypeOf<
     MockFunction<(input: { num1: number; num2: number }) => Promise<number>>
@@ -19,11 +26,13 @@ test('creates a mock client', () => {
     MockFunction<(input: { num: number }) => Promise<number>>
   >();
   // A mock client can pass as a real client
-  expectTypeOf(mockClient).toMatchTypeOf(createClient<api>({ baseUrl: '' }));
+  expectTypeOf(mockClient).toMatchTypeOf(
+    createClient<typeof api>({ baseUrl: '' })
+  );
 });
 
 test('catches exceptions from mock function failures and logs them', async () => {
-  const mockClient = createMockClient<api>({
+  const mockClient = createMockClient<typeof api>({
     catchUnexpectedErrors: true,
   });
   const consoleErrorMock = vi.fn();
@@ -37,7 +46,7 @@ test('catches exceptions from mock function failures and logs them', async () =>
 });
 
 test('doesnt catch intentional exceptions from mock functions', () => {
-  const mockClient = createMockClient<api>({
+  const mockClient = createMockClient<typeof api>({
     catchUnexpectedErrors: true,
   });
   const consoleErrorMock = vi.fn();
@@ -53,7 +62,7 @@ test('doesnt catch intentional exceptions from mock functions', () => {
 });
 
 test('asserts complete for all methods', async () => {
-  const mockClient = createMockClient<api>();
+  const mockClient = createMockClient<typeof api>();
   mockClient.add.expectCallWith({ num1: 1, num2: 2 }).resolves(42);
   mockClient.sqrt.expectCallWith({ num: 4 }).resolves(100);
 
