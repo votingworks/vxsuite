@@ -1496,7 +1496,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           default:
             throwIllegalValue(pollsTransitionType);
         }
-      } catch (e) {
+      } catch {
         return err('invalid-payload');
       }
     },

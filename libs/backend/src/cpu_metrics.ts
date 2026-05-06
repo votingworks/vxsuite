@@ -104,7 +104,7 @@ async function getCpuTemperature(): Promise<number | null> {
       if (temp !== null) {
         return temp;
       }
-    } catch (e) {
+    } catch {
       // Fall through to other methods if file read/parse fails
     }
   }
