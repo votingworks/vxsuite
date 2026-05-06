@@ -74,7 +74,7 @@ test('hasPartialRegisteredVoterCounts - some splits have counts', () => {
 test('hasPartialRegisteredVoterCounts - split precinct entry present but no split counts', () => {
   // precinctEntry is defined but isSplitCounts branch has no matching splits
   const counts: ElectionRegisteredVotersCounts = {
-    ps: 500 as unknown as ElectionRegisteredVotersCounts[string],
+    ps: 500,
   };
   expect(hasPartialRegisteredVoterCounts([pSplit], counts)).toEqual(false);
 });

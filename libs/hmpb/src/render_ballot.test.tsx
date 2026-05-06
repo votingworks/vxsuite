@@ -5,7 +5,6 @@ import {
   BallotType,
   BaseBallotProps,
   CandidateContest,
-  ContestId,
   Election,
   electionTypeV4p0ToV4p1,
   getBallotStyle,
@@ -247,7 +246,7 @@ test.each(templateSpecificTestCases)(
       getBallotStyle({ election, ballotStyleId })
     );
     const oversizedContest: CandidateContest = {
-      id: 'contest-oversized' as ContestId,
+      id: 'contest-oversized',
       type: 'candidate',
       districtId: ballotStyle.districts[0],
       title: 'Oversized Contest',

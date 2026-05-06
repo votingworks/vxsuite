@@ -4,12 +4,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import {
-  BallotStyleId,
-  hasSplits,
-  Precinct,
-  PrecinctOrSplit,
-} from '@votingworks/types';
+import { hasSplits, Precinct, PrecinctOrSplit } from '@votingworks/types';
 
 import userEvent from '@testing-library/user-event';
 
@@ -204,10 +199,7 @@ describe('open primary election', () => {
     // precinct's single (partyless) ballot style.
     userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
     expect(onSelect).toHaveBeenCalledOnce();
-    expect(onSelect).toHaveBeenCalledWith(
-      precinct.id,
-      'ballot-style-1' as BallotStyleId
-    );
+    expect(onSelect).toHaveBeenCalledWith(precinct.id, 'ballot-style-1');
   });
 
   test('multiple precincts configuration', () => {
@@ -223,10 +215,7 @@ describe('open primary election', () => {
     userEvent.click(screen.getByText('Select ballot style…'));
     userEvent.click(screen.getByText(p2.name));
     expect(onSelect).toHaveBeenCalledOnce();
-    expect(onSelect).toHaveBeenLastCalledWith(
-      p2.id,
-      'ballot-style-2' as BallotStyleId
-    );
+    expect(onSelect).toHaveBeenLastCalledWith(p2.id, 'ballot-style-2');
   });
 });
 

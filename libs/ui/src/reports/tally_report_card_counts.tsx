@@ -83,7 +83,6 @@ export function TallyReportCardCounts({
           {numSheets > 1 &&
             Array.from({ length: numSheets }, (_, sheetIndex) => (
               <tr
-                // eslint-disable-next-line react/no-array-index-key
                 key={sheetIndex}
                 className={showScannedCount ? 'subrow' : undefined}
               >

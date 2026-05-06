@@ -179,7 +179,7 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
 
 test('Set Date and Time button', async () => {
   const logOut = vi.fn();
-  mockApiClient.setClock.mockResolvedValueOnce(undefined as never);
+  mockApiClient.setClock.mockResolvedValueOnce(undefined);
   render(
     <SystemAdministratorScreenContents
       primaryText="Primary Text"

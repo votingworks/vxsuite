@@ -9,7 +9,6 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import { BallotStyleGroupId } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -245,7 +244,7 @@ test('delete an existing tally', async () => {
   // expect delete request and refetch
   apiMock.expectDeleteManualResults({
     precinctId: 'precinct-c1-w1-1',
-    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
+    ballotStyleGroupId: '1-Ma',
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);

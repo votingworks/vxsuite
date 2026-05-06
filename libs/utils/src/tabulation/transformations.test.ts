@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
+import { Tabulation } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -73,22 +73,22 @@ test('groupMapToGroupList', () => {
   ).toEqual([
     {
       ballotCount: 1,
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
     },
     {
       ballotCount: 2,
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-2',
     },
     {
       ballotCount: 3,
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1',
     },
     {
       ballotCount: 4,
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2',
     },
   ]);

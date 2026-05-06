@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest';
 import {
-  BallotStyleId,
   BallotType,
   BlankPage,
   SheetOf,
@@ -122,7 +121,7 @@ test('HMPB ballot with mismatched ballot style', () => {
         ...interpretedHmpbPage2,
         metadata: {
           ...interpretedHmpbPage2.metadata,
-          ballotStyleId: '1M' as BallotStyleId,
+          ballotStyleId: '1M',
         },
       },
     ],
@@ -131,7 +130,7 @@ test('HMPB ballot with mismatched ballot style', () => {
   expect(error).toEqual<SheetValidationError>({
     type: 'invalid-sheet',
     subType: 'mismatched-ballot-style-ids',
-    ballotStyleIds: ['2F' as BallotStyleId, '1M' as BallotStyleId],
+    ballotStyleIds: ['2F', '1M'],
   });
 });
 

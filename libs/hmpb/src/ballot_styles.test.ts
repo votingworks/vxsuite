@@ -63,32 +63,32 @@ describe('generateBallotStyles()', () => {
   const { ENGLISH, SPANISH } = LanguageCode;
 
   const district1: District = {
-    id: 'district-1' as DistrictId,
+    id: 'district-1',
     name: 'District 1',
   };
   const district2: District = {
-    id: 'district-2' as DistrictId,
+    id: 'district-2',
     name: 'District 2',
   };
   const district3NoContests: District = {
-    id: 'district-3' as DistrictId,
+    id: 'district-3',
     name: 'District 3',
   };
 
   const partyA: Party = {
-    id: 'party-A' as PartyId,
+    id: 'party-A',
     name: 'Party A',
     fullName: 'Party A',
     abbrev: 'A',
   };
   const partyB: Party = {
-    id: 'party-B' as PartyId,
+    id: 'party-B',
     name: 'Party B',
     fullName: 'Party B',
     abbrev: 'B',
   };
   const partyC: Party = {
-    id: 'party-C' as PartyId,
+    id: 'party-C',
     name: 'Party C',
     fullName: 'Party C',
     abbrev: 'C',

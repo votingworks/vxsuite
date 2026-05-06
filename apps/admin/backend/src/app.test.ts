@@ -8,7 +8,6 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import {
-  BallotStyleGroupId,
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
@@ -647,7 +646,7 @@ describe('ERR file import', () => {
     });
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleGroupId: '12' as BallotStyleGroupId,
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
     };
 
@@ -674,7 +673,7 @@ describe('ERR file import', () => {
 
     const expected: ManualResultsRecord = {
       precinctId: '21',
-      ballotStyleGroupId: '12' as BallotStyleGroupId,
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
       manualResults: {
         ballotCount: 65,
@@ -740,7 +739,7 @@ describe('ERR file import', () => {
     // Import the ERR file with write-ins once for precinct tallies
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleGroupId: '12' as BallotStyleGroupId,
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
     };
 
@@ -771,7 +770,7 @@ describe('ERR file import', () => {
     });
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleGroupId: '12' as BallotStyleGroupId,
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
     };
 

@@ -1,9 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import {
-  BallotStyleId,
-  ElectionDefinition,
-  VotesDict,
-} from '@votingworks/types';
+import { ElectionDefinition, VotesDict } from '@votingworks/types';
 import {
   BmdPaperBallot,
   filterVotesForContests,
@@ -176,7 +172,7 @@ describe('computeSummaryBallotLayoutWithRendering', () => {
 
     const result = await computeSummaryBallotLayoutWithRendering(
       electionDefinition,
-      'ballot-style-1' as BallotStyleId,
+      'ballot-style-1',
       'precinct-1',
       votes,
       'mark'

@@ -65,7 +65,7 @@ test('uses appropriate headers', async () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,
@@ -313,28 +313,28 @@ test('can include sheet counts', async () => {
     },
     {
       ...mockCastVoteRecordAttributes,
-      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
+      ballotStyleGroupId: '1-4',
       precinctId: '23',
       card: { type: 'bmd' },
       multiplier: 9,
     },
     {
       ...mockCastVoteRecordAttributes,
-      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
+      ballotStyleGroupId: '1-4',
       precinctId: '23',
       card: { type: 'hmpb', sheetNumber: 1 },
       multiplier: 11,
     },
     {
       ...mockCastVoteRecordAttributes,
-      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
+      ballotStyleGroupId: '1-4',
       precinctId: '23',
       card: { type: 'hmpb', sheetNumber: 2 },
       multiplier: 11,
     },
     {
       ...mockCastVoteRecordAttributes,
-      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
+      ballotStyleGroupId: '1-4',
       precinctId: '23',
       card: { type: 'hmpb', sheetNumber: 3 },
       multiplier: 10,

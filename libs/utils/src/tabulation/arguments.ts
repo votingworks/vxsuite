@@ -1,4 +1,4 @@
-import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
+import { Tabulation } from '@votingworks/types';
 
 export function combineGroupSpecifierAndFilter(
   group: Tabulation.GroupSpecifier,
@@ -6,9 +6,9 @@ export function combineGroupSpecifierAndFilter(
 ): Tabulation.Filter {
   return {
     ...filter,
-    ballotStyleGroupIds: (group.ballotStyleGroupId
+    ballotStyleGroupIds: group.ballotStyleGroupId
       ? [group.ballotStyleGroupId]
-      : filter.ballotStyleGroupIds) as BallotStyleGroupId[],
+      : filter.ballotStyleGroupIds,
     partyIds: group.partyId ? [group.partyId] : filter.partyIds,
     precinctIds: group.precinctId ? [group.precinctId] : filter.precinctIds,
     scannerIds: group.scannerId ? [group.scannerId] : filter.scannerIds,

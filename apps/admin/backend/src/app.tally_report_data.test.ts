@@ -441,7 +441,7 @@ test('primary, full election, with manual results', async () => {
   // add some manual results for a single ballot style, representing only one party
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -818,7 +818,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
   // add early voting CVRs for precinct-1, both parties
   const mockEarlyVotingCvrs: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'early-voting-batch',
       scannerId: 'scanner-ev',
       precinctId: 'precinct-1',
@@ -829,7 +829,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
       multiplier: 3,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'early-voting-batch',
       scannerId: 'scanner-ev',
       precinctId: 'precinct-1',
@@ -917,7 +917,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -929,7 +929,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
       multiplier: 5,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',

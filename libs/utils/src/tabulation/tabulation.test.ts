@@ -728,7 +728,7 @@ test('mapping from group keys to and from group specifiers', () => {
 
   // composite group specifiers, multiple attributes
   maintainsGroupSpecifier({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     partyId: '0',
     votingMethod: 'absentee',
   });
@@ -743,7 +743,7 @@ test('mapping from group keys to and from group specifiers', () => {
   expect(
     getGroupKey(
       {
-        ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
+        ballotStyleGroupId: '=\\1M&',
         batchId: 'batch-1',
       },
       { groupByBatch: true, groupByBallotStyle: true }
@@ -751,7 +751,7 @@ test('mapping from group keys to and from group specifiers', () => {
   ).toEqual('root&ballotStyleGroupId=\\=\\\\1M\\&&batchId=batch-1');
 
   maintainsGroupSpecifier({
-    ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
+    ballotStyleGroupId: '=\\1M&',
     batchId: 'batch-1',
   });
 
@@ -775,13 +775,13 @@ test('extractGroupSpecifier', () => {
     extractGroupSpecifier(
       typedAs<ObjectWithGroupSpecifier>({
         something: 'something',
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        ballotStyleGroupId: '1M',
         partyId: '0',
         votingMethod: 'absentee',
       })
     )
   ).toEqual({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     partyId: '0',
     votingMethod: 'absentee',
   });

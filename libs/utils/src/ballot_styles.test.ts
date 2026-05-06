@@ -1,13 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
   BallotStyle,
-  BallotStyleGroupId,
-  BallotStyleId,
-  DistrictId,
   Election,
   hasSplits,
   Party,
-  PartyId,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -38,7 +34,7 @@ const electionFamousNames = electionFamousNames2021Fixtures.readElection();
 const GREEN_PARTY: Party = {
   abbrev: 'G',
   fullName: 'The Great Green Party',
-  id: 'green-party' as PartyId,
+  id: 'green-party',
   name: 'Green Party',
 };
 
@@ -69,54 +65,54 @@ describe('ballot style groups', () => {
   ): BallotStyle {
     return {
       ...params,
-      districts: ['district1' as DistrictId],
+      districts: ['district1'],
       precincts: ['precinct1'],
     };
   }
 
   const style1English = makeBallotStyle({
-    id: '1_en' as BallotStyleId,
-    groupId: '1' as BallotStyleGroupId,
+    id: '1_en',
+    groupId: '1',
     languages: ['en'],
   });
 
   const style1Spanish = makeBallotStyle({
-    id: '1_es-US' as BallotStyleId,
-    groupId: '1' as BallotStyleGroupId,
+    id: '1_es-US',
+    groupId: '1',
     languages: ['es-US'],
   });
 
   const style2GreenEnglish = makeBallotStyle({
-    id: '2-G_en' as BallotStyleId,
+    id: '2-G_en',
     languages: ['en'],
-    groupId: '2-G' as BallotStyleGroupId,
-    partyId: 'green-party' as PartyId,
+    groupId: '2-G',
+    partyId: 'green-party',
   });
 
   const style2GreenEnglishMultiLanguage = makeBallotStyle({
-    id: '2-G_en_es-US' as BallotStyleId,
-    groupId: '2-G' as BallotStyleGroupId,
+    id: '2-G_en_es-US',
+    groupId: '2-G',
     languages: ['en', 'es-US'],
-    partyId: 'green-party' as PartyId,
+    partyId: 'green-party',
   });
 
   const style2GreenNonEnglishSingleLanguage = makeBallotStyle({
-    id: '2-G_zh-Hans' as BallotStyleId,
-    groupId: '2-G' as BallotStyleGroupId,
+    id: '2-G_zh-Hans',
+    groupId: '2-G',
     languages: ['zh-Hans'],
-    partyId: 'green-party' as PartyId,
+    partyId: 'green-party',
   });
 
   const style2PurpleEnglish = makeBallotStyle({
-    id: '2-P_en' as BallotStyleId,
-    groupId: '2-P' as BallotStyleGroupId,
+    id: '2-P_en',
+    groupId: '2-P',
     languages: ['en'],
-    partyId: 'purple-party' as PartyId,
+    partyId: 'purple-party',
   });
 
   const style3LegacySchema = makeBallotStyle({
-    id: 'ballot-style-3' as BallotStyleId,
-    groupId: 'ballot-style-3' as BallotStyleGroupId,
+    id: 'ballot-style-3',
+    groupId: 'ballot-style-3',
   });
 
   test('getGroupedBallotStyles', () => {
@@ -133,7 +129,7 @@ describe('ballot style groups', () => {
     ).toEqual([
       {
         ...style1English,
-        id: '1' as BallotStyleGroupId,
+        id: '1',
         ballotStyles: [style1English, style1Spanish],
         defaultLanguageBallotStyle: style1English,
       },
@@ -144,7 +140,7 @@ describe('ballot style groups', () => {
           style2GreenNonEnglishSingleLanguage,
         ],
         ...style2GreenEnglish,
-        id: '2-G' as BallotStyleGroupId,
+        id: '2-G',
         defaultLanguageBallotStyle: style2GreenEnglish,
       },
       {
@@ -178,18 +174,18 @@ describe('ballot style groups', () => {
     expect(
       getBallotStyleGroup({
         election,
-        ballotStyleGroupId: '1' as BallotStyleGroupId,
+        ballotStyleGroupId: '1',
       })
     ).toEqual({
       ...style1English,
-      id: '1' as BallotStyleGroupId,
+      id: '1',
       ballotStyles: [style1English, style1Spanish],
       defaultLanguageBallotStyle: style1English,
     });
     expect(
       getBallotStyleGroup({
         election,
-        ballotStyleGroupId: '2-G' as BallotStyleGroupId,
+        ballotStyleGroupId: '2-G',
       })
     ).toEqual({
       ballotStyles: [
@@ -198,13 +194,13 @@ describe('ballot style groups', () => {
         style2GreenNonEnglishSingleLanguage,
       ],
       ...style2GreenEnglish,
-      id: '2-G' as BallotStyleGroupId,
+      id: '2-G',
       defaultLanguageBallotStyle: style2GreenEnglish,
     });
     expect(
       getBallotStyleGroup({
         election,
-        ballotStyleGroupId: '2-P' as BallotStyleGroupId,
+        ballotStyleGroupId: '2-P',
       })
     ).toEqual({
       ...style2PurpleEnglish,
@@ -215,7 +211,7 @@ describe('ballot style groups', () => {
     expect(
       getBallotStyleGroup({
         election,
-        ballotStyleGroupId: 'ballot-style-3' as BallotStyleGroupId,
+        ballotStyleGroupId: 'ballot-style-3',
       })
     ).toEqual({
       ...style3LegacySchema,
@@ -227,7 +223,7 @@ describe('ballot style groups', () => {
     expect(
       getBallotStyleGroup({
         election,
-        ballotStyleGroupId: style1English.id as unknown as BallotStyleGroupId,
+        ballotStyleGroupId: style1English.id,
       })
     ).toBeUndefined();
   });
@@ -405,7 +401,7 @@ test('determinePartyId', () => {
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     bmd: [1],
     hmpb: [1],
   };
@@ -436,13 +432,13 @@ test('determinePartyId - multi language election', () => {
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
+    ballotStyleGroupId: '1-Ma',
     bmd: [1],
     hmpb: [1],
   };
 
   const ballotStyleCardCounts2: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: 'fake-ballot-style' as BallotStyleGroupId,
+    ballotStyleGroupId: 'fake-ballot-style',
     bmd: [1],
     hmpb: [1],
   };

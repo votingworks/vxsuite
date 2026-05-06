@@ -1,7 +1,6 @@
 import { BallotCountReport } from '@votingworks/ui';
 import {
   ElectionDefinition,
-  ElectionId,
   HmpbBallotPaperSize,
   Tabulation,
 } from '@votingworks/types';
@@ -23,7 +22,7 @@ function getMockElectionDefinition(): ElectionDefinition {
     ballotHash: '00000000000000000000',
     electionData: 'test-election-data',
     election: {
-      id: 'test-election-id' as ElectionId,
+      id: 'test-election-id',
       state: 'Test State',
       county: {
         id: 'test-county',

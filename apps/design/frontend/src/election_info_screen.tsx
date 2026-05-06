@@ -310,7 +310,7 @@ function ElectionInfoForm({
               label="Ballot Languages"
               value={electionInfo.languageCodes}
               onChange={(value) => {
-                const languageCodes = value.map((v) => v as LanguageCode);
+                const languageCodes = value.map((v) => v);
                 setElectionInfo({ ...electionInfo, languageCodes });
               }}
               options={[

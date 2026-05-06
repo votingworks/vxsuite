@@ -205,7 +205,7 @@ test('ballot count report PDF', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,

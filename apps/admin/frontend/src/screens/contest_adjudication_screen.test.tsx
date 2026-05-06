@@ -256,7 +256,7 @@ function renderScreen(
   {
     areWriteInCandidatesQualified = false,
     ballotImages,
-    side = 'front' as Side,
+    side = 'front',
     electionDef = electionDefinition,
     onClose = vi.fn(),
     writeInCandidates = [] as WriteInCandidateRecord[],
@@ -1810,7 +1810,7 @@ describe('candidate ordering', () => {
         contestId: testContestId,
         hasWriteIn: true,
       },
-      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
+      ballotStyleGroupId: '1-4',
     });
     renderScreen(data2, 'id-175', {
       electionDef: famousNamesElectionDefinition,

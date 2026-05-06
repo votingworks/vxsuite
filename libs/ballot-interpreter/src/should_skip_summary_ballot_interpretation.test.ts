@@ -1,10 +1,5 @@
 import { expect, test } from 'vitest';
-import {
-  BallotStyleId,
-  BallotType,
-  PageInterpretation,
-  SheetOf,
-} from '@votingworks/types';
+import { BallotType, PageInterpretation, SheetOf } from '@votingworks/types';
 import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation';
 
 const BLANK_PAGE: PageInterpretation = { type: 'BlankPage' };
@@ -20,7 +15,7 @@ const INVALID_TEST_MODE: PageInterpretation = {
   metadata: {
     ballotHash: 'abc123',
     ballotType: BallotType.Precinct,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: 'precinct-1',
     isTestMode: true,
   },
@@ -31,7 +26,7 @@ const INVALID_PRECINCT: PageInterpretation = {
   metadata: {
     ballotHash: 'abc123',
     ballotType: BallotType.Precinct,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: 'precinct-1',
     isTestMode: false,
   },

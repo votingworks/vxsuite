@@ -112,7 +112,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
   // (the call happened before our spy, so check the batch was finished)
   const batches = workspace.store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0]!.endedAt).toBeDefined();
+  expect(batches[0].endedAt).toBeDefined();
 
   // Resolve endBatch and let cleanup complete
   endBatchDeferred.resolve();

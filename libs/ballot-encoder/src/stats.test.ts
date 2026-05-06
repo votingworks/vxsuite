@@ -2,8 +2,6 @@ import { expect, test } from 'vitest';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   HmpbBallotPaperSize,
-  BallotStyleGroupId,
-  BallotStyleId,
   BallotType,
   DistrictIdSchema,
   Election,
@@ -30,8 +28,8 @@ const election: Election = {
   ],
   ballotStyles: [
     {
-      id: 'style1_en' as BallotStyleId,
-      groupId: 'style1' as BallotStyleGroupId,
+      id: 'style1_en',
+      groupId: 'style1',
       districts: [district1Id],
       precincts: ['precinct1'],
     },

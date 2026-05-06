@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { ElectionId } from '@votingworks/types';
 import { typedAs } from '@votingworks/basics';
 import { AuthErrorCode } from '@votingworks/design-backend';
 import {
@@ -53,7 +52,7 @@ test('API errors show an error screen', async () => {
     apiMock.createElection
       .expectCallWith({
         jurisdictionId: jurisdiction.id,
-        id: 'test-random-id-1' as ElectionId,
+        id: 'test-random-id-1',
       })
       .throws(new Error('API error'));
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
@@ -87,7 +86,7 @@ test('API forbidden errors show a page not found error screen', async () => {
     apiMock.createElection
       .expectCallWith({
         jurisdictionId: jurisdiction.id,
-        id: 'test-random-id-1' as ElectionId,
+        id: 'test-random-id-1',
       })
       .throws({ message: typedAs<AuthErrorCode>('auth:forbidden') });
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));

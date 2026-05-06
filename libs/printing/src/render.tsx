@@ -60,7 +60,7 @@ const CONTENT_WRAPPER_ID = 'content-wrapper';
 function getContentHeight(page: Page): Promise<number> {
   return page.evaluate(() => {
     const rect = (
-      (document as unknown as Document).getElementById(
+      document.getElementById(
         'content-wrapper' // CONTENT_WRAPPER_ID not defined in this scope
       ) as HTMLElement
     ).getBoundingClientRect();

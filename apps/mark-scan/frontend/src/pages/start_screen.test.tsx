@@ -7,7 +7,7 @@ import {
 import { createMemoryHistory } from 'history';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
-import { BallotStyleId, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
@@ -29,7 +29,7 @@ test('renders StartScreen', () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   render(<Route path="/" component={StartScreen} />, {
     apiMock,
-    ballotStyleId: '1M' as BallotStyleId,
+    ballotStyleId: '1M',
     electionDefinition,
     precinctId: 'precinct-1',
     route: '/',
@@ -46,7 +46,7 @@ test('renders StartScreen in Landscape Orientation', () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   render(<Route path="/" component={StartScreen} />, {
     apiMock,
-    ballotStyleId: '1M' as BallotStyleId,
+    ballotStyleId: '1M',
     electionDefinition,
     precinctId: 'precinct-1',
     route: '/',
@@ -71,7 +71,7 @@ test('renders as voter screen', () => {
 
   render(<Route path="/" component={StartScreen} />, {
     apiMock,
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     electionDefinition,
     history,
     precinctId: '23',
@@ -86,7 +86,7 @@ test('renders voter help button', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   render(<Route path="/" component={StartScreen} />, {
     apiMock,
-    ballotStyleId: '1M' as BallotStyleId,
+    ballotStyleId: '1M',
     electionDefinition,
     precinctId: 'precinct-1',
     route: '/',
@@ -112,7 +112,7 @@ test('does not render voter help button when system setting to disable is set', 
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   render(<Route path="/" component={StartScreen} />, {
     apiMock,
-    ballotStyleId: '1M' as BallotStyleId,
+    ballotStyleId: '1M',
     electionDefinition,
     precinctId: 'precinct-1',
     route: '/',

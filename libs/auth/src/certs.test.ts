@@ -3,7 +3,6 @@ import { expect, test, vi } from 'vitest';
 import { assert, DateWithoutTime } from '@votingworks/basics';
 import {
   DEV_MACHINE_ID,
-  ElectionId,
   ElectionKey,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -28,7 +27,7 @@ const cert = Buffer.of();
 const electionId = 'rhr6fw5qb077';
 const electionDate = '2024-07-10';
 const electionKey: ElectionKey = {
-  id: electionId as ElectionId,
+  id: electionId,
   date: new DateWithoutTime(electionDate),
 };
 const jurisdiction = TEST_JURISDICTION;
@@ -216,7 +215,7 @@ test.each<{
         jurisdiction,
         programmingMachineType: 'admin',
         electionKey: {
-          id: electionId as ElectionId,
+          id: electionId,
           date: new DateWithoutTime(electionDate),
         },
       },
@@ -242,7 +241,7 @@ test.each<{
         jurisdiction,
         programmingMachineType: 'admin',
         electionKey: {
-          id: electionId as ElectionId,
+          id: electionId,
           date: new DateWithoutTime(electionDate),
         },
       },
@@ -269,7 +268,7 @@ test.each<{
         jurisdiction,
         programmingMachineType: 'admin',
         electionKey: {
-          id: electionId as ElectionId,
+          id: electionId,
           date: new DateWithoutTime(electionDate),
         },
       },

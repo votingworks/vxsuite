@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   PollingPlace,
@@ -83,7 +82,7 @@ test('getMatchingAbsenteePollingPlaces and getLiveResultsReportingUrl', async ()
     store: workspace.store,
     mockCastVoteRecordFile: [
       {
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        ballotStyleGroupId: '1M',
         batchId: 'batch-1',
         scannerId: 'scanner-1',
         precinctId: 'precinct-1',

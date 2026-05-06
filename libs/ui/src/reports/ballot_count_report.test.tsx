@@ -4,7 +4,6 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
   Dictionary,
   formatElectionHashes,
   Tabulation,
@@ -117,7 +116,7 @@ test('can render all attribute columns', () => {
     [
       {
         ...cc(3, undefined, 4),
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        ballotStyleGroupId: '1M',
         precinctId: 'precinct-1',
         partyId: '0',
         votingMethod: 'precinct',
@@ -126,7 +125,7 @@ test('can render all attribute columns', () => {
       },
       {
         ...cc(9, undefined, 11),
-        ballotStyleGroupId: '2F' as BallotStyleGroupId,
+        ballotStyleGroupId: '2F',
         precinctId: 'precinct-2',
         partyId: '1',
         votingMethod: 'absentee',

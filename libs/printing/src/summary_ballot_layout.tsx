@@ -393,7 +393,7 @@ export class SummaryBallotLayoutRenderer {
         layout,
       });
 
-      remainingContests = remainingContests.slice(maxFit) as Contests;
+      remainingContests = remainingContests.slice(maxFit);
       pageNumber += 1;
 
       /* istanbul ignore next - safety check for runaway page computation @preserve */

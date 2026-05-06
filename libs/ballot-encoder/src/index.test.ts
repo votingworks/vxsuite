@@ -679,7 +679,7 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   const ballotMetadata: HmpbBallotPageMetadata = {
     ballotHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: '42' as BallotStyleId, // not a good ballot style
+    ballotStyleId: '42', // not a good ballot style
     pageNumber: 3,
     isTestMode: true,
     ballotType: BallotType.Precinct,

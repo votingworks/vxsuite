@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { BatchInfo, formatElectionHashes, PartyId } from '@votingworks/types';
+import { BatchInfo, formatElectionHashes } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName as Feature,
@@ -152,7 +152,7 @@ test('renders as expected for all precincts in a primary election', () => {
       contests={electionTwoPartyPrimary.contests.filter(
         (c) => c.type === 'yesno' || c.partyId === '0'
       )}
-      partyId={'0' as PartyId}
+      partyId="0"
       batches={[]}
     />
   );
@@ -212,7 +212,7 @@ test('displays only passed contests', () => {
       contests={electionTwoPartyPrimary.contests.filter(
         (c) => c.id === 'best-animal-mammal'
       )}
-      partyId={'0' as PartyId}
+      partyId="0"
       batches={[]}
     />
   );

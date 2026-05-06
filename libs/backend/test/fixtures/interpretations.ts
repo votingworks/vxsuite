@@ -2,9 +2,7 @@
 import { assertDefined, find } from '@votingworks/basics';
 import {
   AdjudicationInfo,
-  BallotId,
   BallotMetadata,
-  BallotStyleId,
   BallotType,
   BlankPage,
   CandidateContest,
@@ -37,7 +35,7 @@ export const bestFishContest = find(
 export const mockBallotMetadata: BallotMetadata = {
   ballotHash,
   precinctId: 'precinct-1',
-  ballotStyleId: '2F' as BallotStyleId,
+  ballotStyleId: '2F',
   isTestMode: true,
   ballotType: BallotType.Precinct,
 };
@@ -264,12 +262,12 @@ export const interpretedBmdMultiPagePage1: InterpretedBmdMultiPagePage = {
   metadata: {
     ballotHash,
     precinctId: 'precinct-1',
-    ballotStyleId: '2F' as BallotStyleId,
+    ballotStyleId: '2F',
     isTestMode: true,
     ballotType: BallotType.Precinct,
     pageNumber: 1,
     totalPages: 2,
-    ballotAuditId: 'audit-123' as BallotId,
+    ballotAuditId: 'audit-123',
     contestIds: [fishCouncilContest.id],
   },
   votes: {
@@ -288,12 +286,12 @@ export const interpretedBmdMultiPagePage2: InterpretedBmdMultiPagePage = {
   metadata: {
     ballotHash,
     precinctId: 'precinct-1',
-    ballotStyleId: '2F' as BallotStyleId,
+    ballotStyleId: '2F',
     isTestMode: true,
     ballotType: BallotType.Precinct,
     pageNumber: 2,
     totalPages: 2,
-    ballotAuditId: 'audit-123' as BallotId,
+    ballotAuditId: 'audit-123',
     contestIds: [fishingContest.id],
   },
   votes: {

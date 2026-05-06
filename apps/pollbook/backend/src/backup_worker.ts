@@ -161,7 +161,6 @@ export async function getBackupPaperChecklistPdfs(
   // PDFs to be roughly equal in size.
   const numPdfChunks = 2;
   const groupVoterCounts = iter(voterGroups).map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([_, group]) => group.existingVoters.length
   );
   const chunks = splitIntoBalancedChunks(
@@ -263,7 +262,7 @@ export function start({
         disposition: 'failure',
       });
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     for await (const _ of setInterval(BACKUP_INTERVAL)) {
       try {
         const result = await exportBackupVoterChecklist(

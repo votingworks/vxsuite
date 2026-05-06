@@ -5,7 +5,6 @@ import {
   CandidateContest,
   Election,
   ElectionDefinition,
-  ElectionId,
   LanguageCode,
   TtsEditKey,
 } from '@votingworks/types';
@@ -525,7 +524,7 @@ test('getExportedElectionDefinition returns the exported election including reor
 
   const electionId = (
     await apiClient.loadElection({
-      newId: 'test-nh-election-id' as ElectionId,
+      newId: 'test-nh-election-id',
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
@@ -800,7 +799,7 @@ test('getExportedElection returns election-out-of-date error when election data 
 
   const electionId = (
     await apiClient.loadElection({
-      newId: 'test-election-parse-error' as ElectionId,
+      newId: 'test-election-parse-error',
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',

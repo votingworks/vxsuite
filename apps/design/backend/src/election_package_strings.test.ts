@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { DistrictId, Precinct } from '@votingworks/types';
+import { Precinct } from '@votingworks/types';
 import { getUserDefinedHmpbStrings } from './election_package_strings';
 
 test('getUserDefinedHmpbStrings', () => {
@@ -9,7 +9,7 @@ test('getUserDefinedHmpbStrings', () => {
       name: 'Example Split Precinct',
       splits: [
         {
-          districtIds: ['district_1' as DistrictId],
+          districtIds: ['district_1'],
           id: 'split_1',
           name: 'Split One',
           clerkSignatureCaption: 'Clerk Signature',
@@ -18,13 +18,13 @@ test('getUserDefinedHmpbStrings', () => {
           electionSealOverride: '<svg></svg>',
         },
         {
-          districtIds: ['district_2' as DistrictId],
+          districtIds: ['district_2'],
           id: 'split_2',
           name: 'Split Two',
           electionTitleOverride: 'Split Two Election',
         },
         {
-          districtIds: ['district_3' as DistrictId],
+          districtIds: ['district_3'],
           id: 'split_3',
           name: 'Split Three',
           clerkSignatureCaption: 'Town Clerk Signature',
@@ -34,7 +34,7 @@ test('getUserDefinedHmpbStrings', () => {
     {
       id: 'precinct_2',
       name: 'Example Nonsplit Precinct',
-      districtIds: ['district_1' as DistrictId],
+      districtIds: ['district_1'],
     },
   ];
 

@@ -27,7 +27,6 @@ import {
   constructElectionKey,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
-  BallotStyleId,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -1586,7 +1585,7 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     expect(() =>
       api.updateCardlessVoterBallotStyle({
-        ballotStyleId: '1_en' as BallotStyleId,
+        ballotStyleId: '1_en',
       })
     ).toThrow();
   });
@@ -1597,7 +1596,7 @@ describe('updateCardlessVoterBallotStyle', () => {
     await logInAsPollWorker(api);
 
     await api.startCardlessVoterSession(defaultMachineState, {
-      ballotStyleId: '1_en' as BallotStyleId,
+      ballotStyleId: '1_en',
       precinctId: 'precinct1',
     });
 
@@ -1615,7 +1614,7 @@ describe('updateCardlessVoterBallotStyle', () => {
     vi.mocked(mockLogger.log).mockClear();
 
     api.updateCardlessVoterBallotStyle({
-      ballotStyleId: '1_es-US' as BallotStyleId,
+      ballotStyleId: '1_es-US',
     });
 
     const updatedStatus = await api.getAuthStatus(defaultMachineState);
@@ -1639,7 +1638,7 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     await logInAsPollWorker(api);
     await api.startCardlessVoterSession(defaultMachineState, {
-      ballotStyleId: '1_en' as BallotStyleId,
+      ballotStyleId: '1_en',
       precinctId: 'precinct1',
     });
     mockCardStatus({ status: 'no_card' });
@@ -1648,7 +1647,7 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     vi.mocked(mockLogger.log).mockClear();
     api.updateCardlessVoterBallotStyle({
-      ballotStyleId: '1_en' as BallotStyleId,
+      ballotStyleId: '1_en',
     });
 
     const updatedStatus = await api.getAuthStatus(defaultMachineState);

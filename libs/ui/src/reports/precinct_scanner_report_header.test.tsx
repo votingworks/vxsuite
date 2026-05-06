@@ -8,7 +8,7 @@ import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { formatElectionHashes, PartyId } from '@votingworks/types';
+import { formatElectionHashes } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
@@ -83,7 +83,7 @@ test('primary election, single precinct, polls closed, live mode', () => {
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
       pollingPlaceId={pollingPlace.id}
-      partyId={'0' as PartyId}
+      partyId="0"
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={pollsTransitionedTime}
@@ -152,7 +152,7 @@ test('primary election, polls paused', () => {
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      partyId={'0' as PartyId}
+      partyId="0"
       pollingPlaceId={pollingPlace.id}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
@@ -175,7 +175,7 @@ test('renders precinct selection name', () => {
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      partyId={'0' as PartyId}
+      partyId="0"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}

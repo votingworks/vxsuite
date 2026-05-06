@@ -62,7 +62,7 @@ describe('S3FileStorageClient', () => {
     const client = new S3FileStorageClient();
     await client.getSignedUrl('jurisdictions/123/election-package.zip');
 
-    const command = mockedS3GetSignedUrl.mock.calls[0]![1] as GetObjectCommand;
+    const command = mockedS3GetSignedUrl.mock.calls[0][1] as GetObjectCommand;
     expect(command.input).toEqual({
       Bucket: 'test-bucket',
       Key: 'jurisdictions/123/election-package.zip',

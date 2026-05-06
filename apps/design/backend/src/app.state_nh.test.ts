@@ -6,7 +6,6 @@ import {
 } from '@votingworks/fixtures';
 import {
   Election,
-  ElectionId,
   hasSplits,
   PrecinctWithSplits,
   LanguageCode,
@@ -56,7 +55,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   auth0.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
+      newId: 'new-election-id',
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
@@ -120,7 +119,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
   auth0.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
+      newId: 'new-election-id',
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
@@ -211,7 +210,7 @@ test.each<{
     auth0.setLoggedInUser(nhUser);
     const electionId = (
       await apiClient.loadElection({
-        newId: 'new-election-id' as ElectionId,
+        newId: 'new-election-id',
         jurisdictionId: nhJurisdiction.id,
         upload: {
           format: 'vxf',
@@ -275,7 +274,7 @@ test('ballot measure contest editing with additional contest options', async () 
   auth0.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
+      newId: 'new-election-id',
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',

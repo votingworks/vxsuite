@@ -7,7 +7,6 @@ import {
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId, PartyId } from '@votingworks/types';
 import { screen } from '../../test/react_testing_library';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 
@@ -122,8 +121,8 @@ test('open primary review screen shows party row and links to party selection', 
     route: '/review',
     electionDefinition: electionOpenPrimaryDefinition,
     precinctId: 'precinct-1',
-    ballotStyleId: 'ballot-style-1' as BallotStyleId,
-    selectedPartyId: 'democratic-party' as PartyId,
+    ballotStyleId: 'ballot-style-1',
+    selectedPartyId: 'democratic-party',
   });
 
   // Party row shows the selected party. Each label appears twice: once

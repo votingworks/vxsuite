@@ -3,7 +3,6 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { Keybinding, simulateKeyPress } from '@votingworks/ui';
-import { BallotStyleId } from '@votingworks/types';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 
 import { App } from '../app';
@@ -52,7 +51,7 @@ test('accessible controller handling works', async () => {
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
   await screen.findByText('Start Voting');
@@ -132,7 +131,7 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 

@@ -35,7 +35,7 @@ test('uses appropriate headers', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -396,7 +396,7 @@ test('incorporates manual data', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -414,7 +414,7 @@ test('incorporates manual data', async () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -501,7 +501,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -518,7 +518,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -662,7 +662,7 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
   // 3 CVRs on mammal ballot style, 1 CVR on fish ballot style
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -672,7 +672,7 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
       multiplier: 3,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',

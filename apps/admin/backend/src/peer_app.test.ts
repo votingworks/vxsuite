@@ -3,7 +3,6 @@ import { Buffer } from 'node:buffer';
 import { AddressInfo } from 'node:net';
 import {
   Admin,
-  BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
 } from '@votingworks/types';
@@ -134,7 +133,7 @@ function addTestCvrs(
   const mockFile: MockCastVoteRecordFile = Array.from(
     { length: count },
     () => ({
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -251,7 +250,7 @@ function addCvrWithImages(
   // ballot image with an invalid page layout
   const mockFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-img',
       scannerId: 'scanner-img',
       precinctId: 'precinct-1',

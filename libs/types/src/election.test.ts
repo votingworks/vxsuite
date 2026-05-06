@@ -304,7 +304,7 @@ test('electionTypeV4p0ToV4p1', () => {
 test('getGroupIdFromBallotStyleId', () => {
   expect(
     getGroupIdFromBallotStyleId({
-      ballotStyleId: '1' as BallotStyleId,
+      ballotStyleId: '1',
       election,
     })
   ).toEqual('1');
@@ -315,7 +315,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '1' as BallotStyleId,
+        ballotStyleId: '1',
         election,
       })!,
       election,
@@ -326,7 +326,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '1M' as BallotStyleId,
+        ballotStyleId: '1M',
         election: electionTwoPartyPrimary,
       })!,
       election: electionTwoPartyPrimary,
@@ -336,7 +336,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '2F' as BallotStyleId,
+        ballotStyleId: '2F',
         election: electionTwoPartyPrimary,
       })!,
       election: electionTwoPartyPrimary,
@@ -354,7 +354,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '1M' as BallotStyleId,
+        ballotStyleId: '1M',
         election: openPrimaryElection,
       })!,
       election: openPrimaryElection,
@@ -573,8 +573,8 @@ test('election schema rejects primary with mixed partyId ballot styles', () => {
   const mixedPrimary: Election = {
     ...primaryElection,
     ballotStyles: [
-      primaryElection.ballotStyles[0]!,
-      { ...primaryElection.ballotStyles[1]!, partyId: undefined },
+      primaryElection.ballotStyles[0],
+      { ...primaryElection.ballotStyles[1], partyId: undefined },
     ],
   };
   const result = safeParseElection(mixedPrimary);
@@ -750,7 +750,7 @@ test('ballotPaperDimensions', () => {
 });
 
 test('hasSplits', () => {
-  const districtIds: DistrictId[] = ['district-1' as DistrictId];
+  const districtIds: DistrictId[] = ['district-1'];
   const precincts = [
     {
       id: 'precinct-1',
@@ -787,12 +787,12 @@ test('getAllPrecinctsAndSplits', () => {
       {
         id: 'split-1',
         name: 'Split 1',
-        districtIds: ['district-1' as DistrictId],
+        districtIds: ['district-1'],
       },
       {
         id: 'split-2',
         name: 'Split 2',
-        districtIds: ['district-2' as DistrictId],
+        districtIds: ['district-2'],
       },
     ],
   };
@@ -812,7 +812,7 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
   const precinct1: Precinct = {
     id: 'precinct-1',
     name: '1 - North',
-    districtIds: ['district-1' as DistrictId],
+    districtIds: ['district-1'],
   };
   const precinct10: Precinct = {
     id: 'precinct-10',
@@ -821,19 +821,19 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
       {
         id: 'split-10a',
         name: '10A - East',
-        districtIds: ['district-1' as DistrictId],
+        districtIds: ['district-1'],
       },
       {
         id: 'split-10b',
         name: '10B - West',
-        districtIds: ['district-1' as DistrictId],
+        districtIds: ['district-1'],
       },
     ],
   };
   const precinct2: Precinct = {
     id: 'precinct-2',
     name: '2 - South',
-    districtIds: ['district-1' as DistrictId],
+    districtIds: ['district-1'],
   };
 
   const result = getAllPrecinctsAndSplits({
@@ -852,7 +852,7 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
 
 test('getOrderedCandidatesForContestInBallotStyle returns original candidates when orderedCandidatesByContest is not set', () => {
   const ballotStyle = getBallotStyle({
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     election,
   })!;
   const candidateContest = election.contests.find(
@@ -896,7 +896,7 @@ test('getOrderedCandidatesForContestInBallotStyle returns ordered candidates whe
 
   // Create a ballot style with ordered candidates (reversed order)
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -949,7 +949,7 @@ test('getOrderedCandidatesForContestInBallotStyle handles different orderings', 
   };
 
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1010,7 +1010,7 @@ test('getOrderedCandidatesForContestInBallotStyle preserves original ordering wh
 
   // Only order contest-1, leave contest-2 unordered
   const ballotStyleWithPartialOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1042,7 +1042,7 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
 
   const ballotStyleWithOrdering: BallotStyle = {
     ...getBallotStyle({
-      ballotStyleId: '1M' as BallotStyleId,
+      ballotStyleId: '1M',
       election: electionTwoPartyPrimary,
     })!,
     orderedCandidatesByContest: {
@@ -1097,7 +1097,7 @@ test('getOrderedCandidatesForContestInBallotStyle handles cross-endorsed candida
 
   // Create two DisplayCandidates for Alice, one for each party
   const ballotStyleWithCrossEndorsement: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1164,7 +1164,7 @@ test('getOrderedContests handles cross-endorsed candidates represented by one op
 
   // Create two DisplayCandidates for Alice, one for each party
   const ballotStyleWithCrossEndorsement: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1220,7 +1220,7 @@ test('getCandidateVoteSortedForBallotStyleRotation sorts votes according to ball
   };
 
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1267,7 +1267,7 @@ test('getCandidateVoteSortedForBallotStyleRotation preserves order when no rotat
   };
 
   const ballotStyleNoOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1305,7 +1305,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates a
   };
 
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1350,7 +1350,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in can
   };
 
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1397,7 +1397,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles only write-in votes',
   };
 
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
@@ -1440,7 +1440,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles empty vote', () => {
   };
 
   const ballotStyleWithOrdering: BallotStyle = {
-    id: '1' as BallotStyleId,
+    id: '1',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],

@@ -5,7 +5,6 @@ import {
   CandidateContest,
   DistrictId,
   Election,
-  ElectionId,
   HmpbBallotPaperSize,
   PrecinctId,
 } from '@votingworks/types';
@@ -47,7 +46,7 @@ function makeElection(): Election {
     makeContest(i + 1)
   );
   return {
-    id: 'vxprint-test-print' as ElectionId,
+    id: 'vxprint-test-print',
     title: 'VxPrint Test Print',
     type: 'general',
     state: 'Test State',

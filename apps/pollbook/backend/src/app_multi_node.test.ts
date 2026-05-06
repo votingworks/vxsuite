@@ -54,7 +54,7 @@ vi.mock(import('@votingworks/printing'), async (importActual) => {
   return {
     ...original,
     renderToPdf: vi.fn().mockResolvedValue(ok([])),
-  } as unknown as typeof import('@votingworks/printing');
+  };
 });
 
 let currentTime = new Date('2021-01-01T00:00:00.000');

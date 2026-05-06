@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
-import { CandidateContest, DistrictId, Tabulation } from '@votingworks/types';
+import { CandidateContest, Tabulation } from '@votingworks/types';
 import { buildContestResultsFixture } from './tabulation';
 import {
   getTallyReportCandidateRows,
@@ -377,7 +377,7 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       type: 'candidate',
       seats: 3,
       allowWriteIns: true,
-      districtId: 'id' as DistrictId,
+      districtId: 'id',
       title: 'Title',
       id: 'id',
       candidates: [
@@ -420,7 +420,7 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       type: 'candidate',
       seats: 1,
       allowWriteIns: true,
-      districtId: 'id' as DistrictId,
+      districtId: 'id',
       title: 'Title',
       id: 'id',
       candidates: [

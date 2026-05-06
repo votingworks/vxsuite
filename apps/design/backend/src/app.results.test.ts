@@ -17,7 +17,6 @@ import {
   CompressedTally,
   ContestId,
   ElectionDefinition,
-  ElectionId,
   PollingPlace,
   PollingPlaceType,
   PrecinctId,
@@ -119,7 +118,7 @@ async function setUpElectionInSystem(
   );
   const electionId = (
     await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
+      newId: 'new-election-id',
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
@@ -2076,7 +2075,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   // Load the base election
   const electionId = (
     await apiClient.loadElection({
-      newId: 'reordered-election-id' as ElectionId,
+      newId: 'reordered-election-id',
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
@@ -2095,7 +2094,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   // Create a reordered version of the election (simulating NH ballot template behavior)
   const reorderedElection: typeof baseElectionDefinition.election = {
     ...baseElectionDefinition.election,
-    id: 'reordered-election-id' as ElectionId,
+    id: 'reordered-election-id',
     // Reverse both contest order and candidate order in first contest
     contests: [...baseElectionDefinition.election.contests]
       .reverse()

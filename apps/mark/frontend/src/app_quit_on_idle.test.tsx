@@ -8,7 +8,6 @@ import {
   IDLE_RESET_TIMEOUT_SECONDS,
   IDLE_TIMEOUT_SECONDS,
 } from '@votingworks/mark-flow-ui';
-import { BallotStyleId } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
 
@@ -43,7 +42,7 @@ test('Voter idle timeout', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 

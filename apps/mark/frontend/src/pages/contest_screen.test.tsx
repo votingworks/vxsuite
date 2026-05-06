@@ -7,7 +7,6 @@ import {
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId, PartyId } from '@votingworks/types';
 import { screen } from '../../test/react_testing_library';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 
@@ -157,8 +156,8 @@ test('Back from first contest goes to party selection when a party is selected',
       history,
       route: '/contests/0',
       precinctId: 'precinct-1',
-      ballotStyleId: 'ballot-style-1' as BallotStyleId,
-      selectedPartyId: 'democratic-party' as PartyId,
+      ballotStyleId: 'ballot-style-1',
+      selectedPartyId: 'democratic-party',
     }
   );
 

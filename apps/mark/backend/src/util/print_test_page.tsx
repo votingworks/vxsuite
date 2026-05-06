@@ -1,9 +1,5 @@
 import { BmdPaperBallot } from '@votingworks/ui';
-import {
-  ElectionDefinition,
-  ElectionId,
-  HmpbBallotPaperSize,
-} from '@votingworks/types';
+import { ElectionDefinition, HmpbBallotPaperSize } from '@votingworks/types';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -15,7 +11,7 @@ function getMockElectionDefinition(): ElectionDefinition {
     ballotHash: '00000000000000000000',
     electionData: 'test-election-data',
     election: {
-      id: 'test-election-id' as ElectionId,
+      id: 'test-election-id',
       state: 'Test State',
       county: {
         id: 'test-county',

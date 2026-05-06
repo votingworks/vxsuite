@@ -11,7 +11,6 @@ import {
 import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -212,7 +211,7 @@ test('write-in adjudication report', async () => {
     name: 'Unofficial Candidate 2',
   });
   await apiClient.setManualResults({
-    ballotStyleGroupId: 'card-number-3' as BallotStyleGroupId,
+    ballotStyleGroupId: 'card-number-3',
     votingMethod: 'precinct',
     precinctId: 'town-id-00701-precinct-id-default',
     manualResults: buildManualResultsFixture({

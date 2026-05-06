@@ -8,7 +8,6 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
-  BallotStyleId,
   BallotType,
   CandidateContest,
   PartyId,
@@ -30,7 +29,7 @@ const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
 
 const testMetadata: BallotMetadata = {
-  ballotStyleId: 'card-number-3' as BallotStyleId,
+  ballotStyleId: 'card-number-3',
   ballotType: BallotType.Precinct,
   ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
@@ -157,7 +156,7 @@ test('getScannerResults groups by inferred party for an open primary', async () 
   const nonpartisanContest = election.contests.find(
     (c): c is YesNoContest => c.type === 'yesno'
   )!;
-  const ballotStyle = election.ballotStyles[0]!;
+  const ballotStyle = election.ballotStyles[0];
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
@@ -171,7 +170,7 @@ test('getScannerResults groups by inferred party for an open primary', async () 
     ballotType: BallotType.Precinct,
     ballotHash: electionDefinition.ballotHash,
     isTestMode: false,
-    precinctId: ballotStyle.precincts[0]!,
+    precinctId: ballotStyle.precincts[0],
   };
   function recordHmpbBallot(frontVotes: VotesDict): void {
     const batchId = store.addBatch();
@@ -186,19 +185,19 @@ test('getScannerResults groups by inferred party for an open primary', async () 
 
   // Two democratic-only ballots
   recordHmpbBallot({
-    [democraticContest.id]: [democraticContest.candidates[0]!.id],
+    [democraticContest.id]: [democraticContest.candidates[0].id],
   });
   recordHmpbBallot({
-    [democraticContest.id]: [democraticContest.candidates[0]!.id],
+    [democraticContest.id]: [democraticContest.candidates[0].id],
   });
   // One republican-only ballot
   recordHmpbBallot({
-    [republicanContest.id]: [republicanContest.candidates[0]!.id],
+    [republicanContest.id]: [republicanContest.candidates[0].id],
   });
   // One crossover ballot
   recordHmpbBallot({
-    [democraticContest.id]: [democraticContest.candidates[0]!.id],
-    [republicanContest.id]: [republicanContest.candidates[0]!.id],
+    [democraticContest.id]: [democraticContest.candidates[0].id],
+    [republicanContest.id]: [republicanContest.candidates[0].id],
     [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
   });
   // One ballot with only nonpartisan votes

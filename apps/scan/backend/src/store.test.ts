@@ -13,7 +13,6 @@ import { mockBaseLogger } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
-  BallotStyleId,
   BallotType,
   InterpretedHmpbPage,
   mapSheet,
@@ -50,7 +49,7 @@ const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
 
 const testMetadata: BallotMetadata = {
-  ballotStyleId: '12' as BallotStyleId,
+  ballotStyleId: '12',
   ballotType: BallotType.Precinct,
   ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
