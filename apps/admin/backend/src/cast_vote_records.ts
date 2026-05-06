@@ -350,8 +350,9 @@ export async function importCastVoteRecords(
         isHmpb ? markScores : undefined,
         markThresholds
       );
-      const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
-      assert(votingMethod);
+      const votingMethod = assertDefined(
+        getCastVoteRecordBallotType(castVoteRecord)
+      );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId,
         cvr: {

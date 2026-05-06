@@ -4,7 +4,12 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { BallotType, getBallotStyle, getContests } from '@votingworks/types';
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
@@ -75,8 +80,7 @@ test('has absentee and precinct ballot types', () => {
     electionDefinition:
       electionFamousNames2021Fixtures.readElectionDefinition(),
   })) {
-    const ballotType = getCastVoteRecordBallotType(cvr);
-    assert(ballotType);
+    const ballotType = assertDefined(getCastVoteRecordBallotType(cvr));
     switch (ballotType) {
       case BallotType.Absentee:
         seenAbsentee = true;
