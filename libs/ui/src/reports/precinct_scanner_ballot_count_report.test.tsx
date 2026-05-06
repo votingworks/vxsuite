@@ -6,7 +6,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { formatElectionHashes } from '@votingworks/types';
+import { BatchInfo, formatElectionHashes } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
@@ -21,6 +21,17 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const reportPrintedTime = new Date(2021, 8, 19, 11, 6).getTime();
 
+const testBatches: BatchInfo[] = [
+  {
+    id: 'a3c38c4b-0012-4ab1-b4ef-0d95671595ca',
+    batchNumber: 1,
+    label: 'Batch 1',
+    startedAt: '2021-09-19T10:00:00.000Z',
+    endedAt: '2021-09-19T11:05:00.000Z',
+    count: 23,
+  },
+];
+
 test('renders info properly', () => {
   setPollingPlacesEnabled(true);
 
@@ -33,6 +44,8 @@ test('renders info properly', () => {
       electionPackageHash="test-election-package-hash"
       pollingPlaceId={pollingPlace.id}
       totalBallotsScanned={23}
+      mostRecentBatchCount={10}
+      batches={testBatches}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
       reportPrintedTime={reportPrintedTime}
@@ -67,18 +80,13 @@ test('renders info properly', () => {
   );
 
   // Check contents
-  const ballotsScannedCount = screen.getByText('Sheets Scanned Count');
-  expect(ballotsScannedCount.parentElement).toHaveTextContent(
-    'Sheets Scanned Count23'
-  );
+  const totalLabel = screen.getByText('Total Sheets Scanned:');
+  expect(totalLabel.nextElementSibling).toHaveTextContent('23');
+  const batchLabel = screen.getByText('Most Recent Batch:');
+  expect(batchLabel.nextElementSibling).toHaveTextContent('10');
 
-  const pollsStatus = screen.getByText('Polls Status');
-  expect(pollsStatus.parentElement).toHaveTextContent('Polls StatusPaused');
-
-  const timePollsPaused = screen.getByText('Time Voting Paused');
-  expect(timePollsPaused.parentElement).toHaveTextContent(
-    'Time Voting PausedSun, Sep 19, 2021, 11:05:00 AM'
-  );
+  expect(screen.queryByText('Polls Status')).toBeNull();
+  expect(screen.queryByText('Time Voting Paused')).toBeNull();
 });
 
 test('renders precinct selection', () => {
@@ -90,6 +98,8 @@ test('renders precinct selection', () => {
       electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       totalBallotsScanned={23}
+      mostRecentBatchCount={23}
+      batches={testBatches}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
       reportPrintedTime={reportPrintedTime}
@@ -99,6 +109,52 @@ test('renders precinct selection', () => {
   );
 
   screen.getByText('Voting Paused Report • All Precincts');
+});
+
+test('omits most recent batch count on resume_voting', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerBallotCountReport
+      electionDefinition={electionGeneralDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      totalBallotsScanned={23}
+      batches={testBatches}
+      pollsTransition="resume_voting"
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      isLiveMode={false}
+      precinctScannerMachineId="SC-01-000"
+    />
+  );
+
+  expect(screen.queryByText('Most Recent Batch Scan Count')).toBeNull();
+});
+
+test('renders batch summary table', () => {
+  setPollingPlacesEnabled(false);
+
+  render(
+    <PrecinctScannerBallotCountReport
+      electionDefinition={electionGeneralDefinition}
+      electionPackageHash="test-election-package-hash"
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      totalBallotsScanned={23}
+      mostRecentBatchCount={23}
+      batches={testBatches}
+      pollsTransition="pause_voting"
+      pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
+      isLiveMode={false}
+      precinctScannerMachineId="SC-01-000"
+    />
+  );
+
+  screen.getByText('Batch ID');
+  screen.getByText('Sheets Scanned');
+  screen.getByText('Polls Opened / Resumed');
+  screen.getByText('a3c38c4b-0d95671595ca');
 });
 
 function setPollingPlacesEnabled(enabled: boolean) {
