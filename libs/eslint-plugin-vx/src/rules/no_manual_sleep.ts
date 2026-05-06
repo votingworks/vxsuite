@@ -79,8 +79,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Disallow manual sleep implementations; use `sleep` from `@votingworks/basics`',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     hasSuggestions: true,
     messages: {
