@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
 const {
   sliOrganizationId,
