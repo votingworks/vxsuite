@@ -284,6 +284,9 @@ export const SystemSettingsSchema = z
  * definition. These settings can be changed without changing the ballot hash
  * (and therefore not needing to reprint ballots, for example).
  */
+// Use interface form so TypeScript names the type (not its expansion) at usage
+// sites; otherwise references to private types like `AuthSettings` would leak.
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> {}
 // To enforce that this type matches its schema exactly, we infer the type from
 // the schema rather than defining them in parallel. We use this approach for
