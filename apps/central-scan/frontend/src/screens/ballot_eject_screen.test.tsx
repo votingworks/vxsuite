@@ -6,6 +6,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
   SheetInterpretation,
+  SheetOf,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -33,22 +34,40 @@ function buildHmpMetadataWithPage(pageNumber: number): BallotPageMetadata {
 }
 
 function buildNextReviewSheet(
-  sheetInterpretation: SheetInterpretation
+  sheetInterpretation: SheetInterpretation,
+  contestIdsBySide: SheetOf<readonly string[]> = [[], []]
 ): NextReviewSheet {
-  function buildImage(pageNumber: number) {
+  function buildImage(pageNumber: number, contestIds: readonly string[]) {
     return {
-      imageUrl: 'data:image/png;base64,',
+      imageUrl: `mock-${pageNumber === 1 ? 'front' : 'back'}-image`,
       ballotBounds: { x: 0, y: 0, width: 1700, height: 2200 },
       layout: {
-        contests: [],
+        contests: contestIds.map((contestId, i) => {
+          const y = 200 + i * 400;
+          return {
+            contestId,
+            bounds: { x: 100, y, width: 500, height: 300 },
+            corners: [
+              { x: 100, y },
+              { x: 600, y },
+              { x: 100, y: y + 300 },
+              { x: 600, y: y + 300 },
+            ] as const,
+            options: [],
+          };
+        }),
         metadata: buildHmpMetadataWithPage(pageNumber),
-        pageSize: { width: 1, height: 1 },
+        pageSize: { width: 1700, height: 2200 },
       },
     };
   }
+  const [frontContestIds, backContestIds] = contestIdsBySide;
   return {
     sheetInterpretation,
-    images: [buildImage(1), buildImage(2)] as const,
+    images: [
+      buildImage(1, frontContestIds),
+      buildImage(2, backContestIds),
+    ] as const,
   };
 }
 
@@ -119,65 +138,22 @@ test('says the ballot sheet is overvoted if it is', async () => {
 });
 
 test('renders both ballot images with highlights on overvoted contests', async () => {
-  const BALLOT_BOUNDS = { x: 0, y: 0, width: 1700, height: 2200 } as const;
-  const CONTEST_BOUNDS = { x: 100, y: 200, width: 500, height: 300 } as const;
-
-  apiMock.expectGetNextReviewSheet({
-    sheetInterpretation: {
-      type: 'NeedsReviewSheet',
-      reasons: [
-        {
-          type: AdjudicationReason.Overvote,
-          contestId: 'contest-1',
-          optionIds: ['1', '2'],
-          expected: 1,
-        },
-      ],
-    },
-    images: [
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet(
       {
-        imageUrl: 'mock-front-image',
-        ballotBounds: BALLOT_BOUNDS,
-        layout: {
-          pageSize: { width: 1700, height: 2200 },
-          metadata: buildHmpMetadataWithPage(1),
-          contests: [
-            {
-              contestId: 'contest-1',
-              bounds: CONTEST_BOUNDS,
-              corners: [
-                { x: 100, y: 200 },
-                { x: 600, y: 200 },
-                { x: 100, y: 500 },
-                { x: 600, y: 500 },
-              ],
-              options: [],
-            },
-            {
-              contestId: 'contest-2',
-              bounds: { x: 100, y: 600, width: 500, height: 300 },
-              corners: [
-                { x: 100, y: 600 },
-                { x: 600, y: 600 },
-                { x: 100, y: 900 },
-                { x: 600, y: 900 },
-              ],
-              options: [],
-            },
-          ],
-        },
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.Overvote,
+            contestId: 'contest-1',
+            optionIds: ['1', '2'],
+            expected: 1,
+          },
+        ],
       },
-      {
-        imageUrl: 'mock-back-image',
-        ballotBounds: BALLOT_BOUNDS,
-        layout: {
-          pageSize: { width: 1700, height: 2200 },
-          metadata: buildHmpMetadataWithPage(2),
-          contests: [],
-        },
-      },
-    ] as const,
-  });
+      [['contest-1', 'contest-2'], []]
+    )
+  );
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
 
@@ -205,17 +181,20 @@ test('renders both ballot images with highlights on overvoted contests', async (
 
 test('says the ballot sheet is undervoted if it is', async () => {
   apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
-      type: 'NeedsReviewSheet',
-      reasons: [
-        {
-          type: AdjudicationReason.Undervote,
-          contestId: '1',
-          optionIds: [],
-          expected: 1,
-        },
-      ],
-    })
+    buildNextReviewSheet(
+      {
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: '1',
+            optionIds: [],
+            expected: 1,
+          },
+        ],
+      },
+      [['1'], []]
+    )
   );
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
@@ -228,6 +207,10 @@ test('says the ballot sheet is undervoted if it is', async () => {
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
   );
 
+  // Undervoted contest is highlighted on the front image
+  const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
+  expect(ballotImages[0].querySelectorAll('div')).toHaveLength(1);
+
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 
@@ -237,18 +220,21 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
 test('says the ballot sheet is blank if it is', async () => {
   apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
-      type: 'NeedsReviewSheet',
-      reasons: [
-        {
-          type: AdjudicationReason.Undervote,
-          contestId: '1',
-          expected: 1,
-          optionIds: [],
-        },
-        { type: AdjudicationReason.BlankBallot },
-      ],
-    })
+    buildNextReviewSheet(
+      {
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: '1',
+            expected: 1,
+            optionIds: [],
+          },
+          { type: AdjudicationReason.BlankBallot },
+        ],
+      },
+      [['1'], []]
+    )
   );
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
@@ -260,6 +246,11 @@ test('says the ballot sheet is blank if it is', async () => {
   screen.getByText(
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
   );
+
+  // No highlights on a blank ballot — even though the layout has the
+  // undervoted contest, the Blank Ballot case suppresses highlighting.
+  const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
+  expect(ballotImages[0].querySelector('div')).not.toBeInTheDocument();
 
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));

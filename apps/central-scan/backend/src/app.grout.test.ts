@@ -391,7 +391,7 @@ test('get next sheet returns null when no adjudication sheet', async () => {
   });
 });
 
-test('getNextReviewSheet includes images', async () => {
+test('getNextReviewSheet returns interpretation and image data for uninterpretable sheets', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
@@ -414,89 +414,25 @@ test('getNextReviewSheet includes images', async () => {
       type: 'InvalidSheet',
       reason: { type: 'unknown' },
     });
+
     const [frontImage, backImage] = result!.images;
-    expect(frontImage).toMatchObject({
-      imageUrl: expect.stringMatching(/^data:image\//),
-      ballotBounds: {
-        x: 0,
-        y: 0,
-        width: expect.any(Number),
-        height: expect.any(Number),
-      },
-    });
-    expect(backImage).toMatchObject({
-      imageUrl: expect.stringMatching(/^data:image\//),
-      ballotBounds: {
-        x: 0,
-        y: 0,
-        width: expect.any(Number),
-        height: expect.any(Number),
-      },
-    });
+    for (const image of [frontImage, backImage]) {
+      expect(image).toMatchObject({
+        imageUrl: expect.stringMatching(/^data:image\//),
+        ballotBounds: {
+          x: 0,
+          y: 0,
+          width: expect.any(Number),
+          height: expect.any(Number),
+        },
+      });
+    }
     expect(frontImage.layout).toBeUndefined();
     expect(backImage.layout).toBeUndefined();
   });
 });
 
-test('getNextReviewSheet includes layouts for HMPB pages', async () => {
-  const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-
-  await withApp(async ({ apiClient, importer, workspace }) => {
-    importer.configure(
-      electionDefinition,
-      jurisdiction,
-      'test-election-package-hash'
-    );
-    const batchId = workspace.store.addBatch();
-
-    const metadata: BallotMetadata = {
-      ballotHash: electionDefinition.ballotHash,
-      ballotType: BallotType.Precinct,
-      ballotStyleId: 'card-number-3' as BallotStyleId,
-      precinctId: 'town-id-00701-precinct-id-default',
-      isTestMode: false,
-    };
-    const hmpbInterpretation: InterpretedHmpbPage = {
-      type: 'InterpretedHmpbPage',
-      metadata: { ...metadata, pageNumber: 1 },
-      markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
-      adjudicationInfo: {
-        requiresAdjudication: true,
-        enabledReasons: [AdjudicationReason.Overvote],
-        enabledReasonInfos: [
-          {
-            type: AdjudicationReason.Overvote,
-            contestId: 'contest-id',
-            expected: 1,
-            optionIds: ['option-id', 'option-id-2'],
-          },
-        ],
-        ignoredReasonInfos: [],
-      },
-      votes: {},
-      layout: {
-        pageSize: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 1 },
-        contests: [],
-      },
-    };
-
-    workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
-      { imagePath: frontImagePath, interpretation: hmpbInterpretation },
-      { imagePath: backImagePath, interpretation: { type: 'BlankPage' } },
-    ]);
-    workspace.store.finishBatch({ batchId });
-
-    const result = await apiClient.getNextReviewSheet();
-    expect(result).toBeDefined();
-    const [frontImage, backImage] = result!.images;
-    expect(frontImage.layout).toEqual(hmpbInterpretation.layout);
-    expect(backImage.layout).toBeUndefined();
-  });
-});
-
-test('getNextReviewSheet includes sheet interpretation', async () => {
+test('getNextReviewSheet returns interpretation, image data, and layouts for interpretable sheets', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
@@ -543,13 +479,12 @@ test('getNextReviewSheet includes sheet interpretation', async () => {
       expected: 1,
       optionIds: ['option-id', 'option-id-2'],
     };
+    const frontPage = buildHmpbPage(1, [overvoteReason]);
+    const backPage = buildHmpbPage(2);
 
     workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
-      {
-        imagePath: frontImagePath,
-        interpretation: buildHmpbPage(1, [overvoteReason]),
-      },
-      { imagePath: backImagePath, interpretation: buildHmpbPage(2) },
+      { imagePath: frontImagePath, interpretation: frontPage },
+      { imagePath: backImagePath, interpretation: backPage },
     ]);
     workspace.store.finishBatch({ batchId });
 
@@ -558,5 +493,8 @@ test('getNextReviewSheet includes sheet interpretation', async () => {
       type: 'NeedsReviewSheet',
       reasons: [overvoteReason],
     });
+    const [frontImage, backImage] = result!.images;
+    expect(frontImage.layout).toEqual(frontPage.layout);
+    expect(backImage.layout).toEqual(backPage.layout);
   });
 });

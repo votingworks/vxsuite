@@ -106,6 +106,10 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     allowBallotDuplication: false,
   };
 
+  // We handle both NeedsReviewSheet and InvalidSheet interpretations,
+  // since both need adjudication on the central scanner.
+  // (The distinction is for the precinct scanner, which rejects
+  // InvalidSheet and allows voter review for NeedsReviewSheet)
   const ejectInfo: EjectInformation = (() => {
     if (sheetInterpretation.type === 'InvalidSheet') {
       const { reason } = sheetInterpretation;
