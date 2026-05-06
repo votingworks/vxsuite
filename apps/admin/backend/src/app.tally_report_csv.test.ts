@@ -371,7 +371,6 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     const contests: AdjudicatedCvrContest[] = contest.options
       .filter((option) => option.writeInRecord)
       .map((option) => ({
-        cvrId,
         contestId: candidateContestId,
         side: 'front',
         adjudicatedContestOptionById: {

@@ -762,7 +762,6 @@ test('makeInitialState applies unsavedAdjudication overlay across all option typ
   };
 
   const unsavedAdjudication: AdjudicatedCvrContest = {
-    cvrId,
     contestId,
     side: 'front',
     adjudicatedContestOptionById: {

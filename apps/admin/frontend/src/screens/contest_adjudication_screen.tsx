@@ -348,7 +348,6 @@ export function ContestAdjudicationScreen({
     const adjudicatedCvrContest: AdjudicatedCvrContest = {
       adjudicatedContestOptionById,
       contestId,
-      cvrId,
       side,
     };
     const officialOptionIds = officialOptions.map((o) => o.id);

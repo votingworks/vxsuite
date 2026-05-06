@@ -182,7 +182,6 @@ test('write-in adjudication report', async () => {
         cvrId,
         contests: [
           {
-            cvrId,
             contestId,
             side: 'front',
             adjudicatedContestOptionById: {

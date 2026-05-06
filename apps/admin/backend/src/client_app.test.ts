@@ -317,7 +317,6 @@ test('proxy endpoints return host-disconnect error when not connected', async ()
       cvrId: 'cvr-1',
       contests: [
         {
-          cvrId: 'cvr-1',
           contestId: 'c-1',
           side: 'front',
           adjudicatedContestOptionById: {},
@@ -432,7 +431,6 @@ test('adjudicateCvr proxies to host peer API', async () => {
       cvrId: 'cvr-1',
       contests: [
         {
-          cvrId: 'cvr-1',
           contestId: 'contest-1',
           side: 'front',
           adjudicatedContestOptionById: {},

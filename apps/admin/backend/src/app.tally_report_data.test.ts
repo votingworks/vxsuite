@@ -168,7 +168,6 @@ test('general, full election, write in adjudication', async () => {
         cvrId,
         contests: [
           {
-            cvrId,
             contestId,
             side: 'front',
             adjudicatedContestOptionById: {
@@ -968,7 +967,6 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
           cvrId: writeIn.cvrId,
           contests: [
             {
-              cvrId: writeIn.cvrId,
               contestId: writeInContestId,
               side: 'front',
               adjudicatedContestOptionById: {

@@ -684,7 +684,6 @@ test('claim and release are no-ops when multi-station is disabled', async () => 
       contests: [
         {
           contestId: 'contest-1',
-          cvrId,
           adjudicatedContestOptionById: {},
           side: 'front',
         },
@@ -830,7 +829,6 @@ test('handling unmarked write-ins', async () => {
       cvrId,
       contests: [
         {
-          cvrId,
           contestId: WRITE_IN_CONTEST_ID,
           side: 'front',
           adjudicatedContestOptionById: {
@@ -876,7 +874,6 @@ test('handling unmarked write-ins', async () => {
       cvrId,
       contests: [
         {
-          cvrId,
           contestId: WRITE_IN_CONTEST_ID,
           side: 'front',
           adjudicatedContestOptionById: {
@@ -986,7 +983,6 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
         },
         ...overrides,
       },
-      cvrId,
       contestId,
       side: 'front',
     };
@@ -1695,7 +1691,6 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
               candidateName: 'Alice',
             },
           },
-          cvrId,
           contestId,
           side: 'front',
         },
@@ -1840,7 +1835,6 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
               candidateName: 'Alice',
             },
           },
-          cvrId,
           contestId: governorContestId,
           side: 'front',
         },
@@ -1851,7 +1845,6 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
               hasVote: true,
             },
           },
-          cvrId,
           contestId: otherContest.contestId,
           side: 'front',
         },

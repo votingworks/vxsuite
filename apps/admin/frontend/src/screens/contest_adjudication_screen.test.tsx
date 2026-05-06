@@ -333,7 +333,6 @@ function getCheckboxByName(name: string) {
 }
 
 function formAdjudicatedCvrContest(
-  cvrId: string,
   overrides: Record<ContestOptionId, AdjudicatedContestOption>
 ): AdjudicatedCvrContest {
   return {
@@ -347,7 +346,6 @@ function formAdjudicatedCvrContest(
       'write-in-2': { type: 'write-in-option', hasVote: false },
       ...overrides,
     },
-    cvrId,
     contestId: 'zoo-council-mammal',
     side: 'front',
   };
@@ -418,7 +416,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
       })
     );
@@ -471,7 +469,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
@@ -547,7 +545,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
@@ -629,7 +627,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
@@ -767,7 +765,7 @@ describe('bmd write-in adjudication', () => {
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
@@ -857,7 +855,7 @@ describe('vote adjudication', () => {
     userEvent.click(primaryButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         lion: { type: 'candidate-option', hasVote: true },
       })
     );
@@ -1042,7 +1040,7 @@ describe('unmarked and undetected write-ins', () => {
     userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
@@ -1609,7 +1607,7 @@ describe('marginal mark adjudication', () => {
     userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         kangaroo: { type: 'candidate-option', hasVote: true },
       })
     );
@@ -1697,7 +1695,7 @@ describe('marginal mark adjudication', () => {
     userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
-      formAdjudicatedCvrContest(cvrId, {
+      formAdjudicatedCvrContest({
         'write-in-0': {
           type: 'write-in-option',
           hasVote: true,

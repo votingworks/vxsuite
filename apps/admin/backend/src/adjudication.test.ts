@@ -176,7 +176,6 @@ test('adjudicateCvr write-in logging and candidate cleanup', () => {
         contests: [
           {
             adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
-            cvrId,
             contestId,
             side: 'front',
           },
@@ -381,7 +380,6 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
               candidateName: 'Bob',
             },
           },
-          cvrId,
           contestId,
           side: 'front',
         },
@@ -523,7 +521,6 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
               'write-in-2': { type: 'write-in-option', hasVote: false },
               ...trueVotes,
             },
-            cvrId,
             contestId: 'zoo-council-mammal',
             side: 'front',
           },
@@ -907,7 +904,6 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
       cvrId,
       contests: [
         {
-          cvrId,
           contestId: 'zoo-council-mammal',
           side: 'front',
           adjudicatedContestOptionById: {
@@ -916,7 +912,6 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
           },
         },
         {
-          cvrId,
           contestId: 'best-animal-mammal',
           side: 'front',
           adjudicatedContestOptionById: {

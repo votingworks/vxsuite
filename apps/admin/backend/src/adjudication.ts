@@ -1,6 +1,6 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { ContestOptionId } from '@votingworks/types';
+import { ContestOptionId, Id } from '@votingworks/types';
 import {
   AdjudicatedCvr,
   AdjudicatedCvrContest,
@@ -147,13 +147,14 @@ function adjudicateWriteIn(
  * transaction — callers must wrap this in `store.withTransaction()`.
  */
 function applyAdjudicatedCvrContest(
+  cvrId: Id,
   adjudicatedCvrContest: AdjudicatedCvrContest,
   existingContestVotes: ContestOptionId[] | undefined,
   store: Store,
   logger: BaseLogger
 ): void {
   const electionId = assertDefined(store.getCurrentElectionId());
-  const { adjudicatedContestOptionById, cvrId, contestId, side } =
+  const { adjudicatedContestOptionById, contestId, side } =
     adjudicatedCvrContest;
 
   const cvrWriteInRecords = store.getWriteInRecords({
@@ -246,7 +247,7 @@ function applyAdjudicatedCvrContest(
       }
       default: {
         /* istanbul ignore next - @preserve */
-        throwIllegalValue(option, 'type');
+        throwIllegalValue(option, 'candidateType');
       }
     }
   }
@@ -270,6 +271,7 @@ export function adjudicateCvr(
   store.withTransaction(() => {
     for (const contest of adjudicatedCvr.contests) {
       applyAdjudicatedCvrContest(
+        adjudicatedCvr.cvrId,
         contest,
         votes[contest.contestId],
         store,

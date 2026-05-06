@@ -417,7 +417,6 @@ export interface AdjudicatedCvrContest {
     AdjudicatedContestOption
   >;
   contestId: ContestId;
-  cvrId: Id;
   side: Side;
 }
 

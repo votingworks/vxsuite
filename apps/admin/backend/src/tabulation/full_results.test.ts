@@ -83,7 +83,6 @@ function adjudicateWriteIn({
           adjudicatedContestOptionById: {
             [writeIn.optionId]: adjudicatedOption,
           },
-          cvrId: writeIn.cvrId,
           contestId,
           side: 'front',
         },
