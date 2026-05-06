@@ -31,6 +31,27 @@ import type { Store } from './store';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
 import { getScannerResults } from './util/results';
 
+// UUIDs and timestamps are displayed on the polls reports.
+// Mock them so snapshots are deterministic.
+// Adding calls to getCurrentTime() in the code may result in snapshot changes.
+let uuidCounter = 0;
+let timeCounter = 0;
+vi.mock('uuid', () => ({
+  v4: vi.fn(() => {
+    uuidCounter += 1;
+    return `00000000-0000-0000-0000-${String(uuidCounter).padStart(12, '0')}`;
+  }),
+}));
+
+const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
+vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
+  ...(await importActual()),
+  getCurrentTime: () => {
+    timeCounter += 1;
+    return reportPrintedTime.getTime() + timeCounter * 60_000;
+  },
+}));
+
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
@@ -52,16 +73,12 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
+  uuidCounter = 0;
+  timeCounter = 0;
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
-
-const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
-vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
-  ...(await importActual()),
-  getCurrentTime: () => reportPrintedTime.getTime(),
-}));
 
 test('printReportSection can print each part of a primary report separately', async () => {
   setPollingPlacesEnabled(true);
@@ -442,7 +459,7 @@ function recordHmpbBallotInStore({
   votes: VotesDict;
 }): void {
   const metadata: BallotMetadata = {
-    ballotStyleId ,
+    ballotStyleId,
     ballotType: BallotType.Precinct,
     ballotHash: electionDefinition.ballotHash,
     isTestMode: true,

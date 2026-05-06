@@ -46,17 +46,27 @@ async function getReportSection(
   const pollsTransition = store.getLastPollsTransition();
   assert(pollsTransition);
   assert(pollsTransition.ballotCount === store.getBallotsCounted());
+  const allBatches = store.getBatches();
 
   if (isPollsSuspensionTransition(pollsTransition.type)) {
     debug(
       `polls transition is ${pollsTransition.type}, generating ballot count report`
     );
+    /* istanbul ignore next - @preserve there should be at least one completed batch but keep the fallback */
+    const mostRecentBatchCount =
+      pollsTransition.type === 'pause_voting'
+        ? [...allBatches]
+            .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+            .find((b) => b.endedAt !== undefined)?.count ?? 0
+        : undefined;
     return PrecinctScannerBallotCountReport({
       electionDefinition,
       electionPackageHash,
       pollingPlaceId,
       precinctSelection,
       totalBallotsScanned: pollsTransition.ballotCount,
+      mostRecentBatchCount,
+      batches: allBatches,
       pollsTransition: pollsTransition.type,
       pollsTransitionedTime: pollsTransition.time,
       reportPrintedTime: getCurrentTime(),
@@ -89,6 +99,9 @@ async function getReportSection(
       getEmptyElectionResults(electionDefinition.election, true)
     : scannerResultsCombined;
 
+  const tallyReportBatches =
+    pollsTransition.type === 'close_polls' ? allBatches : [];
+
   return PrecinctScannerTallyReport({
     electionDefinition,
     electionPackageHash,
@@ -102,6 +115,7 @@ async function getReportSection(
     reportPrintedTime: getCurrentTime(),
     precinctScannerMachineId: machineId,
     scannedElectionResults,
+    batches: tallyReportBatches,
   });
 }
 

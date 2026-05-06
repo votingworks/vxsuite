@@ -57,6 +57,7 @@ import {
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
+import { getCurrentTime } from './util/get_current_time';
 import { rootDebug } from './util/debug';
 import { isHmpbPage, isPageWithVotes } from './util/results';
 import {
@@ -618,7 +619,12 @@ export class Store {
   addBatch(): string {
     const id = uuid();
     const ballotCastingMode = this.getBallotCastingMode();
-    this.client.run('insert into batches (id) values (?)', id);
+    const startedAt = new Date(getCurrentTime()).toISOString();
+    this.client.run(
+      'insert into batches (id, started_at) values (?, ?)',
+      id,
+      startedAt
+    );
     this.client.run(
       `update batches set label = 'Batch ' || batch_number, ballot_casting_mode = ? WHERE id = ?`,
       ballotCastingMode,
@@ -631,8 +637,10 @@ export class Store {
    * Marks the batch with id `batchId` as finished.
    */
   finishBatch({ batchId, error }: { batchId: string; error?: string }): void {
+    const endedAt = new Date(getCurrentTime()).toISOString();
     this.client.run(
-      'update batches set ended_at = current_timestamp, error = ? where id = ?',
+      'update batches set ended_at = ?, error = ? where id = ?',
+      endedAt,
       error ?? null,
       batchId
     );
