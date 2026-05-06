@@ -175,10 +175,15 @@ test('batch cleanup works correctly', () => {
 
 test('getBatches', () => {
   const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
-  const sheetId = store.addSheet(uuid(), batchId, [
+  const sheetId = store.addSheet(election, uuid(), batchId, [
     {
       imagePath: '/tmp/front-page.png',
       interpretation: {
@@ -194,7 +199,7 @@ test('getBatches', () => {
   ]);
 
   // Add a second sheet
-  const sheetId2 = store.addSheet(uuid(), batchId, [
+  const sheetId2 = store.addSheet(election, uuid(), batchId, [
     {
       imagePath: '/tmp/front-page2.png',
       interpretation: {
@@ -263,7 +268,7 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Cannot unconfigure after new sheet added
-  const sheetId = store.addSheet(uuid(), batchId, [
+  const sheetId = store.addSheet(election, uuid(), batchId, [
     {
       imagePath: '/tmp/front-page.png',
       interpretation: {
@@ -284,7 +289,7 @@ test('canUnconfigure not in test mode', async () => {
   // Setup second batch with second sheet
   await sleep(1000);
   const batchId2 = store.addBatch();
-  store.addSheet(uuid(), batchId2, [
+  store.addSheet(election, uuid(), batchId2, [
     {
       imagePath: '/tmp/front-page2.png',
       interpretation: {
@@ -305,7 +310,7 @@ test('canUnconfigure not in test mode', async () => {
   // Setup third batch with third sheet
   await sleep(1000);
   const batchId3 = store.addBatch();
-  const sheetId3 = store.addSheet(uuid(), batchId3, [
+  const sheetId3 = store.addSheet(election, uuid(), batchId3, [
     {
       imagePath: '/tmp/front-page3.png',
       interpretation: {
@@ -442,7 +447,10 @@ test('adjudication', () => {
     };
   }
   const batchId = store.addBatch();
-  const ballotId = store.addSheet(uuid(), batchId, [mockPage(0), mockPage(1)]);
+  const ballotId = store.addSheet(election, uuid(), batchId, [
+    mockPage(0),
+    mockPage(1),
+  ]);
 
   // check the review paths
   const reviewSheet = store.getNextAdjudicationSheet();
@@ -550,7 +558,7 @@ test('iterating over sheets', () => {
   // Add and retrieve an accepted sheet
   const batchId = store.addBatch();
   const sheet1Id = uuid();
-  store.addSheet(sheet1Id, batchId, [
+  store.addSheet(election, sheet1Id, batchId, [
     { ...sheetWithFiles[0], imagePath: '1-front.jpg' },
     { ...sheetWithFiles[1], imagePath: '1-back.jpg' },
   ]);
@@ -570,6 +578,7 @@ test('iterating over sheets', () => {
   // Add and retrieve a rejected sheet
   const sheet2Id = uuid();
   store.addSheet(
+    election,
     sheet2Id,
     batchId,
     [
@@ -603,7 +612,7 @@ test('iterating over sheets', () => {
       ignoredReasonInfos: [],
     },
   };
-  store.addSheet(sheet3Id, batchId, [
+  store.addSheet(election, sheet3Id, batchId, [
     {
       ...sheetWithFiles[0],
       imagePath: '3-front.jpg',
@@ -664,18 +673,48 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
   }
 
   const batch1Id = store.addBatch();
-  const batch1Sheet1Id = store.addSheet(uuid(), batch1Id, generateSheet());
-  const batch1Sheet2Id = store.addSheet(uuid(), batch1Id, generateSheet());
-  const batch1Sheet3Id = store.addSheet(uuid(), batch1Id, generateSheet());
+  const batch1Sheet1Id = store.addSheet(
+    election,
+    uuid(),
+    batch1Id,
+    generateSheet()
+  );
+  const batch1Sheet2Id = store.addSheet(
+    election,
+    uuid(),
+    batch1Id,
+    generateSheet()
+  );
+  const batch1Sheet3Id = store.addSheet(
+    election,
+    uuid(),
+    batch1Id,
+    generateSheet()
+  );
   store.finishBatch({ batchId: batch1Id });
 
   const batch2Id = store.addBatch();
-  const batch2Sheet1Id = store.addSheet(uuid(), batch2Id, generateSheet());
+  const batch2Sheet1Id = store.addSheet(
+    election,
+    uuid(),
+    batch2Id,
+    generateSheet()
+  );
   store.finishBatch({ batchId: batch2Id });
 
   const batch3Id = store.addBatch();
-  const batch3Sheet1Id = store.addSheet(uuid(), batch3Id, generateSheet());
-  const batch3Sheet2Id = store.addSheet(uuid(), batch3Id, generateSheet());
+  const batch3Sheet1Id = store.addSheet(
+    election,
+    uuid(),
+    batch3Id,
+    generateSheet()
+  );
+  const batch3Sheet2Id = store.addSheet(
+    election,
+    uuid(),
+    batch3Id,
+    generateSheet()
+  );
   store.finishBatch({ batchId: batch3Id });
 
   const acceptedSheets = Array.from(store.forEachAcceptedSheet());
@@ -747,12 +786,17 @@ test('resetElectionSession', () => {
 
 test('getBallotsCounted', () => {
   const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   expect(store.getBallotsCounted()).toEqual(0);
 
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
-  store.addSheet(uuid(), batchId, [
+  store.addSheet(election, uuid(), batchId, [
     {
       imagePath: '/tmp/front-page.png',
       interpretation: {
@@ -773,7 +817,7 @@ test('getBallotsCounted', () => {
 
   // Create a second batch and add a second and third sheet
   const batch2Id = store.addBatch();
-  store.addSheet(uuid(), batch2Id, [
+  store.addSheet(election, uuid(), batch2Id, [
     {
       imagePath: '/tmp/front-page2.png',
       interpretation: {
@@ -790,7 +834,7 @@ test('getBallotsCounted', () => {
 
   expect(store.getBallotsCounted()).toEqual(2);
 
-  const sheetId3 = store.addSheet(uuid(), batch2Id, [
+  const sheetId3 = store.addSheet(election, uuid(), batch2Id, [
     {
       imagePath: '/tmp/front-page3.png',
       interpretation: {

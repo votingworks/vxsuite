@@ -25,6 +25,7 @@ import {
   DiagnosticType,
   ElectionKey,
   constructElectionKey,
+  Election,
 } from '@votingworks/types';
 import {
   assert,
@@ -51,7 +52,7 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { BaseLogger } from '@votingworks/logging';
-import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
+import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
@@ -571,16 +572,18 @@ export class Store {
    * Adds a sheet to an existing batch.
    */
   addSheet(
+    election: Election,
     sheetId: string,
     batchId: string,
     [front, back]: SheetOf<PageInterpretationWithFiles>,
     ballotAuditId?: string
   ): string {
     try {
-      const requiresAdjudication = sheetRequiresAdjudication([
-        front.interpretation,
-        back.interpretation,
-      ]);
+      const requiresAdjudication =
+        combinePageInterpretationsForSheet(
+          [front.interpretation, back.interpretation],
+          election
+        ).type !== 'ValidSheet';
 
       this.client.run(
         `insert into sheets (

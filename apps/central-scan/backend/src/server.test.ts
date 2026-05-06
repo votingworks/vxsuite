@@ -1,7 +1,11 @@
 import { expect, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { v4 as uuid } from 'uuid';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
+import { TEST_JURISDICTION } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'node:http';
@@ -52,10 +56,18 @@ test('logs when sheet counts are present at startup', () => {
     mockBaseLogger({ fn: vi.fn })
   );
 
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  workspace.store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-election-package-hash',
+  });
+
   expect(workspace.store.getBallotsCounted()).toEqual(0);
   // Create a batch and add a sheet to it
   const batchId = workspace.store.addBatch();
-  workspace.store.addSheet(uuid(), batchId, [
+  workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
     {
       imagePath: '/tmp/front-page.png',
       interpretation: {

@@ -139,10 +139,12 @@ export class Importer {
     ballotAuditId?: string
   ): Promise<string> {
     let sheetId = uuid();
-    const sheetInterpretation = await this.interpretSheet(sheetId, [
-      frontInputImageData,
-      backInputImageData,
-    ]);
+    const electionDefinition = this.getElectionDefinition();
+    const sheetInterpretation = await this.interpretSheet(
+      electionDefinition,
+      sheetId,
+      [frontInputImageData, backInputImageData]
+    );
 
     const [{ imagePath: frontImagePath }, { imagePath: backImagePath }] =
       sheetInterpretation;
@@ -188,6 +190,7 @@ export class Importer {
     }
 
     sheetId = await this.addSheet(
+      electionDefinition,
       batchId,
       frontImagePath,
       frontInterpretation,
@@ -203,10 +206,10 @@ export class Importer {
   }
 
   private async interpretSheet(
+    electionDefinition: ElectionDefinition,
     sheetId: string,
     [frontImageData, backImageData]: SheetOf<ImageData>
   ): Promise<SheetOf<PageInterpretationWithFiles>> {
-    const electionDefinition = this.getElectionDefinition();
     const { store } = this.workspace;
     const {
       allowOfficialBallotsInTestMode,
@@ -243,6 +246,7 @@ export class Importer {
    * Add a sheet to the internal store.
    */
   private async addSheet(
+    electionDefinition: ElectionDefinition,
     batchId: string,
     frontImagePath: string,
     frontInterpretation: PageInterpretation,
@@ -260,6 +264,7 @@ export class Importer {
           backInterpretation.metadata.pageNumber
         ) {
           return this.addSheet(
+            electionDefinition,
             batchId,
             backImagePath,
             backInterpretation,
@@ -272,6 +277,7 @@ export class Importer {
     }
 
     const ballotId = this.workspace.store.addSheet(
+      electionDefinition.election,
       uuid(),
       batchId,
       [

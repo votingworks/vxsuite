@@ -158,7 +158,7 @@ test('unconfigure', async () => {
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
-    store.addSheet(uuid(), batchId, sheet);
+    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -196,7 +196,7 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
-    store.addSheet(uuid(), batchId, sheet);
+    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -220,7 +220,7 @@ test('clearing scanning data', async () => {
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
-    store.addSheet(uuid(), batchId, sheet);
+    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -269,7 +269,7 @@ test('getting / setting test mode', async () => {
     expect(await apiClient.getTestMode()).toEqual(false);
 
     const batchId = store.addBatch();
-    store.addSheet(uuid(), batchId, sheet);
+    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -391,9 +391,22 @@ test('get next sheet returns null when no adjudication sheet', async () => {
 });
 
 test('getNextReviewSheet includes images', async () => {
-  await withApp(async ({ apiClient, workspace }) => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, importer, workspace }) => {
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     const batchId = workspace.store.addBatch();
-    const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
+    const sheetId = workspace.store.addSheet(
+      electionDefinition.election,
+      uuid(),
+      batchId,
+      sheet
+    );
     workspace.store.finishBatch({ batchId });
 
     vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
@@ -433,9 +446,22 @@ test('getNextReviewSheet includes images', async () => {
 });
 
 test('getNextReviewSheet includes layouts for HMPB pages', async () => {
-  await withApp(async ({ apiClient, workspace }) => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, importer, workspace }) => {
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     const batchId = workspace.store.addBatch();
-    const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
+    const sheetId = workspace.store.addSheet(
+      electionDefinition.election,
+      uuid(),
+      batchId,
+      sheet
+    );
     workspace.store.finishBatch({ batchId });
 
     const metadata: BallotMetadata = {
