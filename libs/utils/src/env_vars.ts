@@ -8,7 +8,6 @@ export function getRequiredEnvVar<T extends string>(
 ): NonNullable<NodeJS.ProcessEnv[T]> {
   const value = process.env[envVarName];
   assert(value !== undefined, `Missing required ${envVarName} env var`);
-  // TS isn't recognizing that the above assertion guarantees that `value` is defined
   return value;
 }
 
