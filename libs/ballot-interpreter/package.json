@@ -48,7 +48,7 @@
     "debug": "4.3.4",
     "node-quirc": "^2.2.1",
     "tmp": "^0.2.1",
-    "zedbar": "^0.2.1"
+    "zedbar": "^0.3.0"
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
