@@ -27,6 +27,7 @@ afterEach(() => {
 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
 
 // PointerEvent is not available in jsdom, so we polyfill it with MouseEvent
