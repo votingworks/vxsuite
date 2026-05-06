@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { typedAs } from '@votingworks/basics';
 import type {
   ElectionInfo,

@@ -12,5 +12,5 @@ type NapiAddon = typeof import('../../index');
  * The relative path resolves correctly from both source
  * (`src/bubble-ballot-ts/`) and compiled output (`build/bubble-ballot-ts/`).
  */
-// eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-dynamic-require, global-require
+// eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-require-imports
 export const napi: NapiAddon = require(join(__dirname, '..', '..', 'index.js'));
