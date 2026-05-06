@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { election } from '../../../test/election';
-import { Candidate, PartyId } from '../../election';
+import { Candidate } from '../../election';
 import {
   asNcName,
   getCandidateId,
@@ -82,7 +82,7 @@ test('getPartyIdForCandidate', () => {
   );
   const candidate: Candidate = {
     ...candidateContest.candidates[0],
-    partyIds: ['0' as PartyId],
+    partyIds: ['0'],
   };
   expect(getPartyIdForCandidate(candidate)).toEqual('vx_0');
 });

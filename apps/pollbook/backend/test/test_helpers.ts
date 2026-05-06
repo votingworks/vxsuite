@@ -1,11 +1,7 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  BallotStyleGroupId,
-  BallotStyleId,
-  DistrictId,
   Election,
   ElectionDefinition,
-  ElectionId,
   HmpbBallotPaperSize,
   ValidStreetInfo,
   PartyAbbreviation,
@@ -187,7 +183,7 @@ export function syncEventsForAllPollbooks(pollbooks: PeerStore[]): void {
 
 export function getTestElection(): Election {
   const testElection: Election = {
-    id: 'test-election-id' as ElectionId,
+    id: 'test-election-id',
     state: 'Test State',
     county: {
       id: 'test-county',
@@ -200,7 +196,7 @@ export function getTestElection(): Election {
     parties: [],
     districts: [
       {
-        id: 'ds-1' as DistrictId,
+        id: 'ds-1',
         name: 'district 1',
       },
     ],
@@ -212,8 +208,8 @@ export function getTestElection(): Election {
     contests: [],
     ballotStyles: [
       {
-        id: 'bs-1' as BallotStyleId,
-        groupId: 'bs-1' as BallotStyleGroupId,
+        id: 'bs-1',
+        groupId: 'bs-1',
         precincts: [],
         districts: [],
       },
