@@ -25,6 +25,7 @@ import {
   DiagnosticType,
   ElectionKey,
   constructElectionKey,
+  Election,
 } from '@votingworks/types';
 import {
   assert,
@@ -571,16 +572,13 @@ export class Store {
    * Adds a sheet to an existing batch.
    */
   addSheet(
+    election: Election,
     sheetId: string,
     batchId: string,
     [front, back]: SheetOf<PageInterpretationWithFiles>,
     ballotAuditId?: string
   ): string {
     try {
-      const { election } = assertDefined(
-        this.getElectionRecord(),
-        'cannot add sheet before election is configured'
-      ).electionDefinition;
       const requiresAdjudication =
         combinePageInterpretationsForSheet(
           [front.interpretation, back.interpretation],
