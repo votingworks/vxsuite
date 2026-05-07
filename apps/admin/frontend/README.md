@@ -24,3 +24,7 @@ environment variable and the backend port will use `$FRONTEND_PORT + 1`.
 ```sh
 pnpm test
 ```
+
+For testing multi-station flows across two machines, see
+[Testing multi-machine networking flows](../../../docs/development.md#testing-multi-machine-networking-flows)
+in the developer docs.
