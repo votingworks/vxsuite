@@ -280,15 +280,8 @@ function HostBallotAdjudicationScreen({
     );
   }
 
-  function findNextAvailableIndex(
-    direction: 1 | -1,
-    fromIndex: number
-  ): number | undefined {
-    for (
-      let i = fromIndex + direction;
-      i >= 0 && i < queue.length;
-      i += direction
-    ) {
+  function findNextUnclaimedIndex(fromIndex: number): number | undefined {
+    for (let i = fromIndex + 1; i < queue.length; i += 1) {
       if (!claimedCvrIds.has(queue[i])) {
         return i;
       }
@@ -308,17 +301,16 @@ function HostBallotAdjudicationScreen({
     }
   }
 
-  const nextAvailableIndex = findNextAvailableIndex(1, queueIndex);
-  const previousAvailableIndex = findNextAvailableIndex(-1, queueIndex);
+  const nextUnclaimedIndex = findNextUnclaimedIndex(queueIndex);
 
   async function navigateNext(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      if (nextAvailableIndex === undefined) {
+      if (nextUnclaimedIndex === undefined) {
         await claimAndRelease();
         history.push(routerPaths.adjudication);
       } else {
-        await navigateTo(nextAvailableIndex);
+        await navigateTo(nextUnclaimedIndex);
       }
     } finally {
       setIsClaimInFlight(false);
@@ -346,14 +338,10 @@ function HostBallotAdjudicationScreen({
       statusText={statusText}
       isClaimed={isClaimed}
       isClaimInFlight={isClaimInFlight}
-      isLastBallot={nextAvailableIndex === undefined}
+      isLastBallot={nextUnclaimedIndex === undefined}
       onAcceptDone={navigateNext}
       onSkip={navigateNext}
-      onBack={
-        previousAvailableIndex !== undefined
-          ? () => navigateTo(previousAvailableIndex)
-          : undefined
-      }
+      onBack={queueIndex > 0 ? () => navigateTo(queueIndex - 1) : undefined}
       onExit={navigateExit}
     />
   );

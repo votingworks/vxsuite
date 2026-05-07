@@ -1410,7 +1410,7 @@ test('multi-station mode claims ballots on mount and releases on navigation', as
     .resolves();
 });
 
-test('navigation skips ballots claimed by other machines', async () => {
+test('Skip jumps past claimed ballots; Back still steps onto them as read-only', async () => {
   const CVR_ID_3 = 'cvr-id-3';
   const contestData = [
     makeContestAdjudicationData(
@@ -1419,6 +1419,7 @@ test('navigation skips ballots claimed by other machines', async () => {
     ),
   ];
   const adjData1 = makeBallotAdjudicationData(CVR_ID_1, contestData);
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, contestData);
   const adjData3 = makeBallotAdjudicationData(CVR_ID_3, contestData);
 
   // CVR_ID_2 is claimed by another machine; queue is [1, 2, 3].
@@ -1442,7 +1443,7 @@ test('navigation skips ballots claimed by other machines', async () => {
   });
 
   await screen.findByText('Ballot 1 of 3');
-  // No Back button: there is no unclaimed ballot before CVR_ID_1.
+  // No Back button on the first ballot.
   expect(screen.queryByRole('button', { name: /Back/ })).toBeNull();
 
   // Skip from CVR_ID_1 should jump past the claimed CVR_ID_2 to CVR_ID_3.
@@ -1454,8 +1455,21 @@ test('navigation skips ballots claimed by other machines', async () => {
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 3 of 3');
 
-  // Back from CVR_ID_3 should jump past CVR_ID_2 to CVR_ID_1.
+  // Back from CVR_ID_3 lands on CVR_ID_2 — visible but read-only since another
+  // machine still holds the claim. Releases CVR_ID_3 but does not attempt to
+  // claim CVR_ID_2 (the claimedCvrIds set short-circuits the claim mutation).
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_3 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_2 }, true);
+
+  userEvent.click(screen.getByRole('button', { name: /Back/ }));
+  await screen.findByText('Ballot 2 of 3');
+  await screen.findByText(
+    'This ballot is currently being adjudicated by another machine.'
+  );
+
+  // Back again steps onto CVR_ID_1 and re-claims it (CVR_ID_2 was never
+  // claimed by this machine, so nothing to release).
   apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
 
