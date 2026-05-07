@@ -11,7 +11,6 @@ import {
   createElectionDefinition,
   createMockVotes,
 } from '@votingworks/test-utils';
-import { BallotStyleId } from '@votingworks/types';
 import {
   renderBmdBallotFixture,
   renderMultiPageBmdBallotFixture,
@@ -113,7 +112,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
     // Render page 1
     const page1Pdf = await renderMultiPageBmdBallotFixture({
       electionDefinition,
-      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+      ballotStyleId: 'ballot-style-1',
       precinctId: 'precinct-1',
       votes,
       pageNumber: 1,
@@ -134,7 +133,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
     // Render page 2
     const page2Pdf = await renderMultiPageBmdBallotFixture({
       electionDefinition,
-      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+      ballotStyleId: 'ballot-style-1',
       precinctId: 'precinct-1',
       votes,
       pageNumber: 2,
@@ -165,7 +164,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
 
     const pdf = await renderMultiPageBmdBallotFixture({
       electionDefinition,
-      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+      ballotStyleId: 'ballot-style-1',
       precinctId: 'precinct-1',
       votes,
       pageNumber: 1,
@@ -202,7 +201,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
 
     const pdf = await renderMultiPageBmdBallotFixture({
       electionDefinition,
-      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+      ballotStyleId: 'ballot-style-1',
       precinctId: 'precinct-1',
       votes,
       pageNumber: 1,

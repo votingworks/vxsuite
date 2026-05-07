@@ -40,7 +40,6 @@ import {
   systemSettings,
 } from '@votingworks/fixtures';
 import {
-  BallotStyleId,
   BallotType,
   PageInterpretation,
   PageInterpretationType,
@@ -180,7 +179,7 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<PageInterpretation> = [
     metadata: {
       ballotHash: 'hash',
       ballotType: BallotType.Precinct,
-      ballotStyleId: '5' as BallotStyleId,
+      ballotStyleId: '5',
       precinctId: '21',
       isTestMode: true,
     },
@@ -827,7 +826,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
     vi.spyOn(driver, 'loadPaper').mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
-        ballotStyleId: '1_en' as BallotStyleId,
+        ballotStyleId: '1_en',
         precinctId,
       });
 
@@ -847,7 +846,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     const deferredScan = deferred<string>();
     vi.mocked(scanAndSave).mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
-        ballotStyleId: '1_en' as BallotStyleId,
+        ballotStyleId: '1_en',
         precinctId,
       });
 
@@ -884,7 +883,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     await waitForStatus('inserted_invalid_new_sheet');
 
     mockCardlessVoterAuth(auth, {
-      ballotStyleId: '1_en' as BallotStyleId,
+      ballotStyleId: '1_en',
       precinctId,
     });
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
@@ -906,7 +905,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     await waitForStatus('inserted_preprinted_ballot');
 
     mockCardlessVoterAuth(auth, {
-      ballotStyleId: '1_en' as BallotStyleId,
+      ballotStyleId: '1_en',
       precinctId,
     });
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);

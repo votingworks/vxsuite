@@ -724,7 +724,6 @@ function buildMachine({
                 target: '#rejecting',
                 actions: [
                   assign({
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     error: (_context) =>
                       new PrecinctScannerError('paper_in_back_after_reconnect'),
                   }),
@@ -734,7 +733,6 @@ function buildMachine({
                 cond: (_, { status }) => anyFrontSensorCovered(status),
                 target: '#rejected',
                 actions: assign({
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   error: (_context) =>
                     new PrecinctScannerError('paper_in_front_after_reconnect'),
                 }),
@@ -771,7 +769,6 @@ function buildMachine({
                     cond: (_, { status }) => anyRearSensorCovered(status),
                     target: '#jammed',
                     actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
                       error: (_context) =>
                         new PrecinctScannerError('outfeed_blocked'),
                     }),
@@ -866,7 +863,6 @@ function buildMachine({
                   {
                     cond: (_, { error }) => error.code === 'doubleFeedDetected',
                     actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
                       error: (_context) =>
                         new PrecinctScannerError('double_feed_detected'),
                     }),
@@ -890,7 +886,6 @@ function buildMachine({
                 DELAY_SCANNING_TIMEOUT: {
                   target: '#error',
                   actions: assign({
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     error: (_context) =>
                       new PrecinctScannerError('scanning_timed_out'),
                   }),
@@ -905,7 +900,6 @@ function buildMachine({
                     cond: (_, { status }) => status.documentJam,
                     target: '#rejecting',
                     actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
                       error: (_context) =>
                         new PrecinctScannerError('scanning_failed'),
                     }),
@@ -1056,7 +1050,6 @@ function buildMachine({
                 event.event === 'doubleFeedCalibrationTimedOut',
               target: '.done',
               actions: assign({
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 error: (_context) =>
                   new PrecinctScannerError('double_feed_calibration_timed_out'),
               }),
@@ -1268,7 +1261,6 @@ function buildMachine({
                   target: '#checkingInitialStatus',
                   actions: assign({
                     lastResetTimestamp: () => getCurrentTime(),
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     error: (_context: Context) => undefined,
                   }),
                 },

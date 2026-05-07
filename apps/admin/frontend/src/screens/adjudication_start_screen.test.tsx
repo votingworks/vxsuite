@@ -15,7 +15,7 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
 
 const featureFlagMock = vi.hoisted(() => {
-  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports
   const { getFeatureFlagMock } = require('@votingworks/utils');
   return getFeatureFlagMock();
 });

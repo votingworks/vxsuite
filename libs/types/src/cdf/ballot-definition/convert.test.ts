@@ -369,45 +369,45 @@ test('ballot styles with same districts but different rotations in different pre
       {
         id: 'precinct-1',
         name: 'Precinct 1',
-        districtIds: ['district-1' as Vxf.DistrictId],
+        districtIds: ['district-1'],
       },
       {
         id: 'precinct-2',
         name: 'Precinct 2',
-        districtIds: ['district-1' as Vxf.DistrictId],
+        districtIds: ['district-1'],
       },
     ],
     ballotStyles: [
       {
         id: 'ballot-style-1',
         groupId: 'ballot-style-1',
-        districts: ['district-1' as Vxf.DistrictId],
+        districts: ['district-1'],
         precincts: ['precinct-1'],
         languages: ['en'],
         orderedCandidatesByContest: {
           'contest-1': [
-            { id: 'candidate-1', partyIds: ['party-1' as Vxf.PartyId] },
-            { id: 'candidate-2', partyIds: ['party-2' as Vxf.PartyId] },
+            { id: 'candidate-1', partyIds: ['party-1'] },
+            { id: 'candidate-2', partyIds: ['party-2'] },
           ],
         },
       },
       {
         id: 'ballot-style-2',
         groupId: 'ballot-style-2',
-        districts: ['district-1' as Vxf.DistrictId],
+        districts: ['district-1'],
         precincts: ['precinct-2'],
         languages: ['en'],
         orderedCandidatesByContest: {
           'contest-1': [
-            { id: 'candidate-2', partyIds: ['party-2' as Vxf.PartyId] },
-            { id: 'candidate-1', partyIds: ['party-1' as Vxf.PartyId] },
+            { id: 'candidate-2', partyIds: ['party-2'] },
+            { id: 'candidate-1', partyIds: ['party-1'] },
           ],
         },
       },
     ],
     gridLayouts: [
       {
-        ballotStyleId: 'ballot-style-1' as Vxf.BallotStyleId,
+        ballotStyleId: 'ballot-style-1',
         optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
         gridPositions: [
           {
@@ -418,7 +418,7 @@ test('ballot styles with same districts but different rotations in different pre
             column: 2,
             row: 12,
             optionId: 'candidate-1',
-            partyIds: ['party-1' as Vxf.PartyId],
+            partyIds: ['party-1'],
           },
           {
             type: 'option',
@@ -428,12 +428,12 @@ test('ballot styles with same districts but different rotations in different pre
             column: 2,
             row: 14,
             optionId: 'candidate-2',
-            partyIds: ['party-2' as Vxf.PartyId],
+            partyIds: ['party-2'],
           },
         ],
       },
       {
-        ballotStyleId: 'ballot-style-2' as Vxf.BallotStyleId,
+        ballotStyleId: 'ballot-style-2',
         optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
         gridPositions: [
           {
@@ -444,7 +444,7 @@ test('ballot styles with same districts but different rotations in different pre
             column: 2,
             row: 12,
             optionId: 'candidate-2',
-            partyIds: ['party-2' as Vxf.PartyId],
+            partyIds: ['party-2'],
           },
           {
             type: 'option',
@@ -454,7 +454,7 @@ test('ballot styles with same districts but different rotations in different pre
             column: 2,
             row: 14,
             optionId: 'candidate-1',
-            partyIds: ['party-1' as Vxf.PartyId],
+            partyIds: ['party-1'],
           },
         ],
       },

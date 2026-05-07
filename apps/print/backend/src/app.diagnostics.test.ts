@@ -252,7 +252,7 @@ test('save readiness report (with precinct selection)', async () => {
     }
   );
 
-  const printPath = exportFileResult.unsafeUnwrap()[0]!;
+  const printPath = exportFileResult.unsafeUnwrap()[0];
   await expect(printPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'readiness-report',
     failureThreshold: 0.0001,

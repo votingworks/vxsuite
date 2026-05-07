@@ -1038,7 +1038,7 @@ export function ManualTalliesFormScreen(): JSX.Element | null {
         exact
         path={routerPaths.tallyManualForm({
           precinctId: ':precinctId',
-          ballotStyleGroupId: ':ballotStyleGroupId' as BallotStyleGroupId,
+          ballotStyleGroupId: ':ballotStyleGroupId',
           votingMethod: ':votingMethod' as ManualResultsVotingMethod,
         })}
       >
@@ -1052,7 +1052,7 @@ export function ManualTalliesFormScreen(): JSX.Element | null {
         exact
         path={routerPaths.tallyManualFormContest({
           precinctId: ':precinctId',
-          ballotStyleGroupId: ':ballotStyleGroupId' as BallotStyleGroupId,
+          ballotStyleGroupId: ':ballotStyleGroupId',
           votingMethod: ':votingMethod' as ManualResultsVotingMethod,
           contestId: ':contestId',
         })}

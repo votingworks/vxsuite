@@ -172,7 +172,7 @@ interface Props {
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
-function assertIsOptional<T>(value?: unknown): asserts value is Optional<T> {
+function assertIsOptional<T>(_value?: unknown): asserts _value is Optional<T> {
   // noop
 }
 

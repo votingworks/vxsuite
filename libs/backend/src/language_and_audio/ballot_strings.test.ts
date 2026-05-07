@@ -128,7 +128,7 @@ describe('translateHmpbStrings', () => {
 });
 
 test('getUserDefinedHmpbStrings', () => {
-  const districtIds: DistrictId[] = ['district-1' as DistrictId];
+  const districtIds: DistrictId[] = ['district-1'];
   const precincts = [
     {
       id: 'precinct-1',

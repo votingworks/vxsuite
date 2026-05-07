@@ -14,7 +14,6 @@ import {
   AdjudicationInfo,
   AdjudicationReason,
   AnyContest,
-  BallotMetadata,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotStyle,
@@ -537,7 +536,7 @@ function validateInterpretResults(
       return interpretation;
     }
 
-    const metadata = interpretation.metadata as BallotMetadata;
+    const { metadata } = interpretation;
 
     if (metadata.isTestMode !== testMode) {
       return typedAs<InvalidTestModePage>({

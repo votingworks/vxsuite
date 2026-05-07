@@ -34,7 +34,6 @@ import {
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { PrintProps, PrintSides } from '@votingworks/printing';
 import { AppContext } from './context';
-import { rootDebug } from './debug';
 import { constructAuthMachineState } from './util/auth';
 import {
   printBallotsPrintedReport,
@@ -45,9 +44,6 @@ import { saveReadinessReport } from './reports/readiness';
 import { BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const debug = rootDebug.extend('app');
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: AppContext) {

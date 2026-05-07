@@ -55,7 +55,7 @@ test('getEmptyElectionWriteInSummary', () => {
 test('convertContestWriteInSummaryToWriteInTallies', () => {
   expect(
     convertContestWriteInSummaryToWriteInTallies({
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       contestId: 'zoo-council-mammal',
       invalidTally: 9,
       pendingTally: 11,
@@ -170,7 +170,7 @@ test('tabulateWriteInTallies', () => {
   // add some mock cast vote records with write-ins to store
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -180,7 +180,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 5,
     },
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -190,7 +190,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 6,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -200,7 +200,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 17,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-1',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -210,7 +210,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 9,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -220,7 +220,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 12,
     },
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -231,7 +231,7 @@ test('tabulateWriteInTallies', () => {
     },
     // Write-in with overvote
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -486,7 +486,7 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
     electionId,
     mockCastVoteRecordFile: [
       {
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        ballotStyleGroupId: '1M',
         batchId: 'batch-1-1',
         scannerId: 'scanner-1',
         precinctId: 'precinct-1',
@@ -557,7 +557,7 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
     electionId,
     mockCastVoteRecordFile: [
       {
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
+        ballotStyleGroupId: '1M',
         batchId: 'batch-1-1',
         scannerId: 'scanner-1',
         precinctId: 'precinct-1',

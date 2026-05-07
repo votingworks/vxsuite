@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { BallotStyleId, getContestDistrictName } from '@votingworks/types';
+import { getContestDistrictName } from '@votingworks/types';
 
 import { readElectionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -65,7 +65,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '2' as BallotStyleId,
+    ballotStyleId: '2',
     precinctId,
   });
   await advanceTimersAndPromises();

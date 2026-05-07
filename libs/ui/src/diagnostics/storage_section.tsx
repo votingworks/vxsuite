@@ -1,8 +1,8 @@
 import {
   AVAILABLE_DISK_SPACE_RATIO_WARNING_THRESHOLD,
   type DiskSpaceSummary,
+  format,
 } from '@votingworks/utils';
-import { format } from '@votingworks/utils';
 import { H2, P } from '../typography';
 import { SuccessIcon, WarningIcon } from './icons';
 

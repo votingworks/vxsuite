@@ -7,8 +7,6 @@ const rule: TSESLint.RuleModule<'noExpectToBe', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Use `toEqual` rather than `toBe` in assertions.',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {

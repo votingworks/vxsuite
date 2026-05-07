@@ -23,7 +23,7 @@ import {
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { assert, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
 
 /**
@@ -210,8 +210,10 @@ export function decodeBallotConfigFromReader(
   const isTestMode = bits.readBoolean();
 
   const ballotTypeIndex = bits.readUint({ max: BallotTypeMaximumValue });
-  const ballotType = Object.values(BallotType)[ballotTypeIndex];
-  assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
+  const ballotType = assertDefined(
+    Object.values(BallotType)[ballotTypeIndex],
+    `ballot type index ${ballotTypeIndex} is invalid`
+  );
 
   const ballotAuditId = bits.readBoolean()
     ? unsafeParse(BallotIdSchema, bits.readString())
@@ -735,8 +737,10 @@ function decodeBmdMultiPageBallotConfigFromReader(
   const isTestMode = bits.readBoolean();
 
   const ballotTypeIndex = bits.readUint({ max: BallotTypeMaximumValue });
-  const ballotType = Object.values(BallotType)[ballotTypeIndex];
-  assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
+  const ballotType = assertDefined(
+    Object.values(BallotType)[ballotTypeIndex],
+    `ballot type index ${ballotTypeIndex} is invalid`
+  );
 
   // Ballot audit ID is required for multi-page BMD ballots
   const ballotAuditId = unsafeParse(BallotIdSchema, bits.readString());

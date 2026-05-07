@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
-import { BallotStyleId, getContestDistrictName } from '@votingworks/types';
+import { getContestDistrictName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   fireEvent,
@@ -52,7 +52,7 @@ test('Single Seat Contest', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 

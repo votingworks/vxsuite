@@ -113,7 +113,7 @@ function renderBmdPaperBallot({
 test('BmdPaperBallot includes ballot style and language metadata - general election', () => {
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '5' as BallotStyleId,
+    ballotStyleId: '5',
     precinctId: '21',
     votes: {},
   });
@@ -128,7 +128,7 @@ test('BmdPaperBallot includes ballot style and language metadata - general elect
 test('BmdPaperBallot includes ballot style and language metadata - primary election', () => {
   renderBmdPaperBallot({
     electionDefinition: electionPrimaryPrecinctSplitsDefinition,
-    ballotStyleId: '1-Ma_es-US' as BallotStyleId,
+    ballotStyleId: '1-Ma_es-US',
     precinctId: 'precinct-c1-w1-1',
     votes: {},
   });
@@ -148,7 +148,7 @@ test('BmdPaperBallot labels each partisan contest with its party in open primari
     electionOpenPrimaryFixtures.readElectionDefinition();
   renderBmdPaperBallot({
     electionDefinition,
-    ballotStyleId: 'ballot-style-1' as BallotStyleId,
+    ballotStyleId: 'ballot-style-1',
     precinctId: 'precinct-1',
     votes: {},
   });
@@ -167,7 +167,7 @@ test('BmdPaperBallot labels each partisan contest with its party in open primari
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '5' as BallotStyleId,
+    ballotStyleId: '5',
     precinctId: '21',
     votes: {
       president: 'barchi-hallaren',
@@ -190,7 +190,7 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 test('BmdPaperBallot uses yes/no option labels if present', () => {
   renderBmdPaperBallot({
     electionDefinition: electionTwoPartyPrimaryDefinition,
-    ballotStyleId: '1M' as BallotStyleId,
+    ballotStyleId: '1M',
     precinctId: 'precinct-1',
     votes: {
       'new-zoo-either': ['new-zoo-either-approved'],
@@ -213,7 +213,7 @@ test('BmdPaperBallot uses yes/no option labels if present', () => {
 test('BmdPaperBallot renders when no votes', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
   });
@@ -224,7 +224,7 @@ test('BmdPaperBallot renders when no votes', () => {
 test('BmdPaperBallot accepts a layout override', () => {
   const ballot = renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
     layout: ORDERED_BMD_BALLOT_LAYOUTS.markScan[3],
@@ -237,7 +237,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
   render(
     <BmdPaperBallot
       electionDefinition={electionWithMsEitherNeitherDefinition}
-      ballotStyleId={'1' as BallotStyleId}
+      ballotStyleId="1"
       precinctId="6525"
       isLiveMode
       votes={{}}
@@ -251,7 +251,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
 test('BmdPaperBallot renders when not in live mode', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
     isLiveMode: false,
@@ -264,7 +264,7 @@ test('BmdPaperBallot renders when not in live mode', () => {
 test('BmdPaperBallot renders when in live mode', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
     isLiveMode: true,
@@ -277,7 +277,7 @@ test('BmdPaperBallot renders when in live mode', () => {
 test('BmdPaperBallot renders votes for write-in candidates', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {
       '775020876': {
@@ -295,7 +295,7 @@ test('BmdPaperBallot renders votes for write-in candidates', () => {
 test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
     votes: {
       'city-council': ['eagle', 'smith'],
@@ -308,7 +308,7 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
 test('BmdPaperBallot renders choices for multi-seat contests in rotated ballot style order', () => {
   renderBmdPaperBallot({
     electionDefinition: electionFamousNamesDefinition,
-    ballotStyleId: '1-1' as BallotStyleId,
+    ballotStyleId: '1-1',
     precinctId: '20',
     votes: {
       'board-of-alderman': [
@@ -331,7 +331,7 @@ test('BmdPaperBallot renders choices for multi-seat contests in rotated ballot s
 test('BmdPaperBallot renders seal', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
   });
@@ -344,7 +344,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
 
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '5' as BallotStyleId,
+    ballotStyleId: '5',
     precinctId: '21',
     votes: {
       president: 'barchi-hallaren',
@@ -405,7 +405,7 @@ test('reduces QR code error correction for lots of write-ins', () => {
 
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '21',
     votes,
   });
@@ -422,7 +422,7 @@ test('reduces QR code error correction for lots of write-ins', () => {
 test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
     machineType: 'markScan',
@@ -435,7 +435,7 @@ test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
 test('BmdPaperBallot does not render a large top margin for VxMark prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1' as BallotStyleId,
+    ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
   });
@@ -503,7 +503,7 @@ describe('candidate party names', () => {
         ...electionGeneralDefinition,
         election: { ...election, contests },
       },
-      ballotStyleId: '5' as BallotStyleId,
+      ballotStyleId: '5',
       precinctId: '21',
       votes: { [contests[0].id]: [chosenCandidate.id] },
     });
@@ -604,7 +604,7 @@ describe('splitContestsForPages', () => {
   const allContests = election.contests;
 
   test('returns single page for empty contests', () => {
-    const pages = splitContestsForPages([] as unknown as typeof allContests);
+    const pages = splitContestsForPages([]);
     expect(pages).toHaveLength(1);
     expect(pages[0]).toHaveLength(0);
   });
@@ -651,9 +651,7 @@ describe('needsMultiplePages', () => {
   const allContests = election.contests;
 
   test('returns false for empty contests', () => {
-    expect(needsMultiplePages([] as unknown as typeof allContests)).toEqual(
-      false
-    );
+    expect(needsMultiplePages([])).toEqual(false);
   });
 
   test('returns false when contests fit within limit', () => {
@@ -693,10 +691,7 @@ describe('filterVotesForContests', () => {
 
   test('returns empty object when no contests match', () => {
     const votes = { 'non-existent-contest': ['option-1'] } as const;
-    const filtered = filterVotesForContests(
-      votes,
-      allContests.slice(0, 2) as typeof allContests
-    );
+    const filtered = filterVotesForContests(votes, allContests.slice(0, 2));
     expect(filtered).toEqual({});
   });
 
@@ -730,10 +725,7 @@ describe('filterVotesForContests', () => {
 
   test('handles empty contests array', () => {
     const votes = { [allContests[0].id]: ['option-1'] } as const;
-    const filtered = filterVotesForContests(
-      votes,
-      [] as unknown as typeof allContests
-    );
+    const filtered = filterVotesForContests(votes, []);
     expect(filtered).toEqual({});
   });
 });

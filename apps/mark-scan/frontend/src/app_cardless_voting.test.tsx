@@ -65,7 +65,7 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Start a New Voting Session');
 
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
   userEvent.click(
@@ -77,7 +77,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -94,7 +94,7 @@ test('Cardless Voting Flow', async () => {
 
   // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
   userEvent.click(
@@ -105,7 +105,7 @@ test('Cardless Voting Flow', async () => {
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -113,7 +113,7 @@ test('Cardless Voting Flow', async () => {
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 
@@ -129,7 +129,7 @@ test('Cardless Voting Flow', async () => {
   // Poll worker inserts card and sees message that there are votes
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -145,7 +145,7 @@ test('Cardless Voting Flow', async () => {
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
   userEvent.click(
@@ -157,7 +157,7 @@ test('Cardless Voting Flow', async () => {
   mockLoadPaper();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -166,7 +166,7 @@ test('Cardless Voting Flow', async () => {
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 
@@ -192,7 +192,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.expectPrintBallot({
     languageCode: 'en',
     precinctId: '23',
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     votes: {
       president: [presidentContest.candidates[0]],
     },
@@ -240,7 +240,7 @@ test('in "All Precincts" mode, poll worker must select a precinct', async () => 
   userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
   userEvent.click(screen.getByText('Center Springfield'));
@@ -248,7 +248,7 @@ test('in "All Precincts" mode, poll worker must select a precinct', async () => 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -275,7 +275,7 @@ test('selecting a precinct split', async () => {
   userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '5' as BallotStyleId, precinctId: '21' })
+    .expectCallWith({ ballotStyleId: '5', precinctId: '21' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
   userEvent.click(screen.getByText('North Springfield - Split 1'));
@@ -283,7 +283,7 @@ test('selecting a precinct split', async () => {
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '5' as BallotStyleId,
+      ballotStyleId: '5',
       precinctId: '21',
     },
   });
@@ -292,7 +292,7 @@ test('selecting a precinct split', async () => {
   mockLoadPaper();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '5' as BallotStyleId,
+      ballotStyleId: '5',
       precinctId: '21',
     },
   });
@@ -303,7 +303,7 @@ test('selecting a precinct split', async () => {
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '5' as BallotStyleId,
+    ballotStyleId: '5',
     precinctId: '21',
   });
   // Voter Ballot Style is active

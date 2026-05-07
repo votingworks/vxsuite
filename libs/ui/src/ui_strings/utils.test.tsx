@@ -1,11 +1,9 @@
 import { test } from 'vitest';
 import {
   Candidate,
-  DistrictId,
   Election,
   ElectionStringKey,
   Parties,
-  PartyId,
   PollingPlace,
   Precinct,
 } from '@votingworks/types';
@@ -26,13 +24,13 @@ const ELECTION_PARTIES: Readonly<Parties> = [
   {
     abbrev: 'Lb',
     fullName: 'Liberty Party',
-    id: 'party1' as PartyId,
+    id: 'party1',
     name: 'Liberty',
   },
   {
     abbrev: 'Fe',
     fullName: 'Federalist Party',
-    id: 'party2' as PartyId,
+    id: 'party2',
     name: 'Federalist',
   },
 ];
@@ -121,13 +119,13 @@ test('PrecinctSelectionName - single-precinct selection', async () => {
   const selectedPrecinct: Precinct = {
     id: 'precinctIdOldTown',
     name: 'Old Town',
-    districtIds: ['districtId' as DistrictId],
+    districtIds: ['districtId'],
   };
   const precincts: readonly Precinct[] = [
     {
       id: 'precinctIdNewTown',
       name: 'New Town',
-      districtIds: ['districtId' as DistrictId],
+      districtIds: ['districtId'],
     },
     selectedPrecinct,
   ];
@@ -158,7 +156,7 @@ test('PrecinctSelectionName - no selection', async () => {
     {
       id: 'precinctA',
       name: 'New Town',
-      districtIds: ['districtId' as DistrictId],
+      districtIds: ['districtId'],
     },
   ];
 

@@ -826,17 +826,17 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
       ballotStyleId: '1-1',
       votes: {
         [mayorContest.id]: [
-          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes')!,
+          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes'),
         ],
         [boardOfAldermenContest.id]: [
           find(
             boardOfAldermenContest.candidates,
             (c) => c.id === 'pablo-picasso'
-          )!,
+          ),
           find(
             boardOfAldermenContest.candidates,
             (c) => c.id === 'vincent-van-gogh'
-          )!,
+          ),
         ],
       },
       options: { ballotMarkingMode: 'hand' },
@@ -870,7 +870,7 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
       ballotStyleId: '1-1',
       votes: {
         [mayorContest.id]: [
-          find(mayorContest.candidates, (c) => c.id === 'thomas-edison')!,
+          find(mayorContest.candidates, (c) => c.id === 'thomas-edison'),
         ],
       },
       options: { ballotMarkingMode: 'hand' },
@@ -894,17 +894,17 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
       ballotStyleId: '1-4',
       votes: {
         [mayorContest.id]: [
-          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes')!,
+          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes'),
         ],
         [boardOfAldermenContest.id]: [
           find(
             boardOfAldermenContest.candidates,
             (c) => c.id === 'pablo-picasso'
-          )!,
+          ),
           find(
             boardOfAldermenContest.candidates,
             (c) => c.id === 'vincent-van-gogh'
-          )!,
+          ),
         ],
       },
       options: { ballotMarkingMode: 'hand' },

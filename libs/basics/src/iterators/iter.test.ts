@@ -94,6 +94,7 @@ test('iter is iterable', () => {
 test('iter is async iterable', async () => {
   expect(iter([]).async()[Symbol.asyncIterator]).toBeDefined();
 
+  // eslint-disable-next-line @typescript-eslint/await-thenable
   for await (const item of iter([1, 2, 3])) {
     expect(typeof item).toEqual('number');
   }

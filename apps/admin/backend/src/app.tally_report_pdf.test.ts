@@ -248,7 +248,7 @@ test('general election tally report PDF - Part 2', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'town-id-00701-precinct-id-default',
-    ballotStyleGroupId: 'card-number-3' as BallotStyleGroupId,
+    ballotStyleGroupId: 'card-number-3',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

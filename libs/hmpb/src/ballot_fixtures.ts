@@ -16,11 +16,8 @@ import {
 import {
   BaseBallotProps,
   CandidateContest,
-  ContestId,
-  DistrictId,
   HmpbBallotPaperSize,
   BallotStyle,
-  BallotStyleId,
   BallotType,
   Election,
   getBallotStyle,
@@ -279,7 +276,7 @@ export const vxGeneralElectionFixtures = (() => {
 
     // Has ballot measures
     const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId: '12' as BallotStyleId })
+      getBallotStyle({ election, ballotStyleId: '12' })
     );
     const precinctId = assertDefined(ballotStyle.precincts[0]);
     const contests = getContests({ election, ballotStyle });
@@ -448,15 +445,11 @@ export const vxPrimaryElectionFixtures = (() => {
 
   const mammalParty = makePartyFixtureSpec(
     'mammal',
-    assertDefined(
-      getBallotStyle({ election, ballotStyleId: '1-Ma_en' as BallotStyleId })
-    )
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1-Ma_en' }))
   );
   const fishParty = makePartyFixtureSpec(
     'fish',
-    assertDefined(
-      getBallotStyle({ election, ballotStyleId: '1-F_en' as BallotStyleId })
-    )
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1-F_en' }))
   );
 
   const electionDefinition =
@@ -642,7 +635,7 @@ export const nhGeneralElectionFixtures = (() => {
 
     // Has ballot measures
     const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId: '1_en' as BallotStyleId })
+      getBallotStyle({ election, ballotStyleId: '1_en' })
     );
     const precinctId = assertDefined(ballotStyle.precincts[0]);
     const contests = getContests({ election, ballotStyle });
@@ -829,8 +822,8 @@ export const miClosedPrimaryElectionFixtures = (() => {
 
   const baseElection = electionTwoPartyPrimaryFixtures.readElection();
   const nonpartisanContest: CandidateContest = {
-    id: 'zoo-director' as ContestId,
-    districtId: 'district-1' as DistrictId,
+    id: 'zoo-director',
+    districtId: 'district-1',
     type: 'candidate',
     title: 'Zoo Director',
     seats: 1,
@@ -874,15 +867,11 @@ export const miClosedPrimaryElectionFixtures = (() => {
 
   const mammalParty = makePartyFixtureSpec(
     'mammal',
-    assertDefined(
-      getBallotStyle({ election, ballotStyleId: '1M' as BallotStyleId })
-    )
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1M' }))
   );
   const fishParty = makePartyFixtureSpec(
     'fish',
-    assertDefined(
-      getBallotStyle({ election, ballotStyleId: '2F' as BallotStyleId })
-    )
+    assertDefined(getBallotStyle({ election, ballotStyleId: '2F' }))
   );
 
   return {
@@ -959,7 +948,7 @@ export const miOpenPrimaryElectionFixtures = (() => {
   const ballotStyle = assertDefined(
     getBallotStyle({
       election,
-      ballotStyleId: 'ballot-style-1' as BallotStyleId,
+      ballotStyleId: 'ballot-style-1',
     })
   );
   const precinctId = assertDefined(ballotStyle.precincts[0]);

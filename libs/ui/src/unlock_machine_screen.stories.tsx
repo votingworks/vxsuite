@@ -2,7 +2,6 @@ import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 
 import { DateWithoutTime } from '@votingworks/basics';
-import { ElectionId } from '@votingworks/types';
 import {
   SECURITY_PIN_LENGTH,
   UnlockMachineScreen as UnlockMachineScreenComponent,
@@ -22,7 +21,7 @@ const initialProps: PropsAndCustomArgs = {
     user: {
       role: 'election_manager',
       electionKey: {
-        id: 'election-id' as ElectionId,
+        id: 'election-id',
         date: new DateWithoutTime('2024-07-10'),
       },
       jurisdiction: 'jxn',

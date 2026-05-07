@@ -95,8 +95,12 @@ export = {
     '@typescript-eslint/no-non-null-assertion': 'error',
     // Disallows unnecessary type assertions as recommended by the Google TypeScript Style Guide.
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-    // Disallows unused variables to prevent bugs
-    '@typescript-eslint/no-unused-vars': 'error',
+    // Disallows unused variables to prevent bugs. Allow underscore-prefixed
+    // names (a common convention for intentionally unused parameters/locals).
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
     // Enforce private properties are readonly as recommended by the Google TypeScript Style Guide.
     '@typescript-eslint/prefer-readonly': 'error',
     // Disallows async functions with no await to prevent bugs and confusion

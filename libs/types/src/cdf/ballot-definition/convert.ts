@@ -1135,7 +1135,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                 // Candidate.PartyId, since we want to support cases where a
                 // candidate is endorsed by multiple parties, and we don't
                 // care about the candidate's "home" party.
-                partyIds: option.EndorsementPartyIds as Vxf.PartyId[],
+                partyIds: option.EndorsementPartyIds,
               };
             }),
             partyId: contest.PrimaryPartyIds
@@ -1321,8 +1321,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                     contestOption.EndorsementPartyIds &&
                     contestOption.EndorsementPartyIds.length > 0
                   ) {
-                    orderedOption.partyIds =
-                      contestOption.EndorsementPartyIds as Vxf.PartyId[];
+                    orderedOption.partyIds = contestOption.EndorsementPartyIds;
                   }
                   return orderedOption;
                 });
@@ -1424,8 +1423,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                       ) {
                         return {
                           ...basePosition,
-                          partyIds:
-                            candidateOption.EndorsementPartyIds as Vxf.PartyId[],
+                          partyIds: candidateOption.EndorsementPartyIds,
                         };
                       }
 

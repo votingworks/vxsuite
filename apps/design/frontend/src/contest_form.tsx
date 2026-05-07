@@ -346,7 +346,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               setContest({ ...contest, districtId: value || undefined });
             }}
             options={[
-              { value: '' as DistrictId, label: '' },
+              { value: '', label: '' },
               ...districts.map((district) => ({
                 value: district.id,
                 label: district.name,
@@ -406,7 +406,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   aria-label="Party"
                   disabled={disabled || hasExternalSource}
                   options={[
-                    { value: '' as PartyId, label: 'No Party Affiliation' },
+                    { value: '', label: 'No Party Affiliation' },
                     ...parties.map((party) => ({
                       value: party.id,
                       label: party.name,
@@ -568,7 +568,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                             disabled={disabled || hasExternalSource}
                             options={[
                               {
-                                value: '' as PartyId,
+                                value: '',
                                 label: 'No Party Affiliation',
                               },
                               ...parties.map((party) => ({

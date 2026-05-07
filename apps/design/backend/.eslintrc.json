@@ -14,7 +14,9 @@
     {
       "files": ["migrations/**"],
       "rules": {
-        "vx/gts-module-snake-case": "off"
+        "vx/gts-module-snake-case": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/no-var-requires": "off"
       }
     }
   ]

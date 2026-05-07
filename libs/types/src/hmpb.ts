@@ -219,7 +219,10 @@ export function mapSheet<F extends (...args: unknown[]) => unknown>(
     typeof (front as unknown as PromiseLike<unknown>).then === 'function' &&
     typeof (back as unknown as PromiseLike<unknown>).then === 'function'
   ) {
-    return Promise.all([front, back]);
+    return Promise.all([
+      front as PromiseLike<unknown>,
+      back as PromiseLike<unknown>,
+    ]);
   }
 
   return [front, back];

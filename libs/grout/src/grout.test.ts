@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
@@ -66,12 +65,14 @@ test('registers Express routes for an API', async () => {
     updatePerson(input: { name: string; newPerson: Person }): Promise<void>;
   }>();
 
+  /* eslint-disable @typescript-eslint/no-unused-expressions */
   // @ts-expect-error Catches typos in method names
   client.getAllPeeple;
   // @ts-expect-error Catches incorrect argument names
   () => client.getPersonByName({ nam: 'Alice' });
   // @ts-expect-error Catches incorrect argument types
   () => client.getPersonByName({ name: 1 });
+  /* eslint-enable @typescript-eslint/no-unused-expressions */
 
   const mockPerson: Person = { name: 'Alice', age: 99 };
 
@@ -128,7 +129,6 @@ test('client throws UserError for expected errors', async () => {
   const { server, baseUrl, app } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorMiddlware = vi.fn((_err, _req, _res, _next) => {});
   app.use(errorMiddlware);
 
@@ -204,6 +204,7 @@ test("crashes if RPC method doesn't have the correct signature (crash mode)", as
     );
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   async () => {
     // We can catch the wrong number of arguments when calling a method at compile time
     // @ts-expect-error expected 1 argument, got 2
@@ -407,6 +408,8 @@ test('can send timeout', async () => {
 });
 
 test('client errors if response is not JSON', async () => {
+  // Mirrors normal grout usage: build the API to derive its type via `typeof`.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -441,6 +444,7 @@ test('client errors if response is not JSON', async () => {
 });
 
 test('client handles non-JSON error responses', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -461,6 +465,7 @@ test('client handles non-JSON error responses', async () => {
 });
 
 test('client handles other server errors', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -558,6 +563,7 @@ test('middleware runs before and after RPC method, adding context that can be ac
 });
 
 test('before middleware errors are caught, returned to client, and passed to after middleware', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Context {}
 
   const authMiddleware = vi.fn(() => {

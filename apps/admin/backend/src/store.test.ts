@@ -294,7 +294,7 @@ test('manual results', () => {
     },
   };
   const precinctId = 'precinct-1';
-  const ballotStyleGroupId: BallotStyleGroupId = '1M' as BallotStyleGroupId;
+  const ballotStyleGroupId: BallotStyleGroupId = '1M';
   const votingMethod: ManualResultsVotingMethod = 'precinct';
 
   store.setManualResults({
@@ -390,7 +390,7 @@ test('manual results - early_voting is a valid votingMethod', () => {
   });
 
   const precinctId = 'precinct-1';
-  const ballotStyleGroupId: BallotStyleGroupId = '1M' as BallotStyleGroupId;
+  const ballotStyleGroupId: BallotStyleGroupId = '1M';
   const simpleResults: Tabulation.ManualElectionResults = {
     ballotCount: 10,
     contestResults: {},
@@ -907,14 +907,14 @@ describe('machine ballot adjudication assignments', () => {
   });
 
   test('prefers matching ballot style when provided', () => {
-    const cvrA = addCvrWithWriteIn('1M' as BallotStyleGroupId);
-    const cvrB = addCvrWithWriteIn('2F' as BallotStyleGroupId);
+    const cvrA = addCvrWithWriteIn('1M');
+    const cvrB = addCvrWithWriteIn('2F');
 
     expect(
       store.claimBallotForClient({
         electionId,
         machineId: 'client-001',
-        preferredBallotStyleId: '2F' as BallotStyleGroupId,
+        preferredBallotStyleId: '2F',
       })
     ).toEqual(cvrB);
     store.releaseAllActiveClaims({ electionId });
@@ -923,7 +923,7 @@ describe('machine ballot adjudication assignments', () => {
       store.claimBallotForClient({
         electionId,
         machineId: 'client-001',
-        preferredBallotStyleId: '1M' as BallotStyleGroupId,
+        preferredBallotStyleId: '1M',
       })
     ).toEqual(cvrA);
   });

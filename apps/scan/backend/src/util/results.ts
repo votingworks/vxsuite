@@ -203,7 +203,6 @@ export async function getScannerResults({
 }
 
 const getScannerResultsMemoizedByBallotCount = memoizeOne(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (store: Store, _ballotCount: number) => getScannerResults({ store })
 );
 
@@ -245,7 +244,6 @@ async function getScannerResultsByPrecinct({
 }
 
 const getScannerResultsByPrecinctMemoizedByBallotCount = memoizeOne(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (store: Store, _ballotCount: number) => getScannerResultsByPrecinct({ store })
 );
 

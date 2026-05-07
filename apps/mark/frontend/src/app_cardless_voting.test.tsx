@@ -5,7 +5,6 @@ import {
 } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
@@ -53,7 +52,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -67,19 +66,19 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   userEvent.click(screen.getByText('Start Voting Session:'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 
@@ -95,7 +94,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   // Poll worker inserts card and sees message that there are votes
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -111,12 +110,12 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   userEvent.click(screen.getByText('Start Voting Session:'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -124,7 +123,7 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 
@@ -148,7 +147,7 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Advance to print ballot
   apiMock.expectPrintBallot({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
     votes: {
       [presidentContest.id]: [presidentContest.candidates[0]],
@@ -199,7 +198,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
     },
   });
@@ -210,7 +209,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 

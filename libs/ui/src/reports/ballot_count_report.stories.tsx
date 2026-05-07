@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
 import {
-  BallotStyleId,
   ElectionDefinition,
   GridLayout,
   safeParseElectionDefinition,
@@ -364,7 +363,7 @@ const partialGridPosition = {
 
 const mockMultiSheetGridLayouts: GridLayout[] = [
   {
-    ballotStyleId: 'any' as BallotStyleId,
+    ballotStyleId: 'any',
     optionBoundsFromTargetMark: {
       left: 0,
       right: 0,

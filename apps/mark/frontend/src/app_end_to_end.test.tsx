@@ -6,7 +6,6 @@ import {
 } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
-  BallotStyleId,
   constructElectionKey,
   ElectionDefinition,
   getContestDistrictName,
@@ -291,7 +290,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Print Screen
   apiMock.expectPrintBallot({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
     votes: {
       [presidentContest.id]: [presidentContest.candidates[0]],

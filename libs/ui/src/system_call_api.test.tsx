@@ -45,7 +45,7 @@ describe('React Query API calls the right client methods', () => {
     const { result: mutation } = renderHook(() => api.powerDown.useMutation(), {
       wrapper: QueryWrapper,
     });
-    mockApiClient.powerDown.mockResolvedValueOnce(undefined as never);
+    mockApiClient.powerDown.mockResolvedValueOnce(undefined);
     await mutation.current.mutateAsync();
     expect(mockApiClient.powerDown).toHaveBeenCalledTimes(1);
   });
@@ -54,7 +54,7 @@ describe('React Query API calls the right client methods', () => {
     const { result: mutation } = renderHook(() => api.setClock.useMutation(), {
       wrapper: QueryWrapper,
     });
-    mockApiClient.setClock.mockResolvedValueOnce(undefined as never);
+    mockApiClient.setClock.mockResolvedValueOnce(undefined);
     await mutation.current.mutateAsync({
       isoDatetime: 'test',
       ianaZone: 'test',

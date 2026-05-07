@@ -115,56 +115,56 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(3),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(11),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(8),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(14),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(18),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(15),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(21),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(24),
     });

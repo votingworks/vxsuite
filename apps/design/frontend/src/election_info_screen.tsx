@@ -309,8 +309,7 @@ function ElectionInfoForm({
               disabled={disabled || hasExternalSource}
               label="Ballot Languages"
               value={electionInfo.languageCodes}
-              onChange={(value) => {
-                const languageCodes = value.map((v) => v as LanguageCode);
+              onChange={(languageCodes) => {
                 setElectionInfo({ ...electionInfo, languageCodes });
               }}
               options={[

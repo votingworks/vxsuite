@@ -48,8 +48,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Use optional fields (on interfaces or classes) and parameters rather than a |undefined type.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {

@@ -248,7 +248,7 @@ Oak Ave,1,99,even,Boston`;
       streetName: 'Main St',
       lowRange: 100,
       highRange: 200,
-      side: 'odd' as StreetSide,
+      side: 'odd',
       postalCityTown: 'Springfield',
       precinct: '',
     });
@@ -256,7 +256,7 @@ Oak Ave,1,99,even,Boston`;
       streetName: 'Oak Ave',
       lowRange: 1,
       highRange: 99,
-      side: 'even' as StreetSide,
+      side: 'even',
       postalCityTown: 'Boston',
       precinct: '',
     });
@@ -440,7 +440,7 @@ Main St,100,200,odd`;
       streetName: 'Main St',
       lowRange: 100,
       highRange: 200,
-      side: 'odd' as StreetSide,
+      side: 'odd',
       postalCityTown: undefined,
       precinct: '',
     });

@@ -3,14 +3,13 @@ import { LogEventId, mockLogger } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
-  BallotStyleId,
   BallotType,
   InterpretedHmpbPage,
 } from '@votingworks/types';
 import { logSheetAdjudicationInfo } from './logging';
 
 const metadata: BallotMetadata = {
-  ballotStyleId: '12' as BallotStyleId,
+  ballotStyleId: '12',
   ballotType: BallotType.Precinct,
   ballotHash: 'abcdef',
   isTestMode: false,

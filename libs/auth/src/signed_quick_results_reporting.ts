@@ -433,7 +433,7 @@ export async function authenticateSignedQuickResultsReportingUrl(
       messageSignature: Buffer.from(signature, 'base64url'),
       publicKey,
     });
-  } catch (e) {
+  } catch {
     return err('invalid-signature');
   }
 

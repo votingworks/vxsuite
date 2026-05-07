@@ -49,7 +49,7 @@ function createStore(): Store {
 }
 
 const bmdMetadata: BallotMetadata = {
-  ballotStyleId: 'card-number-3' as BallotStyleId,
+  ballotStyleId: 'card-number-3',
   ballotType: BallotType.Precinct,
   ballotHash: electionDefinition.ballotHash,
   isTestMode: false,
@@ -218,7 +218,7 @@ test('handles BMD multi-page ballots', async () => {
         metadata: {
           ballotHash: electionDefinition.ballotHash,
           precinctId: 'town-id-00701-precinct-id-default',
-          ballotStyleId: 'card-number-3' as BallotStyleId,
+          ballotStyleId: 'card-number-3',
           pageNumber: 1,
           totalPages: 2,
           isTestMode: false,
@@ -468,7 +468,7 @@ function createPrimaryStore(): Store {
 }
 
 const primaryBmdMetadata: BallotMetadata = {
-  ballotStyleId: '1M' as BallotStyleId,
+  ballotStyleId: '1M',
   ballotType: BallotType.Precinct,
   ballotHash: primaryElectionDefinition.ballotHash,
   isTestMode: false,

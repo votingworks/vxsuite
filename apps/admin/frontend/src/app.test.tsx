@@ -33,7 +33,7 @@ import {
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
 
 const featureFlagMock = vi.hoisted(() => {
-  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports
   const { getFeatureFlagMock } = require('@votingworks/utils');
   return getFeatureFlagMock();
 });

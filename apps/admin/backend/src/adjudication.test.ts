@@ -2,7 +2,6 @@ import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   AdjudicationReason,
-  BallotStyleGroupId,
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
@@ -42,7 +41,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -139,7 +138,7 @@ test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -316,7 +315,7 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
   // has 3 seats, so up to 3 write-in slots per ballot).
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -452,7 +451,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   ];
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -701,7 +700,7 @@ test('blank ballot appears in adjudication queue when BlankBallot reason is enab
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -746,7 +745,7 @@ test('blank ballot does not appear in adjudication queue when BlankBallot reason
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -780,7 +779,7 @@ test('marginal mark CVR does not appear in adjudication queue when MarginalMark 
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -819,7 +818,7 @@ test('CVR with only an unmarked write-in appears in adjudication queue', () => {
   // and sets has_write_in on the CVR, which should put it in the queue
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',

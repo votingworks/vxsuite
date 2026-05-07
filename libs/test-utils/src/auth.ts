@@ -1,9 +1,7 @@
 import { DateTime } from 'luxon';
 import {
-  BallotStyleId,
   CardlessVoterUser,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
-  ElectionId,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -39,7 +37,7 @@ export function mockElectionManagerUser(
     jurisdiction: TEST_JURISDICTION,
     programmingMachineType: 'admin',
     electionKey: {
-      id: 'election-id' as ElectionId,
+      id: 'election-id',
       date: new DateWithoutTime('2024-07-10'),
     },
     ...props,
@@ -54,7 +52,7 @@ export function mockPollWorkerUser(
     jurisdiction: TEST_JURISDICTION,
     programmingMachineType: 'admin',
     electionKey: {
-      id: 'election-id' as ElectionId,
+      id: 'election-id',
       date: new DateWithoutTime('2024-07-10'),
     },
     ...props,
@@ -66,7 +64,7 @@ export function mockCardlessVoterUser(
 ): CardlessVoterUser {
   return {
     role: 'cardless_voter',
-    ballotStyleId: 'ballot-style-id' as BallotStyleId,
+    ballotStyleId: 'ballot-style-id',
     precinctId: 'precinct-id',
     sessionId: 'session-id',
     ...props,

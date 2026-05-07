@@ -245,7 +245,7 @@ export function splitContestsForPages(
 
   const pages: Contests[] = [];
   for (let i = 0; i < contests.length; i += maxContestsPerPage) {
-    pages.push(contests.slice(i, i + maxContestsPerPage) as Contests);
+    pages.push(contests.slice(i, i + maxContestsPerPage));
   }
 
   return pages;

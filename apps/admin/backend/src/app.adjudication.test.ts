@@ -16,7 +16,6 @@ import {
 } from '@votingworks/utils';
 import {
   AdjudicationReason,
-  BallotStyleGroupId,
   ContestOptionId,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
@@ -1430,7 +1429,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   // a '2F' ballot over the next '1M' ballot in queue order.
   const cvrId4 = await peerApiClient.claimBallot({
     machineId: 'client-004',
-    currentBallotStyleId: '2F' as BallotStyleGroupId,
+    currentBallotStyleId: '2F',
   });
   assert(cvrId4 !== undefined);
 

@@ -3,12 +3,7 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
-import {
-  BallotStyleId,
-  ContestId,
-  OptionalVote,
-  VotesDict,
-} from '@votingworks/types';
+import { ContestId, OptionalVote, VotesDict } from '@votingworks/types';
 import { useHistory } from 'react-router-dom';
 import { act, fireEvent, render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -90,7 +85,7 @@ test('Single Seat Contest with Write In', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 
@@ -136,7 +131,7 @@ test('Single Seat Contest with Write In', async () => {
   apiMock.expectPrintBallot({
     languageCode: 'en',
     precinctId: '23',
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     votes: {
       [singleSeatContestWithWriteIn.id]: [
         { id: 'write-in', name: 'SAL', isWriteIn: true, writeInIndex: 0 },

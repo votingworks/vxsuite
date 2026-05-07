@@ -50,7 +50,7 @@ test('tabulateScannedCardCounts - grouping', () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -60,7 +60,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       multiplier: 5,
     },
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -70,7 +70,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       multiplier: 6,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -80,7 +80,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       multiplier: 17,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-1',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -90,7 +90,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       multiplier: 9,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -100,7 +100,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       multiplier: 12,
     },
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -224,7 +224,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-day1-a',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -234,7 +234,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
       multiplier: 10,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-day1-b',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -244,7 +244,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
       multiplier: 15,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-day2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -314,7 +314,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -329,7 +329,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -384,7 +384,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -394,7 +394,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       multiplier: 5,
     },
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -404,7 +404,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       multiplier: 7,
     },
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -453,7 +453,7 @@ test('tabulateFullCardCounts - manual results', () => {
   // add mock scanned records
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -469,7 +469,7 @@ test('tabulateFullCardCounts - manual results', () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

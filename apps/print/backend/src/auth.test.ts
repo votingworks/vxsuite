@@ -69,7 +69,7 @@ test('getAuthStatus', async () => {
   });
 
   workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
   );
 
   vi.mocked(auth.getAuthStatus).mockClear(); // Clear mock calls from configureMachine
@@ -137,7 +137,7 @@ test('checkPin', async () => {
   });
 
   workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
   );
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
@@ -168,7 +168,7 @@ test('logOut', async () => {
   });
 
   workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
   );
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
@@ -195,7 +195,7 @@ test('updateSessionExpiry', async () => {
   });
 
   workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
   );
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: new Date(Date.now() + 60_000),

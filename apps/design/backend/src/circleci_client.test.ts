@@ -6,7 +6,7 @@ describe('CircleCiClient', () => {
 
   beforeEach(() => {
     mockFetch = vi.fn();
-    global.fetch = mockFetch as unknown as typeof fetch;
+    global.fetch = mockFetch;
   });
 
   test('isConfigured returns false when not configured', () => {

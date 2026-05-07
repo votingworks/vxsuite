@@ -42,8 +42,8 @@ function createSafeMockMethod(methodName: string): AnyMockFunction {
           console.error(error.message);
           // Return a best guess at a dummy value that won't cause exceptions
           // in the consuming code.
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return {} as unknown as any;
+
+          return {};
         }
         throw error;
       }

@@ -52,9 +52,7 @@ test('ensures election date is YYYY-MM-DD', () => {
 });
 
 test('parsing a valid election object succeeds', () => {
-  const parsed = t
-    .safeParseVxfElection(electionGeneral as unknown)
-    .unsafeUnwrap();
+  const parsed = t.safeParseVxfElection(electionGeneral).unsafeUnwrap();
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
   expect(parsed.title).toEqual(electionGeneral.title);

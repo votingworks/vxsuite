@@ -10,18 +10,10 @@ import {
   SelectionCaptureMethod,
   BallotSideType,
 } from '.';
-import {
-  HmpbBallotPaperSize,
-  BallotStyleGroupId,
-  BallotStyleId,
-  DistrictId,
-  Election,
-  ElectionId,
-  PartyId,
-} from '../../election';
+import { HmpbBallotPaperSize, Election } from '../../election';
 
 export const testVxfElection: Election = {
-  id: 'election-1' as ElectionId,
+  id: 'election-1',
   type: 'general',
   title: 'Lincoln Municipal General Election',
   state: 'State of Hamilton',
@@ -33,13 +25,13 @@ export const testVxfElection: Election = {
   seal: '<svg>test seal</svg>',
   parties: [
     {
-      id: 'party-1' as PartyId,
+      id: 'party-1',
       name: 'Democratic Party',
       fullName: 'Democratic Party',
       abbrev: 'D',
     },
     {
-      id: 'party-2' as PartyId,
+      id: 'party-2',
       name: 'Republican Party',
       fullName: 'Republican Party',
       abbrev: 'R',
@@ -48,7 +40,7 @@ export const testVxfElection: Election = {
   contests: [
     {
       id: 'contest-1',
-      districtId: 'district-1' as DistrictId,
+      districtId: 'district-1',
       type: 'candidate',
       title: 'Mayor',
       seats: 1,
@@ -57,19 +49,19 @@ export const testVxfElection: Election = {
         {
           id: 'candidate-1',
           name: 'Sherlock Holmes',
-          partyIds: ['party-1' as PartyId],
+          partyIds: ['party-1'],
         },
         {
           id: 'candidate-2',
           name: 'Thomas Edison',
-          partyIds: ['party-2' as PartyId],
+          partyIds: ['party-2'],
         },
       ],
       termDescription: '1 year',
     },
     {
       id: 'contest-2',
-      districtId: 'district-1' as DistrictId,
+      districtId: 'district-1',
       type: 'yesno',
       title: 'Proposition 1',
       description: 'Should we do this thing?',
@@ -84,7 +76,7 @@ export const testVxfElection: Election = {
     },
     {
       id: 'contest-3',
-      districtId: 'district-2' as DistrictId,
+      districtId: 'district-2',
       type: 'candidate',
       title: 'Controller',
       seats: 1,
@@ -99,11 +91,11 @@ export const testVxfElection: Election = {
   ],
   districts: [
     {
-      id: 'district-1' as DistrictId,
+      id: 'district-1',
       name: 'City of Lincoln',
     },
     {
-      id: 'district-2' as DistrictId,
+      id: 'district-2',
       name: 'City of Washington',
     },
   ],
@@ -142,70 +134,70 @@ export const testVxfElection: Election = {
         {
           name: 'North Lincoln - Split 1',
           id: 'precinct-1-split-1',
-          districtIds: ['district-1' as DistrictId],
+          districtIds: ['district-1'],
         },
         {
           name: 'North Lincoln - Split 2',
           id: 'precinct-1-split-2',
-          districtIds: ['district-2' as DistrictId],
+          districtIds: ['district-2'],
         },
       ],
     },
     {
       id: 'precinct-2',
       name: 'South Lincoln',
-      districtIds: ['district-1' as DistrictId, 'district-2' as DistrictId],
+      districtIds: ['district-1', 'district-2'],
     },
   ],
   ballotStyles: [
     // Simulate a split precinct with two ballot styles for the same precinct
     {
-      id: '1_en' as BallotStyleId,
-      groupId: '1' as BallotStyleGroupId,
+      id: '1_en',
+      groupId: '1',
       precincts: ['precinct-1'],
-      districts: ['district-1' as DistrictId],
+      districts: ['district-1'],
       languages: ['en'],
       orderedCandidatesByContest: {
         'contest-1': [
-          { id: 'candidate-1', partyIds: ['party-1' as PartyId] },
-          { id: 'candidate-2', partyIds: ['party-2' as PartyId] },
+          { id: 'candidate-1', partyIds: ['party-1'] },
+          { id: 'candidate-2', partyIds: ['party-2'] },
         ],
       },
     },
     {
-      id: '2_en' as BallotStyleId,
-      groupId: '2' as BallotStyleGroupId,
+      id: '2_en',
+      groupId: '2',
       precincts: ['precinct-1'],
-      districts: ['district-2' as DistrictId],
+      districts: ['district-2'],
       languages: ['en'],
       orderedCandidatesByContest: {
         'contest-3': [{ id: 'candidate-3' }],
       },
     },
     {
-      id: '3_en' as BallotStyleId,
-      groupId: '3' as BallotStyleGroupId,
+      id: '3_en',
+      groupId: '3',
       precincts: ['precinct-2'],
-      districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
+      districts: ['district-1', 'district-2'],
       languages: ['en'],
       orderedCandidatesByContest: {
         'contest-1': [
-          { id: 'candidate-2', partyIds: ['party-2' as PartyId] },
-          { id: 'candidate-1', partyIds: ['party-1' as PartyId] },
+          { id: 'candidate-2', partyIds: ['party-2'] },
+          { id: 'candidate-1', partyIds: ['party-1'] },
         ],
         'contest-3': [{ id: 'candidate-3' }],
       },
     },
     {
-      id: '3_es-US' as BallotStyleId,
-      groupId: '3' as BallotStyleGroupId,
+      id: '3_es-US',
+      groupId: '3',
       precincts: ['precinct-2'],
-      districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
+      districts: ['district-1', 'district-2'],
       languages: ['es-US'],
       orderedCandidatesByContest: {
         'contest-1': [
-          { id: 'candidate-2', partyIds: ['party-2' as PartyId] },
-          { id: 'candidate-1', partyIds: ['party-1' as PartyId] },
+          { id: 'candidate-2', partyIds: ['party-2'] },
+          { id: 'candidate-1', partyIds: ['party-1'] },
         ],
         'contest-3': [{ id: 'candidate-3' }],
       },
@@ -217,7 +209,7 @@ export const testVxfElection: Election = {
   },
   gridLayouts: [
     {
-      ballotStyleId: '1_en' as BallotStyleId,
+      ballotStyleId: '1_en',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -233,7 +225,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-1',
-          partyIds: ['party-1' as PartyId],
+          partyIds: ['party-1'],
         },
         {
           type: 'option',
@@ -243,7 +235,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-2',
-          partyIds: ['party-2' as PartyId],
+          partyIds: ['party-2'],
         },
         {
           type: 'write-in',
@@ -281,7 +273,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: '2_en' as BallotStyleId,
+      ballotStyleId: '2_en',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -301,7 +293,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: '3_en' as BallotStyleId,
+      ballotStyleId: '3_en',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -317,7 +309,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-2',
-          partyIds: ['party-2' as PartyId],
+          partyIds: ['party-2'],
         },
         {
           type: 'option',
@@ -327,7 +319,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-1',
-          partyIds: ['party-1' as PartyId],
+          partyIds: ['party-1'],
         },
         {
           type: 'write-in',
@@ -374,7 +366,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: '3_es-US' as BallotStyleId,
+      ballotStyleId: '3_es-US',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -390,7 +382,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-2',
-          partyIds: ['party-2' as PartyId],
+          partyIds: ['party-2'],
         },
         {
           type: 'option',
@@ -400,7 +392,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-1',
-          partyIds: ['party-1' as PartyId],
+          partyIds: ['party-1'],
         },
         {
           type: 'write-in',

@@ -8,7 +8,6 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import { BallotStyleId } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
@@ -110,19 +109,19 @@ test('uses ballot style management hook', async () => {
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '1_G_es-US' as BallotStyleId,
+    ballotStyleId: '1_G_es-US',
     precinctId: electionGeneralDefinition.election.precincts[0].id,
   });
   apiMock.mockApiClient.updateCardlessVoterBallotStyle
     .expectRepeatedCallsWith({
-      ballotStyleId: '1_es-US' as BallotStyleId,
+      ballotStyleId: '1_es-US',
     })
     .resolves();
 
   vi.mocked(useBallotStyleManager).mockImplementation((params) =>
     React.useEffect(() => {
       params.updateCardlessVoterBallotStyle({
-        ballotStyleId: '1_es-US' as BallotStyleId,
+        ballotStyleId: '1_es-US',
       });
     }, [params])
   );
@@ -152,7 +151,7 @@ test('PAT device tutorial is shown when PAT key is pressed during voter session'
 
   // Start as cardless voter
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 
@@ -186,7 +185,7 @@ test('PAT device tutorial can be skipped', async () => {
 
   // Start as cardless voter
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12' as BallotStyleId,
+    ballotStyleId: '12',
     precinctId: '23',
   });
 

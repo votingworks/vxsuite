@@ -12,7 +12,6 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   BallotMetadata,
-  BallotStyleId,
   BallotType,
   convertVxfElectionToCdfBallotDefinition,
   DEV_MACHINE_ID,
@@ -57,7 +56,7 @@ beforeAll(async () => {
     const metadata: BallotMetadata = {
       ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
       ballotType: BallotType.Precinct,
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
     };
@@ -447,7 +446,7 @@ test('getNextReviewSheet returns interpretation, image data, and layouts for int
     const metadata: BallotMetadata = {
       ballotHash: electionDefinition.ballotHash,
       ballotType: BallotType.Precinct,
-      ballotStyleId: 'card-number-3' as BallotStyleId,
+      ballotStyleId: 'card-number-3',
       precinctId: 'town-id-00701-precinct-id-default',
       isTestMode: false,
     };

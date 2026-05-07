@@ -153,7 +153,6 @@ describe('Button', () => {
   });
 
   test('propagates click/tap events with specified event value', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const onPress = vi.fn((_value: [string, string]) => undefined);
     render(
       <Button onPress={onPress} value={['foo', 'bar']}>

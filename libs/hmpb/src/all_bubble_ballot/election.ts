@@ -5,7 +5,6 @@ import {
   CandidateContest,
   DistrictId,
   Election,
-  ElectionId,
 } from '@votingworks/types';
 import { AllBubbleBallotConfig } from './config';
 
@@ -58,7 +57,7 @@ export function createElection({
   });
 
   return {
-    id: 'all-bubble-ballot-election' as ElectionId,
+    id: 'all-bubble-ballot-election',
     ballotLayout: {
       paperSize: ballotPaperSize,
       metadataEncoding: 'qr-code',

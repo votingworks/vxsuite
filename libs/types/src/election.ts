@@ -45,7 +45,7 @@ function* findDuplicateIds<T extends { id: unknown }>(
 }
 
 export type PartyId = string;
-export const PartyIdSchema = IdSchema as unknown as z.ZodSchema<PartyId>;
+export const PartyIdSchema = IdSchema;
 export interface Party {
   readonly id: PartyId;
   readonly name: string;
@@ -75,7 +75,7 @@ export const PartiesSchema: z.ZodSchema<Parties> = z
   });
 
 export type DistrictId = string;
-export const DistrictIdSchema = IdSchema as unknown as z.ZodSchema<DistrictId>;
+export const DistrictIdSchema = IdSchema;
 export interface District {
   readonly id: DistrictId;
   readonly name: string;
@@ -320,8 +320,7 @@ export const ContestsSchema = z.array(AnyContestSchema).check((ctx) => {
 
 // Election
 export type ElectionId = string;
-export const ElectionIdSchema: z.ZodSchema<ElectionId> =
-  IdSchema as unknown as z.ZodSchema<ElectionId>;
+export const ElectionIdSchema: z.ZodSchema<ElectionId> = IdSchema;
 
 export type PrecinctId = Id;
 export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = IdSchema;
@@ -429,8 +428,7 @@ export const OrderedCandidateOptionSchema: z.ZodSchema<OrderedCandidateOption> =
   });
 
 export type BallotStyleId = string;
-export const BallotStyleIdSchema =
-  IdSchema as unknown as z.ZodSchema<BallotStyleId>;
+export const BallotStyleIdSchema = IdSchema;
 
 export interface BallotStyle {
   readonly id: BallotStyleId;
@@ -446,8 +444,7 @@ export interface BallotStyle {
 }
 
 export type BallotStyleGroupId = string;
-export const BallotStyleGroupIdSchema =
-  IdSchema as unknown as z.ZodSchema<BallotStyleGroupId>;
+export const BallotStyleGroupIdSchema = IdSchema;
 export interface BallotStyleGroup {
   readonly id: BallotStyleGroupId;
   readonly defaultLanguageBallotStyle: BallotStyle;

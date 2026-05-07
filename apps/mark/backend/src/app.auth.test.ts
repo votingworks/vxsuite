@@ -6,7 +6,6 @@ import {
   constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
-  BallotStyleId,
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import {
@@ -116,14 +115,14 @@ test('startCardlessVoterSession', async () => {
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.startCardlessVoterSession({
-    ballotStyleId: 'b1' as BallotStyleId,
+    ballotStyleId: 'b1',
     precinctId: 'p1',
   });
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
     { ...systemSettings.auth, electionKey, jurisdiction, machineType },
-    { ballotStyleId: 'b1' as BallotStyleId, precinctId: 'p1' }
+    { ballotStyleId: 'b1', precinctId: 'p1' }
   );
 });
 
@@ -193,14 +192,14 @@ test('startCardlessVoterSession before election definition has been configured',
   const { apiClient, mockAuth } = createApp();
 
   await apiClient.startCardlessVoterSession({
-    ballotStyleId: 'b1' as BallotStyleId,
+    ballotStyleId: 'b1',
     precinctId: 'p1',
   });
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
     { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
-    { ballotStyleId: 'b1' as BallotStyleId, precinctId: 'p1' }
+    { ballotStyleId: 'b1', precinctId: 'p1' }
   );
 });
 
@@ -220,12 +219,12 @@ test('updateCardlessVoterBallotStyle', async () => {
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.updateCardlessVoterBallotStyle({
-    ballotStyleId: '2_es-US' as BallotStyleId,
+    ballotStyleId: '2_es-US',
   });
 
   expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenLastCalledWith({
-    ballotStyleId: '2_es-US' as BallotStyleId,
+    ballotStyleId: '2_es-US',
   });
 });
 

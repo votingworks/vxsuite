@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
+  electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
+import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   PollingPlace,
@@ -107,7 +108,7 @@ function setupStore(
 test('returns signed QR URLs when results match polling place', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -117,7 +118,7 @@ test('returns signed QR URLs when results match polling place', async () => {
       multiplier: 3,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-2',
@@ -167,7 +168,7 @@ test('getMatchingAbsenteePollingPlaces returns no-cvrs-loaded when no ballots', 
 test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CVR precincts', () => {
   const cvrs: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -196,7 +197,7 @@ test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CV
 test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee place covers the CVR precincts', () => {
   const cvrs: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-2',
@@ -222,7 +223,7 @@ test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee pl
 test('getMatchingAbsenteePollingPlaces excludes absentee places missing CVR precincts', () => {
   const cvrs: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -232,7 +233,7 @@ test('getMatchingAbsenteePollingPlaces excludes absentee places missing CVR prec
       multiplier: 2,
     },
     {
-      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-2',

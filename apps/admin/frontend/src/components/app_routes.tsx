@@ -17,7 +17,6 @@ import {
 } from '@votingworks/utils';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { assert } from '@votingworks/basics';
-import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ElectionScreen } from '../screens/election_screen';
@@ -162,7 +161,7 @@ export function AppRoutes(): JSX.Element | null {
       <Route
         path={routerPaths.tallyManualForm({
           precinctId: ':precinctId',
-          ballotStyleGroupId: ':ballotStyleGroupId' as BallotStyleGroupId,
+          ballotStyleGroupId: ':ballotStyleGroupId',
           votingMethod: ':votingMethod' as ManualResultsVotingMethod,
         })}
       >

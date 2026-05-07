@@ -54,7 +54,7 @@ async function setUpMockSocket(
 }> {
   const onSpy = vi.spyOn(mockSocket, 'on');
 
-  mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
+  mockedTryConnect.mockResolvedValue(mockSocket);
 
   const { scannedDocument, error, connectedToDaemon, devicePath } = overrides;
 
@@ -215,7 +215,7 @@ describe('connectToBarcodeScannerSocket', () => {
   });
 
   test('resolves with a socket from tryConnect on first try', async () => {
-    mockedTryConnect.mockResolvedValueOnce(mockSocket as unknown as net.Socket);
+    mockedTryConnect.mockResolvedValueOnce(mockSocket);
 
     const socket = await connectToBarcodeScannerSocket(logger);
     expect(socket).toEqual(mockSocket);
@@ -228,7 +228,7 @@ describe('connectToBarcodeScannerSocket', () => {
       new Error('Test error connecting to socket')
     );
     // Second call succeeds
-    mockedTryConnect.mockResolvedValueOnce(mockSocket as unknown as net.Socket);
+    mockedTryConnect.mockResolvedValueOnce(mockSocket);
 
     // Start querying for socket
     const socketPromise = connectToBarcodeScannerSocket(logger);

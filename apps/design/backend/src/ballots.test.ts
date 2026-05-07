@@ -1,6 +1,5 @@
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
-  DistrictId,
   ElectionStringKey,
   hasSplits,
   Precinct,
@@ -65,7 +64,7 @@ test('formatElectionForExport', () => {
       name: 'Precinct One',
       splits: [
         {
-          districtIds: ['district_a' as DistrictId],
+          districtIds: ['district_a'],
           id: 'split-1',
           name: 'Split Name',
           electionTitleOverride: 'election title override',

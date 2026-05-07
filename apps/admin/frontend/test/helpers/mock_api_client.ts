@@ -420,7 +420,7 @@ export function createApiMock(
         votes,
         id: input.cvrId,
         electionId: 'electionId',
-        ballotStyleGroupId: ballotStyleGroupId ?? ('1M' as BallotStyleGroupId),
+        ballotStyleGroupId: ballotStyleGroupId ?? '1M',
         markScores: null,
       });
     },

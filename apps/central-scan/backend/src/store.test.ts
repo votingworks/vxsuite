@@ -2,7 +2,6 @@ import { expect, test, vi } from 'vitest';
 import {
   AdjudicationReason,
   BallotMetadata,
-  BallotStyleId,
   BallotType,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
@@ -370,7 +369,7 @@ test('adjudication', () => {
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
       ballotHash,
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
       ballotType: BallotType.Precinct,
@@ -464,7 +463,7 @@ test('adjudication', () => {
 
 const metadata: BallotMetadata = {
   ballotHash,
-  ballotStyleId: '12' as BallotStyleId,
+  ballotStyleId: '12',
   precinctId: '23',
   isTestMode: false,
   ballotType: BallotType.Precinct,

@@ -4,7 +4,7 @@ import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
-import { CandidateContest, PartyId, VotesDict } from '@votingworks/types';
+import { CandidateContest, VotesDict } from '@votingworks/types';
 import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { PartySelectionScreen } from './party_selection_screen';
@@ -40,7 +40,7 @@ test('Next button enabled once a party is selected', () => {
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
     route: '/party-selection',
-    selectedPartyId: 'democratic-party' as PartyId,
+    selectedPartyId: 'democratic-party',
   });
 
   expect(screen.getButton(/next/i)).toBeEnabled();
@@ -76,7 +76,7 @@ test('Next button navigates to first contest when a party is selected', () => {
     electionDefinition,
     history,
     route: '/party-selection',
-    selectedPartyId: 'democratic-party' as PartyId,
+    selectedPartyId: 'democratic-party',
   });
 
   userEvent.click(screen.getButton(/next/i));
@@ -91,7 +91,7 @@ test('changing party with votes cast prompts confirmation before clearing votes'
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
     route: '/party-selection',
-    selectedPartyId: 'democratic-party' as PartyId,
+    selectedPartyId: 'democratic-party',
     selectParty,
     votes,
   });
@@ -120,7 +120,7 @@ test('changing party with no votes cast skips the confirmation modal', () => {
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
     route: '/party-selection',
-    selectedPartyId: 'democratic-party' as PartyId,
+    selectedPartyId: 'democratic-party',
     selectParty,
   });
 
@@ -141,7 +141,7 @@ test('entering from review shows a Review button until a vote-clearing change is
     electionDefinition,
     history,
     route: '/party-selection#review',
-    selectedPartyId: 'democratic-party' as PartyId,
+    selectedPartyId: 'democratic-party',
     selectParty,
     votes,
   });
