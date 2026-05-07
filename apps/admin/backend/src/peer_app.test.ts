@@ -66,6 +66,82 @@ test('connectToHost persists status and authType and returns adjudication enable
   });
 });
 
+test("connectToHost releases the client's claims when it transitions to OnlineLocked", async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  addTestCvrs(workspace.store, electionId, 2);
+
+  // Client logs in (Active) and claims a ballot.
+  await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    status: Admin.ClientMachineStatus.Active,
+    authType: 'election_manager',
+  });
+  const cvrId = assertDefined(
+    await peerApiClient.claimBallot({ machineId: 'client-001' })
+  );
+
+  // Client transitions to OnlineLocked (logout / session expiry).
+  await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    status: Admin.ClientMachineStatus.OnlineLocked,
+    authType: null,
+  });
+
+  // The claim should be released — another machine can now pick it up.
+  const result = await peerApiClient.claimBallot({ machineId: 'client-002' });
+  expect(result).toEqual(cvrId);
+});
+
+test('connectToHost does not release claims when status stays Active or transitions Active→Adjudicating', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  addTestCvrs(workspace.store, electionId, 1);
+
+  await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    status: Admin.ClientMachineStatus.Active,
+    authType: 'election_manager',
+  });
+  const cvrId = assertDefined(
+    await peerApiClient.claimBallot({ machineId: 'client-001' })
+  );
+
+  // Repeated heartbeats with the same Active status should not release.
+  await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    status: Admin.ClientMachineStatus.Active,
+    authType: 'election_manager',
+  });
+  // Another machine still cannot claim it.
+  expect(
+    await peerApiClient.claimBallot({ machineId: 'client-002' })
+  ).toBeUndefined();
+
+  // Active → Adjudicating must not release either.
+  await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    status: Admin.ClientMachineStatus.Adjudicating,
+    authType: 'election_manager',
+  });
+  expect(
+    await peerApiClient.claimBallot({ machineId: 'client-002' })
+  ).toBeUndefined();
+  expect(cvrId).toBeDefined();
+});
+
 test('connectToHost updates store when client status changes', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
 

@@ -66,7 +66,7 @@ export function createClientApiMock(
         electionPackageHash?: string;
       } | null
     ) {
-      apiClient.getCurrentElectionMetadata.expectCallWith().resolves(
+      apiClient.getCurrentElectionMetadata.expectRepeatedCallsWith().resolves(
         metadata
           ? {
               id: 'election-id',

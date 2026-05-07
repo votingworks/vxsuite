@@ -3382,6 +3382,23 @@ export class Store implements BaseStore {
     );
   }
 
+  releaseAllBallotClaimsForMachine({
+    electionId,
+    machineId,
+  }: {
+    electionId: Id;
+    machineId: string;
+  }): void {
+    this.client.run(
+      `
+        delete from machine_ballot_adjudication_assignments
+        where election_id = ? and status = 'claimed' and machine_id = ?
+      `,
+      electionId,
+      machineId
+    );
+  }
+
   isCvrAdjudicated({ cvrId }: { cvrId: Id }): boolean {
     const row = this.client.one(
       `select is_adjudicated from cvrs where id = ?`,
