@@ -77,7 +77,6 @@ export function allBubbleBallotTemplate(
   // eslint-disable-next-line @typescript-eslint/require-await
   async function BallotPageContent(
     props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _scratchpad: RenderScratchpad
   ): Promise<ContentComponentResult<BaseBallotProps>> {
     const { election, ...restProps } = assertDefined(props);

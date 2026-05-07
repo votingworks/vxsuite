@@ -111,7 +111,6 @@ export class Auth0Client implements Auth0ClientInterface {
     // [TEMP] Just allows us to have a stub in place for dev without the need
     // for an Auth0 connection.
     return {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       userIdFromRequest(_: Express.Request) {
         return DEV_USER_ID;
       },

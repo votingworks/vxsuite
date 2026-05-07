@@ -222,7 +222,6 @@ export function serialize(rootValue: unknown): string {
   function replacer(
     this: Record<string, unknown>,
     key: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _valueAlreadyStringified: unknown
   ) {
     // The provided value in the JSON.stringify replacer function is already

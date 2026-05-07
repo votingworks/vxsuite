@@ -129,7 +129,6 @@ test('client throws UserError for expected errors', async () => {
   const { server, baseUrl, app } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorMiddlware = vi.fn((_err, _req, _res, _next) => {});
   app.use(errorMiddlware);
 

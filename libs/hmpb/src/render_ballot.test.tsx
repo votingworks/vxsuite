@@ -161,11 +161,9 @@ test('reorder candidates based on rotation from template', async () => {
 
   const {
     contests: fixtureContests,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     gridLayouts: _fixtureGridLayouts,
     ...restFixtureElection
   } = fixtureElection;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { contests, gridLayouts: _gridLayouts, ...restElection } = election;
 
   expect(restElection).toEqual(restFixtureElection);
@@ -174,7 +172,6 @@ test('reorder candidates based on rotation from template', async () => {
     assert(contest.type === 'candidate');
     assert(fixtureContest.type === 'candidate');
     const { candidates, ...restContest } = contest;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { candidates: _fixtureCandidates, ...restFixtureContest } =
       fixtureContest;
     expect(restContest).toEqual(restFixtureContest);

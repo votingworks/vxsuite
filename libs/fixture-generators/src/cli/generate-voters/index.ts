@@ -548,7 +548,6 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   }
 
   const numVotersToGenerate = safeParseInt(assertDefined(argv[2])).okOrElse(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (_) => {
       stderr.write('NUM_VOTERS must be a number\n');
       return 1;
@@ -570,13 +569,10 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
       return 1;
     }
     const precinctsArg = argv.length === 6 ? argv[5] : argv[6];
-    numPrecincts = safeParseInt(assertDefined(precinctsArg)).okOrElse(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (_) => {
-        stderr.write('numPrecincts must be a number\n');
-        return 1;
-      }
-    );
+    numPrecincts = safeParseInt(assertDefined(precinctsArg)).okOrElse((_) => {
+      stderr.write('numPrecincts must be a number\n');
+      return 1;
+    });
     if (numPrecincts < 1) {
       stderr.write('numPrecincts must be at least 1\n');
       return 1;
