@@ -239,19 +239,8 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     ),
     makeContestAdjudicationData('best-animal-mammal'),
   ];
-  // Ballot 2: only unresolved tag is on back contest -> opens to back side
-  const backTaggedContestData = [
-    makeContestAdjudicationData('zoo-council-mammal'),
-    makeContestAdjudicationData(
-      'best-animal-mammal',
-      makeContestTag({
-        contestId: 'best-animal-mammal',
-        hasWriteIn: true,
-      })
-    ),
-  ];
   const adjData1 = makeBallotAdjudicationData(CVR_ID_1, contestData);
-  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, backTaggedContestData);
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, contestData);
   const adjData3 = makeBallotAdjudicationData(CVR_ID_3, contestData);
 
   // initial load
@@ -318,18 +307,13 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     ).toContain(`mock-front-image-${CVR_ID_1}`)
   );
 
-  // skip to second ballot — first pending contest is on back, so opens to back
+  // skip to second ballot
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 3');
   expect(screen.getByRole('button', { name: /Back/ })).toBeEnabled();
-  await waitFor(() => {
-    expect(
-      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
-    ).toContain(`mock-back-image-${CVR_ID_2}`);
-  });
 
   // skip to third (last) ballot
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
@@ -351,6 +335,108 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   await waitFor(() =>
     expect(history.location.pathname).toEqual('/adjudication')
   );
+});
+
+test('opens to the back side when the only pending contest is on the back', async () => {
+  // Front contest has no tag; back contest is the only one needing adjudication.
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData('zoo-council-mammal'),
+    makeContestAdjudicationData(
+      'best-animal-mammal',
+      makeContestTag({ contestId: 'best-animal-mammal', hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 1 of 1');
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_1}`)
+  );
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('default side flips to next pending after confirming a contest', async () => {
+  // Pending tags on both front (Zoo Council) and back (Best Animal).
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+    makeContestAdjudicationData(
+      'best-animal-mammal',
+      makeContestTag({ contestId: 'best-animal-mammal', hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  // First pending is on the front, so the screen opens to the front.
+  await screen.findByText('Ballot 1 of 1');
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-front-image-${CVR_ID_1}`)
+  );
+
+  // Confirm the front contest -> next pending is on the back -> flip to back.
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_1}`)
+  );
+
+  // Confirm the back contest -> nothing pending -> falls back to front.
+  userEvent.click(screen.getByText('Best Animal'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /horse/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-front-image-${CVR_ID_1}`)
+  );
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('skip / back / exit prompt to discard when the user has unsaved adjudications', async () => {

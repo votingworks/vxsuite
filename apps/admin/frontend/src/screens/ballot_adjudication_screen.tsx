@@ -444,7 +444,28 @@ export function BallotAdjudicationScreen({
   const { electionDefinition } = useContext(AppContext);
   const election = assertDefined(electionDefinition?.election);
 
-  const [selectedSide, setSelectedSide] = useState<Side>('front');
+  const contestAdjudicationData = ballotAdjudicationData.contests;
+  const { frontContests, backContests } = groupContestsBySide(
+    ballotImages,
+    contestAdjudicationData,
+    election
+  );
+
+  function getDefaultSide(
+    contests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+  ): Side {
+    const backIds = new Set(backContests.map((item) => item.contest.id));
+    const firstPending = contestAdjudicationData
+      .filter((c) => c.tag !== null)
+      .find((c) => !isContestResolved(c, contests));
+    return firstPending && backIds.has(firstPending.contestId)
+      ? 'back'
+      : 'front';
+  }
+
+  const [selectedSide, setSelectedSide] = useState<Side>(() =>
+    getDefaultSide(new Map())
+  );
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
@@ -474,38 +495,10 @@ export function BallotAdjudicationScreen({
   const onBackGuarded = onBack && onNavigation(onBack);
   const onExitGuarded = onNavigation(onExit);
 
-  // Default to back side if the first pending contest is on the back
-  useEffect(() => {
-    const { contests } = ballotAdjudicationData;
-    const { backContests: back } = groupContestsBySide(
-      ballotImages,
-      contests,
-      election
-    );
-    const backIds = new Set(back.map((item) => item.contest.id));
-    const firstPending = contests
-      .filter((c) => c.tag !== null)
-      .find((c) => !isContestResolved(c, adjudicatedContests));
-    if (firstPending && backIds.has(firstPending.contestId)) {
-      setSelectedSide('back');
-    } else {
-      setSelectedSide('front');
-    }
-  }, [
-    cvrId,
-    ballotAdjudicationData,
-    ballotImages,
-    election,
-    adjudicatedContests,
-  ]);
-
   const cvrTag = ballotAdjudicationData.tag;
   const { front, back } = ballotImages;
   const visibleImage = selectedSide === 'front' ? front : back;
 
-  const contestAdjudicationData = ballotAdjudicationData.contests;
-  const { frontContests: frontContestItems, backContests: backContestItems } =
-    groupContestsBySide(ballotImages, contestAdjudicationData, election);
   const writeInCandidateNamesById = new Map(
     writeInCandidates.map((c) => [c.id, c.name])
   );
@@ -573,7 +566,7 @@ export function BallotAdjudicationScreen({
   const hoveredContestHasWarning = (() => {
     if (!hoveredContestId) return false;
     const item = find(
-      [...frontContestItems, ...backContestItems],
+      [...frontContests, ...backContests],
       (i) => i.contest.id === hoveredContestId
     );
     return !isContestResolved(item.adjudicationData, adjudicatedContests);
@@ -587,9 +580,7 @@ export function BallotAdjudicationScreen({
         }
         cvrId={cvrId}
         side={
-          frontContestItems.some(
-            (item) => item.contest.id === selectedContestId
-          )
+          frontContests.some((item) => item.contest.id === selectedContestId)
             ? 'front'
             : 'back'
         }
@@ -604,9 +595,12 @@ export function BallotAdjudicationScreen({
           (c) => c.contestId === selectedContestId
         )}
         onConfirmContest={(input) => {
-          setAdjudicatedContests((prev) =>
-            new Map(prev).set(input.contestId, input)
+          const updated = new Map(adjudicatedContests).set(
+            input.contestId,
+            input
           );
+          setAdjudicatedContests(updated);
+          setSelectedSide(getDefaultSide(updated));
         }}
       />
     );
@@ -658,10 +652,10 @@ export function BallotAdjudicationScreen({
             <AdjudicationContestList
               key={cvrId}
               adjudicatedContests={adjudicatedContests}
-              backContests={backContestItems}
+              backContests={backContests}
               cvrTag={cvrTag}
               election={election}
-              frontContests={frontContestItems}
+              frontContests={frontContests}
               onHover={onContestHover}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onSelectSide={setSelectedSide}
