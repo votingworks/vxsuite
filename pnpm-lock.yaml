@@ -3707,8 +3707,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       zedbar:
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.3.1
+        version: 0.3.1
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
@@ -26204,8 +26204,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  /zedbar@0.3.0:
-    resolution: {integrity: sha512-gq5erqyHiMVn0wHxneZyhZU7OVvfvBhyWfRr3y933l8BpR5/2glRBLVb3+slECkCVPvGo6Dfjfrl1mLSaWq6lg==}
+  /zedbar@0.3.1:
+    resolution: {integrity: sha512-aC6bDKmKB2CEEo9vPDmRKuObvyzmTFYbJQQd0pCeMgulcR/tyMBPXDUSO0aAwuxWIoScFCgJVsM4P4334dFJAA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dev: false
