@@ -259,6 +259,31 @@ test('says the ballot sheet is blank if it is', async () => {
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
+test('says the ballot sheet has crossover voting if it does', async () => {
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      type: 'NeedsReviewSheet',
+      reasons: [{ type: AdjudicationReason.CrossoverVoting }],
+    })
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+
+  await screen.findByText('Crossover Voting');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because votes were detected in contests for more than one party. If tabulated, those votes will not be counted.'
+  );
+  screen.getByText(
+    'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
+  );
+
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+
+  apiMock.expectContinueScanning({ forceAccept: true });
+  userEvent.click(screen.getByText('Tabulate Ballot'));
+});
+
 test('calls out official ballot sheets in test mode', async () => {
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({

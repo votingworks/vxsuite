@@ -205,6 +205,20 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     assert(sheetInterpretation.type === 'NeedsReviewSheet');
     const { reasons } = sheetInterpretation;
 
+    if (reasons.some((r) => r.type === AdjudicationReason.CrossoverVoting)) {
+      return {
+        header: 'Crossover Voting',
+        body: (
+          <P>
+            The last scanned ballot was not tabulated because votes were
+            detected in contests for more than one party. If tabulated, those
+            votes will not be counted.
+          </P>
+        ),
+        allowBallotDuplication: true,
+      };
+    }
+
     if (reasons.some((r) => r.type === AdjudicationReason.Overvote)) {
       return {
         header: 'Overvote',
