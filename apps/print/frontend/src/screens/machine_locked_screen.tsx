@@ -68,9 +68,9 @@ export function MachineLockedScreen(): JSX.Element | null {
           <Font align="center">
             <InsertCardImage cardInsertionDirection="right" />
             <H1 style={{ maxWidth: '27rem', marginTop: '0' }}>
-              {requiresLocationSelection
-                ? `Insert an election manager card to select a ${locationType}.`
-                : 'Insert an election manager card to configure VxPrint.'}
+              {requiresElectionConfiguration
+                ? 'Insert an election manager card to configure VxPrint.'
+                : `Insert an election manager card to select a ${locationType}.`}
             </H1>
           </Font>
         )}
