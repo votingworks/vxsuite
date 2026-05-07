@@ -12,6 +12,7 @@ import {
   assert,
   DateWithoutTime,
   assertDefined,
+  unique,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
@@ -48,6 +49,7 @@ import {
   ElectionRegisteredVotersCounts,
   ElectionRegisteredVotersCountsSchema,
   UserRole,
+  isOpenPrimary,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -61,6 +63,8 @@ import {
   getBallotStyleGroup,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
+  inferPartyFromVotes,
+  partisanContests,
   isFeatureFlagEnabled,
   SqliteBool,
 } from '@votingworks/utils';
@@ -727,10 +731,12 @@ export class Store implements BaseStore {
    */
   getTabulationGroups({
     electionId,
+    election,
     groupBy = {},
     filter = {},
   }: {
     electionId: Id;
+    election: Election;
     groupBy?: Tabulation.GroupBy;
     filter?: Tabulation.Filter;
   }): Tabulation.GroupSpecifier[] {
@@ -810,7 +816,7 @@ export class Store implements BaseStore {
           ${['universalGroup', ...sortByParts].join(',\n')}
     `;
 
-    return (
+    const groups = (
       this.client.all(query, ...params) as Array<
         Partial<Tabulation.GroupSpecifier> & {
           universalGroup: number;
@@ -822,6 +828,20 @@ export class Store implements BaseStore {
       ({ universalGroup, precinctSortIndex, ...groupSpecifier }) =>
         groupSpecifier
     );
+
+    // In open primary elections, ballot styles in the db don't have party IDs.
+    // Instead, each CVR's party is inferred from its votes. So we need to
+    // manually create group specifiers for each party.
+    if (isOpenPrimary(election) && groupBy.groupByParty) {
+      const partyIds = unique(
+        partisanContests(election).map((contest) => contest.partyId)
+      );
+      return groups.flatMap((group) => [
+        ...partyIds.map((partyId) => ({ ...group, partyId })),
+        { ...group, partyId: undefined },
+      ]);
+    }
+    return groups;
   }
 
   /**
@@ -860,8 +880,11 @@ export class Store implements BaseStore {
       ballotStyleParams.push(...filter.precinctIds);
     }
 
+    // Filter by party ID only in closed primaries (generals and open primaries
+    // don't have party IDs on ballot styles). Nonpartisan contests are always
+    // included.
     whereParts.push(
-      `(contests.party_id is null or ballot_styles.party_id = contests.party_id)`
+      `(ballot_styles.party_id is null or contests.party_id is null or ballot_styles.party_id = contests.party_id)`
     );
 
     const query = `
@@ -1555,10 +1578,12 @@ export class Store implements BaseStore {
    */
   *getCastVoteRecords({
     electionId,
+    election,
     filter,
     cvrId,
   }: {
     electionId: Id;
+    election: Election;
     filter: Tabulation.Filter;
     cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
@@ -1599,18 +1624,22 @@ export class Store implements BaseStore {
         markScores: string;
       }
     >) {
+      const votes = this.applyAdjudicatedVotes({
+        votesString: row.votes,
+        adjudicatedVotesString: row.adjudicatedVotes,
+      });
+      const partyId = isOpenPrimary(election)
+        ? inferPartyFromVotes(election, votes)
+        : row.partyId ?? undefined;
       yield {
         ballotStyleGroupId: row.ballotStyleGroupId,
-        partyId: row.partyId ?? undefined,
+        partyId,
         votingMethod: row.votingMethod,
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
-        votes: this.applyAdjudicatedVotes({
-          votesString: row.votes,
-          adjudicatedVotesString: row.adjudicatedVotes,
-        }),
+        votes,
         markScores: this.parseMarkScores({
           markScoresString: row.markScores,
         }),
