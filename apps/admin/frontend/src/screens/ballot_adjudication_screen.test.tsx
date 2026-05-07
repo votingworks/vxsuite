@@ -326,9 +326,9 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   await screen.findByText('Ballot 2 of 3');
   expect(screen.getByRole('button', { name: /Back/ })).toBeEnabled();
   await waitFor(() => {
-    expect(ballotImage.style.backgroundImage).toContain(
-      `mock-back-image-${CVR_ID_2}`
-    );
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_2}`);
   });
 
   // skip to third (last) ballot

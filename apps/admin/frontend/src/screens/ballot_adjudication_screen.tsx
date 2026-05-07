@@ -18,12 +18,7 @@ import type {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
-import {
-  assert,
-  assertDefined,
-  find,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   adjudicateCvr,
   claimBallotForAdjudication,
@@ -393,7 +388,8 @@ function HostBallotAdjudicationScreenDataLoader({
 
   return (
     <BallotAdjudicationScreen
-      cvrId={cvrId}
+      key={adjudicationDataQuery.data.cvrId}
+      cvrId={adjudicationDataQuery.data.cvrId}
       ballotAdjudicationData={adjudicationDataQuery.data}
       ballotImages={ballotImagesQuery.data}
       writeInCandidates={writeInCandidatesQuery.data}
@@ -456,35 +452,27 @@ export function BallotAdjudicationScreen({
     null
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [pendingDiscard, setPendingDiscard] = useState<
-    'skip' | 'back' | 'exit' | null
-  >(null);
+  const [pendingDiscard, setPendingDiscard] = useState<{
+    action: () => void;
+  } | null>(null);
   const [adjudicatedContests, setAdjudicatedContests] = useState<
     Map<ContestId, AdjudicatedCvrContest>
   >(new Map());
 
-  // Drop in-progress adjudications when the user moves to a different ballot
-  useEffect(() => {
-    setAdjudicatedContests((prev) => (prev.size === 0 ? prev : new Map()));
-  }, [cvrId]);
-
   // Wraps a navigation action so we prompt before discarding any
   // in-progress adjudications the user has Confirmed but not yet Accepted.
-  function onNavigation(
-    type: 'skip' | 'back' | 'exit',
-    action: () => void
-  ): () => void {
+  function onNavigation(action: () => void): () => void {
     return () => {
       if (adjudicatedContests.size > 0) {
-        setPendingDiscard(type);
+        setPendingDiscard({ action });
       } else {
         action();
       }
     };
   }
-  const onSkipGuarded = onSkip && onNavigation('skip', onSkip);
-  const onBackGuarded = onBack && onNavigation('back', onBack);
-  const onExitGuarded = onNavigation('exit', onExit);
+  const onSkipGuarded = onSkip && onNavigation(onSkip);
+  const onBackGuarded = onBack && onNavigation(onBack);
+  const onExitGuarded = onNavigation(onExit);
 
   // Default to back side if the first pending contest is on the back
   useEffect(() => {
@@ -764,22 +752,9 @@ export function BallotAdjudicationScreen({
         <DiscardChangesModal
           onBack={() => setPendingDiscard(null)}
           onDiscard={() => {
+            const { action } = pendingDiscard;
             setPendingDiscard(null);
-            setAdjudicatedContests(new Map());
-            switch (pendingDiscard) {
-              case 'skip':
-                onSkip?.();
-                break;
-              case 'back':
-                onBack?.();
-                break;
-              case 'exit':
-                onExit();
-                break;
-              /* istanbul ignore next - @preserve */
-              default:
-                throwIllegalValue(pendingDiscard);
-            }
+            action();
           }}
         />
       )}
