@@ -144,6 +144,23 @@ See the [README](https://github.com/votingworks/vxsuite-complete-system) in
 `vxsuite-complete-system` for information on how to test the apps in this repo
 through kiosk-browser (electron-based browser that runs our apps in production).
 
+### Testing multi-machine networking flows
+
+Some flows (e.g. multi-station VxAdmin) require two machines on a shared
+network. If you are using VMs with parallels you can test locally with the
+following steps:
+
+1. Run `script/setup-dev-for-networking` from `vxsuite` to install networking
+   libraries needed.
+2. Create a clone or linked clone of your VM.
+3. Start both VMs make sure you are on the branch you want to test on both VMs
+   etc. In parallels make sure the "network" setting is "shared network" which
+   should be the default.
+4. Make sure `REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN` is `true` to test
+   multi-station flows in admin.
+5. Start VxAdmin (or VxPollBook) on both VMs with unique `VX_MACHINE_ID` env
+   vars.
+
 ### Setting up GPG Keys
 
 > Note: This is only required if you plan to contribute to the repo.
