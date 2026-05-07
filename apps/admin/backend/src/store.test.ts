@@ -454,12 +454,16 @@ describe('getTabulationGroups', () => {
   });
 
   test('no groupings', () => {
-    expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
+    expect(store.getTabulationGroups({ electionId, election })).toEqual([{}]);
   });
 
   test('unsupported groupings', () => {
     expect(
-      store.getTabulationGroups({ electionId, groupBy: { groupByBatch: true } })
+      store.getTabulationGroups({
+        electionId,
+        election,
+        groupBy: { groupByBatch: true },
+      })
     ).toEqual([{}]);
   });
 
@@ -467,6 +471,7 @@ describe('getTabulationGroups', () => {
     expect(
       store.getTabulationGroups({
         electionId,
+        election,
         filter: {
           precinctIds: [],
         },
@@ -478,6 +483,7 @@ describe('getTabulationGroups', () => {
     expect(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByPrecinct: true },
       })
     ).toEqual(
@@ -489,6 +495,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByBallotStyle: true },
       }),
       getGroupedBallotStyles(election.ballotStyles).map((ballotStyleGroup) => ({
@@ -501,6 +508,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByParty: true },
       }),
       [{ partyId: '0' }, { partyId: '1' }]
@@ -511,6 +519,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByVotingMethod: true },
       }),
       Tabulation.SUPPORTED_VOTING_METHODS.map((votingMethod) => ({
@@ -523,6 +532,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
       }),
       getGroupedBallotStyles(election.ballotStyles).flatMap(
@@ -539,6 +549,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
       }),
       election.precincts.flatMap((precinct) =>
@@ -554,6 +565,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByPrecinct: true },
         filter: {
           precinctIds: ['precinct-c1-w1-1'],
@@ -571,6 +583,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
         filter: {
           partyIds: ['0'],
@@ -591,6 +604,7 @@ describe('getTabulationGroups', () => {
     expectArrayMatch(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
         filter: {
           ballotStyleGroupIds: ['m-c1-w1'] as BallotStyleGroupId[],
@@ -611,6 +625,7 @@ describe('getTabulationGroups', () => {
     expect(
       store.getTabulationGroups({
         electionId,
+        election,
         groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
         filter: {
           votingMethods: ['absentee'],

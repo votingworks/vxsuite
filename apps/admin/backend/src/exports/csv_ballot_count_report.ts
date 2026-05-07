@@ -166,6 +166,7 @@ export function* generateBallotCountReportCsv({
   const allCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       filter,
       groupBy,

@@ -38,7 +38,8 @@ featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { election, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -173,6 +174,7 @@ test('tabulateScannedCardCounts - grouping', () => {
   for (const { groupBy, expected } of testCases) {
     const groupedCardCounts = tabulateScannedCardCounts({
       electionId,
+      election,
       store,
       groupBy,
     });
@@ -190,7 +192,8 @@ test('tabulateScannedCardCounts - grouping', () => {
 
 test('tabulateScannedCardCounts - groupByBatchDate', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { election, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -261,6 +264,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
     Object.values(
       tabulateScannedCardCounts({
         electionId,
+        election,
         store,
         groupBy: { groupByBatch: true },
       })
@@ -271,6 +275,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
   // into a single group because they share the same date
   const groupedCardCounts = tabulateScannedCardCounts({
     electionId,
+    election,
     store,
     groupBy: { groupByBatchDate: true },
   });
@@ -350,6 +355,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
   const byBatchDateCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       groupBy: { groupByBatchDate: true },
     })
@@ -372,7 +378,8 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
 
 test('tabulateScannedCardCounts - merging card tallies', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { election, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -419,6 +426,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   expect(
     tabulateScannedCardCounts({
       electionId,
+      election,
       store,
     })[GROUP_KEY_ROOT]
   ).toEqual({
@@ -429,6 +437,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   expect(
     tabulateScannedCardCounts({
       electionId,
+      election,
       store,
       groupBy: { groupByScanner: true },
     })['root&scannerId=scanner-1']
@@ -491,6 +500,7 @@ test('tabulateFullCardCounts - manual results', () => {
   const precinctCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       groupBy: {
         groupByPrecinct: true,
@@ -515,6 +525,7 @@ test('tabulateFullCardCounts - manual results', () => {
   const votingMethodCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       groupBy: {
         groupByVotingMethod: true,
@@ -546,6 +557,7 @@ test('tabulateFullCardCounts - manual results', () => {
   const scannerCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       filter: { scannerIds: ['scanner-1'] },
     })
@@ -561,6 +573,7 @@ test('tabulateFullCardCounts - manual results', () => {
   const byBatchCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       groupBy: {
         groupByBatch: true,
@@ -585,7 +598,8 @@ test('tabulateFullCardCounts - manual results', () => {
 
 test('tabulateFullCardCounts - blankBallots', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { election, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -680,6 +694,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
     const [cardCounts] = groupMapToGroupList(
       tabulateFullCardCounts({
         electionId,
+        election,
         store,
         filter: {
           adjudicationFlags: testCase.adjudicationFlags,

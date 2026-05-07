@@ -33,6 +33,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
+  const { election } = store.getElection(electionId)!.electionDefinition;
 
   const initialVotes: Tabulation.Votes = {
     'zoo-council-mammal': ['lion'],
@@ -59,7 +60,9 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
   assert(cvrId !== undefined);
 
   function expectVotes(votes: Tabulation.Votes) {
-    const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+    const [cvr] = [
+      ...store.getCastVoteRecords({ electionId, election, filter: {} }),
+    ];
     assert(cvr);
     expect(cvr.votes).toEqual({
       ...initialVotes,
@@ -441,6 +444,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
+  const { election } = store.getElection(electionId)!.electionDefinition;
 
   const initialVotes = ['lion', 'write-in-0'];
   const initialWriteInRecords: Array<Partial<WriteInRecord>> = [
@@ -477,7 +481,9 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   assert(cvrId !== undefined);
 
   function expectVotes(votes: string[]) {
-    const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+    const [cvr] = [
+      ...store.getCastVoteRecords({ electionId, election, filter: {} }),
+    ];
     assert(cvr);
     expect(cvr.votes[contestId]).toEqual(votes);
   }

@@ -1,4 +1,4 @@
-import { Admin, Id, Tabulation } from '@votingworks/types';
+import { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   getEmptyCardCounts,
@@ -48,11 +48,13 @@ function addCardTallyToCardCounts({
  */
 export function tabulateScannedCardCounts({
   electionId,
+  election,
   store,
   filter,
   groupBy,
 }: {
   electionId: Id;
+  election: Election;
   store: Store;
   filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
@@ -86,6 +88,7 @@ export function tabulateScannedCardCounts({
     debug('determining expected card count groups');
     const expectedGroups = store.getTabulationGroups({
       electionId,
+      election,
       groupBy,
       filter,
     });
@@ -117,11 +120,13 @@ export function tabulateScannedCardCounts({
  */
 export function tabulateFullCardCounts({
   electionId,
+  election,
   store,
   filter,
   groupBy,
 }: {
   electionId: Id;
+  election: Election;
   store: Store;
   filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
@@ -130,6 +135,7 @@ export function tabulateFullCardCounts({
 
   const groupedScannedCardCounts = tabulateScannedCardCounts({
     electionId,
+    election,
     store,
     filter,
     groupBy,

@@ -145,7 +145,12 @@ function addWriteInToElectionWriteInSummary({
     return electionWriteInSummary;
   }
 
-  const [cvr] = store.getCastVoteRecords({ electionId, cvrId, filter: {} });
+  const [cvr] = store.getCastVoteRecords({
+    electionId,
+    election: electionDefinition.election,
+    cvrId,
+    filter: {},
+  });
   const votes = assertDefined(assertDefined(cvr).votes[contestId]);
 
   const contest = CachedElectionLookups.getContestById(
