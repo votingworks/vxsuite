@@ -22,20 +22,18 @@ import {
   SharedApiClientContext,
   createSharedQueryClient,
   getMachineMode,
+  isMultiStationAdjudicationEnabled,
   systemCallApi,
 } from './shared_api';
 
 function PrimaryApp(): JSX.Element | null {
   const machineModeQuery = getMachineMode.useQuery();
-  if (!machineModeQuery.isSuccess) {
+  const isMultiStationEnabledQuery =
+    isMultiStationAdjudicationEnabled.useQuery();
+  if (!machineModeQuery.isSuccess || !isMultiStationEnabledQuery.isSuccess) {
     return null;
   }
-  if (
-    machineModeQuery.data === 'client' &&
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-    )
-  ) {
+  if (machineModeQuery.data === 'client' && isMultiStationEnabledQuery.data) {
     return <ClientApp />;
   }
   return <ServerApp />;

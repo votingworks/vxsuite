@@ -1,11 +1,12 @@
 import path from 'node:path';
 import {
+  getRequiredEnvVar,
   isIntegrationTest,
+  isNodeEnvProduction,
   isStagingDeploy,
   isVxDev,
 } from '@votingworks/utils';
 
-import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
 import { FileKey, RemoteKey, TpmKey } from './keys';
 
 /**

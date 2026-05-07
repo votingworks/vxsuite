@@ -95,6 +95,7 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 import { getBallotImages } from './util/adjudication';
 import {
@@ -285,6 +286,10 @@ function buildApi({
 
     getIsClientAdjudicationEnabled(): boolean {
       return store.getIsClientAdjudicationEnabled();
+    },
+
+    isMultiStationAdjudicationEnabled(): boolean {
+      return isMultiStationAdjudicationEnabled();
     },
 
     async setIsClientAdjudicationEnabled(input: {

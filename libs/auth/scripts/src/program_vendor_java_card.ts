@@ -1,10 +1,10 @@
 import { extractErrorMessage } from '@votingworks/basics';
+import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 
 import {
   constructJavaCardConfigForVxProgramming,
   JavaCardConfig,
 } from '../../src/config';
-import { getRequiredEnvVar, isNodeEnvProduction } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { programJavaCard } from './utils';

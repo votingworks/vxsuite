@@ -12,10 +12,11 @@ import { Mock, vi } from 'vitest';
 
 type MockClientApiClient = Omit<
   MockClient<ClientApi>,
-  'getBatteryInfo' | 'getDiskSpaceSummary'
+  'getBatteryInfo' | 'getDiskSpaceSummary' | 'isMultiStationAdjudicationEnabled'
 > & {
   getBatteryInfo: Mock;
   getDiskSpaceSummary: Mock;
+  isMultiStationAdjudicationEnabled: Mock;
 };
 
 function createMockClientApiClient(): MockClientApiClient {
@@ -25,6 +26,9 @@ function createMockClientApiClient(): MockClientApiClient {
   );
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
+  );
+  (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
+    () => Promise.resolve(false)
   );
   return mockApiClient as unknown as MockClientApiClient;
 }

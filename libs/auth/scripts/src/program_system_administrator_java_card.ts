@@ -4,9 +4,9 @@ import {
   extractErrorMessage,
 } from '@votingworks/basics';
 import { ProgrammingMachineType } from '@votingworks/types';
+import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 
 import { constructJavaCardConfig, JavaCardConfig } from '../../src/config';
-import { getRequiredEnvVar, isNodeEnvProduction } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { programJavaCard } from './utils';

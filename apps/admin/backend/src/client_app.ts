@@ -30,6 +30,7 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import { getMachineConfig } from './machine_config';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 import {
   type MachineMode,
@@ -166,6 +167,10 @@ function buildClientApi({
 
     getMachineMode(): MachineMode {
       return readMachineMode(workspace.path);
+    },
+
+    isMultiStationAdjudicationEnabled(): boolean {
+      return isMultiStationAdjudicationEnabled();
     },
 
     async setMachineMode(input: { mode: MachineMode }): Promise<void> {

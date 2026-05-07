@@ -3,9 +3,9 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
+import { getRequiredEnvVar } from '@votingworks/utils';
 
 import { CommandApdu, constructTlv } from '../../../src/apdu';
-import { getRequiredEnvVar } from '../../../src/env_vars';
 import {
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,

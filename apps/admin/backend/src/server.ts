@@ -34,6 +34,7 @@ import { buildClientApp } from './client_app';
 import { buildPeerApp } from './peer_app';
 import { readMachineMode } from './machine_mode';
 import { getMachineConfig } from './machine_config';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config';
 import { startHostNetworking, startClientNetworking } from './networking';
 import { rootDebug } from './util/debug';
 import { getUserRole } from './util/auth';
@@ -139,9 +140,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         });
       }
 
-      const isMultiStationEnabled = isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-      );
+      const isMultiStationEnabled = isMultiStationAdjudicationEnabled();
 
       if (isMultiStationEnabled) {
         const peerApp = buildPeerApp({ workspace, logger: baseLogger });
@@ -192,9 +191,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
     case 'client': {
       assert(
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-        ),
+        isMultiStationAdjudicationEnabled(),
         'Multi-station admin must be enabled for client mode'
       );
 

@@ -20,8 +20,8 @@ import {
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -33,6 +33,7 @@ import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import {
+  isMultiStationAdjudicationEnabled,
   sharedEjectUsbDrive,
   sharedLogOut,
   systemCallApi,
@@ -65,6 +66,14 @@ function NetworkStatusIndicator(): JSX.Element | null {
       )}
     </Row>
   );
+}
+
+// Wrapper kept inside the host-mode branch so its query (which uses the host
+// API client) never runs in client-mode renders.
+function HostNetworkStatusIndicator(): JSX.Element | null {
+  const isMultiStationEnabled =
+    isMultiStationAdjudicationEnabled.useQuery().data ?? false;
+  return isMultiStationEnabled ? <NetworkStatusIndicator /> : null;
 }
 
 interface Props {
@@ -214,9 +223,6 @@ export function NavigationScreen({
   const logOutMutation = sharedLogOut.useMutation();
   const ejectUsbDriveMutation = sharedEjectUsbDrive.useMutation();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
-  const isMultiStationEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
-  );
 
   return (
     <Screen flexDirection="row">
@@ -224,9 +230,7 @@ export function NavigationScreen({
       <Main flexColumn>
         {shouldShowToolbar(machineMode, auth) && (
           <Toolbar>
-            {machineMode === 'host' && isMultiStationEnabled && (
-              <NetworkStatusIndicator />
-            )}
+            {machineMode === 'host' && <HostNetworkStatusIndicator />}
             {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
               <BatteryStatus batteryInfo={batteryInfoQuery.data} />
             )}

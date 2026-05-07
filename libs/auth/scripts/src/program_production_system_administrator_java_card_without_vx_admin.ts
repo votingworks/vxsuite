@@ -3,6 +3,7 @@ import path from 'node:path';
 import tmp from 'tmp';
 import { extractErrorMessage } from '@votingworks/basics';
 import { DEV_MACHINE_ID } from '@votingworks/types';
+import { getRequiredEnvVar } from '@votingworks/utils';
 
 import {
   CERT_EXPIRY_IN_DAYS,
@@ -10,7 +11,6 @@ import {
 } from '../../src/certs';
 import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
 import { createCert } from '../../src/cryptography';
-import { getRequiredEnvVar } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
 import { generatePrivateKey, programJavaCard } from './utils';
 

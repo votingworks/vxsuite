@@ -34,6 +34,7 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config';
 import { ManualResultsIdentifier, ManualResultsRecord } from './types';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
@@ -50,6 +51,10 @@ vi.mock(
     },
   })
 );
+
+vi.mock('./multi_station_config', () => ({
+  isMultiStationAdjudicationEnabled: vi.fn(() => false),
+}));
 
 beforeEach(() => {
   mockNodeEnv = 'test';
@@ -95,6 +100,17 @@ test('getMachineMode and setMachineMode', async () => {
   await apiClient.setMachineMode({ mode: 'host' });
   expect(await apiClient.getMachineMode()).toEqual('host');
 });
+
+test.each([{ helperReturns: true }, { helperReturns: false }])(
+  'isMultiStationAdjudicationEnabled returns $helperReturns when the helper returns $helperReturns',
+  async ({ helperReturns }) => {
+    vi.mocked(isMultiStationAdjudicationEnabled).mockReturnValue(helperReturns);
+    const { apiClient } = buildTestEnvironment();
+    expect(await apiClient.isMultiStationAdjudicationEnabled()).toEqual(
+      helperReturns
+    );
+  }
+);
 
 test('setMachineMode throws when election is configured', async () => {
   const { apiClient, auth } = buildTestEnvironment();

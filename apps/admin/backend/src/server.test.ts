@@ -65,6 +65,13 @@ vi.mock('./networking', () => ({
   startClientNetworking: vi.fn(),
 }));
 
+vi.mock('./multi_station_config', () => ({
+  isMultiStationAdjudicationEnabled: () =>
+    featureFlagMock.isEnabled(
+      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+    ),
+}));
+
 let server: Server | undefined;
 
 beforeEach(() => {

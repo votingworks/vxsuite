@@ -5,6 +5,7 @@ import {
   assertDefined,
   extractErrorMessage,
 } from '@votingworks/basics';
+import { getRequiredEnvVar } from '@votingworks/utils';
 
 import {
   CERT_EXPIRY_IN_DAYS,
@@ -13,7 +14,6 @@ import {
 } from '../../src/certs';
 import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
 import { createCert } from '../../src/cryptography';
-import { getRequiredEnvVar } from '../../src/env_vars';
 
 interface ScriptEnvVars {
   certPublicKeyPath: string;
