@@ -28,11 +28,12 @@ import {
 
 function PrimaryApp(): JSX.Element | null {
   const machineModeQuery = getMachineMode.useQuery();
-  const multiStationQuery = isMultiStationAdjudicationEnabled.useQuery();
-  if (!machineModeQuery.isSuccess || !multiStationQuery.isSuccess) {
+  const isMultiStationEnabledQuery =
+    isMultiStationAdjudicationEnabled.useQuery();
+  if (!machineModeQuery.isSuccess || !isMultiStationEnabledQuery.isSuccess) {
     return null;
   }
-  if (machineModeQuery.data === 'client' && multiStationQuery.data) {
+  if (machineModeQuery.data === 'client' && isMultiStationEnabledQuery.data) {
     return <ClientApp />;
   }
   return <ServerApp />;
