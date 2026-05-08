@@ -187,7 +187,7 @@ function applyAdjudicatedCvrContest(
   for (const [optionId, option] of Object.entries(
     adjudicatedContestOptionById
   )) {
-    if (option.type === 'candidate-option') {
+    if (option.type === 'official-option') {
       continue;
     }
 

@@ -438,11 +438,11 @@ export interface AdjudicatedCvr {
  * A fully adjudicated candidate or write-in option
  */
 export type AdjudicatedContestOption =
-  | AdjudicatedCandidateOption
+  | AdjudicatedOfficialOption
   | AdjudicatedWriteInOption;
 
-interface AdjudicatedCandidateOption {
-  type: 'candidate-option';
+interface AdjudicatedOfficialOption {
+  type: 'official-option';
   hasVote: boolean;
 }
 

@@ -966,15 +966,15 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     return {
       adjudicatedContestOptionById: {
         'Josiah-Bartlett-1bb99985': {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: !!initialVotes['Josiah-Bartlett-1bb99985'],
         },
         'Hannah-Dustin-ab4ef7c8': {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: !!initialVotes['Hannah-Dustin-ab4ef7c8'],
         },
         'John-Spencer-9ffb5970': {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: !!initialVotes['John-Spencer-9ffb5970'],
         },
         'write-in-0': {
@@ -1375,7 +1375,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
         option.definition.type === 'candidate' && option.definition.isWriteIn;
       adjudicatedContestOptionById[option.definition.id] = isWriteIn
         ? { type: 'write-in-option', hasVote: false }
-        : { type: 'candidate-option', hasVote: option.scannedVote };
+        : { type: 'official-option', hasVote: option.scannedVote };
     }
     return {
       cvrId: cvrId1,
@@ -1671,15 +1671,15 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
         {
           adjudicatedContestOptionById: {
             'Josiah-Bartlett-1bb99985': {
-              type: 'candidate-option',
+              type: 'official-option',
               hasVote: !!initialVotes['Josiah-Bartlett-1bb99985'],
             },
             'Hannah-Dustin-ab4ef7c8': {
-              type: 'candidate-option',
+              type: 'official-option',
               hasVote: !!initialVotes['Hannah-Dustin-ab4ef7c8'],
             },
             'John-Spencer-9ffb5970': {
-              type: 'candidate-option',
+              type: 'official-option',
               hasVote: !!initialVotes['John-Spencer-9ffb5970'],
             },
             'write-in-0': {
@@ -1839,7 +1839,7 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
         {
           adjudicatedContestOptionById: {
             [optionToFlip.definition.id]: {
-              type: 'candidate-option',
+              type: 'official-option',
               hasVote: true,
             },
           },

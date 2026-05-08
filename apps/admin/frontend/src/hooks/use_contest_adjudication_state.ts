@@ -169,7 +169,7 @@ export function useContestAdjudicationState(initialValues: {
   }
 
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean): void {
-    setOptionState(optionId, { type: 'candidate-option', hasVote });
+    setOptionState(optionId, { type: 'official-option', hasVote });
   }
 
   function getOptionWriteInStatus(
@@ -177,7 +177,7 @@ export function useContestAdjudicationState(initialValues: {
   ): WriteInAdjudicationStatus | undefined {
     const option = getOptionState(optionId);
     if (option) {
-      if (option.type === 'candidate-option') return undefined;
+      if (option.type === 'official-option') return undefined;
       if (!option.hasVote) return { type: 'invalid' };
       if (option.candidateType === 'official-candidate') {
         const candidate = assertDefined(
@@ -298,7 +298,7 @@ export function useContestAdjudicationState(initialValues: {
       const optionData = getOptionData(optionId);
       const hasVote =
         optionData.adjudicatedVote ?? optionData.scannedVote ?? false;
-      return { ...prev, [optionId]: { type: 'candidate-option', hasVote } };
+      return { ...prev, [optionId]: { type: 'official-option', hasVote } };
     });
   }
 
@@ -396,7 +396,7 @@ export function useContestAdjudicationState(initialValues: {
       } else {
         const optionData = getOptionData(o.id);
         result[o.id] = {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: optionData.adjudicatedVote ?? optionData.scannedVote,
         };
       }

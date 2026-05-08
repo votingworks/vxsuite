@@ -338,10 +338,10 @@ function formAdjudicatedCvrContest(
 ): AdjudicatedCvrContest {
   return {
     adjudicatedContestOptionById: {
-      kangaroo: { type: 'candidate-option', hasVote: false },
-      elephant: { type: 'candidate-option', hasVote: false },
-      lion: { type: 'candidate-option', hasVote: false },
-      zebra: { type: 'candidate-option', hasVote: false },
+      kangaroo: { type: 'official-option', hasVote: false },
+      elephant: { type: 'official-option', hasVote: false },
+      lion: { type: 'official-option', hasVote: false },
+      zebra: { type: 'official-option', hasVote: false },
       'write-in-0': { type: 'write-in-option', hasVote: false },
       'write-in-1': { type: 'write-in-option', hasVote: false },
       'write-in-2': { type: 'write-in-option', hasVote: false },
@@ -415,7 +415,7 @@ describe('hmpb write-in adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
       })
     );
   });
@@ -468,7 +468,7 @@ describe('hmpb write-in adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
           hasVote: true,
@@ -544,7 +544,7 @@ describe('hmpb write-in adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
           hasVote: true,
@@ -626,7 +626,7 @@ describe('hmpb write-in adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
           hasVote: true,
@@ -761,7 +761,7 @@ describe('bmd write-in adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
           hasVote: true,
@@ -848,7 +848,7 @@ describe('vote adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        lion: { type: 'candidate-option', hasVote: true },
+        lion: { type: 'official-option', hasVote: true },
       })
     );
   });
@@ -1024,7 +1024,7 @@ describe('unmarked and undetected write-ins', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
         'write-in-0': {
           type: 'write-in-option',
           hasVote: true,
@@ -1570,7 +1570,7 @@ describe('marginal mark adjudication', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
-        kangaroo: { type: 'candidate-option', hasVote: true },
+        kangaroo: { type: 'official-option', hasVote: true },
       })
     );
   });

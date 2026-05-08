@@ -697,7 +697,7 @@ test('applies unsavedAdjudication overlay across all option types', () => {
     side: 'front',
     adjudicatedContestOptionById: {
       // candidate option flipped to a vote
-      alice: { type: 'candidate-option', hasVote: true },
+      alice: { type: 'official-option', hasVote: true },
       // write-in marked invalid
       'write-in-0': { type: 'write-in-option', hasVote: false },
       // write-in adjudicated to an official candidate

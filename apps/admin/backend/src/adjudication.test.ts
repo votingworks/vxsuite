@@ -157,10 +157,10 @@ test('adjudicateCvr write-in logging and candidate cleanup', () => {
   assert(cvrId !== undefined);
 
   const allFalse: Record<ContestOptionId, AdjudicatedContestOption> = {
-    kangaroo: { type: 'candidate-option', hasVote: false },
-    elephant: { type: 'candidate-option', hasVote: false },
-    lion: { type: 'candidate-option', hasVote: false },
-    zebra: { type: 'candidate-option', hasVote: false },
+    kangaroo: { type: 'official-option', hasVote: false },
+    elephant: { type: 'official-option', hasVote: false },
+    lion: { type: 'official-option', hasVote: false },
+    zebra: { type: 'official-option', hasVote: false },
     'write-in-0': { type: 'write-in-option', hasVote: false },
     'write-in-1': { type: 'write-in-option', hasVote: false },
     'write-in-2': { type: 'write-in-option', hasVote: false },
@@ -352,10 +352,10 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
   // Adjudicate write-in-0 → Alice (the to-be-deleted candidate) and
   // write-in-1 → Bob (the candidate that will remain).
   const allFalse: Record<ContestOptionId, AdjudicatedContestOption> = {
-    kangaroo: { type: 'candidate-option', hasVote: false },
-    elephant: { type: 'candidate-option', hasVote: false },
-    lion: { type: 'candidate-option', hasVote: false },
-    zebra: { type: 'candidate-option', hasVote: false },
+    kangaroo: { type: 'official-option', hasVote: false },
+    elephant: { type: 'official-option', hasVote: false },
+    lion: { type: 'official-option', hasVote: false },
+    zebra: { type: 'official-option', hasVote: false },
     'write-in-0': { type: 'write-in-option', hasVote: false },
     'write-in-1': { type: 'write-in-option', hasVote: false },
     'write-in-2': { type: 'write-in-option', hasVote: false },
@@ -512,10 +512,10 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
         contests: [
           {
             adjudicatedContestOptionById: {
-              kangaroo: { type: 'candidate-option', hasVote: false },
-              elephant: { type: 'candidate-option', hasVote: false },
-              lion: { type: 'candidate-option', hasVote: false },
-              zebra: { type: 'candidate-option', hasVote: false },
+              kangaroo: { type: 'official-option', hasVote: false },
+              elephant: { type: 'official-option', hasVote: false },
+              lion: { type: 'official-option', hasVote: false },
+              zebra: { type: 'official-option', hasVote: false },
               'write-in-0': { type: 'write-in-option', hasVote: false },
               'write-in-1': { type: 'write-in-option', hasVote: false },
               'write-in-2': { type: 'write-in-option', hasVote: false },
@@ -563,7 +563,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
 
   // write-in as official candidate, re-add lion
   adjudicate({
-    lion: { type: 'candidate-option', hasVote: true },
+    lion: { type: 'official-option', hasVote: true },
     'write-in-0': {
       type: 'write-in-option',
       hasVote: true,
@@ -591,8 +591,8 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
 
   // one additional candidate and write-in with new write-in candidate
   adjudicate({
-    lion: { type: 'candidate-option', hasVote: true },
-    zebra: { type: 'candidate-option', hasVote: true },
+    lion: { type: 'official-option', hasVote: true },
+    zebra: { type: 'official-option', hasVote: true },
     'write-in-0': {
       type: 'write-in-option',
       hasVote: true,
@@ -635,7 +635,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
   // write-in previously adjudicated for new candidate should
   // be adjudicated for the same write-in candidate with the same id
   adjudicate({
-    zebra: { type: 'candidate-option', hasVote: true },
+    zebra: { type: 'official-option', hasVote: true },
     'write-in-1': {
       type: 'write-in-option',
       hasVote: true,
@@ -663,7 +663,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
   // normal adjudication to finish, which should delete the write-in record
   // for the undetected write-in record instead of marking it as invalid
   adjudicate({
-    lion: { type: 'candidate-option', hasVote: true },
+    lion: { type: 'official-option', hasVote: true },
     'write-in-0': {
       type: 'write-in-option',
       hasVote: true,
@@ -907,16 +907,16 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
           contestId: 'zoo-council-mammal',
           side: 'front',
           adjudicatedContestOptionById: {
-            lion: { type: 'candidate-option', hasVote: true },
-            kangaroo: { type: 'candidate-option', hasVote: true },
+            lion: { type: 'official-option', hasVote: true },
+            kangaroo: { type: 'official-option', hasVote: true },
           },
         },
         {
           contestId: 'best-animal-mammal',
           side: 'front',
           adjudicatedContestOptionById: {
-            horse: { type: 'candidate-option', hasVote: false },
-            otter: { type: 'candidate-option', hasVote: true },
+            horse: { type: 'official-option', hasVote: false },
+            otter: { type: 'official-option', hasVote: true },
           },
         },
       ],
