@@ -408,14 +408,19 @@ export interface WriteInAdjudicationActionInvalid {
 }
 
 /**
+ * Map of contest option IDs to their adjudicated values.
+ */
+export type AdjudicatedContestOptions = Record<
+  ContestOptionId,
+  AdjudicatedContestOption
+>;
+
+/**
  * A cvr contest with all candidate and write-in options
  * fully adjudicated.
  */
 export interface AdjudicatedCvrContest {
-  adjudicatedContestOptionById: Record<
-    ContestOptionId,
-    AdjudicatedContestOption
-  >;
+  adjudicatedContestOptionById: AdjudicatedContestOptions;
   contestId: ContestId;
   side: Side;
 }
