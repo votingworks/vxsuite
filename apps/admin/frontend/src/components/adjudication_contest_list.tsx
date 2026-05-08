@@ -91,14 +91,11 @@ function getAdjudicatedVote(
   unsavedAdjudication?: AdjudicatedContestOption
 ): boolean {
   if (unsavedAdjudication) return unsavedAdjudication.hasVote;
-  const { initialVote, voteAdjudication, writeInRecord } = option;
+  const { scannedVote, adjudicatedVote, writeInRecord } = option;
   if (writeInRecord && writeInRecord.status === 'adjudicated') {
     return writeInRecord.adjudicationType !== 'invalid';
   }
-  if (voteAdjudication) {
-    return voteAdjudication.isVote;
-  }
-  return initialVote;
+  return adjudicatedVote ?? scannedVote;
 }
 
 type VoteStatus = 'overvote' | 'undervote' | 'normal';
@@ -122,7 +119,7 @@ function getStatusLine(
   const votesAllowed = getVotesAllowed(item.contest);
 
   const originalVoteCount = item.adjudicationData.options.filter(
-    (o) => o.initialVote
+    (o) => o.scannedVote
   ).length;
   const adjudicatedVoteCount = item.adjudicationData.options.filter((o) =>
     getAdjudicatedVote(
@@ -189,7 +186,7 @@ function getOptionResolutionLine(
   writeInCandidateNamesById: Map<Id, string>,
   unsavedAdjudication?: AdjudicatedContestOption
 ): React.ReactNode | undefined {
-  const { definition, initialVote, hasMarginalMark, writeInRecord } = option;
+  const { definition, scannedVote, hasMarginalMark, writeInRecord } = option;
 
   const isAdjudicatedWriteIn = unsavedAdjudication
     ? unsavedAdjudication.type === 'write-in-option' &&
@@ -268,7 +265,7 @@ function getOptionResolutionLine(
     );
   }
 
-  if (currentVote !== initialVote) {
+  if (currentVote !== scannedVote) {
     const preface = currentVote ? 'Undetected Mark' : 'Mark';
     const newValue = currentVote ? 'Valid' : 'Invalid';
     return (
@@ -389,7 +386,9 @@ function BallotSideContestList({
 
           const hasVoteAdjudication =
             unsavedAdjudication !== undefined ||
-            adjudicationData.options.some((o) => o.voteAdjudication);
+            adjudicationData.options.some(
+              (o) => o.adjudicatedVote !== undefined
+            );
           const suppressContestAdjudicationInfo =
             isBlankBallot && isOnlyUndervote && !hasVoteAdjudication;
 

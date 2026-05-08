@@ -88,7 +88,6 @@ import {
   WriteInRecordPending,
   ManualResultsFilter,
   CardTally,
-  VoteAdjudication,
   CastVoteRecordVoteInfo,
   WriteInAdjudicationActionOfficialCandidate,
   WriteInAdjudicationActionInvalid,
@@ -2117,7 +2116,6 @@ export class Store implements BaseStore {
       cvrId
     ) as { isBlank: SqliteBool; isResolved: SqliteBool };
     const cvrTag: CvrTag = {
-      cvrId,
       isBlankBallot: fromSqliteBool(cvrRow.isBlank),
       isResolved: fromSqliteBool(cvrRow.isResolved),
     };
@@ -2154,7 +2152,6 @@ export class Store implements BaseStore {
       .filter((contest) => cvrContestIds.has(contest.id))
       .map((contest) => {
         const tag = deriveCvrContestTag({
-          cvrId,
           contest,
           votes: assertDefined(votes[contest.id]),
           adjudicatedVotes: adjudicatedVotes?.[contest.id],
@@ -2171,21 +2168,14 @@ export class Store implements BaseStore {
         const options: ContestOptionAdjudicationData[] = [
           ...allContestOptions(contest, ballotStyleGroup),
         ].map((option) => {
-          const initialVote = contestVotes.includes(option.id);
-
-          let voteAdjudication: VoteAdjudication | undefined;
+          const scannedVote = contestVotes.includes(option.id);
+          let adjudicatedVote: boolean | undefined;
           if (contestAdjudicatedVotes) {
             const adjudicatedIsVote = contestAdjudicatedVotes.includes(
               option.id
             );
-            if (adjudicatedIsVote !== initialVote) {
-              voteAdjudication = {
-                electionId,
-                cvrId,
-                contestId: contest.id,
-                optionId: option.id,
-                isVote: adjudicatedIsVote,
-              };
+            if (adjudicatedIsVote !== scannedVote) {
+              adjudicatedVote = adjudicatedIsVote;
             }
           }
 
@@ -2200,9 +2190,9 @@ export class Store implements BaseStore {
 
           return {
             definition: option,
-            initialVote,
+            scannedVote,
             hasMarginalMark,
-            voteAdjudication,
+            adjudicatedVote,
             writeInRecord,
           };
         });

@@ -20,9 +20,9 @@ function makeOption(
 ): ContestOptionAdjudicationData {
   return {
     definition,
-    initialVote: false,
+    scannedVote: false,
     hasMarginalMark: false,
-    voteAdjudication: undefined,
+    adjudicatedVote: undefined,
     writeInRecord: undefined,
     ...overrides,
   };
@@ -51,7 +51,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, cvrId, contestId },
+    tag: { isResolved: false },
     options: [
       makeOption(
         {
@@ -61,7 +61,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
           name: 'Alice',
           isWriteIn: false,
         },
-        { initialVote: true }
+        { scannedVote: true }
       ),
       makeOption(
         {
@@ -284,7 +284,7 @@ test('makeInitialState initializes official and write-in options correctly for c
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, cvrId, contestId },
+    tag: { isResolved: false },
     options: [
       makeOption(
         {
@@ -294,7 +294,7 @@ test('makeInitialState initializes official and write-in options correctly for c
           name: 'Alice',
           isWriteIn: false,
         },
-        { initialVote: true }
+        { scannedVote: true }
       ),
       makeOption(
         {
@@ -316,7 +316,7 @@ test('makeInitialState initializes official and write-in options correctly for c
           writeInIndex: 0,
         },
         {
-          initialVote: true,
+          scannedVote: true,
           writeInRecord: {
             id: 'write-in-0',
             optionId: 'write-in-0',
@@ -391,7 +391,7 @@ test('makeInitialState initializes official and write-in options correctly for c
   // Now try with the contest already resolved
   const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: true, cvrId, contestId },
+    tag: { isResolved: true },
     options: [
       makeOption(
         {
@@ -401,7 +401,7 @@ test('makeInitialState initializes official and write-in options correctly for c
           name: 'Alice',
           isWriteIn: false,
         },
-        { initialVote: true }
+        { scannedVote: true }
       ),
       makeOption(
         {
@@ -413,13 +413,7 @@ test('makeInitialState initializes official and write-in options correctly for c
         },
         {
           hasMarginalMark: true,
-          voteAdjudication: {
-            optionId: 'bob',
-            isVote: true,
-            electionId,
-            contestId,
-            cvrId,
-          },
+          adjudicatedVote: true,
         }
       ),
       makeOption(
@@ -432,7 +426,7 @@ test('makeInitialState initializes official and write-in options correctly for c
           writeInIndex: 0,
         },
         {
-          initialVote: true,
+          scannedVote: true,
           writeInRecord: {
             id: 'write-in-0',
             optionId: 'write-in-0',
@@ -455,7 +449,7 @@ test('makeInitialState initializes official and write-in options correctly for c
           writeInIndex: 1,
         },
         {
-          initialVote: true,
+          scannedVote: true,
           writeInRecord: {
             id: 'write-in-1',
             optionId: 'write-in-1',
@@ -533,7 +527,7 @@ test('makeInitialState initializes official and write-in options correctly for c
           writeInIndex: 0,
         },
         {
-          initialVote: true,
+          scannedVote: true,
           writeInRecord: {
             id: 'write-in-0',
             optionId: 'write-in-0',
@@ -571,7 +565,6 @@ test('makeInitialState initializes official and write-in options correctly for c
 });
 
 test('makeInitialState initializes options correctly for yes/no contest', () => {
-  const cvrId = 'cvr';
   const contestId = 'contest';
 
   const options = [
@@ -587,7 +580,7 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, cvrId, contestId },
+    tag: { isResolved: false },
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
@@ -609,22 +602,15 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
   expect(state.get('no')!.marginalMarkStatus).toEqual('pending');
 
   // Now try with the contest already resolved
-  const electionId = 'election';
   const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: true, cvrId, contestId },
+    tag: { isResolved: true },
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
         {
           hasMarginalMark: true,
-          voteAdjudication: {
-            optionId: 'yes',
-            isVote: true,
-            electionId,
-            contestId,
-            cvrId,
-          },
+          adjudicatedVote: true,
         }
       ),
       makeOption(
@@ -647,7 +633,6 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
 });
 
 test('useContestAdjudicationState for yesno contest: selectedCandidateNames and checkWriteInNameForDoubleVote', () => {
-  const cvrId = 'cvr';
   const contestId = 'contest';
 
   const options = [
@@ -663,7 +648,7 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, cvrId, contestId },
+    tag: { isResolved: false },
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
@@ -693,7 +678,6 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
 });
 
 test('makeInitialState applies unsavedAdjudication overlay across all option types', () => {
-  const cvrId = 'cvr';
   const contestId = 'contest';
   const electionId = 'election';
 
@@ -714,7 +698,7 @@ test('makeInitialState applies unsavedAdjudication overlay across all option typ
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false, cvrId, contestId },
+    tag: { isResolved: false },
     options: [
       makeOption(
         {
@@ -724,7 +708,7 @@ test('makeInitialState applies unsavedAdjudication overlay across all option typ
           name: 'Alice',
           isWriteIn: false,
         },
-        { initialVote: false }
+        { scannedVote: false }
       ),
       makeOption({
         type: 'candidate',

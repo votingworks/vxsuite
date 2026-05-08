@@ -241,9 +241,10 @@ function buildContestAdjudicationData({
   const options = [...allContestOptions(contest, ballotStyleGroup)].map(
     (option) => ({
       definition: option,
-      initialVote: votes.includes(option.id),
+      scannedVote: votes.includes(option.id),
       hasMarginalMark: marginalMarkOptionIds.includes(option.id),
-      voteAdjudication: voteAdjudications.find((v) => v.optionId === option.id),
+      adjudicatedVote: voteAdjudications.find((v) => v.optionId === option.id)
+        ?.isVote,
       writeInRecord: writeInRecords.find((w) => w.optionId === option.id),
     })
   );
@@ -367,9 +368,6 @@ describe('hmpb write-in adjudication', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-
-    cvrId,
-    contestId,
     hasWriteIn: true,
   };
 
@@ -692,9 +690,6 @@ describe('bmd write-in adjudication', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-
-    cvrId,
-    contestId,
     hasWriteIn: true,
   };
 
@@ -794,9 +789,6 @@ describe('vote adjudication', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasWriteIn: true,
     };
 
@@ -866,9 +858,6 @@ describe('vote adjudication', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasWriteIn: true,
     };
 
@@ -912,9 +901,6 @@ describe('vote adjudication', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasMarginalMark: true,
     };
 
@@ -964,9 +950,6 @@ describe('unmarked and undetected write-ins', () => {
   ];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-
-    cvrId,
-    contestId,
     hasUnmarkedWriteIn: true,
   };
 
@@ -1081,9 +1064,6 @@ describe('ballot image viewer', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasWriteIn: true,
     };
 
@@ -1177,9 +1157,6 @@ describe('ballot image viewer', () => {
     ];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasWriteIn: true,
     };
 
@@ -1204,9 +1181,6 @@ describe('ballot image viewer', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasWriteIn: true,
     };
 
@@ -1238,9 +1212,6 @@ describe('ballot image viewer', () => {
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasWriteIn: true,
     };
 
@@ -1286,9 +1257,6 @@ describe('double votes', () => {
   const votes = ['kangaroo', 'write-in-0', 'write-in-1'];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-
-    cvrId,
-    contestId,
     hasWriteIn: true,
   };
 
@@ -1443,9 +1411,6 @@ describe('unsaved changes', () => {
   const votes = ['kangaroo', 'write-in-0'];
   const cvrContestTag: CvrContestTag = {
     isResolved: false,
-
-    cvrId,
-    contestId,
     hasWriteIn: true,
   };
 
@@ -1561,9 +1526,6 @@ describe('marginal mark adjudication', () => {
     const marginalMarkOptionIds = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasMarginalMark: true,
     };
 
@@ -1617,9 +1579,6 @@ describe('marginal mark adjudication', () => {
     const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
-
-      cvrId,
-      contestId,
       hasMarginalMark: true,
       hasWriteIn: true,
     };
@@ -1732,9 +1691,6 @@ describe('candidate ordering', () => {
       ],
       tag: {
         isResolved: false,
-
-        cvrId: 'id-174',
-        contestId: testContestId,
         hasWriteIn: true,
       },
       ballotStyleGroupId: testBallotStyleGroupId1,
@@ -1803,9 +1759,6 @@ describe('candidate ordering', () => {
       ],
       tag: {
         isResolved: false,
-
-        cvrId: 'id-175',
-        contestId: testContestId,
         hasWriteIn: true,
       },
       ballotStyleGroupId: '1-4' as BallotStyleGroupId,
@@ -1864,9 +1817,6 @@ describe('candidate ordering', () => {
       votes: ['sherlock-holmes'],
       tag: {
         isResolved: false,
-
-        cvrId: testCvrId,
-        contestId: testContestId,
         hasWriteIn: false,
       },
       ballotStyleGroupId: testBallotStyleGroupId,

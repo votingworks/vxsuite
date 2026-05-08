@@ -452,12 +452,12 @@ export function BallotAdjudicationScreen({
   );
 
   function getDefaultSide(
-    contests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+    adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
   ): Side {
     const backIds = new Set(backContests.map((item) => item.contest.id));
     const firstPending = contestAdjudicationData
       .filter((c) => c.tag !== null)
-      .find((c) => !isContestResolved(c, contests));
+      .find((c) => !isContestResolved(c, adjudicatedContests));
     return firstPending && backIds.has(firstPending.contestId)
       ? 'back'
       : 'front';

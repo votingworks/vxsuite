@@ -1087,8 +1087,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   expect(invalidWriteInOption.writeInRecord.adjudicationType).toEqual(
     'invalid'
   );
-  assert(invalidWriteInOption.voteAdjudication !== undefined);
-  expect(invalidWriteInOption.voteAdjudication.isVote).toEqual(false);
+  expect(invalidWriteInOption.adjudicatedVote).toEqual(false);
   await expectContestResults({
     type: 'candidate',
     ballots: 184,
@@ -1281,8 +1280,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   assert(circleBackOption.writeInRecord !== undefined);
   assert(circleBackOption.writeInRecord.status === 'adjudicated');
   expect(circleBackOption.writeInRecord.adjudicationType).toEqual('invalid');
-  assert(circleBackOption.voteAdjudication !== undefined);
-  expect(circleBackOption.voteAdjudication.isVote).toEqual(false);
+  expect(circleBackOption.adjudicatedVote).toEqual(false);
   await expectContestResults({
     type: 'candidate',
     ballots: 184,
@@ -1377,7 +1375,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
         option.definition.type === 'candidate' && option.definition.isWriteIn;
       adjudicatedContestOptionById[option.definition.id] = isWriteIn
         ? { type: 'write-in-option', hasVote: false }
-        : { type: 'candidate-option', hasVote: option.initialVote };
+        : { type: 'candidate-option', hasVote: option.scannedVote };
     }
     return {
       cvrId: cvrId1,
@@ -1819,7 +1817,7 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   );
   const optionToFlip = assertDefined(
     otherContest.options.find(
-      (o) => o.definition.type === 'candidate' && !o.initialVote
+      (o) => o.definition.type === 'candidate' && !o.scannedVote
     )
   );
   expect(
@@ -1872,5 +1870,5 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
       )
     ).options.find((o) => o.definition.id === optionToFlip.definition.id)
   );
-  expect(flippedOptionAfterDelete.voteAdjudication?.isVote).toEqual(true);
+  expect(flippedOptionAfterDelete.adjudicatedVote).toEqual(true);
 });

@@ -3,7 +3,6 @@ import {
   AnyContest,
   ContestOptionId,
   ElectionDefinition,
-  Id,
   MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
@@ -111,7 +110,6 @@ export function doesCvrNeedAdjudication(
  * if the contest does not need adjudication.
  */
 export function deriveCvrContestTag({
-  cvrId,
   contest,
   votes,
   adjudicatedVotes,
@@ -120,7 +118,6 @@ export function deriveCvrContestTag({
   markThresholds,
   adminAdjudicationReasons,
 }: {
-  cvrId: Id;
   contest: AnyContest;
   votes: ContestOptionId[];
   adjudicatedVotes?: ContestOptionId[];
@@ -187,8 +184,6 @@ export function deriveCvrContestTag({
   }
 
   return {
-    cvrId,
-    contestId: contest.id,
     isResolved: adjudicatedVotes !== undefined,
     hasWriteIn,
     hasUnmarkedWriteIn,

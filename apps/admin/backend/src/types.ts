@@ -357,9 +357,9 @@ export interface BallotAdjudicationQueueMetadata {
  */
 export interface ContestOptionAdjudicationData {
   definition: ContestOption;
-  initialVote: boolean;
+  scannedVote: boolean;
   hasMarginalMark: boolean;
-  voteAdjudication?: VoteAdjudication;
+  adjudicatedVote?: boolean;
   writeInRecord?: WriteInRecord;
 }
 
@@ -471,7 +471,6 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
  * A queryable ballot-level tag, used for adjudication
  */
 export interface CvrTag {
-  cvrId: Id;
   isResolved: boolean;
   isBlankBallot: boolean;
 }
@@ -480,8 +479,6 @@ export interface CvrTag {
  * A queryable tag for a cvr-contest pair, used for adjudication
  */
 export interface CvrContestTag {
-  cvrId: Id;
-  contestId: ContestId;
   isResolved: boolean;
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;

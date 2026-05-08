@@ -213,9 +213,7 @@ export function makeInitialState(
   for (const option of contestAdjudicationData.options) {
     const optionState = assertDefined(state.get(option.definition.id));
 
-    optionState.hasVote = option.voteAdjudication
-      ? option.voteAdjudication.isVote
-      : option.initialVote;
+    optionState.hasVote = option.adjudicatedVote ?? option.scannedVote;
 
     if (option.hasMarginalMark) {
       assert(contestAdjudicationData.tag !== undefined);

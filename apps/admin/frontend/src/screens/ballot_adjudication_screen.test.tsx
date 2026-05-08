@@ -52,9 +52,6 @@ const CVR_ID_2 = 'cvr-id-2';
 
 function makeContestTag(overrides: Partial<CvrContestTag> = {}): CvrContestTag {
   return {
-    cvrId: CVR_ID_1,
-    contestId: 'zoo-council-mammal',
-
     isResolved: false,
     hasOvervote: false,
     hasUndervote: false,
@@ -84,7 +81,7 @@ function makeContestAdjudicationData(
           type: 'candidate' as const,
           isWriteIn: false,
         },
-        initialVote: false,
+        scannedVote: false,
         hasMarginalMark: false,
       })),
       tag,
@@ -99,7 +96,7 @@ function makeContestAdjudicationData(
         name: id,
         type: 'yesno' as const,
       },
-      initialVote: false,
+      scannedVote: false,
       hasMarginalMark: false,
     })),
     tag,
@@ -109,7 +106,7 @@ function makeContestAdjudicationData(
 function makeBallotAdjudicationData(
   cvrId: string,
   contests: ContestAdjudicationData[],
-  tag: CvrTag = { cvrId, isBlankBallot: false, isResolved: false }
+  tag: CvrTag = { isBlankBallot: false, isResolved: false }
 ): BallotAdjudicationData {
   return { cvrId, contests, tag };
 }
@@ -190,11 +187,9 @@ function makeHmpbBallotImages(cvrId: string) {
 }
 
 function makeResolvedTag(
-  contestId: string,
   overrides: Partial<CvrContestTag> = {}
 ): CvrContestTag {
   return makeContestTag({
-    contestId,
     isResolved: true,
     hasWriteIn: false,
     ...overrides,
@@ -213,18 +208,12 @@ function makeContestWithVotes(
 ): ContestAdjudicationData {
   const data = makeContestAdjudicationData(
     contestId,
-    makeResolvedTag(contestId, tagOverrides)
+    makeResolvedTag(tagOverrides)
   );
   for (const [i, option] of data.options.entries()) {
-    option.initialVote = initialVoteIndices.includes(i);
-    if (adjudicatedVoteIndices.includes(i) !== option.initialVote) {
-      option.voteAdjudication = {
-        electionId: 'e',
-        cvrId: CVR_ID_1,
-        contestId,
-        optionId: option.definition.id,
-        isVote: adjudicatedVoteIndices.includes(i),
-      };
+    option.scannedVote = initialVoteIndices.includes(i);
+    if (adjudicatedVoteIndices.includes(i) !== option.scannedVote) {
+      option.adjudicatedVote = adjudicatedVoteIndices.includes(i);
     }
   }
   return data;
@@ -343,7 +332,7 @@ test('opens to the back side when the only pending contest is on the back', asyn
     makeContestAdjudicationData('zoo-council-mammal'),
     makeContestAdjudicationData(
       'best-animal-mammal',
-      makeContestTag({ contestId: 'best-animal-mammal', hasOvervote: true })
+      makeContestTag({ hasOvervote: true })
     ),
   ]);
 
@@ -384,7 +373,7 @@ test('default side flips to next pending after confirming a contest', async () =
     ),
     makeContestAdjudicationData(
       'best-animal-mammal',
-      makeContestTag({ contestId: 'best-animal-mammal', hasOvervote: true })
+      makeContestTag({ hasOvervote: true })
     ),
   ]);
 
@@ -764,7 +753,6 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     makeContestAdjudicationData(
       'zoo-council-mammal',
       makeContestTag({
-        contestId: 'zoo-council-mammal',
         hasWriteIn: true,
         isResolved: false,
       })
@@ -773,7 +761,6 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     makeContestAdjudicationData(
       'best-animal-mammal',
       makeContestTag({
-        contestId: 'best-animal-mammal',
         hasWriteIn: true,
         isResolved: true,
       })
@@ -782,7 +769,6 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     makeContestAdjudicationData(
       'new-zoo-either',
       makeContestTag({
-        contestId: 'new-zoo-either',
         hasWriteIn: true,
         isResolved: false,
       })
@@ -887,15 +873,13 @@ test('accept advances to next ballot and blank ballot callout states', async () 
       makeContestAdjudicationData(
         'zoo-council-mammal',
         makeContestTag({
-          cvrId: CVR_ID_2,
-          contestId: 'zoo-council-mammal',
           hasWriteIn: false,
           hasUndervote: true,
           isResolved: false,
         })
       ),
     ],
-    { cvrId: CVR_ID_2, isBlankBallot: true, isResolved: false }
+    { isBlankBallot: true, isResolved: false }
   );
 
   // Ballot 2 after resolve: confirmed blank ballot
@@ -905,30 +889,22 @@ test('accept advances to next ballot and blank ballot callout states', async () 
       makeContestAdjudicationData(
         'zoo-council-mammal',
         makeContestTag({
-          cvrId: CVR_ID_2,
-          contestId: 'zoo-council-mammal',
           hasWriteIn: false,
           hasUndervote: true,
           isResolved: true,
         })
       ),
     ],
-    { cvrId: CVR_ID_2, isBlankBallot: true, isResolved: true }
+    { isBlankBallot: true, isResolved: true }
   );
 
   // Ballot 3: blank ballot with an adjudicated vote on one option
   const adjData3 = makeBallotAdjudicationData(
     CVR_ID_3,
     [makeContestAdjudicationData('zoo-council-mammal')],
-    { cvrId: CVR_ID_3, isBlankBallot: true, isResolved: true }
+    { isBlankBallot: true, isResolved: true }
   );
-  adjData3.contests[0].options[0].voteAdjudication = {
-    electionId: 'election-1',
-    cvrId: CVR_ID_3,
-    contestId: 'zoo-council-mammal',
-    optionId: adjData3.contests[0].options[0].definition.id,
-    isVote: true,
-  };
+  adjData3.contests[0].options[0].adjudicatedVote = true;
 
   apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
@@ -1168,7 +1144,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-0',
@@ -1187,7 +1163,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-1',
@@ -1206,7 +1182,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-2',
@@ -1224,7 +1200,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-3',
@@ -1239,43 +1215,24 @@ test('contest list shows correct option resolution bullets', async () => {
 
   // Marginal mark on first two candidates (one valid, one invalid)
   zooCouncil.options[0].hasMarginalMark = true;
-  zooCouncil.options[0].initialVote = true;
-  zooCouncil.options[0].voteAdjudication = {
-    electionId: 'e',
-    cvrId: CVR_ID_1,
-    contestId: 'zoo-council-mammal',
-    optionId: 'zebra',
-    isVote: true,
-  };
+  zooCouncil.options[0].scannedVote = true;
+  zooCouncil.options[0].adjudicatedVote = true;
   zooCouncil.options[1].hasMarginalMark = true;
-  zooCouncil.options[1].initialVote = false;
+  zooCouncil.options[1].scannedVote = false;
 
   // best-animal-mammal: vote adjudication bullets (no marginal marks, no write-ins)
   const bestAnimal = makeContestAdjudicationData(
     'best-animal-mammal',
     makeContestTag({
-      contestId: 'best-animal-mammal',
       isResolved: true,
       hasWriteIn: false,
     })
   );
-  // Undetected Mark adjudicated as Valid (isVote=true, no initial vote)
-  bestAnimal.options[0].voteAdjudication = {
-    electionId: 'e',
-    cvrId: CVR_ID_1,
-    contestId: 'best-animal-mammal',
-    optionId: 'horse',
-    isVote: true,
-  };
-  // Mark adjudicated as Invalid (isVote=false, had initial vote)
-  bestAnimal.options[1].initialVote = true;
-  bestAnimal.options[1].voteAdjudication = {
-    electionId: 'e',
-    cvrId: CVR_ID_1,
-    contestId: 'best-animal-mammal',
-    optionId: 'otter',
-    isVote: false,
-  };
+  // Undetected Mark adjudicated as Valid (scannedVote=false, adjudicatedVote=true)
+  bestAnimal.options[0].adjudicatedVote = true;
+  // Mark adjudicated as Invalid (scannedVote=true, adjudicatedVote=false)
+  bestAnimal.options[1].scannedVote = true;
+  bestAnimal.options[1].adjudicatedVote = false;
 
   const adjData = makeBallotAdjudicationData(CVR_ID_1, [
     zooCouncil,

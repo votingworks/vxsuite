@@ -204,26 +204,26 @@ function renderContestOptionButtonCaption({
 
 interface ContestAdjudicationScreenProps {
   areWriteInCandidatesQualified: boolean;
+  ballotImages: BallotImages;
   contestAdjudicationData: ContestAdjudicationData;
-  unsavedAdjudication?: AdjudicatedCvrContest;
   cvrId: Id;
   onClose: () => void;
-  ballotImages: BallotImages;
-  side: Side;
-  writeInCandidates: WriteInCandidateRecord[];
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
+  side: Side;
+  unsavedAdjudication?: AdjudicatedCvrContest;
+  writeInCandidates: WriteInCandidateRecord[];
 }
 
 export function ContestAdjudicationScreen({
   areWriteInCandidatesQualified,
-  onClose,
-  contestAdjudicationData,
-  unsavedAdjudication,
-  cvrId,
   ballotImages,
-  side,
-  writeInCandidates,
+  contestAdjudicationData,
+  cvrId,
+  onClose,
   onConfirmContest,
+  side,
+  unsavedAdjudication,
+  writeInCandidates,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
@@ -456,7 +456,7 @@ export function ContestAdjudicationScreen({
             <ContestOptionButtonList role="listbox">
               {officialOptions.map((officialOption) => {
                 const { id: optionId } = officialOption;
-                const { initialVote: originalVote } = assertDefined(
+                const { scannedVote: originalVote } = assertDefined(
                   contestOptions.find((o) => o.definition.id === optionId)
                 );
                 const currentVote = getOptionHasVote(optionId);
@@ -500,7 +500,7 @@ export function ContestAdjudicationScreen({
                 );
               })}
               {writeInOptionIds.map((optionId) => {
-                const { initialVote: originalVote, writeInRecord } =
+                const { scannedVote: originalVote, writeInRecord } =
                   assertDefined(
                     contestOptions.find((o) => o.definition.id === optionId)
                   );
