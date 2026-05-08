@@ -4,11 +4,6 @@ import { asBoolean } from './as_boolean';
 
 export enum BooleanEnvironmentVariableName {
   /**
-   * Enables the write in adjudication tab in VxAdmin, and enables exporting
-   * images with write ins in the scan service
-   */
-  WRITE_IN_ADJUDICATION = 'REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION',
-  /**
    * When enabled VxAdmin will generate 000000 as the PIN for any created smartcard.
    */
   ALL_ZERO_SMARTCARD_PIN = 'REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION',
@@ -147,8 +142,6 @@ export function getEnvironmentVariable(
   name: BooleanEnvironmentVariableName
 ): string | undefined {
   switch (name) {
-    case BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION:
-      return process.env.REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION;
     case BooleanEnvironmentVariableName.ALL_ZERO_SMARTCARD_PIN:
       return process.env.REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION;
     case BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS:
@@ -210,12 +203,6 @@ export function getBooleanEnvVarConfig(
   name: BooleanEnvironmentVariableName
 ): BooleanEnvironmentConfig {
   switch (name) {
-    case BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: true,
-      };
     case BooleanEnvironmentVariableName.ALL_ZERO_SMARTCARD_PIN:
       return {
         name,
