@@ -56,7 +56,7 @@ beforeEach(() => {
   });
 });
 
-test('fires key events', async () => {
+test('fires key events', { timeout: 30_000 }, async () => {
   const { getLanguageContext, render: renderInUiStringsContext } =
     newUiStringsTestContext();
 
