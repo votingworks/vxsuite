@@ -19,9 +19,7 @@ import {
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -94,9 +92,7 @@ const HOST_SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
 const HOST_ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Tally', routerPath: routerPaths.tally },
-  ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION)
-    ? [{ label: 'Adjudication', routerPath: routerPaths.adjudication }]
-    : []),
+  { label: 'Adjudication', routerPath: routerPaths.adjudication },
   { label: 'Reports', routerPath: routerPaths.reports },
   { label: 'Settings', routerPath: routerPaths.settings },
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },

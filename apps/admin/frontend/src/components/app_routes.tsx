@@ -9,9 +9,7 @@ import {
 } from '@votingworks/ui';
 
 import {
-  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
   isSystemAdministratorAuth,
   isVendorAuth,
 } from '@votingworks/utils';
@@ -137,27 +135,15 @@ export function AppRoutes(): JSX.Element | null {
       <Route exact path={routerPaths.election}>
         <ElectionScreen />
       </Route>
-      {isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-      ) && (
-        <Route exact path={routerPaths.ballotAdjudication}>
-          <BallotAdjudicationScreen />
-        </Route>
-      )}
-      {isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-      ) && (
-        <Route exact path={routerPaths.adjudicationCandidates}>
-          <WriteInCandidatesScreen />
-        </Route>
-      )}
-      {isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-      ) && (
-        <Route path={routerPaths.adjudication}>
-          <AdjudicationStartScreen />
-        </Route>
-      )}
+      <Route exact path={routerPaths.ballotAdjudication}>
+        <BallotAdjudicationScreen />
+      </Route>
+      <Route exact path={routerPaths.adjudicationCandidates}>
+        <WriteInCandidatesScreen />
+      </Route>
+      <Route path={routerPaths.adjudication}>
+        <AdjudicationStartScreen />
+      </Route>
       <Route
         path={routerPaths.tallyManualForm({
           precinctId: ':precinctId',
