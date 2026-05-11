@@ -55,7 +55,7 @@
     "stream-json": "^1.7.5",
     "tmp": "^0.2.1",
     "usb": "2.15.0",
-    "uuid": "9.0.1",
+    "uuid": "14.0.0",
     "zod": "3.25.42"
   },
   "devDependencies": {
