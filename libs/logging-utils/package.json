@@ -12,6 +12,7 @@
     "build:watch": "nodemon -x 'pnpm build:self' -w src -w test -e rs",
     "build:self": "napi build --platform --release",
     "build:debug": "napi build --platform",
+    "install:rust-addon": "cargo fetch",
     "prepublishOnly": "napi prepublish -t npm",
     "lint": "cargo clippy",
     "test": "is-ci test:ci test:watch",
