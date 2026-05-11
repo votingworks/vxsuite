@@ -21,6 +21,7 @@
     "build:generate-types": "pnpm build:generate-typescript-types && pnpm build:generate-rust-types",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
+    "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
