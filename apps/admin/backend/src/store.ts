@@ -52,7 +52,7 @@ import {
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
   asSqliteBool,

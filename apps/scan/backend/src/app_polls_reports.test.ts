@@ -8,7 +8,7 @@ import {
   readElectionOpenPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   BallotMetadata,
   BallotType,
@@ -36,8 +36,10 @@ import { getScannerResults } from './util/results';
 // Adding calls to getCurrentTime() in the code may result in snapshot changes.
 let uuidCounter = 0;
 let timeCounter = 0;
-vi.mock('uuid', () => ({
-  v4: vi.fn(() => {
+vi.mock('node:crypto', async (importActual) => ({
+  ...(await importActual<typeof import('node:crypto')>()),
+  // eslint-disable-next-line vx/gts-identifiers
+  randomUUID: vi.fn(() => {
     uuidCounter += 1;
     return `00000000-0000-0000-0000-${String(uuidCounter).padStart(12, '0')}`;
   }),

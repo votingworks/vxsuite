@@ -37,7 +37,7 @@ import {
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { join } from 'node:path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   AcceptedSheet,
   ElectionRecord,

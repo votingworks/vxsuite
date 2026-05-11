@@ -12,7 +12,7 @@ import {
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {

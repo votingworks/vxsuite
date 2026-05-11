@@ -80,7 +80,6 @@
     "pg": "^8.13.1",
     "react": "18.3.1",
     "tmp": "^0.2.1",
-    "uuid": "9.0.1",
     "zod": "3.25.42"
   },
   "devDependencies": {
@@ -93,7 +92,6 @@
     "@types/pg": "^8.11.10",
     "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
-    "@types/uuid": "9.0.5",
     "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/fixtures": "workspace:*",

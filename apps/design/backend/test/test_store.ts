@@ -1,5 +1,5 @@
 import { BaseLogger } from '@votingworks/logging';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { Db } from '../src/db/db';
 import { Store } from '../src/store';
 

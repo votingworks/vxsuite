@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,

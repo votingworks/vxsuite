@@ -16,7 +16,7 @@ import {
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'node:path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { ImageData } from 'canvas';
@@ -142,7 +142,7 @@ export class Importer {
     backInputImageData: ImageData,
     ballotAuditId?: string
   ): Promise<string> {
-    let sheetId = uuid();
+    let sheetId: string = uuid();
     const electionDefinition = this.getElectionDefinition();
     const sheetInterpretation = await this.interpretSheet(
       electionDefinition,

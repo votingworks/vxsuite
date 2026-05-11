@@ -222,9 +222,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zip-stream:
         specifier: ^4.1.0
         version: 4.1.0
@@ -274,9 +271,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@types/zip-stream':
         specifier: workspace:*
         version: link:../../../libs/@types/zip-stream
@@ -457,9 +451,6 @@ importers:
       util:
         specifier: ^0.12.4
         version: 0.12.4
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -518,9 +509,6 @@ importers:
       '@types/testing-library__jest-dom':
         specifier: ^5.14.9
         version: 5.14.9
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2
@@ -723,9 +711,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -754,9 +739,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.4
         version: 3.2.4(vitest@3.2.4)
@@ -1137,9 +1119,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -1171,9 +1150,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.4
         version: 3.2.4(vitest@3.2.4)
@@ -1523,9 +1499,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       xstate:
         specifier: ^4.33.0
         version: 4.33.0
@@ -1560,9 +1533,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.4
         version: 3.2.4(vitest@3.2.4)
@@ -1919,9 +1889,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -1953,9 +1920,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.4
         version: 3.2.4(vitest@3.2.4)
@@ -2342,9 +2306,6 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       vitest:
         specifier: ^3.1.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.17.31)(jsdom@20.0.1)
@@ -2382,9 +2343,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22
@@ -3030,9 +2988,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       xstate:
         specifier: ^4.33.0
         version: 4.33.0
@@ -3064,9 +3019,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.4
         version: 3.2.4(vitest@3.2.4)
@@ -3409,9 +3361,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -3434,9 +3383,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22
@@ -3479,9 +3425,6 @@ importers:
       '@google-cloud/translate':
         specifier: ^8.0.2
         version: 8.0.2
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../auth
@@ -3557,9 +3500,6 @@ importers:
       usb:
         specifier: 2.15.0
         version: 2.15.0
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -4318,9 +4258,6 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -4337,9 +4274,6 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
-      '@types/uuid':
-        specifier: 9.0.5
-        version: 9.0.5
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22
@@ -14656,9 +14590,6 @@ packages:
   /@types/use-sync-external-store@0.0.6:
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
     dev: false
-
-  /@types/uuid@9.0.5:
-    resolution: {integrity: sha512-xfHdwa1FMJ082prjSJpoEI57GZITiQz10r3vEJCHa2khEFQjKy91aWKz6+zybzssCvXUwE1LQWgWVwZ4nYUvHQ==}
 
   /@types/w3c-web-usb@1.0.8:
     resolution: {integrity: sha512-ouEoUTyB27wFXUUyl0uKIE6VkeCczDtazWTiZGD1M4onceJnp8KnHDf7CzLbpwzek2ZFWXTC5KrNDRc9q/Jf6Q==}

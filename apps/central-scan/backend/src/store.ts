@@ -37,7 +37,7 @@ import {
 import makeDebug from 'debug';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'node:path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   AcceptedSheet,
   ElectionRecord,

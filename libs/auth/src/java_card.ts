@@ -1,12 +1,11 @@
 import { sha256 } from 'js-sha256';
 import { Buffer } from 'node:buffer';
-import crypto from 'node:crypto';
+import crypto, { randomUUID as uuid } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import os from 'node:os';
 import * as path from 'node:path';
 import readline from 'node:readline/promises';
-import { v4 as uuid } from 'uuid';
 import {
   assert,
   extractErrorMessage,
@@ -243,7 +242,9 @@ export class JavaCard implements Card {
     this.generateChallenge =
       config.generateChallengeOverride ??
       /* istanbul ignore next - @preserve */ (() =>
-        `VotingWorks/${new Date().toISOString()}/${uuid()}`);
+        `VotingWorks/${new Date().toISOString()}/${uuid({
+          disableEntropyCache: true,
+        })}`);
     this.vxCertAuthorityCertPath = config.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({

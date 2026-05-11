@@ -29,7 +29,7 @@ import {
 } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';

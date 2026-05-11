@@ -61,7 +61,6 @@
     "pdf-lib": "^1.17.1",
     "react": "18.3.1",
     "styled-components": "^5.3.11",
-    "uuid": "9.0.1",
     "vitest": "^3.1.4",
     "zod": "3.25.42"
   },
@@ -76,7 +75,6 @@
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
     "@types/tmp": "0.2.4",
-    "@types/uuid": "9.0.5",
     "@types/yargs": "17.0.22",
     "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",

@@ -38,7 +38,7 @@ import {
 } from '@votingworks/utils';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { ImageData } from 'canvas';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   ActorRef,
   BaseActionObject,
