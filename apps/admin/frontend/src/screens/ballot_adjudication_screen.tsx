@@ -18,7 +18,7 @@ import type {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 import {
   adjudicateCvr,
   claimBallotForAdjudication,
@@ -388,6 +388,12 @@ function HostBallotAdjudicationScreenDataLoader({
 
   return (
     <BallotAdjudicationScreen
+      // Use the query's cvrId as key/prop so the screen unmounts/remounts
+      // with the new data coming in. With the prop as the key, the component
+      // unmounts when the key changes, but the ballot data hasn't yet loaded,
+      // so there is a render where the cvrId shown on the screen to the user
+      // doesn't match the ballot data (since we use keepPreviousData=true on
+      // the query to avoid the Loading screen from flickering in between each ballot)
       key={adjudicationDataQuery.data.cvrId}
       cvrId={adjudicationDataQuery.data.cvrId}
       ballotAdjudicationData={adjudicationDataQuery.data}
@@ -473,18 +479,22 @@ export function BallotAdjudicationScreen({
   const [pendingDiscard, setPendingDiscard] = useState<{
     action: () => void;
   } | null>(null);
-  const [adjudicatedContests, setAdjudicatedContests] = useState<
-    Map<ContestId, AdjudicatedCvrContest>
-  >(new Map());
+  const [adjudicatedContests, setAdjudicatedContests] = useState(
+    () =>
+      new Map(
+        ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+      )
+  );
   const [selectedSide, setSelectedSide] = useState<Side>(() =>
     getDefaultSide(adjudicatedContests)
   );
 
-  // Wraps a navigation action so we prompt before discarding any
-  // in-progress adjudications the user has Confirmed but not yet Accepted.
   function onNavigation(action: () => void): () => void {
     return () => {
-      if (adjudicatedContests.size > 0) {
+      const baseline = new Map(
+        ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+      );
+      if (!deepEqual(adjudicatedContests, baseline)) {
         setPendingDiscard({ action });
       } else {
         action();
@@ -499,9 +509,6 @@ export function BallotAdjudicationScreen({
   const { front, back } = ballotImages;
   const visibleImage = selectedSide === 'front' ? front : back;
 
-  const writeInCandidateNamesById = new Map(
-    writeInCandidates.map((c) => [c.id, c.name])
-  );
   const showUndervoteStatus = systemSettings.adminAdjudicationReasons.includes(
     AdjudicationReason.Undervote
   );
@@ -589,7 +596,7 @@ export function BallotAdjudicationScreen({
           contestAdjudicationData,
           (c) => c.contestId === selectedContestId
         )}
-        unsavedAdjudication={adjudicatedContests.get(selectedContestId)}
+        adjudicatedContest={adjudicatedContests.get(selectedContestId)}
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId
@@ -656,12 +663,12 @@ export function BallotAdjudicationScreen({
               cvrTag={cvrTag}
               election={election}
               frontContests={frontContests}
+              isResolved={ballotAdjudicationData.isResolved}
               onHover={onContestHover}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onSelectSide={setSelectedSide}
               selectedSide={selectedSide}
               showUndervoteStatus={showUndervoteStatus}
-              writeInCandidateNamesById={writeInCandidateNamesById}
             />
           )}
           <PanelFooter>

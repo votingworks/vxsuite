@@ -2,12 +2,57 @@ import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { ContestOptionId, Id } from '@votingworks/types';
 import {
+  AdjudicatedContestOption,
   AdjudicatedCvr,
   AdjudicatedCvrContest,
   WriteInAdjudicationAction,
   WriteInRecord,
 } from './types';
 import { type Store } from './store';
+
+/**
+ * Builds an adjudicated contest option for a given option.
+ */
+export function buildAdjudicatedContestOption({
+  hasVote,
+  isWriteIn,
+  writeInRecord,
+  writeInCandidateNameById,
+}: {
+  isWriteIn: boolean;
+  hasVote: boolean;
+  writeInRecord?: WriteInRecord  ;
+  writeInCandidateNameById: Map<Id, string>;
+}): AdjudicatedContestOption {
+  if (isWriteIn) {
+    if (!writeInRecord) return { type: 'write-in-option', hasVote: false };
+    assert(writeInRecord.status === 'adjudicated');
+    switch (writeInRecord.adjudicationType) {
+      case 'invalid':
+        return { type: 'write-in-option', hasVote: false };
+      case 'official-candidate':
+        return {
+          type: 'write-in-option',
+          candidateType: 'official-candidate',
+          hasVote: true,
+          candidateId: writeInRecord.candidateId,
+        };
+      case 'write-in-candidate':
+        return {
+          type: 'write-in-option',
+          candidateType: 'write-in-candidate',
+          hasVote: true,
+          candidateName: assertDefined(
+            writeInCandidateNameById.get(writeInRecord.candidateId)
+          ),
+        };
+      /* istanbul ignore next - @preserve */
+      default:
+        throwIllegalValue(writeInRecord, 'adjudicationType');
+    }
+  }
+  return { type: 'official-option', hasVote };
+}
 
 function logWriteInAdjudication({
   initialWriteInRecord,
@@ -154,8 +199,7 @@ function applyAdjudicatedCvrContest(
   logger: BaseLogger
 ): void {
   const electionId = assertDefined(store.getCurrentElectionId());
-  const { adjudicatedContestOptionById, contestId, side } =
-    adjudicatedCvrContest;
+  const { adjudicatedContestOptionById, contestId } = adjudicatedCvrContest;
 
   const cvrWriteInRecords = store.getWriteInRecords({
     electionId,
@@ -210,7 +254,6 @@ function applyAdjudicatedCvrContest(
         isUnmarked: true,
         isUndetected: true,
         optionId,
-        side,
       });
     }
 
@@ -278,6 +321,6 @@ export function adjudicateCvr(
         logger
       );
     }
-    store.setCvrResolved({ cvrId: adjudicatedCvr.cvrId, machineId });
+    store.setCvrAdjudicated({ cvrId: adjudicatedCvr.cvrId, machineId });
   });
 }

@@ -6,11 +6,7 @@ import type {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import type { ContestOptionId, Candidate } from '@votingworks/types';
-import {
-  assertDefined,
-  deepEqual,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
 import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
 import { normalizeWriteInName } from '../utils/adjudication';
@@ -91,7 +87,7 @@ export function useContestAdjudicationState(initialValues: {
   contestAdjudicationData: ContestAdjudicationData;
   writeInCandidates: WriteInCandidateRecord[];
   isCandidateContest: boolean;
-  unsavedAdjudication?: AdjudicatedContestOptions;
+  adjudicatedOptions?: AdjudicatedContestOptions;
 }): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
@@ -123,11 +119,11 @@ export function useContestAdjudicationState(initialValues: {
   const {
     contestAdjudicationData,
     isCandidateContest,
-    unsavedAdjudication = {},
+    adjudicatedOptions = {},
     writeInCandidates,
   } = initialValues;
   const [optionState, setState] =
-    useState<AdjudicatedContestOptions>(unsavedAdjudication);
+    useState<AdjudicatedContestOptions>(adjudicatedOptions);
 
   const officialOptions = contestAdjudicationData.options
     .filter((o) => o.definition.type !== 'candidate' || !o.definition.isWriteIn)
@@ -163,8 +159,7 @@ export function useContestAdjudicationState(initialValues: {
   function getOptionHasVote(optionId: ContestOptionId): boolean {
     const option = getOptionState(optionId);
     if (option) return option.hasVote;
-    const optionData = getOptionData(optionId);
-    return optionData.adjudicatedVote ?? optionData.scannedVote;
+    return getOptionData(optionId).scannedVote;
   }
 
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean): void {
@@ -204,38 +199,10 @@ export function useContestAdjudicationState(initialValues: {
       return { type: 'new-write-in', name: option.candidateName };
     }
 
-    // No option state — derive from the backend writeInRecord
-    const optionData = getOptionData(optionId);
-    if (!optionData.writeInRecord) return undefined;
-    const { writeInRecord } = optionData;
-    if (writeInRecord.status === 'pending') return { type: 'pending' };
-    switch (writeInRecord.adjudicationType) {
-      case 'official-candidate': {
-        const candidate = assertDefined(
-          officialOptions.find((o) => o.id === writeInRecord.candidateId)
-        ) as Candidate;
-        return {
-          type: 'existing-official',
-          id: candidate.id,
-          name: candidate.name,
-        };
-      }
-      case 'write-in-candidate': {
-        const candidate = assertDefined(
-          writeInCandidates.find((c) => c.id === writeInRecord.candidateId)
-        );
-        return {
-          type: 'existing-write-in',
-          id: candidate.id,
-          name: candidate.name,
-        };
-      }
-      case 'invalid':
-        return { type: 'invalid' };
-      /* istanbul ignore next - @preserve */
-      default:
-        throwIllegalValue(writeInRecord, 'adjudicationType');
-    }
+    const { writeInRecord } = getOptionData(optionId);
+    if (!writeInRecord) return undefined;
+    assert(writeInRecord.status === 'pending');
+    return { type: 'pending' };
   }
 
   function writeInStatusToOption(
@@ -284,9 +251,6 @@ export function useContestAdjudicationState(initialValues: {
   ): MarginalMarkStatus {
     const optionData = getOptionData(optionId);
     if (!optionData.hasMarginalMark) return 'none';
-    if (contestAdjudicationData.tag?.isResolved) {
-      return 'resolved';
-    }
     if (getOptionState(optionId)) return 'resolved';
     return 'pending';
   }
@@ -294,9 +258,11 @@ export function useContestAdjudicationState(initialValues: {
   function resolveOptionMarginalMark(optionId: ContestOptionId): void {
     setState((prev) => {
       if (prev[optionId]) return prev;
-      const optionData = getOptionData(optionId);
-      const hasVote = optionData.adjudicatedVote ?? optionData.scannedVote;
-      return { ...prev, [optionId]: { type: 'official-option', hasVote } };
+      const { scannedVote } = getOptionData(optionId);
+      return {
+        ...prev,
+        [optionId]: { type: 'official-option', hasVote: scannedVote },
+      };
     });
   }
 
@@ -392,10 +358,9 @@ export function useContestAdjudicationState(initialValues: {
       if (o.isWriteIn) {
         result[o.id] = writeInStatusToOption(getOptionWriteInStatus(o.id));
       } else {
-        const optionData = getOptionData(o.id);
         result[o.id] = {
           type: 'official-option',
-          hasVote: optionData.adjudicatedVote ?? optionData.scannedVote,
+          hasVote: getOptionData(o.id).scannedVote,
         };
       }
     }
@@ -404,7 +369,7 @@ export function useContestAdjudicationState(initialValues: {
 
   const voteCount = optionsList.filter((o) => getOptionHasVote(o.id)).length;
 
-  const isModified = !deepEqual(optionState, unsavedAdjudication);
+  const isModified = !deepEqual(optionState, adjudicatedOptions);
 
   return {
     isModified,

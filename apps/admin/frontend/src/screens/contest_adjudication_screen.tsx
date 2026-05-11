@@ -206,7 +206,7 @@ interface ContestAdjudicationScreenProps {
   onClose: () => void;
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
   side: Side;
-  unsavedAdjudication?: AdjudicatedCvrContest;
+  adjudicatedContest?: AdjudicatedCvrContest;
   writeInCandidates: WriteInCandidateRecord[];
 }
 
@@ -218,7 +218,7 @@ export function ContestAdjudicationScreen({
   onClose,
   onConfirmContest,
   side,
-  unsavedAdjudication,
+  adjudicatedContest,
   writeInCandidates,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -267,7 +267,7 @@ export function ContestAdjudicationScreen({
     contestAdjudicationData,
     writeInCandidates,
     isCandidateContest,
-    unsavedAdjudication: unsavedAdjudication?.adjudicatedContestOptionById,
+    adjudicatedOptions: adjudicatedContest?.adjudicatedContestOptionById,
   });
 
   // Vote and write-in state for adjudication management
@@ -311,7 +311,7 @@ export function ContestAdjudicationScreen({
   const allowSaveWithoutChanges =
     tag !== undefined &&
     (tag.hasOvervote || tag.hasUndervote) &&
-    !tag.isResolved &&
+    !adjudicatedContest &&
     allAdjudicationsCompleted;
 
   const isHmpb = ballotImages.front.type === 'hmpb';
@@ -333,7 +333,6 @@ export function ContestAdjudicationScreen({
   function onConfirm(): void {
     onConfirmContest({
       contestId,
-      side,
       adjudicatedContestOptionById: getAdjudicatedContestOptions(),
     });
     onClose();

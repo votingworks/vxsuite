@@ -41,8 +41,8 @@ export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
 
 export function isContestResolved(
   contest: ContestAdjudicationData,
-  unsavedAdjudications: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
 ): boolean {
-  if (!contest.tag || contest.tag.isResolved) return true;
-  return unsavedAdjudications.has(contest.contestId);
+  if (!contest.tag) return true;
+  return adjudicatedContests.has(contest.contestId);
 }

@@ -19,7 +19,6 @@ import {
   Admin,
   Sha256Hash,
   BallotStyleGroupId,
-  Side,
   BallotCastingMode,
   ContestOption,
   UserRole,
@@ -359,7 +358,6 @@ export interface ContestOptionAdjudicationData {
   definition: ContestOption;
   scannedVote: boolean;
   hasMarginalMark: boolean;
-  adjudicatedVote?: boolean;
   writeInRecord?: WriteInRecord;
 }
 
@@ -377,8 +375,10 @@ export interface ContestAdjudicationData {
  */
 export interface BallotAdjudicationData {
   cvrId: Id;
+  isResolved: boolean;
   tag: CvrTag;
   contests: ContestAdjudicationData[];
+  adjudicatedContests: AdjudicatedCvrContest[];
 }
 
 /**
@@ -422,7 +422,6 @@ export type AdjudicatedContestOptions = Record<
 export interface AdjudicatedCvrContest {
   adjudicatedContestOptionById: AdjudicatedContestOptions;
   contestId: ContestId;
-  side: Side;
 }
 
 /**
@@ -476,7 +475,6 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
  * A queryable ballot-level tag, used for adjudication
  */
 export interface CvrTag {
-  isResolved: boolean;
   isBlankBallot: boolean;
 }
 
@@ -484,7 +482,6 @@ export interface CvrTag {
  * A queryable tag for a cvr-contest pair, used for adjudication
  */
 export interface CvrContestTag {
-  isResolved: boolean;
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;
