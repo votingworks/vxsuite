@@ -6,7 +6,7 @@ import {
   Id,
   Tabulation,
 } from '@votingworks/types';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';

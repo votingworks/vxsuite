@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,

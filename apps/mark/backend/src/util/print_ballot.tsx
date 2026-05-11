@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 
 import {
   getPdfPageCount,

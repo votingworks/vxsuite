@@ -65,7 +65,7 @@ import {
   singlePrecinctSelectionFor,
   combineAndDecodeCompressedElectionResults,
 } from '@votingworks/utils';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';

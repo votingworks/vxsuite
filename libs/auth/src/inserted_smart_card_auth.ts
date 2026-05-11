@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   assert,
   deepEqual,
@@ -287,7 +287,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     this.cardlessVoterUser = {
       ballotStyleId: input.ballotStyleId,
       precinctId: input.precinctId,
-      sessionId: uuid(),
+      sessionId: uuid({ disableEntropyCache: true }),
       role: 'cardless_voter',
     };
 

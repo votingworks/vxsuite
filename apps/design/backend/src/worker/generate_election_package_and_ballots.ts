@@ -39,7 +39,7 @@ import {
 } from '@votingworks/basics';
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,

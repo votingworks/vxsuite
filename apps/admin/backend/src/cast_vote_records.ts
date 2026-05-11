@@ -1,6 +1,6 @@
 import { sha256 } from 'js-sha256';
 import path from 'node:path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   isTestReport,
   readCastVoteRecordExport,

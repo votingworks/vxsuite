@@ -1,6 +1,6 @@
 /* eslint-disable vx/no-expect-to-be */
 import { vi, expect, test } from 'vitest';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,

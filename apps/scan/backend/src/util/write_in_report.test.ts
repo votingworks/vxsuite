@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { ok } from '@votingworks/basics';
 import { mockBaseLogger } from '@votingworks/logging';
 import {

@@ -8,7 +8,7 @@ import {
 import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { sha256 } from 'js-sha256';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import { FileKey, TpmKey } from '../keys';
 
 import {
@@ -214,7 +214,9 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   private generateChallenge(): string {
     return (
       this.customChallengeGenerator?.() ??
-      `VotingWorks/${new Date().toISOString()}/${uuid()}`
+      `VotingWorks/${new Date().toISOString()}/${uuid({
+        disableEntropyCache: true,
+      })}`
     );
   }
 
