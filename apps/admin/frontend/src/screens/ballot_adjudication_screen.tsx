@@ -463,9 +463,6 @@ export function BallotAdjudicationScreen({
       : 'front';
   }
 
-  const [selectedSide, setSelectedSide] = useState<Side>(() =>
-    getDefaultSide(new Map())
-  );
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
@@ -479,6 +476,9 @@ export function BallotAdjudicationScreen({
   const [adjudicatedContests, setAdjudicatedContests] = useState<
     Map<ContestId, AdjudicatedCvrContest>
   >(new Map());
+  const [selectedSide, setSelectedSide] = useState<Side>(() =>
+    getDefaultSide(adjudicatedContests)
+  );
 
   // Wraps a navigation action so we prompt before discarding any
   // in-progress adjudications the user has Confirmed but not yet Accepted.

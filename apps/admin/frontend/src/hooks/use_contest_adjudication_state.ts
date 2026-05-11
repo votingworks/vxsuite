@@ -123,12 +123,11 @@ export function useContestAdjudicationState(initialValues: {
   const {
     contestAdjudicationData,
     isCandidateContest,
-    unsavedAdjudication,
+    unsavedAdjudication = {},
     writeInCandidates,
   } = initialValues;
-  const [optionState, setState] = useState<AdjudicatedContestOptions>(
-    unsavedAdjudication ?? {}
-  );
+  const [optionState, setState] =
+    useState<AdjudicatedContestOptions>(unsavedAdjudication);
 
   const officialOptions = contestAdjudicationData.options
     .filter((o) => o.definition.type !== 'candidate' || !o.definition.isWriteIn)
@@ -296,8 +295,7 @@ export function useContestAdjudicationState(initialValues: {
     setState((prev) => {
       if (prev[optionId]) return prev;
       const optionData = getOptionData(optionId);
-      const hasVote =
-        optionData.adjudicatedVote ?? optionData.scannedVote ?? false;
+      const hasVote = optionData.adjudicatedVote ?? optionData.scannedVote;
       return { ...prev, [optionId]: { type: 'official-option', hasVote } };
     });
   }
@@ -406,7 +404,7 @@ export function useContestAdjudicationState(initialValues: {
 
   const voteCount = optionsList.filter((o) => getOptionHasVote(o.id)).length;
 
-  const isModified = !deepEqual(optionState, unsavedAdjudication ?? {});
+  const isModified = !deepEqual(optionState, unsavedAdjudication);
 
   return {
     isModified,
