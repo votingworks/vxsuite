@@ -375,7 +375,7 @@ importers:
         version: 3.3.0
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
@@ -400,9 +400,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1749,13 +1746,10 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
@@ -2136,16 +2130,13 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2294,9 +2285,6 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -2331,9 +2319,6 @@ importers:
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.2
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2653,9 +2638,6 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.7.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2687,9 +2669,6 @@ importers:
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.4
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3352,9 +3331,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       pcsclite:
         specifier: ^1.0.1
         version: 1.0.1
@@ -3377,9 +3353,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.2
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4469,9 +4442,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      cross-fetch:
-        specifier: ^3.1.5
-        version: 3.1.5
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -4488,9 +4458,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.2
       '@vitest/coverage-istanbul':
         specifier: ^3.1.4
         version: 3.2.4(vitest@3.2.4)
@@ -5894,13 +5861,10 @@ importers:
         version: 2.23.2
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
@@ -14321,13 +14285,6 @@ packages:
       '@types/node': 20.17.31
     dev: false
 
-  /@types/node-fetch@2.6.2:
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
-    dependencies:
-      '@types/node': 20.17.31
-      form-data: 3.0.1
-    dev: true
-
   /@types/node-fetch@2.6.4:
     resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
     dependencies:
@@ -16523,14 +16480,6 @@ packages:
     resolution: {integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==}
     dev: false
 
-  /cross-fetch@3.1.5:
-    resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
-    dependencies:
-      node-fetch: 2.6.7
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
   /cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -18210,7 +18159,7 @@ packages:
     dependencies:
       picomatch: 4.0.3
 
-  /fetch-mock@9.11.0(node-fetch@2.6.7):
+  /fetch-mock@9.11.0:
     resolution: {integrity: sha512-PG1XUv+x7iag5p/iNHD4/jdpxL9FtVSqRMUQhPab4hVDt80T1MH5ehzVrL2IdXO9Q2iBggArFvPqjUbHFuI58Q==}
     engines: {node: '>=4.0.0'}
     peerDependencies:
@@ -18226,7 +18175,6 @@ packages:
       glob-to-regexp: 0.4.1
       is-subset: 0.1.1
       lodash.isequal: 4.5.0
-      node-fetch: 2.6.7
       path-to-regexp: 2.4.0
       querystring: 0.2.1
       whatwg-url: 6.5.0
@@ -21474,17 +21422,6 @@ packages:
   /node-fetch-native@1.0.1:
     resolution: {integrity: sha512-VzW+TAk2wE4X9maiKMlT+GsPU4OMmR1U9CrHSmd3DFLn2IcZ9VJ6M6BBugGfYUnPCLSYxXdZy17M0BEJyhUTwg==}
     dev: true
-
-  /node-fetch@2.6.7:
-    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-    dependencies:
-      whatwg-url: 5.0.0
 
   /node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}

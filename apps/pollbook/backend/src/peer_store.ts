@@ -1,7 +1,6 @@
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { Result, err, ok } from '@votingworks/basics';
-import fetch from 'node-fetch';
 import { randomUUID } from 'node:crypto';
 import { unlink } from 'node:fs/promises';
 import { createWriteStream, createReadStream } from 'node:fs';

@@ -1,7 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { join } from 'node:path';
-import fetch from 'node-fetch';
 import { writeFileSync, unlinkSync, existsSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
 import {
