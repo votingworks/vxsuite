@@ -191,6 +191,10 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
         scrollEnabled={scrollEnabled}
         onScroll={updateScrollState}
         noPadding={noPadding}
+        // Chromium inserts scrollable containers into the tab order by default.
+        // This avoids the container taking focus before the scroll buttons when
+        // using an ATI controller/PAT device.
+        tabIndex={-1}
       >
         {children}
       </Content>
