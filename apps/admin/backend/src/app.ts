@@ -1133,6 +1133,15 @@ function buildApi({
         filename: string;
       }
     ): Promise<ExportDataResult> {
+      assert(
+        !input.filter.partyIds,
+        'Filter by party not supported in CSV export'
+      );
+      assert(
+        !input.groupBy.groupByParty,
+        'Group by party not supported in CSV export'
+      );
+
       debug('exporting tally report CSV file: %o', input);
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
