@@ -600,11 +600,11 @@ describe('HMPB - VX primary election', () => {
 
     expect(frontResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedPrecincts',
+      reason: 'mismatchedBallotMetadata',
     });
     expect(backResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedPrecincts',
+      reason: 'mismatchedBallotMetadata',
     });
   });
 
@@ -631,11 +631,11 @@ describe('HMPB - VX primary election', () => {
 
     expect(frontResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedBallotStyles',
+      reason: 'mismatchedBallotMetadata',
     });
     expect(backResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedBallotStyles',
+      reason: 'mismatchedBallotMetadata',
     });
   });
 });
@@ -747,11 +747,11 @@ test('Non-consecutive page numbers', async () => {
 
   expect(frontResult).toEqual<PageInterpretation>({
     type: 'UnreadablePage',
-    reason: 'nonConsecutivePageNumbers',
+    reason: 'mismatchedBallotMetadata',
   });
   expect(backResult).toEqual<PageInterpretation>({
     type: 'UnreadablePage',
-    reason: 'nonConsecutivePageNumbers',
+    reason: 'mismatchedBallotMetadata',
   });
 });
 

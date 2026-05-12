@@ -5,6 +5,7 @@ import {
   PrecinctId,
   BallotStyleId,
   Side,
+  BallotType,
 } from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
@@ -317,6 +318,23 @@ export interface Size<T> {
 }
 
 /**
+ * Identifies a single field that differs between the two sides of a bubble
+ * ballot sheet, carrying the value found on each side.
+ */
+export type MetadataMismatch =
+  | { type: 'ballotHash'; sideA: string; sideB: string }
+  | { type: 'precinctId'; sideA: PrecinctId; sideB: PrecinctId }
+  | { type: 'ballotStyleId'; sideA: BallotStyleId; sideB: BallotStyleId }
+  | { type: 'pageNumber'; sideA: number; sideB: number }
+  | { type: 'isTestMode'; sideA: boolean; sideB: boolean }
+  | { type: 'ballotType'; sideA: BallotType; sideB: BallotType }
+  | {
+      type: 'ballotAuditId';
+      sideA: string | null;
+      sideB: string | null;
+    };
+
+/**
  * Possible errors that can occur when interpreting a ballot card.
  *
  * `isBubbleBallot` is set by the Rust interpreter and is true when the error
@@ -326,13 +344,12 @@ export interface Size<T> {
 export type InterpretError = { isBubbleBallot: boolean } & (
   | { type: 'borderInsetNotFound'; path: string }
   | { type: 'invalidQrCodeMetadata'; label: string; message: string }
-  | { type: 'mismatchedPrecincts'; sideA: PrecinctId; sideB: PrecinctId }
   | {
-      type: 'mismatchedBallotStyles';
-      sideA: BallotStyleId;
-      sideB: BallotStyleId;
+      type: 'mismatchedBallotMetadata';
+      sideA: HmpbBallotPageMetadata;
+      sideB: HmpbBallotPageMetadata;
+      mismatches: MetadataMismatch[];
     }
-  | { type: 'nonConsecutivePageNumbers'; sideA: number; sideB: number }
   | {
       type: 'mismatchedBallotCardGeometries';
       side_a: BallotPagePathAndGeometry;

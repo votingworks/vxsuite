@@ -8,7 +8,8 @@ use image::GrayImage;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
-use types_rs::election::{BallotStyleId, Election, PrecinctId};
+use types_rs::bubble_ballot::{Metadata, MetadataMismatch};
+use types_rs::election::Election;
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
 use types_rs::pair::Pair;
@@ -156,26 +157,6 @@ pub enum Error {
     #[error("invalid QR code metadata for {label}: {message}")]
     InvalidQrCodeMetadata { label: String, message: String },
 
-    #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
-    #[serde(rename_all = "camelCase")]
-    MismatchedPrecincts {
-        side_a: PrecinctId,
-        side_b: PrecinctId,
-    },
-
-    #[error("mismatched ballot styles: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
-    #[serde(rename_all = "camelCase")]
-    MismatchedBallotStyles {
-        side_a: BallotStyleId,
-        side_b: BallotStyleId,
-    },
-
-    #[error(
-        "non-consecutive page numbers: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
-    )]
-    #[serde(rename_all = "camelCase")]
-    NonConsecutivePageNumbers { side_a: u8, side_b: u8 },
-
     #[error(
         "mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
@@ -183,6 +164,16 @@ pub enum Error {
     MismatchedBallotCardGeometries {
         side_a: BallotPageAndGeometry,
         side_b: BallotPageAndGeometry,
+    },
+
+    #[error(
+        "mismatched ballot card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}, mismatches: {mismatches:?}"
+    )]
+    #[serde(rename_all = "camelCase")]
+    MismatchedBallotMetadata {
+        side_a: Metadata,
+        side_b: Metadata,
+        mismatches: Vec<MetadataMismatch>,
     },
 
     #[error("missing grid layout: front: {front:?}, back: {back:?}")]
@@ -231,9 +222,7 @@ impl Error {
             self,
             // These errors occur after both QR codes were successfully decoded
             // as bubble ballot (HMPB) metadata.
-            Self::MismatchedPrecincts { .. }
-                | Self::MismatchedBallotStyles { .. }
-                | Self::NonConsecutivePageNumbers { .. }
+            Self::MismatchedBallotMetadata { .. }
                 | Self::MissingGridLayout { .. }
                 | Self::CouldNotComputeLayout { .. }
                 // InvalidScale is only reachable after find_timing_marks()

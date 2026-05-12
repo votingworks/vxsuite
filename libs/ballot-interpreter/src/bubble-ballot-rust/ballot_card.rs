@@ -563,22 +563,13 @@ impl BallotCard {
             .join(
                 // Do some validation to check that the two sides agree.
                 |(front_metadata, front_orientation), (back_metadata, back_orientation)| {
-                    if front_metadata.precinct_id != back_metadata.precinct_id {
-                        return Err(Error::MismatchedPrecincts {
-                            side_a: front_metadata.precinct_id,
-                            side_b: back_metadata.precinct_id,
-                        });
-                    }
-                    if front_metadata.ballot_style_id != back_metadata.ballot_style_id {
-                        return Err(Error::MismatchedBallotStyles {
-                            side_a: front_metadata.ballot_style_id,
-                            side_b: back_metadata.ballot_style_id,
-                        });
-                    }
-                    if front_metadata.page_number.opposite() != back_metadata.page_number {
-                        return Err(Error::NonConsecutivePageNumbers {
-                            side_a: front_metadata.page_number.get(),
-                            side_b: back_metadata.page_number.get(),
+                    let mismatches = front_metadata.match_sheet_with_metadata(&back_metadata);
+
+                    if !mismatches.is_empty() {
+                        return Err(Error::MismatchedBallotMetadata {
+                            side_a: front_metadata,
+                            side_b: back_metadata,
+                            mismatches,
                         });
                     }
 
