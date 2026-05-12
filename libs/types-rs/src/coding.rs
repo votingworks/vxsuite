@@ -283,17 +283,7 @@ where
 {
     let mut reader = BitReader::<_, BigEndian>::new(bytes);
     let value = T::from_reader(&mut reader)?;
-
-    // read the padding at the end
-    while !reader.byte_aligned() {
-        let padding = reader.read_bit()?;
-        if padding {
-            Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Encountered non-zero bit while reading padding",
-            ))?;
-        }
-    }
+    validate_no_trailing_data(reader)?;
 
     Ok(value)
 }
@@ -343,7 +333,15 @@ where
 {
     let mut reader = BitReader::<_, BigEndian>::new(bytes);
     let value = T::from_reader(&mut reader, context)?;
+    validate_no_trailing_data(reader)?;
 
+    Ok(value)
+}
+
+fn validate_no_trailing_data<E>(mut reader: BitReader<&[u8], BigEndian>) -> Result<(), E>
+where
+    E: From<io::Error>,
+{
     // read the padding at the end
     while !reader.byte_aligned() {
         let padding = reader.read_bit()?;
@@ -355,5 +353,96 @@ where
         }
     }
 
-    Ok(value)
+    let extra_bytes = reader.into_reader();
+    if !extra_bytes.is_empty() {
+        // this wasn't the end; there's too much data in `bytes`
+        Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("Unexpected data found after decoding was completed: {extra_bytes:02x?}"),
+        ))?;
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io;
+
+    use bitstream_io::{FromBitStream, FromBitStreamWith};
+
+    use super::{decode, decode_with};
+
+    #[derive(Debug)]
+    struct FourOneBits;
+
+    impl FromBitStream for FourOneBits {
+        type Error = io::Error;
+
+        fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
+        where
+            Self: Sized,
+        {
+            let bits = r.read_var::<u8>(4)?;
+            if bits != 0b1111 {
+                Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("unexpected bits: {bits:0b}"),
+                ))?;
+            }
+
+            Ok(Self)
+        }
+    }
+
+    impl FromBitStreamWith<'_> for FourOneBits {
+        type Context = ();
+        type Error = io::Error;
+
+        fn from_reader<R: bitstream_io::BitRead + ?Sized>(
+            r: &mut R,
+            _context: &Self::Context,
+        ) -> Result<Self, Self::Error>
+        where
+            Self: Sized,
+        {
+            FromBitStream::from_reader(r)
+        }
+    }
+
+    #[test]
+    fn decode_success() {
+        decode::<FourOneBits>(&[0b1111_0000]).unwrap();
+        decode_with::<FourOneBits>(&[0b1111_0000], &()).unwrap();
+    }
+
+    #[test]
+    fn decode_non_zero_padding() {
+        let err = decode::<FourOneBits>(&[0b1111_0001]).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Encountered non-zero bit while reading padding"
+        );
+
+        let err = decode_with::<FourOneBits>(&[0b1111_0001], &()).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Encountered non-zero bit while reading padding"
+        );
+    }
+
+    #[test]
+    fn decode_extra_bytes() {
+        let err = decode::<FourOneBits>(&[0b1111_0000, 0xff, 0xfe, 0x00]).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Unexpected data found after decoding was completed: [ff, fe, 00]"
+        );
+
+        let err = decode_with::<FourOneBits>(&[0b1111_0000, 0xff, 0xfe, 0x00], &()).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Unexpected data found after decoding was completed: [ff, fe, 00]"
+        );
+    }
 }
