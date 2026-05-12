@@ -205,6 +205,31 @@ test('logs failure if export fails for some reason', async () => {
   );
 });
 
+test('rejects party filter or party grouping', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  mockUsbDrive.insertUsbDrive({});
+
+  await expect(
+    apiClient.exportTallyReportCsv({
+      filename: mockFileName(),
+      filter: { partyIds: ['0'] },
+      groupBy: {},
+    })
+  ).rejects.toThrow('Filter by party not supported in CSV export');
+
+  await expect(
+    apiClient.exportTallyReportCsv({
+      filename: mockFileName(),
+      filter: {},
+      groupBy: { groupByParty: true },
+    })
+  ).rejects.toThrow('Group by party not supported in CSV export');
+});
+
 test('incorporates wia and manual data (grouping by voting method)', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();

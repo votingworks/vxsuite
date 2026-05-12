@@ -27,6 +27,16 @@ import {
 } from './csv_shared';
 import { tabulateManualResults } from '../tabulation/manual_results';
 
+/**
+ * Filter by party is not supported for tally report CSV exports.
+ */
+export type CsvTallyReportFilter = Omit<Tabulation.Filter, 'partyIds'>;
+
+/**
+ * Group by party is not supported for tally report CSV exports.
+ */
+export type CsvTallyReportGroupBy = Omit<Tabulation.GroupBy, 'groupByParty'>;
+
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 function assertIsOptional<T>(_value?: unknown): asserts _value is Optional<T> {
   // noop
@@ -98,7 +108,7 @@ function* generateDataRows({
 }: {
   electionId: Id;
   electionDefinition: ElectionDefinition;
-  overallExportFilter: Tabulation.Filter;
+  overallExportFilter: CsvTallyReportFilter;
   resultGroups: Tabulation.GroupList<ScannedAndManualResults>;
   metadataStructure: CsvMetadataStructure;
   store: Store;
@@ -235,8 +245,8 @@ export async function* generateTallyReportCsv({
   filename,
 }: {
   store: Store;
-  filter?: Tabulation.Filter;
-  groupBy?: Tabulation.GroupBy;
+  filter?: CsvTallyReportFilter;
+  groupBy?: CsvTallyReportGroupBy;
   filename: string;
 }): AsyncGenerator<string> {
   const electionId = store.getCurrentElectionId();

@@ -137,6 +137,18 @@ test('uses appropriate headers', async () => {
         'Total',
       ],
     },
+    {
+      filter: { partyIds: ['0'] },
+      expectedHeaders: ['Party', 'Party ID', 'Manual', 'Scanned', 'Total'],
+    },
+    // multi filters
+    {
+      filter: { partyIds: ['0', '1'] },
+      expectedHeaders: ['Included Parties', 'Manual', 'Scanned', 'Total'],
+      additionalRowAttributes: {
+        'Included Parties': 'Mammal, Fish',
+      },
+    },
   ];
 
   for (const testCase of testCases) {

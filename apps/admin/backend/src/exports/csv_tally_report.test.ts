@@ -8,7 +8,6 @@ import {
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
-  Tabulation,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
@@ -16,7 +15,11 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { generateTallyReportCsv } from './csv_tally_report';
+import {
+  CsvTallyReportFilter,
+  CsvTallyReportGroupBy,
+  generateTallyReportCsv,
+} from './csv_tally_report';
 import { iterableToString, mockFileName, parseCsv } from '../../test/csv';
 import { Store } from '../store';
 
@@ -73,8 +76,8 @@ test('uses appropriate headers', async () => {
   };
 
   const testCases: Array<{
-    filter?: Tabulation.Filter;
-    groupBy?: Tabulation.GroupBy;
+    filter?: CsvTallyReportFilter;
+    groupBy?: CsvTallyReportGroupBy;
     additionalHeaders: string[];
     additionalRowAttributes?: Record<string, string>;
   }> = [
@@ -82,10 +85,6 @@ test('uses appropriate headers', async () => {
     {
       groupBy: { groupByPrecinct: true },
       additionalHeaders: ['Precinct', 'Precinct ID'],
-    },
-    {
-      groupBy: { groupByParty: true },
-      additionalHeaders: ['Party', 'Party ID'],
     },
     {
       groupBy: { groupByBallotStyle: true },
@@ -105,10 +104,6 @@ test('uses appropriate headers', async () => {
     },
     // redundant multiple groupings
     {
-      groupBy: { groupByParty: true, groupByBallotStyle: true },
-      additionalHeaders: ['Party', 'Party ID', 'Ballot Style ID'],
-    },
-    {
       groupBy: { groupByScanner: true, groupByBatch: true },
       additionalHeaders: ['Scanner ID', 'Batch', 'Batch ID'],
     },
@@ -121,10 +116,6 @@ test('uses appropriate headers', async () => {
     {
       filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       additionalHeaders: ['Party', 'Party ID', 'Ballot Style ID'],
-    },
-    {
-      filter: { partyIds: ['0'] },
-      additionalHeaders: ['Party', 'Party ID'],
     },
     {
       filter: { scannerIds: ['scanner-1'] },
@@ -154,13 +145,6 @@ test('uses appropriate headers', async () => {
       additionalHeaders: ['Included Ballot Styles'],
       additionalRowAttributes: {
         'Included Ballot Styles': '1M, 2F',
-      },
-    },
-    {
-      filter: { partyIds: ['0', '1'] },
-      additionalHeaders: ['Included Parties'],
-      additionalRowAttributes: {
-        'Included Parties': 'Mammal, Fish',
       },
     },
     {
