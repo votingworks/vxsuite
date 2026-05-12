@@ -293,9 +293,16 @@ pub fn detect_with_strategy(
     strategy: SearchStrategy,
     debug: &ImageDebugWriter,
 ) -> Result {
+    // Cropping to the strategy's search areas is dramatically cheaper than
+    // scanning the whole image: both decoders scale poorly with image area,
+    // and the cost of producing the crops themselves is negligible.
     let areas = get_detection_areas_for_strategy(img, strategy);
-    let rqrr_result = rqrr::detect_in_areas(&areas);
-    let detect_result = rqrr_result.or_else(|_| zedbar::detect_in_areas(&areas));
+
+    // Try zedbar first because on representative ballot images it decodes
+    // more QR codes than rqrr and is faster per call. rqrr is kept as a
+    // fallback to catch the rare cases zedbar misses.
+    let zedbar_result = zedbar::detect_in_areas(&areas);
+    let detect_result = zedbar_result.or_else(|_| rqrr::detect_in_areas(&areas));
     let detection_areas = match detect_result {
         Ok(ref qr_code) => qr_code.detection_areas().to_vec(),
         Err(ref e) => e.detection_areas().to_vec(),
@@ -417,7 +424,7 @@ mod test {
                 0x00, 0x00, 0x03, 0x00
             ]
         );
-        assert_eq!(qr_code.bounds(), Rect::new(88, 1996, 123, 125));
+        assert_eq!(qr_code.bounds(), Rect::new(88, 1996, 118, 119));
         assert_eq!(qr_code.orientation(), Orientation::Portrait);
     }
 

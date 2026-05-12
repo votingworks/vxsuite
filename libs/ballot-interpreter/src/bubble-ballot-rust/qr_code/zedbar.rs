@@ -45,11 +45,14 @@ fn scan_image_for_qr_codes(
     let mut scanner = Scanner::with_config(config);
     let mut img = Image::from_gray(image.as_bytes(), image.width(), image.height())?;
     let symbols = scanner.scan(&mut img);
+    let crop_bounds = Rect::new(0, 0, image.width(), image.height());
     Ok(symbols
         .into_iter()
         .filter(|s| s.symbol_type() == SymbolType::QrCode)
         .map(|s| {
-            let bounds = Rect::new(0, 0, image.width(), image.height());
+            let bounds = s
+                .bounds()
+                .map_or(crop_bounds, |b| Rect::new(b.x, b.y, b.width, b.height));
             (s.data().to_vec(), bounds)
         })
         .collect())
