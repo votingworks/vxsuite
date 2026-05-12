@@ -181,7 +181,7 @@ pub enum Error {
         mismatches: Vec<MetadataMismatch>,
     },
 
-    #[error("invalid ballot hash: expected {expected:?}, actual {actual:?}")]
+    #[error("invalid ballot hash: expected {expected:02x?}, actual {actual:02x?}")]
     #[serde(rename_all = "camelCase")]
     InvalidBallotHash {
         #[serde(with = "bubble_ballot::ballot_hash_serde")]

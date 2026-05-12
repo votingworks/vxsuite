@@ -460,7 +460,7 @@ fn interpret_bubble_ballot(
         }
 
         Err(err) => {
-            eprintln!("Error: {err:#?}");
+            eprintln!("Error: {err}");
             Ok(1)
         }
     }
