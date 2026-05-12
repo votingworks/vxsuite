@@ -46,8 +46,8 @@ import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'node:path';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import { UsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { sha256 } from 'js-sha256';
 import {
   createElectionPackageZipArchive,
   mockElectionPackageFileTree,
@@ -58,6 +58,10 @@ import {
   readElectionPackageFromFile,
   readSignedElectionPackageFromUsb,
 } from './election_package_io';
+
+function sha256(input: Buffer): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

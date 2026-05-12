@@ -17,9 +17,9 @@ import {
   ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
 import { assertDefined, find, typedAs } from '@votingworks/basics';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { zipFile } from '@votingworks/test-utils';
-import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
@@ -74,7 +74,9 @@ test('add an election', async () => {
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
   });
-  const electionPackageHash = sha256(electionPackageFileContents);
+  const electionPackageHash = createHash('sha256')
+    .update(electionPackageFileContents)
+    .digest('hex');
 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({

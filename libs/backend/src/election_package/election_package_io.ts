@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import readline from 'node:readline';
 import {
   Result,
@@ -53,7 +54,6 @@ import {
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { sha256 } from 'js-sha256';
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 
 /**
@@ -261,7 +261,9 @@ export async function readElectionPackageFromBuffer(
 
     return ok({
       electionPackage,
-      electionPackageHash: sha256(fileContents),
+      electionPackageHash: createHash('sha256')
+        .update(fileContents)
+        .digest('hex'),
     });
   } catch (error) {
     return err({

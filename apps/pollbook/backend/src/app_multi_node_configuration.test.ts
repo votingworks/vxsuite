@@ -6,9 +6,9 @@ import {
 } from '@votingworks/fixtures';
 import { AddressInfo } from 'node:net';
 import { err, ok } from '@votingworks/basics';
+import { createHash } from 'node:crypto';
 import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { sha256 } from 'js-sha256';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import {
   extendedWaitFor,
@@ -27,6 +27,10 @@ import {
   UNCONFIGURE_LOCKOUT_TIMEOUT,
 } from './globals';
 import { mockPollbookPackageZip } from '../test/pollbook_package';
+
+function sha256(input: Uint8Array): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 const singlePrecinctElectionDefinition =

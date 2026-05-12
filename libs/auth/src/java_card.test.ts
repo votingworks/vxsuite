@@ -1,5 +1,5 @@
-import { sha256 } from 'js-sha256';
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -212,7 +212,7 @@ async function mockCardSignatureRequest(
   privateKeyPath: string,
   error?: Error
 ): Promise<void> {
-  const challengeHash = Buffer.from(sha256.arrayBuffer(mockChallenge));
+  const challengeHash = createHash('sha256').update(mockChallenge).digest();
   const command = new CardCommand({
     ins: GENERAL_AUTHENTICATE.INS,
     p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,

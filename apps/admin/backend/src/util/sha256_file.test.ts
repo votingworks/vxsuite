@@ -1,14 +1,16 @@
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { sha256File } from './sha256_file';
 
 test('random data', async () => {
   await fc.assert(
     fc.asyncProperty(fc.string(), async (data) => {
       const file = makeTemporaryFile({ content: data });
-      expect(await sha256File(file)).toEqual(sha256(data));
+      expect(await sha256File(file)).toEqual(
+        createHash('sha256').update(data).digest('hex')
+      );
     })
   );
 });

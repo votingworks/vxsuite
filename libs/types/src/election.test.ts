@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { assert, find, ok } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
@@ -646,7 +646,7 @@ test('ElectionDefinitionSchema', () => {
 
   expect(
     unsafeParse(ElectionDefinitionSchema, {
-      ballotHash: sha256(electionData),
+      ballotHash: createHash('sha256').update(electionData).digest('hex'),
       electionData,
       election,
     }).election

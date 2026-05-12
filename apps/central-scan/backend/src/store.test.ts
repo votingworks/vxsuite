@@ -12,17 +12,20 @@ import {
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
-import { randomUUID as uuid } from 'node:crypto';
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
+
+function sha256(input: string): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({

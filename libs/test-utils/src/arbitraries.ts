@@ -34,7 +34,7 @@ import {
   BallotStyleGroupId,
   PrecinctSplit,
 } from '@votingworks/types';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 import { TestLanguageCode } from './test_language_code';
 
@@ -534,6 +534,6 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> 
     .map(({ election, electionData }) => ({
       election,
       electionData,
-      ballotHash: sha256(electionData),
+      ballotHash: createHash('sha256').update(electionData).digest('hex'),
     }));
 }

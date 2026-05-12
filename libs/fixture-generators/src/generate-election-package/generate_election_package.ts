@@ -17,8 +17,8 @@ import {
   LATEST_METADATA,
   mergeUiStrings,
 } from '@votingworks/types';
-import { sha256 } from 'js-sha256';
 import JsZip from 'jszip';
+import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
@@ -102,7 +102,9 @@ export async function generateElectionPackage(
     assetDirectoryPath,
     `electionGeneratedWithGridLayouts${suffix}.json`
   );
-  const electionPackageHash = sha256(zipContents);
+  const electionPackageHash = createHash('sha256')
+    .update(zipContents)
+    .digest('hex');
 
   await writeFile(packageFilePath, zipContents);
   await writeFile(electionFilePath, electionDefinition.electionData);

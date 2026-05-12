@@ -10,10 +10,14 @@ import {
   BallotTemplateId,
   NhBallotProps,
 } from '@votingworks/hmpb';
+import { createHash } from 'node:crypto';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { Jurisdiction } from './types';
+
+function sha256(input: string): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 export function defaultBallotTemplate(
   jurisdiction: Jurisdiction

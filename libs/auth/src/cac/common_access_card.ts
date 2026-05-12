@@ -7,8 +7,7 @@ import {
 } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import { sha256 } from 'js-sha256';
-import { randomUUID as uuid } from 'node:crypto';
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import { FileKey, TpmKey } from '../keys';
 
 import {
@@ -82,7 +81,7 @@ export function buildGenerateSignatureCardCommand(
   message: Buffer,
   { privateKeyId }: { privateKeyId: Byte }
 ): CardCommand {
-  const challengeHash = Buffer.from(sha256.arrayBuffer(message));
+  const challengeHash = createHash('sha256').update(message).digest();
   assert(challengeHash.byteLength === 32);
 
   const asn1Sha256MagicValue = Buffer.of(

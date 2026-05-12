@@ -4,7 +4,7 @@ import {
   iter,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { z } from 'zod/v4';
 import {
   Sha256Hash,
@@ -1021,7 +1021,9 @@ export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
   .check((ctx) => {
     const electionDefinition = ctx.value;
     const { electionData, ballotHash } = electionDefinition;
-    const electionDataHash = sha256(electionData);
+    const electionDataHash = createHash('sha256')
+      .update(electionData)
+      .digest('hex');
     if (electionDataHash !== ballotHash) {
       ctx.issues.push({
         code: 'custom',

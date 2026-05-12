@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
+import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
-import { sha256 } from 'js-sha256';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { iter } from '@votingworks/basics';
@@ -19,6 +19,10 @@ import {
   readableFileFromDisk,
   updateCastVoteRecordHashes,
 } from './cast_vote_record_hashes';
+
+function sha256(input: string): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 let tempDirectoryPath: string;
 

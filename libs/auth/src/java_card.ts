@@ -1,6 +1,5 @@
-import { sha256 } from 'js-sha256';
 import { Buffer } from 'node:buffer';
-import crypto, { randomUUID as uuid } from 'node:crypto';
+import crypto, { createHash, randomUUID as uuid } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import os from 'node:os';
@@ -757,7 +756,7 @@ export class JavaCard implements Card {
 
     // Have the private key sign a "challenge"
     const challenge = this.generateChallenge();
-    const challengeHash = Buffer.from(sha256(challenge), 'hex');
+    const challengeHash = createHash('sha256').update(challenge).digest();
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,

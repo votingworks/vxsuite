@@ -5,7 +5,7 @@ import {
   DateWithoutTime,
   extractErrorMessage,
 } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { z } from 'zod/v4';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import * as Cdf from './cdf/ballot-definition';
@@ -140,7 +140,7 @@ function safeParseElectionDefinitionExtended(
         electionDefinition: {
           election: result.ok().vxfElection,
           electionData: value,
-          ballotHash: sha256(value),
+          ballotHash: createHash('sha256').update(value).digest('hex'),
         },
       });
 }

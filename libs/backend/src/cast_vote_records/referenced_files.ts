@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import * as fs from 'node:fs/promises';
-import { sha256 } from 'js-sha256';
 import {
   err,
   isNonExistentFileOrDirectoryError,
@@ -54,7 +54,8 @@ function referencedFile(input: {
         });
       }
 
-      if (sha256(fileContents) !== input.expectedFileHash) {
+      const fileHash = createHash('sha256').update(fileContents).digest('hex');
+      if (fileHash !== input.expectedFileHash) {
         return err({
           type: 'invalid-cast-vote-record',
           subType: `incorrect-${input.fileType}-hash`,

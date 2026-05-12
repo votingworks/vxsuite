@@ -27,13 +27,16 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
-import { randomUUID as uuid } from 'node:crypto';
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
 import { Store } from './store';
+
+function sha256(input: string): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({ testTimeout: 20000 });

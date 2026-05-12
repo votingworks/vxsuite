@@ -24,7 +24,6 @@ import {
   renderAllBallotPdfsAndCreateElectionDefinition,
   createPlaywrightRendererPool,
 } from '@votingworks/hmpb';
-import { sha256 } from 'js-sha256';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
@@ -39,7 +38,7 @@ import {
 } from '@votingworks/basics';
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
-import { randomUUID as uuid } from 'node:crypto';
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -414,7 +413,9 @@ export async function generateElectionPackageAndBallots(
     type: 'nodebuffer',
     streamFiles: true,
   });
-  const electionPackageHash = sha256(electionPackageZipContents);
+  const electionPackageHash = createHash('sha256')
+    .update(electionPackageZipContents)
+    .digest('hex');
 
   const combinedHash = formatElectionHashes(
     electionDefinition.ballotHash,

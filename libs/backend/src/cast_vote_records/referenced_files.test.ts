@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
-import { sha256 } from 'js-sha256';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { err, ok, Result } from '@votingworks/basics';
@@ -13,6 +13,10 @@ import {
 } from '@votingworks/types';
 
 import { referencedImageFile, referencedLayoutFile } from './referenced_files';
+
+function sha256(input: string | Buffer): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),

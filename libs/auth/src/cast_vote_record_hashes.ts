@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
+import { Hash, createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { Hasher, sha256 } from 'js-sha256';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { assert, groupBy } from '@votingworks/basics';
@@ -31,7 +31,8 @@ export function hashableFileFromData(
   fileContents: string | Buffer
 ): HashableFile {
   return {
-    computeSha256Hash: () => Promise.resolve(sha256(fileContents)),
+    computeSha256Hash: () =>
+      Promise.resolve(createHash('sha256').update(fileContents).digest('hex')),
     fileName,
   };
 }
@@ -56,11 +57,11 @@ export function hashableFileFromDisk(filePath: string): HashableFile {
   return {
     computeSha256Hash: async () => {
       const reader = createReadStream(filePath);
-      const hash = sha256.create();
+      const hash = createHash('sha256');
       for await (const chunk of reader) {
         hash.update(chunk);
       }
-      return hash.hex();
+      return hash.digest('hex');
     },
     fileName: path.basename(filePath),
   };
@@ -96,7 +97,7 @@ export async function computeSingleCastVoteRecordHash(
     CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
   );
   const cvrDirectorySummary = `${await cvrReportFile.computeSha256Hash()}  ${cvrReportPathRelativeToExportRoot}\n`;
-  return sha256(cvrDirectorySummary);
+  return createHash('sha256').update(cvrDirectorySummary).digest('hex');
 }
 
 /**
@@ -114,7 +115,7 @@ export interface CombinableHash {
 export function computeCombinedHash(
   hashesToCombine: Iterable<CombinableHash>
 ): string {
-  const hasher = sha256.create();
+  const hasher = createHash('sha256');
 
   for (const { hash } of [...hashesToCombine].sort((entry1, entry2) =>
     entry1.sortKey.localeCompare(entry2.sortKey)
@@ -122,7 +123,7 @@ export function computeCombinedHash(
     hasher.update(hash);
   }
 
-  return hasher.hex();
+  return hasher.digest('hex');
 }
 
 //
@@ -173,7 +174,7 @@ interface Constraint {
 
 function selectCastVoteRecordHashes(
   client: Client,
-  hasher: Hasher,
+  hasher: Hash,
   {
     cvrIdLevel1PrefixConstraint,
     cvrIdLevel2PrefixConstraint,
@@ -292,14 +293,14 @@ export function updateCastVoteRecordHashes(
       cvrHash,
     });
 
-    const level2Hasher = sha256.create();
+    const level2Hasher = createHash('sha256');
     selectCastVoteRecordHashes(client, level2Hasher, {
       cvrIdLevel1PrefixConstraint: { type: '=', value: cvrIdLevel1Prefix },
       cvrIdLevel2PrefixConstraint: { type: '=', value: cvrIdLevel2Prefix },
       cvrIdConstraint: { type: '!=', value: NULL_VALUE },
       orderBy: 'cvr_id',
     });
-    const level2Hash = level2Hasher.hex();
+    const level2Hash = level2Hasher.digest('hex');
     insertCastVoteRecordHash(client, {
       cvrIdLevel1Prefix,
       cvrIdLevel2Prefix,
@@ -307,14 +308,14 @@ export function updateCastVoteRecordHashes(
       cvrHash: level2Hash,
     });
 
-    const level1Hasher = sha256.create();
+    const level1Hasher = createHash('sha256');
     selectCastVoteRecordHashes(client, level1Hasher, {
       cvrIdLevel1PrefixConstraint: { type: '=', value: cvrIdLevel1Prefix },
       cvrIdLevel2PrefixConstraint: { type: '!=', value: NULL_VALUE },
       cvrIdConstraint: { type: '=', value: NULL_VALUE },
       orderBy: 'cvr_id_level_2_prefix',
     });
-    const level1Hash = level1Hasher.hex();
+    const level1Hash = level1Hasher.digest('hex');
     insertCastVoteRecordHash(client, {
       cvrIdLevel1Prefix,
       cvrIdLevel2Prefix: NULL_VALUE,
@@ -322,14 +323,14 @@ export function updateCastVoteRecordHashes(
       cvrHash: level1Hash,
     });
 
-    const rootHasher = sha256.create();
+    const rootHasher = createHash('sha256');
     selectCastVoteRecordHashes(client, rootHasher, {
       cvrIdLevel1PrefixConstraint: { type: '!=', value: NULL_VALUE },
       cvrIdLevel2PrefixConstraint: { type: '=', value: NULL_VALUE },
       cvrIdConstraint: { type: '=', value: NULL_VALUE },
       orderBy: 'cvr_id_level_1_prefix',
     });
-    const rootHash = rootHasher.hex();
+    const rootHash = rootHasher.digest('hex');
     insertCastVoteRecordHash(client, {
       cvrId: NULL_VALUE,
       cvrIdLevel1Prefix: NULL_VALUE,

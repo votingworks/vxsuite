@@ -14,6 +14,7 @@ import {
   buildBatchManifest,
 } from '@votingworks/backend';
 import { readElection } from '@votingworks/fs';
+import { createHash } from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import yargs from 'yargs/yargs';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
@@ -22,7 +23,6 @@ import {
   computeCastVoteRecordRootHashFromScratch,
   prepareSignatureFile,
 } from '@votingworks/auth';
-import { sha256 } from 'js-sha256';
 import {
   generateBallotPageLayouts,
   generateCvrs,
@@ -269,7 +269,9 @@ export async function main(
             height * pageDpi
           );
           await writeImageData(imageFilePath, imageData);
-          imageHash = sha256(await fs.readFile(imageFilePath));
+          imageHash = createHash('sha256')
+            .update(await fs.readFile(imageFilePath))
+            .digest('hex');
           imagesByPaperSize.set(election.ballotLayout.paperSize, {
             path: imageFilePath,
             sha256: imageHash,
@@ -277,11 +279,15 @@ export async function main(
         }
 
         const layout = layouts[i];
-        let layoutFileHash = sha256('bmd-ballot');
+        let layoutFileHash = createHash('sha256')
+          .update('bmd-ballot')
+          .digest('hex');
         if (layout) {
           const layoutFileContents = JSON.stringify(layout);
           await fs.writeFile(layoutFilePath, layoutFileContents);
-          layoutFileHash = sha256(layoutFileContents);
+          layoutFileHash = createHash('sha256')
+            .update(layoutFileContents)
+            .digest('hex');
         }
 
         populateImageAndLayoutFileHashes(
