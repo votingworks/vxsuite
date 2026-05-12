@@ -19,7 +19,6 @@ import {
   Admin,
   Sha256Hash,
   BallotStyleGroupId,
-  Side,
   BallotCastingMode,
   ContestOption,
   UserRole,
@@ -357,9 +356,8 @@ export interface BallotAdjudicationQueueMetadata {
  */
 export interface ContestOptionAdjudicationData {
   definition: ContestOption;
-  initialVote: boolean;
+  scannedVote: boolean;
   hasMarginalMark: boolean;
-  voteAdjudication?: VoteAdjudication;
   writeInRecord?: WriteInRecord;
 }
 
@@ -377,8 +375,10 @@ export interface ContestAdjudicationData {
  */
 export interface BallotAdjudicationData {
   cvrId: Id;
+  isResolved: boolean;
   tag: CvrTag;
   contests: ContestAdjudicationData[];
+  adjudicatedContests: AdjudicatedCvrContest[];
 }
 
 /**
@@ -408,28 +408,40 @@ export interface WriteInAdjudicationActionInvalid {
 }
 
 /**
+ * Map of contest option IDs to their adjudicated values.
+ */
+export type AdjudicatedContestOptions = Record<
+  ContestOptionId,
+  AdjudicatedContestOption
+>;
+
+/**
  * A cvr contest with all candidate and write-in options
  * fully adjudicated.
  */
 export interface AdjudicatedCvrContest {
-  adjudicatedContestOptionById: Record<
-    ContestOptionId,
-    AdjudicatedContestOption
-  >;
+  adjudicatedContestOptionById: AdjudicatedContestOptions;
   contestId: ContestId;
+}
+
+/**
+ * A fully adjudicated cvr — all per-contest adjudications
+ * for a single ballot.
+ */
+export interface AdjudicatedCvr {
   cvrId: Id;
-  side: Side;
+  contests: readonly AdjudicatedCvrContest[];
 }
 
 /**
  * A fully adjudicated candidate or write-in option
  */
 export type AdjudicatedContestOption =
-  | AdjudicatedCandidateOption
+  | AdjudicatedOfficialOption
   | AdjudicatedWriteInOption;
 
-interface AdjudicatedCandidateOption {
-  type: 'candidate-option';
+interface AdjudicatedOfficialOption {
+  type: 'official-option';
   hasVote: boolean;
 }
 
@@ -463,8 +475,6 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
  * A queryable ballot-level tag, used for adjudication
  */
 export interface CvrTag {
-  cvrId: Id;
-  isResolved: boolean;
   isBlankBallot: boolean;
 }
 
@@ -472,9 +482,6 @@ export interface CvrTag {
  * A queryable tag for a cvr-contest pair, used for adjudication
  */
 export interface CvrContestTag {
-  cvrId: Id;
-  contestId: ContestId;
-  isResolved: boolean;
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;

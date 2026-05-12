@@ -3,12 +3,10 @@ import {
   AnyContest,
   ContestOptionId,
   ElectionDefinition,
-  Id,
   MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { deepEqual } from '@votingworks/basics';
 import {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
@@ -111,19 +109,15 @@ export function doesCvrNeedAdjudication(
  * if the contest does not need adjudication.
  */
 export function deriveCvrContestTag({
-  cvrId,
   contest,
   votes,
-  adjudicatedVotes,
   writeInRecords,
   markScores,
   markThresholds,
   adminAdjudicationReasons,
 }: {
-  cvrId: Id;
   contest: AnyContest;
   votes: ContestOptionId[];
-  adjudicatedVotes?: ContestOptionId[];
   writeInRecords: WriteInRecord[];
   markScores?: Record<ContestOptionId, number>;
   markThresholds: MarkThresholds;
@@ -136,7 +130,7 @@ export function deriveCvrContestTag({
     (r) => r.contestId === contest.id && r.isUnmarked
   );
 
-  let hasMarginalMark =
+  const hasMarginalMark =
     adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
     markScores !== undefined &&
     Object.values(markScores).some(
@@ -145,35 +139,12 @@ export function deriveCvrContestTag({
     );
 
   const votesAllowed = getNumberVotesAllowed(contest);
-  let hasOvervote =
+  const hasOvervote =
     adminAdjudicationReasons.includes(AdjudicationReason.Overvote) &&
     votes.length > votesAllowed;
-  let hasUndervote =
+  const hasUndervote =
     adminAdjudicationReasons.includes(AdjudicationReason.Undervote) &&
     votes.length < votesAllowed;
-
-  // If adjudicated votes differ from scanned votes for non-write-in
-  // options, the user corrected a mark the scanner misread
-  if (adjudicatedVotes) {
-    const scannedCandidateVotes = new Set(
-      votes.filter((v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID))
-    );
-    const adjudicatedCandidateVotes = new Set(
-      adjudicatedVotes.filter(
-        (v) => !v.startsWith(Tabulation.GENERIC_WRITE_IN_ID)
-      )
-    );
-    const candidateVotesChanged = !deepEqual(
-      scannedCandidateVotes,
-      adjudicatedCandidateVotes
-    );
-    if (candidateVotesChanged) {
-      hasMarginalMark = true;
-    }
-    // Recalculate over/undervote based on adjudicated state
-    hasOvervote = hasOvervote || adjudicatedVotes.length > votesAllowed;
-    hasUndervote = hasUndervote || adjudicatedVotes.length < votesAllowed;
-  }
 
   const needsAdjudication =
     hasWriteIn ||
@@ -187,9 +158,6 @@ export function deriveCvrContestTag({
   }
 
   return {
-    cvrId,
-    contestId: contest.id,
-    isResolved: adjudicatedVotes !== undefined,
     hasWriteIn,
     hasUnmarkedWriteIn,
     hasMarginalMark,

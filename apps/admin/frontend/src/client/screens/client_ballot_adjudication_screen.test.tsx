@@ -131,8 +131,10 @@ function expectDataLoaderQueries(cvrId: string): void {
     .resolves(
       ok({
         cvrId,
-        tag: { cvrId, isResolved: false, isBlankBallot: false },
+        tag: { isBlankBallot: false },
+        isResolved: false,
         contests: [],
+        adjudicatedContests: [],
       })
     );
   apiMock.apiClient.getBallotImages.expectRepeatedCallsWith({ cvrId }).resolves(
@@ -322,19 +324,17 @@ test('redirects when host disables adjudication', async () => {
   await screen.findByText('adjudication start');
 });
 
-test('onSetCvrResolved calls API and accept advances', async () => {
+test('onAccept calls API and accept advances', async () => {
   expectDataLoaderQueries('cvr-1');
   renderScreen('cvr-1');
   await screen.findByText('Adjudicating cvr-1');
 
-  // Call the captured onSetCvrResolved callback
-  apiMock.apiClient.setCvrResolved
-    .expectCallWith({ cvrId: 'cvr-1' })
-    .resolves(ok());
-  const onSetCvrResolved = capturedProps[
-    'onSetCvrResolved'
-  ] as () => Promise<void>;
-  await onSetCvrResolved();
+  const mockInput = { cvrId: 'cvr-1', contests: [] } as const;
+  apiMock.apiClient.adjudicateCvr.expectCallWith(mockInput).resolves(ok());
+  const onAccept = capturedProps['onAccept'] as (
+    input: unknown
+  ) => Promise<void>;
+  await onAccept(mockInput);
 
   // Then accept advances to next (no more ballots)
   apiMock.apiClient.claimBallot.expectCallWith({}).resolves(ok(undefined));
@@ -342,62 +342,21 @@ test('onSetCvrResolved calls API and accept advances', async () => {
   await screen.findByText('No more ballots available for adjudication.');
 });
 
-test('onSetCvrResolved error shows error screen', async () => {
+test('onAccept error shows error screen', async () => {
   expectDataLoaderQueries('cvr-1');
   renderScreen('cvr-1');
   await screen.findByText('Adjudicating cvr-1');
 
-  apiMock.apiClient.setCvrResolved
-    .expectCallWith({ cvrId: 'cvr-1' })
+  const mockInput = { cvrId: 'cvr-1', contests: [] } as const;
+  apiMock.apiClient.adjudicateCvr
+    .expectCallWith(mockInput)
     .resolves(err({ type: 'no-claim' }));
-  const onSetCvrResolved = capturedProps[
-    'onSetCvrResolved'
-  ] as () => Promise<void>;
-  await expect(onSetCvrResolved()).rejects.toThrow();
+  const onAccept = capturedProps['onAccept'] as (
+    input: unknown
+  ) => Promise<void>;
+  await expect(onAccept(mockInput)).rejects.toThrow();
 
   await screen.findByText(
     'This machine no longer has an active claim on this ballot. Please try again.'
   );
-});
-
-test('onAdjudicateCvrContest calls API', async () => {
-  expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
-  await screen.findByText('Adjudicating cvr-1');
-
-  const mockInput = {
-    cvrId: 'cvr-1',
-    contestId: 'c-1',
-    side: 'front',
-    adjudicatedContestOptionById: {},
-  } as const;
-  apiMock.apiClient.adjudicateCvrContest
-    .expectCallWith(mockInput)
-    .resolves(ok());
-  const onAdjudicateCvrContest = capturedProps['onAdjudicateCvrContest'] as (
-    input: unknown
-  ) => Promise<void>;
-  await onAdjudicateCvrContest(mockInput);
-});
-
-test('onAdjudicateCvrContest error shows error screen', async () => {
-  expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
-  await screen.findByText('Adjudicating cvr-1');
-
-  const mockInput = {
-    cvrId: 'cvr-1',
-    contestId: 'c-1',
-    side: 'front',
-    adjudicatedContestOptionById: {},
-  } as const;
-  apiMock.apiClient.adjudicateCvrContest
-    .expectCallWith(mockInput)
-    .resolves(err({ type: 'host-disconnect' }));
-  const onAdjudicateCvrContest = capturedProps['onAdjudicateCvrContest'] as (
-    input: unknown
-  ) => Promise<void>;
-  await expect(onAdjudicateCvrContest(mockInput)).rejects.toThrow();
-
-  await screen.findByText('Disconnected from host.');
 });

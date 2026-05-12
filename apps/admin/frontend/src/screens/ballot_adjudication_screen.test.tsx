@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -7,6 +7,8 @@ import {
 } from '@votingworks/types';
 import type { BallotPageLayout, Rect } from '@votingworks/types';
 import type {
+  AdjudicatedCvrContest,
+  AdjudicatedContestOptions,
   BallotAdjudicationData,
   BallotImages,
   ContestAdjudicationData,
@@ -20,6 +22,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { Route, Switch } from 'react-router-dom';
+import { assertDefined } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
@@ -51,10 +54,6 @@ const CVR_ID_2 = 'cvr-id-2';
 
 function makeContestTag(overrides: Partial<CvrContestTag> = {}): CvrContestTag {
   return {
-    cvrId: CVR_ID_1,
-    contestId: 'zoo-council-mammal',
-
-    isResolved: false,
     hasOvervote: false,
     hasUndervote: false,
     hasWriteIn: true,
@@ -83,7 +82,7 @@ function makeContestAdjudicationData(
           type: 'candidate' as const,
           isWriteIn: false,
         },
-        initialVote: false,
+        scannedVote: false,
         hasMarginalMark: false,
       })),
       tag,
@@ -98,7 +97,7 @@ function makeContestAdjudicationData(
         name: id,
         type: 'yesno' as const,
       },
-      initialVote: false,
+      scannedVote: false,
       hasMarginalMark: false,
     })),
     tag,
@@ -108,9 +107,31 @@ function makeContestAdjudicationData(
 function makeBallotAdjudicationData(
   cvrId: string,
   contests: ContestAdjudicationData[],
-  tag: CvrTag = { cvrId, isBlankBallot: false, isResolved: false }
+  {
+    tag = { isBlankBallot: false },
+    isResolved = false,
+    adjudicatedContests = [],
+  }: {
+    tag?: CvrTag;
+    isResolved?: boolean;
+    adjudicatedContests?: AdjudicatedCvrContest[];
+  } = {}
 ): BallotAdjudicationData {
-  return { cvrId, contests, tag };
+  return { cvrId, contests, tag, isResolved, adjudicatedContests };
+}
+
+function makeAdjudicatedCvrContest(
+  contestId: string,
+  optionVotes: Record<string, boolean> = {}
+): AdjudicatedCvrContest {
+  const adjudicatedContestOptionById: AdjudicatedContestOptions = {};
+  for (const [optionId, hasVote] of Object.entries(optionVotes)) {
+    adjudicatedContestOptionById[optionId] = {
+      type: 'official-option',
+      hasVote,
+    };
+  }
+  return { contestId, adjudicatedContestOptionById };
 }
 
 /**
@@ -188,45 +209,28 @@ function makeHmpbBallotImages(cvrId: string) {
   };
 }
 
-function makeResolvedTag(
-  contestId: string,
-  overrides: Partial<CvrContestTag> = {}
-): CvrContestTag {
-  return makeContestTag({
-    contestId,
-    isResolved: true,
-    hasWriteIn: false,
-    ...overrides,
-  });
-}
-
 /**
- * Builds a contest with specific initial/adjudicated vote patterns and a
- * resolved tag.
+ * Builds a contest with specific initial/adjudicated vote patterns and an
+ * adjudicated record. Returns the contest and the corresponding
+ * AdjudicatedCvrContest entry.
  */
 function makeContestWithVotes(
   contestId: string,
   initialVoteIndices: number[],
   adjudicatedVoteIndices: number[],
   tagOverrides: Partial<CvrContestTag> = {}
-): ContestAdjudicationData {
-  const data = makeContestAdjudicationData(
+): { contest: ContestAdjudicationData; adjudicated: AdjudicatedCvrContest } {
+  const contest = makeContestAdjudicationData(
     contestId,
-    makeResolvedTag(contestId, tagOverrides)
+    makeContestTag({ hasWriteIn: false, ...tagOverrides })
   );
-  for (const [i, option] of data.options.entries()) {
-    option.initialVote = initialVoteIndices.includes(i);
-    if (adjudicatedVoteIndices.includes(i) !== option.initialVote) {
-      option.voteAdjudication = {
-        electionId: 'e',
-        cvrId: CVR_ID_1,
-        contestId,
-        optionId: option.definition.id,
-        isVote: adjudicatedVoteIndices.includes(i),
-      };
-    }
+  const optionVotes: Record<string, boolean> = {};
+  for (const [i, option] of contest.options.entries()) {
+    option.scannedVote = initialVoteIndices.includes(i);
+    optionVotes[option.definition.id] = adjudicatedVoteIndices.includes(i);
   }
-  return data;
+  const adjudicated = makeAdjudicatedCvrContest(contestId, optionVotes);
+  return { contest, adjudicated };
 }
 
 test('ballot navigation supports back, skip, exit, and side switching', async () => {
@@ -238,19 +242,8 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     ),
     makeContestAdjudicationData('best-animal-mammal'),
   ];
-  // Ballot 2: only unresolved tag is on back contest -> opens to back side
-  const backTaggedContestData = [
-    makeContestAdjudicationData('zoo-council-mammal'),
-    makeContestAdjudicationData(
-      'best-animal-mammal',
-      makeContestTag({
-        contestId: 'best-animal-mammal',
-        hasWriteIn: true,
-      })
-    ),
-  ];
   const adjData1 = makeBallotAdjudicationData(CVR_ID_1, contestData);
-  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, backTaggedContestData);
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, contestData);
   const adjData3 = makeBallotAdjudicationData(CVR_ID_3, contestData);
 
   // initial load
@@ -259,10 +252,6 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
-
-  // Use fake timers to prevent refetchInterval from firing mid-navigation,
-  // which would cause out-of-order refetches incompatible with ordered mocks.
-  vi.useFakeTimers({ shouldAdvanceTime: true, advanceTimeDelta: 1 });
 
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
 
@@ -296,32 +285,38 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
     `mock-front-image-${CVR_ID_1}`
   );
 
-  // switch to back side
-  const viewButtons = screen.getAllByRole('button', { name: 'View' });
-  // the back side's View button is the second one (front is disabled)
-  userEvent.click(viewButtons[1]);
-  expect(ballotImage.style.backgroundImage).toContain(
-    `mock-back-image-${CVR_ID_1}`
+  // switch to back side — the View button for the currently-hidden side is
+  // the enabled one
+  function enabledViewButton(): HTMLElement {
+    const button = screen
+      .getAllByRole('button', { name: 'View' })
+      .find((b) => !(b as HTMLButtonElement).disabled);
+    return assertDefined(button);
+  }
+  userEvent.click(enabledViewButton());
+  // Re-query inside waitFor so a stale node reference (if React replaces the
+  // button across renders) can't hide a successful state flip.
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_1}`)
   );
 
   // switch back to front side
-  userEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
-  expect(ballotImage.style.backgroundImage).toContain(
-    `mock-front-image-${CVR_ID_1}`
+  userEvent.click(enabledViewButton());
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-front-image-${CVR_ID_1}`)
   );
 
-  // skip to second ballot — first pending contest is on back, so opens to back
+  // skip to second ballot
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 3');
   expect(screen.getByRole('button', { name: /Back/ })).toBeEnabled();
-  await waitFor(() => {
-    expect(ballotImage.style.backgroundImage).toContain(
-      `mock-back-image-${CVR_ID_2}`
-    );
-  });
 
   // skip to third (last) ballot
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
@@ -340,10 +335,227 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   // exit navigates to adjudication start screen
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   userEvent.click(screen.getByRole('button', { name: /Exit/ }));
-  await vi.waitFor(() =>
+  await waitFor(() =>
     expect(history.location.pathname).toEqual('/adjudication')
   );
-  vi.useRealTimers();
+});
+
+test('opens to the back side when the only pending contest is on the back', async () => {
+  // Front contest has no tag; back contest is the only one needing adjudication.
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData('zoo-council-mammal'),
+    makeContestAdjudicationData(
+      'best-animal-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 1 of 1');
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_1}`)
+  );
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('default side flips to next pending after confirming a contest', async () => {
+  // Pending tags on both front (Zoo Council) and back (Best Animal).
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+    makeContestAdjudicationData(
+      'best-animal-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  // First pending is on the front, so the screen opens to the front.
+  await screen.findByText('Ballot 1 of 1');
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-front-image-${CVR_ID_1}`)
+  );
+
+  // Confirm the front contest -> next pending is on the back -> flip to back.
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-back-image-${CVR_ID_1}`)
+  );
+
+  // Confirm the back contest -> nothing pending -> falls back to front.
+  userEvent.click(screen.getByText('Best Animal'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /horse/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
+    ).toContain(`mock-front-image-${CVR_ID_1}`)
+  );
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('skip / back / exit prompt to discard when the user has unsaved adjudications', async () => {
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+  const adjData1 = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData('zoo-council-mammal'),
+  ]);
+
+  // Start at ballot 2 of 2 so Skip, Back, and Exit are all visible
+  // (Back only renders past the first ballot in the queue).
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves(makeHmpbBallotImages(CVR_ID_2));
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 2 of 2');
+
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await screen.findByText('Ballot 2 of 2');
+
+  // Skip with un-Accepted edits prompts the discard modal; modal Back
+  // keeps the user on this ballot and preserves the buffer.
+  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await screen.findByText('Unsaved Changes');
+  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await waitFor(() => {
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+  });
+
+  // Exit triggers the same prompt; modal Back again preserves the buffer.
+  userEvent.click(screen.getByRole('button', { name: /Exit/ }));
+  await screen.findByText('Unsaved Changes');
+  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await waitFor(() => {
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+  });
+
+  // Back triggers the prompt; this time Discard clears the buffer and
+  // navigation proceeds to ballot 1.
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+  userEvent.click(screen.getByRole('button', { name: /^Back$/ }));
+  await screen.findByText('Unsaved Changes');
+  userEvent.click(screen.getByRole('button', { name: /Discard/ }));
+  await screen.findByText('Ballot 1 of 2');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('re-opening a Confirmed contest preserves the in-progress adjudication', async () => {
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(/Ballot ID/);
+
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  expect(screen.getByRole('checkbox', { name: /lion/i })).not.toBeChecked();
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  expect(screen.getByRole('checkbox', { name: /lion/i })).toBeChecked();
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await screen.findByText('Ballot 1 of 1');
+
+  // Re-open the same contest and verify the lion vote is still selected.
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  expect(screen.getByRole('checkbox', { name: /lion/i })).toBeChecked();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
 });
 
 test('accept button state depends on contest resolution', async () => {
@@ -351,7 +563,7 @@ test('accept button state depends on contest resolution', async () => {
   const unresolvedAdjData = makeBallotAdjudicationData(CVR_ID_1, [
     makeContestAdjudicationData(
       'zoo-council-mammal',
-      makeContestTag({ hasWriteIn: true, isResolved: false })
+      makeContestTag({ hasWriteIn: true })
     ),
   ]);
   setupBasicMocks({ adjudicationData: unresolvedAdjData });
@@ -368,12 +580,13 @@ test('accept button state depends on contest resolution', async () => {
 
   // enabled when all contests resolved
   apiMock = createApiMock();
-  const resolvedAdjData = makeBallotAdjudicationData(CVR_ID_1, [
-    makeContestAdjudicationData(
-      'zoo-council-mammal',
-      makeContestTag({ isResolved: true })
-    ),
-  ]);
+  const resolvedAdjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [makeContestAdjudicationData('zoo-council-mammal', makeContestTag({}))],
+    {
+      adjudicatedContests: [makeAdjudicatedCvrContest('zoo-council-mammal')],
+    }
+  );
   setupBasicMocks({ adjudicationData: resolvedAdjData, nextCvrId: null });
   apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
@@ -396,7 +609,6 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
       makeContestTag({
         hasWriteIn: false,
         hasUndervote: true,
-        isResolved: false,
       })
     ),
   ]);
@@ -454,7 +666,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
 
   // click Accept Anyway -> resolves ballot and navigates to start screen
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
-  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
+  apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_1, contests: [] });
   // invalidated queries refetch after resolve
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotAdjudicationQueue([]);
@@ -491,7 +703,7 @@ test('clicking a contest opens contest adjudication screen', async () => {
   const adjData = makeBallotAdjudicationData(CVR_ID_1, [
     makeContestAdjudicationData(
       'zoo-council-mammal',
-      makeContestTag({ hasWriteIn: true, isResolved: false })
+      makeContestTag({ hasWriteIn: true })
     ),
     makeContestAdjudicationData('best-animal-mammal'),
   ]);
@@ -550,35 +762,35 @@ test('clicking a contest opens contest adjudication screen', async () => {
 });
 
 test('contest hover highlights pending yellow, resolved purple, and back-side no highlight', async () => {
-  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
-    // front contest, pending (unresolved write-in) -> yellow highlight
-    makeContestAdjudicationData(
-      'zoo-council-mammal',
-      makeContestTag({
-        contestId: 'zoo-council-mammal',
-        hasWriteIn: true,
-        isResolved: false,
-      })
-    ),
-    // front contest, resolved -> purple highlight
-    makeContestAdjudicationData(
-      'best-animal-mammal',
-      makeContestTag({
-        contestId: 'best-animal-mammal',
-        hasWriteIn: true,
-        isResolved: true,
-      })
-    ),
-    // back contest, pending -> no highlight when viewing front
-    makeContestAdjudicationData(
-      'new-zoo-either',
-      makeContestTag({
-        contestId: 'new-zoo-either',
-        hasWriteIn: true,
-        isResolved: false,
-      })
-    ),
-  ]);
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [
+      // front contest, pending (unresolved write-in) -> yellow highlight
+      makeContestAdjudicationData(
+        'zoo-council-mammal',
+        makeContestTag({
+          hasWriteIn: true,
+        })
+      ),
+      // front contest, resolved -> purple highlight
+      makeContestAdjudicationData(
+        'best-animal-mammal',
+        makeContestTag({
+          hasWriteIn: true,
+        })
+      ),
+      // back contest, pending -> no highlight when viewing front
+      makeContestAdjudicationData(
+        'new-zoo-either',
+        makeContestTag({
+          hasWriteIn: true,
+        })
+      ),
+    ],
+    {
+      adjudicatedContests: [makeAdjudicatedCvrContest('best-animal-mammal')],
+    }
+  );
 
   const ballotCoordinates: Rect = { x: 0, y: 0, width: 1000, height: 1000 };
   const ballotImages: BallotImages = {
@@ -664,12 +876,11 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   const CVR_ID_3 = 'cvr-id-3';
 
   // Ballot 1: resolved non-blank ballot
-  const adjData1 = makeBallotAdjudicationData(CVR_ID_1, [
-    makeContestAdjudicationData(
-      'zoo-council-mammal',
-      makeContestTag({ isResolved: true })
-    ),
-  ]);
+  const adjData1 = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [makeContestAdjudicationData('zoo-council-mammal')],
+    { isResolved: true }
+  );
 
   // Ballot 2: unresolved blank ballot (no adjudicated votes)
   const adjData2Unresolved = makeBallotAdjudicationData(
@@ -678,15 +889,12 @@ test('accept advances to next ballot and blank ballot callout states', async () 
       makeContestAdjudicationData(
         'zoo-council-mammal',
         makeContestTag({
-          cvrId: CVR_ID_2,
-          contestId: 'zoo-council-mammal',
           hasWriteIn: false,
           hasUndervote: true,
-          isResolved: false,
         })
       ),
     ],
-    { cvrId: CVR_ID_2, isBlankBallot: true, isResolved: false }
+    { tag: { isBlankBallot: true } }
   );
 
   // Ballot 2 after resolve: confirmed blank ballot
@@ -696,30 +904,25 @@ test('accept advances to next ballot and blank ballot callout states', async () 
       makeContestAdjudicationData(
         'zoo-council-mammal',
         makeContestTag({
-          cvrId: CVR_ID_2,
-          contestId: 'zoo-council-mammal',
           hasWriteIn: false,
           hasUndervote: true,
-          isResolved: true,
         })
       ),
     ],
-    { cvrId: CVR_ID_2, isBlankBallot: true, isResolved: true }
+    { tag: { isBlankBallot: true }, isResolved: true }
   );
 
   // Ballot 3: blank ballot with an adjudicated vote on one option
-  const adjData3 = makeBallotAdjudicationData(
-    CVR_ID_3,
-    [makeContestAdjudicationData('zoo-council-mammal')],
-    { cvrId: CVR_ID_3, isBlankBallot: true, isResolved: true }
-  );
-  adjData3.contests[0].options[0].voteAdjudication = {
-    electionId: 'election-1',
-    cvrId: CVR_ID_3,
-    contestId: 'zoo-council-mammal',
-    optionId: adjData3.contests[0].options[0].definition.id,
-    isVote: true,
-  };
+  const zooCouncilContest = makeContestAdjudicationData('zoo-council-mammal');
+  const adjData3 = makeBallotAdjudicationData(CVR_ID_3, [zooCouncilContest], {
+    tag: { isBlankBallot: true },
+    isResolved: true,
+    adjudicatedContests: [
+      makeAdjudicatedCvrContest('zoo-council-mammal', {
+        [zooCouncilContest.options[0].definition.id]: true,
+      }),
+    ],
+  });
 
   apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
@@ -748,7 +951,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   expect(screen.queryByText(/Blank Ballot/)).not.toBeInTheDocument();
 
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
-  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_1 });
+  apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_1, contests: [] });
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
@@ -780,7 +983,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   // Blank ballot with only undervotes counts as allResolved, so Accept
   // directly resolves without a confirmation modal
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
-  apiMock.expectSetCvrResolved({ cvrId: CVR_ID_2 });
+  apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_2, contests: [] });
   apiMock.expectGetBallotAdjudicationData(
     { cvrId: CVR_ID_2 },
     adjData2Resolved
@@ -801,7 +1004,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
 });
 
 test('contest list shows correct status line captions', async () => {
-  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+  const contestEntries = [
     // best-animal-mammal: 1 seat. 2 initial → 2 adjudicated = Overvote Confirmed
     makeContestWithVotes('best-animal-mammal', [0, 1], [0, 1], {
       hasOvervote: true,
@@ -823,7 +1026,12 @@ test('contest list shows correct status line captions', async () => {
     makeContestWithVotes('new-zoo-pick', [], [0], { hasUndervote: true }),
     // fishing: yesno, 1 vote. 1 initial → 0 adjudicated = Undervote Created
     makeContestWithVotes('fishing', [0], [], { hasUndervote: true }),
-  ]);
+  ];
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    contestEntries.map((e) => e.contest),
+    { adjudicatedContests: contestEntries.map((e) => e.adjudicated) }
+  );
 
   apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
@@ -879,7 +1087,7 @@ test('contest list shows correct status line captions', async () => {
 });
 
 test('contest list suppresses undervote captions when not in system settings', async () => {
-  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+  const contestEntries = [
     // best-animal-mammal: 1 seat. 2 initial → 2 adjudicated = Overvote Confirmed
     // (overvote captions should still show)
     makeContestWithVotes('best-animal-mammal', [0, 1], [0, 1], {
@@ -891,7 +1099,12 @@ test('contest list suppresses undervote captions when not in system settings', a
     // fishing: yesno, 1 vote. 1 initial → 0 adjudicated
     // "Undervote Created" when enabled, suppressed when disabled
     makeContestWithVotes('fishing', [0], [], { hasUndervote: true }),
-  ]);
+  ];
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    contestEntries.map((e) => e.contest),
+    { adjudicatedContests: contestEntries.map((e) => e.adjudicated) }
+  );
 
   apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
@@ -937,7 +1150,6 @@ test('contest list shows correct option resolution bullets', async () => {
   const zooCouncil = makeContestAdjudicationData(
     'zoo-council-mammal',
     makeContestTag({
-      isResolved: true,
       hasWriteIn: true,
       hasUnmarkedWriteIn: true,
       hasMarginalMark: true,
@@ -959,7 +1171,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-0',
@@ -978,7 +1190,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-1',
@@ -997,7 +1209,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-2',
@@ -1015,7 +1227,7 @@ test('contest list shows correct option resolution bullets', async () => {
         type: 'candidate' as const,
         isWriteIn: true,
       },
-      initialVote: true,
+      scannedVote: true,
       hasMarginalMark: false,
       writeInRecord: {
         id: 'wr-3',
@@ -1030,48 +1242,73 @@ test('contest list shows correct option resolution bullets', async () => {
 
   // Marginal mark on first two candidates (one valid, one invalid)
   zooCouncil.options[0].hasMarginalMark = true;
-  zooCouncil.options[0].initialVote = true;
-  zooCouncil.options[0].voteAdjudication = {
-    electionId: 'e',
-    cvrId: CVR_ID_1,
-    contestId: 'zoo-council-mammal',
-    optionId: 'zebra',
-    isVote: true,
-  };
+  zooCouncil.options[0].scannedVote = true;
   zooCouncil.options[1].hasMarginalMark = true;
-  zooCouncil.options[1].initialVote = false;
+  zooCouncil.options[1].scannedVote = false;
 
   // best-animal-mammal: vote adjudication bullets (no marginal marks, no write-ins)
   const bestAnimal = makeContestAdjudicationData(
     'best-animal-mammal',
     makeContestTag({
-      contestId: 'best-animal-mammal',
-      isResolved: true,
       hasWriteIn: false,
     })
   );
-  // Undetected Mark adjudicated as Valid (isVote=true, no initial vote)
-  bestAnimal.options[0].voteAdjudication = {
-    electionId: 'e',
-    cvrId: CVR_ID_1,
-    contestId: 'best-animal-mammal',
-    optionId: 'horse',
-    isVote: true,
-  };
-  // Mark adjudicated as Invalid (isVote=false, had initial vote)
-  bestAnimal.options[1].initialVote = true;
-  bestAnimal.options[1].voteAdjudication = {
-    electionId: 'e',
-    cvrId: CVR_ID_1,
-    contestId: 'best-animal-mammal',
-    optionId: 'otter',
-    isVote: false,
-  };
+  // Mark adjudicated as Invalid (scannedVote=true, adjudicatedVote=false)
+  bestAnimal.options[1].scannedVote = true;
 
-  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
-    zooCouncil,
-    bestAnimal,
-  ]);
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [zooCouncil, bestAnimal],
+    {
+      adjudicatedContests: [
+        {
+          contestId: 'zoo-council-mammal',
+          adjudicatedContestOptionById: {
+            // Marginal marks - official options
+            [zooCouncil.options[0].definition.id]: {
+              type: 'official-option',
+              hasVote: true,
+            },
+            [zooCouncil.options[1].definition.id]: {
+              type: 'official-option',
+              hasVote: false,
+            },
+            // Other official candidates (no change, but included for completeness)
+            [zooCouncil.options[2].definition.id]: {
+              type: 'official-option',
+              hasVote: false,
+            },
+            [zooCouncil.options[3].definition.id]: {
+              type: 'official-option',
+              hasVote: false,
+            },
+            // Write-ins
+            'write-in-0': {
+              type: 'write-in-option',
+              candidateType: 'official-candidate',
+              hasVote: true,
+              candidateId: 'zebra',
+            },
+            'write-in-1': {
+              type: 'write-in-option',
+              candidateType: 'write-in-candidate',
+              hasVote: true,
+              candidateName: WRITE_IN_CANDIDATE_NAME,
+            },
+            'write-in-2': { type: 'write-in-option', hasVote: false },
+            'write-in-3': { type: 'write-in-option', hasVote: false },
+          },
+        },
+        makeAdjudicatedCvrContest('best-animal-mammal', {
+          // Undetected Mark adjudicated as Valid (scannedVote=false → true)
+          [bestAnimal.options[0].definition.id]: true,
+          // Mark adjudicated as Invalid (scannedVote=true → false)
+          [bestAnimal.options[1].definition.id]: false,
+          [bestAnimal.options[2].definition.id]: false,
+        }),
+      ],
+    }
+  );
 
   apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);

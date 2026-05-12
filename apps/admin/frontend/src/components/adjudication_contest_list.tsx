@@ -6,15 +6,16 @@ import {
   ContestId,
   Election,
   getContestDistrictName,
-  Id,
   Side,
 } from '@votingworks/types';
 import type {
+  AdjudicatedContestOption,
+  AdjudicatedCvrContest,
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
   CvrTag,
 } from '@votingworks/admin-backend';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { find } from '@votingworks/basics';
 import {
   Button,
   Callout,
@@ -25,7 +26,10 @@ import {
   P,
 } from '@votingworks/ui';
 import { EntityList } from './entity_list';
-import { isContestTagOnlyUndervote } from '../utils/adjudication';
+import {
+  isContestResolved,
+  isContestTagOnlyUndervote,
+} from '../utils/adjudication';
 
 const Column = styled.div`
   display: flex;
@@ -81,15 +85,11 @@ function getVotesAllowed(contest: AnyContest): number {
   return contest.type === 'yesno' ? 1 : contest.seats;
 }
 
-function getAdjudicatedVote(option: ContestOptionAdjudicationData): boolean {
-  const { initialVote, voteAdjudication, writeInRecord } = option;
-  if (writeInRecord && writeInRecord.status === 'adjudicated') {
-    return writeInRecord.adjudicationType !== 'invalid';
-  }
-  if (voteAdjudication) {
-    return voteAdjudication.isVote;
-  }
-  return initialVote;
+function getCurrentVote(
+  option: ContestOptionAdjudicationData,
+  adjudicatedOption?: AdjudicatedContestOption
+): boolean {
+  return adjudicatedOption?.hasVote ?? option.scannedVote;
 }
 
 type VoteStatus = 'overvote' | 'undervote' | 'normal';
@@ -107,15 +107,19 @@ export interface ContestListItem {
 
 function getStatusLine(
   item: ContestListItem,
-  showUndervoteStatus: boolean
+  showUndervoteStatus: boolean,
+  adjudicatedContest: AdjudicatedCvrContest
 ): React.ReactNode {
   const votesAllowed = getVotesAllowed(item.contest);
 
   const originalVoteCount = item.adjudicationData.options.filter(
-    (o) => o.initialVote
+    (o) => o.scannedVote
   ).length;
   const adjudicatedVoteCount = item.adjudicationData.options.filter((o) =>
-    getAdjudicatedVote(o)
+    getCurrentVote(
+      o,
+      adjudicatedContest.adjudicatedContestOptionById[o.definition.id]
+    )
   ).length;
 
   const originalStatus = getVoteStatus(originalVoteCount, votesAllowed);
@@ -173,63 +177,53 @@ function getStatusLine(
 function getOptionResolutionLine(
   option: ContestOptionAdjudicationData,
   contest: AnyContest,
-  writeInCandidateNamesById: Map<Id, string>
+  adjudicatedOption?: AdjudicatedContestOption
 ): React.ReactNode | undefined {
-  const {
-    definition,
-    initialVote,
-    hasMarginalMark,
-    voteAdjudication,
-    writeInRecord,
-  } = option;
+  const { definition, scannedVote, hasMarginalMark, writeInRecord } = option;
 
-  if (writeInRecord && writeInRecord.status === 'adjudicated') {
+  if (
+    adjudicatedOption?.type === 'write-in-option' &&
+    (adjudicatedOption.hasVote || writeInRecord)
+  ) {
+    const candidateName: string | undefined = (() => {
+      if (!adjudicatedOption.hasVote) return undefined;
+      if (adjudicatedOption.candidateType === 'official-candidate') {
+        return find(
+          (contest as CandidateContest).candidates,
+          (c) => c.id === adjudicatedOption.candidateId
+        ).name;
+      }
+      return adjudicatedOption.candidateName;
+    })();
+
     const writeInPrefix =
-      writeInRecord.isUnmarked || writeInRecord.isUndetected || hasMarginalMark
+      !writeInRecord ||
+      writeInRecord.isUnmarked ||
+      writeInRecord.isUndetected ||
+      hasMarginalMark
         ? 'Ambiguous Write-In'
         : 'Write-In';
-    switch (writeInRecord.adjudicationType) {
-      case 'official-candidate': {
-        const candidateName = assertDefined(
-          (contest as CandidateContest).candidates.find(
-            (c) => c.id === writeInRecord.candidateId
-          )
-        ).name;
-        return (
-          <span>
-            <Font weight="semiBold">{writeInPrefix} </Font>adjudicated for
-            <Font weight="semiBold"> {candidateName}</Font>
-          </span>
-        );
-      }
-      case 'write-in-candidate': {
-        const candidateName = assertDefined(
-          writeInCandidateNamesById.get(writeInRecord.candidateId)
-        );
-        return (
-          <span>
-            <Font weight="semiBold">{writeInPrefix} </Font>adjudicated for
-            <Font weight="semiBold"> {candidateName}</Font>
-          </span>
-        );
-      }
-      case 'invalid':
-        return (
-          <span>
-            <Font weight="semiBold">{writeInPrefix} </Font>adjudicated as
-            <Font weight="semiBold"> Invalid</Font>
-          </span>
-        );
-      /* istanbul ignore next - @preserve */
-      default: {
-        throwIllegalValue(writeInRecord, 'adjudicationType');
-      }
+
+    if (candidateName) {
+      return (
+        <span>
+          <Font weight="semiBold">{writeInPrefix} </Font>adjudicated for
+          <Font weight="semiBold"> {candidateName}</Font>
+        </span>
+      );
     }
+    return (
+      <span>
+        <Font weight="semiBold">{writeInPrefix} </Font>adjudicated as
+        <Font weight="semiBold"> Invalid</Font>
+      </span>
+    );
   }
 
+  const currentVote = getCurrentVote(option, adjudicatedOption);
+
   if (hasMarginalMark) {
-    const isVote = voteAdjudication ? voteAdjudication.isVote : initialVote;
-    const newValue = isVote ? 'Valid' : 'Invalid';
+    const newValue = currentVote ? 'Valid' : 'Invalid';
     return (
       <span>
         <Font weight="semiBold">Marginal Mark </Font>for
@@ -240,9 +234,9 @@ function getOptionResolutionLine(
     );
   }
 
-  if (voteAdjudication) {
-    const preface = voteAdjudication.isVote ? 'Undetected Mark' : 'Mark';
-    const newValue = voteAdjudication.isVote ? 'Valid' : 'Invalid';
+  if (currentVote !== scannedVote) {
+    const preface = currentVote ? 'Undetected Mark' : 'Mark';
+    const newValue = currentVote ? 'Valid' : 'Invalid';
     return (
       <span>
         <Font weight="semiBold">{preface} </Font>for
@@ -259,16 +253,24 @@ function getOptionResolutionLine(
 function ContestAdjudicationSummary({
   item,
   showUndervoteStatus,
-  writeInCandidateNamesById,
+  adjudicatedContest,
 }: {
   item: ContestListItem;
   showUndervoteStatus: boolean;
-  writeInCandidateNamesById: Map<Id, string>;
+  adjudicatedContest: AdjudicatedCvrContest;
 }): JSX.Element | null {
-  const statusLine = getStatusLine(item, showUndervoteStatus);
+  const statusLine = getStatusLine(
+    item,
+    showUndervoteStatus,
+    adjudicatedContest
+  );
   const bullets = item.adjudicationData.options
     .map((option) =>
-      getOptionResolutionLine(option, item.contest, writeInCandidateNamesById)
+      getOptionResolutionLine(
+        option,
+        item.contest,
+        adjudicatedContest.adjudicatedContestOptionById[option.definition.id]
+      )
     )
     .filter((desc): desc is React.ReactNode => desc !== undefined);
 
@@ -288,6 +290,7 @@ function ContestAdjudicationSummary({
 }
 
 function BallotSideContestList({
+  adjudicatedContests,
   contests,
   election,
   firstUnresolvedContestId,
@@ -298,8 +301,8 @@ function BallotSideContestList({
   onSelect,
   showUndervoteStatus,
   title,
-  writeInCandidateNamesById,
 }: {
+  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
   contests: ContestListItem[];
   election: Election;
   firstUnresolvedContestId?: ContestId;
@@ -310,7 +313,6 @@ function BallotSideContestList({
   onSelect: (contestId: ContestId) => void;
   showUndervoteStatus: boolean;
   title: string;
-  writeInCandidateNamesById: Map<Id, string>;
 }): React.ReactNode {
   return (
     <React.Fragment>
@@ -337,16 +339,19 @@ function BallotSideContestList({
         {contests.map((item) => {
           const { contest, adjudicationData } = item;
           const { tag } = adjudicationData;
-          const isPending = tag && !tag.isResolved;
-          const isResolved = tag && tag.isResolved;
+          const adjudicatedContest = adjudicatedContests.get(contest.id);
+          const isResolved = isContestResolved(
+            adjudicationData,
+            adjudicatedContests
+          );
+          const isPending = !isResolved;
           const isFirstUnresolved = contest.id === firstUnresolvedContestId;
           const isOnlyUndervote = tag && isContestTagOnlyUndervote(tag);
 
-          const hasAdjudication = adjudicationData.options.some(
-            (o) => o.voteAdjudication
-          );
           const suppressContestAdjudicationInfo =
-            isBlankBallot && isOnlyUndervote && !hasAdjudication;
+            isBlankBallot &&
+            isOnlyUndervote &&
+            adjudicatedContest === undefined;
 
           return (
             <EntityList.Item
@@ -355,9 +360,7 @@ function BallotSideContestList({
               onSelect={onSelect}
               onHover={onHover}
               autoScrollIntoView={isFirstUnresolved}
-              hasWarning={
-                (isPending && !suppressContestAdjudicationInfo) || false
-              }
+              hasWarning={isPending && !suppressContestAdjudicationInfo}
             >
               <Column>
                 <EntityList.Caption>
@@ -369,11 +372,11 @@ function BallotSideContestList({
                 >
                   {contest.title}
                 </EntityList.Label>
-                {isResolved && !suppressContestAdjudicationInfo && (
+                {adjudicatedContest && !suppressContestAdjudicationInfo && (
                   <ContestAdjudicationSummary
                     item={item}
                     showUndervoteStatus={showUndervoteStatus}
-                    writeInCandidateNamesById={writeInCandidateNamesById}
+                    adjudicatedContest={adjudicatedContest}
                   />
                 )}
               </Column>
@@ -389,42 +392,49 @@ function BallotSideContestList({
 }
 
 export interface AdjudicationContestListProps {
+  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
   backContests: ContestListItem[];
   cvrTag?: CvrTag;
   election: Election;
   frontContests: ContestListItem[];
+  isResolved: boolean;
   onHover: (contestId: ContestId | null) => void;
   onSelect: (contestId: ContestId) => void;
   onSelectSide: (side: Side) => void;
   selectedSide: Side;
   showUndervoteStatus: boolean;
-  writeInCandidateNamesById: Map<Id, string>;
 }
 
 export function AdjudicationContestList({
+  adjudicatedContests,
   backContests,
   cvrTag,
   election,
   frontContests,
+  isResolved,
   onHover,
   onSelect,
   onSelectSide,
   selectedSide,
   showUndervoteStatus,
-  writeInCandidateNamesById,
 }: AdjudicationContestListProps): React.ReactNode {
   const allContests = [...frontContests, ...backContests];
   const firstUnresolvedContestId = cvrTag?.isBlankBallot
     ? undefined
     : allContests.find(
-        (item) =>
-          item.adjudicationData.tag && !item.adjudicationData.tag.isResolved
+        (item) => !isContestResolved(item.adjudicationData, adjudicatedContests)
       )?.contest.id;
 
   const blankBallotHasAnyAdjudicatedVote =
     cvrTag?.isBlankBallot &&
     allContests.some((item) =>
-      item.adjudicationData.options.some((o) => getAdjudicatedVote(o))
+      item.adjudicationData.options.some((o) =>
+        getCurrentVote(
+          o,
+          adjudicatedContests.get(item.contest.id)
+            ?.adjudicatedContestOptionById[o.definition.id]
+        )
+      )
     );
 
   const blankBallotCalloutTitle = (() => {
@@ -432,9 +442,7 @@ export function AdjudicationContestList({
     if (blankBallotHasAnyAdjudicatedVote) {
       return 'Blank Ballot Resolved';
     }
-    return cvrTag.isResolved
-      ? 'Blank Ballot Confirmed'
-      : 'Blank Ballot Detected';
+    return isResolved ? 'Blank Ballot Confirmed' : 'Blank Ballot Detected';
   })();
 
   return (
@@ -445,14 +453,14 @@ export function AdjudicationContestList({
             color={
               blankBallotHasAnyAdjudicatedVote
                 ? 'neutral'
-                : !cvrTag.isResolved
+                : !isResolved
                 ? 'warning'
                 : 'primary'
             }
           >
             <CalloutContent>
               <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
-                {cvrTag.isResolved || blankBallotHasAnyAdjudicatedVote ? (
+                {isResolved || blankBallotHasAnyAdjudicatedVote ? (
                   <Icons.Done
                     color={
                       blankBallotHasAnyAdjudicatedVote ? 'neutral' : 'primary'
@@ -490,6 +498,7 @@ export function AdjudicationContestList({
       )}
       {frontContests.length > 0 && (
         <BallotSideContestList
+          adjudicatedContests={adjudicatedContests}
           contests={frontContests}
           election={election}
           firstUnresolvedContestId={firstUnresolvedContestId}
@@ -500,11 +509,11 @@ export function AdjudicationContestList({
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
           title="Front"
-          writeInCandidateNamesById={writeInCandidateNamesById}
         />
       )}
       {backContests.length > 0 && (
         <BallotSideContestList
+          adjudicatedContests={adjudicatedContests}
           contests={backContests}
           election={election}
           firstUnresolvedContestId={firstUnresolvedContestId}
@@ -515,7 +524,6 @@ export function AdjudicationContestList({
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
           title="Back"
-          writeInCandidateNamesById={writeInCandidateNamesById}
         />
       )}
     </EntityList.Box>

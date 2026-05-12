@@ -25,6 +25,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
+import { AdjudicatedContestOption } from './types';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -142,53 +143,40 @@ test('general, full election, write in adjudication', async () => {
   for (const [i, writeIn] of writeIns.entries()) {
     const { cvrId, contestId, optionId } = writeIn;
     await apiClient.claimBallotForAdjudication({ cvrId });
+    let optionAdjudication: AdjudicatedContestOption;
     if (i < NUM_INVALID) {
-      expect(
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [optionId]: {
-              type: 'write-in-option',
-              hasVote: false,
-            },
-          },
-        })
-      ).toEqual(ok());
+      optionAdjudication = {
+        type: 'write-in-option',
+        hasVote: false,
+      };
     } else if (i < NUM_INVALID + NUM_OFFICIAL) {
-      expect(
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [optionId]: {
-              type: 'write-in-option',
-              candidateId: officialCandidateId,
-              candidateType: 'official-candidate',
-              hasVote: true,
-            },
-          },
-        })
-      ).toEqual(ok());
+      optionAdjudication = {
+        type: 'write-in-option',
+        candidateId: officialCandidateId,
+        candidateType: 'official-candidate',
+        hasVote: true,
+      };
     } else {
-      expect(
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [optionId]: {
-              type: 'write-in-option',
-              candidateName: unofficialCandidate.name,
-              candidateType: 'write-in-candidate',
-              hasVote: true,
+      optionAdjudication = {
+        type: 'write-in-option',
+        candidateName: unofficialCandidate.name,
+        candidateType: 'write-in-candidate',
+        hasVote: true,
+      };
+    }
+    expect(
+      await apiClient.adjudicateCvr({
+        cvrId,
+        contests: [
+          {
+            contestId,
+            adjudicatedContestOptionById: {
+              [optionId]: optionAdjudication,
             },
           },
-        })
-      ).toEqual(ok());
-    }
+        ],
+      })
+    ).toEqual(ok());
   }
 
   const wiaFullElectionTallyReportList =
@@ -975,18 +963,21 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
     if (i < NUM_ADJUDICATED) {
       await apiClient.claimBallotForAdjudication({ cvrId: writeIn.cvrId });
       expect(
-        await apiClient.adjudicateCvrContest({
+        await apiClient.adjudicateCvr({
           cvrId: writeIn.cvrId,
-          contestId: writeInContestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [writeIn.optionId]: {
-              type: 'write-in-option',
-              candidateName: unofficialCandidate.name,
-              candidateType: 'write-in-candidate',
-              hasVote: true,
+          contests: [
+            {
+              contestId: writeInContestId,
+              adjudicatedContestOptionById: {
+                [writeIn.optionId]: {
+                  type: 'write-in-option',
+                  candidateName: unofficialCandidate.name,
+                  candidateType: 'write-in-candidate',
+                  hasVote: true,
+                },
+              },
             },
-          },
+          ],
         })
       ).toEqual(ok());
     }

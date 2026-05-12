@@ -1,19 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type {
+  AdjudicatedContestOption,
+  AdjudicatedContestOptions,
   ContestAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import type {
-  ContestOptionId,
-  Candidate,
-  YesNoOption,
-} from '@votingworks/types';
-import {
-  assert,
-  assertDefined,
-  iter,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import type { ContestOptionId, Candidate } from '@votingworks/types';
+import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
 import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
 import { normalizeWriteInName } from '../utils/adjudication';
@@ -90,197 +83,12 @@ export function isMarginalMarkPending(
   return status === 'pending';
 }
 
-export interface ContestInfo {
-  officialOptions: Candidate[] | YesNoOption[];
+export function useContestAdjudicationState(initialValues: {
+  contestAdjudicationData: ContestAdjudicationData;
+  writeInCandidates: WriteInCandidateRecord[];
   isCandidateContest: boolean;
-  numberOfWriteIns: number;
-}
-
-interface OfficialOptionAdjudicationState {
-  optionId: ContestOptionId;
-  hasVote: boolean;
-  marginalMarkStatus: MarginalMarkStatus;
-  isWriteIn: false;
-}
-
-interface WriteInOptionAdjudicationState {
-  optionId: ContestOptionId;
-  hasVote: boolean;
-  marginalMarkStatus: MarginalMarkStatus;
-  writeInAdjudicationStatus: WriteInAdjudicationStatus;
-  isWriteIn: true;
-}
-
-type ContestOptionAdjudicationState =
-  | OfficialOptionAdjudicationState
-  | WriteInOptionAdjudicationState;
-
-type ContestOptionAdjudicationStateById = Map<
-  ContestOptionId,
-  ContestOptionAdjudicationState
->;
-
-interface ContestAdjudicationState {
-  optionState: ContestOptionAdjudicationStateById;
-  initialOptionState: ContestOptionAdjudicationStateById | null;
-  isStateReady: boolean;
-}
-
-function writeInStatusesEqual(
-  a: WriteInAdjudicationStatus,
-  b: WriteInAdjudicationStatus
-): boolean {
-  if (a === undefined && b === undefined) return true;
-  if (a === undefined || b === undefined) return false;
-  if (a.type !== b.type) return false;
-  if (
-    (a.type === 'existing-official' || a.type === 'existing-write-in') &&
-    (b.type === 'existing-official' || b.type === 'existing-write-in')
-  ) {
-    return a.id === b.id;
-  }
-  if (a.type === 'new-write-in' && b.type === 'new-write-in') {
-    return a.name === b.name;
-  }
-  return true;
-}
-
-function optionStateMapsEqual(
-  a: ContestOptionAdjudicationStateById,
-  b: ContestOptionAdjudicationStateById
-): boolean {
-  for (const [id, stateA] of a) {
-    const stateB = b.get(id);
-    if (!stateB) return false;
-    if (stateA.hasVote !== stateB.hasVote) return false;
-    if (stateA.marginalMarkStatus !== stateB.marginalMarkStatus) return false;
-    if (
-      stateA.isWriteIn &&
-      stateB.isWriteIn &&
-      !writeInStatusesEqual(
-        stateA.writeInAdjudicationStatus,
-        stateB.writeInAdjudicationStatus
-      )
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function getWriteInOptions(
-  state: ContestOptionAdjudicationStateById
-): WriteInOptionAdjudicationState[] {
-  return iter(state.values())
-    .filter((option) => option.isWriteIn)
-    .toArray();
-}
-
-function makeEmptyState(
-  contestInfo: ContestInfo
-): ContestOptionAdjudicationStateById {
-  const state: ContestOptionAdjudicationStateById = new Map();
-  for (const option of contestInfo.officialOptions) {
-    state.set(option.id, {
-      optionId: option.id,
-      hasVote: false,
-      marginalMarkStatus: 'none',
-      isWriteIn: false,
-    });
-  }
-  for (let i = 0; i < contestInfo.numberOfWriteIns; i += 1) {
-    const writeInOptionId = `write-in-${i}`;
-    state.set(writeInOptionId, {
-      optionId: writeInOptionId,
-      hasVote: false,
-      marginalMarkStatus: 'none',
-      isWriteIn: true,
-      writeInAdjudicationStatus: undefined,
-    });
-  }
-  return state;
-}
-
-export function makeInitialState(
-  contestInfo: ContestInfo,
-  contestAdjudicationData: ContestAdjudicationData,
-  writeInCandidates: WriteInCandidateRecord[]
-): ContestOptionAdjudicationStateById {
-  const state = makeEmptyState(contestInfo);
-
-  for (const option of contestAdjudicationData.options) {
-    const optionState = assertDefined(state.get(option.definition.id));
-
-    optionState.hasVote = option.voteAdjudication
-      ? option.voteAdjudication.isVote
-      : option.initialVote;
-
-    if (option.hasMarginalMark) {
-      assert(contestAdjudicationData.tag !== undefined);
-      optionState.marginalMarkStatus = contestAdjudicationData.tag.isResolved
-        ? 'resolved'
-        : 'pending';
-    }
-
-    if (!optionState.isWriteIn) {
-      continue;
-    }
-
-    const { writeInRecord } = option;
-    if (!writeInRecord) {
-      continue;
-    }
-
-    if (writeInRecord.status === 'pending') {
-      optionState.writeInAdjudicationStatus = { type: 'pending' };
-      continue;
-    }
-    switch (writeInRecord.adjudicationType) {
-      case 'official-candidate': {
-        const candidate = assertDefined(
-          contestInfo.officialOptions.find(
-            (o) => o.id === writeInRecord.candidateId
-          )
-        ) as Candidate;
-        optionState.writeInAdjudicationStatus = {
-          ...candidate,
-          type: 'existing-official',
-        };
-        optionState.hasVote = true;
-        break;
-      }
-      case 'write-in-candidate': {
-        const candidate = assertDefined(
-          writeInCandidates.find((c) => c.id === writeInRecord.candidateId)
-        );
-        optionState.writeInAdjudicationStatus = {
-          ...candidate,
-          type: 'existing-write-in',
-        };
-        optionState.hasVote = true;
-        break;
-      }
-      case 'invalid': {
-        optionState.writeInAdjudicationStatus = { type: 'invalid' };
-        optionState.hasVote = false;
-        break;
-      }
-      default: {
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(writeInRecord, 'adjudicationType');
-      }
-    }
-  }
-  return state;
-}
-
-export function useContestAdjudicationState(
-  contestInfo: ContestInfo,
-  initialValues?: {
-    contestAdjudicationData: ContestAdjudicationData;
-    writeInCandidates: WriteInCandidateRecord[];
-  }
-): {
+  adjudicatedOptions?: AdjudicatedContestOptions;
+}): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
   setOptionWriteInStatus: (
@@ -294,7 +102,7 @@ export function useContestAdjudicationState(
   getOptionMarginalMarkStatus: (
     optionId: ContestOptionId
   ) => MarginalMarkStatus;
-  isStateReady: boolean;
+  getAdjudicatedContestOptions: () => AdjudicatedContestOptions;
   isModified: boolean;
   checkWriteInNameForDoubleVote: ({
     writeInName,
@@ -308,94 +116,201 @@ export function useContestAdjudicationState(
   selectedCandidateNames: string[];
   voteCount: number;
 } {
-  const [state, setState] = useState<ContestAdjudicationState>({
-    optionState: makeEmptyState(contestInfo),
-    initialOptionState: null,
-    isStateReady: false,
-  });
-  const optionsList = [...state.optionState.values()];
+  const {
+    contestAdjudicationData,
+    isCandidateContest,
+    adjudicatedOptions = {},
+    writeInCandidates,
+  } = initialValues;
+  const [optionState, setState] =
+    useState<AdjudicatedContestOptions>(adjudicatedOptions);
 
-  // Initialize state when initial values are loaded
-  useEffect(() => {
-    if (initialValues && !state.isStateReady) {
-      const initialOptionState = makeInitialState(
-        contestInfo,
-        initialValues.contestAdjudicationData,
-        initialValues.writeInCandidates
-      );
-      setState({
-        optionState: initialOptionState,
-        initialOptionState,
-        isStateReady: true,
-      });
-    }
-  }, [initialValues, state.isStateReady, contestInfo]);
+  const officialOptions = contestAdjudicationData.options
+    .filter((o) => o.definition.type !== 'candidate' || !o.definition.isWriteIn)
+    .map((o) => o.definition);
 
-  function getOptionHasVote(optionId: ContestOptionId): boolean {
-    return assertDefined(state.optionState.get(optionId)).hasVote;
+  function getOptionState(
+    optionId: ContestOptionId
+  ): AdjudicatedContestOption | undefined {
+    return optionState[optionId];
   }
 
-  function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
-    setState((prev) => ({
-      ...prev,
-      optionState: new Map([
-        ...prev.optionState,
-        [
-          optionId,
-          { ...assertDefined(prev.optionState.get(optionId)), hasVote },
-        ],
-      ]),
-    }));
+  function setOptionState(
+    optionId: ContestOptionId,
+    option: AdjudicatedContestOption
+  ): void {
+    setState((prev) => ({ ...prev, [optionId]: option }));
+  }
+
+  function clearOptionState(optionId: ContestOptionId): void {
+    setState((prev) => {
+      const updated: AdjudicatedContestOptions = { ...prev };
+      delete updated[optionId];
+      return updated;
+    });
+  }
+
+  function getOptionData(optionId: ContestOptionId) {
+    return assertDefined(
+      contestAdjudicationData.options.find((o) => o.definition.id === optionId)
+    );
+  }
+
+  function getOptionHasVote(optionId: ContestOptionId): boolean {
+    const option = getOptionState(optionId);
+    if (option) return option.hasVote;
+    return getOptionData(optionId).scannedVote;
+  }
+
+  function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean): void {
+    setOptionState(optionId, { type: 'official-option', hasVote });
   }
 
   function getOptionWriteInStatus(
     optionId: ContestOptionId
   ): WriteInAdjudicationStatus | undefined {
-    const optionState = assertDefined(state.optionState.get(optionId));
-    if (!optionState.isWriteIn) {
-      return undefined;
+    const option = getOptionState(optionId);
+    if (option) {
+      if (option.type === 'official-option') return undefined;
+      if (!option.hasVote) return { type: 'invalid' };
+      if (option.candidateType === 'official-candidate') {
+        const candidate = assertDefined(
+          officialOptions.find((o) => o.id === option.candidateId)
+        ) as Candidate;
+        return {
+          type: 'existing-official',
+          id: candidate.id,
+          name: candidate.name,
+        };
+      }
+      // write-in-candidate: empty name is when the user has flipped an unmarked
+      // write-in option but hasn't entered a name yet
+      if (option.candidateName === '') return { type: 'pending' };
+      const existing = writeInCandidates.find(
+        (c) => c.name === option.candidateName
+      );
+      if (existing) {
+        return {
+          type: 'existing-write-in',
+          id: existing.id,
+          name: existing.name,
+        };
+      }
+      return { type: 'new-write-in', name: option.candidateName };
     }
-    return optionState.writeInAdjudicationStatus;
+
+    const { writeInRecord } = getOptionData(optionId);
+    if (!writeInRecord) return undefined;
+    assert(writeInRecord.status === 'pending');
+    return { type: 'pending' };
+  }
+
+  function writeInStatusToOption(
+    status: WriteInAdjudicationStatus
+  ): AdjudicatedContestOption {
+    if (!status || status.type === 'invalid') {
+      return { type: 'write-in-option', hasVote: false };
+    }
+    if (status.type === 'pending') {
+      return {
+        type: 'write-in-option',
+        candidateType: 'write-in-candidate',
+        hasVote: true,
+        candidateName: '',
+      };
+    }
+    if (status.type === 'existing-official') {
+      return {
+        type: 'write-in-option',
+        candidateType: 'official-candidate',
+        hasVote: true,
+        candidateId: status.id,
+      };
+    }
+    return {
+      type: 'write-in-option',
+      candidateType: 'write-in-candidate',
+      hasVote: true,
+      candidateName: status.name,
+    };
   }
 
   function setOptionWriteInStatus(
     optionId: ContestOptionId,
-    writeInAdjudicationStatus: WriteInAdjudicationStatus
-  ) {
-    setState((prev) => {
-      const option = assertDefined(prev.optionState.get(optionId));
-      assert(option.isWriteIn);
-      return {
-        ...prev,
-        optionState: new Map([
-          ...prev.optionState,
-          [optionId, { ...option, writeInAdjudicationStatus }],
-        ]),
-      };
-    });
+    status: WriteInAdjudicationStatus
+  ): void {
+    if (status === undefined) {
+      clearOptionState(optionId);
+      return;
+    }
+    setOptionState(optionId, writeInStatusToOption(status));
   }
 
   function getOptionMarginalMarkStatus(
     optionId: ContestOptionId
   ): MarginalMarkStatus {
-    return assertDefined(state.optionState.get(optionId)).marginalMarkStatus;
+    const optionData = getOptionData(optionId);
+    if (!optionData.hasMarginalMark) return 'none';
+    if (getOptionState(optionId)) return 'resolved';
+    return 'pending';
   }
 
-  function resolveOptionMarginalMark(optionId: ContestOptionId) {
+  function resolveOptionMarginalMark(optionId: ContestOptionId): void {
     setState((prev) => {
-      const option = assertDefined(prev.optionState.get(optionId));
-      if (isMarginalMarkPending(option.marginalMarkStatus)) {
-        return {
-          ...prev,
-          optionState: new Map([
-            ...prev.optionState,
-            [optionId, { ...option, marginalMarkStatus: 'resolved' }],
-          ]),
-        };
-      }
-      return prev;
+      if (prev[optionId]) return prev;
+      const { scannedVote } = getOptionData(optionId);
+      return {
+        ...prev,
+        [optionId]: { type: 'official-option', hasVote: scannedVote },
+      };
     });
   }
+
+  const optionsList = contestAdjudicationData.options.map((o) => ({
+    id: o.definition.id,
+    isWriteIn: o.definition.type === 'candidate' && o.definition.isWriteIn,
+  }));
+
+  function isOptionFullyAdjudicated(option: {
+    id: ContestOptionId;
+    isWriteIn: boolean;
+  }): boolean {
+    if (
+      option.isWriteIn &&
+      isWriteInPending(getOptionWriteInStatus(option.id))
+    ) {
+      return false;
+    }
+    if (isMarginalMarkPending(getOptionMarginalMarkStatus(option.id))) {
+      return false;
+    }
+    return true;
+  }
+
+  const allAdjudicationsCompleted = optionsList.every(isOptionFullyAdjudicated);
+
+  const firstOptionIdPendingAdjudication = optionsList.find(
+    (option) => !isOptionFullyAdjudicated(option)
+  )?.id;
+
+  const selectedCandidateNames: string[] = (() => {
+    if (!isCandidateContest) return [];
+    const names: string[] = [];
+    for (const option of optionsList) {
+      if (!getOptionHasVote(option.id)) continue;
+      if (option.isWriteIn) {
+        const writeInStatus = getOptionWriteInStatus(option.id);
+        if (!isValidCandidate(writeInStatus)) continue;
+        names.push(writeInStatus.name);
+      } else {
+        const candidate = assertDefined(
+          officialOptions.find((c) => c.id === option.id)
+        ) as Candidate;
+        names.push(candidate.name);
+      }
+    }
+    return names;
+  })();
 
   function checkWriteInNameForDoubleVote({
     writeInName,
@@ -404,14 +319,12 @@ export function useContestAdjudicationState(
     writeInName: string;
     optionId: ContestOptionId;
   }): DoubleVoteAlert | undefined {
-    if (!contestInfo.isCandidateContest) {
-      return undefined;
-    }
+    if (!isCandidateContest) return undefined;
 
     const normalizedName = normalizeWriteInName(writeInName);
-    const officialCandidateMatch = (
-      contestInfo.officialOptions as Candidate[]
-    ).find((c) => normalizeWriteInName(c.name) === normalizedName);
+    const officialCandidateMatch = (officialOptions as Candidate[]).find(
+      (c) => normalizeWriteInName(c.name) === normalizedName
+    );
     if (officialCandidateMatch && getOptionHasVote(officialCandidateMatch.id)) {
       return {
         type: 'marked-official-candidate',
@@ -419,17 +332,16 @@ export function useContestAdjudicationState(
         optionId,
       };
     }
-    const writeInOptionMatch = getWriteInOptions(state.optionState)
-      .filter(({ optionId: id }) => id !== optionId && getOptionHasVote(id))
-      .find(
-        ({ writeInAdjudicationStatus }) =>
-          isValidCandidate(writeInAdjudicationStatus) &&
-          normalizeWriteInName(writeInAdjudicationStatus.name) ===
-            normalizedName
-      );
-    if (writeInOptionMatch) {
+
+    for (const option of optionsList) {
+      if (!option.isWriteIn) continue;
+      if (option.id === optionId) continue;
+      if (!getOptionHasVote(option.id)) continue;
+      const writeInStatus = getOptionWriteInStatus(option.id);
+      if (!isValidCandidate(writeInStatus)) continue;
+      if (normalizeWriteInName(writeInStatus.name) !== normalizedName) continue;
       return {
-        type: isOfficialCandidate(writeInOptionMatch.writeInAdjudicationStatus)
+        type: isOfficialCandidate(writeInStatus)
           ? 'adjudicated-official-candidate'
           : 'adjudicated-write-in-candidate',
         name: writeInName,
@@ -439,54 +351,27 @@ export function useContestAdjudicationState(
     return undefined;
   }
 
-  const allAdjudicationsCompleted = optionsList.every(
-    (option) =>
-      (!option.isWriteIn ||
-        !isWriteInPending(option.writeInAdjudicationStatus)) &&
-      !isMarginalMarkPending(option.marginalMarkStatus)
-  );
-
-  const firstOptionIdPendingAdjudication = state.isStateReady
-    ? optionsList.find(
-        (option) =>
-          isMarginalMarkPending(option.marginalMarkStatus) ||
-          (option.isWriteIn &&
-            isWriteInPending(option.writeInAdjudicationStatus))
-      )?.optionId
-    : undefined;
-
-  const selectedCandidateNames: string[] = (() => {
-    if (!contestInfo.isCandidateContest) {
-      return [];
-    }
-    const contestOptionsWithVote = optionsList.filter(
-      (option) => option.hasVote
-    );
-    const names: string[] = [];
-    for (const contestOption of contestOptionsWithVote) {
-      if (contestOption.isWriteIn) {
-        if (!isValidCandidate(contestOption.writeInAdjudicationStatus)) {
-          continue;
-        }
-        names.push(contestOption.writeInAdjudicationStatus.name);
+  function getAdjudicatedContestOptions(): AdjudicatedContestOptions {
+    const result: AdjudicatedContestOptions = { ...optionState };
+    for (const o of optionsList) {
+      if (result[o.id]) continue;
+      if (o.isWriteIn) {
+        result[o.id] = writeInStatusToOption(getOptionWriteInStatus(o.id));
       } else {
-        const officialCandidate = assertDefined(
-          contestInfo.officialOptions.find(
-            (c) => c.id === contestOption.optionId
-          )
-        ) as Candidate;
-        names.push(officialCandidate.name);
+        result[o.id] = {
+          type: 'official-option',
+          hasVote: getOptionData(o.id).scannedVote,
+        };
       }
     }
-    return names;
-  })();
+    return result;
+  }
 
-  const isModified =
-    state.initialOptionState !== null &&
-    !optionStateMapsEqual(state.optionState, state.initialOptionState);
+  const voteCount = optionsList.filter((o) => getOptionHasVote(o.id)).length;
+
+  const isModified = !deepEqual(optionState, adjudicatedOptions);
 
   return {
-    isStateReady: state.isStateReady,
     isModified,
     setOptionHasVote,
     getOptionHasVote,
@@ -494,10 +379,11 @@ export function useContestAdjudicationState(
     getOptionWriteInStatus,
     getOptionMarginalMarkStatus,
     resolveOptionMarginalMark,
+    getAdjudicatedContestOptions,
     checkWriteInNameForDoubleVote,
     allAdjudicationsCompleted,
     firstOptionIdPendingAdjudication,
     selectedCandidateNames,
-    voteCount: optionsList.filter((o) => o.hasVote).length,
+    voteCount,
   };
 }

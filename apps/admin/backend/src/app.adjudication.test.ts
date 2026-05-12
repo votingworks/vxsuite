@@ -37,6 +37,7 @@ import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
   BallotAdjudicationData,
+  ContestAdjudicationData,
 } from './types';
 import { getCurrentTime } from './get_current_time';
 
@@ -56,6 +57,20 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 const MANUAL_CAST_VOTE_RECORD_EXPORT_ID =
   '864a2854-ee26-4223-8097-9633b7bed096';
+
+function buildNoVoteAdjudicatedContestOptionById(
+  contest: ContestAdjudicationData
+): Record<ContestOptionId, AdjudicatedContestOption> {
+  const result: Record<ContestOptionId, AdjudicatedContestOption> = {};
+  for (const option of contest.options) {
+    const isWriteIn =
+      option.definition.type === 'candidate' && option.definition.isWriteIn;
+    result[option.definition.id] = isWriteIn
+      ? { type: 'write-in-option', hasVote: false }
+      : { type: 'official-option', hasVote: false };
+  }
+  return result;
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -593,19 +608,15 @@ test('getNextCvrIdForBallotAdjudication', async () => {
     const cvrId = adjudicationQueue[index] || '';
     await apiClient.claimBallotForAdjudication({ cvrId });
     const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
-    for (const contest of adjData.contests) {
-      if (contest.tag) {
-        expect(
-          await apiClient.adjudicateCvrContest({
-            contestId: contest.contestId,
-            cvrId,
-            adjudicatedContestOptionById: {},
-            side: 'front',
-          })
-        ).toEqual(ok());
-      }
-    }
-    expect(await apiClient.setCvrResolved({ cvrId })).toEqual(ok());
+    const contests = adjData.contests
+      .filter((contest) => contest.tag)
+      .map((contest) => ({
+        contestId: contest.contestId,
+        cvrId,
+        adjudicatedContestOptionById:
+          buildNoVoteAdjudicatedContestOptionById(contest),
+      }));
+    expect(await apiClient.adjudicateCvr({ cvrId, contests })).toEqual(ok());
   }
 
   expect(await apiClient.getNextCvrIdForBallotAdjudication()).toEqual(
@@ -633,7 +644,7 @@ test('getNextCvrIdForBallotAdjudication', async () => {
   expect(await apiClient.getNextCvrIdForBallotAdjudication()).toEqual(null);
 });
 
-test('adjudicateCvrContest and setCvrResolved require active claim', async () => {
+test('adjudicateCvr requires active claim', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -651,18 +662,8 @@ test('adjudicateCvrContest and setCvrResolved require active claim', async () =>
   const queue = await apiClient.getBallotAdjudicationQueue();
   const cvrId = assertDefined(queue[0]);
 
-  // adjudicateCvrContest without claim returns no-claim error
-  expect(
-    await apiClient.adjudicateCvrContest({
-      contestId: 'contest-1',
-      cvrId,
-      adjudicatedContestOptionById: {},
-      side: 'front',
-    })
-  ).toEqual(err({ type: 'no-claim' }));
-
-  // setCvrResolved without claim returns no-claim error
-  expect(await apiClient.setCvrResolved({ cvrId })).toEqual(
+  // adjudicateCvr without claim returns no-claim error
+  expect(await apiClient.adjudicateCvr({ cvrId, contests: [] })).toEqual(
     err({ type: 'no-claim' })
   );
 });
@@ -692,11 +693,14 @@ test('claim and release are no-ops when multi-station is disabled', async () => 
 
   // adjudication succeeds without a real claim
   expect(
-    await apiClient.adjudicateCvrContest({
-      contestId: 'contest-1',
+    await apiClient.adjudicateCvr({
       cvrId,
-      adjudicatedContestOptionById: {},
-      side: 'front',
+      contests: [
+        {
+          contestId: 'contest-1',
+          adjudicatedContestOptionById: {},
+        },
+      ],
     })
   ).toEqual(ok());
 });
@@ -822,7 +826,9 @@ test('handling unmarked write-ins', async () => {
   );
   assert(contestData.tag !== undefined);
   expect(contestData.tag.hasUnmarkedWriteIn).toEqual(true);
-  expect(contestData.tag.isResolved).toEqual(false);
+  expect(
+    adjData.adjudicatedContests.some((c) => c.contestId === WRITE_IN_CONTEST_ID)
+  ).toEqual(false);
 
   // a UWI should be reflected in tallies if we mark it as valid
   const writeInOption = find(
@@ -834,18 +840,21 @@ test('handling unmarked write-ins', async () => {
 
   await apiClient.claimBallotForAdjudication({ cvrId });
   expect(
-    await apiClient.adjudicateCvrContest({
+    await apiClient.adjudicateCvr({
       cvrId,
-      contestId: WRITE_IN_CONTEST_ID,
-      side: 'front',
-      adjudicatedContestOptionById: {
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateId: OFFICIAL_CANDIDATE_ID,
-          candidateType: 'official-candidate',
+      contests: [
+        {
+          contestId: WRITE_IN_CONTEST_ID,
+          adjudicatedContestOptionById: {
+            'write-in-0': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateId: OFFICIAL_CANDIDATE_ID,
+              candidateType: 'official-candidate',
+            },
+          },
         },
-      },
+      ],
     })
   ).toEqual(ok());
 
@@ -875,16 +884,19 @@ test('handling unmarked write-ins', async () => {
 
   // an invalid UWI should appear the same as unadjudicated in tallies
   expect(
-    await apiClient.adjudicateCvrContest({
+    await apiClient.adjudicateCvr({
       cvrId,
-      contestId: WRITE_IN_CONTEST_ID,
-      side: 'front',
-      adjudicatedContestOptionById: {
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: false,
+      contests: [
+        {
+          contestId: WRITE_IN_CONTEST_ID,
+          adjudicatedContestOptionById: {
+            'write-in-0': {
+              type: 'write-in-option',
+              hasVote: false,
+            },
+          },
         },
-      },
+      ],
     })
   ).toEqual(ok());
 
@@ -905,15 +917,17 @@ test('handling unmarked write-ins', async () => {
     },
   });
 
-  expect(await apiClient.setCvrResolved({ cvrId })).toEqual(ok());
-
   const adjDataAfter = await apiClient.getBallotAdjudicationData({ cvrId });
   const contestDataAfter = find(
     adjDataAfter.contests,
     (c) => c.contestId === WRITE_IN_CONTEST_ID
   );
   assert(contestDataAfter.tag !== undefined);
-  expect(contestDataAfter.tag.isResolved).toEqual(true);
+  expect(
+    adjDataAfter.adjudicatedContests.some(
+      (c) => c.contestId === WRITE_IN_CONTEST_ID
+    )
+  ).toEqual(true);
 });
 
 test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
@@ -969,15 +983,15 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     return {
       adjudicatedContestOptionById: {
         'Josiah-Bartlett-1bb99985': {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: !!initialVotes['Josiah-Bartlett-1bb99985'],
         },
         'Hannah-Dustin-ab4ef7c8': {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: !!initialVotes['Hannah-Dustin-ab4ef7c8'],
         },
         'John-Spencer-9ffb5970': {
-          type: 'candidate-option',
+          type: 'official-option',
           hasVote: !!initialVotes['John-Spencer-9ffb5970'],
         },
         'write-in-0': {
@@ -986,9 +1000,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
         },
         ...overrides,
       },
-      cvrId,
       contestId,
-      side: 'front',
     };
   }
 
@@ -1053,19 +1065,24 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
 
   assert(initialContestData.tag !== undefined);
   expect(initialContestData.tag.hasWriteIn).toEqual(true);
-  expect(initialContestData.tag.isResolved).toEqual(false);
+  expect(
+    initialAdjData.adjudicatedContests.some((c) => c.contestId === contestId)
+  ).toEqual(false);
 
   // check the write-in being marked as invalid (false)
   await apiClient.claimBallotForAdjudication({ cvrId });
   expect(
-    await apiClient.adjudicateCvrContest(
-      formAdjudicatedCvrContest({
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: false,
-        },
-      })
-    )
+    await apiClient.adjudicateCvr({
+      cvrId,
+      contests: [
+        formAdjudicatedCvrContest({
+          'write-in-0': {
+            type: 'write-in-option',
+            hasVote: false,
+          },
+        }),
+      ],
+    })
   ).toEqual(ok());
 
   const adjDataAfterInvalid = await apiClient.getBallotAdjudicationData({
@@ -1077,7 +1094,11 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   );
   assert(contestDataAfterInvalid.tag !== undefined);
   expect(contestDataAfterInvalid.tag.hasWriteIn).toEqual(true);
-  expect(contestDataAfterInvalid.tag.isResolved).toEqual(true);
+  expect(
+    adjDataAfterInvalid.adjudicatedContests.some(
+      (c) => c.contestId === contestId
+    )
+  ).toEqual(true);
 
   const invalidWriteInOption = find(
     contestDataAfterInvalid.options,
@@ -1088,8 +1109,13 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   expect(invalidWriteInOption.writeInRecord.adjudicationType).toEqual(
     'invalid'
   );
-  assert(invalidWriteInOption.voteAdjudication !== undefined);
-  expect(invalidWriteInOption.voteAdjudication.isVote).toEqual(false);
+  const adjudicatedAfterInvalid = find(
+    adjDataAfterInvalid.adjudicatedContests,
+    (c) => c.contestId === contestId
+  );
+  expect(
+    adjudicatedAfterInvalid.adjudicatedContestOptionById['write-in-0']?.hasVote
+  ).toEqual(false);
   await expectContestResults({
     type: 'candidate',
     ballots: 184,
@@ -1121,16 +1147,19 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
 
   // check official candidate
   expect(
-    await apiClient.adjudicateCvrContest(
-      formAdjudicatedCvrContest({
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'official-candidate',
-          candidateId: 'Hannah-Dustin-ab4ef7c8',
-        },
-      })
-    )
+    await apiClient.adjudicateCvr({
+      cvrId,
+      contests: [
+        formAdjudicatedCvrContest({
+          'write-in-0': {
+            type: 'write-in-option',
+            hasVote: true,
+            candidateType: 'official-candidate',
+            candidateId: 'Hannah-Dustin-ab4ef7c8',
+          },
+        }),
+      ],
+    })
   ).toEqual(ok());
   const adjDataAfterOfficial = await apiClient.getBallotAdjudicationData({
     cvrId,
@@ -1187,16 +1216,19 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     name: 'Mr. Hero',
   });
   expect(
-    await apiClient.adjudicateCvrContest(
-      formAdjudicatedCvrContest({
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Mr. Hero',
-        },
-      })
-    )
+    await apiClient.adjudicateCvr({
+      cvrId,
+      contests: [
+        formAdjudicatedCvrContest({
+          'write-in-0': {
+            type: 'write-in-option',
+            hasVote: true,
+            candidateType: 'write-in-candidate',
+            candidateName: 'Mr. Hero',
+          },
+        }),
+      ],
+    })
   ).toEqual(ok());
   const adjDataAfterWriteIn = await apiClient.getBallotAdjudicationData({
     cvrId,
@@ -1253,14 +1285,17 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
 
   // circle back to invalid
   expect(
-    await apiClient.adjudicateCvrContest(
-      formAdjudicatedCvrContest({
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: false,
-        },
-      })
-    )
+    await apiClient.adjudicateCvr({
+      cvrId,
+      contests: [
+        formAdjudicatedCvrContest({
+          'write-in-0': {
+            type: 'write-in-option',
+            hasVote: false,
+          },
+        }),
+      ],
+    })
   ).toEqual(ok());
   const adjDataAfterCircleBack = await apiClient.getBallotAdjudicationData({
     cvrId,
@@ -1273,8 +1308,14 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   assert(circleBackOption.writeInRecord !== undefined);
   assert(circleBackOption.writeInRecord.status === 'adjudicated');
   expect(circleBackOption.writeInRecord.adjudicationType).toEqual('invalid');
-  assert(circleBackOption.voteAdjudication !== undefined);
-  expect(circleBackOption.voteAdjudication.isVote).toEqual(false);
+  const adjudicatedAfterCircleBack = find(
+    adjDataAfterCircleBack.adjudicatedContests,
+    (c) => c.contestId === contestId
+  );
+  expect(
+    adjudicatedAfterCircleBack.adjudicatedContestOptionById['write-in-0']
+      ?.hasVote
+  ).toEqual(false);
   await expectContestResults({
     type: 'candidate',
     ballots: 184,
@@ -1358,8 +1399,8 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   const writeInCandidates = await peerApiClient.getWriteInCandidates();
   expect(writeInCandidates).toEqual([]);
 
-  // Client 1 adjudicates each contest on their claimed ballot
-  for (const contest of ballotData.contests) {
+  // Client 1 adjudicates all contests on their claimed ballot in a single call
+  const client1Contests = ballotData.contests.map((contest) => {
     const adjudicatedContestOptionById: Record<
       string,
       AdjudicatedContestOption
@@ -1369,25 +1410,20 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
         option.definition.type === 'candidate' && option.definition.isWriteIn;
       adjudicatedContestOptionById[option.definition.id] = isWriteIn
         ? { type: 'write-in-option', hasVote: false }
-        : { type: 'candidate-option', hasVote: option.initialVote };
+        : { type: 'official-option', hasVote: option.scannedVote };
     }
+    return {
+      cvrId: cvrId1,
+      contestId: contest.contestId,
+      adjudicatedContestOptionById,
+    };
+  });
 
-    expect(
-      await peerApiClient.adjudicateCvrContest({
-        machineId: 'client-001',
-        cvrId: cvrId1,
-        contestId: contest.contestId,
-        side: 'front', // BMD ballots are always front
-        adjudicatedContestOptionById,
-      })
-    ).toEqual(ok());
-  }
-
-  // Client 1 resolves ballot tags (marks claim as completed)
   expect(
-    await peerApiClient.setCvrResolved({
+    await peerApiClient.adjudicateCvr({
       machineId: 'client-001',
       cvrId: cvrId1,
+      contests: client1Contests,
     })
   ).toEqual(ok());
 
@@ -1395,9 +1431,12 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   const hostBallotData = await apiClient.getBallotAdjudicationData({
     cvrId: cvrId1,
   });
+  const adjudicatedContestIds = new Set(
+    hostBallotData.adjudicatedContests.map((c) => c.contestId)
+  );
   for (const contest of hostBallotData.contests) {
     if (contest.tag) {
-      expect(contest.tag.isResolved).toEqual(true);
+      expect(adjudicatedContestIds.has(contest.contestId)).toEqual(true);
     }
   }
 
@@ -1663,30 +1702,33 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   const initialVotes = (await apiClient.getCastVoteRecordVoteInfo({ cvrId }))
     .votes;
   expect(
-    await apiClient.adjudicateCvrContest({
-      adjudicatedContestOptionById: {
-        'Josiah-Bartlett-1bb99985': {
-          type: 'candidate-option',
-          hasVote: !!initialVotes['Josiah-Bartlett-1bb99985'],
-        },
-        'Hannah-Dustin-ab4ef7c8': {
-          type: 'candidate-option',
-          hasVote: !!initialVotes['Hannah-Dustin-ab4ef7c8'],
-        },
-        'John-Spencer-9ffb5970': {
-          type: 'candidate-option',
-          hasVote: !!initialVotes['John-Spencer-9ffb5970'],
-        },
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Alice',
-        },
-      },
+    await apiClient.adjudicateCvr({
       cvrId,
-      contestId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            'Josiah-Bartlett-1bb99985': {
+              type: 'official-option',
+              hasVote: !!initialVotes['Josiah-Bartlett-1bb99985'],
+            },
+            'Hannah-Dustin-ab4ef7c8': {
+              type: 'official-option',
+              hasVote: !!initialVotes['Hannah-Dustin-ab4ef7c8'],
+            },
+            'John-Spencer-9ffb5970': {
+              type: 'official-option',
+              hasVote: !!initialVotes['John-Spencer-9ffb5970'],
+            },
+            'write-in-0': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateType: 'write-in-candidate',
+              candidateName: 'Alice',
+            },
+          },
+          contestId,
+        },
+      ],
     })
   ).toEqual(ok());
 
@@ -1802,22 +1844,6 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
     contestId: governorContestId,
     name: 'Alice',
   });
-  expect(
-    await apiClient.adjudicateCvrContest({
-      adjudicatedContestOptionById: {
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Alice',
-        },
-      },
-      cvrId,
-      contestId: governorContestId,
-      side: 'front',
-    })
-  ).toEqual(ok());
-
   // Also adjudicate a different contest on the same CVR, flipping an option
   // so the change is observable. This puts a second entry into the CVR's
   // adjudicated_votes JSON alongside the Governor entry.
@@ -1827,20 +1853,34 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   );
   const optionToFlip = assertDefined(
     otherContest.options.find(
-      (o) => o.definition.type === 'candidate' && !o.initialVote
+      (o) => o.definition.type === 'candidate' && !o.scannedVote
     )
   );
   expect(
-    await apiClient.adjudicateCvrContest({
-      adjudicatedContestOptionById: {
-        [optionToFlip.definition.id]: {
-          type: 'candidate-option',
-          hasVote: true,
-        },
-      },
+    await apiClient.adjudicateCvr({
       cvrId,
-      contestId: otherContest.contestId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            'write-in-0': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateType: 'write-in-candidate',
+              candidateName: 'Alice',
+            },
+          },
+          contestId: governorContestId,
+        },
+        {
+          adjudicatedContestOptionById: {
+            [optionToFlip.definition.id]: {
+              type: 'official-option',
+              hasVote: true,
+            },
+          },
+          contestId: otherContest.contestId,
+        },
+      ],
     })
   ).toEqual(ok());
 
@@ -1857,12 +1897,14 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
 
   // The unrelated contest's flipped vote should still be adjudicated.
   const dataAfterDelete = await apiClient.getBallotAdjudicationData({ cvrId });
-  const flippedOptionAfterDelete = assertDefined(
-    assertDefined(
-      dataAfterDelete.contests.find(
-        (c) => c.contestId === otherContest.contestId
-      )
-    ).options.find((o) => o.definition.id === optionToFlip.definition.id)
+  const adjudicatedOtherContest = assertDefined(
+    dataAfterDelete.adjudicatedContests.find(
+      (c) => c.contestId === otherContest.contestId
+    )
   );
-  expect(flippedOptionAfterDelete.voteAdjudication?.isVote).toEqual(true);
+  expect(
+    adjudicatedOtherContest.adjudicatedContestOptionById[
+      optionToFlip.definition.id
+    ]?.hasVote
+  ).toEqual(true);
 });

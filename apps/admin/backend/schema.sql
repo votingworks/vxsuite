@@ -107,7 +107,6 @@ create table write_ins (
   id varchar(36) not null unique,
   cvr_id varchar(36) not null,
   election_id varchar(36) not null,
-  side text not null check (side = 'front' or side = 'back'),
   contest_id text not null,
   option_id text not null,
   is_unmarked boolean not null default false,
@@ -120,7 +119,6 @@ create table write_ins (
   foreign key (election_id) references elections(id),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
-  foreign key (cvr_id, side) references ballot_images(cvr_id, side),
   foreign key (write_in_candidate_id) references write_in_candidates(id)
     on delete set null,
   unique (cvr_id, contest_id, option_id),

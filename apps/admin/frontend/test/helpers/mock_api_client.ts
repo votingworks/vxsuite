@@ -401,10 +401,6 @@ export function createApiMock(
       apiClient.getBallotAdjudicationData.expectCallWith(input).resolves(data);
     },
 
-    expectSetCvrResolved(input: { cvrId: Id }) {
-      apiClient.setCvrResolved.expectCallWith(input).resolves(ok());
-    },
-
     expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {
       apiClient.getNextCvrIdForBallotAdjudication
         .expectRepeatedCallsWith()
@@ -577,8 +573,11 @@ export function createApiMock(
       }
     },
 
-    expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {
-      apiClient.adjudicateCvrContest.expectCallWith(input).resolves(ok());
+    expectAdjudicateCvr(input: {
+      cvrId: Id;
+      contests: AdjudicatedCvrContest[];
+    }) {
+      apiClient.adjudicateCvr.expectCallWith(input).resolves(ok());
     },
 
     expectMarkResultsOfficial() {

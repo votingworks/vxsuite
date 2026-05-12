@@ -191,7 +191,7 @@ test('releaseBallot frees a claimed CVR', async () => {
   expect(result).toEqual(cvrId);
 });
 
-test('setCvrResolved completes the ballot claim', async () => {
+test('adjudicateCvr completes the ballot claim', async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -206,9 +206,10 @@ test('setCvrResolved completes the ballot claim', async () => {
     await peerApiClient.claimBallot({ machineId: 'client-001' })
   );
   (
-    await peerApiClient.setCvrResolved({
+    await peerApiClient.adjudicateCvr({
       machineId: 'client-001',
       cvrId: claimedCvrId,
+      contests: [],
     })
   ).unsafeUnwrap();
 
@@ -374,7 +375,7 @@ test('getBallotImageMetadata returns metadata with image URLs', async () => {
   });
 });
 
-test('adjudicateCvrContest returns no-claim when machine has no claim', async () => {
+test('adjudicateCvr returns no-claim when machine has no claim', async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -385,30 +386,10 @@ test('adjudicateCvrContest returns no-claim when machine has no claim', async ()
   );
   const cvrIds = addTestCvrs(workspace.store, electionId, 1);
 
-  const result = await peerApiClient.adjudicateCvrContest({
+  const result = await peerApiClient.adjudicateCvr({
     machineId: 'unknown-machine',
     cvrId: cvrIds[0]!,
-    contestId: 'zoo-council-mammal',
-    side: 'front',
-    adjudicatedContestOptionById: {},
-  });
-  expect(result).toEqual(err({ type: 'no-claim' }));
-});
-
-test('setCvrResolved returns no-claim when machine has no claim', async () => {
-  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition
-  );
-  const cvrIds = addTestCvrs(workspace.store, electionId, 1);
-
-  const result = await peerApiClient.setCvrResolved({
-    machineId: 'unknown-machine',
-    cvrId: cvrIds[0]!,
+    contests: [],
   });
   expect(result).toEqual(err({ type: 'no-claim' }));
 });

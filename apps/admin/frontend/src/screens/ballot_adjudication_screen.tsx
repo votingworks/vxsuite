@@ -18,9 +18,9 @@ import type {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 import {
-  adjudicateCvrContest,
+  adjudicateCvr,
   claimBallotForAdjudication,
   getBallotAdjudicationData,
   getBallotAdjudicationQueue,
@@ -30,7 +30,6 @@ import {
   getSystemSettings,
   getWriteInCandidates,
   releaseBallotAdjudicationClaim,
-  setCvrResolved,
 } from '../api';
 import { routerPaths } from '../router_paths';
 import {
@@ -43,7 +42,11 @@ import {
 } from '../components/adjudication_contest_list';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
-import { isContestTagOnlyUndervote } from '../utils/adjudication';
+import {
+  isContestResolved,
+  isContestTagOnlyUndervote,
+} from '../utils/adjudication';
+import { DiscardChangesModal } from '../components/discard_changes_modal';
 
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 const DEFAULT_PADDING = '0.75rem';
@@ -354,9 +357,7 @@ function HostBallotAdjudicationScreenDataLoader({
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
 
-  const { mutateAsync: setCvrResolvedMutation } = setCvrResolved.useMutation();
-  const { mutateAsync: adjudicateCvrContestMutation } =
-    adjudicateCvrContest.useMutation();
+  const { mutateAsync: adjudicateCvrMutation } = adjudicateCvr.useMutation();
   const [saveError, setSaveError] = useState(false);
 
   if (saveError) {
@@ -387,18 +388,21 @@ function HostBallotAdjudicationScreenDataLoader({
 
   return (
     <BallotAdjudicationScreen
-      cvrId={cvrId}
+      // Use the query's cvrId as key/prop so the screen unmounts/remounts
+      // with the new data coming in. With the prop as the key, the component
+      // unmounts when the key changes, but the ballot data hasn't yet loaded,
+      // so there is a render where the cvrId shown on the screen to the user
+      // doesn't match the ballot data (since we use keepPreviousData=true on
+      // the query to avoid the Loading screen from flickering in between each ballot)
+      key={adjudicationDataQuery.data.cvrId}
+      cvrId={adjudicationDataQuery.data.cvrId}
       ballotAdjudicationData={adjudicationDataQuery.data}
       ballotImages={ballotImagesQuery.data}
       writeInCandidates={writeInCandidatesQuery.data}
       systemSettings={systemSettingsQuery.data}
       isClaimInFlight={isClaimInFlight}
-      onSetCvrResolved={async () => {
-        const result = await setCvrResolvedMutation({ cvrId });
-        if (result.isErr()) setSaveError(true);
-      }}
-      onAdjudicateCvrContest={async (input) => {
-        const result = await adjudicateCvrContestMutation(input);
+      onAccept={async (input) => {
+        const result = await adjudicateCvrMutation(input);
         if (result.isErr()) setSaveError(true);
       }}
       onExit={onExit}
@@ -417,8 +421,10 @@ export interface BallotAdjudicationScreenProps {
   isClaimed?: boolean;
   isClaimInFlight?: boolean;
   isLastBallot?: boolean;
-  onSetCvrResolved: () => Promise<void>;
-  onAdjudicateCvrContest: (input: AdjudicatedCvrContest) => Promise<void>;
+  onAccept: (input: {
+    cvrId: Id;
+    contests: AdjudicatedCvrContest[];
+  }) => Promise<void>;
   onAcceptDone: () => void;
   onSkip?: () => void;
   onBack?: () => void;
@@ -435,8 +441,7 @@ export function BallotAdjudicationScreen({
   isClaimed,
   isClaimInFlight,
   isLastBallot,
-  onSetCvrResolved,
-  onAdjudicateCvrContest,
+  onAccept,
   onAcceptDone,
   onSkip,
   onBack,
@@ -445,7 +450,25 @@ export function BallotAdjudicationScreen({
   const { electionDefinition } = useContext(AppContext);
   const election = assertDefined(electionDefinition?.election);
 
-  const [selectedSide, setSelectedSide] = useState<Side>('front');
+  const contestAdjudicationData = ballotAdjudicationData.contests;
+  const { frontContests, backContests } = groupContestsBySide(
+    ballotImages,
+    contestAdjudicationData,
+    election
+  );
+
+  function getDefaultSide(
+    adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+  ): Side {
+    const backIds = new Set(backContests.map((item) => item.contest.id));
+    const firstPending = contestAdjudicationData
+      .filter((c) => c.tag !== null)
+      .find((c) => !isContestResolved(c, adjudicatedContests));
+    return firstPending && backIds.has(firstPending.contestId)
+      ? 'back'
+      : 'front';
+  }
+
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
@@ -453,51 +476,58 @@ export function BallotAdjudicationScreen({
     null
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingDiscard, setPendingDiscard] = useState<{
+    action: () => void;
+  } | null>(null);
+  const [adjudicatedContests, setAdjudicatedContests] = useState(
+    () =>
+      new Map(
+        ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+      )
+  );
+  const [selectedSide, setSelectedSide] = useState<Side>(() =>
+    getDefaultSide(adjudicatedContests)
+  );
 
-  // Default to back side if the first pending contest is on the back
-  useEffect(() => {
-    const { contests } = ballotAdjudicationData;
-    const { backContests: back } = groupContestsBySide(
-      ballotImages,
-      contests,
-      election
-    );
-    const backIds = new Set(back.map((item) => item.contest.id));
-    const firstPending = contests
-      .filter((c) => c.tag !== null)
-      .find((c) => c.tag && !c.tag.isResolved);
-    if (firstPending && backIds.has(firstPending.contestId)) {
-      setSelectedSide('back');
-    } else {
-      setSelectedSide('front');
-    }
-  }, [cvrId, ballotAdjudicationData, ballotImages, election]);
+  function onNavigation(action: () => void): () => void {
+    return () => {
+      const baseline = new Map(
+        ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+      );
+      if (!deepEqual(adjudicatedContests, baseline)) {
+        setPendingDiscard({ action });
+      } else {
+        action();
+      }
+    };
+  }
+  const onSkipGuarded = onSkip && onNavigation(onSkip);
+  const onBackGuarded = onBack && onNavigation(onBack);
+  const onExitGuarded = onNavigation(onExit);
 
   const cvrTag = ballotAdjudicationData.tag;
   const { front, back } = ballotImages;
   const visibleImage = selectedSide === 'front' ? front : back;
 
-  const contestAdjudicationData = ballotAdjudicationData.contests;
-  const { frontContests: frontContestItems, backContests: backContestItems } =
-    groupContestsBySide(ballotImages, contestAdjudicationData, election);
-  const writeInCandidateNamesById = new Map(
-    writeInCandidates.map((c) => [c.id, c.name])
-  );
   const showUndervoteStatus = systemSettings.adminAdjudicationReasons.includes(
     AdjudicationReason.Undervote
   );
 
   const allResolved =
-    contestAdjudicationData.every((c) => !c.tag || c.tag.isResolved) ||
+    contestAdjudicationData.every((c) =>
+      isContestResolved(c, adjudicatedContests)
+    ) ||
     (cvrTag?.isBlankBallot &&
       contestAdjudicationData.every(
-        (c) => !c.tag || c.tag.isResolved || isContestTagOnlyUndervote(c.tag)
+        (c) =>
+          isContestResolved(c, adjudicatedContests) ||
+          (c.tag && isContestTagOnlyUndervote(c.tag))
       ));
 
   const hasUnresolvedWriteIns = contestAdjudicationData.some(
     (c) =>
       c.tag &&
-      !c.tag.isResolved &&
+      !isContestResolved(c, adjudicatedContests) &&
       (c.tag.hasWriteIn || c.tag.hasUnmarkedWriteIn)
   );
 
@@ -512,7 +542,10 @@ export function BallotAdjudicationScreen({
   async function confirmAcceptAndNext(): Promise<void> {
     setShowConfirmModal(false);
     try {
-      await onSetCvrResolved();
+      await onAccept({
+        cvrId,
+        contests: [...adjudicatedContests.values()],
+      });
       onAcceptDone();
     } catch {
       // Handled by caller
@@ -540,12 +573,10 @@ export function BallotAdjudicationScreen({
   const hoveredContestHasWarning = (() => {
     if (!hoveredContestId) return false;
     const item = find(
-      [...frontContestItems, ...backContestItems],
+      [...frontContests, ...backContests],
       (i) => i.contest.id === hoveredContestId
     );
-    return Boolean(
-      item.adjudicationData.tag && !item.adjudicationData.tag.isResolved
-    );
+    return !isContestResolved(item.adjudicationData, adjudicatedContests);
   })();
 
   if (selectedContestId && !isClaimed) {
@@ -556,9 +587,7 @@ export function BallotAdjudicationScreen({
         }
         cvrId={cvrId}
         side={
-          frontContestItems.some(
-            (item) => item.contest.id === selectedContestId
-          )
+          frontContests.some((item) => item.contest.id === selectedContestId)
             ? 'front'
             : 'back'
         }
@@ -567,11 +596,19 @@ export function BallotAdjudicationScreen({
           contestAdjudicationData,
           (c) => c.contestId === selectedContestId
         )}
+        adjudicatedContest={adjudicatedContests.get(selectedContestId)}
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId
         )}
-        onAdjudicateCvrContest={onAdjudicateCvrContest}
+        onConfirmContest={(input) => {
+          const updated = new Map(adjudicatedContests).set(
+            input.contestId,
+            input
+          );
+          setAdjudicatedContests(updated);
+          setSelectedSide(getDefaultSide(updated));
+        }}
       />
     );
   }
@@ -606,7 +643,7 @@ export function BallotAdjudicationScreen({
               fill="outlined"
               color="inverseNeutral"
               icon="X"
-              onPress={onExit}
+              onPress={onExitGuarded}
               style={{ padding: '0.3rem .75rem', fontSize: '.8rem' }}
             >
               Exit
@@ -621,16 +658,17 @@ export function BallotAdjudicationScreen({
           ) : (
             <AdjudicationContestList
               key={cvrId}
-              backContests={backContestItems}
+              adjudicatedContests={adjudicatedContests}
+              backContests={backContests}
               cvrTag={cvrTag}
               election={election}
-              frontContests={frontContestItems}
+              frontContests={frontContests}
+              isResolved={ballotAdjudicationData.isResolved}
               onHover={onContestHover}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onSelectSide={setSelectedSide}
               selectedSide={selectedSide}
               showUndervoteStatus={showUndervoteStatus}
-              writeInCandidateNamesById={writeInCandidateNamesById}
             />
           )}
           <PanelFooter>
@@ -638,9 +676,9 @@ export function BallotAdjudicationScreen({
             <FooterNav>
               {isClaimed ? (
                 <React.Fragment>
-                  {onSkip && (
+                  {onSkipGuarded && (
                     <PrimaryNavButton
-                      onPress={onSkip}
+                      onPress={onSkipGuarded}
                       disabled={isClaimInFlight}
                       rightIcon={isLastBallot ? 'Done' : 'Next'}
                       variant="primary"
@@ -648,10 +686,10 @@ export function BallotAdjudicationScreen({
                       {isLastBallot ? 'Done' : 'Next'}
                     </PrimaryNavButton>
                   )}
-                  {onBack && (
+                  {onBackGuarded && (
                     <SecondaryNavButton
                       icon="Previous"
-                      onPress={onBack}
+                      onPress={onBackGuarded}
                       disabled={isClaimInFlight}
                     >
                       Back
@@ -668,19 +706,19 @@ export function BallotAdjudicationScreen({
                   >
                     Accept
                   </PrimaryNavButton>
-                  {onSkip && (
+                  {onSkipGuarded && (
                     <SecondaryNavButton
-                      onPress={onSkip}
+                      onPress={onSkipGuarded}
                       rightIcon="Next"
                       disabled={isClaimInFlight}
                     >
                       Skip
                     </SecondaryNavButton>
                   )}
-                  {onBack && (
+                  {onBackGuarded && (
                     <SecondaryNavButton
                       icon="Previous"
-                      onPress={onBack}
+                      onPress={onBackGuarded}
                       disabled={isClaimInFlight}
                     >
                       Back
@@ -709,6 +747,16 @@ export function BallotAdjudicationScreen({
               </Button>
             </ModalActions>
           }
+        />
+      )}
+      {pendingDiscard && (
+        <DiscardChangesModal
+          onBack={() => setPendingDiscard(null)}
+          onDiscard={() => {
+            const { action } = pendingDiscard;
+            setPendingDiscard(null);
+            action();
+          }}
         />
       )}
     </Screen>

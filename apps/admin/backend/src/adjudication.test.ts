@@ -18,7 +18,7 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import { Store } from './store';
-import { adjudicateCvrContest } from './adjudication';
+import { adjudicateCvr } from './adjudication';
 import { AdjudicatedContestOption, WriteInRecord } from '.';
 
 const contestId = 'zoo-council-mammal';
@@ -127,7 +127,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
   });
 });
 
-test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
+test('adjudicateCvr write-in logging and candidate cleanup', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
@@ -159,10 +159,10 @@ test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
   assert(cvrId !== undefined);
 
   const allFalse: Record<ContestOptionId, AdjudicatedContestOption> = {
-    kangaroo: { type: 'candidate-option', hasVote: false },
-    elephant: { type: 'candidate-option', hasVote: false },
-    lion: { type: 'candidate-option', hasVote: false },
-    zebra: { type: 'candidate-option', hasVote: false },
+    kangaroo: { type: 'official-option', hasVote: false },
+    elephant: { type: 'official-option', hasVote: false },
+    lion: { type: 'official-option', hasVote: false },
+    zebra: { type: 'official-option', hasVote: false },
     'write-in-0': { type: 'write-in-option', hasVote: false },
     'write-in-1': { type: 'write-in-option', hasVote: false },
     'write-in-2': { type: 'write-in-option', hasVote: false },
@@ -172,13 +172,17 @@ test('adjudicateCvrContest write-in logging and candidate cleanup', () => {
     trueVotes: Record<ContestOptionId, AdjudicatedContestOption>
   ): void {
     assert(cvrId !== undefined);
-    adjudicateCvrContest(
+    adjudicateCvr(
       {
-        adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
         cvrId,
-        contestId,
-        side: 'front',
+        contests: [
+          {
+            adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
+            contestId,
+          },
+        ],
       },
+      'test-machine',
       store,
       logger
     );
@@ -349,35 +353,39 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
   // Adjudicate write-in-0 → Alice (the to-be-deleted candidate) and
   // write-in-1 → Bob (the candidate that will remain).
   const allFalse: Record<ContestOptionId, AdjudicatedContestOption> = {
-    kangaroo: { type: 'candidate-option', hasVote: false },
-    elephant: { type: 'candidate-option', hasVote: false },
-    lion: { type: 'candidate-option', hasVote: false },
-    zebra: { type: 'candidate-option', hasVote: false },
+    kangaroo: { type: 'official-option', hasVote: false },
+    elephant: { type: 'official-option', hasVote: false },
+    lion: { type: 'official-option', hasVote: false },
+    zebra: { type: 'official-option', hasVote: false },
     'write-in-0': { type: 'write-in-option', hasVote: false },
     'write-in-1': { type: 'write-in-option', hasVote: false },
     'write-in-2': { type: 'write-in-option', hasVote: false },
   };
-  adjudicateCvrContest(
+  adjudicateCvr(
     {
-      adjudicatedContestOptionById: {
-        ...allFalse,
-        'write-in-0': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Alice',
-        },
-        'write-in-1': {
-          type: 'write-in-option',
-          hasVote: true,
-          candidateType: 'write-in-candidate',
-          candidateName: 'Bob',
-        },
-      },
       cvrId,
-      contestId,
-      side: 'front',
+      contests: [
+        {
+          adjudicatedContestOptionById: {
+            ...allFalse,
+            'write-in-0': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateType: 'write-in-candidate',
+              candidateName: 'Alice',
+            },
+            'write-in-1': {
+              type: 'write-in-option',
+              hasVote: true,
+              candidateType: 'write-in-candidate',
+              candidateName: 'Bob',
+            },
+          },
+          contestId,
+        },
+      ],
     },
+    'test-machine',
     store,
     logger
   );
@@ -428,7 +436,7 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
   expect(bobWriteInAfter?.status).toEqual('pending');
 });
 
-test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
+test('adjudicateCvr adjudicates contest and resolves tags', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
@@ -501,22 +509,26 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
     trueVotes: Record<ContestOptionId, AdjudicatedContestOption>
   ): void {
     assert(cvrId !== undefined);
-    adjudicateCvrContest(
+    adjudicateCvr(
       {
-        adjudicatedContestOptionById: {
-          kangaroo: { type: 'candidate-option', hasVote: false },
-          elephant: { type: 'candidate-option', hasVote: false },
-          lion: { type: 'candidate-option', hasVote: false },
-          zebra: { type: 'candidate-option', hasVote: false },
-          'write-in-0': { type: 'write-in-option', hasVote: false },
-          'write-in-1': { type: 'write-in-option', hasVote: false },
-          'write-in-2': { type: 'write-in-option', hasVote: false },
-          ...trueVotes,
-        },
         cvrId,
-        contestId: 'zoo-council-mammal',
-        side: 'front',
+        contests: [
+          {
+            adjudicatedContestOptionById: {
+              kangaroo: { type: 'official-option', hasVote: false },
+              elephant: { type: 'official-option', hasVote: false },
+              lion: { type: 'official-option', hasVote: false },
+              zebra: { type: 'official-option', hasVote: false },
+              'write-in-0': { type: 'write-in-option', hasVote: false },
+              'write-in-1': { type: 'write-in-option', hasVote: false },
+              'write-in-2': { type: 'write-in-option', hasVote: false },
+              ...trueVotes,
+            },
+            contestId: 'zoo-council-mammal',
+          },
+        ],
       },
+      'test-machine',
       store,
       logger
     );
@@ -531,10 +543,16 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
     return adjData.contests.find((c) => c.contestId === contestId)?.tag;
   }
 
+  function isContestAdjudicated() {
+    assert(cvrId !== undefined);
+    const adjData = store.getBallotAdjudicationData({ electionId, cvrId });
+    return adjData.adjudicatedContests.some((c) => c.contestId === contestId);
+  }
+
   const initialContestTag = getContestTag();
   expect(initialContestTag).toBeDefined();
   expect(
-    initialContestTag?.isResolved === false &&
+    !isContestAdjudicated() &&
       initialContestTag?.hasMarginalMark &&
       initialContestTag?.hasWriteIn &&
       initialContestTag?.hasUnmarkedWriteIn === false
@@ -553,7 +571,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
 
   // write-in as official candidate, re-add lion
   adjudicate({
-    lion: { type: 'candidate-option', hasVote: true },
+    lion: { type: 'official-option', hasVote: true },
     'write-in-0': {
       type: 'write-in-option',
       hasVote: true,
@@ -573,7 +591,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   const adjudicatedContestTag = getContestTag();
   expect(adjudicatedContestTag).toBeDefined();
   expect(
-    adjudicatedContestTag?.isResolved &&
+    isContestAdjudicated() &&
       adjudicatedContestTag?.hasMarginalMark &&
       adjudicatedContestTag?.hasWriteIn &&
       adjudicatedContestTag?.hasUnmarkedWriteIn === false
@@ -581,8 +599,8 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
 
   // one additional candidate and write-in with new write-in candidate
   adjudicate({
-    lion: { type: 'candidate-option', hasVote: true },
-    zebra: { type: 'candidate-option', hasVote: true },
+    lion: { type: 'official-option', hasVote: true },
+    zebra: { type: 'official-option', hasVote: true },
     'write-in-0': {
       type: 'write-in-option',
       hasVote: true,
@@ -625,7 +643,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   // write-in previously adjudicated for new candidate should
   // be adjudicated for the same write-in candidate with the same id
   adjudicate({
-    zebra: { type: 'candidate-option', hasVote: true },
+    zebra: { type: 'official-option', hasVote: true },
     'write-in-1': {
       type: 'write-in-option',
       hasVote: true,
@@ -653,7 +671,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   // normal adjudication to finish, which should delete the write-in record
   // for the undetected write-in record instead of marking it as invalid
   adjudicate({
-    lion: { type: 'candidate-option', hasVote: true },
+    lion: { type: 'official-option', hasVote: true },
     'write-in-0': {
       type: 'write-in-option',
       hasVote: true,
@@ -673,7 +691,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   const finalContestTag = getContestTag();
   expect(finalContestTag).toBeDefined();
   expect(
-    finalContestTag?.isResolved &&
+    isContestAdjudicated() &&
       finalContestTag?.hasMarginalMark &&
       finalContestTag?.hasWriteIn &&
       finalContestTag?.hasUnmarkedWriteIn === false
@@ -845,4 +863,83 @@ test('CVR with only an unmarked write-in appears in adjudication queue', () => {
 
   const queue = store.getBallotAdjudicationQueue({ electionId });
   expect(queue).toContain(cvrId);
+});
+
+test('adjudicateCvr applies multiple contests in a single transaction and marks resolved', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      markScores: {
+        'zoo-council-mammal': { lion: 1.0, kangaroo: 0.06 },
+        'best-animal-mammal': { horse: 1.0, otter: 0.06 },
+      },
+      votes: {
+        'zoo-council-mammal': ['lion'],
+        'best-animal-mammal': ['horse'],
+      },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  // Sanity: cvr is not yet resolved.
+  expect(store.isCvrAdjudicated({ cvrId })).toEqual(false);
+
+  // Submit two contest adjudications + the resolve mark in one call.
+  adjudicateCvr(
+    {
+      cvrId,
+      contests: [
+        {
+          contestId: 'zoo-council-mammal',
+          adjudicatedContestOptionById: {
+            lion: { type: 'official-option', hasVote: true },
+            kangaroo: { type: 'official-option', hasVote: true },
+          },
+        },
+        {
+          contestId: 'best-animal-mammal',
+          adjudicatedContestOptionById: {
+            horse: { type: 'official-option', hasVote: false },
+            otter: { type: 'official-option', hasVote: true },
+          },
+        },
+      ],
+    },
+    'test-machine',
+    store,
+    logger
+  );
+
+  // Both contests' adjudicated_votes are written.
+  const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+  assert(cvr);
+  expect(new Set(cvr.votes['zoo-council-mammal'])).toEqual(
+    new Set(['lion', 'kangaroo'])
+  );
+  expect(cvr.votes['best-animal-mammal']).toEqual(['otter']);
+
+  // The cvr is marked resolved.
+  expect(store.isCvrAdjudicated({ cvrId })).toEqual(true);
 });

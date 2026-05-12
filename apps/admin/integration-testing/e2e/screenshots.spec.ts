@@ -653,6 +653,7 @@ test('adjudication', async ({ page }) => {
   // Exit to start screen
   await page.getByRole('button', { name: /Exit/ }).waitFor();
   await page.getByRole('button', { name: /Exit/ }).click();
+  await page.getByRole('button', { name: 'Discard Changes' }).click();
   await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
 });
 

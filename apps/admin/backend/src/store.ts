@@ -92,7 +92,6 @@ import {
   WriteInRecordPending,
   ManualResultsFilter,
   CardTally,
-  VoteAdjudication,
   CastVoteRecordVoteInfo,
   WriteInAdjudicationActionOfficialCandidate,
   WriteInAdjudicationActionInvalid,
@@ -107,7 +106,9 @@ import {
   BallotAdjudicationData,
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
+  AdjudicatedCvrContest,
 } from './types';
+import { buildAdjudicatedContestOption } from './adjudication';
 import { deriveCvrContestTag } from './util/cast_vote_records';
 import { rootDebug } from './util/debug';
 import { getCurrentTime } from './get_current_time';
@@ -1295,7 +1296,6 @@ export class Store implements BaseStore {
   addWriteIn({
     electionId,
     castVoteRecordId,
-    side,
     contestId,
     optionId,
     isUndetected = false,
@@ -1304,7 +1304,6 @@ export class Store implements BaseStore {
   }: {
     electionId: Id;
     castVoteRecordId: Id;
-    side: Side;
     contestId: Id;
     optionId: Id;
     isUndetected?: boolean;
@@ -1319,20 +1318,18 @@ export class Store implements BaseStore {
           id,
           election_id,
           cvr_id,
-          side,
           contest_id,
           option_id,
           is_undetected,
           is_unmarked,
           machine_marked_text
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
       electionId,
       castVoteRecordId,
-      side,
       contestId,
       optionId,
       asSqliteBool(isUndetected),
@@ -2136,30 +2133,25 @@ export class Store implements BaseStore {
       cvrId
     );
 
-    // 1. Get CVR info
     const cvrInfo = this.getCastVoteRecordVoteInfo({ electionId, cvrId });
     const { votes, markScores, ballotStyleGroupId } = cvrInfo;
 
-    // 2. Get tags and resolution status
     const cvrRow = this.client.one(
       `select is_blank as isBlank, is_adjudicated as isResolved from cvrs where id = ?`,
       cvrId
     ) as { isBlank: SqliteBool; isResolved: SqliteBool };
+    const isResolved = fromSqliteBool(cvrRow.isResolved);
     const cvrTag: CvrTag = {
-      cvrId,
       isBlankBallot: fromSqliteBool(cvrRow.isBlank),
-      isResolved: fromSqliteBool(cvrRow.isResolved),
     };
-    // 3. Get adjudicated votes
+
     const adjudicatedVotes = this.getAdjudicatedVotes({ cvrId });
 
-    // 4. Get all write-in records
     const writeInRecords = this.getWriteInRecords({
       electionId,
       castVoteRecordId: cvrId,
     });
 
-    // 5. Get mark thresholds, adjudication reasons, and ballot style group
     const { markThresholds, adminAdjudicationReasons } =
       this.getSystemSettings(electionId);
     const ballotStyleGroup = assertDefined(
@@ -2169,85 +2161,81 @@ export class Store implements BaseStore {
       })
     );
 
-    // 6. Build lookup maps
     const writeInsByKey = new Map(
       writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
     );
 
-    // 7. Build contest adjudication data for each contest on this sheet
+    const writeInCandidateNameById = new Map(
+      this.getWriteInCandidates({ electionId }).map((c) => [c.id, c.name])
+    );
+
     const cvrContestIds = new Set(Object.keys(votes));
-    const contests: ContestAdjudicationData[] = getContests({
+    const ballotStyleContests = getContests({
       ballotStyle: ballotStyleGroup,
       election,
-    })
-      .filter((contest) => cvrContestIds.has(contest.id))
-      .map((contest) => {
-        const tag = deriveCvrContestTag({
-          cvrId,
-          contest,
-          votes: assertDefined(votes[contest.id]),
-          adjudicatedVotes: adjudicatedVotes?.[contest.id],
-          writeInRecords,
-          markScores: markScores?.[contest.id],
-          markThresholds,
-          adminAdjudicationReasons,
-        });
+    }).filter((contest) => cvrContestIds.has(contest.id));
 
-        const contestVotes = assertDefined(votes[contest.id]);
-        const contestAdjudicatedVotes = adjudicatedVotes?.[contest.id];
-        const contestMarkScores = markScores?.[contest.id];
+    const contests: ContestAdjudicationData[] = [];
+    const adjudicatedContests: AdjudicatedCvrContest[] = [];
+    for (const contest of ballotStyleContests) {
+      const contestOptions = [...allContestOptions(contest, ballotStyleGroup)];
+      const contestVotes = assertDefined(votes[contest.id]);
+      const contestMarkScores = markScores?.[contest.id];
 
-        const options: ContestOptionAdjudicationData[] = [
-          ...allContestOptions(contest, ballotStyleGroup),
-        ].map((option) => {
-          const initialVote = contestVotes.includes(option.id);
-
-          let voteAdjudication: VoteAdjudication | undefined;
-          if (contestAdjudicatedVotes) {
-            const adjudicatedIsVote = contestAdjudicatedVotes.includes(
-              option.id
-            );
-            if (adjudicatedIsVote !== initialVote) {
-              voteAdjudication = {
-                electionId,
-                cvrId,
-                contestId: contest.id,
-                optionId: option.id,
-                isVote: adjudicatedIsVote,
-              };
-            }
-          }
-
-          const writeInRecord =
-            writeInsByKey.get(`${contest.id}:${option.id}`) ?? undefined;
-
+      const options: ContestOptionAdjudicationData[] = contestOptions.map(
+        (option) => {
           const score = contestMarkScores?.[option.id];
-          const hasMarginalMark =
-            score !== undefined &&
-            score >= markThresholds.marginal &&
-            score < markThresholds.definite;
-
           return {
             definition: option,
-            initialVote,
-            hasMarginalMark,
-            voteAdjudication,
-            writeInRecord,
+            scannedVote: contestVotes.includes(option.id),
+            hasMarginalMark:
+              score !== undefined &&
+              score >= markThresholds.marginal &&
+              score < markThresholds.definite,
+            writeInRecord: writeInsByKey.get(`${contest.id}:${option.id}`),
           };
-        });
+        }
+      );
 
-        return {
-          contestId: contest.id,
-          tag,
-          options,
-        };
+      contests.push({
+        contestId: contest.id,
+        tag: deriveCvrContestTag({
+          contest,
+          votes: contestVotes,
+          writeInRecords,
+          markScores: contestMarkScores,
+          markThresholds,
+          adminAdjudicationReasons,
+        }),
+        options,
       });
+
+      const contestAdjudicatedVotes = adjudicatedVotes?.[contest.id];
+      if (contestAdjudicatedVotes !== undefined) {
+        adjudicatedContests.push({
+          contestId: contest.id,
+          adjudicatedContestOptionById: Object.fromEntries(
+            contestOptions.map((option) => [
+              option.id,
+              buildAdjudicatedContestOption({
+                isWriteIn: option.type === 'candidate' && option.isWriteIn,
+                hasVote: contestAdjudicatedVotes.includes(option.id),
+                writeInRecord: writeInsByKey.get(`${contest.id}:${option.id}`),
+                writeInCandidateNameById,
+              }),
+            ])
+          ),
+        });
+      }
+    }
 
     debug('queried ballot adjudication data for cvr id %s', cvrId);
     return {
       cvrId,
+      isResolved,
       tag: cvrTag,
       contests,
+      adjudicatedContests,
     };
   }
 
@@ -2931,21 +2919,19 @@ export class Store implements BaseStore {
     }));
   }
 
-  setCvrResolved({
+  setCvrAdjudicated({
     cvrId,
     machineId,
   }: {
     cvrId: Id;
     machineId?: string;
   }): void {
-    this.withTransaction(() => {
-      this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
+    this.client.run(`update cvrs set is_adjudicated = 1 where id = ?`, cvrId);
 
-      const electionId = this.getCurrentElectionId();
-      if (electionId && machineId) {
-        this.completeBallotClaim({ electionId, cvrId, machineId });
-      }
-    });
+    const electionId = this.getCurrentElectionId();
+    if (electionId && machineId) {
+      this.completeBallotClaim({ electionId, cvrId, machineId });
+    }
   }
 
   /**

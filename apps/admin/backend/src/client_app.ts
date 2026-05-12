@@ -37,7 +37,7 @@ import {
   BallotPageImage,
   ClientConnectionStatus,
   ElectionRecord,
-  AdjudicatedCvrContest,
+  AdjudicatedCvr,
   BallotAdjudicationData,
   BallotImages,
   AdjudicationError,
@@ -290,54 +290,25 @@ function buildClientApi({
       );
     },
 
-    async adjudicateCvrContest(
-      input: AdjudicatedCvrContest
+    async adjudicateCvr(
+      input: AdjudicatedCvr
     ): Promise<Result<void, AdjudicationError>> {
       const connection = clientStore.getHostConnection();
       if (!connection) {
         await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
-          message: 'Cannot adjudicate contest: not connected to host.',
+          message: 'Cannot adjudicate ballot: not connected to host.',
         });
         return err({ type: 'host-disconnect' });
       }
       try {
-        const result = await connection.apiClient.adjudicateCvrContest({
+        const result = await connection.apiClient.adjudicateCvr({
           ...input,
           machineId: getMachineConfig().machineId,
         });
         if (result.isErr()) return result;
       } catch {
         await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
-          message: 'Error during adjudicate contest: lost connection to host.',
-        });
-        return err({ type: 'host-disconnect' });
-      }
-      await logger.logAsCurrentRole(LogEventId.AdminContestAdjudicated, {
-        message: `Adjudicated contest ${input.contestId} on ballot ${input.cvrId}.`,
-        disposition: 'success',
-      });
-      return ok();
-    },
-
-    async setCvrResolved(input: {
-      cvrId: Id;
-    }): Promise<Result<void, AdjudicationError>> {
-      const connection = clientStore.getHostConnection();
-      if (!connection) {
-        await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
-          message: 'Cannot resolve ballot: not connected to host.',
-        });
-        return err({ type: 'host-disconnect' });
-      }
-      try {
-        const result = await connection.apiClient.setCvrResolved({
-          machineId: getMachineConfig().machineId,
-          cvrId: input.cvrId,
-        });
-        if (result.isErr()) return result;
-      } catch {
-        await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
-          message: 'Error during resolve ballot: lost connection to host.',
+          message: 'Error during adjudicate ballot: lost connection to host.',
         });
         return err({ type: 'host-disconnect' });
       }

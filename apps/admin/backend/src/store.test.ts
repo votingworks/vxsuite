@@ -849,10 +849,10 @@ describe('machine ballot adjudication assignments', () => {
     expect(second).not.toEqual(first);
   });
 
-  test('setCvrResolved completes claim when machineId provided', () => {
+  test('setCvrAdjudicated completes claim when machineId provided', () => {
     const cvr1 = addCvrWithWriteIn();
     store.claimBallotForClient({ electionId, machineId: 'client-001' });
-    store.setCvrResolved({ cvrId: cvr1, machineId: 'client-001' });
+    store.setCvrAdjudicated({ cvrId: cvr1, machineId: 'client-001' });
 
     // Claim should be completed — CVR is no longer claimable
     expect(
@@ -860,10 +860,10 @@ describe('machine ballot adjudication assignments', () => {
     ).toBeUndefined();
   });
 
-  test('setCvrResolved skips claim completion when machineId omitted', () => {
+  test('setCvrAdjudicated skips claim completion when machineId omitted', () => {
     const cvr1 = addCvrWithWriteIn();
     store.claimBallotForClient({ electionId, machineId: 'client-001' });
-    store.setCvrResolved({ cvrId: cvr1 });
+    store.setCvrAdjudicated({ cvrId: cvr1 });
 
     // Claim should still be active (not completed) because no machineId
     // But the CVR is resolved so it won't appear in the queue

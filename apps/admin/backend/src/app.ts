@@ -85,7 +85,7 @@ import {
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
-  AdjudicatedCvrContest,
+  AdjudicatedCvr,
   AdjudicationError,
   MachineMode,
   MachineRecord,
@@ -115,7 +115,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateCvrContest } from './adjudication';
+import { adjudicateCvr } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -740,11 +740,9 @@ function buildApi({
       );
     },
 
-    adjudicateCvrContest(
-      input: AdjudicatedCvrContest
-    ): Result<void, AdjudicationError> {
+    adjudicateCvr(input: AdjudicatedCvr): Result<void, AdjudicationError> {
+      const { machineId } = getMachineConfig();
       if (store.getIsClientAdjudicationEnabled()) {
-        const { machineId } = getMachineConfig();
         const electionId = loadCurrentElectionIdOrThrow(workspace);
         if (
           !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
@@ -753,25 +751,7 @@ function buildApi({
           return err({ type: 'no-claim' });
         }
       }
-      adjudicateCvrContest(input, store, logger);
-      return ok();
-    },
-
-    setCvrResolved(input: { cvrId: Id }): Result<void, AdjudicationError> {
-      if (store.getIsClientAdjudicationEnabled()) {
-        const { machineId } = getMachineConfig();
-        const electionId = loadCurrentElectionIdOrThrow(workspace);
-        if (
-          !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
-          !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
-        ) {
-          return err({ type: 'no-claim' });
-        }
-      }
-      store.setCvrResolved({
-        ...input,
-        machineId: getMachineConfig().machineId,
-      });
+      adjudicateCvr(input, machineId, store, logger);
       return ok();
     },
 

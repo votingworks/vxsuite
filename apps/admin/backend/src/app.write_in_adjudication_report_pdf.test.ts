@@ -19,6 +19,7 @@ import {
 } from '../test/app';
 import { mockFileName } from '../test/csv';
 import { generateReportPath } from './util/filenames';
+import { AdjudicatedContestOption } from './types';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -154,53 +155,40 @@ test('write-in adjudication report', async () => {
   for (const [i, writeIn] of writeIns.entries()) {
     const { optionId, cvrId, contestId } = writeIn;
     await apiClient.claimBallotForAdjudication({ cvrId });
+    let optionAdjudication: AdjudicatedContestOption;
     if (i < 24) {
-      expect(
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [optionId]: {
-              type: 'write-in-option',
-              candidateName: unofficialCandidate1.name,
-              candidateType: 'write-in-candidate',
-              hasVote: true,
-            },
-          },
-        })
-      ).toEqual(ok());
+      optionAdjudication = {
+        type: 'write-in-option',
+        candidateName: unofficialCandidate1.name,
+        candidateType: 'write-in-candidate',
+        hasVote: true,
+      };
     } else if (i < 48) {
-      expect(
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [optionId]: {
-              type: 'write-in-option',
-              candidateId: 'Obadiah-Carrigan-5c95145a',
-              candidateType: 'official-candidate',
-              hasVote: true,
-            },
-          },
-        })
-      ).toEqual(ok());
+      optionAdjudication = {
+        type: 'write-in-option',
+        candidateId: 'Obadiah-Carrigan-5c95145a',
+        candidateType: 'official-candidate',
+        hasVote: true,
+      };
     } else {
-      expect(
-        await apiClient.adjudicateCvrContest({
-          cvrId,
-          contestId,
-          side: 'front',
-          adjudicatedContestOptionById: {
-            [optionId]: {
-              type: 'write-in-option',
-              hasVote: false,
+      optionAdjudication = {
+        type: 'write-in-option',
+        hasVote: false,
+      };
+    }
+    expect(
+      await apiClient.adjudicateCvr({
+        cvrId,
+        contests: [
+          {
+            contestId,
+            adjudicatedContestOptionById: {
+              [optionId]: optionAdjudication,
             },
           },
-        })
-      ).toEqual(ok());
-    }
+        ],
+      })
+    ).toEqual(ok());
   }
 
   await expectIdenticalSnapshotsAcrossExportMethods('wia-report-adjudicated');
