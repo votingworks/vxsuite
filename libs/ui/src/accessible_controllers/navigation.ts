@@ -1,3 +1,5 @@
+import { FOCUSABLE_AUDIO_CLASS_NAME } from '../focusable_audio';
+
 export enum PageNavigationButtonId {
   NEXT = 'next',
   NEXT_AFTER_CONFIRM = 'next_after_confirm',
@@ -8,6 +10,7 @@ export enum PageNavigationButtonId {
 const TAB_ENABLED_ELEMENT_SELECTORS = [
   'button:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])',
   '[role="button"]:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])',
+  `.${FOCUSABLE_AUDIO_CLASS_NAME}:not([aria-hidden="true"])`,
 ].join(', ');
 
 /**
@@ -17,6 +20,7 @@ const TAB_ENABLED_ELEMENT_SELECTORS = [
 const TAB_ENABLED_ELEMENT_IN_HIDDEN_BLOCK_SELECTORS = [
   '[aria-hidden="true"] button',
   '[aria-hidden="true"] [role="button"]',
+  `[aria-hidden="true"] .${FOCUSABLE_AUDIO_CLASS_NAME}`,
 ].join(', ');
 
 function getTabEnabledElementsInHiddenBlocks() {
@@ -57,7 +61,7 @@ export function advanceElementFocus(direction: 1 | -1): void {
 
 /**
  * Looks for all page navigation elements with the specified
- * {@link navigationId} or {@link nagivationOnConfirmId} (if provided). If a
+ * {@link navigationId} or {@link navigationOnConfirmId} (if provided). If a
  * visible {@link navigationId} is found, the first element is clicked.
  * Otherwise if a visible {@link navigationOnConfirmId} is found, the first
  * element is focused.

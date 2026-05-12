@@ -29,6 +29,7 @@ export * from './diagnostics';
 export * from './error_boundary';
 export * from './election_info_bar';
 export * from './electrical_testing_screen';
+export * from './focusable_audio';
 export * from './file_input_button';
 export * from './input_controls';
 export * from './fonts/font_family';
