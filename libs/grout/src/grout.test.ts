@@ -396,7 +396,7 @@ test('can send timeout', async () => {
     timeout: 50,
   });
   await expect(client.getStuff()).rejects.toThrow(
-    'The user aborted a request.'
+    'The operation was aborted due to timeout'
   );
 
   const noTimeout = createClient<typeof api>({
@@ -460,7 +460,9 @@ test('client handles non-JSON error responses', async () => {
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
-  await expect(client.getStuff()).rejects.toThrow('invalid json response body');
+  await expect(client.getStuff()).rejects.toThrow(
+    'Unexpected end of JSON input'
+  );
   server.close();
 });
 

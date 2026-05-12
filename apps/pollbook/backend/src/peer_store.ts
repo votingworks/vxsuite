@@ -6,6 +6,7 @@ import { unlink } from 'node:fs/promises';
 import { createWriteStream, createReadStream } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import {
   NETWORK_EVENT_LIMIT,
@@ -309,12 +310,12 @@ export class PeerStore extends Store {
     try {
       const pollbookUrl = `${peer.address}/file/pollbook-package`;
       const response = await fetch(pollbookUrl);
-      if (!response.ok) {
+      if (!response.ok || !response.body) {
         return err('pollbook-connection-problem');
       }
       // Save to a temp file
       const fileStream = createWriteStream(tempPath);
-      await pipeline(response.body, fileStream);
+      await pipeline(Readable.fromWeb(response.body), fileStream);
       // Read and parse the pollbook package
       const pollbookPackageResult = await readPollbookPackage(tempPath);
       if (pollbookPackageResult.isErr()) {
