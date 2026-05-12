@@ -114,7 +114,10 @@ pub enum MetadataMismatch {
         side_b: BallotStyleId,
     },
     #[serde(rename_all = "camelCase")]
-    PageNumber { side_a: PageNumber, side_b: PageNumber },
+    PageNumber {
+        side_a: PageNumber,
+        side_b: PageNumber,
+    },
     #[serde(rename_all = "camelCase")]
     IsTestMode { side_a: bool, side_b: bool },
     #[serde(rename_all = "camelCase")]

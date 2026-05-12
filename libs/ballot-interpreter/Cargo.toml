@@ -57,6 +57,8 @@ rayon = "1.5.3"
 serde = { version = "1.0.150", features = ["derive"] }
 serde_json = "1.0.89"
 serde_with = { version = "3.14.0", features = ["macros"] }
+sha2 = "0.10"
+hex = "0.4.3"
 itertools = "0.12.1"
 rqrr = "0.7.1"
 zedbar = { version = "0.4.1", default-features = false, features = ["qrcode"] }

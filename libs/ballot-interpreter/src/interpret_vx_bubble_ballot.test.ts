@@ -149,7 +149,8 @@ describe('HMPB - VX Famous Names', () => {
         {
           electionDefinition: {
             ...electionDefinition,
-            ballotHash: 'wrong ballot hash',
+            // Valid-hex but deliberately wrong hash.
+            ballotHash: 'f'.repeat(64),
           },
           validPrecinctIds: new Set([precinctId]),
           testMode: true,

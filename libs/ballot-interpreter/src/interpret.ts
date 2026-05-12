@@ -1,4 +1,3 @@
-import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   assert,
   assertDefined,
@@ -30,7 +29,6 @@ import {
   GridPosition,
   Id,
   InterpretedHmpbPage,
-  InvalidBallotHashPage,
   InvalidPrecinctPage,
   InvalidTestModePage,
   mapSheet,
@@ -484,13 +482,27 @@ export function convertRustInterpretResult(
 ): InterpretResult {
   /* istanbul ignore next - @preserve */
   if (result.isErr()) {
+    const error = result.err();
+    if (error.type === 'invalidBallotHash') {
+      return ok(
+        mapSheet(
+          sheet,
+          () =>
+            ({
+              type: 'InvalidBallotHashPage',
+              expectedBallotHash: error.expected,
+              actualBallotHash: error.actual,
+            }) as const
+        )
+      );
+    }
     return ok(
       mapSheet(
         sheet,
         () =>
           ({
             type: 'UnreadablePage',
-            reason: result.err().type,
+            reason: error.type,
           }) as const
       )
     );
@@ -523,11 +535,7 @@ function validateInterpretResults(
   results: SheetOf<PageInterpretation>,
   options: InterpreterOptions
 ): SheetOf<PageInterpretation> {
-  const {
-    electionDefinition: { ballotHash },
-    validPrecinctIds,
-    testMode,
-  } = options;
+  const { validPrecinctIds, testMode } = options;
 
   return mapSheet(results, (result) => {
     const interpretation = normalizeBallotMode(result, options);
@@ -552,19 +560,9 @@ function validateInterpretResults(
       });
     }
 
-    // metadata.ballotHash may be a sliced hash or a full hash, so we need to
-    // slice both hashes before comparing them.
-    if (
-      sliceBallotHashForEncoding(metadata.ballotHash) !==
-      sliceBallotHashForEncoding(ballotHash)
-    ) {
-      return typedAs<InvalidBallotHashPage>({
-        type: 'InvalidBallotHashPage',
-        expectedBallotHash: sliceBallotHashForEncoding(ballotHash),
-        actualBallotHash: sliceBallotHashForEncoding(metadata.ballotHash),
-      });
-    }
-
+    // The ballot-hash check is enforced by the Rust interpreter and surfaced
+    // as `InvalidBallotHashPage` directly in `convertRustInterpretResult`, so
+    // there's no TS-side hash validation here.
     return interpretation;
   });
 }

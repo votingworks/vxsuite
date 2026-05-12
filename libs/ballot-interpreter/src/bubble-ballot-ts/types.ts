@@ -350,6 +350,7 @@ export type InterpretError = { isBubbleBallot: boolean } & (
       sideB: HmpbBallotPageMetadata;
       mismatches: MetadataMismatch[];
     }
+  | { type: 'invalidBallotHash'; expected: string; actual: string }
   | {
       type: 'mismatchedBallotCardGeometries';
       side_a: BallotPagePathAndGeometry;

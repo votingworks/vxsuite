@@ -25,7 +25,8 @@ use crate::{
 
 use types_rs::{
     ballot_card::{BallotSide, PaperSize},
-    bubble_ballot, coding,
+    bubble_ballot::{self, PartialBallotHash},
+    coding,
     election::{Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
     pair::Pair,
@@ -498,15 +499,20 @@ impl BallotCard {
 
     /// Detects and decodes barcodes on the ballot pages and returns the decoded
     /// data. Uses the position of the detected barcodes to determine the
-    /// orientation of the ballot pages.
+    /// orientation of the ballot pages. Verifies the decoded ballot hash
+    /// against `expected_ballot_hash` (pre-sliced to
+    /// [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes).
     ///
     /// # Errors
     ///
-    /// Fails if the barcodes cannot be located or cannot be decoded.
+    /// Fails if the barcodes cannot be located or cannot be decoded, if the
+    /// two sides' metadata disagree, or if the decoded ballot hash doesn't
+    /// match `expected_ballot_hash`.
     #[allow(clippy::result_large_err)]
     pub fn decode_ballot_barcodes(
         &self,
         election: &Election,
+        expected_ballot_hash: &PartialBallotHash,
     ) -> Result<Pair<(bubble_ballot::Metadata, Orientation)>> {
         self.as_pair()
             .par_map(|ballot_page| {
@@ -570,6 +576,15 @@ impl BallotCard {
                             side_a: front_metadata,
                             side_b: back_metadata,
                             mismatches,
+                        });
+                    }
+
+                    // After `match_sheet_with_metadata`, both sides agree on
+                    // the ballot hash, so checking the front is enough.
+                    if front_metadata.ballot_hash != *expected_ballot_hash {
+                        return Err(Error::InvalidBallotHash {
+                            expected: *expected_ballot_hash,
+                            actual: front_metadata.ballot_hash,
                         });
                     }
 
