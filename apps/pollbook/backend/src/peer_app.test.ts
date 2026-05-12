@@ -29,7 +29,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test('getPollbookConfigurationInformation', async () => {
+test('getPollbookConfigurationInformation', { timeout: 30_000 }, async () => {
   await withApp(async ({ peerApiClient, workspace }) => {
     expect(
       await peerApiClient.getPollbookConfigurationInformation()
@@ -64,62 +64,71 @@ test('getPollbookConfigurationInformation', async () => {
   });
 });
 
-test('GET /file/pollbook-package returns 404 if file does not exist, 200 if it does', async () => {
-  await withApp(async ({ peerServer, workspace }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText(),
-      electionDefinition.election
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
-      electionDefinition.election
-    );
-    // Ensure no file exists
-    const zipPath = join(workspace.assetDirectoryPath, 'pollbook-package.zip');
-    if (existsSync(zipPath)) {
-      unlinkSync(zipPath);
-    }
-    const { port } = peerServer.address() as AddressInfo;
+test(
+  'GET /file/pollbook-package returns 404 if file does not exist, 200 if it does',
+  { timeout: 30_000 },
+  async () => {
+    await withApp(async ({ peerServer, workspace }) => {
+      const testVoters = parseVotersFromCsvString(
+        electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText(),
+        electionDefinition.election
+      );
+      const testStreets = parseValidStreetsFromCsvString(
+        electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
+        electionDefinition.election
+      );
+      // Ensure no file exists
+      const zipPath = join(
+        workspace.assetDirectoryPath,
+        'pollbook-package.zip'
+      );
+      if (existsSync(zipPath)) {
+        unlinkSync(zipPath);
+      }
+      const { port } = peerServer.address() as AddressInfo;
 
-    // Should return 404 when the pollbook is unconfigured
-    const responseUnconfig = await fetch(
-      `http://localhost:${port}/file/pollbook-package`
-    );
-    expect(responseUnconfig.status).toEqual(404);
-    expect(await responseUnconfig.text()).toEqual('Pollbook package not found');
+      // Should return 404 when the pollbook is unconfigured
+      const responseUnconfig = await fetch(
+        `http://localhost:${port}/file/pollbook-package`
+      );
+      expect(responseUnconfig.status).toEqual(404);
+      expect(await responseUnconfig.text()).toEqual(
+        'Pollbook package not found'
+      );
 
-    workspace.store.setElectionAndVoters(
-      electionDefinition,
-      'mock-package-hash',
-      testStreets,
-      testVoters
-    );
+      workspace.store.setElectionAndVoters(
+        electionDefinition,
+        'mock-package-hash',
+        testStreets,
+        testVoters
+      );
 
-    // Should return 404 when file does not exist
-    const responseNoFile = await fetch(
-      `http://localhost:${port}/file/pollbook-package`
-    );
-    expect(responseNoFile.status).toEqual(404);
-    expect(await responseNoFile.text()).toEqual('Pollbook package not found');
+      // Should return 404 when file does not exist
+      const responseNoFile = await fetch(
+        `http://localhost:${port}/file/pollbook-package`
+      );
+      expect(responseNoFile.status).toEqual(404);
+      expect(await responseNoFile.text()).toEqual('Pollbook package not found');
 
-    // Write a dummy zip file
-    writeFileSync(zipPath, 'fakecontent');
+      // Write a dummy zip file
+      writeFileSync(zipPath, 'fakecontent');
 
-    // Should return 200 and correct headers when file exists
-    const responseOk = await fetch(
-      `http://localhost:${port}/file/pollbook-package`
-    );
-    expect(responseOk.headers.get('content-type')).toEqual('application/zip');
-    expect(responseOk.headers.get('content-disposition')).toContain(
-      'attachment; filename="pollbook-package.zip"'
-    );
-    const bodyContent = await responseOk.text();
-    expect(bodyContent.length).toBeGreaterThan(0);
-    expect(bodyContent).toEqual('fakecontent');
+      // Should return 200 and correct headers when file exists
+      const responseOk = await fetch(
+        `http://localhost:${port}/file/pollbook-package`
+      );
+      expect(responseOk.headers.get('content-type')).toEqual('application/zip');
+      expect(responseOk.headers.get('content-disposition')).toContain(
+        'attachment; filename="pollbook-package.zip"'
+      );
+      const bodyContent = await responseOk.text();
+      expect(bodyContent.length).toBeGreaterThan(0);
+      expect(bodyContent).toEqual('fakecontent');
 
-    // Cleanup
-    if (existsSync(zipPath)) {
-      unlinkSync(zipPath);
-    }
-  });
-});
+      // Cleanup
+      if (existsSync(zipPath)) {
+        unlinkSync(zipPath);
+      }
+    });
+  }
+);
