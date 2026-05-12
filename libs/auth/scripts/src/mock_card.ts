@@ -105,7 +105,11 @@ async function parseCommandLineArgs(
   }
 
   let electionKey: Optional<ElectionKey>;
-  if (['election-manager', 'poll-worker'].includes(parsedArgs.cardType)) {
+  if (
+    ['election-manager', 'poll-worker', 'poll-worker-with-pin'].includes(
+      parsedArgs.cardType
+    )
+  ) {
     if (!parsedArgs.electionDefinition) {
       throw new Error(
         `Must specify election-definition for election manager and poll worker cards\n\n${helpMessage}`

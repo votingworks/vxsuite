@@ -13,9 +13,12 @@ import {
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
   asSheet,
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackageFileName,
   PrinterConfig,
   PrinterStatus,
   safeParseElectionDefinition,
+  safeParseSystemSettings,
   SheetOf,
   UserRole,
 } from '@votingworks/types';
@@ -30,6 +33,7 @@ import {
   openZip,
   getEntries,
   getFileByName,
+  maybeGetFileByName,
   readTextEntry,
 } from '@votingworks/utils';
 import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
@@ -79,6 +83,13 @@ export interface DevDockElectionOption {
 export interface DevDockElectionInfo extends DevDockElectionOption {
   /** The path to a readable election.json file (extracted from zip if needed) */
   resolvedPath: string;
+  /**
+   * Whether the loaded election package requires poll worker card PINs. Read
+   * from the package's `systemSettings.json` when loading from a zip; defaults
+   * to `false` for bare-election-definition inputs (which carry no system
+   * settings).
+   */
+  arePollWorkerCardPinsEnabled: boolean;
 }
 
 export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
@@ -166,6 +177,7 @@ async function setElection(
   const inputAbsolutePath = electionPathToAbsolute(inputPath);
   let electionData: string;
   let resolvedPath: string | undefined;
+  let systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
   // Check if the file is a zip file
   if (extname(inputAbsolutePath).toLowerCase() === '.zip') {
@@ -177,10 +189,20 @@ async function setElection(
     // Find and read election.json from the zip
     const electionEntry = getFileByName(
       entries,
-      'election.json',
+      ElectionPackageFileName.ELECTION,
       inputAbsolutePath
     );
     electionData = await readTextEntry(electionEntry);
+
+    const systemSettingsEntry = maybeGetFileByName(
+      entries,
+      ElectionPackageFileName.SYSTEM_SETTINGS
+    );
+    if (systemSettingsEntry) {
+      const systemSettingsData = await readTextEntry(systemSettingsEntry);
+      systemSettings =
+        safeParseSystemSettings(systemSettingsData).unsafeUnwrap();
+    }
 
     // Extract election.json to a stable directory for use by other scripts
     const devDockElectionPath = join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME);
@@ -198,6 +220,8 @@ async function setElection(
     title: electionDefinition.election.title,
     inputPath,
     resolvedPath,
+    arePollWorkerCardPinsEnabled:
+      systemSettings.auth.arePollWorkerCardPinsEnabled,
   };
 
   const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
@@ -317,9 +341,15 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       const { electionInfo } = readDevDockFileContents(devDockFilePath);
       assert(electionInfo !== undefined);
 
+      const cardType =
+        input.role === 'poll_worker' &&
+        electionInfo.arePollWorkerCardPinsEnabled
+          ? 'poll-worker-with-pin'
+          : input.role.replace('_', '-');
+
       await execFile(MOCK_CARD_SCRIPT_PATH, [
         '--card-type',
-        input.role.replace('_', '-'),
+        cardType,
         '--electionDefinition',
         electionInfo.resolvedPath,
       ]);
