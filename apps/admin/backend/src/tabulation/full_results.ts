@@ -47,6 +47,7 @@ export function tabulateCastVoteRecords({
   const expectedGroups = groupBySupportsZeroSplits(groupBy)
     ? store.getTabulationGroups({
         electionId,
+        election,
         groupBy,
         filter,
       })
@@ -54,7 +55,7 @@ export function tabulateCastVoteRecords({
 
   debug('tabulating filtered cast vote records from the store');
   return tabulateFilteredCastVoteRecords({
-    cvrs: store.getCastVoteRecords({ electionId, filter }),
+    cvrs: store.getCastVoteRecords({ electionId, election, filter }),
     election,
     groupBy,
     expectedGroups,

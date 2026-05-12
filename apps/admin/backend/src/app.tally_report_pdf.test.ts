@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionOpenPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -24,6 +25,10 @@ import {
   expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
+import {
+  MockCastVoteRecordFile,
+  addMockCvrFileToStore,
+} from '../test/mock_cvr_file';
 import { Api } from './app';
 import { TallyReportSpec } from './reports/tally_report';
 import { mockFileName } from '../test/csv';
@@ -466,4 +471,110 @@ test('tally report logging', async () => {
       disposition: 'success',
     }
   );
+});
+
+test('tally report PDF - open primary', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+
+  const { apiClient, auth, workspace, mockPrinterHandler, mockUsbDrive } =
+    buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
+
+  function snapshotReport({
+    spec,
+    identifier,
+  }: {
+    spec: TallyReportSpec;
+    identifier: string;
+  }) {
+    return expectIdenticalSnapshotsAcrossExportMethods({
+      apiClient,
+      mockPrinterHandler,
+      mockUsbDrive,
+      reportSpec: spec,
+      customSnapshotIdentifier: identifier,
+    });
+  }
+
+  // shows report with all zeros
+  await snapshotReport({
+    spec: {
+      filter: {},
+      groupBy: {},
+      includeSignatureLines: false,
+    },
+    identifier: 'open-primary-tally-report-zero',
+  });
+
+  const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
+    ballotStyleGroupId: 'ballot-style-1',
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    precinctId: 'precinct-1',
+    votingMethod: 'precinct',
+    card: { type: 'hmpb', sheetNumber: 1 },
+  };
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ...baseCvr,
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 3,
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 2,
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-libertarian': ['grace-kim'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    // Nonpartisan only
+    {
+      ...baseCvr,
+      votes: { 'circuit-court-judge': ['margaret-chen'] },
+    },
+    // Crossover vote - only nonpartisan votes count
+    {
+      ...baseCvr,
+      votes: {
+        'governor-democratic': ['carol-white'],
+        'governor-republican': ['frank-lee'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+  });
+
+  // shows report populated with data
+  await snapshotReport({
+    spec: {
+      filter: {},
+      groupBy: {},
+      includeSignatureLines: false,
+    },
+    identifier: 'open-primary-tally-report',
+  });
 });

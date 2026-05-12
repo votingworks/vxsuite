@@ -223,9 +223,13 @@ function buildApi({
     input: Pick<BallotCountReportSpec, 'filter' | 'groupBy'>
   ): Tabulation.GroupList<Tabulation.CardCounts> {
     const electionId = loadCurrentElectionIdOrThrow(workspace);
+    const {
+      electionDefinition: { election },
+    } = assertDefined(store.getElection(electionId));
     return groupMapToGroupList(
       tabulateFullCardCounts({
         electionId,
+        election,
         store,
         filter: convertFrontendFilter(input.filter),
         groupBy: input.groupBy,

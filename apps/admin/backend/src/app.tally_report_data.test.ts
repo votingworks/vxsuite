@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -1007,4 +1008,359 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   const writeInTally = contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID];
   expect(writeInTally).toBeDefined();
   expect(writeInTally?.name).toEqual(Tabulation.PENDING_WRITE_IN_NAME);
+});
+
+test('open primary, full election with crossover and adjudications', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, election);
+
+  // Seed 10 CVRs. Edge-case ballots vote for different candidates from the
+  // happy-path ballots so per-candidate tallies isolate each behavior:
+  //   3x Dem-only           — gov-dem: alice-jones, nonpartisan
+  //   2x Rep-only           — gov-rep: dave-wilson, nonpartisan
+  //   1x Lib-only           — gov-lib: grace-kim, nonpartisan
+  //   1x Nonpartisan-only   — nonpartisan only
+  //   1x Crossover (resolve via adjudication)
+  //                         — gov-dem: bob-smith + gov-rep: ellen-brown + nonpartisan
+  //   1x Crossover (stays)  — gov-dem: carol-white + gov-rep: frank-lee + nonpartisan
+  //   1x Dem-only (flip via adjudication)
+  //                         — gov-dem: dan-rivera + nonpartisan
+  const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
+    ballotStyleGroupId: 'ballot-style-1',
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    precinctId: 'precinct-1',
+    votingMethod: 'precinct',
+    card: { type: 'hmpb', sheetNumber: 1 },
+  };
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ...baseCvr,
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 3,
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 2,
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-libertarian': ['grace-kim'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      votes: { 'circuit-court-judge': ['margaret-chen'] },
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-democratic': ['bob-smith'],
+        'governor-republican': ['ellen-brown'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-democratic': ['carol-white'],
+        'governor-republican': ['frank-lee'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      votes: {
+        'governor-democratic': ['dan-rivera'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+  ];
+  const cvrIds = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+  });
+  // multiplier expands rows in order, so:
+  //   cvrIds[0..2] = Dem-only
+  //   cvrIds[3..4] = Rep-only
+  //   cvrIds[5]    = Lib-only
+  //   cvrIds[6]    = Nonpartisan-only
+  //   cvrIds[7]    = Crossover (will be resolved)
+  //   cvrIds[8]    = Crossover (stays)
+  //   cvrIds[9]    = Dem-only (will be flipped to nonpartisan)
+  const crossoverToResolveCvrId = cvrIds[7]!;
+  const demToFlipCvrId = cvrIds[9]!;
+
+  // Resolve a crossover by removing the gov-republican vote → ballot becomes
+  // Dem-only, restoring its gov-democratic vote (bob-smith).
+  await apiClient.claimBallotForAdjudication({
+    cvrId: crossoverToResolveCvrId,
+  });
+  (
+    await apiClient.adjudicateCvrContest({
+      cvrId: crossoverToResolveCvrId,
+      contestId: 'governor-republican',
+      side: 'front',
+      adjudicatedContestOptionById: {
+        'ellen-brown': { type: 'candidate-option', hasVote: false },
+      },
+    })
+  ).assertOk('failed to adjudicate crossover');
+  // Flip a Dem-only ballot by removing its gov-democratic vote (dan-rivera)
+  // → ballot becomes nonpartisan-only.
+  await apiClient.claimBallotForAdjudication({ cvrId: demToFlipCvrId });
+  (
+    await apiClient.adjudicateCvrContest({
+      cvrId: demToFlipCvrId,
+      contestId: 'governor-democratic',
+      side: 'front',
+      adjudicatedContestOptionById: {
+        'dan-rivera': { type: 'candidate-option', hasVote: false },
+      },
+    })
+  ).assertOk('failed to flip dem ballot');
+
+  const tallyReports = await apiClient.getResultsForTallyReports();
+  expect(tallyReports).toHaveLength(1);
+  const [report] = tallyReports;
+  assert(report);
+  assert(report.hasPartySplits);
+
+  expect(report.contestIds).toEqual(election.contests.map((c) => c.id));
+
+  expect(report.cardCountsByParty).toEqual({
+    // 3 Dem-only + 1 resolved crossover (now Dem)
+    'democratic-party': { bmd: [], hmpb: [4] },
+    // 2 Rep-only
+    'republican-party': { bmd: [], hmpb: [2] },
+    // 1 Lib-only
+    'libertarian-party': { bmd: [], hmpb: [1] },
+  });
+
+  expect(report.scannedResults.cardCounts).toEqual({
+    bmd: [],
+    // 7 partisan (above) + 3 no-party (1 nonpartisan-only + 1 crossover + 1 flipped Dem)
+    hmpb: [10],
+    manual: 0,
+  });
+
+  expect(
+    report.scannedResults.contestResults['governor-democratic']
+  ).toMatchObject({
+    tallies: {
+      'alice-jones': { tally: 3 }, // happy-path Dem voters
+      'bob-smith': { tally: 1 }, // resolved crossover restored its Dem vote
+      'carol-white': { tally: 0 }, // unresolved crossover excludes partisan votes
+      'dan-rivera': { tally: 0 }, // flipped Dem ballot lost its partisan vote
+    },
+  });
+  expect(
+    report.scannedResults.contestResults['governor-republican']
+  ).toMatchObject({
+    tallies: {
+      'dave-wilson': { tally: 2 }, // happy-path Rep voters
+      'ellen-brown': { tally: 0 }, // resolved crossover's Rep vote was adjudicated away
+      'frank-lee': { tally: 0 }, // unresolved crossover excludes partisan votes
+    },
+  });
+  expect(
+    report.scannedResults.contestResults['governor-libertarian']
+  ).toMatchObject({
+    tallies: {
+      'grace-kim': { tally: 1 }, // happy-path Lib voter
+    },
+  });
+
+  expect(
+    report.scannedResults.contestResults['circuit-court-judge']
+  ).toMatchObject({
+    ballots: 10,
+    tallies: {
+      // Every ballot voted nonpartisan, including crossover and nonpartisan-only
+      'margaret-chen': { tally: 10 },
+    },
+  });
+});
+
+test('open primary, grouped by precinct', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, election);
+
+  // Two precincts with different ballot distributions to verify per-precinct
+  // splits compose with per-party splits:
+  //   precinct-1: 2 Dem-only + 1 Rep-only + 1 Crossover (4 total)
+  //   precinct-2: 1 Dem-only + 2 Rep-only + 1 Lib-only + 1 Nonpartisan-only (5)
+  const baseCvr: Omit<
+    MockCastVoteRecordFile[number],
+    'ballotStyleGroupId' | 'precinctId' | 'votes'
+  > = {
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    votingMethod: 'precinct',
+    card: { type: 'hmpb', sheetNumber: 1 },
+  };
+  const p1: Pick<
+    MockCastVoteRecordFile[number],
+    'ballotStyleGroupId' | 'precinctId'
+  > = {
+    ballotStyleGroupId: 'ballot-style-1',
+    precinctId: 'precinct-1',
+  };
+  const p2: Pick<
+    MockCastVoteRecordFile[number],
+    'ballotStyleGroupId' | 'precinctId'
+  > = {
+    ballotStyleGroupId: 'ballot-style-2',
+    precinctId: 'precinct-2',
+  };
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    // precinct-1
+    {
+      ...baseCvr,
+      ...p1,
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 2,
+    },
+    {
+      ...baseCvr,
+      ...p1,
+      votes: {
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      ...p1,
+      votes: {
+        'governor-democratic': ['bob-smith'],
+        'governor-republican': ['ellen-brown'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    // precinct-2
+    {
+      ...baseCvr,
+      ...p2,
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      ...p2,
+      votes: {
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 2,
+    },
+    {
+      ...baseCvr,
+      ...p2,
+      votes: {
+        'governor-libertarian': ['grace-kim'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      ...p2,
+      votes: { 'circuit-court-judge': ['margaret-chen'] },
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+  });
+
+  const tallyReports = await apiClient.getResultsForTallyReports({
+    filter: {},
+    groupBy: { groupByPrecinct: true },
+  });
+  expect(tallyReports).toHaveLength(2);
+
+  const precinct1Report = find(
+    tallyReports,
+    (report) => report.precinctId === 'precinct-1'
+  );
+  const precinct2Report = find(
+    tallyReports,
+    (report) => report.precinctId === 'precinct-2'
+  );
+  assert(precinct1Report.hasPartySplits);
+  assert(precinct2Report.hasPartySplits);
+
+  // precinct-1: 2 Dem + 1 Rep + 1 Crossover (no party).
+  expect(precinct1Report.cardCountsByParty).toEqual({
+    'democratic-party': { bmd: [], hmpb: [2] },
+    'republican-party': { bmd: [], hmpb: [1] },
+    'libertarian-party': { bmd: [], hmpb: [] },
+  });
+  expect(precinct1Report.scannedResults.cardCounts).toEqual({
+    bmd: [],
+    hmpb: [4], // 2 Dem + 1 Rep + 1 Crossover
+    manual: 0,
+  });
+  expect(
+    precinct1Report.scannedResults.contestResults['governor-democratic']
+  ).toMatchObject({
+    tallies: {
+      'alice-jones': { tally: 2 },
+      'bob-smith': { tally: 0 }, // crossover excludes partisan votes
+    },
+  });
+
+  // precinct-2: 1 Dem + 2 Rep + 1 Lib + 1 Nonpartisan-only
+  expect(precinct2Report.cardCountsByParty).toEqual({
+    'democratic-party': { bmd: [], hmpb: [1] },
+    'republican-party': { bmd: [], hmpb: [2] },
+    'libertarian-party': { bmd: [], hmpb: [1] },
+  });
+  expect(precinct2Report.scannedResults.cardCounts).toEqual({
+    bmd: [],
+    hmpb: [5], // 1 Dem + 2 Rep + 1 Lib + 1 Nonpartisan-only
+    manual: 0,
+  });
+  expect(
+    precinct2Report.scannedResults.contestResults['circuit-court-judge']
+  ).toMatchObject({
+    ballots: 5, // every precinct-2 ballot voted nonpartisan
+    tallies: {
+      'margaret-chen': { tally: 5 },
+    },
+  });
 });

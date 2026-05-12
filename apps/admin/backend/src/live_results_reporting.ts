@@ -35,6 +35,7 @@ export function getMatchingAbsenteePollingPlaces({
   const cardCountsByPrecinct = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
+      election,
       store,
       groupBy: { groupByPrecinct: true },
     })
