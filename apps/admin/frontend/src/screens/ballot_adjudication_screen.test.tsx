@@ -4,6 +4,7 @@ import {
   AdjudicationReason,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
 } from '@votingworks/types';
 import type { BallotPageLayout, Rect } from '@votingworks/types';
 import type {
@@ -14,6 +15,7 @@ import type {
   ContestAdjudicationData,
   CvrContestTag,
   CvrTag,
+  WriteInRecord,
 } from '@votingworks/admin-backend';
 import {
   HIGHLIGHT_PRIMARY_BACKGROUND,
@@ -1409,5 +1411,256 @@ test('multi-station mode claims ballots on mount and releases on navigation', as
   await screen.findByText('Ballot 2 of 2');
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves();
+});
+
+function makePendingWriteInRecord(
+  contestId: string,
+  optionId: string,
+  cvrId: string = CVR_ID_1
+): WriteInRecord {
+  return {
+    status: 'pending',
+    id: `wir-${contestId}-${optionId}`,
+    cvrId,
+    contestId,
+    electionId: 'e',
+    optionId,
+  };
+}
+
+function addPendingWriteIns(
+  contest: ContestAdjudicationData,
+  numberOfWriteIns: number,
+  recordedSlots: number[]
+): void {
+  for (let i = 0; i < numberOfWriteIns; i += 1) {
+    contest.options.push({
+      definition: {
+        id: `write-in-${i}`,
+        contestId: contest.contestId,
+        name: `Write-In #${i + 1}`,
+        type: 'candidate' as const,
+        isWriteIn: true,
+      },
+      scannedVote: recordedSlots.includes(i),
+      hasMarginalMark: false,
+      writeInRecord: recordedSlots.includes(i)
+        ? makePendingWriteInRecord(contest.contestId, `write-in-${i}`)
+        : undefined,
+    });
+  }
+}
+
+const QUALIFIED_SYSTEM_SETTINGS: SystemSettings = {
+  ...DEFAULT_SYSTEM_SETTINGS,
+  areWriteInCandidatesQualified: true,
+};
+
+test('auto-resolves a write-in-only contest with no qualified candidates', async () => {
+  const contestId = 'zoo-council-mammal';
+  const contest = makeContestAdjudicationData(
+    contestId,
+    makeContestTag({ hasWriteIn: true })
+  );
+  // Two of three write-in slots have a pending record.
+  addPendingWriteIns(contest, 3, [0, 1]);
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+  // Second ballot is just a destination to advance to after Accept.
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, [
+    makeContestAdjudicationData(
+      contestId,
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves(makeHmpbBallotImages(CVR_ID_2));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  // Accept enables only when the contest list shows the contest as resolved.
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: /Accept/ })).toBeEnabled();
+  });
+
+  const expectedAdjudication: AdjudicatedCvrContest = {
+    contestId,
+    adjudicatedContestOptionById: {
+      zebra: { type: 'official-option', hasVote: false },
+      lion: { type: 'official-option', hasVote: false },
+      kangaroo: { type: 'official-option', hasVote: false },
+      elephant: { type: 'official-option', hasVote: false },
+      'write-in-0': { type: 'write-in-option', hasVote: false },
+      'write-in-1': { type: 'write-in-option', hasVote: false },
+      'write-in-2': { type: 'write-in-option', hasVote: false },
+    },
+  };
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  apiMock.expectAdjudicateCvr({
+    cvrId: CVR_ID_1,
+    contests: [expectedAdjudication],
+  });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+
+  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await screen.findByText('Ballot 2 of 2');
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves();
+});
+
+test('auto-resolves contests flagged with hasUnmarkedWriteIn', async () => {
+  const contestId = 'zoo-council-mammal';
+  const contest = makeContestAdjudicationData(
+    contestId,
+    makeContestTag({
+      hasWriteIn: false,
+      hasUnmarkedWriteIn: true,
+    })
+  );
+  addPendingWriteIns(contest, 3, [0]);
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: /Accept/ })).toBeEnabled();
+  });
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test.each([
+  { flag: 'hasOvervote' as const, label: 'hasOvervote' },
+  { flag: 'hasUndervote' as const, label: 'hasUndervote' },
+  { flag: 'hasMarginalMark' as const, label: 'hasMarginalMark' },
+])(
+  'does not auto-resolve a contest also flagged with $label',
+  async ({ flag }) => {
+    const contestId = 'zoo-council-mammal';
+    const contest = makeContestAdjudicationData(
+      contestId,
+      makeContestTag({ hasWriteIn: true, [flag]: true })
+    );
+    addPendingWriteIns(contest, 3, [0]);
+    const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+
+    apiMock.expectAdjudicationScreenQueries();
+    apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+    apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+    apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+    apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+    apiMock.expectGetWriteInCandidates([]);
+    apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
+    apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+    renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByText(/Ballot ID/);
+    expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+
+    apiMock.apiClient.releaseBallotAdjudicationClaim
+      .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+      .resolves();
+  }
+);
+
+test('does not auto-resolve when qualified candidates exist for the contest', async () => {
+  const contestId = 'zoo-council-mammal';
+  const contest = makeContestAdjudicationData(
+    contestId,
+    makeContestTag({ hasWriteIn: true })
+  );
+  addPendingWriteIns(contest, 3, [0]);
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([
+    { id: 'qual-1', name: 'Qualified Person', electionId: 'e', contestId },
+  ]);
+  apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(/Ballot ID/);
+  expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('does not auto-resolve when areWriteInCandidatesQualified is false', async () => {
+  const contestId = 'zoo-council-mammal';
+  const contest = makeContestAdjudicationData(
+    contestId,
+    makeContestTag({ hasWriteIn: true })
+  );
+  addPendingWriteIns(contest, 3, [0]);
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings(); // qualified mode off (default)
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(/Ballot ID/);
+  expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
 });

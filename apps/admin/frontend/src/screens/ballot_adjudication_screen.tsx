@@ -4,6 +4,7 @@ import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
 import {
   AdjudicationReason,
   ContestId,
+  ContestOptionId,
   Election,
   Id,
   Side,
@@ -11,6 +12,7 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import type {
+  AdjudicatedContestOption,
   AdjudicatedCvrContest,
   BallotAdjudicationData,
   BallotImages,
@@ -479,12 +481,58 @@ export function BallotAdjudicationScreen({
   const [pendingDiscard, setPendingDiscard] = useState<{
     action: () => void;
   } | null>(null);
-  const [adjudicatedContests, setAdjudicatedContests] = useState(
-    () =>
-      new Map(
-        ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
-      )
-  );
+  // Initialize from persisted adjudications. In qualified-write-in mode, also
+  // auto-resolve contests whose only adjudication reason is write-ins when the
+  // contest has no qualified candidates: every write-in must be invalid, so
+  // the user has nothing to decide.
+  const [adjudicatedContests, setAdjudicatedContests] = useState<
+    Map<ContestId, AdjudicatedCvrContest>
+  >(() => {
+    const initial = new Map<ContestId, AdjudicatedCvrContest>(
+      ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+    );
+    if (
+      !systemSettings.areWriteInCandidatesQualified ||
+      ballotAdjudicationData.isResolved
+    ) {
+      return initial;
+    }
+    const contestIdsWithQualified = new Set(
+      writeInCandidates.map((c) => c.contestId)
+    );
+
+    for (const { adjudicationData: contest } of [
+      ...frontContests,
+      ...backContests,
+    ]) {
+      if (initial.has(contest.contestId)) continue;
+      const { tag } = contest;
+      if (!tag) continue;
+      const hasWriteInFlag = tag.hasWriteIn || tag.hasUnmarkedWriteIn;
+      const hasOtherFlag =
+        tag.hasOvervote || tag.hasUndervote || tag.hasMarginalMark;
+      if (!hasWriteInFlag || hasOtherFlag) continue;
+      if (contestIdsWithQualified.has(contest.contestId)) continue;
+
+      const adjudicatedContestOptionById: Record<
+        ContestOptionId,
+        AdjudicatedContestOption
+      > = {};
+      for (const option of contest.options) {
+        const isWriteIn =
+          option.definition.type === 'candidate' && option.definition.isWriteIn;
+        adjudicatedContestOptionById[option.definition.id] = isWriteIn
+          ? { type: 'write-in-option', hasVote: false }
+          : { type: 'official-option', hasVote: option.scannedVote };
+      }
+      initial.set(contest.contestId, {
+        contestId: contest.contestId,
+        adjudicatedContestOptionById,
+      });
+    }
+
+    return initial;
+  });
   const [selectedSide, setSelectedSide] = useState<Side>(() =>
     getDefaultSide(adjudicatedContests)
   );
@@ -596,7 +644,10 @@ export function BallotAdjudicationScreen({
           contestAdjudicationData,
           (c) => c.contestId === selectedContestId
         )}
-        adjudicatedContest={adjudicatedContests.get(selectedContestId)}
+        adjudicatedOptions={
+          adjudicatedContests.get(selectedContestId)
+            ?.adjudicatedContestOptionById
+        }
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId

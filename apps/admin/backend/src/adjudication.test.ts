@@ -876,10 +876,11 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
+  const { election } = store.getElection(electionId)!.electionDefinition;
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -933,7 +934,9 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
   );
 
   // Both contests' adjudicated_votes are written.
-  const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+  const [cvr] = [
+    ...store.getCastVoteRecords({ electionId, election, filter: {} }),
+  ];
   assert(cvr);
   expect(new Set(cvr.votes['zoo-council-mammal'])).toEqual(
     new Set(['lion', 'kangaroo'])

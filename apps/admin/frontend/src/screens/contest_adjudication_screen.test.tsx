@@ -21,6 +21,7 @@ import type {
 import userEvent from '@testing-library/user-event';
 import type {
   AdjudicatedContestOption,
+  AdjudicatedContestOptions,
   AdjudicatedCvrContest,
   BallotImages,
   ContestAdjudicationData,
@@ -257,7 +258,7 @@ function renderScreen(
     onClose = vi.fn(),
     writeInCandidates = [] as WriteInCandidateRecord[],
     onConfirmContest = vi.fn(),
-    adjudicatedContest,
+    adjudicatedOptions,
   }: {
     areWriteInCandidatesQualified?: boolean;
     ballotImages?: BallotImages;
@@ -266,7 +267,7 @@ function renderScreen(
     onClose?: () => void;
     writeInCandidates?: WriteInCandidateRecord[];
     onConfirmContest?: (input: AdjudicatedCvrContest) => void;
-    adjudicatedContest?: AdjudicatedCvrContest;
+    adjudicatedOptions?: AdjudicatedContestOptions;
   } = {}
 ) {
   const images =
@@ -285,7 +286,7 @@ function renderScreen(
         side={side}
         writeInCandidates={writeInCandidates}
         onConfirmContest={onConfirmContest}
-        adjudicatedContest={adjudicatedContest}
+        adjudicatedOptions={adjudicatedOptions}
       />,
       { electionDefinition: electionDef, apiMock }
     ),
@@ -642,6 +643,9 @@ describe('hmpb write-in adjudication', () => {
     });
     renderScreen(data, cvrId, {
       areWriteInCandidatesQualified: true,
+      writeInCandidates: [
+        { id: 'qual-1', name: 'Existing Qualified', electionId, contestId },
+      ],
       ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
@@ -782,16 +786,13 @@ describe('vote adjudication', () => {
       votes: ['kangaroo'],
       tag: cvrContestTag,
     });
-    const adjudicatedContest: AdjudicatedCvrContest = {
-      contestId,
-      adjudicatedContestOptionById: {
-        kangaroo: { type: 'official-option', hasVote: true },
-        lion: { type: 'official-option', hasVote: true },
-      },
+    const adjudicatedOptions: AdjudicatedContestOptions = {
+      kangaroo: { type: 'official-option', hasVote: true },
+      lion: { type: 'official-option', hasVote: true },
     };
     const { onClose } = renderScreen(data, cvrId, {
       onConfirmContest,
-      adjudicatedContest,
+      adjudicatedOptions,
     });
 
     await waitForBallotById('id-174');
@@ -1824,5 +1825,136 @@ describe('candidate ordering', () => {
       name: /Thomas Edison/i,
     });
     expect(edisonCheckboxes).toHaveLength(1);
+  });
+});
+
+describe('qualified write-in mode auto-invalidation', () => {
+  const contestId = 'zoo-council-mammal';
+  const cvrId = 'id-174';
+
+  function buildPendingWriteIn(optionId: string): WriteInRecord {
+    return {
+      status: 'pending',
+      id: `wir-${optionId}`,
+      cvrId,
+      contestId,
+      electionId,
+      optionId,
+    };
+  }
+
+  test('pre-marks write-ins as invalid and submits them on confirm', async () => {
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
+    const tag: CvrContestTag = {
+      hasWriteIn: true,
+      hasUndervote: true,
+    };
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['write-in-0'],
+      writeInRecords: [buildPendingWriteIn('write-in-0')],
+      tag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      areWriteInCandidatesQualified: true,
+      writeInCandidates: [],
+      onConfirmContest,
+    });
+
+    await waitForBallotById('id-174');
+
+    // The write-in option flips to "Invalid" automatically
+    await screen.findByText(/invalid/i);
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+    const confirmButton = await waitFor(() => {
+      const button = getButtonByName('confirm');
+      expect(button).toBeEnabled();
+      return button;
+    });
+    userEvent.click(confirmButton);
+
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(onConfirmContest).toHaveBeenCalledWith(
+      formAdjudicatedCvrContest({})
+    );
+  });
+
+  test('pre-marking resolves a marginal mark on the same write-in option', async () => {
+    const onConfirmContest = vi.fn().mockResolvedValue(undefined);
+    const tag: CvrContestTag = {
+      hasWriteIn: true,
+      hasMarginalMark: true,
+    };
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: [],
+      writeInRecords: [buildPendingWriteIn('write-in-0')],
+      marginalMarkOptionIds: ['write-in-0'],
+      tag,
+    });
+    renderScreen(data, cvrId, {
+      areWriteInCandidatesQualified: true,
+      writeInCandidates: [],
+      onConfirmContest,
+    });
+
+    await waitForBallotById('id-174');
+
+    // Marginal mark prompt is gone because the auto-invalidation resolved it.
+    await waitFor(() =>
+      expect(
+        screen.queryByText(/review marginal mark/i)
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
+  });
+
+  test('does not pre-mark when qualified candidates exist for the contest', async () => {
+    const tag: CvrContestTag = {
+      hasWriteIn: true,
+    };
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['write-in-0'],
+      writeInRecords: [buildPendingWriteIn('write-in-0')],
+      tag,
+    });
+    renderScreen(data, cvrId, {
+      areWriteInCandidatesQualified: true,
+      writeInCandidates: [
+        { id: 'qual-1', name: 'Qualified Person', electionId, contestId },
+      ],
+    });
+
+    await waitForBallotById('id-174');
+
+    // No auto-invalidation: the write-in stays pending — combobox visible,
+    // confirm disabled.
+    expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(getButtonByName('confirm')).toBeDisabled();
+  });
+
+  test('does not pre-mark when areWriteInCandidatesQualified is false', async () => {
+    const tag: CvrContestTag = {
+      hasWriteIn: true,
+    };
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['write-in-0'],
+      writeInRecords: [buildPendingWriteIn('write-in-0')],
+      tag,
+    });
+    renderScreen(data, cvrId, {
+      areWriteInCandidatesQualified: false,
+      writeInCandidates: [],
+    });
+
+    await waitForBallotById('id-174');
+
+    expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(getButtonByName('confirm')).toBeDisabled();
   });
 });
