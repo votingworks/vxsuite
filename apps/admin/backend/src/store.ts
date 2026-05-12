@@ -62,6 +62,7 @@ import {
   fromSqliteBool,
   getBallotStyleGroup,
   getGroupedBallotStyles,
+  getGroupKey,
   getOfficialCandidateNameLookup,
   inferPartyFromVotes,
   partisanContests,
@@ -1649,13 +1650,27 @@ export class Store implements BaseStore {
    */
   *getCardTallies({
     electionId,
+    election,
     filter = {},
     groupBy = {},
   }: {
     electionId: Id;
+    election: Election;
     filter?: Admin.ReportingFilter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<CardTally>> {
+    // In open primaries, we have to infer a CVR's party from its votes,
+    // which we can't do via the db, so we divert and do the counting in JS.
+    if (isOpenPrimary(election) && groupBy.groupByParty) {
+      yield* this.getOpenPrimaryCardTallies({
+        electionId,
+        election,
+        filter,
+        groupBy,
+      });
+      return;
+    }
+
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
       filter
@@ -1756,6 +1771,75 @@ export class Store implements BaseStore {
         tally: row.tally,
       };
     }
+  }
+
+  private *getOpenPrimaryCardTallies({
+    electionId,
+    election,
+    filter,
+    groupBy,
+  }: {
+    electionId: Id;
+    election: Election;
+    filter: Admin.ReportingFilter;
+    groupBy: Tabulation.GroupBy;
+  }): Generator<Tabulation.GroupOf<CardTally>> {
+    assert(groupBy.groupByParty);
+    const batchDatesByBatchId = groupBy.groupByBatchDate
+      ? new Map(
+          (
+            this.client.all(
+              `
+                select id, date(started_at, 'localtime') as batchDate
+                from scanner_batches
+                where election_id = ?
+              `,
+              electionId
+            ) as Array<{ id: string; batchDate: string }>
+          ).map((row) => [row.id, row.batchDate])
+        )
+      : undefined;
+
+    const aggregator = new Map<string, Tabulation.GroupOf<CardTally>>();
+
+    for (const cvr of this.getCastVoteRecords({
+      electionId,
+      election,
+      filter,
+    })) {
+      const groupSpecifier: Tabulation.GroupSpecifier = {
+        ballotStyleGroupId: groupBy.groupByBallotStyle
+          ? cvr.ballotStyleGroupId
+          : undefined,
+        partyId: cvr.partyId,
+        batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
+        batchDate: groupBy.groupByBatchDate
+          ? assertDefined(assertDefined(batchDatesByBatchId).get(cvr.batchId))
+          : undefined,
+        scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
+        precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
+        votingMethod: groupBy.groupByVotingMethod
+          ? cvr.votingMethod
+          : undefined,
+      };
+      // Extend group key with a card discriminator so two CVRs in the same
+      // group but on different sheets bucket separately.
+      const key = `${getGroupKey(groupSpecifier, groupBy)}&card=${
+        cvr.card.type
+      }/${cvr.card.sheetNumber ?? 1}`;
+      const existing = aggregator.get(key);
+      if (existing) {
+        existing.tally += 1;
+      } else {
+        aggregator.set(key, {
+          ...groupSpecifier,
+          card: cvr.card,
+          tally: 1,
+        });
+      }
+    }
+
+    yield* aggregator.values();
   }
 
   /**

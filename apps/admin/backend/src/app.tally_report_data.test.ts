@@ -1030,18 +1030,20 @@ test('open primary, full election with crossover and adjudications', async () =>
   expect(report.contestIds).toEqual(election.contests.map((c) => c.id));
 
   expect(report.cardCountsByParty).toEqual({
-    // 3 Dem-only + 1 resolved crossover (now Dem)
-    'democratic-party': { bmd: [], hmpb: [4] },
-    // 2 Rep-only
+    // 3 Dem-only (2 HMPB + 1 BMD) + 1 resolved crossover (HMPB, now Dem)
+    'democratic-party': { bmd: [1], hmpb: [3] },
+    // 2 Rep-only (HMPB)
     'republican-party': { bmd: [], hmpb: [2] },
-    // 1 Lib-only
-    'libertarian-party': { bmd: [], hmpb: [1] },
+    // 1 Lib-only (BMD card in the fixture)
+    'libertarian-party': { bmd: [1], hmpb: [] },
   });
 
   expect(report.scannedResults.cardCounts).toEqual({
-    bmd: [],
-    // 7 partisan (above) + 3 no-party (1 nonpartisan-only + 1 crossover + 1 flipped Dem)
-    hmpb: [10],
+    // 2 BMD ballots (1 Dem + 1 Lib); remaining 8 are HMPB.
+    bmd: [2],
+    // 7 HMPB sheet 1 (5 partisan + 2 no-party from crossover/flipped Dem)
+    // + 1 HMPB sheet 2 (nonpartisan-only ballot)
+    hmpb: [7, 1],
     manual: 0,
   });
 

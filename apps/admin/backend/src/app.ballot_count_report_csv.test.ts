@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionOpenPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -27,6 +28,7 @@ import {
 } from '../test/mock_cvr_file';
 import { Api } from './app';
 import { generateReportPath } from './util/filenames';
+import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -295,6 +297,101 @@ test('creates accurate ballot count reports', async () => {
         'Precinct ID': 'town-id-00701-precinct-id-default',
         Total: '102',
         'Voting Method': 'Absentee',
+      },
+    ],
+  });
+});
+
+test('open primary: groups by inferred party with a No Party row', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  // 10 CVRs in precinct-1 after adjudication:
+  //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
+  await seedOpenPrimaryCvrsAndAdjudications({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  mockUsbDrive.insertUsbDrive({});
+  expect(
+    await getParsedExport({
+      apiClient,
+      mockUsbDrive,
+      groupBy: { groupByPrecinct: true, groupByParty: true },
+    })
+  ).toEqual({
+    metadata: {
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(electionDefinition.ballotHash),
+    },
+    headers: ['Precinct', 'Precinct ID', 'Party', 'Party ID', 'Total'],
+    rows: [
+      {
+        Precinct: 'Precinct 1',
+        'Precinct ID': 'precinct-1',
+        Party: 'Democratic',
+        'Party ID': 'democratic-party',
+        Total: '4',
+      },
+      {
+        Precinct: 'Precinct 1',
+        'Precinct ID': 'precinct-1',
+        Party: 'Republican',
+        'Party ID': 'republican-party',
+        Total: '2',
+      },
+      {
+        Precinct: 'Precinct 1',
+        'Precinct ID': 'precinct-1',
+        Party: 'Libertarian',
+        'Party ID': 'libertarian-party',
+        Total: '1',
+      },
+      // No Party group totals only count first-sheet HMPB. The
+      // nonpartisan-only CVR uses sheet 2, so it's omitted from Total.
+      {
+        Precinct: 'Precinct 1',
+        'Precinct ID': 'precinct-1',
+        Party: 'No Party',
+        'Party ID': '',
+        Total: '2',
+      },
+      {
+        Precinct: 'Precinct 2',
+        'Precinct ID': 'precinct-2',
+        Party: 'Democratic',
+        'Party ID': 'democratic-party',
+        Total: '0',
+      },
+      {
+        Precinct: 'Precinct 2',
+        'Precinct ID': 'precinct-2',
+        Party: 'Republican',
+        'Party ID': 'republican-party',
+        Total: '0',
+      },
+      {
+        Precinct: 'Precinct 2',
+        'Precinct ID': 'precinct-2',
+        Party: 'Libertarian',
+        'Party ID': 'libertarian-party',
+        Total: '0',
+      },
+      {
+        Precinct: 'Precinct 2',
+        'Precinct ID': 'precinct-2',
+        Party: 'No Party',
+        'Party ID': '',
+        Total: '0',
       },
     ],
   });
