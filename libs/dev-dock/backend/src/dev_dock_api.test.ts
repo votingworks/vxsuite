@@ -29,7 +29,11 @@ import {
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
 import { assert, typedAs } from '@votingworks/basics';
-import { constructElectionKey, PrinterStatus } from '@votingworks/types';
+import {
+  constructElectionKey,
+  DEFAULT_SYSTEM_SETTINGS,
+  PrinterStatus,
+} from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
   getMockFilePrinterHandler,
@@ -339,6 +343,59 @@ test('election loading from zip file', async () => {
         electionKey: constructElectionKey(election),
         jurisdiction: DEV_JURISDICTION,
       }),
+    },
+  });
+
+  // Without a systemSettings.json in the zip, the poll worker card defaults
+  // to no PIN.
+  expect(loadedElection?.arePollWorkerCardPinsEnabled).toEqual(false);
+  await apiClient.removeCard();
+  await apiClient.insertCard({ role: 'poll_worker' });
+  await expect(apiClient.getCardStatus()).resolves.toEqual({
+    status: 'ready',
+    cardDetails: {
+      user: mockPollWorkerUser({
+        electionKey: constructElectionKey(election),
+        jurisdiction: DEV_JURISDICTION,
+      }),
+      hasPin: false,
+    },
+  });
+});
+
+test('poll worker card has a PIN when the election package enables them', async () => {
+  const electionPackage = electionFamousNames2021Fixtures.toElectionPackage({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    auth: {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      arePollWorkerCardPinsEnabled: true,
+    },
+  });
+  const { apiClient } = setup();
+
+  const usbDrive = getMockFileUsbDriveHandler();
+  usbDrive.insert(await mockElectionPackageFileTree(electionPackage));
+
+  const available = await apiClient.getAvailableElections();
+  const usbOption = available.find((e) => e.title.startsWith('USB '));
+  assert(usbOption !== undefined);
+  await apiClient.setElection({ inputPath: usbOption.inputPath });
+
+  const loadedElection = await apiClient.getElection();
+  expect(loadedElection?.arePollWorkerCardPinsEnabled).toEqual(true);
+
+  await apiClient.removeCard();
+  await apiClient.insertCard({ role: 'poll_worker' });
+  await expect(apiClient.getCardStatus()).resolves.toEqual({
+    status: 'ready',
+    cardDetails: {
+      user: mockPollWorkerUser({
+        electionKey: constructElectionKey(
+          electionPackage.electionDefinition.election
+        ),
+        jurisdiction: DEV_JURISDICTION,
+      }),
+      hasPin: true,
     },
   });
 });

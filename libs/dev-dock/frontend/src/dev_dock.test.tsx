@@ -103,6 +103,7 @@ beforeEach(() => {
     title: 'Sample General Election',
     inputPath: './libs/fixtures/data/electionGeneral/election.json',
     resolvedPath: '/full-path',
+    arePollWorkerCardPinsEnabled: false,
   });
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -258,6 +259,7 @@ test('election selector', async () => {
     title: 'Famous Names',
     inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
     resolvedPath: '/full-path',
+    arePollWorkerCardPinsEnabled: false,
   });
   userEvent.selectOptions(
     electionSelector,
