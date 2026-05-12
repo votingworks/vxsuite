@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -26,6 +27,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
+import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
 import { Api } from './app';
 import { AdjudicatedCvrContest } from './types';
 import { generateReportPath } from './util/filenames';
@@ -203,6 +205,88 @@ test('logs failure if export fails for some reason', async () => {
       message: `Failed to save tally report CSV file to ${usbRelativeReportPath} on the USB drive.`,
     }
   );
+});
+
+test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  mockUsbDrive.insertUsbDrive({});
+
+  await seedOpenPrimaryCvrsAndAdjudications({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  const { headers, rows } = await getParsedExport({
+    apiClient,
+    mockUsbDrive,
+    filter: {},
+    groupBy: {},
+  });
+  expect(headers).toEqual([
+    'Contest',
+    'Contest ID',
+    'Selection',
+    'Selection ID',
+    'Total Votes',
+  ]);
+
+  function totalVotesBySelectionId(contestId: string): Record<string, string> {
+    return Object.fromEntries(
+      rows
+        .filter((row) => row['Contest ID'] === contestId)
+        .map((row) => [row['Selection ID'], row['Total Votes']])
+    );
+  }
+
+  // 3 happy Dem (alice-jones) + 1 resolved crossover (bob-smith)
+  // + 1 flipped Dem (now nonpartisan, gov-dem undervoted)
+  // Unresolved crossover's gov-dem vote is voided.
+  expect(totalVotesBySelectionId('governor-democratic')).toEqual({
+    'alice-jones': '3',
+    'bob-smith': '1',
+    'carol-white': '0',
+    'dan-rivera': '0',
+    'emily-tran': '0',
+    overvotes: '0',
+    undervotes: '1',
+    'ballots-cast': '5',
+  });
+  // 2 happy Rep + 1 resolved crossover (gov-rep now empty → undervote).
+  // Unresolved crossover's gov-rep vote is voided.
+  expect(totalVotesBySelectionId('governor-republican')).toEqual({
+    'dave-wilson': '2',
+    'ellen-brown': '0',
+    'frank-lee': '0',
+    overvotes: '0',
+    undervotes: '1',
+    'ballots-cast': '3',
+  });
+  expect(totalVotesBySelectionId('governor-libertarian')).toEqual({
+    'grace-kim': '1',
+    'henry-park': '0',
+    overvotes: '0',
+    undervotes: '0',
+    'ballots-cast': '1',
+  });
+  // Every one of the 10 ballots — single-party, nonpartisan-only,
+  // crossover (resolved + unresolved), and flipped — votes nonpartisan.
+  expect(totalVotesBySelectionId('circuit-court-judge')).toEqual({
+    'margaret-chen': '10',
+    'donald-harper': '0',
+    'lisa-ramirez': '0',
+    overvotes: '0',
+    undervotes: '0',
+    'ballots-cast': '10',
+  });
 });
 
 test('rejects party filter or party grouping', async () => {
