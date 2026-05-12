@@ -516,7 +516,7 @@ test('tally report PDF - open primary', async () => {
   });
 
   const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
-    ballotStyleGroupId: 'ballot-style-1' as BallotStyleGroupId,
+    ballotStyleGroupId: 'ballot-style-1',
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     precinctId: 'precinct-1',

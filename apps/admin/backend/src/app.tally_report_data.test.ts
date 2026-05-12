@@ -1035,7 +1035,7 @@ test('open primary, full election with crossover and adjudications', async () =>
   //   1x Dem-only (flip via adjudication)
   //                         — gov-dem: dan-rivera + nonpartisan
   const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
-    ballotStyleGroupId: 'ballot-style-1' as BallotStyleGroupId,
+    ballotStyleGroupId: 'ballot-style-1',
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     precinctId: 'precinct-1',
@@ -1231,14 +1231,14 @@ test('open primary, grouped by precinct', async () => {
     MockCastVoteRecordFile[number],
     'ballotStyleGroupId' | 'precinctId'
   > = {
-    ballotStyleGroupId: 'ballot-style-1' as BallotStyleGroupId,
+    ballotStyleGroupId: 'ballot-style-1',
     precinctId: 'precinct-1',
   };
   const p2: Pick<
     MockCastVoteRecordFile[number],
     'ballotStyleGroupId' | 'precinctId'
   > = {
-    ballotStyleGroupId: 'ballot-style-2' as BallotStyleGroupId,
+    ballotStyleGroupId: 'ballot-style-2',
     precinctId: 'precinct-2',
   };
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
