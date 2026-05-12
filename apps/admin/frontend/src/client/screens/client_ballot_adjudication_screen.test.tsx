@@ -131,8 +131,10 @@ function expectDataLoaderQueries(cvrId: string): void {
     .resolves(
       ok({
         cvrId,
-        tag: { cvrId, isResolved: false, isBlankBallot: false },
+        tag: { isBlankBallot: false },
+        isResolved: false,
         contests: [],
+        adjudicatedContests: [],
       })
     );
   apiMock.apiClient.getBallotImages.expectRepeatedCallsWith({ cvrId }).resolves(

@@ -198,7 +198,6 @@ test('exports results and metadata accurately', async () => {
             },
           },
           contestId: candidateContestId,
-          side: 'front',
         },
       ],
     })
@@ -219,7 +218,6 @@ test('exports results and metadata accurately', async () => {
             },
           },
           contestId: candidateContestId,
-          side: 'front',
         },
       ],
     })

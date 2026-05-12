@@ -177,7 +177,6 @@ test('adjudicateCvr write-in logging and candidate cleanup', () => {
           {
             adjudicatedContestOptionById: { ...allFalse, ...trueVotes },
             contestId,
-            side: 'front',
           },
         ],
       },
@@ -381,7 +380,6 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
             },
           },
           contestId,
-          side: 'front',
         },
       ],
     },
@@ -522,7 +520,6 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
               ...trueVotes,
             },
             contestId: 'zoo-council-mammal',
-            side: 'front',
           },
         ],
       },
@@ -541,10 +538,16 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
     return adjData.contests.find((c) => c.contestId === contestId)?.tag;
   }
 
+  function isContestAdjudicated() {
+    assert(cvrId !== undefined);
+    const adjData = store.getBallotAdjudicationData({ electionId, cvrId });
+    return adjData.adjudicatedContests.some((c) => c.contestId === contestId);
+  }
+
   const initialContestTag = getContestTag();
   expect(initialContestTag).toBeDefined();
   expect(
-    initialContestTag?.isResolved === false &&
+    !isContestAdjudicated() &&
       initialContestTag?.hasMarginalMark &&
       initialContestTag?.hasWriteIn &&
       initialContestTag?.hasUnmarkedWriteIn === false
@@ -583,7 +586,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
   const adjudicatedContestTag = getContestTag();
   expect(adjudicatedContestTag).toBeDefined();
   expect(
-    adjudicatedContestTag?.isResolved &&
+    isContestAdjudicated() &&
       adjudicatedContestTag?.hasMarginalMark &&
       adjudicatedContestTag?.hasWriteIn &&
       adjudicatedContestTag?.hasUnmarkedWriteIn === false
@@ -683,7 +686,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
   const finalContestTag = getContestTag();
   expect(finalContestTag).toBeDefined();
   expect(
-    finalContestTag?.isResolved &&
+    isContestAdjudicated() &&
       finalContestTag?.hasMarginalMark &&
       finalContestTag?.hasWriteIn &&
       finalContestTag?.hasUnmarkedWriteIn === false
@@ -905,7 +908,6 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
       contests: [
         {
           contestId: 'zoo-council-mammal',
-          side: 'front',
           adjudicatedContestOptionById: {
             lion: { type: 'official-option', hasVote: true },
             kangaroo: { type: 'official-option', hasVote: true },
@@ -913,7 +915,6 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
         },
         {
           contestId: 'best-animal-mammal',
-          side: 'front',
           adjudicatedContestOptionById: {
             horse: { type: 'official-option', hasVote: false },
             otter: { type: 'official-option', hasVote: true },

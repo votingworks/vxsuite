@@ -139,7 +139,6 @@ export function addMockCvrFileToStore({
           store.addWriteIn({
             electionId,
             castVoteRecordId: cvrId,
-            side: 'front',
             contestId,
             optionId,
             isUnmarked,

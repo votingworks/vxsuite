@@ -169,7 +169,6 @@ test('general, full election, write in adjudication', async () => {
         contests: [
           {
             contestId,
-            side: 'front',
             adjudicatedContestOptionById: {
               [optionId]: optionAdjudication,
             },
@@ -968,7 +967,6 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
           contests: [
             {
               contestId: writeInContestId,
-              side: 'front',
               adjudicatedContestOptionById: {
                 [writeIn.optionId]: {
                   type: 'write-in-option',

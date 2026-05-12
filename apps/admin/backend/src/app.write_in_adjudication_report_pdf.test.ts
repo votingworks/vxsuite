@@ -183,7 +183,6 @@ test('write-in adjudication report', async () => {
         contests: [
           {
             contestId,
-            side: 'front',
             adjudicatedContestOptionById: {
               [optionId]: optionAdjudication,
             },

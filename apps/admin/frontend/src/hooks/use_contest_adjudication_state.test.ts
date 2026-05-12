@@ -20,7 +20,6 @@ function makeOption(
     definition,
     scannedVote: false,
     hasMarginalMark: false,
-    adjudicatedVote: undefined,
     writeInRecord: undefined,
     ...overrides,
   };
@@ -30,14 +29,14 @@ function renderAdjudicationState(
   isCandidateContest: boolean,
   contestAdjudicationData: ContestAdjudicationData,
   writeInCandidates: WriteInCandidateRecord[],
-  unsavedAdjudication?: AdjudicatedCvrContest
+  adjudicatedContest?: AdjudicatedCvrContest
 ) {
   return renderHook(() =>
     useContestAdjudicationState({
       contestAdjudicationData,
       writeInCandidates,
       isCandidateContest,
-      unsavedAdjudication: unsavedAdjudication?.adjudicatedContestOptionById,
+      adjudicatedOptions: adjudicatedContest?.adjudicatedContestOptionById,
     })
   );
 }
@@ -54,7 +53,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false },
+    tag: {},
     options: [
       makeOption(
         {
@@ -271,7 +270,7 @@ test('initializes derived state correctly for candidate contest', () => {
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false },
+    tag: {},
     options: [
       makeOption(
         {
@@ -369,11 +368,11 @@ test('initializes derived state correctly for candidate contest', () => {
     undefined
   );
 
-  // Now with the contest already adjudicated (resolved tag, write-in records
-  // adjudicated to various outcomes)
+  // Now with the contest already adjudicated (write-in records adjudicated to
+  // various outcomes, baseline supplied via adjudicatedContest)
   const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: true },
+    tag: {},
     options: [
       makeOption(
         {
@@ -393,7 +392,7 @@ test('initializes derived state correctly for candidate contest', () => {
           name: 'Bob',
           isWriteIn: false,
         },
-        { hasMarginalMark: true, adjudicatedVote: true }
+        { hasMarginalMark: true }
       ),
       makeOption(
         {
@@ -429,7 +428,6 @@ test('initializes derived state correctly for candidate contest', () => {
         },
         {
           scannedVote: true,
-          adjudicatedVote: false,
           writeInRecord: {
             id: 'write-in-1',
             optionId: 'write-in-1',
@@ -452,10 +450,26 @@ test('initializes derived state correctly for candidate contest', () => {
     ],
   };
 
+  const adjudicatedContest: AdjudicatedCvrContest = {
+    contestId,
+    adjudicatedContestOptionById: {
+      alice: { type: 'official-option', hasVote: true },
+      bob: { type: 'official-option', hasVote: true },
+      'write-in-0': {
+        type: 'write-in-option',
+        candidateType: 'official-candidate',
+        hasVote: true,
+        candidateId: 'bob',
+      },
+      'write-in-1': { type: 'write-in-option', hasVote: false },
+    },
+  };
+
   const { result: adjResult } = renderAdjudicationState(
     true,
     adjudicatedContestAdjudicationData,
-    writeInCandidates
+    writeInCandidates,
+    adjudicatedContest
   );
 
   expect(adjResult.current.getOptionHasVote('alice')).toEqual(true);
@@ -519,10 +533,23 @@ test('initializes derived state correctly for candidate contest', () => {
       adjudicatedContestAdjudicationData.options[4],
     ],
   };
+  const writeInCandidateAdjudicatedContest: AdjudicatedCvrContest = {
+    contestId,
+    adjudicatedContestOptionById: {
+      'write-in-0': {
+        type: 'write-in-option',
+        candidateType: 'write-in-candidate',
+        hasVote: true,
+        candidateName: 'Lion',
+      },
+      'write-in-1': { type: 'write-in-option', hasVote: false },
+    },
+  };
   const { result: writeInResult } = renderAdjudicationState(
     true,
     writeInCandidateData,
-    writeInCandidates
+    writeInCandidates,
+    writeInCandidateAdjudicatedContest
   );
 
   expect(writeInResult.current.getOptionHasVote('write-in-0')).toEqual(true);
@@ -538,7 +565,7 @@ test('initializes derived state correctly for yes/no contest', () => {
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false },
+    tag: {},
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
@@ -563,14 +590,14 @@ test('initializes derived state correctly for yes/no contest', () => {
   expect(result.current.getOptionHasVote('no')).toEqual(false);
   expect(result.current.getOptionMarginalMarkStatus('no')).toEqual('pending');
 
-  // Now with the contest already adjudicated (resolved tag)
+  // Now with the contest already adjudicated (baseline supplied via adjudicatedContest)
   const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: true },
+    tag: {},
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
-        { hasMarginalMark: true, adjudicatedVote: true }
+        { hasMarginalMark: true }
       ),
       makeOption(
         { type: 'yesno', id: 'no', contestId, name: 'No' },
@@ -578,10 +605,18 @@ test('initializes derived state correctly for yes/no contest', () => {
       ),
     ],
   };
+  const adjudicatedContest: AdjudicatedCvrContest = {
+    contestId,
+    adjudicatedContestOptionById: {
+      yes: { type: 'official-option', hasVote: true },
+      no: { type: 'official-option', hasVote: false },
+    },
+  };
   const { result: adjResult } = renderAdjudicationState(
     false,
     adjudicatedContestAdjudicationData,
-    []
+    [],
+    adjudicatedContest
   );
 
   expect(adjResult.current.getOptionHasVote('yes')).toEqual(true);
@@ -600,7 +635,7 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false },
+    tag: {},
     options: [
       makeOption(
         { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
@@ -628,7 +663,7 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
   ).toEqual(undefined);
 });
 
-test('applies unsavedAdjudication overlay across all option types', () => {
+test('applies adjudicatedContest overlay across all option types', () => {
   const contestId = 'contest';
   const electionId = 'election';
 
@@ -638,7 +673,7 @@ test('applies unsavedAdjudication overlay across all option types', () => {
 
   const contestAdjudicationData: ContestAdjudicationData = {
     contestId,
-    tag: { isResolved: false },
+    tag: {},
     options: [
       makeOption(
         {
@@ -692,9 +727,8 @@ test('applies unsavedAdjudication overlay across all option types', () => {
     ],
   };
 
-  const unsavedAdjudication: AdjudicatedCvrContest = {
+  const adjudicatedContest: AdjudicatedCvrContest = {
     contestId,
-    side: 'front',
     adjudicatedContestOptionById: {
       // candidate option flipped to a vote
       alice: { type: 'official-option', hasVote: true },
@@ -728,7 +762,7 @@ test('applies unsavedAdjudication overlay across all option types', () => {
     true,
     contestAdjudicationData,
     writeInCandidates,
-    unsavedAdjudication
+    adjudicatedContest
   );
 
   expect(result.current.getOptionHasVote('alice')).toEqual(true);
@@ -761,7 +795,7 @@ test('applies unsavedAdjudication overlay across all option types', () => {
   // isModified starts at false because optionState equals initialOptionState
   expect(result.current.isModified).toEqual(false);
 
-  // Edits on top of the unsavedAdjudication overlay take effect
+  // Edits on top of the adjudicatedContest overlay take effect
 
   // Flip alice's vote off — overrides the unsaved hasVote=true
   act(() => {

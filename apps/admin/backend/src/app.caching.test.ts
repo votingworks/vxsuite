@@ -155,7 +155,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
             [writeIn.optionId]: { hasVote: false, type: 'write-in-option' },
           },
           contestId,
-          side: 'front',
         },
       ],
     })
@@ -182,7 +181,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
             },
           },
           contestId,
-          side: 'front',
         },
       ],
     })

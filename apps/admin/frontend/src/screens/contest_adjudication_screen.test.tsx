@@ -26,7 +26,6 @@ import type {
   ContestAdjudicationData,
   CvrContestTag,
   HmpbBallotPageImage,
-  VoteAdjudication,
   WriteInCandidateRecord,
   WriteInRecord,
 } from '@votingworks/admin-backend';
@@ -211,7 +210,6 @@ function buildContestAdjudicationData({
   contestId,
   votes = [],
   writeInRecords = [],
-  voteAdjudications = [],
   marginalMarkOptionIds = [],
   tag = undefined,
   ballotStyleGroupId,
@@ -220,7 +218,6 @@ function buildContestAdjudicationData({
   contestId: ContestId;
   votes?: ContestOptionId[];
   writeInRecords?: WriteInRecord[];
-  voteAdjudications?: VoteAdjudication[];
   marginalMarkOptionIds?: ContestOptionId[];
   tag?: CvrContestTag;
   ballotStyleGroupId?: BallotStyleGroupId;
@@ -243,8 +240,6 @@ function buildContestAdjudicationData({
       definition: option,
       scannedVote: votes.includes(option.id),
       hasMarginalMark: marginalMarkOptionIds.includes(option.id),
-      adjudicatedVote: voteAdjudications.find((v) => v.optionId === option.id)
-        ?.isVote,
       writeInRecord: writeInRecords.find((w) => w.optionId === option.id),
     })
   );
@@ -262,6 +257,7 @@ function renderScreen(
     onClose = vi.fn(),
     writeInCandidates = [] as WriteInCandidateRecord[],
     onConfirmContest = vi.fn(),
+    adjudicatedContest,
   }: {
     areWriteInCandidatesQualified?: boolean;
     ballotImages?: BallotImages;
@@ -270,6 +266,7 @@ function renderScreen(
     onClose?: () => void;
     writeInCandidates?: WriteInCandidateRecord[];
     onConfirmContest?: (input: AdjudicatedCvrContest) => void;
+    adjudicatedContest?: AdjudicatedCvrContest;
   } = {}
 ) {
   const images =
@@ -288,6 +285,7 @@ function renderScreen(
         side={side}
         writeInCandidates={writeInCandidates}
         onConfirmContest={onConfirmContest}
+        adjudicatedContest={adjudicatedContest}
       />,
       { electionDefinition: electionDef, apiMock }
     ),
@@ -348,7 +346,6 @@ function formAdjudicatedCvrContest(
       ...overrides,
     },
     contestId: 'zoo-council-mammal',
-    side: 'front',
   };
 }
 
@@ -367,7 +364,6 @@ describe('hmpb write-in adjudication', () => {
     { id: 'write-in-0', name: 'oliver', electionId, contestId },
   ];
   const cvrContestTag: CvrContestTag = {
-    isResolved: false,
     hasWriteIn: true,
   };
 
@@ -689,7 +685,6 @@ describe('bmd write-in adjudication', () => {
     { id: 'write-in-0', name: 'oliver', electionId, contestId },
   ];
   const cvrContestTag: CvrContestTag = {
-    isResolved: false,
     hasWriteIn: true,
   };
 
@@ -778,28 +773,25 @@ describe('vote adjudication', () => {
     const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const contestId = 'zoo-council-mammal';
     const cvrId = 'id-174';
-    const voteAdjudications: VoteAdjudication[] = [
-      {
-        electionId,
-        cvrId,
-        contestId,
-        optionId: 'lion',
-        isVote: true,
-      },
-    ];
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasWriteIn: true,
     };
 
     const data = buildContestAdjudicationData({
       contestId,
       votes: ['kangaroo'],
-      voteAdjudications,
       tag: cvrContestTag,
     });
+    const adjudicatedContest: AdjudicatedCvrContest = {
+      contestId,
+      adjudicatedContestOptionById: {
+        kangaroo: { type: 'official-option', hasVote: true },
+        lion: { type: 'official-option', hasVote: true },
+      },
+    };
     const { onClose } = renderScreen(data, cvrId, {
       onConfirmContest,
+      adjudicatedContest,
     });
 
     await waitForBallotById('id-174');
@@ -857,7 +849,6 @@ describe('vote adjudication', () => {
     const contestId = 'aquarium-council-fish';
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasWriteIn: true,
     };
 
@@ -900,7 +891,6 @@ describe('vote adjudication', () => {
     const contestId: ContestId = 'fishing';
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasMarginalMark: true,
     };
 
@@ -949,7 +939,6 @@ describe('unmarked and undetected write-ins', () => {
     { id: 'write-in-0', name: 'oliver', electionId, contestId },
   ];
   const cvrContestTag: CvrContestTag = {
-    isResolved: false,
     hasUnmarkedWriteIn: true,
   };
 
@@ -1063,7 +1052,6 @@ describe('ballot image viewer', () => {
       },
     ];
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasWriteIn: true,
     };
 
@@ -1156,7 +1144,6 @@ describe('ballot image viewer', () => {
       },
     ];
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasWriteIn: true,
     };
 
@@ -1180,7 +1167,6 @@ describe('ballot image viewer', () => {
     const contestId = 'zoo-council-mammal';
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasWriteIn: true,
     };
 
@@ -1211,7 +1197,6 @@ describe('ballot image viewer', () => {
     const contestId = 'zoo-council-mammal';
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasWriteIn: true,
     };
 
@@ -1256,7 +1241,6 @@ describe('double votes', () => {
   ];
   const votes = ['kangaroo', 'write-in-0', 'write-in-1'];
   const cvrContestTag: CvrContestTag = {
-    isResolved: false,
     hasWriteIn: true,
   };
 
@@ -1410,7 +1394,6 @@ describe('unsaved changes', () => {
   };
   const votes = ['kangaroo', 'write-in-0'];
   const cvrContestTag: CvrContestTag = {
-    isResolved: false,
     hasWriteIn: true,
   };
 
@@ -1525,7 +1508,6 @@ describe('marginal mark adjudication', () => {
     const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const marginalMarkOptionIds = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasMarginalMark: true,
     };
 
@@ -1578,7 +1560,6 @@ describe('marginal mark adjudication', () => {
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
     const onConfirmContest = vi.fn().mockResolvedValue(undefined);
     const cvrContestTag: CvrContestTag = {
-      isResolved: false,
       hasMarginalMark: true,
       hasWriteIn: true,
     };
@@ -1690,7 +1671,6 @@ describe('candidate ordering', () => {
         },
       ],
       tag: {
-        isResolved: false,
         hasWriteIn: true,
       },
       ballotStyleGroupId: testBallotStyleGroupId1,
@@ -1758,7 +1738,6 @@ describe('candidate ordering', () => {
         },
       ],
       tag: {
-        isResolved: false,
         hasWriteIn: true,
       },
       ballotStyleGroupId: '1-4' as BallotStyleGroupId,
@@ -1816,7 +1795,6 @@ describe('candidate ordering', () => {
       contestId: testContestId,
       votes: ['sherlock-holmes'],
       tag: {
-        isResolved: false,
         hasWriteIn: false,
       },
       ballotStyleGroupId: testBallotStyleGroupId,

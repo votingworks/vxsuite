@@ -84,7 +84,6 @@ function adjudicateWriteIn({
             [writeIn.optionId]: adjudicatedOption,
           },
           contestId,
-          side: 'front',
         },
       ],
     },

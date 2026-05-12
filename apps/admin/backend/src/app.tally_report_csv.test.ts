@@ -372,7 +372,6 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
       .filter((option) => option.writeInRecord)
       .map((option) => ({
         contestId: candidateContestId,
-        side: 'front',
         adjudicatedContestOptionById: {
           [option.writeInRecord!.optionId]: {
             type: 'write-in-option',
