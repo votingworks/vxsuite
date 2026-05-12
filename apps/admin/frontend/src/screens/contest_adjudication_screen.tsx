@@ -207,7 +207,7 @@ interface ContestAdjudicationScreenProps {
   onClose: () => void;
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
   side: Side;
-  adjudicatedContest?: AdjudicatedCvrContest;
+  adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
 }
 
@@ -219,7 +219,7 @@ export function ContestAdjudicationScreen({
   onClose,
   onConfirmContest,
   side,
-  adjudicatedContest,
+  adjudicatedOptions,
   writeInCandidates,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -253,18 +253,18 @@ export function ContestAdjudicationScreen({
   // In qualified-write-in mode, when this contest has no qualified candidates,
   // every pending write-in must be invalid: pre-mark them so the user only has
   // to address the contest's other adjudication reasons.
-  function getInitialAdjudicatedOptions():
+  function preMarkInvalidQualifiedWriteIns():
     | AdjudicatedContestOptions
     | undefined {
-    if (adjudicatedContest) {
-      return adjudicatedContest.adjudicatedContestOptionById;
+    if (adjudicatedOptions) {
+      return adjudicatedOptions;
     }
     if (!areWriteInCandidatesQualified || writeInCandidates.length > 0) {
       return undefined;
     }
     const preMarked: AdjudicatedContestOptions = {};
     for (const option of contestAdjudicationData.options) {
-      if (option.writeInRecord?.status !== 'pending') continue;
+      if (!option.writeInRecord) continue;
       preMarked[option.definition.id] = {
         type: 'write-in-option',
         hasVote: false,
@@ -291,7 +291,7 @@ export function ContestAdjudicationScreen({
     contestAdjudicationData,
     writeInCandidates,
     isCandidateContest,
-    adjudicatedOptions: getInitialAdjudicatedOptions(),
+    adjudicatedOptions: preMarkInvalidQualifiedWriteIns(),
   });
 
   // Vote and write-in state for adjudication management
@@ -335,7 +335,7 @@ export function ContestAdjudicationScreen({
   const allowSaveWithoutChanges =
     tag !== undefined &&
     (tag.hasOvervote || tag.hasUndervote) &&
-    !adjudicatedContest &&
+    !adjudicatedOptions &&
     allAdjudicationsCompleted;
 
   const isHmpb = ballotImages.front.type === 'hmpb';

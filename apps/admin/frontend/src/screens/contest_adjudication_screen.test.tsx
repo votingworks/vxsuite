@@ -21,6 +21,7 @@ import type {
 import userEvent from '@testing-library/user-event';
 import type {
   AdjudicatedContestOption,
+  AdjudicatedContestOptions,
   AdjudicatedCvrContest,
   BallotImages,
   ContestAdjudicationData,
@@ -257,7 +258,7 @@ function renderScreen(
     onClose = vi.fn(),
     writeInCandidates = [] as WriteInCandidateRecord[],
     onConfirmContest = vi.fn(),
-    adjudicatedContest,
+    adjudicatedOptions,
   }: {
     areWriteInCandidatesQualified?: boolean;
     ballotImages?: BallotImages;
@@ -266,7 +267,7 @@ function renderScreen(
     onClose?: () => void;
     writeInCandidates?: WriteInCandidateRecord[];
     onConfirmContest?: (input: AdjudicatedCvrContest) => void;
-    adjudicatedContest?: AdjudicatedCvrContest;
+    adjudicatedOptions?: AdjudicatedContestOptions;
   } = {}
 ) {
   const images =
@@ -285,7 +286,7 @@ function renderScreen(
         side={side}
         writeInCandidates={writeInCandidates}
         onConfirmContest={onConfirmContest}
-        adjudicatedContest={adjudicatedContest}
+        adjudicatedOptions={adjudicatedOptions}
       />,
       { electionDefinition: electionDef, apiMock }
     ),
@@ -785,16 +786,13 @@ describe('vote adjudication', () => {
       votes: ['kangaroo'],
       tag: cvrContestTag,
     });
-    const adjudicatedContest: AdjudicatedCvrContest = {
-      contestId,
-      adjudicatedContestOptionById: {
-        kangaroo: { type: 'official-option', hasVote: true },
-        lion: { type: 'official-option', hasVote: true },
-      },
+    const adjudicatedOptions: AdjudicatedContestOptions = {
+      kangaroo: { type: 'official-option', hasVote: true },
+      lion: { type: 'official-option', hasVote: true },
     };
     const { onClose } = renderScreen(data, cvrId, {
       onConfirmContest,
-      adjudicatedContest,
+      adjudicatedOptions,
     });
 
     await waitForBallotById('id-174');

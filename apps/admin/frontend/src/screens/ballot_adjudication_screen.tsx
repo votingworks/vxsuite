@@ -520,8 +520,7 @@ export function BallotAdjudicationScreen({
       > = {};
       for (const option of contest.options) {
         const isWriteIn =
-          option.definition.type === 'candidate' &&
-          option.definition.isWriteIn;
+          option.definition.type === 'candidate' && option.definition.isWriteIn;
         adjudicatedContestOptionById[option.definition.id] = isWriteIn
           ? { type: 'write-in-option', hasVote: false }
           : { type: 'official-option', hasVote: option.scannedVote };
@@ -645,7 +644,10 @@ export function BallotAdjudicationScreen({
           contestAdjudicationData,
           (c) => c.contestId === selectedContestId
         )}
-        adjudicatedContest={adjudicatedContests.get(selectedContestId)}
+        adjudicatedOptions={
+          adjudicatedContests.get(selectedContestId)
+            ?.adjudicatedContestOptionById
+        }
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId
