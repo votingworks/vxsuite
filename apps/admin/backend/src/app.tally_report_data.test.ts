@@ -1107,26 +1107,32 @@ test('open primary, full election with crossover and adjudications', async () =>
     cvrId: crossoverToResolveCvrId,
   });
   (
-    await apiClient.adjudicateCvrContest({
+    await apiClient.adjudicateCvr({
       cvrId: crossoverToResolveCvrId,
-      contestId: 'governor-republican',
-      side: 'front',
-      adjudicatedContestOptionById: {
-        'ellen-brown': { type: 'candidate-option', hasVote: false },
-      },
+      contests: [
+        {
+          contestId: 'governor-republican',
+          adjudicatedContestOptionById: {
+            'ellen-brown': { type: 'official-option', hasVote: false },
+          },
+        },
+      ],
     })
   ).assertOk('failed to adjudicate crossover');
   // Flip a Dem-only ballot by removing its gov-democratic vote (dan-rivera)
   // → ballot becomes nonpartisan-only.
   await apiClient.claimBallotForAdjudication({ cvrId: demToFlipCvrId });
   (
-    await apiClient.adjudicateCvrContest({
+    await apiClient.adjudicateCvr({
       cvrId: demToFlipCvrId,
-      contestId: 'governor-democratic',
-      side: 'front',
-      adjudicatedContestOptionById: {
-        'dan-rivera': { type: 'candidate-option', hasVote: false },
-      },
+      contests: [
+        {
+          contestId: 'governor-democratic',
+          adjudicatedContestOptionById: {
+            'dan-rivera': { type: 'official-option', hasVote: false },
+          },
+        },
+      ],
     })
   ).assertOk('failed to flip dem ballot');
 
