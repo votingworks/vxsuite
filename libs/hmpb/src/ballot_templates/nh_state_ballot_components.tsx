@@ -17,6 +17,7 @@ import {
   ColorTint,
   ColorTints,
   pageMarginsInches,
+  QrCodeSlot,
   TIMING_MARK_DIMENSIONS,
 } from '../ballot_components';
 
@@ -289,7 +290,15 @@ export function HandCountInsignia({
             fontWeight: 'bold',
           }}
         >
-          {electionStrings.electionTitle(election)}
+          {election.type === 'primary' ? (
+            <>
+              State Primary
+              <br />
+              Election
+            </>
+          ) : (
+            electionStrings.electionTitle(election)
+          )}
         </h2>
       </div>
       <h1 style={{ fontFamily: 'Times New Roman', fontWeight: 'bold' }}>
@@ -325,6 +334,65 @@ export function HandCountInsignia({
           {assertDefined(election.signature).caption}
         </div>
       </div>
+    </div>
+  );
+}
+
+const arrowNextPage = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 159 46"
+    fill="none"
+    style={{ height: '1em', width: 'auto' }}
+  >
+    <path
+      d="M130.406 11H0V34.5H130.406V46L158.5 23L130.406 0V11Z"
+      fill="black"
+      fillOpacity="0.85"
+    />
+  </svg>
+);
+
+export function NhFooter({
+  pageNumber,
+  totalPages,
+  isHandCount,
+  isFederalOnlyOffices,
+}: {
+  pageNumber: number;
+  totalPages?: number;
+  isHandCount?: boolean;
+  isFederalOnlyOffices?: boolean;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+      }}
+    >
+      {!(isHandCount || isFederalOnlyOffices) && (
+        <div style={{ justifySelf: 'start' }}>
+          <QrCodeSlot />
+        </div>
+      )}
+      {pageNumber === 1 && pageNumber !== totalPages && (
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '0.5rem',
+            alignItems: 'center',
+            fontSize: '20pt',
+            fontWeight: 'bold',
+          }}
+        >
+          <div>VOTE BOTH SIDES</div>
+          {arrowNextPage}
+        </div>
+      )}
     </div>
   );
 }

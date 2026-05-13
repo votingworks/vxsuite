@@ -42,7 +42,6 @@ import {
   OptionInfo,
   AlignedBubble,
   WRITE_IN_OPTION_CLASS,
-  QrCodeSlot,
 } from '../ballot_components';
 import {
   BallotPageTemplate,
@@ -59,6 +58,7 @@ import {
   Instructions,
   isFederalOfficeContest,
   NhBaseStyles,
+  NhFooter,
 } from './nh_state_ballot_components';
 
 export function Header({
@@ -72,11 +72,7 @@ export function Header({
   ballotMode: BallotMode;
   isFederalOnlyOffices?: boolean;
 }): JSX.Element {
-  const ballotTypeLabel = isFederalOnlyOffices
-    ? 'FEDERAL OFFICE ONLY'
-    : ballotType === 'absentee'
-    ? 'ABSENTEE'
-    : undefined;
+  const isAbsentee = ballotType === 'absentee';
   const ballotTitle = {
     official: 'OFFICIAL BALLOT',
     test: 'TEST BALLOT',
@@ -114,8 +110,11 @@ export function Header({
           padding: '0 2.5rem',
         }}
       >
-        <h5 style={{ visibility: ballotTypeLabel ? 'visible' : 'hidden' }}>
-          {ballotTypeLabel ?? <>&nbsp;</>}
+        <h5 style={{ visibility: isFederalOnlyOffices ? 'visible' : 'hidden' }}>
+          FEDERAL OFFICE ONLY
+        </h5>
+        <h5 style={{ visibility: isAbsentee ? 'visible' : 'hidden' }}>
+          ABSENTEE
         </h5>
         <h5
           style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}
@@ -128,43 +127,54 @@ export function Header({
         <h3>{electionStrings.electionTitle(election)}</h3>
         <h3>{electionStrings.electionDate(election)}</h3>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
+      {ballotMode === 'sample' ? (
         <div
           style={{
-            height: '0.8in',
-            aspectRatio: '1 / 1',
-            backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-              election.seal
-            ).toString('base64')})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-        <div
-          style={{
-            height: '0.4in',
+            width: '1.2in',
+            height: '1.2in',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            justifySelf: 'center',
           }}
         >
-          {ballotMode === 'sample' ? (
-            <div
-              style={{
-                fontSize: '20pt',
-                fontWeight: 'bold',
-                lineHeight: 1,
-              }}
-            >
-              SAMPLE
-            </div>
-          ) : (
+          <div
+            style={{
+              fontSize: '26pt',
+              fontWeight: 'bold',
+              lineHeight: 1,
+            }}
+          >
+            SAMPLE
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <div
+            style={{
+              height: '0.8in',
+              aspectRatio: '1 / 1',
+              backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
+                election.seal
+              ).toString('base64')})`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+            }}
+          />
+          <div
+            style={{
+              height: '0.4in',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <div style={{ textAlign: 'right' }}>
               <img
                 src={`data:image/svg+xml;base64,${Buffer.from(
@@ -186,63 +196,7 @@ export function Header({
                 {assertDefined(election.signature).caption}
               </div>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const arrowNextPage = (
-  <svg
-    width="127"
-    height="31"
-    viewBox="0 0 127 31"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M100.5 9H0V21.5H100.5V30.5996L127 15.2998L100.5 0V9Z"
-      fill="black"
-    />
-  </svg>
-);
-
-function Footer({
-  pageNumber,
-  totalPages,
-  isHandCount,
-}: {
-  pageNumber: number;
-  totalPages?: number;
-  isHandCount?: boolean;
-}): JSX.Element {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-      }}
-    >
-      {!isHandCount && (
-        <div style={{ justifySelf: 'start' }}>
-          <QrCodeSlot />
-        </div>
-      )}
-      {pageNumber === 1 && pageNumber !== totalPages && (
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'space-evenly',
-            alignItems: 'center',
-          }}
-        >
-          <div style={{ fontSize: '20pt', fontWeight: 'bold' }}>
-            BALLOT CONTINUES ON BACK - TURN OVER
           </div>
-          {arrowNextPage}
         </div>
       )}
     </div>
@@ -332,7 +286,7 @@ function BallotPageFrame({
               }}
             >
               {children}
-              {isHandCount && (
+              {isHandCount && !isFederalOnlyOffices && (
                 <HandCountInsignia
                   pageNumber={pageNumber}
                   totalPages={totalPages}
@@ -342,10 +296,11 @@ function BallotPageFrame({
                 />
               )}
             </div>
-            <Footer
+            <NhFooter
               pageNumber={pageNumber}
               totalPages={totalPages}
               isHandCount={isHandCount}
+              isFederalOnlyOffices={isFederalOnlyOffices}
             />
           </div>
         </TimingMarkGrid>

@@ -228,7 +228,12 @@ export function QrCodeSlot(): JSX.Element {
         width: `${QR_CODE_SIZE.width}in`,
       }}
     >
-      <div style={{ border: '1px solid black', height: '100%' }} />
+      <div
+        style={{
+          border: '1px solid black',
+          height: '100%',
+        }}
+      />
     </div>
   );
 }

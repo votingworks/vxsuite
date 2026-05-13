@@ -48,7 +48,6 @@ import {
   WriteInLabel,
   ColorTint,
   ColorTints,
-  QrCodeSlot,
 } from '../ballot_components';
 import { PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
@@ -63,6 +62,7 @@ import {
   Instructions,
   isFederalOfficeContest,
   NhBaseStyles,
+  NhFooter,
 } from './nh_state_ballot_components';
 
 function Header({
@@ -82,11 +82,7 @@ function Header({
     getPartyForBallotStyle({ election, ballotStyleId })
   );
 
-  const ballotTypeLabel = isFederalOnlyOffices
-    ? 'FEDERAL OFFICE ONLY'
-    : ballotType === 'absentee'
-    ? 'ABSENTEE'
-    : undefined;
+  const isAbsentee = ballotType === 'absentee';
   const ballotTitle = {
     official: 'OFFICIAL BALLOT',
     test: 'TEST BALLOT',
@@ -106,6 +102,7 @@ function Header({
           style={{
             fontWeight: 'bold',
             fontSize: '9pt',
+            textAlign: 'center',
           }}
         >
           INSTRUCTIONS TO VOTERS
@@ -123,8 +120,11 @@ function Header({
           padding: '0 3rem',
         }}
       >
-        <h3 style={{ visibility: ballotTypeLabel ? 'visible' : 'hidden' }}>
-          {ballotTypeLabel ?? <>&nbsp;</>}
+        <h3 style={{ visibility: isFederalOnlyOffices ? 'visible' : 'hidden' }}>
+          FEDERAL OFFICE ONLY
+        </h3>
+        <h3 style={{ visibility: isAbsentee ? 'visible' : 'hidden' }}>
+          ABSENTEE
         </h3>
         <h5
           style={{
@@ -132,9 +132,7 @@ function Header({
             lineHeight: 1,
           }}
         >
-          {ballotTitle}
-          <br />
-          For
+          {ballotTitle} For
         </h5>
         <div style={{ lineHeight: '1.3' }}>
           <h1>{electionStrings.countyName(election.county)}</h1>
@@ -147,43 +145,54 @@ function Header({
         </h5>
         <h5>{electionStrings.electionDate(election)}</h5>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
+      {ballotMode === 'sample' ? (
         <div
           style={{
-            height: '0.946in',
-            aspectRatio: '1 / 1',
-            backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-              election.seal
-            ).toString('base64')})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-        <div
-          style={{
-            height: '0.4in',
+            width: '1.5in',
+            height: '1.346in',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            justifySelf: 'center',
           }}
         >
-          {ballotMode === 'sample' ? (
-            <div
-              style={{
-                fontSize: '24pt',
-                fontWeight: 'bold',
-                lineHeight: 1,
-              }}
-            >
-              SAMPLE
-            </div>
-          ) : (
+          <div
+            style={{
+              fontSize: '40pt',
+              fontWeight: 'bold',
+              lineHeight: 1,
+            }}
+          >
+            SAMPLE
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <div
+            style={{
+              height: '0.946in',
+              aspectRatio: '1 / 1',
+              backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
+                election.seal
+              ).toString('base64')})`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+            }}
+          />
+          <div
+            style={{
+              height: '0.4in',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <div style={{ textAlign: 'right' }}>
               <img
                 src={`data:image/svg+xml;base64,${Buffer.from(
@@ -205,9 +214,9 @@ function Header({
                 {assertDefined(election.signature).caption}
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -291,7 +300,7 @@ function BallotPageFrame({
               }}
             >
               {children}
-              {isHandCount && (
+              {isHandCount && !isFederalOnlyOffices && (
                 <HandCountInsignia
                   pageNumber={pageNumber}
                   totalPages={totalPages}
@@ -303,11 +312,12 @@ function BallotPageFrame({
                 />
               )}
             </div>
-            {!isHandCount && (
-              <div>
-                <QrCodeSlot />
-              </div>
-            )}
+            <NhFooter
+              pageNumber={pageNumber}
+              totalPages={totalPages}
+              isHandCount={isHandCount}
+              isFederalOnlyOffices={isFederalOnlyOffices}
+            />
           </div>
         </TimingMarkGrid>
       </Page>

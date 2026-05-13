@@ -51,7 +51,11 @@ function makeGeneralElectionSpecs(
     },
     {
       ...base,
-      props: { isFederalOnlyOffices: true, ...props },
+      props: {
+        ballotType: BallotType.Absentee,
+        isFederalOnlyOffices: true,
+        ...props,
+      },
       outputPdfPath: `${outputPathPrefix}-foo.pdf`,
     },
     {
@@ -94,7 +98,12 @@ function makePrimaryElectionSpecs(
     },
     {
       ...base,
-      props: { isFederalOnlyOffices: true, colorTint, ...props },
+      props: {
+        ballotType: BallotType.Absentee,
+        isFederalOnlyOffices: true,
+        colorTint,
+        ...props,
+      },
       outputPdfPath: `${outputPathPrefix}-foo.pdf`,
     },
     {
@@ -115,9 +124,9 @@ const ballotSpecs = [
   ...makePrimaryElectionSpecs('londonderry', 'dem', {
     paperSize: HmpbBallotPaperSize.Legal,
   }),
-  ...makeGeneralElectionSpecs('hudson', {
-    paperSize: HmpbBallotPaperSize.Custom18,
-  }),
+  // Letter (not Custom18) on Hudson so the ballot spans two pages and NH can
+  // review the VOTE BOTH SIDES footer treatment on an actual ballot.
+  ...makeGeneralElectionSpecs('hudson'),
   ...makePrimaryElectionSpecs('hudson', 'dem'),
   ...makeGeneralElectionSpecs('monroe', {
     isHandCount: true,
