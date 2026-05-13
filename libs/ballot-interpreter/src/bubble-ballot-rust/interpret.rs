@@ -9,9 +9,9 @@ use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
 use types_rs::bubble_ballot::{self, Metadata, MetadataMismatch, PartialBallotHash};
-use types_rs::election::Election;
+use types_rs::election::{ContestId, Election};
 use types_rs::geometry::PixelPosition;
-use types_rs::geometry::{PixelUnit, Size};
+use types_rs::geometry::{PixelUnit, Size, SubGridUnit};
 use types_rs::pair::Pair;
 
 use crate::ballot_card::ballot_scan_bubble_image;
@@ -214,6 +214,18 @@ pub enum Error {
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
 
+    #[error(
+        "grid position for contest {contest_id} at (column {column}, row {row}) \
+         falls outside the detected timing-mark grid for {label}"
+    )]
+    #[serde(rename_all = "camelCase")]
+    GridPositionOutsideTimingMarkGrid {
+        label: String,
+        contest_id: ContestId,
+        column: SubGridUnit,
+        row: SubGridUnit,
+    },
+
     #[error("vertical streaks detected on {label} (found {})", x_coordinates.len())]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
@@ -240,6 +252,7 @@ impl Error {
                 | Self::InvalidBallotHash { .. }
                 | Self::MissingGridLayout { .. }
                 | Self::CouldNotComputeLayout { .. }
+                | Self::GridPositionOutsideTimingMarkGrid { .. }
                 // InvalidScale is only reachable after find_timing_marks()
                 // succeeds, which requires bubble-ballot-specific timing marks.
                 | Self::InvalidScale { .. }
@@ -1154,6 +1167,45 @@ mod test {
             Err(Error::InvalidBallotHash { expected, actual }) => {
                 assert_eq!(expected, bogus);
                 assert_eq!(actual, actual_ballot_hash);
+            }
+            Err(err) => panic!("unexpected error: {err:?}"),
+            Ok(_) => panic!("interpretation unexpectedly succeeded"),
+        }
+    }
+
+    /// Defends against the failure mode from issue #8426 in the layer where it
+    /// actually breaks. If a ballot somehow gets past the hash check but its
+    /// detected timing-mark grid is shorter than the configured election's
+    /// `gridLayouts` expect (e.g., a letter-sized ballot scored against a
+    /// `custom-8.5x17` election), some gridPositions land outside the detected
+    /// grid.
+    #[test]
+    fn test_rejects_ballot_with_grid_position_outside_timing_mark_grid() {
+        // Letter-sized ballot images (the physical paper we'll scan).
+        let (side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        // Override the election with the 17"-tall variant's election.json,
+        // which has gridLayouts placing contests at rows that don't exist on
+        // a letter-sized ballot's timing-mark grid. Keep the letter ballot's
+        // hash so the hash check passes — we want to exercise the
+        // scoring-time check, not the hash check.
+        let custom_election_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../hmpb/fixtures/vx-general-election/custom-8.5x17/election.json");
+        let (custom_election, _) = load_election_and_ballot_hash(&custom_election_path);
+        options.election = custom_election;
+
+        match ballot_card(side_a_image, side_b_image, &options) {
+            Err(Error::GridPositionOutsideTimingMarkGrid {
+                label,
+                contest_id: _,
+                column: _,
+                row,
+            }) => {
+                assert_eq!(label, SIDE_A_LABEL);
+                // The 17" gridLayout puts contests beyond what fits on letter,
+                // so the offending row should be well past where the letter
+                // ballot's grid ends.
+                assert!(row > 10.0, "row was unexpectedly small: {row}");
             }
             Err(err) => panic!("unexpected error: {err:?}"),
             Ok(_) => panic!("interpretation unexpectedly succeeded"),

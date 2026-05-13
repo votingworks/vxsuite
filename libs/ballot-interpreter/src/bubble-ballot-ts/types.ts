@@ -6,6 +6,7 @@ import {
   BallotStyleId,
   Side,
   BallotType,
+  ContestId,
 } from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
@@ -57,6 +58,12 @@ export type PixelUnit = u32;
  * with the same underlying representation is not used.
  */
 export type SubPixelUnit = f32;
+
+/**
+ * A fractional position in the timing-mark grid (e.g. a bubble that sits
+ * partway between two rows). Mirrors the Rust `SubGridUnit` type alias.
+ */
+export type SubGridUnit = f32;
 
 /**
  * Angle in radians.
@@ -365,6 +372,13 @@ export type InterpretError = { isBubbleBallot: boolean } & (
   | { type: 'unexpectedDimensions'; label: string; dimensions: Size<PixelUnit> }
   | { type: 'invalidScale'; label: string; scale: number }
   | { type: 'couldNotComputeLayout'; side: Side }
+  | {
+      type: 'gridPositionOutsideTimingMarkGrid';
+      label: string;
+      contestId: ContestId;
+      column: SubGridUnit;
+      row: SubGridUnit;
+    }
   | {
       type: 'verticalStreaksDetected';
       label: string;
