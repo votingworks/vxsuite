@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
+  electionOpenPrimaryFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -107,6 +108,62 @@ test('primary', () => {
 
   // no other sections
   expect(screen.getAllByTestId(/write-in-tally-report-/)).toHaveLength(2);
+});
+
+test('open primary: partisan contests get party labels; nonpartisan contests get a "Nonpartisan Contests" label', () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  render(
+    <WriteInAdjudicationReport
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      electionWriteInSummary={{
+        contestWriteInSummaries: {
+          'governor-democratic': {
+            contestId: 'governor-democratic',
+            totalTally: 1,
+            pendingTally: 0,
+            invalidTally: 0,
+            candidateTallies: {
+              'dem-write-in': {
+                id: 'dem-write-in',
+                name: 'Dem Write-In',
+                tally: 1,
+                isWriteIn: true,
+              },
+            },
+          },
+          'circuit-court-judge': {
+            contestId: 'circuit-court-judge',
+            totalTally: 1,
+            pendingTally: 0,
+            invalidTally: 0,
+            candidateTallies: {
+              'nonpartisan-write-in': {
+                id: 'nonpartisan-write-in',
+                name: 'Nonpartisan Write-In',
+                tally: 1,
+                isWriteIn: true,
+              },
+            },
+          },
+        },
+      }}
+      isOfficial
+      isTest={false}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
+    />
+  );
+
+  // Democratic section labeled with party fullName.
+  const demSection = screen.getByTestId(
+    'write-in-tally-report-democratic-party'
+  );
+  within(demSection).getByText('Democratic Party');
+
+  // Nonpartisan section labeled "Nonpartisan Contests".
+  const nonpartisanSection = screen.getByTestId('write-in-tally-report-none');
+  within(nonpartisanSection).getByText('Nonpartisan Contests');
 });
 
 test('general', () => {

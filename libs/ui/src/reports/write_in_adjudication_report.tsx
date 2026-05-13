@@ -69,9 +69,12 @@ export function WriteInAdjudicationReport({
       <div data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
           const partyLabel =
-            partyId &&
-            CachedElectionLookups.getPartyById(electionDefinition, partyId)
-              .fullName;
+            election.type !== 'primary'
+              ? undefined
+              : partyId
+              ? CachedElectionLookups.getPartyById(electionDefinition, partyId)
+                  .fullName
+              : 'Nonpartisan Contests';
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );
