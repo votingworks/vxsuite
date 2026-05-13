@@ -25,6 +25,14 @@ vi.mock(
   }
 );
 
+// Pin the resolved media mount dir so tests don't depend on the host
+// filesystem (e.g., whether /media/vx exists on the CI runner).
+vi.mock(import('./media_mount_dir.js'), () => ({
+  MEDIA_MOUNT_DIR: '/media/vx',
+  RESOLVED_MEDIA_MOUNT_DIR: '/media/vx',
+  REAL_USB_DRIVE_GLOB_PATTERN: '/media/vx/**/*',
+}));
+
 vi.mock(
   import('./exec.js'),
   async (importActual): Promise<typeof import('./exec')> => ({
@@ -418,6 +426,30 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]?.partitions[0]).toMatchObject({ mountpoint: undefined });
+  });
+
+  test('does not match mountpoints that merely share a prefix with the media dir', async () => {
+    // /media/vxfoo must NOT match /media/vx — the check requires a trailing
+    // separator.
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/vxfoo/something' },
+      ])
+    );
+
+    expect(await getAllUsbDrives()).toEqual([]);
   });
 });
 

@@ -4,6 +4,7 @@ import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
 import { assert, Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
+import { RESOLVED_MEDIA_MOUNT_DIR } from './media_mount_dir';
 
 const debug = makeDebug('usb-drive');
 
@@ -84,14 +85,12 @@ function parseExportDb(output: string): UsbBlockDevice[] {
   return devices;
 }
 
-const DEFAULT_MEDIA_MOUNT_DIR = '/media';
-
 function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
   return (
     (blockDeviceInfo.type === 'part' || blockDeviceInfo.type === 'disk') &&
     !blockDeviceInfo.fstype?.includes('LVM') && // no partitions acting as LVMs
     (!blockDeviceInfo.mountpoint ||
-      blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR))
+      blockDeviceInfo.mountpoint.startsWith(`${RESOLVED_MEDIA_MOUNT_DIR}/`))
   );
 }
 

@@ -1,6 +1,9 @@
 /* istanbul ignore file - @preserve */
 import { unsafeParse } from '@votingworks/types';
-import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
+import {
+  DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
+  REAL_USB_DRIVE_GLOB_PATTERN,
+} from '@votingworks/usb-drive';
 import { isIntegrationTest } from '@votingworks/utils';
 import { z } from 'zod/v4';
 
@@ -21,8 +24,6 @@ const NODE_ENV = unsafeParse(
   NodeEnvSchema,
   process.env['NODE_ENV'] ?? 'development'
 );
-
-const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
 
 export const PRINT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'
