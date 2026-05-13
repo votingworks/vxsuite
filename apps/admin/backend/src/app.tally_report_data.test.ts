@@ -25,7 +25,10 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import {
+  seedOpenPrimaryCvrsAndAdjudications,
+  seedOpenPrimaryWriteIns,
+} from '../test/open_primary_fixture';
 import { AdjudicatedContestOption } from './types';
 
 vi.setConfig({
@@ -1247,4 +1250,45 @@ test('open primary, grouped by precinct', async () => {
       'margaret-chen': { tally: 5 },
     },
   });
+});
+
+test('open primary, crossover ballots write-ins excluded from partisan tallies', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const { demCandidate, repCandidate } = await seedOpenPrimaryWriteIns({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  const tallyReports = await apiClient.getResultsForTallyReports();
+  const [report] = tallyReports;
+  assert(report);
+  assert(report.hasPartySplits);
+
+  // The Dem voter's write-in shows up in the governor-democratic tally.
+  expect(
+    report.scannedResults.contestResults['governor-democratic']
+  ).toMatchObject({
+    tallies: {
+      [demCandidate.id]: { tally: 1 },
+    },
+  });
+
+  // The two crossover ballots' votes for governor-republican are all voided —
+  // no ballots get counted toward the contest, and the write-in candidate
+  // never gets added to the contest's tallies map.
+  const repContest =
+    report.scannedResults.contestResults['governor-republican'];
+  assert(repContest?.contestType === 'candidate');
+  expect(repContest.ballots).toEqual(0);
+  expect(repContest.tallies[repCandidate.id]).toBeUndefined();
 });
