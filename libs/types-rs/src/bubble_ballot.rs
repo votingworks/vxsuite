@@ -199,6 +199,12 @@ pub enum Error {
     #[error("Invalid ballot type: {0}")]
     InvalidBallotType(#[from] BallotTypeCodingError),
 
+    #[error("Invalid ballot hash: {actual:02x?} (expected {expected:02x?})")]
+    InvalidBallotHash {
+        expected: PartialBallotHash,
+        actual: PartialBallotHash,
+    },
+
     #[error("Index error: {0}")]
     Index(#[from] IndexError),
 
@@ -228,13 +234,13 @@ impl From<coding::Error> for Error {
     }
 }
 
-impl FromBitStreamWith<'_> for Metadata {
-    type Context = Election;
+impl<'a> FromBitStreamWith<'a> for Metadata {
+    type Context = (&'a Election, PartialBallotHash);
     type Error = Error;
 
     fn from_reader<R: bitstream_io::BitRead + ?Sized>(
         r: &mut R,
-        election: &Self::Context,
+        (election, expected_ballot_hash): &Self::Context,
     ) -> Result<Self, Self::Error>
     where
         Self: Sized,
@@ -245,8 +251,15 @@ impl FromBitStreamWith<'_> for Metadata {
         }
 
         let ballot_hash: PartialBallotHash = r.read_to()?;
-        let precinct_index: PrecinctByIndex = r.parse_with(election)?;
-        let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
+        if ballot_hash != *expected_ballot_hash {
+            return Err(Error::InvalidBallotHash {
+                expected: *expected_ballot_hash,
+                actual: ballot_hash,
+            });
+        }
+
+        let precinct_index: PrecinctByIndex = r.parse_with(*election)?;
+        let ballot_style_index: BallotStyleByIndex = r.parse_with(*election)?;
         let page_number: PageNumber = r.parse()?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
@@ -391,15 +404,19 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let ballot_audit_id = "test-audit-ballot-id";
+        let ballot_hash: PartialBallotHash =
+            [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -426,10 +443,10 @@ mod test {
 
             // Rest of ballot audit ID
             163, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let metadata: Metadata = reader.parse_with(&election).unwrap();
+        let metadata: Metadata = reader.parse_with(&(&election, ballot_hash)).unwrap();
         assert_eq!(
             metadata,
             Metadata {
@@ -457,7 +474,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            reader.parse_with::<Metadata>(&election),
+            reader.parse_with::<Metadata>(&(&election, PartialBallotHash::default())),
             Err(Error::Io(_))
         ));
     }
@@ -473,7 +490,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            reader.parse_with::<Metadata>(&election),
+            reader.parse_with::<Metadata>(&(&election, PartialBallotHash::default())),
             Err(Error::InvalidPrelude([b'N', b'O', b'T']))
         ));
     }
@@ -485,15 +502,19 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash: PartialBallotHash =
+            [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -513,10 +534,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
         assert!(
             matches!(result, Err(Error::Index(IndexError::Precinct(index))) if index.get() == 17),
             "Result is wrong: {result:?}"
@@ -531,14 +552,18 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
 
-        #[rustfmt::skip]
-        let bytes = [
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
+
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -558,10 +583,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
@@ -580,15 +605,18 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -608,10 +636,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b1111_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
@@ -632,15 +660,18 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -660,10 +691,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
@@ -676,15 +707,18 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -711,10 +745,10 @@ mod test {
 
             // Rest of ballot audit ID (with invalid UTF-8 char at beginning)
             255, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::InvalidBallotAuditId(_))));

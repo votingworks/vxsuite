@@ -525,15 +525,20 @@ impl BallotCard {
                     label: ballot_page.label().to_owned(),
                     message: e.to_string(),
                 })?;
-                let metadata = coding::decode_with(qr_code.bytes(), election).map_err(|e| {
-                    Error::InvalidQrCodeMetadata {
-                        label: ballot_page.label().to_owned(),
-                        message: format!(
-                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
-                            bytes = qr_code.bytes()
-                        ),
-                    }
-                })?;
+                let metadata =
+                    coding::decode_with(qr_code.bytes(), &(election, *expected_ballot_hash))
+                        .map_err(|e| match e {
+                            bubble_ballot::Error::InvalidBallotHash { expected, actual } => {
+                                Error::InvalidBallotHash { expected, actual }
+                            }
+                            _ => Error::InvalidQrCodeMetadata {
+                                label: ballot_page.label().to_owned(),
+                                message: format!(
+                                    "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                                    bytes = qr_code.bytes()
+                                ),
+                            },
+                        })?;
                 Ok((metadata, qr_code.orientation()))
             })
             .join(|decode_front_result, decode_back_result| {

@@ -561,7 +561,7 @@ mod test {
     use itertools::Itertools;
     use sha2::{Digest, Sha256};
     use types_rs::{
-        bmd::PartialBallotHash,
+        bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH, PRELUDE},
         election::{ContestId, OptionId},
         geometry::{PixelPosition, Rect},
     };
@@ -610,7 +610,6 @@ mod test {
     /// source of truth for which hash the ballot was generated with.
     fn decode_ballot_hash_from_image(
         image: &GrayImage,
-        election: &Election,
     ) -> types_rs::bubble_ballot::PartialBallotHash {
         use crate::debug::ImageDebugWriter;
         use crate::qr_code;
@@ -620,9 +619,10 @@ mod test {
             &ImageDebugWriter::disabled(),
         )
         .unwrap();
-        let metadata: types_rs::bubble_ballot::Metadata =
-            types_rs::coding::decode_with(qr.bytes(), election).unwrap();
-        metadata.ballot_hash
+        let (prelude, payload) = qr.bytes().split_at(PRELUDE.len());
+        assert_eq!(prelude, PRELUDE);
+        let (ballot_hash, _) = payload.split_at(PARTIAL_BALLOT_HASH_BYTE_LENGTH);
+        ballot_hash.try_into().unwrap()
     }
 
     fn load_ballot_card_fixture(
@@ -961,8 +961,7 @@ mod test {
         // These rotated ballots were generated against a different bytes
         // version of the election than the one in `hmpb/fixtures/...`. Use the
         // hash baked into the QR code as the ground truth.
-        options.expected_ballot_hash =
-            decode_ballot_hash_from_image(&side_a_image_rotated, &options.election);
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image_rotated);
 
         let interpretation =
             ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
@@ -986,8 +985,7 @@ mod test {
             load_ballot_card_fixture("vxqa-2024-10", ("rotation-front.png", "rotation-back.png"));
         // These fixtures have an election.json whose SHA-256 doesn't match the
         // QR-encoded hash; use the QR's hash as ground truth.
-        options.expected_ballot_hash =
-            decode_ballot_hash_from_image(&side_a_image, &options.election);
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1018,8 +1016,7 @@ mod test {
     fn test_high_skew_is_rejected() {
         let (mut side_a_image, side_b_image, mut options) =
             load_ballot_card_fixture("vxqa-2024-10", ("skew-front.png", "skew-back.png"));
-        options.expected_ballot_hash =
-            decode_ballot_hash_from_image(&side_a_image, &options.election);
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1047,8 +1044,7 @@ mod test {
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
         );
-        options.expected_ballot_hash =
-            decode_ballot_hash_from_image(&side_a_image, &options.election);
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1101,8 +1097,7 @@ mod test {
                 "fold-through-timing-mark-back.png",
             ),
         );
-        options.expected_ballot_hash =
-            decode_ballot_hash_from_image(&side_a_image, &options.election);
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1145,8 +1140,7 @@ mod test {
                 "best-fit-line-regression-test-back.png",
             ),
         );
-        options.expected_ballot_hash =
-            decode_ballot_hash_from_image(&side_a_image, &options.election);
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
