@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionOpenPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -18,6 +19,7 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName } from '../test/csv';
+import { seedOpenPrimaryWriteIns } from '../test/open_primary_fixture';
 import { generateReportPath } from './util/filenames';
 import { AdjudicatedContestOption } from './types';
 
@@ -326,5 +328,61 @@ test('write-in adjudication report warning', async () => {
   expect(await apiClient.getWriteInAdjudicationReportPreview()).toEqual({
     pdf: undefined,
     warning: { type: 'content-too-large' },
+  });
+});
+
+test('open primary: crossover ballots write-ins on partisan contests are excluded', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const { demCandidate, repCandidate, nonpartisanCandidate } =
+    await seedOpenPrimaryWriteIns({
+      apiClient,
+      electionId,
+      store: workspace.store,
+    });
+
+  const summary = await apiClient.getElectionWriteInSummary();
+
+  // Dem-only voter's write-in on governor-democratic counts.
+  expect(
+    summary.contestWriteInSummaries['governor-democratic']?.candidateTallies[
+      demCandidate.id
+    ]
+  ).toEqual({
+    id: demCandidate.id,
+    name: 'Dem Write-In',
+    tally: 1,
+    isWriteIn: true,
+  });
+
+  // Crossover voter's write-in on governor-republican does NOT count, because
+  // crossover ballots' partisan votes are invalidated. The write-in candidate
+  // never gets a tally entry (write-in candidates only appear when they have
+  // at least one vote).
+  expect(
+    summary.contestWriteInSummaries['governor-republican']?.candidateTallies[
+      repCandidate.id
+    ]
+  ).toBeUndefined();
+
+  // Nonpartisan write-ins always count, regardless of whether the ballot is
+  // crossover (one nonpartisan-only voter + one crossover voter).
+  expect(
+    summary.contestWriteInSummaries['circuit-court-judge']?.candidateTallies[
+      nonpartisanCandidate.id
+    ]
+  ).toEqual({
+    id: nonpartisanCandidate.id,
+    name: 'Nonpartisan Write-In',
+    tally: 2,
+    isWriteIn: true,
   });
 });
