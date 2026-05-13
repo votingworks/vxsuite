@@ -836,21 +836,22 @@ test.each<{
     expectedResponse,
   }) => {
     const javaCard = new TestJavaCard(config);
-    javaCard.setCardStatus({
-      status: 'ready',
-      cardDetails: {
-        user: electionManagerUser,
+    javaCard.setCardStatus(
+      {
+        status: 'ready',
+        cardDetails: {
+          user: electionManagerUser,
+        },
       },
-    });
+      fs.readFileSync(
+        getTestFilePath({
+          fileType: 'card-identity-cert.der',
+          cardType: 'system-administrator',
+        })
+      )
+    );
 
     mockCardAppletSelectionRequest();
-    mockCardCertRetrievalRequest(
-      CARD_IDENTITY_CERT.OBJECT_ID,
-      getTestFilePath({
-        fileType: 'card-identity-cert.der',
-        cardType: 'system-administrator',
-      })
-    );
     mockCardPinVerificationRequest('123456', cardPinVerificationRequestError);
     if (!cardPinVerificationRequestError) {
       await mockCardSignatureRequest(
