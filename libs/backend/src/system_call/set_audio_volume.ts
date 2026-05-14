@@ -33,9 +33,11 @@ export async function setAudioVolume(params: {
   const { logger, nodeEnv, sinkName, volumePct } = params;
   let errorOutput: string;
 
+  // NOTE: We allow apps to overdrive the system volume a bit to account for
+  // low-powered speaker systems, like on VxScan.
   assert(
-    volumePct >= 0 && volumePct <= 100,
-    'Audio volume must be between 0 and 100'
+    volumePct >= 0 && volumePct <= 120,
+    'Audio volume must be between 0 and 120'
   );
 
   try {

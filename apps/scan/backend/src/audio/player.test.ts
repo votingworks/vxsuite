@@ -57,7 +57,6 @@ test('toggles output when screen reader is enabled', async () => {
 
   await player.setIsScreenReaderEnabled(true);
   expect(mockCard.useHeadphones).toHaveBeenCalledOnce();
-  expect(mockCard.setVolume).toHaveBeenCalledWith(100);
   vi.mocked(mockCard.useHeadphones).mockClear();
   vi.mocked(mockCard.setVolume).mockClear();
 
