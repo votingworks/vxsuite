@@ -10,7 +10,6 @@ import {
   Icons,
   LanguageSettingsButton,
   LanguageSettingsScreen,
-  ReadOnLoad,
   AudioOnly,
   TestModeBanner,
   VoterHelpButton,
@@ -18,6 +17,7 @@ import {
   Button,
   appStrings,
   ElectionInfoBarProps,
+  FocusableAudio,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -255,11 +255,16 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
         {!voterFacing && ballotCountElement}
       </HeaderRow>
-      {voterFacing && !disableReadOnLoad ? (
-        <ReadOnLoad as={Main} centerChild={centerContent} padded={padded}>
+      {voterFacing ? (
+        <FocusableAudio
+          as={Main}
+          centerChild={centerContent}
+          padded={padded}
+          readOnLoad={!disableReadOnLoad}
+        >
           {title && <AudioOnly>{title}</AudioOnly>}
           {children}
-        </ReadOnLoad>
+        </FocusableAudio>
       ) : (
         <Main centerChild={centerContent} padded={padded}>
           {children}
