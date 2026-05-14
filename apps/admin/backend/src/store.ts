@@ -62,7 +62,6 @@ import {
   fromSqliteBool,
   getBallotStyleGroup,
   getGroupedBallotStyles,
-  getGroupKey,
   getOfficialCandidateNameLookup,
   inferPartyFromVotes,
   partisanContests,
@@ -1822,11 +1821,7 @@ export class Store implements BaseStore {
           ? cvr.votingMethod
           : undefined,
       };
-      // Extend group key with a card discriminator so two CVRs in the same
-      // group but on different sheets bucket separately.
-      const key = `${getGroupKey(groupSpecifier, groupBy)}&card=${
-        cvr.card.type
-      }/${cvr.card.sheetNumber ?? 1}`;
+      const key = JSON.stringify({ ...groupSpecifier, card: cvr.card });
       const existing = aggregator.get(key);
       if (existing) {
         existing.tally += 1;
