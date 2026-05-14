@@ -21,10 +21,10 @@ import {
 } from '@votingworks/types';
 import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
-import chalk from 'chalk';
 import { promises as fs } from 'node:fs';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { once } from 'node:stream';
+import { styleText } from 'node:util';
 import { interpret } from './interpret';
 import { InterpretedBallotCard, InterpretError } from './types';
 
@@ -35,7 +35,8 @@ interface IO {
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `${chalk.bold(
+    `${styleText(
+      'bold',
       'Usage:'
     )} interpret [options] <election-definition-path> <system-settings-path> <image-path> <image-path>\n`
   );
@@ -46,7 +47,7 @@ function usage(out: NodeJS.WritableStream): void {
     `       interpret [options] <election-definition-path> <system-settings-path> <cast-vote-record-folder-path>\n`
   );
   out.write(`\n`);
-  out.write(chalk.bold(`Options:\n`));
+  out.write(styleText('bold', `Options:\n`));
   out.write('  -h, --help                Show this help text.\n');
   out.write('  -w, --write-ins           Score write-in areas.\n');
   out.write(
@@ -68,21 +69,27 @@ function usage(out: NodeJS.WritableStream): void {
     '  --minimum-detected-scale SCALE                 Reject ballots with detected scale less than SCALE.\n'
   );
   out.write(`\n`);
-  out.write(chalk.bold('Examples:\n'));
-  out.write(chalk.dim(`  # Interpret a single ballot\n`));
+  out.write(styleText('bold', 'Examples:\n'));
+  out.write(styleText('dim', `  # Interpret a single ballot\n`));
   out.write(
     `  interpret election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
   );
   out.write(`\n`);
-  out.write(chalk.dim(`  # Interpret all ballots in a scan workspace\n`));
+  out.write(
+    styleText('dim', `  # Interpret all ballots in a scan workspace\n`)
+  );
   out.write(`  interpret path/to/workspace\n`);
   out.write(`\n`);
-  out.write(chalk.dim(`  # Interpret specific sheets in a scan workspace\n`));
+  out.write(
+    styleText('dim', `  # Interpret specific sheets in a scan workspace\n`)
+  );
   out.write(`  interpret path/to/workspace d34d-b33f\n`);
   out.write(`\n`);
-  out.write(chalk.dim(`  # Write debug images alongside input images\n`));
   out.write(
-    chalk.dim(`  # (i.e. ballot-side-a_debug_scored_bubble_marks.png)\n`)
+    styleText('dim', `  # Write debug images alongside input images\n`)
+  );
+  out.write(
+    styleText('dim', `  # (i.e. ballot-side-a_debug_scored_bubble_marks.png)\n`)
   );
   out.write(
     `  interpret -d election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
@@ -118,7 +125,7 @@ function prettyPrintInterpretation({
   stdout: NodeJS.WritableStream;
   interpretedBallotCard: InterpretedBallotCard;
 }) {
-  stdout.write(`${chalk.bold('Paths:')}\n`);
+  stdout.write(`${styleText('bold', 'Paths:')}\n`);
   stdout.write(`- ${paths[0]}\n`);
   stdout.write(`- ${paths[1]}\n`);
   stdout.write(`\n`);
@@ -132,7 +139,7 @@ function prettyPrintInterpretation({
       electionDefinition.election.contests,
       (c) => c.id === contestId
     );
-    stdout.write(`${chalk.italic(contest.title)}\n`);
+    stdout.write(`${styleText('italic', contest.title)}\n`);
 
     for (const [gridPosition, scoredMark] of marks) {
       const candidate =
@@ -162,7 +169,8 @@ function prettyPrintInterpretation({
             : '✅'
         } ${
           scoredMark
-            ? chalk.dim(
+            ? styleText(
+                'dim',
                 `(${(scoredMark.fillScore * 100).toFixed(2).padStart(5)}%)`
               )
             : ''
@@ -210,7 +218,7 @@ async function interpretFiles(
   });
 
   if (result.isErr()) {
-    stderr.write(chalk.red(`Error interpreting ballot:\n`));
+    stderr.write(styleText('red', `Error interpreting ballot:\n`));
     await writeIterToStream(
       jsonStream<InterpretError>(result.err(), { compact: false }),
       stderr
@@ -413,7 +421,7 @@ async function interpretWorkspace(
   let errorCount = 0;
 
   for (const { id, frontPath, backPath } of sheets) {
-    stdout.write(`${chalk.bold('Sheet ID:')} ${id}\n`);
+    stdout.write(`${styleText('bold', 'Sheet ID:')} ${id}\n`);
 
     const correctionResult = await correctBallotImagePaths([
       frontPath,
@@ -422,7 +430,7 @@ async function interpretWorkspace(
 
     if (correctionResult.isErr()) {
       stderr.write(
-        chalk.red(`Error finding ballot images; attempted paths:\n`)
+        styleText('red', `Error finding ballot images; attempted paths:\n`)
       );
       for (const path of correctionResult.err().attemptedPaths) {
         stderr.write(`- ${path}\n`);
@@ -453,8 +461,8 @@ async function interpretWorkspace(
   }
 
   stdout.write(
-    `\n${chalk.bold('Summary:')} ${count} sheets${
-      errorCount > 0 ? `, ${chalk.red(`${errorCount} errors`)}` : ''
+    `\n${styleText('bold', 'Summary:')} ${count} sheets${
+      errorCount > 0 ? `, ${styleText('red', `${errorCount} errors`)}` : ''
     }\n`
   );
 

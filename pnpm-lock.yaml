@@ -1738,9 +1738,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      chalk:
-        specifier: 4.1.2
-        version: 4.1.2
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -2125,9 +2122,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      chalk:
-        specifier: 4.1.2
-        version: 4.1.2
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -3634,9 +3628,6 @@ importers:
       canvas:
         specifier: 2.11.2
         version: 2.11.2
-      chalk:
-        specifier: 4.1.2
-        version: 4.1.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -3656,9 +3647,6 @@ importers:
       '@types/better-sqlite3':
         specifier: 7.6.3
         version: 7.6.3
-      '@types/chalk':
-        specifier: ^2.2.0
-        version: 2.2.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -5344,9 +5332,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      chalk:
-        specifier: 4.1.2
-        version: 4.1.2
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
@@ -13978,13 +13963,6 @@ packages:
     dependencies:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
-
-  /@types/chalk@2.2.0:
-    resolution: {integrity: sha512-1zzPV9FDe1I/WHhRkf9SNgqtRJWZqrBWgu7JGveuHmmyR9CnAPCie2N/x+iHrgnpYBIcCJWHBoMRv2TRWktsvw==}
-    deprecated: This is a stub types definition for chalk (https://github.com/chalk/chalk). chalk provides its own type definitions, so you don't need @types/chalk installed!
-    dependencies:
-      chalk: 4.1.2
-    dev: true
 
   /@types/combined-stream@1.0.3:
     resolution: {integrity: sha512-rU54Qy0+23b3xsXhBtHfx+M4lsRLllU2bnUnkS9hm3HAQ2Xt9q3QCYFxYVeaSG2mpCD8uuOGIEpcXHXDNZTa9w==}

@@ -99,7 +99,6 @@
     "@votingworks/mark-scan-backend": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "chalk": "4.1.2",
     "concurrently": "7.6.0",
     "eslint-plugin-vx": "workspace:*",
     "fetch-mock": "9.11.0",
