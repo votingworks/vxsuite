@@ -5,7 +5,7 @@ import {
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
   runUiStringMachineDeconfigurationTests,
-  Xk3Client,
+  Xk3PatSwitchClient,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
@@ -67,7 +67,7 @@ beforeEach(() => {
 const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
-const xk3Client = new Xk3Client({
+const xk3Client = new Xk3PatSwitchClient({
   devices: () => [],
   openDevice: () => {
     throw new Error('unexpected openDevice call');

@@ -42,7 +42,7 @@ import {
   PrinterStatus,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import { Xk3Client } from '@votingworks/backend';
+import { Xk3PatSwitchClient } from '@votingworks/backend';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -98,7 +98,7 @@ export function buildApi({
   usbDrive: UsbDrive;
   printer: FujitsuThermalPrinterInterface;
   logger: Logger;
-  xk3Client: Xk3Client;
+  xk3Client: Xk3PatSwitchClient;
 }) {
   const { store } = workspace;
 
@@ -730,7 +730,7 @@ export function buildApp({
   printer: FujitsuThermalPrinterInterface;
   usbDrive: UsbDrive;
   logger: Logger;
-  xk3Client: Xk3Client;
+  xk3Client: Xk3PatSwitchClient;
 }): Application {
   const app: Application = express();
   const api = buildApi({

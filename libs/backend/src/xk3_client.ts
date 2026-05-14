@@ -58,7 +58,7 @@ function defaultHidModule(): HidModuleInterface {
  * isPatDeviceConnected=true only after observing (jack=1, SW=0) for
  * CONNECTION_STATUS_DEBOUNCE_MS and stays true until the plug is removed.
  */
-export class Xk3Client {
+export class Xk3PatSwitchClient {
   private device: HidDeviceInterface | null = null;
   private stableStartTime: number | null = null;
   private patDeviceConnected = false;

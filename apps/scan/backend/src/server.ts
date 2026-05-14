@@ -16,7 +16,7 @@ import {
   FujitsuThermalPrinterInterface,
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
-import { Xk3Client } from '@votingworks/backend';
+import { Xk3PatSwitchClient } from '@votingworks/backend';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
@@ -78,7 +78,7 @@ export async function start({
   );
   await audioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
 
-  const xk3Client = new Xk3Client();
+  const xk3Client = new Xk3PatSwitchClient();
 
   const app = buildApp({
     audioPlayer,

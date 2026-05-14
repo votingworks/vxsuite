@@ -40,7 +40,7 @@ import * as tmp from 'tmp';
 import { Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
-import { Xk3Client } from '@votingworks/backend';
+import { Xk3PatSwitchClient } from '@votingworks/backend';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
 import { createPrecinctScannerStateMachine, delays } from '../../src/scanner';
@@ -169,7 +169,7 @@ export async function withApp(
     new AudioPlayer('development', logger, mockAudioCard)
   );
 
-  const xk3Client = new Xk3Client({
+  const xk3Client = new Xk3PatSwitchClient({
     devices: () => [],
     openDevice: () => {
       throw new Error('unexpected openDevice call');
