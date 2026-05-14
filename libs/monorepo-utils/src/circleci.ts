@@ -111,7 +111,9 @@ function generateTestJobForNodeJsPackage(
         .replace(/\/integration-testing$/, '');
       lines.push(`${indent}- when:`);
       lines.push(`${indent}    condition:`);
-      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >> ]`);
+      lines.push(
+        `${indent}      equal: [ drew/screenshot-management, << pipeline.git.branch >> ]`
+      );
       lines.push(`${indent}    steps:`);
       lines.push(`${indent}      - aws-cli/setup`);
       lines.push(`${indent}      - run:`);
@@ -417,7 +419,7 @@ export function generateAllConfigs(
     ...integrationTestingJobIds.map((id) => `            - ${id}`),
     `          filters:`,
     `            branches:`,
-    `              only: main`,
+    `              only: drew/screenshot-management`,
   ].join('\n');
 
   const baseConfig = `
