@@ -464,3 +464,141 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
   ]);
 });
+
+test('open primary: card counts with partyIds filter', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  await seedOpenPrimaryCvrsAndAdjudications({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  // Filter to a single party — only ballots whose inferred party matches.
+  // Dem inferred ballots: 3 HMPB sheet 1 (2 happy-path + 1 resolved crossover)
+  // + 1 BMD. Crossover ballots and the flipped-to-no-party ballot
+  // are excluded.
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['democratic-party'] },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [1], hmpb: [3], manual: 0 }]);
+
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['republican-party'] },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [], hmpb: [2], manual: 0 }]);
+
+  // Multi-party filter — union of matching ballots.
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['democratic-party', 'libertarian-party'] },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [2], hmpb: [3], manual: 0 }]);
+
+  // Combined with groupByPrecinct — only precinct-1 has matching ballots;
+  // precinct-2 has zero.
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['democratic-party'] },
+      groupBy: { groupByPrecinct: true },
+    })
+  ).toEqual([
+    {
+      precinctId: 'precinct-1',
+      bmd: [1],
+      hmpb: [3],
+      manual: 0,
+    },
+    {
+      precinctId: 'precinct-2',
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+    },
+  ]);
+
+  // Combined with groupByParty — the group expansion should only include the
+  // filtered party, not the full set.
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['democratic-party'] },
+      groupBy: { groupByParty: true },
+    })
+  ).toEqual([
+    {
+      partyId: 'democratic-party',
+      bmd: [1],
+      hmpb: [3],
+      manual: 0,
+    },
+  ]);
+
+  // "No Party" filter — matches ballots with no inferred party. After
+  // adjudication, these are: 1 unresolved crossover (HMPB sheet 1) +
+  // 1 flipped-Dem (HMPB sheet 1) + 1 nonpartisan-only (HMPB sheet 2).
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: [Tabulation.NO_PARTY_ID] },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [], hmpb: [2, 1], manual: 0 }]);
+
+  // Real party + "No Party" — union of Dem (4) + No Party (3)
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['democratic-party', Tabulation.NO_PARTY_ID] },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [1], hmpb: [5, 1], manual: 0 }]);
+
+  // "No Party" filter combined with groupByParty — only the "No Party" group
+  // appears.
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: [Tabulation.NO_PARTY_ID] },
+      groupBy: { groupByParty: true },
+    })
+  ).toEqual([
+    {
+      partyId: Tabulation.NO_PARTY_ID,
+      bmd: [],
+      hmpb: [2, 1],
+      manual: 0,
+    },
+  ]);
+
+  // Real party + "No Party" with groupByParty — both groups appear, real
+  // parties not in the filter are omitted.
+  expect(
+    await apiClient.getCardCounts({
+      filter: { partyIds: ['democratic-party', Tabulation.NO_PARTY_ID] },
+      groupBy: { groupByParty: true },
+    })
+  ).toEqual([
+    {
+      partyId: 'democratic-party',
+      bmd: [1],
+      hmpb: [3],
+      manual: 0,
+    },
+    {
+      partyId: Tabulation.NO_PARTY_ID,
+      bmd: [],
+      hmpb: [2, 1],
+      manual: 0,
+    },
+  ]);
+});
