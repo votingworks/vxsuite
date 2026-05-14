@@ -1549,6 +1549,7 @@ test('TOCTOU regression test: Card validation stashes the identity cert for use 
       cardDetails: { user: systemAdministratorUser },
     });
   });
+  mockCardReader.transmit.assertComplete();
 
   // No card identity cert retrieval is mocked. If checkPin re-fetched the cert from the card
   // instead of using the stashed one, the mock would fail with an unexpected-call error.
@@ -1589,6 +1590,7 @@ test.each<{
     );
 
     mockCardReader.setReaderStatus(status);
+    mockCardReader.transmit.assertComplete();
 
     mockCardAppletSelectionRequest();
     await expect(javaCard.checkPin('123456')).rejects.toThrow(
@@ -1643,6 +1645,7 @@ test('TOCTOU regression test: Programming stashes the new identity cert for use 
   );
 
   await javaCard.program({ user: systemAdministratorUser, pin: '123456' });
+  mockCardReader.transmit.assertComplete();
 
   // No card identity cert retrieval is mocked. If checkPin re-fetched the cert from the card
   // instead of using the stashed one, the mock would fail with an unexpected-call error.
@@ -1686,6 +1689,7 @@ test('TOCTOU regression test: Unprogramming clears the stashed identity cert', a
   }
 
   await javaCard.unprogram();
+  mockCardReader.transmit.assertComplete();
 
   mockCardAppletSelectionRequest();
   await expect(javaCard.checkPin('123456')).rejects.toThrow(
