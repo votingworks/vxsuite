@@ -25,6 +25,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
+import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
 import { AdjudicatedContestOption } from './types';
 
 vi.setConfig({
@@ -1014,127 +1015,11 @@ test('open primary, full election with crossover and adjudications', async () =>
   );
   mockElectionManagerAuth(auth, election);
 
-  // Seed 10 CVRs. Edge-case ballots vote for different candidates from the
-  // happy-path ballots so per-candidate tallies isolate each behavior:
-  //   3x Dem-only           — gov-dem: alice-jones, nonpartisan
-  //   2x Rep-only           — gov-rep: dave-wilson, nonpartisan
-  //   1x Lib-only           — gov-lib: grace-kim, nonpartisan
-  //   1x Nonpartisan-only   — nonpartisan only
-  //   1x Crossover (resolve via adjudication)
-  //                         — gov-dem: bob-smith + gov-rep: ellen-brown + nonpartisan
-  //   1x Crossover (stays)  — gov-dem: carol-white + gov-rep: frank-lee + nonpartisan
-  //   1x Dem-only (flip via adjudication)
-  //                         — gov-dem: dan-rivera + nonpartisan
-  const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
-    ballotStyleGroupId: 'ballot-style-1',
-    batchId: 'batch-1',
-    scannerId: 'scanner-1',
-    precinctId: 'precinct-1',
-    votingMethod: 'precinct',
-    card: { type: 'hmpb', sheetNumber: 1 },
-  };
-  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
-    {
-      ...baseCvr,
-      votes: {
-        'governor-democratic': ['alice-jones'],
-        'circuit-court-judge': ['margaret-chen'],
-      },
-      multiplier: 3,
-    },
-    {
-      ...baseCvr,
-      votes: {
-        'governor-republican': ['dave-wilson'],
-        'circuit-court-judge': ['margaret-chen'],
-      },
-      multiplier: 2,
-    },
-    {
-      ...baseCvr,
-      votes: {
-        'governor-libertarian': ['grace-kim'],
-        'circuit-court-judge': ['margaret-chen'],
-      },
-    },
-    {
-      ...baseCvr,
-      votes: { 'circuit-court-judge': ['margaret-chen'] },
-    },
-    {
-      ...baseCvr,
-      votes: {
-        'governor-democratic': ['bob-smith'],
-        'governor-republican': ['ellen-brown'],
-        'circuit-court-judge': ['margaret-chen'],
-      },
-    },
-    {
-      ...baseCvr,
-      votes: {
-        'governor-democratic': ['carol-white'],
-        'governor-republican': ['frank-lee'],
-        'circuit-court-judge': ['margaret-chen'],
-      },
-    },
-    {
-      ...baseCvr,
-      votes: {
-        'governor-democratic': ['dan-rivera'],
-        'circuit-court-judge': ['margaret-chen'],
-      },
-    },
-  ];
-  const cvrIds = addMockCvrFileToStore({
+  await seedOpenPrimaryCvrsAndAdjudications({
+    apiClient,
     electionId,
-    mockCastVoteRecordFile,
     store: workspace.store,
   });
-  // multiplier expands rows in order, so:
-  //   cvrIds[0..2] = Dem-only
-  //   cvrIds[3..4] = Rep-only
-  //   cvrIds[5]    = Lib-only
-  //   cvrIds[6]    = Nonpartisan-only
-  //   cvrIds[7]    = Crossover (will be resolved)
-  //   cvrIds[8]    = Crossover (stays)
-  //   cvrIds[9]    = Dem-only (will be flipped to nonpartisan)
-  const crossoverToResolveCvrId = cvrIds[7]!;
-  const demToFlipCvrId = cvrIds[9]!;
-
-  // Resolve a crossover by removing the gov-republican vote → ballot becomes
-  // Dem-only, restoring its gov-democratic vote (bob-smith).
-  await apiClient.claimBallotForAdjudication({
-    cvrId: crossoverToResolveCvrId,
-  });
-  (
-    await apiClient.adjudicateCvr({
-      cvrId: crossoverToResolveCvrId,
-      contests: [
-        {
-          contestId: 'governor-republican',
-          adjudicatedContestOptionById: {
-            'ellen-brown': { type: 'official-option', hasVote: false },
-          },
-        },
-      ],
-    })
-  ).assertOk('failed to adjudicate crossover');
-  // Flip a Dem-only ballot by removing its gov-democratic vote (dan-rivera)
-  // → ballot becomes nonpartisan-only.
-  await apiClient.claimBallotForAdjudication({ cvrId: demToFlipCvrId });
-  (
-    await apiClient.adjudicateCvr({
-      cvrId: demToFlipCvrId,
-      contests: [
-        {
-          contestId: 'governor-democratic',
-          adjudicatedContestOptionById: {
-            'dan-rivera': { type: 'official-option', hasVote: false },
-          },
-        },
-      ],
-    })
-  ).assertOk('failed to flip dem ballot');
 
   const tallyReports = await apiClient.getResultsForTallyReports();
   expect(tallyReports).toHaveLength(1);
