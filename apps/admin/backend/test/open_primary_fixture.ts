@@ -5,6 +5,15 @@ import { Store } from '../src/store';
 import { Api } from '../src/app';
 import { MockCastVoteRecordFile, addMockCvrFileToStore } from './mock_cvr_file';
 
+const baseCvr: Omit<MockCastVoteRecordFile[number], 'card' | 'votes'> = {
+  ballotStyleGroupId: 'ballot-style-1',
+  batchId: 'batch-1',
+  scannerId: 'scanner-1',
+  precinctId: 'precinct-1',
+  votingMethod: 'precinct',
+};
+const hmpbSheet1: Tabulation.Card = { type: 'hmpb', sheetNumber: 1 };
+
 export interface OpenPrimaryFixtureResult {
   cvrIds: string[];
   // Crossover ballot whose Republican vote was adjudicated away → now Dem-only.
@@ -28,14 +37,6 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   electionId: Id;
   store: Store;
 }): Promise<OpenPrimaryFixtureResult> {
-  const baseCvr: Omit<MockCastVoteRecordFile[number], 'card' | 'votes'> = {
-    ballotStyleGroupId: 'ballot-style-1',
-    batchId: 'batch-1',
-    scannerId: 'scanner-1',
-    precinctId: 'precinct-1',
-    votingMethod: 'precinct',
-  };
-  const hmpbSheet1: Tabulation.Card = { type: 'hmpb', sheetNumber: 1 };
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
       ...baseCvr,
@@ -162,4 +163,137 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   ).assertOk('failed to flip dem ballot');
 
   return { cvrIds, resolvedCrossoverCvrId, flippedToNoPartyCvrId };
+}
+
+export interface OpenPrimaryWriteInsFixtureResult {
+  demCandidate: { id: string; name: string };
+  repCandidate: { id: string; name: string };
+  nonpartisanCandidate: { id: string; name: string };
+}
+
+/**
+ * Seeds 4 open-primary ballots, each with one write-in mark, and adjudicates
+ * each write-in to a write-in candidate.
+ *
+ *   cvrIds[0] = Dem-only voter, write-in on governor-democratic       → counts
+ *   cvrIds[1] = Crossover voter, write-in on governor-republican      → does NOT count
+ *   cvrIds[2] = Nonpartisan-only voter, write-in on circuit-court-judge → counts
+ *   cvrIds[3] = Crossover voter, write-in on circuit-court-judge      → counts
+ *                (nonpartisan write-ins count regardless of crossover)
+ */
+export async function seedOpenPrimaryWriteIns({
+  apiClient,
+  electionId,
+  store,
+}: {
+  apiClient: grout.Client<Api>;
+  electionId: Id;
+  store: Store;
+}): Promise<OpenPrimaryWriteInsFixtureResult> {
+  const file: MockCastVoteRecordFile = [
+    {
+      ...baseCvr,
+      card: hmpbSheet1,
+      votes: {
+        'governor-democratic': ['write-in-0'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      card: hmpbSheet1,
+      // Crossover: voted in both Dem and Rep partisan contests, with the Rep
+      // contest selection being a write-in.
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'governor-republican': ['write-in-0'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+    },
+    {
+      ...baseCvr,
+      card: hmpbSheet1,
+      // Nonpartisan-only voter: no partisan votes, write-in on nonpartisan.
+      votes: { 'circuit-court-judge': ['write-in-0'] },
+    },
+    {
+      ...baseCvr,
+      card: hmpbSheet1,
+      // Crossover voter (Dem + Rep partisan votes) with a write-in on the
+      // nonpartisan contest. The crossover voids the partisan votes but the
+      // nonpartisan write-in must still count.
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['write-in-0'],
+      },
+    },
+  ];
+  const cvrIds = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: file,
+    store,
+  });
+
+  const demCandidate = await apiClient.addWriteInCandidate({
+    contestId: 'governor-democratic',
+    name: 'Dem Write-In',
+  });
+  const repCandidate = await apiClient.addWriteInCandidate({
+    contestId: 'governor-republican',
+    name: 'Rep Write-In',
+  });
+  const nonpartisanCandidate = await apiClient.addWriteInCandidate({
+    contestId: 'circuit-court-judge',
+    name: 'Nonpartisan Write-In',
+  });
+
+  async function adjudicate(
+    cvrId: string,
+    contestId: string,
+    candidateName: string
+  ) {
+    await apiClient.claimBallotForAdjudication({ cvrId });
+    (
+      await apiClient.adjudicateCvr({
+        cvrId,
+        contests: [
+          {
+            contestId,
+            adjudicatedContestOptionById: {
+              'write-in-0': {
+                type: 'write-in-option',
+                candidateName,
+                candidateType: 'write-in-candidate',
+                hasVote: true,
+              },
+            },
+          },
+        ],
+      })
+    ).assertOk(`failed to adjudicate ${contestId}`);
+  }
+
+  await adjudicate(
+    assertDefined(cvrIds[0]),
+    'governor-democratic',
+    demCandidate.name
+  );
+  await adjudicate(
+    assertDefined(cvrIds[1]),
+    'governor-republican',
+    repCandidate.name
+  );
+  await adjudicate(
+    assertDefined(cvrIds[2]),
+    'circuit-court-judge',
+    nonpartisanCandidate.name
+  );
+  await adjudicate(
+    assertDefined(cvrIds[3]),
+    'circuit-court-judge',
+    nonpartisanCandidate.name
+  );
+
+  return { demCandidate, repCandidate, nonpartisanCandidate };
 }

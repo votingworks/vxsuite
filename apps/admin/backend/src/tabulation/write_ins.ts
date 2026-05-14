@@ -11,6 +11,7 @@ import {
   GROUP_KEY_ROOT,
   extractGroupSpecifier,
   getGroupKey,
+  hasCrossoverVote,
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
@@ -151,13 +152,24 @@ function addWriteInToElectionWriteInSummary({
     cvrId,
     filter: {},
   });
-  const votes = assertDefined(assertDefined(cvr).votes[contestId]);
-
+  assert(cvr !== undefined);
   const contest = CachedElectionLookups.getContestById(
     electionDefinition,
     contestId
   );
   assert(contest.type === 'candidate');
+
+  // If the ballot has a crossover vote and the write-in was for a partisan
+  // contest, it doesn't count
+  if (
+    hasCrossoverVote(electionDefinition.election, cvr.votes) &&
+    contest.partyId
+  ) {
+    contestWriteInSummary.invalidTally += 1;
+    return electionWriteInSummary;
+  }
+
+  const votes = assertDefined(cvr.votes[contestId]);
 
   const isPending = officialCandidateId === null && writeInCandidateId === null;
   const isOvervote = votes.length > contest.seats;
