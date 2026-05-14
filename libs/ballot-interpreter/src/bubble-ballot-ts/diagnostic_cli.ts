@@ -1,11 +1,13 @@
-import chalk from 'chalk';
 import { promises as fs } from 'node:fs';
+import { styleText } from 'node:util';
 import { runBlankPaperDiagnostic } from './diagnostic';
 
 function usage(out: NodeJS.WritableStream): void {
-  out.write(`${chalk.bold('Usage:')} diagnostic [options] <image-path>\n`);
+  out.write(
+    `${styleText('bold', 'Usage:')} diagnostic [options] <image-path>\n`
+  );
   out.write(`\n`);
-  out.write(chalk.bold(`Options:\n`));
+  out.write(styleText('bold', `Options:\n`));
   out.write('  -h, --help       Show this help text.\n');
   out.write(
     `  -d, --debug  Output debug information (images alongside inputs).\n`
@@ -55,10 +57,10 @@ export async function main(args: string[]): Promise<number> {
       debug ? imagePath : undefined
     );
     if (didPass) {
-      stdout.write(chalk.green('PASSED'));
+      stdout.write(styleText('green', 'PASSED'));
       stdout.write(' - no significant shading detected in image\n');
     } else {
-      stdout.write(chalk.red('FAILED'));
+      stdout.write(styleText('red', 'FAILED'));
       stdout.write(' - significant shading detected in image\n');
     }
     return 0;
