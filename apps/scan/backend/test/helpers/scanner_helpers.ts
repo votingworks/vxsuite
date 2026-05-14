@@ -170,8 +170,10 @@ export async function withApp(
   );
 
   const xk3Client = new Xk3Client({
-    devices: vi.fn().mockReturnValue([]),
-    openDevice: vi.fn(),
+    devices: () => [],
+    openDevice: () => {
+      throw new Error('unexpected openDevice call');
+    },
   });
 
   const app = buildApp({

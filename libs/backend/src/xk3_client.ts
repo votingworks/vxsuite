@@ -126,6 +126,7 @@ export class Xk3Client {
       return;
     }
 
+    /* istanbul ignore next - @preserve */
     const switchByte = report[REPORT_SWITCH_BYTE_INDEX] ?? 0;
     const jackPresent = Boolean(switchByte & JACK_DETECT_MASK);
     const swActive = Boolean(switchByte & SWITCH_ACTIVE_MASK);

@@ -1,9 +1,15 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import * as nodeHid from 'node-hid';
 import {
   HidDeviceInterface,
   HidModuleInterface,
   Xk3Client,
 } from './xk3_client';
+
+vi.mock('node-hid', () => ({
+  devices: vi.fn(),
+  HID: vi.fn(),
+}));
 
 const XK3_VID = 0x05f3;
 const XK3_PID = 0x04c8;
@@ -103,7 +109,7 @@ test('devices() is called with correct VID and PID', () => {
     devices: vi.fn().mockReturnValue([]),
     openDevice: vi.fn(),
   };
-  const _ = new Xk3Client(hidModule);
+  void new Xk3Client(hidModule);
 
   expect(hidModule.devices).toHaveBeenCalledWith(XK3_VID, XK3_PID);
 });
@@ -182,6 +188,16 @@ test('PAT device: confirms after debounce window via idle report', () => {
   expect(xk3.isPatDeviceConnected()).toEqual(true);
 });
 
+test('PAT device: second idle report before debounce does not confirm', () => {
+  // First idle report at t=0 starts the window; second at t=250 finds elapsed < 2000ms.
+  const device = makeDevice([JACK_PRESENT_SW_IDLE, JACK_PRESENT_SW_IDLE]);
+  const xk3 = new Xk3Client(makeConnectedHidModule(device));
+
+  vi.advanceTimersByTime(250); // t=250: second idle, elapsed=250 < 2000 → no confirm
+
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
+});
+
 test('confirmed PAT device: active switch press does not clear confirmed state', () => {
   const { device, setNextReport } = makeMutableDevice(JACK_PRESENT_SW_IDLE);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
@@ -254,7 +270,7 @@ test('short report (fewer than 3 bytes) is ignored', () => {
 test('sends Generate Data command after opening device', () => {
   const device = makeDevice([]);
   const hidModule = makeConnectedHidModule(device);
-  const _ = new Xk3Client(hidModule);
+  void new Xk3Client(hidModule);
 
   expect(device.write).toHaveBeenCalledWith([
     0x00,
@@ -278,4 +294,33 @@ test('stable window resets when switches become active before confirmation', () 
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS - 1);
 
   expect(xk3.isPatDeviceConnected()).toEqual(false);
+});
+
+test('confirmed PAT device: idle poll after confirmation keeps state', () => {
+  const { device } = makeMutableDevice(JACK_PRESENT_SW_IDLE);
+  const xk3 = new Xk3Client(makeConnectedHidModule(device));
+
+  vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS); // confirms
+
+  vi.advanceTimersByTime(250); // idle poll while confirmed → stays true
+
+  expect(xk3.isPatDeviceConnected()).toEqual(true);
+});
+
+test('default hidModule delegates devices() to nodeHid.devices', () => {
+  vi.mocked(nodeHid.devices).mockReturnValue([]);
+  void new Xk3Client(); // no hidModule arg → uses defaultHidModule
+  expect(nodeHid.devices).toHaveBeenCalledWith(XK3_VID, XK3_PID);
+});
+
+test('default hidModule delegates openDevice() to new nodeHid.HID()', () => {
+  const mockDevice = makeDevice([]);
+  vi.mocked(nodeHid.devices).mockReturnValue([
+    { path: '/dev/hidraw0', usagePage: PI_CONSUMER_USAGE_PAGE },
+  ] as unknown as nodeHid.Device[]);
+  vi.mocked(nodeHid.HID).mockImplementation(
+    () => mockDevice as unknown as nodeHid.HID
+  );
+  void new Xk3Client();
+  expect(nodeHid.HID).toHaveBeenCalledWith('/dev/hidraw0');
 });

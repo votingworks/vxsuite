@@ -5,6 +5,7 @@ import {
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
   runUiStringMachineDeconfigurationTests,
+  Xk3Client,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
@@ -24,7 +25,6 @@ import {
 } from '@votingworks/types';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createMockFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
-import { Xk3Client } from '@votingworks/backend';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -68,8 +68,10 @@ const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const xk3Client = new Xk3Client({
-  devices: vi.fn().mockReturnValue([]),
-  openDevice: vi.fn(),
+  devices: () => [],
+  openDevice: () => {
+    throw new Error('unexpected openDevice call');
+  },
 });
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
