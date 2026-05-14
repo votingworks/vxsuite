@@ -8,6 +8,11 @@ import type {
 import type { Election } from '@votingworks/types';
 
 export interface BridgeInterpretOptions {
+  /**
+   * Expected ballot hash as a hex string. The Rust interpreter slices it to
+   * the partial-hash length and rejects ballots whose QR-decoded hash differs.
+   */
+  expectedBallotHash: string;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
   debugBasePathSideA?: string;

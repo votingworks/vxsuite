@@ -149,7 +149,8 @@ describe('HMPB - VX Famous Names', () => {
         {
           electionDefinition: {
             ...electionDefinition,
-            ballotHash: 'wrong ballot hash',
+            // Valid-hex but deliberately wrong hash.
+            ballotHash: 'f'.repeat(64),
           },
           validPrecinctIds: new Set([precinctId]),
           testMode: true,
@@ -600,11 +601,11 @@ describe('HMPB - VX primary election', () => {
 
     expect(frontResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedPrecincts',
+      reason: 'mismatchedBallotMetadata',
     });
     expect(backResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedPrecincts',
+      reason: 'mismatchedBallotMetadata',
     });
   });
 
@@ -631,11 +632,11 @@ describe('HMPB - VX primary election', () => {
 
     expect(frontResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedBallotStyles',
+      reason: 'mismatchedBallotMetadata',
     });
     expect(backResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
-      reason: 'mismatchedBallotStyles',
+      reason: 'mismatchedBallotMetadata',
     });
   });
 });
@@ -747,11 +748,71 @@ test('Non-consecutive page numbers', async () => {
 
   expect(frontResult).toEqual<PageInterpretation>({
     type: 'UnreadablePage',
-    reason: 'nonConsecutivePageNumbers',
+    reason: 'mismatchedBallotMetadata',
   });
   expect(backResult).toEqual<PageInterpretation>({
     type: 'UnreadablePage',
-    reason: 'nonConsecutivePageNumbers',
+    reason: 'mismatchedBallotMetadata',
+  });
+});
+
+// Defense-in-depth check for issue #8426. The Rust hash check is the primary
+// gate against scanning a ballot whose physical grid doesn't match the
+// configured election's gridLayouts. If a ballot somehow gets past the hash
+// gate while still failing the gridLayout-shape invariant — e.g. someone hand-
+// crafted an election whose hash matches but whose gridLayouts overshoot the
+// ballot — Rust now surfaces a typed `gridPositionOutsideTimingMarkGrid`
+// error instead of silently dropping gridPositions and crashing in TS's
+// `getAllPossibleAdjudicationReasons`. This test spoofs the ballot hash so
+// that the second-layer check is actually exercised.
+test('Spoofed-hash ballot whose grid exceeds detected timing-mark grid is rejected', async () => {
+  const letterSpec = find(
+    vxGeneralElectionFixtures.fixtureSpecs,
+    (s) => s.paperSize === HmpbBallotPaperSize.Letter && s.languageCode === 'en'
+  );
+  const longerSpec = find(
+    vxGeneralElectionFixtures.fixtureSpecs,
+    (s) =>
+      s.paperSize === HmpbBallotPaperSize.Custom17 && s.languageCode === 'en'
+  );
+
+  const letterDef = (
+    await readElection(letterSpec.electionPath)
+  ).unsafeUnwrap();
+  const longerDef = (
+    await readElection(longerSpec.electionPath)
+  ).unsafeUnwrap();
+  // Take just the first sheet — the letter ballot may have multiple sheets.
+  const letterImages = asSheet(
+    await pdfToPageImages(letterSpec.blankBallotPath).take(2).toArray()
+  );
+
+  // Use the 17"-tall election's contests/gridLayouts (so positions extend
+  // past where letter timing-mark grids can reach), but carry the letter
+  // election's hash so the Rust hash check accepts the ballot.
+  const spoofed: ElectionDefinition = {
+    ...longerDef,
+    ballotHash: letterDef.ballotHash,
+  };
+
+  const [frontResult, backResult] = await interpretSheet(
+    {
+      electionDefinition: spoofed,
+      validPrecinctIds: allPrecinctIds(spoofed),
+      testMode: false,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    },
+    letterImages
+  );
+
+  expect(frontResult).toEqual<PageInterpretation>({
+    type: 'UnreadablePage',
+    reason: 'gridPositionOutsideTimingMarkGrid',
+  });
+  expect(backResult).toEqual<PageInterpretation>({
+    type: 'UnreadablePage',
+    reason: 'gridPositionOutsideTimingMarkGrid',
   });
 });
 

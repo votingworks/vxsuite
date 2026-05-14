@@ -25,7 +25,8 @@ use crate::{
 
 use types_rs::{
     ballot_card::{BallotSide, PaperSize},
-    bubble_ballot, coding,
+    bubble_ballot::{self, PartialBallotHash},
+    coding,
     election::{Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
     pair::Pair,
@@ -498,15 +499,20 @@ impl BallotCard {
 
     /// Detects and decodes barcodes on the ballot pages and returns the decoded
     /// data. Uses the position of the detected barcodes to determine the
-    /// orientation of the ballot pages.
+    /// orientation of the ballot pages. Verifies the decoded ballot hash
+    /// against `expected_ballot_hash` (pre-sliced to
+    /// [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes).
     ///
     /// # Errors
     ///
-    /// Fails if the barcodes cannot be located or cannot be decoded.
+    /// Fails if the barcodes cannot be located or cannot be decoded, if the
+    /// two sides' metadata disagree, or if the decoded ballot hash doesn't
+    /// match `expected_ballot_hash`.
     #[allow(clippy::result_large_err)]
     pub fn decode_ballot_barcodes(
         &self,
         election: &Election,
+        expected_ballot_hash: &PartialBallotHash,
     ) -> Result<Pair<(bubble_ballot::Metadata, Orientation)>> {
         self.as_pair()
             .par_map(|ballot_page| {
@@ -519,15 +525,20 @@ impl BallotCard {
                     label: ballot_page.label().to_owned(),
                     message: e.to_string(),
                 })?;
-                let metadata = coding::decode_with(qr_code.bytes(), election).map_err(|e| {
-                    Error::InvalidQrCodeMetadata {
-                        label: ballot_page.label().to_owned(),
-                        message: format!(
-                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
-                            bytes = qr_code.bytes()
-                        ),
-                    }
-                })?;
+                let metadata =
+                    coding::decode_with(qr_code.bytes(), &(election, *expected_ballot_hash))
+                        .map_err(|e| match e {
+                            bubble_ballot::Error::InvalidBallotHash { expected, actual } => {
+                                Error::InvalidBallotHash { expected, actual }
+                            }
+                            _ => Error::InvalidQrCodeMetadata {
+                                label: ballot_page.label().to_owned(),
+                                message: format!(
+                                    "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                                    bytes = qr_code.bytes()
+                                ),
+                            },
+                        })?;
                 Ok((metadata, qr_code.orientation()))
             })
             .join(|decode_front_result, decode_back_result| {
@@ -563,22 +574,22 @@ impl BallotCard {
             .join(
                 // Do some validation to check that the two sides agree.
                 |(front_metadata, front_orientation), (back_metadata, back_orientation)| {
-                    if front_metadata.precinct_id != back_metadata.precinct_id {
-                        return Err(Error::MismatchedPrecincts {
-                            side_a: front_metadata.precinct_id,
-                            side_b: back_metadata.precinct_id,
+                    let mismatches = front_metadata.match_sheet_with_metadata(&back_metadata);
+
+                    if !mismatches.is_empty() {
+                        return Err(Error::MismatchedBallotMetadata {
+                            side_a: front_metadata,
+                            side_b: back_metadata,
+                            mismatches,
                         });
                     }
-                    if front_metadata.ballot_style_id != back_metadata.ballot_style_id {
-                        return Err(Error::MismatchedBallotStyles {
-                            side_a: front_metadata.ballot_style_id,
-                            side_b: back_metadata.ballot_style_id,
-                        });
-                    }
-                    if front_metadata.page_number.opposite() != back_metadata.page_number {
-                        return Err(Error::NonConsecutivePageNumbers {
-                            side_a: front_metadata.page_number.get(),
-                            side_b: back_metadata.page_number.get(),
+
+                    // After `match_sheet_with_metadata`, both sides agree on
+                    // the ballot hash, so checking the front is enough.
+                    if front_metadata.ballot_hash != *expected_ballot_hash {
+                        return Err(Error::InvalidBallotHash {
+                            expected: *expected_ballot_hash,
+                            actual: front_metadata.ballot_hash,
                         });
                     }
 

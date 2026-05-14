@@ -356,12 +356,8 @@ test('single-page BMD ballot: Rust encode matches TS decode', async () => {
         BallotType.Provisional
       ),
       fc.boolean(),
-      async (
-        { election, ballotHash },
-        isTestMode,
-        ballotType,
-        includeWriteIns
-      ) => {
+      async (electionDefinition, isTestMode, ballotType, includeWriteIns) => {
+        const { election, ballotHash } = electionDefinition;
         const ballotStyle = election.ballotStyles[0];
         if (!ballotStyle) return;
         const precinct = election.precincts.find((p) =>
@@ -389,7 +385,10 @@ test('single-page BMD ballot: Rust encode matches TS decode', async () => {
 
         const encoded = await napi.encodeBmdBallotData(election, rustRecord);
 
-        const decoded = decodeBallot(election, new Uint8Array(encoded));
+        const decoded = decodeBallot(
+          electionDefinition,
+          new Uint8Array(encoded)
+        );
 
         expect(decoded.ballotStyleId).toEqual(ballotStyle.id);
         expect(decoded.precinctId).toEqual(precinct.id);
@@ -418,13 +417,14 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
       arbitraryBallotId(),
       fc.boolean(),
       async (
-        { election, ballotHash },
+        electionDefinition,
         isTestMode,
         ballotType,
         totalPages,
         ballotAuditId,
         includeWriteIns
       ) => {
+        const { election, ballotHash } = electionDefinition;
         const ballotStyle = election.ballotStyles[0];
         if (!ballotStyle) return;
         const precinct = election.precincts.find((p) =>
@@ -466,7 +466,7 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
           const encoded = await napi.encodeBmdBallotData(election, rustRecord);
 
           const decoded = decodeBmdMultiPageBallot(
-            election,
+            electionDefinition,
             new Uint8Array(encoded)
           );
 

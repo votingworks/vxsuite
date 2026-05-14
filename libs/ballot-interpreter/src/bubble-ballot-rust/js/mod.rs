@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
+use types_rs::bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
 use types_rs::coding;
 use types_rs::election::Election;
 
@@ -25,6 +26,10 @@ use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct JsInterpretOptions {
+    /// Expected ballot hash as a hex string. Production callers always have
+    /// the election definition's `ballotHash` available and pass it through.
+    /// Decoded into a `PartialBallotHash` at the bridge boundary.
+    expected_ballot_hash: String,
     front_normalized_image_output_path: Option<String>,
     back_normalized_image_output_path: Option<String>,
     debug_base_path_side_a: Option<String>,
@@ -34,6 +39,25 @@ struct JsInterpretOptions {
     disable_vertical_streak_detection: Option<bool>,
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
+}
+
+/// Decodes a hex ballot hash string into a [`PartialBallotHash`]. Accepts
+/// strings of any length and slices them to the partial-hash length, matching
+/// the TS `sliceBallotHashForEncoding` convention.
+fn decode_partial_ballot_hash(hex: &str) -> Result<PartialBallotHash, napi::Error> {
+    let bytes = hex::decode(hex).map_err(|err| {
+        napi::Error::from_reason(format!("expectedBallotHash is not valid hex: {err}"))
+    })?;
+    if bytes.len() < PARTIAL_BALLOT_HASH_BYTE_LENGTH {
+        return Err(napi::Error::from_reason(format!(
+            "expectedBallotHash must be at least {} hex characters",
+            PARTIAL_BALLOT_HASH_BYTE_LENGTH * 2
+        )));
+    }
+    let mut hash = PartialBallotHash::default();
+    let len = hash.len();
+    hash.copy_from_slice(&bytes[..len]);
+    Ok(hash)
 }
 
 /// Wraps an interpret error with a pre-computed `is_bubble_ballot` flag so
@@ -72,12 +96,15 @@ fn interpret(
         None => None,
     };
 
+    let expected_ballot_hash = decode_partial_ballot_hash(&options.expected_ballot_hash)?;
+
     let bubble_template = ballot_scan_bubble_image();
     let interpret_result = ballot_card(
         side_a_image,
         side_b_image,
         &Options {
             election,
+            expected_ballot_hash,
             bubble_template,
             debug_side_a_base: options.debug_base_path_side_a.map(PathBuf::from),
             debug_side_b_base: options.debug_base_path_side_b.map(PathBuf::from),

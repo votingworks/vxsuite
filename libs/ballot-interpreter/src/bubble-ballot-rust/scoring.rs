@@ -8,9 +8,7 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::ballot_card::BallotSide;
 use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
-use types_rs::geometry::{
-    PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubGridUnit, SubPixelUnit,
-};
+use types_rs::geometry::{PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubPixelUnit};
 
 use crate::ballot_card::BallotImage;
 use crate::debug;
@@ -147,8 +145,27 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
                 return None;
             }
 
-            let expected_bubble_center = timing_marks
-                .point_for_location(location.column as SubGridUnit, location.row as SubGridUnit)?;
+            // If a grid position can't be located within the detected
+            // timing-mark grid, fail loudly rather than silently dropping the
+            // position. Dropping leaves `marks` as a partial subset of the
+            // gridLayout, which downstream TS interpretation assumes is
+            // complete — see `getAllPossibleAdjudicationReasons` in
+            // `libs/ballot-interpreter/src/adjudication_reasons.ts`. The
+            // expected_ballot_hash check earlier in the pipeline catches the
+            // realistic ways this would otherwise happen (a ballot from a
+            // different election or paper size), but we surface a typed error
+            // here as a defense-in-depth so any future invariant break is
+            // visible rather than producing a crash deep in TS.
+            let Some(expected_bubble_center) =
+                timing_marks.point_for_location(location.column, location.row)
+            else {
+                return Some(Err(Error::GridPositionOutsideTimingMarkGrid {
+                    label: label.to_owned(),
+                    contest_id: grid_position.contest_id(),
+                    column: location.column,
+                    row: location.row,
+                }));
+            };
 
             let scored_bubble_mark = score_bubble_mark(
                 ballot_image,
@@ -158,9 +175,9 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
                 DEFAULT_MAXIMUM_SEARCH_DISTANCE,
             );
 
-            Some((grid_position.clone(), scored_bubble_mark))
+            Some(Ok((grid_position.clone(), scored_bubble_mark)))
         })
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>>>()?;
 
     // Check for vertical streaks after collecting
     for (_, scored_bubble_mark) in &scored_bubbles {

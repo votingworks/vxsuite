@@ -211,7 +211,7 @@ impl Detected {
 
     /// Gets the data decoded from the detected QR code.
     #[must_use]
-    pub fn bytes(&self) -> &Vec<u8> {
+    pub fn bytes(&self) -> &[u8] {
         self.bytes.as_ref()
     }
 
@@ -273,7 +273,7 @@ pub type Result = std::result::Result<Detected, Error>;
 fn base64_decode_if_possible(detected: &Detected) -> Detected {
     let bytes = STANDARD
         .decode(detected.bytes())
-        .unwrap_or_else(|_| detected.bytes().clone());
+        .unwrap_or_else(|_| detected.bytes().to_vec());
     Detected::new(
         detected.detector(),
         detected.detection_areas().to_vec(),
@@ -418,7 +418,7 @@ mod test {
         )
         .unwrap();
         assert_eq!(
-            qr_code.bytes().clone(),
+            qr_code.bytes(),
             vec![
                 0x56, 0x50, 0x02, 0xf1, 0x3f, 0x4a, 0xb3, 0x76, 0xfb, 0xaa, 0xf9, 0x14, 0x37, 0x00,
                 0x00, 0x00, 0x03, 0x00

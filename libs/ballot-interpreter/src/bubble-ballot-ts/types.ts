@@ -5,6 +5,8 @@ import {
   PrecinctId,
   BallotStyleId,
   Side,
+  BallotType,
+  ContestId,
 } from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
@@ -56,6 +58,12 @@ export type PixelUnit = u32;
  * with the same underlying representation is not used.
  */
 export type SubPixelUnit = f32;
+
+/**
+ * A fractional position in the timing-mark grid (e.g. a bubble that sits
+ * partway between two rows). Mirrors the Rust `SubGridUnit` type alias.
+ */
+export type SubGridUnit = f32;
 
 /**
  * Angle in radians.
@@ -317,6 +325,23 @@ export interface Size<T> {
 }
 
 /**
+ * Identifies a single field that differs between the two sides of a bubble
+ * ballot sheet, carrying the value found on each side.
+ */
+export type MetadataMismatch =
+  | { type: 'ballotHash'; sideA: string; sideB: string }
+  | { type: 'precinctId'; sideA: PrecinctId; sideB: PrecinctId }
+  | { type: 'ballotStyleId'; sideA: BallotStyleId; sideB: BallotStyleId }
+  | { type: 'pageNumber'; sideA: number; sideB: number }
+  | { type: 'isTestMode'; sideA: boolean; sideB: boolean }
+  | { type: 'ballotType'; sideA: BallotType; sideB: BallotType }
+  | {
+      type: 'ballotAuditId';
+      sideA: string | null;
+      sideB: string | null;
+    };
+
+/**
  * Possible errors that can occur when interpreting a ballot card.
  *
  * `isBubbleBallot` is set by the Rust interpreter and is true when the error
@@ -326,13 +351,13 @@ export interface Size<T> {
 export type InterpretError = { isBubbleBallot: boolean } & (
   | { type: 'borderInsetNotFound'; path: string }
   | { type: 'invalidQrCodeMetadata'; label: string; message: string }
-  | { type: 'mismatchedPrecincts'; sideA: PrecinctId; sideB: PrecinctId }
   | {
-      type: 'mismatchedBallotStyles';
-      sideA: BallotStyleId;
-      sideB: BallotStyleId;
+      type: 'mismatchedBallotMetadata';
+      sideA: HmpbBallotPageMetadata;
+      sideB: HmpbBallotPageMetadata;
+      mismatches: MetadataMismatch[];
     }
-  | { type: 'nonConsecutivePageNumbers'; sideA: number; sideB: number }
+  | { type: 'invalidBallotHash'; expected: string; actual: string }
   | {
       type: 'mismatchedBallotCardGeometries';
       side_a: BallotPagePathAndGeometry;
@@ -347,6 +372,13 @@ export type InterpretError = { isBubbleBallot: boolean } & (
   | { type: 'unexpectedDimensions'; label: string; dimensions: Size<PixelUnit> }
   | { type: 'invalidScale'; label: string; scale: number }
   | { type: 'couldNotComputeLayout'; side: Side }
+  | {
+      type: 'gridPositionOutsideTimingMarkGrid';
+      label: string;
+      contestId: ContestId;
+      column: SubGridUnit;
+      row: SubGridUnit;
+    }
   | {
       type: 'verticalStreaksDetected';
       label: string;

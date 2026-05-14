@@ -16,6 +16,7 @@ use ballot_interpreter::{
 };
 use clap::Parser;
 use crossterm::style::Stylize;
+use sha2::{Digest, Sha256};
 use types_rs::{
     ballot_card::BallotType,
     bmd::{
@@ -24,6 +25,7 @@ use types_rs::{
         multi_page::MultiPageCastVoteRecord,
         votes::{CandidateVote, ContestVote},
     },
+    bubble_ballot::PartialBallotHash,
     coding,
     election::{BallotStyleId, Candidate, Contest, ContestId, Election, PrecinctId},
 };
@@ -73,10 +75,19 @@ struct Options {
 }
 
 impl Options {
-    fn load_election(&self) -> color_eyre::Result<Election> {
-        let file = std::fs::File::open(&self.election_path)?;
-        let reader = std::io::BufReader::new(file);
-        Ok(serde_json::from_reader(reader)?)
+    /// Reads the election file as bytes, computes the partial ballot hash
+    /// from those bytes, and deserializes the election. The hash is computed
+    /// over the raw file bytes (matching the TS `sha256(electionData)`
+    /// convention) so it agrees with the hash encoded into ballot QR codes
+    /// for this election.
+    fn load_election(&self) -> color_eyre::Result<(Election, PartialBallotHash)> {
+        let bytes = std::fs::read(&self.election_path)?;
+        let election: Election = serde_json::from_slice(&bytes)?;
+        let digest = Sha256::digest(&bytes);
+        let mut hash = PartialBallotHash::default();
+        let len = hash.len();
+        hash.copy_from_slice(&digest[..len]);
+        Ok((election, hash))
     }
 
     fn load_top_image(&self) -> color_eyre::Result<image::DynamicImage> {
@@ -93,7 +104,7 @@ impl Options {
 
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
-    let election = options.load_election()?;
+    let (election, expected_ballot_hash) = options.load_election()?;
 
     let start = Instant::now();
     let top_image = options.load_top_image()?.into_luma8();
@@ -130,7 +141,7 @@ fn main() -> color_eyre::Result<()> {
                 eprintln!("Error: no summary ballot QR code detected");
                 1
             } else {
-                interpret_bubble_ballot(&options, election, top_image)?
+                interpret_bubble_ballot(&options, election, expected_ballot_hash, top_image)?
             }
         }
     };
@@ -382,10 +393,12 @@ fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
 fn interpret_bubble_ballot(
     options: &Options,
     election: Election,
+    expected_ballot_hash: PartialBallotHash,
     top_image: image::GrayImage,
 ) -> color_eyre::Result<i32> {
     let interpreter = ScanInterpreter::new(
         election,
+        expected_ballot_hash,
         if options.score_write_ins {
             WriteInScoring::Enabled
         } else {
@@ -447,7 +460,7 @@ fn interpret_bubble_ballot(
         }
 
         Err(err) => {
-            eprintln!("Error: {err:#?}");
+            eprintln!("Error: {err}");
             Ok(1)
         }
     }
