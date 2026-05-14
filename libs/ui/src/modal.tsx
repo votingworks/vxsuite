@@ -9,6 +9,7 @@ import { SizeMode } from '@votingworks/types';
 import { H2 } from './typography';
 import { ReadOnLoad } from './ui_strings/read_on_load';
 import { useAudioContext } from './ui_strings/audio_context';
+import { FocusableAudio } from './focusable_audio';
 
 /**
  * Controls the maximum width the modal can expand to.
@@ -131,7 +132,7 @@ const ModalContent = styled('div')<ModalContentInterface>`
   padding: ${(p) => (p.fullscreen ? 0 : getSpacingValueRem(p))}rem;
 `;
 
-const ReadOnOpen = styled(ReadOnLoad)`
+const AudioContent = styled.div`
   align-items: inherit;
   display: flex;
   flex-direction: column;
@@ -172,6 +173,7 @@ export interface ModalProps {
   onAfterOpen?: () => void;
   onAfterClose?: () => void;
   onOverlayClick?: () => void;
+  focusableAudioContent?: boolean;
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
   title?: ReactNode;
@@ -184,6 +186,7 @@ export function Modal({
   centerContent,
   content,
   disableAutoplayAudio,
+  focusableAudioContent,
   fullscreen = false,
   ariaHideApp = true,
   onAfterOpen,
@@ -196,12 +199,22 @@ export function Modal({
   const isInVoterAudioContext = !!useAudioContext();
   const shouldPlayAudioOnOpen = isInVoterAudioContext && !disableAutoplayAudio;
 
-  const modalContent = (
+  let modalContent = (
     <React.Fragment>
       {title && <H2 as="h1">{title}</H2>}
       {content}
     </React.Fragment>
   );
+
+  if (focusableAudioContent) {
+    modalContent = (
+      <FocusableAudio as={AudioContent} readOnLoad={shouldPlayAudioOnOpen}>
+        {modalContent}
+      </FocusableAudio>
+    );
+  } else if (shouldPlayAudioOnOpen) {
+    modalContent = <ReadOnLoad as={AudioContent}>{modalContent}</ReadOnLoad>;
+  }
 
   /* istanbul ignore next - can't get document.getElementById working in test - @preserve */
   const appElement = useMemo(
@@ -245,11 +258,7 @@ export function Modal({
       overlayClassName="_"
     >
       <ModalContent centerContent={centerContent} fullscreen={fullscreen}>
-        {shouldPlayAudioOnOpen ? (
-          <ReadOnOpen>{modalContent}</ReadOnOpen>
-        ) : (
-          modalContent
-        )}
+        {modalContent}
       </ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}
     </ReactModal>

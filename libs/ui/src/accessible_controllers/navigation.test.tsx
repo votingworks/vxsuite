@@ -6,6 +6,7 @@ import {
   advanceElementFocus,
   triggerPageNavigationButton,
 } from './navigation';
+import { FocusableAudio } from '../focusable_audio';
 
 const TestButton = styled.button.attrs({ type: 'button' })`
   /* stylelint-disable no-empty-source */
@@ -21,6 +22,8 @@ test('advanceElementFocus', () => {
       <div data-testid="focusableButtonDiv" role="button" tabIndex={0} />
       <div data-testid="nonFocusableButtonDiv" role="button" tabIndex={-1} />
       <div data-testid="hiddenButtonDiv" role="button" aria-hidden />
+      <FocusableAudio data-testid="focusableAudioBlock" />
+      <FocusableAudio data-testid="hiddenFocusableAudioBlock" aria-hidden />
       <div aria-hidden>
         <TestButton data-testid="focusableButtonInHiddenBlock" />
         <div
@@ -40,17 +43,23 @@ test('advanceElementFocus', () => {
   expect(screen.getByTestId('focusableButtonDiv')).toHaveFocus();
 
   act(() => advanceElementFocus(1));
+  expect(screen.getByTestId('focusableAudioBlock')).toHaveFocus();
+
+  act(() => advanceElementFocus(1));
   expect(screen.getByTestId('focusableButton')).toHaveFocus();
 
   // Expect to move backwards and wrap to end:
   act(() => advanceElementFocus(-1));
+  expect(screen.getByTestId('focusableAudioBlock')).toHaveFocus();
+
+  act(() => advanceElementFocus(-1));
   expect(screen.getByTestId('focusableButtonDiv')).toHaveFocus();
 
   act(() => advanceElementFocus(-1));
   expect(screen.getByTestId('focusableButton')).toHaveFocus();
 
   act(() => advanceElementFocus(-1));
-  expect(screen.getByTestId('focusableButtonDiv')).toHaveFocus();
+  expect(screen.getByTestId('focusableAudioBlock')).toHaveFocus();
 });
 
 test('advanceElementFocus - is no-op when no focusable elements present', () => {

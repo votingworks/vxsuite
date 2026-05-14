@@ -1,5 +1,8 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { within } from '@testing-library/react';
+import { assert } from '@votingworks/basics';
+import { FOCUSABLE_AUDIO_CLASS_NAME } from '@votingworks/ui';
 import { render, screen } from '../../../test/react_testing_library';
 import { WarningDetails } from './warning_details';
 import { generateContests } from './test_utils.test';
@@ -40,6 +43,28 @@ test('renders modal on button press', () => {
     { blankContests, overvoteContests, partiallyVotedContests },
     {}
   );
+});
+
+test('renders modal with focusable audio content', () => {
+  vi.mocked(WarningDetails).mockImplementation(() => (
+    <div data-testid="mockWarningDetails" />
+  ));
+
+  render(
+    <WarningDetailsModalButton
+      blankContests={[]}
+      overvoteContests={[]}
+      partiallyVotedContests={[]}
+    />
+  );
+
+  userEvent.click(screen.getButton(/view contests/i));
+
+  const focusableAudioEl = document.getElementsByClassName(
+    FOCUSABLE_AUDIO_CLASS_NAME
+  )?.[0];
+  assert(focusableAudioEl instanceof HTMLElement);
+  within(focusableAudioEl).getByTestId('mockWarningDetails');
 });
 
 test('closes modal', () => {

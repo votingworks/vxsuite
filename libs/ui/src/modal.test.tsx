@@ -10,6 +10,7 @@ import {
   UiStringsReactQueryApi,
   createUiStringsApi,
 } from './hooks/ui_strings_api';
+import { FocusableAudio, FocusableAudioProps } from './focusable_audio';
 
 vi.mock(import('./ui_strings/read_on_load.js'), async (importActual) => ({
   ...(await importActual()),
@@ -19,10 +20,24 @@ vi.mock(import('./ui_strings/read_on_load.js'), async (importActual) => ({
 const mockReadOnLoad = vi.mocked(ReadOnLoad);
 const MOCK_READ_ON_LOAD_TEST_ID = 'mockReadOnLoad';
 
+vi.mock(import('./focusable_audio.js'), async (importActual) => ({
+  ...(await importActual()),
+  FocusableAudio: vi.fn(),
+}));
+
+const mockFocusableAudio = vi.mocked(FocusableAudio<'div'>);
+const MOCK_FOCUSABLE_AUDIO_TEST_ID = 'mockFocusableAudio';
+
 beforeEach(() => {
   mockReadOnLoad.mockImplementation((props: ReadOnLoadProps) => (
     <div data-testid={MOCK_READ_ON_LOAD_TEST_ID} {...props} />
   ));
+
+  mockFocusableAudio.mockImplementation((props: FocusableAudioProps<'div'>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { as: _unused1, readOnLoad: _unused2, ...rest } = props;
+    return <div data-testid={MOCK_FOCUSABLE_AUDIO_TEST_ID} {...rest} />;
+  });
 });
 
 describe('Modal', () => {
@@ -147,6 +162,10 @@ describe('when in voter audio context', () => {
     const readOnLoadElement = screen.getByTestId(MOCK_READ_ON_LOAD_TEST_ID);
 
     expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content!$/);
+
+    expect(
+      screen.queryByTestId(MOCK_FOCUSABLE_AUDIO_TEST_ID)
+    ).not.toBeInTheDocument();
   });
 
   test("doesn't trigger screen reader when autoplay is disabled", () => {
@@ -164,8 +183,67 @@ describe('when in voter audio context', () => {
     expect(
       screen.queryByTestId(MOCK_READ_ON_LOAD_TEST_ID)
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(MOCK_FOCUSABLE_AUDIO_TEST_ID)
+    ).not.toBeInTheDocument();
     screen.getByText('TITLE');
     screen.getByText('Content!');
+  });
+});
+
+describe('when focusable audio content is enabled', () => {
+  const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
+    getAudioClips: vi.fn(),
+    getAvailableLanguages: vi.fn(),
+    getUiStringAudioIds: vi.fn(),
+    getUiStrings: vi.fn(),
+  }));
+
+  test('renders content in focusable block', () => {
+    render(
+      <UiStringsAudioContextProvider api={mockUiStringsApi}>
+        <Modal
+          focusableAudioContent
+          title={<span>TITLE</span>}
+          content={<span>Content</span>}
+          actions={<span>Do not read this</span>}
+        />
+      </UiStringsAudioContextProvider>
+    );
+
+    const readOnLoadElement = screen.getByTestId(MOCK_FOCUSABLE_AUDIO_TEST_ID);
+    expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content$/);
+
+    const props = mockFocusableAudio.mock.lastCall?.[0];
+    expect(props).toEqual<FocusableAudioProps<'div'>>(
+      expect.objectContaining({
+        readOnLoad: true,
+      })
+    );
+  });
+
+  test("doesn't trigger screen reader when autoplay is disabled", () => {
+    render(
+      <UiStringsAudioContextProvider api={mockUiStringsApi}>
+        <Modal
+          disableAutoplayAudio
+          focusableAudioContent
+          title={<span>TITLE</span>}
+          content={<span>Content</span>}
+          actions={<span>Do not read this</span>}
+        />
+      </UiStringsAudioContextProvider>
+    );
+
+    const readOnLoadElement = screen.getByTestId(MOCK_FOCUSABLE_AUDIO_TEST_ID);
+    expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content$/);
+
+    const props = mockFocusableAudio.mock.lastCall?.[0];
+    expect(props).toEqual<FocusableAudioProps<'div'>>(
+      expect.objectContaining({
+        readOnLoad: false,
+      })
+    );
   });
 });
 
