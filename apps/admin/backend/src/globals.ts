@@ -1,5 +1,8 @@
 import { unsafeParse } from '@votingworks/types';
-import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
+import {
+  DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
+  REAL_USB_DRIVE_GLOB_PATTERN,
+} from '@votingworks/usb-drive';
 import { isIntegrationTest } from '@votingworks/utils';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
@@ -38,11 +41,6 @@ export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PEER_PORT = Number(process.env['PEER_PORT'] || PORT + 1);
-
-/**
- * A glob pattern for USB drives (real and not dev mock)
- */
-export const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
 
 /**  How often to poll the network for changes (in milliseconds) */
 export const NETWORK_POLLING_INTERVAL_MS = 2 * 1000;

@@ -292,6 +292,15 @@ export function detectMultiUsbDrive(
       });
   }
 
+  function findPartitionMountpoint(
+    diskDevPath: string,
+    partitionDevPath: string
+  ): Optional<string> {
+    return cachedDrives
+      .find((d) => d.devPath === diskDevPath)
+      ?.partitions.find((p) => p.devPath === partitionDevPath)?.mountpoint;
+  }
+
   async function doMountPartitionWithRetry(
     diskDevPath: string,
     partitionDevPath: string
@@ -299,31 +308,29 @@ export function detectMultiUsbDrive(
     try {
       await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
       await mountPartition(partitionDevPath);
-      // Poll for mount point to register
-      const start = Date.now();
-      while (!stopped && Date.now() - start < MOUNT_TIMEOUT_MS) {
+
+      let mountPoint: Optional<string>;
+      const deadline = Date.now() + MOUNT_TIMEOUT_MS;
+      while (!stopped && Date.now() < deadline) {
         await doRefresh();
-        const updated = cachedDrives
-          .find((d) => d.devPath === diskDevPath)
-          ?.partitions.find((p) => p.devPath === partitionDevPath);
-        if (updated?.mountpoint) break;
+        mountPoint = findPartitionMountpoint(diskDevPath, partitionDevPath);
+        if (mountPoint) break;
         await sleep(MOUNT_RETRY_INTERVAL_MS);
       }
-      const foundMountPoint = cachedDrives
-        .find((d) => d.devPath === diskDevPath)
-        ?.partitions.find((p) => p.devPath === partitionDevPath)?.mountpoint;
-      if (foundMountPoint) {
-        await logger.logAsCurrentRole(LogEventId.UsbDriveMounted, {
-          disposition: 'success',
-          message: `USB drive partition ${partitionDevPath} successfully auto-mounted at ${foundMountPoint}.`,
-        });
-      } else {
-        await logger.logAsCurrentRole(LogEventId.UsbDriveMounted, {
-          disposition: 'failure',
-          message: `Timed out waiting for USB drive partition ${partitionDevPath} to mount.`,
-          result: 'USB drive partition not mounted.',
-        });
-      }
+
+      await logger.logAsCurrentRole(
+        LogEventId.UsbDriveMounted,
+        mountPoint
+          ? {
+              disposition: 'success',
+              message: `USB drive partition ${partitionDevPath} successfully auto-mounted at ${mountPoint}.`,
+            }
+          : {
+              disposition: 'failure',
+              message: `Timed out waiting for USB drive partition ${partitionDevPath} to mount.`,
+              result: 'USB drive partition not mounted.',
+            }
+      );
     } catch (error) {
       debug(`auto-mount failed for ${partitionDevPath}: ${error}`);
       await logger.logAsCurrentRole(LogEventId.UsbDriveMounted, {

@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
-
-const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
+import {
+  DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
+  REAL_USB_DRIVE_GLOB_PATTERN,
+} from '@votingworks/usb-drive';
 
 beforeEach(() => {
   vi.unstubAllEnvs();

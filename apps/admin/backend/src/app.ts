@@ -65,6 +65,7 @@ import {
   ListDirectoryOnUsbDriveError,
   listDirectoryOnUsbDrive,
   MultiUsbDrive,
+  REAL_USB_DRIVE_GLOB_PATTERN,
   UsbDriveStatus,
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
@@ -123,7 +124,7 @@ import {
   generateAdminLiveResultsReportingUrls,
   getMatchingAbsenteePollingPlaces,
 } from './live_results_reporting';
-import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
+import { NODE_ENV } from './globals';
 import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
