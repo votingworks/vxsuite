@@ -1401,11 +1401,10 @@ test.each<{
       ...DEFAULT_SYSTEM_SETTINGS,
       ...testConfig.systemSettings,
     },
+    isPatDeviceConnected: true,
   });
   apiMock.expectGetPollsInfo('polls_open');
-  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
-    isAccessibilityInputConnected: true,
-  });
+  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus);
   apiMock.expectGetScannerStatus(testConfig.scannerStatus);
   apiMock.setPrinterStatus();
 
@@ -1416,8 +1415,12 @@ test.each<{
   renderApp();
 
   if (testConfig.doesAccessibilityInputDisconnect) {
-    apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
-      isAccessibilityInputConnected: undefined,
+    apiMock.expectGetConfig({
+      pollingPlaceId: electionGeneralPollingPlace.id,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        ...testConfig.systemSettings,
+      },
     });
   }
 
@@ -1451,10 +1454,18 @@ test.each<{
   await screen.findByText('Close Polls');
   vi.advanceTimersByTime(5000);
 
-  // Address alarm trigger
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    isAccessibilityInputConnected: true,
-  });
+  // Address alarm trigger - reconnect accessibility input if it disconnected
+  if (testConfig.doesAccessibilityInputDisconnect) {
+    apiMock.expectGetConfig({
+      pollingPlaceId: electionGeneralPollingPlace.id,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        ...testConfig.systemSettings,
+      },
+      isPatDeviceConnected: true,
+    });
+  }
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.removeCard();
 
@@ -1465,9 +1476,7 @@ test.each<{
 test('accessibility input alarm does not trigger if accessibility input was not connected to begin with', async () => {
   apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_open');
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    isAccessibilityInputConnected: undefined,
-  });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
   renderApp();
@@ -1488,7 +1497,7 @@ test('PAT device tutorial is shown when PAT key is pressed and can be completed'
     isPatCalibrationComplete: false,
   });
 
-  apiMock.expectGetConfig(defaultConfig);
+  apiMock.expectGetConfig({ ...defaultConfig, isPatDeviceConnected: true });
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);

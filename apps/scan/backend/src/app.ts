@@ -42,6 +42,7 @@ import {
   PrinterStatus,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
+import { Xk3Client } from '@votingworks/backend';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -88,6 +89,7 @@ export function buildApi({
   usbDrive,
   printer,
   logger,
+  xk3Client,
 }: {
   audioPlayer: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
@@ -96,6 +98,7 @@ export function buildApi({
   usbDrive: UsbDrive;
   printer: FujitsuThermalPrinterInterface;
   logger: Logger;
+  xk3Client: Xk3Client;
 }) {
   const { store } = workspace;
 
@@ -136,10 +139,7 @@ export function buildApi({
     },
 
     async getUsbDriveStatus(): Promise<
-      UsbDriveStatus & {
-        doesUsbDriveRequireCastVoteRecordSync?: true;
-        isAccessibilityInputConnected?: true;
-      }
+      UsbDriveStatus & { doesUsbDriveRequireCastVoteRecordSync?: true }
     > {
       const usbDriveStatus = await usbDrive.status();
       return {
@@ -149,8 +149,6 @@ export function buildApi({
             store,
             usbDriveStatus
           )) || undefined,
-        // TODO: Implement logic to populate this value
-        isAccessibilityInputConnected: undefined,
       };
     },
 
@@ -248,6 +246,8 @@ export function buildApi({
         ballotCastingMode: store.getBallotCastingMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
+        isPatDeviceConnected:
+          xk3Client.getStatus().isPatDeviceConnected || undefined,
       };
     },
 
@@ -722,6 +722,7 @@ export function buildApp({
   usbDrive,
   printer,
   logger,
+  xk3Client,
 }: {
   audioPlayer: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
@@ -730,6 +731,7 @@ export function buildApp({
   printer: FujitsuThermalPrinterInterface;
   usbDrive: UsbDrive;
   logger: Logger;
+  xk3Client: Xk3Client;
 }): Application {
   const app: Application = express();
   const api = buildApi({
@@ -740,6 +742,7 @@ export function buildApp({
     usbDrive,
     printer,
     logger,
+    xk3Client,
   });
   app.use('/api', grout.buildRouter(api, express));
   return app;

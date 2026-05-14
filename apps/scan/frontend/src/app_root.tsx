@@ -108,16 +108,12 @@ export function AppRoot(): JSX.Element | null {
   // want to block operations on it.
   const [accessibilityInputDisconnected, setAccessibilityInputDisconnected] =
     useState(false);
-  useQueryChangeListener(usbDriveStatusQuery, {
-    select: ({ isAccessibilityInputConnected }) =>
-      isAccessibilityInputConnected,
-    onChange: (
-      isAccessibilityInputConnected,
-      wasAccessibilityInputConnected
-    ) => {
-      if (wasAccessibilityInputConnected && !isAccessibilityInputConnected) {
+  useQueryChangeListener(configQuery, {
+    select: ({ isPatDeviceConnected }) => isPatDeviceConnected,
+    onChange: (isConnected, wasConnected) => {
+      if (wasConnected && !isConnected) {
         setAccessibilityInputDisconnected(true);
-      } else if (isAccessibilityInputConnected) {
+      } else if (isConnected) {
         setAccessibilityInputDisconnected(false);
       }
     },
@@ -129,8 +125,8 @@ export function AppRoot(): JSX.Element | null {
     sessionSettingsManager.setIsPatCalibrationComplete(true);
   }, [sessionSettingsManager]);
 
-  // Intercept PAT key presses to show tutorial if not yet calibrated.
-  // Uses capture phase so it runs before the main keyboard handler.
+  const isPatDeviceConnected = configQuery.data?.isPatDeviceConnected;
+
   useEffect(() => {
     function patTutorialHandler(event: KeyboardEvent) {
       if (event.repeat) return;
@@ -140,15 +136,26 @@ export function AppRoot(): JSX.Element | null {
         event.key === Keybinding.PAT_SELECT;
       if (!isPatKey) return;
 
-      // Show calibration if not yet calibrated and not already showing
+      // Let keypresses through once calibration is showing or complete
       if (
-        !sessionSettingsManager.isPatCalibrationComplete &&
-        !sessionSettingsManager.showingPatCalibration
+        sessionSettingsManager.showingPatCalibration ||
+        sessionSettingsManager.isPatCalibrationComplete
       ) {
-        sessionSettingsManager.setShowingPatCalibration(true);
-        // Prevent the main keyboard handler from also processing this key
-        event.stopImmediatePropagation();
+        return;
       }
+
+      // All PAT input is blocked until a PAT device is detected in the XK-3
+      // jack. Headphones plugged into the XK-3 jack generate errant keypresses.
+      // To avoid unexpected focus movement and selection on screen we ignore
+      // PAT signals until we're sure a PAT device is present and stable.
+      if (!isPatDeviceConnected) {
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      // PAT device is present and calibration not yet started: trigger calibration
+      sessionSettingsManager.setShowingPatCalibration(true);
+      event.stopImmediatePropagation();
     }
 
     document.addEventListener('keydown', patTutorialHandler, { capture: true });
@@ -157,7 +164,7 @@ export function AppRoot(): JSX.Element | null {
         capture: true,
       });
     };
-  }, [sessionSettingsManager]);
+  }, [sessionSettingsManager, isPatDeviceConnected]);
 
   if (
     !(

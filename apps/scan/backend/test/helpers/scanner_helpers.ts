@@ -40,6 +40,7 @@ import * as tmp from 'tmp';
 import { Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
+import { Xk3Client } from '@votingworks/backend';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
 import { createPrecinctScannerStateMachine, delays } from '../../src/scanner';
@@ -168,6 +169,11 @@ export async function withApp(
     new AudioPlayer('development', logger, mockAudioCard)
   );
 
+  const xk3Client = new Xk3Client({
+    devices: vi.fn().mockReturnValue([]),
+    openDevice: vi.fn(),
+  });
+
   const app = buildApp({
     audioPlayer: mockAudioPlayer,
     auth: mockAuth,
@@ -176,6 +182,7 @@ export async function withApp(
     usbDrive: mockUsbDrive.usbDrive,
     printer,
     logger,
+    xk3Client,
   });
 
   const server = app.listen();

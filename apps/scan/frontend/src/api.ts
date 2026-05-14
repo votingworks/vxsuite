@@ -26,6 +26,7 @@ import {
 import { DiagnosticRecord } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+const PAT_DEVICE_STATUS_POLLING_INTERVAL_MS = 500;
 
 export type ApiClient = grout.Client<Api>;
 
@@ -119,7 +120,9 @@ export const getConfig = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getConfig());
+    return useQuery(this.queryKey(), () => apiClient.getConfig(), {
+      refetchInterval: PAT_DEVICE_STATUS_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 

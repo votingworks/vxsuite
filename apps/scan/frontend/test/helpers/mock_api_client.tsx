@@ -152,14 +152,12 @@ export function createApiMock() {
       status: UsbDriveStatus['status'],
       options: {
         doesUsbDriveRequireCastVoteRecordSync?: true;
-        isAccessibilityInputConnected?: true;
       } = {}
     ): void {
       mockApiClient.getUsbDriveStatus.expectRepeatedCallsWith().resolves({
         ...mockUsbDriveStatus(status),
         doesUsbDriveRequireCastVoteRecordSync:
           options.doesUsbDriveRequireCastVoteRecordSync,
-        isAccessibilityInputConnected: options.isAccessibilityInputConnected,
       });
     },
 
@@ -168,7 +166,7 @@ export function createApiMock() {
     },
 
     expectGetConfig(config: Partial<PrecinctScannerConfig> = {}): void {
-      mockApiClient.getConfig.expectCallWith().resolves({
+      mockApiClient.getConfig.expectRepeatedCallsWith().resolves({
         ...defaultConfig,
         ...config,
       });

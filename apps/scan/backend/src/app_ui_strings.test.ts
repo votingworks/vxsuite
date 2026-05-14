@@ -24,6 +24,7 @@ import {
 } from '@votingworks/types';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createMockFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
+import { Xk3Client } from '@votingworks/backend';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -66,6 +67,10 @@ beforeEach(() => {
 const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
+const xk3Client = new Xk3Client({
+  devices: vi.fn().mockReturnValue([]),
+  openDevice: vi.fn(),
+});
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
@@ -84,6 +89,7 @@ runUiStringApiTests({
       usbDrive: mockUsbDrive.usbDrive,
       printer,
       logger: buildMockLogger(mockAuth, workspace),
+      xk3Client,
     }).methods(),
   store: store.getUiStringsStore(),
   beforeEach,
@@ -123,6 +129,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
         usbDrive: mockUsbDrive.usbDrive,
         printer,
         logger: buildMockLogger(mockAuth, workspace),
+        xk3Client,
       })
         .methods()
         .configureFromElectionPackageOnUsbDrive(),
@@ -143,6 +150,7 @@ describe('unconfigureElection', () => {
         usbDrive: mockUsbDrive.usbDrive,
         printer,
         logger: buildMockLogger(mockAuth, workspace),
+        xk3Client,
       })
         .methods()
         .unconfigureElection(),

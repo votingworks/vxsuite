@@ -44,6 +44,7 @@ export interface PrecinctScannerConfig {
   isTestMode: boolean;
   isContinuousExportEnabled: boolean;
   ballotCastingMode: BallotCastingMode;
+  isPatDeviceConnected?: true;
 }
 
 /**

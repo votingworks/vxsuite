@@ -16,6 +16,7 @@ import {
   FujitsuThermalPrinterInterface,
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
+import { Xk3Client } from '@votingworks/backend';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
@@ -77,6 +78,9 @@ export async function start({
   );
   await audioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
 
+  const xk3Client = new Xk3Client();
+  xk3Client.start();
+
   const app = buildApp({
     audioPlayer,
     auth,
@@ -85,6 +89,7 @@ export async function start({
     usbDrive: resolvedUsbDrive,
     printer: resolvedPrinter,
     logger,
+    xk3Client,
   });
 
   useDevDockRouter(app, express, {

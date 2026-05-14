@@ -79,6 +79,7 @@ test('start passes context to `buildApp`', async () => {
     usbDrive: expect.anything(),
     printer: expect.anything(),
     logger,
+    xk3Client: expect.anything(),
   });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
