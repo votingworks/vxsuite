@@ -142,7 +142,7 @@ export async function interpret(
   // Check if this is a multi-page BMD ballot
   if (isBmdMultiPageBallot(foundQrCode.data)) {
     const decoded = decodeBmdMultiPageBallot(
-      electionDefinition.election,
+      electionDefinition,
       foundQrCode.data
     );
     return ok({
@@ -157,7 +157,7 @@ export async function interpret(
   // Single-page BMD ballot
   return ok({
     type: 'single-page',
-    ballot: decodeBallot(electionDefinition.election, foundQrCode.data),
+    ballot: decodeBallot(electionDefinition, foundQrCode.data),
     summaryBallotImage,
     blankPageImage,
   });

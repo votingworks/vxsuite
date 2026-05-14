@@ -11,6 +11,7 @@ import {
   ContestId,
   Contests,
   Election,
+  ElectionDefinition,
   getBallotStyle,
   getContests,
   getPrecinctById,
@@ -456,7 +457,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
  * Decodes a completed ballot, including metadata and votes, from a bit reader.
  */
 export function decodeBallotFromReader(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   bits: BitReader
 ): CompletedBallot {
   if (!bits.skipUint8(...BmdPrelude)) {
@@ -470,6 +471,12 @@ export function decodeBallotFromReader(
     length: BALLOT_HASH_ENCODING_LENGTH,
   });
 
+  assert(
+    ballotHash === sliceBallotHashForEncoding(electionDefinition.ballotHash),
+    `unexpected ballot hash '${ballotHash}' (expected '${electionDefinition.ballotHash}')`
+  );
+
+  const { election } = electionDefinition;
   const { ballotStyleId, ballotType, isTestMode, precinctId } =
     decodeBallotConfigFromReader(election, bits);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -497,10 +504,10 @@ export function decodeBallotFromReader(
  * Decodes a completed ballot, including metadata and votes, from a byte array.
  */
 export function decodeBallot(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   data: Uint8Array
 ): CompletedBallot {
-  return decodeBallotFromReader(election, new BitReader(data));
+  return decodeBallotFromReader(electionDefinition, new BitReader(data));
 }
 
 /**
@@ -770,7 +777,7 @@ export interface DecodedBmdMultiPageBallotPage {
  * Decodes a single page of a multi-page BMD ballot from a bit reader.
  */
 export function decodeBmdMultiPageBallotFromReader(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   bits: BitReader
 ): DecodedBmdMultiPageBallotPage {
   assert(
@@ -783,6 +790,12 @@ export function decodeBmdMultiPageBallotFromReader(
     length: BALLOT_HASH_ENCODING_LENGTH,
   });
 
+  assert(
+    ballotHash === sliceBallotHashForEncoding(electionDefinition.ballotHash),
+    `unexpected ballot hash '${ballotHash}' (expected '${electionDefinition.ballotHash}')`
+  );
+
+  const { election } = electionDefinition;
   const config = decodeBmdMultiPageBallotConfigFromReader(election, bits);
   const { ballotStyleId } = config;
 
@@ -820,8 +833,11 @@ export function decodeBmdMultiPageBallotFromReader(
  * Decodes a single page of a multi-page BMD ballot from a byte array.
  */
 export function decodeBmdMultiPageBallot(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   data: Uint8Array
 ): DecodedBmdMultiPageBallotPage {
-  return decodeBmdMultiPageBallotFromReader(election, new BitReader(data));
+  return decodeBmdMultiPageBallotFromReader(
+    electionDefinition,
+    new BitReader(data)
+  );
 }

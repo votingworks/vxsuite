@@ -35,6 +35,11 @@ export type BridgeInterpretResult =
  * All fields used by the Rust interpreter must be present here.
  */
 export interface JsInterpretOptions {
+  /**
+   * Expected ballot hash as a hex string. The Rust interpreter slices it to
+   * the partial-hash length and rejects ballots whose QR-decoded hash differs.
+   */
+  expectedBallotHash: string;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
   debugBasePathSideA?: string;

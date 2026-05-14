@@ -64,6 +64,7 @@ serde = { version = "1.0.150", features = ["derive"] }
 serde_bytes = "0.11.14"
 serde_json = "1.0.89"
 serde_with = { version = "3.14.0", features = ["macros"] }
+sha2 = "0.10"
 serialport = "4.2.2"
 static_assertions = "1.1.0"
 tempfile = "3.3.0"
