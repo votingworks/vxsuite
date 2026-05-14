@@ -85,7 +85,7 @@ vi.mock(
 let mockCardReader: MockCardReader;
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   vi.mocked(CardReader).mockImplementation((...params) => {
     mockCardReader = new MockCardReader(...params);
     return mockCardReader as unknown as CardReader;
@@ -836,21 +836,22 @@ test.each<{
     expectedResponse,
   }) => {
     const javaCard = new TestJavaCard(config);
-    javaCard.setCardStatus({
-      status: 'ready',
-      cardDetails: {
-        user: electionManagerUser,
+    javaCard.setCardStatus(
+      {
+        status: 'ready',
+        cardDetails: {
+          user: electionManagerUser,
+        },
       },
-    });
+      fs.readFileSync(
+        getTestFilePath({
+          fileType: 'card-identity-cert.der',
+          cardType: 'system-administrator',
+        })
+      )
+    );
 
     mockCardAppletSelectionRequest();
-    mockCardCertRetrievalRequest(
-      CARD_IDENTITY_CERT.OBJECT_ID,
-      getTestFilePath({
-        fileType: 'card-identity-cert.der',
-        cardType: 'system-administrator',
-      })
-    );
     mockCardPinVerificationRequest('123456', cardPinVerificationRequestError);
     if (!cardPinVerificationRequestError) {
       await mockCardSignatureRequest(
@@ -1464,9 +1465,6 @@ test('Programming vendor card with remote key', async () => {
     fileType: 'card-identity-cert.der',
     cardType: 'vendor',
   });
-  vi.mocked(createCert).mockImplementationOnce(() =>
-    certDerToPem(fs.readFileSync(cardIdentityCertPath))
-  );
   mockCardCertStorageRequest(
     CARD_IDENTITY_CERT.OBJECT_ID,
     cardIdentityCertPath
@@ -1508,5 +1506,193 @@ Place that file in ${workingDirectory} and press enter. `
   expect(mockQuestion).toHaveBeenNthCalledWith(
     2,
     `No ${certPath} file found. Make sure that it exists and press enter to try again. `
+  );
+});
+
+test('TOCTOU regression test: Card validation stashes the identity cert for use by checkPin', async () => {
+  const javaCard = new JavaCard(config);
+
+  mockCardAppletSelectionRequest();
+  mockCardCertRetrievalRequest(
+    CARD_VX_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'card-vx-cert.der',
+      cardType: 'system-administrator',
+    })
+  );
+  mockCardCertRetrievalRequest(
+    CARD_IDENTITY_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'card-identity-cert.der',
+      cardType: 'system-administrator',
+    })
+  );
+  mockCardCertRetrievalRequest(
+    PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.der',
+    })
+  );
+  await mockCardSignatureRequest(
+    CARD_VX_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-vx-private-key.pem',
+      cardType: 'system-administrator',
+    })
+  );
+  mockCardGetNumRemainingPinAttemptsRequest(MAX_NUM_INCORRECT_PIN_ATTEMPTS);
+
+  mockCardReader.setReaderStatus('ready');
+  await waitForExpect(async () => {
+    expect(await javaCard.getCardStatus()).toEqual({
+      status: 'ready',
+      cardDetails: { user: systemAdministratorUser },
+    });
+  });
+  mockCardReader.transmit.assertComplete();
+
+  // No card identity cert retrieval is mocked. If checkPin re-fetched the cert from the card
+  // instead of using the stashed one, the mock would fail with an unexpected-call error.
+  mockCardAppletSelectionRequest();
+  mockCardPinVerificationRequest('123456');
+  await mockCardSignatureRequest(
+    CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-identity-private-key.pem',
+      cardType: 'system-administrator',
+    })
+  );
+  expect(await javaCard.checkPin('123456')).toEqual({ response: 'correct' });
+});
+
+test.each<{
+  status: 'no_card_reader' | 'no_card' | 'card_error' | 'unknown_error';
+}>([
+  { status: 'no_card_reader' },
+  { status: 'no_card' },
+  { status: 'card_error' },
+  { status: 'unknown_error' },
+])(
+  'TOCTOU regression test: Stashed card identity cert is cleared on $status transition',
+  async ({ status }) => {
+    const javaCard = new TestJavaCard(config);
+    javaCard.setCardStatus(
+      {
+        status: 'ready',
+        cardDetails: { user: systemAdministratorUser },
+      },
+      fs.readFileSync(
+        getTestFilePath({
+          fileType: 'card-identity-cert.der',
+          cardType: 'system-administrator',
+        })
+      )
+    );
+
+    mockCardReader.setReaderStatus(status);
+    mockCardReader.transmit.assertComplete();
+
+    mockCardAppletSelectionRequest();
+    await expect(javaCard.checkPin('123456')).rejects.toThrow(
+      'Card identity cert must be validated first'
+    );
+  }
+);
+
+test('TOCTOU regression test: Programming stashes the new identity cert for use by checkPin', async () => {
+  const javaCard = new JavaCard(configWithVxAdminCardProgrammingConfig);
+
+  mockCardAppletSelectionRequest();
+  mockCardCertRetrievalRequest(
+    CARD_VX_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'card-vx-cert.der',
+      cardType: 'system-administrator',
+    })
+  );
+  await mockCardSignatureRequest(
+    CARD_VX_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-vx-private-key.pem',
+      cardType: 'system-administrator',
+    })
+  );
+  mockCardPinResetRequest('123456');
+  mockCardPinVerificationRequest('123456');
+  mockCardKeyPairGenerationRequest(
+    CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-identity-public-key.der',
+      cardType: 'system-administrator',
+    })
+  );
+  const cardIdentityCertPath = getTestFilePath({
+    fileType: 'card-identity-cert.der',
+    cardType: 'system-administrator',
+  });
+  vi.mocked(createCert).mockImplementationOnce(() =>
+    certDerToPem(fs.readFileSync(cardIdentityCertPath))
+  );
+  mockCardCertStorageRequest(
+    CARD_IDENTITY_CERT.OBJECT_ID,
+    cardIdentityCertPath
+  );
+  mockCardCertStorageRequest(
+    PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.der',
+    })
+  );
+
+  await javaCard.program({ user: systemAdministratorUser, pin: '123456' });
+  mockCardReader.transmit.assertComplete();
+
+  // No card identity cert retrieval is mocked. If checkPin re-fetched the cert from the card
+  // instead of using the stashed one, the mock would fail with an unexpected-call error.
+  mockCardAppletSelectionRequest();
+  mockCardPinVerificationRequest('123456');
+  await mockCardSignatureRequest(
+    CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-identity-private-key.pem',
+      cardType: 'system-administrator',
+    })
+  );
+  expect(await javaCard.checkPin('123456')).toEqual({ response: 'correct' });
+});
+
+test('TOCTOU regression test: Unprogramming clears the stashed identity cert', async () => {
+  const javaCard = new TestJavaCard(configWithVxAdminCardProgrammingConfig);
+  javaCard.setCardStatus(
+    {
+      status: 'ready',
+      cardDetails: { user: systemAdministratorUser },
+    },
+    fs.readFileSync(
+      getTestFilePath({
+        fileType: 'card-identity-cert.der',
+        cardType: 'system-administrator',
+      })
+    )
+  );
+
+  mockCardAppletSelectionRequest();
+  mockCardPinResetRequest(DEFAULT_PIN);
+  mockCardPutDataRequest(CARD_IDENTITY_CERT.OBJECT_ID, Buffer.of());
+  mockCardPutDataRequest(
+    PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
+    Buffer.of()
+  );
+  mockCardAppletSelectionRequest();
+  for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
+    mockCardPutDataRequest(objectId, Buffer.of());
+  }
+
+  await javaCard.unprogram();
+  mockCardReader.transmit.assertComplete();
+
+  mockCardAppletSelectionRequest();
+  await expect(javaCard.checkPin('123456')).rejects.toThrow(
+    'Card identity cert must be validated first'
   );
 });
