@@ -94,9 +94,8 @@ test('XK-3 not connected returns isPatDeviceConnected false', () => {
     openDevice: vi.fn(),
   };
   const xk3 = new Xk3Client(hidModule);
-  xk3.start();
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('devices() is called with correct VID and PID', () => {
@@ -104,8 +103,7 @@ test('devices() is called with correct VID and PID', () => {
     devices: vi.fn().mockReturnValue([]),
     openDevice: vi.fn(),
   };
-  const xk3 = new Xk3Client(hidModule);
-  xk3.start();
+  const _ = new Xk3Client(hidModule);
 
   expect(hidModule.devices).toHaveBeenCalledWith(XK3_VID, XK3_PID);
 });
@@ -118,18 +116,16 @@ test('device with wrong usagePage is not opened', () => {
     openDevice: vi.fn(),
   };
   const xk3 = new Xk3Client(hidModule);
-  xk3.start();
 
   expect(hidModule.openDevice).not.toHaveBeenCalled();
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('XK-3 connected but nothing in jack (jack=0) returns false', () => {
   const device = makeDevice([JACK_ABSENT]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
-  xk3.start();
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('headphones (jack=1, SW permanently active) never confirm as PAT device', () => {
@@ -139,47 +135,40 @@ test('headphones (jack=1, SW permanently active) never confirm as PAT device', (
     JACK_PRESENT_BOTH_ACTIVE,
   ]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
-  xk3.start();
 
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS + 1000);
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('SW2 active alone also prevents confirmation', () => {
   const device = makeDevice([JACK_PRESENT_SW2_ACTIVE]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start();
-
   vi.setSystemTime(CONNECTION_STATUS_DEBOUNCE_MS + 1);
   vi.advanceTimersByTime(250);
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('PAT device: does not confirm before debounce window', () => {
   const device = makeDevice([JACK_PRESENT_SW_IDLE]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start(); // stableStartTime = 0
-
   // Advance to 1999ms — the next interval at 2000ms has not fired yet
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS - 1);
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('PAT device: confirms after debounce window via timeout poll', () => {
   const device = makeDevice([JACK_PRESENT_SW_IDLE]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start(); // stableStartTime = 0
-
   // The interval at exactly 2000ms fires a timeout poll; debounce elapses → confirms
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS);
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: true });
+  expect(xk3.isPatDeviceConnected()).toEqual(true);
 });
 
 test('PAT device: confirms after debounce window via idle report', () => {
@@ -187,48 +176,40 @@ test('PAT device: confirms after debounce window via idle report', () => {
   const device = makeDevice([JACK_PRESENT_SW_IDLE, JACK_PRESENT_SW_IDLE]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start(); // poll 0: stableStartTime = 0
-
   vi.setSystemTime(CONNECTION_STATUS_DEBOUNCE_MS + 1);
   vi.advanceTimersByTime(250); // poll 1: idle report → debounce elapsed → confirms
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: true });
+  expect(xk3.isPatDeviceConnected()).toEqual(true);
 });
 
 test('confirmed PAT device: active switch press does not clear confirmed state', () => {
   const { device, setNextReport } = makeMutableDevice(JACK_PRESENT_SW_IDLE);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start(); // poll 0: JACK_PRESENT_SW_IDLE → stableStartTime = 0
-
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS); // confirms at 2000ms
 
   setNextReport(JACK_PRESENT_SW1_ACTIVE);
   vi.advanceTimersByTime(250); // active switch press — isConfirmed latch holds
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: true });
+  expect(xk3.isPatDeviceConnected()).toEqual(true);
 });
 
 test('confirmed PAT device: jack removed resets state', () => {
   const { device, setNextReport } = makeMutableDevice(JACK_PRESENT_SW_IDLE);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start(); // stableStartTime = 0
-
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS); // confirms
 
   setNextReport(JACK_ABSENT);
   vi.advanceTimersByTime(250); // jack removed → resets
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('XK-3 USB device disconnects mid-session resets state', () => {
   const device = makeDevice([JACK_PRESENT_SW_IDLE]);
   const hidModule = makeConnectedHidModule(device);
   const xk3 = new Xk3Client(hidModule);
-
-  xk3.start();
 
   vi.setSystemTime(CONNECTION_STATUS_DEBOUNCE_MS + 1);
   vi.advanceTimersByTime(250); // confirms via timeout
@@ -237,15 +218,14 @@ test('XK-3 USB device disconnects mid-session resets state', () => {
   (hidModule.devices as ReturnType<typeof vi.fn>).mockReturnValue([]);
   vi.advanceTimersByTime(250);
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('readTimeout error resets state', () => {
   const device = makeDevice([new Error('device disconnected')]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
-  xk3.start();
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('openDevice error resets state without crash', () => {
@@ -260,24 +240,21 @@ test('openDevice error resets state without crash', () => {
     }),
   };
   const xk3 = new Xk3Client(hidModule);
-  xk3.start();
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('short report (fewer than 3 bytes) is ignored', () => {
   const device = makeDevice([[0x00, 0x00]]); // only 2 bytes
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
-  xk3.start();
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });
 
 test('sends Generate Data command after opening device', () => {
   const device = makeDevice([]);
   const hidModule = makeConnectedHidModule(device);
-  const xk3 = new Xk3Client(hidModule);
-  xk3.start();
+  const _ = new Xk3Client(hidModule);
 
   expect(device.write).toHaveBeenCalledWith([
     0x00,
@@ -294,13 +271,11 @@ test('stable window resets when switches become active before confirmation', () 
   ]);
   const xk3 = new Xk3Client(makeConnectedHidModule(device));
 
-  xk3.start(); // poll 0: stableStartTime = 0
-
   vi.advanceTimersByTime(250); // poll 1: SW active → stableStartTime = null
   vi.advanceTimersByTime(250); // poll 2: idle → stableStartTime = Date.now() = 500
 
   // Advance to 500 + 1999ms — still before debounce from the reset window
   vi.advanceTimersByTime(CONNECTION_STATUS_DEBOUNCE_MS - 1);
 
-  expect(xk3.getStatus()).toEqual({ isPatDeviceConnected: false });
+  expect(xk3.isPatDeviceConnected()).toEqual(false);
 });

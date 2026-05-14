@@ -246,8 +246,7 @@ export function buildApi({
         ballotCastingMode: store.getBallotCastingMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
-        isPatDeviceConnected:
-          xk3Client.getStatus().isPatDeviceConnected || undefined,
+        isPatDeviceConnected: xk3Client.isPatDeviceConnected() || undefined,
       };
     },
 

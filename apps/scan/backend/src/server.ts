@@ -79,7 +79,6 @@ export async function start({
   await audioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
 
   const xk3Client = new Xk3Client();
-  xk3Client.start();
 
   const app = buildApp({
     audioPlayer,
