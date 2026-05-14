@@ -63,6 +63,7 @@ export function tabulateScannedCardCounts({
   debug('querying scanned card tallies');
   const cardTallies = store.getCardTallies({
     electionId,
+    election,
     filter,
     groupBy,
   });

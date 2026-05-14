@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
@@ -25,6 +28,7 @@ import { Api } from './app';
 import { BallotCountReportSpec } from './reports/ballot_count_report';
 import { mockFileName } from '../test/csv';
 import { generateReportPath } from './util/filenames';
+import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -222,6 +226,46 @@ test('ballot count report PDF', async () => {
       includeSheetCounts: false,
     },
     identifier: 'ballot-count-report-manual',
+  });
+});
+
+test('open primary ballot count report PDF', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+
+  const { apiClient, auth, mockPrinterHandler, mockUsbDrive, workspace } =
+    buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
+
+  // 10 CVRs in precinct-1 after adjudication:
+  //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
+  await seedOpenPrimaryCvrsAndAdjudications({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  // Matches the canned Precinct Ballot Count Report screen's groupBy on a
+  // primary election; for an open primary, the report should split each
+  // precinct into per-party rows plus a single "No Party" row.
+  await expectIdenticalSnapshotsAcrossExportMethods({
+    apiClient,
+    mockPrinterHandler,
+    mockUsbDrive,
+    reportSpec: {
+      filter: {},
+      groupBy: { groupByPrecinct: true, groupByParty: true },
+      includeSheetCounts: false,
+    },
+    customSnapshotIdentifier: 'ballot-count-report-open-primary',
   });
 });
 
