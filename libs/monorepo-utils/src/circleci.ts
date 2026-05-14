@@ -102,10 +102,83 @@ function generateTestJobForNodeJsPackage(
     if (hasPlaywrightTests) {
       lines.push(`${indent}- store_artifacts:`);
       lines.push(`${indent}    path: ${pkg.relativePath}/test-results/`);
+      // On `main` only, upload screenshots to S3 so the singleton
+      // publish-screenshot-gallery job can build a browseable gallery.
+      // AWS credentials and bucket name come from the
+      // `screenshots-publishing` CircleCI context.
+      const appName = pkg.relativePath
+        .replace(/^apps\//, '')
+        .replace(/\/integration-testing$/, '');
+      lines.push(`${indent}- when:`);
+      lines.push(`${indent}    condition:`);
+      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >> ]`);
+      lines.push(`${indent}    steps:`);
+      lines.push(`${indent}      - aws-cli/setup`);
+      lines.push(`${indent}      - run:`);
+      lines.push(`${indent}          name: Upload screenshots to S3`);
+      lines.push(`${indent}          command: |`);
+      lines.push(
+        `${indent}            if [ -d "${pkg.relativePath}/test-results/screenshots" ]; then`
+      );
+      lines.push(
+        `${indent}              aws s3 sync ${pkg.relativePath}/test-results/screenshots/ \\`
+      );
+      lines.push(
+        `${indent}                "s3://$SCREENSHOT_BUCKET/screenshots/${appName}/" \\`
+      );
+      lines.push(
+        `${indent}                --exclude "*" --include "*.png" --delete`
+      );
+      lines.push(`${indent}            fi`);
     }
   }
 
   return lines;
+}
+
+const PUBLISH_SCREENSHOT_GALLERY_JOB_ID = 'publish-screenshot-gallery';
+const INTEGRATION_TESTING_APPS = [
+  'admin',
+  'central-scan',
+  'mark',
+  'mark-scan',
+] as const;
+const THUMBSUP_VERSION = '2.18.0';
+
+function generatePublishScreenshotGalleryJob(): string[] {
+  return [
+    `${PUBLISH_SCREENSHOT_GALLERY_JOB_ID}:`,
+    `  executor: nodejs`,
+    `  resource_class: small`,
+    `  steps:`,
+    `    - aws-cli/setup`,
+    `    - run:`,
+    `        name: Install thumbsup native dependencies`,
+    `        command: |`,
+    `          apt-get update -qq`,
+    `          apt-get install -y --no-install-recommends graphicsmagick dcraw ffmpeg`,
+    `    - run:`,
+    `        name: Download screenshots from S3`,
+    `        command: |`,
+    `          mkdir -p screenshots`,
+    `          aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/`,
+    `    - run:`,
+    `        name: Build gallery with thumbsup`,
+    `        command: |`,
+    `          npx --yes thumbsup@${THUMBSUP_VERSION} \\`,
+    `            --input ./screenshots \\`,
+    `            --output ./gallery \\`,
+    `            --title "VxSuite integration-test screenshots" \\`,
+    `            --albums-from "%path" \\`,
+    `            --sort-albums-by title \\`,
+    `            --sort-media-by filename \\`,
+    `            --theme classic`,
+    `    - run:`,
+    `        name: Upload gallery to S3`,
+    `        command: |`,
+    `          aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/" \\`,
+    `            --delete --exclude "screenshots/*"`,
+  ];
 }
 
 // Rust crates are split across independent Cargo workspaces:
@@ -312,13 +385,40 @@ export function generateAllConfigs(
 
   const rustJobLines = generateTestJobForRustCrates();
 
-  const jobIds = [
-    ...[...pnpmJobs.keys()].map(jobIdForPackage),
+  const integrationTestingJobIds = INTEGRATION_TESTING_APPS.map(
+    (app) => `test-apps-${app}-integration-testing`
+  );
+  function isIntegrationTestingJob(jobId: string): boolean {
+    return integrationTestingJobIds.includes(jobId);
+  }
+
+  const pnpmJobIds = [...pnpmJobs.keys()].map(jobIdForPackage);
+  const simpleJobIds = [
+    ...pnpmJobIds.filter((id) => !isIntegrationTestingJob(id)),
     // hardcoded jobs
     'shellcheck',
     'validate-monorepo',
     RUST_CRATES_JOB_ID,
   ];
+
+  function workflowEntryForIntegrationTestingJob(jobId: string): string {
+    return [
+      `      - ${jobId}:`,
+      `          context:`,
+      `            - screenshots-publishing`,
+    ].join('\n');
+  }
+
+  const publishGalleryWorkflowEntry = [
+    `      - ${PUBLISH_SCREENSHOT_GALLERY_JOB_ID}:`,
+    `          context:`,
+    `            - screenshots-publishing`,
+    `          requires:`,
+    ...integrationTestingJobIds.map((id) => `            - ${id}`),
+    `          filters:`,
+    `            branches:`,
+    `              only: main`,
+  ].join('\n');
 
   const baseConfig = `
 # THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
@@ -330,6 +430,7 @@ setup: true
 
 orbs:
   path-filtering: circleci/path-filtering@2
+  aws-cli: circleci/aws-cli@5
 
 executors:
   nodejs:
@@ -386,6 +487,10 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           command: |
             ./script/validate-monorepo
 
+${generatePublishScreenshotGalleryJob()
+  .map((line) => `  ${line}`)
+  .join('\n')}
+
 workflows:
   test:
     jobs:
@@ -393,7 +498,11 @@ workflows:
 ${[...pnpmJobsToFilter.values()]
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
-${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
+${simpleJobIds.map((jobId) => `      - ${jobId}`).join('\n')}
+${integrationTestingJobIds
+  .map(workflowEntryForIntegrationTestingJob)
+  .join('\n')}
+${publishGalleryWorkflowEntry}
 
 commands:
   checkout-and-install:
