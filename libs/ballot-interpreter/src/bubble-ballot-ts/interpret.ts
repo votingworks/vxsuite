@@ -1,4 +1,5 @@
 import { assert, err, ok } from '@votingworks/basics';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { ImageData } from 'canvas';
 import {
   ElectionDefinition,
@@ -73,6 +74,9 @@ function normalizeOptionsForBridge(
   }
 
   const jsOptions: JsInterpretOptions = {
+    expectedBallotHash: sliceBallotHashForEncoding(
+      options.electionDefinition.ballotHash
+    ),
     debugBasePathSideA,
     debugBasePathSideB,
     scoreWriteIns: options.scoreWriteIns,

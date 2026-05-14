@@ -8,9 +8,10 @@ use image::GrayImage;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
-use types_rs::election::{BallotStyleId, Election, PrecinctId};
+use types_rs::bubble_ballot::{self, Metadata, MetadataMismatch, PartialBallotHash};
+use types_rs::election::{ContestId, Election};
 use types_rs::geometry::PixelPosition;
-use types_rs::geometry::{PixelUnit, Size};
+use types_rs::geometry::{PixelUnit, Size, SubGridUnit};
 use types_rs::pair::Pair;
 
 use crate::ballot_card::load_ballot_scan_bubble_image;
@@ -40,6 +41,11 @@ pub const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD: PixelUnit = 1;
 #[derive(Debug, Clone)]
 pub struct Options {
     pub election: Election,
+    /// Partial ballot hash to compare against the QR-decoded hash on each
+    /// side. Already sliced to [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes;
+    /// callers slice the full 32-byte election hash before constructing
+    /// `Options`.
+    pub expected_ballot_hash: PartialBallotHash,
     pub bubble_template: GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
@@ -140,26 +146,6 @@ pub enum Error {
     #[error("invalid QR code metadata for {label}: {message}")]
     InvalidQrCodeMetadata { label: String, message: String },
 
-    #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
-    #[serde(rename_all = "camelCase")]
-    MismatchedPrecincts {
-        side_a: PrecinctId,
-        side_b: PrecinctId,
-    },
-
-    #[error("mismatched ballot styles: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
-    #[serde(rename_all = "camelCase")]
-    MismatchedBallotStyles {
-        side_a: BallotStyleId,
-        side_b: BallotStyleId,
-    },
-
-    #[error(
-        "non-consecutive page numbers: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
-    )]
-    #[serde(rename_all = "camelCase")]
-    NonConsecutivePageNumbers { side_a: u8, side_b: u8 },
-
     #[error(
         "mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
@@ -167,6 +153,25 @@ pub enum Error {
     MismatchedBallotCardGeometries {
         side_a: BallotPageAndGeometry,
         side_b: BallotPageAndGeometry,
+    },
+
+    #[error(
+        "mismatched ballot card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}, mismatches: {mismatches:?}"
+    )]
+    #[serde(rename_all = "camelCase")]
+    MismatchedBallotMetadata {
+        side_a: Metadata,
+        side_b: Metadata,
+        mismatches: Vec<MetadataMismatch>,
+    },
+
+    #[error("invalid ballot hash: expected {expected:02x?}, actual {actual:02x?}")]
+    #[serde(rename_all = "camelCase")]
+    InvalidBallotHash {
+        #[serde(with = "bubble_ballot::ballot_hash_serde")]
+        expected: PartialBallotHash,
+        #[serde(with = "bubble_ballot::ballot_hash_serde")]
+        actual: PartialBallotHash,
     },
 
     #[error("missing grid layout: front: {front:?}, back: {back:?}")]
@@ -193,6 +198,18 @@ pub enum Error {
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
 
+    #[error(
+        "grid position for contest {contest_id} at (column {column}, row {row}) \
+         falls outside the detected timing-mark grid for {label}"
+    )]
+    #[serde(rename_all = "camelCase")]
+    GridPositionOutsideTimingMarkGrid {
+        label: String,
+        contest_id: ContestId,
+        column: SubGridUnit,
+        row: SubGridUnit,
+    },
+
     #[error("vertical streaks detected on {label} (found {})", x_coordinates.len())]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
@@ -215,11 +232,11 @@ impl Error {
             self,
             // These errors occur after both QR codes were successfully decoded
             // as bubble ballot (HMPB) metadata.
-            Self::MismatchedPrecincts { .. }
-                | Self::MismatchedBallotStyles { .. }
-                | Self::NonConsecutivePageNumbers { .. }
+            Self::MismatchedBallotMetadata { .. }
+                | Self::InvalidBallotHash { .. }
                 | Self::MissingGridLayout { .. }
                 | Self::CouldNotComputeLayout { .. }
+                | Self::GridPositionOutsideTimingMarkGrid { .. }
                 // InvalidScale is only reachable after find_timing_marks()
                 // succeeds, which requires bubble-ballot-specific timing marks.
                 | Self::InvalidScale { .. }
@@ -234,6 +251,7 @@ pub const SIDE_B_LABEL: &str = "side B";
 
 pub struct ScanInterpreter {
     election: Election,
+    expected_ballot_hash: PartialBallotHash,
     write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
     bubble_template_image: GrayImage,
@@ -245,11 +263,16 @@ pub struct ScanInterpreter {
 impl ScanInterpreter {
     /// Creates a new `ScanInterpreter` with the given configuration.
     ///
+    /// `expected_ballot_hash` is already sliced to
+    /// [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes (see
+    /// [`bubble_ballot::PartialBallotHash`]).
+    ///
     /// # Errors
     ///
     /// Returns an error if the bubble template image could not be loaded.
     pub fn new(
         election: Election,
+        expected_ballot_hash: PartialBallotHash,
         write_in_scoring: WriteInScoring,
         vertical_streak_detection: VerticalStreakDetection,
         minimum_detected_scale: Option<f32>,
@@ -259,6 +282,7 @@ impl ScanInterpreter {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
             election,
+            expected_ballot_hash,
             write_in_scoring,
             vertical_streak_detection,
             bubble_template_image,
@@ -283,6 +307,7 @@ impl ScanInterpreter {
     ) -> Result<InterpretedBallotCard> {
         let options = Options {
             election: self.election.clone(),
+            expected_ballot_hash: self.expected_ballot_hash,
             bubble_template: self.bubble_template_image.clone(),
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
@@ -368,7 +393,8 @@ pub fn ballot_card(
     }
 
     // Find the metadata and validate it.
-    let mut decoded_qr_codes = ballot_card.decode_ballot_barcodes(&options.election)?;
+    let mut decoded_qr_codes =
+        ballot_card.decode_ballot_barcodes(&options.election, &options.expected_ballot_hash)?;
 
     // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
     // them so they're right-side up.
@@ -474,15 +500,13 @@ pub fn ballot_card(
 #[cfg(test)]
 #[allow(clippy::similar_names, clippy::unwrap_used)]
 mod test {
-    use std::{
-        fs::File,
-        io::BufReader,
-        path::{Path, PathBuf},
-    };
+    use std::path::{Path, PathBuf};
 
     use image::{imageops::FilterType, GenericImage, Luma};
     use itertools::Itertools;
+    use sha2::{Digest, Sha256};
     use types_rs::{
+        bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH, PRELUDE},
         election::{ContestId, OptionId},
         geometry::{PixelPosition, Rect},
     };
@@ -506,14 +530,44 @@ mod test {
             .into()
     }
 
+    /// Reads an election.json file as bytes, deserializes it, and computes the
+    /// partial ballot hash from those same bytes. The hash must come from the
+    /// raw bytes (matching the TS `sha256(electionData)` convention) so that
+    /// `expected_ballot_hash` agrees with the hash QR-encoded in the ballot.
+    fn load_election_and_ballot_hash(election_path: &Path) -> (Election, PartialBallotHash) {
+        let bytes = std::fs::read(election_path).unwrap();
+        let election: Election = serde_json::from_slice(&bytes).unwrap();
+        let digest = Sha256::digest(&bytes);
+        let mut hash = PartialBallotHash::default();
+        let len = hash.len();
+        hash.copy_from_slice(&digest[..len]);
+        (election, hash)
+    }
+
+    /// Pulls the partial ballot hash out of a ballot image's QR code. Used by
+    /// tests whose ballot images were not generated from the election.json
+    /// bytes in the fixture directory (so `sha256(electionData)` doesn't
+    /// match the QR-encoded hash). For those fixtures, the QR code is the
+    /// source of truth for which hash the ballot was generated with.
+    fn decode_ballot_hash_from_image(
+        image: &GrayImage,
+    ) -> types_rs::bubble_ballot::PartialBallotHash {
+        use crate::debug::ImageDebugWriter;
+        use crate::qr_code;
+        let qr = qr_code::detect(image, &ImageDebugWriter::disabled()).unwrap();
+        let (prelude, payload) = qr.bytes().split_at(PRELUDE.len());
+        assert_eq!(prelude, PRELUDE);
+        let (ballot_hash, _) = payload.split_at(PARTIAL_BALLOT_HASH_BYTE_LENGTH);
+        ballot_hash.try_into().unwrap()
+    }
+
     fn load_ballot_card_fixture(
         fixture_name: &str,
         (side_a_name, side_b_name): (&str, &str),
     ) -> (GrayImage, GrayImage, Options) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
         let election_path = fixture_path.join(fixture_name).join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
         let bubble_template = load_ballot_scan_bubble_image().unwrap();
         let side_a_path = fixture_path.join(fixture_name).join(side_a_name);
         let side_b_path = fixture_path.join(fixture_name).join(side_b_name);
@@ -523,6 +577,7 @@ mod test {
             debug_side_b_base: None,
             bubble_template,
             election,
+            expected_ballot_hash,
             write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::default(),
             minimum_detected_scale: None,
@@ -540,8 +595,7 @@ mod test {
             .join("../hmpb/fixtures/")
             .join(fixture_name);
         let election_path = fixture_path.join("election.json");
-        let election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
 
         let bubble_template = load_ballot_scan_bubble_image().unwrap();
         let side_a_path = fixture_path.join(format!("blank-ballot-p{starting_page_number}.jpg"));
@@ -553,6 +607,7 @@ mod test {
             debug_side_b_base: None,
             bubble_template,
             election,
+            expected_ballot_hash,
             write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::default(),
             minimum_detected_scale: None,
@@ -819,13 +874,17 @@ mod test {
 
     #[test]
     fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
-        let (_, _, options) = load_hmpb_fixture("vx-general-election/letter", 3);
+        let (_, _, mut options) = load_hmpb_fixture("vx-general-election/letter", 3);
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("test/fixtures/vx-general-election-letter");
         let (side_a_image_rotated, side_b_image_rotated) = load_ballot_card_images(
             &fixture_path.join("blank-ballot-p3-rotated-1deg.jpg"),
             &fixture_path.join("blank-ballot-p4-rotated-1deg.jpg"),
         );
+        // These rotated ballots were generated against a different bytes
+        // version of the election than the one in `hmpb/fixtures/...`. Use the
+        // hash baked into the QR code as the ground truth.
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image_rotated);
 
         let interpretation =
             ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
@@ -845,8 +904,11 @@ mod test {
 
     #[test]
     fn test_high_rotation_is_rejected() {
-        let (mut side_a_image, side_b_image, options) =
+        let (mut side_a_image, side_b_image, mut options) =
             load_ballot_card_fixture("vxqa-2024-10", ("rotation-front.png", "rotation-back.png"));
+        // These fixtures have an election.json whose SHA-256 doesn't match the
+        // QR-encoded hash; use the QR's hash as ground truth.
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -875,8 +937,9 @@ mod test {
 
     #[test]
     fn test_high_skew_is_rejected() {
-        let (mut side_a_image, side_b_image, options) =
+        let (mut side_a_image, side_b_image, mut options) =
             load_ballot_card_fixture("vxqa-2024-10", ("skew-front.png", "skew-back.png"));
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -900,10 +963,11 @@ mod test {
 
     #[test]
     fn test_imprinting_over_timing_marks() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+        let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
         );
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -949,13 +1013,14 @@ mod test {
 
     #[test]
     fn test_fold_through_timing_mark() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+        let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
             "104h-2025-04",
             (
                 "fold-through-timing-mark-front.png",
                 "fold-through-timing-mark-back.png",
             ),
         );
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -991,14 +1056,77 @@ mod test {
     /// marks along the edge we're looking for, it doesn't have to pass
     /// through exactly the corner's centers like the previous one did.
     fn test_best_fit_line_regression() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+        let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
             "vxqa-2024-10",
             (
                 "best-fit-line-regression-test-front.png",
                 "best-fit-line-regression-test-back.png",
             ),
         );
+        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
+    fn test_rejects_ballot_with_unexpected_ballot_hash() {
+        let (side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // The fixture's default `expected_ballot_hash` matches the QR-encoded
+        // hash, so interpretation succeeds.
+        let actual_ballot_hash = options.expected_ballot_hash;
+
+        // Override with a hash that definitely does not match: flip every bit.
+        let bogus = actual_ballot_hash.map(|b| !b);
+        options.expected_ballot_hash = bogus;
+
+        match ballot_card(side_a_image, side_b_image, &options) {
+            Err(Error::InvalidBallotHash { expected, actual }) => {
+                assert_eq!(expected, bogus);
+                assert_eq!(actual, actual_ballot_hash);
+            }
+            Err(err) => panic!("unexpected error: {err:?}"),
+            Ok(_) => panic!("interpretation unexpectedly succeeded"),
+        }
+    }
+
+    /// Defends against the failure mode from issue #8426 in the layer where it
+    /// actually breaks. If a ballot somehow gets past the hash check but its
+    /// detected timing-mark grid is shorter than the configured election's
+    /// `gridLayouts` expect (e.g., a letter-sized ballot scored against a
+    /// `custom-8.5x17` election), some gridPositions land outside the detected
+    /// grid.
+    #[test]
+    fn test_rejects_ballot_with_grid_position_outside_timing_mark_grid() {
+        // Letter-sized ballot images (the physical paper we'll scan).
+        let (side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        // Override the election with the 17"-tall variant's election.json,
+        // which has gridLayouts placing contests at rows that don't exist on
+        // a letter-sized ballot's timing-mark grid. Keep the letter ballot's
+        // hash so the hash check passes — we want to exercise the
+        // scoring-time check, not the hash check.
+        let custom_election_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../hmpb/fixtures/vx-general-election/custom-8.5x17/election.json");
+        let (custom_election, _) = load_election_and_ballot_hash(&custom_election_path);
+        options.election = custom_election;
+
+        match ballot_card(side_a_image, side_b_image, &options) {
+            Err(Error::GridPositionOutsideTimingMarkGrid {
+                label,
+                contest_id: _,
+                column: _,
+                row,
+            }) => {
+                assert_eq!(label, SIDE_A_LABEL);
+                // The 17" gridLayout puts contests beyond what fits on letter,
+                // so the offending row should be well past where the letter
+                // ballot's grid ends.
+                assert!(row > 10.0, "row was unexpectedly small: {row}");
+            }
+            Err(err) => panic!("unexpected error: {err:?}"),
+            Ok(_) => panic!("interpretation unexpectedly succeeded"),
+        }
     }
 
     #[test]

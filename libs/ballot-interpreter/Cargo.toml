@@ -32,6 +32,8 @@ rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
 itertools = { workspace = true }
 rqrr = { workspace = true }
 zedbar = { workspace = true }

@@ -59,7 +59,8 @@ test('can detect an encoded ballot', () => {
 });
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -75,14 +76,17 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
     ballotType: BallotType.Precinct,
   };
 
-  expect(decodeBallot(election, encodeBallot(election, ballot))).toEqual({
+  expect(
+    decodeBallot(electionDefinition, encodeBallot(election, ballot))
+  ).toEqual({
     ...ballot,
     ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
 test('encodes & decodes empty votes correctly', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -122,14 +126,15 @@ test('encodes & decodes empty votes correctly', () => {
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(decodeBallot(election, encodedBallot)).toEqual({
+  expect(decodeBallot(electionDefinition, encodedBallot)).toEqual({
     ...ballot,
     ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
 test('encodes & decodes whether it is a test ballot', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -169,14 +174,15 @@ test('encodes & decodes whether it is a test ballot', () => {
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(decodeBallot(election, encodedBallot)).toEqual({
+  expect(decodeBallot(electionDefinition, encodedBallot)).toEqual({
     ...ballot,
     ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
 test('encodes & decodes the ballot type', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -219,14 +225,15 @@ test('encodes & decodes the ballot type', () => {
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(decodeBallot(election, encodedBallot)).toEqual({
+  expect(decodeBallot(electionDefinition, encodedBallot)).toEqual({
     ...ballot,
     ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
 test('encodes & decodes yesno votes correctly', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -285,13 +292,14 @@ test('encodes & decodes yesno votes correctly', () => {
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(encodeBallot(election, decodeBallot(election, encodedBallot))).toEqual(
-    encodedBallot
-  );
+  expect(
+    encodeBallot(election, decodeBallot(electionDefinition, encodedBallot))
+  ).toEqual(encodedBallot);
 });
 
 test('throws on invalid precinct', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const ballotStyleId = ballotStyle.id;
   const precinctId = 'not-a-precinct';
@@ -332,7 +340,8 @@ test('throws on invalid ballot style', () => {
 });
 
 test('throws on trying to encode a bad yes/no vote', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -365,7 +374,8 @@ test('throws on trying to encode a bad yes/no vote', () => {
 });
 
 test('throws on trying to encode a ballot style', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = `${ballotStyle.id}-CORRUPTED`;
@@ -386,7 +396,8 @@ test('throws on trying to encode a ballot style', () => {
 });
 
 test('encodes & decodes candidate choice votes correctly', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -470,14 +481,15 @@ test('encodes & decodes candidate choice votes correctly', () => {
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(decodeBallot(election, encodedBallot)).toEqual({
+  expect(decodeBallot(electionDefinition, encodedBallot)).toEqual({
     ...ballot,
     ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
 test('encodes & decodes write-in votes correctly', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -532,27 +544,28 @@ test('encodes & decodes write-in votes correctly', () => {
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(decodeBallot(election, encodedBallot)).toEqual({
+  expect(decodeBallot(electionDefinition, encodedBallot)).toEqual({
     ...ballot,
     ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
 test('cannot decode a ballot without the prelude', () => {
-  const { election } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
   const encodedBallot = new BitWriter()
     // prelude + version number
     .writeString('XV', { includeLength: false, length: 2 })
     .writeUint8(2)
     .toUint8Array();
 
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
+  expect(() => decodeBallot(electionDefinition, encodedBallot)).toThrowError(
     "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
   );
 });
 
 test('cannot decode a ballot that includes extra data at the end', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -574,13 +587,14 @@ test('cannot decode a ballot that includes extra data at the end', () => {
 
   const corruptedBallot = writer.writeBoolean(true).toUint8Array();
 
-  expect(() => decodeBallot(election, corruptedBallot)).toThrowError(
+  expect(() => decodeBallot(electionDefinition, corruptedBallot)).toThrowError(
     'unexpected data found while reading padding, expected EOF'
   );
 });
 
 test('cannot decode a ballot that includes too much padding at the end', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -602,13 +616,14 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
 
   const corruptedBallot = writer.writeUint8(0).toUint8Array();
 
-  expect(() => decodeBallot(election, corruptedBallot)).toThrowError(
+  expect(() => decodeBallot(electionDefinition, corruptedBallot)).toThrowError(
     'unexpected data found while reading padding, expected EOF'
   );
 });
 
 test('decode ballot hash from BMD metadata', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
@@ -659,7 +674,8 @@ test('encode HMPB ballot page metadata', () => {
 });
 
 test('encode HMPB ballot page metadata with bad precinct fails', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotMetadata: HmpbBallotPageMetadata = {
     ballotHash,
     precinctId: 'SanDimas', // not an actual precinct ID
@@ -675,11 +691,12 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
 });
 
 test('encode HMPB ballot page metadata with bad ballot style fails', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotMetadata: HmpbBallotPageMetadata = {
     ballotHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: '42' as BallotStyleId, // not a good ballot style
+    ballotStyleId: '42', // not a good ballot style
     pageNumber: 3,
     isTestMode: true,
     ballotType: BallotType.Precinct,
@@ -704,7 +721,8 @@ test('can detect a multi-page BMD ballot', () => {
 });
 
 test('multi-page BMD ballot is still detected as VX ballot', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
@@ -727,7 +745,8 @@ test('multi-page BMD ballot is still detected as VX ballot', () => {
 });
 
 test('encodes & decodes multi-page BMD ballot with empty votes', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
@@ -748,7 +767,7 @@ test('encodes & decodes multi-page BMD ballot with empty votes', () => {
   };
 
   const encoded = encodeBmdMultiPageBallot(election, page);
-  const decoded = decodeBmdMultiPageBallot(election, encoded);
+  const decoded = decodeBmdMultiPageBallot(electionDefinition, encoded);
 
   expect(decoded.metadata.ballotHash).toEqual(
     ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
@@ -765,7 +784,8 @@ test('encodes & decodes multi-page BMD ballot with empty votes', () => {
 });
 
 test('encodes & decodes multi-page BMD ballot with votes', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
@@ -789,7 +809,7 @@ test('encodes & decodes multi-page BMD ballot with votes', () => {
   };
 
   const encoded = encodeBmdMultiPageBallot(election, page);
-  const decoded = decodeBmdMultiPageBallot(election, encoded);
+  const decoded = decodeBmdMultiPageBallot(electionDefinition, encoded);
 
   expect(decoded.metadata.isTestMode).toEqual(true);
   expect(decoded.metadata.ballotType).toEqual(BallotType.Absentee);
@@ -800,7 +820,8 @@ test('encodes & decodes multi-page BMD ballot with votes', () => {
 });
 
 test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
@@ -828,7 +849,7 @@ test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
   };
 
   const encoded = encodeBmdMultiPageBallot(election, page);
-  const decoded = decodeBmdMultiPageBallot(election, encoded);
+  const decoded = decodeBmdMultiPageBallot(electionDefinition, encoded);
 
   expect(decoded.metadata.pageNumber).toEqual(1);
   expect(decoded.metadata.totalPages).toEqual(1);
@@ -838,7 +859,8 @@ test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
 });
 
 test('decode ballot hash from multi-page BMD metadata', () => {
-  const { election, ballotHash } = readElectionDefinition();
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });

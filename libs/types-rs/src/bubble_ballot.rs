@@ -30,6 +30,108 @@ pub struct Metadata {
     pub ballot_audit_id: Option<String>,
 }
 
+impl Metadata {
+    /// Returns the list of fields whose values differ between `self` and
+    /// `other` when interpreted as the two sides of a single bubble ballot
+    /// sheet. An empty list means the two sides are consistent.
+    #[must_use]
+    pub fn match_sheet_with_metadata(&self, other: &Self) -> Vec<MetadataMismatch> {
+        let mut mismatches = vec![];
+
+        if self.ballot_hash != other.ballot_hash {
+            mismatches.push(MetadataMismatch::BallotHash {
+                side_a: self.ballot_hash,
+                side_b: other.ballot_hash,
+            });
+        }
+
+        if self.precinct_id != other.precinct_id {
+            mismatches.push(MetadataMismatch::PrecinctId {
+                side_a: self.precinct_id.clone(),
+                side_b: other.precinct_id.clone(),
+            });
+        }
+
+        if self.ballot_style_id != other.ballot_style_id {
+            mismatches.push(MetadataMismatch::BallotStyleId {
+                side_a: self.ballot_style_id.clone(),
+                side_b: other.ballot_style_id.clone(),
+            });
+        }
+
+        if self.page_number != other.page_number.opposite() {
+            mismatches.push(MetadataMismatch::PageNumber {
+                side_a: self.page_number,
+                side_b: other.page_number,
+            });
+        }
+
+        if self.is_test_mode != other.is_test_mode {
+            mismatches.push(MetadataMismatch::IsTestMode {
+                side_a: self.is_test_mode,
+                side_b: other.is_test_mode,
+            });
+        }
+
+        if self.ballot_type != other.ballot_type {
+            mismatches.push(MetadataMismatch::BallotType {
+                side_a: self.ballot_type,
+                side_b: other.ballot_type,
+            });
+        }
+
+        if self.ballot_audit_id != other.ballot_audit_id {
+            mismatches.push(MetadataMismatch::BallotAuditId {
+                side_a: self.ballot_audit_id.clone(),
+                side_b: other.ballot_audit_id.clone(),
+            });
+        }
+
+        mismatches
+    }
+}
+
+/// Identifies a single field that differs between the two sides of a bubble
+/// ballot sheet, carrying the value found on each side.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum MetadataMismatch {
+    #[serde(rename_all = "camelCase")]
+    BallotHash {
+        #[serde(with = "ballot_hash_serde")]
+        side_a: PartialBallotHash,
+        #[serde(with = "ballot_hash_serde")]
+        side_b: PartialBallotHash,
+    },
+    #[serde(rename_all = "camelCase")]
+    PrecinctId {
+        side_a: PrecinctId,
+        side_b: PrecinctId,
+    },
+    #[serde(rename_all = "camelCase")]
+    BallotStyleId {
+        side_a: BallotStyleId,
+        side_b: BallotStyleId,
+    },
+    #[serde(rename_all = "camelCase")]
+    PageNumber {
+        side_a: PageNumber,
+        side_b: PageNumber,
+    },
+    #[serde(rename_all = "camelCase")]
+    IsTestMode { side_a: bool, side_b: bool },
+    #[serde(rename_all = "camelCase")]
+    BallotType {
+        side_a: BallotType,
+        side_b: BallotType,
+    },
+    #[serde(rename_all = "camelCase")]
+    BallotAuditId {
+        side_a: Option<String>,
+        side_b: Option<String>,
+    },
+}
+
 /// Provides serialization and deserialization for [`PartialBallotHash`],
 /// primarily for serializing to JSON as a hex string.
 ///
@@ -97,6 +199,12 @@ pub enum Error {
     #[error("Invalid ballot type: {0}")]
     InvalidBallotType(#[from] BallotTypeCodingError),
 
+    #[error("Invalid ballot hash: {actual:02x?} (expected {expected:02x?})")]
+    InvalidBallotHash {
+        expected: PartialBallotHash,
+        actual: PartialBallotHash,
+    },
+
     #[error("Index error: {0}")]
     Index(#[from] IndexError),
 
@@ -126,13 +234,13 @@ impl From<coding::Error> for Error {
     }
 }
 
-impl FromBitStreamWith<'_> for Metadata {
-    type Context = Election;
+impl<'a> FromBitStreamWith<'a> for Metadata {
+    type Context = (&'a Election, PartialBallotHash);
     type Error = Error;
 
     fn from_reader<R: bitstream_io::BitRead + ?Sized>(
         r: &mut R,
-        election: &Self::Context,
+        (election, expected_ballot_hash): &Self::Context,
     ) -> Result<Self, Self::Error>
     where
         Self: Sized,
@@ -143,8 +251,15 @@ impl FromBitStreamWith<'_> for Metadata {
         }
 
         let ballot_hash: PartialBallotHash = r.read_to()?;
-        let precinct_index: PrecinctByIndex = r.parse_with(election)?;
-        let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
+        if ballot_hash != *expected_ballot_hash {
+            return Err(Error::InvalidBallotHash {
+                expected: *expected_ballot_hash,
+                actual: ballot_hash,
+            });
+        }
+
+        let precinct_index: PrecinctByIndex = r.parse_with(*election)?;
+        let ballot_style_index: BallotStyleByIndex = r.parse_with(*election)?;
         let page_number: PageNumber = r.parse()?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
@@ -269,6 +384,18 @@ mod test {
         (PageNumber::MIN_VALUE..=PageNumber::MAX_VALUE).prop_map(PageNumber::new_unchecked)
     }
 
+    fn sample_metadata() -> Metadata {
+        Metadata {
+            ballot_hash: [0; PARTIAL_BALLOT_HASH_BYTE_LENGTH],
+            precinct_id: PrecinctId::from("precinct-1".to_owned()),
+            ballot_style_id: BallotStyleId::from("ballot-style-1".to_owned()),
+            page_number: PageNumber::new_unchecked(1),
+            is_test_mode: false,
+            ballot_type: BallotType::Precinct,
+            ballot_audit_id: None,
+        }
+    }
+
     #[test]
     fn test_decode_metadata_bits() {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -277,15 +404,19 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let ballot_audit_id = "test-audit-ballot-id";
+        let ballot_hash: PartialBallotHash =
+            [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -312,10 +443,10 @@ mod test {
 
             // Rest of ballot audit ID
             163, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let metadata: Metadata = reader.parse_with(&election).unwrap();
+        let metadata: Metadata = reader.parse_with(&(&election, ballot_hash)).unwrap();
         assert_eq!(
             metadata,
             Metadata {
@@ -343,7 +474,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            reader.parse_with::<Metadata>(&election),
+            reader.parse_with::<Metadata>(&(&election, PartialBallotHash::default())),
             Err(Error::Io(_))
         ));
     }
@@ -359,7 +490,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            reader.parse_with::<Metadata>(&election),
+            reader.parse_with::<Metadata>(&(&election, PartialBallotHash::default())),
             Err(Error::InvalidPrelude([b'N', b'O', b'T']))
         ));
     }
@@ -371,15 +502,19 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash: PartialBallotHash =
+            [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -399,10 +534,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
         assert!(
             matches!(result, Err(Error::Index(IndexError::Precinct(index))) if index.get() == 17),
             "Result is wrong: {result:?}"
@@ -417,14 +552,18 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
 
-        #[rustfmt::skip]
-        let bytes = [
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
+
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -444,10 +583,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
@@ -466,15 +605,18 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -494,10 +636,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b1111_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
@@ -518,15 +660,18 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -546,10 +691,10 @@ mod test {
             // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
@@ -562,15 +707,18 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let ballot_hash = [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
 
-        #[rustfmt::skip]
-        let bytes = [
+        let mut bytes = vec![
             // 3-byte prelude
             b'V', b'P', 2,
+        ];
 
-            // 10-byte ballot hash
-            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+        // 10-byte ballot hash
+        bytes.extend_from_slice(&ballot_hash);
 
+        #[rustfmt::skip]
+        bytes.extend_from_slice(&[
             // 8 bits for precinct index
             0b0000_0000,
             //PPPP PPPP
@@ -597,10 +745,10 @@ mod test {
 
             // Rest of ballot audit ID (with invalid UTF-8 char at beginning)
             255, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
-        ];
+        ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = reader.parse_with::<Metadata>(&election);
+        let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::InvalidBallotAuditId(_))));
@@ -612,6 +760,198 @@ mod test {
             Just(BallotType::Absentee),
             Just(BallotType::Provisional)
         ]
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_no_mismatches() {
+        let front = sample_metadata();
+        let back = Metadata {
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        assert!(front.match_sheet_with_metadata(&back).is_empty());
+        // The relation is symmetric: it doesn't matter which side calls.
+        assert!(back.match_sheet_with_metadata(&front).is_empty());
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_identical_sides_only_mismatch_page_number() {
+        // Identical metadata fails only the page-number check, because both
+        // sides claim the same page number rather than opposite ones.
+        let m = sample_metadata();
+        let mismatches = m.match_sheet_with_metadata(&m);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::PageNumber { side_a, side_b }]
+                    if *side_a == m.page_number && *side_b == m.page_number
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_ballot_hash_mismatch() {
+        let front = sample_metadata();
+        let back = Metadata {
+            ballot_hash: [0xff; PARTIAL_BALLOT_HASH_BYTE_LENGTH],
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::BallotHash { side_a, side_b }]
+                    if *side_a == front.ballot_hash && *side_b == back.ballot_hash
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_precinct_id_mismatch() {
+        let front = sample_metadata();
+        let back = Metadata {
+            precinct_id: PrecinctId::from("precinct-2".to_owned()),
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::PrecinctId { side_a, side_b }]
+                    if *side_a == front.precinct_id && *side_b == back.precinct_id
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_ballot_style_id_mismatch() {
+        let front = sample_metadata();
+        let back = Metadata {
+            ballot_style_id: BallotStyleId::from("ballot-style-2".to_owned()),
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::BallotStyleId { side_a, side_b }]
+                    if *side_a == front.ballot_style_id && *side_b == back.ballot_style_id
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_page_number_from_different_sheets() {
+        // Front is page 1 (sheet 1), back is page 4 (sheet 2): not opposite.
+        let front = sample_metadata();
+        let back = Metadata {
+            page_number: PageNumber::new_unchecked(4),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::PageNumber { side_a, side_b }]
+                    if *side_a == front.page_number && *side_b == back.page_number
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_is_test_mode_mismatch() {
+        let front = sample_metadata();
+        let back = Metadata {
+            is_test_mode: !front.is_test_mode,
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::IsTestMode { side_a, side_b }]
+                    if *side_a == front.is_test_mode && *side_b == back.is_test_mode
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_ballot_type_mismatch() {
+        let front = sample_metadata();
+        let back = Metadata {
+            ballot_type: BallotType::Absentee,
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::BallotType { side_a, side_b }]
+                    if *side_a == front.ballot_type && *side_b == back.ballot_type
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_ballot_audit_id_mismatch() {
+        let front = sample_metadata();
+        let back = Metadata {
+            ballot_audit_id: Some("audit-id".to_owned()),
+            page_number: front.page_number.opposite(),
+            ..front.clone()
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [MetadataMismatch::BallotAuditId { side_a, side_b }]
+                    if *side_a == front.ballot_audit_id && *side_b == back.ballot_audit_id
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
+    }
+
+    #[test]
+    fn test_match_sheet_with_metadata_accumulates_mismatches_in_declaration_order() {
+        let front = sample_metadata();
+        let back = Metadata {
+            ballot_hash: [0xff; PARTIAL_BALLOT_HASH_BYTE_LENGTH],
+            precinct_id: PrecinctId::from("precinct-other".to_owned()),
+            ballot_style_id: BallotStyleId::from("ballot-style-other".to_owned()),
+            // Page 5 is on sheet 3; not opposite of page 1.
+            page_number: PageNumber::new_unchecked(5),
+            is_test_mode: !front.is_test_mode,
+            ballot_type: BallotType::Absentee,
+            ballot_audit_id: Some("audit-id".to_owned()),
+        };
+        let mismatches = front.match_sheet_with_metadata(&back);
+        assert!(
+            matches!(
+                mismatches.as_slice(),
+                [
+                    MetadataMismatch::BallotHash { .. },
+                    MetadataMismatch::PrecinctId { .. },
+                    MetadataMismatch::BallotStyleId { .. },
+                    MetadataMismatch::PageNumber { .. },
+                    MetadataMismatch::IsTestMode { .. },
+                    MetadataMismatch::BallotType { .. },
+                    MetadataMismatch::BallotAuditId { .. },
+                ]
+            ),
+            "unexpected mismatches: {mismatches:?}"
+        );
     }
 
     proptest! {
@@ -661,6 +1001,35 @@ mod test {
             assert_eq!(inferred_metadata.is_test_mode, detected_metadata.is_test_mode);
             assert_eq!(inferred_metadata.ballot_type, detected_metadata.ballot_type);
             assert_eq!(inferred_metadata.ballot_audit_id, detected_metadata.ballot_audit_id);
+        }
+
+        /// Metadata inferred from the other side of a sheet must always be
+        /// considered compatible by `match_sheet_with_metadata`. This ties the
+        /// two helpers together: if `infer_missing_page_metadata` ever drifts
+        /// from the fields that `match_sheet_with_metadata` checks, this test
+        /// catches it.
+        #[test]
+        fn test_match_sheet_with_inferred_metadata_has_no_mismatches(
+            page_number in arbitrary_page_number(),
+            ballot_hash: PartialBallotHash,
+            precinct_id in "[0-9a-z-]{1,100}",
+            ballot_style_id in "[0-9a-z-]{1,100}",
+            is_test_mode in proptest::bool::ANY,
+            ballot_type in arbitrary_ballot_type(),
+            ballot_audit_id in proptest::option::of("[0-9a-z-]{1,100}"),
+        ) {
+            let detected = Metadata {
+                ballot_hash,
+                precinct_id: PrecinctId::from(precinct_id),
+                ballot_style_id: BallotStyleId::from(ballot_style_id),
+                page_number,
+                is_test_mode,
+                ballot_type,
+                ballot_audit_id,
+            };
+            let inferred = infer_missing_page_metadata(&detected);
+            assert!(detected.match_sheet_with_metadata(&inferred).is_empty());
+            assert!(inferred.match_sheet_with_metadata(&detected).is_empty());
         }
     }
 }
