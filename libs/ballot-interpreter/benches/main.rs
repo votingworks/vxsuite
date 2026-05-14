@@ -13,8 +13,7 @@ use ballot_interpreter::{
 use divan::{black_box, Bencher};
 use image::GrayImage;
 use types_rs::{
-    bubble_ballot::{Metadata, PartialBallotHash},
-    coding,
+    bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH, PRELUDE},
     election::Election,
 };
 
@@ -59,7 +58,7 @@ impl InterpretFixture {
         // the hash baked into the ballot QR codes, and we don't want benchmark
         // setup to fail on those. The hash check itself is exercised by unit
         // tests; here we just want to time interpretation.
-        let expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image, &election);
+        let expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
 
         let interpreter = ScanInterpreter::new(
             election,
@@ -76,15 +75,17 @@ impl InterpretFixture {
 
 /// Pulls the partial ballot hash out of a ballot image's QR code. See the
 /// equivalent helper in `interpret::test` for context.
-fn decode_ballot_hash_from_image(image: &GrayImage, election: &Election) -> PartialBallotHash {
+fn decode_ballot_hash_from_image(image: &GrayImage) -> PartialBallotHash {
     let qr = qr_code::detect_with_strategy(
         image,
         qr_code::SearchStrategy::BubbleCorners,
         &ImageDebugWriter::disabled(),
     )
     .unwrap();
-    let metadata: Metadata = coding::decode_with(qr.bytes(), election).unwrap();
-    metadata.ballot_hash
+    let (prelude, payload) = qr.bytes().split_at(PRELUDE.len());
+    assert_eq!(prelude, PRELUDE);
+    let (ballot_hash, _) = payload.split_at(PARTIAL_BALLOT_HASH_BYTE_LENGTH);
+    ballot_hash.try_into().unwrap()
 }
 
 impl Display for InterpretFixture {
