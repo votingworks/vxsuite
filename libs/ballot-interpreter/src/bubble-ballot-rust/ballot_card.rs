@@ -584,13 +584,14 @@ impl BallotCard {
                         });
                     }
 
-                    // After `match_sheet_with_metadata`, both sides agree on
-                    // the ballot hash, so checking the front is enough.
+                    // It should not be possible to get to this point if these
+                    // values differ, so a difference here is a bug.
                     if front_metadata.ballot_hash != *expected_ballot_hash {
-                        return Err(Error::InvalidBallotHash {
-                            expected: *expected_ballot_hash,
-                            actual: front_metadata.ballot_hash,
-                        });
+                        unreachable!(
+                            "unexpected ballot hash value: \
+                                {:02x?} (expected {expected_ballot_hash:02x?})",
+                            front_metadata.ballot_hash
+                        );
                     }
 
                     Ok(Pair::new(
