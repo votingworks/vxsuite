@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  readElectionOpenPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
+import { Tabulation } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { FilterEditor } from './filter_editor';
@@ -8,6 +12,7 @@ import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
+const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
 
 let apiMock: ApiMock;
 
@@ -192,8 +197,39 @@ test('party selection', () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Mammal');
   screen.getByText('Fish');
+  expect(screen.queryByText('No Party')).toBeNull();
   userEvent.click(screen.getByText('Mammal'));
   expect(onChange).toHaveBeenNthCalledWith(2, { partyIds: ['0'] });
+});
+
+test('open primary party selection includes "No Party"', () => {
+  const { election } = electionOpenPrimaryDefinition;
+  const onChange = vi.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['party']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('Party'));
+  expect(onChange).toHaveBeenNthCalledWith(1, { partyIds: [] });
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  screen.getByText('Democratic');
+  screen.getByText('Republican');
+  screen.getByText('Libertarian');
+  userEvent.click(screen.getByText('No Party'));
+  expect(onChange).toHaveBeenNthCalledWith(2, {
+    partyIds: [Tabulation.NO_PARTY_ID],
+  });
 });
 
 test('adjudication status selection', () => {

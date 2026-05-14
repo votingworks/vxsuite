@@ -396,3 +396,76 @@ test('open primary: groups by inferred party with a No Party row', async () => {
     ],
   });
 });
+
+test('open primary: groupByParty with No Party filter', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  await seedOpenPrimaryCvrsAndAdjudications({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  mockUsbDrive.insertUsbDrive({});
+
+  // partyIds: [NO_PARTY_ID] — only the No Party row. 2 = the crossover and
+  // flipped-Dem HMPB sheet 1 ballots (the nonpartisan-only sheet 2 ballot
+  // is excluded from Total).
+  expect(
+    await getParsedExport({
+      apiClient,
+      mockUsbDrive,
+      filter: { partyIds: [Tabulation.NO_PARTY_ID] },
+      groupBy: { groupByParty: true },
+    })
+  ).toEqual({
+    metadata: {
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(electionDefinition.ballotHash),
+    },
+    headers: ['Party', 'Party ID', 'Total'],
+    rows: [
+      {
+        Party: 'No Party',
+        'Party ID': '',
+        Total: '2',
+      },
+    ],
+  });
+
+  // partyIds: ['democratic-party', NO_PARTY_ID] — Dem + No Party rows.
+  expect(
+    await getParsedExport({
+      apiClient,
+      mockUsbDrive,
+      filter: { partyIds: ['democratic-party', Tabulation.NO_PARTY_ID] },
+      groupBy: { groupByParty: true },
+    })
+  ).toEqual({
+    metadata: {
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(electionDefinition.ballotHash),
+    },
+    headers: ['Party', 'Party ID', 'Total'],
+    rows: [
+      {
+        Party: 'Democratic',
+        'Party ID': 'democratic-party',
+        Total: '4',
+      },
+      {
+        Party: 'No Party',
+        'Party ID': '',
+        Total: '2',
+      },
+    ],
+  });
+});
