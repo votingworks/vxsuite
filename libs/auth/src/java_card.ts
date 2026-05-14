@@ -8,6 +8,7 @@ import * as path from 'node:path';
 import readline from 'node:readline/promises';
 import {
   assert,
+  assertDefined,
   extractErrorMessage,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -225,10 +226,20 @@ Place that file in ${workingDirectory} and press enter. `);
 export class JavaCard implements Card {
   private readonly cardProgrammingConfig?: CardProgrammingConfig;
   private readonly cardReader: CardReader;
-  // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
-  protected cardStatus: CardStatus;
   private readonly generateChallenge: () => string;
   private readonly vxCertAuthorityCertPath: string;
+
+  //
+  // See TestJavaCard in test/utils.ts to understand why the fields below are protected instead of
+  // private. Protected fields can be accessed by extensions of this class; private fields cannot.
+  //
+
+  protected cardStatus: CardStatus;
+  /**
+   * Avoid TOCTOU (time-of-check to time-of-use) issues between reading card details and checking
+   * card PINs by persisting validated card identity certs in state
+   */
+  protected lastValidatedCardIdentityCert?: Buffer;
 
   constructor(
     // Support specifying a custom config for tests
@@ -249,6 +260,7 @@ export class JavaCard implements Card {
 
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
+        this.lastValidatedCardIdentityCert = undefined;
         switch (readerStatus) {
           case 'no_card_reader': {
             this.cardStatus = { status: 'no_card_reader' };
@@ -287,8 +299,9 @@ export class JavaCard implements Card {
   async checkPin(pin: string): Promise<CheckPinResponse> {
     await this.selectApplet();
 
-    const cardIdentityCert = await this.retrieveCert(
-      CARD_IDENTITY_CERT.OBJECT_ID
+    const cardIdentityCert = assertDefined(
+      this.lastValidatedCardIdentityCert,
+      'Card identity cert must be validated first'
     );
     try {
       // Verify that the card has a private key that corresponds to the public key in the card
@@ -475,6 +488,7 @@ export class JavaCard implements Card {
     }
 
     this.cardStatus = { status: 'ready', cardDetails };
+    this.lastValidatedCardIdentityCert = cardIdentityCert;
   }
 
   async unprogram(): Promise<void> {
@@ -494,6 +508,7 @@ export class JavaCard implements Card {
         reason: 'unprogrammed_or_invalid_card',
       },
     };
+    this.lastValidatedCardIdentityCert = undefined;
   }
 
   async readData(): Promise<Buffer> {
@@ -666,6 +681,8 @@ export class JavaCard implements Card {
         DEFAULT_PIN
       );
     }
+
+    this.lastValidatedCardIdentityCert = cardIdentityCert;
 
     const numIncorrectPinAttempts = cardDoesNotHavePin
       ? undefined

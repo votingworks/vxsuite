@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import { Buffer } from 'node:buffer';
 import path from 'node:path';
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 
@@ -80,8 +81,12 @@ export function mockCardAssertComplete(mockCard: MockCard): void {
  * simplify setup for Java Card tests that require the card to be in a specific starting state
  */
 export class TestJavaCard extends JavaCard {
-  setCardStatus(cardStatus: CardStatus): void {
+  setCardStatus(
+    cardStatus: CardStatus,
+    lastValidatedCardIdentityCert?: Buffer
+  ): void {
     this.cardStatus = cardStatus;
+    this.lastValidatedCardIdentityCert = lastValidatedCardIdentityCert;
   }
 }
 
