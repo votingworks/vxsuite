@@ -49,11 +49,18 @@ test('JSON serialization/deserialization', () => {
     ])
   );
   expectToBePreservedExactly(new Map([['a', new Map([['b', 2]])]]));
+  expectToBePreservedExactly(
+    new Map([
+      ['a', 1],
+      ['b', undefined],
+    ])
+  );
   // Basic sets
   expectToBePreservedExactly(new Set());
   expectToBePreservedExactly(new Set([1]));
   expectToBePreservedExactly(new Set([1, 2]));
   expectToBePreservedExactly(new Set([new Set([1, 2])]));
+  expectToBePreservedExactly(new Set([1, undefined]));
   // Nested data
   expectToBePreservedExactly({
     name: 'John',
@@ -94,18 +101,20 @@ test('JSON serialization/deserialization', () => {
   expectToBePreservedExactly(err('some error'));
   expectToBePreservedExactly(err(new Error('some error')));
 
-  function expectToBePreservedSemantically(value: any) {
-    expect(deserialize(serialize(value))).toEqual(value);
-  }
+  // JSON.parse by default removes fields with undefined values from objects,
+  // but we want exactly the same set of fields to be present.
+  expectToBePreservedExactly({ a: undefined });
+  expectToBePreservedExactly({ a: undefined, b: undefined });
+  expectToBePreservedExactly({ a: { b: undefined } });
+  expectToBePreservedExactly({ a: undefined, b: 1 });
 
-  // JSON.parse removes undefined values from objects by default. Since
-  // that's semantically equivalent in TS, we're fine with that.
-  expectToBePreservedSemantically({ a: undefined });
-  // Our serialization/deserialization for an array with an undefined value in
-  // it puts a hole in the array, which isn't strictly equal but is functionally
-  // the same.
-  expectToBePreservedSemantically([undefined]);
-  expectToBePreservedSemantically([1, undefined, 3]);
+  // JSON.parse by default converts undefined values to empty holes in arrays,
+  // but we want undefined values specifically.
+  expectToBePreservedExactly([undefined]);
+  expectToBePreservedExactly([1, undefined, 3]);
+  expectToBePreservedExactly([undefined, undefined]);
+  expectToBePreservedExactly([[undefined]]);
+  expectToBePreservedExactly({ a: [undefined] });
 
   function expectToBeRejected(value: any) {
     expect(() => serialize(value)).toThrow(/Cannot serialize value to JSON/);

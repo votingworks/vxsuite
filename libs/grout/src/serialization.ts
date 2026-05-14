@@ -73,7 +73,10 @@ const undefinedTagger: Tagger<undefined, 'undefined'> = {
   tag: 'undefined',
   shouldTag: (value): value is undefined => value === undefined,
   serialize: () => 'undefined',
-  deserialize: () => undefined,
+  deserialize: () => {
+    /* istanbul ignore next - @preserve */
+    throw new Error('not used');
+  },
 };
 
 const dateTagger: Tagger<Date, string> = {
@@ -181,6 +184,11 @@ function tagValueIfNeeded(value: unknown): TaggedValue | unknown {
 }
 
 /* eslint-disable no-underscore-dangle */
+function isTaggedUndefined(value: unknown) {
+  return isTaggedValue(value) && value.__grout_type === undefinedTagger.tag;
+}
+
+/* eslint-disable no-underscore-dangle */
 function untagValueIfNeeded(value: JsonBuiltInValue): unknown {
   if (!isTaggedValue(value)) return value;
   const tagger = taggers.find((t) => t.tag === value.__grout_type);
@@ -238,5 +246,31 @@ export function serialize(rootValue: unknown): string {
  * Deserializes a value that was serialized by `serialize`.
  */
 export function deserialize(valueString: string): unknown {
-  return JSON.parse(valueString, (_key, value) => untagValueIfNeeded(value));
+  const result = JSON.parse(valueString, (_key, value) => {
+    // Since JSON doesn't support `undefined`, JSON.parse does some odd things
+    // when the reviver function returns undefined.
+    // - In an array, it replaces undefined with a "hole" in the array
+    // - In an object, it drops a field if it has an undefined value
+    // We want to preserve undefined in those cases, so we don't untag it.
+    // Instead, we untag it inside arrays/objects after parsing their values.
+    if (isTaggedUndefined(value)) return value;
+
+    const valueUntagged = untagValueIfNeeded(value);
+
+    if (isArray(valueUntagged)) {
+      for (const i of valueUntagged.keys()) {
+        if (isTaggedUndefined(valueUntagged[i])) {
+          valueUntagged[i] = undefined;
+        }
+      }
+    } else if (isPlainObject(valueUntagged)) {
+      for (const key of Object.keys(valueUntagged)) {
+        if (isTaggedUndefined(valueUntagged[key])) {
+          valueUntagged[key] = undefined;
+        }
+      }
+    }
+    return valueUntagged;
+  });
+  return isTaggedUndefined(result) ? undefined : result;
 }
