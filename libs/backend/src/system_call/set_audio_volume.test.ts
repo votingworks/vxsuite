@@ -18,7 +18,7 @@ test('NODE_ENV=production - runs app script via sudo', async () => {
     logger,
     nodeEnv: 'production',
     sinkName,
-    volumePct: 100,
+    volumePct: 120,
   });
   expect(result).toEqual(ok());
 
@@ -26,7 +26,7 @@ test('NODE_ENV=production - runs app script via sudo', async () => {
     '/vx/code/app-scripts/pactl.sh',
     'set-sink-volume',
     sinkName,
-    '100%',
+    '120%',
   ]);
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -68,16 +68,16 @@ test('invalid value', async () => {
       sinkName: 'usb.stereo',
       volumePct: -1,
     })
-  ).rejects.toThrow('Audio volume must be between 0 and 100');
+  ).rejects.toThrow('Audio volume must be between 0 and 120');
 
   await expect(
     setAudioVolume({
       logger: mockLogger({ fn: vi.fn }),
       nodeEnv: 'production',
       sinkName: 'usb.stereo',
-      volumePct: 100.1,
+      volumePct: 120.1,
     })
-  ).rejects.toThrow('Audio volume must be between 0 and 100');
+  ).rejects.toThrow('Audio volume must be between 0 and 120');
 });
 
 test('execFile error', async () => {

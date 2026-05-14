@@ -10,7 +10,12 @@ import {
   setAudioVolume,
 } from '@votingworks/backend';
 import { err, ok } from '@votingworks/basics';
-import { AudioCard, MAX_CARD_DETECTION_RETRIES } from './card';
+import {
+  AudioCard,
+  DEFAULT_HEADPHONE_VOLUME,
+  DEFAULT_SPEAKER_VOLUME,
+  MAX_CARD_DETECTION_RETRIES,
+} from './card';
 import { NODE_ENV } from '../globals';
 
 vi.mock('@votingworks/backend');
@@ -24,18 +29,48 @@ test('default()', async () => {
   const logger = mockLogger({ fn: vi.fn });
   mockGetCardName.mockResolvedValueOnce(ok(cardName));
 
+  let currentProfile: AudioCardProfile | undefined;
+  mockSetProfile.mockImplementation((p) => {
+    expect(p.cardName).toEqual(cardName);
+    expect(p.nodeEnv).toEqual<typeof NODE_ENV>('production');
+    expect(p.logger).toEqual(logger);
+    currentProfile = p.profile;
+
+    return Promise.resolve(ok());
+  });
+
+  let speakerVolume = 0;
+  let headphoneVolume = 0;
+  mockSetVolume.mockImplementation((p) => {
+    expect(currentProfile).not.toBeUndefined();
+    expect(p.sinkName).toEqual(AUDIO_DEVICE_DEFAULT_SINK);
+    expect(p.nodeEnv).toEqual<typeof NODE_ENV>('production');
+    expect(p.logger).toEqual(logger);
+
+    if (currentProfile === AudioCardProfile.HDMI) {
+      speakerVolume = p.volumePct;
+    } else {
+      headphoneVolume = p.volumePct;
+    }
+
+    return Promise.resolve(ok());
+  });
+
   await AudioCard.default('production', logger);
   expect(mockGetCardName).toHaveBeenCalledWith<[GetAudioCardNameParams]>({
     logger,
     nodeEnv: 'production',
     maxRetries: MAX_CARD_DETECTION_RETRIES,
   });
+  expect(speakerVolume).toEqual(DEFAULT_SPEAKER_VOLUME);
+  expect(headphoneVolume).toEqual(DEFAULT_HEADPHONE_VOLUME);
 });
 
 test('setVolume()', async () => {
   const logger = mockLogger({ fn: vi.fn });
   mockGetCardName.mockResolvedValueOnce(ok(cardName));
-  mockSetVolume.mockResolvedValueOnce(ok());
+  mockSetProfile.mockResolvedValue(ok());
+  mockSetVolume.mockResolvedValue(ok());
 
   const card = await AudioCard.default('production', logger);
   await card.setVolume(98);
@@ -56,7 +91,8 @@ test('setVolume()', async () => {
 test('useHeadphones()', async () => {
   const logger = mockLogger({ fn: vi.fn });
   mockGetCardName.mockResolvedValueOnce(ok(cardName));
-  mockSetProfile.mockResolvedValueOnce(ok());
+  mockSetProfile.mockResolvedValue(ok());
+  mockSetVolume.mockResolvedValue(ok());
 
   const card = await AudioCard.default('production', logger);
   await card.useHeadphones();
@@ -71,7 +107,8 @@ test('useHeadphones()', async () => {
 test('useSpeaker()', async () => {
   const logger = mockLogger({ fn: vi.fn });
   mockGetCardName.mockResolvedValueOnce(ok(cardName));
-  mockSetProfile.mockResolvedValueOnce(ok());
+  mockSetProfile.mockResolvedValue(ok());
+  mockSetVolume.mockResolvedValue(ok());
 
   const card = await AudioCard.default('development', logger);
   await card.useSpeaker();
