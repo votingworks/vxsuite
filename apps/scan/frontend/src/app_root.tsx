@@ -110,10 +110,13 @@ export function AppRoot(): JSX.Element | null {
     useState(false);
   useQueryChangeListener(configQuery, {
     select: ({ isPatDeviceConnected }) => isPatDeviceConnected,
-    onChange: (isConnected, wasConnected) => {
-      if (wasConnected && !isConnected) {
+    onChange: (
+      isAccessibilityInputConnected,
+      wasAccessibilityInputConnected
+    ) => {
+      if (wasAccessibilityInputConnected && !isAccessibilityInputConnected) {
         setAccessibilityInputDisconnected(true);
-      } else if (isConnected) {
+      } else if (isAccessibilityInputConnected) {
         setAccessibilityInputDisconnected(false);
       }
     },
