@@ -50,13 +50,13 @@
     "@types/node": "20.17.31",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "tmp": "^0.2.1",
-    "vitest": "^3.1.4"
+    "vitest": "^4.1.6"
   },
   "engines": {
     "node": ">= 12"

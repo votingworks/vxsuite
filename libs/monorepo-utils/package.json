@@ -29,7 +29,7 @@
     "@types/node": "20.17.31",
     "@typescript-eslint/eslint-plugin": "8.59.2",
     "@typescript-eslint/parser": "8.59.2",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "esbuild-runner": "2.2.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.0.0",
@@ -42,7 +42,7 @@
     "prettier": "3.0.3",
     "sort-package-json": "^1.50.0",
     "typescript": "5.8.3",
-    "vitest": "^3.1.4"
+    "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@8.15.5"
 }

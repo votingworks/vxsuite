@@ -72,7 +72,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
@@ -96,7 +96,7 @@
     "styled-components": "^5.3.11",
     "util": "^0.12.4",
     "vite": "8.0.5",
-    "vitest": "^3.1.4"
+    "vitest": "^4.1.6"
   },
   "peerDependencies": {
     "react": "18.3.1",
