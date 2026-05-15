@@ -582,7 +582,7 @@ export function AppRoot(): JSX.Element | null {
       );
     }
 
-    if (!hasPrinterAttached) {
+    if (!hasPrinterAttached && pollsState !== 'polls_closed_final') {
       return (
         <SetupPrinterPage
           isPollWorkerAuth={isPollWorkerAuth(authStatus)}

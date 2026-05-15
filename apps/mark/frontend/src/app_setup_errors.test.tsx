@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -162,6 +162,23 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // expect to see election manager screen
     await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  });
+
+  test('Does not show "No Printer Detected" when polls are closed final', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_closed_final',
+    });
+    apiMock.setPrinterStatus({ connected: false });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+
+    await screen.findByRole('heading', { name: 'Polls Closed' });
+    expect(
+      screen.queryByRole('heading', { name: 'No Printer Detected' })
+    ).toBeNull();
   });
 
   test('Displays internal connection problem when Barcode Reader connection is lost', async () => {
