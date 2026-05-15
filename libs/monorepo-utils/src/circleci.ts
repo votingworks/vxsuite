@@ -160,11 +160,10 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `          apt-get update -qq`,
     `          apt-get install -y --no-install-recommends graphicsmagick exiftool`,
     `    - run:`,
-    `        name: Download screenshots and thumbsup database from S3`,
+    `        name: Download screenshots from S3`,
     `        command: |`,
     `          mkdir -p screenshots`,
     `          aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/`,
-    `          aws s3 cp "s3://$SCREENSHOT_BUCKET/thumbsup.db" ./thumbsup.db || true`,
     `          printf '%s\\n' \\`,
     `            'body { border-top-color: #6638b6; }' \\`,
     `            'h1, h3, footer { color: #6638b6; }' \\`,
@@ -177,7 +176,6 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `          npx --yes thumbsup@${THUMBSUP_VERSION} \\`,
     `            --input ./screenshots \\`,
     `            --output ./gallery \\`,
-    `            --database-file ./thumbsup.db \\`,
     `            --title "VxSuite Automated Screenshots" \\`,
     `            --albums-from "%path" \\`,
     `            --sort-albums-by title \\`,
@@ -194,7 +192,6 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `        command: |`,
     `          aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/" \\`,
     `            --delete --exclude "screenshots/*"`,
-    `          aws s3 cp ./thumbsup.db "s3://$SCREENSHOT_BUCKET/thumbsup.db"`,
   ];
 }
 
