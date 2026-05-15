@@ -1499,7 +1499,7 @@ jobs:
           name: Install thumbsup native dependencies
           command: |
             apt-get update -qq
-            apt-get install -y --no-install-recommends graphicsmagick dcraw ffmpeg exiftool
+            apt-get install -y --no-install-recommends graphicsmagick exiftool
       - run:
           name: Download screenshots from S3
           command: |
@@ -1511,11 +1511,17 @@ jobs:
             npx --yes thumbsup@2.18.0 \
               --input ./screenshots \
               --output ./gallery \
-              --title "VxSuite integration-test screenshots" \
+              --title "VxSuite Automated Screenshots" \
               --albums-from "%path" \
               --sort-albums-by title \
               --sort-media-by filename \
-              --theme classic
+              --theme classic \
+              --theme-style .circleci/screenshot-gallery-theme.css \
+              --thumb-size 200 \
+              --large-size 1600 \
+              --photo-download copy \
+              --include-videos false \
+              --home-album-name "VxSuite Screenshots"
       - run:
           name: Upload gallery to S3
           command: |
