@@ -120,6 +120,17 @@ function generateTestJobForNodeJsPackage(
       lines.push(`${indent}          name: Upload screenshots to S3`);
       lines.push(`${indent}          command: |`);
       lines.push(
+        `${indent}            echo "SCREENSHOT_BUCKET length: \${#SCREENSHOT_BUCKET}"`
+      );
+      lines.push(
+        `${indent}            if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9.\\-_]{1,255}$ ]]; then`
+      );
+      lines.push(
+        `${indent}              echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2`
+      );
+      lines.push(`${indent}              exit 1`);
+      lines.push(`${indent}            fi`);
+      lines.push(
         `${indent}            if [ -d "${pkg.relativePath}/test-results/screenshots" ]; then`
       );
       lines.push(
