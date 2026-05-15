@@ -139,12 +139,6 @@ function generateTestJobForNodeJsPackage(
 }
 
 const PUBLISH_SCREENSHOT_GALLERY_JOB_ID = 'publish-screenshot-gallery';
-const INTEGRATION_TESTING_APPS = [
-  'admin',
-  'central-scan',
-  'mark',
-  'mark-scan',
-] as const;
 const THUMBSUP_VERSION = '2.18.0';
 
 function generatePublishScreenshotGalleryJob(): string[] {
@@ -399,34 +393,24 @@ export function generateAllConfigs(
 
   const rustJobLines = generateTestJobForRustCrates();
 
-  const integrationTestingJobIds = INTEGRATION_TESTING_APPS.map(
-    (app) => `test-apps-${app}-integration-testing`
-  );
-  function isIntegrationTestingJob(jobId: string): boolean {
-    return integrationTestingJobIds.includes(jobId);
-  }
+  const integrationTestingJobIds = iter(pnpmPackages.values())
+    .filter((pkg) =>
+      /^apps\/[^/]+\/integration-testing$/.test(pkg.relativePath)
+    )
+    .map(jobIdForPackage)
+    .toArray();
 
   const pnpmJobIds = [...pnpmJobs.keys()].map(jobIdForPackage);
-  const simpleJobIds = [
-    ...pnpmJobIds.filter((id) => !isIntegrationTestingJob(id)),
+  const allJobIds = [
+    ...pnpmJobIds,
     // hardcoded jobs
     'shellcheck',
     'validate-monorepo',
     RUST_CRATES_JOB_ID,
   ];
 
-  function workflowEntryForIntegrationTestingJob(jobId: string): string {
-    return [
-      `      - ${jobId}:`,
-      `          context:`,
-      `            - screenshots-publishing`,
-    ].join('\n');
-  }
-
   const publishGalleryWorkflowEntry = [
     `      - ${PUBLISH_SCREENSHOT_GALLERY_JOB_ID}:`,
-    `          context:`,
-    `            - screenshots-publishing`,
     `          requires:`,
     ...integrationTestingJobIds.map((id) => `            - ${id}`),
     `          filters:`,
@@ -512,9 +496,11 @@ workflows:
 ${[...pnpmJobsToFilter.values()]
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
-${simpleJobIds.map((jobId) => `      - ${jobId}`).join('\n')}
-${integrationTestingJobIds
-  .map(workflowEntryForIntegrationTestingJob)
+${allJobIds
+  .map(
+    (jobId) =>
+      `      - ${jobId}:\n          context:\n            - screenshots-publishing`
+  )
   .join('\n')}
 ${publishGalleryWorkflowEntry}
 
