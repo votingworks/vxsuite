@@ -111,7 +111,7 @@ function generateTestJobForNodeJsPackage(
         .replace(/\/integration-testing$/, '');
       lines.push(`${indent}- when:`);
       lines.push(`${indent}    condition:`);
-      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >> ]`);
+      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >>]`);
       lines.push(`${indent}    steps:`);
       lines.push(`${indent}      - aws-cli/setup`);
       lines.push(`${indent}      - run:`);
