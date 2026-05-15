@@ -1693,6 +1693,8 @@ workflows:
           context:
             - screenshots-publishing
       - publish-screenshot-gallery:
+          context:
+            - screenshots-publishing
           requires:
             - test-apps-admin-integration-testing
             - test-apps-central-scan-integration-testing

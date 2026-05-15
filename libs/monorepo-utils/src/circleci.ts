@@ -411,6 +411,8 @@ export function generateAllConfigs(
 
   const publishGalleryWorkflowEntry = [
     `      - ${PUBLISH_SCREENSHOT_GALLERY_JOB_ID}:`,
+    `          context:`,
+    `            - screenshots-publishing`,
     `          requires:`,
     ...integrationTestingJobIds.map((id) => `            - ${id}`),
     `          filters:`,
