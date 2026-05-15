@@ -61,7 +61,14 @@ test('start passes context to `buildApp`', async () => {
     trustMe: 'I play audio.',
     setIsScreenReaderEnabled: vi.fn().mockResolvedValue(undefined),
   } as unknown as AudioPlayer;
-  mockAudioPlayerClass.mockReturnValueOnce(mockAudioPlayer);
+  // Vitest 4 requires a non-arrow function so `new AudioPlayer(...)` can call
+  // it as a constructor.
+  mockAudioPlayerClass.mockImplementationOnce(
+    // eslint-disable-next-line prefer-arrow-callback, func-names
+    function () {
+      return mockAudioPlayer;
+    }
+  );
 
   const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
 
