@@ -41,7 +41,14 @@ const mockWebAudioContext = {
 } as unknown as AudioContext;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = vi.fn(() => mockWebAudioContext);
+  // Vitest 4 requires a non-arrow function so `new AudioContext()` can call
+  // it as a constructor.
+  const mockAudioContextConstructor = vi.fn(
+    // eslint-disable-next-line prefer-arrow-callback, func-names
+    function () {
+      return mockWebAudioContext;
+    }
+  );
   window.AudioContext = mockAudioContextConstructor;
 });
 

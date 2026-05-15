@@ -30,7 +30,14 @@ function audioMocks() {
     }) as unknown as typeof Audio.prototype
   );
 
-  const mockAudioCtor = vi.fn(() => mockAudio);
+  // Vitest 4 requires a non-arrow function so `new AudioCtor(...)` can call
+  // it as a constructor.
+  const mockAudioCtor = vi.fn(
+    // eslint-disable-next-line prefer-arrow-callback, func-names
+    function () {
+      return mockAudio;
+    }
+  );
 
   return { mockAudio, mockAudioCtor, mockCtx, mockGain, mockSrc };
 }

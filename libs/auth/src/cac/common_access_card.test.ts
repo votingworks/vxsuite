@@ -52,7 +52,10 @@ const CERTIFYING_PRIVATE_KEY_PATH = join(
 let mockCardReader: MockCardReader;
 
 beforeEach(() => {
-  vi.mocked(CardReader).mockImplementation((...params) => {
+  // Vitest 4 requires a non-arrow function so `new CardReader(...)` can call
+  // it as a constructor.
+  // eslint-disable-next-line prefer-arrow-callback, func-names
+  vi.mocked(CardReader).mockImplementation(function (...params) {
     mockCardReader = new MockCardReader(...params);
     return mockCardReader as unknown as CardReader;
   });

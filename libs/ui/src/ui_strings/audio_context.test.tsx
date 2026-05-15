@@ -60,7 +60,14 @@ const mockWebAudioContext = {
 const mockGainNode = { gain: { value: 9000 } } as unknown as GainNode;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = vi.fn(() => mockWebAudioContext);
+  // Vitest 4 requires a non-arrow function so `new AudioContext()` can call
+  // it as a constructor.
+  const mockAudioContextConstructor = vi.fn(
+    // eslint-disable-next-line prefer-arrow-callback, func-names
+    function () {
+      return mockWebAudioContext;
+    }
+  );
   mockWebAudioContext.createGain.mockReturnValue(mockGainNode);
 
   window.AudioContext = mockAudioContextConstructor;
