@@ -118,7 +118,7 @@ jobs:
                 name: Upload screenshots to S3
                 command: |
                   echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9.\-_]{1,255}$ ]]; then
+                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
                     echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
                     exit 1
                   fi
@@ -217,7 +217,7 @@ jobs:
                 name: Upload screenshots to S3
                 command: |
                   echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9.\-_]{1,255}$ ]]; then
+                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
                     echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
                     exit 1
                   fi
@@ -366,7 +366,7 @@ jobs:
                 name: Upload screenshots to S3
                 command: |
                   echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9.\-_]{1,255}$ ]]; then
+                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
                     echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
                     exit 1
                   fi
@@ -465,7 +465,7 @@ jobs:
                 name: Upload screenshots to S3
                 command: |
                   echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9.\-_]{1,255}$ ]]; then
+                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
                     echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
                     exit 1
                   fi
