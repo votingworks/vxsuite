@@ -120,9 +120,21 @@ export const getConfig = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getConfig(), {
-      refetchInterval: PAT_DEVICE_STATUS_POLLING_INTERVAL_MS,
-    });
+    return useQuery(this.queryKey(), () => apiClient.getConfig());
+  },
+} as const;
+
+export const getIsPatDeviceConnected = {
+  queryKey(): QueryKey {
+    return ['getIsPatDeviceConnected'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getIsPatDeviceConnected(),
+      { refetchInterval: PAT_DEVICE_STATUS_POLLING_INTERVAL_MS }
+    );
   },
 } as const;
 

@@ -1401,8 +1401,8 @@ test.each<{
       ...DEFAULT_SYSTEM_SETTINGS,
       ...testConfig.systemSettings,
     },
-    isPatDeviceConnected: true,
   });
+  apiMock.expectGetIsPatDeviceConnected(true);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus);
   apiMock.expectGetScannerStatus(testConfig.scannerStatus);
@@ -1415,13 +1415,7 @@ test.each<{
   renderApp();
 
   if (testConfig.doesAccessibilityInputDisconnect) {
-    apiMock.expectGetConfig({
-      pollingPlaceId: electionGeneralPollingPlace.id,
-      systemSettings: {
-        ...DEFAULT_SYSTEM_SETTINGS,
-        ...testConfig.systemSettings,
-      },
-    });
+    apiMock.expectGetIsPatDeviceConnected(false);
   }
 
   await screen.findByText(testConfig.expectedHeading);
@@ -1456,14 +1450,7 @@ test.each<{
 
   // Address alarm trigger - reconnect accessibility input if it disconnected
   if (testConfig.doesAccessibilityInputDisconnect) {
-    apiMock.expectGetConfig({
-      pollingPlaceId: electionGeneralPollingPlace.id,
-      systemSettings: {
-        ...DEFAULT_SYSTEM_SETTINGS,
-        ...testConfig.systemSettings,
-      },
-      isPatDeviceConnected: true,
-    });
+    apiMock.expectGetIsPatDeviceConnected(true);
   }
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -1497,7 +1484,8 @@ test('PAT device tutorial is shown when PAT key is pressed and can be completed'
     isPatCalibrationComplete: false,
   });
 
-  apiMock.expectGetConfig({ ...defaultConfig, isPatDeviceConnected: true });
+  apiMock.expectGetConfig(defaultConfig);
+  apiMock.expectGetIsPatDeviceConnected(true);
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);

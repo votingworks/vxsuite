@@ -246,8 +246,11 @@ export function buildApi({
         ballotCastingMode: store.getBallotCastingMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
-        isPatDeviceConnected: xk3Client.isPatDeviceConnected() || undefined,
       };
+    },
+
+    getIsPatDeviceConnected(): boolean {
+      return xk3Client.isPatDeviceConnected();
     },
 
     getPollsInfo(): PrecinctScannerPollsInfo {

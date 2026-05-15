@@ -63,16 +63,23 @@ export const statusNoPaper: PrecinctScannerStatus = {
   ballotsCounted: 0,
 };
 
-type MockApiClient = Omit<MockClient<Api>, 'getDiskSpaceSummary'> & {
-  // Because this is polled so frequently, we opt for a standard vitest mock instead of a
-  // libs/test-utils mock since the latter requires every call to be explicitly mocked
+type MockApiClient = Omit<
+  MockClient<Api>,
+  'getDiskSpaceSummary' | 'getIsPatDeviceConnected'
+> & {
+  // Because these are polled so frequently, we opt for standard vitest mocks instead of
+  // libs/test-utils mocks since the latter requires every call to be explicitly mocked
   getDiskSpaceSummary: Mock;
+  getIsPatDeviceConnected: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
+  );
+  (mockApiClient.getIsPatDeviceConnected as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(false)
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -170,6 +177,12 @@ export function createApiMock() {
         ...defaultConfig,
         ...config,
       });
+    },
+
+    expectGetIsPatDeviceConnected(isConnected: boolean): void {
+      mockApiClient.getIsPatDeviceConnected.mockReturnValue(
+        Promise.resolve(isConnected)
+      );
     },
 
     expectGetPollsInfo(

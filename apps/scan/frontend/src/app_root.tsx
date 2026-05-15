@@ -33,6 +33,7 @@ import {
   checkPin,
   getAuthStatus,
   getConfig,
+  getIsPatDeviceConnected,
   getPollsInfo,
   getPrinterStatus,
   getScannerStatus,
@@ -70,6 +71,7 @@ export function AppRoot(): JSX.Element | null {
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
   const printerStatusQuery = getPrinterStatus.useQuery();
+  const isPatDeviceConnectedQuery = getIsPatDeviceConnected.useQuery();
 
   const sessionSettingsManager = useSessionSettingsManager();
   useQueryChangeListener(authStatusQuery, {
@@ -108,8 +110,7 @@ export function AppRoot(): JSX.Element | null {
   // want to block operations on it.
   const [accessibilityInputDisconnected, setAccessibilityInputDisconnected] =
     useState(false);
-  useQueryChangeListener(configQuery, {
-    select: ({ isPatDeviceConnected }) => isPatDeviceConnected,
+  useQueryChangeListener(isPatDeviceConnectedQuery, {
     onChange: (
       isAccessibilityInputConnected,
       wasAccessibilityInputConnected
@@ -128,7 +129,7 @@ export function AppRoot(): JSX.Element | null {
     sessionSettingsManager.setIsPatCalibrationComplete(true);
   }, [sessionSettingsManager]);
 
-  const isPatDeviceConnected = configQuery.data?.isPatDeviceConnected;
+  const isPatDeviceConnected = isPatDeviceConnectedQuery.data;
 
   useEffect(() => {
     function patTutorialHandler(event: KeyboardEvent) {
