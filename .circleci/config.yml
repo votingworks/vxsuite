@@ -117,11 +117,6 @@ jobs:
             - run:
                 name: Upload screenshots to S3
                 command: |
-                  echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
-                    echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
-                    exit 1
-                  fi
                   if [ -d "apps/admin/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/admin/integration-testing/test-results/screenshots/ \
                       "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
@@ -216,11 +211,6 @@ jobs:
             - run:
                 name: Upload screenshots to S3
                 command: |
-                  echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
-                    echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
-                    exit 1
-                  fi
                   if [ -d "apps/central-scan/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/central-scan/integration-testing/test-results/screenshots/ \
                       "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
@@ -365,11 +355,6 @@ jobs:
             - run:
                 name: Upload screenshots to S3
                 command: |
-                  echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
-                    echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
-                    exit 1
-                  fi
                   if [ -d "apps/mark-scan/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/mark-scan/integration-testing/test-results/screenshots/ \
                       "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
@@ -464,11 +449,6 @@ jobs:
             - run:
                 name: Upload screenshots to S3
                 command: |
-                  echo "SCREENSHOT_BUCKET length: ${#SCREENSHOT_BUCKET}"
-                  if ! [[ "$SCREENSHOT_BUCKET" =~ ^[a-zA-Z0-9._-]{1,255}$ ]]; then
-                    echo "ERROR: SCREENSHOT_BUCKET does not match S3 bucket name regex" >&2
-                    exit 1
-                  fi
                   if [ -d "apps/mark/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/mark/integration-testing/test-results/screenshots/ \
                       "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
