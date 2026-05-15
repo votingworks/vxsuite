@@ -31,5 +31,5 @@ test('generateConfig', () => {
   expect(mainConfig).toContain(
     '"s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/"'
   );
-  expect(mainConfig).toContain('only: drew/screenshot-management');
+  expect(mainConfig).toContain('only: main');
 });

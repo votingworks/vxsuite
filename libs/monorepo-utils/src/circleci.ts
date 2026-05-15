@@ -111,9 +111,7 @@ function generateTestJobForNodeJsPackage(
         .replace(/\/integration-testing$/, '');
       lines.push(`${indent}- when:`);
       lines.push(`${indent}    condition:`);
-      lines.push(
-        `${indent}      equal: [ drew/screenshot-management, << pipeline.git.branch >> ]`
-      );
+      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >> ]`);
       lines.push(`${indent}    steps:`);
       lines.push(`${indent}      - aws-cli/setup`);
       lines.push(`${indent}      - run:`);
@@ -158,6 +156,9 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `        command: |`,
     `          mkdir -p screenshots`,
     `          aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/`,
+    `    - run:`,
+    `        name: Write gallery theme CSS`,
+    `        command: |`,
     `          printf '%s\\n' \\`,
     `            'body { border-top-color: #6638b6; }' \\`,
     `            'h1, h3, footer { color: #6638b6; }' \\`,
@@ -417,7 +418,7 @@ export function generateAllConfigs(
     ...integrationTestingJobIds.map((id) => `            - ${id}`),
     `          filters:`,
     `            branches:`,
-    `              only: drew/screenshot-management`,
+    `              only: main`,
   ].join('\n');
 
   const baseConfig = `

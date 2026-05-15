@@ -111,7 +111,7 @@ jobs:
           path: apps/admin/integration-testing/test-results/
       - when:
           condition:
-            equal: [ drew/screenshot-management, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -205,7 +205,7 @@ jobs:
           path: apps/central-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ drew/screenshot-management, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -349,7 +349,7 @@ jobs:
           path: apps/mark-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ drew/screenshot-management, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -443,7 +443,7 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - when:
           condition:
-            equal: [ drew/screenshot-management, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -1485,6 +1485,9 @@ jobs:
           command: |
             mkdir -p screenshots
             aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/
+      - run:
+          name: Write gallery theme CSS
+          command: |
             printf '%s\n' \
               'body { border-top-color: #6638b6; }' \
               'h1, h3, footer { color: #6638b6; }' \
@@ -1702,7 +1705,7 @@ workflows:
             - test-apps-mark-integration-testing
           filters:
             branches:
-              only: drew/screenshot-management
+              only: main
 
 commands:
   checkout-and-install:
