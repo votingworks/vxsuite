@@ -4623,8 +4623,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^3.1.4
-        version: 3.2.4(vitest@3.2.4)
+        specifier: ^4.1.6
+        version: 4.1.6(vitest@4.1.6)
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../monorepo-utils
@@ -4659,8 +4659,8 @@ importers:
         specifier: 8.0.5
         version: 8.0.5(@types/node@20.17.31)(esbuild@0.21.2)
       vitest:
-        specifier: ^3.1.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.17.31)(jsdom@20.0.1)
+        specifier: ^4.1.6
+        version: 4.1.6(@types/node@20.17.31)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1)(vite@8.0.5)
 
   libs/image-utils:
     dependencies:
@@ -8463,6 +8463,16 @@ packages:
       '@babel/helper-plugin-utils': 7.20.2
     dev: true
 
+  /@babel/plugin-transform-react-jsx-self@7.18.6(@babel/core@7.29.0):
+    resolution: {integrity: sha512-A0LQGx4+4Jv7u/tWzoJF7alZwnBDQd6cGLh9P+Ttk4dpiL+J5p7NSNv/9tlEFFJDq3kjxOavWmbm6t0Gk+A3Ig==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.20.2
+    dev: true
+
   /@babel/plugin-transform-react-jsx-source@7.19.6(@babel/core@7.26.0):
     resolution: {integrity: sha512-RpAi004QyMNisst/pvSanoRdJ4q+jMCWyk9zdw/CyLB9j8RXEahodR6l2GyttDRyEVWZtbN+TpLiHJ3t34LbsQ==}
     engines: {node: '>=6.9.0'}
@@ -8470,6 +8480,16 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.26.0
+      '@babel/helper-plugin-utils': 7.26.5
+    dev: true
+
+  /@babel/plugin-transform-react-jsx-source@7.19.6(@babel/core@7.29.0):
+    resolution: {integrity: sha512-RpAi004QyMNisst/pvSanoRdJ4q+jMCWyk9zdw/CyLB9j8RXEahodR6l2GyttDRyEVWZtbN+TpLiHJ3t34LbsQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.26.5
     dev: true
 
@@ -10687,9 +10707,9 @@ packages:
     resolution: {integrity: sha512-ZqCqEISr58Ce3U+buNFJYUktLJZOggfyvR+bZMaiV1e8B1SIvJbwZMrYz3gx/KAPn9EXmOmN+uB08yLCjWkQQg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@babel/core': 7.26.0
+      '@babel/core': 7.29.0
       '@jest/types': 29.6.3
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/trace-mapping': 0.3.31
       babel-plugin-istanbul: 6.1.1
       chalk: 4.1.2
       convert-source-map: 2.0.0
@@ -16059,9 +16079,9 @@ packages:
     peerDependencies:
       vite: ^4.0.0
     dependencies:
-      '@babel/core': 7.26.0
-      '@babel/plugin-transform-react-jsx-self': 7.18.6(@babel/core@7.26.0)
-      '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.26.0)
+      '@babel/core': 7.29.0
+      '@babel/plugin-transform-react-jsx-self': 7.18.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.29.0)
       magic-string: 0.27.0
       react-refresh: 0.14.0
       vite: 4.5.2
@@ -19096,7 +19116,7 @@ packages:
     engines: {node: '>=8.3.0'}
     dependencies:
       '@babel/traverse': 7.23.2(supports-color@5.5.0)
-      '@babel/types': 7.26.0
+      '@babel/types': 7.29.0
       c8: 7.12.0
     transitivePeerDependencies:
       - supports-color
@@ -22253,7 +22273,7 @@ packages:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
     engines: {node: '>=12'}
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
     dev: true
 
   /magic-string@0.30.17:
@@ -24188,7 +24208,7 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
-      '@babel/core': 7.26.0
+      '@babel/core': 7.29.0
       '@babel/generator': 7.26.2
       ast-types: 0.14.2
       commander: 2.20.3
