@@ -26,11 +26,18 @@ import { buildMockLogger } from '../test/app_helpers';
 vi.mock('./app');
 vi.mock('./audio/player');
 vi.mock('./barcodes', () => ({
-  BarcodeClient: vi.fn().mockImplementation(() => ({
-    on: vi.fn(),
-    shutDown: vi.fn().mockResolvedValue(undefined),
-    getConnectionStatus: vi.fn().mockReturnValue(false),
-  })),
+  BarcodeClient: vi.fn().mockImplementation(
+    // Vitest 4 requires a non-arrow function so `new BarcodeClient(...)` can
+    // call it as a constructor.
+    // eslint-disable-next-line prefer-arrow-callback, func-names
+    function () {
+      return {
+        on: vi.fn(),
+        shutDown: vi.fn().mockResolvedValue(undefined),
+        getConnectionStatus: vi.fn().mockReturnValue(false),
+      };
+    }
+  ),
 }));
 
 vi.mock('./app');
@@ -78,7 +85,14 @@ test('start passes context to `buildApp`', async () => {
   const mockAudioPlayer = {
     trustMe: 'I play audio.',
   } as unknown as AudioPlayer;
-  mockAudioPlayerClass.mockReturnValueOnce(mockAudioPlayer);
+  // Vitest 4 requires a non-arrow function so `new AudioPlayer(...)` can call
+  // it as a constructor.
+  mockAudioPlayerClass.mockImplementationOnce(
+    // eslint-disable-next-line prefer-arrow-callback, func-names
+    function () {
+      return mockAudioPlayer;
+    }
+  );
 
   const server = await start({
     auth,

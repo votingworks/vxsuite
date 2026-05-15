@@ -194,10 +194,13 @@ describe(`printMode === "summary"`, () => {
     const page1ContestIds = allContests.slice(0, 5).map((c) => c.id);
     const page2ContestIds = allContests.slice(5).map((c) => c.id);
 
-    // Override SummaryBallotLayoutRenderer mock to return 2 pages
+    // Override SummaryBallotLayoutRenderer mock to return 2 pages.
+    // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
+    // can call it as a constructor.
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      () =>
-        ({
+      // eslint-disable-next-line prefer-arrow-callback, func-names
+      function () {
+        return {
           computePageBreaks: vi.fn().mockResolvedValue([
             {
               pageNumber: 1,
@@ -211,7 +214,8 @@ describe(`printMode === "summary"`, () => {
             },
           ]),
           close: vi.fn().mockResolvedValue(undefined),
-        }) as unknown as SummaryBallotLayoutRenderer
+        } as unknown as SummaryBallotLayoutRenderer;
+      }
     );
 
     const mockVotes: VotesDict = {
@@ -341,15 +345,19 @@ describe(`printMode === "summary"`, () => {
     );
     const contestIds = allContests.map((c) => c.id);
 
+    // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
+    // can call it as a constructor.
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      () =>
-        ({
+      // eslint-disable-next-line prefer-arrow-callback, func-names
+      function () {
+        return {
           computePageBreaks: vi.fn().mockResolvedValue([
             { pageNumber: 1, contestIds, layout: {} },
             { pageNumber: 2, contestIds: [], layout: {} },
           ]),
           close: vi.fn().mockResolvedValue(undefined),
-        }) as unknown as SummaryBallotLayoutRenderer
+        } as unknown as SummaryBallotLayoutRenderer;
+      }
     );
 
     vi.mocked(getPdfPageCount).mockResolvedValue(2);
