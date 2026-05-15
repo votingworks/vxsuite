@@ -188,7 +188,7 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `            --sort-albums-by title \\`,
     `            --sort-media-by filename \\`,
     `            --theme classic \\`,
-    `            --theme-style .circleci/screenshot-gallery-theme.css \\`,
+    `            --theme-style "$CIRCLE_WORKING_DIRECTORY/.circleci/screenshot-gallery-theme.css" \\`,
     `            --thumb-size 200 \\`,
     `            --large-size 1600 \\`,
     `            --photo-download copy \\`,
