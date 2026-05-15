@@ -41,8 +41,7 @@ const mockWebAudioContext = {
 } as unknown as AudioContext;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = vi.fn();
-  mockAudioContextConstructor.mockReturnValue(mockWebAudioContext);
+  const mockAudioContextConstructor = vi.fn(() => mockWebAudioContext);
   window.AudioContext = mockAudioContextConstructor;
 });
 

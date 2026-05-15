@@ -3381,8 +3381,8 @@ importers:
         specifier: 17.0.22
         version: 17.0.22
       '@vitest/coverage-istanbul':
-        specifier: ^3.1.4
-        version: 3.2.4(vitest@3.2.4)
+        specifier: ^4.1.6
+        version: 4.1.6(vitest@4.1.6)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3405,8 +3405,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^3.1.4
-        version: 3.2.4(@types/debug@4.1.12)(jsdom@20.0.1)
+        specifier: ^4.1.6
+        version: 4.1.6(@vitest/coverage-istanbul@4.1.6)(vite@8.0.5)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -5645,8 +5645,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^3.1.4
-        version: 3.2.4(vitest@3.2.4)
+        specifier: ^4.1.6
+        version: 4.1.6(vitest@4.1.6)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -5735,8 +5735,8 @@ importers:
         specifier: 8.0.5
         version: 8.0.5(@types/node@20.17.31)(esbuild@0.21.2)
       vitest:
-        specifier: ^3.1.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.17.31)(jsdom@20.0.1)
+        specifier: ^4.1.6
+        version: 4.1.6(@types/node@20.17.31)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1)(vite@8.0.5)
       vitest-styled-components:
         specifier: ^1.0.0
         version: 1.0.0(styled-components@5.3.11)
@@ -5948,8 +5948,8 @@ packages:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
     engines: {node: '>=6.0.0'}
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.5
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
 
   /@antongolub/iso8601@1.2.1:
     resolution: {integrity: sha512-XsH1mkG5a4J8feeH50Il436pyNCVj6n7EeILYhAHVibQDrxV9gZso198vBZ/dxyhbnfjwK315gvi3/EtEpoekQ==}
@@ -6656,8 +6656,8 @@ packages:
     dependencies:
       '@babel/parser': 7.26.2
       '@babel/types': 7.26.0
-      '@jridgewell/gen-mapping': 0.3.5
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
       jsesc: 3.0.2
 
   /@babel/generator@7.29.1:
@@ -10774,15 +10774,6 @@ packages:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
       '@jridgewell/trace-mapping': 0.3.31
-    dev: true
-
-  /@jridgewell/gen-mapping@0.3.5:
-    resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      '@jridgewell/set-array': 1.2.1
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@jridgewell/trace-mapping': 0.3.31
 
   /@jridgewell/remapping@2.3.5:
     resolution: {integrity: sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==}
@@ -10793,10 +10784,6 @@ packages:
 
   /@jridgewell/resolve-uri@3.1.0:
     resolution: {integrity: sha512-F2msla3tad+Mfht5cJq7LSXcdudKTWCVYUgw6pLFOOHSTtZlj6SWNYAp+AhuqLmWdBO2X5hPrLcu8cVP8fy28w==}
-    engines: {node: '>=6.0.0'}
-
-  /@jridgewell/set-array@1.2.1:
-    resolution: {integrity: sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==}
     engines: {node: '>=6.0.0'}
 
   /@jridgewell/sourcemap-codec@1.5.0:
@@ -16116,7 +16103,7 @@ packages:
       magicast: 0.5.3
       obug: 2.1.1
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@types/node@20.17.31)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1)(vite@8.0.5)
+      vitest: 4.1.6(@vitest/coverage-istanbul@4.1.6)(vite@8.0.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -16171,7 +16158,7 @@ packages:
       '@vitest/spy': 4.1.6
       estree-walker: 3.0.3
       magic-string: 0.30.21
-      vite: 8.0.5(@types/node@20.17.31)(esbuild@0.18.17)
+      vite: 8.0.5(@types/node@20.17.31)(esbuild@0.21.2)
     dev: true
 
   /@vitest/pretty-format@3.2.4:
@@ -27193,7 +27180,7 @@ packages:
       tinyexec: 1.1.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vite: 8.0.5(@types/node@20.17.31)(esbuild@0.18.17)
+      vite: 8.0.5(@types/node@20.17.31)(esbuild@0.21.2)
       why-is-node-running: 2.3.0
     transitivePeerDependencies:
       - msw

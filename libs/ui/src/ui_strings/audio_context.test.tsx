@@ -60,8 +60,7 @@ const mockWebAudioContext = {
 const mockGainNode = { gain: { value: 9000 } } as unknown as GainNode;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = vi.fn();
-  mockAudioContextConstructor.mockReturnValue(mockWebAudioContext);
+  const mockAudioContextConstructor = vi.fn(() => mockWebAudioContext);
   mockWebAudioContext.createGain.mockReturnValue(mockGainNode);
 
   window.AudioContext = mockAudioContextConstructor;
