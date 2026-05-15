@@ -169,7 +169,7 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `        name: Install thumbsup native dependencies`,
     `        command: |`,
     `          apt-get update -qq`,
-    `          apt-get install -y --no-install-recommends graphicsmagick dcraw ffmpeg`,
+    `          apt-get install -y --no-install-recommends graphicsmagick dcraw ffmpeg exiftool`,
     `    - run:`,
     `        name: Download screenshots from S3`,
     `        command: |`,
