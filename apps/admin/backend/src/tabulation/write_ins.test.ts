@@ -270,88 +270,88 @@ test('tabulateWriteInTallies', () => {
   }> = [
     // no filter case
     {
-      expected: [['root', 83, 1]],
+      expected: [['{}', 83, 1]],
     },
     // each filter case
     {
       filter: { precinctIds: ['precinct-2'] },
-      expected: [['root', 55, 1]],
+      expected: [['{}', 55, 1]],
     },
     {
       filter: { scannerIds: ['scanner-2'] },
-      expected: [['root', 21, 0]],
+      expected: [['{}', 21, 0]],
     },
     {
       filter: { batchIds: ['batch-2-1', 'batch-3-1'] },
-      expected: [['root', 43, 1]],
+      expected: [['{}', 43, 1]],
     },
     {
       filter: { votingMethods: ['precinct'] },
-      expected: [['root', 68, 1]],
+      expected: [['{}', 68, 1]],
     },
     {
       filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
-      expected: [['root', 45, 1]],
+      expected: [['{}', 45, 1]],
     },
     {
       filter: { partyIds: ['0'] },
-      expected: [['root', 45, 1]],
+      expected: [['{}', 45, 1]],
     },
     // empty filter case
     {
       filter: { partyIds: [] },
-      expected: [['root', 0, 0]],
+      expected: [['{}', 0, 0]],
     },
     // trivial filter case
     {
       filter: { partyIds: ['0', '1'] },
-      expected: [['root', 83, 1]],
+      expected: [['{}', 83, 1]],
     },
     // each group case
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleGroupId=1M', 45, 1],
-        ['root&ballotStyleGroupId=2F', 38, 0],
+        ['{"ballotStyleGroupId":"1M"}', 45, 1],
+        ['{"ballotStyleGroupId":"2F"}', 38, 0],
       ],
     },
     {
       groupBy: { groupByParty: true },
       expected: [
-        ['root&partyId=0', 45, 1],
-        ['root&partyId=1', 38, 0],
+        ['{"partyId":"0"}', 45, 1],
+        ['{"partyId":"1"}', 38, 0],
       ],
     },
     {
       groupBy: { groupByBatch: true },
       expected: [
-        ['root&batchId=batch-1-1', 11, 0],
-        ['root&batchId=batch-1-2', 17, 0],
-        ['root&batchId=batch-2-1', 9, 0],
-        ['root&batchId=batch-2-2', 12, 0],
-        ['root&batchId=batch-3-1', 34, 1],
+        ['{"batchId":"batch-1-1"}', 11, 0],
+        ['{"batchId":"batch-1-2"}', 17, 0],
+        ['{"batchId":"batch-2-1"}', 9, 0],
+        ['{"batchId":"batch-2-2"}', 12, 0],
+        ['{"batchId":"batch-3-1"}', 34, 1],
       ],
     },
     {
       groupBy: { groupByScanner: true },
       expected: [
-        ['root&scannerId=scanner-1', 28, 0],
-        ['root&scannerId=scanner-2', 21, 0],
-        ['root&scannerId=scanner-3', 34, 1],
+        ['{"scannerId":"scanner-1"}', 28, 0],
+        ['{"scannerId":"scanner-2"}', 21, 0],
+        ['{"scannerId":"scanner-3"}', 34, 1],
       ],
     },
     {
       groupBy: { groupByPrecinct: true },
       expected: [
-        ['root&precinctId=precinct-1', 28, 0],
-        ['root&precinctId=precinct-2', 55, 1],
+        ['{"precinctId":"precinct-1"}', 28, 0],
+        ['{"precinctId":"precinct-2"}', 55, 1],
       ],
     },
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
-        ['root&votingMethod=precinct', 68, 1],
-        ['root&votingMethod=absentee', 15, 0],
+        ['{"votingMethod":"precinct"}', 68, 1],
+        ['{"votingMethod":"absentee"}', 15, 0],
       ],
     },
   ];
@@ -512,7 +512,7 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
 
   const summaries = tabulateWriteInTallies({ electionId, store });
   const contestSummary = assertDefined(
-    assertDefined(summaries['root']).contestWriteInSummaries[contestId]
+    assertDefined(summaries['{}']).contestWriteInSummaries[contestId]
   );
 
   // Both qualified candidates show up with tally: 0
@@ -595,7 +595,7 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
 
   const summaries = tabulateWriteInTallies({ electionId, store });
   const contestSummary = assertDefined(
-    assertDefined(summaries['root']).contestWriteInSummaries[contestId]
+    assertDefined(summaries['{}']).contestWriteInSummaries[contestId]
   );
 
   // Chimera keeps its adjudicated tally (2); Unicorn is injected with tally: 0.

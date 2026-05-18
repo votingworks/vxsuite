@@ -176,24 +176,24 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     }> = [
       // no filter or group case
       {
-        expected: [['root', 114]],
+        expected: [['{}', 114]],
       },
       // each filter case
       {
         filter: { precinctIds: ['precinct-1'] },
-        expected: [['root', 36]],
+        expected: [['{}', 36]],
       },
       {
         filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
-        expected: [['root', 47]],
+        expected: [['{}', 47]],
       },
       {
         filter: { partyIds: ['0'] },
-        expected: [['root', 47]],
+        expected: [['{}', 47]],
       },
       {
         filter: { votingMethods: ['precinct'] },
-        expected: [['root', 50]],
+        expected: [['{}', 50]],
       },
       // empty filter case
       {
@@ -203,66 +203,66 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       // trivial filter case
       {
         filter: { votingMethods: ['precinct', 'absentee'] },
-        expected: [['root', 114]],
+        expected: [['{}', 114]],
       },
       // each grouping case
       {
         groupBy: { groupByBallotStyle: true },
         expected: [
-          ['root&ballotStyleGroupId=1M', 47],
-          ['root&ballotStyleGroupId=2F', 67],
+          ['{"ballotStyleGroupId":"1M"}', 47],
+          ['{"ballotStyleGroupId":"2F"}', 67],
         ],
       },
       {
         groupBy: { groupByParty: true },
         expected: [
-          ['root&partyId=0', 47],
-          ['root&partyId=1', 67],
+          ['{"partyId":"0"}', 47],
+          ['{"partyId":"1"}', 67],
         ],
       },
       {
         groupBy: { groupByPrecinct: true },
         expected: [
-          ['root&precinctId=precinct-1', 36],
-          ['root&precinctId=precinct-2', 78],
+          ['{"precinctId":"precinct-1"}', 36],
+          ['{"precinctId":"precinct-2"}', 78],
         ],
       },
       {
         groupBy: { groupByVotingMethod: true },
         expected: [
-          ['root&votingMethod=precinct', 50],
-          ['root&votingMethod=absentee', 64],
+          ['{"votingMethod":"precinct"}', 50],
+          ['{"votingMethod":"absentee"}', 64],
         ],
       },
       // composite filter & group cases
       {
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
         expected: [
-          ['root&precinctId=precinct-1&votingMethod=precinct', 11],
-          ['root&precinctId=precinct-1&votingMethod=absentee', 25],
-          ['root&precinctId=precinct-2&votingMethod=precinct', 39],
-          ['root&precinctId=precinct-2&votingMethod=absentee', 39],
+          ['{"precinctId":"precinct-1","votingMethod":"precinct"}', 11],
+          ['{"precinctId":"precinct-1","votingMethod":"absentee"}', 25],
+          ['{"precinctId":"precinct-2","votingMethod":"precinct"}', 39],
+          ['{"precinctId":"precinct-2","votingMethod":"absentee"}', 39],
         ],
       },
       {
         filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
         expected: [
-          ['root&precinctId=precinct-1&votingMethod=precinct', 3],
-          ['root&precinctId=precinct-1&votingMethod=absentee', 11],
-          ['root&precinctId=precinct-2&votingMethod=precinct', 18],
-          ['root&precinctId=precinct-2&votingMethod=absentee', 15],
+          ['{"precinctId":"precinct-1","votingMethod":"precinct"}', 3],
+          ['{"precinctId":"precinct-1","votingMethod":"absentee"}', 11],
+          ['{"precinctId":"precinct-2","votingMethod":"precinct"}', 18],
+          ['{"precinctId":"precinct-2","votingMethod":"absentee"}', 15],
         ],
       },
       {
         groupBy: { groupByPrecinct: true, groupByBatch: true },
         expected: [
           [
-            `root&batchId=${Tabulation.MANUAL_BATCH_ID}&precinctId=precinct-1`,
+            `{"batchId":"${Tabulation.MANUAL_BATCH_ID}","precinctId":"precinct-1"}`,
             36,
           ],
           [
-            `root&batchId=${Tabulation.MANUAL_BATCH_ID}&precinctId=precinct-2`,
+            `{"batchId":"${Tabulation.MANUAL_BATCH_ID}","precinctId":"precinct-2"}`,
             78,
           ],
         ],
@@ -271,11 +271,11 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         groupBy: { groupByPrecinct: true, groupByScanner: true },
         expected: [
           [
-            `root&precinctId=precinct-1&scannerId=${Tabulation.MANUAL_SCANNER_ID}`,
+            `{"precinctId":"precinct-1","scannerId":"${Tabulation.MANUAL_SCANNER_ID}"}`,
             36,
           ],
           [
-            `root&precinctId=precinct-2&scannerId=${Tabulation.MANUAL_SCANNER_ID}`,
+            `{"precinctId":"precinct-2","scannerId":"${Tabulation.MANUAL_SCANNER_ID}"}`,
             78,
           ],
         ],

@@ -57,16 +57,16 @@ test('mergeTabulationGroups', () => {
 test('groupMapToGroupList', () => {
   expect(
     groupMapToGroupList({
-      'root&ballotStyleGroupId=1M&batchId=batch-1': {
+      '{"ballotStyleGroupId":"1M","batchId":"batch-1"}': {
         ballotCount: 1,
       },
-      'root&ballotStyleGroupId=1M&batchId=batch-2': {
+      '{"ballotStyleGroupId":"1M","batchId":"batch-2"}': {
         ballotCount: 2,
       },
-      'root&ballotStyleGroupId=2F&batchId=batch-1': {
+      '{"ballotStyleGroupId":"2F","batchId":"batch-1"}': {
         ballotCount: 3,
       },
-      'root&ballotStyleGroupId=2F&batchId=batch-2': {
+      '{"ballotStyleGroupId":"2F","batchId":"batch-2"}': {
         ballotCount: 4,
       },
     })
