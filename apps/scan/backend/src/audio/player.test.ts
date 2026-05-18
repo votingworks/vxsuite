@@ -9,17 +9,15 @@ vi.mock('./card.js');
 
 vi.mock('@votingworks/backend', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/backend')>();
+  // vi.mock factories are hoisted above imports; resolve test-utils lazily
+  // here so `mockConstructor` isn't in TDZ when the factory first runs.
+  const { mockConstructor } = await import('@votingworks/test-utils');
   return {
     ...actual,
     AudioPlayer: vi.fn().mockImplementation(
-      // Vitest 4 requires a non-arrow function so `new AudioPlayer(...)` can
-      // call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return {
-          play: vi.fn().mockResolvedValue(undefined),
-        };
-      }
+      mockConstructor(() => ({
+        play: vi.fn().mockResolvedValue(undefined),
+      }))
     ),
   };
 });

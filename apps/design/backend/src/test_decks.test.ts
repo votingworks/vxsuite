@@ -42,6 +42,7 @@ import {
   createTestElection,
   createElectionDefinition,
   createMockVotes,
+  mockConstructor,
 } from '@votingworks/test-utils';
 import {
   createPrecinctTestDeck,
@@ -67,15 +68,14 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
 
 vi.mock('@votingworks/printing', async (importActual) => {
   const actual = await importActual<typeof import('@votingworks/printing')>();
+  // vi.mock factories are hoisted above imports, so the top-level
+  // `mockConstructor` is in TDZ here — resolve test-utils lazily and alias
+  // to avoid shadowing the outer import.
+  const { mockConstructor: mockCtor } = await import('@votingworks/test-utils');
   return {
     ...actual,
     SummaryBallotLayoutRenderer: vi.fn(
-      // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
-      // can call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return new actual.SummaryBallotLayoutRenderer();
-      }
+      mockCtor(() => new actual.SummaryBallotLayoutRenderer())
     ),
     renderToPdf: vi.fn(actual.renderToPdf),
   };
@@ -684,15 +684,13 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     ]);
     const mockClose = vi.fn().mockResolvedValue(undefined);
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
-      // can call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return {
-          computePageBreaks: mockComputePageBreaks,
-          close: mockClose,
-        } as unknown as SummaryBallotLayoutRenderer;
-      }
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: mockComputePageBreaks,
+            close: mockClose,
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
 
     // Mock renderToPdf to return mock PDFs (one per React element)
@@ -803,15 +801,13 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
       ]);
     });
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
-      // can call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return {
-          computePageBreaks: mockComputePageBreaks,
-          close: vi.fn().mockResolvedValue(undefined),
-        } as unknown as SummaryBallotLayoutRenderer;
-      }
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: mockComputePageBreaks,
+            close: vi.fn().mockResolvedValue(undefined),
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
 
     // 3 documents: 2 from multi-page ballot + 1 from single-page ballot
@@ -886,19 +882,17 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     ];
 
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
-      // can call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return {
-          computePageBreaks: vi
-            .fn()
-            .mockResolvedValue([
-              { pageNumber: 1, contestIds: allContestIds, layout: undefined },
-            ]),
-          close: vi.fn().mockResolvedValue(undefined),
-        } as unknown as SummaryBallotLayoutRenderer;
-      }
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: vi
+              .fn()
+              .mockResolvedValue([
+                { pageNumber: 1, contestIds: allContestIds, layout: undefined },
+              ]),
+            close: vi.fn().mockResolvedValue(undefined),
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
     vi.mocked(renderToPdf).mockResolvedValue(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -938,17 +932,15 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
 
     const mockClose = vi.fn().mockResolvedValue(undefined);
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
-      // can call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return {
-          computePageBreaks: vi
-            .fn()
-            .mockRejectedValue(new Error('render failed')),
-          close: mockClose,
-        } as unknown as SummaryBallotLayoutRenderer;
-      }
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: vi
+              .fn()
+              .mockRejectedValue(new Error('render failed')),
+            close: mockClose,
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
 
     await expect(
@@ -991,18 +983,16 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     ];
 
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      // Vitest 4 requires a non-arrow function so `new SummaryBallotLayoutRenderer()`
-      // can call it as a constructor.
-      // eslint-disable-next-line prefer-arrow-callback, func-names
-      function () {
-        return {
-          computePageBreaks: vi.fn().mockResolvedValue([
-            { pageNumber: 1, contestIds: page1ContestIds, layout: undefined },
-            { pageNumber: 2, contestIds: page2ContestIds, layout: undefined },
-          ]),
-          close: vi.fn().mockResolvedValue(undefined),
-        } as unknown as SummaryBallotLayoutRenderer;
-      }
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: vi.fn().mockResolvedValue([
+              { pageNumber: 1, contestIds: page1ContestIds, layout: undefined },
+              { pageNumber: 2, contestIds: page2ContestIds, layout: undefined },
+            ]),
+            close: vi.fn().mockResolvedValue(undefined),
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
 
     vi.mocked(renderToPdf).mockResolvedValue(

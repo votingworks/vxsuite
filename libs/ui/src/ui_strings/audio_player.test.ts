@@ -1,6 +1,6 @@
 import { expect, Mocked, test, vi } from 'vitest';
 
-import { TestLanguageCode } from '@votingworks/test-utils';
+import { mockConstructor, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred, typedAs } from '@votingworks/basics';
 import { waitFor } from '../../test/react_testing_library';
 import { newAudioPlayer } from './audio_player';
@@ -30,14 +30,7 @@ function audioMocks() {
     }) as unknown as typeof Audio.prototype
   );
 
-  // Vitest 4 requires a non-arrow function so `new AudioCtor(...)` can call
-  // it as a constructor.
-  const mockAudioCtor = vi.fn(
-    // eslint-disable-next-line prefer-arrow-callback, func-names
-    function () {
-      return mockAudio;
-    }
-  );
+  const mockAudioCtor = vi.fn(mockConstructor(() => mockAudio));
 
   return { mockAudio, mockAudioCtor, mockCtx, mockGain, mockSrc };
 }

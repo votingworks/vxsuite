@@ -5,6 +5,7 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import waitForExpect from 'wait-for-expect';
+import { mockConstructor } from '@votingworks/test-utils';
 import { MockCardReader, getTestFilePath } from '../../test/utils';
 import {
   CardCommand,
@@ -52,13 +53,12 @@ const CERTIFYING_PRIVATE_KEY_PATH = join(
 let mockCardReader: MockCardReader;
 
 beforeEach(() => {
-  // Vitest 4 requires a non-arrow function so `new CardReader(...)` can call
-  // it as a constructor.
-  // eslint-disable-next-line prefer-arrow-callback, func-names
-  vi.mocked(CardReader).mockImplementation(function (...params) {
-    mockCardReader = new MockCardReader(...params);
-    return mockCardReader as unknown as CardReader;
-  });
+  vi.mocked(CardReader).mockImplementation(
+    mockConstructor((...params) => {
+      mockCardReader = new MockCardReader(...params);
+      return mockCardReader as unknown as CardReader;
+    })
+  );
   vi.mocked(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
 });
 

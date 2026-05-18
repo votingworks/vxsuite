@@ -17,13 +17,13 @@
   },
   "dependencies": {
     "@types/node": "20.17.31",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/basics": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^3.1.4"
+    "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@8.15.5"
 }

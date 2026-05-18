@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vitest';
-import { TestLanguageCode } from '@votingworks/test-utils';
+import { mockConstructor, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 
 import { newTestContext } from '../../test/test_context';
@@ -41,13 +41,8 @@ const mockWebAudioContext = {
 } as unknown as AudioContext;
 
 beforeEach(() => {
-  // Vitest 4 requires a non-arrow function so `new AudioContext()` can call
-  // it as a constructor.
   const mockAudioContextConstructor = vi.fn(
-    // eslint-disable-next-line prefer-arrow-callback, func-names
-    function () {
-      return mockWebAudioContext;
-    }
+    mockConstructor(() => mockWebAudioContext)
   );
   window.AudioContext = mockAudioContextConstructor;
 });

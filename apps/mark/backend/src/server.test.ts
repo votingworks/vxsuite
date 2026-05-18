@@ -16,6 +16,7 @@ import {
   setDefaultAudio,
 } from '@votingworks/backend';
 import { err, ok } from '@votingworks/basics';
+import { mockConstructor } from '@votingworks/test-utils';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -25,20 +26,21 @@ import { buildMockLogger } from '../test/app_helpers';
 
 vi.mock('./app');
 vi.mock('./audio/player');
-vi.mock('./barcodes', () => ({
-  BarcodeClient: vi.fn().mockImplementation(
-    // Vitest 4 requires a non-arrow function so `new BarcodeClient(...)` can
-    // call it as a constructor.
-    // eslint-disable-next-line prefer-arrow-callback, func-names
-    function () {
-      return {
+vi.mock('./barcodes', async () => {
+  // vi.mock factories are hoisted above imports, so the top-level
+  // `mockConstructor` is in TDZ here — resolve test-utils lazily and alias
+  // to avoid shadowing the outer import.
+  const { mockConstructor: mockCtor } = await import('@votingworks/test-utils');
+  return {
+    BarcodeClient: vi.fn().mockImplementation(
+      mockCtor(() => ({
         on: vi.fn(),
         shutDown: vi.fn().mockResolvedValue(undefined),
         getConnectionStatus: vi.fn().mockReturnValue(false),
-      };
-    }
-  ),
-}));
+      }))
+    ),
+  };
+});
 
 vi.mock('./app');
 vi.mock('./audio/player');
@@ -85,13 +87,8 @@ test('start passes context to `buildApp`', async () => {
   const mockAudioPlayer = {
     trustMe: 'I play audio.',
   } as unknown as AudioPlayer;
-  // Vitest 4 requires a non-arrow function so `new AudioPlayer(...)` can call
-  // it as a constructor.
   mockAudioPlayerClass.mockImplementationOnce(
-    // eslint-disable-next-line prefer-arrow-callback, func-names
-    function () {
-      return mockAudioPlayer;
-    }
+    mockConstructor(() => mockAudioPlayer)
   );
 
   const server = await start({

@@ -10,6 +10,7 @@ export * from './integration_test_helpers';
 export * from './mock_kiosk';
 export * from './mock_use_audio_controls';
 export * from './has_text_across_elements';
+export * from './mock_constructor';
 export * from './mock_function';
 export * from './objects';
 export * from './test_language_code';

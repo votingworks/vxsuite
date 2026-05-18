@@ -1,5 +1,6 @@
 import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import React, { act } from 'react';
+import { mockConstructor } from '@votingworks/test-utils';
 import {
   DEFAULT_AUDIO_ENABLED_STATE,
   UiStringsAudioContextProvider,
@@ -60,13 +61,8 @@ const mockWebAudioContext = {
 const mockGainNode = { gain: { value: 9000 } } as unknown as GainNode;
 
 beforeEach(() => {
-  // Vitest 4 requires a non-arrow function so `new AudioContext()` can call
-  // it as a constructor.
   const mockAudioContextConstructor = vi.fn(
-    // eslint-disable-next-line prefer-arrow-callback, func-names
-    function () {
-      return mockWebAudioContext;
-    }
+    mockConstructor(() => mockWebAudioContext)
   );
   mockWebAudioContext.createGain.mockReturnValue(mockGainNode);
 
