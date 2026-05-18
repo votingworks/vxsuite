@@ -7,6 +7,7 @@ import {
   createApiClient,
   createQueryClient,
 } from './api';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { SharedApiClientContext } from '../shared_api';
 
 export interface ClientAppProps {
@@ -25,6 +26,7 @@ export function ClientApp({
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <ClientAppRoot />
+            <SessionTimeLimitTracker />
           </BrowserRouter>
         </QueryClientProvider>
       </SharedApiClientContext.Provider>

@@ -154,6 +154,15 @@ test('logOut delegates to auth', async () => {
   expect(env.auth.logOut).toHaveBeenCalled();
 });
 
+test('updateSessionExpiry delegates to auth', async () => {
+  mockSystemAdministratorAuth(env.auth);
+  const sessionExpiresAt = new Date('2030-01-01T00:00:00Z');
+  await env.apiClient.updateSessionExpiry({ sessionExpiresAt });
+  expect(env.auth.updateSessionExpiry).toHaveBeenCalledWith(expect.anything(), {
+    sessionExpiresAt,
+  });
+});
+
 test('getNetworkConnectionStatus defaults to offline', async () => {
   expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
     status: 'offline',

@@ -72,6 +72,8 @@ function renderClientApp({
     withElection ? { electionDefinition } : null
   );
   apiMock.expectGetUsbDriveStatus('no_drive');
+  // Mounted by SessionTimeLimitTracker at ClientApp's root.
+  apiMock.expectGetSystemSettings();
 
   const clientApiClient = apiMock.apiClient as unknown as ApiClient;
   return render(

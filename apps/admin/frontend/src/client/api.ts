@@ -151,6 +151,18 @@ export const logOut = {
   },
 } as const;
 
+export const updateSessionExpiry = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateSessionExpiry, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 // Election
 export const getCurrentElectionMetadata = {
   queryKey(): QueryKey {
