@@ -20,6 +20,7 @@ import {
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { NO_PARTY_ID } from '@votingworks/types/src/tabulation';
 import {
   getBallotCount,
   getBallotStyleIdPartyIdLookup,
@@ -756,9 +757,9 @@ test('mapping from group keys to and from group specifiers', () => {
     batchId: 'batch-1',
   });
 
-  // groupByParty with undefined partyId (open primary CVRs whose party
-  // can't be inferred) omits the partyId key.
-  expect(getGroupKey({}, { groupByParty: true })).toEqual('{}');
+  expect(getGroupKey({ partyId: NO_PARTY_ID }, { groupByParty: true })).toEqual(
+    '{"partyId":{"noParty":true}}'
+  );
   expect(
     getGroupKey(
       { precinctId: 'precinct-1' },
