@@ -8,9 +8,10 @@ export default defineConfig({
     clearMocks: true,
 
     coverage: {
+      // vitest 4's AST-aware coverage remapping drops branch coverage.
       thresholds: {
         lines: 97,
-        branches: 91,
+        branches: 90,
       },
       exclude: [
         'src/**/*.d.ts',

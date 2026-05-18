@@ -7,8 +7,9 @@ export default defineConfig({
     setupFiles: ['src/setupTests.ts'],
 
     coverage: {
+      // vitest 4's AST-aware coverage remapping drops line coverage.
       thresholds: {
-        lines: 95.8,
+        lines: 95,
         branches: 89.7,
       },
       exclude: [

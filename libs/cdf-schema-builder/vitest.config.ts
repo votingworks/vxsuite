@@ -6,7 +6,8 @@ export default defineConfig({
       exclude: ['./test/mock_writable.ts', '**/*.test.ts'],
       thresholds: {
         lines: 100,
-        branches: -6,
+        // vitest 4's AST-aware coverage remapping bumps the uncovered count.
+        branches: -8,
       },
     },
   },
