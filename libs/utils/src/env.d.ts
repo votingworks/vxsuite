@@ -31,5 +31,6 @@ declare namespace NodeJS {
     REACT_APP_VX_EARLY_VOTING?: string;
     REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN?: string;
     REACT_APP_VX_ENABLE_POLLING_PLACES?: string;
+    REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE?: string;
   }
 }

@@ -110,6 +110,11 @@ export enum BooleanEnvironmentVariableName {
    * [In Development] Enables multi-station adjudication in VxAdmin
    */
   ENABLE_POLLING_PLACES = 'REACT_APP_VX_ENABLE_POLLING_PLACES',
+  /**
+   * [In Development] Enables the backup and restore feature in VxAdmin.
+   * Gates both the UI surface and the backend API endpoints.
+   */
+  ENABLE_ADMIN_BACKUP_RESTORE = 'REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -193,6 +198,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN;
     case BooleanEnvironmentVariableName.ENABLE_POLLING_PLACES:
       return process.env.REACT_APP_VX_ENABLE_POLLING_PLACES;
+    case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
+      return process.env.REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -353,6 +360,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next */
     default:
