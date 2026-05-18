@@ -1,7 +1,8 @@
 import { UsbDrive } from '@votingworks/usb-drive';
-
 import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
 import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
+
+import { GetAuthStatus } from './auth';
 import { exportLogsToUsb } from './export_logs_to_usb';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
@@ -22,12 +23,14 @@ function buildApi({
   machineId,
   codeVersion,
   workspacePath,
+  getAuthStatus,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   machineId: string;
   codeVersion: string;
   workspacePath: string;
+  getAuthStatus: GetAuthStatus;
 }) {
   return {
     exportLogsToUsb: async (input: { format: LogExportFormat }) =>
@@ -38,7 +41,8 @@ function buildApi({
         machineId,
         codeVersion,
       }),
-    rebootToVendorMenu: async () => rebootToVendorMenu(logger),
+    rebootToVendorMenu: async () =>
+      rebootToVendorMenu({ getAuthStatus, logger }),
     powerDown: async () => powerDown(logger),
     setClock,
     getBatteryInfo: async () => getBatteryInfo({ logger }),
@@ -70,12 +74,21 @@ export function createSystemCallApi({
   machineId,
   codeVersion,
   workspacePath,
+  getAuthStatus,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   machineId: string;
   codeVersion: string;
   workspacePath: string;
+  getAuthStatus: GetAuthStatus;
 }): SystemCallApiMethods {
-  return buildApi({ usbDrive, logger, machineId, codeVersion, workspacePath });
+  return buildApi({
+    usbDrive,
+    logger,
+    machineId,
+    codeVersion,
+    workspacePath,
+    getAuthStatus,
+  });
 }

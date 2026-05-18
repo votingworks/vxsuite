@@ -771,6 +771,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       machineId,
       codeVersion,
       workspacePath: workspace.path,
+      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+        auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   } as const;
   return grout.createApi(methods, middlewares);

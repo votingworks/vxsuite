@@ -281,6 +281,8 @@ export function buildApi(ctx: Context) {
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
+      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+        auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
 
     async printBallot(input: PrintBallotProps) {

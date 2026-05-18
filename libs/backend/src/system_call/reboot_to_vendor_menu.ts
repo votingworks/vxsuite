@@ -1,13 +1,26 @@
 import path from 'node:path';
+import { assert, assertDefined } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { execFile } from '../exec';
 import { intermediateScript } from '../intermediate_scripts';
+import { GetAuthStatus } from './auth';
 
 /**
  * Reboots the machine into the vendor menu.
  */
-export async function rebootToVendorMenu(logger: Logger): Promise<void> {
+export async function rebootToVendorMenu({
+  getAuthStatus,
+  logger,
+}: {
+  getAuthStatus: GetAuthStatus;
+  logger: Logger;
+}): Promise<void> {
+  const authStatus = assertDefined(await getAuthStatus());
+  assert(
+    authStatus.status === 'logged_in' && authStatus.user.role === 'vendor'
+  );
+
   await logger.logAsCurrentRole(LogEventId.RebootMachine, {
     message: 'Vendor rebooted the machine into the vendor menu.',
   });
