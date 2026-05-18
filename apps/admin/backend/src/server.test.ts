@@ -37,9 +37,14 @@ vi.mock('@votingworks/auth', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/auth')>();
   return {
     ...actual,
-    DippedSmartCardAuth: vi
-      .fn()
-      .mockImplementation(() => actual.buildMockDippedSmartCardAuth(vi.fn)),
+    DippedSmartCardAuth: vi.fn().mockImplementation(
+      // Vitest 4 requires a non-arrow function so `new DippedSmartCardAuth()`
+      // can call it as a constructor.
+      // eslint-disable-next-line prefer-arrow-callback, func-names
+      function () {
+        return actual.buildMockDippedSmartCardAuth(vi.fn);
+      }
+    ),
     // Mock card classes to prevent pcsclite from being initialized (not
     // available in CI).
     JavaCard: vi.fn(),

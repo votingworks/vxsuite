@@ -75,22 +75,25 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         },
       },
     })
-  ).toMatchObject(
+  ).toEqual(
+    // Vitest 4 no longer treats `toMatchObject(arrayContaining(...))` as a
+    // partial match per element — use objectContaining explicitly so the
+    // extra `undefined` group-specifier fields don't break the match.
     expect.arrayContaining([
-      {
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'pending',
         tally: 11,
-      },
-      {
+      }),
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'invalid',
         tally: 9,
-      },
-      {
+      }),
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
@@ -98,8 +101,8 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         candidateId: 'lion',
         candidateName: 'Lion',
         tally: 7,
-      },
-      {
+      }),
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
@@ -107,7 +110,7 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         candidateId: 'mr-pickles',
         candidateName: 'Mr. Pickles',
         tally: 5,
-      },
+      }),
     ])
   );
 });
