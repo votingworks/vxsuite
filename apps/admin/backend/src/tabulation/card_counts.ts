@@ -1,6 +1,5 @@
 import { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import {
-  GROUP_KEY_ROOT,
   getEmptyCardCounts,
   getGroupKey,
   groupBySupportsZeroSplits,
@@ -80,7 +79,8 @@ export function tabulateScannedCardCounts({
         cardTally,
       });
     }
-    cardCountsGroupMap[GROUP_KEY_ROOT] = cardCounts;
+    const groupKey = getGroupKey({}, {});
+    cardCountsGroupMap[groupKey] = cardCounts;
     return cardCountsGroupMap;
   }
 

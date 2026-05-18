@@ -12,9 +12,9 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  GROUP_KEY_ROOT,
   buildManualResultsFixture,
   getFeatureFlagMock,
+  getGroupKey,
   groupMapToGroupList,
 } from '@votingworks/utils';
 import { Store } from '../store';
@@ -119,54 +119,54 @@ test('tabulateScannedCardCounts - grouping', () => {
   }> = [
     // no filter case
     {
-      expected: [['root', 83]],
+      expected: [['{}', 83]],
     },
     // each group case
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleGroupId=1M', 45],
-        ['root&ballotStyleGroupId=2F', 38],
+        ['{"ballotStyleGroupId":"1M"}', 45],
+        ['{"ballotStyleGroupId":"2F"}', 38],
       ],
     },
     {
       groupBy: { groupByParty: true },
       expected: [
-        ['root&partyId=0', 45],
-        ['root&partyId=1', 38],
+        ['{"partyId":"0"}', 45],
+        ['{"partyId":"1"}', 38],
       ],
     },
     {
       groupBy: { groupByBatch: true },
       expected: [
-        ['root&batchId=batch-1-1', 11],
-        ['root&batchId=batch-1-2', 17],
-        ['root&batchId=batch-2-1', 9],
-        ['root&batchId=batch-2-2', 12],
-        ['root&batchId=batch-3-1', 34],
+        ['{"batchId":"batch-1-1"}', 11],
+        ['{"batchId":"batch-1-2"}', 17],
+        ['{"batchId":"batch-2-1"}', 9],
+        ['{"batchId":"batch-2-2"}', 12],
+        ['{"batchId":"batch-3-1"}', 34],
       ],
     },
     {
       groupBy: { groupByScanner: true },
       expected: [
-        ['root&scannerId=scanner-1', 28],
-        ['root&scannerId=scanner-2', 21],
-        ['root&scannerId=scanner-3', 34],
+        ['{"scannerId":"scanner-1"}', 28],
+        ['{"scannerId":"scanner-2"}', 21],
+        ['{"scannerId":"scanner-3"}', 34],
       ],
     },
     {
       groupBy: { groupByPrecinct: true },
       expected: [
-        ['root&precinctId=precinct-1', 28],
-        ['root&precinctId=precinct-2', 55],
+        ['{"precinctId":"precinct-1"}', 28],
+        ['{"precinctId":"precinct-2"}', 55],
       ],
     },
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
-        ['root&votingMethod=early_voting', 0],
-        ['root&votingMethod=precinct', 68],
-        ['root&votingMethod=absentee', 15],
+        ['{"votingMethod":"early_voting"}', 0],
+        ['{"votingMethod":"precinct"}', 68],
+        ['{"votingMethod":"absentee"}', 15],
       ],
     },
   ];
@@ -280,19 +280,19 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
     groupBy: { groupByBatchDate: true },
   });
 
-  expect(groupedCardCounts['root&batchDate=2024-11-05']).toEqual({
+  expect(groupedCardCounts['{"batchDate":"2024-11-05"}']).toEqual({
     bmd: [25],
     hmpb: [],
   });
-  expect(groupedCardCounts['root&batchDate=2024-11-06']).toEqual({
+  expect(groupedCardCounts['{"batchDate":"2024-11-06"}']).toEqual({
     bmd: [7],
     hmpb: [],
   });
   expect(Object.values(groupedCardCounts)).toHaveLength(2);
   // Verify chronological sort order (oldest date first)
   expect(Object.keys(groupedCardCounts)).toEqual([
-    'root&batchDate=2024-11-05',
-    'root&batchDate=2024-11-06',
+    '{"batchDate":"2024-11-05"}',
+    '{"batchDate":"2024-11-06"}',
   ]);
 });
 
@@ -423,12 +423,13 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
+  const groupKey = getGroupKey({}, {});
   expect(
     tabulateScannedCardCounts({
       electionId,
       election,
       store,
-    })[GROUP_KEY_ROOT]
+    })[groupKey]
   ).toEqual({
     bmd: [5],
     hmpb: [6, 7],
@@ -440,7 +441,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       election,
       store,
       groupBy: { groupByScanner: true },
-    })['root&scannerId=scanner-1']
+    })['{"scannerId":"scanner-1"}']
   ).toEqual({
     bmd: [5],
     hmpb: [6, 7],

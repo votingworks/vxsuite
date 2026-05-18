@@ -7,10 +7,10 @@ import {
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
-  GROUP_KEY_ROOT,
   buildElectionResultsFixture,
   buildManualResultsFixture,
   getFeatureFlagMock,
+  getGroupKey,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import {
@@ -31,6 +31,8 @@ import {
 } from '../../test/mock_cvr_file';
 import { adjudicateCvr } from '../adjudication';
 import { AdjudicatedContestOption, WriteInRecord } from '../types';
+
+const GROUP_KEY = getGroupKey({}, {});
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -202,89 +204,89 @@ test('tabulateCastVoteRecords', async () => {
   }> = [
     // no filter case
     {
-      expected: [['root', 83]],
+      expected: [['{}', 83]],
     },
     // each filter case
     {
       filter: { precinctIds: ['precinct-2'] },
-      expected: [['root', 55]],
+      expected: [['{}', 55]],
     },
     {
       filter: { scannerIds: ['scanner-2'] },
-      expected: [['root', 21]],
+      expected: [['{}', 21]],
     },
     {
       filter: { batchIds: ['batch-2-1', 'batch-3-1'] },
-      expected: [['root', 43]],
+      expected: [['{}', 43]],
     },
     {
       filter: { votingMethods: ['precinct'] },
-      expected: [['root', 68]],
+      expected: [['{}', 68]],
     },
     {
       filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
-      expected: [['root', 45]],
+      expected: [['{}', 45]],
     },
     {
       filter: { partyIds: ['0'] },
-      expected: [['root', 45]],
+      expected: [['{}', 45]],
     },
     // empty filter case
     {
       filter: { partyIds: [] },
-      expected: [['root', 0]],
+      expected: [['{}', 0]],
     },
     // trivial filter case
     {
       filter: { partyIds: ['0', '1'] },
-      expected: [['root', 83]],
+      expected: [['{}', 83]],
     },
     // each group case
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleGroupId=1M', 45],
-        ['root&ballotStyleGroupId=2F', 38],
+        ['{"ballotStyleGroupId":"1M"}', 45],
+        ['{"ballotStyleGroupId":"2F"}', 38],
       ],
     },
     {
       groupBy: { groupByParty: true },
       expected: [
-        ['root&partyId=0', 45],
-        ['root&partyId=1', 38],
+        ['{"partyId":"0"}', 45],
+        ['{"partyId":"1"}', 38],
       ],
     },
     {
       groupBy: { groupByBatch: true },
       expected: [
-        ['root&batchId=batch-1-1', 11],
-        ['root&batchId=batch-1-2', 17],
-        ['root&batchId=batch-2-1', 9],
-        ['root&batchId=batch-2-2', 12],
-        ['root&batchId=batch-3-1', 34],
+        ['{"batchId":"batch-1-1"}', 11],
+        ['{"batchId":"batch-1-2"}', 17],
+        ['{"batchId":"batch-2-1"}', 9],
+        ['{"batchId":"batch-2-2"}', 12],
+        ['{"batchId":"batch-3-1"}', 34],
       ],
     },
     {
       groupBy: { groupByScanner: true },
       expected: [
-        ['root&scannerId=scanner-1', 28],
-        ['root&scannerId=scanner-2', 21],
-        ['root&scannerId=scanner-3', 34],
+        ['{"scannerId":"scanner-1"}', 28],
+        ['{"scannerId":"scanner-2"}', 21],
+        ['{"scannerId":"scanner-3"}', 34],
       ],
     },
     {
       groupBy: { groupByPrecinct: true },
       expected: [
-        ['root&precinctId=precinct-1', 28],
-        ['root&precinctId=precinct-2', 55],
+        ['{"precinctId":"precinct-1"}', 28],
+        ['{"precinctId":"precinct-2"}', 55],
       ],
     },
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
-        ['root&votingMethod=early_voting', 0],
-        ['root&votingMethod=precinct', 68],
-        ['root&votingMethod=absentee', 15],
+        ['{"votingMethod":"early_voting"}', 0],
+        ['{"votingMethod":"precinct"}', 68],
+        ['{"votingMethod":"absentee"}', 15],
       ],
     },
   ];
@@ -324,12 +326,12 @@ test('tabulateElectionResults - includes empty groups', async () => {
     groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
   });
   expect(Object.keys(groupedElectionResults)).toEqual([
-    'root&precinctId=precinct-1&votingMethod=early_voting',
-    'root&precinctId=precinct-1&votingMethod=precinct',
-    'root&precinctId=precinct-1&votingMethod=absentee',
-    'root&precinctId=precinct-2&votingMethod=early_voting',
-    'root&precinctId=precinct-2&votingMethod=precinct',
-    'root&precinctId=precinct-2&votingMethod=absentee',
+    '{"precinctId":"precinct-1","votingMethod":"early_voting"}',
+    '{"precinctId":"precinct-1","votingMethod":"precinct"}',
+    '{"precinctId":"precinct-1","votingMethod":"absentee"}',
+    '{"precinctId":"precinct-2","votingMethod":"early_voting"}',
+    '{"precinctId":"precinct-2","votingMethod":"precinct"}',
+    '{"precinctId":"precinct-2","votingMethod":"absentee"}',
   ]);
 });
 
@@ -370,7 +372,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       electionId,
       store,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(overallResultsPreAdjudication);
 
   const partialExpectedResultsPreAdjudication = buildElectionResultsFixture({
@@ -490,7 +492,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       electionId,
       store,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(overallResultsScreenWiaNoDetail);
   const partialExpectedResultsScreenWiaNoDetail = buildElectionResultsFixture({
     election,
@@ -534,7 +536,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       store,
       includeWriteInAdjudicationResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(overallResultsScreenWiaDetail);
 
   const partialExpectedResultsScreenWiaDetail = buildElectionResultsFixture({
@@ -633,7 +635,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       includeWriteInAdjudicationResults: true,
       includeManualResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(overallResultsScreenAndManualWiaDetail);
 
   const partialExpectedResultsScreenAndManualWiaDetail =
@@ -704,7 +706,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       store,
       includeManualResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(overallResultsScreenAndManualWiaNoDetail);
 
   const partialExpectedResultsScreenAndManualWiaNoDetail =
@@ -796,7 +798,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       filter: { votingMethods: ['absentee'] },
       includeWriteInAdjudicationResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(absenteeResults);
 
   const partialExpectedResults = buildElectionResultsFixture({
@@ -839,7 +841,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       filter: { votingMethods: ['precinct'] },
       includeWriteInAdjudicationResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(precinctResults);
 
   expect(precinctResults.cardCounts).toEqual(partialExpectedResults.cardCounts);
@@ -854,8 +856,8 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
     groupBy: { groupByVotingMethod: true },
     includeWriteInAdjudicationResults: true,
   });
-  const absenteeResultsGroup = groupedResults['root&votingMethod=absentee'];
-  const precinctResultsGroup = groupedResults['root&votingMethod=precinct'];
+  const absenteeResultsGroup = groupedResults['{"votingMethod":"absentee"}'];
+  const precinctResultsGroup = groupedResults['{"votingMethod":"precinct"}'];
   assert(absenteeResultsGroup && precinctResultsGroup);
 
   expect(absenteeResultsGroup.cardCounts).toEqual(
@@ -904,7 +906,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       includeWriteInAdjudicationResults: true,
       includeManualResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(absenteeResultsWithManual);
 
   const partialExpectedResultsWithManual = buildElectionResultsFixture({
@@ -951,7 +953,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       includeWriteInAdjudicationResults: true,
       includeManualResults: true,
     })
-  )[GROUP_KEY_ROOT];
+  )[GROUP_KEY];
   assert(precinctResultsWithManual);
 
   expect(precinctResultsWithManual.cardCounts).toEqual({

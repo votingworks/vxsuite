@@ -26,7 +26,6 @@ import {
   getEmptyElectionResults,
   extractGroupSpecifier,
   tabulateCastVoteRecords,
-  GROUP_KEY_ROOT,
   getOfficialCandidateNameLookup,
   getEmptyManualElectionResults,
   combineManualElectionResults,
@@ -63,6 +62,8 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '../precinct_selection';
+
+const GROUP_KEY = getGroupKey({}, {});
 
 function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
@@ -739,31 +740,31 @@ test('mapping from group keys to and from group specifiers', () => {
     precinctId: 'precinct-1',
   });
 
-  // with escaped characters
+  // with characters that need JSON escaping
   expect(
     getGroupKey(
       {
-        ballotStyleGroupId: '=\\1M&',
+        ballotStyleGroupId: '"\\1M',
         batchId: 'batch-1',
       },
       { groupByBatch: true, groupByBallotStyle: true }
     )
-  ).toEqual('root&ballotStyleGroupId=\\=\\\\1M\\&&batchId=batch-1');
+  ).toEqual('{"ballotStyleGroupId":"\\"\\\\1M","batchId":"batch-1"}');
 
   maintainsGroupSpecifier({
-    ballotStyleGroupId: '=\\1M&',
+    ballotStyleGroupId: '"\\1M',
     batchId: 'batch-1',
   });
 
   // groupByParty with undefined partyId (open primary CVRs whose party
   // can't be inferred) omits the partyId key.
-  expect(getGroupKey({}, { groupByParty: true })).toEqual('root');
+  expect(getGroupKey({}, { groupByParty: true })).toEqual('{}');
   expect(
     getGroupKey(
       { precinctId: 'precinct-1' },
       { groupByParty: true, groupByPrecinct: true }
     )
-  ).toEqual('root&precinctId=precinct-1');
+  ).toEqual('{"precinctId":"precinct-1"}');
 });
 
 type ObjectWithGroupSpecifier = {
@@ -815,9 +816,7 @@ describe('tabulateCastVoteRecords', () => {
     // empty election
     const emptyResults = await tabulateCastVoteRecords({ cvrs: [], election });
     expect(Object.values(emptyResults)).toHaveLength(1);
-    expect(emptyResults[GROUP_KEY_ROOT]).toEqual(
-      getEmptyElectionResults(election)
-    );
+    expect(emptyResults[GROUP_KEY]).toEqual(getEmptyElectionResults(election));
 
     const someMetadata = {
       ballotStyleGroupId: '1M' as BallotStyleGroupId,
@@ -880,7 +879,7 @@ describe('tabulateCastVoteRecords', () => {
         ],
         election,
       })
-    )[GROUP_KEY_ROOT];
+    )[GROUP_KEY];
 
     assert(electionResult);
     expect(electionResult).toEqual(
@@ -1015,7 +1014,7 @@ describe('tabulateCastVoteRecords', () => {
         cvrs: [multiPageCvr1Page1, singlePageCvr],
         election,
       })
-    )[GROUP_KEY_ROOT];
+    )[GROUP_KEY];
 
     assert(resultsOnlyPage1);
     // Card counts: 1 single-page BMD + 1 multi-page BMD page-1 = 2 at index 0
@@ -1050,7 +1049,7 @@ describe('tabulateCastVoteRecords', () => {
         cvrs: [multiPageCvr1Page1, multiPageCvr1Page2, singlePageCvr],
         election,
       })
-    )[GROUP_KEY_ROOT];
+    )[GROUP_KEY];
 
     assert(resultsBothPages);
     // Card counts: 1 single-page + 1 multi-page page-1 = 2 at index 0, 1 multi-page page-2 at index 1
@@ -1089,8 +1088,8 @@ describe('tabulateCastVoteRecords', () => {
     // should be two result groups of equal size, one for each ballot style'
     expect(Object.keys(resultsByBallotStyle)).toMatchObject(
       expect.arrayContaining([
-        'root&ballotStyleGroupId=1M',
-        'root&ballotStyleGroupId=2F',
+        '{"ballotStyleGroupId":"1M"}',
+        '{"ballotStyleGroupId":"2F"}',
       ])
     );
     expect(
@@ -1109,7 +1108,7 @@ describe('tabulateCastVoteRecords', () => {
 
     // should be two result groups of equal size, one for each party
     expect(Object.keys(resultsByParty)).toMatchObject(
-      expect.arrayContaining(['root&partyId=0', 'root&partyId=1'])
+      expect.arrayContaining(['{"partyId":"0"}', '{"partyId":"1"}'])
     );
     expect(
       Object.values(resultsByParty).map((results) =>
@@ -1120,11 +1119,11 @@ describe('tabulateCastVoteRecords', () => {
     // for the current election, results by party and ballot style should be identical
     // save for the identifiers
     expect(
-      resultsByBallotStyle['root&ballotStyleGroupId=1M']?.contestResults
-    ).toEqual(resultsByParty['root&partyId=0']?.contestResults);
+      resultsByBallotStyle['{"ballotStyleGroupId":"1M"}']?.contestResults
+    ).toEqual(resultsByParty['{"partyId":"0"}']?.contestResults);
     expect(
-      resultsByBallotStyle['root&ballotStyleGroupId=2F']?.contestResults
-    ).toEqual(resultsByParty['root&partyId=1']?.contestResults);
+      resultsByBallotStyle['{"ballotStyleGroupId":"2F"}']?.contestResults
+    ).toEqual(resultsByParty['{"partyId":"1"}']?.contestResults);
   });
 
   test('by batch and scanner', async () => {
@@ -1140,12 +1139,12 @@ describe('tabulateCastVoteRecords', () => {
     expect(Object.values(resultsByBatchAndScanner)).toHaveLength(1);
     const results =
       resultsByBatchAndScanner[
-        `root&batchId=9af15b336e&scannerId=${DEV_MACHINE_ID}`
+        `{"batchId":"9af15b336e","scannerId":"${DEV_MACHINE_ID}"}`
       ]!;
 
     // use ungrouped results, verified in previous test, to compare against for grouped results
     expect(results).toMatchObject(
-      (await tabulateCastVoteRecords({ cvrs, election }))[GROUP_KEY_ROOT]!
+      (await tabulateCastVoteRecords({ cvrs, election }))[GROUP_KEY]!
     );
   });
 
@@ -1168,10 +1167,10 @@ describe('tabulateCastVoteRecords', () => {
 
     expect(Object.keys(resultsByMethodAndPrecinct)).toMatchObject(
       expect.arrayContaining([
-        'root&precinctId=precinct-1&votingMethod=precinct',
-        'root&precinctId=precinct-1&votingMethod=absentee',
-        'root&precinctId=precinct-2&votingMethod=precinct',
-        'root&precinctId=precinct-2&votingMethod=absentee',
+        '{"precinctId":"precinct-1","votingMethod":"precinct"}',
+        '{"precinctId":"precinct-1","votingMethod":"absentee"}',
+        '{"precinctId":"precinct-2","votingMethod":"precinct"}',
+        '{"precinctId":"precinct-2","votingMethod":"absentee"}',
       ])
     );
 
@@ -1312,10 +1311,10 @@ describe('tabulateCastVoteRecords', () => {
 
     // keys should be ordered as the groups were passed in
     expect(Object.keys(resultsByMethodAndPrecinct)).toEqual([
-      'root&precinctId=precinct-1&votingMethod=absentee',
-      'root&precinctId=precinct-2&votingMethod=absentee',
-      'root&precinctId=precinct-1&votingMethod=precinct',
-      'root&precinctId=precinct-2&votingMethod=precinct',
+      '{"precinctId":"precinct-1","votingMethod":"absentee"}',
+      '{"precinctId":"precinct-2","votingMethod":"absentee"}',
+      '{"precinctId":"precinct-1","votingMethod":"precinct"}',
+      '{"precinctId":"precinct-2","votingMethod":"precinct"}',
     ]);
   });
 });
@@ -1346,7 +1345,7 @@ describe('open primaries', () => {
           },
         ],
       })
-    )[GROUP_KEY_ROOT];
+    )[GROUP_KEY];
     assert(results);
 
     expect(results.contestResults['governor-democratic']).toMatchObject({
@@ -1406,26 +1405,26 @@ describe('open primaries', () => {
     });
 
     expect(Object.keys(groupedResults).sort()).toEqual([
-      GROUP_KEY_ROOT,
-      `${GROUP_KEY_ROOT}&partyId=${democraticPartyId}`,
-      `${GROUP_KEY_ROOT}&partyId=${republicanPartyId}`,
+      `{"partyId":"${democraticPartyId}"}`,
+      `{"partyId":"${republicanPartyId}"}`,
+      '{}',
     ]);
     expect(
-      groupedResults[`${GROUP_KEY_ROOT}&partyId=${democraticPartyId}`]
-        ?.contestResults['governor-democratic']
+      groupedResults[`{"partyId":"${democraticPartyId}"}`]?.contestResults[
+        'governor-democratic'
+      ]
     ).toMatchObject({ ballots: 1 });
     expect(
-      groupedResults[`${GROUP_KEY_ROOT}&partyId=${republicanPartyId}`]
-        ?.contestResults['governor-republican']
+      groupedResults[`{"partyId":"${republicanPartyId}"}`]?.contestResults[
+        'governor-republican'
+      ]
     ).toMatchObject({ ballots: 1 });
     // The two CVRs with undefined partyId share the root group; their
     // partisan votes are voided (crossover) or empty, but the nonpartisan
     // ballot-measure-1 vote from the crossover ballot still tallies.
-    expect(getBallotCount(groupedResults[GROUP_KEY_ROOT]!.cardCounts)).toEqual(
-      2
-    );
+    expect(getBallotCount(groupedResults[GROUP_KEY]!.cardCounts)).toEqual(2);
     expect(
-      groupedResults[GROUP_KEY_ROOT]?.contestResults['ballot-measure-1']
+      groupedResults[GROUP_KEY]?.contestResults['ballot-measure-1']
     ).toMatchObject({ ballots: 2, yesTally: 2 });
   });
 
@@ -1444,7 +1443,7 @@ describe('open primaries', () => {
           },
         ],
       })
-    )[GROUP_KEY_ROOT];
+    )[GROUP_KEY];
     assert(results);
 
     expect(results.contestResults['governor-democratic']).toMatchObject({
