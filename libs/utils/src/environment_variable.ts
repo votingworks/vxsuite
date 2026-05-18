@@ -352,7 +352,7 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: true,
-        autoEnableInDevelopment: false,
+        autoEnableInDevelopment: true,
       };
     /* istanbul ignore next */
     default:
