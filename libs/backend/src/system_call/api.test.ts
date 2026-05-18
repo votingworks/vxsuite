@@ -5,6 +5,7 @@ import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
+import { GetAuthStatus } from './auth';
 import { execFile } from '../exec';
 import { AudioInfo, getAudioInfo } from './get_audio_info';
 import { BatteryInfo, getBatteryInfo } from './get_battery_info';
@@ -30,8 +31,16 @@ vi.mock(import('./get_disk_space_summary.js'));
 
 const actualTimezone = process.env.TZ;
 
+const vendorUser = { role: 'vendor', jurisdiction: '*' } as const;
+const systemAdministratorUser = {
+  role: 'system_administrator',
+  jurisdiction: 'vx.test',
+  programmingMachineType: 'admin',
+} as const;
+
 let mockUsbDrive: MockUsbDrive;
 let logger: MockLogger;
+let mockGetAuthStatus: ReturnType<typeof vi.fn<GetAuthStatus>>;
 let api: SystemCallApiMethods;
 
 beforeEach(() => {
@@ -39,12 +48,20 @@ beforeEach(() => {
   (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
   mockUsbDrive = createMockUsbDrive();
   logger = mockLogger({ fn: vi.fn });
+  mockGetAuthStatus = vi.fn<GetAuthStatus>(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: vendorUser,
+      sessionExpiresAt: new Date(),
+    })
+  );
   api = createSystemCallApi({
     usbDrive: mockUsbDrive.usbDrive,
     logger,
     machineId: 'TEST-MACHINE-ID',
     codeVersion: 'TEST-CODE-VERSION',
     workspacePath: 'TEST-WORKSPACE-PATH',
+    getAuthStatus: mockGetAuthStatus,
   });
 });
 
@@ -78,6 +95,25 @@ test('rebootToVendorMenu', async () => {
     ),
     '/vx/config/app-flags',
   ]);
+});
+
+test('rebootToVendorMenu requires vendor auth', async () => {
+  mockGetAuthStatus.mockResolvedValue({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+  await expect(api.rebootToVendorMenu()).rejects.toThrow();
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalled();
+  expect(execFile).not.toHaveBeenCalled();
+
+  mockGetAuthStatus.mockResolvedValue({
+    status: 'logged_in',
+    user: systemAdministratorUser,
+    sessionExpiresAt: new Date(),
+  });
+  await expect(api.rebootToVendorMenu()).rejects.toThrow();
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalled();
+  expect(execFile).not.toHaveBeenCalled();
 });
 
 test('rebootToVendorMenu in dev', async () => {

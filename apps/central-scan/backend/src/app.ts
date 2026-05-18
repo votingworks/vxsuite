@@ -413,6 +413,8 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
+      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+        auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   });
 }
