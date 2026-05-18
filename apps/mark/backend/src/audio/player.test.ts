@@ -3,11 +3,14 @@ import { mockLogger } from '@votingworks/logging';
 import { AudioPlayer } from '@votingworks/backend';
 import { Player, SoundName } from './player';
 
+// `vi.hoisted` runs above the file's imports, so this `mockConstructor`
+// binding is in scope when the hoisted `vi.mock` factory below first runs.
+const { mockConstructor } = await vi.hoisted(
+  async () => import('@votingworks/test-utils')
+);
+
 vi.mock('@votingworks/backend', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/backend')>();
-  // vi.mock factories are hoisted above imports; resolve test-utils lazily
-  // here so `mockConstructor` isn't in TDZ when the factory first runs.
-  const { mockConstructor } = await import('@votingworks/test-utils');
   return {
     ...actual,
     AudioPlayer: vi.fn().mockImplementation(

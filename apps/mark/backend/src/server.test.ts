@@ -16,7 +16,6 @@ import {
   setDefaultAudio,
 } from '@votingworks/backend';
 import { err, ok } from '@votingworks/basics';
-import { mockConstructor } from '@votingworks/test-utils';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -24,23 +23,23 @@ import { NODE_ENV } from './globals';
 import { Player as AudioPlayer } from './audio/player';
 import { buildMockLogger } from '../test/app_helpers';
 
+// `vi.hoisted` runs above the file's imports, so this `mockConstructor`
+// binding is in scope when the hoisted `vi.mock` factories below first run.
+const { mockConstructor } = await vi.hoisted(
+  async () => import('@votingworks/test-utils')
+);
+
 vi.mock('./app');
 vi.mock('./audio/player');
-vi.mock('./barcodes', async () => {
-  // vi.mock factories are hoisted above imports, so the top-level
-  // `mockConstructor` is in TDZ here — resolve test-utils lazily and alias
-  // to avoid shadowing the outer import.
-  const { mockConstructor: mockCtor } = await import('@votingworks/test-utils');
-  return {
-    BarcodeClient: vi.fn().mockImplementation(
-      mockCtor(() => ({
-        on: vi.fn(),
-        shutDown: vi.fn().mockResolvedValue(undefined),
-        getConnectionStatus: vi.fn().mockReturnValue(false),
-      }))
-    ),
-  };
-});
+vi.mock('./barcodes', () => ({
+  BarcodeClient: vi.fn().mockImplementation(
+    mockConstructor(() => ({
+      on: vi.fn(),
+      shutDown: vi.fn().mockResolvedValue(undefined),
+      getConnectionStatus: vi.fn().mockReturnValue(false),
+    }))
+  ),
+}));
 
 vi.mock('./app');
 vi.mock('./audio/player');

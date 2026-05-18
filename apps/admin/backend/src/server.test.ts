@@ -25,6 +25,12 @@ import { importCastVoteRecords } from './cast_vote_records';
 import { writeMachineMode } from './machine_mode';
 import { startHostNetworking, startClientNetworking } from './networking';
 
+// `vi.hoisted` runs above the file's imports, so this `mockConstructor`
+// binding is in scope when the hoisted `vi.mock` factories below first run.
+const { mockConstructor } = await vi.hoisted(
+  async () => import('@votingworks/test-utils')
+);
+
 // Mock modules that start() creates or calls internally
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -35,9 +41,6 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 vi.mock('@votingworks/auth', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/auth')>();
-  // vi.mock factories are hoisted above imports; resolve test-utils lazily
-  // here so `mockConstructor` isn't in TDZ when the factory first runs.
-  const { mockConstructor } = await import('@votingworks/test-utils');
   return {
     ...actual,
     DippedSmartCardAuth: vi
