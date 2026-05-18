@@ -173,7 +173,7 @@ export function* generateBallotCountReportCsv({
     })
   );
   const hasManualTallies = // has any manual tallies for entire election, not just for this export
-    store.getManualResultsMetadata({ electionId }).length > 0;
+    store.getManualResultsMetadata({ election, electionId }).length > 0;
 
   const maxSheetsPerBallot = includeSheetCounts
     ? getMaxSheetsPerBallot(election)

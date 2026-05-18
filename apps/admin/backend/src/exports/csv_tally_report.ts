@@ -130,6 +130,7 @@ function* generateDataRows({
     });
     const contestIds = new Set(
       store.getFilteredContests({
+        election,
         electionId,
         filter: groupFilter,
       })

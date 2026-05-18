@@ -25,7 +25,7 @@ import {
 } from '@votingworks/printing';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals';
 import { createWorkspace, createClientWorkspace } from './util/workspace';
@@ -170,11 +170,17 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
       // Log election results data check at startup
       const electionId = workspace.store.getCurrentElectionId();
+      const electionRecord = electionId
+        ? assertDefined(workspace.store.getElection(electionId))
+        : undefined;
       const cvrFileEntries = electionId
         ? workspace.store.getCvrFiles(electionId)
         : [];
       const manualResults = electionId
-        ? workspace.store.getManualResults({ electionId })
+        ? workspace.store.getManualResults({
+            election: assertDefined(electionRecord).electionDefinition.election,
+            electionId,
+          })
         : [];
 
       const message =

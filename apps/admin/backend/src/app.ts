@@ -921,8 +921,13 @@ function buildApi({
     getManualResults(
       input: ManualResultsIdentifier
     ): ManualResultsRecord | null {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const {
+        electionDefinition: { election },
+      } = assertDefined(store.getElection(electionId));
       const [manualResultsRecord] = store.getManualResults({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
+        election,
+        electionId,
         filter: {
           precinctIds: [input.precinctId],
           ballotStyleGroupIds: [input.ballotStyleGroupId],
@@ -935,12 +940,13 @@ function buildApi({
 
     getManualResultsMetadata(): ManualResultsMetadata[] {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      const manualResultsRecords = store.getManualResults({
-        electionId,
-      });
       const {
         electionDefinition: { election },
       } = assertDefined(store.getElection(electionId));
+      const manualResultsRecords = store.getManualResults({
+        election,
+        electionId,
+      });
       return manualResultsRecords.map((record) => {
         const { manualResults, ...metadata } = record;
         return {

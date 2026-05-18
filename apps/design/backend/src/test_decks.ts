@@ -377,7 +377,7 @@ export async function getTallyReportResults(
   const cardCountsByParty: Admin.CardCountsByParty = {};
   for (const partyElectionResults of electionResultsByParty) {
     const { partyId } = partyElectionResults;
-    assert(partyId !== undefined);
+    assert(partyId !== undefined && !Tabulation.isNoPartyId(partyId));
     cardCountsByParty[partyId] = partyElectionResults.cardCounts;
   }
 

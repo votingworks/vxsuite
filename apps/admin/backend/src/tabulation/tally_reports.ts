@@ -1,4 +1,4 @@
-import { Admin, Id, Tabulation } from '@votingworks/types';
+import { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -21,16 +21,19 @@ function addContestIdsToReports<U>({
   reports,
   overallFilter,
   store,
+  election,
   electionId,
 }: {
   reports: Tabulation.GroupList<U>;
   overallFilter: Tabulation.Filter;
   store: Store;
+  election: Election;
   electionId: Id;
 }): Tabulation.GroupList<U & { contestIds: Id[] }> {
   return reports.map((report) => {
     const contestIds = store.getFilteredContests({
       electionId,
+      election,
       filter: combineGroupSpecifierAndFilter(report, overallFilter),
     });
     return {
@@ -116,6 +119,7 @@ export async function tabulateTallyReportResults(params: {
       reports: allSingleTallyReportResultsWithoutContestIds,
       overallFilter: filter,
       store,
+      election,
       electionId,
     });
   }
@@ -182,6 +186,7 @@ export async function tabulateTallyReportResults(params: {
     reports: allPartySplitReportResultsWithoutContestIds,
     overallFilter: filter,
     store,
+    election,
     electionId,
   });
 }
