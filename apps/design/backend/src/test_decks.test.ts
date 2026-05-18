@@ -42,6 +42,7 @@ import {
   createTestElection,
   createElectionDefinition,
   createMockVotes,
+  mockConstructor,
 } from '@votingworks/test-utils';
 import {
   createPrecinctTestDeck,
@@ -57,13 +58,6 @@ vi.setConfig({
   testTimeout: 90_000,
 });
 
-// `vi.hoisted` runs above the file's imports, so this `mockConstructor`
-// binding is in scope when the hoisted `vi.mock` factories below first run
-// and inside the tests further down.
-const { mockConstructor } = await vi.hoisted(
-  async () => import('@votingworks/test-utils')
-);
-
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();
   return {
@@ -74,10 +68,14 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
 
 vi.mock('@votingworks/printing', async (importActual) => {
   const actual = await importActual<typeof import('@votingworks/printing')>();
+  // vi.mock factories are hoisted above imports, so the top-level
+  // `mockConstructor` is in TDZ here — resolve test-utils lazily and alias
+  // to avoid shadowing the outer import.
+  const { mockConstructor: mockCtor } = await import('@votingworks/test-utils');
   return {
     ...actual,
     SummaryBallotLayoutRenderer: vi.fn(
-      mockConstructor(() => new actual.SummaryBallotLayoutRenderer())
+      mockCtor(() => new actual.SummaryBallotLayoutRenderer())
     ),
     renderToPdf: vi.fn(actual.renderToPdf),
   };

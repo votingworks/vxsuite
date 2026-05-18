@@ -44,7 +44,10 @@ beforeEach(() => {
   const mockAudioContextConstructor = vi.fn(
     mockConstructor(() => mockWebAudioContext)
   );
-  window.AudioContext = mockAudioContextConstructor;
+  // vitest 4's `Mock<T>` doesn't structurally satisfy a `new (...): T`
+  // constructor type, so cast explicitly.
+  window.AudioContext =
+    mockAudioContextConstructor;
 });
 
 afterAll(() => {
