@@ -40,5 +40,6 @@ export const routerPaths = {
   ballotAdjudication: '/adjudication/ballots',
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
+  backups: '/backups',
   system: '/system',
 } as const;

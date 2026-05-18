@@ -8,6 +8,10 @@ import {
   NavListItem,
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 
@@ -18,6 +22,7 @@ export interface SidebarProps {
 export interface NavItem {
   label: React.ReactNode;
   routerPath: string;
+  flag?: BooleanEnvironmentVariableName;
 }
 
 export function Sidebar(props: SidebarProps): JSX.Element {
@@ -37,13 +42,15 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         <AppLogo appName="VxAdmin" />
       </Link>
       <NavList>
-        {navItems.map(({ label, routerPath }) => (
-          <NavListItem key={routerPath}>
-            <NavLink to={routerPath} isActive={isActivePath(routerPath)}>
-              {label}
-            </NavLink>
-          </NavListItem>
-        ))}
+        {navItems
+          .filter(({ flag }) => !flag || isFeatureFlagEnabled(flag))
+          .map(({ label, routerPath }) => (
+            <NavListItem key={routerPath}>
+              <NavLink to={routerPath} isActive={isActivePath(routerPath)}>
+                {label}
+              </NavLink>
+            </NavListItem>
+          ))}
       </NavList>
       <div style={{ marginTop: 'auto' }}>
         <VerticalElectionInfoBar

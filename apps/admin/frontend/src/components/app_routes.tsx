@@ -40,6 +40,7 @@ import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen';
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen';
+import { BackupsScreen } from '../screens/backups_screen';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -122,6 +123,9 @@ export function AppRoutes(): JSX.Element | null {
         </Route>
         <Route exact path={routerPaths.hardwareDiagnostics}>
           <DiagnosticsScreen />
+        </Route>
+        <Route exact path={routerPaths.backups}>
+          <BackupsScreen />
         </Route>
         <Redirect to={routerPaths.election} />
       </Switch>

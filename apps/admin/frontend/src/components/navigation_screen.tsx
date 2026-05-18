@@ -19,6 +19,7 @@ import {
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
+  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
@@ -85,6 +86,11 @@ interface Props {
 const HOST_SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Smart Cards', routerPath: routerPaths.smartcards },
+  {
+    label: 'Backups',
+    routerPath: routerPaths.backups,
+    flag: BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE,
+  },
   { label: 'Settings', routerPath: routerPaths.settings },
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
