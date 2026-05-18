@@ -12,7 +12,7 @@ export default defineConfig({
       // vitest 4's AST-aware coverage remapping drops line coverage and
       // bumps the uncovered branch count.
       thresholds: {
-        lines: 99,
+        lines: 98,
         branches: -5,
       },
       exclude: [
