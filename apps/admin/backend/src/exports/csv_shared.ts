@@ -223,10 +223,7 @@ export function getCsvMetadataRowValues({
   ) {
     const partyId = (() => {
       if (metadataStructure.party === 'single') {
-        // In open primaries, filter.partyIds may be undefined for the section
-        // of CVRs with no party. Otherwise, there should be exactly one party
-        // ID in the filter.
-        return filter.partyIds ? assertOnlyElement(filter.partyIds) : undefined;
+        return assertOnlyElement(filter.partyIds);
       }
 
       const ballotStyleGroupId = assertOnlyElement(filter.ballotStyleGroupIds);
@@ -238,7 +235,7 @@ export function getCsvMetadataRowValues({
       );
     })();
 
-    if (partyId === undefined) {
+    if (Tabulation.isNoPartyId(partyId)) {
       values.push('No Party');
       values.push('');
     } else {
@@ -304,9 +301,11 @@ export function getCsvMetadataRowValues({
   if (metadataStructure.party === 'multi') {
     values.push(
       assertDefined(filter.partyIds)
-        .map(
-          (id) =>
-            CachedElectionLookups.getPartyById(electionDefinition, id).name
+        .map((partyId) =>
+          Tabulation.isNoPartyId(partyId)
+            ? 'No Party'
+            : CachedElectionLookups.getPartyById(electionDefinition, partyId)
+                .name
         )
         .join(CSV_MULTI_VALUE_SEPARATOR)
     );

@@ -153,10 +153,11 @@ export async function tabulateTallyReportResults(params: {
       // maintain split for card counts
       const cardCountsByParty: Admin.CardCountsByParty = reportsByParty.reduce(
         (ccByParty, partyTallyReportResults) => {
+          assert(partyTallyReportResults.partyId !== undefined);
           // In open primaries, CVRs have a partyId inferred from votes, and it
-          // may be undefined if there were no partisan contest votes. These
+          // may be NO_PARTY_ID if there were no partisan contest votes. These
           // nonpartisan-voted CVRs are excluded from cardCountsByParty.
-          if (partyTallyReportResults.partyId === undefined) {
+          if (Tabulation.isNoPartyId(partyTallyReportResults.partyId)) {
             return ccByParty;
           }
           return {

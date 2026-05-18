@@ -385,8 +385,10 @@ function getCellContent({
         case 'ballot-style':
           return assertDefined(cardCounts.ballotStyleGroupId);
         case 'party': {
-          const partyId = determinePartyId(electionDefinition, cardCounts);
-          if (partyId === undefined) return 'No Party';
+          const partyId = assertDefined(
+            determinePartyId(electionDefinition, cardCounts)
+          );
+          if (Tabulation.isNoPartyId(partyId)) return 'No Party';
           return CachedElectionLookups.getPartyById(electionDefinition, partyId)
             .name;
         }

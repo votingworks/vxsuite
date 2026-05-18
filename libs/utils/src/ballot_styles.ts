@@ -18,6 +18,7 @@ import {
   hasSplits,
   ElectionDefinition,
   Tabulation,
+  PartyId,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';
@@ -223,7 +224,7 @@ export function getPrecinctsAndSplitsForBallotStyle({
 export function determinePartyId<T>(
   electionDefinition: ElectionDefinition,
   group: Tabulation.GroupOf<T>
-): Optional<string> {
+): Optional<PartyId | Tabulation.NoPartyId> {
   if (group.partyId) return group.partyId;
   if (!group.ballotStyleGroupId) return undefined;
   const ballotStyleGroup = getBallotStyleGroup({

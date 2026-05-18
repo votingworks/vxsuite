@@ -839,7 +839,7 @@ export class Store implements BaseStore {
       );
       return groups.flatMap((group) => [
         ...partyIds.map((partyId) => ({ ...group, partyId })),
-        { ...group, partyId: undefined },
+        { ...group, partyId: Tabulation.NO_PARTY_ID },
       ]);
     }
     return groups;
