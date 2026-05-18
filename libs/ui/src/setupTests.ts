@@ -18,10 +18,20 @@ import {
 } from 'vitest-styled-components';
 
 declare module 'vitest' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Assertion<T = any> extends ToHaveStyleRuleMatchers {}
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface AsymmetricMatchersContaining extends ToHaveStyleRuleMatchers {}
+  // vitest 4's own `Assertion<T>` extends both `JestAssertion<T>` and
+  // `ChaiMockAssertion`, which have non-identical `lastReturnedWith` /
+  // `nthReturnedWith` signatures. Any declaration-merge into `Assertion`
+  // triggers tsgo to re-validate the merged interface and surface that
+  // conflict (TS2320). Override the conflicting members here with a
+  // signature compatible with both so the merge resolves cleanly.
+  interface Assertion<T = any> {
+    toHaveStyleRule: ToHaveStyleRuleMatchers['toHaveStyleRule'];
+    lastReturnedWith<E = any>(value?: E): void;
+    nthReturnedWith<E = any>(n: number, value?: E): void;
+  }
+  interface AsymmetricMatchersContaining {
+    toHaveStyleRule: ToHaveStyleRuleMatchers['toHaveStyleRule'];
+  }
 }
 
 declare global {

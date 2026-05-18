@@ -1,4 +1,5 @@
-import { expect, test, beforeEach, afterEach, vi } from 'vitest';
+import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
+import { ComponentProps } from 'react';
 import {
   Election,
   Voter,
@@ -19,13 +20,20 @@ import {
 import { renderInAppContext } from '../test/render_in_app_context';
 import { VoterConfirmScreen } from './voter_confirm_screen';
 
+type VoterConfirmScreenProps = ComponentProps<typeof VoterConfirmScreen>;
+
 let apiMock: ApiMock;
 let unmount: () => void;
 const mockVoterId = '123';
 let voter: Voter;
-let onCancel: ReturnType<typeof vi.fn>;
-let onConfirmCheckIn: ReturnType<typeof vi.fn>;
-let onConfirmVoterIdentity: ReturnType<typeof vi.fn>;
+// vitest 4 returns `Mock<Procedure | Constructable>` from un-parameterized
+// `vi.fn()`, which doesn't narrow to a specific function signature — use the
+// component's prop types so these mocks are assignable to the props.
+let onCancel: Mock<VoterConfirmScreenProps['onCancel']>;
+let onConfirmCheckIn: Mock<VoterConfirmScreenProps['onConfirmCheckIn']>;
+let onConfirmVoterIdentity: Mock<
+  VoterConfirmScreenProps['onConfirmVoterIdentity']
+>;
 
 const electionDefinition =
   electionMultiPartyPrimaryFixtures.readElectionDefinition();
