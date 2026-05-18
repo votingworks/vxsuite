@@ -1,4 +1,9 @@
-import { memoizeByObject, unique } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  memoizeByObject,
+  unique,
+} from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
@@ -51,15 +56,16 @@ export function hasCrossoverVote(
 
 /**
  * In open primary elections only, infers the voter's party from their partisan
- * contest selections. Returns undefined when the ballot has no partisan votes
+ * contest selections. Returns NO_PARTY_ID when the ballot has no partisan votes
  * or has crossover votes.
  */
 export function inferPartyFromVotes(
   election: Election,
   votes: Tabulation.Votes
-): PartyId | undefined {
-  // Short circuit to avoid doing extra work if it's not an open primary
-  if (!isOpenPrimary(election)) return undefined;
+): PartyId | Tabulation.NoPartyId {
+  assert(isOpenPrimary(election));
   const parties = votedPartyIds(election, votes);
-  return parties.length === 1 ? parties[0] : undefined;
+  return parties.length === 1
+    ? assertDefined(parties[0])
+    : Tabulation.NO_PARTY_ID;
 }
