@@ -92,7 +92,7 @@
     "@types/pg": "^8.11.10",
     "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
@@ -106,7 +106,7 @@
     "lodash.get": "^4.4.2",
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
-    "vitest": "^3.1.4"
+    "vitest": "^4.1.6"
   },
   "engines": {
     "node": ">= 12"

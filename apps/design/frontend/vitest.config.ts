@@ -30,8 +30,10 @@ export default defineConfig({
       },
     ],
     env: {
-      // Vite automatically sets it to '/', which messes up some backend imports that we use in tests
-      BASE_URL: process.env.BASE_URL,
+      // Vite automatically sets it to '/', which messes up some backend
+      // imports that we use in tests. Coerce undefined to '' so vitest 4
+      // doesn't pass the literal string "undefined" through to process.env.
+      BASE_URL: process.env.BASE_URL ?? '',
     },
   },
 });
