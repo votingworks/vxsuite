@@ -2398,7 +2398,12 @@ export class Store implements BaseStore {
     }
 
     if (groupBy.groupByParty) {
-      selectParts.push('ballot_styles.party_id as partyId');
+      if (isOpenPrimary(election)) {
+        selectParts.push('cvrs.votes as votes');
+        selectParts.push('cvrs.adjudicated_votes as adjudicatedVotes');
+      } else {
+        selectParts.push('ballot_styles.party_id as partyId');
+      }
     }
 
     if (groupBy.groupByBatch) {
@@ -2444,16 +2449,28 @@ export class Store implements BaseStore {
           order by write_ins.id
         `,
       ...params
-    ) as Iterable<WriteInForTally & Partial<StoreCastVoteRecordAttributes>>) {
+    ) as Iterable<
+      WriteInForTally &
+        Partial<StoreCastVoteRecordAttributes> & {
+          votes: string | null;
+          adjudicatedVotes: string | null;
+        }
+    >) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
-        partyId:
-          /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
-          groupBy.groupByParty && row.partyId !== null
-            ? row.partyId
-            : undefined,
+        partyId: groupBy.groupByParty
+          ? isOpenPrimary(election)
+            ? inferPartyFromVotes(
+                election,
+                this.applyAdjudicatedVotes({
+                  votesString: assertDefined(row.votes),
+                  adjudicatedVotesString: row.adjudicatedVotes,
+                })
+              )
+            : assertDefined(row.partyId)
+          : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
