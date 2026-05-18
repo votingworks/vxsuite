@@ -381,6 +381,8 @@ function buildClientApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
+      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+        auth.getAuthStatus(constructAuthMachineState(clientStore)),
     }),
   });
 }

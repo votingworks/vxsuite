@@ -172,6 +172,7 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
+      getAuthStatus: () => null,
     }),
   });
 }
