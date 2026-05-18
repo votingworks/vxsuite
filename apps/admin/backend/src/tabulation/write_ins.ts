@@ -8,7 +8,6 @@ import {
 } from '@votingworks/types';
 import {
   CachedElectionLookups,
-  GROUP_KEY_ROOT,
   extractGroupSpecifier,
   getGroupKey,
   hasCrossoverVote,
@@ -271,7 +270,8 @@ export function tabulateWriteInTallies({
         includeUnallocablePendingWriteInsAsPending,
       });
     }
-    electionWriteInSummaryGroupMap[GROUP_KEY_ROOT] = electionWriteInSummary;
+    const groupKey = getGroupKey({}, {});
+    electionWriteInSummaryGroupMap[groupKey] = electionWriteInSummary;
   } else {
     // general case, grouping results by specified group by clause
     for (const writeIn of writeIns) {

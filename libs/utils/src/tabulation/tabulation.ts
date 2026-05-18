@@ -1,9 +1,4 @@
-import {
-  assert,
-  assertDefined,
-  iter,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyleGroupId,
@@ -271,127 +266,34 @@ function getCastVoteRecordGroupSpecifier(
   };
 }
 
-export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
-type GroupKeyPartType =
-  | 'ballotStyleGroupId'
-  | 'batchDate'
-  | 'batchId'
-  | 'partyId'
-  | 'precinctId'
-  | 'scannerId'
-  | 'votingMethod';
-
-function escapeGroupKeyValue(groupKeyValue: string): string {
-  return groupKeyValue
-    .replaceAll('\\', '\\\\')
-    .replaceAll('&', '\\&')
-    .replaceAll('=', '\\=');
-}
-
-function unescapeGroupKeyValue(groupKeyValue: string): string {
-  return groupKeyValue
-    .replaceAll('\\=', '=')
-    .replaceAll('\\&', '&')
-    .replaceAll('\\\\', '\\');
-}
-
-function getGroupKeyPart(key: GroupKeyPartType, value?: string): string {
-  assert(value !== undefined);
-  return `${key}=${escapeGroupKeyValue(value)}`;
-}
-
 /**
  * Based on a group's attributes, defines a key which is used to
  * look up and uniquely identify tabulation objects within a grouping.
- *
- * Adds key parts in alphabetical order for consistency.
  */
 export function getGroupKey(
   groupSpecifier: Tabulation.GroupSpecifier,
   groupBy: Tabulation.GroupBy
 ): Tabulation.GroupKey {
-  const keyParts: string[] = [GROUP_KEY_ROOT];
-  if (groupBy.groupByBallotStyle) {
-    keyParts.push(
-      getGroupKeyPart('ballotStyleGroupId', groupSpecifier.ballotStyleGroupId)
-    );
-  }
-
-  if (groupBy.groupByBatch) {
-    keyParts.push(getGroupKeyPart('batchId', groupSpecifier.batchId));
-  }
-
-  if (groupBy.groupByBatchDate) {
-    keyParts.push(getGroupKeyPart('batchDate', groupSpecifier.batchDate));
-  }
-
-  // For open primaries, CVR.partyId might be undefined if we can't infer the
-  // voter's party (e.g. if they didn't vote for partisan contests). If so,
-  // omit the partyId from the group key to create a nonpartisan group.
-  if (groupBy.groupByParty && groupSpecifier.partyId !== undefined) {
-    keyParts.push(getGroupKeyPart('partyId', groupSpecifier.partyId));
-  }
-
-  if (groupBy.groupByPrecinct) {
-    keyParts.push(getGroupKeyPart('precinctId', groupSpecifier.precinctId));
-  }
-
-  if (groupBy.groupByScanner) {
-    keyParts.push(getGroupKeyPart('scannerId', groupSpecifier.scannerId));
-  }
-
-  if (groupBy.groupByVotingMethod) {
-    keyParts.push(getGroupKeyPart('votingMethod', groupSpecifier.votingMethod));
-  }
-
-  return keyParts.join('&');
+  const filteredGroupSpecifier: Tabulation.GroupSpecifier = {
+    ballotStyleGroupId: groupBy.groupByBallotStyle
+      ? groupSpecifier.ballotStyleGroupId
+      : undefined,
+    batchDate: groupBy.groupByBatchDate ? groupSpecifier.batchDate : undefined,
+    batchId: groupBy.groupByBatch ? groupSpecifier.batchId : undefined,
+    partyId: groupBy.groupByParty ? groupSpecifier.partyId : undefined,
+    precinctId: groupBy.groupByPrecinct ? groupSpecifier.precinctId : undefined,
+    scannerId: groupBy.groupByScanner ? groupSpecifier.scannerId : undefined,
+    votingMethod: groupBy.groupByVotingMethod
+      ? groupSpecifier.votingMethod
+      : undefined,
+  };
+  return JSON.stringify(filteredGroupSpecifier);
 }
 
 export function getGroupSpecifierFromGroupKey(
   groupKey: Tabulation.GroupKey
 ): Tabulation.GroupSpecifier {
-  const parts = groupKey.split(/(?<!\\)&/);
-  const groupSpecifier: Tabulation.GroupSpecifier = {};
-  for (const part of parts) {
-    if (part === GROUP_KEY_ROOT) {
-      continue;
-    }
-
-    const [key, escapedValue] = part.split(/(?<!\\)=/) as [
-      GroupKeyPartType,
-      string,
-    ];
-    const value = unescapeGroupKeyValue(escapedValue);
-    switch (key) {
-      case 'ballotStyleGroupId':
-        groupSpecifier.ballotStyleGroupId = unescapeGroupKeyValue(value);
-        break;
-      case 'partyId':
-        groupSpecifier.partyId = unescapeGroupKeyValue(value);
-        break;
-      case 'batchDate':
-        groupSpecifier.batchDate = unescapeGroupKeyValue(value);
-        break;
-      case 'batchId':
-        groupSpecifier.batchId = unescapeGroupKeyValue(value);
-        break;
-      case 'scannerId':
-        groupSpecifier.scannerId = unescapeGroupKeyValue(value);
-        break;
-      case 'precinctId':
-        groupSpecifier.precinctId = unescapeGroupKeyValue(value);
-        break;
-      case 'votingMethod':
-        groupSpecifier.votingMethod = unescapeGroupKeyValue(
-          value
-        ) as Tabulation.VotingMethod;
-        break;
-      /* istanbul ignore next */
-      default:
-        throwIllegalValue(key);
-    }
-  }
-  return groupSpecifier;
+  return JSON.parse(groupKey) as Tabulation.GroupSpecifier;
 }
 
 /**
@@ -452,7 +354,8 @@ export async function tabulateCastVoteRecords({
         await yieldToEventLoop();
       }
     }
-    groupedElectionResults[GROUP_KEY_ROOT] = electionResults;
+    const groupKey = getGroupKey({}, {});
+    groupedElectionResults[groupKey] = electionResults;
     return groupedElectionResults;
   }
 
