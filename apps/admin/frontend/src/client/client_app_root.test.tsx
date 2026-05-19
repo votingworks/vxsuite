@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import {
   mockElectionManagerUser,
@@ -18,6 +18,15 @@ import {
 import { ClientApp } from './client_app';
 import { createQueryClient, type ApiClient } from './api';
 import { SharedApiClientContext, systemCallApi } from '../shared_api';
+
+// Stub the ballot adjudication screen so the URL-clearing test doesn't have to
+// wire up its data-loader queries — the behavior under test lives in
+// ClientAppRoot.
+vi.mock('./screens/client_ballot_adjudication_screen', () => ({
+  ClientBallotAdjudicationScreen: () => (
+    <div>mock ballot adjudication screen</div>
+  ),
+}));
 
 let apiMock: ClientApiMock;
 let queryClient: QueryClient;
@@ -208,4 +217,23 @@ test('sysadmin sees settings and diagnostics tabs but not adjudication', async (
   screen.getByRole('button', { name: 'Diagnostics' });
   screen.getByRole('button', { name: 'Lock Machine' });
   expect(screen.queryByRole('button', { name: 'Adjudication' })).toBeNull();
+});
+
+test('logout while on a ballot adjudication URL replaces it with the home route', async () => {
+  // Seed the URL so the app starts on /adjudication/ballots/<cvrId>.
+  window.history.replaceState({}, '', '/adjudication/ballots/cvr-1');
+
+  setPollWorkerAuth();
+  renderClientApp({ withElection: true });
+  await screen.findByText('mock ballot adjudication screen');
+
+  // Logout (manual lock or session expiry while still connected). The
+  // transition useEffect should rewrite the URL to /adjudication so re-auth
+  // lands on the home screen instead of reopening the stale ballot.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked_by_session_expiry',
+  });
+  await screen.findByText('VxAdmin Locked');
+  expect(window.location.pathname).toEqual('/adjudication');
 });

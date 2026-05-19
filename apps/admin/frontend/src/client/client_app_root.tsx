@@ -1,4 +1,5 @@
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import {
   InvalidCardScreen,
   RemoveCardScreen,
@@ -38,6 +39,21 @@ export function ClientAppRoot(): JSX.Element | null {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
+  const history = useHistory();
+  const previousAuthStatusRef = useRef<string | undefined>(undefined);
+
+  // On logout reset the url to the home screen so the session is cleared when logging back in.
+  useEffect(() => {
+    const currentStatus = authStatusQuery.data?.status;
+    const previousStatus = previousAuthStatusRef.current;
+    previousAuthStatusRef.current = currentStatus;
+
+    if (!currentStatus || !previousStatus) return;
+
+    if (previousStatus !== 'logged_out' && currentStatus === 'logged_out') {
+      history.replace(routerPaths.adjudication);
+    }
+  }, [authStatusQuery.data?.status, history]);
 
   if (
     !authStatusQuery.isSuccess ||

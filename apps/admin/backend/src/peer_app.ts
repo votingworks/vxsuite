@@ -77,6 +77,21 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
           newAuthType: input.authType ?? 'none',
         });
       }
+      // When a client transitions to locked (manual logout or session expiry),
+      // release any ballot claims it still holds. Mirrors the disconnect-side
+      // cleanup in cleanupStaleMachines for the still-connected case.
+      if (
+        previous?.status !== Admin.ClientMachineStatus.OnlineLocked &&
+        input.status === Admin.ClientMachineStatus.OnlineLocked
+      ) {
+        const electionId = store.getCurrentElectionId();
+        if (electionId) {
+          store.releaseAllBallotClaimsForMachine({
+            electionId,
+            machineId: input.machineId,
+          });
+        }
+      }
       store.setNetworkedMachineStatus(
         input.machineId,
         'client',
