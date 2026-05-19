@@ -420,7 +420,6 @@ export const getWriteInCandidates = {
       () => apiClient.getWriteInCandidates(input),
       {
         staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       }
     );
   },
