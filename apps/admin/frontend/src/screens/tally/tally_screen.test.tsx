@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  readElectionOpenPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../../test/react_testing_library';
@@ -46,4 +49,32 @@ test('has tabs for CVRs and Manual Tallies', async () => {
 
   userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
   await screen.findByText('No manual tallies entered.');
+});
+
+test('hides Manual Tallies tab for open primary elections', async () => {
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
+  apiMock.expectGetCastVoteRecordFiles([]);
+  renderInAppContext(<TallyScreen />, {
+    electionDefinition: readElectionOpenPrimaryDefinition(),
+    apiMock,
+    route: '/tally',
+  });
+  await screen.findByRole('heading', { name: 'Tally' });
+
+  screen.getByRole('tab', { name: 'Cast Vote Records (CVRs)' });
+  expect(
+    screen.queryByRole('tab', { name: 'Manual Tallies' })
+  ).not.toBeInTheDocument();
+});
+
+test('redirects /tally/manual to CVRs tab for open primary elections', async () => {
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
+  apiMock.expectGetCastVoteRecordFiles([]);
+  renderInAppContext(<TallyScreen />, {
+    electionDefinition: readElectionOpenPrimaryDefinition(),
+    apiMock,
+    route: '/tally/manual',
+  });
+  await screen.findByRole('heading', { name: 'Tally' });
+  await screen.findByText('No CVRs loaded.');
 });
