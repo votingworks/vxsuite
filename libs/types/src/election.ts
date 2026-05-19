@@ -1205,41 +1205,40 @@ export const BallotIdSchema = z
     'Ballot IDs must not start with an underscore'
   ) as unknown as z.ZodSchema<BallotId>;
 
-export interface HmpbBallotPageMetadata {
+export interface BallotMetadata {
   ballotHash: string; // a hexadecimal string
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
-  pageNumber: number;
   isTestMode: boolean;
   ballotType: BallotType;
+}
+export const BallotMetadataSchema = z.object({
+  ballotHash: Sha256Hash,
+  precinctId: PrecinctIdSchema,
+  ballotStyleId: BallotStyleIdSchema,
+  isTestMode: z.boolean(),
+  ballotType: BallotTypeSchema,
+}) satisfies z.ZodType<BallotMetadata>;
+
+export interface HmpbBallotPageMetadata extends BallotMetadata {
+  pageNumber: number;
   /**
    * Only used when SystemSettings.precinctScanEnableBallotAuditIds feature is enabled.
    */
   ballotAuditId?: BallotId;
 }
-export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
-  z.object({
-    ballotHash: Sha256Hash,
-    precinctId: PrecinctIdSchema,
-    ballotStyleId: BallotStyleIdSchema,
-    pageNumber: z.number(),
-    isTestMode: z.boolean(),
-    ballotType: BallotTypeSchema,
-    ballotAuditId: BallotIdSchema.optional(),
-  });
+export const HmpbBallotPageMetadataSchema = BallotMetadataSchema.extend({
+  pageNumber: z.number(),
+  ballotAuditId: BallotIdSchema.optional(),
+}) satisfies z.ZodType<HmpbBallotPageMetadata>;
 
 /**
  * Metadata for a single page of a multi-page BMD summary ballot.
  * Used when VxMark prints ballots that span multiple pages.
  */
-export interface BmdMultiPageBallotPageMetadata {
-  ballotHash: string; // a hexadecimal string
-  precinctId: PrecinctId;
-  ballotStyleId: BallotStyleId;
+export interface BmdMultiPageBallotPageMetadata extends BallotMetadata {
   pageNumber: number;
   totalPages: number;
-  isTestMode: boolean;
-  ballotType: BallotType;
   /**
    * Required for multi-page BMD ballots to correlate pages during scanning.
    */
@@ -1249,30 +1248,14 @@ export interface BmdMultiPageBallotPageMetadata {
    */
   contestIds: ContestId[];
 }
-export const BmdMultiPageBallotPageMetadataSchema: z.ZodSchema<BmdMultiPageBallotPageMetadata> =
-  z.object({
-    ballotHash: Sha256Hash,
-    precinctId: PrecinctIdSchema,
-    ballotStyleId: BallotStyleIdSchema,
+export const BmdMultiPageBallotPageMetadataSchema = BallotMetadataSchema.extend(
+  {
     pageNumber: z.number(),
     totalPages: z.number(),
-    isTestMode: z.boolean(),
-    ballotType: BallotTypeSchema,
     ballotAuditId: BallotIdSchema,
     contestIds: z.array(ContestIdSchema),
-  });
-
-export type BallotMetadata = Omit<
-  HmpbBallotPageMetadata,
-  'pageNumber' | 'ballotAuditId'
->;
-export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
-  ballotHash: Sha256Hash,
-  precinctId: PrecinctIdSchema,
-  ballotStyleId: BallotStyleIdSchema,
-  isTestMode: z.boolean(),
-  ballotType: BallotTypeSchema,
-});
+  }
+) satisfies z.ZodType<BmdMultiPageBallotPageMetadata>;
 
 export interface TargetShape {
   bounds: Rect;
