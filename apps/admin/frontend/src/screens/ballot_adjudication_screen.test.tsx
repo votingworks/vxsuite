@@ -279,9 +279,7 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   // starts on first ballot showing front image, no Back button on first ballot
   await screen.findByText(/Ballot ID: cvr-/);
   screen.getByText('Ballot 1 of 3');
-  expect(
-    screen.queryByRole('button', { name: /Back/ })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Back/ })).toBeNull();
   const ballotImage = screen.getByRole('img', { name: /ballot/i });
   expect(ballotImage.style.backgroundImage).toContain(
     `mock-front-image-${CVR_ID_1}`
@@ -656,9 +654,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
   const modal = screen.getByRole('alertdialog');
   userEvent.click(within(modal).getByRole('button', { name: 'Back' }));
   await waitFor(() => {
-    expect(
-      screen.queryByText('Incomplete Adjudication')
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Incomplete Adjudication')).toBeNull();
   });
   screen.getByText(/Ballot ID/);
 
@@ -837,26 +833,26 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   }
 
   // no highlight initially
-  expect(getHighlightOverlay()).not.toBeInTheDocument();
+  expect(getHighlightOverlay()).toBeNull();
 
   // hover over pending front contest -> orange/warning highlight
   const zooCouncilItem = screen.getByText('Zoo Council').closest('li')!;
   fireEvent.mouseEnter(zooCouncilItem);
   const warningHighlight = getHighlightOverlay();
-  expect(warningHighlight).toBeInTheDocument();
+  expect(warningHighlight).not.toBeNull();
   expect(warningHighlight).toHaveStyle({
     background: HIGHLIGHT_WARNING_BACKGROUND,
   });
 
   // mouse leave clears highlight
   fireEvent.mouseLeave(zooCouncilItem);
-  expect(getHighlightOverlay()).not.toBeInTheDocument();
+  expect(getHighlightOverlay()).toBeNull();
 
   // hover over resolved front contest -> purple highlight
   const bestAnimalItem = screen.getByText('Best Animal').closest('li')!;
   fireEvent.mouseEnter(bestAnimalItem);
   const resolvedHighlight = getHighlightOverlay();
-  expect(resolvedHighlight).toBeInTheDocument();
+  expect(resolvedHighlight).not.toBeNull();
   expect(resolvedHighlight).toHaveStyle({
     background: HIGHLIGHT_PRIMARY_BACKGROUND,
   });
@@ -867,7 +863,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     .getByText('Ballot Measure 1 - Part 1')
     .closest('li')!;
   fireEvent.mouseEnter(ballotMeasureItem);
-  expect(getHighlightOverlay()).not.toBeInTheDocument();
+  expect(getHighlightOverlay()).toBeNull();
   fireEvent.mouseLeave(ballotMeasureItem);
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
@@ -950,7 +946,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
 
   // Ballot 1: resolved non-blank, accept advances to ballot 2
   await screen.findByText('Ballot 1 of 3');
-  expect(screen.queryByText(/Blank Ballot/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Blank Ballot/)).toBeNull();
 
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_1, contests: [] });
@@ -1135,10 +1131,10 @@ test('contest list suppresses undervote captions when not in system settings', a
   // Undervote captions are suppressed
   expect(
     contestItem('Ballot Measure 1 - Part 2').queryByText('Undervote Resolved')
-  ).not.toBeInTheDocument();
+  ).toBeNull();
   expect(
     contestItem('Ballot Measure 3').queryByText('Undervote Created')
-  ).not.toBeInTheDocument();
+  ).toBeNull();
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
@@ -1411,6 +1407,74 @@ test('multi-station mode claims ballots on mount and releases on navigation', as
   await screen.findByText('Ballot 2 of 2');
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves();
+});
+
+test('Skip jumps past claimed ballots; Back still steps onto them as read-only', async () => {
+  const CVR_ID_3 = 'cvr-id-3';
+  const contestData = [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasWriteIn: true })
+    ),
+  ];
+  const adjData1 = makeBallotAdjudicationData(CVR_ID_1, contestData);
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, contestData);
+  const adjData3 = makeBallotAdjudicationData(CVR_ID_3, contestData);
+
+  // CVR_ID_2 is claimed by another machine; queue is [1, 2, 3].
+  apiMock.expectAdjudicationScreenQueries({ claimedCvrIds: [CVR_ID_2] });
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+
+  // Initial mount on CVR_ID_1.
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 1 of 3');
+  // No Back button on the first ballot.
+  expect(screen.queryByRole('button', { name: /Back/ })).toBeNull();
+
+  // Skip from CVR_ID_1 should jump past the claimed CVR_ID_2 to CVR_ID_3.
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_3 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_3 }, adjData3);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_3 }, true);
+
+  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await screen.findByText('Ballot 3 of 3');
+
+  // Back from CVR_ID_3 lands on CVR_ID_2 — visible but read-only since another
+  // machine still holds the claim. Releases CVR_ID_3 but does not attempt to
+  // claim CVR_ID_2 (the claimedCvrIds set short-circuits the claim mutation).
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_3 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_2 }, true);
+
+  userEvent.click(screen.getByRole('button', { name: /Back/ }));
+  await screen.findByText('Ballot 2 of 3');
+  await screen.findByText(
+    'This ballot is currently being adjudicated by another machine.'
+  );
+
+  // Back again steps onto CVR_ID_1 and re-claims it (CVR_ID_2 was never
+  // claimed by this machine, so nothing to release).
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+
+  userEvent.click(screen.getByRole('button', { name: /Back/ }));
+  await screen.findByText('Ballot 1 of 3');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
 });
 
