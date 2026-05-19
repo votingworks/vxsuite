@@ -5,6 +5,7 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import waitForExpect from 'wait-for-expect';
+import { mockConstructor } from '@votingworks/test-utils';
 import { MockCardReader, getTestFilePath } from '../../test/utils';
 import {
   CardCommand,
@@ -52,10 +53,12 @@ const CERTIFYING_PRIVATE_KEY_PATH = join(
 let mockCardReader: MockCardReader;
 
 beforeEach(() => {
-  vi.mocked(CardReader).mockImplementation((...params) => {
-    mockCardReader = new MockCardReader(...params);
-    return mockCardReader as unknown as CardReader;
-  });
+  vi.mocked(CardReader).mockImplementation(
+    mockConstructor((...params) => {
+      mockCardReader = new MockCardReader(...params);
+      return mockCardReader as unknown as CardReader;
+    })
+  );
   vi.mocked(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
 });
 

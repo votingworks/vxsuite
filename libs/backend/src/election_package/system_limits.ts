@@ -83,8 +83,8 @@ export function validateElectionDefinitionAgainstSystemLimits(
         totalCandidates += 2;
         break;
       }
-      /* istanbul ignore next - @preserve */
       default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(contest, 'type');
       }
     }
@@ -177,8 +177,8 @@ export function validateElectionDefinitionAgainstSystemLimits(
             candidatesSummedAcrossContests += 2;
             break;
           }
-          /* istanbul ignore next - @preserve */
           default: {
+            /* istanbul ignore next - @preserve */
             throwIllegalValue(contest, 'type');
           }
         }

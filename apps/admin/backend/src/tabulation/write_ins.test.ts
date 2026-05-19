@@ -75,22 +75,22 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         },
       },
     })
-  ).toMatchObject(
+  ).toEqual(
     expect.arrayContaining([
-      {
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'pending',
         tally: 11,
-      },
-      {
+      }),
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'invalid',
         tally: 9,
-      },
-      {
+      }),
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
@@ -98,8 +98,8 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         candidateId: 'lion',
         candidateName: 'Lion',
         tally: 7,
-      },
-      {
+      }),
+      expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
@@ -107,7 +107,7 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         candidateId: 'mr-pickles',
         candidateName: 'Mr. Pickles',
         tally: 5,
-      },
+      }),
     ])
   );
 });

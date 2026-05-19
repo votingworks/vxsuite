@@ -1,6 +1,6 @@
 import { expect, Mocked, test, vi } from 'vitest';
 
-import { TestLanguageCode } from '@votingworks/test-utils';
+import { mockConstructor, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred, typedAs } from '@votingworks/basics';
 import { waitFor } from '../../test/react_testing_library';
 import { newAudioPlayer } from './audio_player';
@@ -30,7 +30,7 @@ function audioMocks() {
     }) as unknown as typeof Audio.prototype
   );
 
-  const mockAudioCtor = vi.fn(() => mockAudio);
+  const mockAudioCtor = vi.fn(mockConstructor(() => mockAudio));
 
   return { mockAudio, mockAudioCtor, mockCtx, mockGain, mockSrc };
 }

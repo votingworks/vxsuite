@@ -391,8 +391,8 @@ export function BallotScreen(): JSX.Element | null {
                       </span>
                     </ErrorMessage>
                   );
-                /* istanbul ignore next - @preserve */
                 default: {
+                  /* istanbul ignore next - @preserve */
                   throwIllegalValue(err, 'error');
                 }
               }

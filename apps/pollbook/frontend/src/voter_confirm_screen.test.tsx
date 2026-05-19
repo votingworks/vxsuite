@@ -1,4 +1,5 @@
-import { expect, test, beforeEach, afterEach, vi } from 'vitest';
+import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
+import { ComponentProps } from 'react';
 import {
   Election,
   Voter,
@@ -19,13 +20,17 @@ import {
 import { renderInAppContext } from '../test/render_in_app_context';
 import { VoterConfirmScreen } from './voter_confirm_screen';
 
+type VoterConfirmScreenProps = ComponentProps<typeof VoterConfirmScreen>;
+
 let apiMock: ApiMock;
 let unmount: () => void;
 const mockVoterId = '123';
 let voter: Voter;
-let onCancel: ReturnType<typeof vi.fn>;
-let onConfirmCheckIn: ReturnType<typeof vi.fn>;
-let onConfirmVoterIdentity: ReturnType<typeof vi.fn>;
+let onCancel: Mock<VoterConfirmScreenProps['onCancel']>;
+let onConfirmCheckIn: Mock<VoterConfirmScreenProps['onConfirmCheckIn']>;
+let onConfirmVoterIdentity: Mock<
+  VoterConfirmScreenProps['onConfirmVoterIdentity']
+>;
 
 const electionDefinition =
   electionMultiPartyPrimaryFixtures.readElectionDefinition();

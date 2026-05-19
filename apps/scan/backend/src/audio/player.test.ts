@@ -9,11 +9,17 @@ vi.mock('./card.js');
 
 vi.mock('@votingworks/backend', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/backend')>();
+  // vi.mock factories are hoisted above imports; resolve test-utils lazily
+  // here so `mockConstructor` isn't in TDZ when the factory first runs.
+  // (Can't use `vi.hoisted` + top-level await — node16 modules are CJS.)
+  const { mockConstructor } = await import('@votingworks/test-utils');
   return {
     ...actual,
-    AudioPlayer: vi.fn().mockImplementation(() => ({
-      play: vi.fn().mockResolvedValue(undefined),
-    })),
+    AudioPlayer: vi.fn().mockImplementation(
+      mockConstructor(() => ({
+        play: vi.fn().mockResolvedValue(undefined),
+      }))
+    ),
   };
 });
 

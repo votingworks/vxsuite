@@ -11,6 +11,7 @@ import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { testDetectDevices } from '@votingworks/backend';
+import { mockConstructor } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
@@ -61,7 +62,9 @@ test('start passes context to `buildApp`', async () => {
     trustMe: 'I play audio.',
     setIsScreenReaderEnabled: vi.fn().mockResolvedValue(undefined),
   } as unknown as AudioPlayer;
-  mockAudioPlayerClass.mockReturnValueOnce(mockAudioPlayer);
+  mockAudioPlayerClass.mockImplementationOnce(
+    mockConstructor(() => mockAudioPlayer)
+  );
 
   const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
 

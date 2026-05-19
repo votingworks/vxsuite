@@ -28,6 +28,7 @@ import {
 } from '@votingworks/ui';
 import { UiStringsStore } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
+import { mockConstructor } from '@votingworks/test-utils';
 import { type Store } from '../store';
 import { closeLayoutRenderer, printBallot } from './print_ballot';
 
@@ -194,24 +195,26 @@ describe(`printMode === "summary"`, () => {
     const page1ContestIds = allContests.slice(0, 5).map((c) => c.id);
     const page2ContestIds = allContests.slice(5).map((c) => c.id);
 
-    // Override SummaryBallotLayoutRenderer mock to return 2 pages
+    // Override SummaryBallotLayoutRenderer mock to return 2 pages.
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      () =>
-        ({
-          computePageBreaks: vi.fn().mockResolvedValue([
-            {
-              pageNumber: 1,
-              contestIds: page1ContestIds,
-              layout: { page: 1 },
-            },
-            {
-              pageNumber: 2,
-              contestIds: page2ContestIds,
-              layout: { page: 2 },
-            },
-          ]),
-          close: vi.fn().mockResolvedValue(undefined),
-        }) as unknown as SummaryBallotLayoutRenderer
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: vi.fn().mockResolvedValue([
+              {
+                pageNumber: 1,
+                contestIds: page1ContestIds,
+                layout: { page: 1 },
+              },
+              {
+                pageNumber: 2,
+                contestIds: page2ContestIds,
+                layout: { page: 2 },
+              },
+            ]),
+            close: vi.fn().mockResolvedValue(undefined),
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
 
     const mockVotes: VotesDict = {
@@ -342,14 +345,16 @@ describe(`printMode === "summary"`, () => {
     const contestIds = allContests.map((c) => c.id);
 
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-      () =>
-        ({
-          computePageBreaks: vi.fn().mockResolvedValue([
-            { pageNumber: 1, contestIds, layout: {} },
-            { pageNumber: 2, contestIds: [], layout: {} },
-          ]),
-          close: vi.fn().mockResolvedValue(undefined),
-        }) as unknown as SummaryBallotLayoutRenderer
+      mockConstructor(
+        () =>
+          ({
+            computePageBreaks: vi.fn().mockResolvedValue([
+              { pageNumber: 1, contestIds, layout: {} },
+              { pageNumber: 2, contestIds: [], layout: {} },
+            ]),
+            close: vi.fn().mockResolvedValue(undefined),
+          }) as unknown as SummaryBallotLayoutRenderer
+      )
     );
 
     vi.mocked(getPdfPageCount).mockResolvedValue(2);

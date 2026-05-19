@@ -140,8 +140,8 @@ export function ExportResultsModal({
           }
         />
       );
-    /* istanbul ignore next - compile time check @preserve */
     default:
+      /* istanbul ignore next - compile time check @preserve */
       throwIllegalValue(usbDrive, 'status');
   }
 }

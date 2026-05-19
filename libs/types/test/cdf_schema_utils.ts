@@ -208,8 +208,8 @@ export function isSubsetCdfSchema(
 
         return ok();
 
-      /* istanbul ignore next - @preserve */
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(subSchema);
     }
   }

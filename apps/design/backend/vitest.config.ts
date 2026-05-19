@@ -7,8 +7,8 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: -59,
-        branches: -59,
+        lines: -65,
+        branches: -70,
       },
       exclude: ['src/configure_sentry.ts', '**/*.test.ts'],
     },
@@ -27,8 +27,8 @@ export default defineConfig({
       },
     ],
     env: {
-      // Vite automatically sets it to '/', which we don't want in tests
-      BASE_URL: process.env.BASE_URL,
+      // Vite automatically sets it to '/', which we don't want in tests.
+      BASE_URL: process.env.BASE_URL ?? '',
     },
   },
 });

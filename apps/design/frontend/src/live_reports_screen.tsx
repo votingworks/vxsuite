@@ -102,8 +102,8 @@ function getOverallStatusIcon(
       return <Icons.Paused />;
     case 'closed':
       return <Icons.Done color="primary" />;
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(status);
   }
 }
@@ -118,8 +118,8 @@ function getOverallStatusLabel(status: PollingPlaceOverallStatus): string {
       return 'Polls paused';
     case 'closed':
       return 'Voting complete';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(status);
   }
 }
@@ -172,8 +172,8 @@ function getLiveReportTransitionName(
       return 'Paused';
     case 'close_polls':
       return 'Closed';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(transitionType);
   }
 }
@@ -184,8 +184,8 @@ function getErrorMessage(error: GetExportedElectionError): string {
       return 'This election has not yet been exported. Please export the election and configure VxScan to enable live reports.';
     case 'election-out-of-date':
       return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(error);
   }
 }

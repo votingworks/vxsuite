@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vitest';
-import { TestLanguageCode } from '@votingworks/test-utils';
+import { mockConstructor, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 
 import { newTestContext } from '../../test/test_context';
@@ -41,8 +41,9 @@ const mockWebAudioContext = {
 } as unknown as AudioContext;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = vi.fn();
-  mockAudioContextConstructor.mockReturnValue(mockWebAudioContext);
+  const mockAudioContextConstructor = vi.fn(
+    mockConstructor(() => mockWebAudioContext)
+  );
   window.AudioContext = mockAudioContextConstructor;
 });
 

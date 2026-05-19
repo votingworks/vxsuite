@@ -24,8 +24,8 @@ function proxyErrorMessage(error: AdjudicationError): string {
       return 'This machine no longer has an active claim on this ballot. Please try again.';
     case 'host-disconnect':
       return 'Disconnected from host.';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(error, 'type');
   }
 }
@@ -150,8 +150,8 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
         />
       );
 
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(flowState);
   }
 }

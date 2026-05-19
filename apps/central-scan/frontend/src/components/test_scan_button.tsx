@@ -112,8 +112,8 @@ function TestScanModal({
               actions={<Button onPress={onClose}>Close</Button>}
             />
           );
-        /* istanbul ignore next */
         default:
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(outcome);
       }
     }

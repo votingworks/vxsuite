@@ -141,8 +141,8 @@ function getNavItems(
       assert(isPollWorkerAuth(auth));
       return CLIENT_POLL_WORKER_NAV_ITEMS;
     }
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(machineMode);
   }
 }
@@ -160,8 +160,8 @@ function shouldShowToolbar(
         isElectionManagerAuth(auth) ||
         isPollWorkerAuth(auth)
       );
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(machineMode);
   }
 }

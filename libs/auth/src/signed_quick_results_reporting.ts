@@ -391,8 +391,8 @@ export async function generateSignedQuickResultsReportingUrl(
       if (!url) break;
       return [url];
     }
-    /* istanbul ignore next - @preserve */
     default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(pollsTransitionType);
     }
   }

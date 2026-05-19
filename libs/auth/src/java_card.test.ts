@@ -10,6 +10,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
+  mockConstructor,
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
@@ -86,10 +87,12 @@ let mockCardReader: MockCardReader;
 
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(CardReader).mockImplementation((...params) => {
-    mockCardReader = new MockCardReader(...params);
-    return mockCardReader as unknown as CardReader;
-  });
+  vi.mocked(CardReader).mockImplementation(
+    mockConstructor((...params) => {
+      mockCardReader = new MockCardReader(...params);
+      return mockCardReader as unknown as CardReader;
+    })
+  );
   vi.mocked(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
 });
 

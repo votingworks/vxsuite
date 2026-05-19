@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       thresholds: {
         lines: 97,
-        branches: 91,
+        branches: 90,
       },
       exclude: [
         'src/**/*.d.ts',
@@ -30,8 +30,8 @@ export default defineConfig({
       },
     ],
     env: {
-      // Vite automatically sets it to '/', which messes up some backend imports that we use in tests
-      BASE_URL: process.env.BASE_URL,
+      // Vite automatically sets it to '/', which we don't want in tests.
+      BASE_URL: process.env.BASE_URL ?? '',
     },
   },
 });

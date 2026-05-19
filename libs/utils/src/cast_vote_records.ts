@@ -263,8 +263,8 @@ function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
       ];
     case 'yesno':
       return [contest.yesOption.id, contest.noOption.id];
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       return throwIllegalValue(contest);
   }
 }

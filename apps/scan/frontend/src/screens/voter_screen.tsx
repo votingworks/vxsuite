@@ -172,8 +172,8 @@ export function VoterScreen({
           {...sharedScreenProps}
         />
       );
-    /* istanbul ignore next - compile time check for completeness @preserve */
     default:
+      /* istanbul ignore next - compile time check for completeness @preserve */
       throwIllegalValue(scannerStatus.state);
   }
 }

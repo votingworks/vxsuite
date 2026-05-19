@@ -101,8 +101,8 @@ export function pollingPlaceGroups(
         groups.election_day.push(place);
         break;
 
-      /* istanbul ignore next - @preserve */
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(place.type);
     }
   }
@@ -175,8 +175,8 @@ export function pollingPlaceTypeName(type: PollingPlaceType): string {
     case 'election_day':
       return 'Election Day';
 
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(type);
   }
 }

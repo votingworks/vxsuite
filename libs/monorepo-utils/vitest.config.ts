@@ -1,3 +1,12 @@
 import { defineConfig } from '../../vitest.config.shared.mjs';
 
-export default defineConfig();
+export default defineConfig({
+  test: {
+    coverage: {
+      thresholds: {
+        lines: 100,
+        branches: 97,
+      },
+    },
+  },
+});

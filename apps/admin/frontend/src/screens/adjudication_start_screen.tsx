@@ -142,8 +142,8 @@ function renderClientStatus(status: Admin.ClientMachineStatus): JSX.Element {
           <Icons.Done color="success" /> Adjudicating
         </React.Fragment>
       );
-    /* istanbul ignore next  - @preserve */
     default:
+      /* istanbul ignore next  - @preserve */
       throwIllegalValue(status);
   }
 }

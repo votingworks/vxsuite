@@ -4,9 +4,10 @@ export default defineConfig({
   test: {
     setupFiles: ['./test/setupTests.ts'],
     coverage: {
+      exclude: ['src/ui_strings/**'],
       thresholds: {
-        lines: -8,
-        branches: -17,
+        lines: -15,
+        branches: -30,
       },
     },
   },

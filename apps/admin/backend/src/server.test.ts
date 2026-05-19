@@ -35,11 +35,16 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 vi.mock('@votingworks/auth', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@votingworks/auth')>();
+  // vi.mock factories are hoisted above imports; resolve test-utils lazily
+  // here so `mockConstructor` isn't in TDZ when the factory first runs.
+  const { mockConstructor } = await import('@votingworks/test-utils');
   return {
     ...actual,
     DippedSmartCardAuth: vi
       .fn()
-      .mockImplementation(() => actual.buildMockDippedSmartCardAuth(vi.fn)),
+      .mockImplementation(
+        mockConstructor(() => actual.buildMockDippedSmartCardAuth(vi.fn))
+      ),
     // Mock card classes to prevent pcsclite from being initialized (not
     // available in CI).
     JavaCard: vi.fn(),

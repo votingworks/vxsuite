@@ -5,6 +5,10 @@ export default defineConfig({
     setupFiles: ['test/setup.ts'],
     coverage: {
       exclude: ['src/cli.ts', 'src/mocks', 'src/**/*.test.ts'],
+      thresholds: {
+        lines: 100,
+        branches: 98,
+      },
     },
   },
 });

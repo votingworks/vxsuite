@@ -44,7 +44,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
-  vi.restoreAllMocks();
+  vi.resetAllMocks();
 });
 
 async function advancePollingInterval(): Promise<void> {

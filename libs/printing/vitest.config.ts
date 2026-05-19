@@ -4,6 +4,12 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 export default defineConfig({
   test: {
     setupFiles: ['test/setupTests.ts'],
+    coverage: {
+      thresholds: {
+        lines: 100,
+        branches: 99,
+      },
+    },
     alias: [
       {
         find: '@votingworks/types',

@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import { CircleCiClient } from './circleci_client';
 
 describe('CircleCiClient', () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
+  let mockFetch: Mock<typeof fetch>;
 
   beforeEach(() => {
     mockFetch = vi.fn();
@@ -49,10 +49,11 @@ describe('CircleCiClient', () => {
       created_at: '2024-01-01T00:00:00Z',
     } as const;
 
-    mockFetch.mockResolvedValueOnce({
+    const fakeResponse: Partial<Response> = {
       ok: true,
       json: () => Promise.resolve(mockResponse),
-    });
+    };
+    mockFetch.mockResolvedValueOnce(fakeResponse as Response);
 
     const client = new CircleCiClient('test-token', 'gh/org/repo');
     const result = await client.triggerPipeline({
@@ -91,12 +92,13 @@ describe('CircleCiClient', () => {
   });
 
   test('triggerPipeline handles API errors', async () => {
-    mockFetch.mockResolvedValueOnce({
+    const fakeResponse: Partial<Response> = {
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
       text: () => Promise.resolve('Invalid token'),
-    });
+    };
+    mockFetch.mockResolvedValueOnce(fakeResponse as Response);
 
     const client = new CircleCiClient('test-token', 'gh/org/repo');
     await expect(

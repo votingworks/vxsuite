@@ -21,7 +21,7 @@ export function buildAdjudicatedContestOption({
 }: {
   isWriteIn: boolean;
   hasVote: boolean;
-  writeInRecord?: WriteInRecord  ;
+  writeInRecord?: WriteInRecord;
   writeInCandidateNameById: Map<Id, string>;
 }): AdjudicatedContestOption {
   if (isWriteIn) {
@@ -46,8 +46,8 @@ export function buildAdjudicatedContestOption({
             writeInCandidateNameById.get(writeInRecord.candidateId)
           ),
         };
-      /* istanbul ignore next - @preserve */
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(writeInRecord, 'adjudicationType');
     }
   }

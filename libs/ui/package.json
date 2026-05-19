@@ -93,7 +93,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
@@ -113,6 +113,7 @@
     "history": "4.10.1",
     "is-ci-cli": "2.2.0",
     "jest-image-snapshot": "^6.4.0",
+    "jsdom": "20.0.1",
     "lorem-ipsum": "^2.0.8",
     "parse-css-color": "^0.2.1",
     "path": "^0.12.7",
@@ -124,7 +125,7 @@
     "tmp": "^0.2.1",
     "util": "^0.12.4",
     "vite": "8.0.5",
-    "vitest": "^3.1.4",
+    "vitest": "^4.1.6",
     "vitest-styled-components": "^1.0.0"
   },
   "peerDependencies": {

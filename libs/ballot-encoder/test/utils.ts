@@ -147,8 +147,8 @@ export function doWrites(
         });
         break;
 
-      /* istanbul ignore next */
       default:
+        /* istanbul ignore next */
         // @ts-expect-error - compile-time check on `writable`
         throw new Error(`unknown writable type: ${writable.type}`);
     }
@@ -187,8 +187,8 @@ export function doReads(
         );
         break;
 
-      /* istanbul ignore next */
       default:
+        /* istanbul ignore next */
         // @ts-expect-error - compile-time check on `writable`
         throw new Error(`unknown writable type: ${writable.type}`);
     }

@@ -71,7 +71,7 @@
     "@types/node": "20.17.31",
     "@types/supertest": "^2.0.10",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^3.1.4",
+    "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "esbuild": "0.21.2",
@@ -84,7 +84,7 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
-    "vitest": "^3.1.4",
+    "vitest": "^4.1.6",
     "wait-for-expect": "^3.0.2"
   },
   "engines": {

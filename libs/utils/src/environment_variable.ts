@@ -200,8 +200,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_POLLING_PLACES;
     case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
       return process.env.REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE;
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(name);
   }
 }
@@ -367,8 +367,8 @@ export function getBooleanEnvVarConfig(
         allowInProduction: true,
         autoEnableInDevelopment: false,
       };
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(name);
   }
 }

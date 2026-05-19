@@ -103,8 +103,8 @@ function constructMessage(artifact: Artifact): {
           );
           break;
         }
-        /* istanbul ignore next: Compile-time check for completeness - @preserve */
         default: {
+          /* istanbul ignore next: Compile-time check for completeness - @preserve */
           throwIllegalValue(artifact, 'context');
         }
       }
@@ -120,8 +120,8 @@ function constructMessage(artifact: Artifact): {
         message: constructPrefixedMessage(artifact.type, fileContents),
       };
     }
-    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -226,8 +226,8 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
     case 'election_package': {
       return `${path.basename(artifact.filePath)}${SIGNATURE_FILE_EXTENSION}`;
     }
-    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -241,8 +241,8 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
     case 'election_package': {
       return `${artifact.filePath}${SIGNATURE_FILE_EXTENSION}`;
     }
-    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -319,8 +319,8 @@ async function performArtifactSpecificAuthenticationChecks(
       break;
     }
 
-    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(artifact, 'type');
     }
   }

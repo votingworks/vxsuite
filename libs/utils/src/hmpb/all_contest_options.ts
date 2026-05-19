@@ -98,8 +98,8 @@ export function* allContestOptionsWithMultiEndorsements(
       break;
     }
 
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
