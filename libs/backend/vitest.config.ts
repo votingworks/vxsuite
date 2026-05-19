@@ -6,7 +6,7 @@ export default defineConfig({
     coverage: {
       exclude: ['src/ui_strings/**'],
       thresholds: {
-        lines: -25,
+        lines: -15,
         branches: -30,
       },
     },

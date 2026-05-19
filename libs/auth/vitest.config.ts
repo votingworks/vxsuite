@@ -13,7 +13,7 @@ export default defineConfig({
         'src/test_utils.ts',
       ],
       thresholds: {
-        lines: 97,
+        lines: 98,
         branches: 94,
       },
     },
