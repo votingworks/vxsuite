@@ -13,9 +13,6 @@ type SelectPartyScreenProps = ComponentProps<typeof SelectPartyScreen>;
 let apiMock: ApiMock;
 let unmount: () => void;
 const mockVoterId = '123';
-// vitest 4 returns `Mock<Procedure | Constructable>` from un-parameterized
-// `vi.fn()`, which doesn't narrow to a specific function signature — use the
-// component's prop types so these mocks are assignable to the props.
 let onBack: Mock<SelectPartyScreenProps['onBack']>;
 let onConfirmCheckIn: Mock<SelectPartyScreenProps['onConfirmCheckIn']>;
 

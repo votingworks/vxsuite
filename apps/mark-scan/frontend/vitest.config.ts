@@ -16,7 +16,6 @@ export default defineConfig({
         '**/*.test.{ts,tsx}',
         'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
-      // vitest 4's AST-aware coverage remapping drops line/branch coverage.
       thresholds: {
         lines: 97,
         branches: 96,

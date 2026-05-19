@@ -1,6 +1,6 @@
 /**
  * Wraps an arrow function in a regular `function` so it can be used as a
- * constructor mock with vitest 4.
+ * constructor mock with vitest.
  *
  * Vitest 4 enforces JavaScript's rule that arrow functions cannot be invoked
  * with `new` (they have no `[[Construct]]` slot), so mocking a class with

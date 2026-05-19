@@ -12,10 +12,6 @@ export default defineConfig({
         'src/jurisdictions.ts',
         'src/test_utils.ts',
       ],
-      // vitest 4's AST-aware coverage remapping no longer honors
-      // `/* istanbul ignore next */` placed before switch `default:` cases,
-      // and counts TS function-overload signatures as branches. Drop
-      // thresholds slightly to accommodate.
       thresholds: {
         lines: 97,
         branches: 94,

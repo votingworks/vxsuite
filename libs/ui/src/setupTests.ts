@@ -18,7 +18,7 @@ import {
 } from 'vitest-styled-components';
 
 declare module 'vitest' {
-  // vitest 4's own `Assertion<T>` extends both `JestAssertion<T>` and
+  // vitest own `Assertion<T>` extends both `JestAssertion<T>` and
   // `ChaiMockAssertion`, which have non-identical `lastReturnedWith` /
   // `nthReturnedWith` signatures. Any declaration-merge into `Assertion`
   // triggers tsgo to re-validate the merged interface and surface that

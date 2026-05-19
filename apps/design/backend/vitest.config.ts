@@ -6,7 +6,6 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
     coverage: {
-      // vitest 4's AST-aware coverage remapping bumps the uncovered counts.
       thresholds: {
         lines: -75,
         branches: -75,
@@ -29,8 +28,6 @@ export default defineConfig({
     ],
     env: {
       // Vite automatically sets it to '/', which we don't want in tests.
-      // Coerce undefined to '' so vitest 4 doesn't pass the literal string
-      // "undefined" through to process.env.
       BASE_URL: process.env.BASE_URL ?? '',
     },
   },

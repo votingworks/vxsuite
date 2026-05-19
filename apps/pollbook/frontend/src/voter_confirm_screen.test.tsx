@@ -26,9 +26,6 @@ let apiMock: ApiMock;
 let unmount: () => void;
 const mockVoterId = '123';
 let voter: Voter;
-// vitest 4 returns `Mock<Procedure | Constructable>` from un-parameterized
-// `vi.fn()`, which doesn't narrow to a specific function signature — use the
-// component's prop types so these mocks are assignable to the props.
 let onCancel: Mock<VoterConfirmScreenProps['onCancel']>;
 let onConfirmCheckIn: Mock<VoterConfirmScreenProps['onConfirmCheckIn']>;
 let onConfirmVoterIdentity: Mock<

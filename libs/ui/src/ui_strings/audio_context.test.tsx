@@ -66,8 +66,6 @@ beforeEach(() => {
   );
   mockWebAudioContext.createGain.mockReturnValue(mockGainNode);
 
-  // vitest 4's `Mock<T>` doesn't structurally satisfy a `new (...): T`
-  // constructor type, so cast explicitly.
   window.AudioContext =
     mockAudioContextConstructor as unknown as typeof AudioContext;
 });

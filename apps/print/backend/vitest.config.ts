@@ -6,8 +6,6 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
     coverage: {
-      // vitest 4's AST-aware coverage remapping drops line coverage and
-      // bumps the uncovered branch count.
       thresholds: {
         lines: 97,
         branches: -8,

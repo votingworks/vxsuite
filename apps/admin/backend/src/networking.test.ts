@@ -44,10 +44,6 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
-  // Use resetAllMocks (not restoreAllMocks): vitest 4's restoreAllMocks no
-  // longer resets automocks, so leftover mockReturnValueOnce queue entries
-  // (e.g. the 3rd `mockReturnValueOnce(connectionClient)` from the
-  // multiple-hosts test) would leak into later tests.
   vi.resetAllMocks();
 });
 

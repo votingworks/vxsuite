@@ -2,9 +2,6 @@ import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import { CircleCiClient } from './circleci_client';
 
 describe('CircleCiClient', () => {
-  // vitest 4's `Mock<Constructable | Procedure>` (the default `vi.fn()`
-  // return type) doesn't structurally match `typeof fetch`, so parameterize
-  // explicitly.
   let mockFetch: Mock<typeof fetch>;
 
   beforeEach(() => {

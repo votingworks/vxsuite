@@ -17,7 +17,6 @@ export default defineConfig({
         '**/*.test.ts',
         'test/**/*',
       ],
-      // vitest 4's AST-aware coverage remapping bumps the uncovered counts.
       thresholds: {
         lines: -55,
         branches: -45,

@@ -8,7 +8,6 @@ export default defineConfig({
     clearMocks: true,
 
     coverage: {
-      // vitest 4's AST-aware coverage remapping drops branch coverage.
       thresholds: {
         lines: 97,
         branches: 90,
@@ -31,9 +30,7 @@ export default defineConfig({
       },
     ],
     env: {
-      // Vite automatically sets it to '/', which messes up some backend
-      // imports that we use in tests. Coerce undefined to '' so vitest 4
-      // doesn't pass the literal string "undefined" through to process.env.
+      // Vite automatically sets it to '/', which we don't want in tests.
       BASE_URL: process.env.BASE_URL ?? '',
     },
   },

@@ -11,7 +11,6 @@ export default defineConfig({
         'src/generate-election-package',
         '**/*.test.ts',
       ],
-      // vitest 4's AST-aware coverage remapping bumps the uncovered counts.
       thresholds: {
         lines: -6,
         branches: -22,
