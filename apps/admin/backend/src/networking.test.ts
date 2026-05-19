@@ -27,6 +27,7 @@ import { ClientConnectionStatus } from './types';
 import { ClientStore } from './client_store';
 import { getCurrentTime } from './get_current_time';
 import {
+  MAX_CONSECUTIVE_HOST_FAILURES,
   NETWORK_POLLING_INTERVAL_MS,
   STALE_MACHINE_THRESHOLD_MS,
 } from './globals';
@@ -976,7 +977,7 @@ describe('startClientNetworking', () => {
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
   });
 
-  test('disconnects when heartbeat fails', async () => {
+  test('disconnects after MAX_CONSECUTIVE_HOST_FAILURES failed heartbeats', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
       {
@@ -989,30 +990,42 @@ describe('startClientNetworking', () => {
     const mockClient = createMockPeerClient({
       connectToHost: vi
         .fn()
-        .mockResolvedValueOnce({ machineId: 'HOST1', codeVersion: 'dev' })
+        .mockResolvedValueOnce({
+          machineId: 'HOST1',
+          codeVersion: 'dev',
+          isClientAdjudicationEnabled: false,
+        })
         .mockRejectedValue(new Error('connection lost')),
     });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     const clientStore = createClientStore();
-    startClientNetworking({
-      machineId: '0008',
-      clientStore,
-      auth: createMockAuth(),
-      logger,
-    });
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0008', clientStore, auth, logger });
 
-    // First poll: connect
+    // First poll: connect successfully
     await advancePollingInterval();
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
 
-    // Second poll: heartbeat fails, should disconnect
-    await vi.advanceTimersByTimeAsync(2000);
+    // Each of the next (MAX_CONSECUTIVE_HOST_FAILURES - 1) failed polls is
+    // tolerated; the session stays connected and the user stays logged in.
+    for (let i = 1; i < MAX_CONSECUTIVE_HOST_FAILURES; i += 1) {
+      await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+      expect(clientStore.getConnectionStatus()).toEqual(
+        ClientConnectionStatus.OnlineConnectedToHost
+      );
+      expect(auth.logOut).not.toHaveBeenCalled();
+    }
 
-    // Third poll: should try to reconnect (createClient called again)
-    const newMockClient = createMockPeerClient();
-    vi.mocked(grout.createClient).mockReturnValue(newMockClient);
-    await vi.advanceTimersByTimeAsync(2000);
-    expect(newMockClient.connectToHost).toHaveBeenCalled();
+    // The MAX_CONSECUTIVE_HOST_FAILURES-th failure trips the threshold and
+    // transitions to OnlineWaitingForHost, triggering a logout.
+    await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineWaitingForHost
+    );
+    expect(auth.logOut).toHaveBeenCalled();
   });
 
   test('handles connection failure to new host', async () => {
@@ -1042,7 +1055,7 @@ describe('startClientNetworking', () => {
     expect(mockClient.connectToHost).toHaveBeenCalled();
   });
 
-  test('clears connected host when host disappears', async () => {
+  test('clears connected host when host disappears for the full retry budget', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -1058,20 +1071,25 @@ describe('startClientNetworking', () => {
     ]);
 
     const clientStore = createClientStore();
-    startClientNetworking({
-      machineId: '0010',
-      clientStore,
-      auth: createMockAuth(),
-      logger,
-    });
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0010', clientStore, auth, logger });
     await advancePollingInterval();
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
+    expect(clientStore.getHostConnection()).toBeDefined();
 
-    // Second poll: host gone
+    // Host disappears for all MAX_CONSECUTIVE_HOST_FAILURES polls. Once the
+    // retry budget is exhausted the connection is cleared and we log out.
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
-    await vi.advanceTimersByTimeAsync(2000);
+    for (let i = 0; i < MAX_CONSECUTIVE_HOST_FAILURES; i += 1) {
+      await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+    }
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineWaitingForHost
+    );
+    expect(clientStore.getHostConnection()).toBeUndefined();
+    expect(auth.logOut).toHaveBeenCalled();
 
-    // Third poll: host reappears, should reconnect
+    // Host reappears — client reconnects.
     vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
       {
         name: 'VxAdmin-HOST1',
@@ -1080,8 +1098,11 @@ describe('startClientNetworking', () => {
         port: '3002',
       },
     ]);
-    await vi.advanceTimersByTimeAsync(2000);
+    await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
   });
 
   test('logs when client adjudication is enabled by host', async () => {
@@ -1257,6 +1278,132 @@ describe('startClientNetworking', () => {
     await vi.advanceTimersByTimeAsync(2000);
     expect(clientStore.getCachedElectionRecord()).toBeUndefined();
     expect(clientStore.getCachedSystemSettings()).toBeUndefined();
+    expect(auth.logOut).toHaveBeenCalled();
+  });
+
+  test('stays connected through transient host failures under the failure threshold', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockClient = createMockPeerClient();
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0014', clientStore, auth, logger });
+
+    // Connect successfully.
+    await advancePollingInterval();
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+
+    // Host becomes unreachable. Each failed poll under the threshold is
+    // tolerated — the client keeps reporting connected and never logs out.
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    for (let i = 1; i < MAX_CONSECUTIVE_HOST_FAILURES; i += 1) {
+      await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+      expect(clientStore.getConnectionStatus()).toEqual(
+        ClientConnectionStatus.OnlineConnectedToHost
+      );
+      expect(auth.logOut).not.toHaveBeenCalled();
+    }
+  });
+
+  test('disconnects and logs out after MAX_CONSECUTIVE_HOST_FAILURES failed polls', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockClient = createMockPeerClient();
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0015', clientStore, auth, logger });
+
+    await advancePollingInterval();
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+
+    // Host disappears. After MAX_CONSECUTIVE_HOST_FAILURES failed polls in a
+    // row, the threshold trips and we transition to OnlineWaitingForHost.
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    for (let i = 0; i < MAX_CONSECUTIVE_HOST_FAILURES; i += 1) {
+      await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+    }
+
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineWaitingForHost
+    );
+    expect(auth.logOut).toHaveBeenCalled();
+  });
+
+  test('reconnection resets the failure counter', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockClient = createMockPeerClient();
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const auth = createMockAuth();
+    startClientNetworking({ machineId: '0016', clientStore, auth, logger });
+
+    // Initial connect.
+    await advancePollingInterval();
+
+    // Host disappears for a few polls (under the threshold), then comes back.
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    for (let i = 0; i < MAX_CONSECUTIVE_HOST_FAILURES - 1; i += 1) {
+      await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+    }
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+
+    // Host disappears again. Because the counter was reset by the successful
+    // reconnect, we again tolerate up to MAX_CONSECUTIVE_HOST_FAILURES failed
+    // polls before transitioning — not just the leftover from the first dip.
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    for (let i = 0; i < MAX_CONSECUTIVE_HOST_FAILURES - 1; i += 1) {
+      await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+      expect(clientStore.getConnectionStatus()).toEqual(
+        ClientConnectionStatus.OnlineConnectedToHost
+      );
+      expect(auth.logOut).not.toHaveBeenCalled();
+    }
+    await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineWaitingForHost
+    );
     expect(auth.logOut).toHaveBeenCalled();
   });
 });

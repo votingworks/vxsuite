@@ -20,6 +20,7 @@ import { ClientConnectionStatus } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
+  MAX_CONSECUTIVE_HOST_FAILURES,
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
 } from './globals';
@@ -203,6 +204,35 @@ export function startClientNetworking({
   });
 
   let isPolling = false;
+  let consecutiveFailures = 0;
+
+  // Transition to a state representing loss of contact with the host
+  // (Offline / OnlineWaitingForHost). If we are currently connected, tolerate
+  // up to MAX_CONSECUTIVE_HOST_FAILURES failed polls before actually dropping
+  // the session, so brief network blips don't log the user out. Multiple-hosts
+  // detection bypasses this helper because it represents an active (not
+  // failed) communication state we must react to immediately.
+  function transitionToDisconnectedStatus(
+    status: ClientConnectionStatus
+  ): void {
+    if (
+      clientStore.getConnectionStatus() ===
+      ClientConnectionStatus.OnlineConnectedToHost
+    ) {
+      consecutiveFailures += 1;
+      if (consecutiveFailures < MAX_CONSECUTIVE_HOST_FAILURES) {
+        debug(
+          'Skipping transition to %s, %d/%d consecutive failures',
+          status,
+          consecutiveFailures,
+          MAX_CONSECUTIVE_HOST_FAILURES
+        );
+        return;
+      }
+    }
+    logStatusTransition({ connectionStatus: status });
+    clientStore.setConnection(status);
+  }
 
   interface ClientNetworkState {
     connectionStatus: ClientConnectionStatus;
@@ -256,10 +286,7 @@ export function startClientNetworking({
       try {
         if (!(await hasOnlineInterface())) {
           debug('No online interface found, skipping discovery');
-          logStatusTransition({
-            connectionStatus: ClientConnectionStatus.Offline,
-          });
-          clientStore.setConnection(ClientConnectionStatus.Offline);
+          transitionToDisconnectedStatus(ClientConnectionStatus.Offline);
           return;
         }
 
@@ -274,10 +301,7 @@ export function startClientNetworking({
           if (existing) {
             debug('Lost connection to host at %s', existing.address);
           }
-          logStatusTransition({
-            connectionStatus: ClientConnectionStatus.OnlineWaitingForHost,
-          });
-          clientStore.setConnection(
+          transitionToDisconnectedStatus(
             ClientConnectionStatus.OnlineWaitingForHost
           );
           return;
@@ -317,10 +341,7 @@ export function startClientNetworking({
         }
 
         if (reachableHosts.length === 0) {
-          logStatusTransition({
-            connectionStatus: ClientConnectionStatus.OnlineWaitingForHost,
-          });
-          clientStore.setConnection(
+          transitionToDisconnectedStatus(
             ClientConnectionStatus.OnlineWaitingForHost
           );
           return;
@@ -359,6 +380,7 @@ export function startClientNetworking({
           clientStore.setIsClientAdjudicationEnabled(
             hostConfig.isClientAdjudicationEnabled
           );
+          consecutiveFailures = 0;
           debug('Connected to host at %s', hostAddress);
 
           // Poll the lightweight hash to detect election changes without
@@ -406,10 +428,7 @@ export function startClientNetworking({
           }
         } catch (error) {
           debug('Lost connection to host at %s: %s', hostAddress, error);
-          logStatusTransition({
-            connectionStatus: ClientConnectionStatus.OnlineWaitingForHost,
-          });
-          clientStore.setConnection(
+          transitionToDisconnectedStatus(
             ClientConnectionStatus.OnlineWaitingForHost
           );
         }

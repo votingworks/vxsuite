@@ -51,6 +51,13 @@ export const NETWORK_REQUEST_TIMEOUT_MS = 1 * 1000;
 /** How long to wait before considering a machine stale (in milliseconds) */
 export const STALE_MACHINE_THRESHOLD_MS = 10 * 1000;
 
+/**
+ * How many consecutive failed polls a connected client will tolerate before
+ * transitioning to a disconnected state and logging the user out. Rides out
+ * transient network blips without dropping the session.
+ */
+export const MAX_CONSECUTIVE_HOST_FAILURES = 5;
+
 const DEFAULT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'
     ? isIntegrationTest()
