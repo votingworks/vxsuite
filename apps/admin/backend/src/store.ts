@@ -2826,6 +2826,11 @@ export class Store implements BaseStore {
     electionId: Id;
     manualResults: Tabulation.ManualElectionResults;
   }): void {
+    const {
+      electionDefinition: { election },
+    } = assertDefined(this.getElection(electionId));
+    assert(!isOpenPrimary(election));
+
     const { ballotCount } = manualResults;
     const serializedContestResults = JSON.stringify(
       manualResults.contestResults
