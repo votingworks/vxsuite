@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
+import { BatteryLowAlert, LowDiskSpaceWarning } from '@votingworks/ui';
 import { ClientAppRoot } from './client_app_root';
 import {
   ApiClient,
@@ -27,6 +28,8 @@ export function ClientApp({
           <BrowserRouter>
             <ClientAppRoot />
             <SessionTimeLimitTracker />
+            <LowDiskSpaceWarning />
+            <BatteryLowAlert />
           </BrowserRouter>
         </QueryClientProvider>
       </SharedApiClientContext.Provider>

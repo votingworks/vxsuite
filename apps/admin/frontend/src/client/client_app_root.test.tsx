@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, within } from '@testing-library/react';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -217,6 +217,32 @@ test('sysadmin sees settings and diagnostics tabs but not adjudication', async (
   screen.getByRole('button', { name: 'Diagnostics' });
   screen.getByRole('button', { name: 'Lock Machine' });
   expect(screen.queryByRole('button', { name: 'Adjudication' })).toBeNull();
+});
+
+test('shows low battery alert when battery is low and discharging', async () => {
+  setSystemAdminAuth();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
+  apiMock.expectGetUsbPortStatus();
+  apiMock.setBatteryInfo({ level: 0.1, discharging: true });
+  renderClientApp();
+
+  const warning = await screen.findByRole('alertdialog');
+  within(warning).getByText('Low Battery');
+});
+
+test('shows low disk space warning when disk space is low', async () => {
+  setSystemAdminAuth();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
+  apiMock.expectGetUsbPortStatus();
+  apiMock.setDiskSpaceSummary({
+    total: 100_000_000,
+    used: 99_900_000,
+    available: 100_000,
+  });
+  renderClientApp();
+
+  const warning = await screen.findByRole('alertdialog');
+  within(warning).getByText('Low Disk Space');
 });
 
 test('logout while on a ballot adjudication URL replaces it with the home route', async () => {

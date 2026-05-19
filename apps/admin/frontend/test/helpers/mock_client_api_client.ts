@@ -10,6 +10,8 @@ import {
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { BatteryInfo } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { Mock, vi } from 'vitest';
 
 type MockClientApiClient = Omit<
@@ -120,6 +122,20 @@ export function createClientApiMock(
       apiClient.getSystemSettings
         .expectRepeatedCallsWith()
         .resolves(systemSettings);
+    },
+
+    setBatteryInfo(batteryInfo?: Partial<BatteryInfo>) {
+      apiClient.getBatteryInfo.mockResolvedValue({
+        level: 0.5,
+        discharging: false,
+        ...(batteryInfo || {}),
+      });
+    },
+
+    setDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      apiClient.getDiskSpaceSummary.mockResolvedValue(
+        summary ?? { total: 3, used: 2, available: 1 }
+      );
     },
   };
 }
