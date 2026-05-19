@@ -8,7 +8,6 @@ import { test } from '../../../test/helpers/test';
 import {
   DELAY_AFTER_ACCEPT_MS,
   DELAY_AFTER_SCANNER_ERROR_MS,
-  LOOP_INTERVAL_MS,
   runPrintAndScanTask,
 } from './print_and_scan_task';
 
@@ -175,12 +174,17 @@ test.electrical(
     await vi.advanceTimersByTimeAsync(DELAY_AFTER_ACCEPT_MS);
 
     // The session should still have the sheet even though analysis failed.
-    const { session } = electricalAppContext.scannerTask.getState();
-    const sessionData = session.toJSON();
-    expect(sessionData.sheets).toHaveLength(1);
-    expect(sessionData.sheets[0][0].analysis).toBeUndefined();
-    expect(sessionData.sheets[0][1].analysis).toBeUndefined();
-    expect(sessionData.stats).toBeUndefined();
+    // Use waitFor because the scanComplete handler does real disk I/O
+    // (saveSheetImages); advanceTimersByTimeAsync flushes microtasks but not
+    // libuv-backed completions, so the assertions can race the handler.
+    await vi.waitFor(() => {
+      const { session } = electricalAppContext.scannerTask.getState();
+      const sessionData = session.toJSON();
+      expect(sessionData.sheets).toHaveLength(1);
+      expect(sessionData.sheets[0][0].analysis).toBeUndefined();
+      expect(sessionData.sheets[0][1].analysis).toBeUndefined();
+      expect(sessionData.stats).toBeUndefined();
+    });
 
     electricalAppContext.printerTask.stop();
     electricalAppContext.scannerTask.stop();
@@ -238,16 +242,30 @@ test.electrical(
       images: [createImageData(1, 1), createImageData(1, 1)],
     });
 
-    // Wait for the scan event to be processed, then set up the eject failure
-    // for the main loop's eject call.
-    await vi.advanceTimersByTimeAsync(LOOP_INTERVAL_MS);
+    // Wait until the scanComplete handler is fully done before setting up the
+    // eject rejection — the handler does real disk I/O (saveSheetImages), so
+    // advanceTimersByTimeAsync alone doesn't guarantee it has finished, and a
+    // racy `mockRejectedValueOnce` setup could land before or after the first
+    // eject call.
+    await vi.waitFor(() => {
+      const { session } = electricalAppContext.scannerTask.getState();
+      expect(session.toJSON().sheets).toHaveLength(1);
+    });
+
     mockSimpleScannerClient.ejectAndRescanPaperIfPresent.mockRejectedValueOnce(
       new Error('scanner communication error')
     );
 
+    // The main loop ejects once DELAY_AFTER_ACCEPT_MS has elapsed since the
+    // scan; the mocked rejection fires there and starts the error cooldown.
     await vi.advanceTimersByTimeAsync(DELAY_AFTER_ACCEPT_MS);
+    await vi.waitFor(() => {
+      expect(
+        mockSimpleScannerClient.ejectAndRescanPaperIfPresent.mock.settledResults
+      ).toContainEqual(expect.objectContaining({ type: 'rejected' }));
+    });
 
-    // Wait for the error cooldown before the reconnect happens.
+    // Elapse the scanner-error cooldown to allow the reset path to reconnect.
     await vi.advanceTimersByTimeAsync(DELAY_AFTER_SCANNER_ERROR_MS);
 
     // The error should trigger a reconnect cycle rather than crashing.
