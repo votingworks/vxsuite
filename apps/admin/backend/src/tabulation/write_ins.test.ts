@@ -76,9 +76,6 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
       },
     })
   ).toEqual(
-    // Vitest 4 no longer treats `toMatchObject(arrayContaining(...))` as a
-    // partial match per element — use objectContaining explicitly so the
-    // extra `undefined` group-specifier fields don't break the match.
     expect.arrayContaining([
       expect.objectContaining({
         ballotStyleGroupId: '1M' as BallotStyleGroupId,
