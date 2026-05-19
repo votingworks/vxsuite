@@ -1429,9 +1429,6 @@ test('Skip jumps past claimed ballots; Back still steps onto them as read-only',
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings();
 
-  // Prevent refetchInterval-driven re-fetches mid-test.
-  vi.useFakeTimers({ shouldAdvanceTime: true, advanceTimeDelta: 1 });
-
   // Initial mount on CVR_ID_1.
   apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
@@ -1479,7 +1476,6 @@ test('Skip jumps past claimed ballots; Back still steps onto them as read-only',
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
-  vi.useRealTimers();
 });
 
 function makePendingWriteInRecord(
