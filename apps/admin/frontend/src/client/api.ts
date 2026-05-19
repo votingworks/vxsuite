@@ -250,7 +250,7 @@ export const getBallotAdjudicationData = {
     return useQuery(
       this.queryKey(cvrId),
       () => apiClient.getBallotAdjudicationData({ cvrId }),
-      { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      { staleTime: 0 }
     );
   },
 } as const;
@@ -276,7 +276,7 @@ export const getWriteInCandidates = {
     return useQuery(
       this.queryKey(contestId),
       () => apiClient.getWriteInCandidates({ contestId }),
-      { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      { staleTime: 0 }
     );
   },
 } as const;
