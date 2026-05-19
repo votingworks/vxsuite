@@ -1687,8 +1687,8 @@ export class Store {
                     `unexpected polling place generation error: ${error}`
                   );
 
-                /* istanbul ignore next - @preserve */
                 default:
+                  /* istanbul ignore next - @preserve */
                   throwIllegalValue(error);
               }
             }

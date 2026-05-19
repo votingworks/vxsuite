@@ -175,8 +175,8 @@ async function exportLogsToUsbHelper({
         return err({ code: 'error-filtering-failed', cause });
       }
       break;
-    /* istanbul ignore next - compile time check @preserve */
     default:
+      /* istanbul ignore next - compile time check @preserve */
       throwIllegalValue(format);
   }
 
@@ -190,8 +190,8 @@ async function exportLogsToUsbHelper({
       case 'err':
         await execFile('cp', ['-r', tempDirectory, destinationDirectory]);
         break;
-      /* istanbul ignore next - compile time check @preserve */
       default:
+        /* istanbul ignore next - compile time check @preserve */
         throwIllegalValue(format);
     }
     await usbDrive.sync();

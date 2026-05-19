@@ -95,8 +95,8 @@ export function generateLogFilename(
       return `${logFileName}${SUBSECTION_SEPARATOR}${timeSuffix}.log`;
     case LogFileType.Cdf:
       return `${logFileName}${WORD_SEPARATOR}cdf${SUBSECTION_SEPARATOR}${timeSuffix}.json`;
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(fileType);
   }
 }

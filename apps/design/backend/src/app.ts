@@ -1492,8 +1492,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotCount,
             });
           }
-          /* istanbul ignore next - @preserve */
           default:
+            /* istanbul ignore next - @preserve */
             throwIllegalValue(pollsTransitionType);
         }
       } catch {

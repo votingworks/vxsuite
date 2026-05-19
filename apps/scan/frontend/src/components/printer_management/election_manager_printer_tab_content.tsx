@@ -41,8 +41,8 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
           <Icons.Done color="success" /> The printer is loaded with paper.
         </P>
       );
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(printerStatus, 'state');
   }
 }

@@ -276,8 +276,8 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
       return 'Pausing Voting…';
     case 'resume_voting':
       return 'Resuming Voting…';
-    /* istanbul ignore next - compile-time check for completeness @preserve */
     default:
+      /* istanbul ignore next - compile-time check for completeness @preserve */
       throwIllegalValue(pollsTransitionType);
   }
 }
@@ -743,8 +743,8 @@ function PollWorkerScreenContents({
             }
           />
         );
-      /* istanbul ignore next - compile-time check for completeness @preserve */
       default:
+        /* istanbul ignore next - compile-time check for completeness @preserve */
         throwIllegalValue(pollWorkerFlowState, 'state');
     }
   }
@@ -944,8 +944,8 @@ function PollWorkerScreenContents({
             </ButtonGrid>
           </Container>
         );
-      /* istanbul ignore next - compile-time check for completeness @preserve */
       default:
+        /* istanbul ignore next - compile-time check for completeness @preserve */
         throwIllegalValue(pollsState);
     }
   })();

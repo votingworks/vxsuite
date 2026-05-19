@@ -61,8 +61,8 @@ export function InsertCardScreen({
             <P>Voting is complete.</P>
           </React.Fragment>
         );
-      /* istanbul ignore next - @preserve */
       default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(pollsState);
       }
     }

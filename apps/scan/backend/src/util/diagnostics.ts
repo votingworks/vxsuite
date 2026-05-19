@@ -22,8 +22,8 @@ export function testPrintFailureDiagnosticMessage(
           return 'The printer experienced a data transmission error during printing.';
         case 'hardware':
           return 'The printer experienced an unknown hardware error during printing.';
-        /* istanbul ignore next - @preserve */
         default:
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(failureStatus.type);
       }
     /* istanbul ignore next - @preserve */

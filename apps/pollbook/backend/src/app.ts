@@ -327,8 +327,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
               `Expected check-in party ${input.ballotParty} to match voter party ${voterParty}`
             );
             break;
-          /* istanbul ignore next - @preserve */
           default:
+            /* istanbul ignore next - @preserve */
             return err('unknown_voter_party');
         }
       } else if (election.type === 'general') {

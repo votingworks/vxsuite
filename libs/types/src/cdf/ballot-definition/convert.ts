@@ -511,16 +511,16 @@ export function convertVxfElectionToCdfBallotDefinition(
             case 'yesno': {
               return gridPosition.optionId;
             }
-            /* istanbul ignore next - @preserve */
             default: {
+              /* istanbul ignore next - @preserve */
               return throwIllegalValue(contest);
             }
           }
         }
         case 'write-in':
           return writeInOptionId(contest.id, gridPosition.writeInIndex);
-        /* istanbul ignore next - @preserve */
         default: {
+          /* istanbul ignore next - @preserve */
           return throwIllegalValue(gridPosition);
         }
       }
@@ -823,8 +823,8 @@ export function convertVxfElectionToCdfBallotDefinition(
                 ],
               };
 
-            /* istanbul ignore next - @preserve */
             default: {
+              /* istanbul ignore next - @preserve */
               throwIllegalValue(contest);
             }
           }
@@ -1050,8 +1050,8 @@ export function convertCdfBallotDefinitionToVxfElection(
       }
       case 'BallotDefinition.BallotMeasureContest':
         return optionId;
-      /* istanbul ignore next - @preserve */
       default: {
+        /* istanbul ignore next - @preserve */
         return throwIllegalValue(contest);
       }
     }
@@ -1167,8 +1167,8 @@ export function convertCdfBallotDefinitionToVxfElection(
           };
         }
 
-        /* istanbul ignore next - @preserve */
         default: {
+          /* istanbul ignore next - @preserve */
           throw throwIllegalValue(contest, 'type');
         }
       }
@@ -1445,8 +1445,8 @@ export function convertCdfBallotDefinitionToVxfElection(
                       };
                     }
 
-                    /* istanbul ignore next - @preserve */
                     default: {
+                      /* istanbul ignore next - @preserve */
                       return throwIllegalValue(contest, '@type');
                     }
                   }

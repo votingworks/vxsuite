@@ -283,8 +283,8 @@ export class JavaCard implements Card {
             this.cardStatus = { status: 'ready', cardDetails };
             return;
           }
-          /* istanbul ignore next: Compile-time check for completeness - @preserve */
           default: {
+            /* istanbul ignore next: Compile-time check for completeness - @preserve */
             throwIllegalValue(readerStatus);
           }
         }
@@ -405,8 +405,8 @@ export class JavaCard implements Card {
         cardDetails = { user, hasPin };
         break;
       }
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       default: {
+        /* istanbul ignore next: Compile-time check for completeness - @preserve */
         throwIllegalValue(user, 'role');
       }
     }

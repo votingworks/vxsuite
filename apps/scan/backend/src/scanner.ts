@@ -1587,8 +1587,8 @@ export function createPrecinctScannerStateMachine({
             return 'scanner_diagnostic.done';
           case state.matches('scannerDiagnostic'):
             return 'scanner_diagnostic.running';
-          /* istanbul ignore next - @preserve */
           default:
+            /* istanbul ignore next - @preserve */
             throw new Error(`Unexpected state: ${state.value}`);
         }
       })();

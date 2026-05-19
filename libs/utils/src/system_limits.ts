@@ -26,8 +26,8 @@ export function systemLimitViolationToString(
         return 'seats';
       case 'seatsSummedAcrossContests':
         return 'seats summed across contests';
-      /* istanbul ignore next - @preserve */
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(limitType);
     }
   })();
@@ -47,8 +47,8 @@ export function systemLimitViolationToString(
         return `proposition description ${violation.fieldValue.slice(0, 49)}…`;
       case 'textField':
         return `text field ${violation.fieldValue.slice(0, 49)}…`;
-      /* istanbul ignore next - @preserve */
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(limitScope);
     }
   })();
@@ -68,8 +68,8 @@ export function systemLimitViolationToString(
         return SYSTEM_LIMITS.propositionDescription[limitType];
       case 'textField':
         return SYSTEM_LIMITS.textField[limitType];
-      /* istanbul ignore next - @preserve */
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(limitScope);
     }
   })();

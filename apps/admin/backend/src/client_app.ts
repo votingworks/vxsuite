@@ -202,8 +202,8 @@ function buildClientApi({
         }
         case ClientConnectionStatus.OnlineMultipleHostsDetected:
           return { status: 'online-multiple-hosts-detected' };
-        /* istanbul ignore next - @preserve */
         default:
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(status);
       }
     },

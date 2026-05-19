@@ -396,8 +396,8 @@ export function certDetailsToCardDetails(
         hasPin: true,
       };
     }
-    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(cardIdentityCertDetails, 'cardType');
     }
   }
@@ -434,8 +434,8 @@ export function constructCardCertSubject(
       electionKey = user.electionKey;
       break;
     }
-    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(user, 'role');
     }
   }

@@ -13,8 +13,8 @@ function claimErrorMessage(error: AdjudicationError): string {
       return 'Failed to claim a ballot. Please try again.';
     case 'host-disconnect':
       return 'Disconnected from host.';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(error, 'type');
   }
 }

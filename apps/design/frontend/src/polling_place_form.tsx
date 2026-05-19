@@ -136,8 +136,8 @@ export function PollingPlaceForm(
           </Callout>
         );
 
-      /* istanbul ignore next - @preserve */
       default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(error);
       }
     }

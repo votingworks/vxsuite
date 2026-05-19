@@ -224,8 +224,8 @@ export class MockFileCard implements Card {
         });
         break;
       }
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       default:
+        /* istanbul ignore next: Compile-time check for completeness - @preserve */
         throwIllegalValue(user, 'role');
     }
     return Promise.resolve();

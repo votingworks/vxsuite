@@ -57,8 +57,8 @@ export class BarcodeClient
       case 'scan':
         this.emit('scan', payload.data);
         break;
-      /* istanbul ignore next - @preserve should be unreachable due to type guard */
       default:
+        /* istanbul ignore next - @preserve should be unreachable due to type guard */
         throwIllegalValue(payload, 'type');
     }
   };

@@ -315,8 +315,8 @@ export function buildApi(ctx: Context) {
               return LogEventId.PollsOpened;
             }
             return LogEventId.VotingResumed;
-          /* istanbul ignore next - @preserve */
           default: {
+            /* istanbul ignore next - @preserve */
             throwIllegalValue(newPollsState);
           }
         }

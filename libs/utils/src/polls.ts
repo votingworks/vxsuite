@@ -16,8 +16,8 @@ export function getPollsTransitionDestinationState(
       return 'polls_paused';
     case 'close_polls':
       return 'polls_closed_final';
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -34,8 +34,8 @@ export function getPollsTransitionAction(
       return 'Resume Voting';
     case 'close_polls':
       return 'Close Polls';
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -52,8 +52,8 @@ export function getPollsReportTitle(
       return 'Voting Paused Report';
     case 'close_polls':
       return 'Polls Closed Report';
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -67,8 +67,8 @@ export function getPollsStateName(state: PollsState): string {
     case 'polls_closed_initial':
     case 'polls_closed_final':
       return 'Closed';
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(state);
   }
 }
@@ -89,8 +89,8 @@ export function getPollTransitionsFromState(
       return ['open_polls'];
     case 'polls_closed_final':
       return [];
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(state);
   }
 }
@@ -110,8 +110,8 @@ export function isValidPollsStateChange(
       return newState === 'polls_open' || newState === 'polls_closed_final';
     case 'polls_closed_final':
       return false;
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(prevState);
   }
 }
@@ -127,8 +127,8 @@ export function getPollsTransitionActionPastTense(
       return 'Voting Resumed';
     case 'pause_voting':
       return 'Voting Paused';
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -143,8 +143,8 @@ export function isPollsSuspensionTransition(
     case 'resume_voting':
     case 'pause_voting':
       return true;
-    /* istanbul ignore next */
     default:
+      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }

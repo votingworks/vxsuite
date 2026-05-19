@@ -321,8 +321,8 @@ export function VoterCheckInScreen(): JSX.Element | null {
         case 'unknown_voter_party':
           errorMessage = 'Voter Has No Declared Party';
           break;
-        /* istanbul ignore next - @preserve */
         default:
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(flowState.errorType);
       }
       return (

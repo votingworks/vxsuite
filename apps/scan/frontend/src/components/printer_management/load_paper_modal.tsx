@@ -95,8 +95,8 @@ export function LoadPaperModal({
           actions={postLoadPaperActions}
         />
       );
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(printerStatus, 'state');
   }
 }

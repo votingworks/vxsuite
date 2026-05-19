@@ -68,8 +68,8 @@ function getVotingTypeLabel(votingType: LiveReportVotingType): string {
       return 'Early Voting';
     case 'absentee':
       return 'Absentee';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(votingType);
   }
 }
@@ -88,8 +88,8 @@ function getTimestampLabel(pollsTransition: PollsTransitionType): string {
       return 'Voting Paused at';
     case 'close_polls':
       return 'Polls Closed at';
-    /* istanbul ignore next - @preserve */
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(pollsTransition);
   }
 }

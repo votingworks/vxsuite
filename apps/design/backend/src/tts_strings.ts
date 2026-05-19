@@ -163,8 +163,8 @@ export function apiMethods(ctx: TtsApiContext) {
 
             break;
 
-          /* istanbul ignore next - @preserve */
           default:
+            /* istanbul ignore next - @preserve */
             throwIllegalValue(contest, 'type');
         }
       }

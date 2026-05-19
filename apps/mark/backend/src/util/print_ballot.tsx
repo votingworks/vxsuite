@@ -54,8 +54,8 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
       return printMarkOverlay(p);
     case 'bubble_ballot':
       return printBubbleBallot(p);
-    /* istanbul ignore next  - @preserve */
     default:
+      /* istanbul ignore next  - @preserve */
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
 
