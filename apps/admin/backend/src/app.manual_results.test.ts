@@ -1,5 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 
 import { BallotStyleGroupId, PrecinctId, Tabulation } from '@votingworks/types';
 import { buildManualResultsFixture } from '@votingworks/utils';
@@ -488,4 +491,42 @@ test('removes write-in candidates not referenced anymore', async () => {
       })
     )?.manualResults
   ).toEqual(manualResultsWithWriteInRemoved);
+});
+
+test('manual results APIs reject reads/writes for open primary elections', async () => {
+  const openPrimaryElectionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, openPrimaryElectionDefinition);
+  mockElectionManagerAuth(auth, openPrimaryElectionDefinition.election);
+
+  const identifier: ManualResultsIdentifier = {
+    precinctId: openPrimaryElectionDefinition.election.precincts[0]!.id,
+    votingMethod: 'precinct',
+    ballotStyleGroupId:
+      openPrimaryElectionDefinition.election.ballotStyles[0]!.groupId,
+  };
+
+  // Writes that would create data: asserts.
+  await expect(
+    apiClient.setManualResults({
+      ...identifier,
+      manualResults: buildManualResultsFixture({
+        election: openPrimaryElectionDefinition.election,
+        ballotCount: 1,
+        contestResultsSummaries: {},
+      }),
+    })
+  ).rejects.toThrow();
+
+  // Reads: assert too — nothing should be reading manual data on open
+  // primary since the UI is hidden and the tabulation paths short-circuit.
+  await expect(apiClient.getManualResults(identifier)).rejects.toThrow();
+  await expect(apiClient.getManualResultsMetadata()).rejects.toThrow();
+
+  // Deletes are no-ops (no data exists to delete), so they succeed silently.
+  await expect(
+    apiClient.deleteManualResults(identifier)
+  ).resolves.toBeUndefined();
+  await expect(apiClient.deleteAllManualResults()).resolves.toBeUndefined();
 });
