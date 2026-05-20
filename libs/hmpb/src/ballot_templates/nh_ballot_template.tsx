@@ -423,7 +423,10 @@ function BallotPageFrame({
         margins={pageMarginsInches}
       >
         {watermark && <Watermark>{watermark}</Watermark>}
-        <TimingMarkGrid pageDimensions={pageDimensions} ballotMode={ballotMode}>
+        <TimingMarkGrid
+          pageDimensions={pageDimensions}
+          hideTimingMarks={ballotMode === 'sample'}
+        >
           <div
             style={{
               flex: 1,
