@@ -411,7 +411,7 @@ export type RustContestVote =
   | { type: 'yesNo'; value: string };
 
 /**
- * Rust-decoded multi-page CastVoteRecord (VB\x01 prelude).
+ * Rust-decoded CastVoteRecord (VB\x01 prelude).
  */
 export interface RustMultiPageCastVoteRecord {
   ballotHash: number[];

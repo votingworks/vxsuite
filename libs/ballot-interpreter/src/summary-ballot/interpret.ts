@@ -2,7 +2,6 @@ import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import {
   MultiPageSummaryBallotPageMetadata,
-  CompletedBallot,
   ElectionDefinition,
   SheetOf,
   VotesDict,
@@ -10,10 +9,8 @@ import {
 } from '@votingworks/types';
 import {
   BALLOT_HASH_ENCODING_LENGTH,
-  decodeSinglePageSummaryBallot,
   decodeBallotHash,
   decodeMultiPageSummaryBallotPage,
-  isMultiPageSummaryBallot,
 } from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
@@ -23,27 +20,14 @@ import { findScannedDocumentInset } from './image_utils';
 import { otsu } from './otsu';
 
 /**
- * Interpretation result for a single-page BMD ballot.
+ * Interpretation result for a page of a BMD ballot.
  */
-export interface SinglePageInterpretation {
-  type: 'single-page';
-  ballot: CompletedBallot;
-  summaryBallotImage: ImageData;
-  blankPageImage: ImageData;
-}
-
-/**
- * Interpretation result for a page of a multi-page BMD ballot.
- */
-export interface MultiPageInterpretation {
-  type: 'multi-page';
+export interface Interpretation {
   metadata: MultiPageSummaryBallotPageMetadata;
   votes: VotesDict;
   summaryBallotImage: ImageData;
   blankPageImage: ImageData;
 }
-
-export type Interpretation = SinglePageInterpretation | MultiPageInterpretation;
 
 export type InterpretError =
   | {
@@ -139,25 +123,13 @@ export async function interpret(
 
   const blankPageImage = frontResult.isOk() ? croppedCard[1] : croppedCard[0];
 
-  // Check if this is a multi-page summary ballot
-  if (isMultiPageSummaryBallot(foundQrCode.data)) {
-    const decoded = decodeMultiPageSummaryBallotPage(
-      electionDefinition,
-      foundQrCode.data
-    );
-    return ok({
-      type: 'multi-page',
-      metadata: decoded.metadata,
-      votes: decoded.votes,
-      summaryBallotImage,
-      blankPageImage,
-    });
-  }
-
-  // Single-page BMD ballot
+  const decoded = decodeMultiPageSummaryBallotPage(
+    electionDefinition,
+    foundQrCode.data
+  );
   return ok({
-    type: 'single-page',
-    ballot: decodeSinglePageSummaryBallot(electionDefinition, foundQrCode.data),
+    metadata: decoded.metadata,
+    votes: decoded.votes,
     summaryBallotImage,
     blankPageImage,
   });

@@ -18,7 +18,6 @@ import {
   BallotStyle,
   BallotStyleId,
   BallotTargetMark,
-  BallotType,
   ContestId,
   ContestOption,
   Corners,
@@ -686,48 +685,22 @@ async function interpretBmdBallot(
     }
   }
 
-  const result = interpretResult.ok();
-  const { summaryBallotImage, blankPageImage } = result;
+  const { summaryBallotImage, blankPageImage, metadata, votes } =
+    interpretResult.ok();
 
-  let front: PageInterpretation;
-  if (result.type === 'multi-page') {
-    // Multi-page BMD ballot - only consider contests on this page
-    const { metadata, votes } = result;
-    const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
-      electionDefinition,
-      options,
-      votes,
-      metadata.ballotStyleId,
-      metadata.contestIds
-    );
-    front = {
-      type: 'InterpretedBmdMultiPagePage',
-      metadata,
-      votes,
-      adjudicationInfo,
-    };
-  } else {
-    // Single-page BMD ballot
-    const { ballot } = result;
-    const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
-      electionDefinition,
-      options,
-      ballot.votes,
-      ballot.ballotStyleId
-    );
-    front = {
-      type: 'InterpretedBmdPage',
-      metadata: {
-        ballotHash: ballot.ballotHash,
-        ballotType: BallotType.Precinct,
-        ballotStyleId: ballot.ballotStyleId,
-        precinctId: ballot.precinctId,
-        isTestMode: ballot.isTestMode,
-      },
-      votes: ballot.votes,
-      adjudicationInfo,
-    };
-  }
+  const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
+    electionDefinition,
+    options,
+    votes,
+    metadata.ballotStyleId,
+    metadata.contestIds
+  );
+  const front: PageInterpretation = {
+    type: 'InterpretedBmdMultiPagePage',
+    metadata,
+    votes,
+    adjudicationInfo,
+  };
 
   const back: PageInterpretation = {
     type: 'BlankPage',
