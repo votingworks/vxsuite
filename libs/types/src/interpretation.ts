@@ -27,20 +27,6 @@ export const BlankPageSchema: z.ZodSchema<BlankPage> = z.object({
   type: z.literal('BlankPage'),
 });
 
-export interface InterpretedBmdPage {
-  type: 'InterpretedBmdPage';
-  metadata: BallotMetadata;
-  votes: VotesDict;
-  adjudicationInfo: AdjudicationInfo;
-}
-export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
-  z.object({
-    type: z.literal('InterpretedBmdPage'),
-    metadata: BallotMetadataSchema,
-    votes: VotesDictSchema,
-    adjudicationInfo: AdjudicationInfoSchema,
-  });
-
 /**
  * Interpretation result for a single page of a multi-page BMD ballot.
  */
@@ -132,7 +118,6 @@ export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
 
 export type PageInterpretation =
   | BlankPage
-  | InterpretedBmdPage
   | InterpretedBmdMultiPagePage
   | InterpretedHmpbPage
   | InvalidBallotHashPage
@@ -142,7 +127,6 @@ export type PageInterpretation =
 export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
   z.union([
     BlankPageSchema,
-    InterpretedBmdPageSchema,
     InterpretedBmdMultiPagePageSchema,
     InterpretedHmpbPageSchema,
     InvalidBallotHashPageSchema,
