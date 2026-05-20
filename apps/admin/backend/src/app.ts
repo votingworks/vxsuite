@@ -945,7 +945,6 @@ function buildApi({
       const {
         electionDefinition: { election },
       } = assertDefined(store.getElection(electionId));
-      assert(!isOpenPrimary(election));
       const manualResultsRecords = store.getManualResults({
         election,
         electionId,
