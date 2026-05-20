@@ -293,13 +293,17 @@ describe('paper handler diagnostic', () => {
 
     const interpretationMock: SheetOf<PageInterpretation> = [
       {
-        type: 'InterpretedBmdPage',
+        type: 'InterpretedBmdMultiPagePage',
         metadata: {
           ballotHash: 'hash',
           ballotType: BallotType.Precinct,
           ballotStyleId: electionDefinition.election.ballotStyles[0].id,
           precinctId: electionDefinition.election.precincts[0].id,
           isTestMode: true,
+          pageNumber: 1,
+          totalPages: 1,
+          ballotAuditId: 'diagnostic-audit-id',
+          contestIds: [],
         },
         adjudicationInfo: {
           requiresAdjudication: false,

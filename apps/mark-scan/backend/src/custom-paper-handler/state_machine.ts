@@ -132,7 +132,7 @@ function createOnDiagnosticErrorHandler() {
 
 export const ACCEPTED_PAPER_TYPES = [
   'BlankPage',
-  'InterpretedBmdPage',
+  'InterpretedBmdMultiPagePage',
 ] as const satisfies PageInterpretationType[];
 
 export type AcceptedPaperType = (typeof ACCEPTED_PAPER_TYPES)[number];
@@ -712,7 +712,8 @@ export function buildMachine(
                 {
                   target: 'inserted_preprinted_ballot',
                   cond: (context) =>
-                    getInterpretationType(context) === 'InterpretedBmdPage',
+                    getInterpretationType(context) ===
+                    'InterpretedBmdMultiPagePage',
                 },
               ],
             },
@@ -823,20 +824,25 @@ export function buildMachine(
             // Intermediate state to conditionally transition based on ballot interpretation
             transition_interpretation: {
               entry: (context) => {
-                const interpretationType = assertDefined(
-                  getInterpretationType(context)
-                );
+                const interpretation = assertDefined(context.interpretation)[0];
                 assert(
-                  interpretationType === 'InterpretedBmdPage' ||
-                    interpretationType === 'BlankPage',
-                  `Unexpected interpretation type: ${interpretationType}`
+                  interpretation.type === 'InterpretedBmdMultiPagePage' ||
+                    interpretation.type === 'BlankPage',
+                  `Unexpected interpretation type: ${interpretation.type}`
                 );
+                if (interpretation.type === 'InterpretedBmdMultiPagePage') {
+                  assert(
+                    interpretation.metadata.totalPages === 1,
+                    `VxMarkScan only supports single-page ballots`
+                  );
+                }
               },
               always: [
                 {
                   target: 'presenting_ballot',
                   cond: (context) =>
-                    getInterpretationType(context) === 'InterpretedBmdPage',
+                    getInterpretationType(context) ===
+                    'InterpretedBmdMultiPagePage',
                 },
                 {
                   target: 'blank_page_interpretation',
@@ -962,7 +968,8 @@ export function buildMachine(
                 {
                   target: 'presenting_ballot',
                   cond: (context) =>
-                    getInterpretationType(context) === 'InterpretedBmdPage',
+                    getInterpretationType(context) ===
+                    'InterpretedBmdMultiPagePage',
                 },
                 { target: 'reinserted_invalid_ballot' },
               ],
@@ -1266,7 +1273,8 @@ export function buildMachine(
                   cond: (context) =>
                     !!(
                       context.interpretation &&
-                      context.interpretation[0].type === 'InterpretedBmdPage'
+                      context.interpretation[0].type ===
+                        'InterpretedBmdMultiPagePage'
                     ),
                 },
                 {

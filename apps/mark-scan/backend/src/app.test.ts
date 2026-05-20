@@ -674,7 +674,7 @@ test.each([
     await waitForStatus('presenting_ballot');
     const interpretation = await apiClient.getInterpretation();
     assert(interpretation);
-    assert(interpretation.type === 'InterpretedBmdPage');
+    assert(interpretation.type === 'InterpretedBmdMultiPagePage');
     expectVotesEqual(interpretation.votes, mockVotes);
 
     await apiClient.validateBallot();
