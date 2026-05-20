@@ -489,7 +489,7 @@ test('buildCastVoteRecord - multi-page BMD ballot page 1', () => {
     scannerId,
     batchId,
     ballotAuditId,
-    ballotMarkingMode: 'machine-multi-page',
+    ballotMarkingMode: 'machine',
     interpretation: interpretedBmdMultiPagePage1,
   });
 
@@ -531,7 +531,7 @@ test('buildCastVoteRecord - multi-page BMD ballot page 2', () => {
     scannerId,
     batchId,
     ballotAuditId,
-    ballotMarkingMode: 'machine-multi-page',
+    ballotMarkingMode: 'machine',
     interpretation: interpretedBmdMultiPagePage2,
   });
 
