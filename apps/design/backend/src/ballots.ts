@@ -124,6 +124,7 @@ export function createBallotPropsForTemplate(
     case 'MsBallot':
     case 'VxDefaultBallot':
     case 'MiBallot':
+    case 'NhStateBallot':
       return baseBallotProps;
 
     default: {
