@@ -7,19 +7,16 @@ import {
   MultiPageSummaryBallotPageMetadata,
   Candidate,
   CandidateVote,
-  CompletedBallot,
   ContestId,
   Election,
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  getPrecinctById,
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
   straightPartyNotYetImplemented,
   unsafeParse,
-  validateVotes,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -76,13 +73,6 @@ export const WriteInEncoding = new CustomEncoding(
 export const HexEncoding = new CustomEncoding('0123456789abcdef');
 
 /**
- * The bytes we expect a summary ballot to start with.
- */
-export const SummaryBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* X */ 88, /* version = */ 2,
-];
-
-/**
  * The bytes we expect a bubble ballot to start with.
  */
 export const BubbleBallotPrelude: readonly Uint8[] = [
@@ -98,19 +88,9 @@ export const MultiPageSummaryBallotPrelude: readonly Uint8[] = [
 
 /**
  * Detect whether `data` is a VotingWorks encoded ballot / metadata.
- * Recognizes both single-page summary ballot (VX) and multi-page
- * summary ballot (VB) preludes.
  */
 export function isVxBallot(data: Uint8Array): boolean {
-  const prelude = data.slice(0, SummaryBallotPrelude.length);
-  if (prelude.length !== SummaryBallotPrelude.length) {
-    return false;
-  }
-  // Check for VX (single-page) or VB (multi-page) summary ballot prelude
-  return (
-    prelude.every((byte, i) => byte === SummaryBallotPrelude[i]) ||
-    prelude.every((byte, i) => byte === MultiPageSummaryBallotPrelude[i])
-  );
+  return isMultiPageSummaryBallot(data);
 }
 
 /**
@@ -193,51 +173,6 @@ export function encodeBallotConfigInto(
   return bits;
 }
 
-/**
- * Decodes a {@link BallotConfig} from a bit reader.
- */
-export function decodeSinglePageSummaryBallotConfigFromReader(
-  election: Election,
-  bits: BitReader,
-  { readPageNumber = false }: { readPageNumber?: boolean } = {}
-): BallotConfig {
-  const { precincts, ballotStyles } = election;
-
-  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
-  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
-
-  const pageNumber = readPageNumber
-    ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
-    : undefined;
-
-  const isTestMode = bits.readBoolean();
-
-  const ballotTypeIndex = bits.readUint({ max: BallotTypeMaximumValue });
-  const ballotType = assertDefined(
-    Object.values(BallotType)[ballotTypeIndex],
-    `ballot type index ${ballotTypeIndex} is invalid`
-  );
-
-  const ballotAuditId = bits.readBoolean()
-    ? unsafeParse(BallotIdSchema, bits.readString())
-    : undefined;
-
-  const ballotStyle = ballotStyles[ballotStyleIndex];
-  const precinct = precincts[precinctIndex];
-
-  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`);
-  assert(precinct, `precinct index ${precinctIndex} is invalid`);
-
-  return {
-    ballotStyleId: ballotStyle.id,
-    precinctId: precinct.id,
-    pageNumber,
-    isTestMode,
-    ballotType,
-    ballotAuditId,
-  };
-}
-
 function writeYesNoVote(
   bits: BitWriter,
   ynVote: YesNoVote,
@@ -318,65 +253,6 @@ function encodeBallotVotesInto(
   }
 
   return bits;
-}
-
-/**
- * Encodes a completed summary ballot, including metadata and votes, into a bit writer.
- */
-export function encodeSinglePageSummaryBallotInto(
-  election: Election,
-  {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode,
-    ballotType,
-  }: CompletedBallot,
-  bits: BitWriter
-): BitWriter {
-  const ballotStyle = getBallotStyle({ election, ballotStyleId });
-
-  if (!ballotStyle) {
-    throw new Error(`unknown ballot style id: ${ballotStyleId}`);
-  }
-
-  validateVotes({ election, ballotStyle, votes });
-
-  const contests = getContests({ ballotStyle, election });
-
-  return bits
-    .writeUint8(...SummaryBallotPrelude)
-    .writeString(sliceBallotHashForEncoding(ballotHash), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    .with(() =>
-      encodeBallotConfigInto(
-        election,
-        {
-          ballotStyleId,
-          precinctId,
-          ballotType,
-          isTestMode,
-        },
-        bits
-      )
-    )
-    .with(() => encodeBallotVotesInto(contests, votes, bits));
-}
-
-/**
- * Encodes a completed summary ballot, including metadata and votes, as a byte array.
- */
-export function encodeSinglePageSummaryBallot(
-  election: Election,
-  ballot: CompletedBallot
-): Uint8Array {
-  const bits = new BitWriter();
-  encodeSinglePageSummaryBallotInto(election, ballot, bits);
-  return bits.toUint8Array();
 }
 
 function readPaddingToEnd(bits: BitReader): void {
@@ -469,73 +345,12 @@ function decodeBallotVotes(
 }
 
 /**
- * Decodes a completed summary ballot, including metadata and votes, from a bit reader.
- */
-export function decodeSinglePageSummaryBallotFromReader(
-  electionDefinition: ElectionDefinition,
-  bits: BitReader
-): CompletedBallot {
-  if (!bits.skipUint8(...SummaryBallotPrelude)) {
-    throw new Error(
-      "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-    );
-  }
-
-  const ballotHash = bits.readString({
-    encoding: HexEncoding,
-    length: BALLOT_HASH_ENCODING_LENGTH,
-  });
-
-  assert(
-    ballotHash === sliceBallotHashForEncoding(electionDefinition.ballotHash),
-    `unexpected ballot hash '${ballotHash}' (expected '${electionDefinition.ballotHash}')`
-  );
-
-  const { election } = electionDefinition;
-  const { ballotStyleId, ballotType, isTestMode, precinctId } =
-    decodeSinglePageSummaryBallotConfigFromReader(election, bits);
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  const precinct = getPrecinctById({ precinctId, election });
-
-  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`);
-  assert(precinct, `invalid precinct id: ${precinctId}`);
-
-  const contests = getContests({ ballotStyle, election });
-  const votes = decodeBallotVotes(contests, bits);
-
-  readPaddingToEnd(bits);
-
-  return {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode,
-    ballotType,
-  };
-}
-
-/**
- * Decodes a completed summary ballot, including metadata and votes, from a byte array.
- */
-export function decodeSinglePageSummaryBallot(
-  electionDefinition: ElectionDefinition,
-  data: Uint8Array
-): CompletedBallot {
-  return decodeSinglePageSummaryBallotFromReader(
-    electionDefinition,
-    new BitReader(data)
-  );
-}
-
-/**
  * Reads the ballot hash from an encoded ballot metadata.
  */
 export function decodeBallotHashFromReader(
   bits: BitReader
 ): string | undefined {
   if (
-    bits.skipUint8(...SummaryBallotPrelude) ||
     bits.skipUint8(...BubbleBallotPrelude) ||
     bits.skipUint8(...MultiPageSummaryBallotPrelude)
   ) {
