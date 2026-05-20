@@ -1,7 +1,7 @@
 import {
   BallotMetadata,
   BallotType,
-  InterpretedBmdMultiPagePage,
+  InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   PrecinctId,
@@ -34,17 +34,17 @@ export function isHmpbPage(
 
 export function isBmdPage(
   interpretation: PageInterpretation
-): interpretation is InterpretedBmdMultiPagePage {
-  return interpretation.type === 'InterpretedBmdMultiPagePage';
+): interpretation is InterpretedBmdPage {
+  return interpretation.type === 'InterpretedBmdPage';
 }
 
 export function isPageWithVotes(
   interpretation: PageInterpretation
-): interpretation is InterpretedHmpbPage | InterpretedBmdMultiPagePage {
+): interpretation is InterpretedHmpbPage | InterpretedBmdPage {
   const { type } = interpretation;
   switch (type) {
     case 'InterpretedHmpbPage':
-    case 'InterpretedBmdMultiPagePage':
+    case 'InterpretedBmdPage':
       return true;
     case 'BlankPage':
     case 'UnreadablePage':

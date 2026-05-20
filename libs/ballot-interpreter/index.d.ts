@@ -24,14 +24,14 @@ export interface BridgeInterpretOptions {
   retryStreakWidthThreshold: number;
 }
 /**
- * Decodes raw QR code bytes as a multi-page `MultiPageCastVoteRecord`
- * (VB\x01). Used for cross-language testing to verify the Rust decoder
- * matches the TypeScript encoder.
+ * Decodes raw QR code bytes as a `CastVoteRecord` (VB\x01). Used for
+ * cross-language testing to verify the Rust decoder matches the TypeScript
+ * encoder.
  */
 export declare function decodeBmdBallotData(election: Election, data: Buffer): Promise<BridgeDecodeBmdResult>
 
 /**
- * Encodes a `MultiPageCastVoteRecord` to raw bytes using the Rust bitstream
+ * Encodes a `CastVoteRecord` to raw bytes using the Rust bitstream
  * encoder. Used for cross-language testing to verify the Rust encoder
  * matches the TypeScript decoder.
  */

@@ -293,7 +293,7 @@ describe('paper handler diagnostic', () => {
 
     const interpretationMock: SheetOf<PageInterpretation> = [
       {
-        type: 'InterpretedBmdMultiPagePage',
+        type: 'InterpretedBmdPage',
         metadata: {
           ballotHash: 'hash',
           ballotType: BallotType.Precinct,

@@ -2,7 +2,7 @@ import { fromByteArray } from 'base64-js';
 import React from 'react';
 import styled from 'styled-components';
 
-import { encodeMultiPageSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
   BallotStyle,
   BallotStyleId,
@@ -704,7 +704,7 @@ export function BmdPaperBallot({
     : electionStrings.precinctName(precinctOrSplit.precinct);
   const party = getPartyForBallotStyle({ ballotStyleId, election });
 
-  const encodedBallot = encodeMultiPageSummaryBallotPage(election, {
+  const encodedBallot = encodeSummaryBallotPage(election, {
     ballotHash,
     precinctId,
     ballotStyleId,

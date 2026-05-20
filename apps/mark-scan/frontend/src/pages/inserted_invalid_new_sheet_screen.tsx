@@ -11,12 +11,11 @@ import { InsertedBlankSheetInsteadOfBallotScreen } from './inserted_blank_sheet_
 const SCREENS: Readonly<
   Record<PageInterpretationType, JSX.Element | undefined>
 > = {
-  InterpretedBmdPage: undefined, // This page should be unreachable for this result.
-
   // Not currently reachable in practice - HMPBs are interpreted as `BlankPage`s
-  // in VxMarkScan:
+  // in VxMarkScan, and a successful BMD interpretation should not reach this
+  // invalid-sheet screen:
   InterpretedHmpbPage: <InsertedUnreadableBallotScreen />,
-  InterpretedBmdMultiPagePage: <InsertedUnreadableBallotScreen />,
+  InterpretedBmdPage: <InsertedUnreadableBallotScreen />,
 
   BlankPage: <InsertedBlankSheetInsteadOfBallotScreen />,
   InvalidBallotHashPage: <InsertedWrongElectionBallotScreen />,

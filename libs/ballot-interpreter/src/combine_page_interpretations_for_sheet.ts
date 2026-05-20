@@ -2,7 +2,7 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   Election,
-  InterpretedBmdMultiPagePage,
+  InterpretedBmdPage,
   InterpretedBmdPage,
   InvalidBallotHashPage,
   PageInterpretation,
@@ -41,13 +41,13 @@ export function combinePageInterpretationsForSheet(
 
   // Multi-page BMD ballot (one page of a multi-page ballot).
   if (
-    (frontType === 'InterpretedBmdMultiPagePage' && backType === 'BlankPage') ||
-    (backType === 'InterpretedBmdMultiPagePage' && frontType === 'BlankPage')
+    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
+    (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
   ) {
     /* istanbul ignore next */
     const interpretation = (
-      front.type === 'InterpretedBmdMultiPagePage' ? front : back
-    ) as InterpretedBmdMultiPagePage;
+      front.type === 'InterpretedBmdPage' ? front : back
+    ) as InterpretedBmdPage;
 
     if (interpretation.adjudicationInfo.requiresAdjudication) {
       return {

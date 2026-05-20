@@ -9,7 +9,6 @@ import {
 import { SheetOf, asSheet, vote } from '@votingworks/types';
 import {
   renderBmdBallotFixture,
-  renderMultiPageBmdBallotFixture,
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
@@ -253,7 +252,7 @@ test('multi-page BMD ballot: page 1 of 2', async () => {
   const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
   const ballotAuditId = 'test-multi-page-audit-id-123';
 
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -295,7 +294,7 @@ test('multi-page BMD ballot: page 2 of 2', async () => {
   const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
   const ballotAuditId = 'test-multi-page-audit-id-123';
 
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -336,7 +335,7 @@ test('multi-page BMD ballot: page with no votes (undervotes)', async () => {
   const ballotAuditId = 'test-blank-page-audit-id';
 
   // Create a ballot with no votes (all undervotes)
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -381,7 +380,7 @@ test('multi-page BMD ballot: partial votes on page', async () => {
     controller: 'winston-churchill',
   });
 
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,

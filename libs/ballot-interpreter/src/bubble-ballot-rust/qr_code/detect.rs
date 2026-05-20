@@ -147,8 +147,8 @@ pub fn get_detection_areas_for_strategy(
 pub enum QrCodeKind {
     /// `VP\x02` — Hand-marked paper ballot (bubble ballot) metadata.
     BubbleBallot,
-    /// `VB\x01` — Multi-page BMD summary ballot page.
-    MultiPageSummaryBallot,
+    /// `VB\x01` — BMD summary ballot page.
+    SummaryBallot,
     /// Unrecognized prelude.
     Unknown,
 }
@@ -161,7 +161,7 @@ pub fn classify_qr_payload(bytes: &[u8]) -> QrCodeKind {
     };
     match prelude.try_into() {
         Ok(bubble_ballot::PRELUDE) => QrCodeKind::BubbleBallot,
-        Ok(bmd::MULTI_PAGE_PRELUDE) => QrCodeKind::MultiPageSummaryBallot,
+        Ok(bmd::BMD_PRELUDE) => QrCodeKind::SummaryBallot,
         _ => QrCodeKind::Unknown,
     }
 }
@@ -333,10 +333,10 @@ mod test {
     }
 
     #[test]
-    fn test_classify_multi_page_summary_ballot() {
+    fn test_classify_summary_ballot() {
         assert_eq!(
             classify_qr_payload(&[0x56, 0x42, 0x01, 0xab]),
-            QrCodeKind::MultiPageSummaryBallot
+            QrCodeKind::SummaryBallot
         );
     }
 

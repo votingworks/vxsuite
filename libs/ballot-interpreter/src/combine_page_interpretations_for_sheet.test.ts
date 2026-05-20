@@ -7,7 +7,7 @@ import {
   AdjudicationReasonInfo,
   BallotType,
   HmpbBallotPageMetadata,
-  InterpretedBmdMultiPagePage,
+  InterpretedBmdPage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -81,18 +81,18 @@ function mockBmdMultiPagePage({
 }: {
   requiresAdjudication?: boolean;
   enabledReasonInfos?: AdjudicationReasonInfo[];
-} = {}): InterpretedBmdMultiPagePage {
+} = {}): InterpretedBmdPage {
   // Just mock the fields needed for combinePageInterpretationsForSheet
   // (bypassing the type system)
   return {
-    type: 'InterpretedBmdMultiPagePage',
+    type: 'InterpretedBmdPage',
     adjudicationInfo: {
       requiresAdjudication,
       enabledReasons: [],
       enabledReasonInfos,
       ignoredReasonInfos: [],
     },
-  } as unknown as InterpretedBmdMultiPagePage;
+  } as unknown as InterpretedBmdPage;
 }
 
 const blankPage: PageInterpretation = { type: 'BlankPage' };

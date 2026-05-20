@@ -16,7 +16,7 @@ import {
   CVR,
   ElectionDefinition,
   getBallotStyle,
-  InterpretedBmdMultiPagePage,
+  InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkStatus,
   MarkThresholds,
@@ -489,7 +489,7 @@ type BuildCastVoteRecordParams = {
 } & (
   | {
       ballotMarkingMode: 'machine';
-      interpretation: InterpretedBmdMultiPagePage;
+      interpretation: InterpretedBmdPage;
       images?: SheetOf<CvrImageDataInput>;
     }
   | {

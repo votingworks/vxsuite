@@ -163,7 +163,7 @@ vi.setConfig({ testTimeout: 2000 });
 
 const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<PageInterpretation> = [
   {
-    type: 'InterpretedBmdMultiPagePage',
+    type: 'InterpretedBmdPage',
     metadata: {
       ballotHash: 'hash',
       ballotType: BallotType.Precinct,
@@ -1012,7 +1012,7 @@ describe('insert pre-printed ballot', () => {
 
   const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {
     BlankPage: false,
-    InterpretedBmdMultiPagePage: false,
+    InterpretedBmdPage: false,
 
     InterpretedHmpbPage: true,
     InvalidBallotHashPage: true,
@@ -1054,7 +1054,7 @@ describe('insert pre-printed ballot', () => {
   });
 
   test('insert blank sheet when accepting only pre-printed ballots', async () => {
-    machine.setAcceptingPaper(['InterpretedBmdMultiPagePage']);
+    machine.setAcceptingPaper(['InterpretedBmdPage']);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
@@ -1151,7 +1151,7 @@ describe('re-insert removed ballot', () => {
   });
 
   const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {
-    InterpretedBmdMultiPagePage: false,
+    InterpretedBmdPage: false,
 
     BlankPage: true,
     InterpretedHmpbPage: true,

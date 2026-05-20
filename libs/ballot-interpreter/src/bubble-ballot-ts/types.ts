@@ -413,7 +413,7 @@ export type RustContestVote =
 /**
  * Rust-decoded CastVoteRecord (VB\x01 prelude).
  */
-export interface RustMultiPageCastVoteRecord {
+export interface RustCastVoteRecord {
   ballotHash: number[];
   ballotStyleId: string;
   precinctId: string;
@@ -429,4 +429,4 @@ export interface RustMultiPageCastVoteRecord {
 /**
  * Result of decoding raw BMD ballot bytes via the Rust decoder.
  */
-export type BridgeDecodeBmdResult = RustMultiPageCastVoteRecord;
+export type BridgeDecodeBmdResult = RustCastVoteRecord;

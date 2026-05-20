@@ -20,8 +20,8 @@ use sha2::{Digest, Sha256};
 use types_rs::{
     ballot_card::BallotType,
     bmd::{
+        cvr::CastVoteRecord,
         encoding::BallotAuditId,
-        multi_page::MultiPageCastVoteRecord,
         votes::{CandidateVote, ContestVote},
     },
     bubble_ballot::PartialBallotHash,
@@ -117,13 +117,11 @@ fn main() -> color_eyre::Result<()> {
     .ok();
 
     let exit_code = match detected {
-        Some(ref d) if d.kind() == qr_code::QrCodeKind::MultiPageSummaryBallot => {
-            let cvr = coding::decode_with::<MultiPageCastVoteRecord>(d.bytes(), &election)
-                .map_err(|e| {
-                    color_eyre::eyre::eyre!("failed to decode multi-page summary ballot: {e}")
-                })?;
+        Some(ref d) if d.kind() == qr_code::QrCodeKind::SummaryBallot => {
+            let cvr = coding::decode_with::<CastVoteRecord>(d.bytes(), &election)
+                .map_err(|e| color_eyre::eyre::eyre!("failed to decode summary ballot: {e}"))?;
             print_result(&options, &cvr, |cvr| {
-                pretty_print_multi_page_cvr(cvr, &election);
+                pretty_print_cvr(cvr, &election);
             })?;
             0
         }
@@ -177,7 +175,7 @@ macro_rules! stringify_vote {
     };
 }
 
-fn pretty_print_multi_page_cvr(cvr: &MultiPageCastVoteRecord, election: &Election) {
+fn pretty_print_cvr(cvr: &CastVoteRecord, election: &Election) {
     // Ballot metadata
     println!(
         "{} (page {}/{})",

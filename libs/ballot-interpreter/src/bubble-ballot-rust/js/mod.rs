@@ -10,7 +10,7 @@ use napi::bindgen_prelude::Buffer;
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
-use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
+use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
 use types_rs::coding;
 use types_rs::election::Election;
@@ -389,9 +389,9 @@ pub async fn run_blank_paper_diagnostic_from_path(
     ))
 }
 
-/// Decodes raw QR code bytes as a multi-page `MultiPageCastVoteRecord`
-/// (VB\x01). Used for cross-language testing to verify the Rust decoder
-/// matches the TypeScript encoder.
+/// Decodes raw QR code bytes as a `CastVoteRecord` (VB\x01). Used for
+/// cross-language testing to verify the Rust decoder matches the TypeScript
+/// encoder.
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
 #[allow(clippy::unused_async)]
 #[napi(
@@ -405,12 +405,12 @@ pub async fn decode_bmd_ballot_data(
     let election: types_rs::election::Election = from_json(election)?;
     let bytes = data.to_vec();
 
-    let cvr = coding::decode_with::<MultiPageCastVoteRecord>(&bytes, &election)
+    let cvr = coding::decode_with::<CastVoteRecord>(&bytes, &election)
         .map_err(|e| napi::Error::from_reason(format!("decoding failed: {e}")))?;
     to_json(&cvr)
 }
 
-/// Encodes a `MultiPageCastVoteRecord` to raw bytes using the Rust bitstream
+/// Encodes a `CastVoteRecord` to raw bytes using the Rust bitstream
 /// encoder. Used for cross-language testing to verify the Rust encoder
 /// matches the TypeScript decoder.
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
@@ -424,7 +424,7 @@ pub async fn encode_bmd_ballot_data(
     record: serde_json::Value,
 ) -> napi::Result<Buffer> {
     let election: types_rs::election::Election = from_json(election)?;
-    let record: MultiPageCastVoteRecord = from_json(record)?;
+    let record: CastVoteRecord = from_json(record)?;
 
     let bytes = coding::encode_with(&record, &election)
         .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;

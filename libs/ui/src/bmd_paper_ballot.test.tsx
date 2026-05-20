@@ -19,7 +19,7 @@ import {
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 
-import { encodeMultiPageSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
@@ -54,17 +54,15 @@ const electionFamousNamesDefinition =
 vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
   ...(await importActual()),
   // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-  encodeMultiPageSummaryBallotPage: vi.fn(),
+  encodeSummaryBallotPage: vi.fn(),
 }));
 
-const encodeMultiPageSummaryBallotPageMock = vi.mocked(
-  encodeMultiPageSummaryBallotPage
-);
+const encodeSummaryBallotPageMock = vi.mocked(encodeSummaryBallotPage);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 
 beforeEach(() => {
-  encodeMultiPageSummaryBallotPageMock.mockReset();
-  encodeMultiPageSummaryBallotPageMock.mockReturnValue(mockEncodedBallotData);
+  encodeSummaryBallotPageMock.mockReset();
+  encodeSummaryBallotPageMock.mockReturnValue(mockEncodedBallotData);
 });
 
 function renderBmdPaperBallot({
@@ -356,7 +354,7 @@ test('BmdPaperBallot renders seal', () => {
   screen.getByTestId('seal');
 });
 
-test('BmdPaperBallot passes expected data to encodeMultiPageSummaryBallotPage for use in QR code', () => {
+test('BmdPaperBallot passes expected data to encodeSummaryBallotPage for use in QR code', () => {
   const QrCodeSpy = vi.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
@@ -371,7 +369,7 @@ test('BmdPaperBallot passes expected data to encodeMultiPageSummaryBallotPage fo
     },
   });
 
-  expect(encodeMultiPageSummaryBallotPage).toBeCalledWith(
+  expect(encodeSummaryBallotPage).toBeCalledWith(
     electionGeneralDefinition.election,
     expect.objectContaining({
       ballotStyleId: '5' as BallotStyleId,

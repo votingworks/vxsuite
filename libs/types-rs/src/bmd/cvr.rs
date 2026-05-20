@@ -8,7 +8,7 @@ use crate::{
         encoding::{self, BallotAuditId, BallotHeader},
         error::Error,
         votes::ContestVote,
-        PartialBallotHash, MULTI_PAGE_PRELUDE,
+        PartialBallotHash, BMD_PRELUDE,
     },
     codable,
     election::{BallotStyleId, ContestId, Election, PrecinctId},
@@ -16,10 +16,10 @@ use crate::{
 
 codable!(PageNumber, u8, 1..=30);
 
-/// A single page of a multi-page BMD summary ballot, as encoded in the QR code.
+/// A single page of a BMD summary ballot, as encoded in the QR code.
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MultiPageCastVoteRecord {
+pub struct CastVoteRecord {
     pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,
     pub precinct_id: PrecinctId,
@@ -34,7 +34,7 @@ pub struct MultiPageCastVoteRecord {
     pub votes: HashMap<ContestId, ContestVote>,
 }
 
-impl ToBitStreamWith<'_> for MultiPageCastVoteRecord {
+impl ToBitStreamWith<'_> for CastVoteRecord {
     type Context = Election;
     type Error = Error;
 
@@ -46,7 +46,7 @@ impl ToBitStreamWith<'_> for MultiPageCastVoteRecord {
     where
         Self: Sized,
     {
-        w.write_bytes(MULTI_PAGE_PRELUDE)?;
+        w.write_bytes(BMD_PRELUDE)?;
 
         let ballot_style = encoding::write_ballot_header(
             w,
@@ -84,7 +84,7 @@ impl ToBitStreamWith<'_> for MultiPageCastVoteRecord {
     }
 }
 
-impl FromBitStreamWith<'_> for MultiPageCastVoteRecord {
+impl FromBitStreamWith<'_> for CastVoteRecord {
     type Error = Error;
     type Context = Election;
 
@@ -96,7 +96,7 @@ impl FromBitStreamWith<'_> for MultiPageCastVoteRecord {
         Self: Sized,
     {
         let prelude: [u8; 3] = r.read_to()?;
-        if &prelude != MULTI_PAGE_PRELUDE {
+        if &prelude != BMD_PRELUDE {
             return Err(Error::InvalidPrelude(prelude));
         }
 

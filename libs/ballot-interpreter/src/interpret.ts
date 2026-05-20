@@ -696,7 +696,7 @@ async function interpretBmdBallot(
     metadata.contestIds
   );
   const front: PageInterpretation = {
-    type: 'InterpretedBmdMultiPagePage',
+    type: 'InterpretedBmdPage',
     metadata,
     votes,
     adjudicationInfo,
@@ -748,8 +748,8 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (frontType === 'BlankPage' && backType === 'InterpretedBmdPage') ||
-    (frontType === 'InterpretedBmdMultiPagePage' && backType === 'BlankPage') ||
-    (frontType === 'BlankPage' && backType === 'InterpretedBmdMultiPagePage')
+    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
+    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage')
   ) {
     return 0;
   }

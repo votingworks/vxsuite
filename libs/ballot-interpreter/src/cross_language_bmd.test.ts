@@ -13,9 +13,9 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import {
-  decodeMultiPageSummaryBallotPage,
-  encodeMultiPageSummaryBallotPage,
-  MultiPageSummaryBallotPage,
+  decodeSummaryBallotPage,
+  encodeSummaryBallotPage,
+  SummaryBallotPage,
   sliceBallotHashForEncoding,
 } from '@votingworks/ballot-encoder';
 import {
@@ -182,7 +182,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
           const pageNumber = pageIdx + 1;
           const votes = generateVotesForContests(pageContests, includeWriteIns);
 
-          const page: MultiPageSummaryBallotPage = {
+          const page: SummaryBallotPage = {
             ballotHash,
             ballotStyleId: ballotStyle.id,
             precinctId: precinct.id,
@@ -195,7 +195,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
             votes,
           };
 
-          const encoded = encodeMultiPageSummaryBallotPage(election, page);
+          const encoded = encodeSummaryBallotPage(election, page);
 
           const result = await napi.decodeBmdBallotData(
             election,
@@ -332,7 +332,7 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
 
           const encoded = await napi.encodeBmdBallotData(election, rustRecord);
 
-          const decoded = decodeMultiPageSummaryBallotPage(
+          const decoded = decodeSummaryBallotPage(
             electionDefinition,
             new Uint8Array(encoded)
           );

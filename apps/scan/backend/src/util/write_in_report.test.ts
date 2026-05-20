@@ -7,7 +7,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  BmdMultiPageBallotPageMetadata,
+  SummaryBallotPageMetadata,
   BallotPageLayout,
   BallotStyleId,
   BallotType,
@@ -48,7 +48,7 @@ function createStore(): Store {
   return store;
 }
 
-const bmdMetadata: BmdMultiPageBallotPageMetadata = {
+const bmdMetadata: SummaryBallotPageMetadata = {
   ballotStyleId: 'card-number-3',
   ballotType: BallotType.Precinct,
   ballotHash: electionDefinition.ballotHash,
@@ -67,7 +67,7 @@ function addBmdSheet(store: Store, votes: VotesDict): void {
     {
       imagePath: `/${sheetId}-front.png`,
       interpretation: {
-        type: 'InterpretedBmdMultiPagePage',
+        type: 'InterpretedBmdPage',
         metadata: bmdMetadata,
         votes,
         adjudicationInfo: {
@@ -218,7 +218,7 @@ test('handles BMD multi-page ballots', async () => {
     {
       imagePath: `/${sheetId}-front.png`,
       interpretation: {
-        type: 'InterpretedBmdMultiPagePage',
+        type: 'InterpretedBmdPage',
         metadata: {
           ballotHash: electionDefinition.ballotHash,
           precinctId: 'town-id-00701-precinct-id-default',
@@ -471,7 +471,7 @@ function createPrimaryStore(): Store {
   return store;
 }
 
-const primaryBmdMetadata: BmdMultiPageBallotPageMetadata = {
+const primaryBmdMetadata: SummaryBallotPageMetadata = {
   ballotStyleId: '1M',
   ballotType: BallotType.Precinct,
   ballotHash: primaryElectionDefinition.ballotHash,
@@ -490,7 +490,7 @@ function addPrimaryBmdSheet(store: Store, votes: VotesDict): void {
     {
       imagePath: `/${sheetId}-front.png`,
       interpretation: {
-        type: 'InterpretedBmdMultiPagePage',
+        type: 'InterpretedBmdPage',
         metadata: primaryBmdMetadata,
         votes,
         adjudicationInfo: {

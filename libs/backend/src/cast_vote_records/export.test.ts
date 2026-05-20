@@ -20,7 +20,7 @@ import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import {
   interpretedBmdBallot,
   interpretedBmdBallotWithWriteIn,
-  interpretedBmdMultiPageBallot1,
+  interpretedBmdBallot1,
   interpretedBmdPage,
   interpretedHmpb,
   interpretedHmpbPage1,
@@ -349,8 +349,7 @@ test.each<{
   },
   {
     description: 'accepted multi-page BMD ballot on precinct scanner',
-    sheetGenerator: () =>
-      newAcceptedSheet(interpretedBmdMultiPageBallot1, sheet1Id),
+    sheetGenerator: () => newAcceptedSheet(interpretedBmdBallot1, sheet1Id),
     exportOptions: { scannerType: 'precinct' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,

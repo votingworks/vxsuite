@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { canonicalizeSheet } from './canonicalize';
 import {
-  interpretedBmdMultiPagePage1,
+  interpretedBmdPage1,
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
@@ -42,23 +42,20 @@ test('BMD ballot reversed', () => {
 
 test('multi-page BMD ballot', () => {
   expect(
-    canonicalizeSheet([interpretedBmdMultiPagePage1, blankPage], filenames).ok()
+    canonicalizeSheet([interpretedBmdPage1, blankPage], filenames).ok()
   ).toMatchObject({
     type: 'bmd',
-    interpretation: interpretedBmdMultiPagePage1,
+    interpretation: interpretedBmdPage1,
     filenames,
   });
 });
 
 test('multi-page BMD ballot reversed', () => {
   expect(
-    canonicalizeSheet(
-      [blankPage, interpretedBmdMultiPagePage1],
-      filenamesReversed
-    ).ok()
+    canonicalizeSheet([blankPage, interpretedBmdPage1], filenamesReversed).ok()
   ).toMatchObject({
     type: 'bmd',
-    interpretation: interpretedBmdMultiPagePage1,
+    interpretation: interpretedBmdPage1,
     filenames,
   });
 });

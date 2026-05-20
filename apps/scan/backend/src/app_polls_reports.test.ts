@@ -19,7 +19,7 @@ import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
-  renderMultiPageBmdBallotFixture,
+  renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { ok } from '@votingworks/basics';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -332,7 +332,7 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
 
       // Render and scan page 1
       const page1Images = await pdfToImageSheet(
-        await renderMultiPageBmdBallotFixture({
+        await renderBmdBallotFixture({
           electionDefinition,
           ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
           precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
@@ -349,7 +349,7 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
 
       // Render and scan page 2
       const page2Images = await pdfToImageSheet(
-        await renderMultiPageBmdBallotFixture({
+        await renderBmdBallotFixture({
           electionDefinition,
           ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
           precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,

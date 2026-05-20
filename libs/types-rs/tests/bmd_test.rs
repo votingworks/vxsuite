@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use proptest::prelude::Strategy;
 use proptest::proptest;
 use types_rs::ballot_card::BallotType;
+use types_rs::bmd::cvr::{CastVoteRecord, PageNumber};
 use types_rs::bmd::encoding::BallotAuditId;
-use types_rs::bmd::multi_page::{MultiPageCastVoteRecord, PageNumber};
 use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
 use types_rs::bmd::PartialBallotHash;
@@ -18,11 +18,11 @@ use crate::common::{arbitrary_ballot_type, arbitrary_contests, simple_election};
 mod common;
 
 #[test]
-fn test_multi_page_round_trip_no_votes() {
+fn test_round_trip_no_votes() {
     let election = simple_election();
     let all_contest_ids: Vec<_> = election.contests.iter().map(|c| c.id().clone()).collect();
 
-    let record = MultiPageCastVoteRecord {
+    let record = CastVoteRecord {
         ballot_hash: [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -36,15 +36,15 @@ fn test_multi_page_round_trip_no_votes() {
     };
 
     let encoded = coding::encode_with(&record, &election).unwrap();
-    let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+    let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
     assert_eq!(decoded, record);
 }
 
 #[test]
-fn test_multi_page_round_trip_empty_votes() {
+fn test_round_trip_empty_votes() {
     let election = simple_election();
 
-    let record = MultiPageCastVoteRecord {
+    let record = CastVoteRecord {
         ballot_hash: [0xaa; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -58,12 +58,12 @@ fn test_multi_page_round_trip_empty_votes() {
     };
 
     let encoded = coding::encode_with(&record, &election).unwrap();
-    let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+    let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
     assert_eq!(decoded, record);
 }
 
 #[test]
-fn test_multi_page_round_trip_with_votes() {
+fn test_round_trip_with_votes() {
     let election = simple_election();
     let candidate_contest = election
         .contests
@@ -74,7 +74,7 @@ fn test_multi_page_round_trip_with_votes() {
         })
         .unwrap();
 
-    let record = MultiPageCastVoteRecord {
+    let record = CastVoteRecord {
         ballot_hash: [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x11, 0x22],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -93,12 +93,12 @@ fn test_multi_page_round_trip_with_votes() {
     };
 
     let encoded = coding::encode_with(&record, &election).unwrap();
-    let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+    let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
     assert_eq!(decoded, record);
 }
 
 #[test]
-fn test_multi_page_round_trip_with_write_in() {
+fn test_round_trip_with_write_in() {
     let election = simple_election();
     let candidate_contest = election
         .contests
@@ -109,7 +109,7 @@ fn test_multi_page_round_trip_with_write_in() {
         })
         .unwrap();
 
-    let record = MultiPageCastVoteRecord {
+    let record = CastVoteRecord {
         ballot_hash: [0xff; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -129,12 +129,12 @@ fn test_multi_page_round_trip_with_write_in() {
     };
 
     let encoded = coding::encode_with(&record, &election).unwrap();
-    let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+    let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
     assert_eq!(decoded, record);
 }
 
 #[test]
-fn test_multi_page_round_trip_yesno_contest() {
+fn test_round_trip_yesno_contest() {
     let election = simple_election();
     let yesno_contest = election
         .contests
@@ -145,7 +145,7 @@ fn test_multi_page_round_trip_yesno_contest() {
         })
         .unwrap();
 
-    let record = MultiPageCastVoteRecord {
+    let record = CastVoteRecord {
         ballot_hash: [0x55; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -162,12 +162,12 @@ fn test_multi_page_round_trip_yesno_contest() {
     };
 
     let encoded = coding::encode_with(&record, &election).unwrap();
-    let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+    let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
     assert_eq!(decoded, record);
 }
 
 #[test]
-fn test_multi_page_partial_contests_on_page() {
+fn test_partial_contests_on_page() {
     let election = simple_election();
     let candidate_contest_id = election
         .contests
@@ -179,7 +179,7 @@ fn test_multi_page_partial_contests_on_page() {
         .unwrap();
 
     // Only one of two contests is on this page
-    let record = MultiPageCastVoteRecord {
+    let record = CastVoteRecord {
         ballot_hash: [0x42; 10],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -193,18 +193,18 @@ fn test_multi_page_partial_contests_on_page() {
     };
 
     let encoded = coding::encode_with(&record, &election).unwrap();
-    let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+    let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
     assert_eq!(decoded, record);
 }
 
 #[test]
-fn test_multi_page_invalid_prelude() {
+fn test_invalid_prelude() {
     let election = simple_election();
     // Data starting with the legacy single-page BMD prelude (VX\x02) is no
     // longer a recognized BMD format.
     let encoded = vec![b'V', b'X', 0x02, 0x00, 0x00, 0x00];
 
-    let result = coding::decode_with::<MultiPageCastVoteRecord>(&encoded, &election);
+    let result = coding::decode_with::<CastVoteRecord>(&encoded, &election);
     assert!(result.is_err());
 }
 
@@ -240,7 +240,7 @@ fn arbitrary_page_number() -> impl Strategy<Value = PageNumber> {
 
 proptest! {
     #[test]
-    fn test_multi_page_round_trip_arbitrary(
+    fn test_round_trip_arbitrary(
         ballot_hash: PartialBallotHash,
         is_test_mode: bool,
         ballot_type in arbitrary_ballot_type(),
@@ -267,7 +267,7 @@ proptest! {
                 HashMap::new()
             };
 
-            let record = MultiPageCastVoteRecord {
+            let record = CastVoteRecord {
                 ballot_hash,
                 ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
                 precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -281,7 +281,7 @@ proptest! {
             };
 
             let encoded = coding::encode_with(&record, &election).unwrap();
-            let decoded: MultiPageCastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
+            let decoded: CastVoteRecord = coding::decode_with(&encoded, &election).unwrap();
             assert_eq!(decoded, record);
         }
     }

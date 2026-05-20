@@ -22,7 +22,7 @@ import {
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
   SummaryBallotPrelude,
-  MultiPageSummaryBallotPrelude,
+  SummaryBallotPrelude,
   WriteInEncoding,
   sliceBallotHashForEncoding,
   encodeBallotConfigInto,
@@ -31,10 +31,10 @@ import {
   decodeSinglePageSummaryBallotConfigFromReader,
   MAXIMUM_PRECINCTS,
   MAXIMUM_BALLOT_STYLES,
-  isMultiPageSummaryBallot,
-  encodeMultiPageSummaryBallotPage,
-  decodeMultiPageSummaryBallotPage,
-  MultiPageSummaryBallotPage,
+  isSummaryBallot,
+  encodeSummaryBallotPage,
+  decodeSummaryBallotPage,
+  SummaryBallotPage,
 } from '.';
 
 const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
@@ -745,14 +745,14 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
 
 test('can detect a multi-page BMD ballot', () => {
   expect(
-    isMultiPageSummaryBallot(Uint8Array.of(...MultiPageSummaryBallotPrelude))
+    isSummaryBallot(Uint8Array.of(...SummaryBallotPrelude))
   ).toEqual(true);
-  expect(isMultiPageSummaryBallot(Uint8Array.of())).toEqual(false);
+  expect(isSummaryBallot(Uint8Array.of())).toEqual(false);
   expect(
-    isMultiPageSummaryBallot(Uint8Array.of(...SummaryBallotPrelude))
+    isSummaryBallot(Uint8Array.of(...SummaryBallotPrelude))
   ).toEqual(false);
   expect(
-    isMultiPageSummaryBallot(Uint8Array.of(0, ...MultiPageSummaryBallotPrelude))
+    isSummaryBallot(Uint8Array.of(0, ...SummaryBallotPrelude))
   ).toEqual(false);
 });
 
@@ -763,7 +763,7 @@ test('multi-page BMD ballot is still detected as VX ballot', () => {
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
 
-  const page: MultiPageSummaryBallotPage = {
+  const page: SummaryBallotPage = {
     ballotHash,
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
@@ -776,7 +776,7 @@ test('multi-page BMD ballot is still detected as VX ballot', () => {
     votes: vote(contests.slice(0, 5), {}),
   };
 
-  const encoded = encodeMultiPageSummaryBallotPage(election, page);
+  const encoded = encodeSummaryBallotPage(election, page);
   expect(isVxBallot(encoded)).toEqual(true);
 });
 
@@ -789,7 +789,7 @@ test('encodes & decodes multi-page BMD ballot with empty votes', () => {
   const pageContests = contests.slice(0, 5); // first 5 contests
   const votes = vote(pageContests, {});
 
-  const page: MultiPageSummaryBallotPage = {
+  const page: SummaryBallotPage = {
     ballotHash,
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
@@ -802,8 +802,8 @@ test('encodes & decodes multi-page BMD ballot with empty votes', () => {
     votes,
   };
 
-  const encoded = encodeMultiPageSummaryBallotPage(election, page);
-  const decoded = decodeMultiPageSummaryBallotPage(electionDefinition, encoded);
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
 
   expect(decoded.metadata.ballotHash).toEqual(
     ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
@@ -831,7 +831,7 @@ test('encodes & decodes multi-page BMD ballot with votes', () => {
     senator: 'weiford',
   });
 
-  const page: MultiPageSummaryBallotPage = {
+  const page: SummaryBallotPage = {
     ballotHash,
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
@@ -844,8 +844,8 @@ test('encodes & decodes multi-page BMD ballot with votes', () => {
     votes,
   };
 
-  const encoded = encodeMultiPageSummaryBallotPage(election, page);
-  const decoded = decodeMultiPageSummaryBallotPage(electionDefinition, encoded);
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
 
   expect(decoded.metadata.isTestMode).toEqual(true);
   expect(decoded.metadata.ballotType).toEqual(BallotType.Absentee);
@@ -871,7 +871,7 @@ test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
     ],
   });
 
-  const page: MultiPageSummaryBallotPage = {
+  const page: SummaryBallotPage = {
     ballotHash,
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
@@ -884,8 +884,8 @@ test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
     votes,
   };
 
-  const encoded = encodeMultiPageSummaryBallotPage(election, page);
-  const decoded = decodeMultiPageSummaryBallotPage(electionDefinition, encoded);
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
 
   expect(decoded.metadata.pageNumber).toEqual(1);
   expect(decoded.metadata.totalPages).toEqual(1);
@@ -901,7 +901,7 @@ test('decode ballot hash from multi-page BMD metadata', () => {
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
 
-  const page: MultiPageSummaryBallotPage = {
+  const page: SummaryBallotPage = {
     ballotHash,
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
@@ -914,7 +914,7 @@ test('decode ballot hash from multi-page BMD metadata', () => {
     votes: vote(contests.slice(0, 3), {}),
   };
 
-  const encoded = encodeMultiPageSummaryBallotPage(election, page);
+  const encoded = encodeSummaryBallotPage(election, page);
   expect(decodeBallotHash(encoded)).toEqual(
     ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
   );

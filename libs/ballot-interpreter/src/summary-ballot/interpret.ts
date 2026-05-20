@@ -1,7 +1,7 @@
 import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import {
-  MultiPageSummaryBallotPageMetadata,
+  SummaryBallotPageMetadata,
   ElectionDefinition,
   SheetOf,
   VotesDict,
@@ -10,7 +10,7 @@ import {
 import {
   BALLOT_HASH_ENCODING_LENGTH,
   decodeBallotHash,
-  decodeMultiPageSummaryBallotPage,
+  decodeSummaryBallotPage,
 } from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
@@ -23,7 +23,7 @@ import { otsu } from './otsu';
  * Interpretation result for a page of a BMD ballot.
  */
 export interface Interpretation {
-  metadata: MultiPageSummaryBallotPageMetadata;
+  metadata: SummaryBallotPageMetadata;
   votes: VotesDict;
   summaryBallotImage: ImageData;
   blankPageImage: ImageData;
@@ -123,7 +123,7 @@ export async function interpret(
 
   const blankPageImage = frontResult.isOk() ? croppedCard[1] : croppedCard[0];
 
-  const decoded = decodeMultiPageSummaryBallotPage(
+  const decoded = decodeSummaryBallotPage(
     electionDefinition,
     foundQrCode.data
   );

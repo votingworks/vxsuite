@@ -103,7 +103,7 @@ const HMPB_PAGE: PageInterpretation = {
 } as unknown as PageInterpretation;
 
 const BMD_PAGE: PageInterpretation = {
-  type: 'InterpretedBmdMultiPagePage',
+  type: 'InterpretedBmdPage',
 } as unknown as PageInterpretation;
 
 const BLANK_PAGE: PageInterpretation = { type: 'BlankPage' };

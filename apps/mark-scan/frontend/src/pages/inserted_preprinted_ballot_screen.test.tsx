@@ -3,6 +3,7 @@ import {
   BallotMetadata,
   BallotStyleId,
   InterpretedBmdPage,
+  SummaryBallotPageMetadata,
   VotesDict,
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -26,7 +27,7 @@ const votes: VotesDict = { contest1: ['yes'], contest2: ['no'] };
 const metadata: Partial<BallotMetadata> = { ballotStyleId, precinctId };
 
 const mockInterpretation = typedAs<Partial<InterpretedBmdPage>>({
-  metadata: metadata as unknown as BallotMetadata,
+  metadata: metadata as unknown as SummaryBallotPageMetadata,
   type: 'InterpretedBmdPage',
   votes,
 }) as unknown as InterpretedBmdPage;

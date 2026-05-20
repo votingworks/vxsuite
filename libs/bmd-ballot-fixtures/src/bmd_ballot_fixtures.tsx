@@ -109,9 +109,6 @@ export async function renderBmdBallotFixture(
   return (await renderToPdf({ document })).unsafeUnwrap();
 }
 
-/** Alias for {@link renderBmdBallotFixture}. */
-export const renderMultiPageBmdBallotFixture = renderBmdBallotFixture;
-
 // Writes the first page of `pdfData` to an image file and returns the filepath.
 // BMD ballots print on one side only. Consider libs/image-utils' `BLANK_PAGE_IMAGE_DATA`
 // for mocking the blank back in testing.
