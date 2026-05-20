@@ -20,7 +20,6 @@ use sha2::{Digest, Sha256};
 use types_rs::{
     ballot_card::BallotType,
     bmd::{
-        cvr::CastVoteRecord,
         encoding::BallotAuditId,
         multi_page::MultiPageCastVoteRecord,
         votes::{CandidateVote, ContestVote},
@@ -118,13 +117,6 @@ fn main() -> color_eyre::Result<()> {
     .ok();
 
     let exit_code = match detected {
-        Some(ref d) if d.kind() == qr_code::QrCodeKind::SummaryBallot => {
-            let cvr = coding::decode_with::<CastVoteRecord>(d.bytes(), &election)
-                .map_err(|e| color_eyre::eyre::eyre!("failed to decode summary ballot: {e}"))?;
-            print_result(&options, &cvr, |cvr| pretty_print_cvr(cvr, &election))?;
-            0
-        }
-
         Some(ref d) if d.kind() == qr_code::QrCodeKind::MultiPageSummaryBallot => {
             let cvr = coding::decode_with::<MultiPageCastVoteRecord>(d.bytes(), &election)
                 .map_err(|e| {
@@ -183,23 +175,6 @@ macro_rules! stringify_vote {
             }
         )
     };
-}
-
-fn pretty_print_cvr(cvr: &CastVoteRecord, election: &Election) {
-    // Ballot metadata
-    println!("{}", "📋 Ballot Information".yellow());
-
-    pretty_print_cvr_header(
-        &cvr.ballot_style_id,
-        &cvr.precinct_id,
-        cvr.ballot_type,
-        cvr.is_test_mode,
-        &cvr.ballot_audit_id,
-    );
-
-    println!();
-
-    pretty_print_contest_votes(&cvr.votes, None, election);
 }
 
 fn pretty_print_multi_page_cvr(cvr: &MultiPageCastVoteRecord, election: &Election) {

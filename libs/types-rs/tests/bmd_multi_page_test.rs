@@ -200,20 +200,9 @@ fn test_multi_page_partial_contests_on_page() {
 #[test]
 fn test_multi_page_invalid_prelude() {
     let election = simple_election();
-    // Data starting with VX\x02 (single-page prelude)
-    let encoded = coding::encode_with(
-        &types_rs::bmd::cvr::CastVoteRecord {
-            ballot_hash: [0; 10],
-            ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
-            precinct_id: election.precincts.first().unwrap().id.clone(),
-            votes: HashMap::new(),
-            is_test_mode: false,
-            ballot_type: BallotType::Precinct,
-            ballot_audit_id: None,
-        },
-        &election,
-    )
-    .unwrap();
+    // Data starting with the legacy single-page BMD prelude (VX\x02) is no
+    // longer a recognized BMD format.
+    let encoded = vec![b'V', b'X', 0x02, 0x00, 0x00, 0x00];
 
     let result = coding::decode_with::<MultiPageCastVoteRecord>(&encoded, &election);
     assert!(result.is_err());

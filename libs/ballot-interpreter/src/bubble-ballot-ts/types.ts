@@ -411,19 +411,6 @@ export type RustContestVote =
   | { type: 'yesNo'; value: string };
 
 /**
- * Rust-decoded single-page CastVoteRecord (VX\x02 prelude).
- */
-export interface RustCastVoteRecord {
-  ballotHash: number[];
-  ballotStyleId: string;
-  precinctId: string;
-  votes: Record<string, RustContestVote>;
-  isTestMode: boolean;
-  ballotType: string;
-  ballotAuditId: string | null;
-}
-
-/**
  * Rust-decoded multi-page CastVoteRecord (VB\x01 prelude).
  */
 export interface RustMultiPageCastVoteRecord {
@@ -442,6 +429,4 @@ export interface RustMultiPageCastVoteRecord {
 /**
  * Result of decoding raw BMD ballot bytes via the Rust decoder.
  */
-export type BridgeDecodeBmdResult =
-  | { type: 'singlePage'; value: RustCastVoteRecord }
-  | { type: 'multiPage'; value: RustMultiPageCastVoteRecord };
+export type BridgeDecodeBmdResult = RustMultiPageCastVoteRecord;
