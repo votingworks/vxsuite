@@ -449,7 +449,7 @@ mod tests {
         let mock_reader = Builder::new()
             .read(&compliance_bytes)
             // This error triggers the loop to exit
-            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .read_error(io::Error::other("Mock error"))
             .build();
 
         let reader = BufReader::new(mock_reader);
@@ -475,7 +475,7 @@ mod tests {
         let mock_reader = Builder::new()
             .read(&oversized_buf)
             // This error triggers the loop to exit
-            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .read_error(io::Error::other("Mock error"))
             .build();
 
         let reader = BufReader::new(mock_reader);
@@ -500,7 +500,7 @@ mod tests {
         let mock_reader = Builder::new()
             .read(&empty_buf)
             // This error triggers the loop to exit
-            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .read_error(io::Error::other("Mock error"))
             .build();
 
         let reader = BufReader::new(mock_reader);
@@ -538,7 +538,7 @@ DCUJR
             .read(&compliance_bytes)
             .read(&valid_aamva)
             // This error triggers the loop to exit
-            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .read_error(io::Error::other("Mock error"))
             .build();
 
         let reader = BufReader::new(mock_reader);
@@ -584,7 +584,7 @@ DCUJR
         let mock_reader = Builder::new()
             .read(&other_barcode_data)
             // This error triggers the loop to exit
-            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .read_error(io::Error::other("Mock error"))
             .build();
 
         let reader = BufReader::new(mock_reader);
