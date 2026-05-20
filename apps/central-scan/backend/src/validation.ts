@@ -60,7 +60,7 @@ export function validateSheetInterpretation([
     return validateSheetInterpretation([back, front]);
   }
 
-  if (front.type === 'InterpretedBmdPage') {
+  if (front.type === 'InterpretedBmdMultiPagePage') {
     return BlankPageTypes.includes(back.type)
       ? ok(undefined)
       : err({
