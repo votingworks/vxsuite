@@ -41,6 +41,8 @@ export const CSV_METADATA_ATTRIBUTE_MULTI_LABEL: Record<
   batch: 'Batches',
 };
 
+const NO_PARTY_LABEL = 'No Party';
+
 /**
  * Separator between values in compound metadata filter columns.
  */
@@ -236,7 +238,7 @@ export function getCsvMetadataRowValues({
     })();
 
     if (Tabulation.isNoPartyId(partyId)) {
-      values.push('No Party');
+      values.push(NO_PARTY_LABEL);
       values.push('');
     } else {
       values.push(
@@ -304,7 +306,7 @@ export function getCsvMetadataRowValues({
         .map((partyId) =>
           Tabulation.isNoPartyId(partyId)
             ? /* istanbul ignore next - TODO: cover in upcoming PR for custom report builder @preserve */
-              'No Party'
+              NO_PARTY_LABEL
             : CachedElectionLookups.getPartyById(electionDefinition, partyId)
                 .name
         )
