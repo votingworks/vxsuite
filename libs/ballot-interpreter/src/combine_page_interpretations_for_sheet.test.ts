@@ -8,7 +8,6 @@ import {
   BallotType,
   HmpbBallotPageMetadata,
   InterpretedBmdPage,
-  InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   SheetInterpretation,
@@ -75,26 +74,6 @@ function mockBmdPage({
   } as unknown as InterpretedBmdPage;
 }
 
-function mockBmdMultiPagePage({
-  requiresAdjudication = false,
-  enabledReasonInfos = [],
-}: {
-  requiresAdjudication?: boolean;
-  enabledReasonInfos?: AdjudicationReasonInfo[];
-} = {}): InterpretedBmdPage {
-  // Just mock the fields needed for combinePageInterpretationsForSheet
-  // (bypassing the type system)
-  return {
-    type: 'InterpretedBmdPage',
-    adjudicationInfo: {
-      requiresAdjudication,
-      enabledReasons: [],
-      enabledReasonInfos,
-      ignoredReasonInfos: [],
-    },
-  } as unknown as InterpretedBmdPage;
-}
-
 const blankPage: PageInterpretation = { type: 'BlankPage' };
 
 test('treats BMD ballot with one blank side as valid', () => {
@@ -121,41 +100,6 @@ test('respects adjudication reasons for a BMD ballot', () => {
     },
   ];
   const printed = mockBmdPage({
-    requiresAdjudication: true,
-    enabledReasonInfos: reasons,
-  });
-  expect(
-    combinePageInterpretationsForSheet([printed, blankPage], election)
-  ).toEqual<SheetInterpretation>({
-    type: 'NeedsReviewSheet',
-    reasons,
-  });
-});
-
-test('treats multi-page BMD ballot with one blank side as valid', () => {
-  const printed = mockBmdMultiPagePage();
-  expect(
-    combinePageInterpretationsForSheet([printed, blankPage], election)
-  ).toEqual<SheetInterpretation>({
-    type: 'ValidSheet',
-  });
-  expect(
-    combinePageInterpretationsForSheet([blankPage, printed], election)
-  ).toEqual<SheetInterpretation>({
-    type: 'ValidSheet',
-  });
-});
-
-test('respects adjudication reasons for a multi-page BMD ballot', () => {
-  const reasons: AdjudicationReasonInfo[] = [
-    {
-      type: AdjudicationReason.Undervote,
-      contestId: 'contest-1',
-      expected: 1,
-      optionIds: [],
-    },
-  ];
-  const printed = mockBmdMultiPagePage({
     requiresAdjudication: true,
     enabledReasonInfos: reasons,
   });

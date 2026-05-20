@@ -21,6 +21,10 @@ function createMockInterpretation(spec: {
       ballotStyleId: '5',
       precinctId: '21',
       isTestMode: spec.isTestModeBallot,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'validation-test-audit-id',
+      contestIds: [],
     },
     votes: {},
     adjudicationInfo: {

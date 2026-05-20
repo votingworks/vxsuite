@@ -286,6 +286,7 @@ export function BmdPaperBallot(
         },
       }}
       {...rest}
+      contestsForPage={contests}
       votes={filteredVotes}
       sheetSize="custom8x13pt25"
     />

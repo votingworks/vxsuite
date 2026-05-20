@@ -82,6 +82,14 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
+// Ballots embed a `ballotAuditId` (a random UUID) in their QR code. Pin it so
+// printed-ballot PDF snapshots are deterministic.
+vi.mock('node:crypto', async (importActual) => ({
+  ...(await importActual<typeof import('node:crypto')>()),
+  // eslint-disable-next-line vx/gts-identifiers
+  randomUUID: () => '00000000-0000-0000-0000-000000000000',
+}));
+
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;

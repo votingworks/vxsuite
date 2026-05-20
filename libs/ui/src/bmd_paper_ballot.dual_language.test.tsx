@@ -181,7 +181,7 @@ describe('non-English ballot style', () => {
         pageNumber={1}
         totalPages={1}
         ballotAuditId="test-audit-id"
-        contestsForPage={contests}
+        contestsForPage={[contest]}
       />
     );
 
@@ -233,7 +233,7 @@ describe('non-English ballot style', () => {
         pageNumber={1}
         totalPages={1}
         ballotAuditId="test-audit-id"
-        contestsForPage={contests}
+        contestsForPage={[contest]}
       />
     );
 
@@ -262,7 +262,7 @@ describe('non-English ballot style', () => {
         pageNumber={1}
         totalPages={1}
         ballotAuditId="test-audit-id"
-        contestsForPage={contests}
+        contestsForPage={[contest]}
       />
     );
 
@@ -300,7 +300,7 @@ describe('non-English ballot style', () => {
         pageNumber={1}
         totalPages={1}
         ballotAuditId="test-audit-id"
-        contestsForPage={contests}
+        contestsForPage={[contest]}
       />
     );
 

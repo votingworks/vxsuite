@@ -2,11 +2,26 @@
 
 exports[`happy path: back, front 1`] = `
 {
-  "ballotHash": "db2d42ac1ae847887462",
-  "ballotStyleId": "1-4",
-  "ballotType": "precinct",
-  "isTestMode": true,
-  "precinctId": "23",
+  "metadata": {
+    "ballotAuditId": "fixture-audit-id",
+    "ballotHash": "5656d8947a0baa7da239",
+    "ballotStyleId": "1-4",
+    "ballotType": "precinct",
+    "contestIds": [
+      "mayor",
+      "controller",
+      "attorney",
+      "public-works-director",
+      "chief-of-police",
+      "parks-and-recreation-director",
+      "board-of-alderman",
+      "city-council",
+    ],
+    "isTestMode": true,
+    "pageNumber": 1,
+    "precinctId": "23",
+    "totalPages": 1,
+  },
   "votes": {
     "attorney": [
       {
@@ -129,11 +144,26 @@ exports[`happy path: back, front 1`] = `
 
 exports[`happy path: back, front upside down 1`] = `
 {
-  "ballotHash": "db2d42ac1ae847887462",
-  "ballotStyleId": "1-4",
-  "ballotType": "precinct",
-  "isTestMode": true,
-  "precinctId": "23",
+  "metadata": {
+    "ballotAuditId": "fixture-audit-id",
+    "ballotHash": "5656d8947a0baa7da239",
+    "ballotStyleId": "1-4",
+    "ballotType": "precinct",
+    "contestIds": [
+      "mayor",
+      "controller",
+      "attorney",
+      "public-works-director",
+      "chief-of-police",
+      "parks-and-recreation-director",
+      "board-of-alderman",
+      "city-council",
+    ],
+    "isTestMode": true,
+    "pageNumber": 1,
+    "precinctId": "23",
+    "totalPages": 1,
+  },
   "votes": {
     "attorney": [
       {
@@ -256,11 +286,26 @@ exports[`happy path: back, front upside down 1`] = `
 
 exports[`happy path: front upside down, back 1`] = `
 {
-  "ballotHash": "db2d42ac1ae847887462",
-  "ballotStyleId": "1-4",
-  "ballotType": "precinct",
-  "isTestMode": true,
-  "precinctId": "23",
+  "metadata": {
+    "ballotAuditId": "fixture-audit-id",
+    "ballotHash": "5656d8947a0baa7da239",
+    "ballotStyleId": "1-4",
+    "ballotType": "precinct",
+    "contestIds": [
+      "mayor",
+      "controller",
+      "attorney",
+      "public-works-director",
+      "chief-of-police",
+      "parks-and-recreation-director",
+      "board-of-alderman",
+      "city-council",
+    ],
+    "isTestMode": true,
+    "pageNumber": 1,
+    "precinctId": "23",
+    "totalPages": 1,
+  },
   "votes": {
     "attorney": [
       {
@@ -383,11 +428,26 @@ exports[`happy path: front upside down, back 1`] = `
 
 exports[`happy path: front, back 1`] = `
 {
-  "ballotHash": "db2d42ac1ae847887462",
-  "ballotStyleId": "1-4",
-  "ballotType": "precinct",
-  "isTestMode": true,
-  "precinctId": "23",
+  "metadata": {
+    "ballotAuditId": "fixture-audit-id",
+    "ballotHash": "5656d8947a0baa7da239",
+    "ballotStyleId": "1-4",
+    "ballotType": "precinct",
+    "contestIds": [
+      "mayor",
+      "controller",
+      "attorney",
+      "public-works-director",
+      "chief-of-police",
+      "parks-and-recreation-director",
+      "board-of-alderman",
+      "city-council",
+    ],
+    "isTestMode": true,
+    "pageNumber": 1,
+    "precinctId": "23",
+    "totalPages": 1,
+  },
   "votes": {
     "attorney": [
       {

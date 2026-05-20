@@ -747,8 +747,6 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
 
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
-    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage') ||
-    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (frontType === 'BlankPage' && backType === 'InterpretedBmdPage')
   ) {
     return 0;

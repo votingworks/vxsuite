@@ -16,8 +16,8 @@ import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import {
   fishCouncilContest,
   fishingContest,
-  interpretedBmdMultiPagePage1,
-  interpretedBmdMultiPagePage2,
+  interpretedBmdPage1,
+  interpretedBmdPage2,
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage1WithUnmarkedWriteIn,
@@ -465,7 +465,9 @@ test('buildCastVoteRecord - BMD ballot', () => {
     CreatingDeviceId: scannerId,
     ElectionId: electionId,
     BatchId: batchId,
-    BallotAuditId: ballotAuditId,
+    // BallotAuditId comes from the per-page metadata for the unified BMD shape.
+    BallotAuditId: interpretedBmdPage.metadata.ballotAuditId,
+    BallotSheetId: interpretedBmdPage.metadata.pageNumber.toString(),
     BatchSequenceId: undefined,
     UniqueId: castVoteRecordId,
   });
@@ -490,19 +492,19 @@ test('buildCastVoteRecord - multi-page BMD ballot page 1', () => {
     batchId,
     ballotAuditId,
     ballotMarkingMode: 'machine',
-    interpretation: interpretedBmdMultiPagePage1,
+    interpretation: interpretedBmdPage1,
   });
 
   // Check metadata
   expect(castVoteRecord).toMatchObject({
-    BallotStyleId: interpretedBmdMultiPagePage1.metadata.ballotStyleId,
-    BallotStyleUnitId: interpretedBmdMultiPagePage1.metadata.precinctId,
+    BallotStyleId: interpretedBmdPage1.metadata.ballotStyleId,
+    BallotStyleUnitId: interpretedBmdPage1.metadata.precinctId,
     PartyIds: ['1'],
     CreatingDeviceId: scannerId,
     ElectionId: electionId,
     BatchId: batchId,
     // BallotAuditId should come from the interpretation metadata for multi-page BMD
-    BallotAuditId: interpretedBmdMultiPagePage1.metadata.ballotAuditId,
+    BallotAuditId: interpretedBmdPage1.metadata.ballotAuditId,
     // BallotSheetId should be the page number
     BallotSheetId: '1',
     UniqueId: castVoteRecordId,
@@ -532,15 +534,15 @@ test('buildCastVoteRecord - multi-page BMD ballot page 2', () => {
     batchId,
     ballotAuditId,
     ballotMarkingMode: 'machine',
-    interpretation: interpretedBmdMultiPagePage2,
+    interpretation: interpretedBmdPage2,
   });
 
   // Check metadata
   expect(castVoteRecord).toMatchObject({
-    BallotStyleId: interpretedBmdMultiPagePage2.metadata.ballotStyleId,
-    BallotStyleUnitId: interpretedBmdMultiPagePage2.metadata.precinctId,
+    BallotStyleId: interpretedBmdPage2.metadata.ballotStyleId,
+    BallotStyleUnitId: interpretedBmdPage2.metadata.precinctId,
     // BallotAuditId should come from the interpretation metadata for multi-page BMD
-    BallotAuditId: interpretedBmdMultiPagePage2.metadata.ballotAuditId,
+    BallotAuditId: interpretedBmdPage2.metadata.ballotAuditId,
     // BallotSheetId should be the page number
     BallotSheetId: '2',
     UniqueId: castVoteRecordId,
@@ -585,7 +587,9 @@ test('buildCastVoteRecord - BMD ballot images', () => {
       },
     ],
   });
-  expect(castVoteRecordWithImageReferences.BallotAuditId).toBeUndefined();
+  expect(castVoteRecordWithImageReferences.BallotAuditId).toEqual(
+    interpretedBmdPage.metadata.ballotAuditId
+  );
   expect(castVoteRecordWithImageReferences.BallotImage).toEqual([
     {
       '@type': 'CVR.ImageData',

@@ -1,6 +1,5 @@
 import {
   InterpretedBmdPage,
-  InterpretedBmdPage,
   InterpretedHmpbPage,
   InvalidPrecinctPage,
   InvalidTestModePage,
@@ -10,7 +9,6 @@ import {
 import { InterpreterOptions } from './types';
 
 type PageInterpretationWithMetadata =
-  | InterpretedBmdPage
   | InterpretedBmdPage
   | InterpretedHmpbPage
   | InvalidTestModePage

@@ -3,7 +3,6 @@ import {
   AdjudicationReasonInfo,
   Election,
   InterpretedBmdPage,
-  InterpretedBmdPage,
   InvalidBallotHashPage,
   PageInterpretation,
   SheetInterpretation,
@@ -19,27 +18,7 @@ export function combinePageInterpretationsForSheet(
   const frontType = front.type;
   const backType = back.type;
 
-  // Exactly one side can be printed on a BMD ballot (single-page).
-  if (
-    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
-    (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
-  ) {
-    /* istanbul ignore next */
-    const interpretation = (
-      front.type === 'InterpretedBmdPage' ? front : back
-    ) as InterpretedBmdPage;
-
-    if (interpretation.adjudicationInfo.requiresAdjudication) {
-      return {
-        type: 'NeedsReviewSheet',
-        reasons: [...interpretation.adjudicationInfo.enabledReasonInfos],
-      };
-    }
-
-    return { type: 'ValidSheet' };
-  }
-
-  // Multi-page BMD ballot (one page of a multi-page ballot).
+  // Exactly one side can be printed on a BMD ballot sheet
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
