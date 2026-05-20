@@ -519,10 +519,11 @@ test('manual results APIs reject reads/writes for open primary elections', async
     })
   ).rejects.toThrow();
 
-  // Reads: assert too — nothing should be reading manual data on open
-  // primary since the UI is hidden and the tabulation paths short-circuit.
+  // getManualResults is used on the manual tallies form, which is hidden
   await expect(apiClient.getManualResults(identifier)).rejects.toThrow();
-  await expect(apiClient.getManualResultsMetadata()).rejects.toThrow();
+  // getManualResultsMetadata is used in a few places to see if manual results
+  // exist or not, so we leave that enabled.
+  expect(await apiClient.getManualResultsMetadata()).toEqual([]);
 
   // Deletes are no-ops (no data exists to delete), so they succeed silently.
   await expect(
