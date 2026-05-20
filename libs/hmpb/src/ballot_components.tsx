@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import React from 'react';
 import {
   BALLOT_HASH_DISPLAY_LENGTH,
-  BallotMode,
   BallotStyle,
   BallotStyleId,
   Election,
@@ -111,16 +110,15 @@ export function timingMarkCounts(pageDimensions: InchDimensions): {
 export function TimingMarkGrid({
   pageDimensions,
   children,
-  ballotMode,
+  hideTimingMarks,
   timingMarkStyle,
 }: {
   pageDimensions: InchDimensions;
   children: React.ReactNode;
-  ballotMode: BallotMode;
+  hideTimingMarks?: boolean;
   timingMarkStyle?: React.CSSProperties;
 }): JSX.Element {
   const markCounts = timingMarkCounts(pageDimensions);
-  const hideTimingMarks = ballotMode === 'sample';
 
   function TimingMarkRow() {
     return (
