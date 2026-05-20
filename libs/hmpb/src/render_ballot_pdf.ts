@@ -6,6 +6,7 @@ import { createPlaywrightRenderer } from './playwright_renderer';
 import {
   BallotTemplateId,
   ballotTemplates,
+  NhGeneralBallotProps,
   NhPrimaryBallotProps,
 } from './ballot_templates';
 import { renderBallotPreviewToPdf } from './render_ballot';
@@ -168,6 +169,7 @@ export async function main(): Promise<number> {
 
   const renderer = await createPlaywrightRenderer();
   for (const spec of ballotSpecs) {
+    console.log('Rendering', spec.outputPdfPath);
     let { election } = (await readElection(spec.electionPath)).unsafeUnwrap();
     if (spec.paperSize) {
       election = {
@@ -216,5 +218,3 @@ export async function main(): Promise<number> {
 
   return 0;
 }
-
-void main().then((code) => process.exit(code));

@@ -107,7 +107,7 @@ export function Header({
           flexDirection: 'column',
           justifyContent: 'space-evenly',
           alignSelf: 'stretch',
-          padding: '0 2.5rem',
+          padding: '0 0.5rem',
         }}
       >
         <h5 style={{ visibility: isFederalOnlyOffices ? 'visible' : 'hidden' }}>
@@ -124,7 +124,11 @@ export function Header({
         <h1 style={{ fontSize: '18pt' }}>
           {electionStrings.countyName(election.county)}
         </h1>
-        <h3>{electionStrings.electionTitle(election)}</h3>
+        <h3>
+          {isFederalOnlyOffices
+            ? 'Federal General Election'
+            : electionStrings.electionTitle(election)}
+        </h3>
         <h3>{electionStrings.electionDate(election)}</h3>
       </div>
       {ballotMode === 'sample' ? (

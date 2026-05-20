@@ -139,9 +139,7 @@ function Header({
           {<h1>{electionStrings.partyName(party)}</h1>}
         </div>
         <h5 style={{ lineHeight: 1 }}>
-          {isFederalOnlyOffices ? 'Federal' : 'State'} Primary
-          <br />
-          Election
+          {isFederalOnlyOffices ? 'Federal' : 'State'} Primary Election
         </h5>
         <h5>{electionStrings.electionDate(election)}</h5>
       </div>
