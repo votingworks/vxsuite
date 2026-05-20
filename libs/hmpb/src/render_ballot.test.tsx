@@ -38,6 +38,8 @@ import {
   miClosedPrimaryElectionFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
+  nhStateGeneralElectionFixtures,
+  nhStatePrimaryElectionFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
 } from './ballot_fixtures';
@@ -222,21 +224,30 @@ test('ballot measure contests with additional options are transformed into candi
   ]);
 });
 
-const templateSpecificTestProps: Record<BallotTemplateId, BaseBallotProps> = {
-  VxDefaultBallot: vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
-  NhBallot: nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
-  MsBallot: msGeneralElectionFixtures.allBallotProps[0],
-  MiBallot: miClosedPrimaryElectionFixtures.allBallotProps[0],
+const templateSpecificTestProps: Record<BallotTemplateId, BaseBallotProps[]> = {
+  VxDefaultBallot: [
+    vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
+  ],
+  NhBallot: [nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0]],
+  NhStateBallot: [
+    nhStateGeneralElectionFixtures.allBallotProps[0],
+    nhStatePrimaryElectionFixtures.allBallotProps[0],
+  ],
+  MsBallot: [msGeneralElectionFixtures.allBallotProps[0]],
+  MiBallot: [miClosedPrimaryElectionFixtures.allBallotProps[0]],
 };
-const templateSpecificTestCases = Object.entries(templateSpecificTestProps).map(
-  ([templateName, ballotProps]) => ({
+const templateSpecificTestCases = Object.entries(
+  templateSpecificTestProps
+).flatMap(([templateName, props]) =>
+  props.map((ballotProps, index) => ({
     templateName: templateName as BallotTemplateId,
     ballotProps,
-  })
+    index: index + 1,
+  }))
 );
 
 test.each(templateSpecificTestCases)(
-  "returns contestTooLong error if contest doesn't fit on page - $templateName",
+  "returns contestTooLong error if contest doesn't fit on page - $templateName ($index)",
   async ({ templateName, ballotProps }) => {
     const { election, ballotStyleId } = ballotProps;
     const ballotStyle = assertDefined(
@@ -272,7 +283,7 @@ test.each(templateSpecificTestCases)(
 );
 
 test.each(templateSpecificTestCases)(
-  'contest options are encoded correctly - $templateName',
+  'contest options are encoded correctly - $templateName ($index)',
   async ({ templateName, ballotProps }) => {
     const template = ballotTemplates[templateName];
     const content = await rendererPool.runTask(async (renderer) => {
