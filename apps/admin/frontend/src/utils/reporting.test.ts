@@ -127,6 +127,17 @@ test('generateBallotCountReportPdfFilename', () => {
       expectedFilename:
         'TEST-unofficial-write-in-ballot-count-report__2023-12-09_15-59-32.pdf',
     },
+    {
+      // No Party filter combined with two other dimensions: should be
+      // treated as a 3-dimension custom filter, not under-counted as 2.
+      filter: {
+        partyIds: [Tabulation.NO_PARTY_ID],
+        precinctIds: ['precinct-1'],
+        votingMethods: ['absentee'],
+      },
+      expectedFilename:
+        'unofficial-custom-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
   ];
 
   for (const testCase of testCases) {

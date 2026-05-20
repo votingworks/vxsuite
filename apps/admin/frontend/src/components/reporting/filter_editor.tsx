@@ -4,7 +4,7 @@ import {
   typedAs,
   unique,
 } from '@votingworks/basics';
-import { Admin, Election, Tabulation } from '@votingworks/types';
+import { Admin, Election, isOpenPrimary, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -85,6 +85,8 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   district: 'District',
 };
 
+const NO_PARTY_FILTER_VALUE = '__NO_PARTY_FILTER__';
+
 function getFilterTypeOption(filterType: FilterType): SelectOption<FilterType> {
   return {
     value: filterType,
@@ -115,11 +117,21 @@ function generateOptionsForFilter({
         })
       );
     }
-    case 'party':
-      return getPartiesWithPrimaryElections(election).map((party) => ({
-        value: party.id,
-        label: party.name,
-      }));
+    case 'party': {
+      const partyOptions = getPartiesWithPrimaryElections(election).map(
+        (party) => ({
+          value: party.id,
+          label: party.name,
+        })
+      );
+      if (isOpenPrimary(election)) {
+        partyOptions.push({
+          value: NO_PARTY_FILTER_VALUE,
+          label: 'No Party',
+        });
+      }
+      return partyOptions;
+    }
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
         ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
@@ -190,7 +202,9 @@ function convertFilterRowsToTabulationFilter(
         filter.ballotStyleGroupIds = filterValues;
         break;
       case 'party':
-        filter.partyIds = filterValues;
+        filter.partyIds = filterValues.map((value) =>
+          value === NO_PARTY_FILTER_VALUE ? Tabulation.NO_PARTY_ID : value
+        );
         break;
       case 'scanner':
         filter.scannerIds = filterValues;

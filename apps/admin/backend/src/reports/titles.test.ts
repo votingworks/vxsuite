@@ -1,6 +1,9 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import { generateTitleForReport } from './titles';
 import { ScannerBatch } from '../types';
@@ -52,6 +55,9 @@ test('generateTitleForReport', () => {
     },
     {
       partyIds: ['0', '1'],
+    },
+    {
+      partyIds: ['0', Tabulation.NO_PARTY_ID],
     },
     {
       precinctIds: ['precinct-1'],
@@ -204,4 +210,23 @@ test('generateTitleForReport', () => {
       })
     ).toEqual(ok(title));
   }
+
+  const openPrimaryElectionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  expect(
+    generateTitleForReport({
+      filter: { partyIds: [Tabulation.NO_PARTY_ID] },
+      electionDefinition: openPrimaryElectionDefinition,
+      scannerBatches: MOCK_SCANNER_BATCHES,
+      reportType: 'Ballot Count',
+    })
+  ).toEqual(ok('Ballot Count Report • No Party'));
+  expect(
+    generateTitleForReport({
+      filter: { partyIds: ['democratic-party'] },
+      electionDefinition: openPrimaryElectionDefinition,
+      scannerBatches: MOCK_SCANNER_BATCHES,
+      reportType: 'Ballot Count',
+    })
+  ).toEqual(ok('Ballot Count Report • Democratic Party'));
 });

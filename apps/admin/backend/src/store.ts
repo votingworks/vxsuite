@@ -13,6 +13,7 @@ import {
   DateWithoutTime,
   assertDefined,
   unique,
+  deepEqual,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
@@ -758,8 +759,8 @@ export class Store implements BaseStore {
       );
       params.push(...filter.ballotStyleGroupIds);
     }
-    if (filter.partyIds) {
-      assert(!isOpenPrimary(election));
+    // Open primaries handled below
+    if (filter.partyIds && !isOpenPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -843,13 +844,17 @@ export class Store implements BaseStore {
     // Instead, each CVR's party is inferred from its votes. So we need to
     // manually create group specifiers for each party.
     if (isOpenPrimary(election) && groupBy.groupByParty) {
-      const partyIds = unique(
-        partisanContests(election).map((contest) => contest.partyId)
+      const partyIds = [
+        ...unique(partisanContests(election).map((contest) => contest.partyId)),
+        Tabulation.NO_PARTY_ID,
+      ].filter(
+        (partyId) =>
+          !filter.partyIds ||
+          filter.partyIds.some((id) => deepEqual(id, partyId))
       );
-      return groups.flatMap((group) => [
-        ...partyIds.map((partyId) => ({ ...group, partyId })),
-        { ...group, partyId: Tabulation.NO_PARTY_ID },
-      ]);
+      return groups.flatMap((group) =>
+        partyIds.map((partyId) => ({ ...group, partyId }))
+      );
     }
     return groups;
   }
@@ -1677,7 +1682,7 @@ export class Store implements BaseStore {
   }): Generator<Tabulation.GroupOf<CardTally>> {
     // In open primaries, we have to infer a CVR's party from its votes,
     // which we can't do via the db, so we divert and do the counting in JS.
-    if (isOpenPrimary(election) && groupBy.groupByParty) {
+    if (isOpenPrimary(election) && (groupBy.groupByParty || filter.partyIds)) {
       yield* this.getOpenPrimaryCardTallies({
         electionId,
         election,
@@ -1801,7 +1806,7 @@ export class Store implements BaseStore {
     filter: Admin.ReportingFilter;
     groupBy: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<CardTally>> {
-    assert(groupBy.groupByParty);
+    assert(groupBy.groupByParty || filter.partyIds);
     const batchDatesByBatchId = groupBy.groupByBatchDate
       ? new Map(
           (
@@ -1819,16 +1824,23 @@ export class Store implements BaseStore {
 
     const aggregator = new Map<string, Tabulation.GroupOf<CardTally>>();
 
+    // Don't pass partyIds filter to getCastVoteRecords (since that would try to
+    // filter on ballot_style.party_id)
+    const { partyIds, ...restFilter } = filter;
+
     for (const cvr of this.getCastVoteRecords({
       electionId,
       election,
-      filter,
+      filter: restFilter,
     })) {
+      if (partyIds && !partyIds.some((id) => deepEqual(id, cvr.partyId))) {
+        continue;
+      }
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? cvr.ballotStyleGroupId
           : undefined,
-        partyId: cvr.partyId,
+        partyId: groupBy.groupByParty ? cvr.partyId : undefined,
         batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
         batchDate: groupBy.groupByBatchDate
           ? assertDefined(assertDefined(batchDatesByBatchId).get(cvr.batchId))
@@ -2921,8 +2933,7 @@ export class Store implements BaseStore {
       params.push(...precinctIds);
     }
 
-    if (partyIds) {
-      assert(!isOpenPrimary(election));
+    if (partyIds && !isOpenPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(partyIds)}`
