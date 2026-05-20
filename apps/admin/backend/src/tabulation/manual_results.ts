@@ -117,6 +117,7 @@ export function tabulateManualResults({
   } = assertDefined(store.getElection(electionId));
 
   const manualResultsRecords = store.getManualResults({
+    election,
     electionId,
     filter,
   });
@@ -155,6 +156,7 @@ export function tabulateManualBallotCounts({
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
   const manualResultsMetadataRecords = store.getManualResultsMetadata({
+    election,
     electionId,
     filter,
   });

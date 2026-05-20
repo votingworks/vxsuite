@@ -5,6 +5,7 @@ import {
   readElectionOpenPrimary,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
+import { Tabulation } from '@votingworks/types';
 import {
   hasCrossoverVote,
   inferPartyFromVotes,
@@ -186,32 +187,15 @@ describe('hasCrossoverVote', () => {
 });
 
 describe('inferPartyFromVotes', () => {
-  test('undefined for general election', () => {
-    const candidateContest = generalElection.contests.find(
-      (c): c is CandidateContest => c.type === 'candidate'
-    )!;
-    expect(
-      inferPartyFromVotes(generalElection, {
-        [candidateContest.id]: [candidateContest.candidates[0]!.id],
-      })
-    ).toBeUndefined();
-  });
-
-  test('undefined for closed primary', () => {
-    expect(
-      inferPartyFromVotes(closedPrimary, {
-        'best-animal-mammal': ['horse'],
-      })
-    ).toBeUndefined();
-  });
-
-  test('undefined for open primary with no partisan votes', () => {
-    expect(inferPartyFromVotes(openPrimary, {})).toBeUndefined();
+  test('NO_PARTY_ID for open primary with no partisan votes', () => {
+    expect(inferPartyFromVotes(openPrimary, {})).toEqual(
+      Tabulation.NO_PARTY_ID
+    );
     expect(
       inferPartyFromVotes(openPrimary, {
         [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
       })
-    ).toBeUndefined();
+    ).toEqual(Tabulation.NO_PARTY_ID);
   });
 
   test('returns party for open primary single-party votes', () => {
@@ -222,12 +206,12 @@ describe('inferPartyFromVotes', () => {
     ).toEqual(democraticPartyId);
   });
 
-  test('undefined for open primary crossover votes', () => {
+  test('NO_PARTY_ID for open primary crossover votes', () => {
     expect(
       inferPartyFromVotes(openPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
         [republicanContest.id]: [republicanContest.candidates[0]!.id],
       })
-    ).toBeUndefined();
+    ).toEqual(Tabulation.NO_PARTY_ID);
   });
 });

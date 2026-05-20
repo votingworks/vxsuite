@@ -1,4 +1,4 @@
-import { Admin, Id, Tabulation } from '@votingworks/types';
+import { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -21,16 +21,19 @@ function addContestIdsToReports<U>({
   reports,
   overallFilter,
   store,
+  election,
   electionId,
 }: {
   reports: Tabulation.GroupList<U>;
   overallFilter: Tabulation.Filter;
   store: Store;
+  election: Election;
   electionId: Id;
 }): Tabulation.GroupList<U & { contestIds: Id[] }> {
   return reports.map((report) => {
     const contestIds = store.getFilteredContests({
       electionId,
+      election,
       filter: combineGroupSpecifierAndFilter(report, overallFilter),
     });
     return {
@@ -116,6 +119,7 @@ export async function tabulateTallyReportResults(params: {
       reports: allSingleTallyReportResultsWithoutContestIds,
       overallFilter: filter,
       store,
+      election,
       electionId,
     });
   }
@@ -153,10 +157,11 @@ export async function tabulateTallyReportResults(params: {
       // maintain split for card counts
       const cardCountsByParty: Admin.CardCountsByParty = reportsByParty.reduce(
         (ccByParty, partyTallyReportResults) => {
+          assert(partyTallyReportResults.partyId !== undefined);
           // In open primaries, CVRs have a partyId inferred from votes, and it
-          // may be undefined if there were no partisan contest votes. These
+          // may be NO_PARTY_ID if there were no partisan contest votes. These
           // nonpartisan-voted CVRs are excluded from cardCountsByParty.
-          if (partyTallyReportResults.partyId === undefined) {
+          if (Tabulation.isNoPartyId(partyTallyReportResults.partyId)) {
             return ccByParty;
           }
           return {
@@ -181,6 +186,7 @@ export async function tabulateTallyReportResults(params: {
     reports: allPartySplitReportResultsWithoutContestIds,
     overallFilter: filter,
     store,
+    election,
     electionId,
   });
 }

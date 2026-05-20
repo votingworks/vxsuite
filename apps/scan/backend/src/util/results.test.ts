@@ -11,11 +11,13 @@ import {
   BallotType,
   CandidateContest,
   PartyId,
+  Tabulation,
   TEST_JURISDICTION,
   PageInterpretation,
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
+import { deepEqual } from '@votingworks/basics';
 import { Store } from '../store';
 import { makeHmpbSheet } from '../../test/helpers/shared_helpers';
 import {
@@ -207,15 +209,15 @@ test('getScannerResults groups by inferred party for an open primary', async () 
 
   const results = await getScannerResultsMemoized({ store });
 
-  function findGroup(partyId?: PartyId) {
-    return results.find((r) => r.partyId === partyId);
+  function findGroup(partyId: PartyId | Tabulation.NoPartyId) {
+    return results.find((r) => deepEqual(r.partyId, partyId));
   }
   expect(findGroup(democraticPartyId)?.cardCounts.hmpb[0]).toEqual(2);
   expect(findGroup(republicanPartyId)?.cardCounts.hmpb[0]).toEqual(1);
-  // Crossover and nonpartisan-only ballots end up in a group with no partyId.
+  // Crossover and nonpartisan-only ballots end up in the NO_PARTY_ID group.
   // Crossover ballots' partisan votes are voided, but their nonpartisan votes
   // count — both ballots' yes vote on the nonpartisan contest tally here.
-  const noPartyGroup = findGroup(undefined);
+  const noPartyGroup = findGroup(Tabulation.NO_PARTY_ID);
   expect(noPartyGroup?.cardCounts.hmpb[0]).toEqual(2);
   expect(noPartyGroup?.contestResults[nonpartisanContest.id]).toMatchObject({
     ballots: 2,

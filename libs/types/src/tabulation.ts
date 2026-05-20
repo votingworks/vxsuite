@@ -7,6 +7,7 @@ import {
   CandidateId,
   ContestId,
   ContestOptionId,
+  PartyId,
   PrecinctId,
 } from './election';
 import { Id } from './generic';
@@ -61,6 +62,22 @@ export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
 };
 
 /**
+ * Type-safe sentinel value for grouping/filtering "No Party" ballots in open primaries.
+ * */
+export const NO_PARTY_ID = { noParty: true } as const;
+/**
+ * Type of {@link NO_PARTY_ID}, the type-safe sentinel value for
+ * grouping/filtering "No Party" ballots in open primaries.
+ */
+export type NoPartyId = typeof NO_PARTY_ID;
+/**
+ * Type guard for {@link NO_PARTY_ID}.
+ */
+export function isNoPartyId(value: PartyId | NoPartyId): value is NoPartyId {
+  return typeof value === 'object';
+}
+
+/**
  * Indicates what cast vote records to include when calculating results.
  * Omission of a filter attribute indicates *not* filtering on it at all.
  * So an empty `Filter` of `{}` would indicate including all cast
@@ -68,7 +85,7 @@ export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
  */
 export interface Filter {
   readonly ballotStyleGroupIds?: BallotStyleGroupId[];
-  readonly partyIds?: Id[];
+  readonly partyIds?: Array<PartyId | NoPartyId>;
   readonly precinctIds?: PrecinctId[];
   readonly votingMethods?: VotingMethod[];
   readonly batchIds?: Id[];
@@ -84,7 +101,7 @@ export interface CastVoteRecordAttributes {
   readonly votingMethod: VotingMethod;
   readonly batchId: Id;
   readonly scannerId: Id;
-  readonly partyId?: Id;
+  readonly partyId?: PartyId | NoPartyId;
   readonly ballotCastingMode?: BallotCastingMode;
   readonly batchDate?: string;
 }

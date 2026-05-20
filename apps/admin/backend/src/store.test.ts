@@ -304,11 +304,12 @@ test('manual results', () => {
     votingMethod,
     manualResults,
   });
-  expect(store.getManualResults({ electionId })).toMatchObject([
+  expect(store.getManualResults({ election, electionId })).toMatchObject([
     { precinctId, ballotStyleGroupId, votingMethod, manualResults },
   ]);
   expect(
     store.getManualResults({
+      election,
       electionId,
       filter: {
         precinctIds: [precinctId],
@@ -333,7 +334,7 @@ test('manual results', () => {
     votingMethod,
     manualResults: editedManualResults,
   });
-  expect(store.getManualResults({ electionId })).toMatchObject([
+  expect(store.getManualResults({ election, electionId })).toMatchObject([
     {
       precinctId,
       ballotStyleGroupId,
@@ -361,7 +362,7 @@ test('manual results', () => {
     votingMethod,
     manualResults: noWriteInManualResults,
   });
-  expect(store.getManualResults({ electionId })).toMatchObject([
+  expect(store.getManualResults({ election, electionId })).toMatchObject([
     {
       precinctId,
       ballotStyleGroupId,
@@ -373,13 +374,13 @@ test('manual results', () => {
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(0);
 
   store.deleteAllManualResults({ electionId });
-  expect(store.getManualResults({ electionId })).toEqual([]);
+  expect(store.getManualResults({ election, electionId })).toEqual([]);
 });
 
 test('manual results - early_voting is a valid votingMethod', () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { electionData } = electionDefinition;
+  const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
@@ -413,6 +414,7 @@ test('manual results - early_voting is a valid votingMethod', () => {
 
   expect(
     store.getManualResults({
+      election,
       electionId,
       filter: { votingMethods: ['precinct'] },
     })
@@ -422,6 +424,7 @@ test('manual results - early_voting is a valid votingMethod', () => {
 
   expect(
     store.getManualResults({
+      election,
       electionId,
       filter: { votingMethods: ['early_voting'] },
     })
@@ -658,7 +661,7 @@ describe('getFilteredContests', () => {
 
   test('no filter', () => {
     expectArrayMatch(
-      store.getFilteredContests({ electionId }),
+      store.getFilteredContests({ election, electionId }),
       election.contests.map((c) => c.id)
     );
   });
@@ -666,6 +669,7 @@ describe('getFilteredContests', () => {
   test('precinct filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
+        election,
         electionId,
         filter: {
           precinctIds: ['precinct-c1-w2'],
@@ -684,6 +688,7 @@ describe('getFilteredContests', () => {
   test('ballot style filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
+        election,
         electionId,
         filter: {
           ballotStyleGroupIds: ['1-Ma'] as BallotStyleGroupId[],
@@ -696,6 +701,7 @@ describe('getFilteredContests', () => {
   test('party filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
+        election,
         electionId,
         filter: {
           partyIds: ['0'],
@@ -714,6 +720,7 @@ describe('getFilteredContests', () => {
   test('impossible cross-filter, no matches', () => {
     expectArrayMatch(
       store.getFilteredContests({
+        election,
         electionId,
         filter: {
           partyIds: ['0'],
@@ -727,6 +734,7 @@ describe('getFilteredContests', () => {
   test('party + ballot style cross-filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
+        election,
         electionId,
         filter: {
           partyIds: ['1'],
@@ -740,6 +748,7 @@ describe('getFilteredContests', () => {
   test('party + precinct cross-filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
+        election,
         electionId,
         filter: {
           partyIds: ['1'],

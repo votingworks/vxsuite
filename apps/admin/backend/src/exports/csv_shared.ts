@@ -41,6 +41,8 @@ export const CSV_METADATA_ATTRIBUTE_MULTI_LABEL: Record<
   batch: 'Batches',
 };
 
+const NO_PARTY_LABEL = 'No Party';
+
 /**
  * Separator between values in compound metadata filter columns.
  */
@@ -223,10 +225,7 @@ export function getCsvMetadataRowValues({
   ) {
     const partyId = (() => {
       if (metadataStructure.party === 'single') {
-        // In open primaries, filter.partyIds may be undefined for the section
-        // of CVRs with no party. Otherwise, there should be exactly one party
-        // ID in the filter.
-        return filter.partyIds ? assertOnlyElement(filter.partyIds) : undefined;
+        return assertOnlyElement(filter.partyIds);
       }
 
       const ballotStyleGroupId = assertOnlyElement(filter.ballotStyleGroupIds);
@@ -238,8 +237,8 @@ export function getCsvMetadataRowValues({
       );
     })();
 
-    if (partyId === undefined) {
-      values.push('No Party');
+    if (Tabulation.isNoPartyId(partyId)) {
+      values.push(NO_PARTY_LABEL);
       values.push('');
     } else {
       values.push(
@@ -304,9 +303,12 @@ export function getCsvMetadataRowValues({
   if (metadataStructure.party === 'multi') {
     values.push(
       assertDefined(filter.partyIds)
-        .map(
-          (id) =>
-            CachedElectionLookups.getPartyById(electionDefinition, id).name
+        .map((partyId) =>
+          Tabulation.isNoPartyId(partyId)
+            ? /* istanbul ignore next - TODO: cover in upcoming PR for custom report builder @preserve */
+              NO_PARTY_LABEL
+            : CachedElectionLookups.getPartyById(electionDefinition, partyId)
+                .name
         )
         .join(CSV_MULTI_VALUE_SEPARATOR)
     );

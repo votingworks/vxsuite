@@ -50,6 +50,7 @@ import {
   ElectionRegisteredVotersCountsSchema,
   UserRole,
   isOpenPrimary,
+  PartyId,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
@@ -137,6 +138,12 @@ function convertSqliteTimestampToIso8601(
 function asQueryPlaceholders(list: unknown[]): string {
   const questionMarks = list.map(() => '?');
   return `(${questionMarks.join(', ')})`;
+}
+
+function assertFilterDoesNotContainNoPartyId(
+  partyIds: NonNullable<Tabulation.Filter['partyIds']>
+): asserts partyIds is PartyId[] {
+  assert(!partyIds.some(Tabulation.isNoPartyId));
 }
 
 /**
@@ -752,6 +759,8 @@ export class Store implements BaseStore {
       params.push(...filter.ballotStyleGroupIds);
     }
     if (filter.partyIds) {
+      assert(!isOpenPrimary(election));
+      assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
       );
@@ -839,7 +848,7 @@ export class Store implements BaseStore {
       );
       return groups.flatMap((group) => [
         ...partyIds.map((partyId) => ({ ...group, partyId })),
-        { ...group, partyId: undefined },
+        { ...group, partyId: Tabulation.NO_PARTY_ID },
       ]);
     }
     return groups;
@@ -850,9 +859,11 @@ export class Store implements BaseStore {
    * included on possible ballots.
    */
   getFilteredContests({
+    election,
     electionId,
     filter = {},
   }: {
+    election: Election;
     electionId: Id;
     filter?: Tabulation.Filter;
   }): ContestId[] {
@@ -867,6 +878,8 @@ export class Store implements BaseStore {
       ballotStyleParams.push(...filter.ballotStyleGroupIds);
     }
     if (filter.partyIds) {
+      assert(!isOpenPrimary(election));
+      assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
       );
@@ -1451,6 +1464,7 @@ export class Store implements BaseStore {
   }
 
   private getTabulationFilterAsSql(
+    election: Election,
     electionId: Id,
     filter: Admin.ReportingFilter
   ): [whereParts: string[], params: Bindable[]] {
@@ -1467,6 +1481,8 @@ export class Store implements BaseStore {
     }
 
     if (filter.partyIds) {
+      assert(!isOpenPrimary(election));
+      assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
       );
@@ -1585,6 +1601,7 @@ export class Store implements BaseStore {
     cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
+      election,
       electionId,
       filter
     );
@@ -1671,6 +1688,7 @@ export class Store implements BaseStore {
     }
 
     const [whereParts, params] = this.getTabulationFilterAsSql(
+      election,
       electionId,
       filter
     );
@@ -2368,6 +2386,7 @@ export class Store implements BaseStore {
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<WriteInForTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
+      election,
       electionId,
       filter
     );
@@ -2379,7 +2398,12 @@ export class Store implements BaseStore {
     }
 
     if (groupBy.groupByParty) {
-      selectParts.push('ballot_styles.party_id as partyId');
+      if (isOpenPrimary(election)) {
+        selectParts.push('cvrs.votes as votes');
+        selectParts.push('cvrs.adjudicated_votes as adjudicatedVotes');
+      } else {
+        selectParts.push('ballot_styles.party_id as partyId');
+      }
     }
 
     if (groupBy.groupByBatch) {
@@ -2425,16 +2449,28 @@ export class Store implements BaseStore {
           order by write_ins.id
         `,
       ...params
-    ) as Iterable<WriteInForTally & Partial<StoreCastVoteRecordAttributes>>) {
+    ) as Iterable<
+      WriteInForTally &
+        Partial<StoreCastVoteRecordAttributes> & {
+          votes: string | null;
+          adjudicatedVotes: string | null;
+        }
+    >) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
-        partyId:
-          /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
-          groupBy.groupByParty && row.partyId !== null
-            ? row.partyId
-            : undefined,
+        partyId: groupBy.groupByParty
+          ? isOpenPrimary(election)
+            ? inferPartyFromVotes(
+                election,
+                this.applyAdjudicatedVotes({
+                  votesString: assertDefined(row.votes),
+                  adjudicatedVotesString: row.adjudicatedVotes,
+                })
+              )
+            : assertDefined(row.partyId)
+          : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
@@ -2864,6 +2900,7 @@ export class Store implements BaseStore {
   }
 
   private getManualResultsFilterAsSql(
+    election: Election,
     electionId: Id,
     filter: ManualResultsFilter
   ): [whereParts: string[], params: Bindable[]] {
@@ -2880,6 +2917,8 @@ export class Store implements BaseStore {
     }
 
     if (partyIds) {
+      assert(!isOpenPrimary(election));
+      assertFilterDoesNotContainNoPartyId(partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(partyIds)}`
       );
@@ -2906,13 +2945,16 @@ export class Store implements BaseStore {
   }
 
   getManualResults({
+    election,
     electionId,
     filter = {},
   }: {
+    election: Election;
     electionId: Id;
     filter?: ManualResultsFilter;
   }): ManualResultsRecord[] {
     const [whereParts, params] = this.getManualResultsFilterAsSql(
+      election,
       electionId,
       filter
     );
@@ -2956,13 +2998,16 @@ export class Store implements BaseStore {
   }
 
   getManualResultsMetadata({
+    election,
     electionId,
     filter = {},
   }: {
+    election: Election;
     electionId: Id;
     filter?: ManualResultsFilter;
   }): ManualResultsMetadataRecord[] {
     const [whereParts, params] = this.getManualResultsFilterAsSql(
+      election,
       electionId,
       filter
     );

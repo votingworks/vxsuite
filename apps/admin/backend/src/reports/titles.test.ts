@@ -111,6 +111,12 @@ test('generateTitleForReport', () => {
     ],
     [
       {
+        partyIds: [Tabulation.NO_PARTY_ID],
+      },
+      'Tally Report • No Party',
+    ],
+    [
+      {
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
       'Tally Report • Scanner VX-00-001, Batch 1',

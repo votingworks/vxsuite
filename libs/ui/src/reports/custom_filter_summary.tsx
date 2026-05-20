@@ -131,10 +131,13 @@ export function CustomFilterSummary({
             {pluralize('Party', filter.partyIds.length)}:
           </Font>{' '}
           {filter.partyIds
-            .map(
-              (partyId) =>
-                CachedElectionLookups.getPartyById(electionDefinition, partyId)
-                  .fullName
+            .map((partyId) =>
+              Tabulation.isNoPartyId(partyId)
+                ? 'No Party'
+                : CachedElectionLookups.getPartyById(
+                    electionDefinition,
+                    partyId
+                  ).fullName
             )
             .join(', ')}
         </FilterDisplayRow>

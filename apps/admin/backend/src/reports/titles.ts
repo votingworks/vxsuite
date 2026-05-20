@@ -118,8 +118,10 @@ export function generateTitleForReport({
     }
 
     if (partyId) {
-      return CachedElectionLookups.getPartyById(electionDefinition, partyId)
-        .fullName;
+      return Tabulation.isNoPartyId(partyId)
+        ? 'No Party'
+        : CachedElectionLookups.getPartyById(electionDefinition, partyId)
+            .fullName;
     }
 
     if (adjudicationFlag) {

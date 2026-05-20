@@ -8,7 +8,7 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { BallotStyleGroupId } from '@votingworks/types';
+import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -155,7 +155,7 @@ test('open primary: card counts with party inferred from votes', async () => {
   ]);
 
   // Group by party only — collapses unassigned ballots into a single
-  // partyId: undefined row (rendered as "No Party").
+  // NO_PARTY_ID row (rendered as "No Party").
   expect(
     await apiClient.getCardCounts({
       filter: {},
@@ -181,7 +181,7 @@ test('open primary: card counts with party inferred from votes', async () => {
       manual: 0,
     },
     {
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [2, 1],
       manual: 0,
@@ -220,7 +220,7 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
     {
       precinctId: 'precinct-1',
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [2, 1],
       manual: 0,
@@ -248,7 +248,7 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
     {
       precinctId: 'precinct-2',
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [],
       manual: 0,
@@ -287,7 +287,7 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
     {
       votingMethod: 'precinct',
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [2, 1],
       manual: 0,
@@ -315,7 +315,7 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
     {
       votingMethod: 'absentee',
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [],
       manual: 0,
@@ -377,7 +377,7 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
     {
       ballotStyleGroupId: 'ballot-style-1',
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [2, 1],
       manual: 0,
@@ -405,7 +405,7 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
     {
       ballotStyleGroupId: 'ballot-style-2',
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       bmd: [],
       hmpb: [],
       manual: 0,
@@ -454,7 +454,7 @@ test('open primary: card counts with party inferred from votes', async () => {
       manual: 0,
     },
     {
-      partyId: undefined,
+      partyId: Tabulation.NO_PARTY_ID,
       batchId: 'batch-1',
       batchDate: expect.any(String),
       scannerId: 'scanner-1',
