@@ -20,6 +20,7 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkStatus,
+  MarkThresholds,
   SheetOf,
   VotesDict,
   YesNoContest,
@@ -409,14 +410,14 @@ export function buildCVRContestsFromVotes({
 function buildOriginalSnapshot({
   castVoteRecordId,
   marks,
-  definiteMarkThreshold,
+  markThresholds,
   electionDefinition,
   ballotStyleId,
   ballotType,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
-  definiteMarkThreshold: number;
+  markThresholds: MarkThresholds;
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
@@ -449,12 +450,19 @@ function buildOriginalSnapshot({
               MarkMetricValue: [
                 (Math.floor(mark.score * 100) / 100).toString(),
               ],
-              HasIndication:
-                getMarkStatus(mark.score, {
-                  definite: definiteMarkThreshold,
-                }) === MarkStatus.Marked
-                  ? CVR.IndicationStatus.Yes
-                  : CVR.IndicationStatus.No,
+              HasIndication: (() => {
+                const markStatus = getMarkStatus(mark.score, markThresholds);
+                switch (markStatus) {
+                  case MarkStatus.Marked:
+                    return CVR.IndicationStatus.Yes;
+                  case MarkStatus.Marginal:
+                    return CVR.IndicationStatus.Unknown;
+                  case MarkStatus.Unmarked:
+                    return CVR.IndicationStatus.No;
+                  default:
+                    throwIllegalValue(markStatus);
+                }
+              })(),
             },
           ],
         })),
@@ -489,7 +497,7 @@ type BuildCastVoteRecordParams = {
       ballotMarkingMode: 'hand';
       interpretations: SheetOf<InterpretedHmpbPage>;
       images?: SheetOf<CvrImageDataInput>;
-      definiteMarkThreshold: number;
+      markThresholds: MarkThresholds;
     }
 );
 
@@ -604,7 +612,7 @@ export function buildCastVoteRecord({
     };
   }
 
-  const { interpretations, images, definiteMarkThreshold } = rest;
+  const { interpretations, images, markThresholds } = rest;
 
   // The larger page number should be an even number which, divided by two,
   // yields the sheet number
@@ -658,7 +666,7 @@ export function buildCastVoteRecord({
           ...interpretations[0].markInfo.marks,
           ...interpretations[1].markInfo.marks,
         ],
-        definiteMarkThreshold,
+        markThresholds,
         electionDefinition,
         ballotStyleId: ballotMetadata.ballotStyleId,
         ballotType: ballotMetadata.ballotType,

@@ -9,6 +9,7 @@ import {
   BallotType,
   CandidateContest,
   CVR,
+  MarkThresholds,
   unsafeParse,
 } from '@votingworks/types';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
@@ -22,6 +23,7 @@ import {
   interpretedHmpbPage1WithUnmarkedWriteIn,
   interpretedHmpbPage1WithWriteIn,
   interpretedHmpbPage2,
+  interpretedHmpbPage2WithMarginalMark,
 } from '../../test/fixtures/interpretations';
 import {
   buildCastVoteRecord,
@@ -408,7 +410,7 @@ const batchId = 'batch-1';
 const indexInBatch = 19;
 const ballotAuditId = `${batchId}_0023`;
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');
-const definiteMarkThreshold = 0.15;
+const markThresholds: MarkThresholds = { marginal: 0.05, definite: 0.15 };
 
 test('buildCastVoteRecord - BMD ballot', () => {
   const castVoteRecord = buildCastVoteRecord({
@@ -584,7 +586,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     indexInBatch,
     ballotMarkingMode: 'hand',
     interpretations: [interpretedHmpbPage1, interpretedHmpbPage2],
-    definiteMarkThreshold,
+    markThresholds,
   });
 
   test('includes correct metadata, including sheet number as BallotSheetId', () => {
@@ -663,6 +665,43 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       ])
     );
   });
+
+  test('original snapshot uses HasIndication unknown for marginal marks', () => {
+    const cvr = buildCastVoteRecord({
+      electionDefinition,
+      electionId,
+      castVoteRecordId,
+      scannerId,
+      batchId,
+      ballotMarkingMode: 'hand',
+      interpretations: [
+        interpretedHmpbPage1,
+        interpretedHmpbPage2WithMarginalMark,
+      ],
+      markThresholds,
+    });
+    const originalSnapshot = find(
+      cvr.CVRSnapshot,
+      (snapshot) => snapshot['@id'] === `${castVoteRecordId}-original`
+    );
+    const fishingContestSnapshot = find(
+      originalSnapshot.CVRContest ?? [],
+      (c) => c.ContestId === fishingContest.id
+    );
+    expect(fishingContestSnapshot.CVRContestSelection).toMatchObject(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ContestSelectionId: fishingContest.yesOption.id,
+          SelectionPosition: [
+            expect.objectContaining({
+              HasIndication: CVR.IndicationStatus.Unknown,
+              MarkMetricValue: ['0.09'],
+            }),
+          ],
+        }),
+      ])
+    );
+  });
 });
 
 test('buildCastVoteRecord - HMPB ballot with write-in', () => {
@@ -686,7 +725,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
         layoutFileHash: 'd',
       },
     ],
-    definiteMarkThreshold,
+    markThresholds,
   });
 
   expect(castVoteRecord.BallotImage).toEqual([
@@ -735,7 +774,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
         layoutFileHash: 'd',
       },
     ],
-    definiteMarkThreshold,
+    markThresholds,
   });
 
   const expectedFrontImageData: CVR.ImageData = {

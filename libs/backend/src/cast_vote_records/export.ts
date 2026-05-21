@@ -374,7 +374,7 @@ async function buildCastVoteRecord(
     batchId,
     ballotAuditId,
     castVoteRecordId,
-    definiteMarkThreshold: markThresholds.definite,
+    markThresholds,
     electionDefinition,
     electionId,
     images,
