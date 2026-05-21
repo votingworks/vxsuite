@@ -862,7 +862,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     SelectionPosition: [
       {
         '@type': 'CVR.SelectionPosition',
-        HasIndication: CVR.IndicationStatus.No,
+        HasIndication: CVR.IndicationStatus.Unknown,
         NumberVotes: 1,
         IsAllocable: CVR.AllocationStatus.Unknown,
         Status: [CVR.PositionStatus.Other],

@@ -363,7 +363,7 @@ describe('getWriteInsFromCastVoteRecord', () => {
                     SelectionPosition: [
                       {
                         '@type': 'CVR.SelectionPosition',
-                        HasIndication: CVR.IndicationStatus.No,
+                        HasIndication: CVR.IndicationStatus.Unknown,
                         IsAllocable: CVR.AllocationStatus.Unknown,
                         Status: [CVR.PositionStatus.Other],
                         OtherStatus: 'unmarked-write-in',
