@@ -584,6 +584,16 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // can still compute a grid layout for them, and it's important that their bubble positions match
   // official ballots.
   const layoutsByBallotStyle = iter(ballotLayouts)
+    // NH state ballots have a "federal office only" variant that only includes
+    // federal offices, which of course changes the layout of the bubbles. These
+    // ballots aren't tabulated, so we can simply filter them out.
+    .filter(
+      (ballot) =>
+        !(
+          'isFederalOfficeOnly' in ballot.props &&
+          ballot.props.isFederalOfficeOnly
+        )
+    )
     .map((ballot) => ballot.gridLayout)
     .toMap((gridLayout) => gridLayout.ballotStyleId);
   for (const [ballotStyleId, layouts] of layoutsByBallotStyle.entries()) {

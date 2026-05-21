@@ -840,6 +840,26 @@ export const nhStateGeneralElectionFixtures = (() => {
   const ballotStyleContests = getContests({ election, ballotStyle });
   const { votes, unmarkedWriteIns } = createTestVotes(ballotStyleContests);
 
+  const handCountBallotProps: NhStateBallotProps[] = allBallotProps.map(
+    (props) => ({
+      ...props,
+      ballotType: BallotType.Absentee,
+      isHandCount: true,
+    })
+  );
+  const federalOfficeOnlyBallotProps: NhStateBallotProps[] = allBallotProps.map(
+    (props) => ({
+      ...props,
+      ballotType: BallotType.Absentee,
+      isFederalOfficeOnly: true,
+    })
+  );
+  const combinedBallotProps: NhStateBallotProps[] = [
+    ...allBallotProps,
+    ...handCountBallotProps,
+    ...federalOfficeOnlyBallotProps,
+  ];
+
   return {
     dir,
     electionPath,
@@ -847,35 +867,28 @@ export const nhStateGeneralElectionFixtures = (() => {
     markedBallotPath,
     handCountBlankBallotPath,
     federalOfficeOnlyBlankBallotPath,
-    allBallotProps,
+    allBallotProps: combinedBallotProps,
     precinctId,
     ballotStyleId: ballotStyle.id,
     votes,
     unmarkedWriteIns,
 
     async generate(rendererPool: RendererPool) {
-      async function renderVariant(
-        variantProps: Partial<NhStateBallotProps>,
+      const layout = await layOutBallotsAndCreateElectionDefinition(
+        rendererPool,
+        nhStateBallotTemplate,
+        combinedBallotProps,
+        'vxf'
+      );
+
+      async function renderBallotPdf(
+        match: (props: NhStateBallotProps) => boolean,
         paths: { blankPath: string; markedPath?: string }
       ) {
-        const variantBallotProps = allBallotProps.map((props) => ({
-          ...props,
-          ...variantProps,
-        }));
-        const layout = await layOutBallotsAndCreateElectionDefinition(
-          rendererPool,
-          nhStateBallotTemplate,
-          variantBallotProps,
-          'vxf'
-        );
         const [contents, chosenProps] = assertDefined(
           iter(layout.ballotContents)
-            .zip(variantBallotProps)
-            .find(
-              ([, props]) =>
-                props.ballotStyleId === ballotStyle.id &&
-                props.precinctId === precinctId
-            )
+            .zip(combinedBallotProps)
+            .find(([, props]) => match(props))
         );
         return rendererPool.runTask(async (renderer) => {
           const doc = await renderer.loadDocumentFromContent(contents);
@@ -886,37 +899,40 @@ export const nhStateGeneralElectionFixtures = (() => {
             layout.electionDefinition
           );
           if (!paths.markedPath) {
-            return {
-              electionDefinition: layout.electionDefinition,
-              blankPdf,
-            };
+            return { blankPdf };
           }
           debug(`Generating: ${paths.markedPath}`);
           await markBallotDocument(doc, votes, unmarkedWriteIns);
           const markedPdf = await doc.renderToPdf();
-          return {
-            electionDefinition: layout.electionDefinition,
-            blankPdf,
-            markedPdf,
-          };
+          return { blankPdf, markedPdf };
         });
       }
 
-      const defaultResult = await renderVariant(
-        {},
+      const defaultResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          !props.isHandCount &&
+          !props.isFederalOfficeOnly,
         { blankPath: blankBallotPath, markedPath: markedBallotPath }
       );
-      const handCountResult = await renderVariant(
-        { isHandCount: true, ballotType: BallotType.Absentee },
+      const handCountResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          Boolean(props.isHandCount),
         { blankPath: handCountBlankBallotPath }
       );
-      const federalOfficeOnlyResult = await renderVariant(
-        { isFederalOfficeOnly: true, ballotType: BallotType.Absentee },
+      const federalOfficeOnlyResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          Boolean(props.isFederalOfficeOnly),
         { blankPath: federalOfficeOnlyBlankBallotPath }
       );
 
       return {
-        electionDefinition: defaultResult.electionDefinition,
+        electionDefinition: layout.electionDefinition,
         blankBallotPdf: defaultResult.blankPdf,
         markedBallotPdf: assertDefined(defaultResult.markedPdf),
         handCountBlankBallotPdf: handCountResult.blankPdf,
@@ -933,11 +949,6 @@ export const nhStatePrimaryElectionFixtures = (() => {
     dir,
     'dem-hand-count-blank-ballot.pdf'
   );
-  const demFederalOfficeOnlyBlankBallotPath = join(
-    dir,
-    'dem-federal-office-only-blank-ballot.pdf'
-  );
-
   const baseElection = electionPrimaryPrecinctSplitsFixtures.readElection();
   // Rename the Mammal/Fish parties to Democrat/Republican so the primary
   // template's color tinting (which keys off isDemocraticParty /
@@ -964,8 +975,7 @@ export const nhStatePrimaryElectionFixtures = (() => {
       }
       return party;
     }),
-    // Rename Congressional contests so the NH state template's
-    // isFederalOfficeContest matcher picks them up for FOO ballots.
+    // Match NH state federal-office naming conventions.
     contests: baseElection.contests.map((contest) => {
       const renamed =
         contest.title.startsWith('Congressional ') &&
@@ -1035,20 +1045,51 @@ export const nhStatePrimaryElectionFixtures = (() => {
     assertDefined(getBallotStyle({ election, ballotStyleId: '1-F_en' }))
   );
 
+  const demHandCountBallotProps: NhStateBallotProps = {
+    election,
+    ballotStyleId: demParty.ballotStyleId,
+    precinctId: demParty.precinctId,
+    ballotType: BallotType.Absentee,
+    ballotMode: 'official',
+    isHandCount: true,
+  };
+  const demFederalOfficeOnlyBallotProps: NhStateBallotProps = {
+    election,
+    ballotStyleId: demParty.ballotStyleId,
+    precinctId: demParty.precinctId,
+    ballotType: BallotType.Absentee,
+    ballotMode: 'official',
+    isFederalOfficeOnly: true,
+  };
+  const combinedBallotProps: NhStateBallotProps[] = [
+    ...allBallotProps,
+    demHandCountBallotProps,
+    demFederalOfficeOnlyBallotProps,
+  ];
+  const demFederalOfficeOnlyBlankBallotPath = join(
+    dir,
+    'dem-federal-office-only-blank-ballot.pdf'
+  );
+
   return {
     dir,
     electionPath,
-    allBallotProps,
+    allBallotProps: combinedBallotProps,
     demParty,
     repParty,
     demHandCountBlankBallotPath,
     demFederalOfficeOnlyBlankBallotPath,
 
     async generate(rendererPool: RendererPool) {
-      async function renderVariant(spec: {
-        variantProps?: Partial<NhStateBallotProps>;
-        ballotStyleId: string;
-        precinctId: string;
+      const layout = await layOutBallotsAndCreateElectionDefinition(
+        rendererPool,
+        nhStateBallotTemplate,
+        combinedBallotProps,
+        'vxf'
+      );
+
+      async function renderBallotPdf(spec: {
+        match: (props: NhStateBallotProps) => boolean;
         blankPath: string;
         markedPath?: string;
         votes?: ReturnType<typeof createTestVotes>['votes'];
@@ -1056,25 +1097,10 @@ export const nhStatePrimaryElectionFixtures = (() => {
           typeof createTestVotes
         >['unmarkedWriteIns'];
       }) {
-        const variantBallotProps = allBallotProps.map((props) => ({
-          ...props,
-          // eslint-disable-next-line vx/gts-spread-like-types
-          ...spec.variantProps,
-        }));
-        const layout = await layOutBallotsAndCreateElectionDefinition(
-          rendererPool,
-          nhStateBallotTemplate,
-          variantBallotProps,
-          'vxf'
-        );
         const [contents, chosenProps] = assertDefined(
           iter(layout.ballotContents)
-            .zip(variantBallotProps)
-            .find(
-              ([, props]) =>
-                props.ballotStyleId === spec.ballotStyleId &&
-                props.precinctId === spec.precinctId
-            )
+            .zip(combinedBallotProps)
+            .find(([, props]) => spec.match(props))
         );
         return rendererPool.runTask(async (renderer) => {
           const doc = await renderer.loadDocumentFromContent(contents);
@@ -1085,7 +1111,7 @@ export const nhStatePrimaryElectionFixtures = (() => {
             layout.electionDefinition
           );
           if (!spec.markedPath) {
-            return { electionDefinition: layout.electionDefinition, blankPdf };
+            return { blankPdf };
           }
           debug(`Generating: ${spec.markedPath}`);
           await markBallotDocument(
@@ -1094,48 +1120,49 @@ export const nhStatePrimaryElectionFixtures = (() => {
             spec.unmarkedWriteIns
           );
           const markedPdf = await doc.renderToPdf();
-          return {
-            electionDefinition: layout.electionDefinition,
-            blankPdf,
-            markedPdf,
-          };
+          return { blankPdf, markedPdf };
         });
       }
 
-      const demResult = await renderVariant({
-        ballotStyleId: demParty.ballotStyleId,
-        precinctId: demParty.precinctId,
+      const demResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          !props.isHandCount &&
+          !props.isFederalOfficeOnly,
         blankPath: demParty.blankBallotPath,
         markedPath: demParty.markedBallotPath,
         votes: demParty.votes,
         unmarkedWriteIns: demParty.unmarkedWriteIns,
       });
-      const repResult = await renderVariant({
-        ballotStyleId: repParty.ballotStyleId,
-        precinctId: repParty.precinctId,
+      const repResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === repParty.ballotStyleId &&
+          props.precinctId === repParty.precinctId &&
+          !props.isHandCount &&
+          !props.isFederalOfficeOnly,
         blankPath: repParty.blankBallotPath,
         markedPath: repParty.markedBallotPath,
         votes: repParty.votes,
         unmarkedWriteIns: repParty.unmarkedWriteIns,
       });
-      const demHandCountResult = await renderVariant({
-        variantProps: { isHandCount: true, ballotType: BallotType.Absentee },
-        ballotStyleId: demParty.ballotStyleId,
-        precinctId: demParty.precinctId,
+      const demHandCountResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          Boolean(props.isHandCount),
         blankPath: demHandCountBlankBallotPath,
       });
-      const demFederalOfficeOnlyResult = await renderVariant({
-        variantProps: {
-          isFederalOfficeOnly: true,
-          ballotType: BallotType.Absentee,
-        },
-        ballotStyleId: demParty.ballotStyleId,
-        precinctId: demParty.precinctId,
+      const demFederalOfficeOnlyResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          Boolean(props.isFederalOfficeOnly),
         blankPath: demFederalOfficeOnlyBlankBallotPath,
       });
 
       return {
-        electionDefinition: demResult.electionDefinition,
+        electionDefinition: layout.electionDefinition,
         demParty: {
           ...demParty,
           blankBallotPdf: demResult.blankPdf,
