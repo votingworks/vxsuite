@@ -53,14 +53,14 @@ describe('getOriginalSnapshot', () => {
     };
     const modifiedSnapshot: CVR.CVRSnapshot = {
       '@type': 'CVR.CVRSnapshot',
-      '@id': '0-modified',
-      Type: CVR.CVRType.Modified,
+      '@id': '0-interpreted',
+      Type: CVR.CVRType.Interpreted,
       CVRContest: [],
     };
 
     const actualSnapshot = getOriginalSnapshot({
       ...mockCastVoteRecord,
-      CurrentSnapshotId: '0-modified',
+      CurrentSnapshotId: '0-interpreted',
       CVRSnapshot: [modifiedSnapshot, originalSnapshot],
     });
 
@@ -82,7 +82,7 @@ describe('getCurrentSnapshot', () => {
     const expectedSnapshot: CVR.CVRSnapshot = {
       '@type': 'CVR.CVRSnapshot',
       '@id': '1',
-      Type: CVR.CVRType.Modified,
+      Type: CVR.CVRType.Interpreted,
       CVRContest: [],
     };
 
@@ -119,7 +119,7 @@ describe('convertCastVoteRecordVotesToTabulationVotes', () => {
       convertCastVoteRecordVotesToTabulationVotes({
         '@id': 'test',
         '@type': 'CVR.CVRSnapshot',
-        Type: CVR.CVRType.Modified,
+        Type: CVR.CVRType.Interpreted,
         CVRContest: [],
       })
     ).toMatchObject({});
@@ -130,7 +130,7 @@ describe('convertCastVoteRecordVotesToTabulationVotes', () => {
       convertCastVoteRecordVotesToTabulationVotes({
         '@id': 'test',
         '@type': 'CVR.CVRSnapshot',
-        Type: CVR.CVRType.Modified,
+        Type: CVR.CVRType.Interpreted,
         CVRContest: [
           {
             '@type': 'CVR.CVRContest',
@@ -255,7 +255,7 @@ describe('getWriteInsFromCastVoteRecord', () => {
           {
             '@type': 'CVR.CVRSnapshot',
             '@id': '0',
-            Type: CVR.CVRType.Modified,
+            Type: CVR.CVRType.Interpreted,
             CVRContest: [
               {
                 '@type': 'CVR.CVRContest',
@@ -418,7 +418,7 @@ describe('getWriteInsFromCastVoteRecord', () => {
     return {
       '@type': 'CVR.CVRSnapshot',
       '@id': '0',
-      Type: CVR.CVRType.Modified,
+      Type: CVR.CVRType.Interpreted,
       CVRContest: [
         {
           '@type': 'CVR.CVRContest',
@@ -510,7 +510,7 @@ describe('getWriteInsFromCastVoteRecord', () => {
           {
             '@type': 'CVR.CVRSnapshot',
             '@id': '0',
-            Type: CVR.CVRType.Modified,
+            Type: CVR.CVRType.Interpreted,
             CVRContest: [
               {
                 '@type': 'CVR.CVRContest',
@@ -600,7 +600,7 @@ test('getCastVoteRecordBallotType', () => {
   const snapshot: CVR.CVRSnapshot = {
     '@type': 'CVR.CVRSnapshot',
     '@id': '0',
-    Type: CVR.CVRType.Modified,
+    Type: CVR.CVRType.Interpreted,
     CVRContest: [],
   };
 

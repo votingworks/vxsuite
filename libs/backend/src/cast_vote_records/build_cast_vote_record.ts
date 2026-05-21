@@ -617,8 +617,8 @@ export function buildCastVoteRecord({
 
   const modifiedSnapshot: CVR.CVRSnapshot = {
     '@type': 'CVR.CVRSnapshot',
-    '@id': `${castVoteRecordId}-modified`,
-    Type: CVR.CVRType.Modified,
+    '@id': `${castVoteRecordId}-interpreted`,
+    Type: CVR.CVRType.Interpreted,
     ...buildCVRSnapshotBallotTypeMetadata(ballotMetadata.ballotType),
     CVRContest: [
       ...buildCVRContestsFromVotes({
@@ -645,11 +645,11 @@ export function buildCastVoteRecord({
   };
 
   // CVR for hand-marked paper ballots, has both "original" snapshot with
-  // scores for all marks and "modified" snapshot with contest rules applied.
+  // scores for all marks and "interpreted" snapshot with contest rules applied.
   return {
     ...cvrMetadata,
     BallotSheetId: sheetNumber, // VVSG 2.0 1.1.5-G.5
-    CurrentSnapshotId: `${castVoteRecordId}-modified`,
+    CurrentSnapshotId: `${castVoteRecordId}-interpreted`,
     CVRSnapshot: [
       modifiedSnapshot,
       buildOriginalSnapshot({

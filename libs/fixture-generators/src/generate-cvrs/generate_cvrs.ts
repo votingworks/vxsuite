@@ -393,14 +393,14 @@ export function* generateCvrs({
                   CreatingDeviceId: scannerId,
                   ElectionId: electionDefinition.ballotHash,
                   BatchId: batchId,
-                  CurrentSnapshotId: `${uniqueId}-modified`,
+                  CurrentSnapshotId: `${uniqueId}-interpreted`,
                   UniqueId: uniqueId,
                   BallotSheetId: (sheetIndex + 1).toString(),
                   CVRSnapshot: [
                     {
                       '@type': 'CVR.CVRSnapshot',
-                      '@id': `${uniqueId}-modified`,
-                      Type: CVR.CVRType.Modified,
+                      '@id': `${uniqueId}-interpreted`,
+                      Type: CVR.CVRType.Interpreted,
                       ...buildCVRSnapshotBallotTypeMetadata(ballotType),
                       CVRContest: [
                         ...buildCVRContestsFromVotes({

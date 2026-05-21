@@ -158,36 +158,35 @@ export function replaceUniqueId(
     (ss) => ss['@id'] === currentSnapshotId
   );
   assert(currentSnapshot);
-  const isCurrentSnapshotModified = currentSnapshot['@id'].includes('modified');
-  const maybeSecondSnapshot = isCurrentSnapshotModified
+  const isCurrentSnapshotInterpreted =
+    currentSnapshot['@id'].includes('interpreted');
+  const maybeSecondSnapshot = isCurrentSnapshotInterpreted
     ? castVoteRecord.CVRSnapshot[1]
     : undefined;
   return {
     ...castVoteRecord,
     UniqueId: newUniqueId,
     CurrentSnapshotId: `${newUniqueId}-${
-      isCurrentSnapshotModified ? 'modified' : 'original'
+      isCurrentSnapshotInterpreted ? 'interpreted' : 'original'
     }`,
     CVRSnapshot: maybeSecondSnapshot
       ? [
           {
             ...currentSnapshot,
             '@id': `${newUniqueId}-${
-              isCurrentSnapshotModified ? 'modified' : 'original'
+              isCurrentSnapshotInterpreted ? 'interpreted' : 'original'
             }`,
           },
           {
             ...maybeSecondSnapshot,
-            '@id': `${newUniqueId}-${
-              isCurrentSnapshotModified ? 'original' : 'modified'
-            }`,
+            '@id': `${newUniqueId}-original`,
           },
         ]
       : [
           {
             ...currentSnapshot,
             '@id': `${newUniqueId}-${
-              isCurrentSnapshotModified ? 'modified' : 'original'
+              isCurrentSnapshotInterpreted ? 'interpreted' : 'original'
             }`,
           },
         ],

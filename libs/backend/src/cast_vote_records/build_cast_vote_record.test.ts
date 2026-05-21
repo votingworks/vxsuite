@@ -605,7 +605,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     );
 
     expect(castVoteRecord.CVRSnapshot).toHaveLength(2);
-    expect(castVoteRecord.CurrentSnapshotId).toEqual('1234-modified');
+    expect(castVoteRecord.CurrentSnapshotId).toEqual('1234-interpreted');
   });
 
   test('includes original mark snapshot with OptionPosition and with HasIndication based on the definite mark threshold', () => {
@@ -765,7 +765,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
 
   const modifiedSnapshot = find(
     castVoteRecord.CVRSnapshot,
-    (snapshot) => snapshot.Type === CVR.CVRType.Modified
+    (snapshot) => snapshot.Type === CVR.CVRType.Interpreted
   );
 
   const cvrFishCouncilContest = find(

@@ -71,14 +71,14 @@ const castVoteRecordReport: CastVoteRecordReport = {
       // - original (what the scanner sees on the ballot)
       // - interpreted (votes after applying contest/election rules)
       // - modified (votes after adjudication)
-      // Currently, our CVRs are equivalent to the "modified" snapshot.
+      // Currently, our CVRs are equivalent to the "interpreted" snapshot.
       // VVSG 2.0 requires all three snapshots be recorded for each ballot
       // (if rules are applied or adjudication occurs).
       CVRSnapshot: [
         {
           '@id': '1',
           '@type': 'CVR.CVRSnapshot',
-          Type: CVRType.Modified,
+          Type: CVRType.Interpreted,
           CVRContest: [
             {
               '@type': 'CVR.CVRContest',
