@@ -44,6 +44,10 @@ export function FocusableAudio<T extends ElementType = 'div'>(
       {...rest}
       as={as}
       className={`${className || ''} ${FOCUSABLE_AUDIO_CLASS_NAME}`}
+      // [TODO] Make this configurable, if/when this component is extended for
+      // use in VxMark. As noted above, we'll need to come up with a focus
+      // indicator that works for both on and off-screen elements.
+      style={{ outline: 'none' }}
       tabIndex={0}
     >
       {children}
