@@ -29,6 +29,7 @@ export interface UiStringScreenReaderContextInterface {
   cycleVolume: () => void;
   decreaseVolume: () => void;
   increaseVolume: () => void;
+  isAudioActive: boolean;
   /** Replays audio for any `UiString`s currently under focus. */
   replay: () => void;
 }
@@ -40,6 +41,15 @@ export const UiStringScreenReaderContext =
 
 export function useUiStringScreenReaderContext(): Optional<UiStringScreenReaderContextInterface> {
   return React.useContext(UiStringScreenReaderContext);
+}
+
+/**
+ * True when audio is enabled and the screen reader has clips queued for
+ * playback (either UI string readout or audio feedback).
+ */
+export function useScreenReaderActive(): boolean {
+  const ctx = useUiStringScreenReaderContext();
+  return ctx?.isAudioActive ?? false;
 }
 
 function useVolumeControls(params: {
@@ -274,9 +284,17 @@ export function UiStringScreenReader(
     setAudioFeedbackQueue(undefined);
   }, []);
 
+  const isAudioActive = isEnabled && clipQueue.length > 0;
+
   return (
     <UiStringScreenReaderContext.Provider
-      value={{ cycleVolume, decreaseVolume, increaseVolume, replay }}
+      value={{
+        cycleVolume,
+        decreaseVolume,
+        increaseVolume,
+        isAudioActive,
+        replay,
+      }}
     >
       {isEnabled && (
         <PlayAudioClips clips={memoizedClipQueue} onDone={onDone} />

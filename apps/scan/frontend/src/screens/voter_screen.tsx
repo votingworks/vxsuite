@@ -1,6 +1,6 @@
 import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { useQueryChangeListener } from '@votingworks/ui';
+import { useQueryChangeListener, useScreenReaderActive } from '@votingworks/ui';
 import { useEffect, useRef, useState } from 'react';
 import { getScannerStatus, readyForNextBallot, playSound } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
@@ -61,20 +61,27 @@ export function VoterScreen({
   // accepted screen.
   const readyForNextBallotMutation = readyForNextBallot.useMutation();
   const [isShowingAcceptedScreen, setIsShowingAcceptedScreen] = useState(false);
+  const [
+    acceptedScreenMinDurationElapsed,
+    setAcceptedScreenMinDurationElapsed,
+  ] = useState(false);
+
   const acceptedScreenTimeoutRef = useRef<number>();
   function clearTimeout() {
     if (acceptedScreenTimeoutRef.current) {
       window.clearTimeout(acceptedScreenTimeoutRef.current);
     }
   }
+
   useQueryChangeListener(scannerStatusQuery, {
     select: (status) => status.state,
     onChange: (newState) => {
       if (newState === 'accepted') {
         setIsShowingAcceptedScreen(true);
+        setAcceptedScreenMinDurationElapsed(false);
         clearTimeout();
         acceptedScreenTimeoutRef.current = window.setTimeout(
-          () => setIsShowingAcceptedScreen(false),
+          () => setAcceptedScreenMinDurationElapsed(true),
           DELAY_ACCEPTED_SCREEN_MS
         );
         readyForNextBallotMutation.mutate();
@@ -82,6 +89,24 @@ export function VoterScreen({
     },
   });
   useEffect(() => clearTimeout, []); // Cleanup on unmount
+
+  // Hold the accepted screen until the "Your ballot was counted" screen reader
+  // audio finishes playing — unmounting it sooner clears the audio queue and
+  // cuts off the announcement mid-sentence.
+  const isScreenReaderActive = useScreenReaderActive();
+  useEffect(() => {
+    if (
+      isShowingAcceptedScreen &&
+      acceptedScreenMinDurationElapsed &&
+      !isScreenReaderActive
+    ) {
+      setIsShowingAcceptedScreen(false);
+    }
+  }, [
+    isShowingAcceptedScreen,
+    acceptedScreenMinDurationElapsed,
+    isScreenReaderActive,
+  ]);
 
   if (!scannerStatusQuery.isSuccess) {
     return null;

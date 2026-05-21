@@ -11,6 +11,7 @@ export {
 export * from './number_string';
 export * from './read_on_load';
 export * from './toggle_audio_button';
+export { useScreenReaderActive } from './ui_string_screen_reader';
 export * from './ui_strings_context';
 export * from './ui_string';
 export * from './utils';
