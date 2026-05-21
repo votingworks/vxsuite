@@ -286,6 +286,7 @@ export function BallotScreen(): JSX.Element | null {
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
+  const [isFederalOfficeOnly, setIsFederalOfficeOnly] = useState<boolean>();
   const printIframeRef = useRef<HTMLIFrameElement>(null);
   const getBallotPreviewPdfQuery = getBallotPreviewPdf.useQuery({
     electionId,
@@ -293,6 +294,7 @@ export function BallotScreen(): JSX.Element | null {
     ballotStyleId,
     ballotType,
     ballotMode,
+    isFederalOfficeOnly,
   });
   const ballotPreview = getBallotPreviewPdfQuery.data?.ok();
 
@@ -336,6 +338,7 @@ export function BallotScreen(): JSX.Element | null {
   const parties = listPartiesQuery.data;
   const { paperSize } = getBallotLayoutSettingsQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
+  const enableFederalOfficeOnly = ballotTemplateId === 'NhStateBallot';
   const precinct = find(precincts, (p) => p.id === precinctId);
   const ballotStyle = find(ballotStyles, (bs) => bs.id === ballotStyleId);
 
@@ -438,16 +441,42 @@ export function BallotScreen(): JSX.Element | null {
             {paperSizeLabels[paperSize]}{' '}
           </div>
 
-          <RadioGroup
-            label="Ballot Type"
-            options={[
-              { value: BallotType.Precinct, label: 'Precinct' },
-              { value: BallotType.Absentee, label: 'Absentee' },
-            ]}
-            value={ballotType}
-            onChange={setBallotType}
-            inverse
-          />
+          {enableFederalOfficeOnly ? (
+            <RadioGroup
+              label="Ballot Type"
+              options={[
+                { value: BallotType.Precinct, label: 'Precinct' },
+                { value: BallotType.Absentee, label: 'Absentee' },
+                {
+                  value: 'federal-office-only',
+                  label: 'Federal Office Only',
+                },
+              ]}
+              value={isFederalOfficeOnly ? 'federal-office-only' : ballotType}
+              onChange={(value) => {
+                if (value === 'federal-office-only') {
+                  setIsFederalOfficeOnly(true);
+                  setBallotType(BallotType.Absentee);
+                  setBallotMode('official');
+                } else {
+                  setBallotType(value);
+                  setIsFederalOfficeOnly(false);
+                }
+              }}
+              inverse
+            />
+          ) : (
+            <RadioGroup
+              label="Ballot Type"
+              options={[
+                { value: BallotType.Precinct, label: 'Precinct' },
+                { value: BallotType.Absentee, label: 'Absentee' },
+              ]}
+              value={ballotType}
+              onChange={setBallotType}
+              inverse
+            />
+          )}
 
           <RadioGroup
             label="Tabulation Mode"
@@ -458,6 +487,7 @@ export function BallotScreen(): JSX.Element | null {
             ]}
             value={ballotMode}
             onChange={setBallotMode}
+            disabled={isFederalOfficeOnly}
             inverse
           />
 
