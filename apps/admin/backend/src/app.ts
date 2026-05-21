@@ -132,6 +132,12 @@ import {
   WriteInAdjudicationReportPreview,
 } from './reports/write_in_adjudication_report';
 import {
+  exportWriteInImageReportPdf,
+  generateWriteInImageReportPreview,
+  printWriteInImageReport,
+  WriteInImageReportPreview,
+} from './reports/write_in_image_report';
+import {
   exportVoterTurnoutReportPdf,
   generateVoterTurnoutReportPreview,
   printVoterTurnoutReport,
@@ -1322,6 +1328,40 @@ function buildApi({
       return exportWriteInAdjudicationReportPdf({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
+        usbDrive: usbDriveAdapter,
+        logger,
+        filename: input.filename,
+      });
+    },
+
+    async getWriteInImageReportPreview(input: {
+      contestId: ContestId;
+    }): Promise<WriteInImageReportPreview> {
+      return generateWriteInImageReportPreview({
+        store,
+        contestId: input.contestId,
+        logger,
+      });
+    },
+
+    async printWriteInImageReport(input: {
+      contestId: ContestId;
+    }): Promise<void> {
+      return printWriteInImageReport({
+        store,
+        contestId: input.contestId,
+        logger,
+        printer,
+      });
+    },
+
+    async exportWriteInImageReportPdf(input: {
+      contestId: ContestId;
+      filename: string;
+    }): Promise<ExportDataResult> {
+      return exportWriteInImageReportPdf({
+        store,
+        contestId: input.contestId,
         usbDrive: usbDriveAdapter,
         logger,
         filename: input.filename,
