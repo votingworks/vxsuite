@@ -7,6 +7,7 @@ import {
 } from '@votingworks/types';
 import {
   allBaseBallotProps,
+  AnyBallotProps,
   BallotTemplateId,
   NhBallotProps,
 } from '@votingworks/hmpb';
@@ -90,7 +91,7 @@ export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
   compact: boolean
-): BaseBallotProps[] {
+): AnyBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {

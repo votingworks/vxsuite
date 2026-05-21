@@ -1,5 +1,7 @@
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
+  BallotType,
+  BaseBallotProps,
   ElectionStringKey,
   hasSplits,
   Precinct,
@@ -21,7 +23,7 @@ test('createBallotPropsForTemplate', () => {
     'VxDefaultBallot',
     election,
     false
-  );
+  ) as BaseBallotProps[];
   for (const props of vxDefaultBallotProps) {
     expect(props.compact).toEqual(false);
   }

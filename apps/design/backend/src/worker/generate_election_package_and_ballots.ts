@@ -338,12 +338,10 @@ export async function generateElectionPackageAndBallots(
         props.ballotMode === 'official' &&
         props.ballotType === BallotType.Precinct
     );
-    allBallotProps = range(1, numAuditIdBallots + 1).map(
-      (ballotIndex): BaseBallotProps => ({
-        ...officialPrecinctBallotProps,
-        ballotAuditId: String(ballotIndex),
-      })
-    );
+    allBallotProps = range(1, numAuditIdBallots + 1).map((ballotIndex) => ({
+      ...officialPrecinctBallotProps,
+      ballotAuditId: String(ballotIndex),
+    }));
   }
 
   const rendererPool = await createPlaywrightRendererPool();
