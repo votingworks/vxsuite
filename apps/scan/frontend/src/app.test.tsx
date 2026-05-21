@@ -452,11 +452,8 @@ test('voter can cast a ballot that scans successfully', async () => {
 
 test('success screen stays visible until screen reader audio is done', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const { election } = electionDefinition;
-  const [pollingPlace] = assertDefined(election.pollingPlaces);
   apiMock.expectGetConfig({
     electionDefinition,
-    pollingPlaceId: pollingPlace.id,
   });
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
