@@ -207,6 +207,16 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
       </Section>
+      {!closedPollsActionsBlocked && electionHasWriteInContest && (
+        <Section>
+          <H2>Write-In Reports</H2>
+          <P>
+            <LinkButton to={routerPaths.writeInImageReport}>
+              Single Contest Write-In Image Report
+            </LinkButton>
+          </P>
+        </Section>
+      )}
       {!closedPollsActionsBlocked &&
         (electionHasWriteInContest ||
           voterTurnoutReportEnabled ||

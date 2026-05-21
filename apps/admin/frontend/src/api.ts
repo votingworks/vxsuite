@@ -998,6 +998,47 @@ export const exportWriteInAdjudicationReportPdf = {
   },
 } as const;
 
+export const getWriteInImageReportPreview = {
+  queryKey(contestId: string): QueryKey {
+    return ['getWriteInImageReportPreview', contestId];
+  },
+  useQuery(contestId?: string) {
+    const apiClient = useApiClient();
+    return useQuery(
+      contestId ? this.queryKey(contestId) : ['getWriteInImageReportPreview'],
+      /* istanbul ignore next - @preserve */
+      () =>
+        contestId
+          ? apiClient.getWriteInImageReportPreview({ contestId })
+          : fail('contestId is required'),
+      {
+        enabled: !!contestId,
+        cacheTime: 0,
+        staleTime: 0,
+        refetchOnWindowFocus: false,
+      }
+    );
+  },
+} as const;
+
+export const printWriteInImageReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation((input: { contestId: string }) =>
+      apiClient.printWriteInImageReport(input)
+    );
+  },
+} as const;
+
+export const exportWriteInImageReportPdf = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation((input: { contestId: string; filename: string }) =>
+      apiClient.exportWriteInImageReportPdf(input)
+    );
+  },
+} as const;
+
 export const getRegisteredVoterCounts = {
   queryKey(): QueryKey {
     return ['getRegisteredVoterCounts'];
