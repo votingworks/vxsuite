@@ -9,8 +9,14 @@ import {
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { expect, test } from 'vitest';
-import { assert, assertDefined, find } from '@votingworks/basics';
-import { NhBallotProps } from '@votingworks/hmpb';
+import {
+  assert,
+  assertDefined,
+  deepEqual,
+  find,
+  iter,
+} from '@votingworks/basics';
+import { NhBallotProps, NhStateBallotProps } from '@votingworks/hmpb';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -49,6 +55,28 @@ test('createBallotPropsForTemplate', () => {
       expect('electionSealOverride' in props).toEqual(true);
       expect('clerkSignatureImage' in props).toEqual(true);
       expect('clerkSignatureCaption' in props).toEqual(true);
+    }
+  }
+
+  const nhStateBallotProps: NhStateBallotProps[] = createBallotPropsForTemplate(
+    'NhStateBallot',
+    election,
+    false
+  );
+  const [allFooProps, allRegularProps] = iter(nhStateBallotProps).partition(
+    (props) => props.isFederalOfficeOnly
+  );
+  for (const regularProps of allRegularProps) {
+    const matchingFooProps = allFooProps.find((fooProps) =>
+      deepEqual(fooProps, { ...regularProps, isFederalOfficeOnly: true })
+    );
+    if (
+      regularProps.ballotMode === 'official' &&
+      regularProps.ballotType === BallotType.Absentee
+    ) {
+      expect(matchingFooProps).toBeDefined();
+    } else {
+      expect(matchingFooProps).toBeUndefined();
     }
   }
 });

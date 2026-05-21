@@ -1,4 +1,5 @@
 import {
+  BallotType,
   BaseBallotProps,
   Election,
   hasSplits,
@@ -10,6 +11,7 @@ import {
   AnyBallotProps,
   BallotTemplateId,
   NhBallotProps,
+  NhStateBallotProps,
 } from '@votingworks/hmpb';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
@@ -113,6 +115,18 @@ export function createBallotPropsForTemplate(
     };
   }
 
+  function buildNhStateBallotProps(
+    props: BaseBallotProps
+  ): NhStateBallotProps[] {
+    return [
+      props,
+      ...(props.ballotMode === 'official' &&
+      props.ballotType === BallotType.Absentee
+        ? [{ ...props, isFederalOfficeOnly: true }]
+        : []),
+    ];
+  }
+
   assert(election.ballotStyles.length > 0, 'Election has no ballot styles');
   const baseBallotProps = allBaseBallotProps(election).map((props) => ({
     ...props,
@@ -122,10 +136,12 @@ export function createBallotPropsForTemplate(
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
 
+    case 'NhStateBallot':
+      return baseBallotProps.flatMap(buildNhStateBallotProps);
+
     case 'MsBallot':
     case 'VxDefaultBallot':
     case 'MiBallot':
-    case 'NhStateBallot':
       return baseBallotProps;
 
     default: {
