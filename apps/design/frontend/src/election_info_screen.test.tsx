@@ -301,6 +301,30 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
   await screen.findByRole('button', { name: 'Edit' });
 });
 
+test('shows signature input for NhStateBallot template', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  electionRecord.ballotTemplateId = 'NhStateBallot';
+  const { election } = electionRecord;
+  const electionId = election.id;
+  mockStateFeatures(apiMock, electionId);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromRecord(electionRecord));
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('NhStateBallot');
+  renderScreen(electionId);
+
+  await screen.findByRole('heading', { name: 'Election Info' });
+  screen.getByText('Signature');
+  screen.getByLabelText('Upload Signature Image');
+  screen.getByLabelText('Signature Caption');
+});
+
 test('cancel update', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;

@@ -4,6 +4,7 @@ import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
 } from '@votingworks/fixtures';
+import { nhStateGeneralElectionFixtures } from '@votingworks/hmpb';
 import {
   Election,
   hasSplits,
@@ -317,4 +318,64 @@ test('ballot measure contest editing with additional contest options', async () 
   expect(updatedContest.additionalOptions).toEqual(
     expectedContest.additionalOptions
   );
+});
+
+test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOfficeOnly is true', async () => {
+  // Use the NH state general election fixture so the election has the contest
+  // titles that NhStateBallot's isFederalOfficeContest matcher recognizes
+  const { election } = nhStateGeneralElectionFixtures.allBallotProps[0];
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nhUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nhJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(election),
+      },
+    })
+  ).unsafeUnwrap();
+
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhStateBallot',
+  });
+
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const ballotStyle = assertDefined(
+    ballotStyles.find((style) =>
+      style.languages!.includes(LanguageCode.ENGLISH)
+    )
+  );
+  const precinct = (await apiClient.listPrecincts({ electionId }))[0];
+
+  const nonFooResult = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: ballotStyle.id,
+      ballotType: BallotType.Absentee,
+      ballotMode: 'official',
+      isFederalOfficeOnly: false,
+    })
+  ).unsafeUnwrap();
+  expect(nonFooResult.fileName).not.toMatch(/-foo\.pdf$/);
+
+  const fooResult = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: ballotStyle.id,
+      ballotType: BallotType.Absentee,
+      ballotMode: 'official',
+      isFederalOfficeOnly: true,
+    })
+  ).unsafeUnwrap();
+  expect(fooResult.fileName).toMatch(/-foo\.pdf$/);
 });

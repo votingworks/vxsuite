@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi, describe } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
 import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { DocumentProps, PageProps } from 'react-pdf';
@@ -117,6 +117,7 @@ test('shows a PDF ballot preview', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
     })
     .resolves(
       ok({
@@ -180,6 +181,7 @@ test('changes ballot type', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
     })
     .resolves(
       ok({
@@ -210,6 +212,7 @@ test('changes ballot type', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Absentee,
       ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
     })
     .resolves(
       ok({
@@ -230,6 +233,7 @@ test('changes tabulation mode', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
     })
     .resolves(
       ok({
@@ -264,6 +268,7 @@ test('changes tabulation mode', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
+      isFederalOfficeOnly: undefined,
     })
     .resolves(
       ok({
@@ -274,6 +279,90 @@ test('changes tabulation mode', async () => {
   userEvent.click(testRadioOption);
   await screen.findByText('mock test ballot pdf');
   screen.getByRole('radio', { name: 'L&A Test Ballot', checked: true });
+});
+
+test('NhStateBallot template: Federal Office Only option locks mode to Official', async () => {
+  apiMock.getBallotTemplate.reset();
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('NhStateBallot');
+  apiMock.getBallotPreviewPdf
+    .expectCallWith({
+      electionId,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
+    })
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock precinct ballot pdf'),
+        fileName: 'mock precinct ballot.pdf',
+      })
+    );
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'View Ballot' });
+  await screen.findByText('mock precinct ballot pdf');
+
+  const ballotTypeRadioGroup = screen.getByRole('radiogroup', {
+    name: 'Ballot Type',
+  });
+  const tabulationModeRadioGroup = screen.getByRole('radiogroup', {
+    name: 'Tabulation Mode',
+  });
+  const fooRadioOption = within(ballotTypeRadioGroup).getByRole('radio', {
+    name: 'Federal Office Only',
+    checked: false,
+  });
+  const testRadioOption = within(tabulationModeRadioGroup).getByRole('radio', {
+    name: 'L&A Test Ballot',
+  });
+  expect(testRadioOption).toBeEnabled();
+
+  // Switch to test mode first so we can verify the FOO click forces it back to official.
+  apiMock.getBallotPreviewPdf
+    .expectCallWith({
+      electionId,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      isFederalOfficeOnly: undefined,
+    })
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock test ballot pdf'),
+        fileName: 'mock test ballot.pdf',
+      })
+    );
+  userEvent.click(testRadioOption);
+  await screen.findByText('mock test ballot pdf');
+
+  apiMock.getBallotPreviewPdf
+    .expectCallWith({
+      electionId,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      ballotType: BallotType.Absentee,
+      ballotMode: 'official',
+      isFederalOfficeOnly: true,
+    })
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock foo ballot pdf'),
+        fileName: 'mock foo ballot.pdf',
+      })
+    );
+  userEvent.click(fooRadioOption);
+  await screen.findByText('mock foo ballot pdf');
+  screen.getByRole('radio', { name: 'Federal Office Only', checked: true });
+  expect(testRadioOption).toBeDisabled();
+  within(tabulationModeRadioGroup).getByRole('radio', {
+    name: 'Official Ballot',
+    checked: true,
+  });
 });
 
 describe('Ballot rendering error handling', () => {
@@ -290,6 +379,7 @@ describe('Ballot rendering error handling', () => {
         precinctId: precinct.id,
         ballotType: BallotType.Precinct,
         ballotMode: 'official',
+        isFederalOfficeOnly: undefined,
       })
       .resolves(
         err({
@@ -383,6 +473,7 @@ describe('Ballot rendering error handling', () => {
           precinctId: precinct.id,
           ballotType: BallotType.Precinct,
           ballotMode: 'official',
+          isFederalOfficeOnly: undefined,
         })
         .resolves(
           err({
