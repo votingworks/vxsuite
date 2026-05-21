@@ -887,18 +887,9 @@ export function buildApi(ctx: AppContext) {
       }
       if (ballotPdf.isErr()) return ballotPdf;
 
-      const precinct = find(
-        election.precincts,
-        (p) => p.id === input.precinctId
-      );
       return ok({
         pdfData: ballotPdf.ok(),
-        fileName: `PROOF-${getBallotPdfFileName(
-          precinct.name,
-          input.ballotStyleId,
-          input.ballotType,
-          input.ballotMode
-        )}`,
+        fileName: `PROOF-${getBallotPdfFileName(ballotProps)}`,
       });
     },
 

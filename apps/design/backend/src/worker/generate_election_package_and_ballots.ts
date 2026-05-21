@@ -8,7 +8,6 @@ import {
   formatElectionHashes,
   LATEST_METADATA,
   ElectionId,
-  getPrecinctById,
   formatBallotHash,
   BallotType,
   ElectionIdSchema,
@@ -30,7 +29,6 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import {
-  assertDefined,
   extractErrorMessage,
   find,
   iter,
@@ -426,16 +424,7 @@ export async function generateElectionPackageAndBallots(
 
   // Add ballots to ZIP files, grouped by ballot type:
   for (const { props, ballotPdf } of normalizedBallotPdfs) {
-    const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
-      props;
-    const precinct = assertDefined(getPrecinctById({ election, precinctId }));
-    const fileName = getBallotPdfFileName(
-      precinct.name,
-      ballotStyleId,
-      ballotType,
-      ballotMode,
-      ballotAuditId
-    );
+    const fileName = getBallotPdfFileName(props);
 
     switch (props.ballotMode) {
       case 'official':
