@@ -622,12 +622,12 @@
       "BatchId": "378f6a69-62d3-4184-a1a7-3a5d90083e21",
       "UniqueId": "864a2854-ee26-4223-8097-9633b7bed096",
       "BallotSheetId": "1",
-      "CurrentSnapshotId": "864a2854-ee26-4223-8097-9633b7bed096-modified",
+      "CurrentSnapshotId": "864a2854-ee26-4223-8097-9633b7bed096-interpreted",
       "CVRSnapshot": [
         {
           "@type": "CVR.CVRSnapshot",
-          "@id": "864a2854-ee26-4223-8097-9633b7bed096-modified",
-          "Type": "modified",
+          "@id": "864a2854-ee26-4223-8097-9633b7bed096-interpreted",
+          "Type": "interpreted",
           "Status": ["other"],
           "OtherStatus": "{\"ballotType\":\"precinct\"}",
           "CVRContest": [
