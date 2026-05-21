@@ -63,9 +63,14 @@ const DEFAULT_ZOOM = 1.8;
 interface PdfViewerProps {
   pdfData?: Uint8Array;
   loading?: boolean;
+  renderMode?: 'canvas' | 'svg';
 }
 
-function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
+function PdfViewerHelper({
+  pdfData,
+  loading,
+  renderMode = 'svg',
+}: PdfViewerProps): JSX.Element {
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState(1);
   const file = useMemo(
@@ -144,7 +149,7 @@ function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
                   // case in Chrome, hopefully it's a Chrome version issue and
                   // we can move to the "canvas" default and avoid the console
                   // warnings
-                  renderMode="svg"
+                  renderMode={renderMode}
                   pageNumber={pageNumber}
                   renderTextLayer={false}
                   renderAnnotationLayer={false}
@@ -161,13 +166,18 @@ function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
   );
 }
 
-export function PdfViewer({ loading, pdfData }: PdfViewerProps): JSX.Element {
+export function PdfViewer({
+  loading,
+  pdfData,
+  renderMode,
+}: PdfViewerProps): JSX.Element {
   return (
     <PdfViewerHelper
       // Reset the page count state whenever we change the PDF data
       key={String(Boolean(pdfData))}
       loading={loading}
       pdfData={pdfData}
+      renderMode={renderMode}
     />
   );
 }
