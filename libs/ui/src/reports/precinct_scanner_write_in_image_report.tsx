@@ -10,6 +10,13 @@ import {
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
+import {
+  ContestHeading,
+  ContestSection,
+  WriteInGrid,
+  WriteInImage,
+  WriteInTextBox,
+} from './write_in_report_styles';
 import { LogoMark } from '../logo_mark';
 import { Font } from '../typography';
 import { PrintedReport, printedReportThemeFn } from './layout';
@@ -50,35 +57,6 @@ interface PrecinctScannerWriteInImageReportProps {
 
 const PartyHeader = styled(ReportSubtitle)`
   margin-top: 1.5em;
-`;
-
-const ContestSection = styled.div`
-  margin-top: 1.5em;
-  page-break-inside: avoid;
-`;
-
-const ContestHeading = styled.h2`
-  margin-top: 0;
-  margin-bottom: 0.5em;
-  font-size: 1.1em;
-`;
-
-const WriteInGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 0.3em;
-`;
-
-const WriteInImage = styled.img`
-  max-width: 100%;
-  border: 1px solid #ccc;
-  display: block;
-`;
-
-const WriteInTextBox = styled.div`
-  border: 1px solid #ccc;
-  padding: 0.4em 0.6em;
-  background-color: #f5f5f5;
 `;
 
 export function PrecinctScannerWriteInImageReport({
