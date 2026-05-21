@@ -21,7 +21,7 @@ import {
 
 export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
   isHandCount?: boolean;
-  isFederalOnlyOffices?: boolean;
+  isFederalOfficeOnly?: boolean;
 };
 
 const FONT_DECLARATIONS = css`
@@ -330,12 +330,12 @@ export function Footer({
   pageNumber,
   totalPages,
   isHandCount,
-  isFederalOnlyOffices,
+  isFederalOfficeOnly,
 }: {
   pageNumber: number;
   totalPages?: number;
   isHandCount?: boolean;
-  isFederalOnlyOffices?: boolean;
+  isFederalOfficeOnly?: boolean;
 }): JSX.Element {
   return (
     <div
@@ -346,7 +346,7 @@ export function Footer({
       }}
     >
       <div>
-        <QrCodeSlot hideQrCode={isHandCount || isFederalOnlyOffices} />
+        <QrCodeSlot hideQrCode={isHandCount || isFederalOfficeOnly} />
         <div
           style={{
             fontSize: '8pt',

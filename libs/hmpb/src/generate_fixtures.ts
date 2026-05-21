@@ -168,8 +168,8 @@ async function generateNhStateGeneralElectionFixtures(
     generated.handCountBlankBallotPdf
   );
   await writeFile(
-    fixtures.federalOnlyBlankBallotPath,
-    generated.federalOnlyBlankBallotPdf
+    fixtures.federalOfficeOnlyBlankBallotPath,
+    generated.federalOfficeOnlyBlankBallotPdf
   );
 }
 
@@ -192,8 +192,8 @@ async function generateNhStatePrimaryElectionFixtures(
     generated.demHandCountBlankBallotPdf
   );
   await writeFile(
-    fixtures.demFederalOnlyBlankBallotPath,
-    generated.demFederalOnlyBlankBallotPdf
+    fixtures.demFederalOfficeOnlyBlankBallotPath,
+    generated.demFederalOfficeOnlyBlankBallotPdf
   );
 }
 

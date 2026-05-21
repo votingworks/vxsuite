@@ -758,7 +758,10 @@ export const nhStateGeneralElectionFixtures = (() => {
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
   const handCountBlankBallotPath = join(dir, 'hand-count-blank-ballot.pdf');
-  const federalOnlyBlankBallotPath = join(dir, 'federal-only-blank-ballot.pdf');
+  const federalOfficeOnlyBlankBallotPath = join(
+    dir,
+    'federal-office-only-blank-ballot.pdf'
+  );
 
   const baseElection = readElectionGeneral();
   // Rename contests so the NH state template's isFederalOfficeContest matcher
@@ -843,7 +846,7 @@ export const nhStateGeneralElectionFixtures = (() => {
     blankBallotPath,
     markedBallotPath,
     handCountBlankBallotPath,
-    federalOnlyBlankBallotPath,
+    federalOfficeOnlyBlankBallotPath,
     allBallotProps,
     precinctId,
     ballotStyleId: ballotStyle.id,
@@ -907,9 +910,9 @@ export const nhStateGeneralElectionFixtures = (() => {
         { isHandCount: true, ballotType: BallotType.Absentee },
         { blankPath: handCountBlankBallotPath }
       );
-      const federalOnlyResult = await renderVariant(
-        { isFederalOnlyOffices: true, ballotType: BallotType.Absentee },
-        { blankPath: federalOnlyBlankBallotPath }
+      const federalOfficeOnlyResult = await renderVariant(
+        { isFederalOfficeOnly: true, ballotType: BallotType.Absentee },
+        { blankPath: federalOfficeOnlyBlankBallotPath }
       );
 
       return {
@@ -917,7 +920,7 @@ export const nhStateGeneralElectionFixtures = (() => {
         blankBallotPdf: defaultResult.blankPdf,
         markedBallotPdf: assertDefined(defaultResult.markedPdf),
         handCountBlankBallotPdf: handCountResult.blankPdf,
-        federalOnlyBlankBallotPdf: federalOnlyResult.blankPdf,
+        federalOfficeOnlyBlankBallotPdf: federalOfficeOnlyResult.blankPdf,
       };
     },
   };
@@ -930,9 +933,9 @@ export const nhStatePrimaryElectionFixtures = (() => {
     dir,
     'dem-hand-count-blank-ballot.pdf'
   );
-  const demFederalOnlyBlankBallotPath = join(
+  const demFederalOfficeOnlyBlankBallotPath = join(
     dir,
-    'dem-federal-only-blank-ballot.pdf'
+    'dem-federal-office-only-blank-ballot.pdf'
   );
 
   const baseElection = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -1039,7 +1042,7 @@ export const nhStatePrimaryElectionFixtures = (() => {
     demParty,
     repParty,
     demHandCountBlankBallotPath,
-    demFederalOnlyBlankBallotPath,
+    demFederalOfficeOnlyBlankBallotPath,
 
     async generate(rendererPool: RendererPool) {
       async function renderVariant(spec: {
@@ -1121,14 +1124,14 @@ export const nhStatePrimaryElectionFixtures = (() => {
         precinctId: demParty.precinctId,
         blankPath: demHandCountBlankBallotPath,
       });
-      const demFederalOnlyResult = await renderVariant({
+      const demFederalOfficeOnlyResult = await renderVariant({
         variantProps: {
-          isFederalOnlyOffices: true,
+          isFederalOfficeOnly: true,
           ballotType: BallotType.Absentee,
         },
         ballotStyleId: demParty.ballotStyleId,
         precinctId: demParty.precinctId,
-        blankPath: demFederalOnlyBlankBallotPath,
+        blankPath: demFederalOfficeOnlyBlankBallotPath,
       });
 
       return {
@@ -1144,7 +1147,7 @@ export const nhStatePrimaryElectionFixtures = (() => {
           markedBallotPdf: assertDefined(repResult.markedPdf),
         },
         demHandCountBlankBallotPdf: demHandCountResult.blankPdf,
-        demFederalOnlyBlankBallotPdf: demFederalOnlyResult.blankPdf,
+        demFederalOfficeOnlyBlankBallotPdf: demFederalOfficeOnlyResult.blankPdf,
       };
     },
   };

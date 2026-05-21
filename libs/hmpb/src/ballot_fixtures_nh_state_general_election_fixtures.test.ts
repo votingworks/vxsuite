@@ -40,7 +40,7 @@ test('NH state general election fixtures', async () => {
     fixtures.handCountBlankBallotPath
   );
   await expectToMatchSavedPdf(
-    generated.federalOnlyBlankBallotPdf,
-    fixtures.federalOnlyBlankBallotPath
+    generated.federalOfficeOnlyBlankBallotPdf,
+    fixtures.federalOfficeOnlyBlankBallotPath
   );
 });

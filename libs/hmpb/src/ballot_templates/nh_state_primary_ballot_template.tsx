@@ -93,13 +93,13 @@ function Header({
   ballotType,
   ballotMode,
   party,
-  isFederalOnlyOffices,
+  isFederalOfficeOnly,
 }: {
   election: Election;
   ballotType: BallotType;
   ballotMode: BallotMode;
   party: Party;
-  isFederalOnlyOffices?: boolean;
+  isFederalOfficeOnly?: boolean;
 }): JSX.Element {
   const isAbsentee = ballotType === 'absentee';
   const ballotTitle = {
@@ -139,7 +139,7 @@ function Header({
           padding: '0 3rem',
         }}
       >
-        <h3 style={{ visibility: isFederalOnlyOffices ? 'visible' : 'hidden' }}>
+        <h3 style={{ visibility: isFederalOfficeOnly ? 'visible' : 'hidden' }}>
           FEDERAL OFFICE ONLY
         </h3>
         <h3 style={{ visibility: isAbsentee ? 'visible' : 'hidden' }}>
@@ -158,7 +158,7 @@ function Header({
           {<h1>{electionStrings.partyName(party)}</h1>}
         </div>
         <h5 style={{ lineHeight: 1 }}>
-          {isFederalOnlyOffices ? 'Federal' : 'State'} Primary Election
+          {isFederalOfficeOnly ? 'Federal' : 'State'} Primary Election
         </h5>
         <h5>{electionStrings.electionDate(election)}</h5>
       </div>
@@ -248,7 +248,7 @@ export function BallotPageFrame({
   children,
   watermark,
   isHandCount,
-  isFederalOnlyOffices,
+  isFederalOfficeOnly,
 }: NhStateBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -281,7 +281,7 @@ export function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           hideTimingMarks={
-            ballotMode === 'sample' || isHandCount || isFederalOnlyOffices
+            ballotMode === 'sample' || isHandCount || isFederalOfficeOnly
           }
         >
           <div
@@ -306,7 +306,7 @@ export function BallotPageFrame({
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                   party={party}
-                  isFederalOnlyOffices={isFederalOnlyOffices}
+                  isFederalOfficeOnly={isFederalOfficeOnly}
                 />
               </div>
             )}
@@ -320,7 +320,7 @@ export function BallotPageFrame({
               }}
             >
               {children}
-              {isHandCount && !isFederalOnlyOffices && (
+              {isHandCount && !isFederalOfficeOnly && (
                 <HandCountInsignia
                   pageNumber={pageNumber}
                   totalPages={totalPages}
@@ -336,7 +336,7 @@ export function BallotPageFrame({
               pageNumber={pageNumber}
               totalPages={totalPages}
               isHandCount={isHandCount}
-              isFederalOnlyOffices={isFederalOnlyOffices}
+              isFederalOfficeOnly={isFederalOfficeOnly}
             />
           </div>
         </TimingMarkGrid>
@@ -607,7 +607,7 @@ export async function BallotPageContent(
   // One section for candidate contests, one for ballot measures
   const contestSections = iter(contests)
     .filter((contest) =>
-      restProps.isFederalOnlyOffices ? isFederalOfficeContest(contest) : true
+      restProps.isFederalOfficeOnly ? isFederalOfficeContest(contest) : true
     )
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
