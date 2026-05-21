@@ -3,6 +3,7 @@ import { assert, find } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   ballotPaperDimensions,
+  Candidate,
   CandidateContest,
   Election,
   HmpbBallotPaperSize,
@@ -10,7 +11,7 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import styled from 'styled-components';
-import { SignatureLine, SignatureX } from '@votingworks/ui';
+import { CandidatePartyList, SignatureLine, SignatureX } from '@votingworks/ui';
 import { RenderDocument, Renderer } from '../renderer';
 import { BaseStyles } from '../base_styles';
 import {
@@ -67,7 +68,7 @@ const ContestTable = styled.table`
   }
 `;
 
-function Field({ label }: { label: string }): JSX.Element {
+function Field({ label }: { label: React.ReactNode }): JSX.Element {
   return (
     <div
       style={{
@@ -111,6 +112,18 @@ function contestTitleWithForPrefix(title: string): string {
   return title.startsWith('For ') ? title : `For ${title}`;
 }
 
+const SEATS_WORD: Record<number, string> = {
+  2: 'Two',
+  3: 'Three',
+  4: 'Four',
+  5: 'Five',
+  6: 'Six',
+  7: 'Seven',
+  8: 'Eight',
+  9: 'Nine',
+  10: 'Ten',
+};
+
 function cleanCandidateName(name: string): JSX.Element {
   const parts = name.split(/<br\/>/g);
   if (parts.length === 1) return <span>{name}</span>;
@@ -126,15 +139,23 @@ function cleanCandidateName(name: string): JSX.Element {
   );
 }
 
-function deduplicateCandidates(
-  candidates: readonly { readonly id: string; readonly name: string }[]
-): { readonly id: string; readonly name: string }[] {
-  const seen = new Set<string>();
-  return candidates.filter((c) => {
-    if (seen.has(c.name)) return false;
-    seen.add(c.name);
-    return true;
-  });
+function mergeCrossEndorsedCandidates(
+  candidates: readonly Candidate[]
+): Candidate[] {
+  const groups = new Map<string, Candidate>();
+  for (const c of candidates) {
+    const existing = groups.get(c.name);
+    if (existing) {
+      const merged: PartyId[] = [...(existing.partyIds ?? [])];
+      for (const pid of c.partyIds ?? []) {
+        if (!merged.includes(pid)) merged.push(pid);
+      }
+      groups.set(c.name, { ...existing, partyIds: merged });
+    } else {
+      groups.set(c.name, c);
+    }
+  }
+  return [...groups.values()];
 }
 
 const PRIMARY_INSTRUCTIONS =
@@ -143,13 +164,13 @@ const PRIMARY_INSTRUCTIONS =
   "the ballot received write-in votes in this party's primary, include the " +
   'votes by write-in by adding those write-in votes into the total votes ' +
   'for that candidate on this return. Record the total Undervotes and total ' +
-  'Overvotes for each race. Record the Ballots Cast information at the ' +
-  'bottom of the return.';
+  'Overvotes for each race. Record the Ballots Cast information at the top ' +
+  'of the return.';
 
 const GENERAL_INSTRUCTIONS =
   'Record the number of votes received by each candidate or question in the ' +
   'appropriate space. Record the total Undervotes and total Overvotes for ' +
-  'each race or question. Record the Ballots Cast information at the bottom ' +
+  'each race or question. Record the Ballots Cast information at the top ' +
   'of the return. The Clerk must verify that the numbers entered accurately ' +
   'reflect the vote counts determined by the moderator and sign the form. ' +
   'Return on ELECTION NIGHT to the Secretary of State.';
@@ -230,7 +251,8 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                   padding: '0.25rem 0.375rem',
                 }}
               >
-                One copy to be Returned ELECTION NIGHT to the Secretary of State
+                One copy to be returned <strong>ELECTION NIGHT</strong> to the
+                Secretary of State
               </div>
             </div>
           </Header>
@@ -242,6 +264,47 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
             }}
           >
             <strong>Instructions:</strong> {instructions}
+          </div>
+        </div>
+        <div
+          style={{
+            border: `1px solid ${Colors.DARKER_GRAY}`,
+            backgroundColor: headerBgColor,
+          }}
+        >
+          <h4
+            style={{
+              padding: '0.375rem 0.5rem',
+              borderBottom: `1px solid ${Colors.DARKER_GRAY}`,
+            }}
+          >
+            Ballots Cast
+          </h4>
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.75rem',
+              alignItems: 'stretch',
+              padding: '0.5rem',
+            }}
+          >
+            <Field
+              label={<>{ballotsCastPrefix}Election Day Ballots&nbsp;Cast</>}
+            />
+            <h2 style={{ alignSelf: 'center' }}>+</h2>
+            <Field label={<>{ballotsCastPrefix}Absentee Ballots&nbsp;Cast</>} />
+            <h2 style={{ alignSelf: 'center' }}>=</h2>
+            <Field label={<>{ballotsCastPrefix}Total Ballots&nbsp;Cast</>} />
+            <div
+              style={{
+                borderLeft: '1px solid black',
+              }}
+            />
+            <Field
+              label={
+                <>{ballotsCastPrefix}Federal Office Only Ballots&nbsp;Cast</>
+              }
+            />
           </div>
         </div>
         <div
@@ -281,7 +344,14 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                         </h4>
                         {contest.type === 'candidate' && (
                           <div>
-                            Vote for not more than {contest.seats}
+                            {contest.seats === 1 ? (
+                              <>Vote for not more than 1</>
+                            ) : (
+                              <>
+                                Vote for up to {contest.seats};{' '}
+                                {SEATS_WORD[contest.seats]} will be elected
+                              </>
+                            )}
                             {contest.termDescription && (
                               <span> • {contest.termDescription}</span>
                             )}
@@ -292,10 +362,21 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                   </thead>
                   <tbody>
                     {contest.type === 'candidate' &&
-                      deduplicateCandidates(contest.candidates).map(
+                      mergeCrossEndorsedCandidates(contest.candidates).map(
                         (candidate) => (
                           <tr key={candidate.id}>
-                            <td>{cleanCandidateName(candidate.name)}</td>
+                            <td>
+                              {cleanCandidateName(candidate.name)}
+                              {!partyId &&
+                                (candidate.partyIds?.length ?? 0) > 0 && (
+                                  <div style={{ fontWeight: '400' }}>
+                                    <CandidatePartyList
+                                      candidate={candidate}
+                                      electionParties={election.parties}
+                                    />
+                                  </div>
+                                )}
+                            </td>
                             <td></td>
                           </tr>
                         )
@@ -330,47 +411,6 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                 </ContestTable>
               </div>
             ))}
-        </div>
-        <div
-          style={{
-            border: `1px solid ${Colors.DARKER_GRAY}`,
-            backgroundColor: headerBgColor,
-          }}
-        >
-          <h4
-            style={{
-              padding: '0.375rem 0.5rem',
-              borderBottom: `1px solid ${Colors.DARKER_GRAY}`,
-            }}
-          >
-            Ballots Cast
-          </h4>
-          <div
-            style={{
-              display: 'flex',
-              gap: '0.75rem',
-              alignItems: 'stretch',
-              padding: '0.5rem',
-            }}
-          >
-            <Field
-              label={`${ballotsCastPrefix}Election Day Ballots\u00a0Cast`}
-            />
-            <h2 style={{ alignSelf: 'center' }}>+</h2>
-            <Field
-              label={`${ballotsCastPrefix}Absentee Ballots\u00a0Cast`}
-            />
-            <h2 style={{ alignSelf: 'center' }}>=</h2>
-            <Field
-              label={`${ballotsCastPrefix}Total Ballots\u00a0Cast`}
-            />
-            <div
-              style={{
-                borderLeft: '1px solid black',
-              }}
-            />
-            <Field label={`Federal Office Only Ballots\u00a0Cast`} />
-          </div>
         </div>
       </div>
     </Page>
@@ -480,28 +520,28 @@ function WriteInContest({
         border: `1px solid ${Colors.DARKER_GRAY}`,
       }}
     >
-    <WriteInContestTable>
-      <tbody>
-        <tr>
-          <th
-            colSpan={2}
-            style={headerColor ? { backgroundColor: headerColor } : undefined}
-          >
-            {contestTitleWithForPrefix(title)}
-          </th>
-        </tr>
-        {Array.from({ length: WRITE_IN_BLANK_ROWS }, (_, i) => (
-          <tr key={`row-${i}`}>
-            <td />
+      <WriteInContestTable>
+        <tbody>
+          <tr>
+            <th
+              colSpan={2}
+              style={headerColor ? { backgroundColor: headerColor } : undefined}
+            >
+              {contestTitleWithForPrefix(title)}
+            </th>
+          </tr>
+          {Array.from({ length: WRITE_IN_BLANK_ROWS }, (_, i) => (
+            <tr key={`row-${i}`}>
+              <td />
+              <td />
+            </tr>
+          ))}
+          <tr>
+            <td>Total</td>
             <td />
           </tr>
-        ))}
-        <tr>
-          <td>Total</td>
-          <td />
-        </tr>
-      </tbody>
-    </WriteInContestTable>
+        </tbody>
+      </WriteInContestTable>
     </div>
   );
 }
@@ -631,18 +671,24 @@ function NhWriteInPages({
                     style={{
                       fontSize: '0.8rem',
                       border: '1px solid black',
-                      padding: '0.375rem',
                       backgroundColor: 'white',
                       minWidth: '22rem',
                     }}
                   >
-                    <div>
+                    <div style={{ padding: '0.25rem 0.375rem' }}>
                       <strong>A true copy attest:</strong>
                     </div>
-                    <SignatureLine>
-                      <SignatureX />
-                    </SignatureLine>
-                    <div>Signature of Town/City Clerk</div>
+                    <div
+                      style={{
+                        borderTop: `1px solid ${Colors.DARK_GRAY}`,
+                        padding: '0.25rem 0.375rem',
+                      }}
+                    >
+                      <SignatureLine>
+                        <SignatureX />
+                      </SignatureLine>
+                      <div>Signature of Town/City Clerk</div>
+                    </div>
                   </div>
                 </Header>
                 <div
@@ -654,9 +700,7 @@ function NhWriteInPages({
                 >
                   <strong>Instructions:</strong>{' '}
                   {party
-                    ? primaryWriteInInstructions(
-                        party.name
-                      )
+                    ? primaryWriteInInstructions(party.name)
                     : GENERAL_WRITE_IN_INSTRUCTIONS}
                 </div>
               </div>
@@ -669,12 +713,9 @@ function NhWriteInPages({
                     marginBottom: '0.375rem',
                   }}
                 >
-                  The following persons received{' '}
-                  <strong>WRITE-IN</strong> votes on{' '}
-                  <strong>
-                    {party.name.toUpperCase()}
-                  </strong>{' '}
-                  ballots for the following <strong>Offices:</strong>
+                  The following persons received <strong>WRITE-IN</strong> votes
+                  on <strong>{party.name.toUpperCase()}</strong> ballots for the
+                  following <strong>Offices:</strong>
                 </div>
               )}
 
