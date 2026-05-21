@@ -49,7 +49,7 @@ test('returns external-facing audio context API', () => {
         }}
       >
         <UiStringScreenReaderContext.Provider
-          value={{ ...mockScreenReaderContextControls }}
+          value={{ ...mockScreenReaderContextControls, isAudioActive: false }}
         >
           {children}
         </UiStringScreenReaderContext.Provider>

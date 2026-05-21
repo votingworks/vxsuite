@@ -9,6 +9,7 @@ import { AudioOnly } from './audio_only';
 import { LanguageOverride } from './language_override';
 import { Button } from '../button';
 import { AudioVolume } from './audio_volume';
+import { useScreenReaderActive } from './ui_string_screen_reader';
 
 vi.mock(import('./play_audio_clips.js'), async (importActual) => ({
   ...(await importActual()),
@@ -80,11 +81,14 @@ test('queues up audio for <UiString>s within focus/click event targets', async (
       <Button data-testid="focusTarget" onPress={() => undefined}>
         {appStrings.buttonDone()}
       </Button>
+      <AudioActiveHookClient />
     </div>
   );
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
+
+  expectAudioActiveHookValue(false);
 
   // Should trigger audio on click events:
   act(() => userEvent.click(clickTarget));
@@ -100,6 +104,7 @@ test('queues up audio for <UiString>s within focus/click event targets', async (
   expect(mockClipOutputs[2]).toHaveTextContent(
     getMockClipOutput({ audioId: '123', languageCode: SPANISH })
   );
+  expectAudioActiveHookValue(true);
 
   // Should trigger audio on focus events:
   const focusTarget = screen.getByTestId('focusTarget');
@@ -112,6 +117,7 @@ test('queues up audio for <UiString>s within focus/click event targets', async (
   expect(screen.getByTestId('mockClipOutput')).toHaveTextContent(
     getMockClipOutput({ audioId: 'abc', languageCode: ENGLISH })
   );
+  expectAudioActiveHookValue(true);
 });
 
 test('resumes paused audio when user switches focus', async () => {
@@ -157,7 +163,10 @@ test('clears audio queue on blur', async () => {
   });
 
   render(
-    <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+    <div>
+      <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+      <AudioActiveHookClient />
+    </div>
   );
 
   const clickTarget = await screen.findByTestId('clickTarget');
@@ -168,6 +177,7 @@ test('clears audio queue on blur', async () => {
   expect(mockClipOutput).toHaveTextContent(
     getMockClipOutput({ audioId: 'abc', languageCode: ENGLISH })
   );
+  expectAudioActiveHookValue(true);
 
   act(() => {
     clickTarget.dispatchEvent(new Event('blur', { bubbles: true }));
@@ -176,6 +186,7 @@ test('clears audio queue on blur', async () => {
   await waitFor(() =>
     expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument()
   );
+  expectAudioActiveHookValue(false);
 });
 
 test('triggers replay when user language is changed', async () => {
@@ -230,7 +241,10 @@ test('is a no-op when audio is disabled', async () => {
   });
 
   render(
-    <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+    <div>
+      <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+      <AudioActiveHookClient />
+    </div>
   );
 
   const clickTarget = await screen.findByTestId('clickTarget');
@@ -244,6 +258,7 @@ test('is a no-op when audio is disabled', async () => {
   });
 
   expect(screen.queryByTestId('mockClips')).not.toBeInTheDocument();
+  expectAudioActiveHookValue(false);
 });
 
 test('handles missing audio ID data', async () => {
@@ -347,3 +362,18 @@ test('volume control API', async () => {
   act(() => fireOnClipsDoneEvent?.());
   expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
 });
+
+type AudioStatus = 'active' | 'inactive';
+const AUDIO_STATUS_TEST_ID = 'AudioActiveHookClient';
+
+function expectAudioActiveHookValue(active: boolean) {
+  const current = screen.getByTestId(AUDIO_STATUS_TEST_ID).textContent;
+  expect(current).toEqual<AudioStatus>(active ? 'active' : 'inactive');
+}
+
+function AudioActiveHookClient(): JSX.Element {
+  const audioActive = useScreenReaderActive();
+  const status: AudioStatus = audioActive ? 'active' : 'inactive';
+
+  return <div data-testid={AUDIO_STATUS_TEST_ID}>{status}</div>;
+}

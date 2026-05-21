@@ -25,7 +25,7 @@ import type {
   PrecinctScannerStatus,
 } from '@votingworks/scan-backend';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Keybinding } from '@votingworks/ui';
+import { Keybinding, useScreenReaderActive } from '@votingworks/ui';
 import {
   waitFor,
   screen,
@@ -63,6 +63,11 @@ vi.mock('@votingworks/utils', async () => ({
   ...(await vi.importActual('@votingworks/utils')),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
+}));
+
+vi.mock(import('@votingworks/ui'), async (importActual) => ({
+  ...(await importActual()),
+  useScreenReaderActive: vi.fn(),
 }));
 
 function renderApp(props: Partial<AppProps> = {}) {
@@ -443,6 +448,46 @@ test('voter can cast a ballot that scans successfully', async () => {
   await waitFor(() => {
     expect(screen.queryByText('Eject USB')).toBeNull();
   });
+});
+
+test('success screen stays visible until screen reader audio is done', async () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+  apiMock.expectGetConfig({
+    electionDefinition,
+    pollingPlaceId: pollingPlace.id,
+  });
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+
+  const mockUseScreenReaderActive = vi.mocked(useScreenReaderActive);
+  mockUseScreenReaderActive.mockReturnValue(false);
+
+  renderApp();
+  await screen.findByText(/Insert Your Ballot/i);
+
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  apiMock.expectPlaySound('success');
+  apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
+  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText('Your ballot was counted!');
+
+  mockUseScreenReaderActive.mockReturnValue(true);
+
+  vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS * 2);
+  screen.getByText('Your ballot was counted!');
+
+  mockUseScreenReaderActive.mockReturnValue(false);
+
+  // Trigger a re-render to pick up new hook value:
+  apiMock.expectGetScannerStatus(statusBallotCounted);
+  await vi.advanceTimersByTimeAsync(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
+  await screen.findByText(/Insert Your Ballot/i);
+  expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
