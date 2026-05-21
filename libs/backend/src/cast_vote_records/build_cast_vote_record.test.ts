@@ -302,6 +302,39 @@ describe('buildCVRContestsFromVotes', () => {
     }
   });
 
+  test('overvoted write-in has both InvalidatedRules and NeedsAdjudication status', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition,
+      ballotStyleId: '1M',
+      votes: {
+        [mammalCouncilContest.id]: [
+          ...mammalCouncilContest.candidates.slice(0, 3),
+          { id: 'write-in-0', name: 'Write In', isWriteIn: true },
+        ],
+      },
+      options: { ballotMarkingMode: 'hand' },
+    });
+
+    expect(result).toHaveLength(1);
+    const cvrContest = result[0];
+    assert(cvrContest?.CVRContestSelection);
+    const writeInSelection = cvrContest.CVRContestSelection.find(
+      (s) => s.ContestSelectionId === 'write-in-0'
+    );
+    expect(writeInSelection).toMatchObject({
+      Status: expect.arrayContaining([
+        CVR.ContestSelectionStatus.InvalidatedRules,
+        CVR.ContestSelectionStatus.NeedsAdjudication,
+      ]),
+    });
+    const nonWriteInSelection = cvrContest.CVRContestSelection.find(
+      (s) => s.ContestSelectionId !== 'write-in-0'
+    );
+    expect(nonWriteInSelection).toMatchObject({
+      Status: [CVR.ContestSelectionStatus.InvalidatedRules],
+    });
+  });
+
   test('candidate contest includes appropriate information for HMPB write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,

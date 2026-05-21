@@ -231,6 +231,10 @@ function buildCVRCandidateContest({
     voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
 
+      const selectionStatuses: CVR.ContestSelectionStatus[] = [];
+      if (overvoted) selectionStatuses.push(CVR.ContestSelectionStatus.InvalidatedRules);
+      if (isWriteIn) selectionStatuses.push(CVR.ContestSelectionStatus.NeedsAdjudication);
+
       return {
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId: candidate.id,
@@ -241,11 +245,7 @@ function buildCVRCandidateContest({
           contest.id,
           candidate.id
         ),
-        Status: overvoted
-          ? [CVR.ContestSelectionStatus.InvalidatedRules]
-          : isWriteIn
-          ? [CVR.ContestSelectionStatus.NeedsAdjudication]
-          : undefined,
+        Status: selectionStatuses.length > 0 ? selectionStatuses : undefined,
         SelectionPosition: [
           {
             '@type': 'CVR.SelectionPosition',
