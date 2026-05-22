@@ -22,6 +22,8 @@ import { prefixedTitle } from './utils';
 import { WriteInEntry } from './precinct_scanner_write_in_image_report';
 import { Icons } from '../icons';
 
+const WRITE_IN_REACT_KEY_MAX_LENGTH = 64;
+
 // Represents a group of adjudicated write-ins for a contest.
 // `groupLabel` is either a candidate name or "Invalid" for write-ins that were adjudicated but not qualified.
 export interface CandidateGroupWriteIns {
@@ -43,8 +45,12 @@ const CandidateGroupHeading = styled.h3`
 
 function getKeyForWriteIn(writeIn: WriteInEntry): string {
   if (writeIn.type === 'image') {
-    return `image-${writeIn.dataUrl}`;
+    const possiblyLargeKey = writeIn?.dataUrl || JSON.stringify(writeIn);
+    return `image-${possiblyLargeKey.slice(
+      -1 * WRITE_IN_REACT_KEY_MAX_LENGTH
+    )}`;
   }
+
   return `text-${writeIn.text}`;
 }
 
