@@ -10,5 +10,6 @@ export * from './admin_tally_report_by_party';
 export * from './contest_results_table';
 export * from './ballots_printed_report';
 export * from './precinct_scanner_write_in_image_report';
+export * from './admin_write_in_image_report';
 export * from './utils';
 export * from './voter_turnout_report';
