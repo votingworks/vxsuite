@@ -1,4 +1,4 @@
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   AdminContestWriteIns,
   AdminWriteInImageReport,
@@ -146,38 +146,29 @@ export async function buildAdminContestWriteIns(
       continue;
     }
 
-    switch (record.adjudicationType) {
-      case 'invalid':
-        if (entry) {
-          invalidGroup.writeIns.push(entry);
-        }
-        continue;
-      case 'write-in-candidate':
-      case 'official-candidate':
-        // Remaining adjudicationType is 'write-in-candidate' or 'official-candidate'
-        if (!qualifiedCandidateGroups.has(record.candidateId)) {
-          const candidateName =
-            record.adjudicationType === 'write-in-candidate'
-              ? assertDefined(writeInCandidatesById.get(record.candidateId))
-                  .name
-              : assertDefined(
-                  contest.candidates.find((c) => c.id === record.candidateId)
-                ).name;
-          qualifiedCandidateGroups.set(record.candidateId, {
-            groupLabel: candidateName,
-            isQualified: true,
-            writeIns: [],
-          });
-        }
-        if (entry) {
-          assertDefined(
-            qualifiedCandidateGroups.get(record.candidateId)
-          ).writeIns.push(entry);
-        }
-        continue;
-      /* istanbul ignore next - @preserve */
-      default:
-        throwIllegalValue(record);
+    if (record.adjudicationType === 'invalid') {
+      if (entry) {
+        invalidGroup.writeIns.push(entry);
+      }
+    } else {
+      if (!qualifiedCandidateGroups.has(record.candidateId)) {
+        const candidateName =
+          record.adjudicationType === 'write-in-candidate'
+            ? assertDefined(writeInCandidatesById.get(record.candidateId)).name
+            : assertDefined(
+                contest.candidates.find((c) => c.id === record.candidateId)
+              ).name;
+        qualifiedCandidateGroups.set(record.candidateId, {
+          groupLabel: candidateName,
+          isQualified: true,
+          writeIns: [],
+        });
+      }
+      if (entry) {
+        assertDefined(
+          qualifiedCandidateGroups.get(record.candidateId)
+        ).writeIns.push(entry);
+      }
     }
   }
 
