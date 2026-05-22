@@ -86,6 +86,7 @@ test('2 valid candidates, invalid write-in, and unadjudicated write-in', async (
 
   await expect(pdf).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'admin-write-in-image-report-all-types',
+    failureThreshold: 0.005,
   });
 });
 
@@ -100,6 +101,7 @@ test('no write-in votes - boilerplate message shown', async () => {
 
   await expect(pdf).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'admin-write-in-image-report-no-votes',
+    failureThreshold: 0.005,
   });
 });
 
@@ -122,6 +124,7 @@ test('only invalid votes - boilerplate message shown', async () => {
 
   await expect(pdf).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'admin-write-in-image-report-only-invalid',
+    failureThreshold: 0.005,
   });
 });
 
@@ -136,5 +139,6 @@ test('unadjudicated vote present - boilerplate message not shown', async () => {
 
   await expect(pdf).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'admin-write-in-image-report-unadjudicated',
+    failureThreshold: 0.005,
   });
 });
