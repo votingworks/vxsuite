@@ -20,6 +20,7 @@ import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 import { prefixedTitle } from './utils';
 import { WriteInEntry } from './precinct_scanner_write_in_image_report';
+import { Icons } from '../icons';
 
 // Represents a group of adjudicated write-ins for a contest.
 // `groupLabel` is either a candidate name or "Invalid" for write-ins that were adjudicated but not qualified.
@@ -124,7 +125,8 @@ export function AdminWriteInImageReport({
                 unadjudicatedWriteIns.length === 0 &&
                 areAllAdjudicatedWriteInsInvalid ? (
                   <React.Fragment>
-                    <P italic>
+                    <P>
+                      <Icons.Info />
                       No qualified write-in candidates have received votes in
                       this contest.
                     </P>
@@ -147,7 +149,8 @@ export function AdminWriteInImageReport({
                     ))}
                   </React.Fragment>
                 ) : !qualifiedWriteInsEnabled && totalWriteIns === 0 ? (
-                  <P italic>
+                  <P>
+                    <Icons.Info />
                     No write-in candidates have received votes in this contest.
                   </P>
                 ) : (
