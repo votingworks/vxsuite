@@ -234,14 +234,12 @@ export async function generateWriteInImageReportPreview({
   logger,
   ...reportProps
 }: WriteInImageReportProps): Promise<WriteInImageReportPreview> {
-  const result = await (async () => {
-    const report = await buildWriteInImageReport(reportProps);
-    const pdfResult = await renderToPdf({ document: report });
-    return {
-      pdf: pdfResult.ok(),
-      warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
-    };
-  })();
+  const report = await buildWriteInImageReport(reportProps);
+  const pdfResult = await renderToPdf({ document: report });
+  const result: WriteInImageReportPreview = {
+    pdf: pdfResult.ok(),
+    warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
+  };
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
     message: `User previewed the write-in image report.${
       result.warning ? ` Warning: ${result.warning.type}` : ''
