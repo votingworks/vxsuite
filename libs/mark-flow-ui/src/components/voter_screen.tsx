@@ -10,7 +10,6 @@ import {
   Screen,
   VoterHelpButton,
   VoterSettings,
-  useScreenInfo,
 } from '@votingworks/ui';
 import { SizeMode } from '@votingworks/types';
 
@@ -67,14 +66,6 @@ const Footer = styled(ButtonBar)`
   order: 3;
 `;
 
-const SideBar = styled(ButtonBar)`
-  border-left: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.outline};
-  justify-content: center;
-  max-width: 35%;
-  order: 3;
-`;
-
 const ButtonGrid = styled.div`
   align-items: center;
   display: grid;
@@ -112,10 +103,6 @@ const PortraitButtonGrid = styled(ButtonGrid)`
       : ''}
 `;
 
-const LandscapeButtonGrid = styled(ButtonGrid)`
-  grid-template-columns: 1fr;
-`;
-
 const BreadcrumbsContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -139,8 +126,6 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
   const [showLanguageSettings, setShowLanguageSettings] = React.useState(false);
   const [showVoterSettings, setShowVoterSettings] = React.useState(false);
   const [showVoterHelpScreen, setShowVoterHelpScreen] = React.useState(false);
-
-  const screenInfo = useScreenInfo();
 
   if (showLanguageSettings) {
     return (
@@ -176,41 +161,27 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
     </React.Fragment>
   );
 
-  if (screenInfo.isPortrait) {
-    return (
-      // NOTE: Elements are rendered in accessible focus order and visually
-      // re-ordered using flex ordering (see styles above).
-      <Screen flexDirection="column">
-        <Body centerChild={centerContent} flexColumn padded={padded}>
-          {children}
-        </Body>
-        {actionButtons && (
-          <Footer>
-            {optionalBreadcrumbs}
-            <PortraitButtonGrid>{actionButtons}</PortraitButtonGrid>
-          </Footer>
-        )}
-        {!hideMenuButtons && (
-          <Header>
-            <PortraitButtonGrid>{menuButtons}</PortraitButtonGrid>
-          </Header>
-        )}
-      </Screen>
-    );
-  }
-
   return (
-    <Screen flexDirection="row" data-testid={MARK_FLOW_UI_VOTER_SCREEN_TEST_ID}>
+    // NOTE: Elements are rendered in accessible focus order and visually
+    // re-ordered using flex ordering (see styles above).
+    <Screen
+      flexDirection="column"
+      data-testid={MARK_FLOW_UI_VOTER_SCREEN_TEST_ID}
+    >
       <Body centerChild={centerContent} flexColumn padded={padded}>
         {children}
       </Body>
-      <SideBar>
-        <LandscapeButtonGrid>
-          {menuButtons}
-          {actionButtons}
-        </LandscapeButtonGrid>
-        {optionalBreadcrumbs}
-      </SideBar>
+      {actionButtons && (
+        <Footer>
+          {optionalBreadcrumbs}
+          <PortraitButtonGrid>{actionButtons}</PortraitButtonGrid>
+        </Footer>
+      )}
+      {!hideMenuButtons && (
+        <Header>
+          <PortraitButtonGrid>{menuButtons}</PortraitButtonGrid>
+        </Header>
+      )}
     </Screen>
   );
 }
