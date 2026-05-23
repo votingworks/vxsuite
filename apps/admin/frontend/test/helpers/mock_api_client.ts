@@ -791,6 +791,19 @@ export function createApiMock(
       apiClient.exportVoterTurnoutReportPdf
     ),
 
+    expectGetWriteInImageReportPreview(contestId: string, pdfContent: string) {
+      apiClient.getWriteInImageReportPreview
+        .expectCallWith({ contestId })
+        .resolves({ pdf: Buffer.from(pdfContent) });
+    },
+
+    expectPrintWriteInImageReport: createDeferredMock(
+      apiClient.printWriteInImageReport
+    ),
+    expectExportWriteInImageReportPdf: createDeferredMock(
+      apiClient.exportWriteInImageReportPdf
+    ),
+
     expectRebootToVendorMenu() {
       apiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
