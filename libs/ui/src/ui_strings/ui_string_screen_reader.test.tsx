@@ -9,6 +9,7 @@ import { AudioOnly } from './audio_only';
 import { LanguageOverride } from './language_override';
 import { Button } from '../button';
 import { AudioVolume } from './audio_volume';
+import { PlaybackRate } from './audio_playback_rate';
 import { useScreenReaderActive } from './ui_string_screen_reader';
 
 vi.mock(import('./play_audio_clips.js'), async (importActual) => ({
@@ -289,10 +290,10 @@ test('volume control API', async () => {
     newTestContext();
 
   const mockAudioIds: Partial<Record<AppStringKey, string[]>> = {
-    audioFeedbackMinimumVolume: ['min-volume'],
-    audioFeedback10PercentVolume: ['10%-volume'],
-    audioFeedback90PercentVolume: ['90%-volume'],
-    audioFeedbackMaximumVolume: ['max-volume'],
+    audioFeedbackVolumeMinimum: ['min-volume'],
+    audioFeedbackVolume10Percent: ['10%-volume'],
+    audioFeedbackVolume90Percent: ['90%-volume'],
+    audioFeedbackVolumeMaximum: ['max-volume'],
     titleBmdReviewScreen: ['screen-title'],
   };
   mockApiClient.getUiStringAudioIds.mockResolvedValue(mockAudioIds);
@@ -356,6 +357,86 @@ test('volume control API', async () => {
   expect(getAudioContext()?.volume).toEqual(AudioVolume.MINIMUM);
   expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
     getMockClipOutput({ audioId: 'min-volume', languageCode: ENGLISH })
+  );
+
+  // Simulate screen reader audio ending:
+  act(() => fireOnClipsDoneEvent?.());
+  expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
+});
+
+test('playback rate control API', async () => {
+  const { getAudioContext, getAudioControls, mockApiClient, render } =
+    newTestContext();
+
+  const mockAudioIds: Partial<Record<AppStringKey, string[]>> = {
+    audioFeedbackRateMinimum: ['min-rate'],
+    audioFeedbackRate75Percent: ['75%-rate'],
+    audioFeedbackRate100Percent: ['100%-rate'],
+    audioFeedbackRateMaximum: ['max-rate'],
+    titleBmdReviewScreen: ['screen-title'],
+  };
+  mockApiClient.getUiStringAudioIds.mockResolvedValue(mockAudioIds);
+
+  render(
+    <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+  );
+
+  const clickTarget = await screen.findByTestId('clickTarget');
+  act(() => getAudioContext()?.setIsEnabled(true));
+  act(() => userEvent.click(clickTarget));
+  act(() => {
+    vi.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
+
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'screen-title', languageCode: ENGLISH })
+  );
+
+  // Simulate decreasing the rate while screen reader audio is still active.
+  // No rate-change feedback should interrupt the active audio:
+  act(() => getAudioControls()?.decreasePlaybackRate());
+  expect(getAudioContext()?.playbackRate).toEqual(PlaybackRate.PERCENT_75);
+  expect(screen.getByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'screen-title', languageCode: ENGLISH })
+  );
+
+  // Simulate screen reader audio ending:
+  act(() => fireOnClipsDoneEvent?.());
+  expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
+
+  // Decreasing rate while no screen reader audio is active should play
+  // appropriate feedback:
+  act(() => getAudioControls()?.decreasePlaybackRate());
+  expect(getAudioContext()?.playbackRate).toEqual(PlaybackRate.MINIMUM);
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'min-rate', languageCode: ENGLISH })
+  );
+
+  // Simulate screen reader audio ending:
+  act(() => fireOnClipsDoneEvent?.());
+  expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
+
+  // Increasing rate should play appropriate feedback:
+  act(() => getAudioControls()?.increasePlaybackRate());
+  expect(getAudioContext()?.playbackRate).toEqual(PlaybackRate.PERCENT_75);
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: '75%-rate', languageCode: ENGLISH })
+  );
+
+  // Simulate screen reader audio ending:
+  act(() => fireOnClipsDoneEvent?.());
+  expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
+
+  // Increasing to maximum:
+  await waitFor(() => {
+    act(() => getAudioControls()?.increasePlaybackRate());
+    expect(getAudioContext()?.playbackRate).toEqual(PlaybackRate.MAXIMUM);
+  });
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'max-rate', languageCode: ENGLISH })
   );
 
   // Simulate screen reader audio ending:

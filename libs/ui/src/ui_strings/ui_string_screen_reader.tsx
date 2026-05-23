@@ -7,12 +7,16 @@ import { useAudioContext } from './audio_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 import { UiStringAudioDataAttributeName } from './with_audio';
-import { VOLUME_CHANGE_FEEDBACK_STRING_KEYS } from './app_strings';
+import {
+  RATE_CHANGE_FEEDBACK_STRING_KEYS,
+  VOLUME_CHANGE_FEEDBACK_STRING_KEYS,
+} from './app_strings';
 import {
   AudioVolume,
   getDecreasedVolume,
   getIncreasedVolume,
 } from './audio_volume';
+import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate';
 
 const EMPTY_CLIP_QUEUE: ClipParams[] = [];
 
@@ -27,7 +31,9 @@ interface UiStringParams {
 
 export interface UiStringScreenReaderContextInterface {
   cycleVolume: () => void;
+  decreasePlaybackRate: () => void;
   decreaseVolume: () => void;
+  increasePlaybackRate: () => void;
   increaseVolume: () => void;
   isAudioActive: boolean;
   /** Replays audio for any `UiString`s currently under focus. */
@@ -99,6 +105,44 @@ function useVolumeControls(params: {
   return { cycleVolume, decreaseVolume, increaseVolume };
 }
 
+function usePlaybackRateControls(params: {
+  playRateChangeFeedback: (uiStringQueue: UiStringParams[]) => void;
+}) {
+  const { playRateChangeFeedback } = params;
+
+  const currentLanguageCode = useCurrentLanguage();
+  const { playbackRate, decreasePlaybackRate, increasePlaybackRate } =
+    assertDefined(useAudioContext());
+
+  const announceFeedback = React.useCallback(
+    (newRate: PlaybackRate) => {
+      playRateChangeFeedback([
+        {
+          i18nKey: RATE_CHANGE_FEEDBACK_STRING_KEYS[newRate],
+          languageCode: currentLanguageCode,
+        },
+      ]);
+    },
+    [currentLanguageCode, playRateChangeFeedback]
+  );
+
+  const decrease = React.useCallback(() => {
+    const currentIdx = PLAYBACK_RATES.indexOf(playbackRate);
+    const newIdx = Math.max(0, currentIdx - 1);
+    decreasePlaybackRate();
+    announceFeedback(PLAYBACK_RATES[newIdx]);
+  }, [announceFeedback, decreasePlaybackRate, playbackRate]);
+
+  const increase = React.useCallback(() => {
+    const currentIdx = PLAYBACK_RATES.indexOf(playbackRate);
+    const newIdx = Math.min(PLAYBACK_RATES.length - 1, currentIdx + 1);
+    increasePlaybackRate();
+    announceFeedback(PLAYBACK_RATES[newIdx]);
+  }, [announceFeedback, increasePlaybackRate, playbackRate]);
+
+  return { decreasePlaybackRate: decrease, increasePlaybackRate: increase };
+}
+
 /**
  * Monitors the DOM for click/focus user actions and plays back associated audio
  * for all <UiString> elements within the event target.
@@ -115,6 +159,11 @@ export function UiStringScreenReader(
   const { cycleVolume, decreaseVolume, increaseVolume } = useVolumeControls({
     playVolumeChangeFeedback: setAudioFeedbackQueue,
   });
+
+  const { decreasePlaybackRate, increasePlaybackRate } =
+    usePlaybackRateControls({
+      playRateChangeFeedback: setAudioFeedbackQueue,
+    });
 
   const { api, isEnabled, setIsPaused } = assertDefined(
     useAudioContext(),
@@ -290,7 +339,9 @@ export function UiStringScreenReader(
     <UiStringScreenReaderContext.Provider
       value={{
         cycleVolume,
+        decreasePlaybackRate,
         decreaseVolume,
+        increasePlaybackRate,
         increaseVolume,
         isAudioActive,
         replay,

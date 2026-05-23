@@ -6,11 +6,10 @@ import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
 import {
   AppStringKey,
   appStrings,
-  rateChangeFeedbackString,
-  ToggleAudioButton,
+  RATE_CHANGE_FEEDBACK_STRING_KEYS,
   VOLUME_CHANGE_FEEDBACK_STRING_KEYS,
-  WithAltAudio,
-} from '../ui_strings';
+} from '../ui_strings/app_strings';
+import { ToggleAudioButton, WithAltAudio } from '../ui_strings';
 import { useAudioControls } from '../hooks/use_audio_controls';
 import { useCurrentTheme } from '../hooks/use_current_theme';
 import { Font } from '../typography';
@@ -18,6 +17,7 @@ import { useAudioContext } from '../ui_strings/audio_context';
 import { AssistiveTechInstructions } from '../accessible_controllers';
 import { IconName } from '../icons';
 import { AudioVolume } from '../ui_strings/audio_volume';
+import { PlaybackRate } from '../ui_strings/audio_playback_rate';
 
 const Column = styled.div`
   align-items: start;
@@ -150,7 +150,7 @@ function AudioControls() {
         instructionsController="instructionsSpeechRateDownButton"
         instructionsPat="instructionsSpeechRateDownButtonPat"
         onPress={decreasePlaybackRate}
-        statusString={rateChangeFeedbackString(ctx.playbackRate)}
+        statusString={rateString(ctx.playbackRate)}
       >
         {appStrings.buttonDecrease()}
       </AudioControl>
@@ -160,7 +160,7 @@ function AudioControls() {
         instructionsController="instructionsSpeechRateUpButton"
         instructionsPat="instructionsSpeechRateUpButtonPat"
         onPress={increasePlaybackRate}
-        statusString={rateChangeFeedbackString(ctx.playbackRate)}
+        statusString={rateString(ctx.playbackRate)}
       >
         {appStrings.buttonIncrease()}
       </AudioControl>
@@ -207,5 +207,10 @@ function AudioControl(props: {
 
 function volumeString(volume: AudioVolume) {
   const key = VOLUME_CHANGE_FEEDBACK_STRING_KEYS[volume];
+  return appStrings[key]();
+}
+
+function rateString(rate: PlaybackRate) {
+  const key = RATE_CHANGE_FEEDBACK_STRING_KEYS[rate];
   return appStrings[key]();
 }

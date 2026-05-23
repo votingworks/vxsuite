@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 
-import React from 'react';
 import { Font } from '../typography';
 import { PlaybackRate } from './audio_playback_rate';
 import { AudioVolume } from './audio_volume';
@@ -12,48 +11,90 @@ import { UiString } from './ui_string';
 // to generate libs/ui/src/ui_strings/app_strings_catalog/latest.json
 
 export const appStrings = {
-  audioFeedback10PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback10PercentVolume">10% volume</UiString>
+  audioFeedbackRate75Percent: () => (
+    <UiString uiStringKey="audioFeedbackRate75Percent">
+      75% speech rate
+    </UiString>
   ),
 
-  audioFeedback20PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback20PercentVolume">20% volume</UiString>
+  audioFeedbackRate100Percent: () => (
+    <UiString uiStringKey="audioFeedbackRate100Percent">
+      100% speech rate
+    </UiString>
   ),
 
-  audioFeedback30PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback30PercentVolume">30% volume</UiString>
+  audioFeedbackRate125Percent: () => (
+    <UiString uiStringKey="audioFeedbackRate125Percent">
+      125% speech rate
+    </UiString>
   ),
 
-  audioFeedback40PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback40PercentVolume">40% volume</UiString>
+  audioFeedbackRate150Percent: () => (
+    <UiString uiStringKey="audioFeedbackRate150Percent">
+      150% speech rate
+    </UiString>
   ),
 
-  audioFeedback50PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback50PercentVolume">50% volume</UiString>
+  audioFeedbackRate175Percent: () => (
+    <UiString uiStringKey="audioFeedbackRate175Percent">
+      175% speech rate
+    </UiString>
   ),
 
-  audioFeedback60PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback60PercentVolume">60% volume</UiString>
+  audioFeedbackRateMaximum: () => (
+    <UiString uiStringKey="audioFeedbackRateMaximum">
+      Maximum speech rate
+    </UiString>
   ),
 
-  audioFeedback70PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback70PercentVolume">70% volume</UiString>
+  audioFeedbackRateMinimum: () => (
+    <UiString uiStringKey="audioFeedbackRateMinimum">
+      Minimum speech rate
+    </UiString>
   ),
 
-  audioFeedback80PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback80PercentVolume">80% volume</UiString>
+  audioFeedbackVolume10Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume10Percent">10% volume</UiString>
   ),
 
-  audioFeedback90PercentVolume: () => (
-    <UiString uiStringKey="audioFeedback90PercentVolume">90% volume</UiString>
+  audioFeedbackVolume20Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume20Percent">20% volume</UiString>
   ),
 
-  audioFeedbackMaximumVolume: () => (
-    <UiString uiStringKey="audioFeedbackMaximumVolume">Maximum volume</UiString>
+  audioFeedbackVolume30Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume30Percent">30% volume</UiString>
   ),
 
-  audioFeedbackMinimumVolume: () => (
-    <UiString uiStringKey="audioFeedbackMinimumVolume">Minimum volume</UiString>
+  audioFeedbackVolume40Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume40Percent">40% volume</UiString>
+  ),
+
+  audioFeedbackVolume50Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume50Percent">50% volume</UiString>
+  ),
+
+  audioFeedbackVolume60Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume60Percent">60% volume</UiString>
+  ),
+
+  audioFeedbackVolume70Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume70Percent">70% volume</UiString>
+  ),
+
+  audioFeedbackVolume80Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume80Percent">80% volume</UiString>
+  ),
+
+  audioFeedbackVolume90Percent: () => (
+    <UiString uiStringKey="audioFeedbackVolume90Percent">90% volume</UiString>
+  ),
+
+  audioFeedbackVolumeMaximum: () => (
+    <UiString uiStringKey="audioFeedbackVolumeMaximum">Maximum volume</UiString>
+  ),
+
+  audioFeedbackVolumeMinimum: () => (
+    <UiString uiStringKey="audioFeedbackVolumeMinimum">Minimum volume</UiString>
   ),
 
   bmdPatDeviceInputNameMove: () => (
@@ -741,24 +782,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  label75Percent: () => <UiString uiStringKey="label75Percent">75%</UiString>,
-
-  label100Percent: () => (
-    <UiString uiStringKey="label100Percent">100%</UiString>
-  ),
-
-  label125Percent: () => (
-    <UiString uiStringKey="label125Percent">125%</UiString>
-  ),
-
-  label150Percent: () => (
-    <UiString uiStringKey="label150Percent">150%</UiString>
-  ),
-
-  label175Percent: () => (
-    <UiString uiStringKey="label175Percent">175%</UiString>
-  ),
-
   labelAllPrecinctsSelection: () => (
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
   ),
@@ -891,10 +914,6 @@ export const appStrings = {
   labelKeyboardSpaceBar: () => (
     <UiString uiStringKey="labelKeyboardSpaceBar">space</UiString>
   ),
-
-  labelMaximum: () => <UiString uiStringKey="labelMaximum">Maximum</UiString>,
-
-  labelMinimum: () => <UiString uiStringKey="labelMinimum">Minimum</UiString>,
 
   labelNumBallotContests: () => (
     <UiString uiStringKey="labelNumBallotContests">
@@ -2202,36 +2221,27 @@ export type AppStringKey = keyof typeof appStrings;
 export const RATE_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
   Record<PlaybackRate, AppStringKey>
 > = {
-  [PlaybackRate.MINIMUM]: 'labelMinimum',
-  [PlaybackRate.PERCENT_75]: 'label75Percent',
-  [PlaybackRate.PERCENT_100]: 'label100Percent',
-  [PlaybackRate.PERCENT_125]: 'label125Percent',
-  [PlaybackRate.PERCENT_150]: 'label150Percent',
-  [PlaybackRate.PERCENT_175]: 'label175Percent',
-  [PlaybackRate.MAXIMUM]: 'labelMaximum',
+  [PlaybackRate.MINIMUM]: 'audioFeedbackRateMinimum',
+  [PlaybackRate.PERCENT_75]: 'audioFeedbackRate75Percent',
+  [PlaybackRate.PERCENT_100]: 'audioFeedbackRate100Percent',
+  [PlaybackRate.PERCENT_125]: 'audioFeedbackRate125Percent',
+  [PlaybackRate.PERCENT_150]: 'audioFeedbackRate150Percent',
+  [PlaybackRate.PERCENT_175]: 'audioFeedbackRate175Percent',
+  [PlaybackRate.MAXIMUM]: 'audioFeedbackRateMaximum',
 };
-
-export function rateChangeFeedbackString(rate: PlaybackRate): JSX.Element {
-  const key = RATE_CHANGE_FEEDBACK_STRING_KEYS[rate];
-  return (
-    <React.Fragment>
-      {appStrings.labelRateOfSpeech()} {appStrings[key]()}
-    </React.Fragment>
-  );
-}
 
 export const VOLUME_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
   Record<AudioVolume, AppStringKey>
 > = {
-  [AudioVolume.MINIMUM]: 'audioFeedbackMinimumVolume',
-  [AudioVolume.TEN_PERCENT]: 'audioFeedback10PercentVolume',
-  [AudioVolume.TWENTY_PERCENT]: 'audioFeedback20PercentVolume',
-  [AudioVolume.THIRTY_PERCENT]: 'audioFeedback30PercentVolume',
-  [AudioVolume.FORTY_PERCENT]: 'audioFeedback40PercentVolume',
-  [AudioVolume.FIFTY_PERCENT]: 'audioFeedback50PercentVolume',
-  [AudioVolume.SIXTY_PERCENT]: 'audioFeedback60PercentVolume',
-  [AudioVolume.SEVENTY_PERCENT]: 'audioFeedback70PercentVolume',
-  [AudioVolume.EIGHTY_PERCENT]: 'audioFeedback80PercentVolume',
-  [AudioVolume.NINETY_PERCENT]: 'audioFeedback90PercentVolume',
-  [AudioVolume.MAXIMUM]: 'audioFeedbackMaximumVolume',
+  [AudioVolume.MINIMUM]: 'audioFeedbackVolumeMinimum',
+  [AudioVolume.TEN_PERCENT]: 'audioFeedbackVolume10Percent',
+  [AudioVolume.TWENTY_PERCENT]: 'audioFeedbackVolume20Percent',
+  [AudioVolume.THIRTY_PERCENT]: 'audioFeedbackVolume30Percent',
+  [AudioVolume.FORTY_PERCENT]: 'audioFeedbackVolume40Percent',
+  [AudioVolume.FIFTY_PERCENT]: 'audioFeedbackVolume50Percent',
+  [AudioVolume.SIXTY_PERCENT]: 'audioFeedbackVolume60Percent',
+  [AudioVolume.SEVENTY_PERCENT]: 'audioFeedbackVolume70Percent',
+  [AudioVolume.EIGHTY_PERCENT]: 'audioFeedbackVolume80Percent',
+  [AudioVolume.NINETY_PERCENT]: 'audioFeedbackVolume90Percent',
+  [AudioVolume.MAXIMUM]: 'audioFeedbackVolumeMaximum',
 };
