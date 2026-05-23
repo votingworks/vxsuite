@@ -7,22 +7,36 @@ import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { printBallot } from '../api';
 
 export function PrintPage(): JSX.Element {
-  const { ballotStyleId, precinctId, votes, resetBallot } =
-    useContext(BallotContext);
+  const {
+    ballotStyleId,
+    precinctId,
+    votes,
+    resetBallot,
+    hasPrintedBallot,
+    setPrintedBallot,
+  } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
   const printBallotMutation = printBallot.useMutation();
 
   const printerTimer = useRef(0);
 
   function print() {
-    assert(ballotStyleId !== undefined);
-    assert(precinctId !== undefined);
-    printBallotMutation.mutate({
-      languageCode,
-      precinctId,
-      ballotStyleId,
-      votes,
-    });
+    // We track the printed ballot state to avoid re-printing in the case where
+    // the voter flow is unmounted and re-mounted during ballot printing. This
+    // is an edge case that would require an authenticated user (e.g. poll
+    // worker) to log in and out during print. `print` is triggered by a
+    // downstream useEffect, which is why it can be called multiple times.
+    if (!hasPrintedBallot) {
+      assert(ballotStyleId !== undefined);
+      assert(precinctId !== undefined);
+      setPrintedBallot();
+      printBallotMutation.mutate({
+        languageCode,
+        precinctId,
+        ballotStyleId,
+        votes,
+      });
+    }
 
     printerTimer.current = window.setTimeout(() => {
       resetBallot(true);

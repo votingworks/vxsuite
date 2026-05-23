@@ -179,6 +179,76 @@ test('poll worker selects ballot style, voter votes', async () => {
   await screen.findByText('Insert Card');
 });
 
+test('poll worker card insertion during printing does not cause duplicate print', async () => {
+  const electionDefinition = readElectionGeneralDefinition();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollsState: 'polls_open',
+  });
+  render(<App apiClient={apiMock.mockApiClient} />);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
+
+  // Activate voter session
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: { ballotStyleId: '12', precinctId: '23' },
+  });
+  await screen.findByText('Remove Card to Begin Voting Session');
+
+  // Poll worker removes card
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
+  userEvent.click(screen.getByText('Start Voting'));
+
+  // Voter makes a selection and navigates to review
+  for (let i = 0; i < voterContests.length; i += 1) {
+    const { title } = voterContests[i];
+    await screen.findByRole('heading', { name: title });
+    if (title === presidentContest.title) {
+      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+    }
+    userEvent.click(screen.getByText('Next'));
+  }
+
+  // Voter clicks print — only one printBallot call should ever be made
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId: '23',
+    votes: { [presidentContest.id]: [presidentContest.candidates[0]] },
+  });
+  apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
+  userEvent.click(screen.getByText(/Print My ballot/i));
+  await screen.findByText(/Printing Your Ballot/i);
+
+  // Poll worker inserts card while ballot is printing
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: { ballotStyleId: '12', precinctId: '23' },
+  });
+  await screen.findByText('Voting Session Paused');
+
+  // Poll worker removes card — voter session resumes at the print screen
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
+  // The print screen is shown again but no second printBallot call is made
+  await screen.findByText(/Printing Your Ballot/i);
+
+  // Normal session end after print timeout
+  await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
+  screen.getByText('You’re Almost Done');
+
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
+  await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
+  apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
+});
+
 test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
   const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();

@@ -86,6 +86,7 @@ export interface VotingState {
   showPostVotingInstructions?: boolean;
   showingPatCalibration?: boolean;
   isPatCalibrationComplete?: boolean;
+  hasPrintedBallot?: boolean;
 }
 
 export const stateStorageKey = 'state';
@@ -104,6 +105,7 @@ const initialVotingState: Readonly<VotingState> = {
   showPostVotingInstructions: undefined,
   showingPatCalibration: undefined,
   isPatCalibrationComplete: undefined,
+  hasPrintedBallot: undefined,
 };
 
 // Sets State. All side effects done outside: storage, fetching, etc
@@ -113,7 +115,8 @@ type VotingAction =
   | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
   | { type: 'selectParty'; partyId: PartyId }
   | { type: 'showPatCalibration' }
-  | { type: 'completePatCalibration' };
+  | { type: 'completePatCalibration' }
+  | { type: 'setPrintedBallot' };
 
 function votingStateReducer(
   state: VotingState,
@@ -158,6 +161,8 @@ function votingStateReducer(
         showingPatCalibration: false,
         isPatCalibrationComplete: true,
       };
+    case 'setPrintedBallot':
+      return { ...state, hasPrintedBallot: true };
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(action);
@@ -177,6 +182,7 @@ export function AppRoot(): JSX.Element | null {
     selectedPartyId,
     showingPatCalibration,
     isPatCalibrationComplete,
+    hasPrintedBallot,
   } = votingState;
 
   const history = useHistory();
@@ -303,6 +309,10 @@ export function AppRoot(): JSX.Element | null {
       onSessionEnd,
     ]
   );
+
+  const setPrintedBallot = useCallback(() => {
+    dispatchVotingState({ type: 'setPrintedBallot' });
+  }, []);
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
@@ -641,9 +651,11 @@ export function AppRoot(): JSX.Element | null {
               isCardlessVoter: isCardlessVoterAuth(authStatus),
               isLiveMode: !isTestMode,
               endVoterSession,
+              hasPrintedBallot: hasPrintedBallot ?? false,
               resetBallot,
               selectedPartyId,
               selectParty,
+              setPrintedBallot,
               updateVote,
               votes: votes ?? blankBallotVotes,
             }}
