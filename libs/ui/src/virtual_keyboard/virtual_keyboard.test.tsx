@@ -231,14 +231,16 @@ test('navigation with left and right arrow', async () => {
     />
   );
 
-  // Wait for first render
-  const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
-  await screen.findByText(hasTextAcrossElements(expectedButtonContent));
+  // Wait for first render and click Q to establish focus in the keyboard
+  const qSpan = await screen.findByText(
+    hasTextAcrossElements(`Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`)
+  );
+  userEvent.click(qSpan.parentElement as HTMLElement);
   await expectFocus('Q');
 
   for (const row of TEST_ROWS_WITH_ACTIONS) {
     for (const key of row) {
-      // Q is autofocused and tested right above this loop
+      // Q is focused above and tested via the click
       if (key.value !== 'Q') {
         await pressKeyAndExpectFocus('[ArrowRight]', key.value);
       }
@@ -279,9 +281,11 @@ test('navigation with up and down arrow', async () => {
     />
   );
 
-  // Wait for first render
-  const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
-  await screen.findByText(hasTextAcrossElements(expectedButtonContent));
+  // Wait for first render and click Q to establish focus in the keyboard
+  const qSpan = await screen.findByText(
+    hasTextAcrossElements(`Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`)
+  );
+  userEvent.click(qSpan.parentElement as HTMLElement);
   await expectFocus('Q');
 
   // Go down and wrap around to start
