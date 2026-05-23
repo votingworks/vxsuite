@@ -69,6 +69,11 @@ interface PdfViewerProps {
 function PdfViewerHelper({
   pdfData,
   loading,
+  // SVG render mode is deprecated, but for some reason the PDF
+  // fonts are grainy in kiosk-browser. Because that's not the
+  // case in Chrome, hopefully it's a Chrome version issue and
+  // we can move to the "canvas" default and avoid the console
+  // warnings
   renderMode = 'svg',
 }: PdfViewerProps): JSX.Element {
   const [numPages, setNumPages] = useState<number>();
@@ -144,11 +149,6 @@ function PdfViewerHelper({
                   // ReactPDF renders at 3/4 of actual size for some reason
                   // https://github.com/wojtekmaj/react-pdf/issues/1219
                   scale={DEFAULT_ZOOM * (4 / 3)}
-                  // SVG render mode is deprecated, but for some reason the PDF
-                  // fonts are grainy in kiosk-browser. Because that's not the
-                  // case in Chrome, hopefully it's a Chrome version issue and
-                  // we can move to the "canvas" default and avoid the console
-                  // warnings
                   renderMode={renderMode}
                   pageNumber={pageNumber}
                   renderTextLayer={false}
