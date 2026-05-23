@@ -227,7 +227,6 @@ test('navigation with left and right arrow', async () => {
       onCancel={onCancel}
       onAccept={onAccept}
       keyDisabled={() => false}
-      enableWriteInAtiControllerNavigation
     />
   );
 
@@ -277,7 +276,6 @@ test('navigation with up and down arrow', async () => {
       onCancel={onCancel}
       onAccept={onAccept}
       keyDisabled={() => false}
-      enableWriteInAtiControllerNavigation
     />
   );
 

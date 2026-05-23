@@ -130,7 +130,7 @@ export function CandidateContest({
   contest,
   vote,
   updateVote,
-  accessibilityMode,
+  accessibilityMode = AccessibilityMode.ATI_CONTROLLER,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
   writeInCharacterLimitAcrossContests,
@@ -646,9 +646,6 @@ export function CandidateContest({
                       onCancel={cancelWriteInCandidateModal}
                       onAccept={addWriteInCandidate}
                       keyDisabled={keyDisabled}
-                      enableWriteInAtiControllerNavigation={
-                        accessibilityMode === AccessibilityMode.ATI_CONTROLLER
-                      }
                     />
                   )}
                 </WriteInForm>

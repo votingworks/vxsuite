@@ -60,7 +60,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     ballotStyleId,
     contests,
     electionDefinition,
-    accessibilityMode,
+    accessibilityMode = AccessibilityMode.ATI_CONTROLLER,
     getContestUrl,
     getStartPageUrl,
     getReviewPageUrl,

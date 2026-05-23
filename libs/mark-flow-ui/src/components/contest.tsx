@@ -74,7 +74,7 @@ export function Contest({
   contest,
   votes,
   updateVote,
-  accessibilityMode,
+  accessibilityMode = AccessibilityMode.ATI_CONTROLLER,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
   numWriteInCharactersAllowedAcrossContests = Infinity,

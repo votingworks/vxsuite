@@ -37,7 +37,6 @@ export interface VirtualKeyboardProps {
   onAccept: () => void;
   keyDisabled(key: Key): boolean;
   keyMap?: KeyMap;
-  enableWriteInAtiControllerNavigation?: boolean;
 }
 
 interface KeyMap {
@@ -354,22 +353,19 @@ export function VirtualKeyboard({
   onAccept,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
-  enableWriteInAtiControllerNavigation,
 }: VirtualKeyboardProps): JSX.Element {
   const [focusedRowIndex, setFocusedRowIndex] = useState(-1);
 
-  const keyMapWithActions: KeyMap = useMemo(() => {
-    const actions = enableWriteInAtiControllerNavigation
-      ? [
-          [SPACE_BAR_KEY, DELETE_KEY],
-          [CANCEL_KEY, ACCEPT_KEY],
-        ]
-      : // Cancel and Accept keys are rendered outside this component when ATI Controller navigation is off
-        [[SPACE_BAR_KEY, DELETE_KEY]];
-    return {
-      rows: [...keyMap.rows, ...actions],
-    };
-  }, [enableWriteInAtiControllerNavigation, keyMap.rows]);
+  const keyMapWithActions: KeyMap = useMemo(
+    () => ({
+      rows: [
+        ...keyMap.rows,
+        [SPACE_BAR_KEY, DELETE_KEY],
+        [CANCEL_KEY, ACCEPT_KEY],
+      ],
+    }),
+    [keyMap.rows]
+  );
 
   const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
 
@@ -481,11 +477,7 @@ export function VirtualKeyboard({
   return (
     <Keyboard
       data-testid="virtual-keyboard"
-      onKeyDown={
-        enableWriteInAtiControllerNavigation
-          ? handleKeyboardEventForVirtualKeyboard
-          : undefined
-      }
+      onKeyDown={handleKeyboardEventForVirtualKeyboard}
     >
       {keyMapWithActions.rows.map((row, rowIndex) => (
         <KeyRow
