@@ -9,8 +9,6 @@ import { assertDefined } from '@votingworks/basics';
 
 import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import {
-  ACCEPT_KEY,
-  CANCEL_KEY,
   DELETE_KEY,
   SPACE_BAR_KEY,
   US_ENGLISH_KEYMAP,
@@ -60,16 +58,14 @@ test('fires key events', async () => {
 
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
-  const onCancel = vi.fn();
-  const onAccept = vi.fn();
 
   renderInUiStringsContext(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      onCancel={onCancel}
-      onAccept={onAccept}
       keyDisabled={() => false}
+      onExitTop={vi.fn()}
+      onExitBottom={vi.fn()}
     />
   );
 
@@ -118,16 +114,14 @@ test('fires key events', async () => {
 test("doesn't fire key events for disabled keys", () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
-  const onCancel = vi.fn();
-  const onAccept = vi.fn();
 
   render(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
       keyDisabled={(k) => k.value === 'M'}
-      onCancel={onCancel}
-      onAccept={onAccept}
+      onExitTop={vi.fn()}
+      onExitBottom={vi.fn()}
     />
   );
 
@@ -138,16 +132,14 @@ test("doesn't fire key events for disabled keys", () => {
 test('custom keymap', () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
-  const onCancel = vi.fn();
-  const onAccept = vi.fn();
 
   render(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      onCancel={onCancel}
-      onAccept={onAccept}
       keyDisabled={(k) => k.value === 'M'}
+      onExitTop={vi.fn()}
+      onExitBottom={vi.fn()}
       keyMap={{
         rows: [
           [
@@ -179,13 +171,11 @@ const TEST_ROWS = [
   [
     // The actual value is ' ' but we are using `value` as a way to find elements in this test.
     // Overriding like this is easier than possibly calling the nullable `renderLabel` and
-    // // extracting text from the resulting JSX.Element
+    // extracting text from the resulting JSX.Element
     { ...SPACE_BAR_KEY, value: 'space' },
     DELETE_KEY,
   ],
 ];
-
-const TEST_ROWS_WITH_ACTIONS = [...TEST_ROWS, [CANCEL_KEY, ACCEPT_KEY]];
 
 async function expectFocus(expectedFocusedKey: string) {
   const expectedButtonContent = `${expectedFocusedKey}${getMockAudioOnlyTextPrefix(
@@ -217,27 +207,22 @@ test('navigation with left and right arrow', async () => {
 
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
-  const onCancel = vi.fn();
-  const onAccept = vi.fn();
 
   renderInUiStringsContext(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      onCancel={onCancel}
-      onAccept={onAccept}
       keyDisabled={() => false}
+      onExitTop={vi.fn()}
+      onExitBottom={vi.fn()}
     />
   );
 
-  // Wait for first render and click Q to establish focus in the keyboard
-  const qSpan = await screen.findByText(
-    hasTextAcrossElements(`Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`)
-  );
-  userEvent.click(qSpan.parentElement as HTMLElement);
+  // Click Q to establish focus in the keyboard before arrow navigation begins
+  userEvent.click(await screen.findButton(/\bQ\b/));
   await expectFocus('Q');
 
-  for (const row of TEST_ROWS_WITH_ACTIONS) {
+  for (const row of TEST_ROWS) {
     for (const key of row) {
       // Q is focused above and tested via the click
       if (key.value !== 'Q') {
@@ -247,12 +232,9 @@ test('navigation with left and right arrow', async () => {
   }
 
   // Expect wrap around from end of keyboard
-  await pressKeyAndExpectFocus(
-    '[ArrowRight]',
-    TEST_ROWS_WITH_ACTIONS[0][0].value
-  );
+  await pressKeyAndExpectFocus('[ArrowRight]', TEST_ROWS[0][0].value);
 
-  const reversed = TEST_ROWS_WITH_ACTIONS.toReversed();
+  const reversed = TEST_ROWS.toReversed();
   for (const row of reversed) {
     const reversedKeys = row.toReversed();
     for (const key of reversedKeys) {
@@ -266,36 +248,34 @@ test('navigation with up and down arrow', async () => {
 
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
-  const onCancel = vi.fn();
-  const onAccept = vi.fn();
+  const onExitTop = vi.fn();
+  const onExitBottom = vi.fn();
 
   renderInUiStringsContext(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      onCancel={onCancel}
-      onAccept={onAccept}
       keyDisabled={() => false}
+      onExitTop={onExitTop}
+      onExitBottom={onExitBottom}
     />
   );
 
-  // Wait for first render and click Q to establish focus in the keyboard
-  const qSpan = await screen.findByText(
-    hasTextAcrossElements(`Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`)
-  );
-  userEvent.click(qSpan.parentElement as HTMLElement);
+  // Click Q to establish focus in the keyboard before arrow navigation begins
+  userEvent.click(await screen.findButton(/\bQ\b/));
   await expectFocus('Q');
 
-  // Go down and wrap around to start
+  // Go down through all rows; down from the last row calls onExitBottom
   await pressKeyAndExpectFocus('[ArrowDown]', 'A');
   await pressKeyAndExpectFocus('[ArrowDown]', 'Z');
   await pressKeyAndExpectFocus('[ArrowDown]', 'space');
-  await pressKeyAndExpectFocus('[ArrowDown]', 'Cancel');
-  await pressKeyAndExpectFocus('[ArrowDown]', 'Q');
-  // Go up and wrap around to start
-  await pressKeyAndExpectFocus('[ArrowUp]', 'Cancel');
-  await pressKeyAndExpectFocus('[ArrowUp]', 'space');
+  userEvent.keyboard('[ArrowDown]');
+  expect(onExitBottom).toHaveBeenCalledOnce();
+
+  // Go up through all rows; up from the first row calls onExitTop
   await pressKeyAndExpectFocus('[ArrowUp]', 'Z');
   await pressKeyAndExpectFocus('[ArrowUp]', 'A');
   await pressKeyAndExpectFocus('[ArrowUp]', 'Q');
+  userEvent.keyboard('[ArrowUp]');
+  expect(onExitTop).toHaveBeenCalledOnce();
 });

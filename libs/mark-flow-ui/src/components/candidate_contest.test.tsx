@@ -16,9 +16,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
-  ACCEPT_KEY,
   AccessibilityMode,
-  CANCEL_KEY,
   DELETE_KEY,
   SPACE_BAR_KEY,
   VirtualKeyboard,
@@ -43,15 +41,20 @@ function setUpMockVirtualKeyboard() {
   let checkIsKeyDisabled: (key: virtualKeyboardCommon.Key) => boolean;
   let fireBackspaceEvent: () => void;
   let fireKeyPressEvent: (key: string) => void;
+  let fireExitTop: () => void;
+  let fireExitBottom: () => void;
 
   vi.mocked(VirtualKeyboard)
     .mockReset()
     .mockImplementation((props: VirtualKeyboardProps) => {
-      const { keyDisabled, onBackspace, onKeyPress } = props;
+      const { keyDisabled, onBackspace, onKeyPress, onExitTop, onExitBottom } =
+        props;
 
       checkIsKeyDisabled = keyDisabled;
       fireBackspaceEvent = onBackspace;
       fireKeyPressEvent = onKeyPress;
+      fireExitTop = onExitTop;
+      fireExitBottom = onExitBottom;
 
       return <div data-testid="MockVirtualKeyboard" />;
     });
@@ -66,6 +69,8 @@ function setUpMockVirtualKeyboard() {
           fireKeyPressEvent(char);
         }
       }),
+    fireExitTop: () => act(() => fireExitTop()),
+    fireExitBottom: () => act(() => fireExitBottom()),
   };
 }
 
@@ -576,8 +581,6 @@ describe('supports write-in candidates', () => {
 
       expect(checkIsKeyDisabled(SPACE_BAR_KEY)).toEqual(true);
       expect(checkIsKeyDisabled(DELETE_KEY)).toEqual(false);
-      expect(checkIsKeyDisabled(CANCEL_KEY)).toEqual(false);
-      expect(checkIsKeyDisabled(ACCEPT_KEY)).toEqual(false);
       userEvent.click(modal.getByText('Accept'));
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
@@ -629,8 +632,6 @@ describe('supports write-in candidates', () => {
 
     expect(checkIsKeyDisabled(SPACE_BAR_KEY)).toEqual(true);
     expect(checkIsKeyDisabled(DELETE_KEY)).toEqual(false);
-    expect(checkIsKeyDisabled(CANCEL_KEY)).toEqual(false);
-    expect(checkIsKeyDisabled(ACCEPT_KEY)).toEqual(false);
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
@@ -642,6 +643,46 @@ describe('supports write-in candidates', () => {
         writeInIndex: 0,
       },
     ]);
+  });
+
+  test('onExitTop focuses Cancel; onExitBottom focuses Accept when text entered, Cancel when empty', () => {
+    const { fireKeyPressEvents, fireExitTop, fireExitBottom } =
+      setUpMockVirtualKeyboard();
+
+    const updateVote = vi.fn();
+    render(
+      <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        election={electionDefinition.election}
+        contest={candidateContestWithWriteIns}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    );
+    userEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    );
+
+    const modal = within(screen.getByRole('alertdialog'));
+
+    // No text entered — Accept is disabled, so onExitBottom focuses Cancel
+    fireExitBottom();
+    expect(document.activeElement).toEqual(
+      modal.getByRole('button', { name: /cancel/i })
+    );
+
+    // Enter text — Accept becomes enabled, so onExitBottom focuses Accept
+    fireKeyPressEvents('A');
+    fireExitBottom();
+    expect(document.activeElement).toEqual(
+      modal.getByRole('button', { name: /accept/i })
+    );
+
+    // onExitTop always focuses Cancel
+    fireExitTop();
+    expect(document.activeElement).toEqual(
+      modal.getByRole('button', { name: /cancel/i })
+    );
   });
 
   test('focuses newly added write-in candidate after modal closes', () => {

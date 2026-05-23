@@ -25,7 +25,6 @@ import {
   TouchTextInput,
   WithScrollButtons,
   ModalWidth,
-  useScreenInfo,
   appStrings,
   CandidatePartyList,
   NumberString,
@@ -69,12 +68,6 @@ interface Props {
   isReviewMode?: boolean;
 }
 
-const WriteInModalBody = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-`;
-
 const WriteInForm = styled.div`
   display: flex;
   flex-direction: column;
@@ -82,13 +75,6 @@ const WriteInForm = styled.div`
   justify-content: center;
   flex-shrink: 1;
   max-width: 100%;
-`;
-
-const WriteInModalActionsSidebar = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  justify-content: center;
 `;
 
 function areCandidateChoicesEqual(a: Candidate, b: Candidate): boolean {
@@ -158,8 +144,8 @@ export function CandidateContest({
   >(undefined);
 
   const pendingFocusWriteInId = useRef<string | null>(null);
-
-  const screenInfo = useScreenInfo();
+  const acceptButtonRef = useRef<Button>(null);
+  const cancelButtonRef = useRef<Button>(null);
 
   const writeInCharacterLimit = Math.min(
     WRITE_IN_CANDIDATE_MAX_LENGTH,
@@ -326,19 +312,10 @@ export function CandidateContest({
     writeInCharacterLimit - writeInCandidateName.length;
 
   function keyDisabled(key: virtualKeyboardCommon.Key) {
-    switch (key.action) {
-      case virtualKeyboardCommon.ActionKey.ACCEPT:
-        return writeInCandidateName.length === 0;
-
-      case virtualKeyboardCommon.ActionKey.CANCEL:
-        return false;
-
-      case virtualKeyboardCommon.ActionKey.DELETE:
-        return false;
-
-      default:
-        return writeInCharactersRemaining === 0;
+    if (key.action === virtualKeyboardCommon.ActionKey.DELETE) {
+      return false;
     }
+    return writeInCharactersRemaining === 0;
   }
 
   function handleDisabledAddWriteInClick() {
@@ -362,10 +339,11 @@ export function CandidateContest({
         icon="Done"
         onPress={addWriteInCandidate}
         disabled={normalizeCandidateName(writeInCandidateName).length === 0}
+        ref={acceptButtonRef}
       >
         {appStrings.buttonAccept()}
       </Button>
-      <Button onPress={cancelWriteInCandidateModal}>
+      <Button onPress={cancelWriteInCandidateModal} ref={cancelButtonRef}>
         {appStrings.buttonCancel()}
       </Button>
     </React.Fragment>
@@ -584,6 +562,7 @@ export function CandidateContest({
           modalWidth={ModalWidth.Wide}
           disableAutoplayAudio
           title={writeInModalTitle}
+          actions={modalActions}
           content={
             <div>
               <div>
@@ -593,80 +572,67 @@ export function CandidateContest({
                   </Caption>
                 </P>
               </div>
-              <WriteInModalBody>
-                <WriteInForm>
-                  <TouchTextInput value={writeInCandidateName} />
-                  <ReadOnLoad>
-                    {/*
-                     * Re-render the modal title and form label as hidden,
-                     * audio-only elements to enable grouping together content
-                     * that needs to be read on modal open:
-                     */}
-                    <AudioOnly>
-                      {writeInModalTitle}
-                      {appStrings.labelBmdWriteInForm()}
-                      <AssistiveTechInstructions
-                        controllerString={appStrings.instructionsBmdWriteInFormNavigation()}
-                        patDeviceString={appStrings.instructionsBmdWriteInFormNavigationPatDevice()}
-                      />
-                    </AudioOnly>
-                    <P align="right">
-                      <Caption>
-                        {writeInCharactersRemaining === 0 && (
-                          <Icons.Warning color="warning" />
-                        )}{' '}
-                        {appStrings.labelCharactersRemaining()}{' '}
-                        <NumberString value={writeInCharactersRemaining} />
-                        {writeInCharacterLimitAcrossContestsIsLimitingFactor && (
-                          <React.Fragment>
-                            {' | '}
-                            {appStrings.labelWriteInCharacterLimitAcrossContests()}{' '}
-                            <NumberString
-                              value={
-                                assertDefined(
-                                  writeInCharacterLimitAcrossContests
-                                ).numCharactersAllowed
-                              }
-                            />
-                          </React.Fragment>
-                        )}
-                      </Caption>
-                    </P>
-                  </ReadOnLoad>
-                  {accessibilityMode === AccessibilityMode.SWITCH_SCANNING ? (
-                    <ScanPanelVirtualKeyboard
-                      onBackspace={onKeyboardBackspace}
-                      onKeyPress={onKeyboardInput}
-                      keyDisabled={keyDisabled}
+              <WriteInForm>
+                <TouchTextInput value={writeInCandidateName} />
+                <ReadOnLoad>
+                  {/*
+                   * Re-render the modal title and form label as hidden,
+                   * audio-only elements to enable grouping together content
+                   * that needs to be read on modal open:
+                   */}
+                  <AudioOnly>
+                    {writeInModalTitle}
+                    {appStrings.labelBmdWriteInForm()}
+                    <AssistiveTechInstructions
+                      controllerString={appStrings.instructionsBmdWriteInFormNavigation()}
+                      patDeviceString={appStrings.instructionsBmdWriteInFormNavigationPatDevice()}
                     />
-                  ) : (
-                    <VirtualKeyboard
-                      onBackspace={onKeyboardBackspace}
-                      onKeyPress={onKeyboardInput}
-                      onCancel={cancelWriteInCandidateModal}
-                      onAccept={addWriteInCandidate}
-                      keyDisabled={keyDisabled}
-                    />
-                  )}
-                </WriteInForm>
-                {
-                  // VirtualKeyboard renders its own actions to support accessible controller navigation.
-                  !screenInfo.isPortrait &&
-                    accessibilityMode !== AccessibilityMode.ATI_CONTROLLER && (
-                      <WriteInModalActionsSidebar>
-                        {modalActions}
-                      </WriteInModalActionsSidebar>
-                    )
-                }
-              </WriteInModalBody>
+                  </AudioOnly>
+                  <P align="right">
+                    <Caption>
+                      {writeInCharactersRemaining === 0 && (
+                        <Icons.Warning color="warning" />
+                      )}{' '}
+                      {appStrings.labelCharactersRemaining()}{' '}
+                      <NumberString value={writeInCharactersRemaining} />
+                      {writeInCharacterLimitAcrossContestsIsLimitingFactor && (
+                        <React.Fragment>
+                          {' | '}
+                          {appStrings.labelWriteInCharacterLimitAcrossContests()}{' '}
+                          <NumberString
+                            value={
+                              assertDefined(writeInCharacterLimitAcrossContests)
+                                .numCharactersAllowed
+                            }
+                          />
+                        </React.Fragment>
+                      )}
+                    </Caption>
+                  </P>
+                </ReadOnLoad>
+                {accessibilityMode === AccessibilityMode.SWITCH_SCANNING ? (
+                  <ScanPanelVirtualKeyboard
+                    onBackspace={onKeyboardBackspace}
+                    onKeyPress={onKeyboardInput}
+                    keyDisabled={keyDisabled}
+                  />
+                ) : (
+                  <VirtualKeyboard
+                    onBackspace={onKeyboardBackspace}
+                    onKeyPress={onKeyboardInput}
+                    keyDisabled={keyDisabled}
+                    onExitBottom={() => {
+                      const accept = acceptButtonRef.current;
+                      const cancel = cancelButtonRef.current;
+                      (accept?.props.disabled ? cancel : accept)?.focus();
+                    }}
+                    onExitTop={() => {
+                      cancelButtonRef.current?.focus();
+                    }}
+                  />
+                )}
+              </WriteInForm>
             </div>
-          }
-          actions={
-            // VirtualKeyboard renders its own actions to support accessible controller navigation.
-            screenInfo.isPortrait &&
-            accessibilityMode !== AccessibilityMode.ATI_CONTROLLER
-              ? modalActions
-              : undefined
           }
         />
       )}
