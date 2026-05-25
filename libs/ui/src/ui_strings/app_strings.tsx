@@ -410,6 +410,21 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdContestNavigationReviewMode: () => (
+    <UiString uiStringKey="instructionsBmdContestNavigationReviewMode">
+      To navigate through the contest choices, use the down button. To return to
+      the review screen, use the right button.
+    </UiString>
+  ),
+
+  instructionsBmdContestNavigationReviewModePatDevice: () => (
+    <UiString uiStringKey="instructionsBmdContestNavigationReviewModePatDevice">
+      To navigate through the contest choices, use the move input. To return to
+      the review screen, use the move input to navigate to the control labelled
+      "review" and then use the select input to continue.
+    </UiString>
+  ),
+
   instructionsBmdControllerSandboxMarkScan: () => (
     <UiString uiStringKey="instructionsBmdControllerSandboxMarkScan">
       Press any button on the controller to learn what it is and how to use it.

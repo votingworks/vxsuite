@@ -57,6 +57,7 @@ interface Props {
   eitherNeitherContestVote?: YesNoVote;
   pickOneContestVote?: YesNoVote;
   updateVote: UpdateVoteFunction;
+  isReviewMode?: boolean;
 }
 
 function getVoteStatusText(
@@ -92,6 +93,7 @@ export function MsEitherNeitherContest({
   eitherNeitherContestVote,
   pickOneContestVote,
   updateVote,
+  isReviewMode,
 }: Props): JSX.Element {
   const [deselectedOptionId, setDeselectedOptionId] = useState<string>();
 
@@ -175,8 +177,16 @@ export function MsEitherNeitherContest({
         <AudioOnly>
           {electionStrings.contestDescription(contest.eitherNeitherContest)}{' '}
           <AssistiveTechInstructions
-            controllerString={appStrings.instructionsBmdContestNavigation()}
-            patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+            controllerString={
+              isReviewMode
+                ? appStrings.instructionsBmdContestNavigationReviewMode()
+                : appStrings.instructionsBmdContestNavigation()
+            }
+            patDeviceString={
+              isReviewMode
+                ? appStrings.instructionsBmdContestNavigationReviewModePatDevice()
+                : appStrings.instructionsBmdContestNavigationPatDevice()
+            }
           />
         </AudioOnly>
       </ContestHeader>

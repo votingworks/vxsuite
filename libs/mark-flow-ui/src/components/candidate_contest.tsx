@@ -66,6 +66,7 @@ interface Props {
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
   writeInCharacterLimitAcrossContests?: WriteInCharacterLimitAcrossContests;
+  isReviewMode?: boolean;
 }
 
 const WriteInModalBody = styled.div`
@@ -133,6 +134,7 @@ export function CandidateContest({
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
   writeInCharacterLimitAcrossContests,
+  isReviewMode,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -387,8 +389,16 @@ export function CandidateContest({
             <NumberString value={votesRemaining} weight="bold" />
             <AudioOnly>
               <AssistiveTechInstructions
-                controllerString={appStrings.instructionsBmdContestNavigation()}
-                patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+                controllerString={
+                  isReviewMode
+                    ? appStrings.instructionsBmdContestNavigationReviewMode()
+                    : appStrings.instructionsBmdContestNavigation()
+                }
+                patDeviceString={
+                  isReviewMode
+                    ? appStrings.instructionsBmdContestNavigationReviewModePatDevice()
+                    : appStrings.instructionsBmdContestNavigationPatDevice()
+                }
               />
             </AudioOnly>
           </Caption>
