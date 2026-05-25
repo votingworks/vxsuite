@@ -861,6 +861,21 @@ describe('audio cues', () => {
   });
 });
 
+test('shows review mode navigation instructions when isReviewMode is true', () => {
+  render(
+    <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      election={electionDefinition.election}
+      contest={candidateContest}
+      vote={[]}
+      updateVote={vi.fn()}
+      isReviewMode
+    />
+  );
+
+  screen.getByText(/return to the review screen, use the right button/i);
+});
+
 test('shows term description, if available', () => {
   let contest: CandidateContestData | undefined;
 

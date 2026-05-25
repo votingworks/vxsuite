@@ -177,6 +177,19 @@ test('scroll button focus is disabled when no PAT device is connected', () => {
   );
 });
 
+test('shows review mode navigation instructions when isReviewMode is true', () => {
+  render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      updateVote={vi.fn()}
+      isReviewMode
+    />
+  );
+
+  screen.getByText(/return to the review screen, use the right button/i);
+});
+
 test('renders rich text', () => {
   const richTextContest = electionGeneral.contests.find(
     (c): c is YesNoContestInterface =>

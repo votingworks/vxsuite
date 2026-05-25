@@ -371,3 +371,16 @@ test('audio cues', () => {
     expect.stringMatching(/^for alternative/i)
   );
 });
+
+test('shows review mode navigation instructions when isReviewMode is true', () => {
+  render(
+    <MsEitherNeitherContest
+      election={electionWithMsEitherNeither}
+      contest={contest}
+      updateVote={vi.fn()}
+      isReviewMode
+    />
+  );
+
+  screen.getByText(/return to the review screen, use the right button/i);
+});
