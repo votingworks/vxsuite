@@ -950,3 +950,38 @@ test('mock batch scanner - mock spec reports mockBatchScanner', async () => {
   const spec = await apiClient.getMockSpec();
   expect(spec.mockBatchScanner).toEqual(true);
 });
+
+test('saveScreenshotForApp writes a screenshot to the Downloads directory', async () => {
+  const fakeHome = makeTemporaryDirectory({ prefix: 'dev-dock-home-' });
+  fs.mkdirSync(join(fakeHome, 'Downloads'));
+  const originalHome = process.env['HOME'];
+  process.env['HOME'] = fakeHome;
+  try {
+    const { apiClient } = setup();
+    const screenshot = new Uint8Array([1, 2, 3, 4]);
+    await apiClient.saveScreenshotForApp({
+      fileName: 'screenshot.png',
+      screenshot,
+    });
+    const written = fs.readFileSync(
+      join(fakeHome, 'Downloads', 'screenshot.png')
+    );
+    expect(new Uint8Array(written)).toEqual(screenshot);
+  } finally {
+    if (originalHome === undefined) {
+      delete process.env['HOME'];
+    } else {
+      process.env['HOME'] = originalHome;
+    }
+  }
+});
+
+test('useDevDockRouter creates the dev dock directory if it does not exist', async () => {
+  const parent = makeTemporaryDirectory({ prefix: 'dev-dock-parent-' });
+  const devDockDir = join(parent, 'does-not-exist-yet');
+  expect(fs.existsSync(devDockDir)).toEqual(false);
+  const { apiClient } = setup({}, devDockDir);
+  expect(fs.existsSync(devDockDir)).toEqual(true);
+  // Sanity-check the router is functional with the freshly-created directory
+  await expect(apiClient.getElection()).resolves.toBeDefined();
+});
