@@ -1576,41 +1576,6 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   expect(cvrId4).not.toEqual(cvrId1); // cvrId1 was completed
 });
 
-test('host claim, release, and getClaimedBallotCvrIds', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
-
-  (
-    await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordExport.asDirectoryPath(),
-    })
-  ).unsafeUnwrap();
-
-  const queue = await apiClient.getBallotAdjudicationQueue();
-  expect(queue.length).toBeGreaterThan(0);
-  const cvrId = queue[0]!;
-
-  // Initially no claimed ballots
-  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
-
-  // Host claims a ballot
-  (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
-
-  // Host's own claim is excluded from getClaimedBallotCvrIds (it excludes
-  // the host's machineId), so still empty from the host's perspective
-  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
-
-  // Release the host claim
-  await apiClient.releaseBallotAdjudicationClaim({ cvrId });
-
-  // Still empty after release
-  expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
-});
-
 test('qualified write-in candidate management', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =

@@ -3290,36 +3290,6 @@ export class Store implements BaseStore {
   // Client ballot adjudication assignments
   //
 
-  getClaimedBallotCvrIds({
-    electionId,
-    excludeMachineId,
-  }: {
-    electionId: Id;
-    excludeMachineId?: string;
-  }): Id[] {
-    this.assertElectionExists(electionId);
-    const rows = excludeMachineId
-      ? (this.client.all(
-          `
-            select cvr_id
-            from machine_ballot_adjudication_assignments
-            where election_id = ? and status = 'claimed'
-              and machine_id != ?
-          `,
-          electionId,
-          excludeMachineId
-        ) as Array<{ cvr_id: Id }>)
-      : (this.client.all(
-          `
-            select cvr_id
-            from machine_ballot_adjudication_assignments
-            where election_id = ? and status = 'claimed'
-          `,
-          electionId
-        ) as Array<{ cvr_id: Id }>);
-    return rows.map((r) => r.cvr_id);
-  }
-
   claimBallotForAdjudication({
     electionId,
     cvrId,

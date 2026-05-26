@@ -828,13 +828,6 @@ function buildApi({
       });
     },
 
-    getClaimedBallotCvrIds(): Id[] {
-      return store.getClaimedBallotCvrIds({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        excludeMachineId: getMachineConfig().machineId,
-      });
-    },
-
     /**
      * Atomically claim a ballot for adjudication and return its data,
      * both read under the same SQL transaction. The host always claims a

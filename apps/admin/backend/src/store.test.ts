@@ -966,24 +966,6 @@ describe('machine ballot adjudication assignments', () => {
     expect(next).not.toEqual(claimed);
   });
 
-  test('getClaimedBallotCvrIds returns actively claimed CVR IDs', () => {
-    addCvrWithWriteIn();
-    addCvrWithWriteIn();
-
-    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([]);
-
-    const first = claimNextForClient('client-001');
-    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([first]);
-
-    const second = claimNextForClient('client-002');
-    expect(store.getClaimedBallotCvrIds({ electionId })).toHaveLength(2);
-    expect(store.getClaimedBallotCvrIds({ electionId })).toContain(first);
-    expect(store.getClaimedBallotCvrIds({ electionId })).toContain(second);
-
-    store.releaseBallotClaim({ cvrId: first!, electionId });
-    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([second]);
-  });
-
   test('claimBallotForAdjudication claims a specific CVR for the host', () => {
     const cvr1 = addCvrWithWriteIn();
     addCvrWithWriteIn();
