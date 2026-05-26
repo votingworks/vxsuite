@@ -129,13 +129,13 @@ describe('rate controls', () => {
     render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
     await screen.findAllByText(/rate of speech:/i);
 
-    screen.getButton(/rate.+100%.+increase.+rate/i);
-    screen.getButton(/rate.+100%.+decrease.+rate/i);
+    screen.getButton(/increase.+100%.+speech.+rate/i);
+    screen.getButton(/decrease.+100%.+speech.+rate/i);
 
     const ctx = assertDefined(getAudioContext());
     act(() => ctx.increasePlaybackRate());
-    screen.getButton(/rate.+125%.+increase.+rate/i);
-    screen.getButton(/rate.+125%.+decrease.+rate/i);
+    screen.getButton(/increase.+125%.+speech.+rate/i);
+    screen.getButton(/decrease.+125%.+speech.+rate/i);
   });
 
   test('updates audio context', async () => {
@@ -144,13 +144,13 @@ describe('rate controls', () => {
     render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
     await screen.findAllByText(/rate of speech:/i);
 
-    const btnIncrease = screen.getButton(/rate.+100%.+increase.+rate/i);
+    const btnIncrease = screen.getButton(/increase.+100%.+speech.+rate/i);
     expect(mockAudioControls.increasePlaybackRate).not.toHaveBeenCalled();
     userEvent.click(btnIncrease);
     userEvent.click(btnIncrease);
     expect(mockAudioControls.increasePlaybackRate).toHaveBeenCalledTimes(2);
 
-    const btnDecrease = screen.getButton(/rate.+100%.+decrease.+rate/i);
+    const btnDecrease = screen.getButton(/decrease.+100%.+speech.+rate/i);
     expect(mockAudioControls.decreasePlaybackRate).not.toHaveBeenCalled();
     userEvent.click(btnDecrease);
     userEvent.click(btnDecrease);
