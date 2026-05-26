@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, ButtonProps } from '../button';
@@ -39,11 +33,10 @@ const DEFAULT_COLUMN_SPAN = 1;
 export interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   onBackspace: () => void;
-  onCancel: () => void;
-  onAccept: () => void;
   keyDisabled(key: Key): boolean;
   keyMap?: KeyMap;
-  enableWriteInAtiControllerNavigation?: boolean;
+  onExitTop: () => void;
+  onExitBottom: () => void;
 }
 
 interface KeyMap {
@@ -356,37 +349,21 @@ export function VirtualKeyboardLabel(props: { config: Key }): JSX.Element {
 export function VirtualKeyboard({
   onBackspace,
   onKeyPress,
-  onCancel,
-  onAccept,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
-  enableWriteInAtiControllerNavigation,
+  onExitTop,
+  onExitBottom,
 }: VirtualKeyboardProps): JSX.Element {
   const [focusedRowIndex, setFocusedRowIndex] = useState(-1);
 
-  const keyMapWithActions: KeyMap = useMemo(() => {
-    const actions = enableWriteInAtiControllerNavigation
-      ? [
-          [SPACE_BAR_KEY, DELETE_KEY],
-          [CANCEL_KEY, ACCEPT_KEY],
-        ]
-      : // Cancel and Accept keys are rendered outside this component when ATI Controller navigation is off
-        [[SPACE_BAR_KEY, DELETE_KEY]];
-    return {
-      rows: [...keyMap.rows, ...actions],
-    };
-  }, [enableWriteInAtiControllerNavigation, keyMap.rows]);
+  const keyMapWithActions: KeyMap = useMemo(
+    () => ({
+      rows: [...keyMap.rows, [SPACE_BAR_KEY, DELETE_KEY]],
+    }),
+    [keyMap.rows]
+  );
 
   const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-  useEffect(() => {
-    const firstRow = rowRefs.current[0];
-    if (enableWriteInAtiControllerNavigation && firstRow) {
-      const firstButton = firstRow.querySelector('button');
-      firstButton?.focus();
-      setFocusedRowIndex(0);
-    }
-  }, [enableWriteInAtiControllerNavigation]);
 
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
   /* istanbul ignore next */
@@ -403,40 +380,51 @@ export function VirtualKeyboard({
           advanceElementFocus(1);
           break;
         case Keybinding.FOCUS_PREVIOUS: {
-          const targetRowIndex = getPrevRowIndex(
-            keyMapWithActions,
-            focusedRowIndex
-          );
-          const targetKeyIndex = getPrevRowTargetButtonIndex(
-            keyMapWithActions,
-            focusedRowIndex,
-            rowRefs
-          );
-          const targetRow = rowRefs.current[targetRowIndex];
-          if (targetRow) {
-            const buttons = Array.from(targetRow.querySelectorAll('button'));
-            buttons[targetKeyIndex]?.focus();
-            setFocusedRowIndex(targetRowIndex);
+          // Up from the first row exits the keyboard upward
+          if (focusedRowIndex === 0) {
+            onExitTop();
+          } else {
+            const targetRowIndex = getPrevRowIndex(
+              keyMapWithActions,
+              focusedRowIndex
+            );
+            const targetKeyIndex = getPrevRowTargetButtonIndex(
+              keyMapWithActions,
+              focusedRowIndex,
+              rowRefs
+            );
+            const targetRow = rowRefs.current[targetRowIndex];
+            if (targetRow) {
+              const buttons = Array.from(targetRow.querySelectorAll('button'));
+              buttons[targetKeyIndex]?.focus();
+              setFocusedRowIndex(targetRowIndex);
+            }
           }
           // Prevent browser scroll
           event.preventDefault();
           break;
         }
         case Keybinding.FOCUS_NEXT: {
-          const targetRowIndex = getNextRowIndex(
-            keyMapWithActions,
-            focusedRowIndex
-          );
-          const targetKeyIndex = getNextRowTargetButtonIndex(
-            keyMapWithActions,
-            focusedRowIndex,
-            rowRefs
-          );
-          const targetRow = rowRefs.current[targetRowIndex];
-          if (targetRow) {
-            const buttons = Array.from(targetRow.querySelectorAll('button'));
-            buttons[targetKeyIndex]?.focus();
-            setFocusedRowIndex(targetRowIndex);
+          const lastRowIndex = keyMapWithActions.rows.length - 1;
+          // Down from the last row exits the keyboard downward
+          if (focusedRowIndex === lastRowIndex) {
+            onExitBottom();
+          } else {
+            const targetRowIndex = getNextRowIndex(
+              keyMapWithActions,
+              focusedRowIndex
+            );
+            const targetKeyIndex = getNextRowTargetButtonIndex(
+              keyMapWithActions,
+              focusedRowIndex,
+              rowRefs
+            );
+            const targetRow = rowRefs.current[targetRowIndex];
+            if (targetRow) {
+              const buttons = Array.from(targetRow.querySelectorAll('button'));
+              buttons[targetKeyIndex]?.focus();
+              setFocusedRowIndex(targetRowIndex);
+            }
           }
           // Prevent browser scroll
           event.preventDefault();
@@ -451,7 +439,7 @@ export function VirtualKeyboard({
           break;
       }
     },
-    [focusedRowIndex, keyMapWithActions]
+    [focusedRowIndex, keyMapWithActions, onExitBottom, onExitTop]
   );
 
   function getFlexBasis(columnSpan: number = DEFAULT_COLUMN_SPAN) {
@@ -470,18 +458,8 @@ export function VirtualKeyboard({
       disabled: keyDisabled(key),
     };
 
-    switch (key.action) {
-      case ActionKey.DELETE:
-        buttonProps.onPress = onBackspace;
-        break;
-      case ActionKey.ACCEPT:
-        buttonProps.onPress = onAccept;
-        buttonProps.variant = 'primary';
-        break;
-      case ActionKey.CANCEL:
-        buttonProps.onPress = onCancel;
-        break;
-      default: // no-op
+    if (key.action === ActionKey.DELETE) {
+      buttonProps.onPress = onBackspace;
     }
 
     const button = (
@@ -496,11 +474,7 @@ export function VirtualKeyboard({
   return (
     <Keyboard
       data-testid="virtual-keyboard"
-      onKeyDown={
-        enableWriteInAtiControllerNavigation
-          ? handleKeyboardEventForVirtualKeyboard
-          : undefined
-      }
+      onKeyDown={handleKeyboardEventForVirtualKeyboard}
     >
       {keyMapWithActions.rows.map((row, rowIndex) => (
         <KeyRow
@@ -508,6 +482,7 @@ export function VirtualKeyboard({
             rowRefs.current[rowIndex] = element;
           }}
           key={`row-${row.map((key) => key.value).join()}`}
+          onFocus={() => setFocusedRowIndex(rowIndex)}
         >
           {row.map(renderKey)}
         </KeyRow>

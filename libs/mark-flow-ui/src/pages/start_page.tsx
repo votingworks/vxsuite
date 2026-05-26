@@ -12,7 +12,6 @@ import {
   NumberString,
   P,
   Seal,
-  useScreenInfo,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -89,7 +88,6 @@ export function StartPage(props: StartPageProps): JSX.Element {
 
   const { election } = electionDefinition;
   const { county, seal } = election;
-  const screenInfo = useScreenInfo();
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -109,8 +107,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
         seal={seal}
         maxWidth="7rem"
         style={{
-          marginRight: screenInfo.isPortrait ? undefined : '1rem', // for horizontal layout
-          marginBottom: screenInfo.isPortrait ? '0.5rem' : undefined, // for vertical layout
+          marginBottom: '0.5rem',
         }}
       />
       <div>

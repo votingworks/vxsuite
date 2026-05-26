@@ -690,8 +690,10 @@ export const appStrings = {
 
   instructionsBmdWriteInFormNavigation: () => (
     <UiString uiStringKey="instructionsBmdWriteInFormNavigation">
-      Use the up and down buttons to navigate between the letters of a standard
-      keyboard. Use the select button to select the current letter.
+      Use the up, down, left, and right buttons to navigate between the letters
+      of a standard keyboard. Use the select button to select the current
+      letter. Navigate past the top or bottom row to accept or cancel your
+      write-in.
     </UiString>
   ),
 

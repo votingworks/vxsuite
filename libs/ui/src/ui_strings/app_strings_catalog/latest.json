@@ -118,7 +118,7 @@
   "instructionsBmdSelectToConfirmPatDevice": "Use the select input to confirm.",
   "instructionsBmdSelectToContinue": "Press the select button to continue.",
   "instructionsBmdSelectToContinuePatDevice": "Use the select input to continue.",
-  "instructionsBmdWriteInFormNavigation": "Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.",
+  "instructionsBmdWriteInFormNavigation": "Use the up, down, left, and right buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter. Navigate past the top or bottom row to accept or cancel your write-in.",
   "instructionsBmdWriteInFormNavigationPatDevice": "Use the move input to navigate between the letters of a standard keyboard. Use the select input to select the current letter.",
   "instructionsLanguageSettingsButton": "Press the Select button to change your ballot language.",
   "instructionsLanguageSettingsScreen": "Use the up and down buttons to navigate through the available ballot languages. To select a language, use the select button. When you're done, use the right button to continue voting.",
