@@ -174,6 +174,18 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
   },
 };
 
+export const interpretedHmpbPage2WithMarginalMark: InterpretedHmpbPage = {
+  ...interpretedHmpbPage2,
+  markInfo: {
+    ...interpretedHmpbPage2.markInfo,
+    marks: interpretedHmpbPage2.markInfo.marks.map((mark) =>
+      mark.optionId === fishingContest.yesOption.id
+        ? { ...mark, score: 0.09 }
+        : mark
+    ),
+  },
+};
+
 export const interpretedBmdPage: InterpretedBmdPage = {
   type: 'InterpretedBmdPage',
   metadata: mockBallotMetadata,

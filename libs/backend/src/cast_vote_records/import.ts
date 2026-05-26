@@ -155,11 +155,11 @@ async function* castVoteRecordGenerator(
       return;
     }
 
-    // HMPB has a "modified" current snapshot, while BMD (including multi-page) has an "original"
+    // HMPB has an "interpreted" current snapshot, while BMD (including multi-page) has an "original"
     // current snapshot. Multi-page BMD also has BallotSheetId, so we can't use that alone to
     // identify HMPB.
     const isHandMarkedPaperBallot =
-      castVoteRecordCurrentSnapshot.Type === CVR.CVRType.Modified;
+      castVoteRecordCurrentSnapshot.Type === CVR.CVRType.Interpreted;
 
     let castVoteRecordOriginalSnapshot: CVR.CVRSnapshot | undefined;
     // Original snapshots are used for hmpb mark adjudication

@@ -20,6 +20,7 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkStatus,
+  MarkThresholds,
   SheetOf,
   VotesDict,
   YesNoContest,
@@ -230,6 +231,10 @@ function buildCVRCandidateContest({
     voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
 
+      const selectionStatuses: CVR.ContestSelectionStatus[] = [];
+      if (overvoted) selectionStatuses.push(CVR.ContestSelectionStatus.InvalidatedRules);
+      if (isWriteIn) selectionStatuses.push(CVR.ContestSelectionStatus.NeedsAdjudication);
+
       return {
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId: candidate.id,
@@ -240,11 +245,7 @@ function buildCVRCandidateContest({
           contest.id,
           candidate.id
         ),
-        Status: overvoted
-          ? [CVR.ContestSelectionStatus.InvalidatedRules]
-          : isWriteIn
-          ? [CVR.ContestSelectionStatus.NeedsAdjudication]
-          : undefined,
+        Status: selectionStatuses.length > 0 ? selectionStatuses : undefined,
         SelectionPosition: [
           {
             '@type': 'CVR.SelectionPosition',
@@ -300,7 +301,7 @@ function buildCVRCandidateContest({
         SelectionPosition: [
           {
             '@type': 'CVR.SelectionPosition',
-            HasIndication: CVR.IndicationStatus.No,
+            HasIndication: CVR.IndicationStatus.Unknown,
             NumberVotes: 1,
             IsAllocable: CVR.AllocationStatus.Unknown,
             Status: [CVR.PositionStatus.Other],
@@ -409,14 +410,14 @@ export function buildCVRContestsFromVotes({
 function buildOriginalSnapshot({
   castVoteRecordId,
   marks,
-  definiteMarkThreshold,
+  markThresholds,
   electionDefinition,
   ballotStyleId,
   ballotType,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
-  definiteMarkThreshold: number;
+  markThresholds: MarkThresholds;
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
@@ -449,12 +450,19 @@ function buildOriginalSnapshot({
               MarkMetricValue: [
                 (Math.floor(mark.score * 100) / 100).toString(),
               ],
-              HasIndication:
-                getMarkStatus(mark.score, {
-                  definite: definiteMarkThreshold,
-                }) === MarkStatus.Marked
-                  ? CVR.IndicationStatus.Yes
-                  : CVR.IndicationStatus.No,
+              HasIndication: (() => {
+                const markStatus = getMarkStatus(mark.score, markThresholds);
+                switch (markStatus) {
+                  case MarkStatus.Marked:
+                    return CVR.IndicationStatus.Yes;
+                  case MarkStatus.Marginal:
+                    return CVR.IndicationStatus.Unknown;
+                  case MarkStatus.Unmarked:
+                    return CVR.IndicationStatus.No;
+                  default:
+                    throwIllegalValue(markStatus);
+                }
+              })(),
             },
           ],
         })),
@@ -489,7 +497,7 @@ type BuildCastVoteRecordParams = {
       ballotMarkingMode: 'hand';
       interpretations: SheetOf<InterpretedHmpbPage>;
       images?: SheetOf<CvrImageDataInput>;
-      definiteMarkThreshold: number;
+      markThresholds: MarkThresholds;
     }
 );
 
@@ -604,7 +612,7 @@ export function buildCastVoteRecord({
     };
   }
 
-  const { interpretations, images, definiteMarkThreshold } = rest;
+  const { interpretations, images, markThresholds } = rest;
 
   // The larger page number should be an even number which, divided by two,
   // yields the sheet number
@@ -617,8 +625,8 @@ export function buildCastVoteRecord({
 
   const modifiedSnapshot: CVR.CVRSnapshot = {
     '@type': 'CVR.CVRSnapshot',
-    '@id': `${castVoteRecordId}-modified`,
-    Type: CVR.CVRType.Modified,
+    '@id': `${castVoteRecordId}-interpreted`,
+    Type: CVR.CVRType.Interpreted,
     ...buildCVRSnapshotBallotTypeMetadata(ballotMetadata.ballotType),
     CVRContest: [
       ...buildCVRContestsFromVotes({
@@ -645,11 +653,11 @@ export function buildCastVoteRecord({
   };
 
   // CVR for hand-marked paper ballots, has both "original" snapshot with
-  // scores for all marks and "modified" snapshot with contest rules applied.
+  // scores for all marks and "interpreted" snapshot with contest rules applied.
   return {
     ...cvrMetadata,
     BallotSheetId: sheetNumber, // VVSG 2.0 1.1.5-G.5
-    CurrentSnapshotId: `${castVoteRecordId}-modified`,
+    CurrentSnapshotId: `${castVoteRecordId}-interpreted`,
     CVRSnapshot: [
       modifiedSnapshot,
       buildOriginalSnapshot({
@@ -658,7 +666,7 @@ export function buildCastVoteRecord({
           ...interpretations[0].markInfo.marks,
           ...interpretations[1].markInfo.marks,
         ],
-        definiteMarkThreshold,
+        markThresholds,
         electionDefinition,
         ballotStyleId: ballotMetadata.ballotStyleId,
         ballotType: ballotMetadata.ballotType,

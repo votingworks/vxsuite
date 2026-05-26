@@ -9,6 +9,7 @@ import {
   BallotType,
   CandidateContest,
   CVR,
+  MarkThresholds,
   unsafeParse,
 } from '@votingworks/types';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
@@ -22,6 +23,7 @@ import {
   interpretedHmpbPage1WithUnmarkedWriteIn,
   interpretedHmpbPage1WithWriteIn,
   interpretedHmpbPage2,
+  interpretedHmpbPage2WithMarginalMark,
 } from '../../test/fixtures/interpretations';
 import {
   buildCastVoteRecord,
@@ -300,6 +302,39 @@ describe('buildCVRContestsFromVotes', () => {
     }
   });
 
+  test('overvoted write-in has both InvalidatedRules and NeedsAdjudication status', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition,
+      ballotStyleId: '1M',
+      votes: {
+        [mammalCouncilContest.id]: [
+          ...mammalCouncilContest.candidates.slice(0, 3),
+          { id: 'write-in-0', name: 'Write In', isWriteIn: true },
+        ],
+      },
+      options: { ballotMarkingMode: 'hand' },
+    });
+
+    expect(result).toHaveLength(1);
+    const cvrContest = result[0];
+    assert(cvrContest?.CVRContestSelection);
+    const writeInSelection = cvrContest.CVRContestSelection.find(
+      (s) => s.ContestSelectionId === 'write-in-0'
+    );
+    expect(writeInSelection).toMatchObject({
+      Status: expect.arrayContaining([
+        CVR.ContestSelectionStatus.InvalidatedRules,
+        CVR.ContestSelectionStatus.NeedsAdjudication,
+      ]),
+    });
+    const nonWriteInSelection = cvrContest.CVRContestSelection.find(
+      (s) => s.ContestSelectionId !== 'write-in-0'
+    );
+    expect(nonWriteInSelection).toMatchObject({
+      Status: [CVR.ContestSelectionStatus.InvalidatedRules],
+    });
+  });
+
   test('candidate contest includes appropriate information for HMPB write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
@@ -408,7 +443,7 @@ const batchId = 'batch-1';
 const indexInBatch = 19;
 const ballotAuditId = `${batchId}_0023`;
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');
-const definiteMarkThreshold = 0.15;
+const markThresholds: MarkThresholds = { marginal: 0.05, definite: 0.15 };
 
 test('buildCastVoteRecord - BMD ballot', () => {
   const castVoteRecord = buildCastVoteRecord({
@@ -584,7 +619,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     indexInBatch,
     ballotMarkingMode: 'hand',
     interpretations: [interpretedHmpbPage1, interpretedHmpbPage2],
-    definiteMarkThreshold,
+    markThresholds,
   });
 
   test('includes correct metadata, including sheet number as BallotSheetId', () => {
@@ -605,7 +640,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     );
 
     expect(castVoteRecord.CVRSnapshot).toHaveLength(2);
-    expect(castVoteRecord.CurrentSnapshotId).toEqual('1234-modified');
+    expect(castVoteRecord.CurrentSnapshotId).toEqual('1234-interpreted');
   });
 
   test('includes original mark snapshot with OptionPosition and with HasIndication based on the definite mark threshold', () => {
@@ -663,6 +698,43 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       ])
     );
   });
+
+  test('original snapshot uses HasIndication unknown for marginal marks', () => {
+    const cvr = buildCastVoteRecord({
+      electionDefinition,
+      electionId,
+      castVoteRecordId,
+      scannerId,
+      batchId,
+      ballotMarkingMode: 'hand',
+      interpretations: [
+        interpretedHmpbPage1,
+        interpretedHmpbPage2WithMarginalMark,
+      ],
+      markThresholds,
+    });
+    const originalSnapshot = find(
+      cvr.CVRSnapshot,
+      (snapshot) => snapshot['@id'] === `${castVoteRecordId}-original`
+    );
+    const fishingContestSnapshot = find(
+      originalSnapshot.CVRContest ?? [],
+      (c) => c.ContestId === fishingContest.id
+    );
+    expect(fishingContestSnapshot.CVRContestSelection).toMatchObject(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ContestSelectionId: fishingContest.yesOption.id,
+          SelectionPosition: [
+            expect.objectContaining({
+              HasIndication: CVR.IndicationStatus.Unknown,
+              MarkMetricValue: ['0.09'],
+            }),
+          ],
+        }),
+      ])
+    );
+  });
 });
 
 test('buildCastVoteRecord - HMPB ballot with write-in', () => {
@@ -686,7 +758,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
         layoutFileHash: 'd',
       },
     ],
-    definiteMarkThreshold,
+    markThresholds,
   });
 
   expect(castVoteRecord.BallotImage).toEqual([
@@ -735,7 +807,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
         layoutFileHash: 'd',
       },
     ],
-    definiteMarkThreshold,
+    markThresholds,
   });
 
   const expectedFrontImageData: CVR.ImageData = {
@@ -765,7 +837,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
 
   const modifiedSnapshot = find(
     castVoteRecord.CVRSnapshot,
-    (snapshot) => snapshot.Type === CVR.CVRType.Modified
+    (snapshot) => snapshot.Type === CVR.CVRType.Interpreted
   );
 
   const cvrFishCouncilContest = find(
@@ -790,7 +862,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     SelectionPosition: [
       {
         '@type': 'CVR.SelectionPosition',
-        HasIndication: CVR.IndicationStatus.No,
+        HasIndication: CVR.IndicationStatus.Unknown,
         NumberVotes: 1,
         IsAllocable: CVR.AllocationStatus.Unknown,
         Status: [CVR.PositionStatus.Other],

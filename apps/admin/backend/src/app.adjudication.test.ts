@@ -177,7 +177,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       castVoteRecordModifier: (cvr) => {
         const modifiedSnapshot = find(
           cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Modified
+          (s) => s.Type === CVR.CVRType.Interpreted
         );
         modifiedSnapshot.Type = CVR.CVRType.Original;
         // clear contest selections for the target contest to create an undervote,
@@ -218,7 +218,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       castVoteRecordModifier: (cvr) => {
         const snapshot = find(
           cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Modified
+          (s) => s.Type === CVR.CVRType.Interpreted
         );
         const contest = snapshot.CVRContest.find(
           (c) => c.ContestId === contestId
@@ -307,7 +307,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       castVoteRecordModifier: (cvr) => {
         const snapshot = find(
           cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Modified
+          (s) => s.Type === CVR.CVRType.Interpreted
         );
         for (const contest of snapshot.CVRContest) {
           contest.CVRContestSelection = [];
@@ -343,7 +343,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       castVoteRecordModifier: (cvr) => {
         const snapshot = find(
           cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Modified
+          (s) => s.Type === CVR.CVRType.Interpreted
         );
         for (const contest of snapshot.CVRContest) {
           contest.CVRContestSelection = [];
@@ -724,7 +724,7 @@ test('handling unmarked write-ins', async () => {
       castVoteRecordModifier: (cvr) => {
         const snapshot = find(
           cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Modified
+          (s) => s.Type === CVR.CVRType.Interpreted
         );
 
         const writeInContest = snapshot.CVRContest.find(
