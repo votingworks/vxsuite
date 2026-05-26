@@ -14,6 +14,7 @@ import { format } from '@votingworks/utils';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
+  AdjudicationError,
   BallotAdjudicationData,
   BallotImages,
   ContestAdjudicationData,
@@ -23,15 +24,14 @@ import { useHistory } from 'react-router-dom';
 import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 import {
   adjudicateCvr,
-  claimBallotForAdjudication,
-  getBallotAdjudicationData,
+  claimAndLoadBallot,
   getBallotAdjudicationQueue,
   getBallotImages,
-  getClaimedBallotCvrIds,
   getNextCvrIdForBallotAdjudication,
   getSystemSettings,
   getWriteInCandidates,
   releaseBallotAdjudicationClaim,
+  useApiClient,
 } from '../api';
 import { routerPaths } from '../router_paths';
 import {
@@ -175,13 +175,8 @@ function groupContestsBySide(
 export function BallotAdjudicationScreenWrapper(): JSX.Element {
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
   const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
-  const claimedCvrIdsQuery = getClaimedBallotCvrIds.useQuery();
 
-  if (
-    !ballotQueueQuery.isSuccess ||
-    !nextCvrIdQuery.isSuccess ||
-    !claimedCvrIdsQuery.isSuccess
-  ) {
+  if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
     return (
       <Screen>
         <Main flexRow>
@@ -193,7 +188,6 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
 
   const queue = ballotQueueQuery.data;
   const nextCvrId = nextCvrIdQuery.data;
-  const claimedCvrIds = new Set(claimedCvrIdsQuery.data);
   const initialQueueIndex = nextCvrId
     ? Math.max(0, queue.indexOf(nextCvrId))
     : 0;
@@ -202,7 +196,6 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
     <HostBallotAdjudicationScreen
       queue={queue}
       initialQueueIndex={initialQueueIndex}
-      claimedCvrIds={claimedCvrIds}
     />
   );
 }
@@ -210,26 +203,32 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
 function HostBallotAdjudicationScreen({
   queue,
   initialQueueIndex,
-  claimedCvrIds,
 }: {
   queue: Id[];
   initialQueueIndex: number;
-  claimedCvrIds: Set<Id>;
 }): JSX.Element {
   const history = useHistory();
   const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
-  const [claimFailed, setClaimFailed] = useState(false);
+  const [claimError, setClaimError] = useState<AdjudicationError | null>(null);
   const [isClaimInFlight, setIsClaimInFlight] = useState(true);
+  const [ballotData, setBallotData] = useState<BallotAdjudicationData | null>(
+    null
+  );
   const currentCvrId = queue[queueIndex];
-  const { mutateAsync: claimBallotMutation } =
-    claimBallotForAdjudication.useMutation();
+  const apiClient = useApiClient();
+  const { mutateAsync: claimAndLoadMutation } =
+    claimAndLoadBallot.useMutation();
   const { mutateAsync: releaseClaimMutation } =
     releaseBallotAdjudicationClaim.useMutation();
   const claimedCvrIdRef = useRef<Id | null>(null);
 
+  // Release the previous claim (if any) and then claim+load the
+  // next ballot in a single round trip. Returns whether the claim succeeded
+  // and updates ballot data state on success. The previous ballot stays
+  // visible until the new data lands (we set ballotData only after success).
   async function claimAndRelease(nextCvrId?: Id): Promise<boolean> {
     const prevCvrId = claimedCvrIdRef.current;
-    if (prevCvrId) {
+    if (prevCvrId && prevCvrId !== nextCvrId) {
       claimedCvrIdRef.current = null;
       try {
         await releaseClaimMutation({ cvrId: prevCvrId });
@@ -237,27 +236,38 @@ function HostBallotAdjudicationScreen({
         // Best-effort release
       }
     }
-    if (nextCvrId && !claimedCvrIds.has(nextCvrId)) {
-      try {
-        const claimed = await claimBallotMutation({ cvrId: nextCvrId });
-        if (claimed) {
-          claimedCvrIdRef.current = nextCvrId;
-          return true;
-        }
-        return false;
-      } catch {
+    if (!nextCvrId) {
+      return true;
+    }
+    try {
+      const result = await claimAndLoadMutation({ cvrId: nextCvrId });
+      if (result.isErr()) {
+        // Drop the previous ballot's data so the claimed-by-another overlay
+        // never renders over stale contests/derived state.
+        setBallotData(null);
+        setClaimError(result.err());
         return false;
       }
+      const value = result.ok();
+      if (value) {
+        claimedCvrIdRef.current = value.cvrId;
+        setBallotData(value.data);
+        setClaimError(null);
+        return true;
+      }
+      // Host returned ok(undefined) — no ballot. Treat as a failed claim
+      // so the caller can navigate away.
+      return false;
+    } catch {
+      return false;
     }
-    return !nextCvrId;
   }
 
-  // Claim the initial ballot on mount, release on unmount
+  // Claim+load the initial ballot on mount, release on unmount
   useEffect(() => {
     if (currentCvrId) {
       claimAndRelease(currentCvrId)
-        .then((success) => setClaimFailed(!success))
-        .catch(() => setClaimFailed(true))
+        .catch(() => setClaimError({ type: 'no-claim' }))
         .finally(() => setIsClaimInFlight(false));
     } else {
       setIsClaimInFlight(false);
@@ -280,38 +290,57 @@ function HostBallotAdjudicationScreen({
     );
   }
 
-  function findNextUnclaimedIndex(fromIndex: number): number | undefined {
-    for (let i = fromIndex + 1; i < queue.length; i += 1) {
-      if (!claimedCvrIds.has(queue[i])) {
-        return i;
-      }
-    }
-    return undefined;
-  }
-
   async function navigateTo(nextIndex: number): Promise<void> {
     setIsClaimInFlight(true);
     try {
       const nextId = queue[nextIndex];
-      const success = await claimAndRelease(nextId);
-      setClaimFailed(!success);
+      await claimAndRelease(nextId);
       setQueueIndex(nextIndex);
     } finally {
       setIsClaimInFlight(false);
     }
   }
 
-  const nextUnclaimedIndex = findNextUnclaimedIndex(queueIndex);
+  const isLastInQueue = queueIndex >= queue.length - 1;
 
-  async function navigateNext(): Promise<void> {
+  // Skip moves forward by exactly one position in the queue, regardless of
+  // whether the next ballot is claimed by another machine. The user can use
+  // Skip to page through the queue without re-querying the backend.
+  async function navigateSkip(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      if (nextUnclaimedIndex === undefined) {
+      if (isLastInQueue) {
         await claimAndRelease();
         history.push(routerPaths.adjudication);
-      } else {
-        await navigateTo(nextUnclaimedIndex);
+        return;
       }
+      await navigateTo(queueIndex + 1);
+    } finally {
+      setIsClaimInFlight(false);
+    }
+  }
+
+  async function navigateAcceptNext(): Promise<void> {
+    setIsClaimInFlight(true);
+    try {
+      const nextCvrId =
+        (await apiClient.getNextCvrIdForBallotAdjudication({ currentCvrId })) ??
+        (await apiClient.getNextCvrIdForBallotAdjudication());
+      if (!nextCvrId) {
+        await claimAndRelease();
+        history.push(routerPaths.adjudication);
+        return;
+      }
+      const nextIndex = queue.indexOf(nextCvrId);
+      if (nextIndex < 0) {
+        // The next ballot is no longer in our cached queue (likely
+        // invalidated by mutations). Drop back to the adjudication landing
+        // so the queue refetches fresh.
+        await claimAndRelease();
+        history.push(routerPaths.adjudication);
+        return;
+      }
+      await navigateTo(nextIndex);
     } finally {
       setIsClaimInFlight(false);
     }
@@ -327,7 +356,10 @@ function HostBallotAdjudicationScreen({
     }
   }
 
-  const isClaimed = claimedCvrIds.has(currentCvrId) || claimFailed;
+  // The current ballot is held by another machine when our atomic claim+load
+  // came back `no-claim`. The host always claims before displaying, so this
+  // mutation result is the authoritative claim status for the shown ballot.
+  const isClaimed = claimError?.type === 'no-claim';
   const statusText = `Ballot ${format.count(queueIndex + 1)} of ${format.count(
     queue.length
   )}`;
@@ -335,12 +367,13 @@ function HostBallotAdjudicationScreen({
   return (
     <HostBallotAdjudicationScreenDataLoader
       cvrId={currentCvrId}
+      ballotData={ballotData}
       statusText={statusText}
       isClaimed={isClaimed}
       isClaimInFlight={isClaimInFlight}
-      isLastBallot={nextUnclaimedIndex === undefined}
-      onAcceptDone={navigateNext}
-      onSkip={navigateNext}
+      isLastBallot={isLastInQueue}
+      onAcceptDone={navigateAcceptNext}
+      onSkip={navigateSkip}
       onBack={queueIndex > 0 ? () => navigateTo(queueIndex - 1) : undefined}
       onExit={navigateExit}
     />
@@ -349,11 +382,14 @@ function HostBallotAdjudicationScreen({
 
 function HostBallotAdjudicationScreenDataLoader({
   cvrId,
+  ballotData,
   onExit,
   isClaimInFlight,
+  isClaimed,
   ...rest
 }: {
   cvrId: Id;
+  ballotData: BallotAdjudicationData | null;
   statusText: string;
   isClaimed: boolean;
   isClaimInFlight: boolean;
@@ -363,9 +399,6 @@ function HostBallotAdjudicationScreenDataLoader({
   onBack?: () => void;
   onExit: () => void;
 }): JSX.Element {
-  const adjudicationDataQuery = getBallotAdjudicationData.useQuery({
-    cvrId,
-  });
   const ballotImagesQuery = getBallotImages.useQuery({ cvrId });
   const writeInCandidatesQuery = getWriteInCandidates.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
@@ -384,11 +417,28 @@ function HostBallotAdjudicationScreenDataLoader({
     );
   }
 
+  // Claiming has settled (no longer in flight) but produced neither this
+  // machine's ballot data nor a claimed-by-another overlay — i.e. the
+  // claim+load request failed. Surface an error with a way out instead of
+  // spinning on Loading forever.
+  if (!isClaimInFlight && !isClaimed && !ballotData) {
+    return (
+      <Screen>
+        <Main centerChild>
+          <P>Unable to load ballot. Please try again.</P>
+          <Button onPress={onExit}>Exit</Button>
+        </Main>
+      </Screen>
+    );
+  }
+
+  // Still resolving: the initial claim is in flight, or the auxiliary queries
+  // (images / write-ins / settings) haven't landed yet.
   if (
-    !adjudicationDataQuery.isSuccess ||
     !ballotImagesQuery.isSuccess ||
     !writeInCandidatesQuery.isSuccess ||
-    !systemSettingsQuery.isSuccess
+    !systemSettingsQuery.isSuccess ||
+    (!isClaimed && !ballotData)
   ) {
     return (
       <Screen>
@@ -399,20 +449,26 @@ function HostBallotAdjudicationScreenDataLoader({
     );
   }
 
+  // For a ballot claimed elsewhere there is no real adjudication data; use an
+  // empty placeholder so the claimed overlay renders without carrying over the
+  // previous ballot's contests or derived state.
+  const adjudicationData: BallotAdjudicationData = ballotData ?? {
+    cvrId,
+    contests: [],
+    tag: { isBlankBallot: false },
+    isResolved: false,
+    adjudicatedContests: [],
+  };
+
   return (
     <BallotAdjudicationScreen
-      // Use the query's cvrId as key/prop so the screen unmounts/remounts
-      // with the new data coming in. With the prop as the key, the component
-      // unmounts when the key changes, but the ballot data hasn't yet loaded,
-      // so there is a render where the cvrId shown on the screen to the user
-      // doesn't match the ballot data (since we use keepPreviousData=true on
-      // the query to avoid the Loading screen from flickering in between each ballot)
-      key={adjudicationDataQuery.data.cvrId}
-      cvrId={adjudicationDataQuery.data.cvrId}
-      ballotAdjudicationData={adjudicationDataQuery.data}
+      key={cvrId}
+      cvrId={cvrId}
+      ballotAdjudicationData={adjudicationData}
       ballotImages={ballotImagesQuery.data}
       writeInCandidates={writeInCandidatesQuery.data}
       systemSettings={systemSettingsQuery.data}
+      isClaimed={isClaimed}
       isClaimInFlight={isClaimInFlight}
       onAccept={async (input) => {
         const result = await adjudicateCvrMutation(input);

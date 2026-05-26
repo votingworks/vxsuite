@@ -1478,6 +1478,27 @@ test('Skip jumps past claimed ballots; Back still steps onto them as read-only',
     .resolves();
 });
 
+test('shows an error with exit when the claim+load fails', async () => {
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  // The claim+load fails with a non-"no-claim" error (e.g. the host backend
+  // errored), so there's no ballot data and no claimed-by-another overlay.
+  apiMock.apiClient.claimAndLoadBallot
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(err({ type: 'host-disconnect' }));
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Unable to load ballot. Please try again.');
+  screen.getByRole('button', { name: 'Exit' });
+});
+
 function makePendingWriteInRecord(
   contestId: string,
   optionId: string,

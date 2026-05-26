@@ -180,7 +180,7 @@ export function ClientAppRoot(): JSX.Element | null {
           <Route exact path={routerPaths.adjudication}>
             <ClientAdjudicationScreen />
           </Route>
-          <Route exact path={`${routerPaths.ballotAdjudication}/:cvrId`}>
+          <Route exact path={`${routerPaths.ballotAdjudication}/:cvrId?`}>
             <ClientBallotAdjudicationScreen />
           </Route>
           <Route exact path={routerPaths.settings}>
@@ -201,7 +201,7 @@ export function ClientAppRoot(): JSX.Element | null {
         <Route exact path={routerPaths.adjudication}>
           <ClientAdjudicationScreen />
         </Route>
-        <Route exact path={`${routerPaths.ballotAdjudication}/:cvrId`}>
+        <Route exact path={`${routerPaths.ballotAdjudication}/:cvrId?`}>
           <ClientBallotAdjudicationScreen />
         </Route>
         <Redirect to={routerPaths.adjudication} />
