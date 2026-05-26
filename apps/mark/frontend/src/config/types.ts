@@ -21,7 +21,7 @@ export interface BallotContextInterface {
   isLiveMode: boolean;
   endVoterSession: () => Promise<void>;
   hasPrintedBallot: boolean;
-  setPrintedBallot: () => void;
+  setHasPrintedBallot: () => void;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
   // `selectedPartyId` and `selectParty` apply only to open primaries, where the

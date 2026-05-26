@@ -13,7 +13,7 @@ export function PrintPage(): JSX.Element {
     votes,
     resetBallot,
     hasPrintedBallot,
-    setPrintedBallot,
+    setHasPrintedBallot,
   } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
   const printBallotMutation = printBallot.useMutation();
@@ -29,7 +29,7 @@ export function PrintPage(): JSX.Element {
     if (!hasPrintedBallot) {
       assert(ballotStyleId !== undefined);
       assert(precinctId !== undefined);
-      setPrintedBallot();
+      setHasPrintedBallot();
       printBallotMutation.mutate({
         languageCode,
         precinctId,

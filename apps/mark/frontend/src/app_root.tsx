@@ -116,7 +116,7 @@ type VotingAction =
   | { type: 'selectParty'; partyId: PartyId }
   | { type: 'showPatCalibration' }
   | { type: 'completePatCalibration' }
-  | { type: 'setPrintedBallot' };
+  | { type: 'setHasPrintedBallot' };
 
 function votingStateReducer(
   state: VotingState,
@@ -161,7 +161,7 @@ function votingStateReducer(
         showingPatCalibration: false,
         isPatCalibrationComplete: true,
       };
-    case 'setPrintedBallot':
+    case 'setHasPrintedBallot':
       return { ...state, hasPrintedBallot: true };
     default: {
       /* istanbul ignore next - @preserve */
@@ -310,8 +310,8 @@ export function AppRoot(): JSX.Element | null {
     ]
   );
 
-  const setPrintedBallot = useCallback(() => {
-    dispatchVotingState({ type: 'setPrintedBallot' });
+  const setHasPrintedBallot = useCallback(() => {
+    dispatchVotingState({ type: 'setHasPrintedBallot' });
   }, []);
 
   const hidePostVotingInstructions = useCallback(() => {
@@ -655,7 +655,7 @@ export function AppRoot(): JSX.Element | null {
               resetBallot,
               selectedPartyId,
               selectParty,
-              setPrintedBallot,
+              setHasPrintedBallot,
               updateVote,
               votes: votes ?? blankBallotVotes,
             }}

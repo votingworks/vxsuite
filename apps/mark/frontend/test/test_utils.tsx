@@ -66,7 +66,7 @@ export function render(
           machineConfig,
           endVoterSession,
           hasPrintedBallot: false,
-          setPrintedBallot: () => undefined,
+          setHasPrintedBallot: () => undefined,
           precinctId,
           resetBallot,
           selectedPartyId,

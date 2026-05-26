@@ -12,7 +12,7 @@ const ballot: BallotContextInterface = {
   isCardlessVoter: false,
   isLiveMode: false,
   hasPrintedBallot: false,
-  setPrintedBallot: () => undefined,
+  setHasPrintedBallot: () => undefined,
   endVoterSession: () => Promise.resolve(),
   resetBallot: () => undefined,
   selectParty: () => undefined,
