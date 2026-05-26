@@ -14,6 +14,7 @@ import {
   Font,
   P,
   SearchSelect,
+  TextOnly,
 } from '@votingworks/ui';
 import { getBallotStyleGroupsForPrecinctOrSplit } from '@votingworks/utils';
 import { useState } from 'react';
@@ -66,7 +67,8 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
           rightIcon="Next"
           disabled={disabled}
         >
-          Start Voting Session: {electionStrings.precinctName(precinct)}
+          Start Voting Session:{' '}
+          <TextOnly>{electionStrings.precinctName(precinct)}</TextOnly>
         </Button>
       );
     }
