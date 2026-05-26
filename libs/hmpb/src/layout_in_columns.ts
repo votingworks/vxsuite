@@ -53,7 +53,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   maxColumnHeight,
   elementGap = 0,
 }: {
-  elements: Element[];
+  elements: readonly Element[];
   numColumns: number;
   maxColumnHeight: number;
   // Spacing between elements within a column
