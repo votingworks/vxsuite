@@ -1,4 +1,4 @@
-import { assert, ok } from '@votingworks/basics';
+import { ok, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import {
   BallotPageTemplate,
@@ -10,11 +10,15 @@ import * as Primary from './nh_state_primary_ballot_template';
 import { BaseStyles, NhStateBallotProps } from './nh_state_ballot_components';
 
 const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
-  if (props.election.type === 'general') {
-    return General.BallotPageFrame(props);
+  switch (props.election.type) {
+    case 'general':
+      return General.BallotPageFrame(props);
+    case 'primary':
+      return Primary.BallotPageFrame(props);
+    default:
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(props.election.type);
   }
-  assert(props.election.type === 'primary');
-  return Primary.BallotPageFrame(props);
 };
 
 const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
@@ -27,11 +31,15 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
       nextPageProps: undefined,
     });
   }
-  if (props.election.type === 'general') {
-    return General.BallotPageContent(props, scratchpad);
+  switch (props.election.type) {
+    case 'general':
+      return General.BallotPageContent(props, scratchpad);
+    case 'primary':
+      return Primary.BallotPageContent(props, scratchpad);
+    default:
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(props.election.type);
   }
-  assert(props.election.type === 'primary');
-  return Primary.BallotPageContent(props, scratchpad);
 };
 
 export const nhStateBallotTemplate: BallotPageTemplate<NhStateBallotProps> = {
