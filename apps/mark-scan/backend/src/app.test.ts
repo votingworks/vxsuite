@@ -618,12 +618,17 @@ function expectVotesEqual(expected: VotesDict, actual: VotesDict) {
 }
 
 test.each([
-  { hmpbPaperSize: HmpbBallotPaperSize.Letter },
-  { hmpbPaperSize: HmpbBallotPaperSize.Legal },
-  { hmpbPaperSize: HmpbBallotPaperSize.Custom22 },
+  { hmpbPaperSize: HmpbBallotPaperSize.Letter, languageCode: 'en' },
+  { hmpbPaperSize: HmpbBallotPaperSize.Letter, languageCode: 'zh-Hans' },
+
+  { hmpbPaperSize: HmpbBallotPaperSize.Legal, languageCode: 'en' },
+  { hmpbPaperSize: HmpbBallotPaperSize.Legal, languageCode: 'zh-Hans' },
+
+  { hmpbPaperSize: HmpbBallotPaperSize.Custom22, languageCode: 'en' },
+  { hmpbPaperSize: HmpbBallotPaperSize.Custom22, languageCode: 'zh-Hans' },
 ])(
-  'printing BMDBs when HMPBs are on $hmpbPaperSize',
-  async ({ hmpbPaperSize }) => {
+  'printing $languageCode BMDBs when HMPBs are on $hmpbPaperSize',
+  async ({ hmpbPaperSize, languageCode }) => {
     const pdfDatas: Uint8Array[] = [];
     const originalPrintBallot = stateMachine.printBallot;
     vi.spyOn(stateMachine, 'printBallot').mockImplementation((pdfData) => {
@@ -699,10 +704,10 @@ test.each([
     await apiClient.printBallot({
       precinctId: '21',
       ballotStyleId: electionDefinition.election.ballotStyles.find(
-        (bs) => bs.languages?.includes('en')
+        (bs) => bs.languages?.includes(languageCode)
       )!.id,
       votes: mockVotes,
-      languageCode: 'en',
+      languageCode,
     });
 
     await expectElectionState({ ballotsPrintedCount: 1 });
@@ -725,29 +730,6 @@ test.each([
     clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
     await waitForStatus('not_accepting_paper');
     mockPollWorkerAuth(mockAuth, electionDefinition);
-
-    // vote a ballot in Chinese
-    await mockLoadFlow(apiClient, driver);
-    await apiClient.printBallot({
-      precinctId: '21',
-      ballotStyleId: electionDefinition.election.ballotStyles.find(
-        (bs) => bs.languages?.includes('zh-Hans')
-      )!.id,
-      votes: mockVotes,
-      languageCode: 'zh-Hans',
-    });
-
-    await expectElectionState({ ballotsPrintedCount: 2 });
-    const pdfDataChinese = pdfDatas[1];
-    await expect(pdfDataChinese).toMatchPdfSnapshot({
-      failureThreshold: 0.034,
-    });
-
-    await waitForStatus('presenting_ballot');
-    const interpretationChinese = await apiClient.getInterpretation();
-    assert(interpretationChinese);
-    assert(interpretationChinese.type === 'InterpretedBmdPage');
-    expectVotesEqual(interpretationChinese.votes, mockVotes);
   }
 );
 
