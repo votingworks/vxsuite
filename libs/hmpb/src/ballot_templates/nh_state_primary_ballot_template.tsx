@@ -613,14 +613,13 @@ export async function BallotPageContent(
     .filter((section) => section.length > 0);
 
   // Add as many contests on this page as will fit.
-  const contestSectionsLeftToLayout = contestSections;
   const pageSections: JSX.Element[] = [];
   const sectionGapPx = 5;
   let heightUsed = 0;
 
   const horizontalGapPx = 5;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
-    const section = assertDefined(contestSectionsLeftToLayout.shift());
+    const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest) => (
       <Contest
         key={contest.id}
@@ -655,18 +654,17 @@ export async function BallotPageContent(
     const measuredContests = iter(contestElements)
       .zip(contestMeasurements)
       .map(([element, measurements]) => ({ element, ...measurements }))
-      .async();
+      .toArray();
 
-    const { columns, height } = await layOutInColumns({
+    const { columns, height, leftoverElements } = layOutInColumns({
       elements: measuredContests,
       numColumns,
       maxColumnHeight: dimensions.height - heightUsed,
     });
 
     // Put contests we didn't lay out back on the front of the queue
-    const numElementsUsed = columns.flat().length;
-    if (numElementsUsed < section.length) {
-      contestSectionsLeftToLayout.unshift(section.slice(numElementsUsed));
+    if (leftoverElements.length > 0) {
+      contestSections.unshift(section.slice(-leftoverElements.length));
     }
 
     // If there wasn't enough room left for any contests, go to the next page
@@ -700,7 +698,7 @@ export async function BallotPageContent(
     );
   }
 
-  const contestsLeftToLayout = contestSectionsLeftToLayout.flat();
+  const contestsLeftToLayout = contestSections.flat();
   if (heightUsed === 0) {
     return err({
       error: 'contestTooLong',
@@ -723,13 +721,13 @@ export async function BallotPageContent(
       <React.Fragment />
     );
   const nextPageProps =
-    contestSectionsLeftToLayout.length > 0
+    contestSections.length > 0
       ? {
           ...restProps,
           ballotStyleId,
           election: {
             ...election,
-            contests: contestSectionsLeftToLayout.flat(),
+            contests: contestSections.flat(),
           },
         }
       : undefined;

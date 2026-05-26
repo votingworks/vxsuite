@@ -47,21 +47,22 @@ function columnHeight<Element extends ElementWithHeight>(
  * - If there are multiple ways to shorten the columns, choose the one that
  * looks the most balanced
  */
-export async function layOutInColumns<Element extends ElementWithHeight>({
+export function layOutInColumns<Element extends ElementWithHeight>({
   elements,
   numColumns,
   maxColumnHeight,
   elementGap = 0,
 }: {
-  elements: AsyncIterable<Element>;
+  elements: readonly Element[];
   numColumns: number;
   maxColumnHeight: number;
   // Spacing between elements within a column
   elementGap?: number;
-}): Promise<{
+}): {
   columns: Array<Column<Element>>;
   height: number;
-}> {
+  leftoverElements: Element[];
+} {
   function emptyColumns(): Array<Column<Element>> {
     return range(0, numColumns).map(() => []);
   }
@@ -77,27 +78,28 @@ export async function layOutInColumns<Element extends ElementWithHeight>({
   // First, try a greedy approach of filling columns to the max height
   const greedyColumns = emptyColumns();
   let currentColumnIndex = 0;
-  const elementIterator = elements[Symbol.asyncIterator]();
-  let element = await elementIterator.next();
-  while (!element.done && currentColumnIndex < numColumns) {
+  let elementIndex = 0;
+  while (elementIndex < elements.length && currentColumnIndex < numColumns) {
+    const element = elements[elementIndex];
     if (
-      isColumnOverflowing(
-        greedyColumns[currentColumnIndex].concat([element.value])
-      )
+      isColumnOverflowing(greedyColumns[currentColumnIndex].concat([element]))
     ) {
       currentColumnIndex += 1;
     } else {
-      greedyColumns[currentColumnIndex].push(element.value);
-      element = await elementIterator.next();
+      greedyColumns[currentColumnIndex].push(element);
+      elementIndex += 1;
     }
   }
 
+  const leftoverElements = elements.slice(elementIndex);
+
   // If the greedy approach didn't use up all the elements, then we won't be
   // able to shorten the columns, so we're done.
-  if (!element.done) {
+  if (leftoverElements.length > 0) {
     return {
       columns: greedyColumns,
       height: heightOfTallestColumn(greedyColumns),
+      leftoverElements,
     };
   }
 
@@ -166,6 +168,7 @@ export async function layOutInColumns<Element extends ElementWithHeight>({
   return {
     columns: bestColumns,
     height: heightOfTallestColumn(bestColumns),
+    leftoverElements,
   };
 }
 
