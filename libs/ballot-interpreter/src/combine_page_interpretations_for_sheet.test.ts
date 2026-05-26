@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';

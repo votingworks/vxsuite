@@ -1,7 +1,7 @@
 /* eslint-disable no-empty-pattern */
 import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
 import { DateTime } from 'luxon';
-import { Mocked, test, vi } from 'vitest';
+import { Mocked, test, vi } from 'vite-plus/test';
 import { Card } from '@votingworks/auth';
 import {
   ScanningMode,

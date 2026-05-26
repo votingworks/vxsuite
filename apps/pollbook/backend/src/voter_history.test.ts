@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, expect, test, vi } from 'vite-plus/test';
 import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
 import { VoterAddressChangeRequest } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';

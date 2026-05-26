@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   mockCardlessVoterUser,

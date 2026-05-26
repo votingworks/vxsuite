@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it, Mocked, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, Mocked, vi } from 'vite-plus/test';
 import {
   AppBase,
   LanguageControls,

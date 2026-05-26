@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';

@@ -37,7 +37,7 @@ import { readFile } from 'node:fs/promises';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import * as tmp from 'tmp';
-import { Mocked, expect, vi } from 'vitest';
+import { Mocked, expect, vi } from 'vite-plus/test';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app';

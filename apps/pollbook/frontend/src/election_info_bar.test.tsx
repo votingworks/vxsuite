@@ -1,4 +1,4 @@
-import { test, describe, expect, afterEach } from 'vitest';
+import { test, describe, expect, afterEach } from 'vite-plus/test';
 import { screen } from '@testing-library/react';
 import {
   electionFamousNames2021Fixtures,

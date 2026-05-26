@@ -1,5 +1,5 @@
 import React from 'react';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { err, ok, Result } from '@votingworks/basics';
 import {
   QueryClient,

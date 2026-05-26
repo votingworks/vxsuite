@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vite-plus/test';
 import { assert, Optional } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb';

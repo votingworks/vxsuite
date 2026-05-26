@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi, vitest } from 'vitest';
+import { beforeEach, expect, test, vi, vitest } from 'vite-plus/test';
 
 import {
   electionSimpleSinglePrecinctFixtures,

@@ -6,7 +6,7 @@ import {
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
 } from '@votingworks/ui';
-import { onTestFinished } from 'vitest';
+import { onTestFinished } from 'vite-plus/test';
 
 // Re-export all of @testing-library/react for convenience and override
 // with customized VX utils and types, as recommended at

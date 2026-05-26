@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { AppStringKey, appStrings } from './app_strings';
 
 // TODO(kofi): Quick-and-dirty placeholder -- convert to a lint check.

@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { render, screen } from '../test/react_testing_library';
 
 import { SetupCardReaderPage } from './setup_card_reader_page';

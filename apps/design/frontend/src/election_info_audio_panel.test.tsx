@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { createMemoryHistory } from 'history';
 import { Route, Router, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';

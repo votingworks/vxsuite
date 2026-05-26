@@ -16,7 +16,7 @@ import {
 } from '@votingworks/types';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
-import { vi, test, expect, afterAll } from 'vitest';
+import { vi, test, expect, afterAll } from 'vite-plus/test';
 import {
   organizations,
   jurisdictions,

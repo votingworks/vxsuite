@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vite-plus/test';
 import {
   clearTemporaryRootDir,
   makeTemporaryDirectory,

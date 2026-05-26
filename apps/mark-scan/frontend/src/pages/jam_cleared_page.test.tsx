@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { render, screen } from '../../test/react_testing_library';

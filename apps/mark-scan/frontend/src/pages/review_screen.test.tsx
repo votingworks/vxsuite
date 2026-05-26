@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';

@@ -6,7 +6,7 @@ import {
   UiStringsPackage,
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import { NhBallotProps } from '@votingworks/hmpb';
 import {

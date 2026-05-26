@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { advancePromises } from '@votingworks/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vite-plus/test';
 import { basename, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';

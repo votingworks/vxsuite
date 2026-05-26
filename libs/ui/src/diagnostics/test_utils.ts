@@ -1,4 +1,4 @@
-import type * as vitest from 'vitest';
+import type * as vitest from 'vite-plus/test';
 import { within } from '@testing-library/react';
 import { assertDefined } from '@votingworks/basics';
 import { VxScreen } from '../themes/render_with_themes';

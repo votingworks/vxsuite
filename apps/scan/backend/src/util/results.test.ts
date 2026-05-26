@@ -1,5 +1,5 @@
 /* eslint-disable vx/no-expect-to-be */
-import { vi, expect, test } from 'vitest';
+import { vi, expect, test } from 'vite-plus/test';
 import { randomUUID as uuid } from 'node:crypto';
 import { mockBaseLogger } from '@votingworks/logging';
 import {

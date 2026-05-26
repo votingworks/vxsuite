@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockLogger } from '@votingworks/logging';
 import { AudioPlayer } from '@votingworks/backend';
 import { Player, SoundName } from './player';

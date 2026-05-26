@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { err } from '@votingworks/basics';
 import { exportBackupVoterChecklist } from './backup_worker';
 import { withApp } from '../test/app';

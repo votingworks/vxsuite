@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, expect, vi } from 'vite-plus/test';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,

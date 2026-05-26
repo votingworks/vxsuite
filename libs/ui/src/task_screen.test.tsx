@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { H1, TaskControls, TaskHeader, TaskScreen } from '.';
 import { render, screen } from '../test/react_testing_library';
 

@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import type { BatteryInfo } from '@votingworks/backend';
 import { screen } from '../test/react_testing_library';
 

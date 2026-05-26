@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { err } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import userEvent from '@testing-library/user-event';

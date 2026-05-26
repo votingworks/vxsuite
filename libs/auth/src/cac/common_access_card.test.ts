@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';

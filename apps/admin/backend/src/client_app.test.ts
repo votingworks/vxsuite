@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';

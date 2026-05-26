@@ -1,6 +1,6 @@
 import { readElection } from '@votingworks/fs';
 import { HmpbBallotPaperSize } from '@votingworks/types';
-import { afterAll, beforeAll, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vite-plus/test';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import { createPlaywrightRendererPool } from './playwright_renderer';

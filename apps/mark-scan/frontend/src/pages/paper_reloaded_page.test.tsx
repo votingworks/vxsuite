@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { createMemoryHistory, History } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';

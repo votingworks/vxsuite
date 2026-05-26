@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import { act } from '../react_testing_library';
 

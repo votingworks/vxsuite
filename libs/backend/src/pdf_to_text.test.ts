@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { pdfToText } from './pdf_to_text';
 import { execFile } from './exec';
 

@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { IppMarkerInfo } from '@votingworks/types';
 import { backendWaitFor } from '@votingworks/test-utils';
 import { assert, err, ok } from '@votingworks/basics';

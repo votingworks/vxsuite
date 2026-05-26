@@ -1,4 +1,4 @@
-import { vi, test, expect } from 'vitest';
+import { vi, test, expect } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
 import {

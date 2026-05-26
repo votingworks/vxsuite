@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { suppressingConsoleOutput } from './console';
 
 test.each(['log', 'warn', 'error'] as const)(

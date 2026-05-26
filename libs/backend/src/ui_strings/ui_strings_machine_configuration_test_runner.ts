@@ -1,6 +1,6 @@
 /* istanbul ignore file - test util @preserve */
 
-import type * as vitest from 'vitest';
+import type * as vitest from 'vite-plus/test';
 import {
   ElectionDefinition,
   ElectionPackage,

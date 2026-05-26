@@ -22,10 +22,10 @@
     "lint": "echo eslint-plugin-vs linting temporarily disabled",
     "lint:fix": "echo eslint-plugin-vs linting temporarily disabled",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest"
+    "test:ci": "vp test run --coverage",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "8.59.2",
@@ -50,7 +50,7 @@
     "eslint-plugin-vitest": "^0.5.4",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5"
 }

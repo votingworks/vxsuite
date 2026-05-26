@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,

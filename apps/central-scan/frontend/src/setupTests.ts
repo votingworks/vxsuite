@@ -1,5 +1,5 @@
 import matchers from '@testing-library/jest-dom/matchers';
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vite-plus/test';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,

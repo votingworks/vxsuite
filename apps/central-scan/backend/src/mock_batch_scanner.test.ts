@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { MockBatchScanner } from './mock_batch_scanner';
 import { ScannedSheetInfo } from './fujitsu_scanner';
 

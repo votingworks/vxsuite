@@ -1,4 +1,4 @@
-import { expect, Mock, test, vi } from 'vitest';
+import { expect, Mock, test, vi } from 'vite-plus/test';
 import { Keybinding } from './keybindings';
 import {
   advanceElementFocus,

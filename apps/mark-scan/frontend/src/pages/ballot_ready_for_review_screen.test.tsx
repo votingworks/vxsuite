@@ -1,4 +1,4 @@
-import { test, vi } from 'vitest';
+import { test, vi } from 'vite-plus/test';
 import { render, screen } from '../../test/react_testing_library';
 import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';

@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi, Mocked } from 'vitest';
+import { afterEach, expect, test, vi, Mocked } from 'vite-plus/test';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {

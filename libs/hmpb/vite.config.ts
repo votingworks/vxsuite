@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { Alias, defineConfig } from 'vite';
+import { Alias, defineConfig } from 'vite-plus';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';

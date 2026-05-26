@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { promises as fs } from 'node:fs';
 import { mockChildProcess } from '@votingworks/test-utils';
 import {

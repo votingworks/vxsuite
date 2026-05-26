@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { DateWithoutTime } from './date_without_time';
 
 describe('DateWithoutTime', () => {

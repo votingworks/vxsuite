@@ -1,5 +1,5 @@
 import { createMemoryHistory } from 'history';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Router, Route } from 'react-router-dom';
 
 import { within } from '@testing-library/react';

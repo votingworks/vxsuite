@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
 import { assert, err, ok } from '@votingworks/basics';

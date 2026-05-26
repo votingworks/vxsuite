@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { join } from 'node:path';
 import fetch from 'node-fetch';

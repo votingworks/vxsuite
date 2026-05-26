@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';

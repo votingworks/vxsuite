@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach } from 'vitest';
+import { afterAll, beforeAll, beforeEach } from 'vite-plus/test';
 import fetchMock from 'fetch-mock';
 import { clearImmediate, setImmediate } from 'node:timers';
 import { TextDecoder, TextEncoder } from 'node:util';

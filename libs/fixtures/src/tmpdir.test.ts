@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { existsSync, readFileSync, statSync } from 'node:fs';
-import { afterEach, expect, test } from 'vitest';
+import { afterEach, expect, test } from 'vite-plus/test';
 import {
   clearTemporaryRootDir,
   getPathForFile,

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
+import { afterEach, beforeEach, test, vi } from 'vite-plus/test';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';

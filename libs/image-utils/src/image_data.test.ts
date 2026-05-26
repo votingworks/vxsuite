@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';

@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vitest';
+import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vite-plus/test';
 import { mockConstructor, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 

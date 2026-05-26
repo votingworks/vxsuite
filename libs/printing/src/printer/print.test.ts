@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { ok } from '@votingworks/basics';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';

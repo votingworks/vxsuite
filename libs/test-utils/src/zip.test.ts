@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { sleep } from '@votingworks/basics';
 import { zipFile } from './zip';
 

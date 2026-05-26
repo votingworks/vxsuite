@@ -6,7 +6,7 @@ import {
   expect,
   test,
   vi,
-} from 'vitest';
+} from 'vite-plus/test';
 import { readElection } from '@votingworks/fs';
 import {
   RendererPool,

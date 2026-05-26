@@ -1,4 +1,4 @@
-import { expect, MockInstance, test, vi } from 'vitest';
+import { expect, MockInstance, test, vi } from 'vite-plus/test';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { readFileSync } from 'node:fs';

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS } from '@votingworks/types';
 
 import { computeSessionEndTime, SessionConfig } from './sessions';

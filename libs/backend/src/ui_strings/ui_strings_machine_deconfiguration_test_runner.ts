@@ -1,6 +1,6 @@
 /* istanbul ignore file - test util @preserve */
 
-import type * as vitest from 'vitest';
+import type * as vitest from 'vite-plus/test';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Test context for {@link runUiStringMachineDeconfigurationTests}. */

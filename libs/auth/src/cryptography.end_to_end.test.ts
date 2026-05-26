@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Readable } from 'node:stream';
 import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 

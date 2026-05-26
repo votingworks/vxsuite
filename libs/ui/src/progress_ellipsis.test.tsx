@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { render } from '../test/react_testing_library';
 
 import { ProgressEllipsis } from './progress_ellipsis';

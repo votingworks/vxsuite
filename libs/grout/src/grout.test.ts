@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/require-await */
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { AddressInfo } from 'node:net';
 import express from 'express';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { isOpenPrimary } from '@votingworks/types';
 import { readElection } from './election_open_primary';
 

@@ -12,7 +12,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import * as fsExtra from 'fs-extra';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
 import { withApp } from '../test/helpers/setup_app';

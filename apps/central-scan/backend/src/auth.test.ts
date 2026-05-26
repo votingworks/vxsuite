@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vite-plus/test';
 import getPort from 'get-port';
 import { Server } from 'node:http';
 import { DateTime } from 'luxon';

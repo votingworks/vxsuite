@@ -1,7 +1,7 @@
 /* eslint-disable vx/gts-jsdoc */
 /* istanbul ignore file - @preserve */
 
-import type { Mocked, vi } from 'vitest';
+import type { Mocked, vi } from 'vite-plus/test';
 import { assertDefined } from '@votingworks/basics';
 import { MinimalGoogleCloudTextToSpeechClient } from './speech_synthesizer';
 import { MinimalGoogleCloudTranslationClient } from './translator';

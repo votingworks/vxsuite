@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { assert, DateWithoutTime } from '@votingworks/basics';
 import {
   DEV_MACHINE_ID,

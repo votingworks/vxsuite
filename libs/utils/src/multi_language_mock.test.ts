@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { getMockMultiLanguageElectionDefinition } from './multi_language_mock';
 

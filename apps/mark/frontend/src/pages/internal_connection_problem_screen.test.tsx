@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { render, screen } from '../../test/react_testing_library';
 import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 import { InternalConnectionProblemScreen } from './internal_connection_problem_screen';

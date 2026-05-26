@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { createImageData } from 'canvas';
 import { basename } from 'node:path';

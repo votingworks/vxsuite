@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import React, { act } from 'react';
 import { mockConstructor } from '@votingworks/test-utils';
 import {

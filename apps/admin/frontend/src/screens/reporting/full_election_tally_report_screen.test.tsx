@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vite-plus/test';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import {

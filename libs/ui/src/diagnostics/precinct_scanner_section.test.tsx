@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 import { render } from '../../test/react_testing_library';
 import { PrecinctScannerSection } from './precinct_scanner_section';

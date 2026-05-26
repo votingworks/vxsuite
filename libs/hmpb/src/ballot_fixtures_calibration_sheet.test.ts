@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, test, vi } from 'vitest';
+import { afterAll, beforeAll, describe, test, vi } from 'vite-plus/test';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { calibrationSheetFixtures } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';

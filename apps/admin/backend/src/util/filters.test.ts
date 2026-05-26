@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId } from '@votingworks/types';
 import { assertIsBackendFilter, convertFrontendFilter } from './filters';

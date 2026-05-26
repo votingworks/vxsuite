@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from 'vitest';
+import { afterAll, describe, expect, test } from 'vite-plus/test';
 import { err, ok } from '@votingworks/basics';
 import {
   PollingPlace,

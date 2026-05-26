@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { assert } from '@votingworks/basics';

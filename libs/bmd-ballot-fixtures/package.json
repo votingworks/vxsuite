@@ -23,10 +23,10 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest"
+    "test:ci": "TZ=America/Anchorage vp test run --coverage",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test"
   },
   "dependencies": {
     "@types/tmp": "0.2.4",
@@ -51,7 +51,7 @@
     "react-dom": "18.3.1",
     "sort-package-json": "^1.50.0",
     "util": "^0.12.4",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "peerDependencies": {
     "react": "18.3.1"

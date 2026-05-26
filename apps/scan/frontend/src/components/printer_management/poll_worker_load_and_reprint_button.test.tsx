@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, vi, test, expect } from 'vitest';
+import { beforeEach, afterEach, vi, test, expect } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import {
   ApiMock,

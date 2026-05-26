@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 
 import { safeParseElection } from '@votingworks/types';
 import { find, iter } from '@votingworks/basics';

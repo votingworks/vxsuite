@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
 import { DiagnosticRecord } from '@votingworks/types';

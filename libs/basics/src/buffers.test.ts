@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { arrayBufferFrom } from './buffers';
 
 function assertArrayBuffersEqual(a: ArrayBuffer, b: ArrayBuffer) {

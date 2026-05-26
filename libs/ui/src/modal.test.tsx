@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';

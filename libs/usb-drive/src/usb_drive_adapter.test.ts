@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 import { createMockMultiUsbDrive } from './mocks/mock_multi_usb_drive';
 import { UsbDriveInfo } from './multi_usb_drive';

@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { StateFeaturesConfig } from '@votingworks/design-backend';
 import { createMemoryHistory, History } from 'history';
 import {

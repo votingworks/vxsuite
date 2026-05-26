@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { testElectionReport } from '@votingworks/types';

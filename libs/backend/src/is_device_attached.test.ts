@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { usb } from 'usb';
 import { isDeviceAttached } from './is_device_attached';
 

@@ -1,5 +1,5 @@
 import { Election, Voter, VoterIdentificationMethod } from '@votingworks/types';
-import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
+import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vite-plus/test';
 import { ComponentProps } from 'react';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';

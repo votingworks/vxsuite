@@ -1,6 +1,6 @@
 import { iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
-import { afterAll, beforeAll, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vite-plus/test';
 import { nhGeneralElectionFixtures } from './ballot_fixtures';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 import { expectToMatchSavedPdf } from '../test/helpers';

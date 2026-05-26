@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { makeTemporaryFile } from '@votingworks/fixtures';

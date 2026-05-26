@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import fc from 'fast-check';
 import { assertInteger, EPSILON, isCloseToZero } from './numeric';
 

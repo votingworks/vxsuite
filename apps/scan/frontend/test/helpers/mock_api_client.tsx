@@ -11,7 +11,7 @@ import {
   DiagnosticRecord,
   DiagnosticOutcome,
 } from '@votingworks/types';
-import { Mock, vi } from 'vitest';
+import { Mock, vi } from 'vite-plus/test';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,

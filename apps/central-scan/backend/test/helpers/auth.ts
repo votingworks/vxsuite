@@ -5,7 +5,7 @@ import {
   ElectionDefinition,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { Mocked } from 'vitest';
+import { Mocked } from 'vite-plus/test';
 
 export function mockElectionManagerAuth(
   auth: Mocked<DippedSmartCardAuthApi>,

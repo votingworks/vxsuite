@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { mockBaseLogger, BaseLogger } from '@votingworks/logging';
 import { render, RenderResult } from '../react_testing_library';
 import { App } from '../../src/app';

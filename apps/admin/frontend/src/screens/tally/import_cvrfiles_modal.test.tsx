@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { mockKiosk } from '@votingworks/test-utils';
 
 import { mockUsbDriveStatus } from '@votingworks/ui';

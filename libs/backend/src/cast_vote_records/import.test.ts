@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';

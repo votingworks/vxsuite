@@ -1,4 +1,4 @@
-import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
+import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vite-plus/test';
 import { ComponentProps } from 'react';
 import {
   Election,

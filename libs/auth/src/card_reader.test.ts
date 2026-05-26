@@ -1,4 +1,4 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, Mock, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import EventEmitter from 'node:events';
 import pcscLite from 'pcsclite';

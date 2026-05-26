@@ -2,7 +2,7 @@ import { iter } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { encodeImageData, pdfToImages } from '@votingworks/image-utils';
 import { BallotType } from '@votingworks/types';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { renderBallotPreviewToPdf } from './render_ballot';

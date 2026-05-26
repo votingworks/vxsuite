@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {

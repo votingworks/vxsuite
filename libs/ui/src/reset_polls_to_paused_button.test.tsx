@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';

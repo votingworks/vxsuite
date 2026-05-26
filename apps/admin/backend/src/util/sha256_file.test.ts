@@ -1,5 +1,5 @@
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
 import { sha256File } from './sha256_file';

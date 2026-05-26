@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { Tabulation } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { GroupByEditor } from './group_by_editor';

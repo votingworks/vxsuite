@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",
-    "build:self": "pnpm type-check && vite build",
+    "build:self": "pnpm type-check && vp build",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
@@ -21,10 +21,10 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
+    "test:ci": "TZ=America/Anchorage vp test run --coverage",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test",
     "type-check": "tsgo --build"
   },
   "browserslist": {
@@ -105,8 +105,7 @@
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
     "ts-jest": "29.1.1",
-    "vite": "8.0.5",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5",
   "vx": {

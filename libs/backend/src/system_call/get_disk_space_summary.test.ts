@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { getDiskSpaceSummary } from './get_disk_space_summary';
 import { execFile } from '../exec';
 

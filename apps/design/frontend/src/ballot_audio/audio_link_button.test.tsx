@@ -1,5 +1,5 @@
 import React from 'react';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Route, Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';

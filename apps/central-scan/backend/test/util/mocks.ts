@@ -1,4 +1,4 @@
-import { Mocked, vi } from 'vitest';
+import { Mocked, vi } from 'vite-plus/test';
 import { createImageData, writeImageData } from '@votingworks/image-utils';
 import {
   MockReadable,

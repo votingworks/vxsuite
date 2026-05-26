@@ -1,6 +1,6 @@
 /* eslint-disable prefer-regex-literals */
 
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { setClock } from './set_clock';
 import { execFile } from '../exec';
 

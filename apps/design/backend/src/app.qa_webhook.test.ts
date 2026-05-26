@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test, vi } from 'vitest';
+import { afterAll, describe, expect, test, vi } from 'vite-plus/test';
 import { randomUUID as uuid } from 'node:crypto';
 import { ElectionId } from '@votingworks/types';
 import { testSetupHelpers } from '../test/helpers';

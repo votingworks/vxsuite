@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from 'vitest';
+import { beforeEach, expect, test } from 'vite-plus/test';
 import fetchMock from 'fetch-mock';
 import { fetchJson } from './fetch_json';
 

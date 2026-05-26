@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import EventEmitter from 'node:events';
 import { Readable } from 'node:stream';
 import { StreamLines } from './stream_lines';

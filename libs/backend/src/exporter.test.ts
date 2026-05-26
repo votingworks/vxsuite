@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { readFile, symlink, writeFile } from 'node:fs/promises';

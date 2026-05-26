@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import React from 'react';
 import parseCssColor from 'parse-css-color';
 import { assert } from '@votingworks/basics';

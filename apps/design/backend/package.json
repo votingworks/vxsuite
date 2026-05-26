@@ -45,9 +45,9 @@
     "start": "./scripts/start.sh",
     "test": "is-ci test:ci test:watch",
     "test:ci": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -106,7 +106,7 @@
     "lodash.get": "^4.4.2",
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "engines": {
     "node": ">= 12"

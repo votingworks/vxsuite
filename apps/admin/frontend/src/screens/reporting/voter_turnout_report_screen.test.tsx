@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';

@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { assert } from '@votingworks/basics';
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { ImageData } from 'canvas';

@@ -1,4 +1,4 @@
-import { vi, VitestUtils, expect } from 'vitest';
+import { vi, VitestUtils, expect } from 'vite-plus/test';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,

@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { readElectionWithMsEitherNeither } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';

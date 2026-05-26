@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { TestLanguageCode } from '@votingworks/test-utils';

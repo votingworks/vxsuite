@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { buildContestResultsFixture } from '@votingworks/utils';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';

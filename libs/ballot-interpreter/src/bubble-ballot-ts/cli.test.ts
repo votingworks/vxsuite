@@ -10,7 +10,7 @@ import {
   makeTemporaryDirectory,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { pdfToPageImages } from '../../test/helpers/interpretation';
 import { main } from './cli';
 

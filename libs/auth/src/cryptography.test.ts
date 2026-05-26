@@ -1,4 +1,4 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, Mock, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import * as fs from 'node:fs/promises';

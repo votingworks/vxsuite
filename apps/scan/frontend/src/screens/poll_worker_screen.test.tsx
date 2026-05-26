@@ -6,7 +6,7 @@ import {
   test,
   expect,
   Mock,
-} from 'vitest';
+} from 'vite-plus/test';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,

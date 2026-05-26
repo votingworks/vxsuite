@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_NAME,

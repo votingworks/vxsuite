@@ -1,4 +1,4 @@
-import { beforeEach, test, vi } from 'vitest';
+import { beforeEach, test, vi } from 'vite-plus/test';
 import { act, render, screen } from '@testing-library/react';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 

@@ -1,4 +1,4 @@
-import { Mocked, expect, vi } from 'vitest';
+import { Mocked, expect, vi } from 'vite-plus/test';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assertDefined, iter, ok } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';

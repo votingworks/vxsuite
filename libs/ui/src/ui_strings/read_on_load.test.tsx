@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { assert } from '@votingworks/basics';
 import React, { act } from 'react';
 import { createMemoryHistory } from 'history';

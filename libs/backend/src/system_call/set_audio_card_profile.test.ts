@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';

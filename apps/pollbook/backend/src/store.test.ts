@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vite-plus/test';
 import { assert, sleep } from '@votingworks/basics';
 import { mockBaseLogger } from '@votingworks/logging';
 import { HybridLogicalClock } from './hybrid_logical_clock';

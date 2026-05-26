@@ -1,4 +1,4 @@
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vite-plus/test';
 import { typedAs } from '@votingworks/basics';
 import {
   AnyContest,

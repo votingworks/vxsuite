@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vite-plus/test';
 import { Route } from 'react-router-dom';
 import {
   readElectionGeneralDefinition,

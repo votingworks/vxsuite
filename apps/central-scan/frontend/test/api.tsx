@@ -1,4 +1,4 @@
-import { Mock, vi } from 'vitest';
+import { Mock, vi } from 'vite-plus/test';
 import React from 'react';
 import type {
   Api,

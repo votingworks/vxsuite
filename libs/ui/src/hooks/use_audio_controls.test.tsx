@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { renderHook } from '@testing-library/react';
 import { AudioControls } from '@votingworks/types';
 import { UiStringsAudioContext } from '../ui_strings/audio_context';

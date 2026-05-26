@@ -1,6 +1,6 @@
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import {
   ApiMock,
   createApiMock,

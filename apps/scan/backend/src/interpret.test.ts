@@ -19,7 +19,7 @@ import {
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { interpret } from './interpret';
 
 if (process.env.CI) {

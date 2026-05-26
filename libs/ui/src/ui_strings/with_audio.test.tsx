@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { act } from 'react';
 
 import { TestLanguageCode } from '@votingworks/test-utils';

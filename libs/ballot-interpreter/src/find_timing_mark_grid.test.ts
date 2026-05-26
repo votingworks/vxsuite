@@ -1,7 +1,7 @@
 import { timingMarkPaperFixtures } from '@votingworks/hmpb';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { join } from 'node:path';
 import { loadImageData } from '@votingworks/image-utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';

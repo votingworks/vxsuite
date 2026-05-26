@@ -2,7 +2,7 @@ import { LogEventId } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { exists } from 'fs-extra';
 import { join } from 'node:path';
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi } from 'vite-plus/test';
 import { test } from '../../../test/helpers/test';
 import {
   CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS,

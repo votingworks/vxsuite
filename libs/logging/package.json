@@ -25,10 +25,10 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && TZ=America/Anchorage vitest run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest"
+    "test:ci": "pnpm build && TZ=America/Anchorage vp test run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
@@ -54,7 +54,7 @@
     "fast-check": "2.23.2",
     "is-ci-cli": "2.2.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5"
 }

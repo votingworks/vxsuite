@@ -1,5 +1,5 @@
 import { PollingPlace, PollingPlaceType } from '@votingworks/types';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import { render, screen, waitFor } from '../test/react_testing_library';

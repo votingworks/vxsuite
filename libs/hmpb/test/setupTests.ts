@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect } from 'vitest';
+import { afterAll, beforeAll, expect } from 'vite-plus/test';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import {
   clearTemporaryRootDir,

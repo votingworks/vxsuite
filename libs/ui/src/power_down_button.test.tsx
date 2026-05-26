@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor } from '../test/react_testing_library';
 import { newTestContext } from '../test/test_context';

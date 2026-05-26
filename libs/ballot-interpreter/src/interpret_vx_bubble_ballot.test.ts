@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';

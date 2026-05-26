@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { withApp } from '../test/helpers/scanner_helpers';
 
 vi.mock('./audio/player');

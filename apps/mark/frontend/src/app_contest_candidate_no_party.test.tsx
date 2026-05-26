@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vite-plus/test';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { CandidateContest, Election } from '@votingworks/types';

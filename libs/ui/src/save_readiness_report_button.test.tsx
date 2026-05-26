@@ -1,4 +1,4 @@
-import { test, vi } from 'vitest';
+import { test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 import { ExportDataResult } from '@votingworks/backend';

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { createImageData, ImageData } from '@votingworks/image-utils';
 import { SheetOf } from '@votingworks/types';
 import { join } from 'node:path';

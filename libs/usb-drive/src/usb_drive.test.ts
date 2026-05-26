@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { mockLogger } from '@votingworks/logging';

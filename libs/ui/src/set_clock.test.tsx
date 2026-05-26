@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest';
+import { beforeAll, describe, expect, test, vi } from 'vite-plus/test';
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
 import { arbitraryDateTime } from '@votingworks/test-utils';

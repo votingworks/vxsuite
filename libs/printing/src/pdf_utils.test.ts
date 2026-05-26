@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { PDFDocument } from 'pdf-lib';
 import { getPdfPageCount } from './pdf_utils';
 

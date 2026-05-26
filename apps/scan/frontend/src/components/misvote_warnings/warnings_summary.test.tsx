@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect } from 'vite-plus/test';
 import { render, screen } from '../../../test/react_testing_library';
 import { generateContests } from './test_utils.test';
 import { WarningsSummary } from './warnings_summary';

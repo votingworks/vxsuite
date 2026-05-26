@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';

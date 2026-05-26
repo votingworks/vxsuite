@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { assertDefined, ok } from '@votingworks/basics';
 import { screen } from '../test/react_testing_library';
 import { ElectricalTestingScreen } from './electrical_testing_screen';

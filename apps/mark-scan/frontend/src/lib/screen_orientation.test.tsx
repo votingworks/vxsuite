@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { screenOrientation } from './screen_orientation';
 

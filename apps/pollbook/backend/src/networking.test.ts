@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect } from 'vite-plus/test';
 import { getNodeServiceName, isValidIpv4Address } from './networking';
 
 test('isValidIpv4Address', () => {

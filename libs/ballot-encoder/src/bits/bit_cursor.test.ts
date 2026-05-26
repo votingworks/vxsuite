@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { BitCursor } from './bit_cursor';
 
 test('starts with bit offset 0', () => {

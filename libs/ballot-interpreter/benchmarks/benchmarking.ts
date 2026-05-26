@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies, vx/gts-safe-number-parse */
-import { expect } from 'vitest';
+import { expect } from 'vite-plus/test';
 import { assertDefined, iter, range } from '@votingworks/basics';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

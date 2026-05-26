@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { DownloadsScreen } from './downloads_screen';
 import { routes } from './routes';

@@ -1,4 +1,4 @@
-import { beforeEach, expect, MockInstance, test, vi } from 'vitest';
+import { beforeEach, expect, MockInstance, test, vi } from 'vite-plus/test';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import {

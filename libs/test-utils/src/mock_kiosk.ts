@@ -1,4 +1,4 @@
-import type { vi, Mocked } from 'vitest';
+import type { vi, Mocked } from 'vite-plus/test';
 
 export type MockKiosk = Mocked<KioskBrowser.Kiosk>;
 

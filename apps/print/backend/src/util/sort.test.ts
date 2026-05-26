@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { BallotPrintCount, LanguageCode } from '@votingworks/types';
 import { sortBallotPrintCounts } from './sort';
 

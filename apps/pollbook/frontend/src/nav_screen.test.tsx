@@ -1,4 +1,4 @@
-import { test, beforeEach, afterEach, vi, expect } from 'vitest';
+import { test, beforeEach, afterEach, vi, expect } from 'vite-plus/test';
 
 import {
   PollbookConnectionStatus,

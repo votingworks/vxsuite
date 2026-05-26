@@ -1,4 +1,4 @@
-import { afterAll } from 'vitest';
+import { afterAll } from 'vite-plus/test';
 import { removeSync } from 'fs-extra';
 import { dirSync } from 'tmp';
 

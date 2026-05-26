@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { writeImageData } from '@votingworks/image-utils';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { join } from 'node:path';

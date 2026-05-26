@@ -3,7 +3,7 @@ import { iter } from '@votingworks/basics';
 import { Size } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import {
   PdfPage,
   getPdfPageCount,

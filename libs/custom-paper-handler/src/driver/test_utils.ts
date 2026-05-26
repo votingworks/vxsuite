@@ -1,5 +1,5 @@
 import { Device, WebUSBDevice, findByIds } from 'usb';
-import { MockedFunction } from 'vitest';
+import { MockedFunction } from 'vite-plus/test';
 import { MockWebUsbDevice } from '../test-utils';
 import {
   REAL_TIME_ENDPOINT_IN,

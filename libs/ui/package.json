@@ -26,10 +26,10 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest"
+    "test:ci": "TZ=America/Anchorage vp test run --coverage",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -124,8 +124,7 @@
     "styled-components": "^5.3.11",
     "tmp": "^0.2.1",
     "util": "^0.12.4",
-    "vite": "8.0.5",
-    "vitest": "^4.1.6",
+    "vite-plus": "^0.1.22",
     "vitest-styled-components": "^1.0.0"
   },
   "peerDependencies": {

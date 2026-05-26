@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Tabulation } from '.';
 
 test('formatBatchId returns first and last segments for hyphenated IDs', () => {

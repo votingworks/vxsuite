@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, test } from 'vitest';
+import { afterEach, beforeEach, describe, test } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { InsertedSmartCardAuth } from '@votingworks/types';

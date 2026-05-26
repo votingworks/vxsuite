@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { getAudioInfoWithRetry } from './get_audio_info_with_retry';
 import * as audio from '../system_call/get_audio_info';

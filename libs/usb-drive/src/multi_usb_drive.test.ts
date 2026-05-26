@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { join } from 'node:path';
 import { PromiseWithChild } from 'node:child_process';
 import { LogEventId, mockLogger } from '@votingworks/logging';

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vite-plus/test';
 import { readElection } from '@votingworks/fs';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { msGeneralElectionFixtures } from './ballot_fixtures';

@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach, test, expect } from 'vitest';
+import { vi, beforeEach, afterEach, test, expect } from 'vite-plus/test';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';

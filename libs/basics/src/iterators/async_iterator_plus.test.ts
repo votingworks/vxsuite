@@ -1,5 +1,5 @@
 import * as fc from 'fast-check';
-import { expect, expectTypeOf, test, vi } from 'vitest';
+import { expect, expectTypeOf, test, vi } from 'vite-plus/test';
 import { typedAs } from '../typed_as';
 import { integers } from './integers';
 import { iter } from './iter';

@@ -4,7 +4,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { beforeEach, test, vi } from 'vitest';
+import { beforeEach, test, vi } from 'vite-plus/test';
 import {
   ballotImages,
   withApp,

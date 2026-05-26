@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { electricalTest } from './electrical_test';
 
 export type ExtendedTest = typeof test & {

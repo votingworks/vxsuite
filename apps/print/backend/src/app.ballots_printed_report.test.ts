@@ -1,4 +1,4 @@
-import { expect, test, vi, beforeAll, beforeEach, afterEach } from 'vitest';
+import { expect, test, vi, beforeAll, beforeEach, afterEach } from 'vite-plus/test';
 import { err } from '@votingworks/basics';
 import { join } from 'node:path';
 import {

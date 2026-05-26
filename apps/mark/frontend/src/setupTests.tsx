@@ -1,6 +1,6 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
-import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vite-plus/test';
 import matchers from '@testing-library/jest-dom/matchers';
 import {
   clearTemporaryRootDir,

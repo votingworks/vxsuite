@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import waitForExpect from 'wait-for-expect';
 import {
   electionFamousNames2021Fixtures,

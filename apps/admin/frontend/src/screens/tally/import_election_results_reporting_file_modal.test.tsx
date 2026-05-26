@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, Mocked, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, Mocked, test, vi } from 'vite-plus/test';
 import {
   ManualResultsIdentifier,
   ImportElectionResultsReportingError,

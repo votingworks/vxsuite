@@ -1,4 +1,4 @@
-import { describe, test } from 'vitest';
+import { describe, test } from 'vite-plus/test';
 import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
 
 // `@typescript-eslint/parser` switches to "single-run" program management when

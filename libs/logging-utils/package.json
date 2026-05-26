@@ -16,9 +16,9 @@
     "prepublishOnly": "napi prepublish -t npm",
     "lint": "cargo clippy",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "cargo test && vitest",
-    "test:run": "cargo test && vitest run",
-    "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vitest; fi",
+    "test:ci": "cargo test && vp test",
+    "test:run": "cargo test && vp test run",
+    "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vp test; fi",
     "universal": "napi universal",
     "version": "napi version"
   },
@@ -34,7 +34,7 @@
     "is-ci-cli": "2.2.0",
     "nodemon": "^3.1.7",
     "tmp": "^0.2.1",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "napi": {
     "binaryName": "logging-utils",

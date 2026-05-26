@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { makeTemporaryFile } from '@votingworks/fixtures';

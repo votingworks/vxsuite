@@ -1,5 +1,5 @@
 import { AnyContest, Contest, District, Party } from '@votingworks/types';
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
 import { assert, typedAs } from '@votingworks/basics';

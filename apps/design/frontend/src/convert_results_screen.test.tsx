@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, test, expect, vi } from 'vitest';
+import { beforeEach, afterEach, test, expect, vi } from 'vite-plus/test';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';

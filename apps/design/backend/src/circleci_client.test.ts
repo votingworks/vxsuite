@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vite-plus/test';
 import { CircleCiClient } from './circleci_client';
 
 describe('CircleCiClient', () => {

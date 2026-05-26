@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockConstructor } from './mock_constructor';
 
 class Original {

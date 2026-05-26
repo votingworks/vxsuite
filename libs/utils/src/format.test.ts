@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, describe, expect, test, vi } from 'vite-plus/test';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import * as format from './format';
 

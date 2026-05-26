@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import { ScanDiagnosticOutcome } from '@votingworks/central-scan-backend';

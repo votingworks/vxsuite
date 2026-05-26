@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { LogEventType, LogLine, LogSource } from '.';
 import { LogEventId } from './log_event_enums';
 import { mockBaseLogger, mockLogger } from './test_utils';

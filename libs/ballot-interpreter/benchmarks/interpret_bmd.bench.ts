@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';

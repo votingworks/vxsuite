@@ -1,7 +1,7 @@
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { File as NodeFile } from 'node:buffer';
-import { afterEach, beforeEach, test, expect } from 'vitest';
+import { afterEach, beforeEach, test, expect } from 'vite-plus/test';
 import { err, ok } from '@votingworks/basics';
 import { within } from '@testing-library/react';
 import { Jurisdiction } from '@votingworks/design-backend';

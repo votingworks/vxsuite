@@ -17,9 +17,9 @@
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
     "test:ci": "pnpm build && pnpm test:coverage --run",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -42,7 +42,7 @@
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5"
 }

@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, expect, test, vi } from 'vite-plus/test';
 import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,

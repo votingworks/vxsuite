@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-no-array-constructor */
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { compressBitImage, packBitsCompression } from './printing';

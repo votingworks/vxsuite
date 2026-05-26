@@ -29,7 +29,7 @@ import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { Readable } from 'node:stream';
 import * as tmp from 'tmp';
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';

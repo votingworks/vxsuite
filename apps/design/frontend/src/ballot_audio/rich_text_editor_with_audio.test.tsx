@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { sleep } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../../test/react_testing_library';
 import { RichTextEditorWithAudio } from './rich_text_editor_with_audio';

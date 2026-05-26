@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vite-plus/test';
 import * as fc from 'fast-check';
 import { iter, range } from '@votingworks/basics';
 import {

@@ -1,4 +1,4 @@
-import * as vitest from 'vitest/config';
+import * as vitest from 'vite-plus/test/config';
 
 const isCI = process.env['CI'] === 'true';
 

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { err, ok } from '@votingworks/basics';
 import { safeParseJson } from './generic';
 import { UiStringAudioClipSchema } from './ui_string_audio_clips';

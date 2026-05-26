@@ -12,7 +12,7 @@ import {
   YesNoContestOption,
 } from '@votingworks/types';
 import fc from 'fast-check';
-import { expect, expectTypeOf, test } from 'vitest';
+import { expect, expectTypeOf, test } from 'vite-plus/test';
 import { allContestOptions } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {

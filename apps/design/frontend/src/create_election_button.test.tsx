@@ -1,4 +1,4 @@
-import { expect, test, beforeEach, afterEach } from 'vitest';
+import { expect, test, beforeEach, afterEach } from 'vite-plus/test';
 import React from 'react';
 import { createMemoryHistory } from 'history';
 import { ok } from '@votingworks/basics';

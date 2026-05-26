@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { TestLanguageCode } from '@votingworks/test-utils';

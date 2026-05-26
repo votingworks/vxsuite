@@ -1,4 +1,4 @@
-import { afterAll, expect, test, vi } from 'vitest';
+import { afterAll, expect, test, vi } from 'vite-plus/test';
 import { QueryClient } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import React from 'react';

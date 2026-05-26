@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect } from 'vite-plus/test';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
 import { err } from '@votingworks/basics';

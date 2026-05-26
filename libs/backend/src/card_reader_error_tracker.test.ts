@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { CardStatus } from '@votingworks/auth';
 import {
   CARD_READER_GRACE_PERIOD_MS,

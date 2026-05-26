@@ -1,4 +1,4 @@
-import { expect, MockedFunction, test, vi } from 'vitest';
+import { expect, MockedFunction, test, vi } from 'vite-plus/test';
 import { Device, findByIds, Interface, WebUSBDevice } from 'usb';
 import { assert } from '@votingworks/basics';
 import {

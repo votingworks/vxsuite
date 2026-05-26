@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Rect } from '@votingworks/types';
 import { createImageData, ImageData } from 'canvas';
 import fc from 'fast-check';

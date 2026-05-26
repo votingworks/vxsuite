@@ -15,7 +15,7 @@ import {
   cleanup,
 } from '@testing-library/react';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
-import type { OnTestFinishedHandler } from 'vitest';
+import type { OnTestFinishedHandler } from 'vite-plus/test';
 import { AppBase } from '../app_base';
 
 /**

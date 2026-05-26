@@ -1,5 +1,5 @@
 /* eslint-disable no-lone-blocks */
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { asyncDisposable, disposable } from './disposable';
 
 test('disposable', () => {

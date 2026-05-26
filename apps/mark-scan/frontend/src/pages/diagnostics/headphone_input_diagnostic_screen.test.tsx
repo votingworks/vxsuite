@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { VxRenderResult } from '@votingworks/ui';
 import { fireEvent, render, screen } from '../../../test/react_testing_library';

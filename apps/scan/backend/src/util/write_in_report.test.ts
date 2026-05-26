@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { randomUUID as uuid } from 'node:crypto';
 import { ok } from '@votingworks/basics';
 import { mockBaseLogger } from '@votingworks/logging';

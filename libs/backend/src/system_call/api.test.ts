@@ -1,6 +1,6 @@
 /* eslint-disable prefer-regex-literals */
 
-import { beforeEach, expect, test, vi, afterEach } from 'vitest';
+import { beforeEach, expect, test, vi, afterEach } from 'vite-plus/test';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';

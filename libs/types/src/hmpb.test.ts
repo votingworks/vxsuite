@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { asSheet, mapSheet } from './hmpb';
 
 test('mapSheet sync', () => {

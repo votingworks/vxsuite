@@ -7,7 +7,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { simulateScan, withApp } from '../test/helpers/scanner_helpers';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { delays } from './scanner';

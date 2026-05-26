@@ -5,7 +5,7 @@ import {
   MockedFunction,
   test,
   vi,
-} from 'vitest';
+} from 'vite-plus/test';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';

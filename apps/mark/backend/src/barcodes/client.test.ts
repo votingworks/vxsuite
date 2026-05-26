@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi, afterEach } from 'vitest';
+import { beforeEach, describe, expect, test, vi, afterEach } from 'vite-plus/test';
 import { mockBaseLogger, BaseLogger } from '@votingworks/logging';
 
 // Mock the worker_threads module before importing the Client

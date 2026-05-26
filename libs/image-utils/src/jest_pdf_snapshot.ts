@@ -1,4 +1,4 @@
-import type * as vitest from 'vitest';
+import type * as vitest from 'vite-plus/test';
 import { readFile } from 'node:fs/promises';
 import { pdfToImages } from './pdf_to_images';
 import { toImageBuffer } from './image_data';

@@ -1,4 +1,4 @@
-import { test, vi } from 'vitest';
+import { test, vi } from 'vite-plus/test';
 import { render, screen } from '../../test/react_testing_library';
 import { Button } from '../button';
 import { ScanAudioSection } from './scan_audio_section';

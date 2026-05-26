@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { getCurrentTime } from './get_current_time';
 
 test('getCurrentTime', () => {

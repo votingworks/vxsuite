@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep, typedAs } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';

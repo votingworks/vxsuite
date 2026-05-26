@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { EventEmitter } from 'node:events';
 import { Writable } from 'node:stream';
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 
 /**
  * Mock writable stream.

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { CandidateContest, YesNoContest, Precinct } from '@votingworks/types';
 import {

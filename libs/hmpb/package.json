@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "benchmark": "bin/run-benchmarks ${BENCH_ENV:-default}",
-    "benchmark:compare": "vitest bench --compare bench-results/${BENCH_ENV:-default}.json",
+    "benchmark:compare": "vp test bench --compare bench-results/${BENCH_ENV:-default}.json",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -23,12 +23,12 @@
     "generate-vxprint-test-print": "./bin/generate-vxprint-test-print",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "start": "vite -c vite.config.ts src/preview",
+    "start": "vp dev -c vite.config.ts src/preview",
     "test": "is-ci test:ci test:watch",
     "test:ci": "pnpm build && pnpm test:coverage --run",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -74,8 +74,7 @@
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
     "util": "^0.12.4",
-    "vite": "8.0.5",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "engines": {
     "node": ">= 12"

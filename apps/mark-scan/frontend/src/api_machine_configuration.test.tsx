@@ -1,4 +1,4 @@
-import { afterAll, expect, test, vi } from 'vitest';
+import { afterAll, expect, test, vi } from 'vite-plus/test';
 import { ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { renderHook, waitFor } from '../test/react_testing_library';

@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, describe, test, expect } from 'vitest';
+import { beforeEach, afterEach, describe, test, expect } from 'vite-plus/test';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
 import {

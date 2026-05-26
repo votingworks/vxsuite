@@ -1,4 +1,4 @@
-import { expect, test, vi, beforeEach } from 'vitest';
+import { expect, test, vi, beforeEach } from 'vite-plus/test';
 import { DEFAULT_SYSTEM_SETTINGS, SystemSettings } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {

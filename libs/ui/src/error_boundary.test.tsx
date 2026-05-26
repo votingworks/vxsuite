@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { mockKiosk, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { render, screen } from '../test/react_testing_library';

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
 import { err, ok, assert } from '@votingworks/basics';

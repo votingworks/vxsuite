@@ -3,7 +3,7 @@ import {
   PollingPlacePicker,
   PollingPlacePickerMode,
 } from '@votingworks/ui';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { Election, PollsState } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName as Feature,

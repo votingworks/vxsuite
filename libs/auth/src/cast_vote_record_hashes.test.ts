@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vite-plus/test';
 import * as fs from 'node:fs';
 import { sha256 } from 'js-sha256';
 import path from 'node:path';

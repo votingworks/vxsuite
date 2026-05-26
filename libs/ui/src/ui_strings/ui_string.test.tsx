@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vite-plus/test';
 import { UiStringsPackage } from '@votingworks/types';
 import { H1 } from '..';
 import {

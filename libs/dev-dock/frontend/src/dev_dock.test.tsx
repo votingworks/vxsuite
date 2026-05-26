@@ -7,7 +7,7 @@ import {
   onTestFinished,
   test,
   vi,
-} from 'vitest';
+} from 'vite-plus/test';
 import {
   cleanup,
   render as renderWithoutTheme,

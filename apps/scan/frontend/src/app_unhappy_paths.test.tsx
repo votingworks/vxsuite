@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { beforeEach, vi, afterEach, test, expect } from 'vitest';
+import { beforeEach, vi, afterEach, test, expect } from 'vite-plus/test';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 

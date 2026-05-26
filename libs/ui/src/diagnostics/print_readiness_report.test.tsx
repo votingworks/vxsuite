@@ -1,4 +1,4 @@
-import { test, vi } from 'vitest';
+import { test, vi } from 'vite-plus/test';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';

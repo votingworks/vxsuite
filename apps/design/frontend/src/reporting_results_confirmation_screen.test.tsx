@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { buildElectionResultsFixture } from '@votingworks/utils';

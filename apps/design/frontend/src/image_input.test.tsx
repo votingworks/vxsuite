@@ -1,4 +1,4 @@
-import { describe, expect, test, vi, afterEach } from 'vitest';
+import { describe, expect, test, vi, afterEach } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import {

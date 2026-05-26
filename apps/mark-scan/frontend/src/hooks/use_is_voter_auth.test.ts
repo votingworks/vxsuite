@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vite-plus/test';
 import { renderHook } from '@testing-library/react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { advancePromises } from '@votingworks/test-utils';

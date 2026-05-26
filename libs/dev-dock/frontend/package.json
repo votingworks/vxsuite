@@ -16,10 +16,10 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && pnpm vitest run --coverage",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest",
+    "test:ci": "pnpm build && vp test run --coverage",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -55,7 +55,7 @@
     "react": "18.3.1",
     "sort-package-json": "^1.50.0",
     "styled-components": "^5.3.11",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "peerDependencies": {
     "@tanstack/react-query": "4.32.1",

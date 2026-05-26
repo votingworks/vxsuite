@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 // @ts-expect-error - TS thinks there's an error with the module type but it works ok
-import { Alias, mergeConfig } from 'vite';
+import { Alias, mergeConfig } from 'vite-plus';
 import { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';

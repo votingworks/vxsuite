@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';

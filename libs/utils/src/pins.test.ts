@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import fc from 'fast-check';
 import randomBytes from 'randombytes';
 import { Buffer } from 'node:buffer';

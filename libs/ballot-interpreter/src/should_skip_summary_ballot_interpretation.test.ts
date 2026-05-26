@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { BallotType, PageInterpretation, SheetOf } from '@votingworks/types';
 import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation';
 

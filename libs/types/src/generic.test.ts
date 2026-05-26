@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { z } from 'zod/v4';
 import { DateWithoutTime } from '@votingworks/basics';
 import { MachineId, safeParse } from '.';

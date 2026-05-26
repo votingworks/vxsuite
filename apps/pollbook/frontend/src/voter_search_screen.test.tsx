@@ -1,4 +1,4 @@
-import { expect, test, beforeEach, afterEach, vi } from 'vitest';
+import { expect, test, beforeEach, afterEach, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import {
   AamvaDocument,

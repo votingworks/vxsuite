@@ -1,4 +1,4 @@
-import { Mocked, vi } from 'vitest';
+import { Mocked, vi } from 'vite-plus/test';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';

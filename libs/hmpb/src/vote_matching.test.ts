@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Candidate, GridPositionOption } from '@votingworks/types';
 import { voteMatchesGridPosition } from './vote_matching';
 

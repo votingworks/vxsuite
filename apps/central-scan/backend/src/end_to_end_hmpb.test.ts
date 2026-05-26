@@ -22,7 +22,7 @@ import {
 } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 

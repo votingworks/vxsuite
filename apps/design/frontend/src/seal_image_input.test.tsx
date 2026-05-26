@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { render, screen } from '../test/react_testing_library';
 import { SealImageInput } from './seal_image_input';
 

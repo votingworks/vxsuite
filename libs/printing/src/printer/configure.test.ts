@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { ok } from '@votingworks/basics';
 import { HP_LASER_PRINTER_CONFIG, getPpdPath } from '.';
 import { exec } from '../utils/exec';

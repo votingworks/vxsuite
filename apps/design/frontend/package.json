@@ -13,7 +13,7 @@
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:prod": "pnpm --filter-prod $npm_package_name... build:self",
-    "build:self": "pnpm type-check && vite build",
+    "build:self": "pnpm type-check && vp build",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
@@ -24,10 +24,10 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest",
+    "test:ci": "vp test run --coverage",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test",
     "type-check": "tsgo --build"
   },
   "browserslist": {
@@ -115,8 +115,7 @@
     "react-app-polyfill": "3.0.0",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
-    "vite": "8.0.5",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5",
   "vx": {

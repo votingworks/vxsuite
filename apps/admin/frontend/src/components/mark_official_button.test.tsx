@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, test } from 'vite-plus/test';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';

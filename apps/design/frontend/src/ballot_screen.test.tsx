@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi, describe } from 'vitest';
+import { afterEach, beforeEach, test, vi, describe } from 'vite-plus/test';
 import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { DocumentProps, PageProps } from 'react-pdf';

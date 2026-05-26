@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi, vitest } from 'vite-plus/test';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';

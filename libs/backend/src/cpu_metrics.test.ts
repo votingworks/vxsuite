@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import * as mockFs from 'node:fs/promises';
 import { mockLogger } from '@votingworks/logging';

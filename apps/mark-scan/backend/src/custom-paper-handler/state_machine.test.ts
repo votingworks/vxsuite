@@ -7,7 +7,7 @@ import {
   expect,
   test,
   vi,
-} from 'vitest';
+} from 'vite-plus/test';
 import HID from 'node-hid';
 import {
   MockPaperHandlerDriver,

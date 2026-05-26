@@ -8,7 +8,7 @@ import {
   vi,
   MockedFunction,
   expect,
-} from 'vitest';
+} from 'vite-plus/test';
 import { PassThrough } from 'node:stream';
 import * as net from 'node:net';
 import {

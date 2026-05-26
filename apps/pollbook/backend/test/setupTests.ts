@@ -8,7 +8,7 @@ import {
 } from '@votingworks/image-utils';
 import { cleanupCachedBrowser } from '@votingworks/printing';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vite-plus/test';
 import { makeIdFactory } from './id_helpers';
 
 // Deterministic ID generation

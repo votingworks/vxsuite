@@ -2,7 +2,7 @@ import {
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
 } from '@votingworks/types';
-import type { Mocked, vi } from 'vitest';
+import type { Mocked, vi } from 'vite-plus/test';
 
 import { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api';
 import {

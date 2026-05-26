@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render, screen } from '../../test/react_testing_library';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 import { useIsVoterAuth } from '../hooks/use_is_voter_auth';

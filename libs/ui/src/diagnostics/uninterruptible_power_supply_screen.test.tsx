@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { UninterruptiblePowerSupplyScreen } from './uninterruptible_power_supply_screen';
 import { render, screen } from '../../test/react_testing_library';

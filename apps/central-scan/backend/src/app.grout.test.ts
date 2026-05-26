@@ -26,7 +26,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { randomUUID as uuid } from 'node:crypto';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 import { generateHmpbFixture } from '../test/helpers/ballots';

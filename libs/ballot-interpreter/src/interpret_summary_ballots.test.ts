@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID,

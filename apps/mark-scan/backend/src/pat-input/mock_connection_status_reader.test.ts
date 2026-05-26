@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { MockBaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { MockPatConnectionStatusReader } from './mock_connection_status_reader';
 

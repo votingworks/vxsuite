@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { expect, it, vi } from 'vitest';
+import { expect, it, vi } from 'vite-plus/test';
 import { render, screen } from '../../test/react_testing_library';
 import { CastBallotPage } from './cast_ballot_page';
 

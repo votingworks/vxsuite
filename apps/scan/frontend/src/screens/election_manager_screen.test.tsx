@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach, test, expect, describe } from 'vitest';
+import { vi, beforeEach, afterEach, test, expect, describe } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import {
   electionTwoPartyPrimaryFixtures,

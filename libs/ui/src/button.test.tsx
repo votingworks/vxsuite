@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vite-plus/test';
 import React from 'react';
 import { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';

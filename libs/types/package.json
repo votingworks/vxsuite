@@ -20,10 +20,10 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest",
+    "test:ci": "vp test run --coverage",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test",
     "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
     "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
     "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts",
@@ -56,7 +56,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.set": "^4.3.2",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5"
 }

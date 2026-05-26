@@ -13,7 +13,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
 import { withApp } from '../test/helpers/setup_app';

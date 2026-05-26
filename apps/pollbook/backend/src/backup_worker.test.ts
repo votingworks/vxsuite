@@ -1,4 +1,4 @@
-import { expect, test, vi, vitest } from 'vitest';
+import { expect, test, vi, vitest } from 'vite-plus/test';
 import { writeFileSync } from 'node:fs';
 import { makeTemporaryPath } from '@votingworks/fixtures';
 import {

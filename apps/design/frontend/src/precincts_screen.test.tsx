@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { ElectionRecord } from '@votingworks/design-backend';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory, MemoryHistory } from 'history';

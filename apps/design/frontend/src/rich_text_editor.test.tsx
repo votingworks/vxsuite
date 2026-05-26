@@ -1,4 +1,4 @@
-import { expect, test, vi, describe } from 'vitest';
+import { expect, test, vi, describe } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library';

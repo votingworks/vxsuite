@@ -3,7 +3,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { VxScreen, mockUsbDriveStatus } from '@votingworks/ui';
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { ApiMock } from './mock_api_client';
 
 /**

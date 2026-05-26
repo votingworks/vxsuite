@@ -1,4 +1,4 @@
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library';
 import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen';

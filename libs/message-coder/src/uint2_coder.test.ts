@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import fc from 'fast-check';

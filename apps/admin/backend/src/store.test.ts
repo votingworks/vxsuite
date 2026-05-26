@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,

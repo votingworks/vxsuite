@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { render, screen } from '../../test/react_testing_library';
 import { ContinueToReviewPage } from './continue_to_review_page';
 

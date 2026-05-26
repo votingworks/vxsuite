@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import React from 'react';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
 import { Election, ElectionDefinition } from '@votingworks/types';

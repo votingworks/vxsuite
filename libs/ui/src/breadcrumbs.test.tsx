@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { MemoryRouter } from 'react-router-dom';
 import { Breadcrumbs } from './breadcrumbs';
 import { render, screen } from '../test/react_testing_library';

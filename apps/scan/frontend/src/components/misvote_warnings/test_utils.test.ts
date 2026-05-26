@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { AnyContest } from '@votingworks/types';
 

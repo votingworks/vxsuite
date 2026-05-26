@@ -1,4 +1,4 @@
-import type { Mocked, vi } from 'vitest';
+import type { Mocked, vi } from 'vite-plus/test';
 import { BaseLogger } from './base_logger';
 import { LogSource, getDetailsForEventId } from './log_event_enums';
 import { Logger } from './logger';

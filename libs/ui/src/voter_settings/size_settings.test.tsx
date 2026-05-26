@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';

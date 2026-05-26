@@ -1,4 +1,4 @@
-import { expect, Mocked, test, vi } from 'vitest';
+import { expect, Mocked, test, vi } from 'vite-plus/test';
 import { UiStringAudioClips } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { act } from 'react';

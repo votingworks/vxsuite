@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { BatchInfo } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { BatchSummaryTable } from './batch_summary_table';

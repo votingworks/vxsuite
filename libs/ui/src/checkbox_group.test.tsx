@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { CheckboxGroup } from './checkbox_group';
 import { render, screen, within } from '../test/react_testing_library';

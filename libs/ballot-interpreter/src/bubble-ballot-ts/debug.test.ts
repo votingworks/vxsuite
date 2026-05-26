@@ -1,5 +1,5 @@
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { napi } from './napi';
 import { interpret } from './interpret';
 

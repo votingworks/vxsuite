@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { mockChildProcess, mockReadable, mockWritable } from './child_process';
 

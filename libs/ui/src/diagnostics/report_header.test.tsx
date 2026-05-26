@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { ReadinessReportHeader } from './report_header';

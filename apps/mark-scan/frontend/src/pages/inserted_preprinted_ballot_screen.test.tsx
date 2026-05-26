@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
+import { beforeEach, describe, expect, Mocked, test, vi } from 'vite-plus/test';
 import {
   BallotMetadata,
   BallotStyleId,

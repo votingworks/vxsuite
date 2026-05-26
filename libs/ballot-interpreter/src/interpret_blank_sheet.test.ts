@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import { DEFAULT_MARK_THRESHOLDS, SheetOf } from '@votingworks/types';
 import { ImageData } from 'canvas';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { interpretSheet } from './interpret';
 import { normalizeBallotMode } from './validation';
 

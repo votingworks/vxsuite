@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { renderHook } from '@testing-library/react';
 import { simulateKeyPress, useAccessibleControllerHelpTrigger } from '.';
 import { KEYBINDINGS, Keybinding } from '../keybindings';

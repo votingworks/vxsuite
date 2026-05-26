@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { SYSTEM_LIMITS, SystemLimitViolation } from '@votingworks/types';
 
 import { systemLimitViolationToString } from './system_limits';

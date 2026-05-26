@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { fixedString } from './fixed_string';

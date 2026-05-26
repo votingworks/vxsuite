@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { err, ok } from '@votingworks/basics';
 import { exec } from '../utils/exec';
 import { getConnectedDeviceUris, LPINFO_ARGS } from './device_uri';

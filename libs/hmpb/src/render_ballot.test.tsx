@@ -1,5 +1,5 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { afterAll, beforeAll, test, expect } from 'vitest';
+import { afterAll, beforeAll, test, expect } from 'vite-plus/test';
 import {
   BALLOT_MODES,
   BallotType,

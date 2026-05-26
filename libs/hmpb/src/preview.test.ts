@@ -1,7 +1,7 @@
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { join } from 'node:path';
 import { stderr } from 'node:process';
-import { afterAll, beforeAll, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vite-plus/test';
 import { asyncDisposable } from '@votingworks/test-utils';
 import { Browser, chromium } from 'playwright';
 import { DONE_MARKER_ID } from './preview/browser_preview';

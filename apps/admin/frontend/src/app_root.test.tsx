@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, test } from 'vite-plus/test';
 import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';

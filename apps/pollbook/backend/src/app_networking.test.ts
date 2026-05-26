@@ -1,4 +1,4 @@
-import { vi, expect, test, beforeEach } from 'vitest';
+import { vi, expect, test, beforeEach } from 'vite-plus/test';
 import { execFile } from '@votingworks/backend';
 import { AvahiService } from '@votingworks/networking';
 import { withApp } from '../test/app';

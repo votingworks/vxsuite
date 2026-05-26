@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { DateTime } from 'luxon';
 import userEvent from '@testing-library/user-event';
 import {

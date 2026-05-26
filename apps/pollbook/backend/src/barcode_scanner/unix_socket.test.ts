@@ -1,4 +1,4 @@
-import { describe, expect, beforeEach, afterEach, test, vi } from 'vitest';
+import { describe, expect, beforeEach, afterEach, test, vi } from 'vite-plus/test';
 import {
   LogEventId,
   LogDispositionStandardTypes,

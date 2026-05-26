@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { act, renderHook } from '../../test/react_testing_library';
 import { useNow } from './use_now';
 

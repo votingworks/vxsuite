@@ -39,7 +39,7 @@ import type { DiskSpaceSummary } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
-import { Mock, vi } from 'vitest';
+import { Mock, vi } from 'vite-plus/test';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 
 export const machineConfig: MachineConfig = {

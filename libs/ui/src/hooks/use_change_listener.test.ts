@@ -1,4 +1,4 @@
-import { describe, test } from 'vitest';
+import { describe, test } from 'vite-plus/test';
 import { mockFunction } from '@votingworks/test-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import {

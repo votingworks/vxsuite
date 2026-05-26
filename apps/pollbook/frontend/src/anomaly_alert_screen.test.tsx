@@ -1,4 +1,4 @@
-import { test, beforeEach, afterEach, vi, expect } from 'vitest';
+import { test, beforeEach, afterEach, vi, expect } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import type { Anomaly } from '@votingworks/pollbook-backend';
 import { screen, waitFor } from '../test/react_testing_library';

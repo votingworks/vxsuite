@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { nextTick } from 'node:process';
 import { backendWaitFor } from './backend_wait_for';
 

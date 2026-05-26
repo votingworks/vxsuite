@@ -1,4 +1,4 @@
-import { Mocked, vi } from 'vitest';
+import { Mocked, vi } from 'vite-plus/test';
 import { Application } from 'express';
 import {
   LogSource,

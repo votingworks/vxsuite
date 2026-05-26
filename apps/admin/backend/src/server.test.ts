@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { AddressInfo } from 'node:net';

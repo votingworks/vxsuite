@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, vi, test } from 'vite-plus/test';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { cleanup, screen, waitFor } from '@testing-library/react';

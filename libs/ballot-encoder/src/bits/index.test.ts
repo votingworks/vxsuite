@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { BitReader, BitWriter, CustomEncoding } from '.';
 
 test('can round-trip a bit', () => {

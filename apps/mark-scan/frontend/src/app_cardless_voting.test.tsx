@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
+import { afterEach, beforeEach, test, vi } from 'vite-plus/test';
 import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,

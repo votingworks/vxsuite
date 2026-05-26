@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vite-plus/test';
 import { useAudioEnabled } from '@votingworks/ui';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { deferred, sleep } from '@votingworks/basics';

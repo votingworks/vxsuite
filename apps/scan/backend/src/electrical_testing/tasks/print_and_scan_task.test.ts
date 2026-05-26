@@ -1,5 +1,5 @@
 import { createImageData } from 'canvas';
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi } from 'vite-plus/test';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,

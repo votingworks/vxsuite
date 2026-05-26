@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import { CandidateContest, Tabulation } from '@votingworks/types';

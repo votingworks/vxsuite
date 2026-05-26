@@ -12,7 +12,7 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { Mock, vi } from 'vitest';
+import { Mock, vi } from 'vite-plus/test';
 
 type MockClientApiClient = Omit<
   MockClient<ClientApi>,

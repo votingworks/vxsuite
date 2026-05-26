@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 

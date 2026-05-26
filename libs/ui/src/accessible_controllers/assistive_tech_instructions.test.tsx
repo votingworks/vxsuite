@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { render } from '../../test/react_testing_library';
 import { AssistiveTechInstructions } from './assistive_tech_instructions';
 import { useIsPatDeviceConnected } from './pat_device_context';

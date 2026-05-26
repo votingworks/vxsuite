@@ -1,5 +1,5 @@
 import React from 'react';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
 import { ConfirmExitPatDeviceIdentificationPage } from './confirm_exit_pat_device_identification_page';

@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockLogger } from '@votingworks/logging';
 import { AUDIO_DEVICE_DEFAULT_SINK, AudioPlayer } from '@votingworks/backend';
 import { deferred, sleep } from '@votingworks/basics';

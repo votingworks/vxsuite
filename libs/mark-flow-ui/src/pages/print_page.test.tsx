@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 import { PrintPage } from './print_page';
 

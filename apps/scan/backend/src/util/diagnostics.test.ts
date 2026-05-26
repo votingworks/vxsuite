@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { testPrintFailureDiagnosticMessage } from './diagnostics';
 

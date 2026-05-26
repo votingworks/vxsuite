@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { H1, TestErrorBoundary } from '..';
 import {

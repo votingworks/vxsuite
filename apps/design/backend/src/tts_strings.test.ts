@@ -1,4 +1,4 @@
-import { expect, Mocked, test, vi } from 'vitest';
+import { expect, Mocked, test, vi } from 'vite-plus/test';
 import { SpeechSynthesizer } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import {

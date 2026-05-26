@@ -55,7 +55,7 @@ import {
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Mock, vi } from 'vitest';
+import { Mock, vi } from 'vite-plus/test';
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {

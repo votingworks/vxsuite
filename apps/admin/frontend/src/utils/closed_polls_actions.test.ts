@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { DateWithoutTime } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { areClosedPollsActionsBlocked } from './closed_polls_actions';

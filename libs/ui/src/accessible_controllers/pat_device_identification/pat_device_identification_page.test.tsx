@@ -1,5 +1,5 @@
 import React from 'react';
-import { test, vi } from 'vitest';
+import { test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
 import { PatDeviceIdentificationPage } from './pat_device_identification_page';

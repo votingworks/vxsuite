@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { ElectionId } from '@votingworks/types';

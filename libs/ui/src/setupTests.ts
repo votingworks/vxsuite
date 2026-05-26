@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { afterAll, beforeAll, beforeEach, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect } from 'vite-plus/test';
 import matchers from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
 import {
@@ -17,7 +17,7 @@ import {
   ToHaveStyleRuleMatchers,
 } from 'vitest-styled-components';
 
-declare module 'vitest' {
+declare module 'vite-plus/test' {
   // vitest own `Assertion<T>` extends both `JestAssertion<T>` and
   // `ChaiMockAssertion`, which have non-identical `lastReturnedWith` /
   // `nthReturnedWith` signatures. Any declaration-merge into `Assertion`

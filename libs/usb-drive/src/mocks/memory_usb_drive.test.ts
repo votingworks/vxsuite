@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { createMockUsbDrive } from './memory_usb_drive';
 

@@ -22,10 +22,10 @@
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
+    "test:ci": "TZ=America/Anchorage vp test run --coverage",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -61,7 +61,6 @@
     "pdf-lib": "^1.17.1",
     "react": "18.3.1",
     "styled-components": "^5.3.11",
-    "vitest": "^4.1.6",
     "zod": "3.25.42"
   },
   "devDependencies": {
@@ -88,6 +87,7 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
+    "vite-plus": "^0.1.22",
     "yargs": "17.7.1"
   },
   "engines": {

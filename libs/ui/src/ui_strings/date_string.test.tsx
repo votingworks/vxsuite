@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { format } from '@votingworks/utils';
 import { H1 } from '..';
 import {

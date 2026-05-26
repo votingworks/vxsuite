@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { MarkScanControllerSandbox } from './mark_scan_controller_sandbox';
 import { render, screen } from '../../test/react_testing_library';
 import { AccessibleControllerSandbox } from './accessible_controller_sandbox';

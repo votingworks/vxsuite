@@ -1,5 +1,5 @@
 import { AudioControls } from '@votingworks/types';
-import type { Mocked, vi } from 'vitest';
+import type { Mocked, vi } from 'vite-plus/test';
 
 export function mockUseAudioControls(fn: typeof vi.fn): Mocked<AudioControls> {
   return {

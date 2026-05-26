@@ -1,6 +1,6 @@
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, test, beforeEach } from 'vitest';
+import { describe, expect, test, beforeEach } from 'vite-plus/test';
 import tmp from 'tmp';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 

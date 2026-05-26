@@ -20,10 +20,10 @@
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
+    "test:ci": "TZ=America/Anchorage vp test run --coverage",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -78,7 +78,7 @@
     "jest-image-snapshot": "^6.4.0",
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "engines": {
     "node": ">= 16"

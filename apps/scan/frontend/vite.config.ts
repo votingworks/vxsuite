@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { join } from 'node:path';
-import { Alias, defineConfig, loadEnv } from 'vite';
+import { Alias, defineConfig, loadEnv } from 'vite-plus';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
 

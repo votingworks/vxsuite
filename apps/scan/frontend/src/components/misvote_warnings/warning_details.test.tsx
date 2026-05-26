@@ -1,4 +1,4 @@
-import { vi, expect, beforeEach, afterEach, test } from 'vitest';
+import { vi, expect, beforeEach, afterEach, test } from 'vite-plus/test';
 import { Contest } from '@votingworks/types';
 import { ContestList } from './contest_list';
 import { render, screen, within } from '../../../test/react_testing_library';

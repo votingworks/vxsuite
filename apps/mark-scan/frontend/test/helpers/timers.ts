@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 import { act } from '../react_testing_library';
 import { AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE } from '../../src/constants';
 

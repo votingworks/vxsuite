@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { findDocForProperty, findDocForType } from './docs';
 import { DocumentedEntity } from './types';
 

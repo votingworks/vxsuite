@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { BallotMetadata, PageInterpretation } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';

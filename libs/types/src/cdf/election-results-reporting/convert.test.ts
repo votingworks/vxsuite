@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vite-plus/test';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { ResultsReporting } from '../..';
 import {

@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { PrecinctScannerStatus } from '@votingworks/scan-backend';

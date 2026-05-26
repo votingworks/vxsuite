@@ -22,13 +22,13 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && vitest run --coverage",
-    "test:run": "pnpm test:rust-addon && vitest run",
+    "test:ci": "pnpm build && vp test run --coverage",
+    "test:run": "pnpm test:rust-addon && vp test run",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "vitest --coverage",
-    "test:ts:run": "vitest run",
-    "test:ts:watch": "vitest",
+    "test:ts:coverage": "vp test --coverage",
+    "test:ts:run": "vp test run",
+    "test:ts:watch": "vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -47,7 +47,7 @@
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@8.15.5"
 }

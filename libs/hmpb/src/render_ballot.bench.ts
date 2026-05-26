@@ -1,5 +1,5 @@
 import { HmpbBallotPaperSize } from '@votingworks/types';
-import { afterAll, beforeAll, bench, describe } from 'vitest';
+import { afterAll, beforeAll, bench, describe } from 'vite-plus/test';
 import { vxGeneralElectionFixtures } from './ballot_fixtures';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 import { RendererPool } from './renderer';

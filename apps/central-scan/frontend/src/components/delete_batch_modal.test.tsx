@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock, provideApi } from '../../test/api';
 import { render, screen } from '../../test/react_testing_library';

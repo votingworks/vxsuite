@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
 import { compressAndEncodePerPrecinctTally } from '@votingworks/utils';

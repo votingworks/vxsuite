@@ -12,7 +12,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import zlib from 'node:zlib';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { assert, expect, test, vi } from 'vitest';
+import { assert, expect, test, vi } from 'vite-plus/test';
 import { convertVxLogToCdf } from '..';
 
 type Format = 'compressed' | 'uncompressed';

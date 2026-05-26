@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';

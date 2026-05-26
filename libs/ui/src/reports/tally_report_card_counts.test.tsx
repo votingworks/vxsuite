@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { within } from '@testing-library/react';
 import { render, screen } from '../../test/react_testing_library';
 

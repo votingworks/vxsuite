@@ -1,4 +1,4 @@
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi } from 'vite-plus/test';
 import { range } from '@votingworks/basics';
 import { chromium } from 'playwright';
 import { createPlaywrightRendererPool } from './playwright_renderer';

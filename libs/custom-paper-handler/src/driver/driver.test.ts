@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, MockInstance, test, vi } from 'vitest';
+import { beforeEach, describe, expect, MockInstance, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { arrayBufferFrom, assert, assertDefined } from '@votingworks/basics';
 import { findByIds, WebUSBDevice } from 'usb';

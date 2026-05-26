@@ -1,4 +1,4 @@
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vite-plus/test';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import React from 'react';
 import { assert } from '@votingworks/basics';

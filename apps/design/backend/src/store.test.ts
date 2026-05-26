@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 
 import {

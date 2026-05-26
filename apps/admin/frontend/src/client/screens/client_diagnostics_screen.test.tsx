@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, test } from 'vite-plus/test';
 import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,

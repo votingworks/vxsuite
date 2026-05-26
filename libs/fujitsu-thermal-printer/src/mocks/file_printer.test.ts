@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { err, ok } from '@votingworks/basics';

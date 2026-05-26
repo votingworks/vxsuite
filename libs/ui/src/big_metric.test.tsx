@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { test } from 'vite-plus/test';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import { BigMetric } from './big_metric';

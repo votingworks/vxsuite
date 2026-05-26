@@ -1,4 +1,4 @@
-import { expect, Mocked, test, vi } from 'vitest';
+import { expect, Mocked, test, vi } from 'vite-plus/test';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';

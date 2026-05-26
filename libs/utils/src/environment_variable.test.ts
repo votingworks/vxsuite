@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, vi, test } from 'vitest';
+import { afterEach, describe, expect, vi, test } from 'vite-plus/test';
 import {
   BooleanEnvironmentVariableName,
   getEnvironmentVariable,

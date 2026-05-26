@@ -1,4 +1,4 @@
-import { describe, expect, onTestFinished, test, vi } from 'vitest';
+import { describe, expect, onTestFinished, test, vi } from 'vite-plus/test';
 import { cleanup, render } from '@testing-library/react';
 
 import { suppressingConsoleOutput } from '@votingworks/test-utils';

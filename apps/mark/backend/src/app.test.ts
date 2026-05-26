@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { assertDefined, err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,

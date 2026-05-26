@@ -22,9 +22,9 @@
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=America/Anchorage  pnpm build && pnpm test:coverage --run",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
+    "test:coverage": "TZ=America/Anchorage vp test --coverage",
+    "test:run": "TZ=America/Anchorage vp test run",
+    "test:watch": "TZ=America/Anchorage vp test",
     "type-check": "tsgo --build"
   },
   "dependencies": {
@@ -90,7 +90,7 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "engines": {
     "node": ">= 16"

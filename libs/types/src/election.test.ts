@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
 import { assert, find, ok } from '@votingworks/basics';

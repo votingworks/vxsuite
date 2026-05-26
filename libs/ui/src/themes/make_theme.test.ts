@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { ColorMode, ColorString, SizeMode } from '@votingworks/types';
 
 import { DesktopPalette, TouchscreenPalette, makeTheme } from './make_theme';

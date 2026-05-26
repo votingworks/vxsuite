@@ -15,7 +15,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import waitForExpect from 'wait-for-expect';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {

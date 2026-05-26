@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { useAudioEnabled } from '@votingworks/ui';
 import { render } from '../../test/react_testing_library';

@@ -24,10 +24,10 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
-    "test:run": "vitest run",
-    "test:watch": "vitest"
+    "test:ci": "vp test run --coverage",
+    "test:coverage": "vp test --coverage",
+    "test:run": "vp test run",
+    "test:watch": "vp test"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -95,8 +95,7 @@
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.11",
     "util": "^0.12.4",
-    "vite": "8.0.5",
-    "vitest": "^4.1.6"
+    "vite-plus": "^0.1.22"
   },
   "peerDependencies": {
     "react": "18.3.1",

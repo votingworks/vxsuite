@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { openPolls } from './polls';

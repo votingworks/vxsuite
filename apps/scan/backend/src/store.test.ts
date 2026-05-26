@@ -30,7 +30,7 @@ import {
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { randomUUID as uuid } from 'node:crypto';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 
 import { assertDefined } from '@votingworks/basics';
 import { Store } from './store';

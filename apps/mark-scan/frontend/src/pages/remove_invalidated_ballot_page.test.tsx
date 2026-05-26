@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, test } from 'vite-plus/test';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';

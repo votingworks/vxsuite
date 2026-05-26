@@ -2,7 +2,7 @@ import { iter } from '@votingworks/basics';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
-import { expect } from 'vitest';
+import { expect } from 'vite-plus/test';
 
 /**
  * Compares a generated PDF against a saved fixture. Tries byte equality first

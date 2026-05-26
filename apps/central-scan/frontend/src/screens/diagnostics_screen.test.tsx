@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, test } from 'vite-plus/test';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';

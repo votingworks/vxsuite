@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import {
   PRECINCT_SCANNER_STATES,
   PrecinctScannerState,

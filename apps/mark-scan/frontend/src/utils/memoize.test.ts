@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { memoize } from './memoize';
 
 test('calls the underlying function as long as it returns undefined', () => {

@@ -5,7 +5,7 @@ import {
   vi,
   MockedFunction,
   afterEach,
-} from 'vitest';
+} from 'vite-plus/test';
 import { mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';

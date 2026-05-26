@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vite-plus/test';
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {

@@ -1,4 +1,4 @@
-import { vi, afterAll, expect, test } from 'vitest';
+import { vi, afterAll, expect, test } from 'vite-plus/test';
 import {
   ElectionIdSchema,
   formatBallotHash,
