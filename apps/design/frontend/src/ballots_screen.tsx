@@ -107,31 +107,32 @@ function BallotDesignForm({
           disabled={!isEditing}
         />
       </div>
-      {ballotTemplateId !== 'MiBallot' && (
-        <div style={{ maxWidth: '16.5rem' }}>
-          <RadioGroup
-            label="Density"
-            options={[
-              {
-                label: 'Default',
-                value: 'default',
-              },
-              {
-                label: 'Compact',
-                value: 'compact',
-              },
-            ]}
-            value={layoutSettings.compact ? 'compact' : 'default'}
-            onChange={(value) =>
-              setLayoutSettings({
-                ...layoutSettings,
-                compact: value === 'compact',
-              })
-            }
-            disabled={!isEditing}
-          />
-        </div>
-      )}
+      {ballotTemplateId !== 'MiBallot' &&
+        ballotTemplateId !== 'NhStateBallot' && (
+          <div style={{ maxWidth: '16.5rem' }}>
+            <RadioGroup
+              label="Density"
+              options={[
+                {
+                  label: 'Default',
+                  value: 'default',
+                },
+                {
+                  label: 'Compact',
+                  value: 'compact',
+                },
+              ]}
+              value={layoutSettings.compact ? 'compact' : 'default'}
+              onChange={(value) =>
+                setLayoutSettings({
+                  ...layoutSettings,
+                  compact: value === 'compact',
+                })
+              }
+              disabled={!isEditing}
+            />
+          </div>
+        )}
       {isEditing ? (
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
