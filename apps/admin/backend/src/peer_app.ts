@@ -10,7 +10,6 @@ import {
 } from '@votingworks/basics';
 import {
   Admin,
-  BallotStyleGroupId,
   ContestId,
   type Id,
   type Side,
@@ -139,26 +138,51 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
       return store.getSystemSettings(currentElectionId);
     },
 
-    claimBallot(input: {
+    /**
+     * Atomically claim a ballot for adjudication and return its data in a
+     * single SQL transaction.
+     *
+     * - `cvrId` provided → claim that specific ballot (or confirm an
+     *   existing claim); `no-claim` if another machine holds it.
+     * - `afterCvrId` provided → find the next eligible ballot in queue
+     *   order strictly after this one and claim it; `ok(undefined)` if
+     *   none.
+     * - Neither → claim the first eligible ballot for this machine.
+     */
+    claimAndLoadBallot(input: {
       machineId: string;
-      currentBallotStyleId?: BallotStyleGroupId;
-      excludeCvrIds?: Id[];
-    }): Optional<Id> {
+      cvrId?: Id;
+      afterCvrId?: Id;
+    }): Result<
+      { cvrId: Id; data: BallotAdjudicationData } | undefined,
+      AdjudicationError
+    > {
       const electionId = assertDefined(store.getCurrentElectionId());
-      const cvrId = store.claimBallotForClient({
+      const result = store.claimAndLoadBallotData({
         electionId,
         machineId: input.machineId,
-        preferredBallotStyleId: input.currentBallotStyleId,
-        excludeCvrIds: input.excludeCvrIds,
+        cvrId: input.cvrId,
+        afterCvrId: input.afterCvrId,
       });
-      logger.log(LogEventId.AdminBallotClaimed, 'system', {
-        message: cvrId
-          ? `Client ${input.machineId} claimed ballot ${cvrId}.`
-          : `Client ${input.machineId} requested a ballot but none available.`,
-        disposition: cvrId ? 'success' : 'failure',
-        clientMachineId: input.machineId,
-      });
-      return cvrId;
+      if (result.isOk()) {
+        const value = result.ok();
+        logger.log(LogEventId.AdminBallotClaimed, 'system', {
+          message: value
+            ? `Client ${input.machineId} claimed ballot ${value.cvrId}.`
+            : `Client ${input.machineId} requested a ballot but none available.`,
+          disposition: value ? 'success' : 'failure',
+          clientMachineId: input.machineId,
+        });
+      } else {
+        logger.log(LogEventId.AdminBallotClaimed, 'system', {
+          message: `Client ${input.machineId} could not claim a ballot: ${
+            result.err().type
+          }.`,
+          disposition: 'failure',
+          clientMachineId: input.machineId,
+        });
+      }
+      return result;
     },
 
     releaseBallot(input: { machineId: string; cvrId: Id }): void {

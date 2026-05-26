@@ -835,10 +835,30 @@ function buildApi({
       });
     },
 
-    claimBallotForAdjudication(input: { cvrId: Id }): boolean {
-      if (!store.getIsClientAdjudicationEnabled()) return true;
-      return store.claimBallotForAdjudication({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
+    /**
+     * Atomically claim a ballot for adjudication and return its data,
+     * both read under the same SQL transaction. The host always claims a
+     * specific cvrId from the queue. Returns `no-claim` if another machine
+     * holds the claim.
+     */
+    claimAndLoadBallot(input: {
+      cvrId: Id;
+    }): Result<
+      { cvrId: Id; data: BallotAdjudicationData } | undefined,
+      AdjudicationError
+    > {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      if (!store.getIsClientAdjudicationEnabled()) {
+        return ok({
+          cvrId: input.cvrId,
+          data: store.getBallotAdjudicationData({
+            electionId,
+            cvrId: input.cvrId,
+          }),
+        });
+      }
+      return store.claimAndLoadBallotData({
+        electionId,
         cvrId: input.cvrId,
         machineId: getMachineConfig().machineId,
       });
@@ -853,11 +873,14 @@ function buildApi({
       });
     },
 
-    getNextCvrIdForBallotAdjudication(): Id | null {
+    getNextCvrIdForBallotAdjudication(
+      input: { currentCvrId?: Id } = {}
+    ): Id | null {
       return (
         store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
           machineId: getMachineConfig().machineId,
+          afterCvrId: input.currentCvrId,
         }) ?? null
       );
     },

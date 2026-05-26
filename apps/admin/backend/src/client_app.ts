@@ -22,7 +22,6 @@ import {
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
 import {
-  BallotStyleGroupId,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
@@ -232,26 +231,6 @@ function buildClientApi({
     // Return Result<T, AdjudicationError> so the frontend can handle
     // disconnect and claim errors without crashing to the error boundary.
 
-    async claimBallot(input: {
-      currentBallotStyleId?: BallotStyleGroupId;
-      excludeCvrIds?: Id[];
-    }): Promise<Result<Optional<Id>, AdjudicationError>> {
-      return proxy('claim ballot', async ({ apiClient: peerApi }) => {
-        const cvrId = await peerApi.claimBallot({
-          machineId: getMachineConfig().machineId,
-          currentBallotStyleId: input.currentBallotStyleId,
-          excludeCvrIds: input.excludeCvrIds,
-        });
-        if (cvrId) {
-          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
-            message: `Claimed ballot ${cvrId}.`,
-            disposition: 'success',
-          });
-        }
-        return cvrId;
-      });
-    },
-
     async releaseBallot(input: {
       cvrId: Id;
     }): Promise<Result<void, AdjudicationError>> {
@@ -272,6 +251,58 @@ function buildClientApi({
       return proxy('fetch ballot data', async ({ apiClient: peerApi }) =>
         peerApi.getBallotAdjudicationData({ cvrId: input.cvrId })
       );
+    },
+
+    /**
+     * Atomically claim a ballot and load its adjudication data via the host
+     * in a single SQL transaction.
+     *
+     * - `cvrId` provided → claim that specific ballot (or confirm an
+     *   existing claim). `no-claim` if another machine holds it.
+     * - `afterCvrId` provided → find the next eligible ballot in queue
+     *   order strictly after this one and claim it. `ok(undefined)` if
+     *   none.
+     * - Neither → claim the first eligible ballot.
+     *
+     * `host-disconnect` if we can't reach the host.
+     */
+    async claimAndLoadBallot(input: {
+      cvrId?: Id;
+      afterCvrId?: Id;
+    }): Promise<
+      Result<
+        Optional<{ cvrId: Id; data: BallotAdjudicationData }>,
+        AdjudicationError
+      >
+    > {
+      const wrapped = await proxy(
+        'claim and load ballot',
+        async ({ apiClient: peerApi }) =>
+          peerApi.claimAndLoadBallot({
+            machineId: getMachineConfig().machineId,
+            cvrId: input.cvrId,
+            afterCvrId: input.afterCvrId,
+          })
+      );
+      // check if there was a transport error
+      if (wrapped.isErr()) return wrapped;
+      const inner = wrapped.ok();
+      // check if the endpoint itself returned an err value
+      if (inner.isErr()) {
+        await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+          message: `Failed to claim ballot: ${inner.err().type}.`,
+          disposition: 'failure',
+        });
+        return inner;
+      }
+      const value = inner.ok();
+      if (value) {
+        await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+          message: `Claimed ballot ${value.cvrId}.`,
+          disposition: 'success',
+        });
+      }
+      return inner;
     },
 
     async getBallotImages(input: {
