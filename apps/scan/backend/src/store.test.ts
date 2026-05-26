@@ -540,7 +540,9 @@ test('resetElectionSession', async () => {
 
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
-  const mockUsbDriveStatus = await mockUsbDrive.usbDrive.status();
+  const mockUsbDriveStatus = (
+    await mockUsbDrive.usbDrive.mounted()
+  ).unsafeUnwrap();
 
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 

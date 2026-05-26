@@ -1,9 +1,10 @@
 import { UsbDrive } from '@votingworks/usb-drive';
 import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
 import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
+import { err } from '@votingworks/basics';
 
 import { GetAuthStatus } from './auth';
-import { exportLogsToUsb } from './export_logs_to_usb';
+import { exportLogsToUsb, LogsResultType } from './export_logs_to_usb';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
@@ -33,14 +34,21 @@ function buildApi({
   getAuthStatus: GetAuthStatus;
 }) {
   return {
-    exportLogsToUsb: async (input: { format: LogExportFormat }) =>
-      exportLogsToUsb({
-        usbDrive,
+    exportLogsToUsb: async (input: {
+      format: LogExportFormat;
+    }): Promise<LogsResultType> => {
+      const mountedUsbDrive = await usbDrive.mounted();
+      if (mountedUsbDrive.isErr()) {
+        return err({ code: 'no-usb-drive' });
+      }
+      return exportLogsToUsb({
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         format: input.format,
         machineId,
         codeVersion,
-      }),
+      });
+    },
     rebootToVendorMenu: async () =>
       rebootToVendorMenu({ getAuthStatus, logger }),
     powerDown: async () => powerDown(logger),

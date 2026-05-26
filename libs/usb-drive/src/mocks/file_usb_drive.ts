@@ -6,12 +6,17 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { Optional } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { basename, join } from 'node:path';
 import type { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDrive, UsbDriveStatus } from '../types';
+import {
+  MountedUsbDrive,
+  UnmountedUsbDriveStatus,
+  UsbDrive,
+  UsbDriveStatus,
+} from '../types';
 
 export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
 export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';
@@ -125,7 +130,17 @@ export function removeMockDriveDir(diskName: string): void {
 }
 
 export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
-  return {
+  const mockFileUsbDrive = {
+    async mounted(): Promise<Result<MountedUsbDrive, UnmountedUsbDriveStatus>> {
+      const status = await mockFileUsbDrive.status();
+      return status.status === 'mounted'
+        ? ok({
+            mountPoint: status.mountPoint,
+            sync: () => mockFileUsbDrive.sync(),
+          })
+        : err(status);
+    },
+
     status(): Promise<UsbDriveStatus> {
       ensureMockDriveState(diskName);
       const { state } = readMockDriveState(diskName);
@@ -168,11 +183,22 @@ export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
     sync(): Promise<void> {
       return Promise.resolve();
     },
-  };
+  } as const;
+  return mockFileUsbDrive;
 }
 
 export class MockFileUsbDrive implements UsbDrive {
   private readonly usbDrive = createMockFileUsbDrive();
+
+  async mounted(): Promise<Result<MountedUsbDrive, UnmountedUsbDriveStatus>> {
+    const status = await this.usbDrive.status();
+    return status.status === 'mounted'
+      ? ok({
+          mountPoint: status.mountPoint,
+          sync: () => this.sync(),
+        })
+      : err(status);
+  }
 
   status(): Promise<UsbDriveStatus> {
     return this.usbDrive.status();

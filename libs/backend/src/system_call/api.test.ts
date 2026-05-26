@@ -74,9 +74,17 @@ afterEach(() => {
 });
 
 test('exportLogsToUsb', async () => {
+  mockUsbDrive.insertUsbDrive({});
   expect(
     (await api.exportLogsToUsb({ format: 'vxf' })).err()
   ).toEqual<LogsExportError>({ code: 'no-logs-directory' });
+});
+
+test('exportLogsToUsb without USB', async () => {
+  mockUsbDrive.removeUsbDrive();
+  expect(
+    (await api.exportLogsToUsb({ format: 'vxf' })).err()
+  ).toEqual<LogsExportError>({ code: 'no-usb-drive' });
 });
 
 test('rebootToVendorMenu', async () => {

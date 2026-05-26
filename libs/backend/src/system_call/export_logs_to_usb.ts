@@ -5,7 +5,7 @@ import {
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -116,13 +116,13 @@ async function filterLogsToErrors(
  * Copies the logs directory to a USB drive, does not log the action.
  */
 async function exportLogsToUsbHelper({
-  usbDrive,
+  mountedUsbDrive,
   format,
   machineId,
   codeVersion,
   logger,
 }: {
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   format: LogExportFormat;
   machineId: string;
   codeVersion: string;
@@ -140,12 +140,10 @@ async function exportLogsToUsbHelper({
     return err({ code: 'no-logs-directory' });
   }
 
-  const status = await usbDrive.status();
-  if (status.status !== 'mounted') {
-    return err({ code: 'no-usb-drive' });
-  }
-
-  const machineNamePath = join(status.mountPoint, `/logs/machine_${machineId}`);
+  const machineNamePath = join(
+    mountedUsbDrive.mountPoint,
+    `/logs/machine_${machineId}`
+  );
 
   const destinationDirectory = join(machineNamePath, generateFileTimeSuffix());
   const tempDirectory = dirSync().name;
@@ -194,7 +192,7 @@ async function exportLogsToUsbHelper({
         /* istanbul ignore next - compile time check @preserve */
         throwIllegalValue(format);
     }
-    await usbDrive.sync();
+    await mountedUsbDrive.sync();
   } catch (cause) {
     return err({ code: 'copy-failed', cause });
   } finally {
@@ -210,20 +208,20 @@ async function exportLogsToUsbHelper({
  * Copies the logs directory to a USB drive and logs the action.
  */
 export async function exportLogsToUsb({
-  usbDrive,
+  mountedUsbDrive,
   machineId,
   codeVersion,
   format,
   logger,
 }: {
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   machineId: string;
   codeVersion: string;
   format: LogExportFormat;
   logger: Logger;
 }): Promise<LogsResultType> {
   const result = await exportLogsToUsbHelper({
-    usbDrive,
+    mountedUsbDrive,
     format,
     machineId,
     codeVersion,

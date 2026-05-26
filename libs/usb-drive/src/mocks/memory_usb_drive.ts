@@ -1,6 +1,7 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import tmp from 'tmp';
+import { err, ok } from '@votingworks/basics';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive } from '../types';
 
@@ -35,6 +36,7 @@ export function createMockUsbDrive(): MockUsbDrive {
   let mockUsbTmpDir: tmp.DirResult | undefined;
 
   const usbDrive: MockedUsbDrive = {
+    mounted: mockFunction('mounted'),
     status: mockFunction('status'),
     eject: mockFunction('eject'),
     format: mockFunction('format'),
@@ -57,8 +59,15 @@ export function createMockUsbDrive(): MockUsbDrive {
         tmpdir: getTemporaryRootDir(),
       });
       writeMockFileTree(mockUsbTmpDir.name, contents);
+      usbDrive.mounted.reset();
+      usbDrive.mounted.expectOptionalRepeatedCallsWith().resolves(
+        ok({
+          mountPoint: mockUsbTmpDir.name,
+          sync: usbDrive.sync,
+        })
+      );
       usbDrive.status.reset();
-      usbDrive.status.expectRepeatedCallsWith().resolves({
+      usbDrive.status.expectOptionalRepeatedCallsWith().resolves({
         status: 'mounted',
         mountPoint: mockUsbTmpDir.name,
       });
@@ -67,9 +76,13 @@ export function createMockUsbDrive(): MockUsbDrive {
     removeUsbDrive() {
       mockUsbTmpDir?.removeCallback();
       mockUsbTmpDir = undefined;
+      usbDrive.mounted.reset();
+      usbDrive.mounted
+        .expectOptionalRepeatedCallsWith()
+        .resolves(err({ status: 'no_drive' }));
       usbDrive.status.reset();
       usbDrive.status
-        .expectRepeatedCallsWith()
+        .expectOptionalRepeatedCallsWith()
         .resolves({ status: 'no_drive' });
     },
   };

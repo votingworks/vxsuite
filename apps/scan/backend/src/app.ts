@@ -28,6 +28,7 @@ import {
   Exporter,
   SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
+  requireMountedUsbDrive,
 } from '@votingworks/backend';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
@@ -141,14 +142,20 @@ export function buildApi({
         isAccessibilityInputConnected?: true;
       }
     > {
-      const usbDriveStatus = await usbDrive.status();
+      const mountCheckResult = await usbDrive.mounted();
+      const doesUsbDriveRequireCastVoteRecordSync =
+        await doesUsbDriveRequireCastVoteRecordSyncFn(
+          store,
+          mountCheckResult.ok()
+        );
+      const usbDriveStatus: UsbDriveStatus = mountCheckResult.isOk()
+        ? { status: 'mounted', mountPoint: mountCheckResult.ok().mountPoint }
+        : mountCheckResult.err();
+
       return {
         ...usbDriveStatus,
         doesUsbDriveRequireCastVoteRecordSync:
-          (await doesUsbDriveRequireCastVoteRecordSyncFn(
-            store,
-            usbDriveStatus
-          )) || undefined,
+          doesUsbDriveRequireCastVoteRecordSync ? true : undefined,
         // TODO: Implement logic to populate this value
         isAccessibilityInputConnected: undefined,
       };
@@ -569,10 +576,13 @@ export function buildApi({
       return store.getMostRecentDiagnosticRecord('test-print') ?? null;
     },
 
-    saveReadinessReport() {
-      return saveReadinessReport({
+    async saveReadinessReport(): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
+      return await saveReadinessReport({
         workspace,
-        usbDrive,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         printer,
         machine,
@@ -624,8 +634,11 @@ export function buildApi({
 
     async saveBallotAuditIdSecretKey(): Promise<ExportDataResult> {
       const ballotAuditIdSecretKey = store.getBallotAuditIdSecretKey();
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       const exporter = new Exporter({
-        usbDrive,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
       });
       const exportResult = await exporter.exportDataToUsbDrive(

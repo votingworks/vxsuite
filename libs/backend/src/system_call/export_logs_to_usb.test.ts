@@ -61,7 +61,10 @@ test('exportLogsToUsb without logs directory', async () => {
   expect(
     (
       await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
+        mountedUsbDrive: {
+          mountPoint: '/media/usb-drive',
+          sync: mockUsbDrive.usbDrive.sync,
+        },
         logger,
         machineId: 'TEST-MACHINE-ID',
         codeVersion: 'TEST-CODE-VERSION',
@@ -78,7 +81,10 @@ test('exportLogsToUsb without logs directory', async () => {
   expect(
     (
       await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
+        mountedUsbDrive: {
+          mountPoint: '/media/usb-drive',
+          sync: mockUsbDrive.usbDrive.sync,
+        },
         logger,
         machineId: 'TEST-MACHINE-ID',
         codeVersion: 'TEST-CODE-VERSION',
@@ -97,27 +103,6 @@ test('exportLogsToUsb without logs directory', async () => {
   );
 });
 
-test('exportLogsToUsb without USB', async () => {
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.removeUsbDrive();
-
-  const mockStats = new Stats();
-  mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  vi.mocked(fs.stat).mockResolvedValue(mockStats);
-
-  expect(
-    (
-      await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
-        logger,
-        machineId: 'TEST-MACHINE-ID',
-        codeVersion: 'TEST-CODE-VERSION',
-        format: 'vxf',
-      })
-    ).err()
-  ).toEqual<LogsExportError>({ code: 'no-usb-drive' });
-});
-
 test('exportLogsToUsb with unknown failure', async () => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
@@ -134,7 +119,10 @@ test('exportLogsToUsb with unknown failure', async () => {
   expect(
     (
       await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
+        mountedUsbDrive: {
+          mountPoint: '/media/usb-drive',
+          sync: mockUsbDrive.usbDrive.sync,
+        },
         logger,
         machineId: 'TEST-MACHINE-ID',
         codeVersion: 'TEST-CODE-VERSION',
@@ -156,11 +144,6 @@ test('exportLogsToUsb with unknown failure', async () => {
 
 test('exportLogsToUsb works for vxf format when all conditions are met', async () => {
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
@@ -172,7 +155,10 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   expect(
     (
       await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
+        mountedUsbDrive: {
+          mountPoint: '/media/usb-drive',
+          sync: mockUsbDrive.usbDrive.sync,
+        },
         logger,
         machineId: 'TEST-MACHINE-ID',
         codeVersion: 'TEST-CODE-VERSION',
@@ -210,11 +196,6 @@ const testPlainAndCompressed = test.each<LogFormat>(['plain', 'compressed']);
 
 testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -230,7 +211,10 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
   vi.mocked(convertVxLogToCdf).mockRejectedValue(cause);
 
   const result = await exportLogsToUsb({
-    usbDrive: mockUsbDrive.usbDrive,
+    mountedUsbDrive: {
+      mountPoint: '/media/usb-drive',
+      sync: mockUsbDrive.usbDrive.sync,
+    },
     logger,
     machineId: 'TEST-MACHINE-ID',
     codeVersion: 'TEST-CODE-VERSION',
@@ -245,11 +229,6 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
 
 test('exportLogsToUsb returns error when error filtering fails', async () => {
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -267,7 +246,10 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
   const result = await exportLogsToUsb({
-    usbDrive: mockUsbDrive.usbDrive,
+    mountedUsbDrive: {
+      mountPoint: '/media/usb-drive',
+      sync: mockUsbDrive.usbDrive.sync,
+    },
     logger,
     machineId: 'TEST-MACHINE-ID',
     codeVersion: 'TEST-CODE-VERSION',
@@ -292,11 +274,6 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
 
 testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
@@ -336,7 +313,10 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
 
   expect(
     await exportLogsToUsb({
-      usbDrive: mockUsbDrive.usbDrive,
+      mountedUsbDrive: {
+        mountPoint: '/media/usb-drive',
+        sync: mockUsbDrive.usbDrive.sync,
+      },
       logger,
       machineId: 'TEST-MACHINE-ID',
       codeVersion: 'TEST-CODE-VERSION',
@@ -381,11 +361,6 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
@@ -412,7 +387,10 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   expect(
     (
       await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
+        mountedUsbDrive: {
+          mountPoint: '/media/usb-drive',
+          sync: mockUsbDrive.usbDrive.sync,
+        },
         logger,
         machineId: 'TEST-MACHINE-ID',
         codeVersion: 'TEST-CODE-VERSION',

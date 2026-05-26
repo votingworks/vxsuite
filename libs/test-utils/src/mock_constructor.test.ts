@@ -50,6 +50,8 @@ test('works with vi.fn for mocking class constructors', () => {
 test('works with mockImplementation on an existing mock', () => {
   const Target = vi.fn() as unknown as new (n: number) => Original;
   const replacement = new Replacement(0);
-  vi.mocked(Target).mockImplementation(mockConstructor(() => replacement));
+  vi.mocked(Target).mockImplementation(
+    mockConstructor(() => replacement as unknown as Original)
+  );
   expect(new Target(1)).toEqual(replacement);
 });

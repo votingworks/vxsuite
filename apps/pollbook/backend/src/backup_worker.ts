@@ -5,7 +5,7 @@ import { move } from 'fs-extra';
 import { Exporter } from '@votingworks/backend';
 import { setInterval } from 'node:timers/promises';
 import { MarginDimensions, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { assertDefined, err, ok, iter, Result } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 
@@ -185,13 +185,9 @@ export async function getBackupPaperChecklistPdfs(
 
 export async function exportBackupVoterChecklist(
   workspace: LocalWorkspace,
-  usbDrive: UsbDrive,
+  mountedUsbDrive: MountedUsbDrive,
   logger: BaseLogger = new BaseLogger(LogSource.VxPollBookBackend)
 ): Promise<Result<void, Error>> {
-  const usbDriveStatus = await usbDrive.status();
-  if (usbDriveStatus.status !== 'mounted') {
-    return err(new Error('No USB drive mounted, skipping backup'));
-  }
   if (!workspace.store.getElection()) {
     return err(
       new Error('Machine not configured with election, skipping backup')
@@ -213,15 +209,15 @@ export async function exportBackupVoterChecklist(
 
   const exporter = new Exporter({
     allowedExportPatterns: ['**'], // TODO restrict allowed export paths
-    usbDrive,
+    mountedUsbDrive,
   });
   for (const [i, pdf] of iter(pdfs).enumerate()) {
     const inProgressName = `part_${
       i + 1
     }_backup_voter_checklist.in_progress.pdf`;
-    const inProgressPath = join(usbDriveStatus.mountPoint, inProgressName);
+    const inProgressPath = join(mountedUsbDrive.mountPoint, inProgressName);
     const finalPath = join(
-      usbDriveStatus.mountPoint,
+      mountedUsbDrive.mountPoint,
       `part_${i + 1}_backup_voter_checklist.pdf`
     );
     (
@@ -237,7 +233,7 @@ export async function exportBackupVoterChecklist(
     }ms`,
     disposition: 'success',
   });
-  await usbDrive.sync();
+  await mountedUsbDrive.sync();
 
   return ok();
 }
@@ -250,12 +246,21 @@ export function start({
   usbDrive: UsbDrive;
 }): void {
   console.log('Starting VxPollBook backup worker');
-  process.nextTick(async () => {
-    const initialResult = await exportBackupVoterChecklist(
+
+  async function runBackup(): Promise<Result<void, Error>> {
+    const mountedUsbDrive = await usbDrive.mounted();
+    if (mountedUsbDrive.isErr()) {
+      return err(new Error('No USB drive mounted, skipping backup'));
+    }
+    return exportBackupVoterChecklist(
       workspace,
-      usbDrive,
+      mountedUsbDrive.ok(),
       workspace.logger
     );
+  }
+
+  process.nextTick(async () => {
+    const initialResult = await runBackup();
     if (initialResult.isErr()) {
       workspace.logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
         message: initialResult.err().message,
@@ -265,11 +270,7 @@ export function start({
 
     for await (const _ of setInterval(BACKUP_INTERVAL)) {
       try {
-        const result = await exportBackupVoterChecklist(
-          workspace,
-          usbDrive,
-          workspace.logger
-        );
+        const result = await runBackup();
         if (result.isErr()) {
           workspace.logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
             message: result.err().message,

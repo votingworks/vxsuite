@@ -2,6 +2,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
+  err,
   extractErrorMessage,
   Result,
 } from '@votingworks/basics';
@@ -91,6 +92,10 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
         message: `Exporting cast vote record for ${acceptedOrRejected} sheet to USB drive...`,
         operationId,
       });
+      const mountedUsbDriveResult = await usbDrive.mounted();
+      if (mountedUsbDriveResult.isErr()) {
+        return err({ type: 'missing-usb-drive' });
+      }
       const sheet = assertDefined(store.getSheet(sheetId));
       const sheetWithEncryptedBallotAuditId = await encryptBallotAuditId(
         store,
@@ -99,7 +104,7 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
       );
       return await exportCastVoteRecordsToUsbDrive(
         store,
-        usbDrive,
+        mountedUsbDriveResult.ok(),
         [sheetWithEncryptedBallotAuditId],
         { scannerType: 'precinct' }
       );

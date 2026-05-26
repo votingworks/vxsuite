@@ -2,7 +2,7 @@ import { assert, assertDefined } from '@votingworks/basics';
 import { BallotsPrintedReport } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { Exporter } from '@votingworks/backend';
 import { join } from 'node:path';
 import {
@@ -89,12 +89,12 @@ export async function printBallotsPrintedReport({
 }
 
 export async function exportBallotsPrintedReportPdf({
-  usbDrive,
+  mountedUsbDrive,
   logger,
   store,
   generatedAtTime,
 }: {
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   logger: Logger;
   store: Store;
   generatedAtTime?: Date;
@@ -120,7 +120,7 @@ export async function exportBallotsPrintedReportPdf({
 
   const exporter = new Exporter({
     allowedExportPatterns: PRINT_ALLOWED_EXPORT_PATTERNS,
-    usbDrive,
+    mountedUsbDrive,
   });
 
   const exportFileResult = await exporter.exportDataToUsbDrive(

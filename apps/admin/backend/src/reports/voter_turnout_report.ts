@@ -3,7 +3,7 @@ import { VoterTurnoutReport } from '@votingworks/ui';
 import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
@@ -117,12 +117,12 @@ export async function printVoterTurnoutReport({
  */
 export async function exportVoterTurnoutReportPdf({
   filename,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   ...reportProps
 }: VoterTurnoutReportProps & {
   filename: string;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
 }): Promise<ExportDataResult> {
   const report = buildVoterTurnoutReport(reportProps);
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
@@ -135,7 +135,7 @@ export async function exportVoterTurnoutReportPdf({
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
 
-  const exporter = buildExporter(usbDrive);
+  const exporter = buildExporter(mountedUsbDrive);
   const exportFileResult = await exporter.exportDataToUsbDrive(
     reportsDirectoryPath,
     filename,

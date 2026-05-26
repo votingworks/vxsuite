@@ -6,7 +6,7 @@ import { isAbsolute, join, normalize, parse } from 'node:path';
 import { Readable } from 'node:stream';
 import { createReadStream, lstatSync } from 'node:fs';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { splitToFiles } from './split';
 
 /**
@@ -39,10 +39,30 @@ export interface ExportDataError {
  */
 export type ExportDataResult = Result<string[], ExportDataError>;
 
+/**
+ * Error returned by {@link requireMountedUsbDrive} when no USB drive is mounted.
+ */
+export const MISSING_USB_DRIVE_ERR = err<MountedUsbDrive, ExportDataError>({
+  type: 'missing-usb-drive',
+  message: 'No USB drive found',
+});
+
+/**
+ * Resolves to the mounted USB drive, or a `missing-usb-drive` `ExportDataError`
+ * if no drive is mounted. Use at API boundaries that operate on a mounted USB
+ * drive and return an {@link ExportDataResult}.
+ */
+export async function requireMountedUsbDrive(
+  usbDrive: UsbDrive
+): Promise<Result<MountedUsbDrive, ExportDataError>> {
+  const mounted = await usbDrive.mounted();
+  return mounted.isErr() ? MISSING_USB_DRIVE_ERR : mounted;
+}
+
 /** Settings for the {@link Exporter}. */
 export interface ExporterSettings {
   allowedExportPatterns: Iterable<string>;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
 }
 
 /**
@@ -50,16 +70,19 @@ export interface ExporterSettings {
  */
 export class Exporter {
   private readonly allowedExportPatterns: readonly string[];
-  private readonly usbDrive: UsbDrive;
+  private readonly mountedUsbDrive: MountedUsbDrive;
 
   /**
    * Builds an exporter with the given allowed export patterns. To allow all
    * paths, use `['**']`. Ideally you should be as specific as possible to avoid
    * writing to unexpected locations.
    */
-  constructor({ allowedExportPatterns, usbDrive }: ExporterSettings) {
+  constructor({
+    allowedExportPatterns,
+    mountedUsbDrive: usbDrive,
+  }: ExporterSettings) {
     this.allowedExportPatterns = Array.from(allowedExportPatterns);
-    this.usbDrive = usbDrive;
+    this.mountedUsbDrive = usbDrive;
   }
 
   /**
@@ -173,24 +196,15 @@ export class Exporter {
       dataToWrite = createReadStream(machineFilePath);
     }
 
-    const usbDriveStatus = await this.usbDrive.status();
-
-    if (usbDriveStatus.status !== 'mounted') {
-      return err({
-        type: 'missing-usb-drive',
-        message: 'No USB drive found',
-      });
-    }
-
     const result = await this.exportData(
-      join(usbDriveStatus.mountPoint, bucket, name),
+      join(this.mountedUsbDrive.mountPoint, bucket, name),
       dataToWrite,
       { maximumFileSize }
     );
 
     // Exporting a file might take a while. Ensure the data is flushed to the USB
     // drive before we consider it safe to remove.
-    await this.usbDrive.sync();
+    await this.mountedUsbDrive.sync();
 
     return result;
   }

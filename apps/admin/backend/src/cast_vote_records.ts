@@ -25,7 +25,10 @@ import {
   getPrecinctById,
   Tabulation,
 } from '@votingworks/types';
-import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
+import {
+  listDirectoryOnUsbDrive,
+  MountedUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
@@ -110,20 +113,20 @@ function validateCastVoteRecordAgainstElectionDefinition(
  */
 export type ListCastVoteRecordExportsOnUsbDriveResult = Result<
   CastVoteRecordFileMetadata[],
-  'found-file-instead-of-directory' | 'no-usb-drive' | 'permission-denied'
+  'found-file-instead-of-directory' | 'permission-denied'
 >;
 
 /**
  * Lists the cast vote record exports on the inserted USB drive
  */
 export async function listCastVoteRecordExportsOnUsbDrive(
-  usbDrive: UsbDrive,
+  mountedUsbDrive: MountedUsbDrive,
   electionDefinition: ElectionDefinition
 ): Promise<ListCastVoteRecordExportsOnUsbDriveResult> {
   const { election, ballotHash } = electionDefinition;
 
   const listResults = listDirectoryOnUsbDrive(
-    usbDrive,
+    mountedUsbDrive,
     path.join(
       generateElectionBasedSubfolderName(election, ballotHash),
       SCANNER_RESULTS_FOLDER
@@ -138,10 +141,6 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       switch (errorType) {
         case 'no-entity': {
           return ok([]);
-        }
-        case 'no-usb-drive':
-        case 'usb-drive-not-mounted': {
-          return err('no-usb-drive');
         }
         case 'not-directory': {
           return err('found-file-instead-of-directory');

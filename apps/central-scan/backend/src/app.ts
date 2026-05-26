@@ -2,12 +2,14 @@ import {
   DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
-import { Result, assert, assertDefined, ok } from '@votingworks/basics';
+import { Result, assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   ElectionRecord,
+  ExportDataResult,
+  requireMountedUsbDrive,
 } from '@votingworks/backend';
 import {
   ElectionPackageConfigurationError,
@@ -300,12 +302,16 @@ function buildApi({
       await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
         message: 'Exporting all accepted and rejected cast vote records...',
       });
-      const exportResult = await exportCastVoteRecordsToUsbDrive(
-        store,
-        usbDrive,
-        store.forEachSheet(),
-        { scannerType: 'central' }
-      );
+      const mountedUsbDriveResult = await usbDrive.mounted();
+      const exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError> =
+        mountedUsbDriveResult.isErr()
+          ? err({ type: 'missing-usb-drive' })
+          : await exportCastVoteRecordsToUsbDrive(
+              store,
+              mountedUsbDriveResult.ok(),
+              store.forEachSheet(),
+              { scannerType: 'central' }
+            );
       store.setScannerBackedUp();
       if (exportResult.isErr()) {
         await logger.logAsCurrentRole(
@@ -328,11 +334,14 @@ function buildApi({
       return exportResult;
     },
 
-    saveReadinessReport() {
+    async saveReadinessReport(): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return saveReadinessReport({
         workspace,
         isScannerAttached: importer.getStatus().isScannerAttached,
-        usbDrive,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
       });
     },

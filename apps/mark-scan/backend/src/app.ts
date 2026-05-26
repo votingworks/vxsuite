@@ -40,6 +40,7 @@ import {
   configureUiStrings,
   createSystemCallApi,
   ExportDataResult,
+  requireMountedUsbDrive,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -463,10 +464,13 @@ export function buildApi(
       return isAccessibleControllerDaemonRunning(workspace.path, logger);
     },
 
-    saveReadinessReport(): Promise<ExportDataResult> {
+    async saveReadinessReport(): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return saveReadinessReport({
         workspace,
-        usbDrive,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         stateMachine: assertDefined(stateMachine),
       });

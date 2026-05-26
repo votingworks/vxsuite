@@ -121,7 +121,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
 
   mockUsbDrive.insertUsbDrive({});
   await exportBallotsPrintedReportPdf({
-    usbDrive: mockUsbDrive.usbDrive,
+    mountedUsbDrive: (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
     logger,
     store: workspace.store,
     generatedAtTime: fixedNow,
@@ -196,7 +196,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
 
   mockUsbDrive.insertUsbDrive({});
   await exportBallotsPrintedReportPdf({
-    usbDrive: mockUsbDrive.usbDrive,
+    mountedUsbDrive: (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
     logger,
     store: workspace.store,
     generatedAtTime: fixedNow,

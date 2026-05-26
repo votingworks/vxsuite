@@ -318,8 +318,11 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
           const handler = getMockFileUsbDriveHandler(diskName);
           if (handler.status().status !== 'mounted') return undefined;
           const mockUsbDrive = createMockFileUsbDrive(diskName);
-          const result =
-            await getMostRecentElectionPackageFilepath(mockUsbDrive);
+          const mountedUsbDrive = await mockUsbDrive.mounted();
+          if (mountedUsbDrive.isErr()) return undefined;
+          const result = await getMostRecentElectionPackageFilepath(
+            mountedUsbDrive.ok()
+          );
           if (result.isErr()) return undefined;
           const zipPath = result.ok();
           return {

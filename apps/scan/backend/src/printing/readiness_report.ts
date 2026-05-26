@@ -1,4 +1,4 @@
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ExportDataResult,
@@ -19,13 +19,13 @@ import { PrecinctScannerStateMachine } from '../types';
  */
 export async function saveReadinessReport({
   workspace,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   printer,
   machine,
 }: {
   workspace: Workspace;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   logger: Logger;
   printer: FujitsuThermalPrinterInterface;
   machine: PrecinctScannerStateMachine;
@@ -61,7 +61,7 @@ export async function saveReadinessReport({
   // Readiness report PDF shouldn't be too long, so we don't expect a render error
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
-    usbDrive,
+    mountedUsbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(

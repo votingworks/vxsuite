@@ -1,11 +1,16 @@
 import makeDebug from 'debug';
-import { assert } from '@votingworks/basics';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import {
   isFat32Partition,
   MultiUsbDrive,
   UsbDriveInfo,
 } from './multi_usb_drive';
-import { UsbDrive, UsbDriveStatus } from './types';
+import {
+  MountedUsbDrive,
+  UnmountedUsbDriveStatus,
+  UsbDrive,
+  UsbDriveStatus,
+} from './types';
 
 const debug = makeDebug('usb-drive:adapter');
 
@@ -31,7 +36,17 @@ export function createUsbDriveAdapter(
   multiUsbDrive: MultiUsbDrive,
   getDriveDevPath: (usbDrives: readonly UsbDriveInfo[]) => string | undefined
 ): UsbDrive {
-  return {
+  const usbDriveAdapter = {
+    async mounted(): Promise<Result<MountedUsbDrive, UnmountedUsbDriveStatus>> {
+      const status = await usbDriveAdapter.status();
+      return status.status === 'mounted'
+        ? ok({
+            mountPoint: status.mountPoint,
+            sync: () => usbDriveAdapter.sync(),
+          })
+        : err(status);
+    },
+
     status(): Promise<UsbDriveStatus> {
       const fat32Drives = getFat32Drives(multiUsbDrive.getDrives());
       const driveDevPath = getDriveDevPath(fat32Drives);
@@ -127,5 +142,6 @@ export function createUsbDriveAdapter(
 
       await multiUsbDrive.sync(mountedPartition.devPath);
     },
-  };
+  } as const;
+  return usbDriveAdapter;
 }

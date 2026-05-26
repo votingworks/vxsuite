@@ -1,4 +1,4 @@
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { MarkScanReadinessReport } from '@votingworks/ui';
 import {
@@ -22,12 +22,12 @@ import { PaperHandlerStateMachine } from './custom-paper-handler';
  */
 export async function saveReadinessReport({
   workspace,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   stateMachine,
 }: {
   workspace: Workspace;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   logger: Logger;
   stateMachine: PaperHandlerStateMachine;
 }): Promise<ExportDataResult> {
@@ -95,7 +95,7 @@ export async function saveReadinessReport({
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
 
   const exporter = new Exporter({
-    usbDrive,
+    mountedUsbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(

@@ -6,7 +6,7 @@ import { AdminTallyReportByParty } from '@votingworks/ui';
 
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { generateTitleForReport } from './titles';
 import { Store } from '../store';
@@ -185,12 +185,12 @@ export async function printTallyReport({
  */
 export async function exportTallyReportPdf({
   filename,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   ...reportProps
 }: TallyReportPreviewProps & {
   filename: string;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
 }): Promise<ExportDataResult> {
   const report = buildTallyReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
@@ -205,7 +205,7 @@ export async function exportTallyReportPdf({
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
 
-  const exporter = buildExporter(usbDrive);
+  const exporter = buildExporter(mountedUsbDrive);
   const exportFileResult = await exporter.exportDataToUsbDrive(
     reportsDirectoryPath,
     filename,

@@ -23,6 +23,7 @@ import {
   ExportDataResult,
   getBatteryInfo,
   readSignedElectionPackageFromUsb,
+  requireMountedUsbDrive,
 } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
@@ -457,8 +458,14 @@ export function buildApi(ctx: AppContext) {
     },
 
     async exportBallotsPrintedReportPdf(): Promise<void> {
+      const checkMountResult = await usbDrive.mounted();
+
+      if (checkMountResult.isErr()) {
+        return;
+      }
+
       await exportBallotsPrintedReportPdf({
-        usbDrive,
+        mountedUsbDrive: checkMountResult.ok(),
         logger,
         store,
       });
@@ -500,7 +507,15 @@ export function buildApi(ctx: AppContext) {
     },
 
     async saveReadinessReport(): Promise<ExportDataResult> {
-      return saveReadinessReport({ workspace, printer, usbDrive, logger });
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
+      return saveReadinessReport({
+        workspace,
+        printer,
+        mountedUsbDrive: mountedUsbDrive.ok(),
+        logger,
+      });
     },
   } as const;
 

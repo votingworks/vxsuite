@@ -38,7 +38,7 @@ import {
   SystemSettings,
   unsafeParse,
 } from '@votingworks/types';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
@@ -208,7 +208,7 @@ export type Sheet = AcceptedSheet | RejectedSheet;
  * {@link doesUsbDriveRequireCastVoteRecordSync} for more context.
  */
 let doesUsbDriveRequireCastVoteRecordSyncCachedResult:
-  | { previousUsbDriveStatus: UsbDriveStatus; previousValue: boolean }
+  | { previousMountedUsbDrive?: MountedUsbDrive; previousValue: boolean }
   | undefined;
 
 /**
@@ -661,22 +661,17 @@ async function randomlyUpdateCreationTimestamps(
  */
 export async function exportCastVoteRecordsToUsbDrive(
   scannerStore: ScannerStore,
-  usbDrive: UsbDrive,
+  mountedUsbDrive: MountedUsbDrive,
   sheets: Iterable<Sheet> | AsyncIterable<Sheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   assert(scannerStore.scannerType === exportOptions.scannerType);
-  const usbDriveStatus = await usbDrive.status();
-  const usbMountPoint =
-    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
-  if (usbMountPoint === undefined) {
-    return err({ type: 'missing-usb-drive' });
-  }
+  const { mountPoint: usbMountPoint } = mountedUsbDrive;
   const systemSettings = assertDefined(scannerStore.getSystemSettings());
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
-      usbDrive,
+      mountedUsbDrive,
     }),
     exportOptions,
     scannerState: {
@@ -882,12 +877,12 @@ export async function exportCastVoteRecordsToUsbDrive(
  */
 export async function doesUsbDriveRequireCastVoteRecordSync(
   scannerStore: PrecinctScannerStore,
-  usbDriveStatus: UsbDriveStatus
+  mountedUsbDrive?: MountedUsbDrive
 ): Promise<boolean> {
   if (
     doesUsbDriveRequireCastVoteRecordSyncCachedResult &&
-    doesUsbDriveRequireCastVoteRecordSyncCachedResult.previousUsbDriveStatus
-      .status === usbDriveStatus.status
+    !!doesUsbDriveRequireCastVoteRecordSyncCachedResult.previousMountedUsbDrive ===
+      !!mountedUsbDrive
   ) {
     return doesUsbDriveRequireCastVoteRecordSyncCachedResult.previousValue;
   }
@@ -897,10 +892,10 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
       return false;
     }
 
-    if (usbDriveStatus.status !== 'mounted') {
+    if (!mountedUsbDrive) {
       return false;
     }
-    const usbMountPoint = usbDriveStatus.mountPoint;
+    const usbMountPoint = mountedUsbDrive.mountPoint;
 
     const electionRecord = scannerStore.getElectionRecord();
     if (!electionRecord) {
@@ -951,7 +946,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     return false;
   })();
   doesUsbDriveRequireCastVoteRecordSyncCachedResult = {
-    previousUsbDriveStatus: usbDriveStatus,
+    previousMountedUsbDrive: mountedUsbDrive,
     previousValue: value,
   };
 

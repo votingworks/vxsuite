@@ -56,6 +56,7 @@ import {
   createSystemCallApi,
   readElectionPackageFromBuffer,
   readElectionPackageFromFile,
+  requireMountedUsbDrive,
 } from '@votingworks/backend';
 import {
   FileSystemEntry,
@@ -395,7 +396,10 @@ function buildApi({
 
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.logAsCurrentRole(LogEventId.SaveElectionPackageInit);
-      const exporter = buildExporter(usbDriveAdapter);
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
+      const exporter = buildExporter(mountedUsbDrive.ok());
 
       const electionRecord = getCurrentElectionRecord(workspace);
       assert(electionRecord);
@@ -469,14 +473,26 @@ function buildApi({
     },
 
     async listPotentialElectionPackagesOnUsbDrive(): Promise<
-      Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>
+      Result<
+        FileSystemEntry[],
+        ListDirectoryOnUsbDriveError | { type: 'no-usb-drive' }
+      >
     > {
+      const mountedUsbDrive = await usbDriveAdapter.mounted();
+      if (mountedUsbDrive.isErr()) {
+        return err({ type: 'no-usb-drive' });
+      }
+
       const potentialElectionPackages: FileSystemEntry[] = [];
 
-      for await (const result of listDirectoryOnUsbDrive(usbDriveAdapter, '', {
-        depth: 3,
-        excludeHidden: true,
-      })) {
+      for await (const result of listDirectoryOnUsbDrive(
+        mountedUsbDrive.ok(),
+        '',
+        {
+          depth: 3,
+          excludeHidden: true,
+        }
+      )) {
         if (result.isErr()) {
           return result;
         }
@@ -647,8 +663,21 @@ function buildApi({
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
+      const mountedUsbDrive = await usbDriveAdapter.mounted();
+      if (mountedUsbDrive.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+          {
+            disposition: 'failure',
+            message: 'Error listing cast vote record exports on USB drive.',
+            reason: 'no-usb-drive',
+          }
+        );
+        return [];
+      }
+
       const listResult = await listCastVoteRecordExportsOnUsbDrive(
-        usbDriveAdapter,
+        mountedUsbDrive.ok(),
         electionDefinition
       );
       if (listResult.isErr()) {
@@ -1114,10 +1143,13 @@ function buildApi({
     async exportTallyReportPdf(
       input: TallyReportSpec & { filename: string }
     ): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return await exportTallyReportPdf({
         store,
         allTallyReportResults: await getTallyReportResults(input),
-        usbDrive: usbDriveAdapter,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         ...input,
       });
@@ -1137,11 +1169,14 @@ function buildApi({
         'Group by party not supported in CSV export'
       );
 
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       debug('exporting tally report CSV file: %o', input);
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
-      const exporter = buildExporter(usbDriveAdapter);
+      const exporter = buildExporter(mountedUsbDrive.ok());
       const reportsDirectoryPath =
         generateReportsDirectoryPath(electionDefinition);
       const exportFileResult = await exporter.exportDataToUsbDrive(
@@ -1170,6 +1205,9 @@ function buildApi({
     async exportCdfElectionResultsReport(input: {
       filename: string;
     }): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       const electionRecord = store.getElection(electionId);
       assert(electionRecord);
@@ -1195,7 +1233,7 @@ function buildApi({
 
       debug('exporting CDF election results report JSON file: %o', input);
 
-      const exporter = buildExporter(usbDriveAdapter);
+      const exporter = buildExporter(mountedUsbDrive.ok());
       const reportsDirectoryPath =
         generateReportsDirectoryPath(electionDefinition);
       const exportFileResult = await exporter.exportDataToUsbDrive(
@@ -1264,10 +1302,13 @@ function buildApi({
     async exportBallotCountReportPdf(
       input: BallotCountReportSpec & { filename: string }
     ): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return exportBallotCountReportPdf({
         store,
         allCardCounts: getCardCounts(input),
-        usbDrive: usbDriveAdapter,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         ...input,
       });
@@ -1278,11 +1319,14 @@ function buildApi({
         filename: string;
       }
     ): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       debug('exporting ballot count report CSV file: %o', input);
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
-      const exporter = buildExporter(usbDriveAdapter);
+      const exporter = buildExporter(mountedUsbDrive.ok());
       const reportsDirectoryPath =
         generateReportsDirectoryPath(electionDefinition);
       const exportFileResult = await exporter.exportDataToUsbDrive(
@@ -1333,10 +1377,13 @@ function buildApi({
     async exportWriteInAdjudicationReportPdf(input: {
       filename: string;
     }): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return exportWriteInAdjudicationReportPdf({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
-        usbDrive: usbDriveAdapter,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         filename: input.filename,
       });
@@ -1402,13 +1449,16 @@ function buildApi({
     async exportVoterTurnoutReportPdf(input: {
       filename: string;
     }): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return exportVoterTurnoutReportPdf({
         store,
         cardCountsList: getCardCounts({
           filter: {},
           groupBy: { groupByPrecinct: true },
         }),
-        usbDrive: usbDriveAdapter,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         filename: input.filename,
       });
@@ -1434,10 +1484,13 @@ function buildApi({
     },
 
     async saveReadinessReport(): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDriveAdapter);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return saveReadinessReport({
         workspace,
         printer,
-        usbDrive: usbDriveAdapter,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
       });
     },

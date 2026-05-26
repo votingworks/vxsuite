@@ -52,18 +52,17 @@ export async function isReadyToScan({
     return false;
   }
 
-  const usbDriveStatus = await usbDrive.status();
+  const mountCheckResult = await usbDrive.mounted();
 
   // If continuous CVR export to USB drive is enabled but there's no USB drive, we can't scan.
-  if (
-    store.getIsContinuousExportEnabled() &&
-    usbDriveStatus.status !== 'mounted'
-  ) {
+  if (store.getIsContinuousExportEnabled() && mountCheckResult.isErr()) {
     return false;
   }
 
   // If the CVRs are not synced, we can't scan.
-  if (await doesUsbDriveRequireCastVoteRecordSync(store, usbDriveStatus)) {
+  if (
+    await doesUsbDriveRequireCastVoteRecordSync(store, mountCheckResult.ok())
+  ) {
     return false;
   }
 

@@ -41,6 +41,7 @@ import {
   configureUiStrings,
   createSystemCallApi,
   ExportDataResult,
+  requireMountedUsbDrive,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -388,13 +389,13 @@ export function buildApi(ctx: Context) {
         });
 
         return qrCodeValue;
-      } catch (err) {
+      } catch (error) {
         await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
           disposition: 'failure',
-          message: util.inspect(err),
+          message: util.inspect(error),
         });
 
-        throw err;
+        throw error;
       }
     },
 
@@ -422,9 +423,12 @@ export function buildApi(ctx: Context) {
     },
 
     async saveReadinessReport(): Promise<ExportDataResult> {
+      const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+      if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
       return saveReadinessReport({
         workspace,
-        usbDrive,
+        mountedUsbDrive: mountedUsbDrive.ok(),
         logger,
         printer,
         barcodeClient,

@@ -2,7 +2,14 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
-import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Optional,
+  sleep,
+} from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   readElectionTwoPartyPrimaryDefinition,
@@ -15,7 +22,11 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  MockUsbDrive,
+  MountedUsbDrive,
+} from '@votingworks/usb-drive';
 
 import {
   interpretedBmdBallot,
@@ -405,7 +416,7 @@ test.each<{
         exportOptions.scannerType === 'central'
           ? mockCentralScannerStore
           : mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         [sheet],
         exportOptions
       )
@@ -441,7 +452,7 @@ test('precinct scanner continuous export', async () => {
     expect(
       await exportCastVoteRecordsToUsbDrive(
         mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         [sheet],
         { scannerType: 'precinct' }
       )
@@ -482,7 +493,7 @@ test('precinct scanner continuous export', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [],
       { scannerType: 'precinct', arePollsClosing: true }
     )
@@ -514,7 +525,7 @@ test('precinct scanner full export', async () => {
     expect(
       await exportCastVoteRecordsToUsbDrive(
         mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         sheets,
         { scannerType: 'precinct', isFullExport: true }
       )
@@ -559,7 +570,7 @@ test('precinct scanner full export', async () => {
       expect(
         await exportCastVoteRecordsToUsbDrive(
           mockPrecinctScannerStore,
-          mockUsbDrive.usbDrive,
+          (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
           [newAcceptedSheet(interpretedHmpb, sheet5Id)],
           { scannerType: 'precinct', isFullExport: false }
         )
@@ -590,7 +601,7 @@ test('central scanner multiple-sheet export, subsequent exports', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockCentralScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       sheets,
       { scannerType: 'central' }
     )
@@ -630,7 +641,7 @@ test('central scanner multiple-sheet export, subsequent exports', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockCentralScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       sheets,
       { scannerType: 'central' }
     )
@@ -659,7 +670,7 @@ test('detecting invalid sheet with incompatible interpretation types', async () 
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [invalidSheet],
       { scannerType: 'precinct' }
     )
@@ -670,19 +681,6 @@ test('detecting invalid sheet with incompatible interpretation types', async () 
       interpretationTypes: ['InterpretedHmpbPage', 'InterpretedBmdPage'],
     })
   );
-});
-
-test('exporting when no USB drive', async () => {
-  mockUsbDrive.removeUsbDrive();
-
-  expect(
-    await exportCastVoteRecordsToUsbDrive(
-      mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
-      [newAcceptedSheet(interpretedHmpb)],
-      { scannerType: 'precinct' }
-    )
-  ).toEqual(err({ type: 'missing-usb-drive' }));
 });
 
 test('castVoteRecordsIncludeRedundantMetadata system setting', async () => {
@@ -700,7 +698,7 @@ test('castVoteRecordsIncludeRedundantMetadata system setting', async () => {
     expect(
       await exportCastVoteRecordsToUsbDrive(
         mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         [sheet],
         { scannerType: 'precinct' }
       )
@@ -839,7 +837,7 @@ test.each<{
       (
         await exportCastVoteRecordsToUsbDrive(
           mockPrecinctScannerStore,
-          mockUsbDrive.usbDrive,
+          (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
           [newAcceptedSheet(interpretedHmpb)],
           { scannerType: 'precinct' }
         )
@@ -858,7 +856,7 @@ test.each<{
       (
         await exportCastVoteRecordsToUsbDrive(
           mockPrecinctScannerStore,
-          mockUsbDrive.usbDrive,
+          (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
           [newAcceptedSheet(interpretedHmpb)],
           { scannerType: 'precinct' }
         )
@@ -879,7 +877,7 @@ test.each<{
       (
         await exportCastVoteRecordsToUsbDrive(
           mockPrecinctScannerStore,
-          mockUsbDrive.usbDrive,
+          (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
           [newAcceptedSheet(interpretedHmpb)],
           { scannerType: 'precinct' }
         )
@@ -901,7 +899,7 @@ test.each<{
       (
         await exportCastVoteRecordsToUsbDrive(
           mockPrecinctScannerStore,
-          mockUsbDrive.usbDrive,
+          (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
           [newAcceptedSheet(interpretedHmpb)],
           { scannerType: 'precinct' }
         )
@@ -930,12 +928,12 @@ test.each<{
   'doesUsbDriveRequireCastVoteRecordSync - $description',
   async ({ setupFn, shouldUsbDriveRequireCastVoteRecordSync }) => {
     await setupFn();
-    const usbDriveStatus = await mockUsbDrive.usbDrive.status();
+    const mountedUsbDrive = (await mockUsbDrive.usbDrive.mounted()).ok();
 
     expect(
       await doesUsbDriveRequireCastVoteRecordSync(
         mockPrecinctScannerStore,
-        usbDriveStatus
+        mountedUsbDrive
       )
     ).toEqual(shouldUsbDriveRequireCastVoteRecordSync);
   }
@@ -948,12 +946,14 @@ test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
   );
 
   mockUsbDrive.insertUsbDrive({});
-  const usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  const mountedUsbDrive = (
+    await mockUsbDrive.usbDrive.mounted()
+  ).unsafeUnwrap();
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
   expect(getElectionRecordSpy).toHaveBeenCalledTimes(1);
@@ -962,7 +962,7 @@ test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
   expect(getElectionRecordSpy).not.toHaveBeenCalled();
@@ -975,35 +975,37 @@ test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync ca
   );
 
   mockUsbDrive.insertUsbDrive({});
-  let usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  let mountedUsbDrive: Optional<MountedUsbDrive> = (
+    await mockUsbDrive.usbDrive.mounted()
+  ).unsafeUnwrap();
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
   expect(getElectionRecordSpy).toHaveBeenCalledTimes(1);
   getElectionRecordSpy.mockClear();
 
   mockUsbDrive.removeUsbDrive();
-  usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  mountedUsbDrive = undefined;
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
   expect(getElectionRecordSpy).not.toHaveBeenCalled();
 
   mockUsbDrive.insertUsbDrive({});
-  usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  mountedUsbDrive = (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap();
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
   expect(getElectionRecordSpy).toHaveBeenCalledTimes(1);
@@ -1011,7 +1013,9 @@ test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync ca
 
 test('full cast vote record export on precinct scanner clears doesUsbDriveRequireCastVoteRecordSync cache', async () => {
   mockUsbDrive.insertUsbDrive({});
-  let usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  let mountedUsbDrive: Optional<MountedUsbDrive> = (
+    await mockUsbDrive.usbDrive.mounted()
+  ).unsafeUnwrap();
   mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
   mockPrecinctScannerStore.setPollsState('polls_open');
   mockPrecinctScannerStore.setBallotsCounted(1);
@@ -1020,7 +1024,7 @@ test('full cast vote record export on precinct scanner clears doesUsbDriveRequir
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet],
       { scannerType: 'precinct' }
     )
@@ -1029,34 +1033,34 @@ test('full cast vote record export on precinct scanner clears doesUsbDriveRequir
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
 
   mockUsbDrive.removeUsbDrive();
-  usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  mountedUsbDrive = undefined;
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
 
   mockUsbDrive.insertUsbDrive({});
-  usbDriveStatus = await mockUsbDrive.usbDrive.status();
+  mountedUsbDrive = (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap();
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(true);
 
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet],
       { scannerType: 'precinct' }
     )
@@ -1065,14 +1069,14 @@ test('full cast vote record export on precinct scanner clears doesUsbDriveRequir
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(true);
 
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet],
       { scannerType: 'precinct', isFullExport: true }
     )
@@ -1081,7 +1085,7 @@ test('full cast vote record export on precinct scanner clears doesUsbDriveRequir
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
       mockPrecinctScannerStore,
-      usbDriveStatus
+      mountedUsbDrive
     )
   ).toEqual(false);
 });
@@ -1108,7 +1112,7 @@ test('tracking pending continuous export operations', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet1],
       { scannerType: 'precinct' }
     )
@@ -1120,7 +1124,7 @@ test('tracking pending continuous export operations', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet2, sheet3],
       { scannerType: 'precinct' }
     )
@@ -1132,7 +1136,7 @@ test('tracking pending continuous export operations', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet1, sheet2, sheet3, sheet4, sheet5],
       { scannerType: 'precinct', isFullExport: true }
     )
@@ -1154,7 +1158,7 @@ test('export and subsequent import of that export', async () => {
     expect(
       await exportCastVoteRecordsToUsbDrive(
         mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         [sheet],
         { scannerType: 'precinct' }
       )
@@ -1163,7 +1167,7 @@ test('export and subsequent import of that export', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [],
       { scannerType: 'precinct', arePollsClosing: true }
     )
@@ -1196,7 +1200,7 @@ test('recovery export', async () => {
     expect(
       await exportCastVoteRecordsToUsbDrive(
         mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         [sheet],
         { scannerType: 'precinct' }
       )
@@ -1238,7 +1242,7 @@ test('recovery export', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet3, sheet4],
       { scannerType: 'precinct', isRecoveryExport: true }
     )
@@ -1279,7 +1283,7 @@ test('recovery export expectedly errors if USB drive has been swapped', async ()
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet1],
       { scannerType: 'precinct' }
     )
@@ -1292,7 +1296,7 @@ test('recovery export expectedly errors if USB drive has been swapped', async ()
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet2],
       { scannerType: 'precinct', isRecoveryExport: true }
     )
@@ -1311,7 +1315,7 @@ test('recovery export expectedly errors if hash check fails', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet1],
       { scannerType: 'precinct' }
     )
@@ -1334,7 +1338,7 @@ test('recovery export expectedly errors if hash check fails', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet2],
       { scannerType: 'precinct', isRecoveryExport: true }
     )
@@ -1352,7 +1356,7 @@ test('ballot_casting_mode is not exported for central scanners', async () => {
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockCentralScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet],
       { scannerType: 'central' }
     )
@@ -1419,7 +1423,7 @@ test('ballot_casting_mode is exported per batch for precinct scanners - continuo
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet1, sheet2],
       { scannerType: 'precinct' }
     )
@@ -1495,7 +1499,7 @@ test('ballot_casting_mode is exported per batch for precinct scanners - full exp
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet1, sheet2],
       { scannerType: 'precinct', isFullExport: true }
     )
@@ -1555,7 +1559,7 @@ test('ballot_casting_mode is preserved from batch creation - polls closing expor
   expect(
     await exportCastVoteRecordsToUsbDrive(
       mockPrecinctScannerStore,
-      mockUsbDrive.usbDrive,
+      (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
       [sheet],
       { scannerType: 'precinct', arePollsClosing: true }
     )

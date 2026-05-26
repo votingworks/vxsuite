@@ -4,7 +4,7 @@ import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
 
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
@@ -117,12 +117,12 @@ export async function printWriteInAdjudicationReport({
  */
 export async function exportWriteInAdjudicationReportPdf({
   filename,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps & {
   filename: string;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
 }): Promise<ExportDataResult> {
   const report = buildWriteInAdjudicationReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
@@ -137,7 +137,7 @@ export async function exportWriteInAdjudicationReportPdf({
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
 
-  const exporter = buildExporter(usbDrive);
+  const exporter = buildExporter(mountedUsbDrive);
   const exportFileResult = await exporter.exportDataToUsbDrive(
     reportsDirectoryPath,
     filename,

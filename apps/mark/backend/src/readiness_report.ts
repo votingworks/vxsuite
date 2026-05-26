@@ -1,4 +1,4 @@
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { MarkReadinessReport } from '@votingworks/ui';
@@ -22,13 +22,13 @@ import { getCurrentTime } from './util/get_current_time';
  */
 export async function saveReadinessReport({
   workspace,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   printer,
   barcodeClient,
 }: {
   workspace: Workspace;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   logger: Logger;
   printer: Printer;
   barcodeClient: barcodes.BarcodeReader;
@@ -84,7 +84,7 @@ export async function saveReadinessReport({
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
 
   const exporter = new Exporter({
-    usbDrive,
+    mountedUsbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(

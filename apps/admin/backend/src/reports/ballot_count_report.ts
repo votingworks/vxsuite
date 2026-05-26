@@ -4,7 +4,7 @@ import { Admin, Tabulation } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { Printer, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { Store } from '../store';
 import { generateTitleForReport } from './titles';
@@ -157,12 +157,12 @@ export async function printBallotCountReport({
  */
 export async function exportBallotCountReportPdf({
   filename,
-  usbDrive,
+  mountedUsbDrive,
   logger,
   ...reportProps
 }: BallotCountReportPreviewProps & {
   filename: string;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
 }): Promise<ExportDataResult> {
   const report = buildBallotCountReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
@@ -177,7 +177,7 @@ export async function exportBallotCountReportPdf({
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
 
-  const exporter = buildExporter(usbDrive);
+  const exporter = buildExporter(mountedUsbDrive);
   const exportFileResult = await exporter.exportDataToUsbDrive(
     reportsDirectoryPath,
     filename,

@@ -322,8 +322,8 @@ export function pollUsbDriveForPollbookPackage({
           return;
         }
 
-        const usbDriveStatus = await usbDrive.status();
-        if (usbDriveStatus.status !== 'mounted') {
+        const mountedUsbDriveResult = await usbDrive.mounted();
+        if (mountedUsbDriveResult.isErr()) {
           workspace.store.setConfigurationStatus(undefined);
           hadConfigurationError = false;
           return;
@@ -331,17 +331,18 @@ export function pollUsbDriveForPollbookPackage({
         if (hadConfigurationError) {
           return;
         }
-        usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
+        const mountedUsbDrive = mountedUsbDriveResult.ok();
+        usbDebug('Found USB drive mounted at %s', mountedUsbDrive.mountPoint);
 
         workspace.store.setConfigurationStatus('loading');
-        const files = await readdir(usbDriveStatus.mountPoint);
+        const files = await readdir(mountedUsbDrive.mountPoint);
         const pollbookFiles = files
           .filter(
             (file) =>
               file.startsWith(POLLBOOK_PACKAGE_FILENAME_PREFIX) &&
               file.endsWith('.zip')
           )
-          .map((file) => join(usbDriveStatus.mountPoint, file));
+          .map((file) => join(mountedUsbDrive.mountPoint, file));
         if (pollbookFiles.length === 0) {
           workspace.store.setConfigurationStatus('not-found-usb');
           hadConfigurationError = true;

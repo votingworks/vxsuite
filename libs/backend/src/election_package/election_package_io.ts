@@ -52,7 +52,7 @@ import {
   ElectionRegisteredVotersCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { sha256 } from 'js-sha256';
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 
@@ -292,15 +292,12 @@ export async function readElectionPackageFromFile(
 
 /** Finds the most recent election package ZIP on a mounted USB drive. */
 export async function getMostRecentElectionPackageFilepath(
-  usbDrive: UsbDrive
+  mountedUsbDrive: MountedUsbDrive
 ): Promise<Result<string, ElectionPackageConfigurationError>> {
-  const usbDriveStatus = await usbDrive.status();
-  assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
-
   // Although not all USB drive root directories are election directories, we
   // just check them all. It's not necessary to enforce the naming convention.
   const possibleElectionDirectories = (
-    await fs.readdir(usbDriveStatus.mountPoint, {
+    await fs.readdir(mountedUsbDrive.mountPoint, {
       withFileTypes: true,
     })
   ).filter((entry) => entry.isDirectory());
@@ -309,7 +306,7 @@ export async function getMostRecentElectionPackageFilepath(
   for (const possibleElectionDirectory of possibleElectionDirectories) {
     const hasElectionPackageDirectory = (
       await fs.readdir(
-        join(usbDriveStatus.mountPoint, possibleElectionDirectory.name),
+        join(mountedUsbDrive.mountPoint, possibleElectionDirectory.name),
         {
           withFileTypes: true,
         }
@@ -321,7 +318,7 @@ export async function getMostRecentElectionPackageFilepath(
     if (hasElectionPackageDirectory) {
       electionElectionPackageDirectories.push(
         join(
-          usbDriveStatus.mountPoint,
+          mountedUsbDrive.mountPoint,
           possibleElectionDirectory.name,
           ELECTION_PACKAGE_FOLDER
         )
@@ -394,7 +391,11 @@ export async function readSignedElectionPackageFromUsb(
     'Only election managers may configure an election package.'
   );
 
-  const filepathResult = await getMostRecentElectionPackageFilepath(usbDrive);
+  const mountedUsbDrive = await usbDrive.mounted();
+  assert(mountedUsbDrive.isOk(), 'No USB drive mounted');
+  const filepathResult = await getMostRecentElectionPackageFilepath(
+    mountedUsbDrive.ok()
+  );
   if (filepathResult.isErr()) {
     return filepathResult;
   }

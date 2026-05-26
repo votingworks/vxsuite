@@ -8,7 +8,7 @@ import {
   getBatteryInfo,
 } from '@votingworks/backend';
 import { generateReadinessReportFilename } from '@votingworks/utils';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
 import { PRINT_ALLOWED_EXPORT_PATTERNS } from '../globals';
@@ -54,12 +54,12 @@ async function getReadinessReport({
 export async function saveReadinessReport({
   workspace,
   printer,
-  usbDrive,
+  mountedUsbDrive,
   logger,
 }: {
   workspace: Workspace;
   printer: Printer;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   logger: Logger;
 }): Promise<ExportDataResult> {
   const generatedAtTime = new Date(getCurrentTime());
@@ -69,7 +69,7 @@ export async function saveReadinessReport({
   // we don't expect rendering the PDF to error
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
-    usbDrive,
+    mountedUsbDrive,
     allowedExportPatterns: PRINT_ALLOWED_EXPORT_PATTERNS,
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(

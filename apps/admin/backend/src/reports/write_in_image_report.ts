@@ -1,4 +1,5 @@
 import { assert, assertDefined } from '@votingworks/basics';
+import { requireMountedUsbDrive } from '@votingworks/backend';
 import {
   AdminContestWriteIns,
   AdminWriteInImageReport,
@@ -293,7 +294,10 @@ export async function exportWriteInImageReportPdf({
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
 
-  const exporter = buildExporter(usbDrive);
+  const mountedUsbDrive = await requireMountedUsbDrive(usbDrive);
+  if (mountedUsbDrive.isErr()) return mountedUsbDrive;
+
+  const exporter = buildExporter(mountedUsbDrive.ok());
   const exportFileResult = await exporter.exportDataToUsbDrive(
     reportsDirectoryPath,
     filename,

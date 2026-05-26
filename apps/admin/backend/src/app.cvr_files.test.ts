@@ -962,7 +962,7 @@ test.each<{
     mockUsbDrive.insertUsbDrive(usbDriveContentGenerator());
     expect(
       await listCastVoteRecordExportsOnUsbDrive(
-        mockUsbDrive.usbDrive,
+        (await mockUsbDrive.usbDrive.mounted()).unsafeUnwrap(),
         electionDefinition
       )
     ).toEqual(expectedResult);

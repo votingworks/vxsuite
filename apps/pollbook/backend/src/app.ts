@@ -604,10 +604,16 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     },
 
     async exportVoterActivity(): Promise<void> {
+      const checkMountResult = await usbDrive.mounted();
+
+      if (checkMountResult.isErr()) {
+        return;
+      }
+
       const election = assertDefined(store.getElection());
       const exporter = new Exporter({
         allowedExportPatterns: ['**'], // TODO restrict allowed export paths
-        usbDrive,
+        mountedUsbDrive: checkMountResult.ok(),
       });
       const fileName = `voter_history_${machineId}_${generateFileTimeSuffix(
         new Date()

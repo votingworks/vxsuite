@@ -6,6 +6,7 @@ import {
 import {
   assert,
   assertDefined,
+  err,
   extractErrorMessage,
   iter,
   Result,
@@ -87,80 +88,96 @@ export async function exportCastVoteRecordsToUsbDrive({
         : 'Exporting cast vote records...',
   });
 
+  const mountedUsbDriveResult = await usbDrive.mounted();
+
   // Use the continuous export mutex to ensure that any pending continuous export
   // operations finish first
   let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
-  switch (mode) {
-    case 'full_export': {
-      const sheets = encryptBallotAuditIds(
-        store,
-        systemSettings,
-        store.forEachSheet()
-      );
-      exportResult = await continuousExportMutex.withLock(() =>
-        exportCastVoteRecordsToUsbDriveBackend(store, usbDrive, sheets, {
-          scannerType: 'precinct',
-          isFullExport: true,
-        })
-      );
-      break;
-    }
-    case 'polls_closing': {
-      exportResult = await continuousExportMutex.withLock(() =>
-        exportCastVoteRecordsToUsbDriveBackend(store, usbDrive, [], {
-          scannerType: 'precinct',
-          arePollsClosing: true,
-        })
-      );
-      break;
-    }
-    case 'recovery_export': {
-      exportResult = await continuousExportMutex.withLock(async () => {
-        try {
-          const sheets = encryptBallotAuditIds(
+  if (mountedUsbDriveResult.isErr()) {
+    exportResult = err({ type: 'missing-usb-drive' });
+  } else {
+    const mountedUsbDrive = mountedUsbDriveResult.ok();
+    switch (mode) {
+      case 'full_export': {
+        const sheets = encryptBallotAuditIds(
+          store,
+          systemSettings,
+          store.forEachSheet()
+        );
+        exportResult = await continuousExportMutex.withLock(() =>
+          exportCastVoteRecordsToUsbDriveBackend(
             store,
-            systemSettings,
-            store.forEachSheetPendingContinuousExport()
-          );
-          const recoveryExportResult =
-            await exportCastVoteRecordsToUsbDriveBackend(
-              store,
-              usbDrive,
-              sheets,
-              { scannerType: 'precinct', isRecoveryExport: true }
-            );
-          if (recoveryExportResult.isErr()) {
-            throw new Error(JSON.stringify(recoveryExportResult.err()));
-          }
-          return recoveryExportResult;
-        } catch (error) {
-          // Automatically fall back to a full export if the recovery export fails for any
-          // reason. We have to use a try-catch and can't just check for an error Result
-          // because certain errors, e.g., errors involving corrupted USB drive file systems,
-          // surface as unexpected errors.
-          await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
-            message: 'Falling back to full export...',
-            errorDetails: extractErrorMessage(error),
-          });
-          const sheets = encryptBallotAuditIds(
-            store,
-            systemSettings,
-            store.forEachSheet()
-          );
-          const fullExportResult = await exportCastVoteRecordsToUsbDriveBackend(
-            store,
-            usbDrive,
+            mountedUsbDrive,
             sheets,
-            { scannerType: 'precinct', isFullExport: true }
-          );
-          return fullExportResult;
-        }
-      });
-      break;
-    }
-    default: {
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
-      throwIllegalValue(mode);
+            {
+              scannerType: 'precinct',
+              isFullExport: true,
+            }
+          )
+        );
+        break;
+      }
+      case 'polls_closing': {
+        exportResult = await continuousExportMutex.withLock(() =>
+          exportCastVoteRecordsToUsbDriveBackend(store, mountedUsbDrive, [], {
+            scannerType: 'precinct',
+            arePollsClosing: true,
+          })
+        );
+        break;
+      }
+      case 'recovery_export': {
+        exportResult = await continuousExportMutex.withLock(async () => {
+          try {
+            const sheets = encryptBallotAuditIds(
+              store,
+              systemSettings,
+              store.forEachSheetPendingContinuousExport()
+            );
+            const recoveryExportResult =
+              await exportCastVoteRecordsToUsbDriveBackend(
+                store,
+                mountedUsbDrive,
+                sheets,
+                { scannerType: 'precinct', isRecoveryExport: true }
+              );
+            if (recoveryExportResult.isErr()) {
+              throw new Error(JSON.stringify(recoveryExportResult.err()));
+            }
+            return recoveryExportResult;
+          } catch (error) {
+            // Automatically fall back to a full export if the recovery export fails for any
+            // reason. We have to use a try-catch and can't just check for an error Result
+            // because certain errors, e.g., errors involving corrupted USB drive file systems,
+            // surface as unexpected errors.
+            await logger.logAsCurrentRole(
+              LogEventId.ExportCastVoteRecordsInit,
+              {
+                message: 'Falling back to full export...',
+                errorDetails: extractErrorMessage(error),
+              }
+            );
+            const sheets = encryptBallotAuditIds(
+              store,
+              systemSettings,
+              store.forEachSheet()
+            );
+            const fullExportResult =
+              await exportCastVoteRecordsToUsbDriveBackend(
+                store,
+                mountedUsbDrive,
+                sheets,
+                { scannerType: 'precinct', isFullExport: true }
+              );
+            return fullExportResult;
+          }
+        });
+        break;
+      }
+      default: {
+        /* istanbul ignore next: Compile-time check for completeness - @preserve */
+        throwIllegalValue(mode);
+      }
     }
   }
 

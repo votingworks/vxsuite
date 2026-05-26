@@ -1,4 +1,4 @@
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { CentralScanReadinessReport } from '@votingworks/ui';
 import {
@@ -19,12 +19,12 @@ import { getCurrentTime } from './util/get_current_time';
 export async function saveReadinessReport({
   workspace,
   isScannerAttached,
-  usbDrive,
+  mountedUsbDrive,
   logger,
 }: {
   workspace: Workspace;
   isScannerAttached: boolean;
-  usbDrive: UsbDrive;
+  mountedUsbDrive: MountedUsbDrive;
   logger: Logger;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
@@ -53,7 +53,7 @@ export async function saveReadinessReport({
   // Readiness report PDF shouldn't be too long, so we don't expect a render error
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
-    usbDrive,
+    mountedUsbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(
