@@ -87,6 +87,8 @@
   "instructionsBmdConfirmPrintingBallotPatDevice": "Use the select input to confirm your selections and print your ballot.",
   "instructionsBmdContestNavigation": "To navigate through the contest choices, use the down button. To move to the next contest, use the right button.",
   "instructionsBmdContestNavigationPatDevice": "To navigate through the contest choices, use the move input. To advance to the next contest, use the move input to navigate to the control labelled \"next\" and then use the select input to continue.",
+  "instructionsBmdContestNavigationReviewMode": "To navigate through the contest choices, use the down button. To return to the review screen, use the right button.",
+  "instructionsBmdContestNavigationReviewModePatDevice": "To navigate through the contest choices, use the move input. To return to the review screen, use the move input to navigate to the control labelled \"review\" and then use the select input to continue.",
   "instructionsBmdControllerSandboxMarkScan": "Press any button on the controller to learn what it is and how to use it. When you're done, press the question mark shaped “Help” button at the top left corner of the controller again to return to your ballot.",
   "instructionsBmdInsertBallotFaceUp": "Be sure to insert the sheet with the printed side facing upwards.",
   "instructionsBmdInsertPreviouslyPrintedBallot": "Please remove the sheet and insert the previously printed ballot.",

@@ -36,6 +36,7 @@ interface Props {
   contest: YesNoContestInterface;
   vote?: YesNoVote;
   updateVote: UpdateVoteFunction;
+  isReviewMode?: boolean;
 }
 
 export function YesNoContest({
@@ -44,6 +45,7 @@ export function YesNoContest({
   contest,
   vote,
   updateVote,
+  isReviewMode,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
 
@@ -91,8 +93,16 @@ export function YesNoContest({
               <AudioOnly>
                 {electionStrings.contestDescription(contest)}
                 <AssistiveTechInstructions
-                  controllerString={appStrings.instructionsBmdContestNavigation()}
-                  patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+                  controllerString={
+                    isReviewMode
+                      ? appStrings.instructionsBmdContestNavigationReviewMode()
+                      : appStrings.instructionsBmdContestNavigation()
+                  }
+                  patDeviceString={
+                    isReviewMode
+                      ? appStrings.instructionsBmdContestNavigationReviewModePatDevice()
+                      : appStrings.instructionsBmdContestNavigationPatDevice()
+                  }
                 />
               </AudioOnly>
             </Caption>

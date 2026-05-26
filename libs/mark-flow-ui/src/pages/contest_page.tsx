@@ -219,6 +219,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         numWriteInCharactersAllowedAcrossContests={
           numWriteInCharactersAllowedAcrossContests
         }
+        isReviewMode={isReviewMode}
       />
     </VoterScreen>
   );

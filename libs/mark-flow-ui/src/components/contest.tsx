@@ -55,6 +55,8 @@ export interface ContestProps {
   accessibilityMode?: AccessibilityMode;
 
   numWriteInCharactersAllowedAcrossContests?: number;
+
+  isReviewMode?: boolean;
 }
 
 function countNumWriteInCharactersUsedAcrossContests(votes: VotesDict): number {
@@ -76,6 +78,7 @@ export function Contest({
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
   numWriteInCharactersAllowedAcrossContests = Infinity,
+  isReviewMode,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
   const numWriteInCharactersUsedAcrossContests = useMemo(
@@ -103,6 +106,7 @@ export function Contest({
               numWriteInCharactersAllowedAcrossContests -
               numWriteInCharactersUsedAcrossContests,
           }}
+          isReviewMode={isReviewMode}
         />
       )}
       {contest.type === 'yesno' && (
@@ -112,6 +116,7 @@ export function Contest({
           contest={contest}
           vote={vote as OptionalYesNoVote}
           updateVote={updateVote}
+          isReviewMode={isReviewMode}
         />
       )}
       {contest.type === 'ms-either-neither' && (
@@ -126,6 +131,7 @@ export function Contest({
             votes[contest.pickOneContestId] as OptionalYesNoVote
           }
           updateVote={updateVote}
+          isReviewMode={isReviewMode}
         />
       )}
     </React.Fragment>
