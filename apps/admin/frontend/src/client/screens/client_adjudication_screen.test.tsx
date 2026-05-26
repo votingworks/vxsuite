@@ -5,13 +5,13 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { err, ok } from '@votingworks/basics';
 import { screen } from '../../../test/react_testing_library';
 import {
   ClientApiMock,
   createClientApiMock,
 } from '../../../test/helpers/mock_client_api_client';
 import { renderInClientContext } from '../../../test/render_in_client_context';
+import { routerPaths } from '../../router_paths';
 import { ClientAdjudicationScreen } from './client_adjudication_screen';
 
 let apiMock: ClientApiMock;
@@ -65,9 +65,8 @@ test('shows waiting message and disabled button when adjudication not enabled', 
   expect(startButton).toBeDisabled();
 });
 
-test('start adjudication claims a ballot and navigates', async () => {
+test('start adjudication navigates to the ballot screen', async () => {
   apiMock.expectGetAdjudicationSessionStatus(true);
-  apiMock.apiClient.claimBallot.expectCallWith({}).resolves(ok('cvr-1'));
 
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
   const startButton = await screen.findByRole('button', {
@@ -75,38 +74,5 @@ test('start adjudication claims a ballot and navigates', async () => {
   });
   startButton.click();
 
-  await screen.findByText('Claiming ballot…');
-});
-
-test('start adjudication shows error on host disconnect', async () => {
-  apiMock.expectGetAdjudicationSessionStatus(true);
-  apiMock.apiClient.claimBallot
-    .expectCallWith({})
-    .resolves(err({ type: 'host-disconnect' }));
-
-  renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
-  const startButton = await screen.findByRole('button', {
-    name: 'Start Adjudication',
-  });
-  startButton.click();
-
-  await screen.findByText('Disconnected from host.');
-  expect(
-    screen.getByRole('button', { name: 'Start Adjudication' })
-  ).not.toBeDisabled();
-});
-
-test('start adjudication resets when no ballots available', async () => {
-  apiMock.expectGetAdjudicationSessionStatus(true);
-  apiMock.apiClient.claimBallot.expectCallWith({}).resolves(ok(undefined));
-
-  renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
-  const startButton = await screen.findByRole('button', {
-    name: 'Start Adjudication',
-  });
-  startButton.click();
-
-  // Button should re-enable and message should appear
-  await screen.findByRole('button', { name: 'Start Adjudication' });
-  screen.getByText('No ballots available for adjudication.');
+  expect(window.location.pathname).toEqual(routerPaths.ballotAdjudication);
 });

@@ -394,17 +394,28 @@ export function createApiMock(
       apiClient.getBallotAdjudicationQueue.expectCallWith().resolves(cvrIds);
     },
 
-    expectGetBallotAdjudicationData(
+    expectClaimAndLoadBallot(
       input: { cvrId: Id },
       data: BallotAdjudicationData
     ) {
-      apiClient.getBallotAdjudicationData.expectCallWith(input).resolves(data);
+      apiClient.claimAndLoadBallot
+        .expectCallWith({ cvrId: input.cvrId })
+        .resolves(ok({ cvrId: input.cvrId, data }));
     },
 
-    expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {
-      apiClient.getNextCvrIdForBallotAdjudication
-        .expectRepeatedCallsWith()
-        .resolves(cvrId);
+    expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null, afterCvrId?: Id) {
+      if (afterCvrId !== undefined) {
+        apiClient.getNextCvrIdForBallotAdjudication
+          .expectCallWith({ currentCvrId: afterCvrId })
+          .resolves(cvrId);
+        apiClient.getNextCvrIdForBallotAdjudication
+          .expectOptionalRepeatedCallsWith()
+          .resolves(cvrId);
+      } else {
+        apiClient.getNextCvrIdForBallotAdjudication
+          .expectOptionalRepeatedCallsWith()
+          .resolves(cvrId);
+      }
     },
 
     expectGetCastVoteRecordVoteInfo(
@@ -832,31 +843,8 @@ export function createApiMock(
         .resolves(enabled);
     },
 
-    expectGetClaimedBallotCvrIds(cvrIds: Id[] = []): void {
-      apiClient.getClaimedBallotCvrIds
-        .expectRepeatedCallsWith()
-        .resolves(cvrIds);
-    },
-
-    expectClaimBallotForAdjudication(
-      input: { cvrId: Id },
-      result = true
-    ): void {
-      apiClient.claimBallotForAdjudication
-        .expectCallWith(input)
-        .resolves(result);
-    },
-
     expectReleaseBallotAdjudicationClaim(input: { cvrId: Id }): void {
       apiClient.releaseBallotAdjudicationClaim.expectCallWith(input).resolves();
-    },
-
-    expectAdjudicationScreenQueries({
-      claimedCvrIds = [],
-    }: {
-      claimedCvrIds?: Id[];
-    } = {}): void {
-      this.expectGetClaimedBallotCvrIds(claimedCvrIds);
     },
   };
 }
