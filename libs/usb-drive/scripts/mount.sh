@@ -18,6 +18,16 @@ if ! [[ $1 =~ $PARTITION_DEVICE_REGEX ]]; then
   exit 1
 fi
 
+if ! getent passwd vx-services >/dev/null; then
+  echo "mount.sh: required user 'vx-services' does not exist"
+  exit 1
+fi
+
+if ! getent group vx-group >/dev/null; then
+  echo "mount.sh: required group 'vx-group' does not exist"
+  exit 1
+fi
+
 DEVICE=$1
 DEVNAME=$(basename "$1")
 
@@ -39,7 +49,7 @@ fi
 FSTYPE=$(blkid -o value -s TYPE "$DEVICE" 2>/dev/null || echo "")
 
 if [[ "$FSTYPE" == "ext4" ]]; then
-  mount -w -o nosuid,nodev,noexec "$DEVICE" "$MOUNTPOINT"
+  mount -t ext4 -w -o nosuid,nodev,noexec,nosymfollow "$DEVICE" "$MOUNTPOINT"
 else
-  mount -w -o umask=000,nosuid,nodev,noexec "$DEVICE" "$MOUNTPOINT"
+  mount -t vfat -w -o uid=vx-services,gid=vx-group,fmask=113,dmask=002,nosuid,nodev,noexec,nosymfollow "$DEVICE" "$MOUNTPOINT"
 fi
