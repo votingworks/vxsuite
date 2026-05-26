@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -10,6 +10,8 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api';
+
+const NO_PRINTER_DETECTED_TEXT = 'No Printer Detected';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -154,7 +156,7 @@ describe('Displays setup warning messages and errors screens', () => {
     });
     await advanceTimersAndPromises();
     // When polls are open but no cardless voter session is active, non-voter-facing message
-    await screen.findByRole('heading', { name: 'No Printer Detected' });
+    await screen.findByRole('heading', { name: NO_PRINTER_DETECTED_TEXT });
     await screen.findByText('Please ask a poll worker for help.');
 
     // Insert election manager card
@@ -162,6 +164,23 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // expect to see election manager screen
     await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  });
+
+  test('Does not show "No Printer Detected" when polls are closed final', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_closed_final',
+    });
+    apiMock.setPrinterStatus({ connected: false });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+
+    await screen.findByRole('heading', { name: 'Polls Closed' });
+    expect(
+      screen.queryByRole('heading', { name: NO_PRINTER_DETECTED_TEXT })
+    ).toBeNull();
   });
 
   test('Displays internal connection problem when Barcode Reader connection is lost', async () => {
