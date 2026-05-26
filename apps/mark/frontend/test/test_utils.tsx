@@ -65,6 +65,8 @@ export function render(
           isLiveMode,
           machineConfig,
           endVoterSession,
+          hasPrintedBallot: false,
+          setHasPrintedBallot: () => undefined,
           precinctId,
           resetBallot,
           selectedPartyId,
