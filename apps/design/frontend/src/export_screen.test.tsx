@@ -563,12 +563,12 @@ test('set ballot template', async () => {
     .resolves();
   apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('NhBallot');
   userEvent.click(select);
-  userEvent.click(screen.getByText('New Hampshire Ballot'));
+  userEvent.click(screen.getByText('New Hampshire Local Ballot'));
 
   await waitFor(() => {
     apiMock.assertComplete();
   });
-  screen.getByText('New Hampshire Ballot');
+  screen.getByText('New Hampshire Local Ballot');
 });
 
 test('renders proofing status', async () => {

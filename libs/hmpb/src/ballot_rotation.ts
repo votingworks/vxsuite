@@ -158,6 +158,7 @@ export function getAllPossibleCandidateOrderings(
       case 'NhBallot':
         return getCandidateOrderingSetsForNhBallot(params);
       case 'VxDefaultBallot':
+      case 'NhStateBallot':
       case 'MsBallot':
       case 'MiBallot':
         return getDefaultCandidateOrdering(params);

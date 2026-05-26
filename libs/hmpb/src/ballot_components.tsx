@@ -208,13 +208,18 @@ export const QR_CODE_SIZE: InchDimensions = {
   height: 0.6,
 };
 
-export function QrCodeSlot(): JSX.Element {
+export function QrCodeSlot({
+  hideQrCode,
+}: {
+  hideQrCode?: boolean;
+}): JSX.Element {
   return (
     <div
       className={QR_CODE_SLOT_CLASS}
       style={{
         height: `${QR_CODE_SIZE.height}in`,
         width: `${QR_CODE_SIZE.width}in`,
+        visibility: hideQrCode ? 'hidden' : undefined,
       }}
     >
       <div style={{ border: '1px solid black', height: '100%' }} />

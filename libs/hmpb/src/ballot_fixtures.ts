@@ -45,6 +45,8 @@ import { convertPdfToCmyk } from './pdf_conversion';
 import { generateBallotStyles } from './ballot_styles';
 import { miBallotTemplate } from './ballot_templates/mi_ballot_template';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
+import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template';
+import { NhStateBallotProps } from './ballot_templates/nh_state_ballot_components';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
@@ -736,6 +738,444 @@ export const nhGeneralElectionFixtures = (() => {
       }
 
       return iter(specs).async().map(generateFixtures).toArray();
+    },
+  };
+})();
+
+const NH_STATE_TEST_SIGNATURE = {
+  caption: 'Test Signature Caption',
+  image: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
+      <rect width="200" height="50" style="fill: none; stroke-width: 2; stroke: black;" />
+      <text y="20" fill="black">Test Signature</text>
+    </svg>
+  `.trim(),
+} as const;
+
+export const nhStateGeneralElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'nh-state-general-election');
+  const electionPath = join(dir, 'election.json');
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  const markedBallotPath = join(dir, 'marked-ballot.pdf');
+  const handCountBlankBallotPath = join(dir, 'hand-count-blank-ballot.pdf');
+  const federalOfficeOnlyBlankBallotPath = join(
+    dir,
+    'federal-office-only-blank-ballot.pdf'
+  );
+
+  const baseElection = readElectionGeneral();
+  // Rename contests so the NH state template's isFederalOfficeContest matcher
+  // picks them up for FOO ballots.
+  const contests = baseElection.contests.map((contest) => {
+    if (contest.title === 'President and Vice-President') {
+      // eslint-disable-next-line no-param-reassign
+      contest = {
+        ...contest,
+        title: 'President and Vice-President of the United States',
+      };
+    } else if (contest.title === 'Senator') {
+      // eslint-disable-next-line no-param-reassign
+      contest = { ...contest, title: 'United States Senator' };
+    } else if (contest.title === 'Representative, District 6') {
+      // eslint-disable-next-line no-param-reassign
+      contest = {
+        ...contest,
+        title: 'Representative in Congress, District 6',
+      };
+    }
+    if (contest.type !== 'candidate') return contest;
+    // Rearrange candidates so we get one per column (Dem, Rep, single Other) so
+    // the layout matches what a real NH ballot would have.
+    const democraticPartyId = assertDefined(
+      baseElection.parties.find((p) => p.name.toLowerCase().startsWith('dem'))
+    ).id;
+    const republicanPartyId = assertDefined(
+      baseElection.parties.find((p) => p.name.toLowerCase().startsWith('rep'))
+    ).id;
+    const trimmedCandidates = contest.candidates
+      .slice(0, 3)
+      .map((candidate, index) => {
+        if (index === 0) return { ...candidate, partyIds: [democraticPartyId] };
+        if (index === 1) return { ...candidate, partyIds: [republicanPartyId] };
+        return candidate;
+      });
+    return {
+      ...contest,
+      allowWriteIns: true,
+      candidates: trimmedCandidates,
+    };
+  });
+  const election: Election = {
+    ...baseElection,
+    contests,
+    ballotLayout: {
+      ...baseElection.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Letter,
+    },
+    ballotStyles: generateBallotStyles({
+      ballotTemplateId: 'NhStateBallot',
+      electionType: 'general',
+      ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
+      precincts: [...baseElection.precincts],
+      parties: baseElection.parties,
+      contests,
+      electionId: baseElection.id,
+    }),
+    signature: NH_STATE_TEST_SIGNATURE,
+  };
+
+  const allBallotProps: NhStateBallotProps[] = election.ballotStyles.flatMap(
+    (ballotStyle) =>
+      ballotStyle.precincts.map((precinctId) => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official' as const,
+      }))
+  );
+
+  const ballotStyle = assertDefined(election.ballotStyles[0]);
+  const precinctId = assertDefined(ballotStyle.precincts[0]);
+  const ballotStyleContests = getContests({ election, ballotStyle });
+  const { votes, unmarkedWriteIns } = createTestVotes(ballotStyleContests);
+
+  const handCountBallotProps: NhStateBallotProps[] = allBallotProps.map(
+    (props) => ({
+      ...props,
+      ballotType: BallotType.Absentee,
+      isHandCount: true,
+    })
+  );
+  const federalOfficeOnlyBallotProps: NhStateBallotProps[] = allBallotProps.map(
+    (props) => ({
+      ...props,
+      ballotType: BallotType.Absentee,
+      isFederalOfficeOnly: true,
+    })
+  );
+  const combinedBallotProps: NhStateBallotProps[] = [
+    ...allBallotProps,
+    ...handCountBallotProps,
+    ...federalOfficeOnlyBallotProps,
+  ];
+
+  return {
+    dir,
+    electionPath,
+    blankBallotPath,
+    markedBallotPath,
+    handCountBlankBallotPath,
+    federalOfficeOnlyBlankBallotPath,
+    allBallotProps: combinedBallotProps,
+    precinctId,
+    ballotStyleId: ballotStyle.id,
+    votes,
+    unmarkedWriteIns,
+
+    async generate(rendererPool: RendererPool) {
+      const layout = await layOutBallotsAndCreateElectionDefinition(
+        rendererPool,
+        nhStateBallotTemplate,
+        combinedBallotProps,
+        'vxf'
+      );
+
+      async function renderBallotPdf(
+        match: (props: NhStateBallotProps) => boolean,
+        paths: { blankPath: string; markedPath?: string }
+      ) {
+        const [contents, chosenProps] = assertDefined(
+          iter(layout.ballotContents)
+            .zip(combinedBallotProps)
+            .find(([, props]) => match(props))
+        );
+        return rendererPool.runTask(async (renderer) => {
+          const doc = await renderer.loadDocumentFromContent(contents);
+          debug(`Generating: ${paths.blankPath}`);
+          const blankPdf = await renderBallotPdfWithMetadataQrCode(
+            chosenProps,
+            doc,
+            layout.electionDefinition
+          );
+          if (!paths.markedPath) {
+            return { blankPdf };
+          }
+          debug(`Generating: ${paths.markedPath}`);
+          await markBallotDocument(doc, votes, unmarkedWriteIns);
+          const markedPdf = await doc.renderToPdf();
+          return { blankPdf, markedPdf };
+        });
+      }
+
+      const defaultResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          !props.isHandCount &&
+          !props.isFederalOfficeOnly,
+        { blankPath: blankBallotPath, markedPath: markedBallotPath }
+      );
+      const handCountResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          Boolean(props.isHandCount),
+        { blankPath: handCountBlankBallotPath }
+      );
+      const federalOfficeOnlyResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          Boolean(props.isFederalOfficeOnly),
+        { blankPath: federalOfficeOnlyBlankBallotPath }
+      );
+
+      return {
+        electionDefinition: layout.electionDefinition,
+        blankBallotPdf: defaultResult.blankPdf,
+        markedBallotPdf: assertDefined(defaultResult.markedPdf),
+        handCountBlankBallotPdf: handCountResult.blankPdf,
+        federalOfficeOnlyBlankBallotPdf: federalOfficeOnlyResult.blankPdf,
+      };
+    },
+  };
+})();
+
+export const nhStatePrimaryElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'nh-state-primary-election');
+  const electionPath = join(dir, 'election.json');
+  const demHandCountBlankBallotPath = join(
+    dir,
+    'dem-hand-count-blank-ballot.pdf'
+  );
+  const baseElection = electionPrimaryPrecinctSplitsFixtures.readElection();
+  // Rename the Mammal/Fish parties to Democrat/Republican so the primary
+  // template's color tinting (which keys off isDemocraticParty /
+  // isRepublicanParty name matching) takes effect.
+  const enStrings = baseElection.ballotStrings['en'] ?? {};
+  const election: Election = {
+    ...baseElection,
+    parties: baseElection.parties.map((party) => {
+      if (party.name === 'Mammal') {
+        return {
+          ...party,
+          name: 'Democrat',
+          fullName: 'Democratic Party',
+          abbrev: 'D',
+        };
+      }
+      if (party.name === 'Fish') {
+        return {
+          ...party,
+          name: 'Republican',
+          fullName: 'Republican Party',
+          abbrev: 'R',
+        };
+      }
+      return party;
+    }),
+    // Match NH state federal-office naming conventions.
+    contests: baseElection.contests.map((contest) => {
+      const renamed =
+        contest.title.startsWith('Congressional ') &&
+        contest.title.includes('Representative')
+          ? {
+              ...contest,
+              title: contest.title.replace(
+                'Representative',
+                'Representative in Congress'
+              ),
+            }
+          : contest;
+      if (renamed.type !== 'candidate') return renamed;
+      return { ...renamed, allowWriteIns: true };
+    }),
+    ballotStrings: {
+      ...baseElection.ballotStrings,
+      en: {
+        ...enStrings,
+        partyName: {
+          ...(enStrings['partyName'] as Record<string, string>),
+          '0': 'Democrat',
+          '1': 'Republican',
+        },
+        partyFullName: {
+          ...(enStrings['partyFullName'] as Record<string, string>),
+          '0': 'Democratic Party',
+          '1': 'Republican Party',
+        },
+      },
+    },
+    signature: NH_STATE_TEST_SIGNATURE,
+  };
+  const allBallotProps: NhStateBallotProps[] = election.ballotStyles.flatMap(
+    (ballotStyle) =>
+      ballotStyle.precincts.map((precinctId) => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official' as const,
+      }))
+  );
+
+  function makePartyFixtureSpec(partyLabel: string, ballotStyle: BallotStyle) {
+    const blankBallotPath = join(dir, `${partyLabel}-blank-ballot.pdf`);
+    const markedBallotPath = join(dir, `${partyLabel}-marked-ballot.pdf`);
+    const precinctId = assertDefined(ballotStyle.precincts[0]);
+    const contests = getContests({ election, ballotStyle });
+    const { votes, unmarkedWriteIns } = createTestVotes(contests);
+    return {
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      blankBallotPath,
+      markedBallotPath,
+      votes,
+      unmarkedWriteIns,
+    };
+  }
+
+  const demParty = makePartyFixtureSpec(
+    'dem',
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1-Ma_en' }))
+  );
+  const repParty = makePartyFixtureSpec(
+    'rep',
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1-F_en' }))
+  );
+
+  const demHandCountBallotProps: NhStateBallotProps = {
+    election,
+    ballotStyleId: demParty.ballotStyleId,
+    precinctId: demParty.precinctId,
+    ballotType: BallotType.Absentee,
+    ballotMode: 'official',
+    isHandCount: true,
+  };
+  const demFederalOfficeOnlyBallotProps: NhStateBallotProps = {
+    election,
+    ballotStyleId: demParty.ballotStyleId,
+    precinctId: demParty.precinctId,
+    ballotType: BallotType.Absentee,
+    ballotMode: 'official',
+    isFederalOfficeOnly: true,
+  };
+  const combinedBallotProps: NhStateBallotProps[] = [
+    ...allBallotProps,
+    demHandCountBallotProps,
+    demFederalOfficeOnlyBallotProps,
+  ];
+  const demFederalOfficeOnlyBlankBallotPath = join(
+    dir,
+    'dem-federal-office-only-blank-ballot.pdf'
+  );
+
+  return {
+    dir,
+    electionPath,
+    allBallotProps: combinedBallotProps,
+    demParty,
+    repParty,
+    demHandCountBlankBallotPath,
+    demFederalOfficeOnlyBlankBallotPath,
+
+    async generate(rendererPool: RendererPool) {
+      const layout = await layOutBallotsAndCreateElectionDefinition(
+        rendererPool,
+        nhStateBallotTemplate,
+        combinedBallotProps,
+        'vxf'
+      );
+
+      async function renderBallotPdf(spec: {
+        match: (props: NhStateBallotProps) => boolean;
+        blankPath: string;
+        markedPath?: string;
+        votes?: ReturnType<typeof createTestVotes>['votes'];
+        unmarkedWriteIns?: ReturnType<
+          typeof createTestVotes
+        >['unmarkedWriteIns'];
+      }) {
+        const [contents, chosenProps] = assertDefined(
+          iter(layout.ballotContents)
+            .zip(combinedBallotProps)
+            .find(([, props]) => spec.match(props))
+        );
+        return rendererPool.runTask(async (renderer) => {
+          const doc = await renderer.loadDocumentFromContent(contents);
+          debug(`Generating: ${spec.blankPath}`);
+          const blankPdf = await renderBallotPdfWithMetadataQrCode(
+            chosenProps,
+            doc,
+            layout.electionDefinition
+          );
+          if (!spec.markedPath) {
+            return { blankPdf };
+          }
+          debug(`Generating: ${spec.markedPath}`);
+          await markBallotDocument(
+            doc,
+            assertDefined(spec.votes),
+            spec.unmarkedWriteIns
+          );
+          const markedPdf = await doc.renderToPdf();
+          return { blankPdf, markedPdf };
+        });
+      }
+
+      const demResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          !props.isHandCount &&
+          !props.isFederalOfficeOnly,
+        blankPath: demParty.blankBallotPath,
+        markedPath: demParty.markedBallotPath,
+        votes: demParty.votes,
+        unmarkedWriteIns: demParty.unmarkedWriteIns,
+      });
+      const repResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === repParty.ballotStyleId &&
+          props.precinctId === repParty.precinctId &&
+          !props.isHandCount &&
+          !props.isFederalOfficeOnly,
+        blankPath: repParty.blankBallotPath,
+        markedPath: repParty.markedBallotPath,
+        votes: repParty.votes,
+        unmarkedWriteIns: repParty.unmarkedWriteIns,
+      });
+      const demHandCountResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          Boolean(props.isHandCount),
+        blankPath: demHandCountBlankBallotPath,
+      });
+      const demFederalOfficeOnlyResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          Boolean(props.isFederalOfficeOnly),
+        blankPath: demFederalOfficeOnlyBlankBallotPath,
+      });
+
+      return {
+        electionDefinition: layout.electionDefinition,
+        demParty: {
+          ...demParty,
+          blankBallotPdf: demResult.blankPdf,
+          markedBallotPdf: assertDefined(demResult.markedPdf),
+        },
+        repParty: {
+          ...repParty,
+          blankBallotPdf: repResult.blankPdf,
+          markedBallotPdf: assertDefined(repResult.markedPdf),
+        },
+        demHandCountBlankBallotPdf: demHandCountResult.blankPdf,
+        demFederalOfficeOnlyBlankBallotPdf: demFederalOfficeOnlyResult.blankPdf,
+      };
     },
   };
 })();

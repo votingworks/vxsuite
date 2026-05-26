@@ -13,6 +13,8 @@ import {
   miOpenPrimaryElectionFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
+  nhStateGeneralElectionFixtures,
+  nhStatePrimaryElectionFixtures,
   timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
@@ -149,6 +151,52 @@ async function generateNhGeneralElectionFixtures(rendererPool: RendererPool) {
   }
 }
 
+async function generateNhStateGeneralElectionFixtures(
+  rendererPool: RendererPool
+) {
+  const fixtures = nhStateGeneralElectionFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+  await writeFile(
+    fixtures.handCountBlankBallotPath,
+    generated.handCountBlankBallotPdf
+  );
+  await writeFile(
+    fixtures.federalOfficeOnlyBlankBallotPath,
+    generated.federalOfficeOnlyBlankBallotPdf
+  );
+}
+
+async function generateNhStatePrimaryElectionFixtures(
+  rendererPool: RendererPool
+) {
+  const fixtures = nhStatePrimaryElectionFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  for (const party of [generated.demParty, generated.repParty]) {
+    await writeFile(party.blankBallotPath, party.blankBallotPdf);
+    await writeFile(party.markedBallotPath, party.markedBallotPdf);
+  }
+  await writeFile(
+    fixtures.demHandCountBlankBallotPath,
+    generated.demHandCountBlankBallotPdf
+  );
+  await writeFile(
+    fixtures.demFederalOfficeOnlyBlankBallotPath,
+    generated.demFederalOfficeOnlyBlankBallotPdf
+  );
+}
+
 async function generateMiClosedPrimaryElectionFixtures(
   rendererPool: RendererPool
 ) {
@@ -232,6 +280,8 @@ type Fixture =
   | 'vx-general-election'
   | 'vx-primary-election'
   | 'nh-general-election'
+  | 'nh-state-general-election'
+  | 'nh-state-primary-election'
   | 'mi-closed-primary-election'
   | 'mi-open-primary-election'
   | 'ms-general-election'
@@ -278,6 +328,16 @@ export async function main(): Promise<number> {
 
       case '--nh-general-election': {
         fixtures.add('nh-general-election');
+        break;
+      }
+
+      case '--nh-state-general-election': {
+        fixtures.add('nh-state-general-election');
+        break;
+      }
+
+      case '--nh-state-primary-election': {
+        fixtures.add('nh-state-primary-election');
         break;
       }
 
@@ -343,6 +403,22 @@ export async function main(): Promise<number> {
       force: true,
     });
     await generateNhGeneralElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('nh-state-general-election')) {
+    await rm(nhStateGeneralElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateNhStateGeneralElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('nh-state-primary-election')) {
+    await rm(nhStatePrimaryElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateNhStatePrimaryElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('mi-closed-primary-election')) {

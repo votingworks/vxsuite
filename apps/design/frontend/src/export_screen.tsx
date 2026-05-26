@@ -39,7 +39,8 @@ import { TaskProgress } from './task_progress';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
-  NhBallot: 'New Hampshire Ballot',
+  NhBallot: 'New Hampshire Local Ballot',
+  NhStateBallot: 'New Hampshire State Ballot',
   MsBallot: 'Mississippi Ballot',
   MiBallot: 'Michigan Ballot',
 } satisfies Record<BallotTemplateId, string>;
