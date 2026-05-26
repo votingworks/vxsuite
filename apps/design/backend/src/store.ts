@@ -1172,7 +1172,6 @@ export class Store {
         },
         state: electionRow.state,
         seal: electionRow.seal,
-        // Only include signature for the NhBallot
         signature:
           electionRow.ballotTemplateId === 'NhBallot' ||
           electionRow.ballotTemplateId === 'NhStateBallot'
