@@ -386,6 +386,26 @@ describe('Ballot layout tab', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('hides density for NH state ballot template', async () => {
+    mockStateFeatures(apiMock, electionId, {});
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+    });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('NhStateBallot');
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+    await screen.findByRole('radiogroup', { name: 'Paper Size' });
+    expect(
+      screen.queryByRole('radiogroup', { name: 'Density' })
+    ).not.toBeInTheDocument();
+  });
+
   test('cancelling', async () => {
     mockStateFeatures(apiMock, electionId, {});
     mockUserFeatures(apiMock, {});
