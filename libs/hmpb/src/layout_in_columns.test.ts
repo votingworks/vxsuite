@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { iter, range } from '@votingworks/basics';
 import {
@@ -19,198 +19,186 @@ describe('layOutInColumns', () => {
   const c2: TestElement = { id: 'c', height: 2 };
   const d2: TestElement = { id: 'd', height: 2 };
 
-  test('lays out as many elements as possible, minimizing column height', async () => {
+  test('lays out as many elements as possible, minimizing column height', () => {
     expect(
-      await layOutInColumns({
-        elements: iter([]).async(),
+      layOutInColumns({
+        elements: [],
         numColumns: 1,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[]],
       height: 0,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1]).async(),
+      layOutInColumns({
+        elements: [a1],
         numColumns: 1,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1]],
       height: 1,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1]).async(),
+      layOutInColumns({
+        elements: [a1],
         numColumns: 2,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1], []],
       height: 1,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1]).async(),
+      layOutInColumns({
+        elements: [a1, b1],
         numColumns: 1,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1]],
       height: 1,
+      leftoverElements: [b1],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1]).async(),
+      layOutInColumns({
+        elements: [a1, b1],
         numColumns: 2,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1], [b1]],
       height: 1,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1]).async(),
+      layOutInColumns({
+        elements: [a1, b1],
         numColumns: 1,
         maxColumnHeight: 2,
       })
     ).toEqual({
       columns: [[a1, b1]],
       height: 2,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1]).async(),
+      layOutInColumns({
+        elements: [a1, b1],
         numColumns: 2,
         maxColumnHeight: 2,
       })
     ).toEqual({
       columns: [[a1], [b1]],
       height: 1,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1]).async(),
+      layOutInColumns({
+        elements: [a1, b1],
         numColumns: 3,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1], [b1], []],
       height: 1,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1, c2]).async(),
+      layOutInColumns({
+        elements: [a1, b1, c2],
         numColumns: 1,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1]],
       height: 1,
+      leftoverElements: [b1, c2],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1, c2]).async(),
+      layOutInColumns({
+        elements: [a1, b1, c2],
         numColumns: 1,
         maxColumnHeight: 2,
       })
     ).toEqual({
       columns: [[a1, b1]],
       height: 2,
+      leftoverElements: [c2],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1, c2]).async(),
+      layOutInColumns({
+        elements: [a1, b1, c2],
         numColumns: 2,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1], [b1]],
       height: 1,
+      leftoverElements: [c2],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1, c2]).async(),
+      layOutInColumns({
+        elements: [a1, b1, c2],
         numColumns: 2,
         maxColumnHeight: 2,
       })
     ).toEqual({
       columns: [[a1, b1], [c2]],
       height: 2,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1, c2]).async(),
+      layOutInColumns({
+        elements: [a1, b1, c2],
         numColumns: 3,
         maxColumnHeight: 1,
       })
     ).toEqual({
       columns: [[a1], [b1], []],
       height: 1,
+      leftoverElements: [c2],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([a1, b1, c2]).async(),
+      layOutInColumns({
+        elements: [a1, b1, c2],
         numColumns: 3,
         maxColumnHeight: 2,
       })
     ).toEqual({
       columns: [[a1], [b1], [c2]],
       height: 2,
+      leftoverElements: [],
     });
 
     expect(
-      await layOutInColumns({
-        elements: iter([c2, a1, b1, d2]).async(),
+      layOutInColumns({
+        elements: [c2, a1, b1, d2],
         maxColumnHeight: 2,
         numColumns: 3,
       })
     ).toEqual({
       columns: [[c2], [a1, b1], [d2]],
       height: 2,
+      leftoverElements: [],
     });
-  });
-
-  test('doesnt access elements until needed', async () => {
-    const a1Fn = vi.fn().mockResolvedValueOnce(a1);
-    const b1Fn = vi.fn().mockResolvedValueOnce(b1);
-    const c2Fn = vi.fn().mockResolvedValueOnce(c2);
-    const d2Fn = vi.fn().mockResolvedValueOnce(d2);
-    const elements = iter([a1Fn, b1Fn, c2Fn, d2Fn])
-      .map((fn) => fn())
-      .async();
-
-    expect(
-      await layOutInColumns({
-        elements,
-        numColumns: 2,
-        maxColumnHeight: 1,
-      })
-    ).toEqual({
-      columns: [[a1], [b1]],
-      height: 1,
-    });
-
-    expect(a1Fn).toHaveBeenCalledTimes(1);
-    expect(b1Fn).toHaveBeenCalledTimes(1);
-    // Needs to check c2 to know it can't fit
-    expect(c2Fn).toHaveBeenCalledTimes(1);
-    expect(d2Fn).not.toHaveBeenCalled();
   });
 });
 
