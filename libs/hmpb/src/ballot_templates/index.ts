@@ -1,3 +1,4 @@
+import { BallotPageTemplate } from '../render_ballot';
 import { miBallotTemplate } from './mi_ballot_template';
 import { msBallotTemplate } from './ms_ballot_template';
 import { nhBallotTemplate } from './nh_ballot_template';
@@ -5,6 +6,7 @@ import { nhStateBallotTemplate } from './nh_state_ballot_template';
 import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 
 export type { NhBallotProps } from './nh_ballot_template';
+export type { NhStateBallotProps } from './nh_state_ballot_template';
 
 /**
  * All ballot templates, indexed by ID.
@@ -26,3 +28,16 @@ export { getCandidateOrderingSetsForNhBallot as getAllOrderedContestSetsForNhBal
  * The ID of a ballot template.
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;
+
+type BallotTemplateProps<Template> = Template extends BallotPageTemplate<
+  infer Props
+>
+  ? Props
+  : never;
+
+/**
+ * The union of possible props types across all ballot templates.
+ */
+export type AnyBallotProps = BallotTemplateProps<
+  (typeof ballotTemplates)[BallotTemplateId]
+>;

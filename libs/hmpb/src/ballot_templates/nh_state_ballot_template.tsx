@@ -42,6 +42,8 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
   }
 };
 
+export type { NhStateBallotProps };
+
 export const nhStateBallotTemplate: BallotPageTemplate<NhStateBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,

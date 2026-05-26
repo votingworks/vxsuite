@@ -8,7 +8,6 @@ import {
   formatElectionHashes,
   LATEST_METADATA,
   ElectionId,
-  getPrecinctById,
   formatBallotHash,
   BallotType,
   ElectionIdSchema,
@@ -30,7 +29,6 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import {
-  assertDefined,
   extractErrorMessage,
   find,
   iter,
@@ -338,12 +336,10 @@ export async function generateElectionPackageAndBallots(
         props.ballotMode === 'official' &&
         props.ballotType === BallotType.Precinct
     );
-    allBallotProps = range(1, numAuditIdBallots + 1).map(
-      (ballotIndex): BaseBallotProps => ({
-        ...officialPrecinctBallotProps,
-        ballotAuditId: String(ballotIndex),
-      })
-    );
+    allBallotProps = range(1, numAuditIdBallots + 1).map((ballotIndex) => ({
+      ...officialPrecinctBallotProps,
+      ballotAuditId: String(ballotIndex),
+    }));
   }
 
   const rendererPool = await createPlaywrightRendererPool();
@@ -428,16 +424,7 @@ export async function generateElectionPackageAndBallots(
 
   // Add ballots to ZIP files, grouped by ballot type:
   for (const { props, ballotPdf } of normalizedBallotPdfs) {
-    const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
-      props;
-    const precinct = assertDefined(getPrecinctById({ election, precinctId }));
-    const fileName = getBallotPdfFileName(
-      precinct.name,
-      ballotStyleId,
-      ballotType,
-      ballotMode,
-      ballotAuditId
-    );
+    const fileName = getBallotPdfFileName(props);
 
     switch (props.ballotMode) {
       case 'official':

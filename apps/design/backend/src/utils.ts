@@ -1,12 +1,10 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,
-  BallotMode,
-  BallotStyleId,
-  BallotType,
   Candidate,
   District,
   Election,
+  getPrecinctById,
   hasSplits,
   Party,
   PollingPlace,
@@ -17,24 +15,21 @@ import {
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
+import { AnyBallotProps } from '@votingworks/hmpb';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
 import { Jurisdiction, User } from './types';
 import { type StateFeaturesConfig } from './features';
 
-export function getBallotPdfFileName(
-  precinctName: string,
-  ballotStyleId: BallotStyleId,
-  ballotType: BallotType,
-  ballotMode: BallotMode,
-  ballotAuditId?: string
-): string {
+export function getBallotPdfFileName(props: AnyBallotProps): string {
+  const precinct = assertDefined(getPrecinctById(props));
   const baseName = [
-    ballotMode,
-    ballotType,
+    props.ballotMode,
+    props.ballotType,
     'ballot',
-    precinctName.replaceAll(' ', '_'),
-    ballotStyleId,
-    ballotAuditId,
+    precinct.name.replaceAll(' ', '_'),
+    props.ballotStyleId,
+    props.ballotAuditId,
+    'isFederalOfficeOnly' in props && props.isFederalOfficeOnly && 'foo',
   ]
     .filter(Boolean)
     .join('-');

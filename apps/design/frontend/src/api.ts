@@ -788,6 +788,7 @@ interface GetBallotPreviewInput {
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
+  isFederalOfficeOnly?: boolean;
 }
 
 export const getBallotPreviewPdf = {

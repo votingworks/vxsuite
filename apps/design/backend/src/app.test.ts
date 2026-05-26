@@ -760,7 +760,28 @@ test('update election info', async () => {
     }
   );
 
-  // Change to NhBallot to test signature behavior
+  // NhStateBallot also includes the signature in the response
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhStateBallot',
+  });
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      jurisdictionId: nonVxJurisdiction.id,
+      electionId,
+      title: 'Updated Election',
+      countyName: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'closed-primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      signatureCaption: 'New Caption',
+      signatureImage: '\r\n<svg>new signature</svg>\r\n',
+    }
+  );
+
+  // Change to VxDefaultBallot to test signature behavior
   await apiClient.setBallotTemplate({
     electionId,
     ballotTemplateId: 'VxDefaultBallot',

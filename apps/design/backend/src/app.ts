@@ -65,6 +65,7 @@ import {
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
+  NhStateBallotProps,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
 import { translateBallotStrings, execFile } from '@votingworks/backend';
@@ -841,6 +842,7 @@ export function buildApi(ctx: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
+      isFederalOfficeOnly?: boolean;
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
@@ -868,7 +870,11 @@ export function buildApi(ctx: AppContext) {
           props.precinctId === input.precinctId &&
           props.ballotStyleId === input.ballotStyleId &&
           props.ballotType === input.ballotType &&
-          props.ballotMode === input.ballotMode
+          props.ballotMode === input.ballotMode &&
+          (ballotTemplateId === 'NhStateBallot'
+            ? Boolean((props as NhStateBallotProps).isFederalOfficeOnly) ===
+              Boolean(input.isFederalOfficeOnly)
+            : true)
       );
       const renderer = await createPlaywrightRenderer();
       let ballotPdf: Result<Uint8Array, BallotLayoutError>;
@@ -878,7 +884,6 @@ export function buildApi(ctx: AppContext) {
           ballotTemplates[ballotTemplateId],
           // NOTE: Changing this text means you should also change the font size
           // of the <Watermark> component in the ballot template.
-
           { ...ballotProps, watermark: 'PROOF' }
         );
       } finally {
@@ -887,18 +892,9 @@ export function buildApi(ctx: AppContext) {
       }
       if (ballotPdf.isErr()) return ballotPdf;
 
-      const precinct = find(
-        election.precincts,
-        (p) => p.id === input.precinctId
-      );
       return ok({
         pdfData: ballotPdf.ok(),
-        fileName: `PROOF-${getBallotPdfFileName(
-          precinct.name,
-          input.ballotStyleId,
-          input.ballotType,
-          input.ballotMode
-        )}`,
+        fileName: `PROOF-${getBallotPdfFileName(ballotProps)}`,
       });
     },
 
