@@ -521,9 +521,9 @@ async function BallotPageContent(
     const measuredContests = iter(contestElements)
       .zip(contestMeasurements)
       .map(([element, measurements]) => ({ element, ...measurements }))
-      .async();
+      .toArray();
 
-    const { columns, height } = await layOutInColumns({
+    const { columns, height, leftoverElements } = layOutInColumns({
       elements: measuredContests,
       numColumns,
       maxColumnHeight: dimensions.height - heightUsed,
@@ -531,9 +531,8 @@ async function BallotPageContent(
     });
 
     // Put contests we didn't lay out back on the front of the queue
-    const numElementsUsed = columns.flat().length;
-    if (numElementsUsed < section.length) {
-      contestSections.unshift(section.slice(numElementsUsed));
+    if (leftoverElements.length > 0) {
+      contestSections.unshift(section.slice(-leftoverElements.length));
     }
 
     // If there wasn't enough room left for any contests, go to the next page
