@@ -183,7 +183,9 @@ test('exports results and metadata accurately', async () => {
   assert(writeIn1 !== undefined);
   assert(writeIn2 !== undefined);
 
-  await apiClient.claimBallotForAdjudication({ cvrId: writeIn1.cvrId });
+  (
+    await apiClient.claimAndLoadBallot({ cvrId: writeIn1.cvrId })
+  ).unsafeUnwrap();
   expect(
     await apiClient.adjudicateCvr({
       cvrId: writeIn1.cvrId,
@@ -203,7 +205,9 @@ test('exports results and metadata accurately', async () => {
     })
   ).toEqual(ok());
 
-  await apiClient.claimBallotForAdjudication({ cvrId: writeIn2.cvrId });
+  (
+    await apiClient.claimAndLoadBallot({ cvrId: writeIn2.cvrId })
+  ).unsafeUnwrap();
   expect(
     await apiClient.adjudicateCvr({
       cvrId: writeIn2.cvrId,

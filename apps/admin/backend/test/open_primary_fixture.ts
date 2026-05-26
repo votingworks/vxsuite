@@ -127,9 +127,11 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
 
   // Resolve a crossover by removing the gov-republican vote → ballot becomes
   // Dem-only, restoring its gov-democratic vote (bob-smith).
-  await apiClient.claimBallotForAdjudication({
-    cvrId: resolvedCrossoverCvrId,
-  });
+  (
+    await apiClient.claimAndLoadBallot({
+      cvrId: resolvedCrossoverCvrId,
+    })
+  ).assertOk('failed to claim crossover ballot');
   (
     await apiClient.adjudicateCvr({
       cvrId: resolvedCrossoverCvrId,
@@ -145,9 +147,11 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   ).assertOk('failed to adjudicate crossover');
   // Flip a Dem-only ballot by removing its gov-democratic vote (dan-rivera)
   // → ballot becomes nonpartisan-only.
-  await apiClient.claimBallotForAdjudication({
-    cvrId: flippedToNoPartyCvrId,
-  });
+  (
+    await apiClient.claimAndLoadBallot({
+      cvrId: flippedToNoPartyCvrId,
+    })
+  ).assertOk('failed to claim flipped ballot');
   (
     await apiClient.adjudicateCvr({
       cvrId: flippedToNoPartyCvrId,
@@ -253,7 +257,9 @@ export async function seedOpenPrimaryWriteIns({
     contestId: string,
     candidateName: string
   ) {
-    await apiClient.claimBallotForAdjudication({ cvrId });
+    (await apiClient.claimAndLoadBallot({ cvrId })).assertOk(
+      'failed to claim ballot'
+    );
     (
       await apiClient.adjudicateCvr({
         cvrId,

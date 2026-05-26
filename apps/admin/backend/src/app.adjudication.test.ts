@@ -47,6 +47,22 @@ vi.setConfig({
   testTimeout: 30_000,
 });
 
+// Test helper: wraps the unified claimAndLoadBallot endpoint and returns
+// just the claimed cvrId (or undefined)
+async function claimBallot(
+  peerApiClient: {
+    claimAndLoadBallot: (input: {
+      machineId: string;
+      cvrId?: string;
+      afterCvrId?: string;
+    }) => Promise<{ unsafeUnwrap(): { cvrId: string } | undefined }>;
+  },
+  input: { machineId: string; cvrId?: string; afterCvrId?: string }
+): Promise<string | undefined> {
+  const result = await peerApiClient.claimAndLoadBallot(input);
+  return result.unsafeUnwrap()?.cvrId;
+}
+
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -606,7 +622,7 @@ test('getNextCvrIdForBallotAdjudication', async () => {
 
   async function adjudicateAtIndex(index: number) {
     const cvrId = adjudicationQueue[index] || '';
-    await apiClient.claimBallotForAdjudication({ cvrId });
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
     const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
     const contests = adjData.contests
       .filter((contest) => contest.tag)
@@ -642,6 +658,91 @@ test('getNextCvrIdForBallotAdjudication', async () => {
     await adjudicateAtIndex(i);
   }
   expect(await apiClient.getNextCvrIdForBallotAdjudication()).toEqual(null);
+});
+
+test('getNextCvrIdForBallotAdjudication advances past the current ballot', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+  };
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const adjudicationQueue = await apiClient.getBallotAdjudicationQueue();
+  expect(adjudicationQueue.length).toBeGreaterThan(2);
+
+  // Without `currentCvrId`, returns the first eligible ballot.
+  const first = await apiClient.getNextCvrIdForBallotAdjudication();
+  expect(first).toEqual(adjudicationQueue[0]);
+
+  // With `currentCvrId` = first, returns the second eligible ballot.
+  const second = await apiClient.getNextCvrIdForBallotAdjudication({
+    currentCvrId: adjudicationQueue[0],
+  });
+  expect(second).toEqual(adjudicationQueue[1]);
+
+  // With `currentCvrId` = last queue entry, returns null (no more after).
+  const lastInQueue = adjudicationQueue[adjudicationQueue.length - 1];
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      currentCvrId: lastInQueue,
+    })
+  ).toEqual(null);
+});
+
+test('host claimAndLoadBallot returns data and bypasses claim when multi-station is off', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+  };
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  const cvrId = assertDefined(queue[0]);
+
+  // Multi-station is off — claimAndLoadBallot bypasses the claim system
+  // and just returns the data.
+  const result = (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
+  expect(result?.cvrId).toEqual(cvrId);
+  expect(result?.data.cvrId).toEqual(cvrId);
+
+  // Now turn on multi-station and re-claim — goes through the real claim
+  // flow and still succeeds because no other machine holds it.
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
+  const mResult = (
+    await apiClient.claimAndLoadBallot({ cvrId })
+  ).unsafeUnwrap();
+  expect(mResult?.cvrId).toEqual(cvrId);
 });
 
 test('adjudicateCvr requires active claim', async () => {
@@ -685,8 +786,11 @@ test('claim and release are no-ops when multi-station is disabled', async () => 
   const queue = await apiClient.getBallotAdjudicationQueue();
   const cvrId = assertDefined(queue[0]);
 
-  // claim always succeeds when multi-station is disabled
-  expect(await apiClient.claimBallotForAdjudication({ cvrId })).toEqual(true);
+  // claim succeeds and returns the ballot, bypassing the claim system when
+  // multi-station is disabled
+  expect(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()?.cvrId
+  ).toEqual(cvrId);
 
   // release is a no-op
   await apiClient.releaseBallotAdjudicationClaim({ cvrId });
@@ -838,7 +942,7 @@ test('handling unmarked write-ins', async () => {
   assert(writeInOption.writeInRecord !== undefined);
   expect(writeInOption.writeInRecord.isUnmarked).toEqual(true);
 
-  await apiClient.claimBallotForAdjudication({ cvrId });
+  (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
   expect(
     await apiClient.adjudicateCvr({
       cvrId,
@@ -1070,7 +1174,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   ).toEqual(false);
 
   // check the write-in being marked as invalid (false)
-  await apiClient.claimBallotForAdjudication({ cvrId });
+  (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
   expect(
     await apiClient.adjudicateCvr({
       cvrId,
@@ -1371,13 +1475,13 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   expect(metadataBefore.pendingTally).toEqual(metadataBefore.totalTally);
 
   // Two clients claim different ballots
-  const cvrId1 = await peerApiClient.claimBallot({
+  const cvrId1 = await claimBallot(peerApiClient, {
     machineId: 'client-001',
   });
   assert(cvrId1 !== undefined);
   expect(cvrId1).toEqual(queue[0]);
 
-  const cvrId2 = await peerApiClient.claimBallot({
+  const cvrId2 = await claimBallot(peerApiClient, {
     machineId: 'client-002',
   });
   assert(cvrId2 !== undefined);
@@ -1454,7 +1558,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
 
   // Completed ballot is permanently removed from the claimable pool.
   // Client 3 claims next and gets queue[2] (queue[1] is still held by client 2).
-  const cvrId3 = await peerApiClient.claimBallot({
+  const cvrId3 = await claimBallot(peerApiClient, {
     machineId: 'client-003',
   });
   assert(cvrId3 !== undefined);
@@ -1463,27 +1567,13 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   // Release client 2's claim — the ballot returns to the pool.
   await peerApiClient.releaseBallot({ machineId: 'client-002', cvrId: cvrId2 });
 
-  // Client 4 claims with ballot style affinity for '2F'. The queue is ordered
-  // by ballot_style_group_id ('1M' before '2F'), but affinity should prefer
-  // a '2F' ballot over the next '1M' ballot in queue order.
-  const cvrId4 = await peerApiClient.claimBallot({
+  // Released ballot (cvrId2) is available again — another client can claim
+  const cvrId4 = await claimBallot(peerApiClient, {
     machineId: 'client-004',
-    currentBallotStyleId: '2F',
   });
   assert(cvrId4 !== undefined);
-
-  const claim4VoteInfo = await apiClient.getCastVoteRecordVoteInfo({
-    cvrId: cvrId4,
-  });
-  expect(claim4VoteInfo.ballotStyleGroupId).toEqual('2F');
-
-  // Released ballot (cvrId2) is available again — another client can claim
-  const cvrId5 = await peerApiClient.claimBallot({
-    machineId: 'client-005',
-  });
-  assert(cvrId5 !== undefined);
   // Should get an uncompleted, unclaimed ballot (could be cvrId2 or another)
-  expect(cvrId5).not.toEqual(cvrId1); // cvrId1 was completed
+  expect(cvrId4).not.toEqual(cvrId1); // cvrId1 was completed
 });
 
 test('host claim, release, and getClaimedBallotCvrIds', async () => {
@@ -1508,7 +1598,7 @@ test('host claim, release, and getClaimedBallotCvrIds', async () => {
   expect(await apiClient.getClaimedBallotCvrIds()).toEqual([]);
 
   // Host claims a ballot
-  await apiClient.claimBallotForAdjudication({ cvrId });
+  (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
 
   // Host's own claim is excluded from getClaimedBallotCvrIds (it excludes
   // the host's machineId), so still empty from the host's perspective

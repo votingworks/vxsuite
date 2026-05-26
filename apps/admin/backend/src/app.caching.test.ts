@@ -145,7 +145,7 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   }
   assert(cvrId !== undefined);
   assert(writeIn !== undefined);
-  await apiClient.claimBallotForAdjudication({ cvrId });
+  (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
   expect(
     await apiClient.adjudicateCvr({
       cvrId,

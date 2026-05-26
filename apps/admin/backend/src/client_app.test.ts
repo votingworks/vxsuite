@@ -281,7 +281,7 @@ test('getBatteryInfo returns battery info', async () => {
 });
 
 interface MockPeerApi {
-  claimBallot: ReturnType<typeof vi.fn>;
+  claimAndLoadBallot: ReturnType<typeof vi.fn>;
   releaseBallot: ReturnType<typeof vi.fn>;
   getBallotAdjudicationData: ReturnType<typeof vi.fn>;
   getBallotImageMetadata: ReturnType<typeof vi.fn>;
@@ -291,7 +291,7 @@ interface MockPeerApi {
 
 function connectToMockHost(): { mockPeerApi: MockPeerApi } {
   const mockPeerApi: MockPeerApi = {
-    claimBallot: vi.fn(),
+    claimAndLoadBallot: vi.fn(),
     releaseBallot: vi.fn(),
     getBallotAdjudicationData: vi.fn(),
     getBallotImageMetadata: vi.fn(),
@@ -309,27 +309,44 @@ function connectToMockHost(): { mockPeerApi: MockPeerApi } {
   return { mockPeerApi };
 }
 
-test('claimBallot proxies to host peer API', async () => {
+test('claimAndLoadBallot proxies to host peer API', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.claimBallot.mockResolvedValue('cvr-1');
+  const ballotData = {
+    cvrId: 'cvr-1',
+    tag: { isBlankBallot: false },
+    isResolved: false,
+    contests: [],
+    adjudicatedContests: [],
+  } as const;
+  mockPeerApi.claimAndLoadBallot.mockResolvedValue(
+    ok({ cvrId: 'cvr-1', data: ballotData })
+  );
 
-  const result = await env.apiClient.claimBallot({});
-  expect(result).toEqual(ok('cvr-1'));
-  expect(mockPeerApi.claimBallot).toHaveBeenCalledWith(
+  const result = await env.apiClient.claimAndLoadBallot({});
+  expect(result).toEqual(ok({ cvrId: 'cvr-1', data: ballotData }));
+  expect(mockPeerApi.claimAndLoadBallot).toHaveBeenCalledWith(
     expect.objectContaining({ machineId: DEV_MACHINE_ID })
   );
 });
 
-test('claimBallot returns undefined when no ballots available', async () => {
+test('claimAndLoadBallot returns undefined when no ballots available', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.claimBallot.mockResolvedValue(undefined);
+  mockPeerApi.claimAndLoadBallot.mockResolvedValue(ok(undefined));
 
-  const result = await env.apiClient.claimBallot({});
+  const result = await env.apiClient.claimAndLoadBallot({});
   expect(result).toEqual(ok(undefined));
 });
 
+test('claimAndLoadBallot surfaces a no-claim error from the host', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.claimAndLoadBallot.mockResolvedValue(err({ type: 'no-claim' }));
+
+  const result = await env.apiClient.claimAndLoadBallot({ cvrId: 'cvr-1' });
+  expect(result).toEqual(err({ type: 'no-claim' }));
+});
+
 test('proxy endpoints return host-disconnect error when not connected', async () => {
-  expect(await env.apiClient.claimBallot({})).toEqual(
+  expect(await env.apiClient.claimAndLoadBallot({})).toEqual(
     err({ type: 'host-disconnect' })
   );
   expect(await env.apiClient.releaseBallot({ cvrId: 'cvr-1' })).toEqual(
@@ -359,9 +376,9 @@ test('proxy endpoints return host-disconnect error when not connected', async ()
 
 test('proxy returns host-disconnect when peer API throws network error', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.claimBallot.mockRejectedValue(new Error('fetch failed'));
+  mockPeerApi.claimAndLoadBallot.mockRejectedValue(new Error('fetch failed'));
 
-  const result = await env.apiClient.claimBallot({});
+  const result = await env.apiClient.claimAndLoadBallot({});
   expect(result).toEqual(err({ type: 'host-disconnect' }));
 });
 
