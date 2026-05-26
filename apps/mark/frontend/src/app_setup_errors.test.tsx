@@ -11,6 +11,8 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api';
 
+const NO_PRINTER_DETECTED_TEXT = 'No Printer Detected';
+
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
@@ -154,7 +156,7 @@ describe('Displays setup warning messages and errors screens', () => {
     });
     await advanceTimersAndPromises();
     // When polls are open but no cardless voter session is active, non-voter-facing message
-    await screen.findByRole('heading', { name: 'No Printer Detected' });
+    await screen.findByRole('heading', { name: NO_PRINTER_DETECTED_TEXT });
     await screen.findByText('Please ask a poll worker for help.');
 
     // Insert election manager card
@@ -177,7 +179,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
     await screen.findByRole('heading', { name: 'Polls Closed' });
     expect(
-      screen.queryByRole('heading', { name: 'No Printer Detected' })
+      screen.queryByRole('heading', { name: NO_PRINTER_DETECTED_TEXT })
     ).toBeNull();
   });
 
