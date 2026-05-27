@@ -117,6 +117,11 @@ test('screenshots', async ({ page }) => {
   await page.getByRole('tab', { name: 'More' }).click();
   await page.getByText('Set Date and Time').waitFor();
   await screenshotWithFocusHighlight('Set Date and Time', 'em-set-date-time');
+  await page.getByRole('button', { name: 'Set Date and Time' }).click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshot('em-set-date-time-modal');
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
   await screenshotWithFocusHighlight('Mute Sounds', 'em-mute-sounds');
   await screenshotWithFocusHighlight(
     'Signed Hash Validation',
