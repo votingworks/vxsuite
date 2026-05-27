@@ -104,6 +104,12 @@ export function getCastVoteRecordBallotType(
  * Converts the vote data in the CDF cast vote record into the simple
  * dictionary of contest ids to contest selection ids that VxAdmin uses
  * internally as a basis for tallying votes.
+ *
+ * Selections flagged with `Status=[GeneratedRules]` (i.e. added by
+ * straight-party expansion at scan time) are excluded so that the stored
+ * votes reflect only the voter's direct marks. SP rules are re-applied at
+ * tabulation/adjudication time, which keeps tallies correct and lets the
+ * adjudication UI distinguish derived from direct selections.
  */
 export function convertCastVoteRecordVotesToTabulationVotes(
   cvrSnapshot: CVR.CVRSnapshot
@@ -118,9 +124,17 @@ export function convertCastVoteRecordVotesToTabulationVotes(
       const selectionPosition = cvrContestSelection.SelectionPosition[0];
       assert(selectionPosition);
 
-      if (selectionPosition.HasIndication === CVR.IndicationStatus.Yes) {
-        contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
+      if (selectionPosition.HasIndication !== CVR.IndicationStatus.Yes) {
+        continue;
       }
+      const isStraightPartyDerived =
+        cvrContestSelection.Status?.includes(
+          CVR.ContestSelectionStatus.GeneratedRules
+        ) ?? false;
+      if (isStraightPartyDerived) {
+        continue;
+      }
+      contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
     }
 
     votes[cvrContest.ContestId] = contestSelectionIds;

@@ -176,6 +176,57 @@ describe('convertCastVoteRecordVotesToTabulationVotes', () => {
       })
     ).toEqual({ mayor: ['frodo', 'gandalf'] });
   });
+
+  test('excludes selections added by straight-party rules', () => {
+    // SP-derived selections are emitted by the scanner with HasIndication=Yes
+    // and Status=[GeneratedRules]. They should not be treated as direct marks
+    // when imported into VxAdmin; SP rules are re-applied at tabulation time.
+    expect(
+      convertCastVoteRecordVotesToTabulationVotes({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Modified,
+        CVRContest: [
+          {
+            '@type': 'CVR.CVRContest',
+            ContestId: 'president',
+            CVRContestSelection: [
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'biden-harris',
+                Status: [CVR.ContestSelectionStatus.GeneratedRules],
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            '@type': 'CVR.CVRContest',
+            ContestId: 'mayor',
+            CVRContestSelection: [
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'frodo',
+                // No Status field — direct voter mark.
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
+    ).toEqual({ president: [], mayor: ['frodo'] });
+  });
 });
 
 describe('convertCastVoteRecordMarkMetricsToMarkScores', () => {
