@@ -27,7 +27,9 @@ export function pollingPlaceContests(
 ): Contests {
   const districts = pollingPlaceDistrictIds(election, place);
   return election.contests.filter(
-    (c) => c.type !== 'straight-party' && districts.has(c.districtId)
+    // The straight-party contest is not tied to a district — it applies to
+    // every ballot in the election, so include it in every polling place.
+    (c) => c.type === 'straight-party' || districts.has(c.districtId)
   );
 }
 
