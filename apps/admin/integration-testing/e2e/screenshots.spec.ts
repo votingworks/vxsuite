@@ -19,7 +19,11 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { assertDefined, find, iter } from '@votingworks/basics';
-import { buildIntegrationTestHelper, zipFile } from '@votingworks/test-utils';
+import {
+  buildIntegrationTestHelper,
+  createScreenshotCounter,
+  zipFile,
+} from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   CVR,
@@ -51,6 +55,8 @@ import {
   selectOpenDropdownOption,
   waitForReportToLoad,
 } from './support/navigation';
+
+const screenshotCounter = createScreenshotCounter();
 
 async function saveLastExportedReport({
   usbHandler,
@@ -115,7 +121,7 @@ test('system administrator', async ({ page }) => {
   const electionPackageFileName = 'election-package.zip';
 
   const { screenshot, screenshotWithFocusHighlight } =
-    buildIntegrationTestHelper(page);
+    buildIntegrationTestHelper(page, screenshotCounter);
 
   /**
    * configuration
@@ -428,7 +434,7 @@ test('results', async ({ page }) => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { screenshot } = buildIntegrationTestHelper(page);
+  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
 
   await page.goto('/');
   await configureMachine({
@@ -597,7 +603,7 @@ test('adjudication', async ({ page }) => {
     }
   );
 
-  const { screenshot } = buildIntegrationTestHelper(page);
+  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
 
   await page.goto('/');
   await configureMachine({
@@ -667,7 +673,7 @@ test('manual results', async ({ page }) => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { screenshot } = buildIntegrationTestHelper(page);
+  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
 
   await page.goto('/');
   await configureMachine({

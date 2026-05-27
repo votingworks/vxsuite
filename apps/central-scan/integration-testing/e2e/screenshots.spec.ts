@@ -9,11 +9,16 @@ import {
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import type { Api as DevDockApi } from '@votingworks/dev-dock-backend';
-import { buildIntegrationTestHelper } from '@votingworks/test-utils';
+import {
+  buildIntegrationTestHelper,
+  createScreenshotCounter,
+} from '@votingworks/test-utils';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
 } from './support/auth';
+
+const screenshotCounter = createScreenshotCounter();
 
 const MARKED_BALLOT_PATH = resolve(
   __dirname,
@@ -35,7 +40,7 @@ test('screenshots', async ({ page }) => {
     screenshot,
     screenshotWithFocusHighlight,
     withContainerVerticallyExpanded,
-  } = buildIntegrationTestHelper(page);
+  } = buildIntegrationTestHelper(page, screenshotCounter);
 
   await page.getByText(/election manager card to configure/).waitFor();
   await screenshot('em-insert-card-screen');

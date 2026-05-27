@@ -1,12 +1,34 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import type { Page, PageScreenshotOptions } from '@playwright/test';
 
-export function buildIntegrationTestHelper(page: Page) {
+export interface ScreenshotCounter {
+  next: () => string;
+}
+
+export function createScreenshotCounter(): ScreenshotCounter {
+  let index = 0;
+  return {
+    next(): string {
+      const prefix = String(index).padStart(3, '0');
+      index += 1;
+      return prefix;
+    },
+  };
+}
+
+export function buildIntegrationTestHelper(
+  page: Page,
+  counter: ScreenshotCounter = createScreenshotCounter()
+) {
+  function numberedName(name: string): string {
+    return `${counter.next()}-${name}`;
+  }
+
   async function screenshot(name: string, args: PageScreenshotOptions = {}) {
     await page.screenshot({
       animations: 'disabled',
       ...args,
-      path: `./test-results/screenshots/${name}.png`,
+      path: `./test-results/screenshots/${numberedName(name)}.png`,
     });
   }
 

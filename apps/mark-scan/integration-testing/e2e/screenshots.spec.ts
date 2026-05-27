@@ -11,7 +11,10 @@ import {
   mockPollWorkerCardInsertion,
 } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { buildIntegrationTestHelper } from '@votingworks/test-utils';
+import {
+  buildIntegrationTestHelper,
+  createScreenshotCounter,
+} from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS, safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
@@ -19,6 +22,8 @@ import {
   logInAsElectionManager,
   logInAsSystemAdministrator,
 } from '../support/auth';
+
+const screenshotCounter = createScreenshotCounter();
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -40,7 +45,7 @@ test('everything but voting', async ({ page }) => {
     screenshotWithFocusHighlight,
     withContainerVerticallyExpanded,
     clickModalButton,
-  } = buildIntegrationTestHelper(page);
+  } = buildIntegrationTestHelper(page, screenshotCounter);
 
   usbHandler.insert();
 
@@ -238,7 +243,7 @@ test('voting session', async ({ page }) => {
   const { election } = electionDefinition;
 
   const { screenshot, screenshotWithFocusHighlight, clickModalButton } =
-    buildIntegrationTestHelper(page);
+    buildIntegrationTestHelper(page, screenshotCounter);
 
   // Helper: Get contest metadata from UI
   async function getContestInfo(): Promise<{ current: number; total: number }> {
