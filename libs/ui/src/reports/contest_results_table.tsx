@@ -7,7 +7,12 @@ import {
   Tabulation,
   AnyContest,
 } from '@votingworks/types';
-import { format, getTallyReportCandidateRows } from '@votingworks/utils';
+import {
+  format,
+  getTallyReportCandidateRows,
+  splitBallotLineBreaks,
+} from '@votingworks/utils';
+import React from 'react';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { ReportTable } from './layout';
@@ -92,6 +97,23 @@ const Muted = styled.span`
   color: #808080;
 `;
 
+// Ballot data fields may include `<br/>` markers to control line breaks on the
+// physical ballot. Honor those breaks here so reports display the same way.
+function BallotText({ text }: { text: string }): JSX.Element {
+  const lines = splitBallotLineBreaks(text);
+  return (
+    <React.Fragment>
+      {lines.map((line, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={i}>
+          {i > 0 && <br />}
+          {line}
+        </React.Fragment>
+      ))}
+    </React.Fragment>
+  );
+}
+
 function ContestOptionRow({
   testId,
   optionLabel,
@@ -108,7 +130,9 @@ function ContestOptionRow({
   if (showManualTally) {
     return (
       <tr data-testid={testId}>
-        <th className="option-label">{optionLabel.replace('-', '‑')}</th>
+        <th className="option-label">
+          <BallotText text={optionLabel.replace('-', '‑')} />
+        </th>
         <td>{format.count(scannedTally)}</td>
         <td>
           {manualTally === 0 ? (
@@ -126,7 +150,9 @@ function ContestOptionRow({
 
   return (
     <tr data-testid={testId}>
-      <th colSpan={3}>{optionLabel}</th>
+      <th colSpan={3}>
+        <BallotText text={optionLabel} />
+      </th>
       <td>{format.count(scannedTally)}</td>
     </tr>
   );
@@ -307,7 +333,9 @@ export function ContestResultsTable({
       {contest.type !== 'straight-party' && (
         <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
       )}
-      <ContestTitle>{contest.title}</ContestTitle>
+      <ContestTitle>
+        <BallotText text={contest.title} />
+      </ContestTitle>
       {contest.type === 'candidate' && (
         <ContestMetadata>
           Vote for {contest.seats}

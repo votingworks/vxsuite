@@ -10,6 +10,7 @@ import {
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
+  flattenBallotLineBreaks,
   getEmptyElectionResults,
   getTallyReportCandidateRows,
   groupMapToGroupList,
@@ -82,7 +83,12 @@ function buildRow({
   // Contest, Selection, and Tally
   // -----------------------------
 
-  values.push(contest.title, contest.id, selection, selectionId);
+  values.push(
+    flattenBallotLineBreaks(contest.title),
+    contest.id,
+    flattenBallotLineBreaks(selection),
+    selectionId
+  );
 
   if (hasManualResults) {
     values.push(manualVotes.toString(), scannedVotes.toString());

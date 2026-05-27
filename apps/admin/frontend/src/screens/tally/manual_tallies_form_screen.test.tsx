@@ -945,8 +945,8 @@ test('entering tallies for a straight-party contest', async () => {
   await screen.findByRole('heading', { name: 'Straight Party Ticket' });
   screen.getByText('Election-wide');
   screen.getByText(`1 of ${spContests.length}`);
-  // Should not show "Vote for N"
-  expect(screen.queryByText(/Vote for/)).not.toBeInTheDocument();
+  // Should show "Vote for not more than 1" (not "Vote for N")
+  screen.getByText('Vote for not more than 1');
   // Should not show write-in option
   expect(screen.queryByText('Add Write-In Candidate')).not.toBeInTheDocument();
 

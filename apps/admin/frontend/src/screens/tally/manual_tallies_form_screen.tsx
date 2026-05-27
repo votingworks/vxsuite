@@ -47,6 +47,7 @@ import {
   getBallotStyleGroup,
   areContestResultsValid,
   allContestOptions,
+  splitBallotLineBreaks,
 } from '@votingworks/utils';
 
 import type {
@@ -197,6 +198,23 @@ const ContestDataRow = styled.div`
       ${(p) => p.theme.colors.outline};
   }
 `;
+
+// Ballot data fields may include `<br/>` markers to control line breaks on the
+// physical ballot. Honor those breaks here so the manual tally form matches.
+function BallotText({ text }: { text: string }): JSX.Element {
+  const lines = splitBallotLineBreaks(text);
+  return (
+    <React.Fragment>
+      {lines.map((line, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={i}>
+          {i > 0 && <br />}
+          {line}
+        </React.Fragment>
+      ))}
+    </React.Fragment>
+  );
+}
 
 function AddWriteInRow({
   addWriteInCandidate,
@@ -811,7 +829,9 @@ function ContestForm({
         <FormCard>
           <div style={{ marginBottom: '0.5rem' }}>
             <Caption>{getContestDistrictName(election, contest)}</Caption>
-            <H2 style={{ margin: 0 }}>{contest.title}</H2>
+            <H2 style={{ margin: 0 }}>
+              <BallotText text={contest.title} />
+            </H2>
             {contest.type === 'candidate' && (
               <div>Vote for {contest.seats}</div>
             )}
@@ -902,7 +922,7 @@ function ContestForm({
                         }
                       />
                       <label htmlFor={`${candidate.id}`}>
-                        {candidate.name}
+                        <BallotText text={candidate.name} />
                       </label>
                     </ContestDataRow>
                   ))}

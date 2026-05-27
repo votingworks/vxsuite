@@ -8,7 +8,8 @@ import {
 
 import { assert, find } from '@votingworks/basics';
 import pluralize from 'pluralize';
-import { format } from '@votingworks/utils';
+import React from 'react';
+import { format, splitBallotLineBreaks } from '@votingworks/utils';
 import { TD } from '../table';
 import { Caption, Font, FontProps } from '../typography';
 import { reportColors } from './layout';
@@ -176,7 +177,15 @@ export function ContestWriteInSummaryTable({
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
       <p>{getContestDistrictName(election, contest)}</p>
-      <h3>{contest.title}</h3>
+      <h3>
+        {splitBallotLineBreaks(contest.title).map((line, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <React.Fragment key={i}>
+            {i > 0 && <br />}
+            {line}
+          </React.Fragment>
+        ))}
+      </h3>
       <Caption>
         <Font noWrap>
           {`${format.count(contestWriteInSummary.totalTally)} ${pluralize(
