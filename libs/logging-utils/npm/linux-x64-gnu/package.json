@@ -1,20 +1,17 @@
 {
   "name": "logging-utils-linux-x64-gnu",
   "version": "0.0.0",
+  "license": "MIT",
+  "main": "logging-utils.linux-x64-gnu.node",
+  "files": [
+    "logging-utils.linux-x64-gnu.node"
+  ],
   "os": [
     "linux"
   ],
   "cpu": [
     "x64"
   ],
-  "main": "logging-utils.linux-x64-gnu.node",
-  "files": [
-    "logging-utils.linux-x64-gnu.node"
-  ],
-  "license": "MIT",
-  "engines": {
-    "node": ">= 10"
-  },
   "libc": [
     "glibc"
   ]

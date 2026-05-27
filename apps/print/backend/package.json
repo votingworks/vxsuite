@@ -76,8 +76,5 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0"
   },
-  "engines": {
-    "node": ">= 12"
-  },
   "packageManager": "pnpm@8.15.5"
 }
