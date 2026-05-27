@@ -99,4 +99,26 @@ test('screenshots', async ({ page }) => {
   await page.getByRole('tab', { name: 'Scanner' }).click();
   await page.getByText('Calibrate Double Sheet Detection').waitFor();
   await screenshot('em-scanner-tab');
+
+  await page.getByRole('tab', { name: 'CVRs and Logs' }).click();
+  await page.getByText('Save CVRs').waitFor();
+  await screenshot('em-cvrs-and-logs-tab');
+  await screenshotWithFocusHighlight('Save CVRs', 'em-save-cvrs-button');
+  await screenshotWithFocusHighlight('Save Logs', 'em-save-logs-button');
+  await page.getByRole('button', { name: 'Save Logs' }).click();
+  await page.getByText('Save Logs', { exact: true }).nth(1).waitFor();
+  await screenshot('em-save-logs-modal');
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+
+  await page.getByRole('tab', { name: 'More' }).click();
+  await page.getByText('Set Date and Time').waitFor();
+  await screenshotWithFocusHighlight('Set Date and Time', 'em-set-date-time');
+  await screenshotWithFocusHighlight('Mute Sounds', 'em-mute-sounds');
+  await screenshotWithFocusHighlight(
+    'Signed Hash Validation',
+    'em-signed-hash-validation'
+  );
+  await screenshotWithFocusHighlight('Diagnostics', 'em-diagnostics');
+  await screenshotWithFocusHighlight('Power Down', 'em-power-down');
 });
