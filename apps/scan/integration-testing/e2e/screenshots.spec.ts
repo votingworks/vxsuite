@@ -1,4 +1,5 @@
 import test from '@playwright/test';
+import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   clearTemporaryRootDir,
@@ -6,11 +7,12 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { getMockFileFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import { buildIntegrationTestHelper } from '@votingworks/test-utils';
+import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
+  logInAsSystemAdministrator,
 } from './support/auth';
 
 test.beforeAll(setupTemporaryRootDir);
@@ -139,4 +141,26 @@ test('screenshots', async ({ page }) => {
   await page.getByText('Power Down').waitFor();
 
   await screenshotWithFocusHighlight('Power Down', 'em-power-down');
+
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open polls.').waitFor();
+
+  await logInAsSystemAdministrator(page);
+  await screenshot('sa-menu');
+
+  await screenshotWithFocusHighlight(
+    'Unconfigure Machine',
+    'sa-unconfigure-machine-button'
+  );
+  await screenshotWithFocusHighlight('Set Date and Time', 'sa-set-date-time');
+  await screenshotWithFocusHighlight('Diagnostics', 'sa-diagnostics');
+  await screenshotWithFocusHighlight('Save Logs', 'sa-save-logs-button');
+  await screenshotWithFocusHighlight(
+    'Calibrate Image Sensors',
+    'sa-calibrate-image-sensors'
+  );
+  await screenshotWithFocusHighlight(
+    'Signed Hash Validation',
+    'sa-signed-hash-validation'
+  );
 });
