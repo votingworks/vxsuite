@@ -23,7 +23,8 @@ test.beforeEach(async ({ page }) => {
 test('screenshots', async ({ page }) => {
   const fixtureSet = electionFamousNames2021Fixtures;
   const usbHandler = getMockFileUsbDriveHandler();
-  const { screenshot } = buildIntegrationTestHelper(page);
+  const { screenshot, screenshotWithFocusHighlight } =
+    buildIntegrationTestHelper(page);
 
   await page
     .getByText('Insert an election manager card to configure VxScan')
@@ -49,4 +50,23 @@ test('screenshots', async ({ page }) => {
   // Wait for the selected value to render in the dropdown control
   await page.locator('.search-select').getByText('North Lincoln').waitFor();
   await screenshot('em-polling-place-selected');
+
+  await screenshotWithFocusHighlight(
+    'Official Ballot Mode',
+    'em-official-ballot-mode-button'
+  );
+  await page.getByText('Official Ballot Mode').click();
+  await page.getByText('Test Ballot Mode').waitFor();
+  await screenshotWithFocusHighlight(
+    'Test Ballot Mode',
+    'em-test-ballot-mode-button'
+  );
+
+  await screenshotWithFocusHighlight(
+    'Unconfigure Machine',
+    'em-unconfigure-machine-button'
+  );
+  await page.getByRole('button', { name: 'Unconfigure Machine' }).click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshot('em-unconfigure-machine-modal');
 });
