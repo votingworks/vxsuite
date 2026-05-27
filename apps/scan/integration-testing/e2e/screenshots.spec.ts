@@ -24,8 +24,11 @@ test.beforeEach(async ({ page }) => {
 test('screenshots', async ({ page }) => {
   const fixtureSet = electionFamousNames2021Fixtures;
   const usbHandler = getMockFileUsbDriveHandler();
-  const { screenshot, screenshotWithFocusHighlight } =
-    buildIntegrationTestHelper(page);
+  const {
+    screenshot,
+    screenshotWithFocusHighlight,
+    withContainerVerticallyExpanded,
+  } = buildIntegrationTestHelper(page);
 
   await page
     .getByText('Insert an election manager card to configure VxScan')
@@ -120,5 +123,15 @@ test('screenshots', async ({ page }) => {
     'em-signed-hash-validation'
   );
   await screenshotWithFocusHighlight('Diagnostics', 'em-diagnostics');
+  await page.getByRole('button', { name: 'Diagnostics' }).click();
+  await page.getByRole('button', { name: 'Back' }).waitFor();
+  await withContainerVerticallyExpanded('main', async () => {
+    await screenshot('em-diagnostics-full');
+  });
+  await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByRole('tab', { name: 'More' }).waitFor();
+  await page.getByRole('tab', { name: 'More' }).click();
+  await page.getByText('Power Down').waitFor();
+
   await screenshotWithFocusHighlight('Power Down', 'em-power-down');
 });
