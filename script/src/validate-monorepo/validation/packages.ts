@@ -1,8 +1,9 @@
+import { Optional } from '@votingworks/basics';
 import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 import matcher from 'matcher';
 
 export enum ValidationIssueKind {
-  MismatchedPackageVersion = 'MismatchedPackageVersion',
+  MismatchedPropertyValue = 'MismatchedPropertyValue',
   NoLicenseSpecified = 'NoLicenseSpecified',
 }
 
@@ -12,8 +13,8 @@ export interface PackageJsonProperty {
   readonly value?: string;
 }
 
-export interface MismatchedPackagePropertyIssue {
-  readonly kind: ValidationIssueKind.MismatchedPackageVersion;
+export interface MismatchedPropertyIssue {
+  readonly kind: ValidationIssueKind.MismatchedPropertyValue;
   readonly properties: readonly PackageJsonProperty[];
 }
 
@@ -23,7 +24,7 @@ export interface NoLicenseSpecifiedIssue {
 }
 
 export type ValidationIssue =
-  | MismatchedPackagePropertyIssue
+  | MismatchedPropertyIssue
   | NoLicenseSpecifiedIssue;
 
 export async function* checkPackageManager({
@@ -60,7 +61,7 @@ export async function* checkPackageManager({
 
   if (packageManagers.size > 1) {
     yield {
-      kind: ValidationIssueKind.MismatchedPackageVersion,
+      kind: ValidationIssueKind.MismatchedPropertyValue,
       properties,
     };
   }
@@ -124,9 +125,66 @@ export async function* checkPinnedVersions({
       );
 
       yield {
-        kind: ValidationIssueKind.MismatchedPackageVersion,
+        kind: ValidationIssueKind.MismatchedPropertyValue,
         properties,
       };
+    }
+  }
+}
+
+export async function* checkEngines(
+  { workspacePackages, nodeVersionFile }: {
+    workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
+    nodeVersionFile: string;
+  }
+): AsyncGenerator<ValidationIssue> {
+  const allEngines = new Map<string, Set<Optional<string>>>();
+  const properties: PackageJsonProperty[] = [];
+
+  for (const pkg of workspacePackages.values()) {
+    const { packageJson, packageJsonPath } = pkg;
+
+    if (!packageJson || !packageJsonPath) {
+      continue;
+    }
+
+    const { engines } = packageJson;
+
+    if (!engines) {
+      // Ignore any packages without an `engines` property.
+      continue;
+    }
+
+    for (const [engine, value] of Object.entries(engines)) {
+      const engineValues = allEngines.get(engine) ?? new Set();
+      engineValues.add(value);
+      allEngines.set(engine, engineValues);
+
+      properties.push({
+        packageJsonPath,
+        propertyName: `engines.${engine}`,
+        value,
+      });
+    }
+  }
+
+  for (const [engine, values] of allEngines) {
+    const engineProperties = properties.filter((p) => p.propertyName === `engines.${engine}`);
+
+    if (values.size > 1) {
+      yield {
+        kind: ValidationIssueKind.MismatchedPropertyValue,
+        properties: engineProperties,
+      }
+    } else if (engine === 'node' && values.size === 1) {
+      const propertiesNotMatchingNodeVersionFile = engineProperties.filter((p) => p.value !== nodeVersionFile);
+      if (propertiesNotMatchingNodeVersionFile.length > 0) {
+
+        yield {
+          kind: ValidationIssueKind.MismatchedPropertyValue,
+          properties: propertiesNotMatchingNodeVersionFile,
+        }
+      }
     }
   }
 }
@@ -134,10 +192,13 @@ export async function* checkPinnedVersions({
 export async function* checkConfig({
   pinnedPackages,
   workspacePackages,
+  nodeVersionFile,
 }: {
   pinnedPackages: readonly string[];
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
+  nodeVersionFile: string;
 }): AsyncGenerator<ValidationIssue> {
   yield* checkPackageManager({ workspacePackages });
   yield* checkPinnedVersions({ workspacePackages, pinnedPackages });
+  yield* checkEngines({ workspacePackages, nodeVersionFile });
 }
