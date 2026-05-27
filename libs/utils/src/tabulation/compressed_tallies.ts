@@ -379,7 +379,7 @@ export function decodeV0CompressedTally(
  */
 function decodeContestEntriesFromUint16Array(
   uint16Array: Uint16Array,
-  contests: readonly AnyContest[],
+  contests: readonly DistrictContest[],
   offset: number
 ): { contestResults: Record<ContestId, ContestResults>; nextOffset: number } {
   const contestResults: Record<ContestId, ContestResults> = {};
@@ -428,7 +428,7 @@ function decodeBitmapTally(
       const contests = getContestsForPrecinctAndElection(
         election,
         precinctSelection
-      );
+      ).filter((c): c is DistrictContest => c.type !== 'straight-party');
       const { contestResults, nextOffset } =
         decodeContestEntriesFromUint16Array(uint16Array, contests, offset);
       result[precinct.id] = contestResults;

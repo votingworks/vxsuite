@@ -2,13 +2,12 @@ import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   AdjudicationReason,
-  BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   MockCastVoteRecordFile,
@@ -116,7 +115,7 @@ function addCvr({
 }): string {
   const mockFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: 'ballot-style-1' as BallotStyleGroupId,
+      ballotStyleGroupId: 'ballot-style-1',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -242,8 +241,8 @@ test('derived votes update after SP overvote is adjudicated', () => {
       contestId: 'straight-party',
       side: 'front',
       adjudicatedContestOptionById: {
-        dem: { type: 'candidate-option', hasVote: true },
-        rep: { type: 'candidate-option', hasVote: false },
+        dem: { type: 'official-option', hasVote: true },
+        rep: { type: 'official-option', hasVote: false },
       },
     },
     store,
@@ -299,8 +298,8 @@ test('adjudicating a candidate contest does not affect SP derived state', () => 
       contestId: 'president',
       side: 'front',
       adjudicatedContestOptionById: {
-        'dem-pres': { type: 'candidate-option', hasVote: false },
-        'rep-pres': { type: 'candidate-option', hasVote: true },
+        'dem-pres': { type: 'official-option', hasVote: false },
+        'rep-pres': { type: 'official-option', hasVote: true },
       },
     },
     store,
@@ -350,8 +349,8 @@ test('invalidating a vote frees seat for SP expansion', () => {
       contestId: 'president',
       side: 'front',
       adjudicatedContestOptionById: {
-        'dem-pres': { type: 'candidate-option', hasVote: false },
-        'rep-pres': { type: 'candidate-option', hasVote: false },
+        'dem-pres': { type: 'official-option', hasVote: false },
+        'rep-pres': { type: 'official-option', hasVote: false },
       },
     },
     store,
@@ -386,7 +385,14 @@ test('tally pipeline produces correct expanded tallies after adjudication', () =
   });
 
   // Tally before adjudication — no expansion due to overvote
-  let [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+  let [cvr] = [
+    ...store.getCastVoteRecords({
+      electionId,
+      election: assertDefined(store.getElection(electionId)).electionDefinition
+        .election,
+      filter: {},
+    }),
+  ];
   assert(cvr !== undefined);
   expect(cvr.votes['president']).toEqual([]);
   expect(cvr.votes['council']).toEqual([]);
@@ -398,8 +404,8 @@ test('tally pipeline produces correct expanded tallies after adjudication', () =
       contestId: 'straight-party',
       side: 'front',
       adjudicatedContestOptionById: {
-        dem: { type: 'candidate-option', hasVote: true },
-        rep: { type: 'candidate-option', hasVote: false },
+        dem: { type: 'official-option', hasVote: true },
+        rep: { type: 'official-option', hasVote: false },
       },
     },
     store,
@@ -407,7 +413,14 @@ test('tally pipeline produces correct expanded tallies after adjudication', () =
   );
 
   // Tally after adjudication — expansion should apply
-  [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+  [cvr] = [
+    ...store.getCastVoteRecords({
+      electionId,
+      election: assertDefined(store.getElection(electionId)).electionDefinition
+        .election,
+      filter: {},
+    }),
+  ];
   assert(cvr !== undefined);
   expect(cvr.votes['straight-party']).toEqual(['dem']);
   expect(cvr.votes['president']).toEqual(['dem-pres']);

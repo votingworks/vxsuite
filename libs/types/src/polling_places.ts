@@ -26,7 +26,9 @@ export function pollingPlaceContests(
   place: PollingPlace
 ): Contests {
   const districts = pollingPlaceDistrictIds(election, place);
-  return election.contests.filter((c) => districts.has(c.districtId));
+  return election.contests.filter(
+    (c) => c.type !== 'straight-party' && districts.has(c.districtId)
+  );
 }
 
 function pollingPlaceDistrictIds(

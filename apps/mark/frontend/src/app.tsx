@@ -45,17 +45,24 @@ export function App({
           logger={logger}
           primaryMessage="Ask a poll worker to restart the ballot marking device."
         >
-          <ApiProvider
-            queryClient={queryClient}
-            apiClient={apiClient}
-            enableStringTranslation={enableStringTranslation}
-            noAudio={noAudio}
-          >
-            <VisualModeDisabledOverlay />
-            <AppRoot />
-            <SessionTimeLimitTracker />
-            <LowDiskSpaceWarning />
-          </ApiProvider>
+          <Switch>
+            <Route exact path="/prototype/straight-party">
+              <StraightPartyPrototype />
+            </Route>
+            <Route>
+              <ApiProvider
+                queryClient={queryClient}
+                apiClient={apiClient}
+                enableStringTranslation={enableStringTranslation}
+                noAudio={noAudio}
+              >
+                <VisualModeDisabledOverlay />
+                <AppRoot />
+                <SessionTimeLimitTracker />
+                <LowDiskSpaceWarning />
+              </ApiProvider>
+            </Route>
+          </Switch>
         </AppErrorBoundary>
       </BrowserRouter>
     </MarkAppBase>

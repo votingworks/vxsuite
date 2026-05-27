@@ -1629,9 +1629,6 @@ export class Store implements BaseStore {
     filter: Tabulation.Filter;
     cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
-    const { election } = assertDefined(
-      this.getElection(electionId)
-    ).electionDefinition;
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
@@ -2314,7 +2311,9 @@ export class Store implements BaseStore {
     const contests: ContestAdjudicationData[] = [];
     const adjudicatedContests: AdjudicatedCvrContest[] = [];
     for (const contest of ballotStyleContests) {
-      const contestOptions = [...allContestOptions(contest, ballotStyleGroup)];
+      const contestOptions = [
+        ...allContestOptions(contest, ballotStyleGroup, election.parties),
+      ];
       const contestVotes = assertDefined(votes[contest.id]);
       const contestMarkScores = markScores?.[contest.id];
 
@@ -2344,6 +2343,7 @@ export class Store implements BaseStore {
           adminAdjudicationReasons,
         }),
         options,
+        derivedOptionIds: [], // populated below after SP expansion
       });
 
       const contestAdjudicatedVotes = adjudicatedVotes?.[contest.id];
@@ -2363,6 +2363,26 @@ export class Store implements BaseStore {
           ),
         });
       }
+    }
+
+    // Compute straight-party derived votes off the effective vote state:
+    // adjudicated votes when a contest has been resolved, otherwise scanned.
+    const effectiveVotes: Tabulation.Votes = {};
+    for (const contestData of contests) {
+      const contestAdjudicatedVotes = adjudicatedVotes?.[contestData.contestId];
+      effectiveVotes[contestData.contestId] =
+        contestAdjudicatedVotes ??
+        contestData.options
+          .filter((o) => o.scannedVote)
+          .map((o) => o.definition.id);
+    }
+    const expandedVotes = applyStraightPartyRules(election, effectiveVotes);
+    for (const contestData of contests) {
+      const effective = new Set(effectiveVotes[contestData.contestId] ?? []);
+      const expanded = expandedVotes[contestData.contestId] ?? [];
+      contestData.derivedOptionIds = expanded.filter(
+        (id) => !effective.has(id)
+      );
     }
 
     debug('queried ballot adjudication data for cvr id %s', cvrId);

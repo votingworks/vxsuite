@@ -56,6 +56,7 @@ import {
   BALLOT_MEASURE_OPTION_CLASS,
   StraightPartyContestContent,
   PrecinctOrSplitName,
+  DualLanguageText,
 } from '../ballot_components';
 import { PixelDimensions, PixelMeasurements } from '../types';
 import {
@@ -461,10 +462,12 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
 
 function Contest({
   contest,
+  election,
   ballotStyle,
   numContestColumns,
 }: {
   contest: AnyContest;
+  election: Election;
   ballotStyle: BallotStyle;
   numContestColumns: number;
 }) {
@@ -520,6 +523,7 @@ function buildSubsectionsByDistrict(
         element: (
           <Contest
             contest={contest}
+            election={election}
             ballotStyle={ballotStyle}
             numContestColumns={numColumns}
           />
@@ -549,6 +553,92 @@ function buildSections(
         numColumns
       ),
     }));
+}
+
+function isGeneralPartisanContest(contest: CandidateContestStruct): boolean {
+  // Candidate contests with party affiliation belong in the partisan section,
+  // except judicial contests, which are nonpartisan even when candidates list
+  // a party. The straight-party ticket itself is also partisan.
+  return (
+    ((contest.candidates[0]?.partyIds?.length ?? 0) > 0 &&
+      contest.districtId !== 'judicial') ||
+    contest.id === 'straight-party-ticket'
+  );
+}
+
+function buildGeneralContestSections(
+  contests: readonly AnyContest[],
+  election: Election,
+  ballotStyle: BallotStyle,
+  numColumns: number
+): ContestSection[] {
+  const straightPartyContest = contests.find(
+    (c) => c.type === 'straight-party'
+  );
+  const districtContests = contests.filter(
+    (c): c is DistrictContest => c.type !== 'straight-party'
+  );
+  const partisanSection: ContestSection = {
+    header: <SectionHeader>Partisan Section</SectionHeader>,
+    subsections: [
+      ...(straightPartyContest
+        ? [
+            {
+              // SP is a "leading" contest at the top of the partisan section,
+              // outside any district grouping — empty subsection header.
+              header: <React.Fragment />,
+              elements: [
+                {
+                  contest: straightPartyContest,
+                  element: (
+                    <Contest
+                      contest={straightPartyContest}
+                      election={election}
+                      ballotStyle={ballotStyle}
+                      numContestColumns={numColumns}
+                    />
+                  ),
+                },
+              ],
+            },
+          ]
+        : []),
+      ...buildSubsectionsByDistrict(
+        election,
+        ballotStyle,
+        districtContests.filter(
+          (c): c is CandidateContestStruct =>
+            c.type === 'candidate' && isGeneralPartisanContest(c)
+        ),
+        numColumns
+      ),
+    ],
+  };
+  const nonPartisanSection: ContestSection = {
+    header: <SectionHeader>Nonpartisan Section</SectionHeader>,
+    subsections: buildSubsectionsByDistrict(
+      election,
+      ballotStyle,
+      districtContests.filter(
+        (c): c is CandidateContestStruct =>
+          c.type === 'candidate' && !isGeneralPartisanContest(c)
+      ),
+      numColumns
+    ),
+  };
+  const proposalSection: ContestSection = {
+    header: <SectionHeader>Proposal Section</SectionHeader>,
+    subsections: buildSubsectionsByDistrict(
+      election,
+      ballotStyle,
+      districtContests.filter((c) => c.type === 'yesno'),
+      numColumns
+    ),
+  };
+
+  return [partisanSection, nonPartisanSection, proposalSection].filter(
+    (section) => section.subsections.length > 0
+  );
 }
 
 function buildClosedPrimaryContestSections(
@@ -714,6 +804,60 @@ async function measureSectionElements(
 interface ContestColumnsResult {
   sectionsElement: JSX.Element;
   leftoverContests: AnyContest[];
+}
+
+async function GeneralContestColumns({
+  contests,
+  election,
+  ballotStyle,
+  dimensions,
+  scratchpad,
+}: {
+  contests: readonly AnyContest[];
+  election: Election;
+  ballotStyle: BallotStyle;
+  dimensions: PixelDimensions;
+  scratchpad: RenderScratchpad;
+}): Promise<ContestColumnsResult> {
+  const numColumns = 4;
+  const sections = buildGeneralContestSections(
+    contests,
+    election,
+    ballotStyle,
+    numColumns
+  );
+
+  const columnWidthPx = dimensions.width / numColumns;
+  const measuredSections = await measureSectionElements(
+    sections,
+    election,
+    ballotStyle,
+    columnWidthPx,
+    scratchpad
+  );
+
+  const { columns, leftoverSections } = layOutSectionsInColumns({
+    sections: measuredSections,
+    numColumns,
+    maxColumnHeight: dimensions.height,
+  });
+
+  return {
+    sectionsElement: (
+      <div style={{ display: 'flex' }}>
+        {columns.map((column, i) => (
+          <ContestColumn key={i}>
+            {column.map(({ element }) => element)}
+          </ContestColumn>
+        ))}
+      </div>
+    ),
+    leftoverContests: leftoverSections.flatMap((section) =>
+      section.subsections.flatMap((subsection) =>
+        subsection.elements.map((element) => element.contest)
+      )
+    ),
+  };
 }
 
 async function ClosedPrimaryContestColumns({
@@ -931,26 +1075,34 @@ async function BallotPageContent(
     getBallotStyle({ election, ballotStyleId })
   );
   const contests = getContests({ election, ballotStyle });
-  assert(election.type === 'primary', 'MI template only supports primaries');
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
 
-  const { leftoverContests, sectionsElement } = isOpenPrimary(election)
-    ? await OpenPrimaryContestColumns({
-        contests,
-        election,
-        ballotStyle,
-        dimensions,
-        scratchpad,
-      })
-    : await ClosedPrimaryContestColumns({
-        contests,
-        election,
-        ballotStyle,
-        dimensions,
-        scratchpad,
-      });
+  const { leftoverContests, sectionsElement } =
+    election.type === 'general'
+      ? await GeneralContestColumns({
+          contests,
+          election,
+          ballotStyle,
+          dimensions,
+          scratchpad,
+        })
+      : isOpenPrimary(election)
+      ? await OpenPrimaryContestColumns({
+          contests,
+          election,
+          ballotStyle,
+          dimensions,
+          scratchpad,
+        })
+      : await ClosedPrimaryContestColumns({
+          contests,
+          election,
+          ballotStyle,
+          dimensions,
+          scratchpad,
+        });
 
   if (leftoverContests.length === contests.length) {
     return err({

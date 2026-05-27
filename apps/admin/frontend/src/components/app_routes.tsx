@@ -40,6 +40,8 @@ import { FullElectionTallyReportScreen } from '../screens/reporting/full_electio
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen';
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
+import { DerivedVotePrototype } from '../screens/derived_vote_prototype';
+import { ContestListPrototype } from '../screens/contest_list_prototype';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen';
 import { BackupsScreen } from '../screens/backups_screen';
 
@@ -139,6 +141,12 @@ export function AppRoutes(): JSX.Element | null {
     <Switch>
       <Route exact path={routerPaths.election}>
         <ElectionScreen />
+      </Route>
+      <Route exact path="/prototype/derived-votes">
+        <DerivedVotePrototype />
+      </Route>
+      <Route exact path="/prototype/contest-list">
+        <ContestListPrototype />
       </Route>
       <Route exact path={routerPaths.ballotAdjudication}>
         <BallotAdjudicationScreen />
