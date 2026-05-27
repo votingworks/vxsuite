@@ -3278,6 +3278,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
+      '@votingworks/fujitsu-thermal-printer':
+        specifier: workspace:*
+        version: link:../../../libs/fujitsu-thermal-printer
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
