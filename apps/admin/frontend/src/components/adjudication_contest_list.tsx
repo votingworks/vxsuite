@@ -302,7 +302,7 @@ interface StraightPartyStatus {
 
 function getStraightPartyStatus(
   contestData: ContestAdjudicationData,
-  adjudicatedContest: AdjudicatedCvrContest
+  adjudicatedContest?: AdjudicatedCvrContest
 ): StraightPartyStatus {
   const originalVoteCount = contestData.options.filter(
     (o) => o.scannedVote
@@ -310,7 +310,7 @@ function getStraightPartyStatus(
   const votedOptions = contestData.options.filter((o) =>
     getCurrentVote(
       o,
-      adjudicatedContest.adjudicatedContestOptionById[o.definition.id]
+      adjudicatedContest?.adjudicatedContestOptionById[o.definition.id]
     )
   );
   const isChanged = votedOptions.length !== originalVoteCount;
@@ -426,12 +426,6 @@ function BallotSideContestList({
                     <StraightPartyCaption>
                       {straightPartyStatus.text}
                     </StraightPartyCaption>
-                  ))}
-                {isResolved &&
-                  bullets.map((bullet) => (
-                    <ResolvedCaption key={bullet} weight="semiBold">
-                      &bull; {bullet}
-                    </ResolvedCaption>
                   ))}
               </Column>
               {isPending && !suppressContestAdjudicationInfo && (
@@ -573,6 +567,7 @@ export function AdjudicationContestList({
           onHover={onHover}
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
+          straightPartyStatus={straightPartyStatus}
           title="Front"
         />
       )}
@@ -588,6 +583,7 @@ export function AdjudicationContestList({
           onHover={onHover}
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
+          straightPartyStatus={straightPartyStatus}
           title="Back"
         />
       )}

@@ -614,15 +614,17 @@ export function BallotAdjudicationScreen({
     getDefaultSide(adjudicatedContests)
   );
 
-  const spContestData = adjudicatedContests.find((c) => {
-    const contestDef = election?.contests.find((ec) => ec.id === c.contestId);
+  const spContestData = contestAdjudicationData.find((c) => {
+    const contestDef = election.contests.find((ec) => ec.id === c.contestId);
     return contestDef?.type === 'straight-party';
   });
   const spVotedOption = (() => {
     if (!spContestData) return undefined;
+    const spAdjudicated = adjudicatedContests.get(spContestData.contestId);
     const votedOptions = spContestData.options.filter((o) => {
-      if (o.voteAdjudication) return o.voteAdjudication.isVote;
-      return o.initialVote;
+      const adjudicated =
+        spAdjudicated?.adjudicatedContestOptionById[o.definition.id];
+      return adjudicated ? adjudicated.hasVote : o.scannedVote;
     });
     if (votedOptions.length !== 1) return undefined;
     return votedOptions[0];
