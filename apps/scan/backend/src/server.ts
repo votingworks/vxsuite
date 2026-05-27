@@ -11,6 +11,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isIntegrationTest,
 } from '@votingworks/utils';
 import {
   FujitsuThermalPrinterInterface,
@@ -68,8 +69,11 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  const audioCard = await AudioCard.default(NODE_ENV, logger);
-  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
+  // In integration tests, the sudo-wrapped pactl is unavailable, so use the
+  // development path (direct pactl) for audio card detection.
+  const audioNodeEnv = isIntegrationTest() ? 'development' : NODE_ENV;
+  const audioCard = await AudioCard.default(audioNodeEnv, logger);
+  const audioPlayer = new AudioPlayer(audioNodeEnv, logger, audioCard);
 
   const systemSettings = workspace.store.getSystemSettings();
   const isScreenReaderEnabled = Boolean(
