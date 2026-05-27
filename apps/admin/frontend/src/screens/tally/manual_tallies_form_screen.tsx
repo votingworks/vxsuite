@@ -815,6 +815,9 @@ function ContestForm({
             {contest.type === 'candidate' && (
               <div>Vote for {contest.seats}</div>
             )}
+            {contest.type === 'straight-party' && (
+              <div>Vote for not more than 1</div>
+            )}
           </div>
           <ContestSection
             fill={isOverridingBallotCount ? 'warning' : 'neutral'}

@@ -13,6 +13,7 @@ import {
   Modal,
   P,
   Caption,
+  NumberString,
   WithScrollButtons,
   AudioOnly,
   appStrings,
@@ -78,6 +79,8 @@ export function StraightPartyContest({
       <Main flexColumn>
         <ContestHeader breadcrumbs={breadcrumbs} contest={contest}>
           <Caption>
+            {appStrings.labelNumVotesRemaining()}{' '}
+            <NumberString value={selectedPartyId ? 0 : 1} weight="bold" />
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}

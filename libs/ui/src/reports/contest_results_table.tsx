@@ -282,8 +282,7 @@ export function ContestResultsTable({
         scannedContestResults.tallies
       )) {
         const key = `${contest.id}-${partyId}`;
-        const manualTally =
-          manualContestResults?.tallies[partyId]?.tally ?? 0;
+        const manualTally = manualContestResults?.tallies[partyId]?.tally ?? 0;
         contestTableRows.push(
           <ContestOptionRow
             key={key}
@@ -306,9 +305,7 @@ export function ContestResultsTable({
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
       {contest.type !== 'straight-party' && (
-        <DistrictName>
-          {getContestDistrictName(election, contest)}
-        </DistrictName>
+        <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
       )}
       <ContestTitle>{contest.title}</ContestTitle>
       {contest.type === 'candidate' && (
@@ -318,6 +315,9 @@ export function ContestResultsTable({
             <span> • {contest.termDescription}</span>
           )}
         </ContestMetadata>
+      )}
+      {contest.type === 'straight-party' && (
+        <ContestMetadata>Vote for not more than 1</ContestMetadata>
       )}
       {!hasManualResults && (
         <MetadataLabel>

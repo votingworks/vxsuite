@@ -966,7 +966,7 @@ export const appStrings = {
 
   labelStraightPartyIndirectVote: () => (
     <UiString uiStringKey="labelStraightPartyIndirectVote">
-      Straight party vote
+      Straight Party Vote
     </UiString>
   ),
 
@@ -1198,6 +1198,12 @@ export const appStrings = {
   noteBmdSessionRestart: () => (
     <UiString uiStringKey="noteBmdSessionRestart">
       Your voting session will restart shortly.
+    </UiString>
+  ),
+
+  noteBmdStraightPartyAppliesToContest: () => (
+    <UiString uiStringKey="noteBmdStraightPartyAppliesToContest">
+      Your straight party vote will apply to this contest.
     </UiString>
   ),
 

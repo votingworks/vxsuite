@@ -43,7 +43,10 @@ import {
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { WriteInCandidateName } from './write_in_candidate_name';
 import { numVotesRemaining } from '../utils/vote';
-import { getIndirectCandidateIds } from '../utils/straight_party_votes';
+import {
+  getIndirectCandidateIds,
+  getStraightPartySelectedPartyId,
+} from '../utils/straight_party_votes';
 
 const Contest = styled.div`
   display: block;
@@ -91,6 +94,10 @@ function CandidateContestResult({
     indirectCandidateIds.has(c.id)
   );
 
+  const straightPartyPartyId = votes
+    ? getStraightPartySelectedPartyId(election, votes)
+    : undefined;
+
   return (
     <VoterContestSummary
       districtName={electionStrings.districtName(district)}
@@ -111,15 +118,27 @@ function CandidateContestResult({
       }
       note={undefined}
       votes={[
-        ...orderedVotes.map(
-          (candidate): ContestVote => ({
+        ...orderedVotes.map((candidate): ContestVote => {
+          const isStraightPartyCandidate =
+            !candidate.isWriteIn &&
+            !!straightPartyPartyId &&
+            !!candidate.partyIds?.includes(straightPartyPartyId);
+          return {
             caption: candidate.isWriteIn ? (
               appStrings.labelWriteInParenthesized()
             ) : (
-              <CandidatePartyList
-                candidate={candidate}
-                electionParties={election.parties}
-              />
+              <React.Fragment>
+                <CandidatePartyList
+                  candidate={candidate}
+                  electionParties={election.parties}
+                />
+                {isStraightPartyCandidate && (
+                  <React.Fragment>
+                    {' - '}
+                    {appStrings.labelStraightPartyIndirectVote()}
+                  </React.Fragment>
+                )}
+              </React.Fragment>
             ),
             id: candidate.id,
             partyIds: candidate.partyIds,
@@ -133,8 +152,8 @@ function CandidateContestResult({
             ) : (
               electionStrings.candidateName(candidate)
             ),
-          })
-        ),
+          };
+        }),
         ...indirectCandidates.map(
           (candidate): ContestVote => ({
             caption: (

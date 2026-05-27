@@ -387,6 +387,11 @@ export function CandidateContest({
               />
             </AudioOnly>
           </Caption>
+          {indirectCount > 0 && (
+            <AudioOnly>
+              {appStrings.noteBmdStraightPartyAppliesToContest()}
+            </AudioOnly>
+          )}
         </ContestHeader>
         <WithScrollButtons>
           <ChoicesGrid>
@@ -435,6 +440,8 @@ export function CandidateContest({
                       appStrings.noteBmdContestCompleted()
                     );
                 }
+              } else if (isIndirect) {
+                prefixAudioText = appStrings.labelSelected();
               } else if (
                 recentlyDeselectedCandidate &&
                 areCandidateChoicesEqual(recentlyDeselectedCandidate, candidate)
