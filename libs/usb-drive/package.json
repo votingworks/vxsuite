@@ -30,7 +30,7 @@
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.6"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

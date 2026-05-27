@@ -122,7 +122,7 @@
     "sort-package-json": "^1.50.0",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.11",
-    "tmp": "^0.2.1",
+    "tmp": "^0.2.6",
     "util": "^0.12.4",
     "vite": "8.0.5",
     "vitest": "^4.1.6",

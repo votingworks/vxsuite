@@ -37,7 +37,7 @@
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.6"
   },
   "devDependencies": {
     "@types/jest-image-snapshot": "^6.4.0",
