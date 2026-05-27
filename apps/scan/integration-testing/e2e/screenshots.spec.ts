@@ -95,4 +95,8 @@ test('screenshots', async ({ page }) => {
   await page.getByText('Test Page Printed').waitFor();
   await screenshot('em-printer-test-page-printed');
   await page.getByRole('button', { name: 'Pass' }).click();
+
+  await page.getByRole('tab', { name: 'Scanner' }).click();
+  await page.getByText('Calibrate Double Sheet Detection').waitFor();
+  await screenshot('em-scanner-tab');
 });
