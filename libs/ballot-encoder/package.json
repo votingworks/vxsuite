@@ -39,9 +39,6 @@
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"
   },
-  "engines": {
-    "node": ">= 12"
-  },
   "publishConfig": {
     "access": "public"
   },

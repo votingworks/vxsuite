@@ -14,6 +14,12 @@ export interface PackageJson {
   readonly packageManager?: string;
 
   /**
+   * Which versions of various tools do we support (in practice this is just
+   * the version of Node.js).
+   */
+  readonly engines?: Record<string, string>;
+
+  /**
    * Binaries of the package, i.e. `bin` from `package.json`.
    */
   readonly bin?: string | { [name: string]: string };
