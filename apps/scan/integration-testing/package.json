@@ -17,6 +17,7 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
