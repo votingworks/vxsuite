@@ -8,6 +8,7 @@ import { BallotStyleGroupId, PrecinctId, Tabulation } from '@votingworks/types';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -508,19 +509,23 @@ test('manual results APIs reject reads/writes for open primary elections', async
   };
 
   // Writes that would create data: asserts.
-  await expect(
-    apiClient.setManualResults({
-      ...identifier,
-      manualResults: buildManualResultsFixture({
-        election: openPrimaryElectionDefinition.election,
-        ballotCount: 1,
-        contestResultsSummaries: {},
-      }),
-    })
-  ).rejects.toThrow();
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.setManualResults({
+        ...identifier,
+        manualResults: buildManualResultsFixture({
+          election: openPrimaryElectionDefinition.election,
+          ballotCount: 1,
+          contestResultsSummaries: {},
+        }),
+      })
+    ).rejects.toThrow()
+  );
 
   // getManualResults is used on the manual tallies form, which is hidden
-  await expect(apiClient.getManualResults(identifier)).rejects.toThrow();
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.getManualResults(identifier)).rejects.toThrow()
+  );
   // getManualResultsMetadata is used in a few places to see if manual results
   // exist or not, so we leave that enabled.
   expect(await apiClient.getManualResultsMetadata()).toEqual([]);

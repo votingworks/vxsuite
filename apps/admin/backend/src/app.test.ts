@@ -116,8 +116,10 @@ test('setMachineMode throws when election is configured', async () => {
   const electionDefinition = readElectionGeneralDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
-  await expect(apiClient.setMachineMode({ mode: 'client' })).rejects.toThrow(
-    'Cannot change machine mode while an election is configured.'
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.setMachineMode({ mode: 'client' })).rejects.toThrow(
+      'Cannot change machine mode while an election is configured.'
+    )
   );
 });
 
