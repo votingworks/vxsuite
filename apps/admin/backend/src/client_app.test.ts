@@ -318,9 +318,10 @@ test('claimAndLoadBallot proxies to host peer API', async () => {
     contests: [],
     adjudicatedContests: [],
   } as const;
-  mockPeerApi.claimAndLoadBallot.mockResolvedValue(
-    ok({ cvrId: 'cvr-1', data: ballotData })
-  );
+  mockPeerApi.claimAndLoadBallot.mockResolvedValue({
+    cvrId: 'cvr-1',
+    data: ballotData,
+  });
 
   const result = await env.apiClient.claimAndLoadBallot({});
   expect(result).toEqual(ok({ cvrId: 'cvr-1', data: ballotData }));
@@ -331,18 +332,10 @@ test('claimAndLoadBallot proxies to host peer API', async () => {
 
 test('claimAndLoadBallot returns undefined when no ballots available', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.claimAndLoadBallot.mockResolvedValue(ok(undefined));
+  mockPeerApi.claimAndLoadBallot.mockResolvedValue(undefined);
 
   const result = await env.apiClient.claimAndLoadBallot({});
   expect(result).toEqual(ok(undefined));
-});
-
-test('claimAndLoadBallot surfaces a no-claim error from the host', async () => {
-  const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.claimAndLoadBallot.mockResolvedValue(err({ type: 'no-claim' }));
-
-  const result = await env.apiClient.claimAndLoadBallot({ cvrId: 'cvr-1' });
-  expect(result).toEqual(err({ type: 'no-claim' }));
 });
 
 test('proxy endpoints return host-disconnect error when not connected', async () => {

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, Loading, Main, P, Screen } from '@votingworks/ui';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
 import type {
@@ -44,10 +44,6 @@ type FlowState =
 
 export function ClientBallotAdjudicationScreen(): JSX.Element {
   const history = useHistory();
-  // The cvrId is absent when arriving from "Start Adjudication" (claim the
-  // next available ballot) and present on refresh/direct navigation (reclaim
-  // that specific ballot).
-  const { cvrId: initialCvrId } = useParams<{ cvrId?: string }>();
   const adjudicationStatusQuery = getAdjudicationSessionStatus.useQuery();
   const { mutateAsync: claimAndLoadAsync } = claimAndLoadBallot.useMutation();
   const { mutateAsync: releaseBallotAsync } = releaseBallot.useMutation();
@@ -72,55 +68,13 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
     [releaseBallotAsync]
   );
 
-  // Initial load: claim+load a ballot — the specific one named in the URL, or
-  // the next available one when no cvrId is present. Runs once on mount; the ref guard makes the claim fire at
-  // most once even under StrictMode's double-invoke. We `history.replace` the
-  // resolved cvrId into the URL so a refresh reclaims the same ballot.
-  const hasClaimedOnMountRef = useRef(false);
-  useEffect(() => {
-    if (hasClaimedOnMountRef.current) return;
-    hasClaimedOnMountRef.current = true;
-    void (async () => {
-      const result = await claimAndLoadAsync(
-        initialCvrId ? { cvrId: initialCvrId } : {}
-      );
-      if (result.isErr()) {
-        setFlowState({ type: 'error', error: result.err() });
-        return;
-      }
-      const value = result.ok();
-      if (!value) {
-        setFlowState({ type: 'done' });
-        return;
-      }
-      // Only rewrite the URL when we arrived without a cvrId (from "Start
-      // Adjudication"); when one is already present the path is correct and
-      // replacing it could clobber a concurrent redirect.
-      if (!initialCvrId) {
-        history.replace(`${routerPaths.ballotAdjudication}/${value.cvrId}`);
-      }
-      setFlowState({
-        type: 'adjudicating',
-        cvrId: value.cvrId,
-        data: value.data,
-      });
-    })();
-  }, [claimAndLoadAsync, history, initialCvrId]);
-
-  // Move forward past `afterCvrId` to the next eligible ballot. With no
-  // argument, restarts from the beginning of the queue (used as the
-  // wrap-around fallback when we've walked past the end mid-session).
+  // Claim+load a ballot and reflect it in flow state. `afterCvrId` advances to
+  // the next eligible ballot, which the backend wraps around the end of the
+  // queue back to any earlier still-unresolved ballots; with no argument it
+  // claims a fresh ballot (used for the initial mount).
   const claimNextBallot = useCallback(
     async (afterCvrId?: Id): Promise<void> => {
-      let result = await claimAndLoadAsync(afterCvrId ? { afterCvrId } : {});
-
-      // If nothing is available past `afterCvrId`, try once more without
-      // the cursor — there may be still-unresolved ballots earlier in the
-      // queue that we walked past via Skip.
-      if (result.isOk() && !result.ok() && afterCvrId) {
-        result = await claimAndLoadAsync({});
-      }
-
+      const result = await claimAndLoadAsync(afterCvrId ? { afterCvrId } : {});
       if (result.isErr()) {
         setFlowState({ type: 'error', error: result.err() });
         return;
@@ -128,7 +82,6 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
 
       const value = result.ok();
       if (value) {
-        history.replace(`${routerPaths.ballotAdjudication}/${value.cvrId}`);
         setFlowState({
           type: 'adjudicating',
           cvrId: value.cvrId,
@@ -138,8 +91,13 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
         setFlowState({ type: 'done' });
       }
     },
-    [claimAndLoadAsync, history]
+    [claimAndLoadAsync]
   );
+
+  // Claim the first ballot on mount (no cursor → a fresh claim).
+  useEffect(() => {
+    void claimNextBallot();
+  }, [claimNextBallot]);
 
   const skipBallot = useCallback(
     async (cvrId: Id): Promise<void> => {
@@ -244,7 +202,7 @@ function ClientBallotAdjudicationDataLoader({
   const writeInCandidates = writeInCandidatesQuery.data;
   const systemSettings = systemSettingsQuery.data;
 
-  // Auxiliary proxy results may still surface their own errors.
+  // Check for proxy errors in query results or mutations.
   const proxyError =
     mutationError ??
     [ballotImages, writeInCandidates].find((r) => r.isErr())?.err();

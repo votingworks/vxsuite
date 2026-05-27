@@ -323,19 +323,14 @@ function HostBallotAdjudicationScreen({
   async function navigateAcceptNext(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      const nextCvrId =
-        (await apiClient.getNextCvrIdForBallotAdjudication({ currentCvrId })) ??
-        (await apiClient.getNextCvrIdForBallotAdjudication());
-      if (!nextCvrId) {
-        await claimAndRelease();
-        history.push(routerPaths.adjudication);
-        return;
-      }
-      const nextIndex = queue.indexOf(nextCvrId);
+      // The backend wraps around the end of the queue, so a single lookup
+      // returns the next ballot to adjudicate (or null when none remain).
+      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication({
+        currentCvrId,
+      });
+      const nextIndex = nextCvrId ? queue.indexOf(nextCvrId) : -1;
       if (nextIndex < 0) {
-        // The next ballot is no longer in our cached queue (likely
-        // invalidated by mutations). Drop back to the adjudication landing
-        // so the queue refetches fresh.
+        // No ballot left, or the next one isn't in our cached queue drop back to the landing screen
         await claimAndRelease();
         history.push(routerPaths.adjudication);
         return;

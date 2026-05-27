@@ -834,6 +834,37 @@ describe('machine ballot adjudication assignments', () => {
     expect(claimNextForClient('client-002')).toEqual(cvr1);
   });
 
+  test('no-cursor claim is idempotent — returns the existing claim', () => {
+    const cvr1 = addCvrWithWriteIn();
+    const cvr2 = addCvrWithWriteIn();
+
+    const first = claimNextForClient('client-001');
+    expect([cvr1, cvr2]).toContain(first);
+
+    // Calling again with no cursor returns the same ballot rather than
+    // grabbing a second one.
+    expect(claimNextForClient('client-001')).toEqual(first);
+
+    // The machine still holds exactly that one claim, so another machine can
+    // still take the other ballot.
+    const second = claimNextForClient('client-002');
+    expect([cvr1, cvr2]).toContain(second);
+    expect(second).not.toEqual(first);
+  });
+
+  test('claiming a specific cvrId held by another machine returns no-claim', () => {
+    const cvr1 = addCvrWithWriteIn();
+    expect(claimNextForClient('client-001')).toEqual(cvr1);
+
+    // A different machine asking for that exact cvrId is rejected.
+    const result = store.claimAndLoadBallotData({
+      electionId,
+      machineId: 'client-002',
+      cvrId: cvr1,
+    });
+    expect(result.err()).toEqual({ type: 'no-claim' });
+  });
+
   test('completed ballot cannot be re-claimed', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
@@ -900,7 +931,7 @@ describe('machine ballot adjudication assignments', () => {
     expect([cvr1, cvr2]).toContain(claimNextForClient('client-004'));
   });
 
-  test('afterCvrId cursor claims the ballot after the given one', () => {
+  test('afterCvrId cursor advances and wraps around the end of the queue', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
 
@@ -913,8 +944,9 @@ describe('machine ballot adjudication assignments', () => {
     // Claiming after the first ballot returns the second.
     expect(claimNextForClient('client-002', first)).toEqual(second);
 
-    // Nothing comes after the last ballot.
-    expect(claimNextForClient('client-003', second)).toBeUndefined();
+    // After the last ballot, the search wraps back to the still-unclaimed
+    // first ballot (client-002 still holds `second`).
+    expect(claimNextForClient('client-003', second)).toEqual(first);
   });
 
   test('cleanupStaleMachines releases claims for stale machines', () => {

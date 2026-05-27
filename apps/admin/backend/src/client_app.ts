@@ -253,21 +253,7 @@ function buildClientApi({
       );
     },
 
-    /**
-     * Atomically claim a ballot and load its adjudication data via the host
-     * in a single SQL transaction.
-     *
-     * - `cvrId` provided → claim that specific ballot (or confirm an
-     *   existing claim). `no-claim` if another machine holds it.
-     * - `afterCvrId` provided → find the next eligible ballot in queue
-     *   order strictly after this one and claim it. `ok(undefined)` if
-     *   none.
-     * - Neither → claim the first eligible ballot.
-     *
-     * `host-disconnect` if we can't reach the host.
-     */
     async claimAndLoadBallot(input: {
-      cvrId?: Id;
       afterCvrId?: Id;
     }): Promise<
       Result<
@@ -275,34 +261,24 @@ function buildClientApi({
         AdjudicationError
       >
     > {
-      const wrapped = await proxy(
+      const result = await proxy(
         'claim and load ballot',
         async ({ apiClient: peerApi }) =>
           peerApi.claimAndLoadBallot({
             machineId: getMachineConfig().machineId,
-            cvrId: input.cvrId,
             afterCvrId: input.afterCvrId,
           })
       );
-      // check if there was a transport error
-      if (wrapped.isErr()) return wrapped;
-      const inner = wrapped.ok();
-      // check if the endpoint itself returned an err value
-      if (inner.isErr()) {
-        await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
-          message: `Failed to claim ballot: ${inner.err().type}.`,
-          disposition: 'failure',
-        });
-        return inner;
+      if (result.isOk()) {
+        const value = result.ok();
+        if (value) {
+          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+            message: `Claimed ballot ${value.cvrId}.`,
+            disposition: 'success',
+          });
+        }
       }
-      const value = inner.ok();
-      if (value) {
-        await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
-          message: `Claimed ballot ${value.cvrId}.`,
-          disposition: 'success',
-        });
-      }
-      return inner;
+      return result;
     },
 
     async getBallotImages(input: {

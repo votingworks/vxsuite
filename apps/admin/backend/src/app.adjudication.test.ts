@@ -53,14 +53,13 @@ async function claimBallot(
   peerApiClient: {
     claimAndLoadBallot: (input: {
       machineId: string;
-      cvrId?: string;
       afterCvrId?: string;
-    }) => Promise<{ unsafeUnwrap(): { cvrId: string } | undefined }>;
+    }) => Promise<{ cvrId: string } | undefined>;
   },
-  input: { machineId: string; cvrId?: string; afterCvrId?: string }
+  input: { machineId: string; afterCvrId?: string }
 ): Promise<string | undefined> {
   const result = await peerApiClient.claimAndLoadBallot(input);
-  return result.unsafeUnwrap()?.cvrId;
+  return result?.cvrId;
 }
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
@@ -696,13 +695,14 @@ test('getNextCvrIdForBallotAdjudication advances past the current ballot', async
   });
   expect(second).toEqual(adjudicationQueue[1]);
 
-  // With `currentCvrId` = last queue entry, returns null (no more after).
+  // With `currentCvrId` = last queue entry, the search wraps around to the
+  // first eligible ballot (nothing here is adjudicated yet).
   const lastInQueue = adjudicationQueue[adjudicationQueue.length - 1];
   expect(
     await apiClient.getNextCvrIdForBallotAdjudication({
       currentCvrId: lastInQueue,
     })
-  ).toEqual(null);
+  ).toEqual(adjudicationQueue[0]);
 });
 
 test('host claimAndLoadBallot returns data and bypasses claim when multi-station is off', async () => {

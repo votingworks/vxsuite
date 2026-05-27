@@ -1001,10 +1001,11 @@ test('accept on the last ballot wraps back to an earlier unresolved ballot', asy
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   apiMock.expectAdjudicateCvr({ cvrId: CVR_ID_2, contests: [] });
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
-  // After-current finds nothing; the wrap-around (bare) call returns CVR_ID_1.
+  // The backend wraps around, so the single after-current lookup returns
+  // CVR_ID_1 directly.
   apiMock.apiClient.getNextCvrIdForBallotAdjudication
     .expectCallWith({ currentCvrId: CVR_ID_2 })
-    .resolves(null);
+    .resolves(CVR_ID_1);
   apiMock.apiClient.getNextCvrIdForBallotAdjudication
     .expectOptionalRepeatedCallsWith()
     .resolves(CVR_ID_1);

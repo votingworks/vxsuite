@@ -27,14 +27,13 @@ async function claimBallot(
   peerApiClient: {
     claimAndLoadBallot: (input: {
       machineId: string;
-      cvrId?: string;
       afterCvrId?: string;
-    }) => Promise<{ unsafeUnwrap(): { cvrId: string } | undefined }>;
+    }) => Promise<{ cvrId: string } | undefined>;
   },
-  input: { machineId: string; cvrId?: string; afterCvrId?: string }
+  input: { machineId: string; afterCvrId?: string }
 ): Promise<string | undefined> {
   const result = await peerApiClient.claimAndLoadBallot(input);
-  return result.unsafeUnwrap()?.cvrId;
+  return result?.cvrId;
 }
 
 beforeEach(() => {
@@ -294,54 +293,6 @@ test('claimBallot claims an unresolved CVR', async () => {
 
   const result3 = await claimBallot(peerApiClient, { machineId: 'client-003' });
   expect(result3).toBeUndefined();
-});
-
-test('claimAndLoadBallot claims a specific cvrId and returns its data', async () => {
-  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition
-  );
-  const cvrIds = addTestCvrs(workspace.store, electionId, 2);
-  const targetCvrId = cvrIds[0];
-
-  const result = await peerApiClient.claimAndLoadBallot({
-    machineId: 'client-001',
-    cvrId: targetCvrId,
-  });
-  const value = result.unsafeUnwrap();
-  expect(value).toBeDefined();
-  expect(value?.cvrId).toEqual(targetCvrId);
-  expect(value?.data.cvrId).toEqual(targetCvrId);
-});
-
-test('claimAndLoadBallot with cvrId returns no-claim when another machine holds it', async () => {
-  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition
-  );
-  const cvrIds = addTestCvrs(workspace.store, electionId, 1);
-
-  // Client 1 takes the claim first.
-  const result1 = await peerApiClient.claimAndLoadBallot({
-    machineId: 'client-001',
-    cvrId: cvrIds[0],
-  });
-  expect(result1.unsafeUnwrap()?.cvrId).toEqual(cvrIds[0]);
-
-  // Client 2 tries to claim the same cvrId — gets no-claim.
-  const result2 = await peerApiClient.claimAndLoadBallot({
-    machineId: 'client-002',
-    cvrId: cvrIds[0],
-  });
-  expect(result2.err()).toEqual({ type: 'no-claim' });
 });
 
 test('releaseBallot frees a claimed CVR', async () => {
