@@ -16,6 +16,7 @@ import { formatBallotHash, Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { MockMultiUsbDrive } from '@votingworks/usb-drive';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { mockFileName, parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
@@ -297,21 +298,23 @@ test('rejects party filter or party grouping', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockUsbDrive.insertUsbDrive({});
 
-  await expect(
-    apiClient.exportTallyReportCsv({
-      filename: mockFileName(),
-      filter: { partyIds: ['0'] },
-      groupBy: {},
-    })
-  ).rejects.toThrow('Filter by party not supported in CSV export');
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.exportTallyReportCsv({
+        filename: mockFileName(),
+        filter: { partyIds: ['0'] },
+        groupBy: {},
+      })
+    ).rejects.toThrow('Filter by party not supported in CSV export');
 
-  await expect(
-    apiClient.exportTallyReportCsv({
-      filename: mockFileName(),
-      filter: {},
-      groupBy: { groupByParty: true },
-    })
-  ).rejects.toThrow('Group by party not supported in CSV export');
+    await expect(
+      apiClient.exportTallyReportCsv({
+        filename: mockFileName(),
+        filter: {},
+        groupBy: { groupByParty: true },
+      })
+    ).rejects.toThrow('Group by party not supported in CSV export');
+  });
 });
 
 test('incorporates wia and manual data (grouping by voting method)', async () => {
