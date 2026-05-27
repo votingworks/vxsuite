@@ -43,4 +43,10 @@ test('screenshots', async ({ page }) => {
   );
   await page.getByText('Election Manager Menu').waitFor();
   await screenshot('em-election-manager-menu');
+
+  await page.getByLabel(/select a polling place/i).click({ force: true });
+  await page.getByText('North Lincoln', { exact: true }).click();
+  // Wait for the selected value to render in the dropdown control
+  await page.locator('.search-select').getByText('North Lincoln').waitFor();
+  await screenshot('em-polling-place-selected');
 });
