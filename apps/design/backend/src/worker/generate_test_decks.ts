@@ -5,6 +5,7 @@ import {
   ElectionSerializationFormat,
   ElectionSerializationFormatSchema,
   formatBallotHash,
+  pollingPlacesGenerateFromPrecincts,
   Precinct,
 } from '@votingworks/types';
 import { translateBallotStrings } from '@votingworks/backend';
@@ -67,6 +68,9 @@ export async function generateTestDecks(
 
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  // Must mirror the election shape produced by
+  // generate_election_package_and_ballots so that test-deck ballots have the
+  // same ballot hash as the official ballots / election package.
   let election = stateFeatures.STRAIGHT_PARTY_VOTING
     ? injectStraightPartyContest(electionRecord.election)
     : electionRecord.election;
