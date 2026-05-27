@@ -136,6 +136,8 @@ export function generateTitleForReport({
           return 'Ballots With Write-Ins';
         case 'hasMarginalMark':
           return 'Ballots With Marginal Marks';
+        case 'hasCrossoverVote':
+          return 'Ballots With Crossover Votes';
         default: {
           /* istanbul ignore next */
           throwIllegalValue(adjudicationFlag);

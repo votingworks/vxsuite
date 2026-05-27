@@ -198,6 +198,12 @@ test('generateTitleForReport', () => {
       },
       'Ballot Count Report • Ballots With Marginal Marks',
     ],
+    [
+      {
+        adjudicationFlags: ['hasCrossoverVote'],
+      },
+      'Ballot Count Report • Ballots With Crossover Votes',
+    ],
   ];
 
   for (const [filter, title] of ballotCountFilters) {
