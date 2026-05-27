@@ -14,8 +14,6 @@ import {
   ElectionSerializationFormatSchema,
   EncodedBallotEntry,
   BaseBallotProps,
-  Election,
-  pollingPlacesGenerateFromPrecincts,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -40,6 +38,7 @@ import { Readable } from 'node:stream';
 import { randomUUID as uuid } from 'node:crypto';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
+  addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
@@ -60,7 +59,6 @@ import {
 } from '../globals';
 import { Store } from '../store';
 import { rootDebug } from '../debug';
-import { getStateFeaturesConfig } from '../features';
 
 const debug = rootDebug.extend('export-qa');
 
@@ -266,17 +264,10 @@ export async function generateElectionPackageAndBallots(
   );
 
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
-  const stateFeatures = getStateFeaturesConfig(jurisdiction);
-  const election: Election = stateFeatures.EDIT_POLLING_PLACES
-    ? electionRecord.election
-    : {
-        ...electionRecord.election,
-        pollingPlaces: pollingPlacesGenerateFromPrecincts(
-          electionRecord.election.precincts,
-          'election_day',
-          (p) => `${p.id}-polling-place`
-        ),
-      };
+  const election = addPollingPlacesForExport(
+    electionRecord.election,
+    jurisdiction
+  );
 
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(

@@ -18,6 +18,7 @@ import {
   electionFamousNames2021Fixtures,
   electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  electionSimpleSinglePrecinctFixtures,
   makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -4318,79 +4319,96 @@ test.each([
   }
 );
 
-test('Consistency of ballot hash across exports', async () => {
-  const baseElectionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
+test.each([
+  {
+    label: 'EDIT_POLLING_PLACES true (DEMO)',
+    jurisdiction: nonVxJurisdiction,
+    user: nonVxUser,
+    fixture: electionFamousNames2021Fixtures,
+  },
+  {
+    label: 'EDIT_POLLING_PLACES falsy (MS)',
+    jurisdiction: msJurisdiction,
+    user: anotherNonVxUser,
+    fixture: electionSimpleSinglePrecinctFixtures,
+  },
+])(
+  'Consistency of ballot hash across exports: $label',
+  async ({ jurisdiction, user, fixture }) => {
+    const baseElectionDefinition = fixture.readElectionDefinition();
+    const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
 
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = (
-    await apiClient.loadElection({
-      newId: 'new-election-id',
-      jurisdictionId: nonVxJurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
-      },
-    })
-  ).unsafeUnwrap();
+    auth0.setLoggedInUser(user);
+    const electionId = (
+      await apiClient.loadElection({
+        newId: 'new-election-id',
+        jurisdictionId: jurisdiction.id,
+        upload: {
+          format: 'vxf',
+          electionFileContents: baseElectionDefinition.electionData,
+        },
+      })
+    ).unsafeUnwrap();
 
-  const testDecksFilePath = await exportTestDecks({
-    fileStorageClient,
-    apiClient,
-    electionId,
-    workspace,
-    electionSerializationFormat: 'vxf',
-  });
+    const testDecksFilePath = await exportTestDecks({
+      fileStorageClient,
+      apiClient,
+      electionId,
+      workspace,
+      electionSerializationFormat: 'vxf',
+    });
 
-  const exportMeta = await exportElectionPackage({
-    fileStorageClient,
-    apiClient,
-    electionId,
-    workspace,
-    electionSerializationFormat: 'vxf',
-    shouldExportAudio: false,
-    shouldExportSampleBallots: true,
-    shouldExportTestBallots: false,
-    numAuditIdBallots: undefined,
-  });
+    const exportMeta = await exportElectionPackage({
+      fileStorageClient,
+      apiClient,
+      electionId,
+      workspace,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
+      shouldExportSampleBallots: true,
+      shouldExportTestBallots: false,
+      numAuditIdBallots: undefined,
+    });
 
-  const electionPackageContents = getExportedFile({
-    storage: fileStorageClient,
-    jurisdictionId: nonVxJurisdiction.id,
-    url: exportMeta.electionPackageUrl,
-  });
+    const electionPackageContents = getExportedFile({
+      storage: fileStorageClient,
+      jurisdictionId: jurisdiction.id,
+      url: exportMeta.electionPackageUrl,
+    });
 
-  const { electionDefinition } = (
-    await readElectionPackageFromBuffer(electionPackageContents)
-  ).unsafeUnwrap().electionPackage;
+    const { electionDefinition } = (
+      await readElectionPackageFromBuffer(electionPackageContents)
+    ).unsafeUnwrap().electionPackage;
 
-  const electionPackageFileName = assertDefined(exportMeta.electionPackageUrl);
-  const electionPackageZipBallotHash = electionPackageFileName.match(
-    'election-package-(.*)-.*.zip'
-  )![1];
+    const electionPackageFileName = assertDefined(
+      exportMeta.electionPackageUrl
+    );
+    const electionPackageZipBallotHash = electionPackageFileName.match(
+      'election-package-(.*)-.*.zip'
+    )![1];
 
-  const ballotsFileName = assertDefined(exportMeta.officialBallotsUrl);
-  const ballotsZipBallotHash = ballotsFileName.match(
-    'official-ballots-(.*).zip'
-  )![1];
-  const testDecksBallotHash = testDecksFilePath.match(
-    'test-decks-(.*).zip'
-  )![1];
+    const ballotsFileName = assertDefined(exportMeta.officialBallotsUrl);
+    const ballotsZipBallotHash = ballotsFileName.match(
+      'official-ballots-(.*).zip'
+    )![1];
+    const testDecksBallotHash = testDecksFilePath.match(
+      'test-decks-(.*).zip'
+    )![1];
 
-  // Test decks only report the shortened formatted version
-  expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
-    testDecksBallotHash
-  );
-  expect(electionPackageZipBallotHash).toEqual(ballotsZipBallotHash);
-  expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
-    electionPackageZipBallotHash
-  );
-});
+    // Test decks only report the shortened formatted version
+    expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
+      testDecksBallotHash
+    );
+    expect(electionPackageZipBallotHash).toEqual(ballotsZipBallotHash);
+    expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
+      electionPackageZipBallotHash
+    );
+  }
+);
 
 test('Election package generation is deterministic', async () => {
   const baseElectionDefinition =
