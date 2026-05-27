@@ -21,6 +21,7 @@ import z from 'zod/v4';
 import { generateTestDeckBallots, TestDeckBallot } from '@votingworks/utils';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
+  addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
@@ -47,13 +48,18 @@ export async function generateTestDecks(
   emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
+  const electionRecord = await store.getElection(electionId);
   const {
-    election,
     ballotLanguageConfigs,
     ballotTemplateId,
     jurisdictionId,
     systemSettings,
-  } = await store.getElection(electionId);
+  } = electionRecord;
+  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  const election = addPollingPlacesForExport(
+    electionRecord.election,
+    jurisdiction
+  );
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
   // Check if summary BMD ballots should be generated

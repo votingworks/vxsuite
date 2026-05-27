@@ -3,6 +3,7 @@ import {
   BaseBallotProps,
   Election,
   hasSplits,
+  pollingPlacesGenerateFromPrecincts,
   UiStringsPackage,
   YesNoContest,
 } from '@votingworks/types';
@@ -16,6 +17,7 @@ import {
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
+import { getStateFeaturesConfig } from './features';
 import { Jurisdiction } from './types';
 
 export function defaultBallotTemplate(
@@ -35,6 +37,24 @@ export function defaultBallotTemplate(
       throwIllegalValue(jurisdiction.stateCode);
     }
   }
+}
+
+export function addPollingPlacesForExport(
+  election: Election,
+  jurisdiction: Jurisdiction
+): Election {
+  const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  if (stateFeatures.EDIT_POLLING_PLACES) {
+    return election;
+  }
+  return {
+    ...election,
+    pollingPlaces: pollingPlacesGenerateFromPrecincts(
+      election.precincts,
+      'election_day',
+      (p) => `${p.id}-polling-place`
+    ),
+  };
 }
 
 export function formatElectionForExport(
