@@ -26,6 +26,7 @@ create table batches (
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   ballot_casting_mode text,
+  polling_place_id text, -- [TODO] Make this required.
   error varchar(4000)
 );
 

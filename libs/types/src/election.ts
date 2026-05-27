@@ -1361,6 +1361,7 @@ export interface BatchInfo {
   error?: string;
   count: number;
   ballotCastingMode?: BallotCastingMode;
+  pollingPlaceId?: string;
 }
 
 export const BallotCastingModeSchema = z.enum(['early_voting', 'election_day']);
@@ -1375,6 +1376,7 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
   ballotCastingMode: z.optional(BallotCastingModeSchema),
+  pollingPlaceId: IdSchema.optional(),
 });
 
 export interface CompletedBallot {

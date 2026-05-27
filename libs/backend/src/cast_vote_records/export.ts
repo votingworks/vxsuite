@@ -387,8 +387,8 @@ async function buildCastVoteRecord(
 /**
  * Exports the following for a single cast vote record:
  * - The cast vote record report (JSON)
- * - The front image (JPEG)
- * - The back image (JPEG)
+ * - The front image (PNG)
+ * - The back image (PNG)
  * - If an HMPB, the front interpretation layout (JSON)
  * - If an HMPB, the back interpretation layout (JSON)
  *
@@ -557,10 +557,8 @@ async function exportMetadataFileToUsbDrive(
       buildCastVoteRecordReportMetadata(exportContext),
     castVoteRecordRootHash,
     batchManifest: buildBatchManifest({
-      batchInfo: exportContext.scannerState.batches.map((batch) => ({
-        ...batch,
-        scannerId: VX_MACHINE_ID,
-      })),
+      batches: exportContext.scannerState.batches,
+      scannerId: VX_MACHINE_ID,
     }),
   };
   const metadataFileContents = JSON.stringify(metadata);

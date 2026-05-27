@@ -1,7 +1,12 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { assert, find, iter } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  CastVoteRecordBatchMetadata,
+  CVR,
+  YesNoContest,
+} from '@votingworks/types';
 import {
   buildBatchManifest,
   buildCastVoteRecordReportMetadata,
@@ -253,7 +258,7 @@ test('still includes the generating device id in the device list if it is not th
 test('buildBatchManifest', () => {
   expect(
     buildBatchManifest({
-      batchInfo: [
+      batches: [
         {
           id: 'batch-1',
           batchNumber: 1,
@@ -261,17 +266,47 @@ test('buildBatchManifest', () => {
           startedAt: new Date(1989, 11, 13).toISOString(),
           endedAt: new Date(1989, 11, 14).toISOString(),
           count: 2,
-          scannerId,
+          ballotCastingMode: 'early_voting',
+          pollingPlaceId: 'polling-place-1',
         },
       ],
+      scannerId,
     })
-  ).toEqual([
+  ).toEqual<CastVoteRecordBatchMetadata[]>([
     {
       id: 'batch-1',
       label: 'Batch 1',
       batchNumber: 1,
       startTime: new Date(1989, 11, 13).toISOString(),
       endTime: new Date(1989, 11, 14).toISOString(),
+      sheetCount: 2,
+      scannerId,
+      ballotCastingMode: 'early_voting',
+      pollingPlaceId: 'polling-place-1',
+    },
+  ]);
+});
+
+test('buildBatchManifest - optional fields omitted', () => {
+  expect(
+    buildBatchManifest({
+      batches: [
+        {
+          id: 'batch-1',
+          batchNumber: 1,
+          label: 'Batch 1',
+          startedAt: new Date(1989, 11, 13).toISOString(),
+          count: 2,
+        },
+      ],
+      scannerId,
+    })
+  ).toEqual<CastVoteRecordBatchMetadata[]>([
+    {
+      id: 'batch-1',
+      label: 'Batch 1',
+      batchNumber: 1,
+      startTime: new Date(1989, 11, 13).toISOString(),
       sheetCount: 2,
       scannerId,
     },

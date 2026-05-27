@@ -223,19 +223,19 @@ export function buildCastVoteRecordReportMetadata({
 /**
  * Build that batch manifest that is included in the cast vote record export metadata file.
  */
-export function buildBatchManifest({
-  batchInfo,
-}: {
-  batchInfo: Array<BatchInfo & { scannerId: string }>;
+export function buildBatchManifest(p: {
+  batches: BatchInfo[];
+  scannerId: string;
 }): CastVoteRecordBatchMetadata[] {
-  return batchInfo.map((batch) => ({
+  return p.batches.map((batch) => ({
     id: batch.id,
     label: batch.label,
     batchNumber: batch.batchNumber,
     startTime: batch.startedAt,
     endTime: batch.endedAt,
     sheetCount: batch.count,
-    scannerId: batch.scannerId,
+    scannerId: p.scannerId,
     ballotCastingMode: batch.ballotCastingMode,
+    pollingPlaceId: batch.pollingPlaceId,
   }));
 }

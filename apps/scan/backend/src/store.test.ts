@@ -14,6 +14,7 @@ import {
   AdjudicationReason,
   BallotMetadata,
   BallotType,
+  BatchInfo,
   InterpretedHmpbPage,
   mapSheet,
   PageInterpretationWithFiles,
@@ -337,6 +338,7 @@ test('get/set polls state', () => {
 
 test('getBatches', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const { pollingPlace } = configureElectionNh(store);
 
   const batchId = store.addBatch();
 
@@ -376,20 +378,24 @@ test('getBatches', () => {
     ],
     isAccepted: false,
   });
+
   batches = store.getBatches();
-  expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(1);
+  expect(batches).toEqual<BatchInfo[]>([
+    {
+      batchNumber: 1,
+      count: 1,
+      id: batchId,
+      label: `Batch 1`,
+      startedAt: expect.any(String),
+      ballotCastingMode: 'election_day',
+      pollingPlaceId: pollingPlace.id,
+    },
+  ]);
 });
 
 test('iterating over sheets', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
 
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
   expect(Array.from(store.forEachSheet())).toEqual([]);
@@ -485,6 +491,8 @@ test('iterating over sheets', () => {
 
 test('getSheet', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  configureElectionNh(store);
+
   const batchId = store.addBatch();
 
   // Accepted sheet
@@ -528,13 +536,8 @@ test('getSheet', () => {
 test('resetElectionSession', async () => {
   const dbFile = makeTemporaryFile();
   const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
+
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
   const mockUsbDriveStatus = await mockUsbDrive.usbDrive.status();
@@ -600,6 +603,7 @@ test('resetElectionSession', async () => {
 
 test('getBallotsCounted', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  configureElectionNh(store);
 
   expect(store.getBallotsCounted()).toEqual(0);
 
@@ -746,6 +750,7 @@ test(
 
 test('forEachSheetPendingContinuousExport', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  configureElectionNh(store);
 
   const batchId = store.addBatch();
 
@@ -873,3 +878,19 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     },
   ]);
 });
+
+function configureElectionNh(store: Store) {
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+  const { election, electionData } = electionDefinition;
+  const pollingPlace = assertDefined(election.pollingPlaces)[0];
+
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  store.setPollingPlaceId(pollingPlace.id);
+
+  return { electionDefinition, pollingPlace };
+}
