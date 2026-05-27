@@ -47,7 +47,7 @@
     "canvas": "2.11.2",
     "debug": "4.3.4",
     "node-quirc": "^2.2.1",
-    "tmp": "^0.2.1",
+    "tmp": "^0.2.6",
     "zedbar": "^0.4.1"
   },
   "devDependencies": {

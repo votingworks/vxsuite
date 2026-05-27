@@ -27,7 +27,7 @@
     "@votingworks/utils": "workspace:*",
     "concurrently": "7.6.0",
     "dotenv": "16.3.1",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.6"
   },
   "devDependencies": {
     "@types/node": "20.17.31",
