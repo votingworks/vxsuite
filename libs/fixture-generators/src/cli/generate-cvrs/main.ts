@@ -201,16 +201,21 @@ export async function main(
   }
 
   const { election, ballotHash } = electionDefinition;
-  const batchInfo: Array<BatchInfo & { scannerId: string }> = scannerIds.map(
-    (scannerId) => ({
-      id: getBatchIdForScannerId(scannerId),
-      batchNumber: 1,
-      label: getBatchIdForScannerId(scannerId),
-      startedAt: new Date().toISOString(),
-      count: castVoteRecords.length / scannerIds.length,
-      scannerId,
-    })
-  );
+  const batchesByScannerId: Array<{
+    scannerId: string;
+    batches: BatchInfo[];
+  }> = scannerIds.map((scannerId) => ({
+    scannerId,
+    batches: [
+      {
+        id: getBatchIdForScannerId(scannerId),
+        batchNumber: 1,
+        label: getBatchIdForScannerId(scannerId),
+        startedAt: new Date().toISOString(),
+        count: castVoteRecords.length / scannerIds.length,
+      },
+    ],
+  }));
   const reportMetadata = buildCastVoteRecordReportMetadata({
     election,
     electionId: ballotHash,
@@ -218,7 +223,7 @@ export async function main(
     scannerIds,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     isTestMode: testMode,
-    batchInfo,
+    batchInfo: batchesByScannerId.flatMap(({ batches }) => batches),
   });
 
   // make the parent folder if it does not exist
@@ -308,7 +313,7 @@ export async function main(
     castVoteRecordReportMetadata: reportMetadata,
     castVoteRecordRootHash:
       await computeCastVoteRecordRootHashFromScratch(outputPath),
-    batchManifest: buildBatchManifest({ batchInfo }),
+    batchManifest: batchesByScannerId.flatMap((b) => buildBatchManifest(b)),
   };
   const metadataFileContents = JSON.stringify(castVoteRecordExportMetadata);
   await fs.writeFile(

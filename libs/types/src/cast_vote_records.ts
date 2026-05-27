@@ -54,6 +54,7 @@ export interface CastVoteRecordBatchMetadata {
   readonly sheetCount: number;
   readonly scannerId: string;
   readonly ballotCastingMode?: BallotCastingMode;
+  readonly pollingPlaceId?: string;
 }
 
 export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchMetadata> =
@@ -66,6 +67,7 @@ export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchM
     sheetCount: z.number(),
     scannerId: z.string(),
     ballotCastingMode: z.enum(['early_voting', 'election_day']).optional(),
+    pollingPlaceId: z.string().optional(),
   });
 
 /**

@@ -620,16 +620,28 @@ export class Store {
     const id = uuid();
     const ballotCastingMode = this.getBallotCastingMode();
     const startedAt = new Date(getCurrentTime()).toISOString();
+    const pollingPlaceId = this.getPollingPlaceId() || null;
+
     this.client.run(
-      'insert into batches (id, started_at) values (?, ?)',
+      `
+        insert into batches (
+          id,
+          ballot_casting_mode,
+          polling_place_id,
+          started_at
+        ) values (?, ?, ?, ?)
+      `,
       id,
+      ballotCastingMode,
+      pollingPlaceId,
       startedAt
     );
+
     this.client.run(
-      `update batches set label = 'Batch ' || batch_number, ballot_casting_mode = ? WHERE id = ?`,
-      ballotCastingMode,
+      `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
       id
     );
+
     return id;
   }
 
@@ -762,13 +774,16 @@ export class Store {
       endedAt: string | null;
       error: string | null;
       count: number;
+      pollingPlaceId: string | null;
     }
+
     const batchInfo = this.client.all(`
       select
         batches.id as id,
         batches.batch_number as batchNumber,
         batches.label as label,
         batches.ballot_casting_mode as ballotCastingMode,
+        batches.polling_place_id as pollingPlaceId,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
@@ -787,19 +802,22 @@ export class Store {
       order by
         batches.started_at desc
     `) as SqliteBatchInfo[];
+
+    function isoDateFromSeconds(seconds: string) {
+      // eslint-disable-next-line vx/gts-safe-number-parse
+      return DateTime.fromSeconds(Number(seconds)).toISO();
+    }
+
     return batchInfo.map((info) => ({
       id: info.id,
       batchNumber: info.batchNumber,
       label: info.label,
       ballotCastingMode: info.ballotCastingMode,
-      // eslint-disable-next-line vx/gts-safe-number-parse
-      startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
-      endedAt:
-        // eslint-disable-next-line vx/gts-safe-number-parse
-        (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
-        undefined,
+      startedAt: isoDateFromSeconds(info.startedAt),
+      endedAt: info.endedAt ? isoDateFromSeconds(info.endedAt) : undefined,
       error: info.error || undefined,
       count: info.count,
+      pollingPlaceId: info.pollingPlaceId || undefined,
     }));
   }
 
