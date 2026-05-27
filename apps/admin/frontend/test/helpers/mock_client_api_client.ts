@@ -96,7 +96,8 @@ export function createClientApiMock(
         | 'offline'
         | 'online-waiting-for-host'
         | 'online-connected-to-host'
-        | 'online-multiple-hosts-detected',
+        | 'online-multiple-hosts-detected'
+        | 'online-incompatible-host-version',
       hostMachineId?: string
     ): void {
       const value =

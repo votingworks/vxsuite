@@ -825,9 +825,56 @@ describe('startClientNetworking', () => {
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
       machineId: '0002',
+      codeVersion: 'dev',
       status: Admin.ClientMachineStatus.OnlineLocked,
       authType: null,
     });
+  });
+
+  test('does not connect to a host running an incompatible code version', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-HOST1',
+        host: 'host.local',
+        resolvedIp: '192.168.1.10',
+        port: '3002',
+      },
+    ]);
+    const mockClient = createMockPeerClient({
+      connectToHost: vi.fn().mockResolvedValue({
+        machineId: 'HOST1',
+        codeVersion: 'a-different-version',
+        isClientAdjudicationEnabled: true,
+      }),
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0002incompat',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+    await advancePollingInterval();
+
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineIncompatibleHostVersion
+    );
+    // The client must not treat itself as connected or enable adjudication.
+    expect(clientStore.getHostConnection()).toBeUndefined();
+    expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(false);
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        newStatus: ClientConnectionStatus.OnlineIncompatibleHostVersion,
+        hostCodeVersion: 'a-different-version',
+        clientCodeVersion: 'dev',
+      })
+    );
   });
 
   test('sends active status and auth type when logged in', async () => {
@@ -861,6 +908,7 @@ describe('startClientNetworking', () => {
 
     expect(mockClient.connectToHost).toHaveBeenCalledWith({
       machineId: '0002b',
+      codeVersion: 'dev',
       status: Admin.ClientMachineStatus.Active,
       authType: 'election_manager',
     });

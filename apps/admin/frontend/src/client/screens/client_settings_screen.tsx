@@ -56,6 +56,14 @@ function NetworkStatusSection(): JSX.Element {
             </span>
           )}
         {networkStatusQuery.isSuccess &&
+          networkStatusQuery.data.status ===
+            'online-incompatible-host-version' && (
+            <span>
+              <Icons.Danger color="danger" /> Host machine with incompatible
+              software version detected.
+            </span>
+          )}
+        {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status === 'offline' && (
             <span>
               <Icons.Danger color="danger" /> Offline — no network connection

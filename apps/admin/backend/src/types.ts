@@ -46,6 +46,7 @@ export enum ClientConnectionStatus {
   OnlineWaitingForHost = 'online-waiting-for-host',
   OnlineConnectedToHost = 'online-connected-to-host',
   OnlineMultipleHostsDetected = 'online-multiple-hosts-detected',
+  OnlineIncompatibleHostVersion = 'online-incompatible-host-version',
 }
 
 /** A record of a machine in the multi-station machines table. */

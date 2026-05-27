@@ -28,6 +28,7 @@ test('connectToHost registers client and returns host machine config with adjudi
   const { peerApiClient, workspace } = buildTestEnvironment();
   const result = await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.OnlineLocked,
     authType: null,
   });
@@ -47,12 +48,36 @@ test('connectToHost registers client and returns host machine config with adjudi
   });
 });
 
+test('connectToHost rejects a client running an incompatible code version', async () => {
+  const { peerApiClient, workspace } = buildTestEnvironment();
+  workspace.store.setIsClientAdjudicationEnabled(true);
+
+  const result = await peerApiClient.connectToHost({
+    machineId: 'client-001',
+    codeVersion: 'an-incompatible-version',
+    status: Admin.ClientMachineStatus.Active,
+    authType: 'election_manager',
+  });
+
+  // Host reports its own version and never enables adjudication for an
+  // incompatible client.
+  expect(result).toEqual({
+    machineId: DEV_MACHINE_ID,
+    codeVersion: 'dev',
+    isClientAdjudicationEnabled: false,
+  });
+
+  // The incompatible client must not be registered as a connected machine.
+  expect(workspace.store.getMachines()).toHaveLength(0);
+});
+
 test('connectToHost persists status and authType and returns adjudication enabled', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
 
   workspace.store.setIsClientAdjudicationEnabled(true);
   const result = await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
@@ -80,6 +105,7 @@ test("connectToHost releases the client's claims when it transitions to OnlineLo
   // Client logs in (Active) and claims a ballot.
   await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
@@ -90,6 +116,7 @@ test("connectToHost releases the client's claims when it transitions to OnlineLo
   // Client transitions to OnlineLocked (logout / session expiry).
   await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.OnlineLocked,
     authType: null,
   });
@@ -112,6 +139,7 @@ test('connectToHost does not release claims when status stays Active or transiti
 
   await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
@@ -122,6 +150,7 @@ test('connectToHost does not release claims when status stays Active or transiti
   // Repeated heartbeats with the same Active status should not release.
   await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
@@ -133,6 +162,7 @@ test('connectToHost does not release claims when status stays Active or transiti
   // Active → Adjudicating must not release either.
   await peerApiClient.connectToHost({
     machineId: 'client-001',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Adjudicating,
     authType: 'election_manager',
   });
@@ -148,6 +178,7 @@ test('connectToHost updates store when client status changes', async () => {
   // First call: new client
   await peerApiClient.connectToHost({
     machineId: 'client-002',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.OnlineLocked,
     authType: null,
   });
@@ -159,6 +190,7 @@ test('connectToHost updates store when client status changes', async () => {
   // Second call: status changes
   await peerApiClient.connectToHost({
     machineId: 'client-002',
+    codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });

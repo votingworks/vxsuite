@@ -52,9 +52,22 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
   return grout.createApi({
     connectToHost(input: {
       machineId: string;
+      codeVersion: string;
       status: Admin.ClientMachineStatus;
       authType: UserRole | null;
     }): MachineConfig & { isClientAdjudicationEnabled: boolean } {
+      const machineConfig = getMachineConfig();
+      // Refuse to register a client running a different code version.
+      if (input.codeVersion !== machineConfig.codeVersion) {
+        logger.log(LogEventId.AdminNetworkStatus, 'system', {
+          message: `Rejected connection from client ${input.machineId}: incompatible software version (client ${input.codeVersion}, host ${machineConfig.codeVersion}).`,
+          disposition: 'failure',
+          clientMachineId: input.machineId,
+          clientCodeVersion: input.codeVersion,
+          hostCodeVersion: machineConfig.codeVersion,
+        });
+        return { ...machineConfig, isClientAdjudicationEnabled: false };
+      }
       debug(
         'Client %s connected to host (election: %s, status: %s)',
         input.machineId,
@@ -99,7 +112,7 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
         input.authType
       );
       return {
-        ...getMachineConfig(),
+        ...machineConfig,
         isClientAdjudicationEnabled: store.getIsClientAdjudicationEnabled(),
       };
     },

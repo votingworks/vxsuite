@@ -122,6 +122,16 @@ test('shows multiple hosts detected warning', async () => {
   await screen.findByText(/Multiple hosts detected/);
 });
 
+test('shows incompatible host version warning', async () => {
+  apiMock.expectGetUsbPortStatus();
+  apiMock.expectGetNetworkConnectionStatus('online-incompatible-host-version');
+  renderInClientContext(<ClientSettingsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(/incompatible software version/);
+});
+
 test('shows restart screen after switching to host mode', async () => {
   apiMock.expectGetUsbPortStatus();
   apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
