@@ -41,13 +41,13 @@ import {
   Callout,
   H3,
   NumberInput,
+  BallotText,
 } from '@votingworks/ui';
 import {
   format,
   getBallotStyleGroup,
   areContestResultsValid,
   allContestOptions,
-  splitBallotLineBreaks,
 } from '@votingworks/utils';
 
 import type {
@@ -198,23 +198,6 @@ const ContestDataRow = styled.div`
       ${(p) => p.theme.colors.outline};
   }
 `;
-
-// Ballot data fields may include `<br/>` markers to control line breaks on the
-// physical ballot. Honor those breaks here so the manual tally form matches.
-function BallotText({ text }: { text: string }): JSX.Element {
-  const lines = splitBallotLineBreaks(text);
-  return (
-    <React.Fragment>
-      {lines.map((line, i) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <React.Fragment key={i}>
-          {i > 0 && <br />}
-          {line}
-        </React.Fragment>
-      ))}
-    </React.Fragment>
-  );
-}
 
 function AddWriteInRow({
   addWriteInCandidate,

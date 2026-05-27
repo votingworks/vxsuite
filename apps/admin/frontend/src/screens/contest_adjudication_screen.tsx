@@ -16,7 +16,17 @@ import {
   PartyId,
   Side,
 } from '@votingworks/types';
-import { Button, Main, Screen, Font, Icons, H2, H1, P } from '@votingworks/ui';
+import {
+  BallotText,
+  Button,
+  Main,
+  Screen,
+  Font,
+  Icons,
+  H2,
+  H1,
+  P,
+} from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
   AdjudicatedContestOptions,
@@ -129,7 +139,8 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
-const DerivedVoteCaption = styled.span`
+const OptionSubtitle = styled.span`
+  display: block;
   color: ${(p) => p.theme.colors.onBackground};
   font-size: 0.75rem;
   font-weight: 400;
@@ -148,18 +159,21 @@ const CaptionGroup = styled.div`
 `;
 
 // Derived vote button: containerLow bg, primary text/icon, primary border.
-// Alternative considered: primaryContainer bg, onBackground text/icon, outline border.
+// Uses `&&` to bump specificity above the underlying Button's color/fill
+// styles (which would otherwise override border-color and color).
 const DerivedVoteButton = styled(Button)`
-  background-color: ${(p) => p.theme.colors.containerLow};
-  border: 2px solid ${(p) => p.theme.colors.primary};
-  color: ${(p) => p.theme.colors.primary};
-  flex-wrap: nowrap;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
-  justify-content: start;
-  padding-left: 0.5rem;
-  text-align: left;
+  && {
+    background-color: ${(p) => p.theme.colors.containerLow};
+    border: 2px solid ${(p) => p.theme.colors.primary};
+    color: ${(p) => p.theme.colors.primary};
+    flex-wrap: nowrap;
+    font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
+    justify-content: start;
+    padding-left: 0.5rem;
+    text-align: left;
+  }
 
-  svg {
+  && svg {
     color: ${(p) => p.theme.colors.primary};
   }
 `;
@@ -497,7 +511,9 @@ export function ContestAdjudicationScreen({
           {focusedOptionId && <AdjudicationPanelOverlay />}
           <ContestHeader>
             <CompactH2>{getContestDistrictName(election, contest)}</CompactH2>
-            <CompactH1>{contest.title}</CompactH1>
+            <CompactH1>
+              <BallotText text={contest.title} />
+            </CompactH1>
           </ContestHeader>
           <BallotVoteCount>
             <MediumText>
@@ -542,14 +558,14 @@ export function ContestAdjudicationScreen({
                 !!candidate?.partyIds?.includes(straightPartyId);
               const optionLabel = candidatePartyNames ? (
                 <span>
-                  {optionName}
-                  <DerivedVoteCaption>
+                  <BallotText text={optionName} />
+                  <OptionSubtitle>
                     {candidatePartyNames}
                     {isStraightPartyCandidate && ' - Straight party vote'}
-                  </DerivedVoteCaption>
+                  </OptionSubtitle>
                 </span>
               ) : (
-                optionName
+                <BallotText text={optionName} />
               );
               const marginalMarkStatus = getOptionMarginalMarkStatus(optionId);
               const adjudicationCaption = renderContestOptionButtonCaption({
@@ -558,9 +574,14 @@ export function ContestAdjudicationScreen({
                 isWriteIn: false,
                 marginalMarkStatus,
               });
+              // "Straight party vote not applied" only makes sense for an SP
+              // candidate the voter did NOT directly mark — if the voter
+              // marked the candidate, SP wasn't needed (and saying "not
+              // applied" on their explicit selection is confusing).
               const spNotAppliedCaption =
                 isStraightPartyCandidate &&
                 !isDerived &&
+                !currentVote &&
                 straightPartyNotAppliedReason ? (
                   <ContestOptionButtonCaption>
                     Straight party vote not applied:{' '}

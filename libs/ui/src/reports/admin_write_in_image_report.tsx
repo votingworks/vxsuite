@@ -5,8 +5,8 @@ import {
   ContestId,
   ElectionDefinition,
 } from '@votingworks/types';
-import { splitBallotLineBreaks } from '@votingworks/utils';
 import styled, { ThemeProvider } from 'styled-components';
+import { BallotText } from '../ballot_text';
 import {
   ContestHeading,
   ContestSection,
@@ -125,14 +125,8 @@ export function AdminWriteInImageReport({
             return (
               <ContestSection key={contest.id}>
                 <ContestHeading>
-                  {splitBallotLineBreaks(contest.title).map((line, i) => (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <React.Fragment key={i}>
-                      {i > 0 && <br />}
-                      {line}
-                    </React.Fragment>
-                  ))}{' '}
-                  &bull; {totalWriteIns} Total Write-In
+                  <BallotText text={contest.title} /> &bull; {totalWriteIns}{' '}
+                  Total Write-In
                   {totalWriteIns !== 1 && 's'}
                 </ContestHeading>
                 {qualifiedWriteInsEnabled &&

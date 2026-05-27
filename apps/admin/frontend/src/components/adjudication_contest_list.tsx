@@ -17,6 +17,7 @@ import type {
 } from '@votingworks/admin-backend';
 import { find } from '@votingworks/basics';
 import {
+  BallotText,
   Button,
   Callout,
   Caption,
@@ -25,6 +26,7 @@ import {
   Icons,
   P,
 } from '@votingworks/ui';
+import { flattenBallotLineBreaks } from '@votingworks/utils';
 import { EntityList } from './entity_list';
 import {
   isContestResolved,
@@ -233,7 +235,10 @@ function getOptionResolutionLine(
     return (
       <span>
         <Font weight="semiBold">Marginal Mark </Font>for
-        <Font weight="semiBold"> {definition.name} </Font>
+        <Font weight="semiBold">
+          {' '}
+          <BallotText text={definition.name} />{' '}
+        </Font>
         adjudicated as
         <Font weight="semiBold"> {newValue}</Font>
       </span>
@@ -246,7 +251,10 @@ function getOptionResolutionLine(
     return (
       <span>
         <Font weight="semiBold">{preface} </Font>for
-        <Font weight="semiBold"> {definition.name} </Font>
+        <Font weight="semiBold">
+          {' '}
+          <BallotText text={definition.name} />{' '}
+        </Font>
         adjudicated as
         <Font weight="semiBold"> {newValue}</Font>
       </span>
@@ -317,7 +325,9 @@ function getStraightPartyStatus(
 
   if (votedOptions.length === 1) {
     return {
-      text: `Straight party vote applied: ${votedOptions[0].definition.name}`,
+      text: `Straight party vote applied: ${flattenBallotLineBreaks(
+        votedOptions[0].definition.name
+      )}`,
       isChanged,
     };
   }
@@ -407,7 +417,7 @@ function BallotSideContestList({
                   weight="semiBold"
                   style={{ marginBottom: '0.25rem' }}
                 >
-                  {contest.title}
+                  <BallotText text={contest.title} />
                 </EntityList.Label>
                 {adjudicatedContest && !suppressContestAdjudicationInfo && (
                   <ContestAdjudicationSummary

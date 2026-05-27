@@ -7,16 +7,12 @@ import {
   Tabulation,
   AnyContest,
 } from '@votingworks/types';
-import {
-  format,
-  getTallyReportCandidateRows,
-  splitBallotLineBreaks,
-} from '@votingworks/utils';
-import React from 'react';
+import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { ReportTable } from './layout';
 import { Font } from '../typography';
+import { BallotText } from '../ballot_text';
 
 const DistrictName = styled.p`
   margin-bottom: 0;
@@ -96,23 +92,6 @@ const ContestTable = styled(ReportTable)`
 const Muted = styled.span`
   color: #808080;
 `;
-
-// Ballot data fields may include `<br/>` markers to control line breaks on the
-// physical ballot. Honor those breaks here so reports display the same way.
-function BallotText({ text }: { text: string }): JSX.Element {
-  const lines = splitBallotLineBreaks(text);
-  return (
-    <React.Fragment>
-      {lines.map((line, i) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <React.Fragment key={i}>
-          {i > 0 && <br />}
-          {line}
-        </React.Fragment>
-      ))}
-    </React.Fragment>
-  );
-}
 
 function ContestOptionRow({
   testId,
