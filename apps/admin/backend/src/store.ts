@@ -1140,9 +1140,10 @@ export class Store implements BaseStore {
           has_overvote,
           has_undervote,
           has_write_in,
-          has_marginal_mark
+          has_marginal_mark,
+          has_crossover_vote
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -1160,7 +1161,8 @@ export class Store implements BaseStore {
         asSqliteBool(adjudicationFlags.hasOvervote),
         asSqliteBool(adjudicationFlags.hasUndervote),
         asSqliteBool(adjudicationFlags.hasWriteIn),
-        asSqliteBool(adjudicationFlags.hasMarginalMark)
+        asSqliteBool(adjudicationFlags.hasMarginalMark),
+        asSqliteBool(adjudicationFlags.hasCrossoverVote)
       );
     }
 
@@ -1542,27 +1544,20 @@ export class Store implements BaseStore {
     }
 
     if (filter.adjudicationFlags) {
-      const { adjudicationFlags: flags } = filter;
-
-      if (flags.includes('isBlank')) {
-        whereParts.push('cvrs.is_blank = 1');
-      }
-
-      if (flags.includes('hasOvervote')) {
-        whereParts.push('cvrs.has_overvote = 1');
-      }
-
-      if (flags.includes('hasUndervote')) {
-        whereParts.push('cvrs.has_undervote = 1');
-      }
-
-      if (flags.includes('hasWriteIn')) {
-        whereParts.push('cvrs.has_write_in = 1');
-      }
-
-      if (flags.includes('hasMarginalMark')) {
-        whereParts.push('cvrs.has_marginal_mark = 1');
-      }
+      const flagToColumn: Record<Admin.CastVoteRecordAdjudicationFlag, string> =
+        {
+          isBlank: 'is_blank',
+          hasOvervote: 'has_overvote',
+          hasUndervote: 'has_undervote',
+          hasWriteIn: 'has_write_in',
+          hasMarginalMark: 'has_marginal_mark',
+          hasCrossoverVote: 'has_crossover_vote',
+        };
+      whereParts.push(
+        ...filter.adjudicationFlags.map(
+          (flag) => `cvrs.${flagToColumn[flag]} = 1`
+        )
+      );
     }
 
     return [whereParts, params];

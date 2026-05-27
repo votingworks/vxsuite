@@ -150,6 +150,7 @@ create table cvrs (
   has_undervote boolean not null,
   has_write_in boolean not null,
   has_marginal_mark boolean not null default false,
+  has_crossover_vote boolean not null,
   is_adjudicated boolean not null default false,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)

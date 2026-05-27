@@ -1,5 +1,8 @@
 import { expect, test } from 'vitest';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   MarkThresholds,
@@ -53,6 +56,7 @@ test('blank ballot', () => {
     hasOvervote: false,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -65,6 +69,7 @@ test('no status ballot', () => {
     hasOvervote: false,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -81,6 +86,7 @@ test('undervote yes-no', () => {
     hasOvervote: false,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -97,6 +103,7 @@ test('undervote candidate', () => {
     hasOvervote: false,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -113,6 +120,7 @@ test('overvote yes-no', () => {
     hasOvervote: true,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -131,6 +139,7 @@ test('overvote candidate', () => {
     hasOvervote: true,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -149,6 +158,7 @@ test('write-in', () => {
     hasOvervote: false,
     hasWriteIn: true,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -161,6 +171,7 @@ test('unmarked write-in sets hasWriteIn', () => {
     hasOvervote: false,
     hasWriteIn: true,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -180,6 +191,7 @@ test('multiple flags', () => {
     hasOvervote: true,
     hasWriteIn: true,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
 });
 
@@ -198,6 +210,7 @@ test('marginal mark', () => {
     hasOvervote: false,
     hasWriteIn: false,
     hasMarginalMark: true,
+    hasCrossoverVote: false,
   });
 });
 
@@ -216,7 +229,35 @@ test('no marginal mark when scores are above definite', () => {
     hasOvervote: false,
     hasWriteIn: false,
     hasMarginalMark: false,
+    hasCrossoverVote: false,
   });
+});
+
+test('open primary - crossover vote', () => {
+  const openPrimaryElectionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      openPrimaryElectionDefinition,
+      {
+        'governor-democratic': ['alice-jones'],
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      0
+    ).hasCrossoverVote
+  ).toEqual(true);
+
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      openPrimaryElectionDefinition,
+      {
+        'governor-democratic': ['alice-jones'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      0
+    ).hasCrossoverVote
+  ).toEqual(false);
 });
 
 const candidateContest = assertDefined(
@@ -313,6 +354,7 @@ const NO_FLAGS: CastVoteRecordAdjudicationFlags = {
   hasUndervote: false,
   hasWriteIn: false,
   hasMarginalMark: false,
+  hasCrossoverVote: false,
 };
 
 test('doesCvrNeedAdjudication - write-in always needs adjudication', () => {
