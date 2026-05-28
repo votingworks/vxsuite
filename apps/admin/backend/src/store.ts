@@ -159,7 +159,7 @@ function adjudicationSortKeyExprs(alias: string): string[] {
     `coalesce(${alias}.ballot_style_group_id, '')`,
     `coalesce(${alias}.sheet_number, 0)`,
     `${alias}.id`,
-  ].join(', ');
+  ];
 }
 
 /**
