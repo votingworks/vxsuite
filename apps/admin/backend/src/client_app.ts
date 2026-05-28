@@ -399,9 +399,11 @@ function buildClientApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      /* istanbul ignore start */
+      getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(clientStore)),
     }),
+    /* istanbul ignore stop */
   });
 }
 

@@ -39,7 +39,7 @@ test.each<{
 }>([
   {
     description: 'no election package on USB drive',
-    error: { type: 'no_election_package_on_usb_drive' },
+    error: { type: 'no_election_package' },
     expectedErrorMessage:
       'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.',
   },

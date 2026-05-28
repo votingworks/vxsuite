@@ -15,7 +15,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { FileSystemEntryType } from '@votingworks/fs';
+import { FileSystemEntryType, listDirectory } from '@votingworks/fs';
 import {
   CVR,
   ElectionDefinition,
@@ -25,7 +25,6 @@ import {
   getPrecinctById,
   Tabulation,
 } from '@votingworks/types';
-import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
@@ -106,42 +105,42 @@ function validateCastVoteRecordAgainstElectionDefinition(
 }
 
 /**
- * The return type of {@link listCastVoteRecordExportsOnUsbDrive}
+ * The return type of {@link listCastVoteRecordExportsInDirectory}
  */
-export type ListCastVoteRecordExportsOnUsbDriveResult = Result<
+export type ListCastVoteRecordExportsInDirectory = Result<
   CastVoteRecordFileMetadata[],
-  'found-file-instead-of-directory' | 'no-usb-drive' | 'permission-denied'
+  'found-file-instead-of-directory' | 'permission-denied'
 >;
 
 /**
- * Lists the cast vote record exports on the inserted USB drive
+ * Constructs the path relative to the root of a USB drive where cast vote
+ * records should be stored for the given election.
  */
-export async function listCastVoteRecordExportsOnUsbDrive(
-  usbDrive: UsbDrive,
+export function getCastVoteRecordsPath(
   electionDefinition: ElectionDefinition
-): Promise<ListCastVoteRecordExportsOnUsbDriveResult> {
+): string {
   const { election, ballotHash } = electionDefinition;
 
-  const listResults = listDirectoryOnUsbDrive(
-    usbDrive,
-    path.join(
-      generateElectionBasedSubfolderName(election, ballotHash),
-      SCANNER_RESULTS_FOLDER
-    )
+  return path.join(
+    generateElectionBasedSubfolderName(election, ballotHash),
+    SCANNER_RESULTS_FOLDER
   );
+}
 
+/**
+ * Lists the cast vote record exports in `directory`.
+ */
+export async function listCastVoteRecordExportsInDirectory(
+  directory: string
+): Promise<ListCastVoteRecordExportsInDirectory> {
   const castVoteRecordExportSummaries: CastVoteRecordFileMetadata[] = [];
 
-  for await (const result of listResults) {
+  for await (const result of listDirectory(directory)) {
     if (result.isErr()) {
       const errorType = result.err().type;
       switch (errorType) {
         case 'no-entity': {
           return ok([]);
-        }
-        case 'no-usb-drive':
-        case 'usb-drive-not-mounted': {
-          return err('no-usb-drive');
         }
         case 'not-directory': {
           return err('found-file-instead-of-directory');

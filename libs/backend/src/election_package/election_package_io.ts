@@ -52,7 +52,6 @@ import {
   ElectionRegisteredVotersCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { UsbDrive } from '@votingworks/usb-drive';
 import { sha256 } from 'js-sha256';
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 
@@ -290,41 +289,32 @@ export async function readElectionPackageFromFile(
   return result.isErr() ? result : ok({ ...result.ok(), fileContents });
 }
 
-/** Finds the most recent election package ZIP on a mounted USB drive. */
+/**
+ * Finds the most recent election package ZIP in a directory. In practice this
+ * is the root of a USB drive mount.
+ */
 export async function getMostRecentElectionPackageFilepath(
-  usbDrive: UsbDrive
+  directory: string
 ): Promise<Result<string, ElectionPackageConfigurationError>> {
-  const usbDriveStatus = await usbDrive.status();
-  assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
-
   // Although not all USB drive root directories are election directories, we
   // just check them all. It's not necessary to enforce the naming convention.
   const possibleElectionDirectories = (
-    await fs.readdir(usbDriveStatus.mountPoint, {
-      withFileTypes: true,
-    })
+    await fs.readdir(directory, { withFileTypes: true })
   ).filter((entry) => entry.isDirectory());
 
   const electionElectionPackageDirectories: string[] = [];
   for (const possibleElectionDirectory of possibleElectionDirectories) {
     const hasElectionPackageDirectory = (
-      await fs.readdir(
-        join(usbDriveStatus.mountPoint, possibleElectionDirectory.name),
-        {
-          withFileTypes: true,
-        }
-      )
+      await fs.readdir(join(directory, possibleElectionDirectory.name), {
+        withFileTypes: true,
+      })
     ).some(
       (entry) => entry.isDirectory() && entry.name === ELECTION_PACKAGE_FOLDER
     );
 
     if (hasElectionPackageDirectory) {
       electionElectionPackageDirectories.push(
-        join(
-          usbDriveStatus.mountPoint,
-          possibleElectionDirectory.name,
-          ELECTION_PACKAGE_FOLDER
-        )
+        join(directory, possibleElectionDirectory.name, ELECTION_PACKAGE_FOLDER)
       );
     }
   }
@@ -349,7 +339,7 @@ export async function getMostRecentElectionPackageFilepath(
   }
 
   if (electionPackageFilePaths.length === 0) {
-    return err({ type: 'no_election_package_on_usb_drive' });
+    return err({ type: 'no_election_package' });
   }
 
   const mostRecentElectionPackageFilePath = assertDefined(
@@ -362,17 +352,16 @@ export async function getMostRecentElectionPackageFilepath(
 }
 
 /**
- * readSignedElectionPackageFromUsb validates desired auth and USB state and
- * returns the election package from a USB drive if possible, or an error if not
- * possible.
+ * Validates desired auth and returns the election package from a directory if
+ * possible, or an error if not possible.
+ *
  * @param authStatus AuthStatus representing an inserted card
- * @param usbDrive UsbDrive representing status of an inserted USB drive
+ * @param directory location to look for the election package and signature
  * @param logger A Logger instance
- * @returns Result<ElectionPackage, ElectionPackageConfigurationError> intended to be consumed by an API handler
  */
-export async function readSignedElectionPackageFromUsb(
+export async function readSignedElectionPackageFromDirectory(
   authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
-  usbDrive: UsbDrive,
+  directory: string,
   logger: BaseLogger,
   options?: ReadElectionPackageOptions
 ): Promise<Result<ElectionPackageWithHash, ElectionPackageConfigurationError>> {
@@ -394,7 +383,7 @@ export async function readSignedElectionPackageFromUsb(
     'Only election managers may configure an election package.'
   );
 
-  const filepathResult = await getMostRecentElectionPackageFilepath(usbDrive);
+  const filepathResult = await getMostRecentElectionPackageFilepath(directory);
   if (filepathResult.isErr()) {
     return filepathResult;
   }

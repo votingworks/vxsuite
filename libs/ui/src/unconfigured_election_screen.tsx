@@ -38,7 +38,7 @@ export function UnconfiguredElectionScreen({
     }
 
     switch (backendConfigError.type) {
-      case 'no_election_package_on_usb_drive':
+      case 'no_election_package':
         return 'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.';
       // The frontend should prevent auth_required_before_election_package_load
       // but we enforce it for redundancy

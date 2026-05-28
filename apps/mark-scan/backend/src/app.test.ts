@@ -92,8 +92,8 @@ let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
 let clock: SimulatedClock;
-let readSignedElectionPackageFromUsbSpy: MockInstance<
-  typeof backendLib.readSignedElectionPackageFromUsb
+let readSignedElectionPackageFromDirectorySpy: MockInstance<
+  typeof backendLib.readSignedElectionPackageFromDirectory
 >;
 
 beforeEach(async () => {
@@ -130,9 +130,9 @@ beforeEach(async () => {
   driver = result.driver;
   clock = result.clock;
 
-  readSignedElectionPackageFromUsbSpy = vi.spyOn(
+  readSignedElectionPackageFromDirectorySpy = vi.spyOn(
     backendLib,
-    'readSignedElectionPackageFromUsb'
+    'readSignedElectionPackageFromDirectory'
   );
 });
 
@@ -219,8 +219,8 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     })
   );
 
-  expect(readSignedElectionPackageFromUsbSpy).toHaveBeenCalledTimes(1);
-  expect(readSignedElectionPackageFromUsbSpy).toHaveBeenNthCalledWith(
+  expect(readSignedElectionPackageFromDirectorySpy).toHaveBeenCalledTimes(1);
+  expect(readSignedElectionPackageFromDirectorySpy).toHaveBeenNthCalledWith(
     1,
     expect.anything(),
     expect.anything(),

@@ -30,12 +30,13 @@ import {
 import {
   electionTwoPartyPrimaryFixtures,
   electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
   systemSettings,
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { assert, assertDefined, err, ok, typedAs } from '@votingworks/basics';
+import { assertDefined, err, ok, typedAs } from '@votingworks/basics';
 import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
@@ -46,7 +47,7 @@ import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'node:path';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
-import { UsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { writeMockFileTree } from '@votingworks/usb-drive';
 import { sha256 } from 'js-sha256';
 import {
   createElectionPackageZipArchive,
@@ -56,7 +57,7 @@ import {
   ElectionPackageWithFileContents,
   readElectionPackageFromBuffer,
   readElectionPackageFromFile,
-  readSignedElectionPackageFromUsb,
+  readSignedElectionPackageFromDirectory,
 } from './election_package_io';
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -82,16 +83,14 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
 });
 
-async function assertFilesCreatedInOrder(
-  usbDrive: UsbDrive,
+function assertFilesCreatedInOrder(
+  directory: string,
   relativeFilePaths: string[]
 ) {
-  const usbDriveStatus = await usbDrive.status();
-  assert(usbDriveStatus.status === 'mounted');
   // Ensure our mock actually created the files in the order we expect (the
   // order of the keys in the object above)
   const filesWithStats = relativeFilePaths.map((relativeFilePath) =>
-    fs.statSync(join(usbDriveStatus.mountPoint, relativeFilePath))
+    fs.statSync(join(directory, relativeFilePath))
   );
   for (let i = 0; i < filesWithStats.length - 1; i += 1) {
     expect(filesWithStats[i]!.ctime.getTime()).toBeLessThan(
@@ -449,7 +448,7 @@ test('readElectionPackageFromFile errors when given invalid metadata', async () 
   );
 });
 
-test('readSignedElectionPackageFromUsb can read an election package from usb', async () => {
+test('readSignedElectionPackageFromDirectory can read an election package from a directory', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -460,8 +459,9 @@ test('readSignedElectionPackageFromUsb can read an election package from usb', a
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree({
       electionDefinition,
       systemSettings: safeParseSystemSettings(
@@ -471,9 +471,9 @@ test('readSignedElectionPackageFromUsb can read an election package from usb', a
   );
 
   const { electionPackage } = (
-    await readSignedElectionPackageFromUsb(
+    await readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
@@ -490,7 +490,7 @@ test('readSignedElectionPackageFromUsb can read an election package from usb', a
   });
 });
 
-test("readSignedElectionPackageFromUsb uses default system settings when system settings don't exist in the zip file", async () => {
+test("readSignedElectionPackageFromDirectory uses default system settings when system settings don't exist in the zip file", async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -502,17 +502,18 @@ test("readSignedElectionPackageFromUsb uses default system settings when system 
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree({
       electionDefinition,
     })
   );
 
   const { electionPackage } = (
-    await readSignedElectionPackageFromUsb(
+    await readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
@@ -528,16 +529,17 @@ test('errors if logged-out auth is passed', async () => {
     reason: 'no_card',
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree({ electionDefinition })
   );
 
   const logger = mockBaseLogger({ fn: vi.fn });
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
     authStatus,
-    mockUsbDrive.usbDrive,
+    directory,
     logger
   );
   expect(electionPackageResult).toEqual(
@@ -557,22 +559,23 @@ test('errors if election key on provided auth is different than election package
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree({
       electionDefinition: otherElectionDefinition,
     })
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
     authStatus,
-    mockUsbDrive.usbDrive,
+    directory,
     mockBaseLogger({ fn: vi.fn })
   );
   expect(electionPackageResult).toEqual(err({ type: 'election_key_mismatch' }));
 });
 
-test('errors if there is no election package on usb drive', async () => {
+test('errors if there is no election package in the directory', async () => {
   const election = electionTwoPartyPrimaryFixtures.readElection();
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
@@ -582,17 +585,15 @@ test('errors if there is no election package on usb drive', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({});
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(directory, {});
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
     authStatus,
-    mockUsbDrive.usbDrive,
+    directory,
     mockBaseLogger({ fn: vi.fn })
   );
-  expect(electionPackageResult).toEqual(
-    err({ type: 'no_election_package_on_usb_drive' })
-  );
+  expect(electionPackageResult).toEqual(err({ type: 'no_election_package' }));
 });
 
 test('errors if a user is authenticated but is not an election manager', async () => {
@@ -605,15 +606,16 @@ test('errors if a user is authenticated but is not an election manager', async (
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree({ electionDefinition })
   );
 
   await expect(
-    readSignedElectionPackageFromUsb(
+    readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn })
     )
   ).rejects.toThrow(
@@ -633,7 +635,7 @@ test('configures using the most recently created election package for an electio
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
+  const directory = makeTemporaryDirectory();
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
     ballotHash
@@ -647,7 +649,7 @@ test('configures using the most recently created election package for an electio
       numIncorrectPinAttemptsAllowedBeforeCardLockout: 7,
     },
   };
-  mockUsbDrive.insertUsbDrive({
+  writeMockFileTree(directory, {
     [electionDirectory]: {
       [ELECTION_PACKAGE_FOLDER]: {
         'older-election-package.zip': await createElectionPackageZipArchive(
@@ -660,17 +662,17 @@ test('configures using the most recently created election package for an electio
       },
     },
   });
-  await assertFilesCreatedInOrder(
-    mockUsbDrive.usbDrive,
+  assertFilesCreatedInOrder(
+    directory,
     ['older-election-package.zip', 'newer-election-package.zip'].map(
       (filename) => join(electionDirectory, ELECTION_PACKAGE_FOLDER, filename)
     )
   );
 
   const { electionPackage } = (
-    await readSignedElectionPackageFromUsb(
+    await readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
@@ -696,7 +698,7 @@ test('configures using the most recently created election package across electio
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
+  const directory = makeTemporaryDirectory();
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
     ballotHash
@@ -705,7 +707,7 @@ test('configures using the most recently created election package across electio
     otherElection,
     otherBallotHash
   );
-  mockUsbDrive.insertUsbDrive({
+  writeMockFileTree(directory, {
     [otherElectionDirectory]: {
       [ELECTION_PACKAGE_FOLDER]: {
         'older-election-package.zip': await createElectionPackageZipArchive({
@@ -721,7 +723,7 @@ test('configures using the most recently created election package across electio
       },
     },
   });
-  await assertFilesCreatedInOrder(mockUsbDrive.usbDrive, [
+  assertFilesCreatedInOrder(directory, [
     join(
       otherElectionDirectory,
       ELECTION_PACKAGE_FOLDER,
@@ -735,9 +737,9 @@ test('configures using the most recently created election package across electio
   ]);
 
   const { electionPackage } = (
-    await readSignedElectionPackageFromUsb(
+    await readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
@@ -756,12 +758,12 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
+  const directory = makeTemporaryDirectory();
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
     ballotHash
   );
-  mockUsbDrive.insertUsbDrive({
+  writeMockFileTree(directory, {
     [electionDirectory]: {
       [ELECTION_PACKAGE_FOLDER]: {
         'older-election-package.zip': await createElectionPackageZipArchive({
@@ -775,8 +777,8 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
       },
     },
   });
-  await assertFilesCreatedInOrder(
-    mockUsbDrive.usbDrive,
+  assertFilesCreatedInOrder(
+    directory,
     [
       'older-election-package.zip',
       '._newer-hidden-file-election-package.zip',
@@ -786,9 +788,9 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   );
 
   const { electionPackage } = (
-    await readSignedElectionPackageFromUsb(
+    await readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
@@ -798,7 +800,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   );
 });
 
-test('readSignedElectionPackageFromUsb returns error result if election package authentication errs', async () => {
+test('readSignedElectionPackageFromDirectory returns error result if election package authentication errs', async () => {
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
@@ -812,16 +814,17 @@ test('readSignedElectionPackageFromUsb returns error result if election package 
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree(
       electionFamousNames2021Fixtures.electionJson.toElectionPackage()
     )
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
     authStatus,
-    mockUsbDrive.usbDrive,
+    directory,
     mockBaseLogger({ fn: vi.fn })
   );
   expect(electionPackageResult).toEqual(
@@ -829,7 +832,7 @@ test('readSignedElectionPackageFromUsb returns error result if election package 
   );
 });
 
-test('readSignedElectionPackageFromUsb ignores election package authentication errors if SKIP_ELECTION_PACKAGE_AUTHENTICATION is enabled', async () => {
+test('readSignedElectionPackageFromDirectory ignores election package authentication errors if SKIP_ELECTION_PACKAGE_AUTHENTICATION is enabled', async () => {
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
@@ -846,16 +849,17 @@ test('readSignedElectionPackageFromUsb ignores election package authentication e
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive(
+  const directory = makeTemporaryDirectory();
+  writeMockFileTree(
+    directory,
     await mockElectionPackageFileTree(
       electionFamousNames2021Fixtures.electionJson.toElectionPackage()
     )
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
     authStatus,
-    mockUsbDrive.usbDrive,
+    directory,
     mockBaseLogger({ fn: vi.fn })
   );
   expect(electionPackageResult).toEqual(ok(expect.anything()));
@@ -952,7 +956,7 @@ test.each<{
     isErrorExpected: false,
   },
 ])(
-  'readSignedElectionPackageFromUsb system limit validation - $description',
+  'readSignedElectionPackageFromDirectory system limit validation - $description',
   async (testConfig) => {
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -964,8 +968,9 @@ test.each<{
       sessionExpiresAt: mockSessionExpiresAt(),
     };
 
-    const mockUsbDrive = createMockUsbDrive();
-    mockUsbDrive.insertUsbDrive(
+    const directory = makeTemporaryDirectory();
+    writeMockFileTree(
+      directory,
       await mockElectionPackageFileTree({
         electionDefinition,
         systemSettings: testConfig.systemSettings,
@@ -986,9 +991,9 @@ test.each<{
       ballotStyleId: expect.any(String),
     };
 
-    const result = await readSignedElectionPackageFromUsb(
+    const result = await readSignedElectionPackageFromDirectory(
       authStatus,
-      mockUsbDrive.usbDrive,
+      directory,
       mockBaseLogger({ fn: vi.fn }),
       {
         checkMarkScanSystemLimits: true,

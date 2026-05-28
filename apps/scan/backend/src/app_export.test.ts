@@ -454,7 +454,7 @@ test('audit ballot IDs', async () => {
 
       (await apiClient.saveBallotAuditIdSecretKey()).unsafeUnwrap();
       const usbDriveStatus = await mockUsbDrive.usbDrive.status();
-      assert(usbDriveStatus.status === 'mounted');
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
       const secretKeyPath = path.join(
         usbDriveStatus.mountPoint,
         BALLOT_AUDIT_ID_FILE_NAME

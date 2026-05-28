@@ -101,7 +101,7 @@ test("fails to configure if there's no election package on the usb drive", async
     mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err({ type: 'no_election_package_on_usb_drive' })
+      err({ type: 'no_election_package' })
     );
 
     expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
@@ -113,13 +113,14 @@ test("fails to configure if there's no election package on the usb drive", async
 
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err({ type: 'no_election_package_on_usb_drive' })
+      err({ type: 'no_election_package' })
     );
   });
 });
 
 test('fails to configure election package if logged out', async () => {
-  await withApp(async ({ apiClient, mockAuth }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
+    mockUsbDrive.insertUsbDrive({});
     mockLoggedOut(mockAuth);
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       err({ type: 'auth_required_before_election_package_load' })

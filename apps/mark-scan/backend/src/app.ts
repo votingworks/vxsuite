@@ -36,7 +36,7 @@ import {
 
 import {
   createUiStringsApi,
-  readSignedElectionPackageFromUsb,
+  readSignedElectionPackageFromDirectory,
   configureUiStrings,
   createSystemCallApi,
   ExportDataResult,
@@ -168,12 +168,15 @@ export function buildApi(
         constructAuthMachineState(workspace)
       );
 
-      const electionPackageResult = await readSignedElectionPackageFromUsb(
-        authStatus,
-        usbDrive,
-        logger,
-        { checkMarkScanSystemLimits: true }
-      );
+      const usbDriveStatus = await usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+      const electionPackageResult =
+        await readSignedElectionPackageFromDirectory(
+          authStatus,
+          usbDriveStatus.mountPoint,
+          logger,
+          { checkMarkScanSystemLimits: true }
+        );
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'failure',

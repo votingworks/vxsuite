@@ -39,7 +39,6 @@ import {
 import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
   addMockDrive,
-  createMockFileUsbDrive,
   getMockFileUsbDriveHandler,
   listMockDrives,
   removeMockDriveDir,
@@ -316,10 +315,11 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         .async()
         .filterMap(async (diskName) => {
           const handler = getMockFileUsbDriveHandler(diskName);
-          if (handler.status().status !== 'mounted') return undefined;
-          const mockUsbDrive = createMockFileUsbDrive(diskName);
-          const result =
-            await getMostRecentElectionPackageFilepath(mockUsbDrive);
+          const usbDriveStatus = handler.status();
+          if (usbDriveStatus.status !== 'mounted') return undefined;
+          const result = await getMostRecentElectionPackageFilepath(
+            usbDriveStatus.mountPoint
+          );
           if (result.isErr()) return undefined;
           const zipPath = result.ok();
           return {
