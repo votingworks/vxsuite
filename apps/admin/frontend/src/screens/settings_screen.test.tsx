@@ -179,7 +179,7 @@ describe('multi-station mode', () => {
     await screen.findByText(
       'Machine mode changed, restart the machine to continue.'
     );
-    screen.getByRole('button', { name: 'Power Down' });
+    screen.getByRole('button', { name: 'Restart' });
   });
 });
 

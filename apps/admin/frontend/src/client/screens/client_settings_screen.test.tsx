@@ -137,5 +137,5 @@ test('shows restart screen after switching to host mode', async () => {
   await screen.findByText(
     'Machine mode changed, restart the machine to continue.'
   );
-  screen.getByRole('button', { name: 'Power Down' });
+  screen.getByRole('button', { name: 'Restart' });
 });
