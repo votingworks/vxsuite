@@ -1,6 +1,9 @@
 import { expect, test } from 'vitest';
 import { CandidateContest, Election, VotesDict } from '@votingworks/types';
-import { getIndirectCandidateIds } from './straight_party_votes';
+import {
+  getIndirectCandidateIds,
+  getStraightPartySelectedPartyId,
+} from './straight_party_votes';
 
 const PARTY_A = 'party-a';
 const PARTY_B = 'party-b';
@@ -65,6 +68,31 @@ const BASE_ELECTION: Election = {
 function buildElection(overrides: Partial<Election> = {}): Election {
   return { ...BASE_ELECTION, ...overrides };
 }
+
+test('getStraightPartySelectedPartyId returns undefined when no SP contest', () => {
+  const election = buildElection({ contests: [BASE_ELECTION.contests[1]] });
+  expect(getStraightPartySelectedPartyId(election, {})).toBeUndefined();
+});
+
+test('getStraightPartySelectedPartyId returns undefined when no SP vote', () => {
+  expect(getStraightPartySelectedPartyId(BASE_ELECTION, {})).toBeUndefined();
+});
+
+test('getStraightPartySelectedPartyId returns undefined on overvote', () => {
+  const votes: VotesDict = {
+    'straight-party': [PARTY_A, PARTY_B],
+  };
+  expect(getStraightPartySelectedPartyId(BASE_ELECTION, votes)).toBeUndefined();
+});
+
+test('getStraightPartySelectedPartyId returns selected party id', () => {
+  const votes: VotesDict = {
+    'straight-party': [PARTY_A],
+  };
+  expect(getStraightPartySelectedPartyId(BASE_ELECTION, votes)).toEqual(
+    PARTY_A
+  );
+});
 
 test('returns empty set when no straight party contest', () => {
   const election = buildElection({ contests: [buildElection().contests[1]] });
