@@ -15,6 +15,7 @@ import {
 } from '@votingworks/logging';
 import {
   mockCardlessVoterUser,
+  Mocked,
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
@@ -34,8 +35,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
-import { CardDetails, CardStatus, ProgrammedCardDetails } from './card';
+import { buildMockCard, mockCardAssertComplete } from '../test/utils';
+import { Card, CardDetails, CardStatus, ProgrammedCardDetails } from './card';
 import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth';
 import {
@@ -57,7 +58,7 @@ vi.mock(
 const pin = '123456';
 const wrongPin = '654321';
 
-let mockCard: MockCard;
+let mockCard: Mocked<Card>;
 let mockLogger: MockBaseLogger;
 let mockTime: DateTime;
 

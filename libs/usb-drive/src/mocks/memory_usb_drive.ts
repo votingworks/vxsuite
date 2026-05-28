@@ -1,18 +1,14 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
-import { MockFunction, mockFunction } from '@votingworks/test-utils';
+import { Mocked, mockFunction } from '@votingworks/test-utils';
 import tmp from 'tmp';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive } from '../types';
-
-type MockedUsbDrive = {
-  [Method in keyof UsbDrive]: MockFunction<UsbDrive[Method]>;
-};
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
  */
 export interface MockUsbDrive {
-  usbDrive: MockedUsbDrive;
+  usbDrive: Mocked<UsbDrive>;
   assertComplete(): void;
   insertUsbDrive(contents: MockFileTree): void;
   removeUsbDrive(): void;
@@ -34,7 +30,7 @@ export interface MockUsbDrive {
 export function createMockUsbDrive(): MockUsbDrive {
   let mockUsbTmpDir: tmp.DirResult | undefined;
 
-  const usbDrive: MockedUsbDrive = {
+  const usbDrive: Mocked<UsbDrive> = {
     status: mockFunction('status'),
     eject: mockFunction('eject'),
     format: mockFunction('format'),

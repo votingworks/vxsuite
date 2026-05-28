@@ -13,6 +13,7 @@ import {
   MockBaseLogger,
 } from '@votingworks/logging';
 import {
+  Mocked,
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
@@ -32,8 +33,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
+import { buildMockCard, mockCardAssertComplete } from '../test/utils';
 import {
+  Card,
   CardDetails,
   CardStatus,
   ProgrammableCard,
@@ -60,7 +62,7 @@ vi.mock(
 const pin = '123456';
 const wrongPin = '654321';
 
-let mockCard: MockCard;
+let mockCard: Mocked<Card>;
 let mockLogger: MockBaseLogger;
 let mockTime: DateTime;
 

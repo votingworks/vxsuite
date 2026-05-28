@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { describe, expect, test } from 'vitest';
-import { mockFunction } from './mock_function';
+import { describe, expect, expectTypeOf, test } from 'vitest';
+import { Mocked, MockFunction, mockFunction } from './mock_function';
 
 describe('mockFunction', () => {
   function add(num1: number, num2: number): number {
@@ -340,5 +340,33 @@ describe('mockFunction', () => {
     addMock.reset();
 
     addMock.assertComplete();
+  });
+});
+
+describe('Mocked<T>', () => {
+  test('Mocked<T> extends T', () => {
+    interface A {
+      a(): void;
+    }
+
+    expectTypeOf<Mocked<A>>({
+      a: mockFunction('a'),
+    }).toExtend<A>();
+  });
+
+  test('Mocked<T> types methods as `MockFunction`, others are passed through', () => {
+    interface A {
+      a(): void;
+      b(x: string, y: number): symbol;
+      c: number;
+    }
+
+    expectTypeOf<Mocked<A>['a']>(mockFunction('a')).toExtend<
+      MockFunction<() => void>
+    >();
+    expectTypeOf<Mocked<A>['b']>(mockFunction('b')).toExtend<
+      MockFunction<(x: string, y: number) => symbol>
+    >();
+    expectTypeOf<Mocked<A>['c']>(1).toExtend<number>();
   });
 });

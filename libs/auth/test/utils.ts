@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { Buffer } from 'node:buffer';
 import path from 'node:path';
-import { MockFunction, mockFunction } from '@votingworks/test-utils';
+import { Mocked, MockFunction, mockFunction } from '@votingworks/test-utils';
 
 import { Card, CardStatus } from '../src/card';
 import {
@@ -28,50 +28,33 @@ export class MockCardReader implements Pick<CardReader, 'transmit'> {
 
   // eslint-disable-next-line vx/gts-no-public-class-fields
   disconnectCard: MockFunction<CardReader['disconnectCard']> =
-    mockFunction<CardReader['disconnectCard']>('disconnectCard');
+    mockFunction('disconnectCard');
 
   // eslint-disable-next-line vx/gts-no-public-class-fields
-  transmit: MockFunction<CardReader['transmit']> =
-    mockFunction<CardReader['transmit']>('transmit');
-}
-
-/**
- * The card API with all methods mocked using our custom libs/test-utils mocks
- */
-export interface MockCard {
-  getCardStatus: MockFunction<Card['getCardStatus']>;
-  checkPin: MockFunction<Card['checkPin']>;
-  program: MockFunction<Card['program']>;
-  readData: MockFunction<Card['readData']>;
-  writeData: MockFunction<Card['writeData']>;
-  clearData: MockFunction<Card['clearData']>;
-  unprogram: MockFunction<Card['unprogram']>;
-  disconnect: MockFunction<Card['disconnect']>;
+  transmit: MockFunction<CardReader['transmit']> = mockFunction('transmit');
 }
 
 /**
  * Builds a mock card instance
  */
-export function buildMockCard(): MockCard {
+export function buildMockCard(): Mocked<Card> {
   return {
-    getCardStatus: mockFunction<Card['getCardStatus']>('getCardStatus'),
-    checkPin: mockFunction<Card['checkPin']>('checkPin'),
-    program: mockFunction<Card['program']>('program'),
-    readData: mockFunction<Card['readData']>('readData'),
-    writeData: mockFunction<Card['writeData']>('writeData'),
-    clearData: mockFunction<Card['clearData']>('clearData'),
-    unprogram: mockFunction<Card['unprogram']>('unprogram'),
-    disconnect: mockFunction<Card['disconnect']>('disconnect'),
+    getCardStatus: mockFunction('getCardStatus'),
+    checkPin: mockFunction('checkPin'),
+    program: mockFunction('program'),
+    readData: mockFunction('readData'),
+    writeData: mockFunction('writeData'),
+    clearData: mockFunction('clearData'),
+    unprogram: mockFunction('unprogram'),
+    disconnect: mockFunction('disconnect'),
   };
 }
 
 /**
  * Asserts that all the expected calls to all the methods of a mock card were made
  */
-export function mockCardAssertComplete(mockCard: MockCard): void {
-  for (const mockMethod of Object.values(mockCard) as Array<
-    MockCard[keyof MockCard]
-  >) {
+export function mockCardAssertComplete(mockCard: Mocked<Card>): void {
+  for (const mockMethod of Object.values(mockCard)) {
     mockMethod.assertComplete();
   }
 }
