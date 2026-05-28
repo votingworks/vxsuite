@@ -80,7 +80,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
       <Screen>
         <Main centerChild>
           <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
-            <P>
+            <P align="center">
               <Button
                 onPress={
                   /* istanbul ignore next - no-op in tests @preserve */
