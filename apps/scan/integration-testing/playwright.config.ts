@@ -31,6 +31,7 @@ export default defineConfig({
     ['junit', { outputFile: join(outputDir, 'results.xml') }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  timeout: 90000,
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL,

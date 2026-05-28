@@ -88,7 +88,7 @@ export function ElectionInfo({
   );
 
   return (
-    <ElectionInfoContainer>
+    <ElectionInfoContainer data-testid="electionInfo">
       <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
       <Caption weight="regular">
         <LabelledText labelPosition="bottom" label={electionInfoLabel}>

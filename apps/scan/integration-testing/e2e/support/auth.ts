@@ -3,6 +3,7 @@ import {
   INTEGRATION_TEST_DEFAULT_PIN,
   mockCardRemoval,
   mockElectionManagerCardInsertion,
+  mockPollWorkerCardInsertion,
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
 import { methodUrl } from '@votingworks/grout';
@@ -25,6 +26,13 @@ export async function logInAsSystemAdministrator(page: Page): Promise<void> {
   mockSystemAdministratorCardInsertion();
   await enterPin(page);
   await page.getByText('System Administrator Menu').waitFor();
+}
+
+/**
+ * Logs in as poll worker. Card remains inserted. No PIN required.
+ */
+export function logInAsPollWorker(election: Election): void {
+  mockPollWorkerCardInsertion({ election });
 }
 
 /**

@@ -15,6 +15,7 @@ import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
+  logInAsPollWorker,
   logInAsSystemAdministrator,
 } from './support/auth';
 
@@ -28,12 +29,12 @@ test.beforeEach(async ({ page }) => {
   getMockFileUsbDriveHandler().cleanup();
 });
 
-test('screenshots', async ({ page }) => {
+test('configuration', async ({ page }) => {
   const fixtureSet = electionFamousNames2021Fixtures;
   const usbHandler = getMockFileUsbDriveHandler();
   const {
     screenshot,
-    screenshotWithFocusHighlight,
+    screenshotWithButtonHighlight,
     withContainerVerticallyExpanded,
   } = buildIntegrationTestHelper(page, screenshotCounter);
 
@@ -62,18 +63,18 @@ test('screenshots', async ({ page }) => {
   await page.locator('.search-select').getByText('North Lincoln').waitFor();
   await screenshot('em-polling-place-selected');
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Official Ballot Mode',
     'em-official-ballot-mode-button'
   );
   await page.getByText('Official Ballot Mode').click();
   await page.getByText('Test Ballot Mode').waitFor();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Test Ballot Mode',
     'em-test-ballot-mode-button'
   );
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Unconfigure Machine',
     'em-unconfigure-machine-button'
   );
@@ -113,8 +114,8 @@ test('screenshots', async ({ page }) => {
   await page.getByRole('tab', { name: 'CVRs and Logs' }).click();
   await page.getByText('Save CVRs').waitFor();
   await screenshot('em-cvrs-and-logs-tab');
-  await screenshotWithFocusHighlight('Save CVRs', 'em-save-cvrs-button');
-  await screenshotWithFocusHighlight('Save Logs', 'em-save-logs-button');
+  await screenshotWithButtonHighlight('Save CVRs', 'em-save-cvrs-button');
+  await screenshotWithButtonHighlight('Save Logs', 'em-save-logs-button');
   await page.getByRole('button', { name: 'Save Logs' }).click();
   await page.getByText('Save Logs', { exact: true }).nth(1).waitFor();
   await screenshot('em-save-logs-modal');
@@ -123,18 +124,18 @@ test('screenshots', async ({ page }) => {
 
   await page.getByRole('tab', { name: 'More' }).click();
   await page.getByText('Set Date and Time').waitFor();
-  await screenshotWithFocusHighlight('Set Date and Time', 'em-set-date-time');
+  await screenshotWithButtonHighlight('Set Date and Time', 'em-set-date-time');
   await page.getByRole('button', { name: 'Set Date and Time' }).click();
   await page.getByRole('alertdialog').waitFor();
   await screenshot('em-set-date-time-modal');
   await page.getByRole('button', { name: 'Cancel' }).click();
   await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
-  await screenshotWithFocusHighlight('Mute Sounds', 'em-mute-sounds');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight('Mute Sounds', 'em-mute-sounds');
+  await screenshotWithButtonHighlight(
     'Signed Hash Validation',
     'em-signed-hash-validation'
   );
-  await screenshotWithFocusHighlight('Diagnostics', 'em-diagnostics');
+  await screenshotWithButtonHighlight('Diagnostics', 'em-diagnostics');
   await page.getByRole('button', { name: 'Diagnostics' }).click();
   await page.getByRole('button', { name: 'Back' }).waitFor();
   await withContainerVerticallyExpanded('main', async () => {
@@ -145,7 +146,7 @@ test('screenshots', async ({ page }) => {
   await page.getByRole('tab', { name: 'More' }).click();
   await page.getByText('Power Down').waitFor();
 
-  await screenshotWithFocusHighlight('Power Down', 'em-power-down');
+  await screenshotWithButtonHighlight('Power Down', 'em-power-down');
 
   mockCardRemoval();
   await page.getByText('Insert a poll worker card to open polls.').waitFor();
@@ -153,7 +154,7 @@ test('screenshots', async ({ page }) => {
   await logInAsSystemAdministrator(page);
   await screenshot('sa-menu');
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Unconfigure Machine',
     'sa-unconfigure-machine-button'
   );
@@ -163,15 +164,66 @@ test('screenshots', async ({ page }) => {
   await page.getByRole('button', { name: 'Cancel' }).click();
   await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
 
-  await screenshotWithFocusHighlight('Set Date and Time', 'sa-set-date-time');
-  await screenshotWithFocusHighlight('Diagnostics', 'sa-diagnostics');
-  await screenshotWithFocusHighlight('Save Logs', 'sa-save-logs-button');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight('Set Date and Time', 'sa-set-date-time');
+  await screenshotWithButtonHighlight('Diagnostics', 'sa-diagnostics');
+  await screenshotWithButtonHighlight('Save Logs', 'sa-save-logs-button');
+  await screenshotWithButtonHighlight(
     'Calibrate Image Sensors',
     'sa-calibrate-image-sensors'
   );
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Signed Hash Validation',
     'sa-signed-hash-validation'
+  );
+});
+
+test('voting', async ({ page }) => {
+  const fixtureSet = electionFamousNames2021Fixtures;
+  const usbHandler = getMockFileUsbDriveHandler();
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
+  } = buildIntegrationTestHelper(page, screenshotCounter);
+
+  await page.goto('/');
+  await logInAsElectionManager(page, fixtureSet.readElection());
+  usbHandler.insert(
+    await mockElectionPackageFileTree(
+      fixtureSet.electionJson.toElectionPackage()
+    )
+  );
+  await page.getByText('Election Manager Menu').waitFor();
+  await page.getByLabel(/select a polling place/i).click({ force: true });
+  await page.getByText('North Lincoln', { exact: true }).click();
+  await page.locator('.search-select').getByText('North Lincoln').waitFor();
+  await page.getByText('Official Ballot Mode').click();
+  await page.getByText('Test Ballot Mode').waitFor();
+
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open polls.').waitFor();
+  await screenshot('polls-closed');
+
+  logInAsPollWorker(fixtureSet.readElection());
+  await page.getByText('Do you want to open the polls?').waitFor();
+  await screenshot('open-polls-prompt');
+  await screenshotWithButtonHighlight('Open Polls', 'open-polls-button');
+
+  await page.getByRole('button', { name: 'Open Polls' }).click();
+  await page
+    .getByRole('heading', { name: 'Polls Opened' })
+    .waitFor({ timeout: 60000 });
+  await screenshot('polls-opened');
+  await screenshotWithButtonHighlight(
+    'Reprint Polls Opened Report',
+    'reprint-polls-opened-report-button'
+  );
+
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
+  await screenshot('insert-ballot');
+  await screenshotWithLocatorHighlight(
+    page.getByTestId('electionInfo'),
+    'insert-ballot-election-info'
   );
 });
