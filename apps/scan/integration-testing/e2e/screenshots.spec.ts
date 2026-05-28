@@ -157,6 +157,12 @@ test('screenshots', async ({ page }) => {
     'Unconfigure Machine',
     'sa-unconfigure-machine-button'
   );
+  await page.getByRole('button', { name: 'Unconfigure Machine' }).click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshot('sa-unconfigure-machine-modal');
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+
   await screenshotWithFocusHighlight('Set Date and Time', 'sa-set-date-time');
   await screenshotWithFocusHighlight('Diagnostics', 'sa-diagnostics');
   await screenshotWithFocusHighlight('Save Logs', 'sa-save-logs-button');
