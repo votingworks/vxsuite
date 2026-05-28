@@ -57,6 +57,13 @@ export interface MockFunction<Func extends AnyFunc> {
   assertComplete(): void;
 }
 
+/**
+ * An object whose methods are all `MockFunction` mocks.
+ */
+export type Mocked<T> = {
+  [K in keyof T]: T[K] extends AnyFunc ? MockFunction<T[K]> : T[K];
+} & T;
+
 interface MockFunctionState<Func extends AnyFunc> {
   expectedCalls: Array<ExpectedCall<Func>>;
   actualCalls: Array<ActualCall<Func>>;

@@ -1,4 +1,4 @@
-import { MockFunction, mockFunction } from '@votingworks/test-utils';
+import { Mocked, mockFunction } from '@votingworks/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   MultiUsbDrive,
@@ -9,15 +9,11 @@ import { UsbDrive } from '../types';
 import { createUsbDriveAdapter } from '../usb_drive_adapter';
 import { MockFileTree, writeMockFileTree } from './helpers';
 
-type MockedMultiUsbDrive = {
-  [Method in keyof MultiUsbDrive]: MockFunction<MultiUsbDrive[Method]>;
-};
-
 const MOCK_DISK_DEV_PATH = '/dev/sdb';
 const MOCK_PARTITION_DEV_PATH = '/dev/sdb1';
 
 export interface MockMultiUsbDrive {
-  multiUsbDrive: MockedMultiUsbDrive;
+  multiUsbDrive: Mocked<MultiUsbDrive>;
   /**
    * A UsbDrive adapter backed by the multiUsbDrive mock. Useful for passing
    * directly to functions that accept a UsbDrive interface.
@@ -54,7 +50,7 @@ export interface MockMultiUsbDrive {
 export function createMockMultiUsbDrive(): MockMultiUsbDrive {
   let mockUsbTmpDir: string | undefined;
 
-  const multiUsbDrive: MockedMultiUsbDrive = {
+  const multiUsbDrive: Mocked<MultiUsbDrive> = {
     getDrives: mockFunction('getDrives'),
     refresh: mockFunction('refresh'),
     ejectDrive: mockFunction('ejectDrive'),
