@@ -242,10 +242,25 @@ function HostBallotAdjudicationScreen({
     try {
       const result = await claimAndLoadMutation({ cvrId: nextCvrId });
       if (result.isErr()) {
-        // Drop the previous ballot's data so the claimed-by-another overlay
-        // never renders over stale contests/derived state.
-        setBallotData(null);
-        setClaimError(result.err());
+        const error = result.err();
+        if (error.type === 'claim-failed') {
+          // Another station owns this ballot. Hand the renderer an empty
+          // placeholder so the claimed-by-another overlay draws cleanly,
+          // without carrying over the previous ballot's contests/derived
+          // state.
+          setBallotData({
+            cvrId: nextCvrId,
+            contests: [],
+            tag: { isBlankBallot: false },
+            isResolved: false,
+            adjudicatedContests: [],
+          });
+        } else {
+          // Non-recoverable error (e.g. host disconnect). Clear ballot data
+          // so the parent routes to the "Unable to load ballot" screen.
+          setBallotData(null);
+        }
+        setClaimError(error);
         return false;
       }
       const value = result.ok();
@@ -441,16 +456,7 @@ function HostBallotAdjudicationScreenDataLoader({
     );
   }
 
-  // For a ballot claimed elsewhere there is no real adjudication data; use an
-  // empty placeholder so the claimed overlay renders without carrying over the
-  // previous ballot's contests or derived state.
-  const adjudicationData: BallotAdjudicationData = ballotData ?? {
-    cvrId,
-    contests: [],
-    tag: { isBlankBallot: false },
-    isResolved: false,
-    adjudicatedContests: [],
-  };
+  const adjudicationData = assertDefined(ballotData);
 
   return (
     <BallotAdjudicationScreen
