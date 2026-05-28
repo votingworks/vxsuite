@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { LinkButton, LinkButtonProps } from './link_button';
 import { Icons } from './icons';
@@ -135,7 +136,7 @@ export function AppLogo({
   appName,
   className,
 }: {
-  appName: string;
+  appName: React.ReactNode;
   className?: string;
 }): JSX.Element {
   return (
