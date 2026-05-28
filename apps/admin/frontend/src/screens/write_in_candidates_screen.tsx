@@ -376,7 +376,7 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
             savedCandidates.length === 0 && (
               <Callout icon="Info" color="neutral">
                 You have not added any write-in candidates for this contest.
-                Write-ins for this contest will be counted as undervotes.
+                Write-ins for this contest will be counted as invalid.
               </Callout>
             )}
         </FormBody>

@@ -451,9 +451,7 @@ export const updateQualifiedWriteInCandidates = {
         await queryClient.invalidateQueries(
           getBallotAdjudicationQueue.queryKey()
         );
-        await queryClient.invalidateQueries(
-          getBallotAdjudicationData.queryKey()
-        );
+        queryClient.removeQueries(getBallotAdjudicationData.queryKey());
         await queryClient.invalidateQueries(
           getNextCvrIdForBallotAdjudication.queryKey()
         );
