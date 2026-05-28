@@ -7,13 +7,18 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { getMockFileFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
-import { buildIntegrationTestHelper } from '@votingworks/test-utils';
+import {
+  buildIntegrationTestHelper,
+  createScreenshotCounter,
+} from '@votingworks/test-utils';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
   logInAsSystemAdministrator,
 } from './support/auth';
+
+const screenshotCounter = createScreenshotCounter();
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -30,7 +35,7 @@ test('screenshots', async ({ page }) => {
     screenshot,
     screenshotWithFocusHighlight,
     withContainerVerticallyExpanded,
-  } = buildIntegrationTestHelper(page);
+  } = buildIntegrationTestHelper(page, screenshotCounter);
 
   await page
     .getByText('Insert an election manager card to configure VxScan')
