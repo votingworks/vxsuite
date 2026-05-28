@@ -1452,14 +1452,14 @@ test('Skip onto a ballot claimed by another machine shows read-only overlay and 
   await screen.findByText('Ballot ID: aaaa');
 
   // Skip from FIRST_CVR_ID advances by one position to CLAIMED_CVR_ID which
-  // is held by another machine — the wrapper surfaces a `no-claim` error so
+  // is held by another machine — the wrapper surfaces a `claim-failed` error so
   // the screen renders the "claimed by another machine" overlay. The header
   // should still update to the claimed ballot's ID even though we never
   // loaded its adjudication data.
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: FIRST_CVR_ID });
   apiMock.apiClient.claimAndLoadBallot
     .expectCallWith({ cvrId: CLAIMED_CVR_ID })
-    .resolves(err({ type: 'no-claim' }));
+    .resolves(err({ type: 'claim-failed' }));
   apiMock.expectGetBallotImages({ cvrId: CLAIMED_CVR_ID }, true);
 
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
@@ -1477,7 +1477,7 @@ test('Skip onto a ballot claimed by another machine shows read-only overlay and 
 test('shows an error with exit when the claim+load fails', async () => {
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  // The claim+load fails with a non-"no-claim" error (e.g. the host backend
+  // The claim+load fails with a non-"claim-failed" error (e.g. the host backend
   // errored), so there's no ballot data and no claimed-by-another overlay.
   apiMock.apiClient.claimAndLoadBallot
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })

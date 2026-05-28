@@ -273,12 +273,12 @@ test('exit releases ballot', async () => {
   });
 });
 
-test('shows no-claim error with exit button', async () => {
-  // Initial claim+load fails with no-claim — auxiliary data loader queries
+test('shows claim-failed error with exit button', async () => {
+  // Initial claim+load fails with claim-failed — auxiliary data loader queries
   // never run because we bail to the error screen first.
   apiMock.apiClient.claimAndLoadBallot
     .expectRepeatedCallsWith({})
-    .resolves(err({ type: 'no-claim' }));
+    .resolves(err({ type: 'claim-failed' }));
 
   renderScreen();
 
@@ -381,7 +381,7 @@ test('onAccept error shows error screen', async () => {
   const mockInput = { cvrId: 'cvr-1', contests: [] } as const;
   apiMock.apiClient.adjudicateCvr
     .expectCallWith(mockInput)
-    .resolves(err({ type: 'no-claim' }));
+    .resolves(err({ type: 'claim-failed' }));
   const onAccept = capturedProps['onAccept'] as (
     input: unknown
   ) => Promise<void>;

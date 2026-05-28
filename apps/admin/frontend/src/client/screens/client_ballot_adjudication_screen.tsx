@@ -22,7 +22,7 @@ import {
 
 function proxyErrorMessage(error: AdjudicationError): string {
   switch (error.type) {
-    case 'no-claim':
+    case 'claim-failed':
       return 'This machine no longer has an active claim on this ballot. Please try again.';
     case 'host-disconnect':
       return 'Disconnected from host.';

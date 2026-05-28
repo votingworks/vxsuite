@@ -3358,7 +3358,7 @@ export class Store implements BaseStore {
    * transaction.
    *
    * - `cvrId` supplied → claim that specific ballot (or confirm an existing
-   *   claim). Returns `no-claim` if another machine holds it.
+   *   claim). Returns `claim-failed` if another machine holds it.
    * - `afterCvrId` supplied → find the next eligible ballot in queue order
    *   strictly *after* this one and claim it. Returns `ok(undefined)` if
    *   none.
@@ -3406,7 +3406,7 @@ export class Store implements BaseStore {
           machineId,
         })
       ) {
-        return err({ type: 'no-claim' });
+        return err({ type: 'claim-failed' });
       }
       const data = this.getBallotAdjudicationData({
         electionId,

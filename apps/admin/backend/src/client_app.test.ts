@@ -375,15 +375,15 @@ test('proxy returns host-disconnect when peer API throws network error', async (
   expect(result).toEqual(err({ type: 'host-disconnect' }));
 });
 
-test('adjudicateCvr returns no-claim when host has no claim', async () => {
+test('adjudicateCvr returns claim-failed when host has no claim', async () => {
   const { mockPeerApi } = connectToMockHost();
-  mockPeerApi.adjudicateCvr.mockResolvedValue(err({ type: 'no-claim' }));
+  mockPeerApi.adjudicateCvr.mockResolvedValue(err({ type: 'claim-failed' }));
 
   const result = await env.apiClient.adjudicateCvr({
     cvrId: 'cvr-1',
     contests: [],
   });
-  expect(result).toEqual(err({ type: 'no-claim' }));
+  expect(result).toEqual(err({ type: 'claim-failed' }));
 });
 
 test('adjudicateCvr returns host-disconnect on network error', async () => {

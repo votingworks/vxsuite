@@ -756,7 +756,7 @@ function buildApi({
           !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
           !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
         ) {
-          return err({ type: 'no-claim' });
+          return err({ type: 'claim-failed' });
         }
       }
       adjudicateCvr(input, machineId, store, logger);

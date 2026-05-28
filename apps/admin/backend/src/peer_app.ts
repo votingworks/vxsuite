@@ -207,7 +207,7 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
           machineId: input.machineId,
         })
       ) {
-        return err({ type: 'no-claim' });
+        return err({ type: 'claim-failed' });
       }
       adjudicateCvr(input, input.machineId, store, logger);
       logger.log(LogEventId.AdminBallotAdjudicationComplete, 'system', {

@@ -267,7 +267,7 @@ function HostBallotAdjudicationScreen({
   useEffect(() => {
     if (currentCvrId) {
       claimAndRelease(currentCvrId)
-        .catch(() => setClaimError({ type: 'no-claim' }))
+        .catch(() => setClaimError({ type: 'claim-failed' }))
         .finally(() => setIsClaimInFlight(false));
     } else {
       setIsClaimInFlight(false);
@@ -349,9 +349,9 @@ function HostBallotAdjudicationScreen({
   }
 
   // The current ballot is held by another machine when our atomic claim+load
-  // came back `no-claim`. The host always claims before displaying, so this
+  // came back `claim-failed`. The host always claims before displaying, so this
   // mutation result is the authoritative claim status for the shown ballot.
-  const isClaimed = claimError?.type === 'no-claim';
+  const isClaimed = claimError?.type === 'claim-failed';
   const statusText = `Ballot ${format.count(queueIndex + 1)} of ${format.count(
     queue.length
   )}`;

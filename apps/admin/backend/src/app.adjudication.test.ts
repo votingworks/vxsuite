@@ -763,9 +763,9 @@ test('adjudicateCvr requires active claim', async () => {
   const queue = await apiClient.getBallotAdjudicationQueue();
   const cvrId = assertDefined(queue[0]);
 
-  // adjudicateCvr without claim returns no-claim error
+  // adjudicateCvr without claim returns claim-failed error
   expect(await apiClient.adjudicateCvr({ cvrId, contests: [] })).toEqual(
-    err({ type: 'no-claim' })
+    err({ type: 'claim-failed' })
   );
 });
 

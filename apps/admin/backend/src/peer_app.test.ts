@@ -499,7 +499,7 @@ test('getBallotImageMetadata returns metadata with image URLs', async () => {
   });
 });
 
-test('adjudicateCvr returns no-claim when machine has no claim', async () => {
+test('adjudicateCvr returns claim-failed when machine has no claim', async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -515,5 +515,5 @@ test('adjudicateCvr returns no-claim when machine has no claim', async () => {
     cvrId: cvrIds[0]!,
     contests: [],
   });
-  expect(result).toEqual(err({ type: 'no-claim' }));
+  expect(result).toEqual(err({ type: 'claim-failed' }));
 });

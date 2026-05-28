@@ -852,7 +852,7 @@ describe('machine ballot adjudication assignments', () => {
     expect(second).not.toEqual(first);
   });
 
-  test('claiming a specific cvrId held by another machine returns no-claim', () => {
+  test('claiming a specific cvrId held by another machine returns claim-failed', () => {
     const cvr1 = addCvrWithWriteIn();
     expect(claimNextForClient('client-001')).toEqual(cvr1);
 
@@ -862,7 +862,7 @@ describe('machine ballot adjudication assignments', () => {
       machineId: 'client-002',
       cvrId: cvr1,
     });
-    expect(result.err()).toEqual({ type: 'no-claim' });
+    expect(result.err()).toEqual({ type: 'claim-failed' });
   });
 
   test('completed ballot cannot be re-claimed', () => {
