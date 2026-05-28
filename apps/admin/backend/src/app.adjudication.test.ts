@@ -691,7 +691,7 @@ test('getNextCvrIdForBallotAdjudication advances past the current ballot', async
 
   // With `currentCvrId` = first, returns the second eligible ballot.
   const second = await apiClient.getNextCvrIdForBallotAdjudication({
-    currentCvrId: adjudicationQueue[0],
+    afterCvrId: adjudicationQueue[0],
   });
   expect(second).toEqual(adjudicationQueue[1]);
 
@@ -700,7 +700,7 @@ test('getNextCvrIdForBallotAdjudication advances past the current ballot', async
   const lastInQueue = adjudicationQueue[adjudicationQueue.length - 1];
   expect(
     await apiClient.getNextCvrIdForBallotAdjudication({
-      currentCvrId: lastInQueue,
+      afterCvrId: lastInQueue,
     })
   ).toEqual(adjudicationQueue[0]);
 });

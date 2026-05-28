@@ -830,9 +830,7 @@ function buildApi({
 
     /**
      * Atomically claim a ballot for adjudication and return its data,
-     * both read under the same SQL transaction. The host always claims a
-     * specific cvrId from the queue. Returns `no-claim` if another machine
-     * holds the claim.
+     * both read under the same SQL transaction.
      */
     claimAndLoadBallot(input: {
       cvrId: Id;
@@ -867,13 +865,13 @@ function buildApi({
     },
 
     getNextCvrIdForBallotAdjudication(
-      input: { currentCvrId?: Id } = {}
+      input: { afterCvrId?: Id } = {}
     ): Id | null {
       return (
         store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
           machineId: getMachineConfig().machineId,
-          afterCvrId: input.currentCvrId,
+          afterCvrId: input.afterCvrId,
         }) ?? null
       );
     },

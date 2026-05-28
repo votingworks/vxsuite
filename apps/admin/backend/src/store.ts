@@ -150,11 +150,7 @@ function assertFilterDoesNotContainNoPartyId(
 
 /**
  * The canonical sort-key expressions for the ballot adjudication queue, for
- * the given `cvrs` table alias. The queue listing, the "next ballot" search,
- * and the `afterCvrId` cursor all build their ordering from this single
- * source so paging stays consistent with the queue — and the `coalesce`s
- * keep null ballot styles / sheet numbers ordered identically in the
- * row-value cursor comparison and the `order by`.
+ * the given `cvrs` table alias.
  */
 function adjudicationSortKeyExprs(alias: string): string[] {
   return [
@@ -163,7 +159,7 @@ function adjudicationSortKeyExprs(alias: string): string[] {
     `coalesce(${alias}.ballot_style_group_id, '')`,
     `coalesce(${alias}.sheet_number, 0)`,
     `${alias}.id`,
-  ];
+  ].join(', ');
 }
 
 /**

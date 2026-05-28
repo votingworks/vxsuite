@@ -304,8 +304,7 @@ function HostBallotAdjudicationScreen({
   const isLastInQueue = queueIndex >= queue.length - 1;
 
   // Skip moves forward by exactly one position in the queue, regardless of
-  // whether the next ballot is claimed by another machine. The user can use
-  // Skip to page through the queue without re-querying the backend.
+  // whether the next ballot is claimed by another machine.
   async function navigateSkip(): Promise<void> {
     setIsClaimInFlight(true);
     try {
@@ -323,10 +322,8 @@ function HostBallotAdjudicationScreen({
   async function navigateAcceptNext(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      // The backend wraps around the end of the queue, so a single lookup
-      // returns the next ballot to adjudicate (or null when none remain).
       const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication({
-        currentCvrId,
+        afterCvrId: currentCvrId,
       });
       const nextIndex = nextCvrId ? queue.indexOf(nextCvrId) : -1;
       if (nextIndex < 0) {
@@ -457,6 +454,12 @@ function HostBallotAdjudicationScreenDataLoader({
 
   return (
     <BallotAdjudicationScreen
+      // Use the query's cvrId as key/prop so the screen unmounts/remounts
+      // with the new data coming in. With the prop as the key, the component
+      // unmounts when the key changes, but the ballot data hasn't yet loaded,
+      // so there is a render where the cvrId shown on the screen to the user
+      // doesn't match the ballot data (since we use keepPreviousData=true on
+      // the query to avoid the Loading screen from flickering in between each ballot)
       key={cvrId}
       cvrId={cvrId}
       ballotAdjudicationData={adjudicationData}
