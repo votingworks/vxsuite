@@ -53,20 +53,6 @@ test('start passes context to `buildApp`', () => {
     printer: expect.anything(),
   });
   expect(listen).toHaveBeenCalledWith(PORT, expect.any(Function));
-});
-
-test('logs ApplicationStartup success when server starts listening', () => {
-  const listen = vi.fn((_port: number, callback: () => unknown) => {
-    callback();
-    return { close: vi.fn() };
-  });
-  mockBuildApp.mockReturnValueOnce({ listen } as unknown as Application);
-
-  const baseLogger = mockBaseLogger({ fn: vi.fn });
-  workspace = createWorkspace(makeTemporaryDirectory(), baseLogger);
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-
-  start({ auth, baseLogger, workspace });
 
   expect(baseLogger.log).toHaveBeenCalledWith(
     LogEventId.ApplicationStartup,
@@ -78,7 +64,7 @@ test('logs ApplicationStartup success when server starts listening', () => {
   );
 });
 
-test('logs DataCheckOnStartup when printed ballot data is present', () => {
+test('DataCheckOnStartup log when no ballot print counts are present', () => {
   const listen = vi.fn((_port: number, callback: () => unknown) => {
     callback();
     return { close: vi.fn() };
@@ -87,7 +73,6 @@ test('logs DataCheckOnStartup when printed ballot data is present', () => {
 
   const baseLogger = mockBaseLogger({ fn: vi.fn });
   workspace = createWorkspace(makeTemporaryDirectory(), baseLogger);
-  vi.spyOn(workspace.store, 'getTotalBallotsPrinted').mockReturnValue(5);
   const auth = buildMockDippedSmartCardAuth(vi.fn);
 
   start({ auth, baseLogger, workspace });
@@ -97,13 +82,13 @@ test('logs DataCheckOnStartup when printed ballot data is present', () => {
     'system',
     {
       message:
-        'Printed ballot data is present in the database at machine startup.',
-      ballotsPrinted: 5,
+        'No ballot print counts are present in the database on machine startup.',
+      ballotPrintCount: 0,
     }
   );
 });
 
-test('logs DataCheckOnStartup when no printed ballot data is present', () => {
+test('DataCheckOnStartup log when ballot print counts are present', () => {
   const listen = vi.fn((_port: number, callback: () => unknown) => {
     callback();
     return { close: vi.fn() };
@@ -112,6 +97,7 @@ test('logs DataCheckOnStartup when no printed ballot data is present', () => {
 
   const baseLogger = mockBaseLogger({ fn: vi.fn });
   workspace = createWorkspace(makeTemporaryDirectory(), baseLogger);
+  vi.spyOn(workspace.store, 'getTotalBallotPrintCount').mockReturnValue(5);
   const auth = buildMockDippedSmartCardAuth(vi.fn);
 
   start({ auth, baseLogger, workspace });
@@ -121,8 +107,8 @@ test('logs DataCheckOnStartup when no printed ballot data is present', () => {
     'system',
     {
       message:
-        'No printed ballot data is present in the database at machine startup.',
-      ballotsPrinted: 0,
+        'Ballot print counts are present in the database on machine startup.',
+      ballotPrintCount: 5,
     }
   );
 });

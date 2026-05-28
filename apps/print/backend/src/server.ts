@@ -39,13 +39,13 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
     printer,
   };
 
-  const totalBallotsPrinted = workspace.store.getTotalBallotsPrinted();
+  const ballotPrintCount = workspace.store.getTotalBallotPrintCount();
   baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
     message:
-      totalBallotsPrinted > 0
-        ? 'Printed ballot data is present in the database at machine startup.'
-        : 'No printed ballot data is present in the database at machine startup.',
-    ballotsPrinted: totalBallotsPrinted,
+      ballotPrintCount > 0
+        ? 'Ballot print counts are present in the database on machine startup.'
+        : 'No ballot print counts are present in the database on machine startup.',
+    ballotPrintCount,
   });
 
   const app = buildApp(context);

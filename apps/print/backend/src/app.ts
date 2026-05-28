@@ -105,12 +105,15 @@ export function buildApi(ctx: AppContext) {
         electionPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = electionPackage;
       if (!ballots || ballots.length === 0) {
+        const noBallotsError: ElectionPackageConfigurationError = {
+          type: 'no_ballots',
+        };
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'failure',
-          message: 'Error configuring machine: election package has no ballots.',
-          errorDetails: JSON.stringify({ type: 'no_ballots' }),
+          message: 'Error configuring machine.',
+          errorDetails: JSON.stringify(noBallotsError),
         });
-        return err({ type: 'no_ballots' });
+        return err(noBallotsError);
       }
       assert(systemSettings);
 
@@ -220,37 +223,26 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    async unconfigureMachine(): Promise<void> {
+    unconfigureMachine(): void {
       store.reset();
-      await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
+      void logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
-        message:
-          'User successfully unconfigured the machine to remove the current election and all current ballot data.',
       });
     },
 
     /* istanbul ignore next - @preserve */
     async generateSignedHashValidationQrCodeValue() {
-      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
-
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
-      try {
-        const qrCodeValue = await generateSignedHashValidationQrCodeValue({
-          electionRecord,
-          softwareVersion: codeVersion,
-        });
-        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
-          disposition: 'success',
-        });
-        return qrCodeValue;
-      } catch (error) {
-        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
-          disposition: 'failure',
-          message: (error as Error).message,
-        });
-        throw error;
-      }
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord,
+        softwareVersion: codeVersion,
+      });
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
     },
 
     ...createSystemCallApi({
