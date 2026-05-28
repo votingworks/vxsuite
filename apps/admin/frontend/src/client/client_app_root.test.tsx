@@ -109,7 +109,7 @@ test('shows locked screen when machine is locked without election', async () => 
     reason: 'machine_locked',
   });
   renderClientApp();
-  await screen.findByText('VxAdmin Locked');
+  await screen.findByText('Adjudication Station Locked');
   await screen.findByText('Insert system administrator card to unlock.');
 });
 
@@ -119,7 +119,7 @@ test('shows locked screen with election info when election is loaded', async () 
     reason: 'machine_locked',
   });
   renderClientApp({ withElection: true });
-  await screen.findByText('VxAdmin Locked');
+  await screen.findByText('Adjudication Station Locked');
   screen.getByText(electionDefinition.election.title);
 });
 
@@ -129,7 +129,7 @@ test('shows locked screen on session expiry', async () => {
     reason: 'machine_locked_by_session_expiry',
   });
   renderClientApp();
-  await screen.findByText('VxAdmin Locked');
+  await screen.findByText('Adjudication Station Locked');
 });
 
 test('shows invalid card screen without election', async () => {
@@ -260,6 +260,6 @@ test('logout while on a ballot adjudication URL replaces it with the home route'
     status: 'logged_out',
     reason: 'machine_locked_by_session_expiry',
   });
-  await screen.findByText('VxAdmin Locked');
+  await screen.findByText('Adjudication Station Locked');
   expect(window.location.pathname).toEqual('/adjudication');
 });

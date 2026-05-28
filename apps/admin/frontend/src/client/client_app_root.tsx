@@ -24,8 +24,8 @@ import {
   useApiClient,
 } from './api';
 import { AppContext, AppContextInterface } from '../contexts/app_context';
-import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { routerPaths } from '../router_paths';
+import { ClientMachineLockedScreen } from './screens/client_machine_locked_screen';
 import { ClientSettingsScreen } from './screens/client_settings_screen';
 import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen';
 import { ClientAdjudicationScreen } from './screens/client_adjudication_screen';
@@ -117,7 +117,7 @@ export function ClientAppRoot(): JSX.Element | null {
             machineMode: 'client',
           }}
         >
-          <MachineLockedScreen />
+          <ClientMachineLockedScreen />
         </AppContext.Provider>
       );
     }
