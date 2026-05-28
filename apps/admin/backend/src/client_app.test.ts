@@ -200,6 +200,13 @@ test('getNetworkConnectionStatus returns current status from client store', asyn
   expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
     status: 'online-multiple-hosts-detected',
   });
+
+  env.workspace.clientStore.setConnection(
+    ClientConnectionStatus.OnlineIncompatibleHostVersion
+  );
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-incompatible-host-version',
+  });
 });
 
 test('getCurrentElectionMetadata returns null when no cached data', async () => {

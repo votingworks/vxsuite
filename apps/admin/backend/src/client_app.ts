@@ -55,7 +55,8 @@ export type NetworkConnectionStatus =
   | { status: 'offline' }
   | { status: 'online-waiting-for-host' }
   | { status: 'online-connected-to-host'; hostMachineId: string }
-  | { status: 'online-multiple-hosts-detected' };
+  | { status: 'online-multiple-hosts-detected' }
+  | { status: 'online-incompatible-host-version' };
 
 /**
  * Wraps a proxy call to the host, catching connection and network errors
@@ -202,6 +203,8 @@ function buildClientApi({
         }
         case ClientConnectionStatus.OnlineMultipleHostsDetected:
           return { status: 'online-multiple-hosts-detected' };
+        case ClientConnectionStatus.OnlineIncompatibleHostVersion:
+          return { status: 'online-incompatible-host-version' };
         default:
           /* istanbul ignore next - @preserve */
           throwIllegalValue(status);

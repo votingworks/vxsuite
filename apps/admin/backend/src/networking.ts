@@ -17,6 +17,7 @@ import type { PeerApi } from './peer_app';
 import type { Store } from './store';
 import type { ClientStore, HostConnection } from './client_store';
 import { ClientConnectionStatus } from './types';
+import { getMachineConfig } from './machine_config';
 import { constructAuthMachineState } from './util/auth';
 import { rootDebug } from './util/debug';
 import {
@@ -193,6 +194,7 @@ export function startClientNetworking({
   auth: DippedSmartCardAuthApi;
   logger: BaseLogger;
 }): void {
+  const { codeVersion } = getMachineConfig();
   debug('Starting client networking for machine %s', machineId);
   logger.log(LogEventId.AdminNetworkStatus, 'system', {
     message: `Starting client networking for machine ${machineId}.`,
@@ -337,9 +339,33 @@ export function startClientNetworking({
           const { status, authType } = getClientMachineStatus(authStatus);
           const hostConfig = await apiClient.connectToHost({
             machineId,
+            codeVersion,
             status,
             authType,
           });
+          if (codeVersion !== hostConfig.codeVersion) {
+            debug(
+              'Host at %s runs incompatible code version %s (client is %s), refusing to connect',
+              hostAddress,
+              hostConfig.codeVersion,
+              codeVersion
+            );
+            logStatusTransition(
+              {
+                connectionStatus:
+                  ClientConnectionStatus.OnlineIncompatibleHostVersion,
+              },
+              {
+                hostMachineId: hostConfig.machineId,
+                hostCodeVersion: hostConfig.codeVersion,
+                clientCodeVersion: codeVersion,
+              }
+            );
+            clientStore.setConnection(
+              ClientConnectionStatus.OnlineIncompatibleHostVersion
+            );
+            return;
+          }
           logStatusTransition(
             {
               connectionStatus: ClientConnectionStatus.OnlineConnectedToHost,
