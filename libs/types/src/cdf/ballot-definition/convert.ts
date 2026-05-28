@@ -833,7 +833,6 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ],
                 };
 
-              /* istanbul ignore next - @preserve */
               case 'straight-party':
                 return {
                   '@type': 'BallotDefinition.StraightPartyContest',
