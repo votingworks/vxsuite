@@ -61,7 +61,7 @@ function NetworkStatusSection(): JSX.Element {
             'online-incompatible-host-version' && (
             <span>
               <Icons.Danger color="danger" /> VxAdmin with incompatible software
-              version detected.
+              version detected on the network.
             </span>
           )}
         {networkStatusQuery.isSuccess &&
