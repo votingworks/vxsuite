@@ -270,7 +270,7 @@ describe('multi-station adjudication', () => {
       apiMock,
     });
 
-    await screen.findByText('Online · Adjudication Stations can adjudicate');
+    await screen.findByText('Online · Adjudication stations can adjudicate');
     screen.getByRole('table');
   });
 
