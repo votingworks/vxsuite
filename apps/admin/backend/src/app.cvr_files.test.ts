@@ -30,7 +30,11 @@ import {
   modifyCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
-import { MockFileTree } from '@votingworks/usb-drive';
+import {
+  createUsbDriveAdapter,
+  isFat32Partition,
+  MockFileTree,
+} from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -959,10 +963,16 @@ test.each<{
     await configureMachine(apiClient, auth, electionDefinition);
     mockElectionManagerAuth(auth, electionDefinition.election);
 
+    const singleUsbDriveAdapter = createUsbDriveAdapter(
+      mockUsbDrive.multiUsbDrive,
+      (drives) =>
+        drives.filter((d) => d.partitions.some(isFat32Partition))[0]?.devPath
+    );
+
     mockUsbDrive.insertUsbDrive(usbDriveContentGenerator());
     expect(
       await listCastVoteRecordExportsOnUsbDrive(
-        mockUsbDrive.usbDrive,
+        singleUsbDriveAdapter,
         electionDefinition
       )
     ).toEqual(expectedResult);
