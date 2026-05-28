@@ -149,6 +149,21 @@ test('powerDown', async () => {
   ]);
 });
 
+test('reboot', async () => {
+  await api.reboot();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'User rebooted the machine.',
+    }
+  );
+  expect(execFile).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/intermediate-scripts/reboot$')
+    ),
+  ]);
+});
+
 test('setClock', async () => {
   await api.setClock({
     isoDatetime: '2020-11-03T15:00Z',
