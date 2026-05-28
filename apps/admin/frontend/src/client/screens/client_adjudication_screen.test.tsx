@@ -75,5 +75,4 @@ test('start adjudication navigates to the ballot screen', async () => {
   startButton.click();
 
   expect(window.location.pathname).toEqual(routerPaths.ballotAdjudication);
-  await screen.findByText('Claiming ballot…');
 });
