@@ -1592,6 +1592,57 @@ test('auto-resolves a write-in-only contest with no qualified candidates', async
     .resolves();
 });
 
+test('auto-resolved write-in does not trigger discard modal', async () => {
+  const contestId = 'zoo-council-mammal';
+  const contest = makeContestAdjudicationData(
+    contestId,
+    makeContestTag({ hasWriteIn: true })
+  );
+  addPendingWriteIns(contest, 3, [0]);
+  const adjData1 = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+  const adjData2 = makeBallotAdjudicationData(CVR_ID_2, [
+    makeContestAdjudicationData(
+      contestId,
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+
+  apiMock.expectAdjudicationScreenQueries();
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves(makeHmpbBallotImages(CVR_ID_2));
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: /Accept/ })).toBeEnabled();
+  });
+
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
+  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+
+  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await screen.findByText('Ballot 2 of 2');
+  expect(screen.queryByText('Unsaved Changes')).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_2 })
+    .resolves();
+});
+
 test('auto-resolves contests flagged with hasUnmarkedWriteIn', async () => {
   const contestId = 'zoo-council-mammal';
   const contest = makeContestAdjudicationData(
