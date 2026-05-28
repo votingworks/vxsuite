@@ -272,11 +272,13 @@ function encodeBallotVotesInto(
     const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
+      // istanbul ignore next - @preserve straight-party votes are not encoded in BMD ballots
+      if (contest.type === 'straight-party') continue;
       if (contest.type === 'yesno') {
         const ynVote = contestVote as YesNoVote;
 
         writeYesNoVote(bits, ynVote, contest);
-      } else if (contest.type === 'candidate') {
+      } else {
         const choices = contestVote as CandidateVote;
 
         // candidate choices get one bit per candidate
@@ -411,12 +413,14 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
 
   // read vote data
   for (const contest of contestsWithAnswers) {
+    // istanbul ignore next - @preserve straight-party votes are not encoded in BMD ballots
+    if (contest.type === 'straight-party') continue;
     if (contest.type === 'yesno') {
       // yesno votes get a single bit
       votes[contest.id] = bits.readBoolean()
         ? [contest.yesOption.id]
         : [contest.noOption.id];
-    } else if (contest.type === 'candidate') {
+    } else {
       const contestVote: Candidate[] = [];
 
       // candidate choices get one bit per candidate

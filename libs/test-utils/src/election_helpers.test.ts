@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
+import { StraightPartyContest } from '@votingworks/types';
 import {
   createTestElection,
   createElectionDefinition,
@@ -278,5 +279,15 @@ describe('createMockVotes', () => {
     const votes = createMockVotes([]);
 
     expect(Object.keys(votes)).toHaveLength(0);
+  });
+
+  test('skips straight-party contests', () => {
+    const spContest: StraightPartyContest = {
+      id: 'sp-1',
+      type: 'straight-party',
+      title: 'Straight Party Ticket',
+    };
+    const votes = createMockVotes([spContest]);
+    expect(votes['sp-1']).toBeUndefined();
   });
 });

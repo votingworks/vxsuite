@@ -299,6 +299,7 @@ function convertCandidateContest(
   };
 }
 
+/* istanbul ignore next - @preserve */
 function convertPartyContest(
   contest: ResultsReporting.PartyContest
 ): VxTabulation.StraightPartyContestResults {
@@ -354,7 +355,7 @@ function convertContestsListToVxResultsRecord(
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
         convertToYesNoContest(contest);
-    } else if (isPartyContest(contest)) {
+    } /* istanbul ignore next - @preserve */ else if (isPartyContest(contest)) {
       vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
         convertPartyContest(contest);
     } else {

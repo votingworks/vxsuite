@@ -30,6 +30,7 @@ import {
   getAllPrecinctsAndSplits,
   getOrderedCandidatesForContestInBallotStyle,
   getCandidateVoteSortedForBallotStyleRotation,
+  getStraightPartyContestOptions,
 } from './election_utils';
 import {
   election,
@@ -59,6 +60,7 @@ import {
   isPrimary,
   electionTypeV4p1ToV4p0,
   electionTypeV4p0ToV4p1,
+  StraightPartyContest,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -98,6 +100,20 @@ test('can build votes from yesno values', () => {
   });
   expect(vote([yesNoContest], { YNC: ['option-no'] })).toEqual({
     YNC: ['option-no'],
+  });
+});
+
+test('can build votes for straight-party contests', () => {
+  const spContest: StraightPartyContest = {
+    id: 'sp-1',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  expect(vote([spContest], { 'sp-1': 'party-1' })).toEqual({
+    'sp-1': ['party-1'],
+  });
+  expect(vote([spContest], { 'sp-1': ['party-1', 'party-2'] })).toEqual({
+    'sp-1': ['party-1', 'party-2'],
   });
 });
 
@@ -402,6 +418,35 @@ test('getContestDistrictName', () => {
   ).toEqual('District 1');
 });
 
+test('getStraightPartyContestOptions returns one option per party', () => {
+  const spContest: StraightPartyContest = {
+    id: 'sp-1',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  const options = getStraightPartyContestOptions(
+    spContest,
+    electionTwoPartyPrimary.parties
+  );
+  expect(options).toHaveLength(electionTwoPartyPrimary.parties.length);
+  expect(options[0]).toEqual({
+    type: 'straight-party',
+    id: electionTwoPartyPrimary.parties[0].id,
+    contestId: 'sp-1',
+    name: electionTwoPartyPrimary.parties[0].fullName,
+  });
+});
+
+test('getContestDistrictName returns Election-wide for straight-party contests', () => {
+  expect(
+    getContestDistrictName(electionTwoPartyPrimary, {
+      id: 'sp-1',
+      type: 'straight-party',
+      title: 'Straight Party Ticket',
+    })
+  ).toEqual('Election-wide');
+});
+
 test('isVotePresent', () => {
   expect(isVotePresent()).toEqual(false);
   expect(isVotePresent([])).toEqual(false);
@@ -567,6 +612,29 @@ test('election schema', () => {
       }
     }
   }
+});
+
+test('election schema rejects multiple straight-party contests', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+  const result = safeParseElection({
+    ...election,
+    contests: [
+      candidateContest,
+      {
+        id: 'sp-1',
+        type: 'straight-party',
+        title: 'Straight Party Ticket',
+      },
+      {
+        id: 'sp-2',
+        type: 'straight-party',
+        title: 'Another Straight Party Ticket',
+      },
+    ],
+  });
+  expect(result.err()?.message).toContain('At most one straight-party contest');
 });
 
 test('election schema rejects primary with mixed partyId ballot styles', () => {

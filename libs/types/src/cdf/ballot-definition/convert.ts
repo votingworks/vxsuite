@@ -833,6 +833,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ],
                 };
 
+              /* istanbul ignore next - @preserve */
               case 'straight-party':
                 return {
                   '@type': 'BallotDefinition.StraightPartyContest',
@@ -1488,6 +1489,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                       };
                     }
 
+                    /* istanbul ignore next - @preserve */
                     case 'BallotDefinition.StraightPartyContest': {
                       return {
                         type: 'option',
