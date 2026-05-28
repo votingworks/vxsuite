@@ -414,12 +414,11 @@ function MultiStationCard(): JSX.Element {
             </InlineStatus>
           ) : isEnabled ? (
             <InlineStatus>
-              <StatusDot color="success" /> Online · Clients Can Adjudicate
-              Ballots
+              <StatusDot color="success" /> Online · Clients can adjudicate
             </InlineStatus>
           ) : (
             <InlineStatus>
-              <StatusDot /> Off · Clients Cannot Adjudicate Ballots
+              <StatusDot /> Off · Clients cannot adjudicate
             </InlineStatus>
           )}
           {isOnline && (
