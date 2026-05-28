@@ -1,13 +1,17 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
+  electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
+  Election,
   formatBallotHash,
+  safeParseElection,
+  StraightPartyContest,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
@@ -688,4 +692,65 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
   expect(getBallotsCast('best-animal-fish')).toEqual('1');
   // non-partisan contest on both styles: 4 ballots
   expect(getBallotsCast('fishing')).toEqual('4');
+});
+
+test('emits one CSV row per party for straight-party contests', async () => {
+  // Inject an SP contest into a general election with parties.
+  const baseElection = electionFamousNames2021Fixtures.readElection();
+  const spContest: StraightPartyContest = {
+    id: 'straight-party-ticket',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  const electionWithSp: Election = {
+    ...baseElection,
+    contests: [spContest, ...baseElection.contests],
+  };
+  const electionData = JSON.stringify(electionWithSp);
+  // Verify our hand-built election parses correctly.
+  safeParseElection(electionData).unsafeUnwrap();
+
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const firstParty = baseElection.parties[0];
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: baseElection.ballotStyles[0].groupId,
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: baseElection.precincts[0].id,
+      votingMethod: 'precinct',
+      votes: { 'straight-party-ticket': [firstParty.id] },
+      card: { type: 'bmd' },
+      multiplier: 2,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  const fileContents = await iterableToString(
+    generateTallyReportCsv({ store, filename: mockFileName() })
+  );
+  const { rows } = parseCsv(fileContents);
+
+  // One row per party, each with the SP contest ID.
+  const spRows = rows.filter(
+    (r) => r['Contest ID'] === 'straight-party-ticket'
+  );
+  const partyRows = spRows.filter(
+    (r) =>
+      !['overvotes', 'undervotes', 'ballots-cast'].includes(r['Selection ID'])
+  );
+  expect(partyRows).toHaveLength(baseElection.parties.length);
+
+  const firstPartyRow = partyRows.find(
+    (r) => r['Selection ID'] === firstParty.id
+  );
+  expect(firstPartyRow?.['Total Votes']).toEqual('2');
 });
