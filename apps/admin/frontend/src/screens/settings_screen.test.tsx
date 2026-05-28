@@ -128,7 +128,7 @@ describe('multi-station mode', () => {
       electionDefinition: null,
     });
     await screen.findByRole('heading', { name: 'Machine Mode' });
-    screen.getByRole('button', { name: 'Switch to Client Mode' });
+    screen.getByRole('button', { name: 'Switch to Adjudication Station Mode' });
   });
 
   test('hides switch to client mode when election configured', async () => {
@@ -147,7 +147,9 @@ describe('multi-station mode', () => {
       ).toHaveBeenCalled();
     });
     expect(
-      screen.queryByRole('button', { name: 'Switch to Client Mode' })
+      screen.queryByRole('button', {
+        name: 'Switch to Adjudication Station Mode',
+      })
     ).not.toBeInTheDocument();
   });
 
@@ -159,7 +161,7 @@ describe('multi-station mode', () => {
       auth,
       electionDefinition: null,
     });
-    await screen.findByText(/Multiple hosts detected/);
+    await screen.findByText(/Multiple host VxAdmins detected/);
   });
 
   test('shows restart screen after switching mode', async () => {
@@ -174,10 +176,12 @@ describe('multi-station mode', () => {
       .expectCallWith({ mode: 'client' })
       .resolves();
     userEvent.click(
-      await screen.findByRole('button', { name: 'Switch to Client Mode' })
+      await screen.findByRole('button', {
+        name: 'Switch to Adjudication Station Mode',
+      })
     );
     await screen.findByText(
-      'Machine mode changed, restart the machine to continue.'
+      'VxAdmin switched to adjudication station mode. Restart VxAdmin to continue.'
     );
     screen.getByRole('button', { name: 'Restart' });
   });

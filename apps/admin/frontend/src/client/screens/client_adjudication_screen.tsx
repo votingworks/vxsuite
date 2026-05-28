@@ -24,7 +24,7 @@ export function ClientAdjudicationScreen(): JSX.Element {
         </Button>
       </P>
       {!isAdjudicationEnabled && (
-        <P>Waiting for host to initiate adjudication.</P>
+        <P>Waiting for VxAdmin to initiate adjudication.</P>
       )}
     </NavigationScreen>
   );
