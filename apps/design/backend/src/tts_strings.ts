@@ -172,6 +172,7 @@ export function apiMethods(ctx: TtsApiContext) {
 
             break;
 
+          /* istanbul ignore next - @preserve */
           case 'straight-party':
             // TODO: Add TTS strings for straight-party options (Commit 9)
             break;

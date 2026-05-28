@@ -124,6 +124,7 @@ export function regenerateElectionIds(
               id: replaceId(contest.noOption.id),
             },
           };
+        /* istanbul ignore next - @preserve */
         case 'straight-party':
           return {};
         /* istanbul ignore next - @preserve */

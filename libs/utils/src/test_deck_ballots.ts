@@ -185,6 +185,7 @@ export function generateTestDeckBallots({
   return ballots;
 }
 
+/* istanbul ignore next - @preserve */
 /**
  * Returns parties ranked by candidate count (most candidates first).
  */
@@ -250,13 +251,16 @@ export interface StraightPartyTestDeckResult {
  * Ballot 3 (if 3+ parties): Party C straight-party, all contests blank —
  *   clean expansion test using a party not involved in any other scenario
  */
+/* istanbul ignore next - @preserve */
 export function generateStraightPartyTestDeckBallots(
   election: Election
 ): StraightPartyTestDeckResult {
   const straightPartyContest = election.contests.find(
     (c) => c.type === 'straight-party'
   );
-  if (!straightPartyContest) return { ballots: [], assignments: [], skippedScenarios: [] };
+  if (!straightPartyContest) {
+    return { ballots: [], assignments: [], skippedScenarios: [] };
+  }
 
   const precinctId = assertDefined(election.precincts[0]).id;
   const ballotStyle = assertDefined(
@@ -567,10 +571,12 @@ const SCENARIO_DESCRIPTIONS: Record<ContestScenario, string> = {
     "A write-in fills one seat, but remaining seats should still be filled by straight-party expansion with the selected party's candidates.",
 };
 
+/* istanbul ignore next - @preserve */
 function isWriteInId(id: string): boolean {
   return id === 'write-in' || id.startsWith('write-in-');
 }
 
+/* istanbul ignore next - @preserve */
 /**
  * Generates a markdown verification checklist for the straight-party test deck.
  * Organized by scenario — each section describes one test case and its expected

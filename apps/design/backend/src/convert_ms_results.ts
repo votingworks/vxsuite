@@ -274,6 +274,7 @@ export function convertMsResults(
               candidatePartyLabel: NONPARTISAN_PARTY_LABEL,
             };
           }
+          /* istanbul ignore next - @preserve */
           case 'straight-party':
             // Straight-party not supported in SEMS export
             return {

@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
+import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { BallotType, CVR } from '@votingworks/types';
 
 import {
   buildCVRSnapshotBallotTypeMetadata,
+  castVoteRecordHasValidContestReferences,
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
@@ -726,4 +728,141 @@ test('getCastVoteRecordBallotType', () => {
       })
     )
   ).toEqual(BallotType.Precinct);
+});
+
+describe('castVoteRecordHasValidContestReferences', () => {
+  function makeCvr(cvrContest: CVR.CVRContest): CVR.CVR {
+    return {
+      ...mockCastVoteRecord,
+      CVRSnapshot: [
+        {
+          '@id': 'snap',
+          '@type': 'CVR.CVRSnapshot',
+          Type: CVR.CVRType.Original,
+          CVRContest: [cvrContest],
+        },
+      ],
+    };
+  }
+
+  test('candidate contest with valid option', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      makeCvr({
+        '@type': 'CVR.CVRContest',
+        ContestId: 'mayor',
+        CVRContestSelection: [
+          {
+            '@type': 'CVR.CVRContestSelection',
+            ContestSelectionId: 'alice',
+            SelectionPosition: [],
+          },
+        ],
+      }),
+      [
+        {
+          id: 'mayor',
+          type: 'candidate',
+          title: 'Mayor',
+          districtId: 'd-1',
+          seats: 1,
+          allowWriteIns: false,
+          candidates: [{ id: 'alice', name: 'Alice' }],
+        },
+      ]
+    );
+    expect(result).toEqual(ok());
+  });
+
+  test('candidate contest with invalid option', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      makeCvr({
+        '@type': 'CVR.CVRContest',
+        ContestId: 'mayor',
+        CVRContestSelection: [
+          {
+            '@type': 'CVR.CVRContestSelection',
+            ContestSelectionId: 'ghost',
+            SelectionPosition: [],
+          },
+        ],
+      }),
+      [
+        {
+          id: 'mayor',
+          type: 'candidate',
+          title: 'Mayor',
+          districtId: 'd-1',
+          seats: 1,
+          allowWriteIns: false,
+          candidates: [{ id: 'alice', name: 'Alice' }],
+        },
+      ]
+    );
+    expect(result).toEqual(err('contest-option-not-found'));
+  });
+
+  test('yesno contest with valid option', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      makeCvr({
+        '@type': 'CVR.CVRContest',
+        ContestId: 'fishing',
+        CVRContestSelection: [
+          {
+            '@type': 'CVR.CVRContestSelection',
+            ContestSelectionId: 'fishing-yes',
+            SelectionPosition: [],
+          },
+        ],
+      }),
+      [
+        {
+          id: 'fishing',
+          type: 'yesno',
+          title: 'Allow Fishing?',
+          districtId: 'd-1',
+          description: 'desc',
+          yesOption: { id: 'fishing-yes', label: 'Yes' },
+          noOption: { id: 'fishing-no', label: 'No' },
+        },
+      ]
+    );
+    expect(result).toEqual(ok());
+  });
+
+  test('straight-party contest skips option validation', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      makeCvr({
+        '@type': 'CVR.CVRContest',
+        ContestId: 'sp-1',
+        CVRContestSelection: [
+          {
+            '@type': 'CVR.CVRContestSelection',
+            // Any option ID is accepted for SP — party IDs aren't on the contest
+            ContestSelectionId: 'any-party-id',
+            SelectionPosition: [],
+          },
+        ],
+      }),
+      [
+        {
+          id: 'sp-1',
+          type: 'straight-party',
+          title: 'Straight Party Ticket',
+        },
+      ]
+    );
+    expect(result).toEqual(ok());
+  });
+
+  test('unknown contest id', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      makeCvr({
+        '@type': 'CVR.CVRContest',
+        ContestId: 'unknown',
+        CVRContestSelection: [],
+      }),
+      []
+    );
+    expect(result).toEqual(err('contest-not-found'));
+  });
 });

@@ -518,6 +518,7 @@ async function insertContest(
       break;
     }
 
+    /* istanbul ignore next - @preserve */
     case 'straight-party':
       // Straight-party contests are injected at materialization time, not stored
       break;
@@ -1140,6 +1141,7 @@ export class Store {
               additionalOptions: row.additionalOptions ?? undefined,
             });
           }
+          /* istanbul ignore next - @preserve */
           case 'straight-party':
             // Straight-party contests are injected dynamically, not stored
             return [];

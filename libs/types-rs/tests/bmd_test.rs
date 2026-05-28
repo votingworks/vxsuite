@@ -41,7 +41,7 @@ fn test_cast_vote_record_round_trip_write_in_vote() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(candidate_contest) => Some(candidate_contest),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
     let ballot = CastVoteRecord {
@@ -96,7 +96,8 @@ proptest! {
                 )),
                 Contest::YesNo(yesno_contest) => (yesno_contest.id.clone(), ContestVote::YesNo(
                     yesno_contest.yes_option.id.clone()
-                ))
+                )),
+                Contest::StraightParty(_) => unreachable!("arbitrary_contests does not generate straight-party contests"),
             }).collect(),
             is_test_mode,
             ballot_type,
@@ -116,8 +117,8 @@ fn test_yesno_contest_vote_round_trip() {
         .contests
         .iter()
         .find_map(|contest| match contest {
-            Contest::Candidate(_) => None,
             Contest::YesNo(yesno_contest) => Some((contest, yesno_contest)),
+            Contest::Candidate(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
     let contest_vote = ContestVote::YesNo(yesno_contest.yes_option.id.clone());
