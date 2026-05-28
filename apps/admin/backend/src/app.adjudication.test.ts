@@ -1654,6 +1654,11 @@ test('qualified write-in candidate management', async () => {
   const bobCandidate = assertDefined(remainingCandidates[0]);
   expect(bobCandidate.name).toEqual('Bob');
 
+  // Clearing CVRs should not wipe qualified candidates
+  await apiClient.clearCastVoteRecordFiles();
+  const writeInCandidates = await apiClient.getQualifiedWriteInCandidates();
+  expect(writeInCandidates.map((c) => c.name)).toEqual(['Bob']);
+
   // Delete via batch endpoint
   const directDeleteResult = await apiClient.updateQualifiedWriteInCandidates({
     newCandidates: [],

@@ -1916,13 +1916,15 @@ export class Store implements BaseStore {
           )
         `
       );
-      this.client.run(
-        `
-          delete from write_in_candidates
-          where election_id = ?
-        `,
-        electionId
-      );
+      if (!this.getSystemSettings(electionId).areWriteInCandidatesQualified) {
+        this.client.run(
+          `
+            delete from write_in_candidates
+            where election_id = ?
+          `,
+          electionId
+        );
+      }
       this.deleteEmptyScannerBatches(electionId);
     });
 
