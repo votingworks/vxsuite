@@ -34,6 +34,12 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
         return useMutation(async(apiClient.powerDown));
       },
     },
+    reboot: {
+      useMutation: () => {
+        const apiClient = getApiClient();
+        return useMutation(async(apiClient.reboot));
+      },
+    },
     setClock: {
       useMutation: () => {
         const apiClient = getApiClient();

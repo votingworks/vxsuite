@@ -24,6 +24,7 @@ function QueryWrapper(props: { children: React.ReactNode }) {
 }
 
 const mockApiClient: Mocked<SystemCallApiClient> = {
+  reboot: vi.fn(),
   rebootToVendorMenu: vi.fn(),
   powerDown: vi.fn(),
   setClock: vi.fn(),
@@ -48,6 +49,15 @@ describe('React Query API calls the right client methods', () => {
     mockApiClient.powerDown.mockResolvedValueOnce(undefined);
     await mutation.current.mutateAsync();
     expect(mockApiClient.powerDown).toHaveBeenCalledTimes(1);
+  });
+
+  test('reboot', async () => {
+    const { result: mutation } = renderHook(() => api.reboot.useMutation(), {
+      wrapper: QueryWrapper,
+    });
+    mockApiClient.reboot.mockResolvedValueOnce(undefined);
+    await mutation.current.mutateAsync();
+    expect(mockApiClient.reboot).toHaveBeenCalledTimes(1);
   });
 
   test('setClock', async () => {

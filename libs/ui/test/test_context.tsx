@@ -87,6 +87,7 @@ export function newTestContext(
   mockUiStringsApiClient.getAudioClips.mockResolvedValue([]);
 
   const mockSystemCallApiClient: Mocked<SystemCallApiClient> = {
+    reboot: vi.fn(),
     rebootToVendorMenu: vi.fn(),
     powerDown: vi.fn(),
     setClock: vi.fn(),
