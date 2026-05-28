@@ -256,8 +256,7 @@ export function generateStraightPartyTestDeckBallots(
   const straightPartyContest = election.contests.find(
     (c) => c.type === 'straight-party'
   );
-  if (!straightPartyContest)
-    return { ballots: [], assignments: [], skippedScenarios: [] };
+  if (!straightPartyContest) return { ballots: [], assignments: [], skippedScenarios: [] };
 
   const precinctId = assertDefined(election.precincts[0]).id;
   const ballotStyle = assertDefined(
@@ -269,9 +268,9 @@ export function generateStraightPartyTestDeckBallots(
     rankedParties.length >= 2,
     'Need at least 2 parties for straight-party'
   );
-  const partyA = assertDefined(rankedParties[0]);
-  const partyB = assertDefined(rankedParties[1]);
-  const partyC = rankedParties[2]; // may be undefined
+  const topParty = assertDefined(rankedParties[0]);
+  const nextParty = assertDefined(rankedParties[1]);
+  const thirdParty = rankedParties[2];
 
   const BALLOT_1_INDEX = 0;
   const BALLOT_2_INDEX = 1;
@@ -280,13 +279,13 @@ export function generateStraightPartyTestDeckBallots(
     (c): c is CandidateContest => c.type === 'candidate'
   );
 
-  function partyACandCount(contest: CandidateContest): number {
-    return contest.candidates.filter((c) => c.partyIds?.includes(partyA))
+  function topPartyCandidateCount(contest: CandidateContest): number {
+    return contest.candidates.filter((c) => c.partyIds?.includes(topParty))
       .length;
   }
 
-  function hasPartyBCandidate(contest: CandidateContest): boolean {
-    return contest.candidates.some((c) => c.partyIds?.includes(partyB));
+  function hasNextPartyCandidate(contest: CandidateContest): boolean {
+    return contest.candidates.some((c) => c.partyIds?.includes(nextParty));
   }
 
   // Define each scenario's qualification criteria and ballot placement
@@ -299,44 +298,50 @@ export function generateStraightPartyTestDeckBallots(
     {
       scenario: 'basic-expansion',
       ballotIndex: BALLOT_1_INDEX,
-      qualifies: (c) => c.seats === 1 && partyACandCount(c) > 0,
+      qualifies: (c) => c.seats === 1 && topPartyCandidateCount(c) > 0,
     },
     {
       scenario: 'cross-party-override',
       ballotIndex: BALLOT_1_INDEX,
       qualifies: (c) =>
-        c.seats === 1 && partyACandCount(c) > 0 && hasPartyBCandidate(c),
+        c.seats === 1 &&
+        topPartyCandidateCount(c) > 0 &&
+        hasNextPartyCandidate(c),
     },
     {
       scenario: 'same-party-explicit',
       ballotIndex: BALLOT_1_INDEX,
-      qualifies: (c) => c.seats === 1 && partyACandCount(c) > 0,
+      qualifies: (c) => c.seats === 1 && topPartyCandidateCount(c) > 0,
     },
     {
       scenario: 'individual-overvote',
       ballotIndex: BALLOT_1_INDEX,
       qualifies: (c) =>
-        c.seats === 1 && partyACandCount(c) > 0 && hasPartyBCandidate(c),
+        c.seats === 1 &&
+        topPartyCandidateCount(c) > 0 &&
+        hasNextPartyCandidate(c),
     },
     {
       scenario: 'write-in-blocks-expansion',
       ballotIndex: BALLOT_1_INDEX,
       qualifies: (c) =>
-        c.seats === 1 && partyACandCount(c) > 0 && c.allowWriteIns,
+        c.seats === 1 && topPartyCandidateCount(c) > 0 && c.allowWriteIns,
     },
     {
       scenario: 'write-in-with-expansion',
       ballotIndex: BALLOT_1_INDEX,
       qualifies: (c) => {
-        const count = partyACandCount(c);
-        return c.seats > 1 && c.allowWriteIns && count > 0 && count <= c.seats - 1;
+        const count = topPartyCandidateCount(c);
+        return (
+          c.seats > 1 && c.allowWriteIns && count > 0 && count <= c.seats - 1
+        );
       },
     },
     {
       scenario: 'deterministic-expansion',
       ballotIndex: BALLOT_1_INDEX,
       qualifies: (c) => {
-        const count = partyACandCount(c);
+        const count = topPartyCandidateCount(c);
         return c.seats > 1 && count > 1 && count <= c.seats;
       },
     },
@@ -348,11 +353,11 @@ export function generateStraightPartyTestDeckBallots(
       // fewer than unselected party A candidates. Needs at least one non-party-A
       // candidate and more party A candidates than seats - 1.
       qualifies: (c) => {
-        const partyACount = partyACandCount(c);
-        const hasNonPartyA = c.candidates.some(
-          (cand) => !cand.partyIds?.includes(partyA)
+        const topPartyCount = topPartyCandidateCount(c);
+        const hasNonTopParty = c.candidates.some(
+          (cand) => !cand.partyIds?.includes(topParty)
         );
-        return c.seats > 1 && partyACount > 0 && hasNonPartyA;
+        return c.seats > 1 && topPartyCount > 0 && hasNonTopParty;
       },
     },
     {
@@ -363,7 +368,7 @@ export function generateStraightPartyTestDeckBallots(
     {
       scenario: 'straight-party-overvote-explicit',
       ballotIndex: BALLOT_2_INDEX,
-      qualifies: (c) => c.seats === 1 && partyACandCount(c) > 0,
+      qualifies: (c) => c.seats === 1 && topPartyCandidateCount(c) > 0,
     },
   ];
 
@@ -430,53 +435,56 @@ export function generateStraightPartyTestDeckBallots(
 
   // --- Ballot 1: Party A straight-party ---
   const ballot1Votes: VotesDict = {};
-  ballot1Votes[straightPartyContest.id] = [partyA];
+  ballot1Votes[straightPartyContest.id] = [topParty];
 
   // --- Ballot 2: Straight-party overvote (Party A + Party B) ---
   const ballot2Votes: VotesDict = {};
-  ballot2Votes[straightPartyContest.id] = [partyA, partyB];
+  ballot2Votes[straightPartyContest.id] = [topParty, nextParty];
 
   for (const { contest, scenario, ballotIndex } of assignments) {
     const targetVotes =
       ballotIndex === BALLOT_1_INDEX ? ballot1Votes : ballot2Votes;
-    const partyACands = contest.candidates.filter(
-      (c) => c.partyIds?.includes(partyA)
+    const topPartyCands = contest.candidates.filter(
+      (c) => c.partyIds?.includes(topParty)
     );
-    const partyBCands = contest.candidates.filter(
-      (c) => c.partyIds?.includes(partyB)
+    const nextPartyCands = contest.candidates.filter(
+      (c) => c.partyIds?.includes(nextParty)
     );
 
     switch (scenario) {
       case 'basic-expansion':
         break;
       case 'cross-party-override':
-        targetVotes[contest.id] = [assertDefined(partyBCands[0])];
+        targetVotes[contest.id] = [assertDefined(nextPartyCands[0])];
         break;
       case 'same-party-explicit':
-        targetVotes[contest.id] = [assertDefined(partyACands[0])];
+        targetVotes[contest.id] = [assertDefined(topPartyCands[0])];
         break;
       case 'individual-overvote':
         targetVotes[contest.id] = [
-          assertDefined(partyACands[0]),
-          assertDefined(partyBCands[0]),
+          assertDefined(topPartyCands[0]),
+          assertDefined(nextPartyCands[0]),
         ];
         break;
       case 'deterministic-expansion':
-        targetVotes[contest.id] = [assertDefined(partyACands[0])];
+        targetVotes[contest.id] = [assertDefined(topPartyCands[0])];
         break;
       case 'non-deterministic': {
         // Vote for enough non-party-A candidates so that remaining seats
         // are fewer than unselected party A candidates, making expansion
         // non-deterministic.
-        const nonPartyACands = contest.candidates.filter(
-          (c) => !c.partyIds?.includes(partyA)
+        const nonTopPartyCandidates = contest.candidates.filter(
+          (c) => !c.partyIds?.includes(topParty)
         );
-        const votesNeeded = Math.max(1, partyACands.length - contest.seats + 1);
-        targetVotes[contest.id] = nonPartyACands.slice(0, votesNeeded);
+        const votesNeeded = Math.max(
+          1,
+          topPartyCands.length - contest.seats + 1
+        );
+        targetVotes[contest.id] = nonTopPartyCandidates.slice(0, votesNeeded);
         break;
       }
       case 'straight-party-overvote-explicit':
-        targetVotes[contest.id] = [assertDefined(partyACands[0])];
+        targetVotes[contest.id] = [assertDefined(topPartyCands[0])];
         break;
       case 'non-partisan':
         targetVotes[contest.id] = [assertDefined(contest.candidates[0])];
@@ -508,9 +516,9 @@ export function generateStraightPartyTestDeckBallots(
   ];
 
   // --- Ballot 3: Party C straight-party (if available) ---
-  if (partyC) {
+  if (thirdParty) {
     const ballot3Votes: VotesDict = {};
-    ballot3Votes[straightPartyContest.id] = [partyC];
+    ballot3Votes[straightPartyContest.id] = [thirdParty];
     ballots.push({
       ballotStyleId: ballotStyle.id,
       precinctId,
@@ -577,8 +585,9 @@ export function generateStraightPartyVerificationChecklist(
   );
   if (!straightPartyContest) return '';
 
-  const partyName = (partyId: PartyId) =>
-    find(election.parties, (p) => p.id === partyId).name;
+  function partyName(partyId: PartyId) {
+    return find(election.parties, (p) => p.id === partyId).name;
+  }
 
   const ballot1 = assertDefined(ballots[0]);
   const ballotStyle = assertDefined(
@@ -600,7 +609,7 @@ export function generateStraightPartyVerificationChecklist(
       spDescription = 'None';
     } else if (spVote.length > 1) {
       spDescription = `Overvote: ${spVote
-        .map((id) => partyName(id as PartyId))
+        .map((id) => partyName(id))
         .join(' + ')}`;
     } else {
       spDescription = partyName(spVote[0] as PartyId);
@@ -639,7 +648,7 @@ export function generateStraightPartyVerificationChecklist(
               const cand = contest.candidates.find((c) => c.id === id);
               if (!cand) return id;
               const party = cand.partyIds?.[0]
-                ? ` (${partyName(cand.partyIds[0] as PartyId)})`
+                ? ` (${partyName(cand.partyIds[0])})`
                 : '';
               return `${cand.name}${party}`;
             })
@@ -692,7 +701,7 @@ export function generateStraightPartyVerificationChecklist(
     const ballot3 = assertDefined(ballots[2]);
     const rawVotes = convertVotesDictToTabulationVotes(ballot3.votes);
     const spVote = rawVotes[straightPartyContest.id];
-    const partyId = spVote?.[0] as PartyId | undefined;
+    const partyId = spVote?.[0];
     const party = partyId ? partyName(partyId) : 'third party';
 
     lines.push(

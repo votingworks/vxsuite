@@ -2,7 +2,7 @@ import { AnyContest, District, Party } from '@votingworks/types';
 import { afterEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   createMockApiClient,
@@ -30,33 +30,33 @@ const party2: Party = {
   name: 'P2',
 };
 
-const candidateContest1 = {
+const candidateContest1 = typedAs<Partial<AnyContest>>({
   id: 'candidateContest1',
   title: 'Candidate Contest 1',
   districtId: district1.id,
   type: 'candidate',
-} as AnyContest;
+}) as AnyContest;
 
-const candidateContest2 = {
+const candidateContest2 = typedAs<Partial<AnyContest>>({
   id: 'candidateContest2',
   title: 'Candidate Contest 2',
   districtId: district2.id,
   type: 'candidate',
-} as AnyContest;
+}) as AnyContest;
 
-const yesNoContest1 = {
+const yesNoContest1 = typedAs<Partial<AnyContest>>({
   id: 'yesNoContest1',
   title: 'YesNo Contest 1',
   districtId: district1.id,
   type: 'yesno',
-} as AnyContest;
+}) as AnyContest;
 
-const yesNoContest2 = {
+const yesNoContest2 = typedAs<Partial<AnyContest>>({
   id: 'yesNoContest2',
   title: 'YesNo Contest Contest 2',
   districtId: district2.id,
   type: 'yesno',
-} as AnyContest;
+}) as AnyContest;
 
 const electionId = 'election1';
 const contestRoutes = routes.election(electionId).contests;

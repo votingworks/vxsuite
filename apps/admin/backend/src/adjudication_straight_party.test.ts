@@ -239,7 +239,6 @@ test('derived votes update after SP overvote is adjudicated', () => {
     {
       cvrId,
       contestId: 'straight-party',
-      side: 'front',
       adjudicatedContestOptionById: {
         dem: { type: 'official-option', hasVote: true },
         rep: { type: 'official-option', hasVote: false },
@@ -296,7 +295,6 @@ test('adjudicating a candidate contest does not affect SP derived state', () => 
     {
       cvrId,
       contestId: 'president',
-      side: 'front',
       adjudicatedContestOptionById: {
         'dem-pres': { type: 'official-option', hasVote: false },
         'rep-pres': { type: 'official-option', hasVote: true },
@@ -347,7 +345,6 @@ test('invalidating a vote frees seat for SP expansion', () => {
     {
       cvrId,
       contestId: 'president',
-      side: 'front',
       adjudicatedContestOptionById: {
         'dem-pres': { type: 'official-option', hasVote: false },
         'rep-pres': { type: 'official-option', hasVote: false },
@@ -402,7 +399,6 @@ test('tally pipeline produces correct expanded tallies after adjudication', () =
     {
       cvrId,
       contestId: 'straight-party',
-      side: 'front',
       adjudicatedContestOptionById: {
         dem: { type: 'official-option', hasVote: true },
         rep: { type: 'official-option', hasVote: false },

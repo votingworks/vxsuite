@@ -63,7 +63,7 @@ function generateVotesForContests(
       } else {
         votes[contest.id] = selected;
       }
-    } else {
+    } else if (contest.type === 'yesno') {
       votes[contest.id] = [contest.yesOption.id];
     }
   }

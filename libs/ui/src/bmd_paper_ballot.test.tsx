@@ -793,7 +793,7 @@ describe('straight-party contest on BMD paper ballot', () => {
   test('renders SP contest with selected party', () => {
     renderBmdPaperBallot({
       electionDefinition: spElectionDefinition,
-      ballotStyleId: 'bs1' as BallotStyleId,
+      ballotStyleId: 'bs1',
       precinctId: 'p1',
       votes: {
         'straight-party': 'dem',
@@ -807,7 +807,7 @@ describe('straight-party contest on BMD paper ballot', () => {
   test('renders SP contest with no selection', () => {
     renderBmdPaperBallot({
       electionDefinition: spElectionDefinition,
-      ballotStyleId: 'bs1' as BallotStyleId,
+      ballotStyleId: 'bs1',
       precinctId: 'p1',
       votes: {},
     });
@@ -823,7 +823,7 @@ describe('straight-party contest on BMD paper ballot', () => {
     // It should NOT show Alice Adams (the derived dem vote)
     renderBmdPaperBallot({
       electionDefinition: spElectionDefinition,
-      ballotStyleId: 'bs1' as BallotStyleId,
+      ballotStyleId: 'bs1',
       precinctId: 'p1',
       votes: {
         'straight-party': 'dem',

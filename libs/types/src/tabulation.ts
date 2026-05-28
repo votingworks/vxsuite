@@ -1,5 +1,4 @@
 import {
-  AnyContest,
   BallotCastingMode,
   BallotStyleGroupId,
   BallotType,

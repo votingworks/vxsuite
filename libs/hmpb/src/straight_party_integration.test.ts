@@ -35,7 +35,7 @@ describe('Michigan straight-party integration', () => {
 
   test('election has parties and partisan candidates', () => {
     expect(election.parties.length).toBeGreaterThan(0);
-    expect(election.type).toBe('general');
+    expect(election.type).toEqual('general');
     const straightPartyContest = election.contests.find(
       (c) => c.type === 'straight-party'
     );
@@ -55,8 +55,8 @@ describe('Michigan straight-party integration', () => {
     // Check each partisan candidate contest
     for (const contest of election.contests) {
       if (contest.type !== 'candidate') continue;
-      const demCandidates = contest.candidates.filter((c) =>
-        c.partyIds?.includes('democratic')
+      const demCandidates = contest.candidates.filter(
+        (c) => c.partyIds?.includes('democratic')
       );
       if (demCandidates.length === 0) continue;
 
@@ -104,10 +104,10 @@ describe('Michigan straight-party integration', () => {
 
     // Other contests should still get Democratic candidates
     const usSenator = election.contests.find((c) => c.id === 'us-senator');
-    expect(usSenator?.type).toBe('candidate');
+    expect(usSenator?.type).toEqual('candidate');
     if (usSenator?.type === 'candidate') {
-      const demSenator = usSenator.candidates.find((c) =>
-        c.partyIds?.includes('democratic')
+      const demSenator = usSenator.candidates.find(
+        (c) => c.partyIds?.includes('democratic')
       );
       expect(expanded['us-senator']).toContain(demSenator?.id);
     }
