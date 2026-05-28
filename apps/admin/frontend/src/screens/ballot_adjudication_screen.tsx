@@ -493,13 +493,14 @@ export function BallotAdjudicationScreen({
     action: () => void;
   } | null>(null);
 
-  // Initialize adjudicatedContestsBaseline from persisted adjudications.
+  // Derives the baseline adjudication state from persisted adjudications.
   // In qualified-write-in mode, auto-resolve contests whose only adjudication
   // reason is write-ins when the contest has no qualified candidates: every
-  // write-in must be invalid, so the user has nothing to decide
-  const [adjudicatedContestsBaseline] = useState<
-    Map<ContestId, AdjudicatedCvrContest>
-  >(() => {
+  // write-in must be invalid, so the user has nothing to decide.
+  function adjudicatedContestsBaseline(): Map<
+    ContestId,
+    AdjudicatedCvrContest
+  > {
     const baseline = new Map<ContestId, AdjudicatedCvrContest>(
       ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
     );
@@ -543,7 +544,7 @@ export function BallotAdjudicationScreen({
       });
     }
     return baseline;
-  });
+  }
 
   const [adjudicatedContests, setAdjudicatedContests] = useState<
     Map<ContestId, AdjudicatedCvrContest>
@@ -555,7 +556,7 @@ export function BallotAdjudicationScreen({
 
   function onNavigation(action: () => void): () => void {
     return () => {
-      if (!deepEqual(adjudicatedContests, adjudicatedContestsBaseline)) {
+      if (!deepEqual(adjudicatedContests, adjudicatedContestsBaseline())) {
         setPendingDiscard({ action });
       } else {
         action();
