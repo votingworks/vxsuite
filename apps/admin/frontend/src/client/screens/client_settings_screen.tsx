@@ -81,21 +81,21 @@ export function ClientSettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
   const setMachineModeMutation = setMachineMode.useMutation();
-  const powerDownMutation = useSystemCallApi().powerDown.useMutation();
+  const rebootMutation = useSystemCallApi().reboot.useMutation();
 
   if (setMachineModeMutation.isSuccess) {
     return (
       <Screen>
         <Main centerChild>
           <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
-            <P>
+            <P align="center">
               <Button
                 onPress={
                   /* istanbul ignore next - no-op in tests @preserve */
-                  () => powerDownMutation.mutate()
+                  () => rebootMutation.mutate()
                 }
               >
-                Power Down
+                Restart
               </Button>
             </P>
           </FullScreenMessage>

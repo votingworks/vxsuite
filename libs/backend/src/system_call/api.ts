@@ -4,6 +4,7 @@ import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
 
 import { GetAuthStatus } from './auth';
 import { exportLogsToUsb } from './export_logs_to_usb';
+import { reboot } from './reboot';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
@@ -41,6 +42,7 @@ function buildApi({
         machineId,
         codeVersion,
       }),
+    reboot: async () => reboot(logger),
     rebootToVendorMenu: async () =>
       rebootToVendorMenu({ getAuthStatus, logger }),
     powerDown: async () => powerDown(logger),

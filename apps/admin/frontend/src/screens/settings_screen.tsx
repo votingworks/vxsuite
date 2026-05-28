@@ -35,7 +35,7 @@ export function SettingsScreen(): JSX.Element | null {
   const setMachineModeMutation = setMachineMode.useMutation();
   const isMultiStationEnabled =
     isMultiStationAdjudicationEnabled.useQuery().data ?? false;
-  const powerDownMutation = useSystemCallApi().powerDown.useMutation();
+  const rebootMutation = useSystemCallApi().reboot.useMutation();
   const networkStatusQuery = getNetworkStatus.useQuery({
     enabled: isMultiStationEnabled,
   });
@@ -45,14 +45,14 @@ export function SettingsScreen(): JSX.Element | null {
       <Screen>
         <Main centerChild>
           <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
-            <P>
+            <P align="center">
               <Button
                 onPress={
                   /* istanbul ignore next - no-op in tests @preserve */
-                  () => powerDownMutation.mutate()
+                  () => rebootMutation.mutate()
                 }
               >
-                Power Down
+                Restart
               </Button>
             </P>
           </FullScreenMessage>
