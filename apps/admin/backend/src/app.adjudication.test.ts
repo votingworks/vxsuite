@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionOpenPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
@@ -33,6 +34,7 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
 } from '../test/app';
+import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -1971,4 +1973,47 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
       optionToFlip.definition.id
     ]?.hasVote
   ).toEqual(true);
+});
+
+test('open primary crossover votes', async () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, election);
+
+  const { cvrIds, resolvedCrossoverCvrId } =
+    await seedOpenPrimaryCvrsAndAdjudications({
+      apiClient,
+      electionId: workspace.store.getCurrentElectionId()!,
+      store: workspace.store,
+    });
+  const unresolvedCrossoverCvrId = assertDefined(cvrIds[8]);
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  expect(queue).toContain(resolvedCrossoverCvrId);
+  expect(queue).toContain(unresolvedCrossoverCvrId);
+  expect(
+    (
+      await apiClient.getBallotAdjudicationData({
+        cvrId: unresolvedCrossoverCvrId,
+      })
+    ).tag
+  ).toEqual({ isBlankBallot: false, hasCrossoverVote: true });
+  // Even after resolution, original adjudication flag is still preserved
+  expect(
+    (
+      await apiClient.getBallotAdjudicationData({
+        cvrId: resolvedCrossoverCvrId,
+      })
+    ).tag
+  ).toEqual({ isBlankBallot: false, hasCrossoverVote: true });
+
+  const images = await apiClient.getBallotImages({
+    cvrId: unresolvedCrossoverCvrId,
+  });
+  expect(images.front.type).toEqual('hmpb');
+  expect(images.back.type).toEqual('hmpb');
 });

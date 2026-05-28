@@ -10,7 +10,10 @@ import { randomUUID as uuid } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
-import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
+import {
+  doesCvrNeedAdjudication,
+  getCastVoteRecordAdjudicationFlags,
+} from '../src/util/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {
@@ -24,9 +27,9 @@ const mockPageLayout: BallotPageLayout = {
     height: 0,
   },
   metadata: {
-    ballotHash: '',
-    ballotStyleId: '',
-    precinctId: '',
+    ballotHash: 'abc123',
+    ballotStyleId: 'mock-ballot-style',
+    precinctId: 'mock-precinct',
     pageNumber: 1,
     isTestMode: true,
     ballotType: BallotType.Precinct,
@@ -124,25 +127,31 @@ export function addMockCvrFileToStore({
       const { cvrId } = addCastVoteRecordResult.unsafeUnwrap();
       cvrIds.push(cvrId);
 
-      // add write-ins, all on the "front"
-      if (writeIns.length) {
-        store.addBallotImage({
-          cvrId,
-          electionDefinitionId: electionDefinition.election.id,
-          imageData: Buffer.from([]),
-          pageLayout: mockPageLayout,
-          side: 'front',
-        });
-
-        for (const { contestId, optionId, isUnmarked } of writeIns) {
-          store.addWriteIn({
-            electionId,
-            castVoteRecordId: cvrId,
-            contestId,
-            optionId,
-            isUnmarked,
+      // Production stores both front + back ballot images for any CVR that
+      // needs adjudication. Mirror that here so getBallotImages works.
+      const { adminAdjudicationReasons } = store.getSystemSettings(electionId);
+      if (
+        doesCvrNeedAdjudication(adjudicationFlags, adminAdjudicationReasons)
+      ) {
+        for (const side of ['front', 'back'] as const) {
+          store.addBallotImage({
+            cvrId,
+            electionDefinitionId: electionDefinition.election.id,
+            imageData: Buffer.from([]),
+            pageLayout: isHmpb ? mockPageLayout : undefined,
+            side,
           });
         }
+      }
+
+      for (const { contestId, optionId, isUnmarked } of writeIns) {
+        store.addWriteIn({
+          electionId,
+          castVoteRecordId: cvrId,
+          contestId,
+          optionId,
+          isUnmarked,
+        });
       }
     }
   }

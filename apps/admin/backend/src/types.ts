@@ -477,6 +477,7 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
  */
 export interface CvrTag {
   isBlankBallot: boolean;
+  hasCrossoverVote: boolean;
 }
 
 /**
