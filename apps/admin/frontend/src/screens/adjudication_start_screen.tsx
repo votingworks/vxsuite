@@ -341,7 +341,7 @@ function MultiStationClientsTable({
       <Table>
         <thead>
           <tr>
-            <TH>Machine ID</TH>
+            <TH>Station</TH>
             <TH>Status</TH>
             <TH>User Role</TH>
             <TH>Last Seen</TH>
@@ -354,10 +354,11 @@ function MultiStationClientsTable({
                 <EmptyTableMessage>
                   {isEnabled ? (
                     <React.Fragment>
-                      <Icons.Loading /> Waiting for clients to connect…
+                      <Icons.Loading /> Waiting for adjudication stations to
+                      connect…
                     </React.Fragment>
                   ) : (
-                    'No clients have connected.'
+                    'No adjudication stations have connected.'
                   )}
                 </EmptyTableMessage>
               </TD>
@@ -414,11 +415,12 @@ function MultiStationCard(): JSX.Element {
             </InlineStatus>
           ) : isEnabled ? (
             <InlineStatus>
-              <StatusDot color="success" /> Online · Clients can adjudicate
+              <StatusDot color="success" /> Online · Adjudication stations can
+              adjudicate
             </InlineStatus>
           ) : (
             <InlineStatus>
-              <StatusDot /> Off · Clients cannot adjudicate
+              <StatusDot /> Off · Adjudication stations cannot adjudicate
             </InlineStatus>
           )}
           {isOnline && (
@@ -439,8 +441,8 @@ function MultiStationCard(): JSX.Element {
         </CardRow>
         {multipleHostsDetected && (
           <P style={{ margin: 0 }}>
-            <Icons.Danger color="danger" /> Multiple hosts detected on the
-            network. Only one host machine should be active at a time.
+            <Icons.Danger color="danger" /> Multiple host VxAdmins detected on
+            the network. Only one host VxAdmin should be active at a time.
           </P>
         )}
         {isOnline && (

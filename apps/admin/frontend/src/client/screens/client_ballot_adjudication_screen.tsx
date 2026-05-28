@@ -25,7 +25,7 @@ function proxyErrorMessage(error: AdjudicationError): string {
     case 'claim-failed':
       return 'This machine no longer has an active claim on this ballot. Please try again.';
     case 'host-disconnect':
-      return 'Disconnected from host.';
+      return 'Disconnected from VxAdmin.';
     default:
       /* istanbul ignore next - @preserve */
       throwIllegalValue(error, 'type');

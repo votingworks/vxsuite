@@ -36,30 +36,31 @@ function NetworkStatusSection(): JSX.Element {
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status === 'online-connected-to-host' && (
             <span>
-              <Icons.Done color="success" /> Connected to host{' '}
+              <Icons.Done color="success" /> Connected to VxAdmin{' '}
               {networkStatusQuery.data.hostMachineId}
             </span>
           )}
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status === 'online-waiting-for-host' && (
             <span>
-              <Icons.Warning color="warning" /> Searching for host…
+              <Icons.Warning color="warning" /> Searching for VxAdmin
             </span>
           )}
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status ===
             'online-multiple-hosts-detected' && (
             <span>
-              <Icons.Danger color="danger" /> Multiple hosts detected on the
-              network. Only one host machine should be active at a time. This
-              client will not connect until the conflict is resolved.
+              <Icons.Danger color="danger" /> Multiple host VxAdmins detected on
+              the network. Only one host VxAdmin should be active at a time.
+              This adjudication station will not connect until the conflict is
+              resolved.
             </span>
           )}
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status ===
             'online-incompatible-host-version' && (
             <span>
-              <Icons.Danger color="danger" /> Host machine with incompatible
+              <Icons.Danger color="danger" /> VxAdmin machine with incompatible
               software version detected.
             </span>
           )}
@@ -87,7 +88,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
     return (
       <Screen>
         <Main centerChild>
-          <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
+          <FullScreenMessage title="VxAdmin switched to host mode. Restart VxAdmin to continue.">
             <P align="center">
               <Button
                 onPress={

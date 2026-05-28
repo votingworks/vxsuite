@@ -212,7 +212,7 @@ test('shows error screen when claim fails during accept', async () => {
     .expectCallWith({ afterCvrId: 'cvr-1' })
     .resolves(err({ type: 'host-disconnect' }));
   screen.getByText('Accept').click();
-  await screen.findByText('Disconnected from host.');
+  await screen.findByText('Disconnected from VxAdmin.');
   screen.getByText('Exit');
 });
 
@@ -295,7 +295,7 @@ test('shows host-disconnect error with exit button', async () => {
 
   renderScreen();
 
-  await screen.findByText('Disconnected from host.');
+  await screen.findByText('Disconnected from VxAdmin.');
   screen.getByText('Exit');
 });
 
