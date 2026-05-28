@@ -785,6 +785,17 @@ describe('machine ballot adjudication assignments', () => {
     return assertDefined(cvrIds[0]);
   }
 
+  // Wraps the unified claimAndLoadBallotData "find next" path and returns just
+  // the claimed cvrId, mirroring the pre-refactor claimBallotForClient.
+  function claimNextForClient(
+    machineId: string,
+    afterCvrId?: string
+  ): string | undefined {
+    return store
+      .claimAndLoadBallotData({ electionId, machineId, afterCvrId })
+      .unsafeUnwrap()?.cvrId;
+  }
+
   beforeEach(() => {
     vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
 
@@ -804,44 +815,60 @@ describe('machine ballot adjudication assignments', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
 
-    const first = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
+    const first = claimNextForClient('client-001');
     expect([cvr1, cvr2]).toContain(first);
 
-    const second = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-002',
-    });
+    const second = claimNextForClient('client-002');
     expect([cvr1, cvr2]).toContain(second);
     expect(second).not.toEqual(first);
 
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-003' })
-    ).toBeUndefined();
+    expect(claimNextForClient('client-003')).toBeUndefined();
   });
 
   test('released ballot can be re-claimed', () => {
     const cvr1 = addCvrWithWriteIn();
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-001' })
-    ).toEqual(cvr1);
+    expect(claimNextForClient('client-001')).toEqual(cvr1);
 
     store.releaseBallotClaim({ electionId, cvrId: cvr1 });
 
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-002' })
-    ).toEqual(cvr1);
+    expect(claimNextForClient('client-002')).toEqual(cvr1);
+  });
+
+  test('no-cursor claim is idempotent — returns the existing claim', () => {
+    const cvr1 = addCvrWithWriteIn();
+    const cvr2 = addCvrWithWriteIn();
+
+    const first = claimNextForClient('client-001');
+    expect([cvr1, cvr2]).toContain(first);
+
+    // Calling again with no cursor returns the same ballot rather than
+    // grabbing a second one.
+    expect(claimNextForClient('client-001')).toEqual(first);
+
+    // The machine still holds exactly that one claim, so another machine can
+    // still take the other ballot.
+    const second = claimNextForClient('client-002');
+    expect([cvr1, cvr2]).toContain(second);
+    expect(second).not.toEqual(first);
+  });
+
+  test('claiming a specific cvrId held by another machine returns claim-failed', () => {
+    const cvr1 = addCvrWithWriteIn();
+    expect(claimNextForClient('client-001')).toEqual(cvr1);
+
+    // A different machine asking for that exact cvrId is rejected.
+    const result = store.claimAndLoadBallotData({
+      electionId,
+      machineId: 'client-002',
+      cvrId: cvr1,
+    });
+    expect(result.err()).toEqual({ type: 'claim-failed' });
   });
 
   test('completed ballot cannot be re-claimed', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
-    const first = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
+    const first = claimNextForClient('client-001');
     expect([cvr1, cvr2]).toContain(first);
 
     store.completeBallotClaim({
@@ -850,28 +877,23 @@ describe('machine ballot adjudication assignments', () => {
       machineId: 'client-001',
     });
 
-    const second = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-002',
-    });
+    const second = claimNextForClient('client-002');
     expect([cvr1, cvr2]).toContain(second);
     expect(second).not.toEqual(first);
   });
 
   test('setCvrAdjudicated completes claim when machineId provided', () => {
     const cvr1 = addCvrWithWriteIn();
-    store.claimBallotForClient({ electionId, machineId: 'client-001' });
+    claimNextForClient('client-001');
     store.setCvrAdjudicated({ cvrId: cvr1, machineId: 'client-001' });
 
     // Claim should be completed — CVR is no longer claimable
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-002' })
-    ).toBeUndefined();
+    expect(claimNextForClient('client-002')).toBeUndefined();
   });
 
   test('setCvrAdjudicated skips claim completion when machineId omitted', () => {
     const cvr1 = addCvrWithWriteIn();
-    store.claimBallotForClient({ electionId, machineId: 'client-001' });
+    claimNextForClient('client-001');
     store.setCvrAdjudicated({ cvrId: cvr1 });
 
     // Claim should still be active (not completed) because no machineId
@@ -888,90 +910,43 @@ describe('machine ballot adjudication assignments', () => {
   test('releaseAllClaimsForMachine only releases that machines claims', () => {
     addCvrWithWriteIn();
     addCvrWithWriteIn();
-    const claimed1 = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
-    store.claimBallotForClient({ electionId, machineId: 'client-002' });
+    const claimed1 = claimNextForClient('client-001');
+    claimNextForClient('client-002');
 
     store.releaseAllClaimsForMachine({ electionId, machineId: 'client-001' });
 
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-003' })
-    ).toEqual(claimed1);
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-004' })
-    ).toBeUndefined();
+    expect(claimNextForClient('client-003')).toEqual(claimed1);
+    expect(claimNextForClient('client-004')).toBeUndefined();
   });
 
   test('releaseAllActiveClaims releases all claimed ballots', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
-    expect([cvr1, cvr2]).toContain(
-      store.claimBallotForClient({ electionId, machineId: 'client-001' })
-    );
-    expect([cvr1, cvr2]).toContain(
-      store.claimBallotForClient({ electionId, machineId: 'client-002' })
-    );
+    expect([cvr1, cvr2]).toContain(claimNextForClient('client-001'));
+    expect([cvr1, cvr2]).toContain(claimNextForClient('client-002'));
 
     store.releaseAllActiveClaims({ electionId });
 
-    expect([cvr1, cvr2]).toContain(
-      store.claimBallotForClient({
-        electionId,
-        machineId: 'client-003',
-      })
-    );
-    expect([cvr1, cvr2]).toContain(
-      store.claimBallotForClient({
-        electionId,
-        machineId: 'client-004',
-      })
-    );
+    expect([cvr1, cvr2]).toContain(claimNextForClient('client-003'));
+    expect([cvr1, cvr2]).toContain(claimNextForClient('client-004'));
   });
 
-  test('prefers matching ballot style when provided', () => {
-    const cvrA = addCvrWithWriteIn('1M');
-    const cvrB = addCvrWithWriteIn('2F');
-
-    expect(
-      store.claimBallotForClient({
-        electionId,
-        machineId: 'client-001',
-        preferredBallotStyleId: '2F',
-      })
-    ).toEqual(cvrB);
-    store.releaseAllActiveClaims({ electionId });
-
-    expect(
-      store.claimBallotForClient({
-        electionId,
-        machineId: 'client-001',
-        preferredBallotStyleId: '1M',
-      })
-    ).toEqual(cvrA);
-  });
-
-  test('excludes specified CVR IDs when claiming', () => {
+  test('afterCvrId cursor advances and wraps around the end of the queue', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
 
-    expect(
-      store.claimBallotForClient({
-        electionId,
-        machineId: 'client-001',
-        excludeCvrIds: [cvr1],
-      })
-    ).toEqual(cvr2);
+    // Discover the canonical queue order, then release so both are claimable.
+    const first = claimNextForClient('client-001');
+    expect([cvr1, cvr2]).toContain(first);
+    store.releaseAllActiveClaims({ electionId });
+    const second = first === cvr1 ? cvr2 : cvr1;
 
-    store.releaseBallotClaim({ cvrId: cvr2, electionId });
-    expect(
-      store.claimBallotForClient({
-        electionId,
-        machineId: 'client-002',
-        excludeCvrIds: [cvr1, cvr2],
-      })
-    ).toBeUndefined();
+    // Claiming after the first ballot returns the second.
+    expect(claimNextForClient('client-002', first)).toEqual(second);
+
+    // After the last ballot, the search wraps back to the still-unclaimed
+    // first ballot (client-002 still holds `second`).
+    expect(claimNextForClient('client-003', second)).toEqual(first);
   });
 
   test('cleanupStaleMachines releases claims for stale machines', () => {
@@ -983,10 +958,7 @@ describe('machine ballot adjudication assignments', () => {
       'client',
       Admin.ClientMachineStatus.Active
     );
-    const claimed = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
+    const claimed = claimNextForClient('client-001');
 
     vi.mocked(getCurrentTime).mockImplementation(
       () => Date.now() + STALE_MACHINE_THRESHOLD_MS + 1
@@ -994,31 +966,24 @@ describe('machine ballot adjudication assignments', () => {
     store.cleanupStaleMachines();
 
     vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-002' })
-    ).toEqual(claimed);
+    expect(claimNextForClient('client-002')).toEqual(claimed);
   });
 
   test('disabling client adjudication releases all active claims', () => {
     addCvrWithWriteIn();
     addCvrWithWriteIn();
-    store.claimBallotForClient({ electionId, machineId: 'client-001' });
-    store.claimBallotForClient({ electionId, machineId: 'client-002' });
+    claimNextForClient('client-001');
+    claimNextForClient('client-002');
 
     store.setIsClientAdjudicationEnabled(false);
 
-    expect(
-      store.claimBallotForClient({ electionId, machineId: 'client-003' })
-    ).toBeDefined();
+    expect(claimNextForClient('client-003')).toBeDefined();
   });
 
   test('host queue includes claimed CVRs for stable display', () => {
     const cvr1 = addCvrWithWriteIn();
     const cvr2 = addCvrWithWriteIn();
-    const claimed = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
+    const claimed = claimNextForClient('client-001');
     expect([cvr1, cvr2]).toContain(claimed);
 
     const queue = store.getBallotAdjudicationQueue({ electionId });
@@ -1033,30 +998,6 @@ describe('machine ballot adjudication assignments', () => {
     expect(next).not.toEqual(claimed);
   });
 
-  test('getClaimedBallotCvrIds returns actively claimed CVR IDs', () => {
-    addCvrWithWriteIn();
-    addCvrWithWriteIn();
-
-    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([]);
-
-    const first = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
-    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([first]);
-
-    const second = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-002',
-    });
-    expect(store.getClaimedBallotCvrIds({ electionId })).toHaveLength(2);
-    expect(store.getClaimedBallotCvrIds({ electionId })).toContain(first);
-    expect(store.getClaimedBallotCvrIds({ electionId })).toContain(second);
-
-    store.releaseBallotClaim({ cvrId: first!, electionId });
-    expect(store.getClaimedBallotCvrIds({ electionId })).toEqual([second]);
-  });
-
   test('claimBallotForAdjudication claims a specific CVR for the host', () => {
     const cvr1 = addCvrWithWriteIn();
     addCvrWithWriteIn();
@@ -1067,10 +1008,7 @@ describe('machine ballot adjudication assignments', () => {
       machineId: 'host-001',
     });
 
-    const clientClaim = store.claimBallotForClient({
-      electionId,
-      machineId: 'client-001',
-    });
+    const clientClaim = claimNextForClient('client-001');
     expect(clientClaim).not.toEqual(cvr1);
 
     // Duplicate claim by same machine is idempotent
@@ -1114,7 +1052,7 @@ describe('machine ballot adjudication assignments', () => {
       Admin.ClientMachineStatus.Active
     );
 
-    store.claimBallotForClient({ electionId, machineId: 'client-001' });
+    claimNextForClient('client-001');
 
     machines = store.getMachines();
     expect(machines.find((m) => m.machineId === 'client-001')?.status).toEqual(

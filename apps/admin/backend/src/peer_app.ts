@@ -10,7 +10,6 @@ import {
 } from '@votingworks/basics';
 import {
   Admin,
-  BallotStyleGroupId,
   ContestId,
   type Id,
   type Side,
@@ -139,26 +138,25 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
       return store.getSystemSettings(currentElectionId);
     },
 
-    claimBallot(input: {
+    claimAndLoadBallot(input: {
       machineId: string;
-      currentBallotStyleId?: BallotStyleGroupId;
-      excludeCvrIds?: Id[];
-    }): Optional<Id> {
+      afterCvrId?: Id;
+    }): { cvrId: Id; data: BallotAdjudicationData } | undefined {
       const electionId = assertDefined(store.getCurrentElectionId());
-      const cvrId = store.claimBallotForClient({
+      const result = store.claimAndLoadBallotData({
         electionId,
         machineId: input.machineId,
-        preferredBallotStyleId: input.currentBallotStyleId,
-        excludeCvrIds: input.excludeCvrIds,
+        afterCvrId: input.afterCvrId,
       });
+      const value = result.unsafeUnwrap(); // error case is unreachable here.
       logger.log(LogEventId.AdminBallotClaimed, 'system', {
-        message: cvrId
-          ? `Client ${input.machineId} claimed ballot ${cvrId}.`
+        message: value
+          ? `Client ${input.machineId} claimed ballot ${value.cvrId}.`
           : `Client ${input.machineId} requested a ballot but none available.`,
-        disposition: cvrId ? 'success' : 'failure',
+        disposition: value ? 'success' : 'failure',
         clientMachineId: input.machineId,
       });
-      return cvrId;
+      return value;
     },
 
     releaseBallot(input: { machineId: string; cvrId: Id }): void {
@@ -209,7 +207,7 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
           machineId: input.machineId,
         })
       ) {
-        return err({ type: 'no-claim' });
+        return err({ type: 'claim-failed' });
       }
       adjudicateCvr(input, input.machineId, store, logger);
       logger.log(LogEventId.AdminBallotAdjudicationComplete, 'system', {

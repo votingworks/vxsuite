@@ -756,7 +756,7 @@ function buildApi({
           !store.isCvrAdjudicated({ cvrId: input.cvrId }) &&
           !store.hasBallotClaim({ electionId, cvrId: input.cvrId, machineId })
         ) {
-          return err({ type: 'no-claim' });
+          return err({ type: 'claim-failed' });
         }
       }
       adjudicateCvr(input, machineId, store, logger);
@@ -828,17 +828,28 @@ function buildApi({
       });
     },
 
-    getClaimedBallotCvrIds(): Id[] {
-      return store.getClaimedBallotCvrIds({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        excludeMachineId: getMachineConfig().machineId,
-      });
-    },
-
-    claimBallotForAdjudication(input: { cvrId: Id }): boolean {
-      if (!store.getIsClientAdjudicationEnabled()) return true;
-      return store.claimBallotForAdjudication({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
+    /**
+     * Atomically claim a ballot for adjudication and return its data,
+     * both read under the same SQL transaction.
+     */
+    claimAndLoadBallot(input: {
+      cvrId: Id;
+    }): Result<
+      { cvrId: Id; data: BallotAdjudicationData } | undefined,
+      AdjudicationError
+    > {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      if (!store.getIsClientAdjudicationEnabled()) {
+        return ok({
+          cvrId: input.cvrId,
+          data: store.getBallotAdjudicationData({
+            electionId,
+            cvrId: input.cvrId,
+          }),
+        });
+      }
+      return store.claimAndLoadBallotData({
+        electionId,
         cvrId: input.cvrId,
         machineId: getMachineConfig().machineId,
       });
@@ -853,11 +864,14 @@ function buildApi({
       });
     },
 
-    getNextCvrIdForBallotAdjudication(): Id | null {
+    getNextCvrIdForBallotAdjudication(
+      input: { afterCvrId?: Id } = {}
+    ): Id | null {
       return (
         store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
           machineId: getMachineConfig().machineId,
+          afterCvrId: input.afterCvrId,
         }) ?? null
       );
     },

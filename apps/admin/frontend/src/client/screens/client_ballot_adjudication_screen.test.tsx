@@ -81,7 +81,7 @@ const pollWorkerAuth: DippedSmartCardAuth.PollWorkerLoggedIn = {
   sessionExpiresAt: mockSessionExpiresAt(),
 };
 
-function renderScreen(cvrId = 'cvr-1') {
+function renderScreen() {
   expectAdjudicationEnabled();
   const clientApiClient = apiMock.apiClient as unknown as ClientApiClient;
   return render(
@@ -101,12 +101,8 @@ function renderScreen(cvrId = 'cvr-1') {
                   electionPackageHash: 'test-hash',
                 }}
               >
-                <MemoryRouter
-                  initialEntries={[
-                    `${routerPaths.ballotAdjudication}/${cvrId}`,
-                  ]}
-                >
-                  <Route path={`${routerPaths.ballotAdjudication}/:cvrId`}>
+                <MemoryRouter initialEntries={[routerPaths.ballotAdjudication]}>
+                  <Route exact path={routerPaths.ballotAdjudication}>
                     <ClientBallotAdjudicationScreen />
                   </Route>
                 </MemoryRouter>
@@ -125,18 +121,20 @@ function expectAdjudicationEnabled(): void {
     .resolves({ isClientAdjudicationEnabled: true });
 }
 
+function makeBallotData(cvrId: string) {
+  return {
+    cvrId,
+    tag: { isBlankBallot: false } as const,
+    isResolved: false,
+    contests: [],
+    adjudicatedContests: [],
+  };
+}
+
+// Per-cvrId mocks the data loader runs once it has the ballot data.
+// Global mocks (write-in candidates, system settings) live in
+// `expectGlobalDataLoaderQueries` since they're cached across cvrIds.
 function expectDataLoaderQueries(cvrId: string): void {
-  apiMock.apiClient.getBallotAdjudicationData
-    .expectRepeatedCallsWith({ cvrId })
-    .resolves(
-      ok({
-        cvrId,
-        tag: { isBlankBallot: false },
-        isResolved: false,
-        contests: [],
-        adjudicatedContests: [],
-      })
-    );
   apiMock.apiClient.getBallotImages.expectRepeatedCallsWith({ cvrId }).resolves(
     ok({
       cvrId,
@@ -152,6 +150,10 @@ function expectDataLoaderQueries(cvrId: string): void {
       },
     })
   );
+}
+
+// One-shot setup for the cvrId-independent queries the data loader fires.
+function expectGlobalDataLoaderQueries(): void {
   apiMock.apiClient.getWriteInCandidates
     .expectRepeatedCallsWith({ contestId: undefined })
     .resolves(ok([]));
@@ -160,19 +162,39 @@ function expectDataLoaderQueries(cvrId: string): void {
     .resolves(DEFAULT_SYSTEM_SETTINGS);
 }
 
-test('renders adjudicating state with initial cvrId from route', async () => {
+// Sets up the initial-mount claim+load call. The client always claims the
+// next available ballot ({}); the host decides which cvrId that is, returned
+// here as `cvrId`. Tests that want to override the result (e.g. claim-failure
+// flows) skip this and mock directly.
+function expectInitialClaimAndLoad(cvrId: string): void {
+  apiMock.apiClient.claimAndLoadBallot
+    .expectCallWith({})
+    .resolves(ok({ cvrId, data: makeBallotData(cvrId) }));
+}
+
+test('claims the next available ballot on mount', async () => {
+  // Arriving from "Start Adjudication", the screen claims the next available
+  // ballot ({}); the host returns which cvrId that is.
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
   expect(capturedProps['cvrId']).toEqual('cvr-1');
 });
 
 test('accept claims next ballot', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
-  apiMock.apiClient.claimBallot.expectCallWith({}).resolves(ok(undefined));
+  // After accept on cvr-1, the screen asks for the next ballot after it; the
+  // backend wraps around and returns nothing when none remain.
+  apiMock.apiClient.claimAndLoadBallot
+    .expectCallWith({ afterCvrId: 'cvr-1' })
+    .resolves(ok(undefined));
   screen.getByText('Accept').click();
   await screen.findByText('No more ballots available for adjudication.');
 
@@ -181,47 +203,53 @@ test('accept claims next ballot', async () => {
 
 test('shows error screen when claim fails during accept', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
-  apiMock.apiClient.claimBallot
-    .expectCallWith({})
+  apiMock.apiClient.claimAndLoadBallot
+    .expectCallWith({ afterCvrId: 'cvr-1' })
     .resolves(err({ type: 'host-disconnect' }));
   screen.getByText('Accept').click();
   await screen.findByText('Disconnected from host.');
   screen.getByText('Exit');
 });
 
-test('skip releases ballot and claims next with exclusion', async () => {
+test('skip releases ballot and claims next after it', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectDataLoaderQueries('cvr-2');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
   apiMock.apiClient.releaseBallot
     .expectCallWith({ cvrId: 'cvr-1' })
     .resolves(ok());
-  apiMock.apiClient.claimBallot
-    .expectCallWith({ excludeCvrIds: ['cvr-1'] })
-    .resolves(ok('cvr-2'));
-  expectDataLoaderQueries('cvr-2');
+  apiMock.apiClient.claimAndLoadBallot
+    .expectCallWith({ afterCvrId: 'cvr-1' })
+    .resolves(ok({ cvrId: 'cvr-2', data: makeBallotData('cvr-2') }));
 
   screen.getByText('Skip').click();
   await screen.findByText('Adjudicating cvr-2');
 });
 
-test('skip clears exclusion set when no more ballots and retries', async () => {
+test('skip wraps to first eligible when nothing is available after current', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
+  // Skip releases cvr-1, then asks for the next ballot after it. Nothing comes
+  // after, so the backend wraps around and hands cvr-1 back in one call.
   apiMock.apiClient.releaseBallot
     .expectCallWith({ cvrId: 'cvr-1' })
     .resolves(ok());
-  apiMock.apiClient.claimBallot
-    .expectCallWith({ excludeCvrIds: ['cvr-1'] })
-    .resolves(ok(undefined));
-  apiMock.apiClient.claimBallot.expectCallWith({}).resolves(ok('cvr-1'));
-  expectDataLoaderQueries('cvr-1');
+  apiMock.apiClient.claimAndLoadBallot
+    .expectCallWith({ afterCvrId: 'cvr-1' })
+    .resolves(ok({ cvrId: 'cvr-1', data: makeBallotData('cvr-1') }));
 
   screen.getByText('Skip').click();
   await screen.findByText('Adjudicating cvr-1');
@@ -229,7 +257,9 @@ test('skip clears exclusion set when no more ballots and retries', async () => {
 
 test('exit releases ballot', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
   apiMock.apiClient.releaseBallot
@@ -243,16 +273,14 @@ test('exit releases ballot', async () => {
   });
 });
 
-test('shows no-claim error with exit button', async () => {
-  expectDataLoaderQueries('cvr-1');
+test('shows claim-failed error with exit button', async () => {
+  // Initial claim+load fails with claim-failed — auxiliary data loader queries
+  // never run because we bail to the error screen first.
+  apiMock.apiClient.claimAndLoadBallot
+    .expectRepeatedCallsWith({})
+    .resolves(err({ type: 'claim-failed' }));
 
-  // Override adjudication data to return an error
-  apiMock.apiClient.getBallotAdjudicationData.reset();
-  apiMock.apiClient.getBallotAdjudicationData
-    .expectRepeatedCallsWith({ cvrId: 'cvr-1' })
-    .resolves(err({ type: 'no-claim' }));
-
-  renderScreen('cvr-1');
+  renderScreen();
 
   await screen.findByText(
     'This machine no longer has an active claim on this ballot. Please try again.'
@@ -261,23 +289,21 @@ test('shows no-claim error with exit button', async () => {
 });
 
 test('shows host-disconnect error with exit button', async () => {
-  expectDataLoaderQueries('cvr-1');
-
-  // Override adjudication data to return an error
-  apiMock.apiClient.getBallotAdjudicationData.reset();
-  apiMock.apiClient.getBallotAdjudicationData
-    .expectRepeatedCallsWith({ cvrId: 'cvr-1' })
+  apiMock.apiClient.claimAndLoadBallot
+    .expectRepeatedCallsWith({})
     .resolves(err({ type: 'host-disconnect' }));
 
-  renderScreen('cvr-1');
+  renderScreen();
 
   await screen.findByText('Disconnected from host.');
   screen.getByText('Exit');
 });
 
 test('redirects when host disables adjudication', async () => {
-  // Set up data loader queries (they fire before the redirect)
+  // Data loader queries fire before the redirect.
   expectDataLoaderQueries('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
 
   // Override adjudication status to disabled
   apiMock.apiClient.getAdjudicationSessionStatus.reset();
@@ -303,13 +329,11 @@ test('redirects when host disables adjudication', async () => {
                   electionPackageHash: 'test-hash',
                 }}
               >
-                <MemoryRouter
-                  initialEntries={[`${routerPaths.ballotAdjudication}/cvr-1`]}
-                >
-                  <Route path={`${routerPaths.ballotAdjudication}/:cvrId`}>
+                <MemoryRouter initialEntries={[routerPaths.ballotAdjudication]}>
+                  <Route exact path={routerPaths.ballotAdjudication}>
                     <ClientBallotAdjudicationScreen />
                   </Route>
-                  <Route path={routerPaths.adjudication}>
+                  <Route exact path={routerPaths.adjudication}>
                     <div>adjudication start</div>
                   </Route>
                 </MemoryRouter>
@@ -326,7 +350,9 @@ test('redirects when host disables adjudication', async () => {
 
 test('onAccept calls API and accept advances', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
   const mockInput = { cvrId: 'cvr-1', contests: [] } as const;
@@ -336,21 +362,26 @@ test('onAccept calls API and accept advances', async () => {
   ) => Promise<void>;
   await onAccept(mockInput);
 
-  // Then accept advances to next (no more ballots)
-  apiMock.apiClient.claimBallot.expectCallWith({}).resolves(ok(undefined));
+  // Then accept advances to next (no more ballots; backend wraps and finds
+  // none in one call)
+  apiMock.apiClient.claimAndLoadBallot
+    .expectCallWith({ afterCvrId: 'cvr-1' })
+    .resolves(ok(undefined));
   screen.getByText('Accept').click();
   await screen.findByText('No more ballots available for adjudication.');
 });
 
 test('onAccept error shows error screen', async () => {
   expectDataLoaderQueries('cvr-1');
-  renderScreen('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
   const mockInput = { cvrId: 'cvr-1', contests: [] } as const;
   apiMock.apiClient.adjudicateCvr
     .expectCallWith(mockInput)
-    .resolves(err({ type: 'no-claim' }));
+    .resolves(err({ type: 'claim-failed' }));
   const onAccept = capturedProps['onAccept'] as (
     input: unknown
   ) => Promise<void>;

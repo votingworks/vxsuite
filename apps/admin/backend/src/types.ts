@@ -690,4 +690,4 @@ export type ImportElectionResultsReportingError =
  */
 export type AdjudicationError =
   | { type: 'host-disconnect' }
-  | { type: 'no-claim' };
+  | { type: 'claim-failed' };

@@ -246,8 +246,8 @@ test('shows low disk space warning when disk space is low', async () => {
 });
 
 test('logout while on a ballot adjudication URL replaces it with the home route', async () => {
-  // Seed the URL so the app starts on /adjudication/ballots/<cvrId>.
-  window.history.replaceState({}, '', '/adjudication/ballots/cvr-1');
+  // Seed the URL so the app starts on the ballot adjudication route.
+  window.history.replaceState({}, '', '/adjudication/ballots');
 
   setPollWorkerAuth();
   renderClientApp({ withElection: true });

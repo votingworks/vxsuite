@@ -22,7 +22,6 @@ import {
   createUsbDriveAdapter,
 } from '@votingworks/usb-drive';
 import {
-  BallotStyleGroupId,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
@@ -232,26 +231,6 @@ function buildClientApi({
     // Return Result<T, AdjudicationError> so the frontend can handle
     // disconnect and claim errors without crashing to the error boundary.
 
-    async claimBallot(input: {
-      currentBallotStyleId?: BallotStyleGroupId;
-      excludeCvrIds?: Id[];
-    }): Promise<Result<Optional<Id>, AdjudicationError>> {
-      return proxy('claim ballot', async ({ apiClient: peerApi }) => {
-        const cvrId = await peerApi.claimBallot({
-          machineId: getMachineConfig().machineId,
-          currentBallotStyleId: input.currentBallotStyleId,
-          excludeCvrIds: input.excludeCvrIds,
-        });
-        if (cvrId) {
-          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
-            message: `Claimed ballot ${cvrId}.`,
-            disposition: 'success',
-          });
-        }
-        return cvrId;
-      });
-    },
-
     async releaseBallot(input: {
       cvrId: Id;
     }): Promise<Result<void, AdjudicationError>> {
@@ -272,6 +251,34 @@ function buildClientApi({
       return proxy('fetch ballot data', async ({ apiClient: peerApi }) =>
         peerApi.getBallotAdjudicationData({ cvrId: input.cvrId })
       );
+    },
+
+    async claimAndLoadBallot(input: {
+      afterCvrId?: Id;
+    }): Promise<
+      Result<
+        Optional<{ cvrId: Id; data: BallotAdjudicationData }>,
+        AdjudicationError
+      >
+    > {
+      const result = await proxy(
+        'claim and load ballot',
+        async ({ apiClient: peerApi }) =>
+          peerApi.claimAndLoadBallot({
+            machineId: getMachineConfig().machineId,
+            afterCvrId: input.afterCvrId,
+          })
+      );
+      if (result.isOk()) {
+        const value = result.ok();
+        if (value) {
+          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+            message: `Claimed ballot ${value.cvrId}.`,
+            disposition: 'success',
+          });
+        }
+      }
+      return result;
     },
 
     async getBallotImages(input: {

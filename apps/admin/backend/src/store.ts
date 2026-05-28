@@ -109,6 +109,7 @@ import {
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
   AdjudicatedCvrContest,
+  AdjudicationError,
 } from './types';
 import { buildAdjudicatedContestOption } from './adjudication';
 import { deriveCvrContestTag } from './util/cast_vote_records';
@@ -145,6 +146,20 @@ function assertFilterDoesNotContainNoPartyId(
   partyIds: NonNullable<Tabulation.Filter['partyIds']>
 ): asserts partyIds is PartyId[] {
   assert(!partyIds.some(Tabulation.isNoPartyId));
+}
+
+/**
+ * The canonical sort-key expressions for the ballot adjudication queue, for
+ * the given `cvrs` table alias.
+ */
+function adjudicationSortKeyExprs(alias: string): string[] {
+  return [
+    `case when ${alias}.is_blank = 1 then 1 else 0 end`,
+    `case when ${alias}.card_type = 'bmd' then 1 else 0 end`,
+    `coalesce(${alias}.ballot_style_group_id, '')`,
+    `coalesce(${alias}.sheet_number, 0)`,
+    `${alias}.id`,
+  ];
 }
 
 /**
@@ -2190,12 +2205,7 @@ export class Store implements BaseStore {
         select c.id as cvr_id
         from cvrs c
         where (${filter})
-        order by
-          case when c.is_blank = 1 then 1 else 0 end,
-          case when c.card_type = 'bmd' then 1 else 0 end,
-          c.ballot_style_group_id,
-          c.sheet_number,
-          c.id
+        order by ${adjudicationSortKeyExprs('c').join(', ')}
       `
     ) as Array<{ cvr_id: Id }>;
     debug('queried ballot adjudication queue');
@@ -2351,32 +2361,46 @@ export class Store implements BaseStore {
   getNextCvrIdForBallotAdjudication({
     electionId,
     machineId,
+    afterCvrId,
   }: {
     electionId: Id;
     machineId: string;
+    afterCvrId?: Id;
   }): Optional<Id> {
     this.assertElectionExists(electionId);
     const filter = this.getAdjudicationQueueFilter(electionId);
+    const sortKeys = adjudicationSortKeyExprs('c');
+    const sortKeyList = sortKeys.join(', ');
+
+    // When paging past `afterCvrId`, order ballots after it first (in
+    // canonical queue order), then wrap to those at or before it — so a single
+    // query returns the next ballot to adjudicate, wrapping around the end of
+    // the queue back to any earlier still-unresolved ballots. Returns
+    // undefined only when no ballot is eligible at all.
+    const wrapOrder = afterCvrId
+      ? `case when (${sortKeyList}) > (
+            select ${adjudicationSortKeyExprs('cc').join(', ')}
+            from cvrs cc where cc.id = ?
+          ) then 0 else 1 end,`
+      : '';
+
+    const params: string[] = [machineId];
+    if (afterCvrId) params.push(afterCvrId);
 
     const row = this.client.one(
       `
         select c.id as cvr_id
         from cvrs c
         left join machine_ballot_adjudication_assignments mba
-          on mba.cvr_id = c.id and mba.status = 'claimed'
-          and mba.machine_id != ?
+          on mba.cvr_id = c.id
+          and (mba.status = 'completed' or mba.machine_id != ?)
         where (${filter})
           and c.is_adjudicated = 0
           and mba.cvr_id is null
-        order by
-          case when c.is_blank = 1 then 1 else 0 end,
-          case when c.card_type = 'bmd' then 1 else 0 end,
-          c.ballot_style_group_id,
-          c.sheet_number,
-          c.id
+        order by ${wrapOrder} ${sortKeyList}
         limit 1
       `,
-      machineId
+      ...params
     ) as { cvr_id: Id } | undefined;
 
     return row?.cvr_id;
@@ -3262,36 +3286,6 @@ export class Store implements BaseStore {
   // Client ballot adjudication assignments
   //
 
-  getClaimedBallotCvrIds({
-    electionId,
-    excludeMachineId,
-  }: {
-    electionId: Id;
-    excludeMachineId?: string;
-  }): Id[] {
-    this.assertElectionExists(electionId);
-    const rows = excludeMachineId
-      ? (this.client.all(
-          `
-            select cvr_id
-            from machine_ballot_adjudication_assignments
-            where election_id = ? and status = 'claimed'
-              and machine_id != ?
-          `,
-          electionId,
-          excludeMachineId
-        ) as Array<{ cvr_id: Id }>)
-      : (this.client.all(
-          `
-            select cvr_id
-            from machine_ballot_adjudication_assignments
-            where election_id = ? and status = 'claimed'
-          `,
-          electionId
-        ) as Array<{ cvr_id: Id }>);
-    return rows.map((r) => r.cvr_id);
-  }
-
   claimBallotForAdjudication({
     electionId,
     cvrId,
@@ -3335,66 +3329,90 @@ export class Store implements BaseStore {
     }
   }
 
-  claimBallotForClient({
+  /**
+   * Returns the cvrId of the ballot this machine currently holds an active
+   * ('claimed', not yet completed) claim on, if any.
+   */
+  private getActiveClaimForMachine({
     electionId,
     machineId,
-    preferredBallotStyleId,
-    excludeCvrIds,
   }: {
     electionId: Id;
     machineId: string;
-    preferredBallotStyleId?: BallotStyleGroupId;
-    excludeCvrIds?: Id[];
-  }): Id | undefined {
+  }): Optional<Id> {
+    const row = this.client.one(
+      `
+        select cvr_id
+        from machine_ballot_adjudication_assignments
+        where election_id = ? and machine_id = ? and status = 'claimed'
+        limit 1
+      `,
+      electionId,
+      machineId
+    ) as { cvr_id: Id } | undefined;
+    return row?.cvr_id;
+  }
+
+  /**
+   * Atomically claim a ballot for adjudication and read its data in a single
+   * transaction.
+   *
+   * - `cvrId` supplied → claim that specific ballot (or confirm an existing
+   *   claim). Returns `claim-failed` if another machine holds it.
+   * - `afterCvrId` supplied → find the next eligible ballot in queue order
+   *   strictly *after* this one and claim it. Returns `ok(undefined)` if
+   *   none.
+   * - Neither supplied → return the ballot this machine already holds, if
+   *   any, otherwise claim the first eligible ballot.
+   *
+   * On success the caller is guaranteed to hold the claim and receives the
+   * resolved cvrId + data.
+   */
+  claimAndLoadBallotData({
+    electionId,
+    machineId,
+    cvrId,
+    afterCvrId,
+  }: {
+    electionId: Id;
+    machineId: string;
+    cvrId?: Id;
+    afterCvrId?: Id;
+  }): Result<
+    { cvrId: Id; data: BallotAdjudicationData } | undefined,
+    AdjudicationError
+  > {
     this.assertElectionExists(electionId);
-    const filter = this.getAdjudicationQueueFilter(electionId);
+    return this.withTransaction(() => {
+      const cvrIdToClaim =
+        cvrId /* specific cvr passed in */ ??
+        this.getActiveClaimForMachine({
+          electionId,
+          machineId,
+        }) /* get machines current claim if it exists */ ??
+        this.getNextCvrIdForBallotAdjudication({
+          electionId,
+          machineId,
+          afterCvrId,
+        });
 
-    const excludePlaceholders =
-      excludeCvrIds && excludeCvrIds.length > 0
-        ? `and c.id not in (${excludeCvrIds.map(() => '?').join(', ')})`
-        : '';
-
-    return this.client.transaction(() => {
-      const row = this.client.one(
-        `
-          select c.id as cvr_id
-          from cvrs c
-          where (${filter})
-            and c.is_adjudicated = 0
-            and c.id not in (
-              select cvr_id from machine_ballot_adjudication_assignments
-              where election_id = ? and status in ('claimed', 'completed')
-            )
-            ${excludePlaceholders}
-          order by
-            case when c.ballot_style_group_id = ? then 0 else 1 end,
-            case when c.is_blank = 1 then 1 else 0 end,
-            case when c.card_type = 'bmd' then 1 else 0 end,
-            c.ballot_style_group_id,
-            c.sheet_number,
-            c.id
-          limit 1
-        `,
+      if (!cvrIdToClaim) {
+        return ok(undefined);
+      }
+      if (
+        !this.claimBallotForAdjudication({
+          electionId,
+          cvrId: cvrIdToClaim,
+          machineId,
+        })
+      ) {
+        return err({ type: 'claim-failed' });
+      }
+      const data = this.getBallotAdjudicationData({
         electionId,
-        ...(excludeCvrIds ?? []),
-        preferredBallotStyleId ?? null
-      ) as { cvr_id: Id } | undefined;
-
-      if (!row) return undefined;
-
-      this.client.run(
-        `
-          insert into machine_ballot_adjudication_assignments
-            (cvr_id, election_id, machine_id, claimed_at, status)
-          values (?, ?, ?, ?, 'claimed')
-        `,
-        row.cvr_id,
-        electionId,
-        machineId,
-        getCurrentTime()
-      );
-
-      return row.cvr_id;
+        cvrId: cvrIdToClaim,
+      });
+      return ok({ cvrId: cvrIdToClaim, data });
     });
   }
 

@@ -479,7 +479,7 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
       (c) => c.contestId === candidateContestId
     );
     if (!contest) continue;
-    await apiClient.claimBallotForAdjudication({ cvrId });
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
     const contests: AdjudicatedCvrContest[] = contest.options
       .filter((option) => option.writeInRecord)
       .map((option) => ({

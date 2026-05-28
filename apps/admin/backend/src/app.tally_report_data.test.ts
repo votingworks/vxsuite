@@ -146,7 +146,7 @@ test('general, full election, write in adjudication', async () => {
   const NUM_UNOFFICIAL = 56 - NUM_INVALID - NUM_OFFICIAL;
   for (const [i, writeIn] of writeIns.entries()) {
     const { cvrId, contestId, optionId } = writeIn;
-    await apiClient.claimBallotForAdjudication({ cvrId });
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
     let optionAdjudication: AdjudicatedContestOption;
     if (i < NUM_INVALID) {
       optionAdjudication = {
@@ -965,7 +965,9 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   const NUM_ADJUDICATED = 3;
   for (const [i, writeIn] of writeIns.entries()) {
     if (i < NUM_ADJUDICATED) {
-      await apiClient.claimBallotForAdjudication({ cvrId: writeIn.cvrId });
+      (
+        await apiClient.claimAndLoadBallot({ cvrId: writeIn.cvrId })
+      ).unsafeUnwrap();
       expect(
         await apiClient.adjudicateCvr({
           cvrId: writeIn.cvrId,

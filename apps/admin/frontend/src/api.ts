@@ -319,20 +319,6 @@ export const getBallotAdjudicationQueueMetadata = {
   },
 } as const;
 
-export const getClaimedBallotCvrIds = {
-  queryKey(): QueryKey {
-    return ['getClaimedBallotCvrIds'];
-  },
-  useQuery({ enabled }: { enabled?: boolean } = {}) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getClaimedBallotCvrIds(), {
-      staleTime: 0,
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      enabled,
-    });
-  },
-} as const;
-
 export const getNextCvrIdForBallotAdjudication = {
   queryKey(): QueryKey {
     return ['getNextCvrIdForBallotAdjudication'];
@@ -373,6 +359,7 @@ export const getBallotAdjudicationData = {
         enabled: !!input,
         keepPreviousData: true,
         staleTime: 0,
+        refetchOnMount: 'always',
       }
     );
   },
@@ -903,19 +890,16 @@ export const adjudicateCvr = {
           queryClient.invalidateQueries(
             getBallotAdjudicationQueueMetadata.queryKey()
           ),
-          queryClient.invalidateQueries(
-            getNextCvrIdForBallotAdjudication.queryKey()
-          ),
         ]);
       },
     });
   },
 } as const;
 
-export const claimBallotForAdjudication = {
+export const claimAndLoadBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.claimBallotForAdjudication);
+    return useMutation(apiClient.claimAndLoadBallot, {});
   },
 } as const;
 

@@ -227,10 +227,10 @@ export const formatUsbDrive = {
 
 // Adjudication proxy
 
-export const claimBallot = {
+export const claimAndLoadBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.claimBallot);
+    return useMutation(apiClient.claimAndLoadBallot);
   },
 } as const;
 
@@ -261,8 +261,13 @@ export const getBallotImages = {
   },
   useQuery(cvrId: string) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(cvrId), () =>
-      apiClient.getBallotImages({ cvrId })
+    // keepPreviousData holds the previous ballot's images (isSuccess stays
+    // true) while the next ballot's images load, so paging via Skip/Accept
+    // doesn't flash the full-screen Loading state between ballots.
+    return useQuery(
+      this.queryKey(cvrId),
+      () => apiClient.getBallotImages({ cvrId }),
+      { keepPreviousData: true }
     );
   },
 } as const;

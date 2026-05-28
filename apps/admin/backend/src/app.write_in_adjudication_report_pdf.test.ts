@@ -156,7 +156,7 @@ test('write-in adjudication report', async () => {
   // generate some adjudication information
   for (const [i, writeIn] of writeIns.entries()) {
     const { optionId, cvrId, contestId } = writeIn;
-    await apiClient.claimBallotForAdjudication({ cvrId });
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
     let optionAdjudication: AdjudicatedContestOption;
     if (i < 24) {
       optionAdjudication = {

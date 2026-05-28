@@ -256,14 +256,14 @@ by contest) and `onAdjudicateCvrContest` as props — no internal data fetching.
 
 **Client error handling:** Client proxy endpoints return
 `Result<T, AdjudicationError>` where `AdjudicationError` is
-`{ type: 'host-disconnect' } | { type: 'no-claim' }`. When the host connection
-is unavailable, the proxy returns `err({ type: 'host-disconnect' })`. When the
-peer API rejects a mutation because the machine has no active claim (e.g. host
-disabled adjudication and released all claims), the proxy passes through the
-peer's `err({ type: 'no-claim' })`. The frontend checks these Results and
-renders a typed error screen with a message and Exit button — "Disconnected from
-host." for disconnects, "This machine no longer has an active claim on this
-ballot." for no-claim errors.
+`{ type: 'host-disconnect' } | { type: 'claim-failed' }`. When the host
+connection is unavailable, the proxy returns `err({ type: 'host-disconnect' })`.
+When the peer API rejects a mutation because the machine has no active claim
+(e.g. host disabled adjudication and released all claims), the proxy passes
+through the peer's `err({ type: 'claim-failed' })`. The frontend checks these
+Results and renders a typed error screen with a message and Exit button —
+"Disconnected from host." for disconnects, "This machine no longer has an active
+claim on this ballot." for claim-failed errors.
 
 **Client disconnect logout:** `ClientStore.setConnection()` fires an
 `onDisconnect` callback when transitioning away from `OnlineConnectedToHost`.
@@ -348,8 +348,8 @@ instance (single SQLite DB, no sync needed):
   2. **Adjudication proxy endpoints** — transparent forwarding to the host's
      peer API via a `grout.Client<PeerApi>`. Returns
      `Result<T, AdjudicationError>` for all proxy endpoints, mapping connection
-     failures to `host-disconnect` and passing through `no-claim` errors from
-     the peer API.
+     failures to `host-disconnect` and passing through `claim-failed` errors
+     from the peer API.
 
 #### Machine Mode
 
