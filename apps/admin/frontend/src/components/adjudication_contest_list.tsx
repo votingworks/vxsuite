@@ -20,11 +20,12 @@ import {
   Button,
   Callout,
   Caption,
-  DesktopPalette,
   Font,
+  FontProps,
   Icons,
   P,
 } from '@votingworks/ui';
+import pluralize from 'pluralize';
 import { EntityList } from './entity_list';
 import {
   isContestResolved,
@@ -71,14 +72,52 @@ const CalloutTitle = styled(P)`
   margin-bottom: 0;
 `;
 
-const ResolvedCaption = styled(EntityList.Caption)`
-  color: ${DesktopPalette.Purple70};
+const StatusCaption = styled(EntityList.Caption)`
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
 `;
 
-const StatusLine = styled.span`
-  align-items: center;
-  display: inline-flex;
-  gap: 0.25rem;
+function StatusLine({
+  icon,
+  children,
+  ...fontProps
+}: FontProps &
+  React.PropsWithChildren<{
+    icon: JSX.Element;
+  }>) {
+  return (
+    <StatusCaption {...fontProps}>
+      {icon} {children}
+    </StatusCaption>
+  );
+}
+
+const StatusLineNeedsAdjudication = styled(StatusLine).attrs({
+  icon: <Icons.PenToSquare color="warning" />,
+  weight: 'semiBold',
+})`
+  color: ${(p) => p.theme.colors.onBackground};
+`;
+
+const StatusLineWarning = styled(StatusLine).attrs({
+  icon: <Icons.Warning color="warning" />,
+  weight: 'semiBold',
+})`
+  color: ${(p) => p.theme.colors.primary};
+`;
+
+const StatusLineConfirmed = styled(StatusLine).attrs({
+  icon: <Icons.Done />,
+  weight: 'semiBold',
+})`
+  color: ${(p) => p.theme.colors.primary};
+`;
+
+const StatusLineAdjudicated = styled(StatusLine).attrs({
+  icon: <Icons.PenToSquare />,
+})`
+  color: ${(p) => p.theme.colors.primary};
 `;
 
 function getVotesAllowed(contest: AnyContest): number {
@@ -105,7 +144,7 @@ export interface ContestListItem {
   adjudicationData: ContestAdjudicationData;
 }
 
-function getStatusLine(
+function getAdjudicatedContestStatusLine(
   item: ContestListItem,
   showUndervoteStatus: boolean,
   adjudicatedContest: AdjudicatedCvrContest
@@ -127,10 +166,10 @@ function getStatusLine(
 
   if (originalStatus === adjudicatedStatus) {
     if (originalStatus === 'overvote') {
-      return 'Overvote Confirmed';
+      return <StatusLineConfirmed>Overvote Confirmed</StatusLineConfirmed>;
     }
     if (originalStatus === 'undervote' && showUndervoteStatus) {
-      return 'Undervote Confirmed';
+      return <StatusLineConfirmed>Undervote Confirmed</StatusLineConfirmed>;
     }
     return null;
   }
@@ -139,46 +178,33 @@ function getStatusLine(
   if (originalStatus === 'overvote' && adjudicatedStatus !== 'overvote') {
     if (adjudicatedStatus === 'undervote' && showUndervoteStatus) {
       return (
-        <StatusLine>
-          <Icons.Warning color="warning" />
+        <StatusLineWarning>
           Overvote Resolved; Undervote Created
-        </StatusLine>
+        </StatusLineWarning>
       );
     }
-    return 'Overvote Resolved';
+    return <StatusLineConfirmed>Overvote Resolved</StatusLineConfirmed>;
   }
 
   // New overvote
   if (adjudicatedStatus === 'overvote') {
-    return (
-      <StatusLine>
-        <Icons.Warning color="warning" />
-        Overvote Created
-      </StatusLine>
-    );
+    return <StatusLineWarning>Overvote Created</StatusLineWarning>;
   }
 
   // Undervote transitions only if enabled
   if (showUndervoteStatus) {
     if (originalStatus === 'undervote' && adjudicatedStatus !== 'undervote') {
-      return 'Undervote Resolved';
+      return <StatusLineConfirmed>Undervote Resolved</StatusLineConfirmed>;
     }
-    return (
-      <StatusLine>
-        <Icons.Warning color="warning" />
-        Undervote Created
-      </StatusLine>
-    );
+    return <StatusLineWarning>Undervote Created</StatusLineWarning>;
   }
-
-  return null;
 }
 
-function getOptionResolutionLine(
+function getAdjudicatedOptionStatusLine(
   option: ContestOptionAdjudicationData,
   contest: AnyContest,
   adjudicatedOption?: AdjudicatedContestOption
-): React.ReactNode | undefined {
+): React.ReactNode {
   const { definition, scannedVote, hasMarginalMark, writeInRecord } = option;
 
   if (
@@ -206,17 +232,17 @@ function getOptionResolutionLine(
 
     if (candidateName) {
       return (
-        <span>
+        <StatusLineAdjudicated>
           <Font weight="semiBold">{writeInPrefix} </Font>adjudicated for
           <Font weight="semiBold"> {candidateName}</Font>
-        </span>
+        </StatusLineAdjudicated>
       );
     }
     return (
-      <span>
+      <StatusLineAdjudicated>
         <Font weight="semiBold">{writeInPrefix} </Font>adjudicated as
         <Font weight="semiBold"> Invalid</Font>
-      </span>
+      </StatusLineAdjudicated>
     );
   }
 
@@ -225,12 +251,12 @@ function getOptionResolutionLine(
   if (hasMarginalMark) {
     const newValue = currentVote ? 'Valid' : 'Invalid';
     return (
-      <span>
+      <StatusLineAdjudicated>
         <Font weight="semiBold">Marginal Mark </Font>for
         <Font weight="semiBold"> {definition.name} </Font>
         adjudicated as
         <Font weight="semiBold"> {newValue}</Font>
-      </span>
+      </StatusLineAdjudicated>
     );
   }
 
@@ -238,16 +264,14 @@ function getOptionResolutionLine(
     const preface = currentVote ? 'Undetected Mark' : 'Mark';
     const newValue = currentVote ? 'Valid' : 'Invalid';
     return (
-      <span>
+      <StatusLineAdjudicated>
         <Font weight="semiBold">{preface} </Font>for
         <Font weight="semiBold"> {definition.name} </Font>
         adjudicated as
         <Font weight="semiBold"> {newValue}</Font>
-      </span>
+      </StatusLineAdjudicated>
     );
   }
-
-  return undefined;
 }
 
 function ContestAdjudicationSummary({
@@ -257,34 +281,50 @@ function ContestAdjudicationSummary({
 }: {
   item: ContestListItem;
   showUndervoteStatus: boolean;
-  adjudicatedContest: AdjudicatedCvrContest;
+  adjudicatedContest?: AdjudicatedCvrContest;
 }): JSX.Element | null {
-  const statusLine = getStatusLine(
+  if (!adjudicatedContest) {
+    const writeIns = item.adjudicationData.options.filter(
+      (option) => option.writeInRecord
+    ).length;
+    const marginalMarks = item.adjudicationData.options.filter(
+      (option) => option.hasMarginalMark
+    ).length;
+    return (
+      <React.Fragment>
+        {writeIns > 0 && (
+          <StatusLineNeedsAdjudication>
+            {writeIns} {pluralize('write-in', writeIns)} to adjudicate
+          </StatusLineNeedsAdjudication>
+        )}
+        {marginalMarks > 0 && (
+          <StatusLineNeedsAdjudication>
+            {marginalMarks} {pluralize('marginal mark', marginalMarks)} to
+            adjudicate
+          </StatusLineNeedsAdjudication>
+        )}
+      </React.Fragment>
+    );
+  }
+
+  const contestLine = getAdjudicatedContestStatusLine(
     item,
     showUndervoteStatus,
     adjudicatedContest
   );
-  const bullets = item.adjudicationData.options
-    .map((option) =>
-      getOptionResolutionLine(
+  const optionLines = item.adjudicationData.options.map((option) => (
+    <React.Fragment key={option.definition.id}>
+      {getAdjudicatedOptionStatusLine(
         option,
         item.contest,
         adjudicatedContest.adjudicatedContestOptionById[option.definition.id]
-      )
-    )
-    .filter((desc): desc is React.ReactNode => desc !== undefined);
-
-  if (!statusLine && bullets.length === 0) return null;
-
+      )}
+    </React.Fragment>
+  ));
   return (
     <React.Fragment>
-      {statusLine && (
-        <ResolvedCaption weight="semiBold">{statusLine}</ResolvedCaption>
-      )}
-      {bullets.map((bullet, i) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <ResolvedCaption key={i}>&bull; {bullet}</ResolvedCaption>
-      ))}
+      {contestLine}
+      {optionLines}
     </React.Fragment>
   );
 }
@@ -372,7 +412,7 @@ function BallotSideContestList({
                 >
                   {contest.title}
                 </EntityList.Label>
-                {adjudicatedContest && !suppressContestAdjudicationInfo && (
+                {!suppressContestAdjudicationInfo && (
                   <ContestAdjudicationSummary
                     item={item}
                     showUndervoteStatus={showUndervoteStatus}
@@ -380,9 +420,6 @@ function BallotSideContestList({
                   />
                 )}
               </Column>
-              {isPending && !suppressContestAdjudicationInfo && (
-                <Icons.Warning color="warning" />
-              )}
             </EntityList.Item>
           );
         })}

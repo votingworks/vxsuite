@@ -1333,7 +1333,7 @@ test('contest list shows correct option resolution bullets', async () => {
 
   function findTextInContest(contestName: string, expectedText: string) {
     const item = within(screen.getByText(contestName).closest('li')!);
-    item.getByText((_c, node) => node?.textContent === expectedText);
+    item.getByText((_c, node) => node?.textContent?.trim() === expectedText);
   }
 
   // Zoo Council: write-in bullets
@@ -1361,6 +1361,55 @@ test('contest list shows correct option resolution bullets', async () => {
     'Undetected Mark for Horse adjudicated as Valid'
   );
   findTextInContest('Best Animal', 'Mark for Otter adjudicated as Invalid');
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('contest list shows pending write-in and marginal mark counts before adjudication', async () => {
+  const zooCouncil = makeContestAdjudicationData(
+    'zoo-council-mammal',
+    makeContestTag({ hasWriteIn: true, hasMarginalMark: true })
+  );
+
+  // Two marginal marks on official candidates -> "2 marginal marks to adjudicate"
+  zooCouncil.options[0].hasMarginalMark = true;
+  zooCouncil.options[1].hasMarginalMark = true;
+
+  // One pending write-in -> "1 write-in to adjudicate"
+  zooCouncil.options.push({
+    definition: {
+      id: 'write-in-0',
+      contestId: 'zoo-council-mammal',
+      name: 'Write-In #1',
+      type: 'candidate' as const,
+      isWriteIn: true,
+    },
+    scannedVote: true,
+    hasMarginalMark: false,
+    writeInRecord: {
+      id: 'wr-0',
+      optionId: 'write-in-0',
+      contestId: 'zoo-council-mammal',
+      cvrId: CVR_ID_1,
+      electionId: 'e',
+      status: 'pending' as const,
+    },
+  });
+
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [zooCouncil]);
+  setupBasicMocks({ adjudicationData: adjData });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Zoo Council');
+  const zooCouncilItem = within(screen.getByText('Zoo Council').closest('li')!);
+  zooCouncilItem.getByText('1 write-in to adjudicate');
+  zooCouncilItem.getByText('2 marginal marks to adjudicate');
+
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
