@@ -48,7 +48,10 @@ import {
   logInAsSystemAdministrator,
   logOut,
 } from './support/auth';
-import { adjudicateAllWriteIns } from './support/write_in_adjudication';
+import {
+  adjudicateAllWriteIns,
+  getPendingContestItems,
+} from './support/write_in_adjudication';
 import {
   getPrimaryButton,
   openDropdown,
@@ -638,11 +641,7 @@ test('adjudication', async ({ page }) => {
   await screenshot('adjudication-view');
 
   // Click the Governor contest (has write-in + marginal mark)
-  await page
-    .getByRole('listitem')
-    .filter({ has: page.locator('svg[data-icon="triangle-exclamation"]') })
-    .first()
-    .click();
+  await getPendingContestItems(page).first().click();
   await page.getByRole('button', { name: 'Confirm' }).waitFor();
   await page.getByText('Zoom Out').click();
   await expect(page.getByText('Zoom In')).toBeEnabled();
