@@ -1617,10 +1617,9 @@ test('auto-resolved write-in does not trigger discard modal', async () => {
     ),
   ]);
 
-  apiMock.expectAdjudicationScreenQueries();
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(makeHmpbBallotImages(CVR_ID_1));
@@ -1629,7 +1628,6 @@ test('auto-resolved write-in does not trigger discard modal', async () => {
     .resolves(makeHmpbBallotImages(CVR_ID_2));
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
-  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_1 });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
@@ -1641,8 +1639,7 @@ test('auto-resolved write-in does not trigger discard modal', async () => {
   });
 
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
-  apiMock.expectClaimBallotForAdjudication({ cvrId: CVR_ID_2 });
-  apiMock.expectGetBallotAdjudicationData({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
 
   userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 2');

@@ -405,8 +405,12 @@ export function createApiMock(
 
     expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null, afterCvrId?: Id) {
       if (afterCvrId !== undefined) {
+        apiClient.getNextCvrIdForBallotAdjudication.reset();
         apiClient.getNextCvrIdForBallotAdjudication
           .expectCallWith({ afterCvrId })
+          .resolves(cvrId);
+        apiClient.getNextCvrIdForBallotAdjudication
+          .expectOptionalRepeatedCallsWith()
           .resolves(cvrId);
       } else {
         apiClient.getNextCvrIdForBallotAdjudication
