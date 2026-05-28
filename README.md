@@ -35,6 +35,9 @@ See https://voting.works for more information about VotingWorks.
 
 See the [developer documentation](./docs/development.md).
 
+View our contribution guidelines
+[here](https://github.com/votingworks/contribution-guidelines).
+
 ## License
 
 All files are licensed under GNU GPL v3.0 only. Refer to the
