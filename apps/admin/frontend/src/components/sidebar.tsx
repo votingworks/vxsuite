@@ -57,7 +57,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     machineMode === 'client' ? (
       <React.Fragment>
         VxAdmin
-        <ClientLogoSubtitle>Adjudication</ClientLogoSubtitle>
+        <ClientLogoSubtitle>Adjudication Station</ClientLogoSubtitle>
       </React.Fragment>
     ) : (
       'VxAdmin'

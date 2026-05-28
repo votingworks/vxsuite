@@ -36,23 +36,23 @@ function NetworkStatusSection(): JSX.Element {
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status === 'online-connected-to-host' && (
             <span>
-              <Icons.Done color="success" /> Connected to VxAdmin{' '}
+              <Icons.Done color="success" /> Connected to host{' '}
               {networkStatusQuery.data.hostMachineId}
             </span>
           )}
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status === 'online-waiting-for-host' && (
             <span>
-              <Icons.Warning color="warning" /> Searching for VxAdmin
+              <Icons.Warning color="warning" /> Searching for host…
             </span>
           )}
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status ===
             'online-multiple-hosts-detected' && (
             <span>
-              <Icons.Danger color="danger" /> Multiple host VxAdmins detected on
-              the network. Only one host VxAdmin should be active at a time.
-              This adjudication station will not connect until the conflict is
+              <Icons.Danger color="danger" /> Multiple hosts detected on the
+              network. Only one host should be active at a time. This
+              adjudication station will not connect until the conflict is
               resolved.
             </span>
           )}
@@ -60,8 +60,8 @@ function NetworkStatusSection(): JSX.Element {
           networkStatusQuery.data.status ===
             'online-incompatible-host-version' && (
             <span>
-              <Icons.Danger color="danger" /> VxAdmin machine with incompatible
-              software version detected.
+              <Icons.Danger color="danger" /> VxAdmin with incompatible software
+              version detected on the network.
             </span>
           )}
         {networkStatusQuery.isSuccess &&
