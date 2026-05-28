@@ -270,9 +270,7 @@ describe('multi-station adjudication', () => {
       apiMock,
     });
 
-    await screen.findByText(
-      'Online · Adjudication Stations Can Adjudicate Ballots'
-    );
+    await screen.findByText('Online · Stations Can Adjudicate Ballots');
     screen.getByRole('table');
   });
 
@@ -290,7 +288,7 @@ describe('multi-station adjudication', () => {
     });
 
     await screen.findByRole('button', { name: 'Enable Multi-Station' });
-    screen.getByText('Off · Adjudication Stations Cannot Adjudicate Ballots');
+    screen.getByText('Off · Stations Cannot Adjudicate Ballots');
     screen.getByRole('table');
   });
 });
