@@ -5,6 +5,7 @@ import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
+  createMockFilePdiScanner,
   createMockPdiScanner,
   createPdiScannerClient,
 } from '@votingworks/pdi-scanner';
@@ -51,7 +52,9 @@ export async function start({
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
   )
     ? /* istanbul ignore next */
-      createMockPdiScanner()
+      isIntegrationTest()
+      ? createMockFilePdiScanner()
+      : createMockPdiScanner()
     : undefined;
 
   const precinctScannerStateMachine = scanner.createPrecinctScannerStateMachine(

@@ -18,6 +18,10 @@ import {
   logInAsPollWorker,
   logInAsSystemAdministrator,
 } from './support/auth';
+import {
+  FAMOUS_NAMES_MARKED_BALLOT_PATH,
+  mockPdiScannerHandler,
+} from './support/scanner';
 
 const screenshotCounter = createScreenshotCounter();
 
@@ -195,8 +199,8 @@ test('voting', async ({ page }) => {
   );
   await page.getByText('Election Manager Menu').waitFor();
   await page.getByLabel(/select a polling place/i).click({ force: true });
-  await page.getByText('North Lincoln', { exact: true }).click();
-  await page.locator('.search-select').getByText('North Lincoln').waitFor();
+  await page.getByText('West Lincoln', { exact: true }).click();
+  await page.locator('.search-select').getByText('West Lincoln').waitFor();
   await page.getByText('Official Ballot Mode').click();
   await page.getByText('Test Ballot Mode').waitFor();
 
@@ -226,4 +230,8 @@ test('voting', async ({ page }) => {
     page.getByTestId('electionInfo'),
     'insert-ballot-election-info'
   );
+
+  mockPdiScannerHandler.insertSheet(FAMOUS_NAMES_MARKED_BALLOT_PATH);
+  await page.getByText('Your ballot was counted!').waitFor({ timeout: 30000 });
+  await screenshot('ballot-counted');
 });
