@@ -105,7 +105,15 @@ export function buildApi(ctx: AppContext) {
         electionPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = electionPackage;
       if (!ballots || ballots.length === 0) {
-        return err({ type: 'no_ballots' });
+        const noBallotsError: ElectionPackageConfigurationError = {
+          type: 'no_ballots',
+        };
+        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+          disposition: 'failure',
+          message: 'Error configuring machine.',
+          errorDetails: JSON.stringify(noBallotsError),
+        });
+        return err(noBallotsError);
       }
       assert(systemSettings);
 
@@ -217,19 +225,20 @@ export function buildApi(ctx: AppContext) {
 
     unconfigureMachine(): void {
       store.reset();
+      void logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
+        disposition: 'success',
+      });
     },
 
     /* istanbul ignore next - @preserve */
     async generateSignedHashValidationQrCodeValue() {
-      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
-
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
       const qrCodeValue = await generateSignedHashValidationQrCodeValue({
         electionRecord,
         softwareVersion: codeVersion,
       });
-
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
         disposition: 'success',
       });

@@ -287,6 +287,11 @@ test('configureElectionPackageFromUsb returns no_ballots error when election pac
 
   const result = await apiClient.configureElectionPackageFromUsb();
   expect(result).toEqual(err({ type: 'no_ballots' }));
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ElectionConfigured,
+    expect.anything(),
+    expect.objectContaining({ disposition: 'failure' })
+  );
 });
 
 // [TODO] Update test name after migration to Polling Places.
@@ -471,6 +476,11 @@ test('unconfigureMachine clears election configuration', async () => {
   expect(await apiClient.getBallots({})).toEqual([]);
   expect(await apiClient.getTestMode()).toEqual(false);
   expect(workspace.store.getSystemSettings()).toBeUndefined();
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ElectionUnconfigured,
+    expect.anything(),
+    expect.objectContaining({ disposition: 'success' })
+  );
 });
 
 test('printBallot logs when ballot is not found', async () => {

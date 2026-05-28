@@ -346,6 +346,13 @@ export class Store {
       .sort(sortBallotPrintCounts);
   }
 
+  getTotalBallotPrintCount(): number {
+    const result = this.client.one(
+      'select coalesce(sum(print_count), 0) as total from ballots'
+    ) as { total: number };
+    return result.total;
+  }
+
   /**
    * Retrieves all stored encoded ballots.
    */
