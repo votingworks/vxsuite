@@ -901,16 +901,7 @@ export const adjudicateCvr = {
 export const claimAndLoadBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.claimAndLoadBallot, {
-      async onSuccess() {
-        // Keep the host's "next ballot" position query fresh after acquiring
-        // a claim.
-        await queryClient.invalidateQueries(
-          getNextCvrIdForBallotAdjudication.queryKey()
-        );
-      },
-    });
+    return useMutation(apiClient.claimAndLoadBallot, {});
   },
 } as const;
 
