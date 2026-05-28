@@ -442,8 +442,8 @@ function MultiStationCard(): JSX.Element {
         </CardRow>
         {multipleHostsDetected && (
           <P style={{ margin: 0 }}>
-            <Icons.Danger color="danger" /> Multiple host VxAdmins detected on
-            the network. Only one host VxAdmin should be active at a time.
+            <Icons.Danger color="danger" /> Multiple hosts detected on the
+            network. Only one host should be active at a time.
           </P>
         )}
         {isOnline && (

@@ -71,10 +71,10 @@ export function SettingsScreen(): JSX.Element | null {
             {networkStatusQuery.isSuccess &&
               networkStatusQuery.data.multipleHostsDetected && (
                 <P>
-                  <Icons.Danger color="danger" /> Multiple host VxAdmins
-                  detected on the network. Only one host machine should be
-                  active at a time. Adjudication stations will not connect until
-                  the conflict is resolved.
+                  <Icons.Danger color="danger" /> Multiple hosts detected on the
+                  network. Only one host machine should be active at a time.
+                  Adjudication stations will not connect until the conflict is
+                  resolved.
                 </P>
               )}
             <P>

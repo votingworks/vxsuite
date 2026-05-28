@@ -58,7 +58,7 @@ test('shows enabled start button when adjudication is enabled', async () => {
 test('shows waiting message and disabled button when adjudication not enabled', async () => {
   apiMock.expectGetAdjudicationSessionStatus(false);
   renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
-  await screen.findByText('Waiting for VxAdmin to initiate adjudication.');
+  await screen.findByText('Waiting for host to initiate adjudication.');
   const startButton = screen.getByRole('button', {
     name: 'Start Adjudication',
   });

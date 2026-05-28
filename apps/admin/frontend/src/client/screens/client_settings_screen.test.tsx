@@ -41,7 +41,7 @@ test('renders settings screen for system administrator', async () => {
   });
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('heading', { name: 'Network' });
-  await screen.findByText(/Connected to VxAdmin 0001/);
+  await screen.findByText(/Connected to host 0001/);
   screen.getByRole('heading', { name: 'Logs' });
   screen.getByRole('heading', { name: 'Date and Time' });
   screen.getByRole('heading', { name: 'USB Formatting' });
@@ -94,7 +94,7 @@ test('shows searching for host status', async () => {
     auth: sysAdminAuth,
     apiMock,
   });
-  await screen.findByText(/Searching for VxAdmin/);
+  await screen.findByText(/Searching for host…/);
 });
 
 test('does not show Switch to Host Mode when election is configured', async () => {
@@ -119,7 +119,7 @@ test('shows multiple hosts detected warning', async () => {
     auth: sysAdminAuth,
     apiMock,
   });
-  await screen.findByText(/Multiple host VxAdmins detected/);
+  await screen.findByText(/Multiple hosts detected/);
 });
 
 test('shows incompatible host version warning', async () => {

@@ -161,7 +161,7 @@ describe('multi-station mode', () => {
       auth,
       electionDefinition: null,
     });
-    await screen.findByText(/Multiple host VxAdmins detected/);
+    await screen.findByText(/Multiple hosts detected/);
   });
 
   test('shows restart screen after switching mode', async () => {
