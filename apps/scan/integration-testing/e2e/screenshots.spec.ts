@@ -457,3 +457,83 @@ test('voting', async ({ page }) => {
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
 });
+
+test('accessibility', async ({ page }) => {
+  const fixtureSet = electionFamousNames2021Fixtures;
+  const usbHandler = getMockFileUsbDriveHandler();
+  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    disableVoterHelpButtons: true,
+    // Screen reader enabled so the Audio settings tab is visible.
+    precinctScanDisableScreenReaderAudio: false,
+  };
+
+  await page.goto('/');
+  await logInAsElectionManager(page, fixtureSet.readElection());
+  usbHandler.insert(
+    await mockElectionPackageFileTree(
+      fixtureSet.electionJson.toElectionPackage(systemSettings)
+    )
+  );
+  await page.getByText('Election Manager Menu').waitFor();
+  await page.getByLabel(/select a polling place/i).click({ force: true });
+  await page.getByText('West Lincoln', { exact: true }).click();
+  await page.locator('.search-select').getByText('West Lincoln').waitFor();
+  await page.getByText('Official Ballot Mode').click();
+  await page.getByText('Test Ballot Mode').waitFor();
+
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open polls.').waitFor();
+
+  logInAsPollWorker(fixtureSet.readElection());
+  await page.getByRole('button', { name: 'Open Polls' }).click();
+  await page
+    .getByRole('heading', { name: 'Polls Opened' })
+    .waitFor({ timeout: 60000 });
+
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
+  await screenshot('a11y-insert-ballot');
+
+  // PAT calibration tutorial — triggered by first PAT key press on the voter screen.
+  await page.keyboard.press('1');
+  await page.getByRole('heading', { name: 'Test Your Device' }).waitFor();
+  await screenshot('pat-intro');
+
+  await page.keyboard.press('1');
+  await page
+    .getByRole('heading', { name: /Identify the .Move. Input/ })
+    .waitFor();
+  await screenshot('pat-identify-move');
+
+  await page.keyboard.press('1');
+  await page
+    .getByRole('heading', { name: /Input Identified: .Move./ })
+    .waitFor();
+  await screenshot('pat-move-identified');
+
+  await page.keyboard.press('1');
+  await page
+    .getByRole('heading', { name: /Identify the .Select. Input/ })
+    .waitFor();
+  await screenshot('pat-identify-select');
+
+  await page.keyboard.press('2');
+  await page
+    .getByRole('heading', { name: /Input Identified: .Select./ })
+    .waitFor();
+  await screenshot('pat-select-identified');
+
+  await page.keyboard.press('2');
+  await page
+    .getByRole('heading', { name: 'Device Inputs Identified' })
+    .waitFor();
+  await screenshot('pat-device-identified');
+
+  // Navigate to and select "Continue" using PAT inputs to exit the tutorial.
+  await page.keyboard.press('1');
+  await page.keyboard.press('2');
+  await page.getByText('Insert Your Ballot').waitFor();
+});
