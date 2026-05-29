@@ -66,6 +66,9 @@ export async function forceLogOutAndResetElectionDefinition(
   await forceLogOut(page);
   await page.goto('/');
   mockCardRemoval();
+  // Wait for the frontend to render something before inserting the SA card, so
+  // the auth state machine is ready to process it.
+  await page.waitForLoadState('domcontentloaded');
 
   await logInAsSystemAdministrator(page);
 
