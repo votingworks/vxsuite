@@ -14,6 +14,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import {
+  MockPdiScannerDelays,
   MockScanner,
   MockSheetStatus,
   createMockPdiScanner,
@@ -73,13 +74,25 @@ export function getMockFilePdiScannerHandler(): MockFilePdiScannerHandler {
   };
 }
 
+// Faster delays for integration tests so the test suite doesn't wait on
+// realistic hardware timing. Still long enough to capture transition screenshots.
+const INTEGRATION_TEST_DELAYS: MockPdiScannerDelays = {
+  scanDelay: 200,
+  ejectDelay: 200,
+  commandDelay: 25,
+};
+
 /**
  * Creates a {@link MockScanner} backed by a command file on disk. The backend
  * process polls the file and delegates to an inner in-memory mock scanner, so
  * the test process can control scanning without HTTP or shared memory.
  */
 export function createMockFilePdiScanner(): MockScanner {
-  const inner = createMockPdiScanner();
+  const inner = createMockPdiScanner(
+    process.env['IS_INTEGRATION_TEST'] === 'true'
+      ? INTEGRATION_TEST_DELAYS
+      : undefined
+  );
   let pollInterval: ReturnType<typeof setInterval> | undefined;
 
   function startPolling(): void {
