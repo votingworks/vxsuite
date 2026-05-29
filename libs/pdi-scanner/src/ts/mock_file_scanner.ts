@@ -135,8 +135,11 @@ export function createMockFilePdiScanner(): MockScanner {
           inner.insertSheet(sheet);
         }
       })().catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error('[MockFilePdiScanner] Error inserting sheet:', err);
+        // Re-throw on next tick so the backend process crashes loudly instead
+        // of leaving the test hanging with no indication of what went wrong.
+        process.nextTick(() => {
+          throw err;
+        });
       });
     }, 100);
   }
