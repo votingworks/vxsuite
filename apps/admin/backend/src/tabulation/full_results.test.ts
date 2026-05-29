@@ -478,11 +478,11 @@ test('tabulateElectionResults - write-in handling', async () => {
     },
   });
   const writeInCandidate1 = store
-    .getWriteInCandidates({ electionId, contestId: candidateContestId })
+    .getWriteInCandidates({ electionId, contestIds: [candidateContestId] })
     .find((c) => c.name === 'Mr. Pickles');
   assert(writeInCandidate1 !== undefined);
   const writeInCandidate2 = store
-    .getWriteInCandidates({ electionId, contestId: candidateContestId })
+    .getWriteInCandidates({ electionId, contestIds: [candidateContestId] })
     .find((c) => c.name === 'Ms. Tomato');
   assert(writeInCandidate2 !== undefined);
 

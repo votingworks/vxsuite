@@ -189,9 +189,9 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
       });
     },
 
-    getWriteInCandidates(
-      input: { contestId?: ContestId } = {}
-    ): WriteInCandidateRecord[] {
+    getWriteInCandidates(input: {
+      contestIds: ContestId[];
+    }): WriteInCandidateRecord[] {
       const electionId = assertDefined(store.getCurrentElectionId());
       return store.getWriteInCandidates({ electionId, ...input });
     },

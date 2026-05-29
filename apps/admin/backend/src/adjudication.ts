@@ -208,7 +208,7 @@ function applyAdjudicatedCvrContest(
   });
   const contestWriteInCandidates = store.getWriteInCandidates({
     electionId,
-    contestId,
+    contestIds: [contestId],
   });
 
   const adjudicatedVotes = new Set(existingContestVotes);

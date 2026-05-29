@@ -618,7 +618,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
   const newWriteInCandidate = store
     .getWriteInCandidates({
       electionId,
-      contestId,
+      contestIds: [contestId],
     })
     .find((c) => c.name === 'siena');
   assert(newWriteInCandidate !== undefined);
