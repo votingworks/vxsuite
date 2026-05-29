@@ -514,6 +514,16 @@ test('voting', async ({ page }) => {
 
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
+
+  // SA menu after polls are closed.
+  await logInAsSystemAdministrator(page);
+  await page.getByRole('button', { name: 'Reset Polls to Paused' }).waitFor();
+  await screenshotWithButtonHighlight(
+    'Reset Polls to Paused',
+    'sa-reset-polls-to-paused-button'
+  );
+  mockCardRemoval();
+  await page.getByText('Voting is complete.').waitFor();
 });
 
 test('accessibility', async ({ page }) => {
