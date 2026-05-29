@@ -214,7 +214,7 @@ test('voting', async ({ page }) => {
     es: {
       ballotLanguage: {
         en: 'inglés',
-        es: 'Español',
+        es: 'español',
         'zh-Hans': 'chino simplificado',
         'zh-Hant': 'chino tradicional',
       },
