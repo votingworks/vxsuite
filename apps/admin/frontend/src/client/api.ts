@@ -273,14 +273,14 @@ export const getBallotImages = {
 } as const;
 
 export const getWriteInCandidates = {
-  queryKey(contestId?: string): QueryKey {
-    return ['getWriteInCandidates', contestId];
+  queryKey(contestIds: string[]): QueryKey {
+    return ['getWriteInCandidates', contestIds];
   },
-  useQuery(contestId?: string) {
+  useQuery(contestIds: string[]) {
     const apiClient = useApiClient();
     return useQuery(
-      this.queryKey(contestId),
-      () => apiClient.getWriteInCandidates({ contestId }),
+      this.queryKey(contestIds),
+      () => apiClient.getWriteInCandidates({ contestIds }),
       { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
@@ -296,7 +296,7 @@ export const adjudicateCvr = {
           queryClient.invalidateQueries(
             getBallotAdjudicationData.queryKey(variables.cvrId)
           ),
-          queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
+          queryClient.invalidateQueries(['getWriteInCandidates']),
         ]);
       },
     });

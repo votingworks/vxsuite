@@ -179,7 +179,9 @@ function ClientBallotAdjudicationDataLoader({
 }): JSX.Element {
   const history = useHistory();
   const ballotImagesQuery = getBallotImages.useQuery(cvrId);
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery();
+  const writeInCandidatesQuery = getWriteInCandidates.useQuery(
+    ballotData.contests.map((c) => c.contestId)
+  );
   const systemSettingsQuery = getSystemSettings.useQuery();
   const { mutateAsync: adjudicateCvrAsync } = adjudicateCvr.useMutation();
   const [mutationError, setMutationError] = useState<AdjudicationError>();

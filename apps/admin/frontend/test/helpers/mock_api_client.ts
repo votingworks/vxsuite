@@ -360,11 +360,11 @@ export function createApiMock(
 
     expectGetWriteInCandidates(
       writeInCandidates: WriteInCandidateRecord[],
-      contestId?: ContestId
+      contestIds?: ContestId[]
     ) {
-      if (contestId) {
+      if (contestIds) {
         apiClient.getWriteInCandidates
-          .expectRepeatedCallsWith({ contestId })
+          .expectRepeatedCallsWith({ contestIds })
           .resolves(writeInCandidates);
       } else {
         apiClient.getWriteInCandidates
