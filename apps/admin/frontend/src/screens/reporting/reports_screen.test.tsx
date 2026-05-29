@@ -220,6 +220,22 @@ describe('showing WIA report link', () => {
     await screen.findButton(BUTTON_TEXT);
   });
 
+  test('heading shows Official prefix when results are official', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+      isOfficialResults: true,
+    });
+
+    await screen.findByRole('heading', { name: 'Official Write-In Reports' });
+  });
+
   test('not shown when election does not have write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetManualResultsMetadata([]);
