@@ -74,7 +74,10 @@ import {
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
-import { Player as AudioPlayer, SoundName } from './audio/player';
+import {
+  PlayerInterface as AudioPlayerInterface,
+  SoundName,
+} from './audio/player';
 import { getScannerResultsByPrecinctMemoized } from './util/results';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
@@ -89,7 +92,7 @@ export function buildApi({
   printer,
   logger,
 }: {
-  audioPlayer: AudioPlayer;
+  audioPlayer: AudioPlayerInterface;
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
   workspace: Workspace;
@@ -732,7 +735,7 @@ export function buildApp({
   printer,
   logger,
 }: {
-  audioPlayer: AudioPlayer;
+  audioPlayer: AudioPlayerInterface;
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
   workspace: Workspace;

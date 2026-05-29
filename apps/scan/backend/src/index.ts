@@ -24,6 +24,7 @@ import {
 } from '@votingworks/backend';
 import { getFujitsuThermalPrinter } from '@votingworks/fujitsu-thermal-printer';
 import { SCAN_WORKSPACE } from './globals';
+import { getMockPlayer as getMockAudioPlayer } from './audio/player';
 import * as server from './server';
 import { startElectricalTestingServer } from './electrical_testing/server';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -98,12 +99,17 @@ async function main(): Promise<number> {
     return 0;
   }
 
+  // PulseAudio is unavailable in integration test environments, so pass a
+  // no-op audio player rather than letting the server try to detect the card.
+  const audioPlayer = isIntegrationTest() ? getMockAudioPlayer() : undefined;
+
   await server.start({
     auth,
     workspace,
     usbDrive,
     printer,
     logger,
+    audioPlayer,
   });
   return 0;
 }

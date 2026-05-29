@@ -7,6 +7,21 @@ import { AudioCard } from './card';
 
 export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
 
+export interface PlayerInterface {
+  setIsScreenReaderEnabled(enabled: boolean): Promise<void>;
+  setVolume(volumePct: number): Promise<void>;
+  play(soundName: SoundName): Promise<void>;
+}
+
+/* istanbul ignore next - @preserve */
+export function getMockPlayer(): PlayerInterface {
+  return {
+    setIsScreenReaderEnabled: () => Promise.resolve(),
+    setVolume: () => Promise.resolve(),
+    play: () => Promise.resolve(),
+  };
+}
+
 /**
  * Audio player for VxScan that plays sounds through the built-in speaker.
  *
@@ -14,7 +29,7 @@ export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
  * audio and temporarily switches to speaker output for sound effects. When the screen reader is
  * disabled, the audio card defaults to speaker output without toggling.
  */
-export class Player {
+export class Player implements PlayerInterface {
   private readonly sharedPlayer: SharedAudioPlayer;
   private isScreenReaderEnabled = false;
 

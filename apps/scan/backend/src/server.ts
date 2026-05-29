@@ -22,7 +22,10 @@ import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
 import * as scanner from './scanner';
-import { Player as AudioPlayer } from './audio/player';
+import {
+  Player as AudioPlayer,
+  PlayerInterface as AudioPlayerInterface,
+} from './audio/player';
 import { AudioCard } from './audio/card';
 
 export interface StartOptions {
@@ -32,6 +35,7 @@ export interface StartOptions {
   port?: number | string;
   usbDrive?: UsbDrive;
   printer?: FujitsuThermalPrinterInterface;
+  audioPlayer?: AudioPlayerInterface;
 }
 
 /**
@@ -43,6 +47,7 @@ export async function start({
   logger,
   usbDrive,
   printer,
+  audioPlayer,
 }: StartOptions): Promise<void> {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
@@ -72,21 +77,23 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  // In integration tests, the sudo-wrapped pactl is unavailable, so use the
-  // development path (direct pactl) for audio card detection.
   /* istanbul ignore next - @preserve */
-  const audioNodeEnv = isIntegrationTest() ? 'development' : NODE_ENV;
-  const audioCard = await AudioCard.default(audioNodeEnv, logger);
-  const audioPlayer = new AudioPlayer(audioNodeEnv, logger, audioCard);
+  const resolvedAudioPlayer =
+    audioPlayer ??
+    new AudioPlayer(
+      NODE_ENV,
+      logger,
+      await AudioCard.default(NODE_ENV, logger)
+    );
 
   const systemSettings = workspace.store.getSystemSettings();
   const isScreenReaderEnabled = Boolean(
     systemSettings && !systemSettings.precinctScanDisableScreenReaderAudio
   );
-  await audioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
+  await resolvedAudioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
 
   const app = buildApp({
-    audioPlayer,
+    audioPlayer: resolvedAudioPlayer,
     auth,
     machine: precinctScannerStateMachine,
     workspace,
