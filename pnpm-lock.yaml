@@ -3287,6 +3287,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../../../libs/hmpb
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/pdi-scanner':
         specifier: workspace:*
         version: link:../../../libs/pdi-scanner

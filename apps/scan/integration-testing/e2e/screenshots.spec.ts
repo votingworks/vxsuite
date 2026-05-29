@@ -35,6 +35,7 @@ import {
   withOvervote,
   withUndervote,
 } from './support/render_marked_ballot';
+import { capturePrintedReport } from './support/print_to_png';
 import { mockPdiScannerHandler } from './support/scanner';
 
 const screenshotCounter = createScreenshotCounter();
@@ -123,6 +124,7 @@ test('configuration', async ({ page }) => {
   await page.getByRole('button', { name: 'Print Test Page' }).click();
   await page.getByText('Test Page Printed').waitFor();
   await screenshot('em-printer-test-page-printed');
+  await capturePrintedReport('em-printer-test-page', screenshotCounter);
   await page.getByRole('button', { name: 'Pass' }).click();
 
   await page.getByRole('tab', { name: 'Scanner' }).click();
@@ -351,6 +353,7 @@ test('voting', async ({ page }) => {
     .getByRole('heading', { name: 'Polls Opened' })
     .waitFor({ timeout: 60000 });
   await screenshot('polls-opened');
+  await capturePrintedReport('polls-opened-report', screenshotCounter);
   await screenshotWithButtonHighlight(
     'Reprint Polls Opened Report',
     'reprint-polls-opened-report-button'
@@ -437,6 +440,7 @@ test('voting', async ({ page }) => {
     timeout: 60000,
   });
   await screenshot('polls-closed-report');
+  await capturePrintedReport('polls-closed-report', screenshotCounter);
   await screenshotWithButtonHighlight(
     'Reprint Polls Closed Report',
     'reprint-polls-closed-report-button'
