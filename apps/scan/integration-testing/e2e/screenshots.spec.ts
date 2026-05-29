@@ -202,14 +202,17 @@ test('voting', async ({ page }) => {
     screenshotWithLocatorHighlight,
   } = buildIntegrationTestHelper(page, screenshotCounter);
 
-  // All adjudication reasons enabled so each warning state is reachable.
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
+    // All adjudication reasons enabled so each warning state is reachable.
     precinctScanAdjudicationReasons: [
       AdjudicationReason.BlankBallot,
       AdjudicationReason.Undervote,
       AdjudicationReason.Overvote,
     ],
+    // Hide help button and disable screen reader (also hides Audio settings tab).
+    disableVoterHelpButtons: true,
+    precinctScanDisableScreenReaderAudio: true,
   };
 
   // Pre-render all ballot PDFs in one Chromium instance before the test flow.
@@ -348,4 +351,15 @@ test('voting', async ({ page }) => {
   await screenshot('mixed-overvote-undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
   await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+
+  // Voter settings screenshots.
+  await screenshotWithButtonHighlight('Settings', 'settings-button');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('tab', { name: 'Color' }).waitFor();
+  await screenshot('settings-color');
+  await page.getByRole('tab', { name: 'Text Size' }).click();
+  await page.getByRole('tab', { name: 'Text Size', selected: true }).waitFor();
+  await screenshot('settings-text-size');
+  await page.getByRole('button', { name: 'Done' }).click();
+  await page.getByText('Insert Your Ballot').waitFor();
 });
