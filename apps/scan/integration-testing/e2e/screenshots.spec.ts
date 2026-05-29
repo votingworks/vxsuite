@@ -426,4 +426,23 @@ test('voting', async ({ page }) => {
   await screenshot('settings-text-size');
   await page.getByRole('button', { name: 'Done' }).click();
   await page.getByText('Insert Your Ballot').waitFor();
+
+  // Closing polls flow.
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to close the polls?').waitFor();
+  await screenshot('close-polls-prompt');
+  await screenshotWithButtonHighlight('Close Polls', 'close-polls-button');
+  await page.getByRole('button', { name: 'Close Polls' }).click();
+  await page.getByRole('heading', { name: 'Polls Closed' }).waitFor({
+    timeout: 60000,
+  });
+  await screenshot('polls-closed-report');
+  await screenshotWithButtonHighlight(
+    'Reprint Polls Closed Report',
+    'reprint-polls-closed-report-button'
+  );
+
+  mockCardRemoval();
+  await page.getByText('Voting is complete.').waitFor();
+  await screenshot('polls-closed');
 });
