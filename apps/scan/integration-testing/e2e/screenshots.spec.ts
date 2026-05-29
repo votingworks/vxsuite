@@ -11,6 +11,13 @@ import {
   buildIntegrationTestHelper,
   createScreenshotCounter,
 } from '@votingworks/test-utils';
+import {
+  AdjudicationReason,
+  CandidateContest,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  VotesDict,
+} from '@votingworks/types';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,
@@ -19,9 +26,12 @@ import {
   logInAsSystemAdministrator,
 } from './support/auth';
 import {
-  FAMOUS_NAMES_MARKED_BALLOT_PATH,
-  mockPdiScannerHandler,
-} from './support/scanner';
+  createFullyVotedBallot,
+  renderMarkedBallots,
+  withOvervote,
+  withUndervote,
+} from './support/render_marked_ballot';
+import { mockPdiScannerHandler } from './support/scanner';
 
 const screenshotCounter = createScreenshotCounter();
 
@@ -183,6 +193,8 @@ test('configuration', async ({ page }) => {
 
 test('voting', async ({ page }) => {
   const fixtureSet = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtureSet.readElectionDefinition();
+  const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
   const {
     screenshot,
@@ -190,11 +202,73 @@ test('voting', async ({ page }) => {
     screenshotWithLocatorHighlight,
   } = buildIntegrationTestHelper(page, screenshotCounter);
 
+  // All adjudication reasons enabled so each warning state is reachable.
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.BlankBallot,
+      AdjudicationReason.Undervote,
+      AdjudicationReason.Overvote,
+    ],
+  };
+
+  // Pre-render all ballot PDFs in one Chromium instance before the test flow.
+  const ballotSpec = {
+    electionDefinition,
+    ballotStyleId: '1-1',
+    precinctId: '20',
+  } as const;
+
+  // Start from a fully-voted ballot and derive each warning scenario from it.
+  const fullVotes = createFullyVotedBallot(electionDefinition, '1-1');
+
+  const singleSeatContests = election.contests.filter(
+    (c): c is CandidateContest => c.type === 'candidate' && c.seats === 1
+  );
+  const multiSeatContests = election.contests.filter(
+    (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
+  );
+  /* istanbul ignore next */
+  if (singleSeatContests.length === 0 || multiSeatContests.length === 0) throw new Error('Expected single- and multi-seat contests');
+
+  const [singleSeatContest] = singleSeatContests;
+  const [multiSeatContest] = multiSeatContests;
+
+  const undervoteVotes = withUndervote(
+    withUndervote(fullVotes, singleSeatContest),
+    multiSeatContest
+  );
+  const overvoteVotes = withOvervote(fullVotes, singleSeatContest);
+
+  // Mixed: overvote several single-seat contests, blank others, undervote
+  // the multi-seat contests — enough problems to trigger the summary view.
+  const mixedVotes = [
+    // Overvote the first half of single-seat contests.
+    ...singleSeatContests
+      .slice(0, Math.ceil(singleSeatContests.length / 2))
+      .map((c) => (v: VotesDict) => withOvervote(v, c)),
+    // Blank the second half of single-seat contests.
+    ...singleSeatContests
+      .slice(Math.ceil(singleSeatContests.length / 2))
+      .map((c) => (v: VotesDict) => withUndervote(v, c)),
+    // Undervote every multi-seat contest.
+    ...multiSeatContests.map((c) => (v: VotesDict) => withUndervote(v, c)),
+  ].reduce((v, fn) => fn(v), fullVotes);
+
+  const [fullPdf, blankPdf, undervotePdf, overvotePdf, mixedPdf] =
+    await renderMarkedBallots([
+      { ...ballotSpec, votes: fullVotes },
+      { ...ballotSpec, votes: {} },
+      { ...ballotSpec, votes: undervoteVotes },
+      { ...ballotSpec, votes: overvoteVotes },
+      { ...ballotSpec, votes: mixedVotes },
+    ]);
+
   await page.goto('/');
-  await logInAsElectionManager(page, fixtureSet.readElection());
+  await logInAsElectionManager(page, election);
   usbHandler.insert(
     await mockElectionPackageFileTree(
-      fixtureSet.electionJson.toElectionPackage()
+      fixtureSet.electionJson.toElectionPackage(systemSettings)
     )
   );
   await page.getByText('Election Manager Menu').waitFor();
@@ -208,7 +282,7 @@ test('voting', async ({ page }) => {
   await page.getByText('Insert a poll worker card to open polls.').waitFor();
   await screenshot('polls-closed');
 
-  logInAsPollWorker(fixtureSet.readElection());
+  logInAsPollWorker(election);
   await page.getByText('Do you want to open the polls?').waitFor();
   await screenshot('open-polls-prompt');
   await screenshotWithButtonHighlight('Open Polls', 'open-polls-button');
@@ -231,7 +305,47 @@ test('voting', async ({ page }) => {
     'insert-ballot-election-info'
   );
 
-  mockPdiScannerHandler.insertSheet(FAMOUS_NAMES_MARKED_BALLOT_PATH);
+  // Successful scan: full votes, capture scanning screen then counted screen.
+  mockPdiScannerHandler.insertSheet(fullPdf);
+  await page.getByText('Please wait').waitFor({ timeout: 15000 });
+  await screenshot('scanning');
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 30000 });
   await screenshot('ballot-counted');
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+
+  // Blank ballot warning.
+  mockPdiScannerHandler.insertSheet(blankPdf);
+  await page
+    .getByRole('heading', { name: 'Review Your Ballot' })
+    .waitFor({ timeout: 30000 });
+  await screenshot('blank-ballot-warning');
+  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+
+  // Undervote warning.
+  mockPdiScannerHandler.insertSheet(undervotePdf);
+  await page
+    .getByRole('heading', { name: 'Review Your Ballot' })
+    .waitFor({ timeout: 30000 });
+  await screenshot('undervote-warning');
+  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+
+  // Overvote warning.
+  mockPdiScannerHandler.insertSheet(overvotePdf);
+  await page
+    .getByRole('heading', { name: 'Review Your Ballot' })
+    .waitFor({ timeout: 30000 });
+  await screenshot('overvote-warning');
+  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+
+  // Mixed overvote + undervote warning.
+  mockPdiScannerHandler.insertSheet(mixedPdf);
+  await page
+    .getByRole('heading', { name: 'Review Your Ballot' })
+    .waitFor({ timeout: 30000 });
+  await screenshot('mixed-overvote-undervote-warning');
+  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
 });

@@ -3284,6 +3284,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../../../libs/hmpb
       '@votingworks/pdi-scanner':
         specifier: workspace:*
         version: link:../../../libs/pdi-scanner
