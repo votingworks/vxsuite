@@ -536,4 +536,13 @@ test('accessibility', async ({ page }) => {
   await page.keyboard.press('1');
   await page.keyboard.press('2');
   await page.getByText('Insert Your Ballot').waitFor();
+
+  // Audio settings tab — only visible when screen reader is enabled.
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('tab', { name: 'Audio' }).waitFor();
+  await page.getByRole('tab', { name: 'Audio' }).click();
+  await page.getByRole('tab', { name: 'Audio', selected: true }).waitFor();
+  await screenshot('a11y-settings-audio');
+  await page.getByRole('button', { name: 'Done' }).click();
+  await page.getByText('Insert Your Ballot').waitFor();
 });
