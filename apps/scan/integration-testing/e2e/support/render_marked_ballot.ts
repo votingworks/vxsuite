@@ -15,7 +15,7 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
-import { writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -106,37 +106,40 @@ export async function renderMarkedBallots(
     const [first] = specs;
     if (!first) return [];
 
-    const ballotPropsList: BaseBallotProps[] = specs.map((spec) => ({
-      election: spec.electionDefinition.election,
-      ballotStyleId: spec.ballotStyleId,
-      precinctId: spec.precinctId,
+    // All specs share the same election/style/precinct/mode so we only need
+    // one layout pass regardless of how many vote variants are requested.
+    const sharedBallotProps: BaseBallotProps = {
+      election: first.electionDefinition.election,
+      ballotStyleId: first.ballotStyleId,
+      precinctId: first.precinctId,
       ballotType: BallotType.Precinct,
-      ballotMode: spec.ballotMode ?? 'official',
-    }));
+      ballotMode: first.ballotMode ?? 'official',
+    };
 
-    // One layout call covers all specs (single runTasks batch).
     const { ballotContents } = await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
-      ballotPropsList,
+      [sharedBallotProps],
       'vxf'
     );
+    const [sharedBallotContent] = ballotContents;
 
-    // Mark and render each ballot in a single runTasks batch.
+    // Mark and render each ballot variant in a single runTasks batch.
     const pdfBytesList = await rendererPool.runTasks(
-      specs.map((spec, i) => async (renderer) => {
-        const doc = await renderer.loadDocumentFromContent(ballotContents[i]);
+      specs.map((spec) => async (renderer) => {
+        const doc = await renderer.loadDocumentFromContent(sharedBallotContent);
         await markBallotDocument(doc, spec.votes);
         return renderBallotPdfWithMetadataQrCode(
-          ballotPropsList[i],
+          sharedBallotProps,
           doc,
           spec.electionDefinition
         );
       })
     );
 
+    const tempDir = mkdtempSync(join(tmpdir(), 'marked-ballots-'));
     return pdfBytesList.map((pdfBytes, i) => {
-      const outPath = join(tmpdir(), `marked-ballot-${Date.now()}-${i}.pdf`);
+      const outPath = join(tempDir, `${i}.pdf`);
       writeFileSync(outPath, pdfBytes);
       return outPath;
     });
