@@ -18,8 +18,8 @@ export default defineConfig({
         'test/**/*',
       ],
       thresholds: {
-        lines: -55,
-        branches: -45,
+        lines: -48,
+        branches: -38,
       },
     },
     // Ensure only one instance of each library is loaded by loading the TS

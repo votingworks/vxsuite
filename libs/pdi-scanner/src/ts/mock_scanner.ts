@@ -371,25 +371,29 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
+    /* istanbul ignore stop - @preserve */
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
+    /* istanbul ignore stop - @preserve */
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     calibrateImageSensors() {
       throw new Error('Not implemented');
     },
+    /* istanbul ignore stop - @preserve */
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     reboot() {
       throw new Error('Not implemented');
     },
+    /* istanbul ignore stop - @preserve */
 
     async disconnect() {
       await simulateCommandDelay();
@@ -397,10 +401,11 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     exit() {
       throw new Error('Not implemented');
     },
+    /* istanbul ignore stop - @preserve */
   };
 
   return {

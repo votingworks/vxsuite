@@ -131,10 +131,11 @@ export const checkPin = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
-      /* istanbul ignore next - query invalidation @preserve */
+      /* istanbul ignore start - query invalidation @preserve */
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
+      /* istanbul ignore stop - @preserve */
     });
   },
 } as const;
@@ -204,10 +205,11 @@ export const ejectUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
-      /* istanbul ignore next - tested via shared UI components @preserve */
+      /* istanbul ignore start - tested via shared UI components @preserve */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
+      /* istanbul ignore stop - @preserve */
     });
   },
 } as const;
@@ -217,10 +219,11 @@ export const formatUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.formatUsbDrive, {
-      /* istanbul ignore next - tested via shared UI components @preserve */
+      /* istanbul ignore start - tested via shared UI components @preserve */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
+      /* istanbul ignore stop - @preserve */
     });
   },
 } as const;

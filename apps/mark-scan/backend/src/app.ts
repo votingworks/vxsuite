@@ -472,7 +472,7 @@ export function buildApi(
       });
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -486,6 +486,7 @@ export function buildApi(
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop - @preserve */
 
     getMarkScanBmdModel(): BmdModelNumber {
       return getMarkScanBmdModel();

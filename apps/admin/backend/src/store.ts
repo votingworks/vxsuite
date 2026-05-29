@@ -3139,7 +3139,7 @@ export class Store implements BaseStore {
     return getMostRecentDiagnosticRecord(this.client, type);
   }
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore start - @preserve */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
       `select name from sqlite_schema where type='table' order by name;`
@@ -3159,6 +3159,7 @@ export class Store implements BaseStore {
       )
     );
   }
+  /* istanbul ignore stop - @preserve */
 
   //
   // Manage machine connections (multi-station)

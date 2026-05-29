@@ -377,7 +377,7 @@ function buildClientApi({
       }
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
@@ -391,6 +391,7 @@ function buildClientApi({
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop - @preserve */
 
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,

@@ -352,7 +352,7 @@ function buildApi({
       return printer.status();
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -366,6 +366,7 @@ function buildApi({
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop - @preserve */
 
     getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDriveAdapter.status();

@@ -94,10 +94,11 @@ export const sharedEjectUsbDrive = {
     const apiClient = useSharedApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
-      /* istanbul ignore next - query invalidation @preserve */
+      /* istanbul ignore start - query invalidation @preserve */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
+      /* istanbul ignore stop - @preserve */
     });
   },
 } as const;

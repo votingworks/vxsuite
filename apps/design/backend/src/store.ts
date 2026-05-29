@@ -559,10 +559,11 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 export class Store {
   constructor(private readonly db: Db) {}
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore start - @preserve */
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
   }
+  /* istanbul ignore stop - @preserve */
 
   async listOrganizations(): Promise<Organization[]> {
     return await this.db.withClient(

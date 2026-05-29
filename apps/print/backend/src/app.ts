@@ -230,7 +230,7 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -244,6 +244,7 @@ export function buildApi(ctx: AppContext) {
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop - @preserve */
 
     ...createSystemCallApi({
       usbDrive,
