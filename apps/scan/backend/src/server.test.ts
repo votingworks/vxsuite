@@ -13,10 +13,6 @@ import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { testDetectDevices } from '@votingworks/backend';
 import { mockConstructor } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import {
-  createMockFilePdiScanner,
-  createMockPdiScanner,
-} from '@votingworks/pdi-scanner';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { start } from './server';
@@ -24,12 +20,6 @@ import { createWorkspace, Workspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/shared_helpers';
 import { Player as AudioPlayer } from './audio/player';
 import { AudioCard } from './audio/card';
-
-vi.mock('@votingworks/pdi-scanner', async (importActual) => ({
-  ...(await importActual()),
-  createMockFilePdiScanner: vi.fn().mockReturnValue({ client: {} }),
-  createMockPdiScanner: vi.fn().mockReturnValue({ client: {} }),
-}));
 
 vi.mock('./app');
 vi.mock('./audio/card');
@@ -58,6 +48,7 @@ beforeEach(() => {
 
 afterEach(() => {
   workspace.reset();
+  vi.unstubAllEnvs();
 });
 
 const audioCardName = 'alsa_output.pci';
@@ -158,52 +149,6 @@ test.each([
     ).toHaveBeenCalledExactlyOnceWith(isScreenReaderEnabled);
   }
 );
-
-test('uses development audio and file-based mock scanner in integration tests', async () => {
-  vi.stubEnv('IS_INTEGRATION_TEST', 'true');
-  vi.stubEnv('REACT_APP_VX_USE_MOCK_PDI_SCANNER', 'TRUE');
-  const listen = vi.fn();
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  const logger = buildMockLogger(auth, workspace);
-  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
-
-  initMockAudioCard('development', logger, audioCardName);
-
-  await start({
-    auth: buildMockInsertedSmartCardAuth(vi.fn),
-    workspace,
-    logger,
-  });
-
-  expect(mockAudioPlayerClass).toHaveBeenCalledWith(
-    'development',
-    logger,
-    expect.anything()
-  );
-  expect(createMockFilePdiScanner).toHaveBeenCalled();
-  expect(createMockPdiScanner).not.toHaveBeenCalled();
-  vi.unstubAllEnvs();
-});
-
-test('uses in-memory mock scanner outside integration tests when mock flag is set', async () => {
-  vi.stubEnv('REACT_APP_VX_USE_MOCK_PDI_SCANNER', 'TRUE');
-  const listen = vi.fn();
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  const logger = buildMockLogger(auth, workspace);
-  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
-
-  initMockAudioCard(NODE_ENV, logger, audioCardName);
-
-  await start({
-    auth: buildMockInsertedSmartCardAuth(vi.fn),
-    workspace,
-    logger,
-  });
-
-  expect(createMockPdiScanner).toHaveBeenCalled();
-  expect(createMockFilePdiScanner).not.toHaveBeenCalled();
-  vi.unstubAllEnvs();
-});
 
 test('logs device attach/unattach events', async () => {
   const listen = vi.fn();

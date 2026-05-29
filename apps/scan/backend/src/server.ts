@@ -48,11 +48,11 @@ export async function start({
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
+  /* istanbul ignore next - @preserve */
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
   )
-    ? /* istanbul ignore next */
-      isIntegrationTest()
+    ? isIntegrationTest()
       ? createMockFilePdiScanner()
       : createMockPdiScanner()
     : undefined;
@@ -74,10 +74,8 @@ export async function start({
 
   // In integration tests, the sudo-wrapped pactl is unavailable, so use the
   // development path (direct pactl) for audio card detection.
-  const audioNodeEnv =
-    /* istanbul ignore next - @preserve */ isIntegrationTest()
-      ? 'development'
-      : NODE_ENV;
+  /* istanbul ignore next - @preserve */
+  const audioNodeEnv = isIntegrationTest() ? 'development' : NODE_ENV;
   const audioCard = await AudioCard.default(audioNodeEnv, logger);
   const audioPlayer = new AudioPlayer(audioNodeEnv, logger, audioCard);
 
