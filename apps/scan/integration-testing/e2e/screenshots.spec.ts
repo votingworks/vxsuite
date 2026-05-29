@@ -445,4 +445,15 @@ test('voting', async ({ page }) => {
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
   await screenshot('polls-closed');
+
+  // Poll worker menu after polls are closed.
+  logInAsPollWorker(election);
+  await page
+    .getByText('Voting is complete and the polls cannot be reopened.')
+    .waitFor();
+  await screenshot('pw-menu-polls-closed');
+  await screenshotWithButtonHighlight('Power Down', 'pw-power-down');
+
+  mockCardRemoval();
+  await page.getByText('Voting is complete.').waitFor();
 });
