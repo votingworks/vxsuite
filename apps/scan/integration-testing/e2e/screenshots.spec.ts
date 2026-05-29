@@ -361,6 +361,20 @@ test('voting', async ({ page }) => {
 
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
+
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to close the polls?').waitFor();
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page
+    .getByRole('button', { name: 'Print Polls Opened Report' })
+    .waitFor();
+  await screenshotWithButtonHighlight(
+    'Print Polls Opened Report',
+    'pw-print-polls-opened-report-button'
+  );
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
+
   await screenshot('insert-ballot');
   await screenshotWithLocatorHighlight(
     page.getByTestId('electionInfo'),
@@ -379,45 +393,45 @@ test('voting', async ({ page }) => {
   mockPdiScannerHandler.insertSheet(fullPdf);
   await page.getByText('Please wait').waitFor({ timeout: 15000 });
   await screenshot('scanning');
-  await page.getByText('Your ballot was counted!').waitFor({ timeout: 30000 });
+  await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
   await screenshot('ballot-counted');
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Blank ballot warning.
   mockPdiScannerHandler.insertSheet(blankPdf);
   await page
     .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 30000 });
+    .waitFor({ timeout: 15000 });
   await screenshot('blank-ballot-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Undervote warning.
   mockPdiScannerHandler.insertSheet(undervotePdf);
   await page
     .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 30000 });
+    .waitFor({ timeout: 15000 });
   await screenshot('undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Overvote warning.
   mockPdiScannerHandler.insertSheet(overvotePdf);
   await page
     .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 30000 });
+    .waitFor({ timeout: 15000 });
   await screenshot('overvote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Mixed overvote + undervote warning.
   mockPdiScannerHandler.insertSheet(mixedPdf);
   await page
     .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 30000 });
+    .waitFor({ timeout: 15000 });
   await screenshot('mixed-overvote-undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 30000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Voter settings screenshots.
   await screenshotWithButtonHighlight('Settings', 'settings-button');
@@ -462,6 +476,10 @@ test('voting', async ({ page }) => {
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
+  mockPdiScannerHandler.insertSheet(fullPdf);
+  await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
+
   // Closing polls flow.
   logInAsPollWorker(election);
   await page.getByText('Do you want to close the polls?').waitFor();
@@ -488,6 +506,10 @@ test('voting', async ({ page }) => {
     .getByText('Voting is complete and the polls cannot be reopened.')
     .waitFor();
   await screenshot('pw-menu-polls-closed');
+  await screenshotWithButtonHighlight(
+    'Print Polls Closed Report',
+    'pw-print-polls-closed-report-button'
+  );
   await screenshotWithButtonHighlight('Power Down', 'pw-power-down');
 
   mockCardRemoval();
