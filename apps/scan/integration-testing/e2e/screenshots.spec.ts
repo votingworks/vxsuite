@@ -444,43 +444,7 @@ test('voting', async ({ page }) => {
   await page.getByRole('button', { name: 'Done' }).click();
   await page.getByText('Insert Your Ballot').waitFor();
 
-  // Pause/resume voting flow.
-  logInAsPollWorker(election);
-  await page.getByText('Do you want to close the polls?').waitFor();
-  await screenshotWithButtonHighlight('Menu', 'pw-menu-button');
-  await page.getByRole('button', { name: 'Menu' }).click();
-  await page.getByRole('button', { name: 'Pause Voting' }).waitFor();
-  await screenshotWithButtonHighlight('Pause Voting', 'pw-pause-voting-button');
-  await page.getByRole('button', { name: 'Pause Voting' }).click();
-  await page.getByRole('heading', { name: 'Voting Paused' }).waitFor({
-    timeout: 60000,
-  });
-  await screenshot('pw-voting-paused');
-  await capturePrintedReport('voting-paused-report', screenshotCounter);
-  mockCardRemoval();
-  await page.getByText('Insert a poll worker card to resume voting.').waitFor();
-  await screenshot('voting-paused');
-
-  logInAsPollWorker(election);
-  await page.getByText('Do you want to resume voting?').waitFor();
-  await screenshotWithButtonHighlight(
-    'Resume Voting',
-    'pw-resume-voting-button'
-  );
-  await page.getByRole('button', { name: 'Resume Voting' }).click();
-  await page.getByRole('heading', { name: 'Voting Resumed' }).waitFor({
-    timeout: 60000,
-  });
-  await screenshot('pw-voting-resumed');
-  await capturePrintedReport('voting-resumed-report', screenshotCounter);
-  mockCardRemoval();
-  await page.getByText('Insert Your Ballot').waitFor();
-
-  mockPdiScannerHandler.insertSheet(fullPdf);
-  await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
-
-  // Closing polls flow.
+  // Closing polls flow (single batch).
   logInAsPollWorker(election);
   await page.getByText('Do you want to close the polls?').waitFor();
   await screenshot('close-polls-prompt');
@@ -515,13 +479,86 @@ test('voting', async ({ page }) => {
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
 
-  // SA menu after polls are closed.
+  // SA menu after polls are closed — screenshot then actually reset to paused.
   await logInAsSystemAdministrator(page);
   await page.getByRole('button', { name: 'Reset Polls to Paused' }).waitFor();
   await screenshotWithButtonHighlight(
     'Reset Polls to Paused',
     'sa-reset-polls-to-paused-button'
   );
+  await page.getByRole('button', { name: 'Reset Polls to Paused' }).click();
+  await page.getByRole('alertdialog').waitFor();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Reset Polls to Paused' })
+    .click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to resume voting.').waitFor();
+  await screenshot('voting-paused');
+
+  // Resume voting.
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to resume voting?').waitFor();
+  await screenshotWithButtonHighlight(
+    'Resume Voting',
+    'pw-resume-voting-button'
+  );
+  await page.getByRole('button', { name: 'Resume Voting' }).click();
+  await page.getByRole('heading', { name: 'Voting Resumed' }).waitFor({
+    timeout: 60000,
+  });
+  await screenshot('pw-voting-resumed');
+  await capturePrintedReport('voting-resumed-report', screenshotCounter);
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
+
+  mockPdiScannerHandler.insertSheet(fullPdf);
+  await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
+
+  // Pause voting.
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to close the polls?').waitFor();
+  await screenshotWithButtonHighlight('Menu', 'pw-menu-button');
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page.getByRole('button', { name: 'Pause Voting' }).waitFor();
+  await screenshotWithButtonHighlight('Pause Voting', 'pw-pause-voting-button');
+  await page.getByRole('button', { name: 'Pause Voting' }).click();
+  await page.getByRole('heading', { name: 'Voting Paused' }).waitFor({
+    timeout: 60000,
+  });
+  await screenshot('pw-voting-paused');
+  await capturePrintedReport('voting-paused-report', screenshotCounter);
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to resume voting.').waitFor();
+
+  // Resume voting again (no new screenshots needed).
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to resume voting?').waitFor();
+  await page.getByRole('button', { name: 'Resume Voting' }).click();
+  await page.getByRole('heading', { name: 'Voting Resumed' }).waitFor({
+    timeout: 60000,
+  });
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
+
+  mockPdiScannerHandler.insertSheet(fullPdf);
+  await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
+
+  // Closing polls flow (multi-batch).
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to close the polls?').waitFor();
+  await page.getByRole('button', { name: 'Close Polls' }).click();
+  await page.getByRole('heading', { name: 'Polls Closed' }).waitFor({
+    timeout: 60000,
+  });
+  await capturePrintedReport(
+    'polls-closed-report-multi-batch',
+    screenshotCounter
+  );
+
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
 });
