@@ -227,12 +227,6 @@ test('basic election flow', async ({ page }) => {
   logInAsPollWorker(election);
   await page.getByText('Poll Worker Menu').waitFor();
   await screenshot('pw-menu-polls-open');
-  await screenshotWithLocatorHighlight(
-    page
-      .getByRole('heading', { name: 'Start a New Voting Session' })
-      .locator('..'),
-    'pw-start-voting-session-box'
-  );
   await screenshotWithButtonHighlight(
     /Start Voting Session/,
     'pw-start-voting-session-button'
@@ -485,6 +479,8 @@ test('voter settings', async ({ page }) => {
     await page.getByText(label, { exact: true }).click();
     await screenshot(`voting-settings-color-${i + 1}`);
   }
+  // Reset to the default color so later screenshots aren't affected.
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
 
   // Voter settings — text size. Select each size option by its visible label.
   await page.getByRole('tab', { name: 'Text Size' }).click();
@@ -494,15 +490,23 @@ test('voter settings', async ({ page }) => {
     await page.getByText(label, { exact: true }).click();
     await screenshot(`voting-settings-text-size-${i + 1}`);
   }
+  // Reset to the default text size so later screenshots aren't affected.
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
 
   // Voter settings — audio.
   await page.getByRole('tab', { name: 'Audio' }).click();
   await page.getByRole('tab', { name: 'Audio', selected: true }).waitFor();
   await screenshot('voting-settings-audio');
 
-  // Reset settings to their defaults and close.
-  await page.getByRole('button', { name: 'Reset', exact: true }).click();
-  await page.getByRole('button', { name: 'Done' }).click();
+  // Audio-only mode. Enabling it closes the settings and shows a full-screen
+  // overlay; exit it afterward so later screenshots aren't affected. The
+  // overlay is aria-hidden, so locate the exit button by its text.
+  await page.getByRole('button', { name: 'Enable Audio-Only Mode' }).click();
+  await page.getByText('Exit Audio-Only Mode').waitFor();
+  await screenshot('voting-settings-audio-only-mode');
+  await page.getByText('Exit Audio-Only Mode').click();
+
+  // Settings were closed by entering audio-only mode; wait for the voter screen.
   await page.getByRole('button', { name: 'Settings' }).waitFor();
 
   // PAT calibration tutorial — triggered by the first PAT key press, navigated
