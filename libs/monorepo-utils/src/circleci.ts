@@ -178,7 +178,7 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `            --theme classic \\`,
     `            --theme-style ./gallery-theme.css \\`,
     `            --thumb-size 200 \\`,
-    `            --large-size 1600 \\`,
+    `            --photo-preview copy \\`,
     `            --photo-download copy \\`,
     `            --include-videos false \\`,
     `            --home-album-name "VxSuite Screenshots"`,
