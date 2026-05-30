@@ -2176,6 +2176,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2185,6 +2188,9 @@ importers:
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
