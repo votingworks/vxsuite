@@ -2185,6 +2185,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing

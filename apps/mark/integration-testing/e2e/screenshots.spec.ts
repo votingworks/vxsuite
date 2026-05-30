@@ -30,6 +30,10 @@ import {
   MULTI_LANGUAGE_UI_STRINGS,
 } from './support/election';
 import { configureMachine, openPolls } from './support/flows';
+import {
+  capturePrintedBallot,
+  captureReadinessReport,
+} from './support/reports';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
 
@@ -257,6 +261,10 @@ test('basic election flow', async ({ page }) => {
   // Post-print success screen.
   await page.getByText('You’re Almost Done').waitFor({ timeout: 15000 });
   await screenshot('voting-almost-done');
+
+  // Capture the ballot that was printed to the mock printer.
+  await capturePrintedBallot('printed-ballot', screenshotCounter);
+
   await page.getByRole('button', { name: 'Done' }).click();
 
   // Poll worker closes polls.
@@ -348,6 +356,21 @@ test('additional options', async ({ page }) => {
   await withContainerVerticallyExpanded('main', async () => {
     await screenshot('em-diagnostics-full');
   });
+
+  // Save the readiness report to the USB drive, then capture the saved PDF.
+  await page.getByRole('button', { name: 'Save Readiness Report' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save' })
+    .click();
+  await page.getByText('Readiness Report Saved').waitFor();
+  await captureReadinessReport('readiness-report', screenshotCounter);
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Close' })
+    .click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+
   await page.getByRole('button', { name: 'Back' }).click();
   await page.getByText('Election Manager Menu').waitFor();
 
