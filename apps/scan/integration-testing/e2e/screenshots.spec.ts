@@ -600,7 +600,6 @@ test('accessibility', async ({ page }) => {
 
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
-  await screenshot('a11y-insert-ballot');
 
   // PAT calibration tutorial — triggered by first PAT key press on the voter screen.
   await page.keyboard.press('1');
