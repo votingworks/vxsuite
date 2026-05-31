@@ -28,6 +28,7 @@
   "dependencies": {
     "@testing-library/react": "^15.0.7",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
     "fast-check": "2.23.2",
