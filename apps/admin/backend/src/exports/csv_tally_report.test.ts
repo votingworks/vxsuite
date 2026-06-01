@@ -13,7 +13,7 @@ import {
   safeParseElection,
   StraightPartyContest,
 } from '@votingworks/types';
-import { find } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
   MockCastVoteRecordFile,
@@ -719,13 +719,13 @@ test('emits one CSV row per party for straight-party contests', async () => {
   });
   store.setCurrentElectionId(electionId);
 
-  const firstParty = baseElection.parties[0];
+  const firstParty = assertDefined(baseElection.parties[0]);
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: baseElection.ballotStyles[0].groupId,
+      ballotStyleGroupId: assertDefined(baseElection.ballotStyles[0]).groupId,
       batchId: 'batch-1',
       scannerId: 'scanner-1',
-      precinctId: baseElection.precincts[0].id,
+      precinctId: assertDefined(baseElection.precincts[0]).id,
       votingMethod: 'precinct',
       votes: { 'straight-party-ticket': [firstParty.id] },
       card: { type: 'bmd' },
@@ -745,7 +745,9 @@ test('emits one CSV row per party for straight-party contests', async () => {
   );
   const partyRows = spRows.filter(
     (r) =>
-      !['overvotes', 'undervotes', 'ballots-cast'].includes(r['Selection ID'])
+      !['overvotes', 'undervotes', 'ballots-cast'].includes(
+        assertDefined(r['Selection ID'])
+      )
   );
   expect(partyRows).toHaveLength(baseElection.parties.length);
 

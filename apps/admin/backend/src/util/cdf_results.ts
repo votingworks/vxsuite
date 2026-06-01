@@ -234,11 +234,9 @@ function buildContests(
     } else if (contest.type === 'candidate') {
       assert(contestResults.contestType === 'candidate');
       reportContests.push(buildCandidateContest(contest, contestResults));
-    } else if (contest.type === 'straight-party') {
+    } else {
       assert(contestResults.contestType === 'straight-party');
-      reportContests.push(
-        buildPartyContest(contest, contestResults, countyId)
-      );
+      reportContests.push(buildPartyContest(contest, contestResults, countyId));
     }
   }
 

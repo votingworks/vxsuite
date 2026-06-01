@@ -202,7 +202,7 @@ function* generateDataRows({
           hasManualResults,
           manualVotes: manualContestResults?.noTally ?? 0,
         });
-      } else if (contest.type === 'straight-party') {
+      } else {
         assert(scannedContestResults.contestType === 'straight-party');
         assertIsOptional<Tabulation.StraightPartyContestResults>(
           manualContestResults

@@ -2378,8 +2378,11 @@ export class Store implements BaseStore {
     }
     const expandedVotes = applyStraightPartyRules(election, effectiveVotes);
     for (const contestData of contests) {
-      const effective = new Set(effectiveVotes[contestData.contestId] ?? []);
-      const expanded = expandedVotes[contestData.contestId] ?? [];
+      // effectiveVotes has an entry for every contest (populated above), and
+      // applyStraightPartyRules preserves all input keys, so both lookups are
+      // always defined.
+      const effective = new Set(effectiveVotes[contestData.contestId]);
+      const expanded = assertDefined(expandedVotes[contestData.contestId]);
       contestData.derivedOptionIds = expanded.filter(
         (id) => !effective.has(id)
       );
