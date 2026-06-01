@@ -121,6 +121,20 @@ export function adjudicatedVotes(
                 : []
             ),
           ];
+        case 'straight-party':
+          return [
+            contest.id,
+            adjudicationData.options.flatMap((option) =>
+              getCurrentVote(
+                option,
+                adjudicatedContest?.adjudicatedContestOptionById[
+                  option.definition.id
+                ]
+              )
+                ? [option.definition.id]
+                : []
+            ),
+          ];
         default:
           /* istanbul ignore next */
           return throwIllegalValue(contest);

@@ -619,6 +619,23 @@ export function BallotAdjudicationScreen({
     getDefaultSide(adjudicatedContests)
   );
 
+  const spContestData = contestAdjudicationData.find((c) => {
+    const contestDef = election.contests.find((ec) => ec.id === c.contestId);
+    return contestDef?.type === 'straight-party';
+  });
+  const spVotedOption = (() => {
+    if (!spContestData) return undefined;
+    const spAdjudicated = adjudicatedContests.get(spContestData.contestId);
+    const votedOptions = spContestData.options.filter((o) => {
+      const adjudicated =
+        spAdjudicated?.adjudicatedContestOptionById[o.definition.id];
+      return adjudicated ? adjudicated.hasVote : o.scannedVote;
+    });
+    if (votedOptions.length !== 1) return undefined;
+    return votedOptions[0];
+  })();
+  const straightPartyId = spVotedOption?.definition.id;
+
   function onNavigation(action: () => void): () => void {
     return () => {
       if (!deepEqual(adjudicatedContests, adjudicatedContestsBaseline())) {
@@ -745,6 +762,7 @@ export function BallotAdjudicationScreen({
           adjudicatedContests.get(selectedContestId)
             ?.adjudicatedContestOptionById
         }
+        straightPartyId={straightPartyId}
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId

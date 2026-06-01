@@ -387,6 +387,10 @@ fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
                 )
             );
         }
+        Contest::StraightParty(straight_party_contest) => {
+            println!("{}", straight_party_contest.title.as_str().bold());
+            println!("   {}", "(straight-party contest)".dark_grey().italic());
+        }
     }
 }
 

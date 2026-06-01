@@ -164,10 +164,12 @@ const initialArgs: BmdPaperBallotProps = {
   onRendered: () => undefined,
   precinctId: election.precincts[0].id,
   votes: Object.fromEntries(
-    election.contests.map((c) => [
-      c.id,
-      c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
-    ])
+    election.contests
+      .filter((c) => c.type !== 'straight-party')
+      .map((c) => [
+        c.id,
+        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+      ])
   ),
   sheetSize: 'letter',
 };

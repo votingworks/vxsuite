@@ -421,6 +421,9 @@ exports.up = async (pgm) => {
           break;
         }
 
+        case 'straight-party':
+          break;
+
         default:
           throwIllegalValue(contest);
       }

@@ -42,6 +42,8 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
+import { getStateFeaturesConfig } from '../features';
+import { injectStraightPartyContest } from '../straight_party';
 import { getBallotPdfFileName } from '../utils';
 import {
   normalizeBallotColorModeForPrinting,
@@ -264,10 +266,12 @@ export async function generateElectionPackageAndBallots(
   );
 
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
-  const election = addPollingPlacesForExport(
-    electionRecord.election,
-    jurisdiction
-  );
+  const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  let { election } = electionRecord;
+  if (stateFeatures.STRAIGHT_PARTY_VOTING) {
+    election = injectStraightPartyContest(election);
+  }
+  election = addPollingPlacesForExport(election, jurisdiction);
 
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(

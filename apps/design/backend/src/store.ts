@@ -518,6 +518,12 @@ async function insertContest(
       break;
     }
 
+    /* istanbul ignore start - @preserve */
+    // Straight-party contests are injected at materialization time, not stored.
+    case 'straight-party':
+      break;
+    /* istanbul ignore stop - @preserve */
+
     default: {
       /* istanbul ignore next */
       throwIllegalValue(contest);
@@ -1084,7 +1090,7 @@ export class Store {
         lastName: string | null;
         partyIds: PartyId[];
       }>;
-      const contests: AnyContest[] = contestRows.map((row) => {
+      const contests: AnyContest[] = contestRows.flatMap((row) => {
         switch (row.type) {
           case 'candidate': {
             const candidates: Candidate[] = candidateRows
@@ -1136,10 +1142,14 @@ export class Store {
               additionalOptions: row.additionalOptions ?? undefined,
             });
           }
+          /* istanbul ignore start - @preserve */
+          // Straight-party contests are injected dynamically, not stored.
+          case 'straight-party':
+            return [];
           default: {
-            /* istanbul ignore next */
             return throwIllegalValue(row.type);
           }
+          /* istanbul ignore stop - @preserve */
         }
       });
 

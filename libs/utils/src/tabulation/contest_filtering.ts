@@ -121,6 +121,8 @@ export function groupContestsByParty(
           return c.partyId === partyId;
         case 'yesno':
           return !partyId; // all yes/no contests are non-partisan
+        case 'straight-party':
+          return !partyId;
         default:
           /* istanbul ignore next */
           throwIllegalValue(c);

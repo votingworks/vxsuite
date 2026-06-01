@@ -24,6 +24,7 @@ import {
   Contests,
   Corners,
   ElectionDefinition,
+  Parties,
   getBallotStyle,
   getContests,
   GridPosition,
@@ -95,13 +96,15 @@ interface ScoredContestOption {
 function getContestOptionForGridPosition(
   contests: Contests,
   gridPosition: GridPosition,
-  ballotStyle: BallotStyle
+  ballotStyle: BallotStyle,
+  parties: Parties
 ): ContestOption {
   const contest = find(contests, (c) => c.id === gridPosition.contestId);
-  const option = iter(allContestOptions(contest, ballotStyle)).find((o) =>
-    gridPosition.type === 'option'
-      ? o.id === gridPosition.optionId
-      : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
+  const option = iter(allContestOptions(contest, ballotStyle, parties)).find(
+    (o) =>
+      gridPosition.type === 'option'
+        ? o.id === gridPosition.optionId
+        : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
   );
   assert(
     option,
@@ -152,18 +155,21 @@ function aggregateContestOptionScores({
   contests,
   options,
   ballotStyle,
+  parties,
 }: {
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
   contests: Contests;
   options: InterpreterOptions;
   ballotStyle: BallotStyle;
+  parties: Parties;
 }): ScoredContestOption[] {
   return marks.map(([gridPosition, scoredMark]) => {
     const option = getContestOptionForGridPosition(
       contests,
       gridPosition,
-      ballotStyle
+      ballotStyle,
+      parties
     );
 
     assert(scoredMark, 'scoredMark must be defined');
@@ -211,26 +217,33 @@ function convertScoredContestOptionToLegacyMark({
     height: scoredMark.matchedBounds.height,
   };
 
-  if (option.type === 'candidate' || option.type === 'yesno') {
-    const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
-      contestId: option.contestId,
-      score: scoredMark.fillScore,
+  const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
+    contestId: option.contestId,
+    score: scoredMark.fillScore,
+    bounds,
+    scoredOffset: {
+      x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
+      y: scoredMark.matchedBounds.top - scoredMark.expectedBounds.top,
+    },
+    target: {
+      inner: bounds,
       bounds,
-      scoredOffset: {
-        x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
-        y: scoredMark.matchedBounds.top - scoredMark.expectedBounds.top,
-      },
-      target: {
-        inner: bounds,
-        bounds,
-      },
-    };
+    },
+  };
 
-    return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
+  switch (option.type) {
+    case 'candidate':
+    case 'yesno':
+    case 'straight-party':
+      return {
+        type: option.type,
+        optionId: option.id,
+        ...ballotTargetMarkBase,
+      };
+    /* istanbul ignore next */
+    default:
+      throwIllegalValue(option);
   }
-
-  /* istanbul ignore next */
-  throwIllegalValue(option);
 }
 
 function convertScoredContestOptionsToMarkInfo(
@@ -340,7 +353,8 @@ export function determineAdjudicationInfoFromScoredContestOptions(
   const adjudicationReasonInfos = getAllPossibleAdjudicationReasons(
     contests,
     contestOptionScores,
-    ballotStyle
+    ballotStyle,
+    electionDefinition.election.parties
   );
 
   const [enabledReasonInfos, ignoredReasonInfos] = iter(
@@ -358,7 +372,8 @@ export function determineAdjudicationInfoFromScoredContestOptions(
 function convertContestLayouts(
   contests: Contests,
   contestLayouts: InterpretedContestLayout[],
-  ballotStyle: BallotStyle
+  ballotStyle: BallotStyle,
+  parties: Parties
 ): BallotPageContestLayout[] {
   function convertRect(rect: NextRect): Rect {
     return {
@@ -386,7 +401,7 @@ function convertContestLayouts(
     contest: AnyContest,
     { bounds, optionId }: InterpretedContestOptionLayout
   ): BallotPageContestOptionLayout {
-    const option = iter(allContestOptions(contest, ballotStyle)).find(
+    const option = iter(allContestOptions(contest, ballotStyle, parties)).find(
       (o) => o.id === optionId
     );
     assert(option, `option ${optionId} not found`);
@@ -436,6 +451,7 @@ function convertInterpretedBallotPage(
       contests: electionDefinition.election.contests,
       options,
       ballotStyle,
+      parties: electionDefinition.election.parties,
     });
   const markInfo = convertScoredContestOptionsToMarkInfo(
     interpretation.timingMarks.geometry,
@@ -465,7 +481,8 @@ function convertInterpretedBallotPage(
       contests: convertContestLayouts(
         electionDefinition.election.contests,
         interpretation.contestLayouts,
-        ballotStyle
+        ballotStyle,
+        electionDefinition.election.parties
       ),
     },
   };

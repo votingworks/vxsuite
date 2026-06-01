@@ -1,6 +1,7 @@
 export * from './as_boolean';
 export * from './mocking';
 export * from './auth';
+export * from './ballot_strings';
 export * from './ballot_styles';
 export * from './bmd_votes_mock';
 export * from './pins';
@@ -26,6 +27,7 @@ export * from './polls';
 export * from './precinct_selection';
 export * from './structural_sharing';
 export * from './sqlite';
+export * from './straight_party';
 export * from './system_limits';
 export * from './tabulation';
 export * from './test_deck_ballots';

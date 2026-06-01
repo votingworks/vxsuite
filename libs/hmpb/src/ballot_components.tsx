@@ -5,14 +5,17 @@ import {
   BallotStyle,
   BallotStyleId,
   Election,
+  StraightPartyContest as StraightPartyContestType,
   getBallotStyle,
   getPartyForBallotStyle,
+  getStraightPartyContestOptions,
   Outset,
   PrecinctId,
 } from '@votingworks/types';
 import { assertDefined, find, range, unique } from '@votingworks/basics';
 import {
   electionStrings,
+  straightPartyOptionName,
   InEnglish,
   useLanguageContext,
 } from '@votingworks/ui';
@@ -308,6 +311,50 @@ export const CANDIDATE_OPTION_CLASS = 'candidate-option';
 export const WRITE_IN_OPTION_CLASS = 'write-in-option';
 
 export const BALLOT_MEASURE_OPTION_CLASS = 'ballot-measure-option';
+
+export const STRAIGHT_PARTY_OPTION_CLASS = 'straight-party-option';
+
+export function StraightPartyContestContent({
+  contest,
+  election,
+}: {
+  contest: StraightPartyContestType;
+  election: Election;
+}): JSX.Element {
+  return (
+    <ul>
+      {getStraightPartyContestOptions(contest, election.parties).map(
+        (option, i) => {
+          const optionInfo: OptionInfo = {
+            type: 'option',
+            contestId: contest.id,
+            optionId: option.id,
+          };
+          return (
+            <li
+              key={option.id}
+              className={STRAIGHT_PARTY_OPTION_CLASS}
+              style={{
+                padding: '0.375rem 0.5rem',
+                borderTop:
+                  i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+              }}
+            >
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <AlignedBubble optionInfo={optionInfo} />
+                <strong>
+                  <DualLanguageText delimiter="/">
+                    {straightPartyOptionName(option)}
+                  </DualLanguageText>
+                </strong>
+              </div>
+            </li>
+          );
+        }
+      )}
+    </ul>
+  );
+}
 
 export const MARK_OVERLAY_CLASS = 'mark-overlay';
 

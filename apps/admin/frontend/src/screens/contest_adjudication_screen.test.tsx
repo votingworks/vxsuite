@@ -31,7 +31,7 @@ import type {
   WriteInRecord,
 } from '@votingworks/admin-backend';
 import { allContestOptions, getBallotStyleGroup } from '@votingworks/utils';
-import { assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
@@ -225,6 +225,7 @@ function buildContestAdjudicationData({
 }): ContestAdjudicationData {
   const { election } = electionDef;
   const contest = find(election.contests, (c) => c.id === contestId);
+  assert(contest.type !== 'straight-party');
   const contestPartyId =
     contest.type === 'candidate' ? contest.partyId : undefined;
   const ballotStyleGroup = ballotStyleGroupId
@@ -236,14 +237,14 @@ function buildContestAdjudicationData({
             (!contestPartyId || bs.partyId === contestPartyId)
         )
       );
-  const options = [...allContestOptions(contest, ballotStyleGroup)].map(
-    (option) => ({
-      definition: option,
-      scannedVote: votes.includes(option.id),
-      hasMarginalMark: marginalMarkOptionIds.includes(option.id),
-      writeInRecord: writeInRecords.find((w) => w.optionId === option.id),
-    })
-  );
+  const options = [
+    ...allContestOptions(contest, ballotStyleGroup, election.parties),
+  ].map((option) => ({
+    definition: option,
+    scannedVote: votes.includes(option.id),
+    hasMarginalMark: marginalMarkOptionIds.includes(option.id),
+    writeInRecord: writeInRecords.find((w) => w.optionId === option.id),
+  }));
   return { contestId, tag, options };
 }
 

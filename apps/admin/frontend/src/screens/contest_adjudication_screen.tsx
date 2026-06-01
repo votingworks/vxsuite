@@ -10,11 +10,22 @@ import styled from 'styled-components';
 import {
   Candidate,
   CandidateContestOption,
+  ContestOptionId,
   getContestDistrictName,
   Id,
+  PartyId,
   Side,
 } from '@votingworks/types';
-import { Button, Main, Screen, Icons, H2, H1, P } from '@votingworks/ui';
+import {
+  BallotText,
+  Button,
+  Main,
+  Screen,
+  Icons,
+  H2,
+  H1,
+  P,
+} from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
   AdjudicatedContestOptions,
@@ -127,6 +138,45 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
+const OptionSubtitle = styled.span`
+  display: block;
+  color: ${(p) => p.theme.colors.onBackground};
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.2;
+`;
+
+const CaptionGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0.25rem 0 0.25rem 0.125rem;
+
+  ${ContestOptionButtonCaption} {
+    margin: 0;
+  }
+`;
+
+// Derived vote button: containerLow bg, primary text/icon, primary border.
+// Uses `&&` to bump specificity above the underlying Button's color/fill
+// styles (which would otherwise override border-color and color).
+const DerivedVoteButton = styled(Button)`
+  && {
+    background-color: ${(p) => p.theme.colors.containerLow};
+    border: 2px solid ${(p) => p.theme.colors.primary};
+    color: ${(p) => p.theme.colors.primary};
+    flex-wrap: nowrap;
+    font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
+    justify-content: start;
+    padding-left: 0.5rem;
+    text-align: left;
+  }
+
+  && svg {
+    color: ${(p) => p.theme.colors.primary};
+  }
+`;
+
 const CompactH1 = styled(H1)`
   font-size: 1.125rem;
   margin: 0;
@@ -205,6 +255,7 @@ interface ContestAdjudicationScreenProps {
   cvrId: Id;
   onClose: () => void;
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
+  straightPartyId?: PartyId;
   side: Side;
   adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
@@ -217,6 +268,7 @@ export function ContestAdjudicationScreen({
   cvrId,
   onClose,
   onConfirmContest,
+  straightPartyId,
   side,
   adjudicatedOptions,
   writeInCandidates,
@@ -294,6 +346,62 @@ export function ContestAdjudicationScreen({
     adjudicatedOptions: preMarkInvalidQualifiedWriteIns(),
   });
 
+  // Compute derived options locally based on SP party and current vote state.
+  // This replaces the backend-provided derivedOptionIds so that changes are
+  // reflected immediately as the adjudicator toggles votes.
+  const { derivedOptionIdSet, straightPartyNotAppliedReason } = useMemo(() => {
+    if (!straightPartyId || !isCandidateContest) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: undefined,
+      };
+    }
+    const partyOptionIds = contest.candidates
+      .filter((c) => !c.isWriteIn && c.partyIds?.includes(straightPartyId))
+      .map((c) => c.id);
+    if (partyOptionIds.length === 0) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: undefined,
+      };
+    }
+    const currentVoteIds = officialOptions
+      .filter((o) => getOptionHasVote(o.id))
+      .map((o) => o.id);
+    const writeInVoteCount = writeInOptionIds.filter((id) =>
+      getOptionHasVote(id)
+    ).length;
+    const totalVotes = currentVoteIds.length + writeInVoteCount;
+    const remainingSeats = contest.seats - totalVotes;
+    const unselectedPartyOptions = partyOptionIds.filter(
+      (id) => !currentVoteIds.includes(id)
+    );
+    if (remainingSeats <= 0) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: 'No remaining seats' as const,
+      };
+    }
+    if (unselectedPartyOptions.length > remainingSeats) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason:
+          'Too many candidates for remaining seats' as const,
+      };
+    }
+    return {
+      derivedOptionIdSet: new Set(unselectedPartyOptions),
+      straightPartyNotAppliedReason: undefined,
+    };
+  }, [
+    straightPartyId,
+    isCandidateContest,
+    contest,
+    officialOptions,
+    writeInOptionIds,
+    getOptionHasVote,
+  ]);
+
   // Vote and write-in state for adjudication management
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
@@ -329,8 +437,9 @@ export function ContestAdjudicationScreen({
   }, [firstOptionIdPendingAdjudication]);
 
   const seatCount = isCandidateContest ? contest.seats : 1;
-  const isOvervote = voteCount > seatCount;
-  const isUndervote = voteCount < seatCount;
+  const effectiveVoteCount = voteCount + derivedOptionIdSet.size;
+  const isOvervote = effectiveVoteCount > seatCount;
+  const isUndervote = effectiveVoteCount < seatCount;
 
   const allowSaveWithoutChanges =
     tag !== undefined &&
@@ -404,11 +513,14 @@ export function ContestAdjudicationScreen({
               {getContestDistrictName(election, contest)}
               {partyLabel && ` — ${partyLabel}`}
             </CompactH2>
-            <CompactH1>{contest.title}</CompactH1>
+            <CompactH1>
+              <BallotText text={contest.title} />
+            </CompactH1>
           </ContestHeader>
           <BallotVoteCount>
             <MediumText>
-              Votes cast: {format.count(voteCount)} of {format.count(seatCount)}
+              Votes cast: {format.count(effectiveVoteCount)} of{' '}
+              {format.count(seatCount)}
             </MediumText>
             {isOvervote && (
               <Label>
@@ -428,10 +540,85 @@ export function ContestAdjudicationScreen({
                 contestOptions.find((o) => o.definition.id === optionId)
               );
               const currentVote = getOptionHasVote(optionId);
-              const optionLabel = isCandidateContest
-                ? (officialOption as Candidate).name
-                : officialOption.name;
+              const isDerived = derivedOptionIdSet.has(optionId);
+              const candidate =
+                isCandidateContest && contest.type === 'candidate'
+                  ? contest.candidates.find((c) => c.id === optionId)
+                  : undefined;
+              const optionName = candidate?.name ?? officialOption.name;
+              const candidatePartyNames = straightPartyId
+                ? candidate?.partyIds
+                    ?.map(
+                      (pid) =>
+                        election.parties.find((p) => p.id === pid)?.fullName
+                    )
+                    .filter(Boolean)
+                    .join(', ')
+                : undefined;
+              const isStraightPartyCandidate =
+                !!straightPartyId &&
+                !!candidate?.partyIds?.includes(straightPartyId);
+              const optionLabel = candidatePartyNames ? (
+                <span>
+                  <BallotText text={optionName} />
+                  <OptionSubtitle>
+                    {candidatePartyNames}
+                    {isStraightPartyCandidate && ' - Straight party vote'}
+                  </OptionSubtitle>
+                </span>
+              ) : (
+                <BallotText text={optionName} />
+              );
               const marginalMarkStatus = getOptionMarginalMarkStatus(optionId);
+              const adjudicationCaption = renderContestOptionButtonCaption({
+                scannedVote,
+                currentVote,
+                isWriteIn: false,
+                marginalMarkStatus,
+              });
+              // "Straight party vote not applied" only makes sense for an SP
+              // candidate the voter did NOT directly mark — if the voter
+              // marked the candidate, SP wasn't needed (and saying "not
+              // applied" on their explicit selection is confusing).
+              const spNotAppliedCaption =
+                isStraightPartyCandidate &&
+                !isDerived &&
+                !currentVote &&
+                straightPartyNotAppliedReason ? (
+                  <ContestOptionButtonCaption>
+                    Straight party vote not applied:{' '}
+                    {straightPartyNotAppliedReason}
+                  </ContestOptionButtonCaption>
+                ) : null;
+              const combinedCaption =
+                adjudicationCaption || spNotAppliedCaption ? (
+                  <CaptionGroup>
+                    {adjudicationCaption}
+                    {spNotAppliedCaption}
+                  </CaptionGroup>
+                ) : undefined;
+
+              if (isDerived && !currentVote) {
+                return (
+                  <div
+                    key={optionId + cvrId}
+                    style={{ display: 'flex', flexDirection: 'column' }}
+                  >
+                    <DerivedVoteButton
+                      role="checkbox"
+                      aria-checked
+                      fill="outlined"
+                      color="neutral"
+                      onPress={() => setOptionHasVote(optionId, true)}
+                      icon={<Icons.Checkbox filled={false} />}
+                    >
+                      {optionLabel}
+                    </DerivedVoteButton>
+                    {combinedCaption}
+                  </div>
+                );
+              }
+
               return (
                 <ContestOptionButton
                   key={optionId + cvrId}
@@ -455,14 +642,9 @@ export function ContestAdjudicationScreen({
                     isBmd ||
                     // Disabled when there is a write-in selection for the candidate
                     (!currentVote &&
-                      selectedCandidateNames.includes(optionLabel))
+                      selectedCandidateNames.includes(optionName))
                   }
-                  caption={renderContestOptionButtonCaption({
-                    scannedVote,
-                    currentVote,
-                    isWriteIn: false,
-                    marginalMarkStatus,
-                  })}
+                  caption={combinedCaption}
                 />
               );
             })}

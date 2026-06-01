@@ -4,6 +4,7 @@ import {
   ElectionReport,
   ElectionType,
   InternationalizedText,
+  PartyContest,
   ReportDetailLevel,
   ResultsStatus,
 } from '.';
@@ -803,6 +804,8 @@ export const testElectionReportNoOtherCounts: ElectionReport = {
   ],
 };
 
+// Uses a made-up contest @type to test the defensive error path for
+// unrecognized contest types at runtime.
 export const testElectionReportUnsupportedContestType: ElectionReport = {
   '@type': 'ElectionResults.ElectionReport',
   Issuer: 'VotingWorks',
@@ -838,18 +841,11 @@ export const testElectionReportUnsupportedContestType: ElectionReport = {
       ],
       Contest: [
         {
-          '@type': 'ElectionResults.PartyContest',
-          '@id': 'fishing-party',
-          Name: 'Fishing Party',
+          '@type': 'ElectionResults.OrderedContest',
+          '@id': 'ordered-contest',
+          Name: 'Ordered Contest',
           ElectionDistrictId: 'state-of-hamilton',
-          ContestSelection: [
-            {
-              '@type': 'ElectionResults.PartySelection',
-              '@id': 'fishing-yes',
-              PartyIds: ['water-party'],
-            },
-          ],
-        },
+        } as unknown as PartyContest,
       ],
     },
   ],

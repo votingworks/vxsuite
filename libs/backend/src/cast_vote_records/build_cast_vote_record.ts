@@ -13,7 +13,10 @@ import {
   Candidate,
   CandidateContest,
   CandidateVote,
+  ContestId,
+  ContestOptionId,
   CVR,
+  Election,
   ElectionDefinition,
   getBallotStyle,
   InterpretedBmdMultiPagePage,
@@ -21,7 +24,10 @@ import {
   InterpretedHmpbPage,
   MarkStatus,
   MarkThresholds,
+  PartyId,
   SheetOf,
+  StraightPartyContest,
+  StraightPartyVote,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -151,6 +157,58 @@ function buildCVRBallotMeasureContest({
   };
 }
 
+function buildCVRStraightPartyContest({
+  contest,
+  vote,
+  electionDefinition,
+  ballotStyleId,
+}: {
+  contest: StraightPartyContest;
+  vote: StraightPartyVote;
+  electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
+}): CVR.CVRContest {
+  // Straight-party is always vote-for-one
+  const overvoted = vote.length > 1;
+  const undervoted = vote.length < 1;
+
+  return {
+    '@type': 'CVR.CVRContest',
+    ContestId: contest.id,
+    Overvotes: overvoted ? 1 : 0,
+    Undervotes: undervoted ? 1 : 0,
+    Status: overvoted
+      ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
+      : undervoted
+      ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
+      : undefined,
+    CVRContestSelection: vote.map((partyId) => ({
+      '@type': 'CVR.CVRContestSelection',
+      ContestSelectionId: partyId,
+      OptionPosition: CachedElectionLookups.getOptionPosition(
+        electionDefinition,
+        ballotStyleId,
+        contest.id,
+        partyId
+      ),
+      Status: overvoted
+        ? [CVR.ContestSelectionStatus.InvalidatedRules]
+        : undefined,
+      SelectionPosition: [
+        {
+          '@type': 'CVR.SelectionPosition',
+          HasIndication: CVR.IndicationStatus.Yes,
+          NumberVotes: 1,
+          IsAllocable: overvoted
+            ? CVR.AllocationStatus.No
+            : CVR.AllocationStatus.Yes,
+          Status: overvoted ? [CVR.PositionStatus.InvalidatedRules] : undefined,
+        },
+      ],
+    })),
+  };
+}
+
 /**
  * Discriminator between machine-marked ballots and hand-marked ballots.
  */
@@ -173,6 +231,7 @@ function buildCVRCandidateContest({
   vote,
   unmarkedWriteIns,
   options,
+  straightPartyDerivedIds,
 }: {
   contest: CandidateContest;
   electionDefinition: ElectionDefinition;
@@ -180,6 +239,7 @@ function buildCVRCandidateContest({
   vote: CandidateVote;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
+  straightPartyDerivedIds?: ReadonlySet<ContestOptionId>;
 }): CVR.CVRContest {
   const overvoted = vote.length > contest.seats;
   const undervoted = vote.length < contest.seats;
@@ -230,9 +290,11 @@ function buildCVRCandidateContest({
   const markedVoteSelections: CVR.CVRContestSelection[] =
     voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
+      const isDerived = straightPartyDerivedIds?.has(candidate.id) ?? false;
 
       const selectionStatuses: CVR.ContestSelectionStatus[] = [];
       if (overvoted) selectionStatuses.push(CVR.ContestSelectionStatus.InvalidatedRules);
+      if (isDerived) selectionStatuses.push(CVR.ContestSelectionStatus.GeneratedRules);
       if (isWriteIn) selectionStatuses.push(CVR.ContestSelectionStatus.NeedsAdjudication);
 
       return {
@@ -258,6 +320,8 @@ function buildCVRCandidateContest({
               : CVR.AllocationStatus.Yes,
             Status: overvoted
               ? [CVR.PositionStatus.InvalidatedRules]
+              : isDerived
+              ? [CVR.PositionStatus.GeneratedRules]
               : undefined,
             CVRWriteIn: isWriteIn
               ? {
@@ -330,6 +394,65 @@ function buildCVRCandidateContest({
 }
 
 /**
+ * Computes which candidate IDs in each contest would be derived from
+ * straight-party expansion. Mirrors the logic in `applyStraightPartyRules`
+ * but operates on `VotesDict` and returns the derived IDs per contest.
+ */
+function computeStraightPartyDerivedIds(
+  election: Election,
+  votes: VotesDict
+): Map<ContestId, Set<ContestOptionId>> {
+  const straightPartyContest = election.contests.find(
+    (c) => c.type === 'straight-party'
+  );
+  if (!straightPartyContest) return new Map();
+
+  const straightPartyVote = votes[straightPartyContest.id];
+  if (!straightPartyVote || straightPartyVote.length !== 1) return new Map();
+
+  const selectedPartyId = straightPartyVote[0] as PartyId;
+  const derived = new Map<ContestId, Set<ContestOptionId>>();
+
+  for (const contest of election.contests) {
+    if (contest.type !== 'candidate') continue;
+    if (!contest.candidates.some((c) => c.partyIds?.includes(selectedPartyId))) continue;
+
+    const voterSelections = votes[contest.id] ?? [];
+    if (voterSelections.length >= contest.seats) continue;
+
+    const selectedIds = new Set(
+      (voterSelections as CandidateVote).map((c) => c.id)
+    );
+    const unselectedPartyOptions = contest.candidates
+      .filter(
+        (c) => c.partyIds?.includes(selectedPartyId) && !selectedIds.has(c.id)
+      )
+      .map((c) => c.id);
+
+    const remainingSeats = contest.seats - voterSelections.length;
+    if (unselectedPartyOptions.length <= remainingSeats) {
+      derived.set(contest.id, new Set(unselectedPartyOptions));
+    }
+  }
+
+  return derived;
+}
+
+/**
+ * Expands a candidate vote to include straight-party derived candidates.
+ */
+function expandCandidateVoteWithDerived(
+  vote: CandidateVote,
+  contest: CandidateContest,
+  derivedIds: ReadonlySet<ContestOptionId>
+): CandidateVote {
+  const derivedCandidates = contest.candidates.filter((c) =>
+    derivedIds.has(c.id)
+  );
+  return [...vote, ...derivedCandidates];
+}
+
+/**
  * Builds an array of CDF format {@link CVR.CVRContest} given a list of
  * contests to include, a dictionary of votes for those contests, and
  * some options about the ballot page (BMD vs. HMPB and image filename if
@@ -343,14 +466,23 @@ export function buildCVRContestsFromVotes({
   electionDefinition,
   ballotStyleId,
   options,
+  straightPartyDerived,
 }: {
   votes: VotesDict;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
   options: CVRContestRequiredBallotPageOptions;
+  straightPartyDerived?: Map<ContestId, Set<ContestOptionId>>;
 }): CVR.CVRContest[] {
+  const { election } = electionDefinition;
   const cvrContests: CVR.CVRContest[] = [];
+
+  // Compute derived IDs if not provided (e.g. for direct callers outside
+  // buildCastVoteRecord). For HMPB, the caller should provide pre-computed
+  // derived IDs based on both pages' combined votes.
+  const derived =
+    straightPartyDerived ?? computeStraightPartyDerivedIds(election, votes);
 
   const contests = Object.keys(votes).map((contestId) =>
     CachedElectionLookups.getContestById(electionDefinition, contestId)
@@ -374,15 +506,36 @@ export function buildCVRContestsFromVotes({
           })
         );
         break;
-      case 'candidate':
+      case 'candidate': {
+        const contestDerived = derived.get(contest.id);
+        // Expand the vote to include straight-party derived candidates
+        const expandedVote = contestDerived
+          ? expandCandidateVoteWithDerived(
+              contestVote as CandidateVote,
+              contest,
+              contestDerived
+            )
+          : (contestVote as CandidateVote);
         cvrContests.push(
           buildCVRCandidateContest({
             contest,
             electionDefinition,
             ballotStyleId,
-            vote: contestVote as CandidateVote,
+            vote: expandedVote,
             unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
+            straightPartyDerivedIds: contestDerived,
+          })
+        );
+        break;
+      }
+      case 'straight-party':
+        cvrContests.push(
+          buildCVRStraightPartyContest({
+            contest,
+            vote: contestVote as StraightPartyVote,
+            electionDefinition,
+            ballotStyleId,
           })
         );
         break;
@@ -551,6 +704,11 @@ export function buildCastVoteRecord({
     });
     assert(ballotStyle);
 
+    const spDerived = computeStraightPartyDerivedIds(
+      election,
+      interpretation.votes
+    );
+
     return {
       ...cvrMetadata,
       CurrentSnapshotId: `${castVoteRecordId}-original`,
@@ -567,6 +725,7 @@ export function buildCastVoteRecord({
             options: {
               ballotMarkingMode: 'machine',
             },
+            straightPartyDerived: spDerived,
           }),
         },
       ],
@@ -584,6 +743,16 @@ export function buildCastVoteRecord({
       election,
     });
     assert(ballotStyle);
+
+    // For multi-page BMD, each page only has its own contests' votes, but
+    // straight-party derivation needs to see all votes. Since the straight-party
+    // contest is on the page that has it, derivation will work for that page.
+    // Candidate contests on other pages won't see the SP selection here —
+    // multi-page BMD expansion is handled at tabulation time instead.
+    const spDerived = computeStraightPartyDerivedIds(
+      election,
+      interpretation.votes
+    );
 
     return {
       ...cvrMetadata,
@@ -605,6 +774,7 @@ export function buildCastVoteRecord({
             options: {
               ballotMarkingMode: 'machine',
             },
+            straightPartyDerived: spDerived,
           }),
         },
       ],
@@ -623,6 +793,14 @@ export function buildCastVoteRecord({
     ) / 2
   ).toString();
 
+  // Combine both pages' votes to compute straight-party derived IDs, since
+  // the SP contest may be on a different page than the candidate contests
+  const allHmpbVotes: VotesDict = {
+    ...interpretations[0].votes,
+    ...interpretations[1].votes,
+  };
+  const spDerived = computeStraightPartyDerivedIds(election, allHmpbVotes);
+
   const modifiedSnapshot: CVR.CVRSnapshot = {
     '@type': 'CVR.CVRSnapshot',
     '@id': `${castVoteRecordId}-interpreted`,
@@ -638,6 +816,7 @@ export function buildCastVoteRecord({
           ballotMarkingMode: 'hand',
           image: images?.[0],
         },
+        straightPartyDerived: spDerived,
       }),
       ...buildCVRContestsFromVotes({
         votes: interpretations[1].votes,
@@ -648,6 +827,7 @@ export function buildCastVoteRecord({
           ballotMarkingMode: 'hand',
           image: images?.[1],
         },
+        straightPartyDerived: spDerived,
       }),
     ],
   };

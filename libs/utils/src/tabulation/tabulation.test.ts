@@ -17,6 +17,8 @@ import {
   BallotStyleGroupId,
   getGroupIdFromBallotStyleId,
   DEV_MACHINE_ID,
+  StraightPartyContest,
+  Election,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -47,6 +49,8 @@ import {
   areContestResultsValid,
   combineAndDecodeCompressedElectionResults,
   getScannedBallotCountForSheet,
+  combineContestResults,
+  getEmptyStraightPartyContestResults,
 } from './tabulation';
 import { partisanContests } from './open_primary';
 import {
@@ -2190,4 +2194,127 @@ test('areContestResultsValid', () => {
       noTally: validYesNoContestResults.noTally + 1,
     })
   ).toEqual(false);
+});
+
+describe('straight-party contest results', () => {
+  const spContest: StraightPartyContest = {
+    id: 'sp-1',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  const electionWithSp: Election = {
+    ...electionTwoPartyPrimaryFixtures.readElection(),
+    contests: [
+      spContest,
+      ...electionTwoPartyPrimaryFixtures.readElection().contests,
+    ],
+  };
+
+  test('getEmptyStraightPartyContestResults initializes zero tallies for each party', () => {
+    const empty = getEmptyStraightPartyContestResults(
+      spContest,
+      electionWithSp
+    );
+    expect(empty.contestId).toEqual('sp-1');
+    expect(empty.contestType).toEqual('straight-party');
+    expect(empty.overvotes).toEqual(0);
+    expect(empty.undervotes).toEqual(0);
+    expect(empty.ballots).toEqual(0);
+    expect(Object.keys(empty.tallies).sort()).toEqual(['0', '1']);
+    expect(empty.tallies['0']).toEqual({
+      partyId: '0',
+      name: 'Mammal Party',
+      tally: 0,
+    });
+  });
+
+  test('combineContestResults sums straight-party tallies across snapshots', () => {
+    const partyA = assertDefined(electionWithSp.parties[0]).id;
+    const partyB = assertDefined(electionWithSp.parties[1]).id;
+    const resultsA: Tabulation.StraightPartyContestResults = {
+      contestId: 'sp-1',
+      contestType: 'straight-party',
+      overvotes: 1,
+      undervotes: 2,
+      ballots: 10,
+      tallies: {
+        [partyA]: { partyId: partyA, name: 'Mammal', tally: 4 },
+        [partyB]: { partyId: partyB, name: 'Fish', tally: 3 },
+      },
+    };
+    const resultsB: Tabulation.StraightPartyContestResults = {
+      contestId: 'sp-1',
+      contestType: 'straight-party',
+      overvotes: 2,
+      undervotes: 3,
+      ballots: 15,
+      tallies: {
+        [partyA]: { partyId: partyA, name: 'Mammal', tally: 6 },
+        [partyB]: { partyId: partyB, name: 'Fish', tally: 4 },
+      },
+    };
+
+    const combined = combineContestResults({
+      contest: spContest,
+      election: electionWithSp,
+      allContestResults: [resultsA, resultsB],
+    }) as Tabulation.StraightPartyContestResults;
+
+    expect(combined.contestType).toEqual('straight-party');
+    expect(combined.overvotes).toEqual(3);
+    expect(combined.undervotes).toEqual(5);
+    expect(combined.ballots).toEqual(25);
+    expect(combined.tallies[partyA]?.tally).toEqual(10);
+    expect(combined.tallies[partyB]?.tally).toEqual(7);
+  });
+
+  test('combineContestResults ignores tallies for parties not in the election', () => {
+    const partyA = assertDefined(electionWithSp.parties[0]).id;
+    const resultsWithExtraParty: Tabulation.StraightPartyContestResults = {
+      contestId: 'sp-1',
+      contestType: 'straight-party',
+      overvotes: 0,
+      undervotes: 0,
+      ballots: 5,
+      tallies: {
+        [partyA]: { partyId: partyA, name: 'Mammal', tally: 5 },
+        'unknown-party': {
+          partyId: 'unknown-party',
+          name: 'Ghost',
+          tally: 99,
+        },
+      },
+    };
+
+    const combined = combineContestResults({
+      contest: spContest,
+      election: electionWithSp,
+      allContestResults: [resultsWithExtraParty],
+    }) as Tabulation.StraightPartyContestResults;
+
+    expect(combined.tallies[partyA]?.tally).toEqual(5);
+    expect(combined.tallies['unknown-party']).toBeUndefined();
+  });
+
+  test('getEmptyElectionResults seeds straight-party contests', () => {
+    const empty = getEmptyElectionResults(electionWithSp);
+    const spResults = empty.contestResults['sp-1'];
+    expect(spResults?.contestType).toEqual('straight-party');
+    expect(
+      (spResults as Tabulation.StraightPartyContestResults).tallies[
+        assertDefined(electionWithSp.parties[0]).id
+      ]?.tally
+    ).toEqual(0);
+  });
+
+  test('getEmptyManualElectionResults seeds straight-party contests', () => {
+    const empty = getEmptyManualElectionResults(electionWithSp);
+    const spResults = empty.contestResults['sp-1'];
+    expect(spResults?.contestType).toEqual('straight-party');
+    expect(
+      (spResults as Tabulation.StraightPartyContestResults).tallies[
+        assertDefined(electionWithSp.parties[0]).id
+      ]?.tally
+    ).toEqual(0);
+  });
 });

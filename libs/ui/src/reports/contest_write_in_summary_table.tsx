@@ -6,9 +6,10 @@ import {
   Tabulation,
 } from '@votingworks/types';
 
-import { find } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
+import { BallotText } from '../ballot_text';
 import { TD } from '../table';
 import { Caption, Font, FontProps } from '../typography';
 import { reportColors } from './layout';
@@ -109,6 +110,10 @@ export function ContestWriteInSummaryTable({
     election.contests,
     (c) => c.id === contestWriteInSummary.contestId
   );
+  assert(
+    contest.type !== 'straight-party',
+    'Write-in summaries not applicable to straight-party contests'
+  );
 
   const candidateTallies = Object.values(
     contestWriteInSummary.candidateTallies
@@ -172,7 +177,9 @@ export function ContestWriteInSummaryTable({
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
       <p>{getContestDistrictName(election, contest)}</p>
-      <h3>{contest.title}</h3>
+      <h3>
+        <BallotText text={contest.title} />
+      </h3>
       <Caption>
         <Font noWrap>
           {`${format.count(contestWriteInSummary.totalTally)} ${pluralize(

@@ -18,13 +18,21 @@ import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
-import { generateTestDeckBallots, TestDeckBallot } from '@votingworks/utils';
+import {
+  generateStraightPartyTestDeckBallots,
+  generateStraightPartyVerificationChecklist,
+  generateTestDeckBallots,
+  StraightPartyTestDeckResult,
+  TestDeckBallot,
+} from '@votingworks/utils';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
+import { getStateFeaturesConfig } from '../features';
+import { injectStraightPartyContest } from '../straight_party';
 import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
@@ -55,12 +63,17 @@ export async function generateTestDecks(
     jurisdictionId,
     systemSettings,
   } = electionRecord;
-  const jurisdiction = await store.getJurisdiction(jurisdictionId);
-  const election = addPollingPlacesForExport(
-    electionRecord.election,
-    jurisdiction
-  );
   const { compact } = await store.getBallotLayoutSettings(electionId);
+
+  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  // Must mirror the election shape produced by
+  // generate_election_package_and_ballots so that test-deck ballots have the
+  // same ballot hash as the official ballots / election package.
+  let election = stateFeatures.STRAIGHT_PARTY_VOTING
+    ? injectStraightPartyContest(electionRecord.election)
+    : electionRecord.election;
+  election = addPollingPlacesForExport(election, jurisdiction);
 
   // Check if summary BMD ballots should be generated
   const shouldGenerateSummaryBallots =
@@ -102,20 +115,34 @@ export async function generateTestDecks(
 
   const zip = new JsZip();
 
+  // For straight-party elections, generate a purpose-built test deck instead
+  // of the standard rotating test deck
+  const useStraightPartyTestDeck = stateFeatures.STRAIGHT_PARTY_VOTING;
+  let straightPartyResult: StraightPartyTestDeckResult | undefined;
+
   // Generate HMPB test deck ballot specs
   const precinctHmpbBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
-    election.precincts.map((precinct) => [
-      precinct,
-      generateTestDeckBallots({
-        election,
-        precinctId: precinct.id,
-        ballotFormat: 'bubble',
-      }),
-    ]);
+    useStraightPartyTestDeck
+      ? (() => {
+          straightPartyResult = generateStraightPartyTestDeckBallots(election);
+          return [
+            [election.precincts[0], straightPartyResult.ballots],
+          ] as Array<[Precinct, TestDeckBallot[]]>;
+        })()
+      : election.precincts.map((precinct) => [
+          precinct,
+          generateTestDeckBallots({
+            election,
+            precinctId: precinct.id,
+            ballotFormat: 'bubble',
+          }),
+        ]);
 
-  // Generate summary ballot specs if configured
+  // Generate summary ballot specs if configured (skip for straight-party POC)
   const precinctSummaryBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
-    shouldGenerateSummaryBallots
+    useStraightPartyTestDeck
+      ? []
+      : shouldGenerateSummaryBallots
       ? election.precincts.map((precinct) => [
           precinct,
           generateTestDeckBallots({
@@ -187,9 +214,20 @@ export async function generateTestDecks(
     }
   }
 
+  // Add straight-party verification checklist to ZIP
+  if (useStraightPartyTestDeck && straightPartyResult) {
+    const checklist = generateStraightPartyVerificationChecklist(
+      election,
+      straightPartyResult
+    );
+    zip.file('straight-party-verification-checklist.md', checklist);
+  }
+
   const tallyReports = await createTestDeckTallyReports({
     electionDefinition,
-    includeSummaryBallots: shouldGenerateSummaryBallots,
+    includeSummaryBallots: useStraightPartyTestDeck
+      ? false
+      : shouldGenerateSummaryBallots,
   });
 
   for (const [fileName, report] of tallyReports) {

@@ -481,6 +481,8 @@ export function generateAllPrecinctsTallyReportRows(
             ...overvotesUndervotesAndBallotsCastRows,
           ];
         }
+        case 'straight-party':
+          return [...overvotesUndervotesAndBallotsCastRows];
         default: {
           return throwIllegalValue(contest);
         }

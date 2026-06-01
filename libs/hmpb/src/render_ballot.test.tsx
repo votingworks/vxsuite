@@ -387,6 +387,9 @@ test.each(templateSpecificTestCases)(
           expect(optionIds).toEqual(expectedOptionIds);
           break;
         }
+        case 'straight-party':
+          // TODO: Verify straight-party options (Commit 10)
+          break;
         default: {
           throwIllegalValue(contest);
         }

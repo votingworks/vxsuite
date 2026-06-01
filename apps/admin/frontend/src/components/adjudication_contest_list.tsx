@@ -16,9 +16,18 @@ import type {
   CvrTag,
 } from '@votingworks/admin-backend';
 import { find } from '@votingworks/basics';
-import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
-import { hasCrossoverVote } from '@votingworks/utils';
 import pluralize from 'pluralize';
+import {
+  BallotText,
+  Button,
+  Callout,
+  Caption,
+  DesktopPalette,
+  FontProps,
+  Icons,
+  P,
+} from '@votingworks/ui';
+import { flattenBallotLineBreaks, hasCrossoverVote } from '@votingworks/utils';
 import { EntityList } from './entity_list';
 import {
   adjudicatedVotes,
@@ -123,8 +132,18 @@ const StatusLineAdjudicated = styled(StatusLine).attrs({
   /* stylelint-disable-next-line no-empty-source */
 `;
 
+const ResolvedCaption = styled(EntityList.Caption)`
+  color: ${DesktopPalette.Purple70};
+`;
+
+const StraightPartyCaption = styled(EntityList.Caption)`
+  color: ${(p) => p.theme.colors.onBackground};
+`;
+
 function getVotesAllowed(contest: AnyContest): number {
-  return contest.type === 'yesno' ? 1 : contest.seats;
+  return contest.type === 'yesno' || contest.type === 'straight-party'
+    ? 1
+    : contest.seats;
 }
 
 type VoteStatus = 'overvote' | 'undervote' | 'normal';
@@ -370,6 +389,37 @@ function CrossoverVoteStatus({
   }
 }
 
+interface StraightPartyStatus {
+  text: string;
+  isChanged: boolean;
+}
+
+function getStraightPartyStatus(
+  contestData: ContestAdjudicationData,
+  adjudicatedContest?: AdjudicatedCvrContest
+): StraightPartyStatus {
+  const originalVoteCount = contestData.options.filter(
+    (o) => o.scannedVote
+  ).length;
+  const votedOptions = contestData.options.filter((o) =>
+    getCurrentVote(
+      o,
+      adjudicatedContest?.adjudicatedContestOptionById[o.definition.id]
+    )
+  );
+  const isChanged = votedOptions.length !== originalVoteCount;
+
+  if (votedOptions.length === 1) {
+    return {
+      text: `Straight party vote applied: ${flattenBallotLineBreaks(
+        votedOptions[0].definition.name
+      )}`,
+      isChanged,
+    };
+  }
+  return { text: 'Straight party vote not applied', isChanged };
+}
+
 function BallotSideContestList({
   adjudicatedContests,
   contests,
@@ -380,6 +430,7 @@ function BallotSideContestList({
   onHover,
   onSelect,
   showUndervoteStatus,
+  straightPartyStatus,
   title,
   cvrTag,
   ballotHasCrossoverVoteAfterAdjudication,
@@ -394,6 +445,7 @@ function BallotSideContestList({
   onHover: (contestId: ContestId | null) => void;
   onSelect: (contestId: ContestId) => void;
   showUndervoteStatus: boolean;
+  straightPartyStatus?: StraightPartyStatus;
   title: string;
   cvrTag: CvrTag;
   ballotHasCrossoverVoteAfterAdjudication: boolean;
@@ -477,7 +529,7 @@ function BallotSideContestList({
                   weight="semiBold"
                   style={{ marginBottom: '0.25rem' }}
                 >
-                  {contest.title}
+                  <BallotText text={contest.title} />
                 </EntityList.Label>
                 <CrossoverVoteStatus
                   contestHasScannedCrossoverVote={
@@ -496,6 +548,17 @@ function BallotSideContestList({
                     adjudicatedContest={adjudicatedContest}
                   />
                 )}
+                {contest.type === 'straight-party' &&
+                  straightPartyStatus &&
+                  (straightPartyStatus.isChanged ? (
+                    <ResolvedCaption weight="semiBold">
+                      {straightPartyStatus.text}
+                    </ResolvedCaption>
+                  ) : (
+                    <StraightPartyCaption>
+                      {straightPartyStatus.text}
+                    </StraightPartyCaption>
+                  ))}
               </Column>
             </EntityList.Item>
           );
@@ -567,6 +630,16 @@ export function AdjudicationContestList({
     election,
     adjudicatedVotes(allContests, adjudicatedContests)
   );
+  const spContest = allContests.find(
+    (c) => c.contest.type === 'straight-party'
+  );
+  const spContestData = spContest?.adjudicationData;
+  const straightPartyStatus = spContestData
+    ? getStraightPartyStatus(
+        spContestData,
+        adjudicatedContests.get(spContest.contest.id)
+      )
+    : undefined;
 
   return (
     <EntityList.Box>
@@ -638,6 +711,7 @@ export function AdjudicationContestList({
           onHover={onHover}
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
+          straightPartyStatus={straightPartyStatus}
           title="Front"
           cvrTag={cvrTag}
           ballotHasCrossoverVoteAfterAdjudication={
@@ -657,6 +731,7 @@ export function AdjudicationContestList({
           onHover={onHover}
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
+          straightPartyStatus={straightPartyStatus}
           title="Back"
           cvrTag={cvrTag}
           ballotHasCrossoverVoteAfterAdjudication={

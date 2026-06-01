@@ -10,6 +10,7 @@ export interface ContestChoiceButtonProps<T> {
   'aria-label'?: string;
   caption?: React.ReactNode;
   choice: T;
+  isDerived?: boolean;
   isSelected?: boolean;
   label: React.ReactNode;
   onPress: (value: T) => void;
@@ -24,6 +25,7 @@ export interface ContestChoiceButtonProps<T> {
 
 interface StyleProps {
   gridArea?: string;
+  isDerived: boolean;
   isSelected: boolean;
   variant?: ButtonVariant;
 }
@@ -40,6 +42,16 @@ const selectedChoiceStyles = css<StyleProps>`
 `;
 
 /* istanbul ignore next */
+// Uses box-shadow instead of a thicker border to avoid layout shift when
+// toggling between derived and non-derived states.
+const derivedChoiceStyles = css<StyleProps>`
+  background-color: ${(p) => p.theme.colors.containerLow};
+  border-color: ${(p) => p.theme.colors.primary};
+  box-shadow: inset 0 0 0 4px ${(p) => p.theme.colors.primary};
+  color: ${(p) => p.theme.colors.primary};
+`;
+
+/* istanbul ignore next */
 const OuterContainer = styled(Button)<StyleProps>`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid currentColor;
   grid-area: ${(p) => p.gridArea};
@@ -49,7 +61,8 @@ const OuterContainer = styled(Button)<StyleProps>`
   text-align: left;
   width: 100%;
 
-  ${(p) => p.isSelected && selectedChoiceStyles};
+  ${(p) => p.isDerived && derivedChoiceStyles};
+  ${(p) => p.isSelected && !p.isDerived && selectedChoiceStyles};
 
   &:active {
     ${selectedChoiceStyles};
@@ -87,6 +100,7 @@ export function ContestChoiceButton<T>(
     caption,
     choice,
     gridArea,
+    isDerived,
     isSelected,
     label,
     onPress,
@@ -94,19 +108,22 @@ export function ContestChoiceButton<T>(
 
   const handlePress = useCallback(() => onPress(choice), [onPress, choice]);
 
+  const showAsChecked = !!(isSelected || isDerived);
+
   return (
     <OuterContainer
       aria-label={ariaLabel}
-      aria-selected={isSelected}
+      aria-selected={showAsChecked}
       gridArea={gridArea}
+      isDerived={!!isDerived}
       isSelected={!!isSelected}
       onPress={handlePress}
       role="option"
-      variant={isSelected ? 'primary' : 'neutral'}
+      variant={isDerived ? 'neutral' : isSelected ? 'primary' : 'neutral'}
     >
       <Content>
         <CheckboxContainer>
-          <Checkbox checked={isSelected} />
+          <Checkbox checked={showAsChecked} />
         </CheckboxContainer>
         <LabelContainer>
           <Label>{label}</Label>
