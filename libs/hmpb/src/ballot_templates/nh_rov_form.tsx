@@ -95,6 +95,26 @@ function Field({ label }: { label: React.ReactNode }): JSX.Element {
   );
 }
 
+function PageFooter({
+  pageNumber,
+  totalPages,
+}: {
+  pageNumber: number;
+  totalPages: number;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        marginTop: 'auto',
+        textAlign: 'right',
+        fontSize: '0.8rem',
+      }}
+    >
+      Page {pageNumber} of {totalPages}
+    </div>
+  );
+}
+
 interface NhRovFormProps {
   election: Election;
   partyId?: PartyId;
@@ -175,7 +195,11 @@ const GENERAL_INSTRUCTIONS =
   'reflect the vote counts determined by the moderator and sign the form. ' +
   'Return on ELECTION NIGHT to the Secretary of State.';
 
-export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
+export function NhRovForm({
+  election,
+  partyId,
+  totalPages,
+}: NhRovFormProps & { totalPages: number }): JSX.Element {
   const party = partyId
     ? find(election.parties, (p) => p.id === partyId)
     : undefined;
@@ -195,6 +219,7 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
           flexDirection: 'column',
           gap: '0.375rem',
           padding: '0.375rem',
+          height: '100%',
         }}
       >
         <div
@@ -412,6 +437,7 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
               </div>
             ))}
         </div>
+        <PageFooter pageNumber={1} totalPages={totalPages} />
       </div>
     </Page>
   );
@@ -537,7 +563,7 @@ function WriteInContest({
             </tr>
           ))}
           <tr>
-            <td>Total</td>
+            <td style={{ textAlign: 'right' }}>Total Write-In Votes</td>
             <td />
           </tr>
         </tbody>
@@ -573,10 +599,23 @@ function splitContestsIntoPages(
   return pages;
 }
 
+function getWriteInContests(
+  election: Election,
+  partyId?: PartyId
+): CandidateContest[] {
+  return election.contests.filter(
+    (contest): contest is CandidateContest =>
+      contest.type === 'candidate' &&
+      contest.allowWriteIns &&
+      (!partyId || contest.partyId === partyId)
+  );
+}
+
 function NhWriteInPages({
   election,
   partyId,
-}: NhRovFormProps): JSX.Element | null {
+  totalPages,
+}: NhRovFormProps & { totalPages: number }): JSX.Element | null {
   const party = partyId
     ? find(election.parties, (p) => p.id === partyId)
     : undefined;
@@ -585,12 +624,7 @@ function NhWriteInPages({
   );
   const dimensions = ballotPaperDimensions(HmpbBallotPaperSize.Legal);
 
-  const writeInContests = election.contests.filter(
-    (contest): contest is CandidateContest =>
-      contest.type === 'candidate' &&
-      contest.allowWriteIns &&
-      (!partyId || contest.partyId === partyId)
-  );
+  const writeInContests = getWriteInContests(election, partyId);
 
   if (writeInContests.length === 0) return null;
 
@@ -735,6 +769,7 @@ function NhWriteInPages({
                   />
                 ))}
               </div>
+              <PageFooter pageNumber={pageNumber} totalPages={totalPages} />
             </div>
           </Page>
         );
@@ -749,11 +784,17 @@ export async function render(
 ): Promise<RenderDocument> {
   const scratchpad = await renderer.createScratchpad(<BaseStyles />);
   const document = scratchpad.convertToDocument();
+  const writeInContests = getWriteInContests(props.election, props.partyId);
+  const numWriteInPages =
+    writeInContests.length === 0
+      ? 0
+      : splitContestsIntoPages(writeInContests).length;
+  const totalPages = 1 + numWriteInPages;
   await document.setContent(
     'body',
     <React.Fragment>
-      <NhRovForm {...props} />
-      <NhWriteInPages {...props} />
+      <NhRovForm {...props} totalPages={totalPages} />
+      <NhWriteInPages {...props} totalPages={totalPages} />
     </React.Fragment>
   );
   return document;
