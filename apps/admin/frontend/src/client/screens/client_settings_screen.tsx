@@ -4,10 +4,12 @@ import {
   CurrentDateAndTime,
   ExportLogsButton,
   FormatUsbButton,
+  FullScreenIconWrapper,
   FullScreenMessage,
   H2,
   Icons,
   Main,
+  MainContent,
   P,
   Screen,
   SetClockButton,
@@ -87,10 +89,24 @@ export function ClientSettingsScreen(): JSX.Element | null {
   if (setMachineModeMutation.isSuccess) {
     return (
       <Screen>
-        <Main centerChild>
-          <FullScreenMessage title="VxAdmin switched to host mode. Restart VxAdmin to continue.">
-            <P align="center">
+        <Main flexColumn>
+          <MainContent style={{ display: 'flex', justifyContent: 'center' }}>
+            <FullScreenMessage
+              title={
+                <React.Fragment>
+                  VxAdmin switched to host mode.
+                  <br />
+                  Restart VxAdmin to continue.
+                </React.Fragment>
+              }
+              image={
+                <FullScreenIconWrapper>
+                  <Icons.Rotate />
+                </FullScreenIconWrapper>
+              }
+            >
               <Button
+                variant="primary"
                 onPress={
                   /* istanbul ignore next - no-op in tests */
                   () => rebootMutation.mutate()
@@ -98,8 +114,8 @@ export function ClientSettingsScreen(): JSX.Element | null {
               >
                 Restart
               </Button>
-            </P>
-          </FullScreenMessage>
+            </FullScreenMessage>
+          </MainContent>
         </Main>
       </Screen>
     );

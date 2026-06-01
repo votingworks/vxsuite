@@ -4,10 +4,12 @@ import {
   CurrentDateAndTime,
   ExportLogsButton,
   FormatUsbButton,
+  FullScreenIconWrapper,
   FullScreenMessage,
   H2,
   Icons,
   Main,
+  MainContent,
   P,
   Screen,
   SetClockButton,
@@ -43,19 +45,33 @@ export function SettingsScreen(): JSX.Element | null {
   if (setMachineModeMutation.isSuccess) {
     return (
       <Screen>
-        <Main centerChild>
-          <FullScreenMessage title="VxAdmin switched to adjudication station mode. Restart VxAdmin to continue.">
-            <P align="center">
+        <Main flexColumn>
+          <MainContent style={{ display: 'flex', justifyContent: 'center' }}>
+            <FullScreenMessage
+              title={
+                <React.Fragment>
+                  VxAdmin switched to adjudication station mode.
+                  <br />
+                  Restart VxAdmin to continue.
+                </React.Fragment>
+              }
+              image={
+                <FullScreenIconWrapper>
+                  <Icons.Rotate />
+                </FullScreenIconWrapper>
+              }
+            >
               <Button
+                variant="primary"
                 onPress={
-                  /* istanbul ignore next - no-op in tests */
+                  /* istanbul ignore next - n-op in tests */
                   () => rebootMutation.mutate()
                 }
               >
                 Restart
               </Button>
-            </P>
-          </FullScreenMessage>
+            </FullScreenMessage>
+          </MainContent>
         </Main>
       </Screen>
     );

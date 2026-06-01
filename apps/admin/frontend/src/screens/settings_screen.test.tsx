@@ -180,9 +180,8 @@ describe('multi-station mode', () => {
         name: 'Switch to Adjudication Station Mode',
       })
     );
-    await screen.findByText(
-      'VxAdmin switched to adjudication station mode. Restart VxAdmin to continue.'
-    );
+    await screen.findByText(/VxAdmin switched to adjudication station mode\./);
+    screen.getByText(/Restart VxAdmin to continue\./);
     screen.getByRole('button', { name: 'Restart' });
   });
 });

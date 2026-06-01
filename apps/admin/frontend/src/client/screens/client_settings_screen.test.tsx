@@ -144,8 +144,7 @@ test('shows restart screen after switching to host mode', async () => {
   });
   apiMock.apiClient.setMachineMode.expectCallWith({ mode: 'host' }).resolves();
   userEvent.click(switchButton);
-  await screen.findByText(
-    'VxAdmin switched to host mode. Restart VxAdmin to continue.'
-  );
+  await screen.findByText(/VxAdmin switched to host mode\./);
+  screen.getByText(/Restart VxAdmin to continue\./);
   screen.getByRole('button', { name: 'Restart' });
 });
