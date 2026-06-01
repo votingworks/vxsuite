@@ -1,8 +1,9 @@
-import { Page, test } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   clearTemporaryRootDir,
+  electionGeneralFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import {
@@ -27,9 +28,10 @@ import {
 } from './support/auth';
 import {
   getMultiLanguageFamousNamesElectionDefinition,
+  getMultiLanguageGeneralElectionDefinition,
   MULTI_LANGUAGE_UI_STRINGS,
 } from './support/election';
-import { configureMachine, openPolls } from './support/flows';
+import { configureMachine, openPolls, voteFullBallot } from './support/flows';
 import {
   capturePrintedBallot,
   captureReadinessReport,
@@ -446,11 +448,21 @@ test('additional options', async ({ page }) => {
 });
 
 test('voter settings', async ({ page }) => {
-  const electionDefinition = getMultiLanguageFamousNamesElectionDefinition();
+  // electionGeneral ships full translations (Chinese, etc.); the helper also
+  // tags its ballot styles with a Chinese ballot language so the printed ballot
+  // is dual-language (Chinese + English).
+  const electionDefinition = getMultiLanguageGeneralElectionDefinition();
   const { election } = electionDefinition;
   const helper = buildIntegrationTestHelper(page, screenshotCounter);
   const { screenshot, screenshotWithLocatorHighlight } = helper;
-  const electionPackage = await buildElectionPackage(electionDefinition);
+  const electionPackage = await mockElectionPackageFileTree({
+    electionDefinition,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disableVoterHelpButtons: true,
+    },
+    uiStrings: electionGeneralFixtures.uiStrings,
+  });
 
   await page
     .getByText('Insert an election manager card to configure VxMark')
@@ -458,7 +470,7 @@ test('voter settings', async ({ page }) => {
   await configureMachine(page, {
     election,
     electionPackage,
-    pollingPlaceName: POLLING_PLACE_NAME,
+    pollingPlaceName: 'Center Springfield',
   });
 
   // Open polls and start a voting session.
@@ -532,8 +544,8 @@ test('voter settings', async ({ page }) => {
   // Settings were closed by entering audio-only mode; wait for the voter screen.
   await page.getByRole('button', { name: 'Settings' }).waitFor();
 
-  // PAT calibration tutorial — triggered by the first PAT key press, navigated
-  // with the "1" (Move) and "2" (Select) keys.
+  // PAT calibration tutorial — triggered by a PAT key press from the (light)
+  // contest screen, navigated with the "1" (Move) and "2" (Select) keys.
   await page.keyboard.press('1');
   await page.getByRole('heading', { name: 'Test Your Device' }).waitFor();
   await screenshot('pat-intro');
@@ -563,8 +575,37 @@ test('voter settings', async ({ page }) => {
   await screenshot('pat-select-identified');
 
   await page.keyboard.press('2');
-  await page
-    .getByRole('heading', { name: 'Device Inputs Identified' })
-    .waitFor();
+  await page.getByRole('heading', { name: 'Device Inputs Chosen' }).waitFor();
   await screenshot('pat-device-identified');
+
+  // Exit the PAT tutorial to return to the contest screen.
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('button', { name: 'Settings' }).waitFor();
+
+  // Multilingual ballot: switch the ballot language to Chinese now (before
+  // voting), so the language is settled by the time the ballot is printed. The
+  // language controls and subsequent navigation use stable element ids
+  // (#zh-Hans-label, #next, #next_after_confirm) so the translated button text
+  // doesn't matter.
+  await page.getByRole('button', { name: /English/ }).click();
+  await page
+    .getByRole('heading', { name: 'Select Your Ballot Language' })
+    .waitFor();
+  await page.locator('#zh-Hans-label').click();
+  await page.locator('#next').click(); // Done (now rendered in Chinese)
+  // Wait for the language change to propagate before continuing.
+  await expect(page.getByRole('button', { name: /English/ })).toHaveCount(0);
+
+  // Vote a full ballot so the printed ballot has real selections, then print
+  // and capture the dual-language (English + Chinese) ballot. Wait for a new
+  // print to land (an English ballot may have been printed earlier).
+  await voteFullBallot(page);
+  const previousPrintPath = getMockFilePrinterHandler().getLastPrintPath();
+  await page.locator('#next_after_confirm').click(); // Print My Ballot
+  await expect
+    .poll(() => getMockFilePrinterHandler().getLastPrintPath(), {
+      timeout: 15000,
+    })
+    .not.toBe(previousPrintPath);
+  await capturePrintedBallot('printed-ballot-multilingual', screenshotCounter);
 });

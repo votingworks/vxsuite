@@ -41,6 +41,28 @@ export async function configureMachine(
 }
 
 /**
+ * Votes a selection in every contest and advances to the review screen.
+ * Selects the first available option in each contest (the first candidate or
+ * the "Yes" option), so the printed ballot has real votes. Assumes the voter is
+ * on the first contest screen. Uses language-independent locators (the "Next"
+ * button id and the review screen's print button id) so it works regardless of
+ * the ballot language.
+ */
+export async function voteFullBallot(page: Page): Promise<void> {
+  // The print button only appears on the review screen, marking the end.
+  const printButton = page.locator('#next_after_confirm');
+  for (let guard = 0; guard < 40; guard += 1) {
+    if (await printButton.isVisible()) return;
+    const firstOption = page.getByRole('option').first();
+    if (await firstOption.isVisible()) {
+      await firstOption.click();
+    }
+    await page.locator('#next').click();
+  }
+  await printButton.waitFor();
+}
+
+/**
  * Opens the polls as a poll worker, then removes the card. Assumes the machine
  * is configured and showing the unauthenticated "insert poll worker card to
  * open polls" screen.

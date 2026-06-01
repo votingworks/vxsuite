@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGeneralFixtures,
+} from '@votingworks/fixtures';
 import {
   Election,
   ElectionDefinition,
@@ -60,6 +63,37 @@ export function getMultiLanguageFamousNamesElectionDefinition(): ElectionDefinit
       ...baseElectionDefinition.election.ballotStrings,
       ...multiLangBallotStrings,
     },
+  };
+  return safeParseElectionDefinition(
+    JSON.stringify(patchedElection)
+  ).unsafeUnwrap();
+}
+
+// Languages to generate ballot-style variants for, matching electionGeneral's
+// translations. English is first so it is the default ballot style.
+const GENERAL_ELECTION_BALLOT_LANGUAGES = ['en', 'es-US', 'zh-Hans', 'zh-Hant'];
+
+/**
+ * The general election, patched so each ballot style becomes a group of
+ * per-language variants (the structure VxDesign produces for multi-language
+ * elections). A voter session starts on the English variant; switching the
+ * ballot language swaps to the matching variant (see useBallotStyleManager),
+ * and the BMD ballot then renders dual-language (e.g. Chinese + English).
+ */
+export function getMultiLanguageGeneralElectionDefinition(): ElectionDefinition {
+  const baseElectionDefinition =
+    electionGeneralFixtures.readElectionDefinition();
+  const ballotStyles = baseElectionDefinition.election.ballotStyles.flatMap(
+    (ballotStyle) =>
+      GENERAL_ELECTION_BALLOT_LANGUAGES.map((language) => ({
+        ...ballotStyle,
+        id: `${ballotStyle.groupId}_${language}`,
+        languages: [language],
+      }))
+  );
+  const patchedElection: Election = {
+    ...baseElectionDefinition.election,
+    ballotStyles,
   };
   return safeParseElectionDefinition(
     JSON.stringify(patchedElection)
