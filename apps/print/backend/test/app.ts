@@ -39,6 +39,7 @@ import { getUserRole } from '../src/util/auth';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { Api } from '../src';
+import { BarcodeScannerClient } from '../src/barcode_scanner/client';
 
 async function getFamousNamesBallotPdfBase64s(): Promise<
   readonly [string, string, string, string]
@@ -201,6 +202,7 @@ export function buildTestEnvironment(): {
     logger,
     usbDrive: mockUsbDrive.usbDrive,
     printer: mockPrinterHandler.printer,
+    barcodeScannerClient: new BarcodeScannerClient(logger),
   });
 
   // port 0 binds to a random, free port assigned by the OS

@@ -104,12 +104,14 @@ export function ExpandedSelect({
   options,
   onSelect,
   onSearch,
+  searchValue,
   style,
 }: {
   selectedValue: string;
   options: Array<{ value: string; label: string }>;
   onSelect: (selected: string) => void;
   onSearch?: (value: string) => void;
+  searchValue?: string;
   style?: React.CSSProperties;
 }): JSX.Element {
   const optionListRef = useRef<HTMLDivElement>(null);
@@ -144,11 +146,11 @@ export function ExpandedSelect({
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const newSearchString = (event.target.value || '').trim();
-              onSearch(newSearchString);
+              onSearch(event.target.value || '');
             }}
             placeholder="Search"
             type="text"
+            value={searchValue}
           />
         </SearchBox>
       )}

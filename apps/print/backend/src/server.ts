@@ -10,6 +10,7 @@ import { PORT } from './globals';
 import { Workspace } from './util/workspace';
 import { getDefaultAuth, getUserRole } from './util/auth';
 import { AppContext } from './context';
+import { BarcodeScannerClient } from './barcode_scanner/client';
 
 export interface StartOptions {
   auth?: DippedSmartCardAuthApi;
@@ -30,6 +31,8 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
   );
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
+  const barcodeScannerClient = new BarcodeScannerClient(logger);
+  void barcodeScannerClient.listen();
 
   const context: AppContext = {
     auth: resolvedAuth,
@@ -37,6 +40,7 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
     usbDrive,
     workspace,
     printer,
+    barcodeScannerClient,
   };
 
   const ballotPrintCount = workspace.store.getTotalBallotPrintCount();

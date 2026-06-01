@@ -1,0 +1,28 @@
+[package]
+name = "print-barcode-scanner-daemon"
+version = "0.1.0"
+edition = "2021"
+license.workspace = true
+
+[[bin]]
+name = "barcodescannerd"
+path = "src/cino_s680_daemon.rs"
+
+[dependencies]
+chrono = { workspace = true, features = ["serde"] }
+color-eyre = { workspace = true }
+nix = { workspace = true }
+nusb = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-serial = { workspace = true }
+thiserror = { workspace = true }
+vx-logging = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tokio-test = { workspace = true }
+
+[lints]
+workspace = true

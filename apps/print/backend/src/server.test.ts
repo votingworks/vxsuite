@@ -51,6 +51,7 @@ test('start passes context to `buildApp`', () => {
     logger: expect.anything(),
     usbDrive: expect.anything(),
     printer: expect.anything(),
+    barcodeScannerClient: expect.anything(),
   });
   expect(listen).toHaveBeenCalledWith(PORT, expect.any(Function));
 

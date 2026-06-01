@@ -55,6 +55,7 @@ export enum LogSource {
   VxPollBookFrontend = 'vx-pollbook-frontend',
   VxPollBookBackend = 'vx-pollbook-backend',
   VxPollBookBarcodeScannerDaemon = 'vx-pollbook-barcode-scanner-daemon',
+  VxPrintBarcodeScannerDaemon = 'vx-print-barcode-scanner-daemon',
   VxPrintFrontend = 'vx-print-frontend',
   VxPrintBackend = 'vx-print-backend',
 }

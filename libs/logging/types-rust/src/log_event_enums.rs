@@ -89,6 +89,8 @@ pub enum Source {
     VxPollBookBackend,
     #[serde(rename = "vx-pollbook-barcode-scanner-daemon")]
     VxPollBookBarcodeScannerDaemon,
+    #[serde(rename = "vx-print-barcode-scanner-daemon")]
+    VxPrintBarcodeScannerDaemon,
     #[serde(rename = "vx-print-frontend")]
     VxPrintFrontend,
     #[serde(rename = "vx-print-backend")]

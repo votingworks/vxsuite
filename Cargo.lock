@@ -1143,6 +1143,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 
 [[package]]
+name = "print-barcode-scanner-daemon"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "color-eyre",
+ "nix 0.26.4",
+ "nusb",
+ "proptest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-serial",
+ "tokio-test",
+ "vx-logging",
+]
+
+[[package]]
 name = "proc-macro-crate"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
