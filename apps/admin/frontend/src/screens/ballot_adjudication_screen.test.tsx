@@ -1366,7 +1366,8 @@ test('contest list shows correct option resolution bullets', async () => {
     .resolves();
 });
 
-test('contest list shows pending write-in and marginal mark counts before adjudication', async () => {
+test('contest list shows pending status lines before adjudication', async () => {
+  // zoo-council-mammal: one pending write-in and two marginal marks.
   const zooCouncil = makeContestAdjudicationData(
     'zoo-council-mammal',
     makeContestTag({ hasWriteIn: true, hasMarginalMark: true })
@@ -1397,7 +1398,23 @@ test('contest list shows pending write-in and marginal mark counts before adjudi
     },
   });
 
-  const adjData = makeBallotAdjudicationData(CVR_ID_1, [zooCouncil]);
+  // best-animal-mammal: tagged for overvote -> "Overvote to adjudicate"
+  const overvoted = makeContestAdjudicationData(
+    'best-animal-mammal',
+    makeContestTag({ hasOvervote: true, hasWriteIn: false })
+  );
+
+  // best-animal-fish: tagged for undervote -> "Undervote to adjudicate"
+  const undervoted = makeContestAdjudicationData(
+    'best-animal-fish',
+    makeContestTag({ hasUndervote: true, hasWriteIn: false })
+  );
+
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    zooCouncil,
+    overvoted,
+    undervoted,
+  ]);
   setupBasicMocks({ adjudicationData: adjData });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
@@ -1405,10 +1422,68 @@ test('contest list shows pending write-in and marginal mark counts before adjudi
     apiMock,
   });
 
-  await screen.findByText('Zoo Council');
-  const zooCouncilItem = within(screen.getByText('Zoo Council').closest('li')!);
+  const zooCouncilItem = within(
+    (await screen.findByText('Zoo Council')).closest('li')!
+  );
   zooCouncilItem.getByText('1 write-in to adjudicate');
   zooCouncilItem.getByText('2 marginal marks to adjudicate');
+
+  const [bestAnimalMammal, bestAnimalFish] = screen
+    .getAllByText('Best Animal')
+    .map((el) => within(el.closest('li')!));
+  bestAnimalMammal.getByText('Overvote to adjudicate');
+  bestAnimalFish.getByText('Undervote to adjudicate');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('contest list only shows overvote/undervote/marginal status lines present in the contest tag', async () => {
+  // best-animal-mammal: 1 seat. A marked official candidate plus a marked
+  // write-in is an overvote by raw count, and one option has a marginal mark,
+  // but the contest is tagged only for the write-in (overvote and marginal-mark
+  // adjudication disabled). Only the write-in line should show.
+  const writeInOnly = makeContestAdjudicationData(
+    'best-animal-mammal',
+    makeContestTag({ hasWriteIn: true })
+  );
+  writeInOnly.options[0].scannedVote = true;
+  writeInOnly.options[1].hasMarginalMark = true;
+  writeInOnly.options.push({
+    definition: {
+      id: 'write-in-0',
+      contestId: 'best-animal-mammal',
+      name: 'Write-In #1',
+      type: 'candidate' as const,
+      isWriteIn: true,
+    },
+    scannedVote: true,
+    hasMarginalMark: false,
+    writeInRecord: {
+      id: 'wr-0',
+      optionId: 'write-in-0',
+      contestId: 'best-animal-mammal',
+      cvrId: CVR_ID_1,
+      electionId: 'e',
+      status: 'pending' as const,
+    },
+  });
+
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [writeInOnly]);
+  setupBasicMocks({ adjudicationData: adjData });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  const bestAnimal = within(
+    (await screen.findByText('Best Animal')).closest('li')!
+  );
+  bestAnimal.getByText('1 write-in to adjudicate');
+  expect(bestAnimal.queryByText('Overvote to adjudicate')).toBeNull();
+  expect(bestAnimal.queryByText(/marginal mark/)).toBeNull();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })

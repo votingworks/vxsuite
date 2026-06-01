@@ -284,6 +284,7 @@ function ContestAdjudicationSummary({
   adjudicatedContest?: AdjudicatedCvrContest;
 }): JSX.Element | null {
   if (!adjudicatedContest) {
+    const { tag } = item.adjudicationData;
     const writeIns = item.adjudicationData.options.filter(
       (option) => option.writeInRecord
     ).length;
@@ -292,12 +293,22 @@ function ContestAdjudicationSummary({
     ).length;
     return (
       <React.Fragment>
+        {tag?.hasOvervote && (
+          <StatusLineNeedsAdjudication>
+            Overvote to adjudicate
+          </StatusLineNeedsAdjudication>
+        )}
+        {tag?.hasUndervote && (
+          <StatusLineNeedsAdjudication>
+            Undervote to adjudicate
+          </StatusLineNeedsAdjudication>
+        )}
         {writeIns > 0 && (
           <StatusLineNeedsAdjudication>
             {writeIns} {pluralize('write-in', writeIns)} to adjudicate
           </StatusLineNeedsAdjudication>
         )}
-        {marginalMarks > 0 && (
+        {tag?.hasMarginalMark && (
           <StatusLineNeedsAdjudication>
             {marginalMarks} {pluralize('marginal mark', marginalMarks)} to
             adjudicate
