@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import type { Locator, Page, PageScreenshotOptions } from '@playwright/test';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 
 export interface ScreenshotCounter {
   next: () => string;
@@ -15,51 +14,6 @@ export function createScreenshotCounter(): ScreenshotCounter {
       return prefix;
     },
   };
-}
-
-function isBlankImage(image: { data: Uint8ClampedArray }): boolean {
-  const { data } = image;
-  for (let i = 0; i < data.length; i += 4) {
-    const red = data[i] ?? 255;
-    const green = data[i + 1] ?? 255;
-    const blue = data[i + 2] ?? 255;
-    if (red < 250 || green < 250 || blue < 250) {
-      return false;
-    }
-  }
-  return true;
-}
-
-export interface CapturePdfScreenshotsOptions {
-  /**
-   * Skip fully-blank pages. Useful for single-sided print jobs, where the mock
-   * printer inserts an empty back page after each content page.
-   */
-  skipBlankPages?: boolean;
-}
-
-/**
- * Renders each page of a PDF to a numbered PNG in the screenshots directory, so
- * generated PDFs (readiness reports, printed ballots, tally reports, etc.)
- * appear alongside the UI screenshots. Apps supply the PDF bytes from whatever
- * source they use (mock printer, mock USB drive, ...).
- */
-export async function capturePdfScreenshots(
-  pdfBytes: Uint8Array,
-  name: string,
-  counter: ScreenshotCounter,
-  options: CapturePdfScreenshotsOptions = {}
-): Promise<void> {
-  let captured = 0;
-  for await (const { page } of pdfToImages(pdfBytes, { scale: 2 })) {
-    if (options.skipBlankPages && isBlankImage(page)) continue;
-    const suffix = captured === 0 ? name : `${name}-page${captured + 1}`;
-    await writeImageData(
-      `./test-results/screenshots/${counter.next()}-${suffix}.png`,
-      page
-    );
-    captured += 1;
-  }
 }
 
 export function buildIntegrationTestHelper(

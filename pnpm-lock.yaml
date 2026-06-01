@@ -2185,6 +2185,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -3293,6 +3296,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../../../libs/hmpb
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/pdi-scanner':
         specifier: workspace:*
         version: link:../../../libs/pdi-scanner
@@ -5390,9 +5396,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
