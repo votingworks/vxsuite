@@ -297,6 +297,29 @@ function applyAdjudicatedCvrContest(
 }
 
 /**
+ * Adjudicates a single contest on a CVR within its own transaction, without
+ * marking the CVR as resolved. Useful for tests and incremental flows.
+ */
+export function adjudicateCvrContest(
+  input: AdjudicatedCvrContest & { cvrId: Id },
+  store: Store,
+  logger: BaseLogger
+): void {
+  const electionId = assertDefined(store.getCurrentElectionId());
+  const { cvrId, contestId, adjudicatedContestOptionById } = input;
+  const { votes } = store.getCastVoteRecordVoteInfo({ electionId, cvrId });
+  store.withTransaction(() => {
+    applyAdjudicatedCvrContest(
+      cvrId,
+      { contestId, adjudicatedContestOptionById },
+      votes[contestId],
+      store,
+      logger
+    );
+  });
+}
+
+/**
  * Applies all per-contest adjudications for a single ballot, marks the cvr as
  * resolved, and completes the ballot claim — atomically in one transaction.
  */

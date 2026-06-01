@@ -964,6 +964,12 @@ export const appStrings = {
     <UiString uiStringKey="labelSelectedOption">Selected option:</UiString>
   ),
 
+  labelStraightPartyIndirectVote: () => (
+    <UiString uiStringKey="labelStraightPartyIndirectVote">
+      Straight Party Vote
+    </UiString>
+  ),
+
   labelThemesContrastHighDark: () => (
     <UiString uiStringKey="labelThemesContrastHighDark">
       White text, black background
@@ -1195,6 +1201,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteBmdStraightPartyAppliesToContest: () => (
+    <UiString uiStringKey="noteBmdStraightPartyAppliesToContest">
+      Your straight party vote will apply to this contest.
+    </UiString>
+  ),
+
   noteBmdBallotBoxIsFull: () => (
     <UiString uiStringKey="noteBmdBallotBoxIsFull">
       A poll worker must empty the full ballot box.
@@ -1211,6 +1223,12 @@ export const appStrings = {
   noteBmdScanningReinsertedBallot: () => (
     <UiString uiStringKey="noteBmdScanningReinsertedBallot">
       Please wait while the votes on your ballot are scanned.
+    </UiString>
+  ),
+
+  noteStraightPartyAffectsContest: () => (
+    <UiString uiStringKey="noteStraightPartyAffectsContest">
+      Includes selections from your straight party vote
     </UiString>
   ),
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { assert, assertDefined } from '@votingworks/basics';
-import { Contests, District } from '@votingworks/types';
+import { Contests, District, DistrictContest } from '@votingworks/types';
 import { Button, Modal } from '@votingworks/ui';
 
 import {
@@ -22,9 +22,9 @@ function serializeContestIds(contests: Contests): string {
 }
 
 export function reorderContestsByDistrict(
-  contests: Contests,
+  contests: readonly DistrictContest[],
   districtOrder: District[]
-): Contests {
+): DistrictContest[] {
   const candidateContests = contests.filter((c) => c.type === 'candidate');
   const yesNoContests = contests.filter((c) => c.type === 'yesno');
   assert(candidateContests.length + yesNoContests.length === contests.length);
@@ -64,11 +64,11 @@ function ReorderContestsByDistrictModal({
   onClose,
   onSave,
 }: {
-  contests: Contests;
+  contests: readonly DistrictContest[];
   districts: readonly District[];
   isSaving: boolean;
   onClose: () => void;
-  onSave: (reordered: Contests) => void;
+  onSave: (reordered: DistrictContest[]) => void;
 }): React.ReactNode {
   const [orderedDistricts, setOrderedDistricts] = useState<District[]>(() => {
     // Initialize district order based on the order of appearance in contests
@@ -163,7 +163,9 @@ export function ReorderContestsByDistrictButton({
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const electionInfo = getElectionInfoQuery.data;
-  const contests = listContestsQuery.data;
+  const contests: DistrictContest[] = listContestsQuery.data.filter(
+    (c): c is DistrictContest => c.type !== 'straight-party'
+  );
   const districts = listDistrictsQuery.data;
 
   return (

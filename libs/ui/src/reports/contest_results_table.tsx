@@ -12,6 +12,7 @@ import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { ReportTable } from './layout';
 import { Font } from '../typography';
+import { BallotText } from '../ballot_text';
 
 const DistrictName = styled.p`
   margin-bottom: 0;
@@ -108,7 +109,9 @@ function ContestOptionRow({
   if (showManualTally) {
     return (
       <tr data-testid={testId}>
-        <th className="option-label">{optionLabel.replace('-', '‑')}</th>
+        <th className="option-label">
+          <BallotText text={optionLabel.replace('-', '‑')} />
+        </th>
         <td>{format.count(scannedTally)}</td>
         <td>
           {manualTally === 0 ? (
@@ -126,7 +129,9 @@ function ContestOptionRow({
 
   return (
     <tr data-testid={testId}>
-      <th colSpan={3}>{optionLabel}</th>
+      <th colSpan={3}>
+        <BallotText text={optionLabel} />
+      </th>
       <td>{format.count(scannedTally)}</td>
     </tr>
   );
@@ -182,7 +187,7 @@ export function ContestResultsTable({
   scannedContestResults,
   manualContestResults,
   aggregateInsignificantWriteIns = true,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   // When there are manual results, the metadata is included as table rows
   // rather than as an above table caption.
   const contestTableRows: JSX.Element[] = manualContestResults
@@ -273,6 +278,29 @@ export function ContestResultsTable({
       );
       break;
     }
+    case 'straight-party': {
+      assert(scannedContestResults.contestType === 'straight-party');
+      assertIsOptional<Tabulation.StraightPartyContestResults>(
+        manualContestResults
+      );
+      for (const [partyId, tally] of Object.entries(
+        scannedContestResults.tallies
+      )) {
+        const key = `${contest.id}-${partyId}`;
+        const manualTally = manualContestResults?.tallies[partyId]?.tally ?? 0;
+        contestTableRows.push(
+          <ContestOptionRow
+            key={key}
+            testId={key}
+            optionLabel={tally.name}
+            scannedTally={tally.tally}
+            manualTally={manualTally}
+            showManualTally={hasManualResults}
+          />
+        );
+      }
+      break;
+    }
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);
@@ -281,8 +309,12 @@ export function ContestResultsTable({
 
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
-      <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
-      <ContestTitle>{contest.title}</ContestTitle>
+      {contest.type !== 'straight-party' && (
+        <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
+      )}
+      <ContestTitle>
+        <BallotText text={contest.title} />
+      </ContestTitle>
       {contest.type === 'candidate' && (
         <ContestMetadata>
           Vote for {contest.seats}
@@ -290,6 +322,9 @@ export function ContestResultsTable({
             <span> • {contest.termDescription}</span>
           )}
         </ContestMetadata>
+      )}
+      {contest.type === 'straight-party' && (
+        <ContestMetadata>Vote for not more than 1</ContestMetadata>
       )}
       {!hasManualResults && (
         <MetadataLabel>

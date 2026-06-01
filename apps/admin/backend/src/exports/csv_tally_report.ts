@@ -10,6 +10,7 @@ import {
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
+  flattenBallotLineBreaks,
   getEmptyElectionResults,
   getTallyReportCandidateRows,
   groupMapToGroupList,
@@ -82,7 +83,12 @@ function buildRow({
   // Contest, Selection, and Tally
   // -----------------------------
 
-  values.push(contest.title, contest.id, selection, selectionId);
+  values.push(
+    flattenBallotLineBreaks(contest.title),
+    contest.id,
+    flattenBallotLineBreaks(selection),
+    selectionId
+  );
 
   if (hasManualResults) {
     values.push(manualVotes.toString(), scannedVotes.toString());
@@ -196,6 +202,24 @@ function* generateDataRows({
           hasManualResults,
           manualVotes: manualContestResults?.noTally ?? 0,
         });
+      } else {
+        assert(scannedContestResults.contestType === 'straight-party');
+        assertIsOptional<Tabulation.StraightPartyContestResults>(
+          manualContestResults
+        );
+        for (const [partyId, tally] of Object.entries(
+          scannedContestResults.tallies
+        )) {
+          yield buildRow({
+            metadataValues,
+            contest,
+            selection: tally.name,
+            selectionId: partyId,
+            scannedVotes: tally.tally,
+            hasManualResults,
+            manualVotes: manualContestResults?.tallies[partyId]?.tally ?? 0,
+          });
+        }
       }
 
       yield buildRow({

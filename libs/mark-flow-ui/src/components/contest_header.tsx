@@ -17,7 +17,7 @@ export interface ContestHeaderProps {
   breadcrumbs?: BreadcrumbMetadata;
   children?: React.ReactNode;
   contest: Contest | MsEitherNeitherContest;
-  district: District;
+  district?: District;
   className?: string;
 }
 
@@ -73,11 +73,13 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
             <Breadcrumbs {...breadcrumbs} />
           </AudioOnly>
         )}
-        <div>
-          <Caption weight="semiBold">
-            {electionStrings.districtName(district)}
-          </Caption>
-        </div>
+        {district && (
+          <div>
+            <Caption weight="semiBold">
+              {electionStrings.districtName(district)}
+            </Caption>
+          </div>
+        )}
         <div>
           <Title>{electionStrings.contestTitle(contest)}</Title>
         </div>

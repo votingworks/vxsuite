@@ -104,6 +104,12 @@ export function getCastVoteRecordBallotType(
  * Converts the vote data in the CDF cast vote record into the simple
  * dictionary of contest ids to contest selection ids that VxAdmin uses
  * internally as a basis for tallying votes.
+ *
+ * Selections flagged with `Status=[GeneratedRules]` (i.e. added by
+ * straight-party expansion at scan time) are excluded so that the stored
+ * votes reflect only the voter's direct marks. SP rules are re-applied at
+ * tabulation/adjudication time, which keeps tallies correct and lets the
+ * adjudication UI distinguish derived from direct selections.
  */
 export function convertCastVoteRecordVotesToTabulationVotes(
   cvrSnapshot: CVR.CVRSnapshot
@@ -118,9 +124,17 @@ export function convertCastVoteRecordVotesToTabulationVotes(
       const selectionPosition = cvrContestSelection.SelectionPosition[0];
       assert(selectionPosition);
 
-      if (selectionPosition.HasIndication === CVR.IndicationStatus.Yes) {
-        contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
+      if (selectionPosition.HasIndication !== CVR.IndicationStatus.Yes) {
+        continue;
       }
+      const isStraightPartyDerived =
+        cvrContestSelection.Status?.includes(
+          CVR.ContestSelectionStatus.GeneratedRules
+        ) ?? false;
+      if (isStraightPartyDerived) {
+        continue;
+      }
+      contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
     }
 
     votes[cvrContest.ContestId] = contestSelectionIds;
@@ -263,6 +277,10 @@ function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
       ];
     case 'yesno':
       return [contest.yesOption.id, contest.noOption.id];
+    case 'straight-party':
+      // Valid options are party IDs, but we don't have election.parties here.
+      // For now, accept any option ID for straight-party contests.
+      return [];
     default:
       /* istanbul ignore next */
       return throwIllegalValue(contest);
@@ -290,12 +308,18 @@ export function castVoteRecordHasValidContestReferences(
         return err('contest-not-found');
       }
 
-      const validContestOptions = new Set(
-        getValidContestOptions(electionContest)
-      );
-      for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-        if (!validContestOptions.has(cvrContestSelection.ContestSelectionId)) {
-          return err('contest-option-not-found');
+      // Straight-party options are derived from election.parties, not stored
+      // on the contest itself, so skip option validation for them.
+      if (electionContest.type !== 'straight-party') {
+        const validContestOptions = new Set(
+          getValidContestOptions(electionContest)
+        );
+        for (const cvrContestSelection of cvrContest.CVRContestSelection) {
+          if (
+            !validContestOptions.has(cvrContestSelection.ContestSelectionId)
+          ) {
+            return err('contest-option-not-found');
+          }
         }
       }
     }

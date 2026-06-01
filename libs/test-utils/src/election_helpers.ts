@@ -181,9 +181,10 @@ export function createMockVotes(
   for (const contest of filteredContests) {
     if (contest.type === 'candidate') {
       votes[contest.id] = contest.candidates.slice(0, contest.seats);
-    } else {
+    } else if (contest.type === 'yesno') {
       votes[contest.id] = [contest.yesOption.id];
     }
+    // Skip straight-party contests — test helpers don't generate votes for them
   }
   return votes;
 }

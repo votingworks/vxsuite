@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import * as ttsStrings from './tts_strings';
 import { ElectionRecord, Store } from './store';
+import { vxJurisdiction } from '../test/mocks';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {
@@ -223,7 +224,10 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     electionDate: [],
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
+  const mockStore: Partial<Mocked<Store>> = {
+    getElection: vi.fn(),
+    getElectionJurisdiction: vi.fn().mockResolvedValue(vxJurisdiction),
+  };
   const api = newApi({ workspace: { store: mockStore } });
 
   assert(mockStore.getElection);
@@ -259,7 +263,10 @@ test('ttsStringDefaults - new/empty election', async () => {
     title: '',
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
+  const mockStore: Partial<Mocked<Store>> = {
+    getElection: vi.fn(),
+    getElectionJurisdiction: vi.fn().mockResolvedValue(vxJurisdiction),
+  };
   const api = newApi({ workspace: { store: mockStore } });
 
   const electionRecord: PartialDeep<ElectionRecord> = { election };
@@ -292,7 +299,10 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
     precincts: [],
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
+  const mockStore: Partial<Mocked<Store>> = {
+    getElection: vi.fn(),
+    getElectionJurisdiction: vi.fn().mockResolvedValue(vxJurisdiction),
+  };
   const api = newApi({ workspace: { store: mockStore } });
 
   const electionRecord: PartialDeep<ElectionRecord> = { election };

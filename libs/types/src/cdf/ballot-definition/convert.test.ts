@@ -489,3 +489,26 @@ test('ballot styles with same districts but different rotations in different pre
     contest1InBallotStyle2?.Physical[0].PhysicalContestOption[0].ContestOptionId
   ).toEqual('contest-1-option-candidate-2');
 });
+
+test('convertVxfElectionToCdfBallotDefinition emits StraightPartyContest', () => {
+  const spContest: Vxf.StraightPartyContest = {
+    id: 'sp-1',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  const electionWithSp: Vxf.Election = {
+    ...testVxfElection,
+    contests: [...testVxfElection.contests, spContest],
+  };
+
+  const cdf = convertVxfElectionToCdfBallotDefinition(electionWithSp);
+  const cdfContests = cdf.Election[0].Contest;
+  const spCdfContest = cdfContests.find((c) => c['@id'] === 'sp-1');
+  expect(spCdfContest?.['@type']).toEqual(
+    'BallotDefinition.StraightPartyContest'
+  );
+  // Options are derived from election.parties
+  expect(spCdfContest?.ContestOption.map((o) => o['@id']).sort()).toEqual(
+    electionWithSp.parties.map((p) => p.id).sort()
+  );
+});

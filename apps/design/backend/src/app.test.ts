@@ -521,7 +521,8 @@ test('create/list/delete elections', async () => {
               })
             ),
           }
-        : {
+        : contest.type === 'yesno'
+        ? {
             yesOption: {
               ...contest.yesOption,
               id: expectNotEqualTo(contest.yesOption.id),
@@ -530,7 +531,8 @@ test('create/list/delete elections', async () => {
               ...contest.noOption,
               id: expectNotEqualTo(contest.noOption.id),
             },
-          }),
+          }
+        : {}),
     }))
   );
   expect(
@@ -3021,6 +3023,11 @@ test('cloneElection', async () => {
               ...contest.noOption,
               id: expectNotEqualTo(contest.noOption.id),
             },
+          };
+        case 'straight-party':
+          return {
+            ...contest,
+            id: expectNotEqualTo(contest.id),
           };
         default:
           throw throwIllegalValue(contest, 'type');

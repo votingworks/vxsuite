@@ -450,6 +450,12 @@ function Contest({
       );
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
+    /* istanbul ignore next - @preserve */
+    case 'straight-party':
+      throw new Error(
+        'Straight party contests are not supported by this ballot template'
+      );
+    /* istanbul ignore next - @preserve */
     default:
       return throwIllegalValue(contest);
   }

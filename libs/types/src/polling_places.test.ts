@@ -103,6 +103,36 @@ test('pollingPlaceContests', () => {
   ]);
 });
 
+test('pollingPlaceContests includes the straight-party contest for every polling place', () => {
+  // The straight-party contest has no districtId — it's a ballot-wide contest
+  // that applies to every ballot, so every polling place should include it.
+  const sp = mockContest({ id: 'sp', type: 'straight-party' });
+  const contest1 = mockContest({ id: 'c1', districtId: 'd1' });
+  const contest2 = mockContest({ id: 'c2', districtId: 'd2' });
+
+  const precinct1 = mockPrecinctNoSplits({ id: 'p1', districtIds: ['d1'] });
+  const precinct2 = mockPrecinctNoSplits({ id: 'p2', districtIds: ['d2'] });
+
+  const election = mockElection({
+    contests: [sp, contest1, contest2],
+    precincts: [precinct1, precinct2],
+  });
+
+  expect(
+    pollingPlaceContests(
+      election,
+      mockPollingPlace({ precincts: { p1: { type: 'whole' } } })
+    )
+  ).toEqual([sp, contest1]);
+
+  expect(
+    pollingPlaceContests(
+      election,
+      mockPollingPlace({ precincts: { p2: { type: 'whole' } } })
+    )
+  ).toEqual([sp, contest2]);
+});
+
 test('pollingPlaceFromElection', () => {
   expect(() => pollingPlaceFromElection(mockElection({}), 'pp1')).toThrow(
     /pp1 not found/i

@@ -49,7 +49,9 @@ function regenerateElectionIds(election, precincts) {
   const contests = election.contests.map((contest) => ({
     ...contest,
     id: replaceId(contest.id),
-    districtId: replaceId(contest.districtId),
+    ...('districtId' in contest
+      ? { districtId: replaceId(contest.districtId) }
+      : {}),
 
     ...(() => {
       switch (contest.type) {
@@ -73,6 +75,8 @@ function regenerateElectionIds(election, precincts) {
               id: replaceId(contest.noOption.id),
             },
           };
+        case 'straight-party':
+          return {};
         default: {
           throw new Error(`Unknown contest type: ${contest}`);
         }
@@ -122,7 +126,9 @@ exports.up = async (pgm) => {
         ...(c.type === 'candidate' && c.partyId ? [c.partyId] : []),
         ...(c.type === 'candidate'
           ? c.candidates.flatMap((cand) => [cand.id, ...(cand.partyIds ?? [])])
-          : [c.yesOption.id, c.noOption.id]),
+          : c.type === 'yesno'
+          ? [c.yesOption.id, c.noOption.id]
+          : []),
       ]),
     ];
   }

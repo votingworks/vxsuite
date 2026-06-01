@@ -70,7 +70,7 @@ fn test_multi_page_round_trip_with_votes() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(cc) => Some(cc),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -105,7 +105,7 @@ fn test_multi_page_round_trip_with_write_in() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(cc) => Some(cc),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -141,7 +141,7 @@ fn test_multi_page_round_trip_yesno_contest() {
         .iter()
         .find_map(|contest| match contest {
             Contest::YesNo(yn) => Some(yn),
-            Contest::Candidate(_) => None,
+            Contest::Candidate(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -174,7 +174,7 @@ fn test_multi_page_partial_contests_on_page() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(cc) => Some(cc.id.clone()),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -239,6 +239,9 @@ fn max_votes_for(contest: &Contest) -> (ContestId, ContestVote) {
             ),
         ),
         Contest::YesNo(yn) => (yn.id.clone(), ContestVote::YesNo(yn.yes_option.id.clone())),
+        Contest::StraightParty(_) => {
+            unreachable!("arbitrary_contests does not generate straight-party contests")
+        }
     }
 }
 

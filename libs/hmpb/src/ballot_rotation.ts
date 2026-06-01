@@ -40,6 +40,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
     for (const contest of contests) {
       switch (contest.type) {
         case 'yesno':
+        case 'straight-party':
           // do nothing
           break;
         case 'candidate': {
@@ -109,6 +110,7 @@ function getDefaultCandidateOrdering({
         );
         break;
       case 'yesno':
+      case 'straight-party':
         // do nothing
         break;
       default: {

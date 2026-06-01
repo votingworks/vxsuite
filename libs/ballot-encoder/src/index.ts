@@ -272,6 +272,8 @@ function encodeBallotVotesInto(
     const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
+      // istanbul ignore next - @preserve straight-party votes are not encoded in BMD ballots
+      if (contest.type === 'straight-party') continue;
       if (contest.type === 'yesno') {
         const ynVote = contestVote as YesNoVote;
 
@@ -411,6 +413,8 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
 
   // read vote data
   for (const contest of contestsWithAnswers) {
+    // istanbul ignore next - @preserve straight-party votes are not encoded in BMD ballots
+    if (contest.type === 'straight-party') continue;
     if (contest.type === 'yesno') {
       // yesno votes get a single bit
       votes[contest.id] = bits.readBoolean()
@@ -450,6 +454,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
 
       votes[contest.id] = contestVote;
     }
+    // straight-party votes are not encoded in BMD ballots
   }
 
   return votes;

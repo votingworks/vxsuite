@@ -6,6 +6,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import styled, { ThemeProvider } from 'styled-components';
+import { BallotText } from '../ballot_text';
 import {
   ContestHeading,
   ContestSection,
@@ -124,7 +125,8 @@ export function AdminWriteInImageReport({
             return (
               <ContestSection key={contest.id}>
                 <ContestHeading>
-                  {contest.title} &bull; {totalWriteIns} Total Write-In
+                  <BallotText text={contest.title} /> &bull; {totalWriteIns}{' '}
+                  Total Write-In
                   {totalWriteIns !== 1 && 's'}
                 </ContestHeading>
                 {qualifiedWriteInsEnabled &&

@@ -13,9 +13,11 @@ import {
   getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
+  applyStraightPartyRules,
   combineElectionResults,
   convertVotesDictToTabulationVotes,
   filterVotesByContestIds,
+  generateStraightPartyTestDeckBallots,
   generateTestDeckBallots,
   getBallotStyleIdPartyIdLookup,
   getContestsForPrecinctAndElection,
@@ -123,7 +125,9 @@ export async function createPrecinctSummaryBallotTestDeck({
       election.ballotStyles.find((bs) => bs.id === ballotStyleId)
     );
     const allContests = ballotStyle.districts.flatMap((districtId) =>
-      election.contests.filter((c) => c.districtId === districtId)
+      election.contests.filter(
+        (c) => c.type !== 'straight-party' && c.districtId === districtId
+      )
     );
     const contestIdSet = new Set(page.contestIds);
     return allContests.filter((c) => contestIdSet.has(c.id));
@@ -241,24 +245,34 @@ export function generateTestDeckCastVoteRecords(
   options: { includeSummaryBallots: boolean }
 ): Tabulation.CastVoteRecord[] {
   const { includeSummaryBallots = false } = options;
+  const hasStraightParty = election.contests.some(
+    (c) => c.type === 'straight-party'
+  );
 
-  // Generate HMPB ballot specs
-  const hmpbBallotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
-    election,
-    ballotFormat: 'bubble',
-    includeBlankBallots: false,
-    includeOvervotedBallots: false,
-  });
-
-  // Generate summary ballot specs if configured
-  const summaryBallotSpecs: TestDeckBallotSpec[] = includeSummaryBallots
-    ? generateTestDeckBallots({
+  // For straight-party elections, use the purpose-built test deck. The
+  // straight-party branches here are exercised by the dedicated straight-party
+  // test-deck tests rather than the design backend suite.
+  /* istanbul ignore next - @preserve */
+  const hmpbBallotSpecs: TestDeckBallotSpec[] = hasStraightParty
+    ? generateStraightPartyTestDeckBallots(election).ballots
+    : generateTestDeckBallots({
         election,
-        ballotFormat: 'summary',
+        ballotFormat: 'bubble',
         includeBlankBallots: false,
         includeOvervotedBallots: false,
-      })
-    : [];
+      });
+
+  // Skip summary ballots for straight-party test deck
+  /* istanbul ignore next - @preserve */
+  const summaryBallotSpecs: TestDeckBallotSpec[] =
+    hasStraightParty || !includeSummaryBallots
+      ? []
+      : generateTestDeckBallots({
+          election,
+          ballotFormat: 'summary',
+          includeBlankBallots: false,
+          includeOvervotedBallots: false,
+        });
 
   const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
     assertDefined(election.gridLayouts)
@@ -288,6 +302,13 @@ export function generateTestDeckCastVoteRecords(
       ({ ballotStyleId }) => ballotStyleId === ballotSpec.ballotStyleId
     );
 
+    // Apply straight-party expansion before splitting by sheet, so the
+    // expansion can see the straight-party vote alongside all contest votes
+    const allVotes = applyStraightPartyRules(
+      election,
+      convertVotesDictToTabulationVotes(ballotSpec.votes)
+    );
+
     // HMPB ballots may be multiple sheets, so generate a CVR for each sheet
     for (const [
       sheetZeroIndex,
@@ -295,7 +316,7 @@ export function generateTestDeckCastVoteRecords(
     ] of ballotContestLayout.contestIdsBySheet.entries()) {
       cvrs.push({
         votes: filterVotesByContestIds({
-          votes: convertVotesDictToTabulationVotes(ballotSpec.votes),
+          votes: allVotes,
           contestIds: sheetContestIds,
         }),
         card: { type: 'hmpb', sheetNumber: sheetZeroIndex + 1 },
@@ -321,7 +342,10 @@ export function generateTestDeckCastVoteRecords(
 
     // Summary/BMD ballots contain all votes on a single "sheet" (the QR code)
     cvrs.push({
-      votes: convertVotesDictToTabulationVotes(ballotSpec.votes),
+      votes: applyStraightPartyRules(
+        election,
+        convertVotesDictToTabulationVotes(ballotSpec.votes)
+      ),
       card: { type: 'bmd' },
       ...CVR_ATTRIBUTES,
     });

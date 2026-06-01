@@ -59,6 +59,7 @@ import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
+  applyStraightPartyRules,
   asSqliteBool,
   BooleanEnvironmentVariableName,
   fromSqliteBool,
@@ -717,7 +718,7 @@ export class Store implements BaseStore {
           `,
       electionId,
       contest.id,
-      contest.districtId,
+      contest.type !== 'straight-party' ? contest.districtId : null,
       contest.type === 'candidate' ? contest.partyId ?? null : null,
       sortIndex
     );
@@ -936,6 +937,13 @@ export class Store implements BaseStore {
       where
         ${whereParts.join(' and\n')}
       group by contestId, sortIndex
+
+      union
+
+      select contests.id as contestId, contests.sort_index as sortIndex
+      from contests
+      where contests.election_id = ? and contests.district_id is null
+
       order by sortIndex
     `;
 
@@ -945,7 +953,8 @@ export class Store implements BaseStore {
         electionId,
         electionId,
         electionId,
-        ...ballotStyleParams
+        ...ballotStyleParams,
+        electionId
       ) as Array<{
         contestId: ContestId;
       }>
@@ -1658,10 +1667,13 @@ export class Store implements BaseStore {
         markScores: string;
       }
     >) {
-      const votes = this.applyAdjudicatedVotes({
-        votesString: row.votes,
-        adjudicatedVotesString: row.adjudicatedVotes,
-      });
+      const votes = applyStraightPartyRules(
+        election,
+        this.applyAdjudicatedVotes({
+          votesString: row.votes,
+          adjudicatedVotesString: row.adjudicatedVotes,
+        })
+      );
       const partyId = isOpenPrimary(election)
         ? inferPartyFromVotes(election, votes)
         : row.partyId ?? undefined;
@@ -2299,7 +2311,9 @@ export class Store implements BaseStore {
     const contests: ContestAdjudicationData[] = [];
     const adjudicatedContests: AdjudicatedCvrContest[] = [];
     for (const contest of ballotStyleContests) {
-      const contestOptions = [...allContestOptions(contest, ballotStyleGroup)];
+      const contestOptions = [
+        ...allContestOptions(contest, ballotStyleGroup, election.parties),
+      ];
       const contestVotes = assertDefined(votes[contest.id]);
       const contestMarkScores = markScores?.[contest.id];
 
@@ -2329,6 +2343,7 @@ export class Store implements BaseStore {
           adminAdjudicationReasons,
         }),
         options,
+        derivedOptionIds: [], // populated below after SP expansion
       });
 
       const contestAdjudicatedVotes = adjudicatedVotes?.[contest.id];
@@ -2348,6 +2363,29 @@ export class Store implements BaseStore {
           ),
         });
       }
+    }
+
+    // Compute straight-party derived votes off the effective vote state:
+    // adjudicated votes when a contest has been resolved, otherwise scanned.
+    const effectiveVotes: Tabulation.Votes = {};
+    for (const contestData of contests) {
+      const contestAdjudicatedVotes = adjudicatedVotes?.[contestData.contestId];
+      effectiveVotes[contestData.contestId] =
+        contestAdjudicatedVotes ??
+        contestData.options
+          .filter((o) => o.scannedVote)
+          .map((o) => o.definition.id);
+    }
+    const expandedVotes = applyStraightPartyRules(election, effectiveVotes);
+    for (const contestData of contests) {
+      // effectiveVotes has an entry for every contest (populated above), and
+      // applyStraightPartyRules preserves all input keys, so both lookups are
+      // always defined.
+      const effective = new Set(effectiveVotes[contestData.contestId]);
+      const expanded = assertDefined(expandedVotes[contestData.contestId]);
+      contestData.derivedOptionIds = expanded.filter(
+        (id) => !effective.has(id)
+      );
     }
 
     debug('queried ballot adjudication data for cvr id %s', cvrId);

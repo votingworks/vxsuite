@@ -2,9 +2,11 @@ import { expect, test } from 'vitest';
 import { err, ok, Result } from '@votingworks/basics';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import {
+  ElectionDefinition,
   SYSTEM_LIMITS,
   SystemLimits,
   SystemLimitViolation,
+  StraightPartyContest,
 } from '@votingworks/types';
 
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
@@ -277,3 +279,79 @@ test.each<{
     expect(result).toEqual(expectedValidationResult);
   }
 );
+
+test('counts straight-party contests against candidate and seat limits', () => {
+  const baseDefinition = electionGeneralFixtures.readElectionDefinition();
+  const spContest: StraightPartyContest = {
+    id: 'sp-1',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  const definitionWithSp: ElectionDefinition = {
+    ...baseDefinition,
+    election: {
+      ...baseDefinition.election,
+      contests: [...baseDefinition.election.contests, spContest],
+    },
+  };
+
+  // SP contributes election.parties.length candidates to the totalCandidates
+  // tally. Set the limit just below that to force a violation.
+  const tooFewCandidates =
+    baseDefinition.election.contests.reduce((sum, c) => {
+      if (c.type === 'candidate') return sum + c.candidates.length;
+      if (c.type === 'yesno') return sum + 2;
+      return sum;
+    }, 0) +
+    baseDefinition.election.parties.length -
+    1;
+  const result = validateElectionDefinitionAgainstSystemLimits(
+    definitionWithSp,
+    {
+      systemLimitsOverride: {
+        ...SYSTEM_LIMITS,
+        election: {
+          ...SYSTEM_LIMITS.election,
+          candidates: tooFewCandidates,
+        },
+      },
+    }
+  );
+  expect(result).toEqual(
+    err({
+      limitScope: 'election',
+      limitType: 'candidates',
+      valueExceedingLimit: expect.any(Number),
+    })
+  );
+});
+
+test('counts straight-party seats against mark-scan ballot style limits', () => {
+  // SP contests are automatically included on every ballot style via
+  // getContests(), so adding the contest to election.contests is enough to
+  // make the mark-scan per-ballot-style aggregator visit the SP arm. We use
+  // a unique ballotHash so the per-election contest-ID lookup cache doesn't
+  // return a stale set without the SP contest.
+  const baseDefinition = electionGeneralFixtures.readElectionDefinition();
+  const spContest: StraightPartyContest = {
+    id: 'sp-1',
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+  };
+  const definitionWithSp: ElectionDefinition = {
+    ...baseDefinition,
+    ballotHash: 'unique-hash-for-sp-test',
+    election: {
+      ...baseDefinition.election,
+      contests: [...baseDefinition.election.contests, spContest],
+    },
+  };
+
+  // Validation with defaults — succeeds, but the per-ballot-style aggregator
+  // walks the SP case during the sum.
+  const result = validateElectionDefinitionAgainstSystemLimits(
+    definitionWithSp,
+    { checkMarkScanSystemLimits: true }
+  );
+  expect(result).toEqual(ok());
+});
