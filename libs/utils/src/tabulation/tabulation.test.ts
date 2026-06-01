@@ -2229,8 +2229,8 @@ describe('straight-party contest results', () => {
   });
 
   test('combineContestResults sums straight-party tallies across snapshots', () => {
-    const partyA = electionWithSp.parties[0].id;
-    const partyB = electionWithSp.parties[1].id;
+    const partyA = assertDefined(electionWithSp.parties[0]).id;
+    const partyB = assertDefined(electionWithSp.parties[1]).id;
     const resultsA: Tabulation.StraightPartyContestResults = {
       contestId: 'sp-1',
       contestType: 'straight-party',
@@ -2269,7 +2269,7 @@ describe('straight-party contest results', () => {
   });
 
   test('combineContestResults ignores tallies for parties not in the election', () => {
-    const partyA = electionWithSp.parties[0].id;
+    const partyA = assertDefined(electionWithSp.parties[0]).id;
     const resultsWithExtraParty: Tabulation.StraightPartyContestResults = {
       contestId: 'sp-1',
       contestType: 'straight-party',
@@ -2302,7 +2302,7 @@ describe('straight-party contest results', () => {
     expect(spResults?.contestType).toEqual('straight-party');
     expect(
       (spResults as Tabulation.StraightPartyContestResults).tallies[
-        electionWithSp.parties[0].id
+        assertDefined(electionWithSp.parties[0]).id
       ]?.tally
     ).toEqual(0);
   });
@@ -2313,7 +2313,7 @@ describe('straight-party contest results', () => {
     expect(spResults?.contestType).toEqual('straight-party');
     expect(
       (spResults as Tabulation.StraightPartyContestResults).tallies[
-        electionWithSp.parties[0].id
+        assertDefined(electionWithSp.parties[0]).id
       ]?.tally
     ).toEqual(0);
   });
