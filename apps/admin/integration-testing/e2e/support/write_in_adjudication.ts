@@ -78,12 +78,8 @@ async function adjudicateWriteIn(
   }
 }
 
-function getPendingContestItems(page: Page): Locator {
-  // Pending contests render a warning icon as a child of the list item.
-  // Resolved contests do not.
-  return page
-    .getByRole('listitem')
-    .filter({ has: page.locator('svg[data-icon="triangle-exclamation"]') });
+export function getPendingContestItems(page: Page): Locator {
+  return page.getByRole('listitem').filter({ hasText: /to adjudicate/i });
 }
 
 export async function adjudicateAllWriteIns(page: Page): Promise<void> {
@@ -105,12 +101,12 @@ export async function adjudicateAllWriteIns(page: Page): Promise<void> {
     }
 
     // Wait for at least one pending contest to appear — every ballot in the
-    // adjudication queue has at least one unresolved contest, but the warning
-    // icons render asynchronously after the ballot data loads.
+    // adjudication queue has at least one unresolved contest, but the status
+    // lines render asynchronously after the ballot data loads.
     await expect(getPendingContestItems(page).first()).toBeVisible();
 
     // Adjudicate all pending contests on this ballot. After each contest
-    // confirmation, we wait for the warning icon count to decrease before
+    // confirmation, we wait for the pending contest count to decrease before
     // checking for the next pending contest.
     let pendingCount = await getPendingContestItems(page).count();
     while (pendingCount > 0) {
@@ -132,7 +128,7 @@ export async function adjudicateAllWriteIns(page: Page): Promise<void> {
       await page.getByRole('button', { name: 'Confirm' }).click();
 
       // Wait for the ballot view to return and the data to refetch
-      // (the warning icon on the just-adjudicated contest should disappear)
+      // (the "to adjudicate" line on the just-resolved contest should disappear)
       const expectedCount = pendingCount - 1;
       if (expectedCount > 0) {
         await expect(getPendingContestItems(page)).toHaveCount(expectedCount);
