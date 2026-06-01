@@ -5,7 +5,6 @@ import {
   ElectionSerializationFormat,
   ElectionSerializationFormatSchema,
   formatBallotHash,
-  pollingPlacesGenerateFromPrecincts,
   Precinct,
 } from '@votingworks/types';
 import { translateBallotStrings } from '@votingworks/backend';

@@ -1491,7 +1491,7 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
   });

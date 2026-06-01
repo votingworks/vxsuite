@@ -9,6 +9,7 @@ import {
   ok,
   range,
   Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   BallotMode,
@@ -691,21 +692,34 @@ export async function BallotPageContent(
 
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const contestElements = section.map((contest, index) =>
-      contest.type === 'candidate' ? (
-        <CandidateContest
-          key={contest.id}
-          contest={contest}
-          election={election}
-        />
-      ) : (
-        <BallotMeasureContest
-          key={contest.id}
-          contest={contest}
-          contestNumber={index + 1}
-        />
-      )
-    );
+    const contestElements = section.map((contest, index) => {
+      switch (contest.type) {
+        case 'candidate':
+          return (
+            <CandidateContest
+              key={contest.id}
+              contest={contest}
+              election={election}
+            />
+          );
+        case 'yesno':
+          return (
+            <BallotMeasureContest
+              key={contest.id}
+              contest={contest}
+              contestNumber={index + 1}
+            />
+          );
+        /* istanbul ignore next - @preserve */
+        case 'straight-party':
+          throw new Error(
+            'Straight party contests are not supported by this ballot template'
+          );
+        /* istanbul ignore next - @preserve */
+        default:
+          return throwIllegalValue(contest);
+      }
+    });
     const sectionHeader =
       section[0].type === 'candidate' ? (
         <CandidateContestSectionHeader />

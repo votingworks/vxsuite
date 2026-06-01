@@ -415,20 +415,20 @@ export interface BallotDefinition {
  */
 export const BallotDefinitionSchema: z.ZodSchema<BallotDefinition> = z.object({
   '@type': z.literal('BallotDefinition.BallotDefinition'),
-  BallotFormat: z.array(z.lazy(/* istanbul ignore next */ () => BallotFormatSchema)).min(1),
-  Election: z.array(z.lazy(/* istanbul ignore next */ () => ElectionSchema)).min(1),
-  GeneratedDate: z.lazy(/* istanbul ignore next */ () => DateTimeWithZoneSchema),
-  GpUnit: z.array(z.lazy(/* istanbul ignore next */ () => ReportingUnitSchema)).min(1),
-  Header: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => HeaderSchema))),
+  BallotFormat: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotFormatSchema)).min(1),
+  Election: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ElectionSchema)).min(1),
+  GeneratedDate: z.lazy(/* istanbul ignore next - @preserve */ () => DateTimeWithZoneSchema),
+  GpUnit: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitSchema)).min(1),
+  Header: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => HeaderSchema))),
   Issuer: z.string(),
   IssuerAbbreviation: z.string(),
-  Office: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeSchema))),
-  Party: z.array(z.lazy(/* istanbul ignore next */ () => PartySchema)),
+  Office: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeSchema))),
+  Party: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PartySchema)),
   SequenceEnd: integerSchema,
   SequenceStart: integerSchema,
-  Shape: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ShapeSchema))),
+  Shape: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ShapeSchema))),
   VendorApplicationId: z.string(),
-  Version: z.lazy(/* istanbul ignore next */ () => BallotDefinitionVersionSchema),
+  Version: z.lazy(/* istanbul ignore next - @preserve */ () => BallotDefinitionVersionSchema),
 });
 
 /**
@@ -499,15 +499,15 @@ export const BallotFormatSchema: z.ZodSchema<BallotFormat> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.BallotFormat'),
   Application: z.optional(z.string()),
-  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
-  FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema))),
+  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
+  FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema))),
   LongEdge: z.number(),
   Manufacturer: z.optional(z.string()),
-  MeasurementUnit: z.lazy(/* istanbul ignore next */ () => MeasurementUnitTypeSchema),
-  Orientation: z.lazy(/* istanbul ignore next */ () => OrientationTypeSchema),
-  SelectionCaptureMethod: z.lazy(/* istanbul ignore next */ () => SelectionCaptureMethodSchema),
+  MeasurementUnit: z.lazy(/* istanbul ignore next - @preserve */ () => MeasurementUnitTypeSchema),
+  Orientation: z.lazy(/* istanbul ignore next - @preserve */ () => OrientationTypeSchema),
+  SelectionCaptureMethod: z.lazy(/* istanbul ignore next - @preserve */ () => SelectionCaptureMethodSchema),
   ShortEdge: z.number(),
-  mCDFArea: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => mCDFAreaSchema))),
+  mCDFArea: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => mCDFAreaSchema))),
 });
 
 /**
@@ -552,10 +552,10 @@ export interface BallotMeasureContest {
 export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.BallotMeasureContest'),
-  BallotTitle: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  ContestOption: z.array(z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema)).min(2),
+  BallotTitle: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  ContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureOptionSchema)).min(2),
   ElectionDistrictId: z.string(),
-  FullText: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  FullText: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   Name: z.string(),
 });
 
@@ -579,7 +579,7 @@ export interface BallotMeasureOption {
 export const BallotMeasureOptionSchema: z.ZodSchema<BallotMeasureOption> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.BallotMeasureOption'),
-  Selection: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  Selection: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
 });
 
 /**
@@ -621,10 +621,10 @@ export interface BallotStyle {
  */
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   '@type': z.literal('BallotDefinition.BallotStyle'),
-  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
+  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
   GpUnitIds: z.array(z.string()).min(1),
   Language: z.optional(z.array(z.string()).min(1)),
-  OrderedContent: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OrderedContestSchema))),
+  OrderedContent: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OrderedContestSchema))),
   PartyIds: z.optional(z.array(z.string())),
 });
 
@@ -683,7 +683,7 @@ export const BoundedObjectSchema: z.ZodSchema<BoundedObject> = z.object({
   '@type': z.literal('BallotDefinition.BoundedObject'),
   H: z.number(),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next */ () => BallotSideTypeSchema),
+  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -713,7 +713,7 @@ export interface Candidate {
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Candidate'),
-  BallotName: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  BallotName: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
 });
 
 /**
@@ -770,8 +770,8 @@ export interface CandidateContest {
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.CandidateContest'),
-  BallotTitle: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  ContestOption: z.array(z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)).min(1),
+  BallotTitle: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  ContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CandidateOptionSchema)).min(1),
   ElectionDistrictId: z.string(),
   Name: z.string(),
   OfficeIds: z.optional(z.array(z.string())),
@@ -884,10 +884,10 @@ export const ElectionSchema: z.ZodSchema<Election> = z.object({
   Contest: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => StraightPartyContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   EndDate: DateSchema,
-  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   StartDate: DateSchema,
-  Type: z.lazy(/* istanbul ignore next */ () => ElectionTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => ElectionTypeSchema),
 });
 
 /**
@@ -926,7 +926,7 @@ export const ExternalIdentifierSchema: z.ZodSchema<ExternalIdentifier> = z.objec
   '@type': z.literal('BallotDefinition.ExternalIdentifier'),
   Label: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  Type: z.lazy(/* istanbul ignore next */ () => IdentifierTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => IdentifierTypeSchema),
   Value: z.string(),
 });
 
@@ -980,7 +980,7 @@ export const FiducialMarkSchema: z.ZodSchema<FiducialMark> = z.object({
   H: z.number(),
   ShapeId: z.string(),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next */ () => BallotSideTypeSchema),
+  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -1016,9 +1016,9 @@ export interface Header {
 export const HeaderSchema: z.ZodSchema<Header> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Header'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  HeaderedContent: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  HeaderedContent: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
 });
 
 /**
@@ -1064,7 +1064,7 @@ export interface InternationalizedText {
 export const InternationalizedTextSchema: z.ZodSchema<InternationalizedText> = z.object({
   '@type': z.literal('BallotDefinition.InternationalizedText'),
   Label: z.optional(z.string()),
-  Text: z.array(z.lazy(/* istanbul ignore next */ () => LanguageStringSchema)).min(1),
+  Text: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => LanguageStringSchema)).min(1),
 });
 
 /**
@@ -1119,8 +1119,8 @@ export interface Office {
 export const OfficeSchema: z.ZodSchema<Office> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Office'),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  Term: z.lazy(/* istanbul ignore next */ () => TermSchema),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  Term: z.lazy(/* istanbul ignore next - @preserve */ () => TermSchema),
 });
 
 /**
@@ -1185,13 +1185,13 @@ export interface OptionPosition {
  */
 export const OptionPositionSchema: z.ZodSchema<OptionPosition> = z.object({
   '@type': z.literal('BallotDefinition.OptionPosition'),
-  FractionalVotes: z.optional(z.lazy(/* istanbul ignore next */ () => FractionalNumberSchema)),
+  FractionalVotes: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => FractionalNumberSchema)),
   H: z.number(),
   IndicatorId: z.optional(z.string()),
   NumberVotes: integerSchema,
   Rank: z.optional(integerSchema),
   Sheet: integerSchema,
-  Side: z.lazy(/* istanbul ignore next */ () => BallotSideTypeSchema),
+  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -1220,7 +1220,7 @@ export interface OrderedContest {
 export const OrderedContestSchema: z.ZodSchema<OrderedContest> = z.object({
   '@type': z.literal('BallotDefinition.OrderedContest'),
   ContestId: z.string(),
-  Physical: z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestSchema)).min(1),
+  Physical: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PhysicalContestSchema)).min(1),
 });
 
 /**
@@ -1252,8 +1252,8 @@ export interface Party {
 export const PartySchema: z.ZodSchema<Party> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Party'),
-  Abbreviation: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  Abbreviation: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
 });
 
 /**
@@ -1312,9 +1312,9 @@ export interface PhysicalContest {
 export const PhysicalContestSchema: z.ZodSchema<PhysicalContest> = z.object({
   '@type': z.literal('BallotDefinition.PhysicalContest'),
   BallotFormatId: z.string(),
-  Extent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => BoundedObjectSchema), z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema), z.lazy(/* istanbul ignore next */ () => OptionPositionSchema), z.lazy(/* istanbul ignore next */ () => WriteInPositionSchema), z.lazy(/* istanbul ignore next */ () => mCDFAreaSchema)]))),
-  FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema))),
-  PhysicalContestOption: z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestOptionSchema)).min(1),
+  Extent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => BoundedObjectSchema), z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema), z.lazy(/* istanbul ignore next - @preserve */ () => OptionPositionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => WriteInPositionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => mCDFAreaSchema)]))),
+  FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema))),
+  PhysicalContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PhysicalContestOptionSchema)).min(1),
 });
 
 /**
@@ -1345,8 +1345,8 @@ export interface PhysicalContestOption {
 export const PhysicalContestOptionSchema: z.ZodSchema<PhysicalContestOption> = z.object({
   '@type': z.literal('BallotDefinition.PhysicalContestOption'),
   ContestOptionId: z.string(),
-  OptionPosition: z.array(z.lazy(/* istanbul ignore next */ () => OptionPositionSchema)).min(1),
-  WriteInPosition: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => WriteInPositionSchema))),
+  OptionPosition: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OptionPositionSchema)).min(1),
+  WriteInPosition: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => WriteInPositionSchema))),
 });
 
 /**
@@ -1394,8 +1394,8 @@ export const ReportingUnitSchema: z.ZodSchema<ReportingUnit> = z.object({
   '@type': z.literal('BallotDefinition.ReportingUnit'),
   ComposingGpUnitIds: z.optional(z.array(z.string())),
   IsMailOnly: z.optional(z.boolean()),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  Type: z.lazy(/* istanbul ignore next */ () => ReportingUnitTypeSchema),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitTypeSchema),
 });
 
 /**
@@ -1435,9 +1435,9 @@ export interface Shape {
 export const ShapeSchema: z.ZodSchema<Shape> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Shape'),
-  FillColor: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
-  ShapeType: z.lazy(/* istanbul ignore next */ () => ShapeTypeSchema),
-  StrokeColor: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
+  FillColor: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
+  ShapeType: z.lazy(/* istanbul ignore next - @preserve */ () => ShapeTypeSchema),
+  StrokeColor: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
   StrokeWidth: z.optional(z.number()),
 });
 
@@ -1564,7 +1564,7 @@ export const WriteInPositionSchema: z.ZodSchema<WriteInPosition> = z.object({
   H: z.number(),
   SelectionRequired: z.optional(z.boolean()),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next */ () => BallotSideTypeSchema),
+  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -1619,7 +1619,7 @@ export const mCDFAreaSchema: z.ZodSchema<mCDFArea> = z.object({
   '@type': z.literal('BallotDefinition.mCDFArea'),
   H: z.number(),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next */ () => BallotSideTypeSchema),
+  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
   Symbology: z.string(),
   W: z.number(),
   X: z.number(),
