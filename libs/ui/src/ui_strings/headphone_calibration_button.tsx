@@ -1,4 +1,4 @@
-/* istanbul ignore file - internal tool - @preserve */
+/* istanbul ignore file - internal tool */
 
 import React from 'react';
 import styled, { css } from 'styled-components';

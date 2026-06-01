@@ -82,7 +82,7 @@ export class GoogleCloudTranslator implements Translator {
   }) {
     this.translationClient =
       input.translationClient ??
-      /* istanbul ignore next - @preserve */ new GoogleCloudTranslationClient();
+      /* istanbul ignore next */ new GoogleCloudTranslationClient();
   }
 
   async translateText(

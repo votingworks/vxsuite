@@ -21,7 +21,7 @@ export function PrintPage({ print }: PrintPageProps): JSX.Element {
   const printLock = useLock();
 
   const printBallot = useCallback(() => {
-    /* istanbul ignore if - @preserve */
+    /* istanbul ignore if */
     if (!printLock.lock()) return;
     print();
   }, [print, printLock]);

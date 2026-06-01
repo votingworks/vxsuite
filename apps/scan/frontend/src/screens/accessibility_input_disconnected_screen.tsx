@@ -35,12 +35,12 @@ export function AccessibilityInputDisconnectedScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function WithAlarmPreview(): JSX.Element {
   return <AccessibilityInputDisconnectedScreen />;
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function WithoutAlarmPreview(): JSX.Element {
   return <AccessibilityInputDisconnectedScreen disableAlarm />;
 }

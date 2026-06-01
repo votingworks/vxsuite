@@ -176,7 +176,7 @@ async function exportLogsToUsbHelper({
       }
       break;
     default:
-      /* istanbul ignore next - compile time check @preserve */
+      /* istanbul ignore next - compile time check */
       throwIllegalValue(format);
   }
 
@@ -191,7 +191,7 @@ async function exportLogsToUsbHelper({
         await execFile('cp', ['-r', tempDirectory, destinationDirectory]);
         break;
       default:
-        /* istanbul ignore next - compile time check @preserve */
+        /* istanbul ignore next - compile time check */
         throwIllegalValue(format);
     }
     await usbDrive.sync();

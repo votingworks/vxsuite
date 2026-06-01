@@ -79,7 +79,7 @@ const rule: TSESLint.RuleModule<
           const pipeAfter = sourceCode.getTokenAfter(
             undefinedUnionResult.undefinedType
           );
-          /* istanbul ignore else - @preserve */
+          /* istanbul ignore else */
           if (pipeBefore.value === '|') {
             yield fixer.remove(pipeBefore);
           } else if (pipeAfter?.value === '|') {

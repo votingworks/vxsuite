@@ -279,7 +279,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
             </Callout>
           );
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(error);
         }
       }
@@ -605,7 +605,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             () => setIsConfirmingDelete(false)
           }
         />

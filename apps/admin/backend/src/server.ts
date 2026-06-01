@@ -42,7 +42,7 @@ import type { MachineMode } from './types';
 
 const debug = rootDebug.extend('server');
 
-/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests @preserve */
+/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests */
 function resolveWorkspacePath(baseLogger: BaseLogger): string {
   const workspacePath = ADMIN_WORKSPACE;
   if (!workspacePath) {
@@ -123,7 +123,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const auth = createAuth('host', baseLogger);
       const logger = Logger.from(
         baseLogger,
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         () => getUserRole(auth, workspace.store)
       );
       const multiUsbDrive =
@@ -206,7 +206,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const auth = createAuth('client', baseLogger);
       const logger = Logger.from(
         baseLogger,
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         () => getUserRole(auth, clientWorkspace.clientStore)
       );
 
@@ -237,7 +237,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     }
 
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(machineMode);
   }
 

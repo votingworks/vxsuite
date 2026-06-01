@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve used only in internal dev and testing */
+/* istanbul ignore file - used only in internal dev and testing */
 import { EventEmitter } from 'node:stream';
 import { BarcodeReader } from './types';
 

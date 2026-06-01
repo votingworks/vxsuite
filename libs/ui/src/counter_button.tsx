@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { useState } from 'react';
 import { Button } from './button';
 

@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { ImageData } from 'canvas';
 import { napi } from './napi';
 import { TimingMarks } from './types';

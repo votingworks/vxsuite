@@ -651,7 +651,7 @@ function BallotMeasureContest({
   // broader fix for in our image upload handling.
   // https://design.voting.works/elections/g4usy39oo1fw/contests/h9fzgh2orsim
   const ASHLAND_CONTEST_ID = 'h9fzgh2orsim';
-  /* istanbul ignore next - temporary - @preserve */
+  /* istanbul ignore next - temporary */
   const imgWithOverride = contest.id === ASHLAND_CONTEST_ID ? '50%' : undefined;
 
   return (

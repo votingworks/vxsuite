@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import * as fs from 'node:fs';
 import path from 'node:path';
 import {

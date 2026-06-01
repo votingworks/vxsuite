@@ -112,7 +112,7 @@ export function startHostNetworking({
 
   process.nextTick(() => {
     setInterval(async () => {
-      /* istanbul ignore next - re-entrancy guard @preserve */
+      /* istanbul ignore next - re-entrancy guard */
       if (isPolling) return;
       isPolling = true;
 
@@ -251,7 +251,7 @@ export function startClientNetworking({
 
   process.nextTick(() => {
     setInterval(async () => {
-      /* istanbul ignore next - re-entrancy guard @preserve */
+      /* istanbul ignore next - re-entrancy guard */
       if (isPolling) return;
       isPolling = true;
 
@@ -440,7 +440,7 @@ export function startClientNetworking({
           );
         }
       } catch (error) {
-        /* istanbul ignore next - defensive @preserve */
+        /* istanbul ignore next - defensive */
         debug('Error in client networking loop: %s', error);
       } finally {
         isPolling = false;

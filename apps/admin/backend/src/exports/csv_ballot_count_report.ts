@@ -70,7 +70,7 @@ function buildRow({
   const values: string[] = [...metadataValues];
 
   const counts: number[] = [];
-  /* istanbul ignore next - trivial fallthrough case @preserve */
+  /* istanbul ignore next - trivial fallthrough case */
   const manual = cardCounts.manual ?? 0;
   const total = getBallotCount(cardCounts);
 

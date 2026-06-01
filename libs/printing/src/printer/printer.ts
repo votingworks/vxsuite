@@ -43,7 +43,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
         const usbAttached =
           config &&
           isDeviceAttached(
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             (device: Device) =>
               device.deviceDescriptor.idVendor === config.vendorId &&
               device.deviceDescriptor.idProduct === config.productId

@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested externally at point of usage @preserve */
+/* istanbul ignore file - tested externally at point of usage */
 import { createCanvas, ImageData } from 'canvas';
 
 /**

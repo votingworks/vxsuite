@@ -164,7 +164,7 @@ function votingStateReducer(
     case 'setHasPrintedBallot':
       return { ...state, hasPrintedBallot: true };
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(action);
     }
   }
@@ -419,7 +419,7 @@ export function AppRoot(): JSX.Element | null {
   // Uses capture phase so it runs before the main keyboard handler.
   useEffect(() => {
     function patTutorialHandler(event: KeyboardEvent) {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       if (event.repeat) return;
 
       const isPatKey =

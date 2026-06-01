@@ -29,7 +29,7 @@ let sharedRenderer: SummaryBallotLayoutRenderer | null = null;
  * Closes the shared renderer. Call this on application shutdown.
  */
 export async function closeLayoutRenderer(): Promise<void> {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (sharedRenderer) {
     await sharedRenderer.close();
     sharedRenderer = null;
@@ -55,7 +55,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     case 'bubble_ballot':
       return printBubbleBallot(p);
     default:
-      /* istanbul ignore next  - @preserve */
+      /* istanbul ignore next  */
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
 

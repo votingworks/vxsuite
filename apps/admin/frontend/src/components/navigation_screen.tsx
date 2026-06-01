@@ -142,7 +142,7 @@ function getNavItems(
       return CLIENT_POLL_WORKER_NAV_ITEMS;
     }
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(machineMode);
   }
 }
@@ -161,7 +161,7 @@ function shouldShowToolbar(
         isPollWorkerAuth(auth)
       );
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(machineMode);
   }
 }

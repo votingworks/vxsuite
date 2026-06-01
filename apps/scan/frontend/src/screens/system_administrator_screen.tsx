@@ -101,7 +101,7 @@ export function SystemAdministratorScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;

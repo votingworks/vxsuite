@@ -137,7 +137,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   const setConfirmIdentity = useCallback(
     (voterId: string, identificationMethod: VoterIdentificationMethod) => {
       if (flowState.step !== 'search' && flowState.step !== 'select_party') {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         return;
       }
 
@@ -322,7 +322,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           errorMessage = 'Voter Has No Declared Party';
           break;
         default:
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(flowState.errorType);
       }
       return (
@@ -350,7 +350,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
       );
     }
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(flowState);
   }
 }

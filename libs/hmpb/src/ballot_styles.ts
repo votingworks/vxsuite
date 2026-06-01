@@ -213,7 +213,7 @@ export function generateBallotStyles(params: {
       );
 
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       return throwIllegalValue(electionType);
     }
   }

@@ -68,7 +68,7 @@ const StyledButton = styled(Button)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
   padding-left: ${(p) =>
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     p.theme.sizeMode === 'touchExtraLarge' && '0.25rem'};
   text-align: left;
   width: 100%;
@@ -105,7 +105,7 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   align-items: stretch;
   display: grid;
   grid-gap: ${(p) =>
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     p.theme.sizeMode === 'touchExtraLarge' ? '0.25rem' : '0.5rem'};
   grid-template-columns: ${(p) =>
     Array.from({ length: p.numColumns }).fill('1fr').join(' ')};

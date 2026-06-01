@@ -147,11 +147,11 @@ export async function listCastVoteRecordExportsOnUsbDrive(
           return err('found-file-instead-of-directory');
         }
         case 'permission-denied': {
-          /* istanbul ignore next: Hard to trigger without significant mocking @preserve */
+          /* istanbul ignore next: Hard to trigger without significant mocking */
           return err('permission-denied');
         }
         default: {
-          /* istanbul ignore next: Compile-time check for completeness @preserve */
+          /* istanbul ignore next: Compile-time check for completeness */
           throwIllegalValue(errorType);
         }
       }
@@ -186,7 +186,7 @@ export async function listCastVoteRecordExportsOnUsbDrive(
 
   return ok(
     [...castVoteRecordExportSummaries].sort(
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );

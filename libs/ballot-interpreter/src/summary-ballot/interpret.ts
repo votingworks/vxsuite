@@ -124,7 +124,7 @@ export async function interpret(
       expectedBallotHash,
       actualBallotHash:
         actualBallotHash ??
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         '',
     });
   }

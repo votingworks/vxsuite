@@ -688,7 +688,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
       case 'cdf':
         return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(electionSerializationFormat);
       }
     }

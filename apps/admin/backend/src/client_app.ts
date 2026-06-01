@@ -96,9 +96,9 @@ async function fetchImageAsDataUrl(
 ): Promise<string | undefined> {
   const url = `${hostAddress}/api/ballot-image/${cvrId}/${side}`;
   const response = await fetch(url);
-  /* istanbul ignore next - image fetch failure @preserve */
+  /* istanbul ignore next - image fetch failure */
   if (!response.ok) return undefined;
-  /* istanbul ignore next - content-type fallback @preserve */
+  /* istanbul ignore next - content-type fallback */
   const contentType = response.headers.get('content-type') ?? 'image/png';
   const { Buffer: NodeBuffer } = await import('node:buffer');
   const buffer = NodeBuffer.from(await response.arrayBuffer());
@@ -205,7 +205,7 @@ function buildClientApi({
         case ClientConnectionStatus.OnlineIncompatibleHostVersion:
           return { status: 'online-incompatible-host-version' };
         default:
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(status);
       }
     },
@@ -377,7 +377,7 @@ function buildClientApi({
       }
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
@@ -391,6 +391,7 @@ function buildClientApi({
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
@@ -398,7 +399,7 @@ function buildClientApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(clientStore)),
     }),
   });

@@ -19,7 +19,7 @@ function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
   try {
     return Buffer.from(new TextDecoder().decode(utf8StringData), 'base64');
   } catch {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     return utf8StringData;
   }
 }

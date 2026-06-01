@@ -62,7 +62,7 @@ export function InsertCardScreen({
           </React.Fragment>
         );
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(pollsState);
       }
     }

@@ -327,7 +327,7 @@ export function buildApi(
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
 
@@ -340,7 +340,7 @@ export function buildApi(
 
       // Confirm there are no printed ballots before opening polls, in compliance
       // with VVSG 2.0 1.1.3-B, even though it should be an impossible app state.
-      /* istanbul ignore next - impossible app state - @preserve */
+      /* istanbul ignore next - impossible app state */
       if (
         newPollsState === 'polls_open' &&
         oldPollsState === 'polls_closed_initial'
@@ -373,7 +373,7 @@ export function buildApi(
             }
             return LogEventId.VotingResumed;
           default:
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             throwIllegalValue(newPollsState);
         }
       })();
@@ -472,7 +472,7 @@ export function buildApi(
       });
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -486,6 +486,7 @@ export function buildApi(
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop */
 
     getMarkScanBmdModel(): BmdModelNumber {
       return getMarkScanBmdModel();

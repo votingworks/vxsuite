@@ -44,7 +44,7 @@ function isFormStateComplete(formState: UploadFormState): boolean {
         Boolean(formState.electionFile) && Boolean(formState.candidateFile)
       );
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(formState);
     }
   }
@@ -78,7 +78,7 @@ async function loadFileContents(
       };
     }
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(formState);
     }
   }

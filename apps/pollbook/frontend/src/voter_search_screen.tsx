@@ -87,7 +87,7 @@ export function validateUsState(aamvaIssuingJurisdiction: string): string {
   }
 
   // TODO add a default
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   throw new Error(`Unhandled ID jurisdiction: ${aamvaIssuingJurisdiction}`);
 }
 
@@ -173,12 +173,12 @@ export function VoterSearch({
     const merged: VoterSearchParams = {
       firstName:
         voterSearchParams.firstName ||
-        /* istanbul ignore next - @preserve - voterSearchParams.firstName being falsy is extremely unlikely */
+        /* istanbul ignore next - voterSearchParams.firstName being falsy is extremely unlikely */
         '',
       middleName: '',
       lastName:
         voterSearchParams.lastName ||
-        /* istanbul ignore next - @preserve - voterSearchParams.lastName being falsy is extremely unlikely */
+        /* istanbul ignore next - voterSearchParams.lastName being falsy is extremely unlikely */
         '',
       suffix: '',
       strictMatch: false,

@@ -16,7 +16,7 @@ export function LoadingConfigurationScreen(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   return <LoadingConfigurationScreen />;
 }

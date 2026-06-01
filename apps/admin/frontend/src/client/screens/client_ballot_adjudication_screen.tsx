@@ -27,7 +27,7 @@ function proxyErrorMessage(error: AdjudicationError): string {
     case 'host-disconnect':
       return 'Disconnected from host.';
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(error, 'type');
   }
 }
@@ -159,7 +159,7 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
       );
 
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(flowState);
   }
 }

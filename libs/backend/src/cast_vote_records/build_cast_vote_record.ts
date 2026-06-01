@@ -387,7 +387,7 @@ export function buildCVRContestsFromVotes({
         );
         break;
       default:
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(contest);
     }
   }

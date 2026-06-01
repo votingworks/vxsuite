@@ -30,7 +30,7 @@ const SmartCardsScreenButtonList = styled.div`
 `;
 
 function toLowerCaseExceptFirst(str: string): string {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (str.length === 0) {
     return str;
   }
@@ -109,15 +109,15 @@ function InsertCardPrompt({
         <SmartCardsScreenButtonList
           style={{ alignItems: 'start', marginTop: '1rem' }}
         >
-          {/* istanbul ignore next - @preserve | These functions will never be exercised */}
+          {/* istanbul ignore next - These functions will never be exercised */}
           <Button onPress={() => {}} disabled>
             Program Election Manager Card
           </Button>
-          {/* istanbul ignore next - @preserve */}
+          {/* istanbul ignore next */}
           <Button onPress={() => {}} disabled>
             Program Poll Worker Card
           </Button>
-          {/* istanbul ignore next - @preserve */}
+          {/* istanbul ignore next */}
           <Button onPress={() => {}} disabled>
             Program System Administrator Card
           </Button>
@@ -166,7 +166,7 @@ function ActionResultCallout({
         break;
       }
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(action);
       }
     }
@@ -222,7 +222,7 @@ function ActionResultCallout({
       );
 
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(action);
     }
   }
@@ -268,7 +268,7 @@ function ConfirmSystemAdminCardActionModal({
         };
 
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(actionType);
       }
     }
@@ -611,7 +611,7 @@ export function SmartCardsScreen({
     }
 
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(card.status);
     }
   }

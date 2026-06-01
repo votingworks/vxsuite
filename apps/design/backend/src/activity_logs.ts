@@ -86,7 +86,7 @@ export async function logActivity(
 }
 
 async function logToSlack(message: string): Promise<void> {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (slackWebhookUrl()) {
     try {
       await fetch(slackWebhookUrl(), {

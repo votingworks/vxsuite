@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
+/* istanbul ignore file - tested via Mark/Mark-Scan */
 import React from 'react';
 import styled from 'styled-components';
 import { Election, PartyId, VotesDict } from '@votingworks/types';
@@ -175,7 +175,7 @@ export function PartySelectionPage({
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             () => setPartyIdToConfirm(undefined)
           }
         />

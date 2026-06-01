@@ -281,7 +281,7 @@ export function buildApi(ctx: Context) {
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
 
@@ -316,7 +316,7 @@ export function buildApi(ctx: Context) {
             }
             return LogEventId.VotingResumed;
           default: {
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             throwIllegalValue(newPollsState);
           }
         }

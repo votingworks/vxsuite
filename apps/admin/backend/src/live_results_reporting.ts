@@ -54,7 +54,7 @@ export function getMatchingAbsenteePollingPlaces({
   }
 
   const absenteePollingPlaces = (
-    election.pollingPlaces ?? /* istanbul ignore next - @preserve */ []
+    election.pollingPlaces ?? /* istanbul ignore next */ []
   ).filter((place) => place.type === 'absentee');
   const matches = absenteePollingPlaces.filter((place) => {
     const placePrecinctIds = pollingPlacePrecinctIds(place);

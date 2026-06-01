@@ -134,7 +134,7 @@ export const setPrecinctSelection = {
   },
 } as const;
 
-/* istanbul ignore next - WIP - @preserve */
+/* istanbul ignore next - WIP */
 export const getPollingPlaceId = {
   queryKey(): QueryKey {
     return ['getPollingPlaceId'];
@@ -145,7 +145,7 @@ export const getPollingPlaceId = {
   },
 } as const;
 
-/* istanbul ignore next - WIP - @preserve */
+/* istanbul ignore next - WIP */
 export const setPollingPlaceId = {
   useMutation() {
     const apiClient = useApiClient();

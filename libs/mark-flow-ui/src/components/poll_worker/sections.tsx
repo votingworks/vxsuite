@@ -34,7 +34,7 @@ export interface HeaderProps {
   ballotsPrintedCount: number;
 }
 
-/* istanbul ignore next - @preserve - currently tested via apps. */
+/* istanbul ignore next - currently tested via apps. */
 export function SectionHeader(props: HeaderProps): JSX.Element {
   const { ballotsPrintedCount } = props;
 
@@ -55,7 +55,7 @@ export interface SectionPollsStateProps {
   updatePollsState: (pollsState: PollsState) => void;
 }
 
-/* istanbul ignore next - @preserve - currently tested via apps. */
+/* istanbul ignore next - currently tested via apps. */
 export function SectionPollsState(props: SectionPollsStateProps): JSX.Element {
   const { pollsState, updatePollsState } = props;
 
@@ -141,7 +141,7 @@ interface SystemButtonsProps {
   includePowerButton?: boolean;
 }
 
-/* istanbul ignore next - @preserve - currently tested via apps. */
+/* istanbul ignore next - currently tested via apps. */
 function SystemButtons({
   apiClient,
   includePowerButton = true,
@@ -165,7 +165,7 @@ export interface SectionSystemProps {
 /**
  * System section with H3 heading (for poll worker screen).
  */
-/* istanbul ignore next - @preserve - currently tested via apps. */
+/* istanbul ignore next - currently tested via apps. */
 export function SectionSystem(props: SectionSystemProps): JSX.Element {
   const { apiClient, includePowerButton } = props;
 
@@ -184,7 +184,7 @@ export function SectionSystem(props: SectionSystemProps): JSX.Element {
  * System section with H6 heading (for admin screen).
  * Uses H6 visual styling while allowing semantic heading level to be set via `as` prop.
  */
-/* istanbul ignore next - @preserve - currently tested via apps. */
+/* istanbul ignore next - currently tested via apps. */
 export function H6SectionSystem(props: SectionSystemProps): JSX.Element {
   const { apiClient, includePowerButton } = props;
 

@@ -247,7 +247,7 @@ export function buildPeerApp(context: PeerAppContext): Application {
         cvrId,
         side: side as Side,
       });
-      /* istanbul ignore next - corrupted image data @preserve */
+      /* istanbul ignore next - corrupted image data */
       if (!result) {
         res.status(404).json({ error: 'Image not found' });
         return;

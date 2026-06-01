@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via VxMark Playwright tests - @preserve */
+/* istanbul ignore file - tested via VxMark Playwright tests */
 import React from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 

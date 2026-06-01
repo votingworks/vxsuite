@@ -73,7 +73,7 @@ function generateTestJobForNodeJsPackage(
           `                JEST_JUNIT_OUTPUT_DIR: ./reports/`,
           `          - store_test_results:`,
           `              path: ${pkg.relativePath}/${
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             hasPlaywrightTests ? 'test-results' : 'reports'
           }/`,
         ]
@@ -247,12 +247,12 @@ function generateTestJobForPackage(
   pkg: PnpmPackageInfo,
   isConditional?: boolean
 ): Optional<string[]> {
-  /* istanbul ignore else - @preserve */
+  /* istanbul ignore else */
   if (pkg.packageJson) {
     return generateTestJobForNodeJsPackage(pkg, isConditional);
   }
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   throw new Error(`Unsupported package type: ${pkg.relativePath}`);
 }
 
@@ -283,7 +283,7 @@ function generateCircleCiFilteredAppConfigForPackage(
   pkg: PnpmPackageInfo
 ): string[] {
   const jobLines = generateTestJobForPackage(pkg, true); // Pass true for conditional
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!jobLines) {
     return [];
   }
@@ -385,7 +385,7 @@ export function generateAllConfigs(
   }, new Map<PnpmPackageInfo, string[]>());
   const pnpmJobsToFilter = jobsToRunOnChanges.reduce((memo, pkg) => {
     const jobLines = generateJobFilterForPackage(pkg);
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     if (!jobLines) {
       return memo;
     }
@@ -559,7 +559,7 @@ commands:
   for (const pkg of jobsToRunOnChanges) {
     const filteredConfigLines =
       generateCircleCiFilteredAppConfigForPackage(pkg);
-    /* istanbul ignore else - @preserve */
+    /* istanbul ignore else */
     if (filteredConfigLines.length > 0) {
       const filteredConfigPath = join(
         __dirname,

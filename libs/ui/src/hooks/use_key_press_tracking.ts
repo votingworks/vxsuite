@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 

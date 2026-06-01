@@ -1,4 +1,4 @@
-/* istanbul ignore file - currently only used in hwta - @preserve */
+/* istanbul ignore file - currently only used in hwta */
 import useSoundLib from 'use-sound';
 
 export function useSound(sound: 'success-5s' | 'alarm'): () => void {

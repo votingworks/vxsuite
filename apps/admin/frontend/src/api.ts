@@ -353,7 +353,7 @@ export const getBallotAdjudicationData = {
             apiClient.getBallotAdjudicationData({
               cvrId: input.cvrId,
             })
-        : /* istanbul ignore next - @preserve */
+        : /* istanbul ignore next */
           () => fail('input is required'),
       {
         enabled: !!input,
@@ -379,7 +379,7 @@ export const getBallotImages = {
             apiClient.getBallotImages({
               cvrId: input.cvrId,
             })
-        : /* istanbul ignore next - @preserve */
+        : /* istanbul ignore next */
           () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
@@ -462,7 +462,7 @@ export const getCastVoteRecordVoteInfo = {
         ? () =>
             apiClient.getCastVoteRecordVoteInfo({
               cvrId: input.cvrId,
-            }) /* istanbul ignore next - @preserve */
+            }) /* istanbul ignore next */
         : () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
@@ -491,7 +491,7 @@ export const getLiveResultsReportingUrl = {
       this.queryKey(input),
       input
         ? () => apiClient.getLiveResultsReportingUrl(input)
-        : /* istanbul ignore next - @preserve */
+        : /* istanbul ignore next */
           () => fail('input is required'),
       {
         enabled: !!input,
@@ -988,7 +988,7 @@ export const getWriteInImageReportPreview = {
     const apiClient = useApiClient();
     return useQuery(
       contestId ? this.queryKey(contestId) : ['getWriteInImageReportPreview'],
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       () =>
         contestId
           ? apiClient.getWriteInImageReportPreview({ contestId })

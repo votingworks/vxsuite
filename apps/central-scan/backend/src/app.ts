@@ -379,7 +379,7 @@ function buildApi({
       });
     },
 
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore start */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -393,6 +393,7 @@ function buildApi({
       });
       return qrCodeValue;
     },
+    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive,
@@ -400,7 +401,7 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   });

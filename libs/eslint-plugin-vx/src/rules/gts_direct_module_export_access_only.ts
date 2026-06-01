@@ -79,7 +79,7 @@ const rule: TSESLint.RuleModule<'directAccessOnly', readonly unknown[]> =
             // For some reason, this one only happens on some imports.
             // Specifically, it seems to happen with React. I suspect it's due to
             // `eslint-plugin-react` marking it as used, but I'm not sure.
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             if (
               reference.identifier.parent.type ===
                 AST_NODE_TYPES.ImportNamespaceSpecifier &&

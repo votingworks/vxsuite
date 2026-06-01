@@ -159,7 +159,7 @@ export async function exportCastVoteRecordsToUsbDrive({
       break;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
+      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(mode);
     }
   }

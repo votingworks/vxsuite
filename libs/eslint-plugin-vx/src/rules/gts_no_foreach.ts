@@ -237,7 +237,7 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
         }
 
         if (node.type === AST_NODE_TYPES.Program) {
-          /* istanbul ignore next @preserve */
+          /* istanbul ignore next */
           assert.equal(
             forEachStack.length,
             0,
@@ -273,7 +273,7 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
           } = currentForEach;
           const closingParen = sourceCode.getLastToken(forEachCall);
 
-          /* istanbul ignore next @preserve */
+          /* istanbul ignore next */
           assert.equal(closingParen?.value, ')');
 
           const dotBetweenCollectionAndForEach =

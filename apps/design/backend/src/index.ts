@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 
 import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';

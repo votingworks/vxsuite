@@ -24,7 +24,7 @@ export function combinePageInterpretationsForSheet(
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
   ) {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     const interpretation = (
       front.type === 'InterpretedBmdPage' ? front : back
     ) as InterpretedBmdPage;
@@ -44,7 +44,7 @@ export function combinePageInterpretationsForSheet(
     (frontType === 'InterpretedBmdMultiPagePage' && backType === 'BlankPage') ||
     (backType === 'InterpretedBmdMultiPagePage' && frontType === 'BlankPage')
   ) {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     const interpretation = (
       front.type === 'InterpretedBmdMultiPagePage' ? front : back
     ) as InterpretedBmdMultiPagePage;

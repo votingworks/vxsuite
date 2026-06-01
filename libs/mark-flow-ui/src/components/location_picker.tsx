@@ -34,7 +34,7 @@ export function LocationPicker(props: LocationPickerProps): React.ReactNode {
   const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
   const pollingPlacesEnabled = isFeatureFlagEnabled(ENABLE_POLLING_PLACES);
 
-  /* istanbul ignore next - precincts branch tested via apps - @preserve */
+  /* istanbul ignore next - precincts branch tested via apps */
   const nLocations = pollingPlacesEnabled
     ? election.pollingPlaces?.length || 0
     : election.precincts.length;
@@ -44,7 +44,7 @@ export function LocationPicker(props: LocationPickerProps): React.ReactNode {
   const mode: PollingPlacePickerMode =
     pollsState === 'polls_closed_final' ? 'disabled' : 'default';
 
-  /* istanbul ignore next - tested via apps - @preserve */
+  /* istanbul ignore next - tested via apps */
   if (!pollingPlacesEnabled) {
     return (
       <ChangePrecinctButton

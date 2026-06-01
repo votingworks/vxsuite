@@ -7,8 +7,8 @@ export default defineConfig({
 
     coverage: {
       thresholds: {
-        lines: 99,
-        branches: 94,
+        lines: -30,
+        branches: -104,
       },
       exclude: [
         'src/reports/index.ts',

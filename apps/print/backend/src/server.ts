@@ -21,11 +21,11 @@ export interface StartOptions {
  * Starts the server.
  */
 export function start({ auth, baseLogger, workspace }: StartOptions): void {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(
     baseLogger,
-    /* istanbul ignore next - @preserve */ () =>
+    /* istanbul ignore next */ () =>
       getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDrive(logger);
@@ -56,7 +56,7 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
 
   app.listen(
     PORT,
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     () => {
       void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxPrint backend running at http://localhost:${PORT}/`,

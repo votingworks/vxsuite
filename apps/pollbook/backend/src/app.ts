@@ -328,7 +328,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
             );
             break;
           default:
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             return err('unknown_voter_party');
         }
       } else if (election.type === 'general') {
@@ -771,7 +771,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       machineId,
       codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   } as const;

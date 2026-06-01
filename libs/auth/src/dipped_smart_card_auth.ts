@@ -80,7 +80,7 @@ function cardStatusToProgrammableCard(
       };
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
+      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(cardStatus, 'status');
     }
   }
@@ -116,7 +116,7 @@ function logAuthEventIfNecessary(
     }
 
     case 'checking_pin': {
-      /* istanbul ignore else - @preserve */
+      /* istanbul ignore else */
       if (newAuthStatus.status === 'logged_out') {
         logger.log(LogEventId.AuthPinEntry, previousAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Failure,
@@ -194,7 +194,7 @@ function logAuthEventIfNecessary(
     }
 
     default: {
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
+      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(previousAuthStatus, 'status');
     }
   }
@@ -309,7 +309,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     const programmedUserRole =
       ('programmableCard' in this.authStatus &&
         'programmedUser' in this.authStatus.programmableCard &&
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         this.authStatus.programmableCard.programmedUser?.role) ||
       'unprogrammed';
     this.logger.log(LogEventId.SmartCardUnprogramInit, 'system_administrator', {
@@ -418,7 +418,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         return undefined;
       }
       default: {
-        /* istanbul ignore next: Compile-time check for completeness - @preserve */
+        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(input, 'userRole');
       }
     }
@@ -534,7 +534,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 };
               }
               default: {
-                /* istanbul ignore next: Compile-time check for completeness - @preserve */
+                /* istanbul ignore next: Compile-time check for completeness */
                 return throwIllegalValue(action.cardStatus, 'status');
               }
             }
@@ -572,7 +572,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   return { status: 'logged_in', user, sessionExpiresAt };
                 }
                 default: {
-                  /* istanbul ignore next: Compile-time check for completeness - @preserve */
+                  /* istanbul ignore next: Compile-time check for completeness */
                   throwIllegalValue(user, 'role');
                 }
               }
@@ -595,7 +595,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           }
 
           default: {
-            /* istanbul ignore next: Compile-time check for completeness - @preserve */
+            /* istanbul ignore next: Compile-time check for completeness */
             return throwIllegalValue(currentAuthStatus, 'status');
           }
         }
@@ -634,7 +634,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
             };
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness - @preserve */
+            /* istanbul ignore next: Compile-time check for completeness */
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
         }
@@ -658,7 +658,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       }
 
       default: {
-        /* istanbul ignore next: Compile-time check for completeness - @preserve */
+        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(action, 'type');
       }
     }

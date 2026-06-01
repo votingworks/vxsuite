@@ -264,7 +264,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
               </React.Fragment>
             }
             onOverlayClick={
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               cancelDelete
             }
           />

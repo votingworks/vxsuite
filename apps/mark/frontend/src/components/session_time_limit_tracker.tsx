@@ -17,11 +17,11 @@ export function SessionTimeLimitTracker(): JSX.Element {
     <SessionTimeLimitTrackerBase
       authStatus={authStatusQuery.data}
       logOut={
-        /* istanbul ignore next - @preserve */ () => logOutMutation.mutate()
+        /* istanbul ignore next */ () => logOutMutation.mutate()
       }
       systemSettings={systemSettingsQuery.data}
       updateSessionExpiry={
-        /* istanbul ignore next - @preserve */ (sessionExpiresAt: Date) =>
+        /* istanbul ignore next */ (sessionExpiresAt: Date) =>
           updateSessionExpiryMutation.mutate({ sessionExpiresAt })
       }
     />

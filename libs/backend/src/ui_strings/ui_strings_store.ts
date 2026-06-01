@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via VxSuite apps. @preserve */
+/* istanbul ignore file - tested via VxSuite apps. */
 
 import { Optional, typedAs } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';

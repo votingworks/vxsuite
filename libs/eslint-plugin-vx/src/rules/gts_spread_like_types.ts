@@ -113,7 +113,7 @@ const rule: TSESLint.RuleModule<
           }
 
           default: {
-            /* istanbul ignore next - this should not be possible @preserve */
+            /* istanbul ignore next - this should not be possible */
             throw new Error(
               `unexpected spread element parent: ${
                 (node.parent as { type: string }).type

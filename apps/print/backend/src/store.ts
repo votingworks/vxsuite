@@ -186,7 +186,7 @@ export class Store {
       rawPrecinctSelection,
       PrecinctSelectionSchema
     );
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     if (precinctSelectionParseResult.isErr()) {
       throw new Error('Unable to parse stored precinct selection.');
     }

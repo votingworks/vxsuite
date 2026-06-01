@@ -104,7 +104,7 @@ function readFromMockFileHelper(): Optional<MockStateFileContents> {
   try {
     return deserializeMockFileContents(file);
   } catch {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     return undefined;
   }
 }
@@ -143,7 +143,7 @@ export class MockFilePrinter implements Printer {
       // Simulate single-sided printing by inserting a blank page after each
       // content page, representing the blank back of each physical sheet.
       try {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         const pdfBytes =
           data instanceof Uint8Array ? data : Buffer.from(data as Buffer);
         const pdf = await PDFDocument.load(pdfBytes);

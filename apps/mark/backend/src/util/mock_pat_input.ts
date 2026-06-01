@@ -3,7 +3,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-/* istanbul ignore file - @preserve used only in internal dev and testing */
+/* istanbul ignore file - used only in internal dev and testing */
 let mockPatInputConnected = true;
 
 export function setMockPatInputConnected(connected: boolean): void {

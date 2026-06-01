@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import styled from 'styled-components';
 
 const SparklineContainer = styled.div`

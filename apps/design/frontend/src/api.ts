@@ -89,7 +89,7 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const getUser = {
   queryKey(): QueryKey {
     return ['getUser'];
@@ -100,7 +100,7 @@ export const getUser = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const listJurisdictions = {
   queryKey(): QueryKey {
     return ['listJurisdictions'];
@@ -332,7 +332,7 @@ export const getBallotTemplate = {
   },
 } as const;
 
-/* istanbul ignore next - WIP @preserve */
+/* istanbul ignore next - WIP */
 export const ttsEditsGet = {
   queryKey(params: TtsEditKey): QueryKey {
     return [
@@ -352,7 +352,7 @@ export const ttsEditsGet = {
   },
 } as const;
 
-/* istanbul ignore next - WIP @preserve */
+/* istanbul ignore next - WIP */
 export const ttsEditsSet = {
   useMutation() {
     const apiClient = useApiClient();
@@ -365,7 +365,7 @@ export const ttsEditsSet = {
   },
 } as const;
 
-/* istanbul ignore next - WIP @preserve */
+/* istanbul ignore next - WIP */
 export const ttsStringDefaults = {
   queryKey(electionId: string): QueryKey {
     return ['ttsStringDefaults', electionId];
@@ -379,7 +379,7 @@ export const ttsStringDefaults = {
   },
 } as const;
 
-/* istanbul ignore next - WIP @preserve */
+/* istanbul ignore next - WIP */
 export const ttsSynthesizeFromText = {
   queryKey(input: { languageCode: string; text: string }): QueryKey {
     return ['ttsSynthesizeFromText', input.languageCode, input.text];

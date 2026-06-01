@@ -22,7 +22,7 @@ function rankMarkStatus(markStatus: MarkStatus): number {
     case MarkStatus.Unmarked:
       return 0;
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(markStatus);
   }
 }
@@ -85,7 +85,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
           // so there must be 0 votes.
           break;
         default:
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(contestType);
       }
 

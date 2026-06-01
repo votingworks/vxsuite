@@ -39,7 +39,7 @@ export function SizeSettings(props: SizeSettingsProps): JSX.Element {
     Object.keys(ORDERED_SIZE_MODE_LABELS) as TouchSizeMode[]
   ).filter((m) => enabledSizeModes.has(m));
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   const numColumns = screenInfo.isPortrait ? 1 : 2;
 
   return (

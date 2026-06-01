@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 
 export * as virtualKeyboardCommon from './virtual_keyboard/common';
 

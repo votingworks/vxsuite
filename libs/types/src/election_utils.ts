@@ -419,7 +419,7 @@ export function getContestDistrict(
   contest: ContestLike
 ): District {
   const district = election.districts.find((d) => d.id === contest.districtId);
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!district) {
     throw new Error(
       `Contest's associated district ${contest.districtId} not found.`
@@ -577,7 +577,7 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
         height: 13.25,
       };
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       return throwIllegalValue(paperSize);
     }
   }

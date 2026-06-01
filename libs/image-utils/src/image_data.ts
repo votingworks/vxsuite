@@ -344,14 +344,14 @@ export async function encodeImageData(
   const encoded = await new Promise<Buffer>((resolve, reject) => {
     if (mimeType === 'image/png') {
       canvas.toBuffer(
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         (error, buffer) => (error ? reject(error) : resolve(buffer)),
         mimeType,
         config as PngConfig
       );
     } else {
       canvas.toBuffer(
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         (error, buffer) => (error ? reject(error) : resolve(buffer)),
         mimeType,
         config as JpegConfig
