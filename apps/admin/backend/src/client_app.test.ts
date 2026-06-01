@@ -351,7 +351,7 @@ test('proxy endpoints return host-disconnect error when not connected', async ()
   expect(await env.apiClient.getBallotImages({ cvrId: 'cvr-1' })).toEqual(
     err({ type: 'host-disconnect' })
   );
-  expect(await env.apiClient.getWriteInCandidates()).toEqual(
+  expect(await env.apiClient.getWriteInCandidates({ contestIds: [] })).toEqual(
     err({ type: 'host-disconnect' })
   );
   expect(
@@ -459,7 +459,7 @@ test('getWriteInCandidates proxies to host peer API', async () => {
   const { mockPeerApi } = connectToMockHost();
   mockPeerApi.getWriteInCandidates.mockResolvedValue([]);
 
-  const result = await env.apiClient.getWriteInCandidates();
+  const result = await env.apiClient.getWriteInCandidates({ contestIds: [] });
   expect(result).toEqual(ok([]));
 });
 

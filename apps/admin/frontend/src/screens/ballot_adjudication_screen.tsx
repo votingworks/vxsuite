@@ -407,7 +407,12 @@ function HostBallotAdjudicationScreenDataLoader({
   onExit: () => void;
 }): JSX.Element {
   const ballotImagesQuery = getBallotImages.useQuery({ cvrId });
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery();
+  const writeInCandidatesQuery = getWriteInCandidates.useQuery(
+    ballotData
+      ? { contestIds: ballotData.contests.map((c) => c.contestId) }
+      : undefined,
+    { enabled: !!ballotData }
+  );
   const systemSettingsQuery = getSystemSettings.useQuery();
 
   const { mutateAsync: adjudicateCvrMutation } = adjudicateCvr.useMutation();

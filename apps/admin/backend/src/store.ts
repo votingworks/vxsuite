@@ -1936,17 +1936,22 @@ export class Store implements BaseStore {
 
   getWriteInCandidates({
     electionId,
-    contestId,
+    contestIds,
   }: {
     electionId: Id;
-    contestId?: ContestId;
+    contestIds?: ContestId[];
   }): WriteInCandidateRecord[] {
     const whereParts: string[] = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 
-    if (contestId) {
-      whereParts.push('contest_id = ?');
-      params.push(contestId);
+    if (contestIds) {
+      if (contestIds.length === 0) {
+        return [];
+      }
+      whereParts.push(
+        `contest_id IN (${contestIds.map(() => '?').join(', ')})`
+      );
+      params.push(...contestIds);
     }
 
     const rows = this.client.all(

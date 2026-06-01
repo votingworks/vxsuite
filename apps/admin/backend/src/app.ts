@@ -796,7 +796,7 @@ function buildApi({
 
     getWriteInCandidates(
       input: {
-        contestId?: ContestId;
+        contestIds?: ContestId[];
       } = {}
     ): WriteInCandidateRecord[] {
       return store.getWriteInCandidates({

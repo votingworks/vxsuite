@@ -1450,7 +1450,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   });
 
   // write-in candidate should be deleted as they are no longer referenced
-  expect(await apiClient.getWriteInCandidates({ contestId })).toEqual([]);
+  expect(
+    await apiClient.getWriteInCandidates({ contestIds: [contestId] })
+  ).toEqual([]);
 });
 
 test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures', async () => {
@@ -1500,7 +1502,9 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   expect(images.cvrId).toEqual(cvrId1);
 
   // Client 1 fetches write-in candidates via peer API
-  const writeInCandidates = await peerApiClient.getWriteInCandidates();
+  const writeInCandidates = await peerApiClient.getWriteInCandidates({
+    contestIds: ballotData.contests.map((c) => c.contestId),
+  });
   expect(writeInCandidates).toEqual([]);
 
   // Client 1 adjudicates all contests on their claimed ballot in a single call

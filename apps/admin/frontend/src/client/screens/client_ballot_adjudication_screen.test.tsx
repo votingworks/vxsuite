@@ -155,7 +155,7 @@ function expectDataLoaderQueries(cvrId: string): void {
 // One-shot setup for the cvrId-independent queries the data loader fires.
 function expectGlobalDataLoaderQueries(): void {
   apiMock.apiClient.getWriteInCandidates
-    .expectRepeatedCallsWith({ contestId: undefined })
+    .expectRepeatedCallsWith({ contestIds: [] })
     .resolves(ok([]));
   apiMock.apiClient.getSystemSettings
     .expectRepeatedCallsWith()

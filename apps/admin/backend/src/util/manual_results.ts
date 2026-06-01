@@ -57,7 +57,7 @@ function handleEnteredWriteInCandidateData({
             // this check should no-op for manual results entered through the VxAdmin UI.
             const existingWriteInCandidateRecords = store.getWriteInCandidates({
               electionId,
-              contestId,
+              contestIds: [contestId],
             });
 
             const matchingRecord = existingWriteInCandidateRecords.find(

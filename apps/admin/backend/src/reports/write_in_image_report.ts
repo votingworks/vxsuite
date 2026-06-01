@@ -104,7 +104,7 @@ export async function buildAdminContestWriteIns(
   const writeInRecords = store.getWriteInRecords({ electionId, contestId });
   const writeInCandidates = store.getWriteInCandidates({
     electionId,
-    contestId,
+    contestIds: [contestId],
   });
   const writeInCandidatesById = new Map(
     writeInCandidates.map((c) => [c.id, c])

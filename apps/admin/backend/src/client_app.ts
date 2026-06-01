@@ -291,9 +291,9 @@ function buildClientApi({
       );
     },
 
-    async getWriteInCandidates(
-      input: { contestId?: ContestId } = {}
-    ): Promise<Result<WriteInCandidateRecord[], AdjudicationError>> {
+    async getWriteInCandidates(input: {
+      contestIds: ContestId[];
+    }): Promise<Result<WriteInCandidateRecord[], AdjudicationError>> {
       return proxy(
         'fetch write-in candidates',
         async ({ apiClient: peerApi }) => peerApi.getWriteInCandidates(input)

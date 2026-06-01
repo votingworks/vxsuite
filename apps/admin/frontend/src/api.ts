@@ -400,7 +400,10 @@ export const getWriteInCandidates = {
   queryKey(input?: GetWriteInCandidatesInput): QueryKey {
     return input ? ['getWriteInCandidates', input] : ['getWriteInCandidates'];
   },
-  useQuery(input?: GetWriteInCandidatesInput) {
+  useQuery(
+    input?: GetWriteInCandidatesInput,
+    options: { enabled: boolean } = { enabled: true }
+  ) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
@@ -408,6 +411,7 @@ export const getWriteInCandidates = {
       {
         staleTime: 0,
         refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+        ...options,
       }
     );
   },
