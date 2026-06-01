@@ -36,8 +36,9 @@ export interface InsertedSmartCardAuthConfig {
    */
   pinDigitSelector?: 'button' | 'text';
   /**
-   * Whether to end a lingering cardless voter session before unconfiguring.
-   * VxMark needs this; see the JSDoc on the returned `endCardlessVoterSession`.
+   * Whether `forceLogOutAndResetElectionDefinition` should first end a lingering
+   * cardless voter session. VxMark and VxMarkScan need this; see the workaround
+   * note on the internal `endCardlessVoterSession`.
    */
   endsCardlessVoterSession?: boolean;
   apiUrl?: string;
@@ -48,8 +49,6 @@ export interface InsertedSmartCardAuthHelpers {
   logInAsSystemAdministrator(page: Page): Promise<void>;
   logInAsElectionManager(page: Page, election: Election): Promise<void>;
   logInAsPollWorker(election: Election): void;
-  forceLogOut(page: Page): Promise<void>;
-  endCardlessVoterSession(page: Page): Promise<void>;
   forceLogOutAndResetElectionDefinition(page: Page): Promise<void>;
 }
 
@@ -152,8 +151,6 @@ export function buildInsertedSmartCardAuthHelpers(
     logInAsSystemAdministrator,
     logInAsElectionManager,
     logInAsPollWorker,
-    forceLogOut,
-    endCardlessVoterSession,
     forceLogOutAndResetElectionDefinition,
   };
 }
@@ -176,11 +173,9 @@ export interface DippedSmartCardAuthConfig {
 }
 
 export interface DippedSmartCardAuthHelpers {
-  enterPin(page: Page): Promise<void>;
   logInAsSystemAdministrator(page: Page): Promise<void>;
   logInAsElectionManager(page: Page, election: Election): Promise<void>;
   logOut(page: Page): Promise<void>;
-  forceLogOut(page: Page): Promise<void>;
   forceLogOutAndResetElectionDefinition(page: Page): Promise<void>;
 }
 
@@ -259,11 +254,9 @@ export function buildDippedSmartCardAuthHelpers(
   }
 
   return {
-    enterPin,
     logInAsSystemAdministrator,
     logInAsElectionManager,
     logOut,
-    forceLogOut,
     forceLogOutAndResetElectionDefinition,
   };
 }

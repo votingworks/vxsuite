@@ -6,8 +6,6 @@ export const {
   logInAsSystemAdministrator,
   logInAsElectionManager,
   logInAsPollWorker,
-  forceLogOut,
-  endCardlessVoterSession,
   forceLogOutAndResetElectionDefinition,
 } = buildInsertedSmartCardAuthHelpers({
   appName: 'VxMark',

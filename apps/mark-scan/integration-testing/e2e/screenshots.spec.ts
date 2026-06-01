@@ -18,7 +18,7 @@ import {
 import { DEFAULT_SYSTEM_SETTINGS, safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
-  forceUnconfigure,
+  forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
   logInAsSystemAdministrator,
 } from '../support/auth';
@@ -31,7 +31,7 @@ test.afterAll(clearTemporaryRootDir);
 test.beforeEach(async ({ page }) => {
   getMockFileUsbDriveHandler().cleanup();
   await page.clock.install();
-  await forceUnconfigure(page);
+  await forceLogOutAndResetElectionDefinition(page);
 });
 
 test('everything but voting', async ({ page }) => {

@@ -5,6 +5,5 @@ export const {
   logInAsSystemAdministrator,
   logInAsElectionManager,
   logInAsPollWorker,
-  forceLogOut,
   forceLogOutAndResetElectionDefinition,
 } = buildInsertedSmartCardAuthHelpers({ appName: 'VxScan' });
