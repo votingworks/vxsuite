@@ -6,7 +6,8 @@ import { Icons } from './icons';
 import { Caption, Font, H5, HeadingProps, P } from './typography';
 
 export interface VoterContestSummaryProps {
-  districtName: React.ReactNode;
+  districtName?: React.ReactNode;
+  note?: React.ReactNode;
   subtitle?: React.ReactNode;
   title: React.ReactNode;
   titleType: HeadingProps['as'];
@@ -18,6 +19,7 @@ export interface VoterContestSummaryProps {
 export interface ContestVote {
   caption?: React.ReactNode;
   id: string;
+  isDerived?: boolean;
   label: React.ReactNode;
   partyIds?: readonly string[];
 }
@@ -51,6 +53,7 @@ export function VoterContestSummary(
 ): JSX.Element {
   const {
     districtName,
+    note,
     subtitle,
     title,
     titleType,
@@ -62,7 +65,9 @@ export function VoterContestSummary(
   return (
     <div data-testid={testId}>
       <H5 as={titleType}>
-        <DistrictName weight="regular">{districtName}</DistrictName>
+        {districtName && (
+          <DistrictName weight="regular">{districtName}</DistrictName>
+        )}
         {title}
       </H5>
       {subtitle && <P>{subtitle}</P>}
@@ -73,13 +78,20 @@ export function VoterContestSummary(
           </Caption>
         </P>
       )}
+      {note && (
+        <P>
+          <Caption>
+            <Icons.Info /> {note}
+          </Caption>
+        </P>
+      )}
       <ListContainer>
         {votes.map((v) => (
           <VoteInfo
             key={`${v.id}${v.partyIds ? `-${v.partyIds.join('-')}` : ''}`}
           >
             <CheckboxContainer>
-              <Checkbox checked />
+              <Checkbox checked filled={!v.isDerived} />
             </CheckboxContainer>
             <span>
               <Font weight="semiBold">{v.label}</Font>

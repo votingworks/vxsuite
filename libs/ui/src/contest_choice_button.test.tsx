@@ -57,3 +57,17 @@ test('has accessible "selected" state', () => {
     screen.getByRole('option', { name: 'Cleopatra', selected: true })
   );
 });
+
+test('renders derived (straight-party) selection styling', () => {
+  render(
+    <ContestChoiceButton
+      isSelected
+      isDerived
+      label="Cleopatra"
+      choice="cleo"
+      onPress={vi.fn()}
+    />
+  );
+
+  screen.getByRole('option', { name: 'Cleopatra', selected: true });
+});

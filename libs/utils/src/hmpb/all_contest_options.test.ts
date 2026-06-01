@@ -7,12 +7,11 @@ import {
 import {
   BallotStyle,
   CandidateContest,
-  CandidateContestOption,
   ContestOption,
-  YesNoContestOption,
+  StraightPartyContest,
 } from '@votingworks/types';
 import fc from 'fast-check';
-import { expect, expectTypeOf, test } from 'vitest';
+import { expect, test } from 'vitest';
 import { allContestOptions } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {
@@ -21,8 +20,7 @@ test('candidate contest with no write-ins', () => {
       arbitraryCandidateContest({ allowWriteIns: fc.constant(false) }),
       arbitraryBallotStyle(),
       (contest, ballotStyle) => {
-        const options = Array.from(allContestOptions(contest, ballotStyle));
-        expectTypeOf(options).toEqualTypeOf<CandidateContestOption[]>();
+        const options = Array.from(allContestOptions(contest, ballotStyle, []));
         expect(options).toHaveLength(contest.candidates.length);
         for (const [i, option] of options.entries()) {
           assert(option.type === 'candidate');
@@ -43,10 +41,10 @@ test('candidate contest with write-ins', () => {
       arbitraryCandidateContest({ allowWriteIns: fc.constant(true) }),
       arbitraryBallotStyle(),
       (contest, ballotStyle) => {
-        const options = Array.from(allContestOptions(contest, ballotStyle));
+        const options = Array.from(allContestOptions(contest, ballotStyle, []));
         expect(options).toHaveLength(contest.candidates.length + contest.seats);
         for (const [i, option] of options.entries()) {
-          expectTypeOf(option).toEqualTypeOf<CandidateContestOption>();
+          assert(option.type === 'candidate');
           expect(option.id).toEqual(
             contest.candidates[i]?.id ??
               `write-in-${i - contest.candidates.length}`
@@ -69,24 +67,27 @@ test('candidate contest with write-ins', () => {
 
 test('yesno contest', () => {
   fc.assert(
-    fc.property(arbitraryYesNoContest(), (contest) => {
-      const options = Array.from(allContestOptions(contest));
-      expectTypeOf(options).toEqualTypeOf<YesNoContestOption[]>();
-      expect(options).toEqual<ContestOption[]>([
-        {
-          type: 'yesno',
-          id: contest.yesOption.id,
-          contestId: contest.id,
-          name: contest.yesOption.label,
-        },
-        {
-          type: 'yesno',
-          id: contest.noOption.id,
-          contestId: contest.id,
-          name: contest.noOption.label,
-        },
-      ]);
-    })
+    fc.property(
+      arbitraryYesNoContest(),
+      arbitraryBallotStyle(),
+      (contest, ballotStyle) => {
+        const options = Array.from(allContestOptions(contest, ballotStyle, []));
+        expect(options).toEqual<ContestOption[]>([
+          {
+            type: 'yesno',
+            id: contest.yesOption.id,
+            contestId: contest.id,
+            name: contest.yesOption.label,
+          },
+          {
+            type: 'yesno',
+            id: contest.noOption.id,
+            contestId: contest.id,
+            name: contest.noOption.label,
+          },
+        ]);
+      }
+    )
   );
 });
 
@@ -99,10 +100,7 @@ test('any contest', () => {
       ),
       arbitraryBallotStyle(),
       (contest, ballotStyle) => {
-        const options = Array.from(allContestOptions(contest, ballotStyle));
-        expectTypeOf(options).toEqualTypeOf<ContestOption[]>();
-        expectTypeOf(options).not.toEqualTypeOf<YesNoContestOption[]>();
-        expectTypeOf(options).not.toEqualTypeOf<CandidateContestOption[]>();
+        const options = Array.from(allContestOptions(contest, ballotStyle, []));
         const types = new Set(options.map(({ type }) => type));
         expect(types.size).toEqual(1);
         expect(iter(types).first()).toMatch(/^candidate|yesno$/);
@@ -142,7 +140,7 @@ test('candidate contest with ballot style ordering', () => {
     },
   };
 
-  const options = Array.from(allContestOptions(contest, ballotStyle));
+  const options = Array.from(allContestOptions(contest, ballotStyle, []));
 
   // Verify the order matches the ballot style ordering
   expect(options).toHaveLength(3);
@@ -152,6 +150,50 @@ test('candidate contest with ballot style ordering', () => {
   expect(options[1]?.name).toEqual('Alice');
   expect(options[2]?.id).toEqual('candidate-b');
   expect(options[2]?.name).toEqual('Bob');
+});
+
+test('straight-party contest yields one option per party', () => {
+  const contest: StraightPartyContest = {
+    id: 'straight-party-ticket',
+    type: 'straight-party',
+    title: 'Straight Party',
+  };
+  const ballotStyle: BallotStyle = {
+    id: 'ballot-style-1',
+    groupId: 'group-1',
+    precincts: ['precinct-1'],
+    districts: ['district-1'],
+  };
+  const parties = [
+    {
+      id: 'party-1',
+      name: 'Democrat',
+      fullName: 'Democratic Party',
+      abbrev: 'D',
+    },
+    {
+      id: 'party-2',
+      name: 'Republican',
+      fullName: 'Republican Party',
+      abbrev: 'R',
+    },
+  ] as const;
+
+  const options = Array.from(allContestOptions(contest, ballotStyle, parties));
+  expect(options).toEqual([
+    {
+      type: 'straight-party',
+      id: 'party-1',
+      contestId: 'straight-party-ticket',
+      name: 'Democratic Party',
+    },
+    {
+      type: 'straight-party',
+      id: 'party-2',
+      contestId: 'straight-party-ticket',
+      name: 'Republican Party',
+    },
+  ]);
 });
 
 test('candidate contest with multi-endorsed candidates are deduplicated', () => {
@@ -185,7 +227,7 @@ test('candidate contest with multi-endorsed candidates are deduplicated', () => 
     },
   };
 
-  const options = Array.from(allContestOptions(contest, ballotStyle));
+  const options = Array.from(allContestOptions(contest, ballotStyle, []));
 
   // Verify multi-endorsed candidate appears only once (deduplicated by id)
   expect(options).toHaveLength(2);

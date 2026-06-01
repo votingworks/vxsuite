@@ -132,7 +132,9 @@ const tests: Record<ElectionStringKey, () => void> = {
           ...ORIGINAL_ELECTION,
           Contest: [
             {
-              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              ...(assertDefined(
+                ORIGINAL_ELECTION.Contest[0]
+              ) as BallotDefinition.BallotMeasureContest),
               '@id': 'contest1',
               '@type': 'BallotDefinition.BallotMeasureContest',
               FullText: buildInternationalizedText({
@@ -142,7 +144,9 @@ const tests: Record<ElectionStringKey, () => void> = {
               ContestOption: [],
             },
             {
-              ...assertDefined(ORIGINAL_ELECTION.Contest[1]),
+              ...(assertDefined(
+                ORIGINAL_ELECTION.Contest[1]
+              ) as BallotDefinition.BallotMeasureContest),
               '@id': 'contest2',
               '@type': 'BallotDefinition.BallotMeasureContest',
               FullText: buildInternationalizedText({
@@ -180,7 +184,9 @@ const tests: Record<ElectionStringKey, () => void> = {
           ...ORIGINAL_ELECTION,
           Contest: [
             {
-              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              ...(assertDefined(
+                ORIGINAL_ELECTION.Contest[0]
+              ) as BallotDefinition.BallotMeasureContest),
               '@type': 'BallotDefinition.BallotMeasureContest',
               FullText: buildInternationalizedText({
                 en: 'Apples or Oranges?',
@@ -205,7 +211,9 @@ const tests: Record<ElectionStringKey, () => void> = {
               ],
             },
             {
-              ...assertDefined(ORIGINAL_ELECTION.Contest[1]),
+              ...(assertDefined(
+                ORIGINAL_ELECTION.Contest[1]
+              ) as BallotDefinition.BallotMeasureContest),
               '@type': 'BallotDefinition.BallotMeasureContest',
               FullText: buildInternationalizedText({
                 en: 'Apples or Bananas?',
@@ -270,7 +278,9 @@ const tests: Record<ElectionStringKey, () => void> = {
           ...ORIGINAL_ELECTION,
           Contest: [
             {
-              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              ...(assertDefined(
+                ORIGINAL_ELECTION.Contest[0]
+              ) as BallotDefinition.BallotMeasureContest),
               '@id': 'contest1',
               BallotTitle: buildInternationalizedText({
                 en: 'President',
@@ -368,7 +378,9 @@ const tests: Record<ElectionStringKey, () => void> = {
           ...ORIGINAL_ELECTION,
           Contest: [
             {
-              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              ...(assertDefined(
+                ORIGINAL_ELECTION.Contest[0]
+              ) as BallotDefinition.BallotMeasureContest),
               ElectionDistrictId: 'district9',
             },
             {

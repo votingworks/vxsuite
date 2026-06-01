@@ -7,6 +7,7 @@ import {
   ContestOption,
   Contests,
   MarkStatus,
+  Parties,
   VotesDict,
   WriteInAreaStatus,
 } from '@votingworks/types';
@@ -39,6 +40,7 @@ function getExpectedVoteCount(contest: AnyContest): number {
     case 'candidate':
       return contest.seats;
     case 'yesno': // yes or no
+    case 'straight-party':
       return 1;
     // istanbul ignore next
     default:
@@ -78,9 +80,10 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
           }
           break;
         case 'yesno':
+        case 'straight-party':
           // There will never be any optionIds to populate for an undervoted
-          // yes/no contest.
-          // That's because a yes/no contest may have at most 1 vote.
+          // yes/no or straight-party contest.
+          // That's because these contests may have at most 1 vote.
           // At this point in the code we know there is an undervote,
           // so there must be 0 votes.
           break;
@@ -117,7 +120,8 @@ export function getAllPossibleAdjudicationReasons(
     markStatus: MarkStatus;
     writeInAreaStatus: WriteInAreaStatus;
   }>,
-  ballotStyle: BallotStyle
+  ballotStyle: BallotStyle,
+  parties: Parties
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 
@@ -139,7 +143,7 @@ export function getAllPossibleAdjudicationReasons(
       id: ContestOption['id'];
     }> = [];
 
-    for (const option of allContestOptions(contest, ballotStyle)) {
+    for (const option of allContestOptions(contest, ballotStyle, parties)) {
       // there may be multiple scores for a given contest option if they have
       // multiple positions on the ballot, such as a candidate endorsed by
       // two candidates.

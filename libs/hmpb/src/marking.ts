@@ -290,12 +290,16 @@ type MarkInfo =
 function markInfo(
   votes: Vote,
   gridPos: GridPosition,
-  contest: CandidateContest | { type: 'yesno'; id: string },
+  contest:
+    | CandidateContest
+    | { type: 'yesno'; id: string }
+    | { type: 'straight-party'; id: string },
   layout: { gridPositions: readonly GridPosition[] }
 ): MarkInfo | null {
   for (const vote of votes) {
-    // Handle yes/no votes
-    if (contest.type === 'yesno') {
+    // Yes/no and straight-party votes both reference their grid position by
+    // optionId directly (option-id string for yes/no, party-id string for SP).
+    if (contest.type === 'yesno' || contest.type === 'straight-party') {
       assert(gridPos.type === 'option');
       if (vote === gridPos.optionId) return {};
       continue;

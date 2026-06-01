@@ -8,6 +8,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  StraightPartyContest,
   YesNoVote,
 } from '@votingworks/types';
 import { deepEqual, unique } from '@votingworks/basics';
@@ -224,5 +225,63 @@ describe('generateTestDeckBallots', () => {
     expect(ballotPrecinctIds).toEqual(
       precinctsWithBallotStyles.map((p) => p.id)
     );
+  });
+
+  test('generates straight-party votes that rotate through parties', () => {
+    const spContest: StraightPartyContest = {
+      id: 'sp-1',
+      type: 'straight-party',
+      title: 'Straight Party Ticket',
+    };
+    const electionWithSp: Election = {
+      ...electionGeneral,
+      contests: [spContest, ...electionGeneral.contests],
+    };
+
+    const ballots = generateTestDeckBallots({
+      election: electionWithSp,
+      ballotFormat: 'bubble',
+      includeOvervotedBallots: true,
+      includeBlankBallots: false,
+    });
+
+    const ballotsWithSpVotes = ballots.filter((b) => b.votes['sp-1']);
+    expect(ballotsWithSpVotes.length).toBeGreaterThan(0);
+
+    // Every SP vote should be a single party from the election
+    const validPartyIds = new Set(electionWithSp.parties.map((p) => p.id));
+    for (const ballot of ballotsWithSpVotes) {
+      const spVote = ballot.votes['sp-1'];
+      expect(spVote).toHaveLength(1);
+      expect(validPartyIds.has(spVote![0] as string)).toEqual(true);
+    }
+  });
+
+  test('overvote ballot generation skips straight-party-only elections', () => {
+    const spContest: StraightPartyContest = {
+      id: 'sp-1',
+      type: 'straight-party',
+      title: 'Straight Party Ticket',
+    };
+    // Election where the only contest is straight-party — there are no
+    // yesno/candidate contests for the overvote ballot generator to pick.
+    const electionSpOnly: Election = {
+      ...electionGeneral,
+      contests: [spContest],
+    };
+
+    const ballots = generateTestDeckBallots({
+      election: electionSpOnly,
+      ballotFormat: 'bubble',
+      includeOvervotedBallots: true,
+      includeBlankBallots: false,
+    });
+
+    // No ballot should contain an overvote for the SP contest (the overvote
+    // logic doesn't apply to SP)
+    for (const ballot of ballots) {
+      const spVote = ballot.votes['sp-1'];
+      if (spVote) expect(spVote.length).toBeLessThanOrEqual(1);
+    }
   });
 });

@@ -35,7 +35,26 @@ import {
   hasSplits,
   PrecinctOrSplit,
   CandidateVote,
+  StraightPartyContest,
+  StraightPartyContestOption,
 } from './election';
+
+/**
+ * Returns the options for a straight-party contest, using the party full name
+ * as the display name. All rendering of straight-party contest options should
+ * use this function to ensure consistency.
+ */
+export function getStraightPartyContestOptions(
+  contest: StraightPartyContest,
+  parties: Parties
+): StraightPartyContestOption[] {
+  return parties.map((party) => ({
+    type: 'straight-party' as const,
+    id: party.id,
+    contestId: contest.id,
+    name: party.fullName,
+  }));
+}
 
 /**
  * Gets contests which belong to a ballot style in an election.
@@ -49,12 +68,13 @@ export function getContests({
 }): Contests {
   return election.contests.filter(
     (contest) =>
-      ballotStyle.districts.includes(contest.districtId) &&
-      // In closed primary elections, where each ballot style has a specific
-      // party, filter candidate contests by party (if they have one).
-      (ballotStyle.partyId && contest.type === 'candidate'
-        ? !contest.partyId || contest.partyId === ballotStyle.partyId
-        : true)
+      contest.type === 'straight-party' ||
+      (ballotStyle.districts.includes(contest.districtId) &&
+        // In closed primary elections, where each ballot style has a specific
+        // party, filter candidate contests by party (if they have one).
+        (ballotStyle.partyId && contest.type === 'candidate'
+          ? !contest.partyId || contest.partyId === ballotStyle.partyId
+          : true))
   );
 }
 
@@ -216,7 +236,7 @@ export function findContest({
 }: {
   contests: Contests;
   contestId: ContestId;
-}): AnyContest | undefined {
+}): Contest | undefined {
   return contests.find((c) => c.id === contestId);
 }
 
@@ -431,8 +451,11 @@ export function getContestDistrict(
 
 export function getContestDistrictName(
   election: Election,
-  contest: Contest
+  contest: AnyContest
 ): string {
+  if (contest.type === 'straight-party') {
+    return 'Election-wide';
+  }
   return getContestDistrict(election, contest).name;
 }
 
@@ -477,6 +500,9 @@ export function vote(
     } else if (contest.type === 'yesno') {
       assert(Array.isArray(choice), 'yesno shorthand must be an array');
       votes[contest.id] = choice;
+    } else if (contest.type === 'straight-party') {
+      // For straight-party, choice is a PartyId or array of PartyIds
+      votes[contest.id] = Array.isArray(choice) ? choice : [choice];
     } else if (Array.isArray(choice) && typeof choice[0] === 'string') {
       votes[contest.id] = contest.candidates.filter((c) =>
         (choice as readonly string[]).includes(c.id)

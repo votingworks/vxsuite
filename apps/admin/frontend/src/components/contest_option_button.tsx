@@ -16,7 +16,7 @@ const StyledCheckboxButton = styled(CheckboxButton)<{
 `;
 
 interface Props {
-  option: { id: Id; label: string };
+  option: { id: Id; label: React.ReactNode };
   isSelected: boolean;
   marginalMarkStatus?: MarginalMarkStatus;
   onSelect: () => void;

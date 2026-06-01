@@ -47,6 +47,7 @@ export interface CandidateContestResultInterface {
   precinctId: PrecinctId;
   selectionsAreEditable?: boolean;
   vote: CandidateVote;
+  votes?: VotesDict;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;

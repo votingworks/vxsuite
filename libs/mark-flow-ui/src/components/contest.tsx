@@ -3,15 +3,21 @@ import {
   CandidateVote,
   Election,
   OptionalYesNoVote,
+  StraightPartyVote,
   VotesDict,
 } from '@votingworks/types';
 import { AccessibilityMode } from '@votingworks/ui';
 import { CandidateContest } from './candidate_contest';
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
+import { StraightPartyContest } from './straight_party_contest';
 import { YesNoContest } from './yes_no_contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { UpdateVoteFunction } from '../config/types';
 import { BreadcrumbMetadata } from './contest_header';
+import {
+  getIndirectCandidateIds,
+  getStraightPartySelectedPartyId,
+} from '../utils/straight_party_votes';
 
 export interface ContestProps {
   /**
@@ -86,6 +92,19 @@ export function Contest({
     [votes]
   );
 
+  const straightPartyPartyId = useMemo(
+    () => getStraightPartySelectedPartyId(election, votes),
+    [election, votes]
+  );
+
+  const indirectCandidateIds = useMemo(
+    () =>
+      contest.type === 'candidate'
+        ? getIndirectCandidateIds(election, votes, contest)
+        : undefined,
+    [contest, election, votes]
+  );
+
   return (
     <React.Fragment>
       {contest.type === 'candidate' && (
@@ -95,6 +114,8 @@ export function Contest({
           ballotStyleId={ballotStyleId}
           election={election}
           contest={contest}
+          indirectCandidateIds={indirectCandidateIds}
+          straightPartyPartyId={straightPartyPartyId}
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
           accessibilityMode={accessibilityMode}
@@ -132,6 +153,15 @@ export function Contest({
           }
           updateVote={updateVote}
           isReviewMode={isReviewMode}
+        />
+      )}
+      {contest.type === 'straight-party' && (
+        <StraightPartyContest
+          breadcrumbs={breadcrumbs}
+          election={election}
+          contest={contest}
+          vote={vote as StraightPartyVote | undefined}
+          updateVote={updateVote}
         />
       )}
     </React.Fragment>

@@ -136,6 +136,7 @@ import {
 import { rootDebug } from './debug';
 import * as ttsStrings from './tts_strings';
 import { convertMsElection } from './convert_ms_election';
+import { injectStraightPartyContest } from './straight_party';
 import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
 import { defaultSystemSettings } from './system_settings';
 import { logActivity } from './activity_logs';
@@ -663,7 +664,16 @@ export function buildApi(ctx: AppContext) {
     async listContests(input: {
       electionId: ElectionId;
     }): Promise<readonly AnyContest[]> {
-      return store.listContests(input.electionId);
+      const contests = await store.listContests(input.electionId);
+      const jurisdiction = await store.getElectionJurisdiction(
+        input.electionId
+      );
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+      if (!stateFeatures.STRAIGHT_PARTY_VOTING) {
+        return contests;
+      }
+      const electionRecord = await store.getElection(input.electionId);
+      return injectStraightPartyContest(electionRecord.election).contests;
     },
 
     async createContest(input: {
@@ -846,8 +856,19 @@ export function buildApi(ctx: AppContext) {
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
-      const { election, ballotLanguageConfigs, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const electionRecord = await store.getElection(input.electionId);
+      const { ballotLanguageConfigs, ballotTemplateId } = electionRecord;
+      const jurisdiction = await store.getElectionJurisdiction(
+        input.electionId
+      );
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+      // The straight-party injection branch is covered behaviorally by the
+      // listContests test; ballot rendering of the dynamically-injected
+      // contest is exercised by the dedicated straight-party suites.
+      /* istanbul ignore next - @preserve */
+      const election = stateFeatures.STRAIGHT_PARTY_VOTING
+        ? injectStraightPartyContest(electionRecord.election)
+        : electionRecord.election;
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,

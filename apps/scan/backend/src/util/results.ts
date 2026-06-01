@@ -11,6 +11,7 @@ import {
   isOpenPrimary,
 } from '@votingworks/types';
 import {
+  applyStraightPartyRules,
   convertVotesDictToTabulationVotes,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
@@ -125,10 +126,13 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
           backInterpretation.metadata.pageNumber
         ) / 2
       );
-      const votes = convertVotesDictToTabulationVotes({
-        ...frontInterpretation.votes,
-        ...backInterpretation.votes,
-      });
+      const votes = applyStraightPartyRules(
+        election,
+        convertVotesDictToTabulationVotes({
+          ...frontInterpretation.votes,
+          ...backInterpretation.votes,
+        })
+      );
 
       return buildCvr({
         votes,
@@ -149,7 +153,10 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       const interpretation = isBmdMultiPagePage(frontInterpretation)
         ? frontInterpretation
         : (backInterpretation as InterpretedBmdMultiPagePage);
-      const votes = convertVotesDictToTabulationVotes(interpretation.votes);
+      const votes = applyStraightPartyRules(
+        election,
+        convertVotesDictToTabulationVotes(interpretation.votes)
+      );
 
       return buildCvr({
         votes,
@@ -169,7 +176,10 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       ? frontInterpretation
       : backInterpretation;
     assert(isBmdPage(interpretation));
-    const votes = convertVotesDictToTabulationVotes(interpretation.votes);
+    const votes = applyStraightPartyRules(
+      election,
+      convertVotesDictToTabulationVotes(interpretation.votes)
+    );
 
     return buildCvr({
       votes,

@@ -1,10 +1,10 @@
 import { integers } from '@votingworks/basics';
 import {
-  AnyContest,
   BatchInfo,
   CandidateContest,
   CastVoteRecordBatchMetadata,
   CVR,
+  DistrictContest,
   Election,
   YesNoContest,
 } from '@votingworks/types';
@@ -84,7 +84,7 @@ function buildBallotMeasureContest(
 }
 
 function buildContest(
-  contest: AnyContest
+  contest: DistrictContest
 ): CVR.CandidateContest | CVR.BallotMeasureContest {
   return contest.type === 'candidate'
     ? buildCandidateContest(contest)
@@ -120,7 +120,9 @@ function buildElection({
       '@id': candidate.id,
       Name: candidate.name,
     })),
-    Contest: election.contests.map(buildContest),
+    Contest: election.contests
+      .filter((c): c is DistrictContest => c.type !== 'straight-party')
+      .map(buildContest),
     ElectionScopeId: electionScopeId,
   };
 }

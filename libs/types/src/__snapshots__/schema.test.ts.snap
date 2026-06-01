@@ -86,6 +86,26 @@ exports[`parsing gives specific errors for nested objects 1`] = `
           ],
           "message": "Invalid input: expected object, received undefined"
         }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "straight-party"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \\"straight-party\\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "title"
+          ],
+          "message": "Invalid input: expected string, received number"
+        }
       ]
     ],
     "path": [

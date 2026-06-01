@@ -1,18 +1,12 @@
-import {
-  assertDefined,
-  throwIllegalValue,
-  uniqueBy,
-} from '@votingworks/basics';
+import { throwIllegalValue, uniqueBy } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyle,
   BallotStyleGroup,
-  CandidateContest,
-  CandidateContestOption,
   ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
-  YesNoContest,
-  YesNoContestOption,
+  getStraightPartyContestOptions,
+  Parties,
 } from '@votingworks/types';
 
 /**
@@ -20,41 +14,16 @@ import {
  * including all instances of multi-endorsed candidates.
  * For candidate contests, respects ballot style-specific candidate rotation.
  */
-export function allContestOptionsWithMultiEndorsements(
-  contest: CandidateContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<CandidateContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- */
-export function allContestOptionsWithMultiEndorsements(
-  contest: YesNoContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<YesNoContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB,
- * including all instances of multi-endorsed candidates.
- * For candidate contests, respects ballot style-specific candidate rotation.
- */
-export function allContestOptionsWithMultiEndorsements(
-  contest: AnyContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<ContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB,
- * including all instances of multi-endorsed candidates.
- * For candidate contests, respects ballot style-specific candidate rotation.
- */
 export function* allContestOptionsWithMultiEndorsements(
   contest: AnyContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  ballotStyle: BallotStyle | BallotStyleGroup,
+  parties: Parties
 ): Generator<ContestOption> {
   switch (contest.type) {
     case 'candidate': {
-      // ballotStyle is guaranteed to be defined for CandidateContest by the function overload
       const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
         contest,
-        ballotStyle: assertDefined(ballotStyle),
+        ballotStyle,
       });
 
       for (const candidate of orderedCandidates) {
@@ -98,6 +67,11 @@ export function* allContestOptionsWithMultiEndorsements(
       break;
     }
 
+    case 'straight-party': {
+      yield* getStraightPartyContestOptions(contest, parties);
+      break;
+    }
+
     default:
       /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
@@ -106,45 +80,17 @@ export function* allContestOptionsWithMultiEndorsements(
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
- * For candidate contests, respects ballot style-specific candidate rotation, but simplifies multi-endorsed
- * candidates to the first appearance.
- */
-export function allContestOptions(
-  contest: CandidateContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<CandidateContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- */
-export function allContestOptions(
-  contest: YesNoContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<YesNoContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- * For candidate contests, respects ballot style-specific candidate rotation.
- */
-export function allContestOptions(
-  contest: AnyContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<ContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- * For candidate contests, respects ballot style-specific candidate rotation, but simplifies multi-endorsed
- * candidates to the first appearance.
+ * For candidate contests, respects ballot style-specific candidate rotation,
+ * but simplifies multi-endorsed candidates to the first appearance.
  */
 export function* allContestOptions(
   contest: AnyContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  ballotStyle: BallotStyle | BallotStyleGroup,
+  parties: Parties
 ): Generator<ContestOption> {
-  // Get all options including multi-endorsed duplicates, then de-duplicate by id
   yield* uniqueBy(
     Array.from(
-      allContestOptionsWithMultiEndorsements(
-        contest,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        ballotStyle!
-      )
+      allContestOptionsWithMultiEndorsements(contest, ballotStyle, parties)
     ),
     (option) => option.id
   );
