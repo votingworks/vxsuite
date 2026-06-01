@@ -94,7 +94,7 @@ test('shows searching for host status', async () => {
     auth: sysAdminAuth,
     apiMock,
   });
-  await screen.findByText(/Searching for host/);
+  await screen.findByText(/Searching for host…/);
 });
 
 test('does not show Switch to Host Mode when election is configured', async () => {
@@ -145,7 +145,7 @@ test('shows restart screen after switching to host mode', async () => {
   apiMock.apiClient.setMachineMode.expectCallWith({ mode: 'host' }).resolves();
   userEvent.click(switchButton);
   await screen.findByText(
-    'Machine mode changed, restart the machine to continue.'
+    'VxAdmin switched to host mode. Restart VxAdmin to continue.'
   );
   screen.getByRole('button', { name: 'Restart' });
 });

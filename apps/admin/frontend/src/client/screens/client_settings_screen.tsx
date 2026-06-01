@@ -51,16 +51,17 @@ function NetworkStatusSection(): JSX.Element {
             'online-multiple-hosts-detected' && (
             <span>
               <Icons.Danger color="danger" /> Multiple hosts detected on the
-              network. Only one host machine should be active at a time. This
-              client will not connect until the conflict is resolved.
+              network. Only one host should be active at a time. This
+              adjudication station will not connect until the conflict is
+              resolved.
             </span>
           )}
         {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status ===
             'online-incompatible-host-version' && (
             <span>
-              <Icons.Danger color="danger" /> Host machine with incompatible
-              software version detected.
+              <Icons.Danger color="danger" /> VxAdmin with incompatible software
+              version detected on the network.
             </span>
           )}
         {networkStatusQuery.isSuccess &&
@@ -87,7 +88,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
     return (
       <Screen>
         <Main centerChild>
-          <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
+          <FullScreenMessage title="VxAdmin switched to host mode. Restart VxAdmin to continue.">
             <P align="center">
               <Button
                 onPress={

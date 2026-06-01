@@ -44,7 +44,7 @@ export function SettingsScreen(): JSX.Element | null {
     return (
       <Screen>
         <Main centerChild>
-          <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
+          <FullScreenMessage title="VxAdmin switched to adjudication station mode. Restart VxAdmin to continue.">
             <P align="center">
               <Button
                 onPress={
@@ -73,7 +73,8 @@ export function SettingsScreen(): JSX.Element | null {
                 <P>
                   <Icons.Danger color="danger" /> Multiple hosts detected on the
                   network. Only one host machine should be active at a time.
-                  Clients will not connect until the conflict is resolved.
+                  Adjudication stations will not connect until the conflict is
+                  resolved.
                 </P>
               )}
             <P>
@@ -83,7 +84,7 @@ export function SettingsScreen(): JSX.Element | null {
                 }
                 disabled={setMachineModeMutation.isLoading}
               >
-                Switch to Client Mode
+                Switch to Adjudication Station Mode
               </Button>
             </P>
           </React.Fragment>
