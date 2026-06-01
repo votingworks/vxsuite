@@ -173,7 +173,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       }
 
       try {
-        await usbDrive.format();
+        await usbDrive.format('fat32');
         return ok();
       } catch (error) {
         return err(error as Error);

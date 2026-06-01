@@ -109,7 +109,7 @@ test('mock flow', async () => {
   const usbDrive = createMockFileUsbDrive();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   await expect(usbDrive.eject()).resolves.toBeUndefined();
-  await expect(usbDrive.format()).resolves.toBeUndefined();
+  await expect(usbDrive.format('fat32')).resolves.toBeUndefined();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
 
   const handler = getMockFileUsbDriveHandler();

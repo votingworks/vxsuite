@@ -153,13 +153,13 @@ export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
       return Promise.resolve();
     },
 
-    format(): Promise<void> {
+    format(fstype): Promise<void> {
       ensureMockDriveState(diskName);
       const driveState = readMockDriveState(diskName);
       if (driveState.state === 'inserted') {
         writeMockDriveState(diskName, {
           state: 'ejected',
-          fstype: driveState.fstype,
+          fstype,
         });
       }
       return Promise.resolve();
@@ -182,8 +182,8 @@ export class MockFileUsbDrive implements UsbDrive {
     return this.usbDrive.eject();
   }
 
-  format(): Promise<void> {
-    return this.usbDrive.format();
+  format(fstype: UsbDriveFilesystemType): Promise<void> {
+    return this.usbDrive.format(fstype);
   }
 
   sync(): Promise<void> {

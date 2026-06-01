@@ -1,3 +1,5 @@
+import { type UsbDriveFilesystemType } from './multi_usb_drive';
+
 export type UsbDriveStatus =
   | { status: 'no_drive' }
   | {
@@ -10,6 +12,6 @@ export type UsbDriveStatus =
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
   eject(): Promise<void>;
-  format(): Promise<void>;
+  format(fstype: UsbDriveFilesystemType): Promise<void>;
   sync(): Promise<void>;
 }
