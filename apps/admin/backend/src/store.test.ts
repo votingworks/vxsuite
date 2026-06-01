@@ -247,6 +247,27 @@ test('scanner batches', () => {
   expect(store.getScannerBatches(electionId)).toEqual([]);
 });
 
+test('getWriteInCandidates returns no candidates for an empty contestIds filter', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = store.addElection({
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  store.addWriteInCandidate({
+    electionId,
+    contestId: 'zoo-council-mammal',
+    name: 'Mr. Pickles',
+  });
+
+  expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
+  expect(store.getWriteInCandidates({ electionId, contestIds: [] })).toEqual(
+    []
+  );
+});
+
 test('manual results', () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();

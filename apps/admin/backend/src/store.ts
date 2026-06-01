@@ -1945,7 +1945,6 @@ export class Store implements BaseStore {
     const params: Bindable[] = [electionId];
 
     if (contestIds) {
-      /* istanbul ignore next - @preserve */
       if (contestIds.length === 0) {
         return [];
       }
