@@ -103,33 +103,75 @@ test('shows setup card reader page when no card reader', async () => {
   await screen.findByText('Card Reader Not Detected');
 });
 
-test('shows locked screen when machine is locked without election', async () => {
+test('warns when connected to an unconfigured host', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   renderClientApp();
   await screen.findByText('Adjudication Station Locked');
   await screen.findByText('Insert system administrator card to unlock.');
+  await screen.findByText('The host is not configured with an election');
+  expect(screen.queryByTestId('electionInfoBar')).toBeNull();
 });
 
-test('shows locked screen with election info when election is loaded', async () => {
+test('shows election info when connected to a configured host', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   renderClientApp({ withElection: true });
   await screen.findByText('Adjudication Station Locked');
-  screen.getByText(electionDefinition.election.title);
+  const electionInfo = await screen.findByTestId('electionInfoBar');
+  within(electionInfo).getByText(electionDefinition.election.title);
 });
 
-test('shows locked screen on session expiry', async () => {
+test('warns when no host is detected', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  apiMock.expectGetNetworkConnectionStatus('online-waiting-for-host');
+  renderClientApp({ withElection: true });
+  await screen.findByText('Adjudication Station Locked');
+  await screen.findByText('No host detected');
+});
+
+test('warns when multiple hosts detected', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  apiMock.expectGetNetworkConnectionStatus('online-multiple-hosts-detected');
+  renderClientApp();
+  await screen.findByText('Adjudication Station Locked');
+  await screen.findByText('Multiple hosts detected on the network');
+});
+
+test('warns when host has incompatible software version', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  apiMock.expectGetNetworkConnectionStatus('online-incompatible-host-version');
+  renderClientApp();
+  await screen.findByText('Adjudication Station Locked');
+  await screen.findByText(
+    /software version of this adjudication station does not match/
+  );
+});
+
+test('warns when there is no network connection', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked_by_session_expiry',
   });
+  apiMock.expectGetNetworkConnectionStatus('offline');
   renderClientApp();
   await screen.findByText('Adjudication Station Locked');
+  await screen.findByText('No network connection');
 });
 
 test('shows invalid card screen without election', async () => {
@@ -250,6 +292,7 @@ test('logout while on a ballot adjudication URL replaces it with the home route'
   window.history.replaceState({}, '', '/adjudication/ballots');
 
   setPollWorkerAuth();
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   renderClientApp({ withElection: true });
   await screen.findByText('mock ballot adjudication screen');
 
