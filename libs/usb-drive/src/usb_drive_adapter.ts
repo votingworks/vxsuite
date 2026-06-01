@@ -12,9 +12,10 @@ const debug = makeDebug('usb-drive:adapter');
 /**
  * Adapts a `MultiUsbDrive` instance to the single-drive `UsbDrive` interface.
  *
- * `getDriveDevPath` selects which drive to expose. The adapter maps the first
- * partition's mount state to `UsbDriveStatus` for backward-compatible consumers
- * such as `Exporter` and `createSystemCallApi`.
+ * `getDriveDevPath` selects which drive to expose from a list of drives with a
+ * single partition. The adapter maps the partition's mount state to
+ * `UsbDriveStatus` for backward-compatible consumers such as `Exporter` and
+ * `createSystemCallApi`.
  */
 export function createUsbDriveAdapter(
   multiUsbDrive: MultiUsbDrive,
