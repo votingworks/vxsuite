@@ -5,6 +5,7 @@ import {
   InfoBar,
   Main,
   Screen,
+  SystemInfo,
   H1,
   H3,
 } from '@votingworks/ui';
@@ -43,6 +44,11 @@ function LockScreenFooter(): JSX.Element | null {
   return (
     <InfoBar>
       <UnconfiguredNetworkStatusIndicator status={status} />
+      <SystemInfo
+        mode="admin"
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </InfoBar>
   );
 }
