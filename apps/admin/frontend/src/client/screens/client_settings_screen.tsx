@@ -89,16 +89,15 @@ export function ClientSettingsScreen(): JSX.Element | null {
       <Screen>
         <Main centerChild>
           <FullScreenMessage title="VxAdmin switched to host mode. Restart VxAdmin to continue.">
-            <P align="center">
-              <Button
-                onPress={
-                  /* istanbul ignore next - no-op in tests */
-                  () => rebootMutation.mutate()
-                }
-              >
-                Restart
-              </Button>
-            </P>
+            <Button
+              variant="primary"
+              onPress={
+                /* istanbul ignore next - no-op in tests @preserve */
+                () => rebootMutation.mutate()
+              }
+            >
+              Restart
+            </Button>
           </FullScreenMessage>
         </Main>
       </Screen>
