@@ -19,7 +19,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
-    "@votingworks/test-utils": "workspace:*",
+    "@votingworks/integration-test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "concurrently": "7.6.0",

@@ -19,11 +19,11 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { assertDefined, find, iter } from '@votingworks/basics';
+import { zipFile } from '@votingworks/test-utils';
 import {
   buildIntegrationTestHelper,
   createScreenshotCounter,
-  zipFile,
-} from '@votingworks/test-utils';
+} from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
   CVR,
