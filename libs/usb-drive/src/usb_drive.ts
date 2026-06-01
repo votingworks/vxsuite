@@ -5,7 +5,7 @@ import {
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from './types';
 import { MockFileUsbDrive } from './mocks/file_usb_drive';
-import { detectMultiUsbDrive } from './multi_usb_drive';
+import { detectMultiUsbDrive, isFat32Partition } from './multi_usb_drive';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 
 export function detectUsbDrive(
@@ -16,5 +16,8 @@ export function detectUsbDrive(
     return new MockFileUsbDrive();
   }
   const multiUsbDrive = detectMultiUsbDrive(logger, { onChange: onRefresh });
-  return createUsbDriveAdapter(multiUsbDrive, (drives) => drives[0]?.devPath);
+  return createUsbDriveAdapter(
+    multiUsbDrive,
+    (drives) => drives.find((d) => isFat32Partition(d.partitions[0]))?.devPath
+  );
 }

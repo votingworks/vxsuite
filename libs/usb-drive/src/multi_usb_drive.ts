@@ -80,18 +80,18 @@ function generateVxUsbLabel(previousLabel?: string): string {
   return label;
 }
 
-export function isFat32Partition(partition: {
+export function isFat32Partition(partition?: {
   fstype?: string;
   fsver?: string;
 }): boolean {
-  return partition.fstype === 'vfat' && partition.fsver === 'FAT32';
+  return partition?.fstype === 'vfat' && partition.fsver === 'FAT32';
 }
 
-export function isExt4Partition(partition: { fstype?: string }): boolean {
-  return partition.fstype === 'ext4';
+export function isExt4Partition(partition?: { fstype?: string }): boolean {
+  return partition?.fstype === 'ext4';
 }
 
-function isSupportedPartition(partition: UsbPartitionDeviceInfo): boolean {
+function isSupportedPartition(partition?: UsbPartitionDeviceInfo): boolean {
   return isFat32Partition(partition) || isExt4Partition(partition);
 }
 

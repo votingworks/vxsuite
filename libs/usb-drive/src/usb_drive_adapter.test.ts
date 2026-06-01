@@ -1,7 +1,8 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 import { createMockMultiUsbDrive } from './mocks/mock_multi_usb_drive';
 import { UsbDriveInfo } from './multi_usb_drive';
+import { UsbDriveStatus } from './types';
 
 function makeDriveInfo(overrides: Partial<UsbDriveInfo> = {}): UsbDriveInfo {
   return {
@@ -32,28 +33,65 @@ describe('createUsbDriveAdapter', () => {
 
     test('returns no_drive when drive not found in getDrives()', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
-      multiUsbDrive.getDrives.reset();
-
-      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
-      expect(await adapter.status()).toEqual({ status: 'no_drive' });
-    });
-
-    test('returns no_drive when drive has no partitions', async () => {
-      const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(
-        multiUsbDrive,
-        (drives) => drives[0]?.devPath
-      );
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdz');
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives
         .expectRepeatedCallsWith()
-        .returns([makeDriveInfo({ partitions: [] })]);
+        .returns([makeDriveInfo()]);
       expect(await adapter.status()).toEqual({ status: 'no_drive' });
     });
 
-    test('filters out non-FAT32 drives', async () => {
+    test('returns no_drive when no drive is selected', async () => {
+      const { multiUsbDrive } = createMockMultiUsbDrive();
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => undefined);
+      multiUsbDrive.getDrives.reset();
+
+      multiUsbDrive.getDrives
+        .expectRepeatedCallsWith()
+        .returns([makeDriveInfo()]);
+      expect(await adapter.status()).toEqual({ status: 'no_drive' });
+    });
+
+    test('only allows selecting a drive with a single partition', async () => {
+      const { multiUsbDrive } = createMockMultiUsbDrive();
+      const adapter = createUsbDriveAdapter(
+        multiUsbDrive,
+        vi.fn().mockThrow(new Error('should never be called'))
+      );
+      multiUsbDrive.getDrives.reset();
+
+      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
+        makeDriveInfo({ partitions: [] }),
+        makeDriveInfo({
+          partitions: [
+            {
+              devPath: '/dev/sdb1',
+              label: 'VxUSB-ABCDE',
+              fstype: 'vfat',
+              fsver: 'FAT32',
+              mount: {
+                type: 'mounted',
+                mountPoint: '/media/vx/usb-drive-sdb1',
+              },
+            },
+            {
+              devPath: '/dev/sdb2',
+              label: 'VxUSB-ABCDE',
+              fstype: 'vfat',
+              fsver: 'FAT32',
+              mount: {
+                type: 'mounted',
+                mountPoint: '/media/vx/usb-drive-sdb2',
+              },
+            },
+          ],
+        }),
+      ]);
+      expect(await adapter.status()).toEqual({ status: 'no_drive' });
+    });
+
+    test('can see ext4 drives', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
       const adapter = createUsbDriveAdapter(
         multiUsbDrive,
@@ -75,7 +113,10 @@ describe('createUsbDriveAdapter', () => {
           ],
         }),
       ]);
-      expect(await adapter.status()).toEqual({ status: 'no_drive' });
+      expect(await adapter.status()).toEqual<UsbDriveStatus>({
+        status: 'mounted',
+        mountPoint: '/media/vx/usb-drive-sdb1',
+      });
     });
 
     test('returns no_drive when partition is mounting', async () => {
@@ -214,7 +255,7 @@ describe('createUsbDriveAdapter', () => {
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
       multiUsbDrive.formatDrive.expectCallWith('/dev/sdb', 'fat32').resolves();
-      await adapter.format();
+      await adapter.format('fat32');
 
       assertComplete();
     });
@@ -225,7 +266,7 @@ describe('createUsbDriveAdapter', () => {
       multiUsbDrive.getDrives.reset();
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-      await adapter.format();
+      await adapter.format('fat32');
 
       assertComplete();
     });
