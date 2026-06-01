@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve - tested via apps. */
+/* istanbul ignore file - tested via apps. */
 
 import React from 'react';
 

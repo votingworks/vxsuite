@@ -6,7 +6,7 @@ interface MarkControllerIllustrationProps {
   showHeadphones?: boolean;
 }
 
-/* istanbul ignore next - temporarily tested via apps/mark-scan - @preserve */
+/* istanbul ignore next - temporarily tested via apps/mark-scan */
 export function MarkControllerIllustration({
   highlight,
   showHeadphones,

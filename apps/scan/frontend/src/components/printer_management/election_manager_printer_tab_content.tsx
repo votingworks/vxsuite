@@ -42,7 +42,7 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
         </P>
       );
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(printerStatus, 'state');
   }
 }

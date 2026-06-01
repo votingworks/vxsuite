@@ -44,7 +44,7 @@ export async function* listDirectoryOnUsbDrive(
       break;
 
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(usbDriveStatus);
   }
 }

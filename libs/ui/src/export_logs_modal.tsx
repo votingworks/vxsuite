@@ -73,7 +73,7 @@ export function ExportLogsModal({
     return <Modal content={<Loading>Saving Logs</Loading>} />;
   }
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (currentState !== ModalState.Init) {
     throwIllegalValue(currentState);
   }
@@ -90,7 +90,7 @@ export function ExportLogsModal({
           actions={
             <React.Fragment>
               {
-                /* istanbul ignore next - @preserve */ process.env.NODE_ENV ===
+                /* istanbul ignore next */ process.env.NODE_ENV ===
                   'development' && (
                   <Button onPress={() => exportLogs('vxf')}>Save</Button>
                 )
@@ -142,7 +142,7 @@ export function ExportLogsModal({
       );
     }
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(usbDriveStatus);
     }
   }

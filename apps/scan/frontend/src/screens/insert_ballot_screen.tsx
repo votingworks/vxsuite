@@ -34,7 +34,7 @@ export function InsertBallotScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function ZeroBallotsScannedPreview(): JSX.Element {
   return (
     <InsertBallotScreen
@@ -45,7 +45,7 @@ export function ZeroBallotsScannedPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function ManyBallotsScannedPreview(): JSX.Element {
   return (
     <InsertBallotScreen

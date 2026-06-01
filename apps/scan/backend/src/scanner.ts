@@ -595,10 +595,10 @@ function buildMachine({
         invoke: [
           {
             src: async () => {
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('accepting');
               (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('eject command sent');
             },
             onDone: 'checkingComplete',
@@ -679,7 +679,7 @@ function buildMachine({
             target: '#error',
             actions: assign({
               error:
-                /* istanbul ignore next - fallback case, shouldn't happen - @preserve */
+                /* istanbul ignore next - fallback case, shouldn't happen */
                 (_, { event }) =>
                   new PrecinctScannerError(
                     'unexpected_event',
@@ -922,13 +922,13 @@ function buildMachine({
           id: 'interpreting',
           invoke: {
             src: async ({ scanImages }) => {
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('interpreting');
               const result = await interpretSheet(
                 workspace,
                 assertDefined(scanImages)
               );
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('interpretComplete');
               return result;
             },
@@ -968,7 +968,7 @@ function buildMachine({
         accepted: {
           id: 'accepted',
           entry: async (context) => {
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             scanAndInterpretTimer?.checkpoint('accepted');
             await recordScannedSheet({
               workspace,
@@ -977,9 +977,9 @@ function buildMachine({
               isAccepted: true,
               logger,
             });
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             scanAndInterpretTimer?.checkpoint('recordScannedSheet complete');
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             scanAndInterpretTimer?.end();
             scanAndInterpretTimer = undefined;
           },
@@ -1431,7 +1431,7 @@ function setupLogging(
         await logger.logAsCurrentRole(
           LogEventId.ScannerEvent,
           { message: `Event: ${event.type}`, eventObject: eventString },
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           () => debug(`Event: ${eventString}`),
           'cardless_voter'
         );
@@ -1446,7 +1446,7 @@ function setupLogging(
       }
     })
     .onChange((context, previousContext) => {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       if (!previousContext) return;
       const changed = Object.entries(context).filter(
         ([key, value]) => previousContext[key as keyof Context] !== value
@@ -1543,7 +1543,7 @@ export function createPrecinctScannerStateMachine({
           case state.matches('accepting.paperInFront'):
           case state.matches('acceptingAfterReview.paperInFront'):
             return 'both_sides_have_paper';
-          /* istanbul ignore next - state transitions too quickly to test - @preserve */
+          /* istanbul ignore next - state transitions too quickly to test */
           case state.matches('readyToAccept'):
           case state.matches('accepting'):
             return 'accepting';
@@ -1567,7 +1567,7 @@ export function createPrecinctScannerStateMachine({
             return 'cover_open';
           case state.matches('resetting'):
             return 'resetting';
-          /* istanbul ignore next - state transitions too quickly to test - @preserve */
+          /* istanbul ignore next - state transitions too quickly to test */
           case state.matches('error'):
           case state.matches('unrecoverableError'):
             return 'unrecoverable_error';
@@ -1588,7 +1588,7 @@ export function createPrecinctScannerStateMachine({
           case state.matches('scannerDiagnostic'):
             return 'scanner_diagnostic.running';
           default:
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             throw new Error(`Unexpected state: ${state.value}`);
         }
       })();
@@ -1625,13 +1625,13 @@ export function createPrecinctScannerStateMachine({
     },
 
     accept: () => {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       scanAndInterpretTimer?.checkpoint('ACCEPT');
       machineService.send('ACCEPT');
     },
 
     return: () => {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       scanAndInterpretTimer?.checkpoint('RETURN');
       machineService.send('RETURN');
     },

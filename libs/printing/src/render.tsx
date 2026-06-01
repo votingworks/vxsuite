@@ -56,7 +56,7 @@ const HTML_DOCTYPE = '<!DOCTYPE html>';
 const CONTENT_WRAPPER_ID = 'content-wrapper';
 
 // coverage tool breaks on code evaluated within the browser
-/* istanbul ignore next -  @preserve */
+/* istanbul ignore next -  */
 function getContentHeight(page: Page): Promise<number> {
   return page.evaluate(() => {
     const rect = (
@@ -77,7 +77,7 @@ export async function launchBrowser(): Promise<Browser> {
   });
 }
 
-/* istanbul ignore next - cleanup function for vitest @preserve */
+/* istanbul ignore next - cleanup function for vitest */
 export async function cleanupCachedBrowser(): Promise<void> {
   if (cachedBrowser) {
     await cachedBrowser.close();

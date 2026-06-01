@@ -92,7 +92,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
             <P align="center">
               <Button
                 onPress={
-                  /* istanbul ignore next - no-op in tests @preserve */
+                  /* istanbul ignore next - no-op in tests */
                   () => rebootMutation.mutate()
                 }
               >

@@ -12,7 +12,7 @@ import {
   createQueryClient,
 } from './api';
 
-/* istanbul ignore next - default client for production @preserve */
+/* istanbul ignore next - default client for production */
 const defaultApiClient = createApiClient();
 const defaultQueryClient = createQueryClient();
 

@@ -16,7 +16,7 @@ const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
     case 'primary':
       return Primary.BallotPageFrame(props);
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(props.election.type);
   }
 };
@@ -37,7 +37,7 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
     case 'primary':
       return Primary.BallotPageContent(props, scratchpad);
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(props.election.type);
   }
 };

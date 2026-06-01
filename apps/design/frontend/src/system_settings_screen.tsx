@@ -168,7 +168,7 @@ export function SystemSettingsForm({
     }
   }
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (
     !getUserFeaturesQuery.isSuccess ||
     !getResultsReportingUrlQuery.isSuccess
@@ -895,7 +895,7 @@ export function SystemSettingsForm({
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             () => setIsConfirmingMorningPollsCloseTime(false)
           }
         />

@@ -672,7 +672,7 @@ export function buildApi({
       // Live results reporting requires a configured polling place
       // TODO (CARO) - Change to an assert when polling places are shipped
       const pollingPlaceId = store.getPollingPlaceId();
-      /* istanbul ignore else - @preserve - temporary fallback while polling places is not shipped */
+      /* istanbul ignore else - temporary fallback while polling places is not shipped */
       if (!pollingPlaceId) {
         return [];
       }
@@ -708,7 +708,7 @@ export function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
   });

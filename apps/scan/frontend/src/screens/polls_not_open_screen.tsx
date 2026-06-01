@@ -49,7 +49,7 @@ export function PollsNotOpenScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -61,7 +61,7 @@ export function DefaultPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultTestModePreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -73,7 +73,7 @@ export function DefaultTestModePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function NoPowerConnectedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -85,7 +85,7 @@ export function NoPowerConnectedPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function PollsPausedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -97,7 +97,7 @@ export function PollsPausedPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function PollsClosedFinalPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen

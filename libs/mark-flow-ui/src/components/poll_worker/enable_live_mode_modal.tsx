@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve - currently tested via apps. */
+/* istanbul ignore file - currently tested via apps. */
 
 import { DateWithoutTime } from '@votingworks/basics';
 import { Election } from '@votingworks/types';

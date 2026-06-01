@@ -7,7 +7,7 @@ function PrinterErrorMessage({
 }: {
   printerStatus: PrinterStatus;
 }): JSX.Element | null {
-  /* istanbul ignore next - unreachable safety check @preserve */
+  /* istanbul ignore next - unreachable safety check */
   if (printerStatus.state !== 'error') {
     return null;
   }
@@ -58,7 +58,7 @@ export function InternalConnectionProblemScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function PrinterDisconnectedPreview(): JSX.Element {
   return (
     <InternalConnectionProblemScreen
@@ -87,7 +87,7 @@ export function PrinterHardwareErrorPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function ScannerDisconnectedPreview(): JSX.Element {
   return (
     <InternalConnectionProblemScreen
@@ -99,7 +99,7 @@ export function ScannerDisconnectedPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function ScannerDisconnectedPollWorkerPreview(): JSX.Element {
   return (
     <InternalConnectionProblemScreen
@@ -111,7 +111,7 @@ export function ScannerDisconnectedPollWorkerPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function PrinterScannerDisconnectedPreview(): JSX.Element {
   return (
     <InternalConnectionProblemScreen

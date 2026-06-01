@@ -58,7 +58,7 @@ function BallotDesignForm({
     updateBallotLayoutSettings.useMutation();
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!getStateFeaturesQuery.isSuccess) {
     return null;
   }
@@ -231,7 +231,7 @@ function BallotStylesTab(): JSX.Element | null {
                           <Font italic>No contests assigned</Font>
                         </TD>
                         {
-                          /* istanbul ignore next - @preserve */
+                          /* istanbul ignore next */
                           showPartyColumn && <TD />
                         }
                         <TD />
@@ -292,7 +292,7 @@ function BallotStylesTab(): JSX.Element | null {
                           <Font italic>No contests assigned</Font>
                         </TD>
                         {
-                          /* istanbul ignore next - @preserve */
+                          /* istanbul ignore next */
                           showPartyColumn && <TD />
                         }
                         <TD />

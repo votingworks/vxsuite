@@ -116,7 +116,7 @@ export function CloneElectionButton(
     );
   }
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!userQuery.isSuccess) {
     return null;
   }

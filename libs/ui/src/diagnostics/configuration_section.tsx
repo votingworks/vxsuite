@@ -86,7 +86,7 @@ function BallotStylesSection(props: BallotStylesSectionProps): React.ReactNode {
             const languages = iter(ballotStylesInGroup)
               .flatMap(
                 (bs) =>
-                  /* istanbul ignore next - unexpected condition - @preserve */
+                  /* istanbul ignore next - unexpected condition */
                   bs.languages || []
               )
               .map((code) =>
@@ -153,7 +153,7 @@ export function PrecinctSelectionSection({
   election,
   precinctSelection,
 }: PrecinctSelectionSectionProps): React.ReactNode {
-  /* istanbul ignore next - component will be deprecated soon anyway - @preserve */
+  /* istanbul ignore next - component will be deprecated soon anyway */
   if (!election) return null;
 
   if (!precinctSelection) {

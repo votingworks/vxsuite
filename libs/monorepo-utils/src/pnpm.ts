@@ -12,7 +12,7 @@ function maybeReadJson(filepath: string): unknown {
   try {
     return JSON.parse(readFileSync(filepath, { encoding: 'utf-8' }));
   } catch {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     return undefined;
   }
 }

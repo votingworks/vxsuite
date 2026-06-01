@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {

@@ -33,7 +33,7 @@ function addCardTallyToCardCounts({
     cardCounts.bmd[sheetNumber - 1] =
       (cardCounts.bmd[sheetNumber - 1] ?? 0) + tally;
   } else {
-    /* istanbul ignore next - trivial fallback case @preserve */
+    /* istanbul ignore next - trivial fallback case */
     // eslint-disable-next-line no-param-reassign
     cardCounts.hmpb[card.sheetNumber - 1] =
       (cardCounts.hmpb[card.sheetNumber - 1] ?? 0) + tally;

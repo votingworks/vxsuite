@@ -48,7 +48,7 @@ export function FileInputButton({
 }: FileInputButtonProps): JSX.Element {
   function onBlur(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     input?.blur();
   }
   return (

@@ -189,7 +189,7 @@ export const getElectionRecord = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -236,7 +236,7 @@ export const checkPin = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const logOut = {
   useMutation() {
     const apiClient = useApiClient();
@@ -251,7 +251,7 @@ export const logOut = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();
@@ -318,7 +318,7 @@ export const getPrintCalibration = {
   },
 } as const;
 
-// istanbul ignore next - WIP @preserve
+// istanbul ignore next - WIP
 export const setPrintCalibration = {
   useMutation() {
     const apiClient = useApiClient();

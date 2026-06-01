@@ -303,7 +303,7 @@ export async function generateElectionPackageAndBallots(
         return shouldExportTestBallots;
 
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(props.ballotMode);
       }
     }
@@ -431,7 +431,7 @@ export async function generateElectionPackageAndBallots(
         break;
 
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(props.ballotMode);
       }
     }

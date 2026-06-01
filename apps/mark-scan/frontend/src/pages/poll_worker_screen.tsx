@@ -129,7 +129,7 @@ export function PollWorkerScreen({
   const setMockPaperHandlerStatus =
     api.setMockPaperHandlerStatus.useMutation().mutate;
   React.useEffect(() => {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     if (
       stateMachineState === 'accepting_paper' &&
       isFeatureFlagEnabled(

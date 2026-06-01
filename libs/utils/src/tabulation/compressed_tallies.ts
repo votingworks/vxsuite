@@ -118,7 +118,7 @@ export function compressTally(
       }
 
       default:
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(contest, 'type');
     }
   });
@@ -366,7 +366,7 @@ export function decodeV0CompressedTally(
       );
       offset += tallyLength;
     } else {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
     }
   }

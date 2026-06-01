@@ -113,7 +113,7 @@ function TestScanModal({
             />
           );
         default:
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(outcome);
       }
     }

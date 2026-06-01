@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
 import {
   DEV_MOCK_USB_DRIVE_GLOB_PATTERN,

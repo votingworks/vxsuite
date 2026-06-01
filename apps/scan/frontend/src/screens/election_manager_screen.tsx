@@ -208,7 +208,7 @@ export function ElectionManagerScreen({
       ]}
       selectedOptionId={ballotCastingMode}
     />
-  ) : /* istanbul ignore next - @preserve */
+  ) : /* istanbul ignore next */
   null;
 
   const dateTimeButton = (
@@ -410,7 +410,7 @@ export function ElectionManagerScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;

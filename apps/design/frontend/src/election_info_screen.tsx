@@ -81,7 +81,7 @@ function ElectionInfoForm({
   const { electionId } = useParams<ElectionIdParams>();
   const infoRoutes = routes.election(electionId).electionInfo;
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!getStateFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
     return null;
   }
@@ -152,7 +152,7 @@ function ElectionInfoForm({
   let errorMessage;
   if (updateElectionInfoMutation.data?.isErr()) {
     const error = updateElectionInfoMutation.data.err();
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     if (error !== 'duplicate-title-and-date') throwIllegalValue(error);
     errorMessage = (
       <Callout icon="Danger" color="danger">

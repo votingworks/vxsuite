@@ -25,7 +25,7 @@ export function ScanProcessingScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   return <ScanProcessingScreen isTestMode={false} isEarlyVotingMode={false} />;
 }

@@ -293,7 +293,7 @@ function HostBallotAdjudicationScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* istanbul ignore next - empty queue redirect @preserve */
+  /* istanbul ignore next - empty queue redirect */
   if (!currentCvrId) {
     history.push(routerPaths.adjudication);
     return (

@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via VxSuite apps. @preserve */
+/* istanbul ignore file - tested via VxSuite apps. */
 
 import { BaseLogger } from '@votingworks/logging';
 import {

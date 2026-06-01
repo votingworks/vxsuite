@@ -1,4 +1,4 @@
-/* istanbul ignore file - test util @preserve */
+/* istanbul ignore file - test util */
 
 import type * as vitest from 'vitest';
 import { MaybePromise } from '@votingworks/basics';

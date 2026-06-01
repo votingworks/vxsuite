@@ -362,7 +362,7 @@ export function convertMsElection(
       }
 
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throw new Error(`Unknown contest type: ${contestType}`);
       }
     }

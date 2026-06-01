@@ -498,7 +498,7 @@ export function detectMultiUsbDrive(
                 await formatDriveAsExt4(driveDevPath, label);
                 break;
               default:
-                /* istanbul ignore next - @preserve */
+                /* istanbul ignore next */
                 throwIllegalValue(fstype);
             }
             ejectedDrives.add(driveDevPath); // prevent auto-remount

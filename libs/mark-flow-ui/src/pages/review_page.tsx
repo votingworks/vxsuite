@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
+/* istanbul ignore file - tested via Mark/Mark-Scan */
 import React from 'react';
 import styled from 'styled-components';
 import {

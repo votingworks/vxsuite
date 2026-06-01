@@ -347,7 +347,7 @@ function EditContestForm(): JSX.Element | null {
   const contestParamRoutes = electionParamRoutes.contests;
   const contestRoutes = routes.election(electionId).contests;
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!listContestsQuery.isSuccess || !finalizedAt.isSuccess) {
     return null;
   }

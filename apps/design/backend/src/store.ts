@@ -519,7 +519,7 @@ async function insertContest(
     }
 
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }
@@ -559,11 +559,11 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 export class Store {
   constructor(private readonly db: Db) {}
 
-  /* istanbul ignore start - @preserve */
+  /* istanbul ignore start */
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
   }
-  /* istanbul ignore stop - @preserve */
+  /* istanbul ignore stop */
 
   async listOrganizations(): Promise<Organization[]> {
     return await this.db.withClient(
@@ -784,7 +784,7 @@ export class Store {
           return { ...userBase, type: userRow.type };
 
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(userRow.type);
         }
       }
@@ -1137,7 +1137,7 @@ export class Store {
             });
           }
           default: {
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             return throwIllegalValue(row.type);
           }
         }
@@ -1505,7 +1505,7 @@ export class Store {
       ) {
         return err('duplicate-title-and-date');
       }
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throw error;
     }
   }
@@ -1529,7 +1529,7 @@ export class Store {
       ) {
         return err({ code: 'duplicate-name', districtId: district.id });
       }
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throw error;
     }
   }
@@ -1560,7 +1560,7 @@ export class Store {
       ) {
         return err({ code: 'duplicate-name', districtId: district.id });
       }
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throw error;
     }
   }
@@ -1682,14 +1682,14 @@ export class Store {
                   // user will resolve this manually.
                   break;
 
-                /* istanbul ignore next - shouldn't be possible - @preserve */
+                /* istanbul ignore next - shouldn't be possible */
                 case 'invalid-precinct':
                   throw new Error(
                     `unexpected polling place generation error: ${error}`
                   );
 
                 default:
-                  /* istanbul ignore next - @preserve */
+                  /* istanbul ignore next */
                   throwIllegalValue(error);
               }
             }

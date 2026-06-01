@@ -58,7 +58,7 @@ export function userReadableMessageFromExportError(
             )}.`;
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness - @preserve */
+            /* istanbul ignore next: Compile-time check for completeness */
             throwIllegalValue(error, 'subType');
           }
         }
@@ -68,7 +68,7 @@ export function userReadableMessageFromExportError(
       return 'Recovery export failed.';
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness - @preserve */
+      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(error, 'type');
     }
   }

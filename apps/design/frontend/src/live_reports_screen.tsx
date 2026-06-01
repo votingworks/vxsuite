@@ -103,7 +103,7 @@ function getOverallStatusIcon(
     case 'closed':
       return <Icons.Done color="primary" />;
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(status);
   }
 }
@@ -119,7 +119,7 @@ function getOverallStatusLabel(status: PollingPlaceOverallStatus): string {
     case 'closed':
       return 'Voting complete';
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(status);
   }
 }
@@ -173,7 +173,7 @@ function getLiveReportTransitionName(
     case 'close_polls':
       return 'Closed';
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -185,7 +185,7 @@ function getErrorMessage(error: GetExportedElectionError): string {
     case 'election-out-of-date':
       return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(error);
   }
 }
@@ -503,7 +503,7 @@ function DeleteReportsModal({
   return (
     <Modal
       content={
-        /* istanbul ignore next - @preserve - mutation loading state is transient */
+        /* istanbul ignore next - mutation loading state is transient */
         deleteMutation.isLoading ? (
           <Icons.Loading />
         ) : (
@@ -516,7 +516,7 @@ function DeleteReportsModal({
         )
       }
       actions={
-        /* istanbul ignore next - @preserve - mutation loading state is transient */
+        /* istanbul ignore next - mutation loading state is transient */
         deleteMutation.isLoading ? (
           <Button onPress={onClose} variant="secondary">
             Cancel
@@ -535,7 +535,7 @@ function DeleteReportsModal({
         )
       }
       onOverlayClick={
-        /* istanbul ignore next - @preserve - mutation loading state is transient */
+        /* istanbul ignore next - mutation loading state is transient */
         deleteMutation.isLoading ? undefined : onClose
       }
     />
@@ -555,7 +555,7 @@ function useDataChangeAnimation(
 
   function setPlacesToAnimate(placeIds: string[]): void {
     setPollingPlaceIdsToAnimate(placeIds);
-    /* istanbul ignore next - @preserve - timer cleanup runs after test completes */
+    /* istanbul ignore next - timer cleanup runs after test completes */
     setTimeout(() => {
       setPollingPlaceIdsToAnimate((prev) =>
         prev.filter((id) => !placeIds.includes(id))
@@ -575,7 +575,7 @@ function useDataChangeAnimation(
         newData;
       const { reportsByPollingPlace: oldReportsByPlace, isLive: oldIsLive } =
         oldData;
-      /* istanbul ignore if - @preserve - defensive guard */
+      /* istanbul ignore if - defensive guard */
       if (!newReportsByPlace) return;
       const switchedLive = newIsLive && !oldIsLive;
       const changedPlaces = Object.entries(newReportsByPlace)

@@ -35,7 +35,7 @@ export async function saveReadinessReport({
   const report = CentralScanReadinessReport({
     batteryInfo:
       (await getBatteryInfo({ logger })) ??
-      /* istanbul ignore next - @preserve */ undefined,
+      /* istanbul ignore next */ undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     isScannerAttached,
     mostRecentScannerDiagnostic:

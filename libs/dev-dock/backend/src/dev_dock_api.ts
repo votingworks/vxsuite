@@ -494,7 +494,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         [Symbol.asyncIterator]();
 
       async function insertNextSheet(): Promise<void> {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         if (!pdiScannerSheetQueue) return;
         if (mockPdiScanner.getSheetStatus() === 'noSheetEnabled') {
           const { done, value } =
@@ -522,7 +522,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     pdiScannerClearSheetQueue(): void {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       if (!pdiScannerSheetQueue) return;
       clearTimeout(pdiScannerSheetQueue.timeoutId);
       pdiScannerSheetQueue = undefined;

@@ -124,7 +124,7 @@ export function regenerateElectionIds(
             },
           };
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(contest);
         }
       }
@@ -153,7 +153,7 @@ export function regenerateElectionIds(
         newPrecincts[newPrecinctId] =
           oldPrecinct.type === 'whole'
             ? { ...oldPrecinct }
-            : /* istanbul ignore next - not yet supported (asserted at the store level) - @preserve */
+            : /* istanbul ignore next - not yet supported (asserted at the store level) */
               { ...oldPrecinct, splitIds: oldPrecinct.splitIds.map(replaceId) };
       }
 
@@ -214,7 +214,7 @@ export function userCanAccessJurisdiction(
     case 'support_user':
       return true;
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(user);
     }
   }

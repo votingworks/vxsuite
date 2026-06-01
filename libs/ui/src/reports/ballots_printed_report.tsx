@@ -55,7 +55,7 @@ function getColumnLabel(column: Column): string {
     case 'filler':
       return '';
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -70,7 +70,7 @@ function getColumnWidth(column: Column): string {
     case 'filler':
       return '1fr';
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -175,7 +175,7 @@ function getFormattedCount(row: BallotPrintCount, column: CountColumn): string {
       case 'total':
         return row.totalCount;
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(column.id);
       }
     }
@@ -249,7 +249,7 @@ function getCellContent({
             displayLanguageCode: 'en',
           });
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(column);
         }
       }
@@ -259,7 +259,7 @@ function getCellContent({
     case 'count':
       return getFormattedCount(row, column);
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -359,7 +359,7 @@ function BallotsPrintedTable({
                 <span key={key} className={getCellClass(column, 'footer')} />
               );
             default: {
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               return throwIllegalValue(column);
             }
           }

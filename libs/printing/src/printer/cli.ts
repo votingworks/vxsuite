@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { sleep } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import { LogSource, BaseLogger } from '@votingworks/logging';

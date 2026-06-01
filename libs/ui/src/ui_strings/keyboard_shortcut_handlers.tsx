@@ -18,7 +18,7 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
     function onKeyPress(event: KeyboardEvent) {
       /*
        * istanbul ignore next - testing-library's keyboard simulation
-       * doesn't property set the `repeat` field for repeated events @preserve
+       * doesn't property set the `repeat` field for repeated events
        */
       // VVSG 2.0 7.2-M – No repetitive activation
       if (event.repeat) return;

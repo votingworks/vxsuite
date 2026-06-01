@@ -225,7 +225,7 @@ export class MockFileCard implements Card {
         break;
       }
       default:
-        /* istanbul ignore next: Compile-time check for completeness - @preserve */
+        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(user, 'role');
     }
     return Promise.resolve();

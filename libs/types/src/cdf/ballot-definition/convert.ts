@@ -49,7 +49,7 @@ function termDescriptionForContest(
   ballotDefinition: Cdf.BallotDefinition,
   contestId: string
 ): string | undefined {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   return (ballotDefinition.Office ?? []).find(
     (office) => office['@id'] === officeId(contestId)
   )?.Term.Label;
@@ -155,7 +155,7 @@ const extractorFns: Record<
   [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
     const candidates =
       assertDefined(cdfElection.Election[0]).Candidate ||
-      /* istanbul ignore next - @preserve */ [];
+      /* istanbul ignore next */ [];
     for (const candidate of candidates) {
       setInternationalizedUiStrings({
         stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate['@id']],
@@ -385,7 +385,7 @@ function getUiString(
 ): string | undefined {
   const uiStringsInLanguage = uiStrings[languageCode];
   // No current code paths lead here, but it's also not cause for an assert.
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (!uiStringsInLanguage) {
     return undefined;
   }
@@ -512,7 +512,7 @@ export function convertVxfElectionToCdfBallotDefinition(
               return gridPosition.optionId;
             }
             default: {
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               return throwIllegalValue(contest);
             }
           }
@@ -520,7 +520,7 @@ export function convertVxfElectionToCdfBallotDefinition(
         case 'write-in':
           return writeInOptionId(contest.id, gridPosition.writeInIndex);
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           return throwIllegalValue(gridPosition);
         }
       }
@@ -824,7 +824,7 @@ export function convertVxfElectionToCdfBallotDefinition(
               };
 
             default: {
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               throwIllegalValue(contest);
             }
           }
@@ -1051,7 +1051,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       case 'BallotDefinition.BallotMeasureContest':
         return optionId;
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         return throwIllegalValue(contest);
       }
     }
@@ -1064,7 +1064,7 @@ export function convertCdfBallotDefinitionToVxfElection(
     const match = /^-option-write-in-([0-9]+)$/.exec(
       optionId.replace(contestId, '')
     );
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     return safeParseInt(match?.[1]).assertOk(
       `Invalid write-in option id: ${optionId}`
     );
@@ -1168,7 +1168,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         }
 
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throw throwIllegalValue(contest, 'type');
         }
       }
@@ -1446,7 +1446,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                     }
 
                     default: {
-                      /* istanbul ignore next - @preserve */
+                      /* istanbul ignore next */
                       return throwIllegalValue(contest, '@type');
                     }
                   }

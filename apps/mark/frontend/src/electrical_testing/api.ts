@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import type { ElectricalTestingApi } from '@votingworks/mark-backend';
 import React from 'react';
 import {

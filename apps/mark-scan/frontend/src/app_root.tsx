@@ -166,7 +166,7 @@ function votingStateReducer(
         votes: {},
       };
     default: {
-      /* istanbul ignore next - compile time check for completeness @preserve */
+      /* istanbul ignore next - compile time check for completeness */
       throwIllegalValue(action);
     }
   }

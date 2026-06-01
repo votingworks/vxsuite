@@ -52,7 +52,7 @@ interface ReportContentsProps
   systemAudioProps: AudioDeviceInputProps;
 }
 
-/* istanbul ignore next - [TODO] add missing test suite - @preserve */
+/* istanbul ignore next - [TODO] add missing test suite */
 export function MarkReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {

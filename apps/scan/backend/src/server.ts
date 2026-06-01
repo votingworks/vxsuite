@@ -49,14 +49,14 @@ export async function start({
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
   )
-    ? /* istanbul ignore next - @preserve */
+    ? /* istanbul ignore next */
       createMockPdiScanner()
     : undefined;
 
   const precinctScannerStateMachine = scanner.createPrecinctScannerStateMachine(
     {
       scannerClient:
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         mockPdiScanner?.client ?? createPdiScannerClient(),
       workspace,
       usbDrive: resolvedUsbDrive,

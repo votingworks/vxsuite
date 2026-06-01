@@ -1,4 +1,4 @@
-/* istanbul ignore file - [TODO] need to update CI image to include postgres. @preserve */
+/* istanbul ignore file - [TODO] need to update CI image to include postgres. */
 
 import { Buffer } from 'node:buffer';
 import * as pg from 'pg';

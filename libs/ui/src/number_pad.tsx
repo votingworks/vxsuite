@@ -62,7 +62,7 @@ export function NumberPad({
   );
 
   useEffect(() => {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     container.current?.focus();
   }, []);
 

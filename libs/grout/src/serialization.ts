@@ -74,7 +74,7 @@ const undefinedTagger: Tagger<undefined, 'undefined'> = {
   shouldTag: (value): value is undefined => value === undefined,
   serialize: () => 'undefined',
   deserialize: () => {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     throw new Error('not used');
   },
 };

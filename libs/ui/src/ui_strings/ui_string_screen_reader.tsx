@@ -240,14 +240,14 @@ export function UiStringScreenReader(
 
     const { target } = activeEvent;
 
-    /* istanbul ignore next - tough to test firing click events on non-elements - @preserve */
+    /* istanbul ignore next - tough to test firing click events on non-elements */
     if (!(target instanceof Element)) {
       return;
     }
 
     // Ignore event if the target element has since been removed from the DOM.
     // (e.g. a button click event that triggers page navigation.)
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     if (!window.document.body.contains(target)) {
       return;
     }

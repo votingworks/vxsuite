@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 export * from './audio';
 export * from './card_reader_error_tracker';
 export * from './cast_vote_records';

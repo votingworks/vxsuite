@@ -116,14 +116,14 @@ function createOnDiagnosticErrorHandler() {
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
         if (event.data instanceof DiagnosticError) {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           return event.data;
         }
 
         return new DiagnosticError('An unknown error occurred.', {
           originalError:
             event.data instanceof Error
-              ? /* istanbul ignore next - @preserve */
+              ? /* istanbul ignore next */
                 event.data
               : undefined,
         });
@@ -246,7 +246,7 @@ export function paperHandlerStatusToEvent(
     return { type: 'PAPER_READY_TO_LOAD' };
   }
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (isPaperInInput(paperHandlerStatus)) {
     return { type: 'PAPER_IN_INPUT' };
   }
@@ -255,7 +255,7 @@ export function paperHandlerStatusToEvent(
     return { type: 'NO_PAPER_ANYWHERE' };
   }
 
-  /* istanbul ignore next - unreachable if exhaustive - @preserve */
+  /* istanbul ignore next - unreachable if exhaustive */
   return { type: 'UNHANDLED_EVENT' };
 }
 
@@ -542,7 +542,7 @@ export function buildMachine(
             return { type: 'AUTH_STATUS_LOGGED_OUT' };
           }
 
-          /* istanbul ignore next - unreachable if exhaustive - @preserve */
+          /* istanbul ignore next - unreachable if exhaustive */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
           logger.log(LogEventId.UnknownError, 'system', {
@@ -1104,7 +1104,7 @@ export function buildMachine(
                 const error =
                   context.error ??
                   // Fallback is unreachable unless we erroneously transition to this state without an error
-                  /* istanbul ignore next - @preserve */
+                  /* istanbul ignore next */
                   new Error('Unknown error occurred');
                 await context.logger.logAsCurrentRole(LogEventId.UnknownError, {
                   message: extractErrorMessage(error),
@@ -1431,7 +1431,7 @@ function setUpLogging(
             // To protect voter privacy, only log the event type since some event objects include,
             // e.g., ballot interpretations
             { message: `Event: ${event.type}` },
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             (logLine: LogLine) => debugEvents(logLine.message)
           );
         } else {
@@ -1440,7 +1440,7 @@ function setUpLogging(
             LogEventId.MarkScanStateMachineEvent,
             'system',
             { message: `Event: ${event.type}` },
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             (logLine: LogLine) => debugEvents(logLine.message)
           );
         }
@@ -1486,7 +1486,7 @@ function setUpLogging(
           message: `Context updated`,
           changedFields: JSON.stringify(Object.fromEntries(changed)),
         },
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
     })
@@ -1499,7 +1499,7 @@ function setUpLogging(
           message: `Transitioned to: ${JSON.stringify(state.value)}`,
           newState: JSON.stringify(state.value),
         },
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         (logLine: LogLine) => debug(logLine.message)
       );
     });
@@ -1532,7 +1532,7 @@ export async function getPaperHandlerStateMachine({
     logger,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
-      : /* istanbul ignore next - @preserve */
+      : /* istanbul ignore next */
         undefined,
   };
 
@@ -1563,13 +1563,13 @@ export async function getPaperHandlerStateMachine({
         case state.matches('paper_handler_diagnostic.load_paper'):
           return 'paper_handler_diagnostic.load_paper';
         case state.matches('paper_handler_diagnostic.print_ballot_fixture'): {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           return 'paper_handler_diagnostic.print_ballot_fixture';
         }
         case state.matches('paper_handler_diagnostic.scan_ballot'):
           return 'paper_handler_diagnostic.scan_ballot';
         case state.matches('paper_handler_diagnostic.interpret_ballot'): {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           return 'paper_handler_diagnostic.interpret_ballot';
         }
         case state.matches('paper_handler_diagnostic.eject_to_rear'):
@@ -1577,7 +1577,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('paper_handler_diagnostic.success'):
           return 'paper_handler_diagnostic.success';
         case state.matches('paper_handler_diagnostic.failure'): {
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record - @preserve */
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record */
           return 'paper_handler_diagnostic.failure';
         }
         case state.matches('voting_flow.not_accepting_paper'):
@@ -1648,7 +1648,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches(
           'voting_flow.resetting_state_machine_after_success'
         ): {
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead - @preserve */
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead */
           return 'resetting_state_machine_after_success';
         }
         case state.matches('voting_flow.poll_worker_auth_ended_unexpectedly'):
@@ -1656,7 +1656,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.empty_ballot_box'):
           return 'empty_ballot_box';
         case state.matches('voting_flow.transition_interpretation'): {
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead - @preserve */
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead */
           return 'interpreting';
         }
         case state.matches('voting_flow.blank_page_interpretation'):
@@ -1671,7 +1671,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.unrecoverable_error'):
           return 'unrecoverable_error';
         default: {
-          /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive - @preserve */
+          /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive */
           debug('Unhandled state: %O', state.value);
           return 'no_hardware';
         }

@@ -154,7 +154,7 @@ export async function generateTestDecks(
       },
     });
     renderedBallots += ballotSpecs.length;
-    /* istanbul ignore else - @preserve */
+    /* istanbul ignore else */
     if (testDeckPdf) {
       const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
       zip.file(fileName, testDeckPdf);
@@ -177,7 +177,7 @@ export async function generateTestDecks(
       },
     });
     renderedBallots += ballotSpecs.length;
-    /* istanbul ignore else - @preserve */
+    /* istanbul ignore else */
     if (summaryBallotPdf) {
       const summaryFileName = `${precinct.name.replaceAll(
         ' ',

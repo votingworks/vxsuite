@@ -52,7 +52,7 @@ async function getReportSection(
     debug(
       `polls transition is ${pollsTransition.type}, generating ballot count report`
     );
-    /* istanbul ignore next - @preserve there should be at least one completed batch but keep the fallback */
+    /* istanbul ignore next - there should be at least one completed batch but keep the fallback */
     const mostRecentBatchCount =
       pollsTransition.type === 'pause_voting'
         ? [...allBatches]

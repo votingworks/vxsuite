@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
 import { z } from 'zod/v4';

@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 export * from './combine_page_interpretations_for_sheet';
 export * from './interpret';
 export * from './bubble-ballot-ts';

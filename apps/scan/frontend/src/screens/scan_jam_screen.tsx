@@ -52,7 +52,7 @@ export function ScanJamScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function InternalJamPreview(): JSX.Element {
   return (
     <ScanJamScreen
@@ -63,7 +63,7 @@ export function InternalJamPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function OutfeedJamPreview(): JSX.Element {
   return (
     <ScanJamScreen

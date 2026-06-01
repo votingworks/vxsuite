@@ -50,7 +50,7 @@ export function aggregateManualResults(params: {
   manualResultsRecords: Iterable<ManualResultsRecord>;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.ManualResultsGroupMap {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   const { election, manualResultsRecords, groupBy = {} } = params;
   const manualResultsGroupMap: Tabulation.ManualResultsGroupMap = {};
 

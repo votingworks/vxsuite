@@ -15,7 +15,7 @@ function isTiptapError(event: Sentry.ErrorEvent): boolean {
   return currentTarget.includes('tiptap');
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 if (process.env.NODE_ENV === 'production') {
   /* eslint-disable no-underscore-dangle */
   const envVars = window as unknown as {

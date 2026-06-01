@@ -27,7 +27,7 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
 
   if (!getDeviceStatusesQuery.isSuccess || !getElectionQuery.isSuccess) {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     return null;
   }
 
@@ -48,7 +48,7 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
           election={election}
           setSearch={setSearch}
           onBarcodeScanMatch={(voter) => {
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             history.push(getDetailsPageUrl(voter));
           }}
           renderAction={(voter) => (

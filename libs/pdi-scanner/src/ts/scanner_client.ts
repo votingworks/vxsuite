@@ -308,7 +308,7 @@ export function createPdiScannerClient() {
         break;
       }
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(message, 'event');
       }
     }
@@ -316,7 +316,7 @@ export function createPdiScannerClient() {
 
   pdictl.stderr.on(
     'data',
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     (data) => {
       debug('pdictl stderr:', data.toString('utf-8'));
     }

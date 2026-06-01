@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';

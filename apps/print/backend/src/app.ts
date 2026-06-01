@@ -230,7 +230,7 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    /* istanbul ignore start - @preserve */
+    /* istanbul ignore start */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -244,7 +244,7 @@ export function buildApi(ctx: AppContext) {
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop - @preserve */
+    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive,
@@ -252,7 +252,7 @@ export function buildApi(ctx: AppContext) {
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next - @preserve */ () =>
+      getAuthStatus: /* istanbul ignore next */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
 
@@ -384,7 +384,7 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       const ballotMode = isTestMode ? 'test' : 'official';
 
       // BallotPrintCounts are hydrated with precinct/split names
@@ -407,7 +407,7 @@ export function buildApi(ctx: AppContext) {
               assertDefined(printCountB.partyName)
             );
           }
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           return 0;
         });
       for (let i = 0; i < sortedPrintCounts.length; i += 1) {
@@ -483,7 +483,7 @@ export function buildApi(ctx: AppContext) {
       return {
         usbDrive: usbDriveStatus,
         printer: printerStatus,
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         battery: batteryStatus ?? undefined,
       };
     },

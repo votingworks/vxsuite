@@ -5,7 +5,7 @@ import { PORT } from './globals';
 /**
  * Starts the server.
  */
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function start(context: AppContext): void {
   const app = buildApp(context);
 

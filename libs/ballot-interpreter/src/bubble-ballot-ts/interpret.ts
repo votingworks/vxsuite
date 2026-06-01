@@ -49,7 +49,7 @@ function checkImageSource(imageSource: string | ImageData): void {
       break;
 
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       assert(false, `unknown imageSource type: ${typeof imageSource}`);
   }
 }

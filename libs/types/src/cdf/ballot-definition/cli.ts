@@ -1,4 +1,4 @@
-/* istanbul ignore file - @preserve */
+/* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import { stderr } from 'node:process';
 import { safeParseElection } from '../../election_parsing';

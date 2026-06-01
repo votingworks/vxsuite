@@ -43,13 +43,12 @@ export async function start({
   port,
   workspace,
 }: StartOptions): Promise<Server> {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
 
   const logger = Logger.from(
     baseLogger,
-    /* istanbul ignore next - @preserve */ () =>
-      getUserRole(resolvedAuth, workspace)
+    /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
@@ -58,7 +57,7 @@ export async function start({
   const useMockBarcode = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
   );
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   const barcodeClient = useMockBarcode
     ? new MockBarcodeClient()
     : new BarcodeClient(baseLogger);
@@ -76,7 +75,7 @@ export async function start({
     printer,
   });
 
-  /* istanbul ignore next - @preserve  internal dev use only */
+  /* istanbul ignore next - internal dev use only */
   useDevDockRouter(app, express, {
     printerConfig: HP_LASER_PRINTER_CONFIG,
     getBarcodeConnected: () => Boolean(barcodeClient?.getConnectionStatus?.()),
@@ -99,7 +98,7 @@ export async function start({
 
   const server = app.listen(
     port,
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     () => {
       logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxMark backend running at http://localhost:${port}/`,

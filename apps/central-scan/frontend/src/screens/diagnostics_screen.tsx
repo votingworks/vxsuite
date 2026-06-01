@@ -61,7 +61,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
   const upsDiagnosticRecord = upsDiagnosticRecordQuery.data ?? undefined;
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   const { markThresholds } = systemSettings.data ?? {};
 
   return (

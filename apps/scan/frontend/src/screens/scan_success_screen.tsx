@@ -36,7 +36,7 @@ export function ScanSuccessScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   return (
     <ScanSuccessScreen

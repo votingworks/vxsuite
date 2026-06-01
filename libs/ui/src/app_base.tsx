@@ -54,7 +54,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
   const [fontsLoaded, setFontsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    /* istanbul ignore next - tested via integration tests. - @preserve */
+    /* istanbul ignore next - tested via integration tests. */
     if (!disableFontsForTests) {
       loadFonts();
     }

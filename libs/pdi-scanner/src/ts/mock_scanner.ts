@@ -149,7 +149,7 @@ export interface MockScanner {
 export function createMockPdiScanner(): MockScanner {
   const listeners = new Set<Listener>();
   function emitScannerEvent(event: ScannerEvent) {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     if (listeners.size === 0) {
       throw new Error(
         `No listeners registered, got event: ${JSON.stringify(event)}`
@@ -174,7 +174,7 @@ export function createMockPdiScanner(): MockScanner {
       DISCONNECT: 'disconnected',
       '*': {
         actions: (_, event) => {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           emitScannerEvent({
             event: 'error',
             code: 'other',
@@ -344,7 +344,7 @@ export function createMockPdiScanner(): MockScanner {
         case state.matches('ejectingToFrontAndHold'):
           return ok(mockScannerStatus.documentInFrontAndRear);
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           return err({
             code: 'other',
             message: `Unexpected state: ${state.value}`,
@@ -371,29 +371,29 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
-    /* istanbul ignore start - @preserve */
+    /* istanbul ignore start */
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop - @preserve */
+    /* istanbul ignore stop */
 
-    /* istanbul ignore start - @preserve */
+    /* istanbul ignore start */
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop - @preserve */
+    /* istanbul ignore stop */
 
-    /* istanbul ignore start - @preserve */
+    /* istanbul ignore start */
     calibrateImageSensors() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop - @preserve */
+    /* istanbul ignore stop */
 
-    /* istanbul ignore start - @preserve */
+    /* istanbul ignore start */
     reboot() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop - @preserve */
+    /* istanbul ignore stop */
 
     async disconnect() {
       await simulateCommandDelay();
@@ -401,11 +401,11 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
-    /* istanbul ignore start - @preserve */
+    /* istanbul ignore start */
     exit() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop - @preserve */
+    /* istanbul ignore stop */
   };
 
   return {

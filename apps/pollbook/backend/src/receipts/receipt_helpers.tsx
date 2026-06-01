@@ -160,7 +160,7 @@ export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
     case 'UND':
       return 'Undeclared';
     default: {
-      /* istanbul ignore next: Compile-time check for completeness @preserve */
+      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(party);
     }
   }
@@ -179,7 +179,7 @@ export function IdentificationMethod({
     case 'outOfStateLicense':
       return <div>OOS DL ({identificationMethod.state})</div>;
     default: {
-      /* istanbul ignore next: Compile-time check for completeness @preserve */
+      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(identificationMethod);
     }
   }

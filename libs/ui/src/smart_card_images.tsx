@@ -76,7 +76,7 @@ export function RotateCardImage({
 }
 
 export function SmartCardChipImage(): JSX.Element {
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   return (
     <Svg.FullScreenSvg
       viewBox="0 0 138 154"

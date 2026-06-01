@@ -19,7 +19,7 @@ import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals';
 
 export type ApiClient = grout.Client<ClientApi>;
 
-/* istanbul ignore next - creates real API client @preserve */
+/* istanbul ignore next - creates real API client */
 export function createApiClient(): ApiClient {
   return grout.createClient<ClientApi>({ baseUrl: '/api' });
 }
@@ -30,7 +30,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
-  /* istanbul ignore next @preserve */
+  /* istanbul ignore next */
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -131,11 +131,11 @@ export const checkPin = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
-      /* istanbul ignore start - query invalidation @preserve */
+      /* istanbul ignore start - query invalidation */
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
-      /* istanbul ignore stop - @preserve */
+      /* istanbul ignore stop */
     });
   },
 } as const;
@@ -205,11 +205,11 @@ export const ejectUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
-      /* istanbul ignore start - tested via shared UI components @preserve */
+      /* istanbul ignore start - tested via shared UI components */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop - @preserve */
+      /* istanbul ignore stop */
     });
   },
 } as const;
@@ -219,11 +219,11 @@ export const formatUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.formatUsbDrive, {
-      /* istanbul ignore start - tested via shared UI components @preserve */
+      /* istanbul ignore start - tested via shared UI components */
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop - @preserve */
+      /* istanbul ignore stop */
     });
   },
 } as const;

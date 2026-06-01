@@ -53,7 +53,7 @@ export function UnconfiguredElectionScreen({
       case 'system_limit_violation':
         return systemLimitViolationToString(backendConfigError.violation);
       default: {
-        /* istanbul ignore next - compile time check for completeness - @preserve */
+        /* istanbul ignore next - compile time check for completeness */
         throwIllegalValue(backendConfigError);
       }
     }

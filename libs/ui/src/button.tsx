@@ -258,7 +258,7 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
           }[color],
         };
       default: {
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         throwIllegalValue(fill);
       }
     }

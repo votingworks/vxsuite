@@ -333,7 +333,7 @@ export function buildApi(ctx: AppContext) {
         case 'support_user':
           return store.listJurisdictions();
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(context.user);
         }
       }
@@ -442,7 +442,7 @@ export function buildApi(ctx: AppContext) {
             }
 
             default: {
-              /* istanbul ignore next - @preserve */
+              /* istanbul ignore next */
               return throwIllegalValue(input.upload);
             }
           }
@@ -1138,7 +1138,7 @@ export function buildApi(ctx: AppContext) {
         // Navigate to the right sub-directory if necessary
         let cvrExportDirectory = inputCvrDirectory;
         const zipEntries = await readdir(cvrExportDirectory);
-        /* istanbul ignore next - @preserve */
+        /* istanbul ignore next */
         if (zipEntries.length === 1 && zipEntries[0].startsWith('machine')) {
           cvrExportDirectory = path.join(cvrExportDirectory, zipEntries[0]);
         }
@@ -1489,7 +1489,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             });
           }
           default:
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             throwIllegalValue(pollsTransitionType);
         }
       } catch {
@@ -1507,7 +1507,7 @@ export type UnauthenticatedApi = ReturnType<typeof buildUnauthenticatedApi>;
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (authEnabled()) {
     app.use(
       auth0Middleware({

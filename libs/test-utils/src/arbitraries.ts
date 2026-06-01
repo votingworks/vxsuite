@@ -200,7 +200,7 @@ export function arbitraryDateTime({
         const result = DateTime.fromObject(parts, {
           zone: zoneName,
         });
-        /* istanbul ignore else - @preserve */
+        /* istanbul ignore else */
         if (
           result.year === parts.year &&
           result.month === parts.month &&
@@ -214,7 +214,7 @@ export function arbitraryDateTime({
       } catch {
         // ignore invalid dates
       }
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       return undefined;
     })
     .filter((dateTime): dateTime is DateTime => !!dateTime);

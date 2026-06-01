@@ -735,7 +735,7 @@ export function electionTypeV4p1ToV4p0(type: ElectionTypeV4p1): ElectionType {
     case 'open-primary':
       return 'primary';
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(type);
   }
 }
@@ -749,7 +749,7 @@ export function electionTypeV4p0ToV4p1(
     case 'primary':
       return 'closed-primary';
     default:
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(type);
   }
 }

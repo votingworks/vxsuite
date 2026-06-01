@@ -17,7 +17,7 @@ import {
 
 loadEnvVarsFromDotenvFiles();
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
   const logger = new BaseLogger(LogSource.VxDesignWorker);
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
   });
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 if (require.main === module) {
   main().catch((error) => {
     process.stderr.write(

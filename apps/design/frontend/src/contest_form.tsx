@@ -145,7 +145,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     string | null
   >(null);
 
-  /* istanbul ignore next - @preserve */
+  /* istanbul ignore next */
   if (
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
@@ -289,7 +289,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </Callout>
           );
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(error);
         }
       }
@@ -859,7 +859,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next - @preserve */
+            /* istanbul ignore next */
             () => setIsConfirmingDelete(false)
           }
         />
@@ -960,7 +960,7 @@ function draftContestFromContest(contest: AnyContest): DraftContest {
     case 'yesno':
       return { ...contest };
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
     }
   }
@@ -983,7 +983,7 @@ function tryContestFromDraftContest(
       return safeParse(YesNoContestSchema, draftContest);
 
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(draftContest, 'type');
     }
   }

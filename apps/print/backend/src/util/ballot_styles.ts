@@ -97,7 +97,7 @@ export function findBallotStyleId(
       return ballotStyle.id;
     }
     default: {
-      /* istanbul ignore next - @preserve */
+      /* istanbul ignore next */
       throwIllegalValue(election.type);
     }
   }

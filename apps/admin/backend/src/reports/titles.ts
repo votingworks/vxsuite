@@ -137,7 +137,7 @@ export function generateTitleForReport({
         case 'hasMarginalMark':
           return 'Ballots With Marginal Marks';
         default: {
-          /* istanbul ignore next - @preserve */
+          /* istanbul ignore next */
           throwIllegalValue(adjudicationFlag);
         }
       }

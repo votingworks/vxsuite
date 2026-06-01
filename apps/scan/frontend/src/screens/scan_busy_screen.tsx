@@ -39,7 +39,7 @@ export function ScanBusyScreen({
   );
 }
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   return <ScanBusyScreen isTestMode={false} isEarlyVotingMode={false} />;
 }

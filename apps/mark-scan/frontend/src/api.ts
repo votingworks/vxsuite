@@ -111,7 +111,7 @@ export const getInterpretation = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -254,7 +254,7 @@ export const checkPin = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const logOut = {
   useMutation() {
     const apiClient = useApiClient();
@@ -269,7 +269,7 @@ export const logOut = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();
@@ -539,7 +539,7 @@ export const returnPreprintedBallot = {
   useMutation: () => useMutation(useApiClient().returnPreprintedBallot),
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const getMockPaperHandlerStatus = {
   queryKey: ['getMockPaperHandlerStatus'] as QueryKey,
 
@@ -561,7 +561,7 @@ export const getMockPaperHandlerStatus = {
   },
 } as const;
 
-/* istanbul ignore next - @preserve */
+/* istanbul ignore next */
 export const setMockPaperHandlerStatus = {
   useMutation() {
     const apiClient = useApiClient();
