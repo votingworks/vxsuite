@@ -6,7 +6,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { constructElectionKey } from '@votingworks/types';
+import { constructElectionKey, DEV_MACHINE_ID } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { QueryClient } from '@tanstack/react-query';
 import { SystemCallContextProvider } from '@votingworks/ui';
@@ -114,6 +114,7 @@ test('warns when connected to an unconfigured host', async () => {
   await screen.findByText('Insert system administrator card to unlock.');
   await screen.findByText('The host is not configured with an election');
   expect(screen.queryByTestId('electionInfoBar')).toBeNull();
+  screen.getByText(DEV_MACHINE_ID);
 });
 
 test('shows election info when connected to a configured host', async () => {
@@ -126,6 +127,7 @@ test('shows election info when connected to a configured host', async () => {
   await screen.findByText('Adjudication Station Locked');
   const electionInfo = await screen.findByTestId('electionInfoBar');
   within(electionInfo).getByText(electionDefinition.election.title);
+  within(electionInfo).getByText(DEV_MACHINE_ID);
 });
 
 test('warns when no host is detected', async () => {
@@ -137,6 +139,7 @@ test('warns when no host is detected', async () => {
   renderClientApp({ withElection: true });
   await screen.findByText('Adjudication Station Locked');
   await screen.findByText('No host detected');
+  screen.getByText(DEV_MACHINE_ID);
 });
 
 test('warns when multiple hosts detected', async () => {
@@ -148,6 +151,7 @@ test('warns when multiple hosts detected', async () => {
   renderClientApp();
   await screen.findByText('Adjudication Station Locked');
   await screen.findByText('Multiple hosts detected on the network');
+  screen.getByText(DEV_MACHINE_ID);
 });
 
 test('warns when host has incompatible software version', async () => {
@@ -161,6 +165,7 @@ test('warns when host has incompatible software version', async () => {
   await screen.findByText(
     /software version of this adjudication station does not match/
   );
+  screen.getByText(DEV_MACHINE_ID);
 });
 
 test('warns when there is no network connection', async () => {
@@ -172,6 +177,7 @@ test('warns when there is no network connection', async () => {
   renderClientApp();
   await screen.findByText('Adjudication Station Locked');
   await screen.findByText('No network connection');
+  screen.getByText(DEV_MACHINE_ID);
 });
 
 test('shows invalid card screen without election', async () => {
