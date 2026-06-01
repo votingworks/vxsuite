@@ -64,7 +64,7 @@ export function SettingsScreen(): JSX.Element | null {
               <Button
                 variant="primary"
                 onPress={
-                  /* istanbul ignore next - no-op in tests @preserve */
+                  /* istanbul ignore next - n-op in tests */
                   () => rebootMutation.mutate()
                 }
               >
