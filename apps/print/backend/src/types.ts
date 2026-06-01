@@ -4,8 +4,16 @@ import {
   PrinterStatus,
   BallotMode as FullBallotMode,
 } from '@votingworks/types';
+import { z } from 'zod';
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
+
+export interface BarcodeScannerError {
+  error: string;
+}
+
+export const BarcodeScannerErrorSchema: z.ZodSchema<BarcodeScannerError> =
+  z.strictObject({ error: z.string() });
 
 export interface BallotPrintEntry extends EncodedBallotEntry {
   ballotPrintId: Id;

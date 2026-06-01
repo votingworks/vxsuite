@@ -3,6 +3,7 @@ import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
 import { Workspace } from './util/workspace';
+import { BarcodeScannerClient } from './barcode_scanner/client';
 
 export interface AppContext {
   auth: DippedSmartCardAuthApi;
@@ -10,4 +11,5 @@ export interface AppContext {
   logger: Logger;
   workspace: Workspace;
   printer: Printer;
+  barcodeScannerClient: BarcodeScannerClient;
 }
