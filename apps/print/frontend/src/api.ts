@@ -321,6 +321,20 @@ export const exportBallotsPrintedReportPdf = {
   },
 } as const;
 
+export const BARCODE_SCANNER_POLLING_INTERVAL_MS = 250;
+
+export const getLastBarcodePayload = {
+  queryKey(): QueryKey {
+    return ['getLastBarcodePayload'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getLastBarcodePayload(), {
+      refetchInterval: BARCODE_SCANNER_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const getMostRecentPrinterDiagnostic = {

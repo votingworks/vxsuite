@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import {
   BooleanEnvironmentVariableName as Feature,
   format,
   getLanguageOptions,
+  getPrecinctsAndSplitsForBallotStyle,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import {
   BallotType,
+  getBallotStyle,
   hasSplits,
   Id,
   LanguageCode,
@@ -120,8 +122,12 @@ const PrintButton = styled(Button)`
 
 export function PrintScreen({
   isElectionManagerAuth,
+  pendingBarcodeScan,
+  onBarcodeScanConsumed,
 }: {
   isElectionManagerAuth?: boolean;
+  pendingBarcodeScan?: string;
+  onBarcodeScanConsumed?: () => void;
 }): JSX.Element | null {
   const [numCopies, setNumCopies] = useState(1);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -141,6 +147,48 @@ export function PrintScreen({
   const pollingPlaceId = getPollingPlaceId.useQuery().data;
 
   const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
+
+  useEffect(() => {
+    if (!pendingBarcodeScan) {
+      return;
+    }
+    const electionRecord = getElectionRecordQuery.data;
+    if (!electionRecord) {
+      return;
+    }
+
+    const { election } = electionRecord.electionDefinition;
+    const ballotStyle = getBallotStyle({
+      ballotStyleId: pendingBarcodeScan,
+      election,
+    });
+    if (!ballotStyle) {
+      return;
+    }
+
+    const [precinctOrSplit] = getPrecinctsAndSplitsForBallotStyle({
+      election,
+      ballotStyle,
+    });
+    const precinctId = precinctOrSplit?.precinct.id ?? ballotStyle.precincts[0];
+    const splitId = precinctOrSplit?.split?.id ?? '';
+    const precinct = precinctId
+      ? election.precincts.find((p) => p.id === precinctId)
+      : undefined;
+    setSelectedPrecinctId(precinctId ?? '');
+    setSearchValue(precinct?.name ?? '');
+    setSelectedSplitId(splitId);
+
+    if (ballotStyle.partyId) {
+      setSelectedPartyId(ballotStyle.partyId);
+    }
+
+    if (ballotStyle.languages?.[0]) {
+      setSelectedLanguageCode(ballotStyle.languages[0] as LanguageCode);
+    }
+
+    onBarcodeScanConsumed?.();
+  }, [pendingBarcodeScan, getElectionRecordQuery.data, onBarcodeScanConsumed]);
 
   const precincts = React.useMemo(() => {
     if (!getElectionRecordQuery.data) return [];
@@ -246,11 +294,15 @@ export function PrintScreen({
                   .filter(
                     (p) =>
                       !searchValue ||
-                      p.name.toLowerCase().includes(searchValue.toLowerCase())
+                      p.name
+                        .toLowerCase()
+                        .includes(searchValue.trim().toLowerCase())
                   )
                   .map((p) => ({ value: p.id, label: p.name }))}
+                searchValue={searchValue}
                 onSearch={setSearchValue}
                 onSelect={(value) => {
+                  setSearchValue('');
                   if (value !== selectedPrecinctId) {
                     setSelectedPrecinctId(value);
                     setSelectedSplitId('');

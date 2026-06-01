@@ -1,7 +1,14 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
-import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Optional,
+  Result,
+} from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   DiagnosticRecord,
@@ -47,7 +54,8 @@ import { findBallotStyleId } from './util/ballot_styles';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: AppContext) {
-  const { auth, usbDrive, logger, workspace, printer } = ctx;
+  const { auth, usbDrive, logger, workspace, printer, barcodeScannerClient } =
+    ctx;
   const { store } = workspace;
 
   function printBallots(
@@ -63,6 +71,20 @@ export function buildApi(ctx: AppContext) {
 
   const methods = {
     getMachineConfig,
+
+    getLastBarcodePayload(): Result<Optional<string>, Error> {
+      const payload = barcodeScannerClient.readPayload();
+      if (payload) {
+        void logger.logAsCurrentRole(LogEventId.BarcodeScanned, {
+          message: 'Barcode scanned',
+          payload: JSON.stringify(payload),
+        });
+      }
+      if (payload && 'error' in payload) {
+        return err(new Error(payload.error));
+      }
+      return ok(payload ? payload.ballotStyleId : undefined);
+    },
 
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(store));
