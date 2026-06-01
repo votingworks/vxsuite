@@ -1216,6 +1216,26 @@ describe('buildCVRContestsFromVotes - straight party GeneratedRules', () => {
       Status: [CVR.ContestSelectionStatus.GeneratedRules],
     });
   });
+
+  test('straight-party contest is reported as undervoted when left blank', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs-1',
+      votes: {
+        [spContest.id]: [],
+      },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    const sp = find(result, (c) => c.ContestId === spContest.id);
+    expect(sp.Overvotes).toEqual(0);
+    expect(sp.Undervotes).toEqual(1);
+    expect(sp.Status).toEqual([
+      CVR.ContestStatus.Undervoted,
+      CVR.ContestStatus.NotIndicated,
+    ]);
+    expect(sp.CVRContestSelection).toHaveLength(0);
+  });
 });
 
 test('hash manipulation', () => {
