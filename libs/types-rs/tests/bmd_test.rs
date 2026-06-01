@@ -136,7 +136,7 @@ fn test_candidate_contest_vote_round_trip() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(candidate_contest) => Some((contest, candidate_contest)),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
     let contest_vote = ContestVote::Candidate(vec![CandidateVote::NamedCandidate {

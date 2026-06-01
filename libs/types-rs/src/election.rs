@@ -242,6 +242,7 @@ impl Contest {
         }
     }
 
+    #[must_use]
     pub fn district_id(&self) -> Option<&DistrictId> {
         match self {
             Self::Candidate(CandidateContest { district_id, .. })
