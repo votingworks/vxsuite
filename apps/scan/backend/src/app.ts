@@ -22,7 +22,7 @@ import express, { Application } from 'express';
 import {
   createUiStringsApi,
   createSystemCallApi,
-  readSignedElectionPackageFromUsb,
+  readSignedElectionPackageFromDirectory,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
   Exporter,
@@ -166,11 +166,14 @@ export function buildApi({
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace.store)
       );
-      const electionPackageResult = await readSignedElectionPackageFromUsb(
-        authStatus,
-        usbDrive,
-        logger
-      );
+      const usbDriveStatus = await usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+      const electionPackageResult =
+        await readSignedElectionPackageFromDirectory(
+          authStatus,
+          usbDriveStatus.mountPoint,
+          logger
+        );
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'failure',

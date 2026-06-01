@@ -22,6 +22,7 @@ import {
   assert,
   assertDefined,
   deferred,
+  Err,
   err,
   ok,
   Optional,
@@ -60,11 +61,11 @@ import {
 import {
   FileSystemEntry,
   FileSystemEntryType,
+  listDirectory,
+  ListDirectoryError,
   readElection,
 } from '@votingworks/fs';
 import {
-  ListDirectoryOnUsbDriveError,
-  listDirectoryOnUsbDrive,
   MultiUsbDrive,
   REAL_USB_DRIVE_GLOB_PATTERN,
   UsbDriveStatus,
@@ -113,8 +114,10 @@ import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
 import { buildExporter } from './util/exporter';
 import {
+  getCastVoteRecordsPath,
   importCastVoteRecords,
-  listCastVoteRecordExportsOnUsbDrive,
+  ListCastVoteRecordExportsInDirectory,
+  listCastVoteRecordExportsInDirectory,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
 import { adjudicateCvr } from './adjudication';
@@ -470,14 +473,24 @@ function buildApi({
     },
 
     async listPotentialElectionPackagesOnUsbDrive(): Promise<
-      Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>
+      Result<FileSystemEntry[], ListDirectoryError>
     > {
+      const usbDriveStatus = await usbDriveAdapter.status();
+
+      if (usbDriveStatus.status !== 'mounted') {
+        return err({
+          type: 'no-entity',
+          message: 'No mounted USB drive found',
+        });
+      }
+
       const potentialElectionPackages: FileSystemEntry[] = [];
 
-      for await (const result of listDirectoryOnUsbDrive(usbDriveAdapter, '', {
+      for await (const result of listDirectory(usbDriveStatus.mountPoint, {
         depth: 3,
         excludeHidden: true,
       })) {
+        /* istanbul ignore next */
         if (result.isErr()) {
           return result;
         }
@@ -648,10 +661,20 @@ function buildApi({
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
-      const listResult = await listCastVoteRecordExportsOnUsbDrive(
-        usbDriveAdapter,
-        electionDefinition
-      );
+      const usbDriveStatus = await usbDriveAdapter.status();
+
+      const listResult:
+        | ListCastVoteRecordExportsInDirectory
+        | Err<'no-usb-drive'> =
+        usbDriveStatus.status === 'mounted'
+          ? await listCastVoteRecordExportsInDirectory(
+              join(
+                usbDriveStatus.mountPoint,
+                getCastVoteRecordsPath(electionDefinition)
+              )
+            )
+          : err('no-usb-drive');
+
       if (listResult.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ListCastVoteRecordExportsOnUsbDrive,
@@ -1491,8 +1514,10 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      /* istanbul ignore start */
+      getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
+      /* istanbul ignore start */
     }),
   });
 }

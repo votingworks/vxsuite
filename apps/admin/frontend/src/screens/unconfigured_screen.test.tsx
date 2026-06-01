@@ -35,7 +35,7 @@ afterEach(() => {
 test('prompts user to insert USB drive', async () => {
   apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
     .expectCallWith()
-    .resolves(err({ type: 'no-usb-drive' }));
+    .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('no_drive'),

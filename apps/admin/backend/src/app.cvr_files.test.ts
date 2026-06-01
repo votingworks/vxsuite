@@ -5,6 +5,7 @@ import { err, ok, assert } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -18,7 +19,6 @@ import {
   BooleanEnvironmentVariableName,
   SCANNER_RESULTS_FOLDER,
   generateCastVoteRecordExportDirectoryName,
-  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
@@ -30,7 +30,7 @@ import {
   modifyCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
-import { MockFileTree } from '@votingworks/usb-drive';
+import { MockFileTree, writeMockFileTree } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -38,8 +38,8 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 import {
-  ListCastVoteRecordExportsOnUsbDriveResult,
-  listCastVoteRecordExportsOnUsbDrive,
+  ListCastVoteRecordExportsInDirectory,
+  listCastVoteRecordExportsInDirectory,
 } from './cast_vote_records';
 import { CvrFileImportInfo } from './types';
 
@@ -898,37 +898,25 @@ test.each<{
 
 test.each<{
   description: string;
-  usbDriveContentGenerator: () => MockFileTree;
-  expectedResult: ListCastVoteRecordExportsOnUsbDriveResult;
+  buildMockFileTree: () => MockFileTree;
+  expectedResult: ListCastVoteRecordExportsInDirectory;
 }>([
   {
-    description: 'empty USB drive',
-    usbDriveContentGenerator: () => ({}),
+    description: 'empty directory',
+    buildMockFileTree: () => ({}),
     expectedResult: ok([]),
   },
   {
     description: 'file where there should be a directory',
-    usbDriveContentGenerator: () => {
-      const electionSubDirectoryName = generateElectionBasedSubfolderName(
-        electionDefinition.election,
-        electionDefinition.ballotHash
-      );
-      return {
-        [electionSubDirectoryName]: {
-          [SCANNER_RESULTS_FOLDER]: Buffer.of(),
-        },
-      };
-    },
+    buildMockFileTree: () => ({
+      [SCANNER_RESULTS_FOLDER]: Buffer.of(),
+    }),
     expectedResult: err('found-file-instead-of-directory'),
   },
   {
     description:
       "directories that aren't export directories and empty export directories",
-    usbDriveContentGenerator: () => {
-      const electionSubDirectoryName = generateElectionBasedSubfolderName(
-        electionDefinition.election,
-        electionDefinition.ballotHash
-      );
+    buildMockFileTree: () => {
       const emptyExportDirectoryName =
         generateCastVoteRecordExportDirectoryName({
           inTestMode: true,
@@ -939,12 +927,10 @@ test.each<{
         machineId: '0001',
       });
       return {
-        [electionSubDirectoryName]: {
-          [SCANNER_RESULTS_FOLDER]: {
-            'not-an-export-directory-name': {}, // Should be ignored
-            [emptyExportDirectoryName]: {}, // Should be ignored
-            [exportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
-          },
+        [SCANNER_RESULTS_FOLDER]: {
+          'not-an-export-directory-name': {}, // Should be ignored
+          [emptyExportDirectoryName]: {}, // Should be ignored
+          [exportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
         },
       };
     },
@@ -953,17 +939,18 @@ test.each<{
     ]),
   },
 ])(
-  'listCastVoteRecordExportsOnUsbDrive - $description',
-  async ({ usbDriveContentGenerator, expectedResult }) => {
-    const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  'listCastVoteRecordExportsInDirectory - $description',
+  async ({ buildMockFileTree, expectedResult }) => {
+    const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionDefinition);
     mockElectionManagerAuth(auth, electionDefinition.election);
 
-    mockUsbDrive.insertUsbDrive(usbDriveContentGenerator());
+    const directory = makeTemporaryDirectory();
+    writeMockFileTree(directory, buildMockFileTree());
+
     expect(
-      await listCastVoteRecordExportsOnUsbDrive(
-        mockUsbDrive.usbDrive,
-        electionDefinition
+      await listCastVoteRecordExportsInDirectory(
+        path.join(directory, SCANNER_RESULTS_FOLDER)
       )
     ).toEqual(expectedResult);
   }

@@ -805,7 +805,7 @@ test.each<{
       mockPrecinctScannerStore.setPollsState('polls_open');
       mockPrecinctScannerStore.setBallotsCounted(1);
       const usbDriveStatus = await mockUsbDrive.usbDrive.status();
-      assert(usbDriveStatus.status === 'mounted');
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
       mockPrecinctScannerStore.addPendingContinuousExportOperation(
         'abcd1234-0000-0000-0000-000000000000'
       );
@@ -821,7 +821,7 @@ test.each<{
       mockPrecinctScannerStore.setPollsState('polls_open');
       mockPrecinctScannerStore.setBallotsCounted(1);
       const usbDriveStatus = await mockUsbDrive.usbDrive.status();
-      assert(usbDriveStatus.status === 'mounted');
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
       mockPrecinctScannerStore.addPendingContinuousExportOperation(
         'abcd1234-0000-0000-0000-000000000000'
       );

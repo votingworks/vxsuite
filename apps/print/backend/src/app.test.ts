@@ -264,7 +264,7 @@ test('configureElectionPackageFromUsb logs failure when there is an error readin
   mockUsbDrive.insertUsbDrive({});
 
   const result = await apiClient.configureElectionPackageFromUsb();
-  expect(result).toEqual(err({ type: 'no_election_package_on_usb_drive' }));
+  expect(result).toEqual(err({ type: 'no_election_package' }));
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({

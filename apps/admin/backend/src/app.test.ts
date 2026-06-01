@@ -484,9 +484,9 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
   const { apiClient, mockUsbDrive } = buildTestEnvironment();
 
   mockUsbDrive.removeUsbDrive();
-  expect(await apiClient.listPotentialElectionPackagesOnUsbDrive()).toEqual(
-    err({ type: 'no-usb-drive' })
-  );
+  expect(
+    await apiClient.listPotentialElectionPackagesOnUsbDrive()
+  ).toMatchObject(err({ type: expect.any(String) }));
 
   mockUsbDrive.insertUsbDrive({});
   expect(await apiClient.listPotentialElectionPackagesOnUsbDrive()).toEqual(

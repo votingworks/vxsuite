@@ -22,7 +22,7 @@ import {
   ElectionRecord,
   ExportDataResult,
   getBatteryInfo,
-  readSignedElectionPackageFromUsb,
+  readSignedElectionPackageFromDirectory,
 } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
@@ -87,11 +87,14 @@ export function buildApi(ctx: AppContext) {
         constructAuthMachineState(workspace.store)
       );
 
-      const electionPackageResult = await readSignedElectionPackageFromUsb(
-        authStatus,
-        usbDrive,
-        logger
-      );
+      const usbDriveStatus = await usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+      const electionPackageResult =
+        await readSignedElectionPackageFromDirectory(
+          authStatus,
+          usbDriveStatus.mountPoint,
+          logger
+        );
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'failure',

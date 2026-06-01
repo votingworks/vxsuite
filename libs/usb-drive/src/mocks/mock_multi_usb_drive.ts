@@ -5,8 +5,6 @@ import {
   UsbDriveFilesystemType,
   UsbDriveInfo,
 } from '../multi_usb_drive';
-import { UsbDrive } from '../types';
-import { createUsbDriveAdapter } from '../usb_drive_adapter';
 import { MockFileTree, writeMockFileTree } from './helpers';
 
 const MOCK_DISK_DEV_PATH = '/dev/sdb';
@@ -14,11 +12,6 @@ const MOCK_PARTITION_DEV_PATH = '/dev/sdb1';
 
 export interface MockMultiUsbDrive {
   multiUsbDrive: Mocked<MultiUsbDrive>;
-  /**
-   * A UsbDrive adapter backed by the multiUsbDrive mock. Useful for passing
-   * directly to functions that accept a UsbDrive interface.
-   */
-  usbDrive: UsbDrive;
   assertComplete(): void;
   /**
    * Simulates inserting a USB drive with the given file contents. Configures
@@ -62,14 +55,8 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
   // Initialize with no drive connected
   multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-  const usbDrive = createUsbDriveAdapter(
-    multiUsbDrive,
-    (drives) => drives[0]?.devPath
-  );
-
   return {
     multiUsbDrive,
-    usbDrive,
 
     assertComplete() {
       for (const method of Object.values(multiUsbDrive)) {

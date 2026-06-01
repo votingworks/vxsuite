@@ -25,7 +25,7 @@ function getFat32Drives(drives: readonly UsbDriveInfo[]): UsbDriveInfo[] {
  *
  * `getDriveDevPath` selects which drive to expose. The adapter maps the first
  * partition's mount state to `UsbDriveStatus` for backward-compatible consumers
- * such as `Exporter`, `listDirectoryOnUsbDrive`, and `createSystemCallApi`.
+ * such as `Exporter` and `createSystemCallApi`.
  */
 export function createUsbDriveAdapter(
   multiUsbDrive: MultiUsbDrive,
