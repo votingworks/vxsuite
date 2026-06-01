@@ -26,6 +26,7 @@
     "type-check": "tsgo --build"
   },
   "dependencies": {
+    "@playwright/test": "^1.48.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
@@ -33,7 +34,6 @@
     "@votingworks/types": "workspace:*"
   },
   "devDependencies": {
-    "@playwright/test": "^1.48.1",
     "@types/node": "20.17.31",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",

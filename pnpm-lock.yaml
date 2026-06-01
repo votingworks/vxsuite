@@ -4802,6 +4802,9 @@ importers:
 
   libs/integration-test-utils:
     dependencies:
+      '@playwright/test':
+        specifier: ^1.48.1
+        version: 1.48.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../auth
@@ -4818,9 +4821,6 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
-      '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
@@ -11019,6 +11019,7 @@ packages:
     hasBin: true
     dependencies:
       playwright: 1.48.1
+    dev: false
 
   /@prisma/instrumentation@5.22.0:
     resolution: {integrity: sha512-LxccF392NN37ISGxIurUljZSh1YWnphO34V5a0+T7FVQG2u9bhAXRTJpgmQ3483woVhkraQZFF7cbRrpbw/F4Q==}
@@ -18343,6 +18344,7 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
+    dev: false
     optional: true
 
   /fsevents@2.3.3:
@@ -22074,6 +22076,7 @@ packages:
     resolution: {integrity: sha512-Yw/t4VAFX/bBr1OzwCuOMZkY1Cnb4z/doAFSwf4huqAGWmf9eMNjmK7NiOljCdLmxeRYcGPPmcDgU0zOlzP0YA==}
     engines: {node: '>=18'}
     hasBin: true
+    dev: false
 
   /playwright@1.40.1:
     resolution: {integrity: sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==}
@@ -22093,6 +22096,7 @@ packages:
       playwright-core: 1.48.1
     optionalDependencies:
       fsevents: 2.3.2
+    dev: false
 
   /please-upgrade-node@3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
