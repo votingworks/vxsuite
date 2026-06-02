@@ -43,5 +43,5 @@
       "x86_64-unknown-linux-gnu"
     ]
   },
-  "packageManager": "pnpm@8.15.5"
+  "packageManager": "pnpm@9.15.9"
 }

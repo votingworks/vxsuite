@@ -8,5 +8,5 @@
     "http-proxy-middleware": "3.0.3",
     "resolve": "1.18.1"
   },
-  "packageManager": "pnpm@8.15.5"
+  "packageManager": "pnpm@9.15.9"
 }

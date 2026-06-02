@@ -63,7 +63,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
   nvm install && \
   . ~/.bashrc && \
   node -v && \
-  npm i -g pnpm@8.15.5 && \
+  npm i -g pnpm@9.15.9 && \
   pnpm -v
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.93.0 -y
