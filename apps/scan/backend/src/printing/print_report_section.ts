@@ -7,6 +7,7 @@ import {
   groupContestsByParty,
   isFeatureFlagEnabled,
   isPollsSuspensionTransition,
+  PartyWithContests,
 } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
@@ -21,6 +22,8 @@ import {
   Election,
   pollingPlaceContests,
   pollingPlaceFromElection,
+  PollsSuspensionTransitionType,
+  StandardPollsTransitionType,
 } from '@votingworks/types';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
@@ -31,6 +34,48 @@ import { ADJUSTED_MARGIN_DIMENSIONS } from './constants';
 
 const debug = rootDebug.extend('print-report-section');
 
+/**
+ * A single section of a polls report — i.e. one page printed by one
+ * {@link printReportSection} call. A polls paused/resumed report is a single
+ * ballot count section; a tally report (open/close) has one section per party
+ * (plus a nonpartisan section).
+ */
+type ReportSection =
+  | { type: 'ballotCount'; pollsTransitionType: PollsSuspensionTransitionType }
+  | ({
+      type: 'tally';
+      pollsTransitionType: StandardPollsTransitionType;
+    } & PartyWithContests);
+
+/**
+ * The sections that make up the current polls report.
+ */
+function getReportSections(store: Store): ReportSection[] {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const pollsTransition = store.getLastPollsTransition();
+  assert(pollsTransition);
+  const pollsTransitionType = pollsTransition.type;
+
+  if (isPollsSuspensionTransition(pollsTransitionType)) {
+    return [{ type: 'ballotCount', pollsTransitionType }];
+  }
+
+  const fullReportContests = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
+    ? contestsForPollingPlace(election, store.getPollingPlaceId())
+    : getContestsForPrecinct(
+        electionDefinition,
+        assertDefined(store.getPrecinctSelection())
+      );
+  return groupContestsByParty(election, fullReportContests).map(
+    (partyWithContests) => ({
+      type: 'tally',
+      pollsTransitionType,
+      ...partyWithContests,
+    })
+  );
+}
+
 async function getReportSection(
   store: Store,
   reportSectionIndex: number
@@ -38,7 +83,6 @@ async function getReportSection(
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
   );
-  const { election } = electionDefinition;
   const precinctSelection = store.getPrecinctSelection();
   const pollingPlaceId = store.getPollingPlaceId();
   const isLiveMode = !store.getTestMode();
@@ -48,13 +92,20 @@ async function getReportSection(
   assert(pollsTransition.ballotCount === store.getBallotsCounted());
   const allBatches = store.getBatches();
 
-  if (isPollsSuspensionTransition(pollsTransition.type)) {
+  const reportSections = getReportSections(store);
+  assert(
+    reportSectionIndex < reportSections.length,
+    `report section index ${reportSectionIndex} is out of range`
+  );
+  const reportSection = reportSections[reportSectionIndex];
+
+  if (reportSection.type === 'ballotCount') {
     debug(
       `polls transition is ${pollsTransition.type}, generating ballot count report`
     );
     /* istanbul ignore next - there should be at least one completed batch but keep the fallback */
     const mostRecentBatchCount =
-      pollsTransition.type === 'pause_voting'
+      reportSection.pollsTransitionType === 'pause_voting'
         ? [...allBatches]
             .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
             .find((b) => b.endedAt !== undefined)?.count ?? 0
@@ -67,7 +118,7 @@ async function getReportSection(
       totalBallotsScanned: pollsTransition.ballotCount,
       mostRecentBatchCount,
       batches: allBatches,
-      pollsTransition: pollsTransition.type,
+      pollsTransition: reportSection.pollsTransitionType,
       pollsTransitionedTime: pollsTransition.time,
       reportPrintedTime: getCurrentTime(),
       isLiveMode,
@@ -82,17 +133,7 @@ async function getReportSection(
     allElectionResults: scannerResultsByParty,
   });
 
-  const fullReportContests = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
-    ? contestsForPollingPlace(electionDefinition.election, pollingPlaceId)
-    : getContestsForPrecinct(
-        electionDefinition,
-        assertDefined(precinctSelection)
-      );
-
-  const { partyId, contests: reportSectionContests } = groupContestsByParty(
-    election,
-    fullReportContests
-  )[reportSectionIndex];
+  const { partyId, contests: reportSectionContests } = reportSection;
 
   const scannedElectionResults = partyId
     ? scannerResultsByParty.find((results) => results.partyId === partyId) ||
@@ -100,7 +141,7 @@ async function getReportSection(
     : scannerResultsCombined;
 
   const tallyReportBatches =
-    pollsTransition.type === 'close_polls' ? allBatches : [];
+    reportSection.pollsTransitionType === 'close_polls' ? allBatches : [];
 
   return PrecinctScannerTallyReport({
     electionDefinition,
@@ -108,7 +149,7 @@ async function getReportSection(
     pollingPlaceId,
     precinctSelection,
     partyId,
-    pollsTransition: pollsTransition.type,
+    pollsTransition: reportSection.pollsTransitionType,
     pollsTransitionedTime: pollsTransition.time,
     contests: reportSectionContests,
     isLiveMode,
@@ -132,7 +173,8 @@ export async function printReportSection({
   store: Store;
   printer: FujitsuThermalPrinterInterface;
   index: number;
-}): Promise<PrintResult> {
+}): Promise<{ printResult: PrintResult; numberOfSections: number }> {
+  const reportSections = getReportSections(store);
   const section = await getReportSection(store, index);
   const data = (
     await renderToPdf({
@@ -141,5 +183,6 @@ export async function printReportSection({
       marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
     })
   ).unsafeUnwrap();
-  return printer.printPdf(data);
+  const printResult = await printer.printPdf(data);
+  return { printResult, numberOfSections: reportSections.length };
 }

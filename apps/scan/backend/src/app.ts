@@ -450,9 +450,13 @@ export function buildApi({
     },
 
     /**
-     * Prints a specific section of the report, e.g. for a particular party.
+     * Prints a specific section (page) of the report, e.g. for a particular
+     * party. Returns the print result along with the total number of sections
+     * in the report.
      */
-    async printReportSection(input: { index: number }): Promise<PrintResult> {
+    async printReportSection(input: {
+      index: number;
+    }): Promise<{ printResult: PrintResult; numberOfSections: number }> {
       return printReportSection({
         store,
         printer,
