@@ -352,7 +352,7 @@ function CrossoverVoteStatus({
   contestHasAdjudicatedCrossoverVote,
   isBallotResolved,
 }: {
-  ballotHasScannedCrossoverVote?: boolean;
+  ballotHasScannedCrossoverVote: boolean;
   contestHasScannedCrossoverVote: boolean;
   contestHasAdjudicatedCrossoverVote: boolean;
   isBallotResolved: boolean;
@@ -413,7 +413,7 @@ function BallotSideContestList({
   onSelect: (contestId: ContestId) => void;
   showUndervoteStatus: boolean;
   title: string;
-  cvrTag?: CvrTag;
+  cvrTag: CvrTag;
   ballotHasAdjudicatedCrossoverVote: boolean;
   isBallotResolved: boolean;
 }): React.ReactNode {
@@ -453,12 +453,12 @@ function BallotSideContestList({
           const isOnlyUndervote = tag && isContestTagOnlyUndervote(tag);
 
           const suppressContestAdjudicationInfo =
-            cvrTag?.isBlankBallot &&
+            cvrTag.isBlankBallot &&
             isOnlyUndervote &&
             adjudicatedContest === undefined;
 
           const contestHasScannedCrossoverVote = isContestCrossoverVoted(
-            cvrTag?.hasCrossoverVote,
+            cvrTag.hasCrossoverVote,
             item
           );
           const contestHasAdjudicatedCrossoverVote = isContestCrossoverVoted(
@@ -503,7 +503,7 @@ function BallotSideContestList({
                   contestHasAdjudicatedCrossoverVote={
                     contestHasAdjudicatedCrossoverVote
                   }
-                  ballotHasScannedCrossoverVote={cvrTag?.hasCrossoverVote}
+                  ballotHasScannedCrossoverVote={cvrTag.hasCrossoverVote}
                   isBallotResolved={isBallotResolved}
                 />
                 {!suppressContestAdjudicationInfo && (
@@ -525,7 +525,7 @@ function BallotSideContestList({
 export interface AdjudicationContestListProps {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
   backContests: ContestListItem[];
-  cvrTag?: CvrTag;
+  cvrTag: CvrTag;
   election: Election;
   frontContests: ContestListItem[];
   isBallotResolved: boolean;
@@ -551,7 +551,7 @@ export function AdjudicationContestList({
 }: AdjudicationContestListProps): React.ReactNode {
   const allContests = [...frontContests, ...backContests];
   const firstUnresolvedContestId =
-    cvrTag?.isBlankBallot || cvrTag?.hasCrossoverVote
+    cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
       ? undefined
       : allContests.find(
           (item) =>
@@ -559,7 +559,7 @@ export function AdjudicationContestList({
         )?.contest.id;
 
   const blankBallotHasAnyAdjudicatedVote =
-    cvrTag?.isBlankBallot &&
+    cvrTag.isBlankBallot &&
     allContests.some((item) =>
       item.adjudicationData.options.some((o) =>
         getCurrentVote(
@@ -571,7 +571,7 @@ export function AdjudicationContestList({
     );
 
   const blankBallotCalloutTitle = (() => {
-    if (!cvrTag?.isBlankBallot) return undefined;
+    if (!cvrTag.isBlankBallot) return undefined;
     if (blankBallotHasAnyAdjudicatedVote) {
       return 'Blank Ballot Resolved';
     }
@@ -587,7 +587,7 @@ export function AdjudicationContestList({
 
   return (
     <EntityList.Box>
-      {cvrTag?.isBlankBallot && (
+      {cvrTag.isBlankBallot && (
         <CalloutContainer>
           <Callout
             color={
@@ -636,7 +636,7 @@ export function AdjudicationContestList({
           </Callout>
         </CalloutContainer>
       )}
-      {cvrTag?.hasCrossoverVote && (
+      {cvrTag.hasCrossoverVote && (
         <CrossoverVotingCallout
           ballotHasAdjudicatedCrossoverVote={ballotHasAdjudicatedCrossoverVote}
           isBallotResolved={isBallotResolved}

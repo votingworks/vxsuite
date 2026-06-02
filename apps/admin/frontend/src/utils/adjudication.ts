@@ -63,7 +63,7 @@ export function getCurrentVote(
 }
 
 export function isContestCrossoverVoted(
-  ballotHasCrossoverVote: boolean | undefined,
+  ballotHasCrossoverVote: boolean,
   contestItem: {
     contest: AnyContest;
     adjudicationData: ContestAdjudicationData;

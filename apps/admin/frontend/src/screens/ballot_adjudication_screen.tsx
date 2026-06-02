@@ -649,7 +649,7 @@ export function BallotAdjudicationScreen({
     contestAdjudicationData.every((c) =>
       isContestResolved(c, adjudicatedContests)
     ) ||
-    (cvrTag?.isBlankBallot &&
+    (cvrTag.isBlankBallot &&
       contestAdjudicationData.every(
         (c) =>
           isContestResolved(c, adjudicatedContests) ||
@@ -709,7 +709,7 @@ export function BallotAdjudicationScreen({
       return true;
     }
     const contestHasScannedCrossoverVote = isContestCrossoverVoted(
-      cvrTag?.hasCrossoverVote,
+      cvrTag.hasCrossoverVote,
       item
     );
     const contestHasAdjudicatedCrossoverVote = isContestCrossoverVoted(
