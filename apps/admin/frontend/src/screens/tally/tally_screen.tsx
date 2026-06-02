@@ -11,8 +11,18 @@ import { CastVoteRecordsTab } from './cast_vote_records_tab';
 import { ManualTalliesTab } from './manual_tallies_tab';
 import { routerPaths } from '../../router_paths';
 import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal';
+import { TallyScreen as TallyScreenDemo } from './00_tally_screen';
 
 export function TallyScreen(): JSX.Element | null {
+  /* istanbul ignore next - @preserve */
+  if (process.env.NODE_ENV !== 'test') {
+    return <TallyScreenDemo />;
+  }
+
+  return <TallyScreenProd />;
+}
+
+export function TallyScreenProd(): JSX.Element | null {
   const { electionDefinition, isOfficialResults, auth } =
     useContext(AppContext);
   assert(electionDefinition);

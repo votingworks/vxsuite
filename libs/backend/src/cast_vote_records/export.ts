@@ -559,6 +559,7 @@ async function exportMetadataFileToUsbDrive(
     batchManifest: buildBatchManifest({
       batches: exportContext.scannerState.batches,
       scannerId: VX_MACHINE_ID,
+      scannerType: exportContext.scannerStore.scannerType,
     }),
   };
   const metadataFileContents = JSON.stringify(metadata);

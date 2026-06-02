@@ -23,6 +23,7 @@ import {
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
+  ScannerType,
   Tabulation,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -161,14 +162,30 @@ export async function listCastVoteRecordExportsOnUsbDrive(
     if (entry.type === FileSystemEntryType.Directory) {
       const exportDirectoryNameComponents =
         parseCastVoteRecordReportExportDirectoryName(entry.name);
+
       if (!exportDirectoryNameComponents) {
         continue;
       }
+
       const metadataResult = await readCastVoteRecordExportMetadata(entry.path);
       if (metadataResult.isErr()) {
         continue;
       }
+
       const metadata = metadataResult.ok();
+      const pollingPlaceIds = new Set<string>();
+      const scannerTypes = new Set<ScannerType>();
+
+      for (const batch of metadata.batchManifest) {
+        if (!batch.pollingPlaceId || batch.scannerType === 'central') {
+          scannerTypes.add('central');
+          pollingPlaceIds.add('central-scanning');
+          continue;
+        }
+
+        pollingPlaceIds.add(batch.pollingPlaceId);
+      }
+
       castVoteRecordExportSummaries.push({
         cvrCount: iter(metadata.batchManifest)
           .map((batch) => batch.sheetCount)
@@ -180,6 +197,8 @@ export async function listCastVoteRecordExportsOnUsbDrive(
         name: entry.name,
         path: entry.path,
         scannerIds: [exportDirectoryNameComponents.machineId],
+        pollingPlaceIds: [...pollingPlaceIds],
+        scannerTypes: [...scannerTypes],
       });
     }
   }
@@ -249,16 +268,22 @@ export async function importCastVoteRecords(
 
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
+    const pollingPlaceIds = new Set<string>();
+    const scannerTypes = new Set<ScannerType>();
+
     for (const batch of batchManifest) {
       store.addScannerBatch({
+        ballotCastingMode: batch.ballotCastingMode,
         batchId: batch.id,
         electionId,
         label: batch.label,
         scannerId: batch.scannerId,
-        ballotCastingMode: batch.ballotCastingMode,
         startedAt: batch.startTime,
       });
+
       scannerIds.add(batch.scannerId);
+      if (batch.pollingPlaceId) pollingPlaceIds.add(batch.pollingPlaceId);
+      if (batch.scannerType) scannerTypes.add(batch.scannerType);
     }
 
     // Create a top-level record for the import
@@ -270,6 +295,8 @@ export async function importCastVoteRecords(
       filename: exportDirectoryName,
       isTestMode: isTestReport(castVoteRecordReportMetadata),
       scannerIds,
+      scannerTypes,
+      pollingPlaceIds,
       sha256Hash: exportHash,
     });
 

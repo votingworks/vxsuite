@@ -278,7 +278,7 @@ export function ManualTalliesTab(): JSX.Element | null {
   }
 
   return (
-    <TabPanel>
+    <TabPanel style={{ minHeight: '100%' }}>
       {!hasManualTally && <P>No manual tallies entered.</P>}
       {uncreatedManualTallyMetadata.length > 0 && (
         <AddTalliesCard color="neutral">

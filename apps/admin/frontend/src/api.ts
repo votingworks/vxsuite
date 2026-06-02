@@ -809,6 +809,23 @@ export const clearCastVoteRecordFiles = {
   },
 } as const;
 
+/* istanbul ignore next */
+export const deleteCvrFile = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteCvrFile, {
+      async onSuccess() {
+        return Promise.all([
+          invalidateCastVoteRecordQueries(queryClient),
+          invalidateWriteInQueries(queryClient),
+          queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey()),
+        ]);
+      },
+    });
+  },
+} as const;
+
 export const addCastVoteRecordFile = {
   useMutation() {
     const apiClient = useApiClient();

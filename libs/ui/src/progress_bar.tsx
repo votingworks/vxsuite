@@ -11,17 +11,32 @@ const ProgressBarContainer = styled.div`
   overflow: hidden;
 `;
 
-const ProgressBarFill = styled.div`
-  background-color: ${(p) => p.theme.colors.primary};
+const ProgressBarFill = styled.div<{ color: ProgressBarColor }>`
+  background-color: ${(p) => p.theme.colors[p.color]};
   height: 100%;
-  transition: width 0.3s ease;
+  transition: 0.3s ease;
+  transition-property: background-color, width;
 `;
 
-export function ProgressBar({ progress }: { progress: number }): JSX.Element {
+export interface ProgressBarProps {
+  color?: ProgressBarColor;
+  progress: number;
+}
+
+export type ProgressBarColor =
+  | 'dangerAccent'
+  | 'neutral'
+  | 'primary'
+  | 'successAccent'
+  | 'warningAccent'
+  | 'warningContainer';
+
+export function ProgressBar(props: ProgressBarProps): JSX.Element {
+  const { color = 'primary', progress } = props;
   assert(progress >= 0 && progress <= 1, 'Progress must be between 0 and 1');
   return (
     <ProgressBarContainer role="progressbar">
-      <ProgressBarFill style={{ width: `${progress * 100}%` }} />
+      <ProgressBarFill color={color} style={{ width: `${progress * 100}%` }} />
     </ProgressBarContainer>
   );
 }

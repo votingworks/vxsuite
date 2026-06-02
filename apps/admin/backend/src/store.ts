@@ -1000,6 +1000,8 @@ export class Store implements BaseStore {
     exportedTimestamp,
     sha256Hash,
     scannerIds,
+    scannerTypes,
+    pollingPlaceIds,
   }: {
     id: Id;
     electionId: Id;
@@ -1008,6 +1010,8 @@ export class Store implements BaseStore {
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
     scannerIds: Set<string>;
+    scannerTypes?: Set<string>;
+    pollingPlaceIds?: Set<string>;
   }): void {
     this.client.run(
       `
@@ -1019,9 +1023,11 @@ export class Store implements BaseStore {
           export_timestamp,
           precinct_ids,
           scanner_ids,
+          polling_place_ids,
+          scanner_types,
           sha256_hash
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1031,6 +1037,8 @@ export class Store implements BaseStore {
       exportedTimestamp,
       JSON.stringify([]),
       JSON.stringify([...scannerIds]),
+      JSON.stringify([...(pollingPlaceIds || [])]),
+      JSON.stringify([...(scannerTypes || [])]),
       sha256Hash
     );
   }
@@ -1260,9 +1268,10 @@ export class Store implements BaseStore {
         scanner_id,
         election_id,
         ballot_casting_mode,
+        scanner_type,
         started_at
       ) values (
-        ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?
       )
     `,
       scannerBatch.batchId,
@@ -1270,6 +1279,7 @@ export class Store implements BaseStore {
       scannerBatch.scannerId,
       scannerBatch.electionId,
       scannerBatch.ballotCastingMode ?? null,
+      scannerBatch.scannerType || null,
       scannerBatch.startedAt
     );
   }
@@ -1284,6 +1294,7 @@ export class Store implements BaseStore {
           scanner_id as scannerId,
           election_id as electionId,
           ballot_casting_mode as ballotCastingMode,
+          scanner_type as scannerType,
           started_at as startedAt
         from scanner_batches
         where
@@ -1294,6 +1305,7 @@ export class Store implements BaseStore {
     ).map((row) => ({
       ...row,
       ballotCastingMode: row.ballotCastingMode ?? undefined,
+      scannerType: row.scannerType ?? undefined,
     }));
   }
 
@@ -1303,8 +1315,10 @@ export class Store implements BaseStore {
         delete from scanner_batches
         where election_id = ?
           and not exists (
-          select 1 from cvrs where id = cvrs.batch_id
-        )
+            select 1 from cvrs
+            where cvrs.batch_id = scanner_batches.id
+              and cvrs.election_id = scanner_batches.election_id
+          )
       `,
       electionId
     );
@@ -1439,7 +1453,9 @@ export class Store implements BaseStore {
         export_timestamp as exportTimestamp,
         count(cvr_id) as numCvrsImported,
         precinct_ids as precinctIds,
+        polling_place_ids as pollingPlaceIds,
         scanner_ids as scannerIds,
+        scanner_types as scannerTypes,
         sha256_hash as sha256Hash,
         datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
@@ -1463,7 +1479,9 @@ export class Store implements BaseStore {
       exportTimestamp: string;
       numCvrsImported: number;
       precinctIds: string;
+      pollingPlaceIds: string;
       scannerIds: string;
+      scannerTypes: string;
       sha256Hash: string;
       createdAt: string;
     }>;
@@ -1481,13 +1499,26 @@ export class Store implements BaseStore {
           ),
           numCvrsImported: result.numCvrsImported,
           precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
+          pollingPlaceIds: safeParseJson(result.pollingPlaceIds).unsafeUnwrap(),
           scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
+          scannerTypes: safeParseJson(result.scannerTypes).unsafeUnwrap(),
           createdAt: convertSqliteTimestampToIso8601(result.createdAt),
         }).unsafeUnwrap()
       )
       .map<CastVoteRecordFileRecord>((parsedResult) => ({
         ...parsedResult,
         precinctIds: [...parsedResult.precinctIds].sort(),
+        pollingPlaceIds: (() => {
+          if (
+            parsedResult.scannerTypes &&
+            parsedResult.scannerTypes.includes('central')
+          ) {
+            return ['central-scanning'];
+          }
+
+          const ids = parsedResult.pollingPlaceIds || [];
+          return [...ids].sort();
+        })(),
         scannerIds: [...parsedResult.scannerIds].sort(),
       }));
   }
@@ -1892,6 +1923,43 @@ export class Store implements BaseStore {
     }
 
     yield* aggregator.values();
+  }
+
+  /* istanbul ignore next */
+  deleteCastVoteRecordFile(p: { electionId: Id; fileId: string }): void {
+    this.client.transaction(() => {
+      this.client.run(
+        `delete from cvr_files where election_id = ? and id = ?`,
+        p.electionId,
+        p.fileId
+      );
+
+      this.client.run(`
+        delete from cvrs
+        where not exists (
+          select 1 from cvr_file_entries where cvr_id = cvrs.id
+        )
+      `);
+
+      if (!this.getSystemSettings(p.electionId).areWriteInCandidatesQualified) {
+        this.client.run(
+          `
+            delete from write_in_candidates
+            where
+              election_id = ?
+              and not exists (
+                select 1 from write_ins
+                where write_ins.write_in_candidate_id = write_in_candidates.id
+              )
+          `,
+          p.electionId
+        );
+      }
+
+      this.deleteEmptyScannerBatches(p.electionId);
+    });
+
+    // [TODO] Delete image files.
   }
 
   /**
