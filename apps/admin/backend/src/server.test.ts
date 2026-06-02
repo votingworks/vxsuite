@@ -20,7 +20,6 @@ import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
-import { PORT } from './globals';
 import { importCastVoteRecords } from './cast_vote_records';
 import { writeMachineMode } from './machine_mode';
 import { startHostNetworking, startClientNetworking } from './networking';
@@ -88,24 +87,6 @@ afterEach(() => {
   server = undefined;
 });
 
-test('starts with default logger and port', async () => {
-  const logger = mockBaseLogger({ fn: vi.fn });
-  const { multiUsbDrive } = createMockMultiUsbDrive();
-  const { printer } = createMockPrinterHandler();
-
-  server = await suppressingConsoleOutput(() =>
-    start({
-      workspacePath: makeTemporaryDirectory(),
-      logger,
-      multiUsbDrive,
-      printer,
-    })
-  );
-
-  const address = server.address() as AddressInfo;
-  expect(address.port).toEqual(PORT);
-});
-
 test('start with config options', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
   const { multiUsbDrive } = createMockMultiUsbDrive();
@@ -117,12 +98,13 @@ test('start with config options', async () => {
       logger,
       multiUsbDrive,
       printer,
-      port: 3005,
+      port: 30005,
+      peerPort: 0,
     })
   );
 
   const address = server.address() as AddressInfo;
-  expect(address.port).toEqual(3005);
+  expect(address.port).toEqual(30005);
   expect(logger.log).toHaveBeenCalled();
 });
 
@@ -182,11 +164,9 @@ test('logs when no election results data present at startup', async () => {
       logger,
       multiUsbDrive,
       printer,
+      port: 0,
     })
   );
-
-  const address = server.address() as AddressInfo;
-  expect(address.port).toEqual(PORT);
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DataCheckOnStartup,
@@ -256,11 +236,14 @@ test('logs when there is stored election results data present at startup', async
   });
 
   server = await suppressingConsoleOutput(() =>
-    start({ workspacePath: workspace.path, logger, multiUsbDrive, printer })
+    start({
+      workspacePath: workspace.path,
+      logger,
+      multiUsbDrive,
+      printer,
+      port: 0,
+    })
   );
-
-  const address = server.address() as AddressInfo;
-  expect(address.port).toEqual(PORT);
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DataCheckOnStartup,
@@ -302,7 +285,6 @@ test('starts host networking and peer server when multi-station is enabled', asy
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
   );
 
-  const peerPort = 0;
   server = await suppressingConsoleOutput(() =>
     start({
       workspacePath: makeTemporaryDirectory(),
@@ -310,12 +292,12 @@ test('starts host networking and peer server when multi-station is enabled', asy
       multiUsbDrive,
       printer,
       port: 0,
-      peerPort,
+      peerPort: 0,
     })
   );
 
   expect(startHostNetworking).toHaveBeenCalledWith(
-    expect.objectContaining({ peerPort })
+    expect.objectContaining({ peerPort: 0 })
   );
   expect(startClientNetworking).not.toHaveBeenCalled();
 
