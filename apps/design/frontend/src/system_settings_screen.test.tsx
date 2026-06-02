@@ -485,6 +485,91 @@ test('setting "other" system settings', async () => {
   ).toBeChecked();
 });
 
+test('setting number of report copies on VxScan', async () => {
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  const input = screen.getByRole('spinbutton', {
+    name: 'Number of Report Copies on VxScan',
+  });
+  expect(input).toBeDisabled();
+  // Empty (rather than a hardcoded 1) when unset, so it can be cleared/retyped
+  expect(input).toHaveValue(null);
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  fireEvent.change(input, { target: { value: '3' } });
+
+  const updatedSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    precinctScanNumberOfReportCopies: 3,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+  expect(input).toHaveValue(3);
+});
+
+test('number of report copies can be cleared to remove the setting', async () => {
+  apiMock.getSystemSettings.expectCallWith({ electionId }).resolves({
+    ...electionRecord.systemSettings,
+    precinctScanNumberOfReportCopies: 3,
+  });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  const input = screen.getByRole('spinbutton', {
+    name: 'Number of Report Copies on VxScan',
+  });
+  expect(input).toHaveValue(3);
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  // Clearing the input is allowed and removes the setting (defaulting to one
+  // copy on the machine)
+  fireEvent.change(input, { target: { value: '' } });
+  expect(input).toHaveValue(null);
+
+  const updatedSystemSettings: SystemSettings = {
+    ...electionRecord.systemSettings,
+    precinctScanNumberOfReportCopies: undefined,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+  expect(input).toHaveValue(null);
+});
+
+test('number of report copies setting is hidden without the feature flag', async () => {
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
+  mockUserFeatures(apiMock, {
+    VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: false,
+  });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  expect(
+    screen.queryByText('Number of Report Copies on VxScan')
+  ).not.toBeInTheDocument();
+});
+
 test('cancelling', async () => {
   const { systemSettings } = electionRecord;
   apiMock.getSystemSettings
@@ -541,7 +626,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(39);
+  expect(allControls).toHaveLength(40);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

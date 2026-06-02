@@ -56,6 +56,12 @@ export interface UserFeaturesConfig {
    */
   VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING?: boolean;
   /**
+   * Allow the user to configure the number of copies of each polls report that
+   * VxScan prints.
+   * Requires the system settings screen to be enabled.
+   */
+  VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING?: boolean;
+  /**
    * Allow the user to toggle the ability to mark overvotes on VxMark.
    * Requires the system settings screen to be enabled.
    */
@@ -182,6 +188,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
   VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true,
   VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true,
+  VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
   BMD_OVERVOTE_SYSTEM_SETTING: true,
   BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,

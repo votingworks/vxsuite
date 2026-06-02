@@ -95,6 +95,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
 
     bmdPrintMode: 'summary',
     quickResultsReportingUrl: resultsReportingUrl(),
+    precinctScanNumberOfReportCopies: 2,
   },
 
   NH: {
