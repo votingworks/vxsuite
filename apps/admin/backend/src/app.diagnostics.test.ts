@@ -246,7 +246,7 @@ test('save readiness report failure logging', async () => {
   const { apiClient, auth, logger, mockMultiUsbDrive } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  mockMultiUsbDrive.removeUsbDrive();
+  mockMultiUsbDrive.removeAll();
   const exportResult = await apiClient.saveReadinessReport();
   exportResult.assertErr('unexpected success saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(

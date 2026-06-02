@@ -1,5 +1,6 @@
 import { Mocked, mockFunction } from '@votingworks/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { rmSync } from 'node:fs';
 import {
   MultiUsbDrive,
   UsbDriveFilesystemType,
@@ -7,41 +8,47 @@ import {
 } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 
-const MOCK_DISK_DEV_PATH = '/dev/sdb';
-const MOCK_PARTITION_DEV_PATH = '/dev/sdb1';
+const MOCK_SINGLETON_DISK_DEV_PATH = '/dev/sdb';
 
 export interface MockMultiUsbDrive {
   multiUsbDrive: Mocked<MultiUsbDrive>;
   assertComplete(): void;
+
   /**
-   * Simulates inserting a USB drive with the given file contents. Configures
-   * getDrives to return a mounted partition backed by a temp directory.
-   * Defaults to FAT32; pass `{ fstype: 'ext4' }` for ext4.
+   * Simulates adding a new mounted USB drive alongside whatever is already
+   * plugged in. Requires specifying the `devPath` so that it does not conflict
+   * with existing drives. Defaults to FAT32.
+   */
+  addUsbDrive(
+    contents: MockFileTree,
+    options?: { devPath: string; fstype?: UsbDriveFilesystemType }
+  ): void;
+
+  /**
+   * Simulates removing all existing USB drives and inserting a new mounted
+   * drive with the given file contents. Defaults to FAT32.
    */
   insertUsbDrive(
     contents: MockFileTree,
     options?: { fstype?: UsbDriveFilesystemType }
   ): void;
+
   /**
-   * Simulates removing the USB drive. Configures getDrives to return an empty
-   * list.
+   * Simulates removing all USB drives.
    */
-  removeUsbDrive(): void;
+  removeAll(): void;
 }
 
 /**
  * Creates a mock of the MultiUsbDrive interface. Each method is mocked with a
  * mockFunction (see @votingworks/test-utils).
  *
- * Also has insert()/remove() methods to create a mock USB drive backed by a
- * filesystem directory. If using this interface, getDrives will automatically
- * return the correct state.
- *
- * Requires that `setupTemporaryRootDir()` from `@votingworks/fixtures` has been
- * called.
+ * Also has methods to add or remove mock USB drives backed by a filesystem
+ * directory. If using this interface, getDrives will automatically return the
+ * correct state.
  */
 export function createMockMultiUsbDrive(): MockMultiUsbDrive {
-  let mockUsbTmpDir: string | undefined;
+  const mockUsbTmpDirs: string[] = [];
 
   const multiUsbDrive: Mocked<MultiUsbDrive> = {
     getDrives: mockFunction('getDrives'),
@@ -53,7 +60,47 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
   };
 
   // Initialize with no drive connected
-  multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
+  const drives: UsbDriveInfo[] = [];
+  multiUsbDrive.getDrives.expectRepeatedCallsWith().returns(drives);
+
+  function addUsbDrive(
+    contents: MockFileTree,
+    options: { devPath: string; fstype?: UsbDriveFilesystemType }
+  ) {
+    const fstype = options.fstype ?? 'fat32';
+    const mountPoint = makeTemporaryDirectory();
+    mockUsbTmpDirs.push(mountPoint);
+    writeMockFileTree(mountPoint, contents);
+    drives.push({
+      devPath: options.devPath,
+      vendor: undefined,
+      model: undefined,
+      serial: undefined,
+      partitions: [
+        {
+          devPath: `${options.devPath}1`,
+          label: 'VxUSB-ABCDE',
+          fstype: fstype === 'ext4' ? 'ext4' : 'vfat',
+          fsver: fstype === 'ext4' ? '1.0' : 'FAT32',
+          mount: { type: 'mounted', mountPoint },
+        },
+      ],
+    });
+    multiUsbDrive.getDrives.reset();
+    multiUsbDrive.getDrives.expectRepeatedCallsWith().returns(drives);
+  }
+
+  function removeAll() {
+    drives.length = 0;
+    multiUsbDrive.getDrives.reset();
+    multiUsbDrive.getDrives.expectRepeatedCallsWith().returns(drives);
+
+    const tmpdirs = [...mockUsbTmpDirs];
+    mockUsbTmpDirs.length = 0;
+    for (const tmpdir of tmpdirs) {
+      rmSync(tmpdir, { recursive: true });
+    }
+  }
 
   return {
     multiUsbDrive,
@@ -64,38 +111,19 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
       }
     },
 
+    addUsbDrive,
+
     insertUsbDrive(
       contents: MockFileTree,
       options?: { fstype?: UsbDriveFilesystemType }
     ) {
-      const fstype = options?.fstype ?? 'fat32';
-      mockUsbTmpDir = makeTemporaryDirectory();
-      writeMockFileTree(mockUsbTmpDir, contents);
-      const drives: UsbDriveInfo[] = [
-        {
-          devPath: MOCK_DISK_DEV_PATH,
-          vendor: undefined,
-          model: undefined,
-          serial: undefined,
-          partitions: [
-            {
-              devPath: MOCK_PARTITION_DEV_PATH,
-              label: 'VxUSB-ABCDE',
-              fstype: fstype === 'ext4' ? 'ext4' : 'vfat',
-              fsver: fstype === 'ext4' ? '1.0' : 'FAT32',
-              mount: { type: 'mounted', mountPoint: mockUsbTmpDir },
-            },
-          ],
-        },
-      ];
-      multiUsbDrive.getDrives.reset();
-      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns(drives);
+      removeAll();
+      addUsbDrive(contents, {
+        ...(options ?? {}),
+        devPath: MOCK_SINGLETON_DISK_DEV_PATH,
+      });
     },
 
-    removeUsbDrive() {
-      mockUsbTmpDir = undefined;
-      multiUsbDrive.getDrives.reset();
-      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
-    },
+    removeAll,
   };
 }

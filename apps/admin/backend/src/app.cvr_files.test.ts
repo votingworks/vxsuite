@@ -96,7 +96,6 @@ async function getOfficialReportPath(): Promise<string> {
 
 test('happy path - mock election flow', async () => {
   const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
-  const { insertUsbDrive, removeUsbDrive } = mockUsbDrive;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -104,7 +103,7 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
   expect(await apiClient.getTotalBallotCount()).toEqual(0);
-  removeUsbDrive();
+  mockUsbDrive.removeAll();
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ListCastVoteRecordExportsOnUsbDrive,
@@ -124,7 +123,7 @@ test('happy path - mock election flow', async () => {
       castVoteRecordExport.asDirectoryPath()
     )
   ).unsafeUnwrap().castVoteRecordReportMetadata.GeneratedDate;
-  insertUsbDrive(
+  mockUsbDrive.insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
     })
@@ -173,7 +172,7 @@ test('happy path - mock election flow', async () => {
     }
   );
 
-  removeUsbDrive();
+  mockUsbDrive.removeAll();
 
   // file and cast vote records should now be present
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([
@@ -224,7 +223,7 @@ test('happy path - mock election flow', async () => {
       }),
     }
   );
-  insertUsbDrive(
+  mockUsbDrive.insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [officialExportDirectoryName]: officialReportDirectoryPath,
     })
@@ -264,7 +263,7 @@ test('happy path - mock election flow', async () => {
       exportDirectoryPath,
     }
   );
-  removeUsbDrive();
+  mockUsbDrive.removeAll();
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getTotalBallotCount()).toEqual(184);

@@ -483,7 +483,7 @@ test('getSystemSettings returns default system settings when there is no current
 test('listPotentialElectionPackagesOnUsbDrive', async () => {
   const { apiClient, mockUsbDrive } = buildTestEnvironment();
 
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
   expect(
     await apiClient.listPotentialElectionPackagesOnUsbDrive()
   ).toMatchObject(err({ type: expect.any(String) }));
@@ -540,7 +540,7 @@ test('saveElectionPackageToUsb when no USB drive', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
   const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(
     err({ type: 'missing-usb-drive', message: 'No USB drive found' })
@@ -555,7 +555,7 @@ test('usbDrive', async () => {
 
   mockSystemAdministratorAuth(auth);
 
-  mockMultiUsbDrive.removeUsbDrive();
+  mockMultiUsbDrive.removeAll();
   expect(await apiClient.getUsbDriveStatus()).toEqual({
     status: 'no_drive',
   });

@@ -185,7 +185,7 @@ test('logs failure if export fails for some reason', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
   const filename = mockFileName();
   const failedExportResult = await apiClient.exportTallyReportCsv({
     filter: {},

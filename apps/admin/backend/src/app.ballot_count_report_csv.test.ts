@@ -74,7 +74,7 @@ test('logs failure if export fails', async () => {
   loadFileResult.assertOk('load file failed');
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
 
   const filename = mockFileName();
   const failedExportResult = await apiClient.exportBallotCountReportCsv({

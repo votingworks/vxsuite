@@ -664,7 +664,7 @@ test('write-in image report logging', async () => {
     path: reportPath,
   });
 
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
   const invalidFilename = mockFileName('pdf');
   (
     await apiClient.exportWriteInImageReportPdf({

@@ -67,7 +67,7 @@ test('logs failure if export fails', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
 
   const filename = mockFileName('json');
   const failedExportResult = await apiClient.exportCdfElectionResultsReport({
