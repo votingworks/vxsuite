@@ -6,7 +6,7 @@ import {
   MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
-import { CachedElectionLookups } from '@votingworks/utils';
+import { CachedElectionLookups, hasCrossoverVote } from '@votingworks/utils';
 import {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
@@ -79,6 +79,7 @@ export function getCastVoteRecordAdjudicationFlags(
     hasOvervote,
     hasWriteIn,
     hasMarginalMark,
+    hasCrossoverVote: hasCrossoverVote(electionDefinition.election, votes),
   };
 }
 

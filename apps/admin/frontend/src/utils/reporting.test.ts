@@ -128,6 +128,14 @@ test('generateBallotCountReportPdfFilename', () => {
         'TEST-unofficial-write-in-ballot-count-report__2023-12-09_15-59-32.pdf',
     },
     {
+      filter: {
+        adjudicationFlags: ['hasCrossoverVote'],
+      },
+      isTestMode: true,
+      expectedFilename:
+        'TEST-unofficial-crossover-voted-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
       // No Party filter combined with two other dimensions: should be
       // treated as a 3-dimension custom filter, not under-counted as 2.
       filter: {

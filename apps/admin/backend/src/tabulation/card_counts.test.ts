@@ -1,6 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
+  electionOpenPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
@@ -710,4 +711,84 @@ test('tabulateFullCardCounts - blankBallots', () => {
       expect(cardCounts?.hmpb).toEqual([testCase.expectedHmpb]);
     }
   }
+});
+
+test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const { election, electionData } =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const cvrMetadata = {
+    ballotStyleGroupId: 'ballot-style-1' as BallotStyleGroupId,
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    precinctId: 'precinct-1',
+    votingMethod: 'precinct',
+    card: { type: 'bmd' },
+  } as const;
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ...cvrMetadata,
+      // Single-party Dem
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 3,
+    },
+    {
+      ...cvrMetadata,
+      // Single-party Rep
+      votes: {
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 2,
+    },
+    {
+      ...cvrMetadata,
+      // Nonpartisan-only
+      votes: { 'circuit-court-judge': ['margaret-chen'] },
+      multiplier: 1,
+    },
+    {
+      ...cvrMetadata,
+      // Crossover
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'governor-republican': ['dave-wilson'],
+        'circuit-court-judge': ['margaret-chen'],
+      },
+      multiplier: 4,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  const [crossoverCounts] = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      election,
+      store,
+      filter: { adjudicationFlags: ['hasCrossoverVote'] },
+    })
+  );
+  expect(crossoverCounts?.bmd).toEqual([4]);
+
+  const [allCounts] = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      election,
+      store,
+      filter: { adjudicationFlags: [] },
+    })
+  );
+  expect(allCounts?.bmd).toEqual([10]);
 });

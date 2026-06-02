@@ -164,12 +164,14 @@ function generateOptionsForFilter({
         label: `Scanner ${sb.scannerId}, ${sb.label}`,
       }));
     case 'adjudication-status':
-      return Object.entries(Admin.ADJUDICATION_FLAG_LABELS).map(
-        ([value, label]) => ({
+      return Object.entries(Admin.ADJUDICATION_FLAG_LABELS)
+        .filter(
+          ([flag]) => isOpenPrimary(election) || flag !== 'hasCrossoverVote'
+        )
+        .map(([value, label]) => ({
           value,
           label,
-        })
-      );
+        }));
     case 'district':
       return getValidDistricts(election).map((district) => ({
         value: district.id,

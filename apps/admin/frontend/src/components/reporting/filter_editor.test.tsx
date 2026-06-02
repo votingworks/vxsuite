@@ -258,9 +258,36 @@ test('adjudication status selection', () => {
   screen.getByText('Overvote');
   screen.getByText('Undervote');
   screen.getByText('Write-In');
+  expect(screen.queryByText('Crossover Vote')).toBeNull();
   userEvent.click(screen.getByText('Blank Ballot'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     adjudicationFlags: ['isBlank'],
+  });
+});
+
+test('adjudication status selection includes "Crossover Vote" in open primary', () => {
+  const { election } = readElectionOpenPrimaryDefinition();
+  const onChange = vi.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['adjudication-status']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('Adjudication Status'));
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  userEvent.click(screen.getByText('Crossover Vote'));
+  expect(onChange).toHaveBeenLastCalledWith({
+    adjudicationFlags: ['hasCrossoverVote'],
   });
 });
 
