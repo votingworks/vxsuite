@@ -35,5 +35,5 @@
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0"
   },
-  "packageManager": "pnpm@8.15.5"
+  "packageManager": "pnpm@9.15.9"
 }

@@ -299,7 +299,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     'executors:',
     '  nodejs:',
     '    docker:',
-    '      - image: votingworks/cimg-debian12:4.4.0',
+    '      - image: votingworks/cimg-debian12:4.5.0',
     '        auth:',
     '          username: $VX_DOCKER_USERNAME',
     '          password: $VX_DOCKER_PASSWORD',
@@ -436,14 +436,14 @@ orbs:
 executors:
   nodejs:
     docker:
-      - image: votingworks/cimg-debian12:4.4.0
+      - image: votingworks/cimg-debian12:4.5.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
   nodejs_postgres:
     docker:
-      - image: votingworks/cimg-debian12:4.4.0
+      - image: votingworks/cimg-debian12:4.5.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
