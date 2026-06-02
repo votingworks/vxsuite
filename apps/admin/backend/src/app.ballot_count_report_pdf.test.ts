@@ -349,7 +349,7 @@ test('ballot count report logging', async () => {
   });
 
   // failed file export
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
   const invalidFilename = mockFileName('pdf');
   const invalidExportResult = await apiClient.exportBallotCountReportPdf({
     ...MOCK_REPORT_SPEC,

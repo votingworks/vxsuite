@@ -265,7 +265,7 @@ test('write-in adjudication report logging', async () => {
   });
 
   // failed file export
-  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.removeAll();
   const invalidFilename = mockFileName('pdf');
   const invalidExportResult =
     await apiClient.exportWriteInAdjudicationReportPdf({
