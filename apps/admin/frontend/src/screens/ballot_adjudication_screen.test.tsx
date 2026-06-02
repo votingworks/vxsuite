@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  electionOpenPrimaryFixtures,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
+  Election,
   SystemSettings,
 } from '@votingworks/types';
 import type { BallotPageLayout, Rect } from '@votingworks/types';
@@ -38,7 +42,10 @@ import { AdjudicationStartScreen } from './adjudication_start_screen';
 import { routerPaths } from '../router_paths';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
-const { election } = electionDefinition;
+const { election: primaryElection } = electionDefinition;
+const openPrimaryDefinition =
+  electionOpenPrimaryFixtures.readElectionDefinition();
+const openPrimaryElection = openPrimaryDefinition.election;
 
 let apiMock: ApiMock;
 
@@ -67,7 +74,8 @@ function makeContestTag(overrides: Partial<CvrContestTag> = {}): CvrContestTag {
 
 function makeContestAdjudicationData(
   contestId: string,
-  tag?: CvrContestTag
+  tag?: CvrContestTag,
+  election: Election = primaryElection
 ): ContestAdjudicationData {
   const contest = election.contests.find((c) => c.id === contestId);
   if (!contest) {
@@ -110,7 +118,7 @@ function makeBallotAdjudicationData(
   cvrId: string,
   contests: ContestAdjudicationData[],
   {
-    tag = { isBlankBallot: false },
+    tag = { isBlankBallot: false, hasCrossoverVote: false },
     isResolved = false,
     adjudicatedContests = [],
   }: {
@@ -231,6 +239,10 @@ function makeContestWithVotes(
   }
   const adjudicated = makeAdjudicatedCvrContest(contestId, optionVotes);
   return { contest, adjudicated };
+}
+
+function getContestListItem(name: string | RegExp) {
+  return within(screen.getByText(name).closest('li')!);
 }
 
 test('ballot navigation supports back, skip, exit, and side switching', async () => {
@@ -868,6 +880,81 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
     .resolves();
 });
 
+test('hovering a crossover voted contest shows the warning highlight', async () => {
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  );
+  repContest.options[0].scannedVote = true; // dave-wilson
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [demContest, repContest],
+    { tag: { isBlankBallot: false, hasCrossoverVote: true } }
+  );
+
+  const ballotCoordinates: Rect = { x: 0, y: 0, width: 1000, height: 1000 };
+  const ballotImages: BallotImages = {
+    cvrId: CVR_ID_1,
+    front: {
+      type: 'hmpb' as const,
+      imageUrl: 'mock-front-image',
+      ballotCoordinates,
+      layout: makeHmpbPageLayout([
+        'governor-democratic',
+        'governor-republican',
+      ]),
+    },
+    back: {
+      type: 'hmpb' as const,
+      imageUrl: 'mock-back-image',
+      ballotCoordinates,
+      layout: makeHmpbPageLayout([]),
+    },
+  };
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(ballotImages);
+  apiMock.expectGetWriteInCandidates(
+    [],
+    adjData.contests.map((c) => c.contestId)
+  );
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Crossover Voting Detected');
+  const ballotImage = screen.getByRole('img', { name: /ballot/i });
+  function getHighlightOverlay(): HTMLElement | null {
+    return ballotImage.querySelector('div');
+  }
+
+  expect(getHighlightOverlay()).toBeNull();
+  const demGovernorItem = screen.getByText(/Democratic Party/).closest('li')!;
+  fireEvent.mouseEnter(demGovernorItem);
+  const highlight = getHighlightOverlay();
+  expect(highlight).not.toBeNull();
+  expect(highlight).toHaveStyle({ background: HIGHLIGHT_WARNING_BACKGROUND });
+  fireEvent.mouseLeave(demGovernorItem);
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
 test('accept advances to next ballot and blank ballot callout states', async () => {
   const CVR_ID_3 = 'cvr-id-3';
 
@@ -890,7 +977,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
         })
       ),
     ],
-    { tag: { isBlankBallot: true } }
+    { tag: { isBlankBallot: true, hasCrossoverVote: false } }
   );
 
   // (Ballot 2's resolved form is no longer needed in this test — the
@@ -900,7 +987,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   // Ballot 3: blank ballot with an adjudicated vote on one option
   const zooCouncilContest = makeContestAdjudicationData('zoo-council-mammal');
   const adjData3 = makeBallotAdjudicationData(CVR_ID_3, [zooCouncilContest], {
-    tag: { isBlankBallot: true },
+    tag: { isBlankBallot: true, hasCrossoverVote: false },
     isResolved: true,
     adjudicatedContests: [
       makeAdjudicatedCvrContest('zoo-council-mammal', {
@@ -1100,9 +1187,6 @@ test('contest list shows correct status line captions', async () => {
 
   await screen.findAllByText('Best Animal');
 
-  function contestItem(name: string) {
-    return within(screen.getByText(name).closest('li')!);
-  }
   function contestItems(name: string) {
     return screen.getAllByText(name).map((el) => within(el.closest('li')!));
   }
@@ -1122,13 +1206,15 @@ test('contest list shows correct status line captions', async () => {
   aquariumCouncil.getByText('Overvote Resolved; Undervote Created');
 
   // new-zoo-either: Overvote Created
-  contestItem('Ballot Measure 1 - Part 1').getByText('Overvote Created');
+  getContestListItem('Ballot Measure 1 - Part 1').getByText('Overvote Created');
 
   // new-zoo-pick: Undervote Resolved
-  contestItem('Ballot Measure 1 - Part 2').getByText('Undervote Resolved');
+  getContestListItem('Ballot Measure 1 - Part 2').getByText(
+    'Undervote Resolved'
+  );
 
   // fishing: Undervote Created
-  contestItem('Ballot Measure 3').getByText('Undervote Created');
+  getContestListItem('Ballot Measure 3').getByText('Undervote Created');
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
@@ -1172,19 +1258,17 @@ test('contest list suppresses undervote captions when not in system settings', a
 
   await screen.findByText('Best Animal');
 
-  function contestItem(name: string) {
-    return within(screen.getByText(name).closest('li')!);
-  }
-
   // Overvote caption still shows
-  contestItem('Best Animal').getByText('Overvote Confirmed');
+  getContestListItem('Best Animal').getByText('Overvote Confirmed');
 
   // Undervote captions are suppressed
   expect(
-    contestItem('Ballot Measure 1 - Part 2').queryByText('Undervote Resolved')
+    getContestListItem('Ballot Measure 1 - Part 2').queryByText(
+      'Undervote Resolved'
+    )
   ).toBeNull();
   expect(
-    contestItem('Ballot Measure 3').queryByText('Undervote Created')
+    getContestListItem('Ballot Measure 3').queryByText('Undervote Created')
   ).toBeNull();
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
@@ -1474,9 +1558,8 @@ test('contest list shows pending status lines before adjudication', async () => 
     apiMock,
   });
 
-  const zooCouncilItem = within(
-    (await screen.findByText('Zoo Council')).closest('li')!
-  );
+  await screen.findByText('Zoo Council');
+  const zooCouncilItem = getContestListItem('Zoo Council');
   zooCouncilItem.getByText('1 write-in to adjudicate');
   zooCouncilItem.getByText('2 marginal marks to adjudicate');
 
@@ -1530,9 +1613,8 @@ test('contest list only shows overvote/undervote/marginal status lines present i
     apiMock,
   });
 
-  const bestAnimal = within(
-    (await screen.findByText('Best Animal')).closest('li')!
-  );
+  await screen.findByText('Best Animal');
+  const bestAnimal = getContestListItem('Best Animal');
   bestAnimal.getByText('1 write-in to adjudicate');
   expect(bestAnimal.queryByText('Overvote to adjudicate')).toBeNull();
   expect(bestAnimal.queryByText(/marginal mark/)).toBeNull();
@@ -1963,6 +2045,239 @@ test('does not auto-resolve when areWriteInCandidatesQualified is false', async 
 
   await screen.findByText(/Ballot ID/);
   expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('crossover voting detected during scanning', async () => {
+  // Democratic + Republican governor contests both have crossover votes. Add a
+  // voted nonpartisan candidate contest, a voted ballot measure, and an unvoted
+  // partisan contest — none of which should show a crossover indicator.
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  );
+  repContest.options[0].scannedVote = true; // dave-wilson
+  const nonpartisanContest = makeContestAdjudicationData(
+    'circuit-court-judge',
+    undefined,
+    openPrimaryElection
+  );
+  nonpartisanContest.options[0].scannedVote = true; // margaret-chen
+  const ballotMeasure = makeContestAdjudicationData(
+    'ballot-measure-1',
+    undefined,
+    openPrimaryElection
+  );
+  ballotMeasure.options[0].scannedVote = true; // yes
+  const unvotedPartisanContest = makeContestAdjudicationData(
+    'governor-libertarian',
+    undefined,
+    openPrimaryElection
+  );
+  const data = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [
+      demContest,
+      repContest,
+      nonpartisanContest,
+      ballotMeasure,
+      unvotedPartisanContest,
+    ],
+    { tag: { isBlankBallot: false, hasCrossoverVote: true } }
+  );
+  setupBasicMocks({ adjudicationData: data });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Crossover Voting Detected');
+  screen.getByText(
+    'Votes detected for multiple parties. Votes in partisan contests will not be counted.'
+  );
+
+  getContestListItem(/Democratic Party/).getByText('Crossover vote detected');
+  getContestListItem(/Republican Party/).getByText('Crossover vote detected');
+  expect(
+    getContestListItem(/Libertarian Party/).queryByText(
+      'Crossover vote detected'
+    )
+  ).toBeNull();
+  expect(
+    getContestListItem('Circuit Court Judge').queryByText(
+      'Crossover vote detected'
+    )
+  ).toBeNull();
+  expect(
+    getContestListItem('County Road Millage Renewal').queryByText(
+      'Crossover vote detected'
+    )
+  ).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test("crossover voting resolved when one party's vote is removed via adjudication", async () => {
+  // Democratic + Republican governor contests both have crossover votes. Then
+  // the republican contest's only effective vote (dave-wilson) is adjudicated
+  // away to resolve the crossover vote.
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  );
+  repContest.options[0].scannedVote = true; // dave-wilson
+  const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
+    tag: { isBlankBallot: false, hasCrossoverVote: true },
+    adjudicatedContests: [
+      makeAdjudicatedCvrContest('governor-republican', {
+        'dave-wilson': false,
+      }),
+    ],
+  });
+  setupBasicMocks({ adjudicationData: data });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Crossover Voting Resolved');
+  screen.getByText('Ballot no longer has votes for multiple parties.');
+  getContestListItem(/Democratic Party/).getByText('Crossover vote resolved');
+  getContestListItem(/Republican Party/).getByText('Crossover vote resolved');
+  expect(screen.queryByText('Crossover vote detected')).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('crossover voting confirmed when ballot is resolved without modifying the votes', async () => {
+  // Democratic + Republican governor contests both have crossover votes. Then
+  // the user marks the ballot resolved without changing the votes.
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  );
+  repContest.options[0].scannedVote = true; // dave-wilson
+  const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
+    tag: { isBlankBallot: false, hasCrossoverVote: true },
+    isResolved: true,
+  });
+  setupBasicMocks({ adjudicationData: data });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Crossover Voting Confirmed');
+  screen.getByText('Votes in partisan contests will not be counted.');
+  getContestListItem(/Democratic Party/).getByText('Crossover vote confirmed');
+  getContestListItem(/Republican Party/).getByText('Crossover vote confirmed');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('crossover vote created indicator when adjudication introduces a crossover vote', async () => {
+  // Scanned as a single-party (Democratic) ballot - not flagged crossover - but
+  // a Republican vote is adjudicated in, creating a crossover after the fact.
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  ); // no scanned vote
+  const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
+    tag: { isBlankBallot: false, hasCrossoverVote: false },
+    adjudicatedContests: [
+      makeAdjudicatedCvrContest('governor-republican', { 'dave-wilson': true }),
+    ],
+  });
+  setupBasicMocks({ adjudicationData: data });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findAllByText('Crossover vote created');
+  getContestListItem(/Democratic Party/).getByText('Crossover vote created');
+  getContestListItem(/Republican Party/).getByText('Crossover vote created');
+  // The ballot was not scanned as crossover, so the ballot-level crossover
+  // callout never renders.
+  expect(screen.queryByText(/Crossover Voting/)).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('crossover voting created indicator persists when the ballot is resolved', async () => {
+  // Same as above, but the user has marked the ballot resolved.
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  ); // no scanned vote
+  const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
+    tag: { isBlankBallot: false, hasCrossoverVote: false },
+    isResolved: true,
+    adjudicatedContests: [
+      makeAdjudicatedCvrContest('governor-republican', { 'dave-wilson': true }),
+    ],
+  });
+  setupBasicMocks({ adjudicationData: data });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findAllByText('Crossover vote created');
+  getContestListItem(/Democratic Party/).getByText('Crossover vote created');
+  getContestListItem(/Republican Party/).getByText('Crossover vote created');
+  expect(screen.queryByText(/Crossover Voting/)).toBeNull();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })

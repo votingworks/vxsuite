@@ -124,7 +124,7 @@ function expectAdjudicationEnabled(): void {
 function makeBallotData(cvrId: string) {
   return {
     cvrId,
-    tag: { isBlankBallot: false } as const,
+    tag: { isBlankBallot: false, hasCrossoverVote: false } as const,
     isResolved: false,
     contests: [],
     adjudicatedContests: [],
