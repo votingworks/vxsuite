@@ -24,7 +24,9 @@ import {
   buildContestResultsFixture,
   CachedElectionLookups,
   generateTestDeckBallots,
+  generateTestDeckCastVoteRecords,
   getBallotStyleGroupsForPrecinctOrSplit,
+  getTallyReportResults,
 } from '@votingworks/utils';
 import {
   BallotType,
@@ -48,8 +50,6 @@ import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReports,
-  generateTestDeckCastVoteRecords,
-  getTallyReportResults,
   precinctTallyReportFileName,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
 } from './test_decks';

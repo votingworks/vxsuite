@@ -29,4 +29,5 @@ export * from './sqlite';
 export * from './system_limits';
 export * from './tabulation';
 export * from './test_deck_ballots';
+export * from './test_deck_tally_reports';
 export * from './votes';
