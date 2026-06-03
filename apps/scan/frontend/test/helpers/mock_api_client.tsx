@@ -259,11 +259,15 @@ export function createApiMock() {
 
     expectPrintReportSection(
       index: number,
-      errorStatus?: PrinterStatus
+      errorStatus?: PrinterStatus,
+      numberOfSections = 1
     ): {
       resolve: () => void;
     } {
-      const { resolve, promise } = deferred<PrintResult>();
+      const { resolve, promise } = deferred<{
+        printResult: PrintResult;
+        numberOfSections: number;
+      }>();
 
       mockApiClient.printReportSection
         .expectCallWith({ index })
@@ -271,11 +275,10 @@ export function createApiMock() {
 
       return {
         resolve: () => {
-          if (errorStatus) {
-            resolve(err(errorStatus));
-          } else {
-            resolve(ok());
-          }
+          resolve({
+            printResult: errorStatus ? err(errorStatus) : ok(),
+            numberOfSections,
+          });
         },
       };
     },

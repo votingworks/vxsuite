@@ -77,6 +77,8 @@ type PollWorkerFlowState =
       transitionType: PollsTransitionType;
       isAfterPollsTransition: boolean;
       printResult: PrintResult;
+      numberOfSections: number;
+      numberOfCopies: number;
     }
   | {
       type: 'write-in-report-post-print';
@@ -389,6 +391,7 @@ function PollWorkerScreenContents({
     systemSettings,
     isTestMode,
   } = configQuery.data;
+  const numberOfCopies = systemSettings.precinctScanNumberOfReportCopies ?? 1;
   const mustInsertUsbDriveToContinue =
     isContinuousExportEnabled && usbDriveStatus.status !== 'mounted';
 
@@ -438,14 +441,18 @@ function PollWorkerScreenContents({
       return;
     }
 
-    const printResult = await printReportSectionMutation.mutateAsync({
-      index: 0,
-    });
+    // The first page prints during the transition; the backend returns how many
+    // sections the report has so the post-print screen can print the rest one
+    // page at a time.
+    const { printResult, numberOfSections } =
+      await printReportSectionMutation.mutateAsync({ index: 0 });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'open_polls',
       isAfterPollsTransition: true,
       printResult,
+      numberOfSections,
+      numberOfCopies,
     });
   }
 
@@ -456,14 +463,15 @@ function PollWorkerScreenContents({
       transitionType: 'close_polls',
     });
     await closePollsMutation.mutateAsync();
-    const printResult = await printReportSectionMutation.mutateAsync({
-      index: 0,
-    });
+    const { printResult, numberOfSections } =
+      await printReportSectionMutation.mutateAsync({ index: 0 });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'close_polls',
       isAfterPollsTransition: true,
       printResult,
+      numberOfSections,
+      numberOfCopies,
     });
     startNewVoterSession();
   }
@@ -487,14 +495,15 @@ function PollWorkerScreenContents({
       transitionType: 'pause_voting',
     });
     await pauseVotingMutation.mutateAsync();
-    const printResult = await printReportSectionMutation.mutateAsync({
-      index: 0,
-    });
+    const { printResult, numberOfSections } =
+      await printReportSectionMutation.mutateAsync({ index: 0 });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'pause_voting',
       isAfterPollsTransition: true,
       printResult,
+      numberOfSections,
+      numberOfCopies,
     });
   }
 
@@ -504,14 +513,15 @@ function PollWorkerScreenContents({
       transitionType: 'resume_voting',
     });
     await resumeVotingMutation.mutateAsync();
-    const printResult = await printReportSectionMutation.mutateAsync({
-      index: 0,
-    });
+    const { printResult, numberOfSections } =
+      await printReportSectionMutation.mutateAsync({ index: 0 });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'resume_voting',
       isAfterPollsTransition: true,
       printResult,
+      numberOfSections,
+      numberOfCopies,
     });
   }
 
@@ -525,14 +535,17 @@ function PollWorkerScreenContents({
     setPollWorkerFlowState({
       type: 'printing-report',
     });
-    const printResult = await printReportSectionMutation.mutateAsync({
-      index: 0,
-    });
+    // Reprinting produces a single additional complete copy of the report
+    // (all party pages in a primary), one page at a time.
+    const { printResult, numberOfSections } =
+      await printReportSectionMutation.mutateAsync({ index: 0 });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType,
       isAfterPollsTransition,
       printResult,
+      numberOfSections,
+      numberOfCopies: 1,
     });
   }
 
@@ -732,8 +745,9 @@ function PollWorkerScreenContents({
           <PostPrintScreen
             isPostPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
             pollsTransitionType={pollWorkerFlowState.transitionType}
-            electionDefinition={electionDefinition}
             initialPrintResult={pollWorkerFlowState.printResult}
+            numberOfCopies={pollWorkerFlowState.numberOfCopies}
+            numberOfSections={pollWorkerFlowState.numberOfSections}
             reportQuickResultsEnabled={
               !!getQuickResultsReportingUrlQuery.data &&
               getQuickResultsReportingUrlQuery.data.length > 0
