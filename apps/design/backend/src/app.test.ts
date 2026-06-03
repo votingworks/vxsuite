@@ -553,6 +553,7 @@ test('create/list/delete elections', async () => {
   ).toEqual({
     paperSize: sliElection.ballotLayout.paperSize,
     compact: false,
+    miGeneralBallotColumns: 4,
   });
   expect(
     await apiClient.getSystemSettings({ electionId: sliElectionId })
@@ -2521,6 +2522,7 @@ test('get/update ballot layout', async () => {
   expect(await apiClient.getBallotLayoutSettings({ electionId })).toEqual({
     paperSize: HmpbBallotPaperSize.Letter,
     compact: false,
+    miGeneralBallotColumns: 4,
   });
 
   // Update ballot layout
@@ -2528,10 +2530,12 @@ test('get/update ballot layout', async () => {
     electionId,
     paperSize: HmpbBallotPaperSize.Legal,
     compact: true,
+    miGeneralBallotColumns: 3,
   });
   expect(await apiClient.getBallotLayoutSettings({ electionId })).toEqual({
     paperSize: HmpbBallotPaperSize.Legal,
     compact: true,
+    miGeneralBallotColumns: 3,
   });
 
   await suppressingConsoleOutput(async () => {
@@ -2541,6 +2545,7 @@ test('get/update ballot layout', async () => {
         electionId,
         paperSize: 'invalid' as HmpbBallotPaperSize,
         compact: true,
+        miGeneralBallotColumns: 4,
       })
     ).rejects.toThrow();
 
@@ -2554,6 +2559,7 @@ test('get/update ballot layout', async () => {
         electionId,
         paperSize: HmpbBallotPaperSize.Legal,
         compact: true,
+        miGeneralBallotColumns: 4,
       })
     ).rejects.toThrow('auth:forbidden');
   });

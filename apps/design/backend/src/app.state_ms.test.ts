@@ -118,6 +118,7 @@ test('convert MS results', async () => {
     electionId,
     paperSize: HmpbBallotPaperSize.Legal,
     compact: true,
+    miGeneralBallotColumns: 4,
   });
   const exportMeta = await exportElectionPackage({
     apiClient,

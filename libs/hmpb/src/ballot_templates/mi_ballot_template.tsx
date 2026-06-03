@@ -380,6 +380,8 @@ function CandidateContest({
                 right:
                   numContestColumns === 2
                     ? 14.6
+                    : numContestColumns === 3
+                    ? 9.5
                     : numContestColumns === 4
                     ? 6.9
                     : (() => {
@@ -828,14 +830,15 @@ async function GeneralContestColumns({
   ballotStyle,
   dimensions,
   scratchpad,
+  numColumns,
 }: {
   contests: readonly AnyContest[];
   election: Election;
   ballotStyle: BallotStyle;
   dimensions: PixelDimensions;
   scratchpad: RenderScratchpad;
+  numColumns: number;
 }): Promise<ContestColumnsResult> {
-  const numColumns = 4;
   const sections = buildGeneralContestSections(
     contests,
     election,
@@ -1075,10 +1078,20 @@ async function OpenPrimaryContestColumns({
   };
 }
 
+/**
+ * The number of contest columns used for the Michigan general election ballot
+ * layout. Defaults to 4 when not specified.
+ */
+export type MiGeneralBallotColumns = 3 | 4;
+
+export type MiBallotProps = BaseBallotProps & {
+  generalBallotColumns?: MiGeneralBallotColumns;
+};
+
 async function BallotPageContent(
-  props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
+  props: (MiBallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
-): Promise<ContentComponentResult<BaseBallotProps>> {
+): Promise<ContentComponentResult<MiBallotProps>> {
   if (!props) {
     return ok({
       currentPageElement: <BlankPageMessage />,
@@ -1103,6 +1116,7 @@ async function BallotPageContent(
           ballotStyle,
           dimensions,
           scratchpad,
+          numColumns: props.generalBallotColumns ?? 4,
         })
       : isOpenPrimary(election)
       ? await OpenPrimaryContestColumns({
@@ -1145,7 +1159,7 @@ async function BallotPageContent(
   });
 }
 
-export const miBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+export const miBallotTemplate: BallotPageTemplate<MiBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,

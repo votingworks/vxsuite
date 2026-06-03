@@ -16,7 +16,11 @@ import {
   find,
   iter,
 } from '@votingworks/basics';
-import { NhBallotProps, NhStateBallotProps } from '@votingworks/hmpb';
+import {
+  MiBallotProps,
+  NhBallotProps,
+  NhStateBallotProps,
+} from '@votingworks/hmpb';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -28,7 +32,8 @@ test('createBallotPropsForTemplate', () => {
   const vxDefaultBallotProps = createBallotPropsForTemplate(
     'VxDefaultBallot',
     election,
-    false
+    false,
+    4
   ) as BaseBallotProps[];
   for (const props of vxDefaultBallotProps) {
     expect(props.compact).toEqual(false);
@@ -37,14 +42,26 @@ test('createBallotPropsForTemplate', () => {
   const msBallotProps = createBallotPropsForTemplate(
     'MsBallot',
     election,
-    false
+    false,
+    4
   );
   expect(msBallotProps).toEqual(vxDefaultBallotProps);
+
+  const miBallotProps = createBallotPropsForTemplate(
+    'MiBallot',
+    election,
+    false,
+    3
+  ) as MiBallotProps[];
+  for (const props of miBallotProps) {
+    expect(props.generalBallotColumns).toEqual(3);
+  }
 
   const nhBallotProps = createBallotPropsForTemplate(
     'NhBallot',
     election,
-    true
+    true,
+    4
   ) as NhBallotProps[];
   assert(election.precincts.some((p) => hasSplits(p)));
   for (const props of nhBallotProps) {
@@ -61,7 +78,8 @@ test('createBallotPropsForTemplate', () => {
   const nhStateBallotProps: NhStateBallotProps[] = createBallotPropsForTemplate(
     'NhStateBallot',
     election,
-    false
+    false,
+    4
   );
   const [allFooProps, allRegularProps] = iter(nhStateBallotProps).partition(
     (props) => props.isFederalOfficeOnly
