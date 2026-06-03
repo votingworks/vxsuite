@@ -68,12 +68,11 @@ export function isContestCrossoverVoted(
     contest: AnyContest;
     adjudicationData: ContestAdjudicationData;
   },
-  adjudicatedContests?: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+  adjudicatedContest?: AdjudicatedCvrContest
 ): boolean {
   if (!ballotHasCrossoverVote) return false;
   const { contest, adjudicationData } = contestItem;
   if (!(contest.type === 'candidate' && contest.partyId)) return false;
-  const adjudicatedContest = adjudicatedContests?.get(contest.id);
   const hasVote = adjudicationData.options.some((option) =>
     getCurrentVote(
       option,

@@ -349,18 +349,18 @@ function ContestAdjudicationSummary({
 function CrossoverVoteStatus({
   ballotHasScannedCrossoverVote,
   contestHasScannedCrossoverVote,
-  contestHasAdjudicatedCrossoverVote,
+  contestHasCrossoverVoteAfterAdjudication,
   isBallotResolved,
 }: {
   ballotHasScannedCrossoverVote: boolean;
   contestHasScannedCrossoverVote: boolean;
-  contestHasAdjudicatedCrossoverVote: boolean;
+  contestHasCrossoverVoteAfterAdjudication: boolean;
   isBallotResolved: boolean;
 }) {
   const warningIcon = <Icons.Crossover color="warning" />;
   const primaryIcon = <Icons.Crossover color="primary" />;
   if (ballotHasScannedCrossoverVote) {
-    if (contestHasAdjudicatedCrossoverVote) {
+    if (contestHasCrossoverVoteAfterAdjudication) {
       if (isBallotResolved) {
         return (
           <StatusLine icon={primaryIcon} color="primary">
@@ -376,7 +376,7 @@ function CrossoverVoteStatus({
       return <StatusLineConfirmed>Crossover vote resolved</StatusLineConfirmed>;
     }
   }
-  if (contestHasAdjudicatedCrossoverVote) {
+  if (contestHasCrossoverVoteAfterAdjudication) {
     return (
       <StatusLine
         icon={isBallotResolved ? primaryIcon : warningIcon}
@@ -400,7 +400,7 @@ function BallotSideContestList({
   showUndervoteStatus,
   title,
   cvrTag,
-  ballotHasAdjudicatedCrossoverVote,
+  ballotHasCrossoverVoteAfterAdjudication,
   isBallotResolved,
 }: {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
@@ -414,7 +414,7 @@ function BallotSideContestList({
   showUndervoteStatus: boolean;
   title: string;
   cvrTag: CvrTag;
-  ballotHasAdjudicatedCrossoverVote: boolean;
+  ballotHasCrossoverVoteAfterAdjudication: boolean;
   isBallotResolved: boolean;
 }): React.ReactNode {
   return (
@@ -461,14 +461,15 @@ function BallotSideContestList({
             cvrTag.hasCrossoverVote,
             item
           );
-          const contestHasAdjudicatedCrossoverVote = isContestCrossoverVoted(
-            ballotHasAdjudicatedCrossoverVote,
-            item,
-            adjudicatedContests
-          );
+          const contestHasCrossoverVoteAfterAdjudication =
+            isContestCrossoverVoted(
+              ballotHasCrossoverVoteAfterAdjudication,
+              item,
+              adjudicatedContests.get(contest.id)
+            );
           const crossoverVoteIsPending =
             contestHasScannedCrossoverVote &&
-            contestHasAdjudicatedCrossoverVote &&
+            contestHasCrossoverVoteAfterAdjudication &&
             !isBallotResolved;
 
           const partyLabel = contestPartyLabel(election, contest);
@@ -500,8 +501,8 @@ function BallotSideContestList({
                   contestHasScannedCrossoverVote={
                     contestHasScannedCrossoverVote
                   }
-                  contestHasAdjudicatedCrossoverVote={
-                    contestHasAdjudicatedCrossoverVote
+                  contestHasCrossoverVoteAfterAdjudication={
+                    contestHasCrossoverVoteAfterAdjudication
                   }
                   ballotHasScannedCrossoverVote={cvrTag.hasCrossoverVote}
                   isBallotResolved={isBallotResolved}
@@ -580,7 +581,7 @@ export function AdjudicationContestList({
       : 'Blank Ballot Detected';
   })();
 
-  const ballotHasAdjudicatedCrossoverVote = hasCrossoverVote(
+  const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
     adjudicatedVotes(allContests, adjudicatedContests)
   );
@@ -638,7 +639,9 @@ export function AdjudicationContestList({
       )}
       {cvrTag.hasCrossoverVote && (
         <CrossoverVotingCallout
-          ballotHasAdjudicatedCrossoverVote={ballotHasAdjudicatedCrossoverVote}
+          ballotHasCrossoverVoteAfterAdjudication={
+            ballotHasCrossoverVoteAfterAdjudication
+          }
           isBallotResolved={isBallotResolved}
         />
       )}
@@ -655,7 +658,9 @@ export function AdjudicationContestList({
           showUndervoteStatus={showUndervoteStatus}
           title="Front"
           cvrTag={cvrTag}
-          ballotHasAdjudicatedCrossoverVote={ballotHasAdjudicatedCrossoverVote}
+          ballotHasCrossoverVoteAfterAdjudication={
+            ballotHasCrossoverVoteAfterAdjudication
+          }
           isBallotResolved={isBallotResolved}
         />
       )}
@@ -672,7 +677,9 @@ export function AdjudicationContestList({
           showUndervoteStatus={showUndervoteStatus}
           title="Back"
           cvrTag={cvrTag}
-          ballotHasAdjudicatedCrossoverVote={ballotHasAdjudicatedCrossoverVote}
+          ballotHasCrossoverVoteAfterAdjudication={
+            ballotHasCrossoverVoteAfterAdjudication
+          }
           isBallotResolved={isBallotResolved}
         />
       )}
@@ -681,14 +688,14 @@ export function AdjudicationContestList({
 }
 
 function CrossoverVotingCallout({
-  ballotHasAdjudicatedCrossoverVote,
+  ballotHasCrossoverVoteAfterAdjudication,
   isBallotResolved,
 }: {
-  ballotHasAdjudicatedCrossoverVote: boolean;
+  ballotHasCrossoverVoteAfterAdjudication: boolean;
   isBallotResolved: boolean;
 }): JSX.Element | null {
   const { title, description } = (() => {
-    if (!ballotHasAdjudicatedCrossoverVote) {
+    if (!ballotHasCrossoverVoteAfterAdjudication) {
       return {
         title: 'Crossover Voting Resolved',
         description: 'Ballot no longer has votes for multiple parties.',
@@ -706,7 +713,8 @@ function CrossoverVotingCallout({
         'Votes detected for multiple parties. Votes in partisan contests will not be counted.',
     };
   })();
-  const isAdjudicated = !ballotHasAdjudicatedCrossoverVote || isBallotResolved;
+  const isAdjudicated =
+    !ballotHasCrossoverVoteAfterAdjudication || isBallotResolved;
   return (
     <CalloutContainer>
       <Callout color={isAdjudicated ? 'primary' : 'warning'}>

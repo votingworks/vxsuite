@@ -640,7 +640,7 @@ export function BallotAdjudicationScreen({
     AdjudicationReason.Undervote
   );
 
-  const hasCrossoverVoteWithAdjudication = hasCrossoverVote(
+  const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
     adjudicatedVotes(allContests, adjudicatedContests)
   );
@@ -712,14 +712,14 @@ export function BallotAdjudicationScreen({
       cvrTag.hasCrossoverVote,
       item
     );
-    const contestHasAdjudicatedCrossoverVote = isContestCrossoverVoted(
-      hasCrossoverVoteWithAdjudication,
+    const contestHasCrossoverVoteAfterAdjudication = isContestCrossoverVoted(
+      ballotHasCrossoverVoteAfterAdjudication,
       item,
-      adjudicatedContests
+      adjudicatedContests.get(item.contest.id)
     );
     const crossoverVoteIsPending =
       contestHasScannedCrossoverVote &&
-      contestHasAdjudicatedCrossoverVote &&
+      contestHasCrossoverVoteAfterAdjudication &&
       !ballotAdjudicationData.isResolved;
     return crossoverVoteIsPending;
   })();
