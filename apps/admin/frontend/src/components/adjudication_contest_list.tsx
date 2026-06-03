@@ -16,15 +16,7 @@ import type {
   CvrTag,
 } from '@votingworks/admin-backend';
 import { find } from '@votingworks/basics';
-import {
-  Button,
-  Callout,
-  Caption,
-  Font,
-  FontProps,
-  Icons,
-  P,
-} from '@votingworks/ui';
+import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
 import { hasCrossoverVote } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import { EntityList } from './entity_list';
@@ -91,7 +83,6 @@ function StatusLine({
   icon,
   children,
   color,
-  weight = 'semiBold',
   ...fontProps
 }: FontProps &
   React.PropsWithChildren<{
@@ -99,7 +90,7 @@ function StatusLine({
     color?: 'primary';
   }>) {
   return (
-    <StatusCaption color={color} weight={weight} {...fontProps}>
+    <StatusCaption color={color} {...fontProps}>
       {icon} {children}
     </StatusCaption>
   );
@@ -172,10 +163,10 @@ function getAdjudicatedContestStatusLine(
 
   if (originalStatus === adjudicatedStatus) {
     if (originalStatus === 'overvote') {
-      return <StatusLineConfirmed>Overvote Confirmed</StatusLineConfirmed>;
+      return <StatusLineConfirmed>Overvote confirmed</StatusLineConfirmed>;
     }
     if (originalStatus === 'undervote' && showUndervoteStatus) {
-      return <StatusLineConfirmed>Undervote Confirmed</StatusLineConfirmed>;
+      return <StatusLineConfirmed>Undervote confirmed</StatusLineConfirmed>;
     }
     return null;
   }
@@ -185,24 +176,24 @@ function getAdjudicatedContestStatusLine(
     if (adjudicatedStatus === 'undervote' && showUndervoteStatus) {
       return (
         <StatusLineWarning>
-          Overvote Resolved; Undervote Created
+          Overvote resolved; undervote created
         </StatusLineWarning>
       );
     }
-    return <StatusLineConfirmed>Overvote Resolved</StatusLineConfirmed>;
+    return <StatusLineConfirmed>Overvote resolved</StatusLineConfirmed>;
   }
 
   // New overvote
   if (adjudicatedStatus === 'overvote') {
-    return <StatusLineWarning>Overvote Created</StatusLineWarning>;
+    return <StatusLineWarning>Overvote created</StatusLineWarning>;
   }
 
   // Undervote transitions only if enabled
   if (showUndervoteStatus) {
     if (originalStatus === 'undervote' && adjudicatedStatus !== 'undervote') {
-      return <StatusLineConfirmed>Undervote Resolved</StatusLineConfirmed>;
+      return <StatusLineConfirmed>Undervote resolved</StatusLineConfirmed>;
     }
-    return <StatusLineWarning>Undervote Created</StatusLineWarning>;
+    return <StatusLineWarning>Undervote created</StatusLineWarning>;
   }
 }
 
@@ -233,21 +224,19 @@ function getAdjudicatedOptionStatusLine(
       writeInRecord.isUnmarked ||
       writeInRecord.isUndetected ||
       hasMarginalMark
-        ? 'Ambiguous Write-In'
-        : 'Write-In';
+        ? 'Ambiguous write-in'
+        : 'Write-in';
 
     if (candidateName) {
       return (
         <StatusLineAdjudicated>
-          <Font weight="semiBold">{writeInPrefix} </Font>adjudicated for
-          <Font weight="semiBold"> {candidateName}</Font>
+          {writeInPrefix} adjudicated for {candidateName}
         </StatusLineAdjudicated>
       );
     }
     return (
       <StatusLineAdjudicated>
-        <Font weight="semiBold">{writeInPrefix} </Font>adjudicated as
-        <Font weight="semiBold"> Invalid</Font>
+        {writeInPrefix} adjudicated as invalid
       </StatusLineAdjudicated>
     );
   }
@@ -255,26 +244,20 @@ function getAdjudicatedOptionStatusLine(
   const currentVote = getCurrentVote(option, adjudicatedOption);
 
   if (hasMarginalMark) {
-    const newValue = currentVote ? 'Valid' : 'Invalid';
+    const newValue = currentVote ? 'valid' : 'invalid';
     return (
       <StatusLineAdjudicated>
-        <Font weight="semiBold">Marginal Mark </Font>for
-        <Font weight="semiBold"> {definition.name} </Font>
-        adjudicated as
-        <Font weight="semiBold"> {newValue}</Font>
+        Marginal mark for {definition.name} adjudicated as {newValue}
       </StatusLineAdjudicated>
     );
   }
 
   if (currentVote !== scannedVote) {
-    const preface = currentVote ? 'Undetected Mark' : 'Mark';
-    const newValue = currentVote ? 'Valid' : 'Invalid';
+    const preface = currentVote ? 'Undetected mark' : 'Mark';
+    const newValue = currentVote ? 'valid' : 'invalid';
     return (
       <StatusLineAdjudicated>
-        <Font weight="semiBold">{preface} </Font>for
-        <Font weight="semiBold"> {definition.name} </Font>
-        adjudicated as
-        <Font weight="semiBold"> {newValue}</Font>
+        {preface} for {definition.name} adjudicated as {newValue}
       </StatusLineAdjudicated>
     );
   }

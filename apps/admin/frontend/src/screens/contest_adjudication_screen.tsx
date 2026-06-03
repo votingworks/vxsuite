@@ -14,7 +14,7 @@ import {
   Id,
   Side,
 } from '@votingworks/types';
-import { Button, Main, Screen, Font, Icons, H2, H1, P } from '@votingworks/ui';
+import { Button, Main, Screen, Icons, H2, H1, P } from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
   AdjudicatedContestOptions,
@@ -177,24 +177,23 @@ function renderContestOptionButtonCaption({
         marginalMarkStatus === 'resolved') &&
         !isWriteInPending(writeInStatus));
     if (isAmbiguousAndAdjudicated) {
-      originalValueStr = 'Ambiguous Write-In';
+      originalValueStr = 'Ambiguous write-in';
     } else if (scannedVote && isWriteInInvalid(writeInStatus)) {
-      originalValueStr = 'Write-In';
+      originalValueStr = 'Write-in';
     }
   } else if (marginalMarkStatus === 'resolved') {
-    originalValueStr = 'Marginal Mark';
+    originalValueStr = 'Marginal mark';
   } else if (scannedVote !== currentVote) {
-    originalValueStr = scannedVote ? 'Mark' : 'Undetected Mark';
+    originalValueStr = scannedVote ? 'Mark' : 'Undetected mark';
   }
 
   if (!originalValueStr) {
     return null;
   }
-  const newValueStr = currentVote ? 'Valid' : 'Invalid';
+  const newValueStr = currentVote ? 'valid' : 'invalid';
   return (
     <ContestOptionButtonCaption>
-      <Font weight="semiBold">{originalValueStr} </Font>adjudicated as
-      <Font weight="semiBold"> {newValueStr}</Font>
+      {originalValueStr} adjudicated as {newValueStr}
     </ContestOptionButtonCaption>
   );
 }
