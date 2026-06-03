@@ -372,3 +372,20 @@ export const saveReadinessReport = {
     return useMutation(apiClient.saveReadinessReport);
   },
 } as const;
+
+export const getTestDeckBallotCount = {
+  queryKey(): QueryKey {
+    return ['getTestDeckBallotCount'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getTestDeckBallotCount());
+  },
+} as const;
+
+export const printTestDeck = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestDeck);
+  },
+} as const;

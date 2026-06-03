@@ -27,11 +27,13 @@ import { assertDefined, find } from '@votingworks/basics';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';
+import { PrintTestDeckButton } from '../components/print_test_deck_button';
 import {
   getDeviceStatuses,
   getElectionRecord,
   getPollingPlaceId,
   getPrecinctSelection,
+  getTestDeckBallotCount,
   printBallot,
 } from '../api';
 import { getPartyOptions } from '../utils';
@@ -137,6 +139,7 @@ export function PrintScreen({
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getTestDeckBallotCountQuery = getTestDeckBallotCount.useQuery();
   const configuredPrecinct = getConfiguredPrecinctQuery.data;
   const pollingPlaceId = getPollingPlaceId.useQuery().data;
 
@@ -172,7 +175,8 @@ export function PrintScreen({
   if (
     !getElectionRecordQuery.isSuccess ||
     !getConfiguredPrecinctQuery.isSuccess ||
-    !getDeviceStatusesQuery.isSuccess
+    !getDeviceStatusesQuery.isSuccess ||
+    !getTestDeckBallotCountQuery.isSuccess
   ) {
     return null;
   }
@@ -200,6 +204,7 @@ export function PrintScreen({
       ? selectedPrecinct.splits
       : [];
   const hideSplitSelection = availableSplits.length === 0;
+  const testDeckBallotCount = getTestDeckBallotCountQuery.data ?? 0;
 
   function handlePrint() {
     setIsShowingPrintingModal(true);
@@ -225,7 +230,12 @@ export function PrintScreen({
           title="Print"
           actions={
             isElectionManagerAuth ? (
-              <PrintAllButton disabled={!printer.connected} />
+              <React.Fragment>
+                {(testDeckBallotCount ?? 0) > 0 && (
+                  <PrintTestDeckButton disabled={!printer.connected} />
+                )}
+                <PrintAllButton disabled={!printer.connected} />
+              </React.Fragment>
             ) : undefined
           }
         />
