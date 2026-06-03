@@ -1191,30 +1191,30 @@ test('contest list shows correct status line captions', async () => {
     return screen.getAllByText(name).map((el) => within(el.closest('li')!));
   }
 
-  // best-animal-mammal: Overvote Confirmed
+  // best-animal-mammal: Overvote confirmed
   const [bestAnimalMammal, bestAnimalFish] = contestItems('Best Animal');
-  bestAnimalMammal.getByText('Overvote Confirmed');
+  bestAnimalMammal.getByText('Overvote confirmed');
 
-  // best-animal-fish: Undervote Confirmed
-  bestAnimalFish.getByText('Undervote Confirmed');
+  // best-animal-fish: Undervote confirmed
+  bestAnimalFish.getByText('Undervote confirmed');
 
-  // zoo-council-mammal: Overvote Resolved
+  // zoo-council-mammal: Overvote resolved
   const [zooCouncil, aquariumCouncil] = contestItems('Zoo Council');
-  zooCouncil.getByText('Overvote Resolved');
+  zooCouncil.getByText('Overvote resolved');
 
-  // aquarium-council-fish: Overvote Resolved; Undervote Created
-  aquariumCouncil.getByText('Overvote Resolved; Undervote Created');
+  // aquarium-council-fish: Overvote resolved; undervote created
+  aquariumCouncil.getByText('Overvote resolved; undervote created');
 
-  // new-zoo-either: Overvote Created
-  getContestListItem('Ballot Measure 1 - Part 1').getByText('Overvote Created');
+  // new-zoo-either: Overvote created
+  getContestListItem('Ballot Measure 1 - Part 1').getByText('Overvote created');
 
-  // new-zoo-pick: Undervote Resolved
+  // new-zoo-pick: Undervote resolved
   getContestListItem('Ballot Measure 1 - Part 2').getByText(
-    'Undervote Resolved'
+    'Undervote resolved'
   );
 
-  // fishing: Undervote Created
-  getContestListItem('Ballot Measure 3').getByText('Undervote Created');
+  // fishing: Undervote created
+  getContestListItem('Ballot Measure 3').getByText('Undervote created');
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
@@ -1259,16 +1259,16 @@ test('contest list suppresses undervote captions when not in system settings', a
   await screen.findByText('Best Animal');
 
   // Overvote caption still shows
-  getContestListItem('Best Animal').getByText('Overvote Confirmed');
+  getContestListItem('Best Animal').getByText('Overvote confirmed');
 
   // Undervote captions are suppressed
   expect(
     getContestListItem('Ballot Measure 1 - Part 2').queryByText(
-      'Undervote Resolved'
+      'Undervote resolved'
     )
   ).toBeNull();
   expect(
-    getContestListItem('Ballot Measure 3').queryByText('Undervote Created')
+    getContestListItem('Ballot Measure 3').queryByText('Undervote created')
   ).toBeNull();
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
@@ -1473,30 +1473,30 @@ test('contest list shows correct option resolution bullets', async () => {
   }
 
   // Zoo Council: write-in bullets
-  findTextInContest('Zoo Council', 'Write-In adjudicated for Zebra');
+  findTextInContest('Zoo Council', 'Write-in adjudicated for Zebra');
   findTextInContest(
     'Zoo Council',
-    `Write-In adjudicated for ${WRITE_IN_CANDIDATE_NAME}`
+    `Write-in adjudicated for ${WRITE_IN_CANDIDATE_NAME}`
   );
-  findTextInContest('Zoo Council', 'Write-In adjudicated as Invalid');
-  findTextInContest('Zoo Council', 'Ambiguous Write-In adjudicated as Invalid');
+  findTextInContest('Zoo Council', 'Write-in adjudicated as invalid');
+  findTextInContest('Zoo Council', 'Ambiguous write-in adjudicated as invalid');
 
   // Zoo Council: marginal mark bullets
   findTextInContest(
     'Zoo Council',
-    'Marginal Mark for Zebra adjudicated as Valid'
+    'Marginal mark for Zebra adjudicated as valid'
   );
   findTextInContest(
     'Zoo Council',
-    'Marginal Mark for Lion adjudicated as Invalid'
+    'Marginal mark for Lion adjudicated as invalid'
   );
 
   // Best Animal: vote adjudication bullets
   findTextInContest(
     'Best Animal',
-    'Undetected Mark for Horse adjudicated as Valid'
+    'Undetected mark for Horse adjudicated as valid'
   );
-  findTextInContest('Best Animal', 'Mark for Otter adjudicated as Invalid');
+  findTextInContest('Best Animal', 'Mark for Otter adjudicated as invalid');
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
