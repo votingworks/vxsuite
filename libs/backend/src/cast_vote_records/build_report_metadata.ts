@@ -6,6 +6,7 @@ import {
   CVR,
   DistrictContest,
   Election,
+  ScannerType,
   YesNoContest,
 } from '@votingworks/types';
 
@@ -228,8 +229,9 @@ export function buildCastVoteRecordReportMetadata({
 export function buildBatchManifest(p: {
   batches: BatchInfo[];
   scannerId: string;
+  scannerType?: ScannerType;
 }): CastVoteRecordBatchMetadata[] {
-  return p.batches.map((batch) => ({
+  return p.batches.map<CastVoteRecordBatchMetadata>((batch) => ({
     id: batch.id,
     label: batch.label,
     batchNumber: batch.batchNumber,
@@ -239,5 +241,6 @@ export function buildBatchManifest(p: {
     scannerId: p.scannerId,
     ballotCastingMode: batch.ballotCastingMode,
     pollingPlaceId: batch.pollingPlaceId,
+    scannerType: p.scannerType,
   }));
 }

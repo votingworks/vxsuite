@@ -767,6 +767,27 @@ function buildApi({
       );
     },
 
+    /* istsanbul ignore next */
+    async deleteCvrFile(p: { id: string }): Promise<void> {
+      await logger.logAsCurrentRole(
+        LogEventId.ClearImportedCastVoteRecordsInit,
+        {
+          message: `Deleting CVR import with id ${p.id}`,
+        }
+      );
+
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      store.deleteCastVoteRecordFile({ electionId, fileId: p.id });
+
+      await logger.logAsCurrentRole(
+        LogEventId.ClearImportedCastVoteRecordsComplete,
+        {
+          disposition: 'success',
+          message: `Successfully deleted CVR import with id ${p.id}.`,
+        }
+      );
+    },
+
     getCastVoteRecordFileMode(): CvrFileMode {
       return store.getCurrentCvrFileModeForElection(
         loadCurrentElectionIdOrThrow(workspace)

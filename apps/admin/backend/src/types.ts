@@ -22,6 +22,7 @@ import {
   BallotCastingMode,
   ContestOption,
   UserRole,
+  ScannerType,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 
@@ -75,6 +76,8 @@ export interface CastVoteRecordFileMetadata {
   readonly path: string;
   readonly cvrCount: number;
   readonly scannerIds: readonly string[];
+  readonly scannerTypes?: readonly ScannerType[];
+  readonly pollingPlaceIds?: readonly string[];
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
 }
@@ -87,6 +90,7 @@ export interface ScannerBatch extends Tabulation.ScannerBatch {
   electionId: string;
   ballotCastingMode?: BallotCastingMode;
   startedAt: string;
+  scannerType?: ScannerType;
 }
 
 /**
@@ -139,8 +143,10 @@ export interface CastVoteRecordFileRecord {
   readonly filename: string;
   readonly exportTimestamp: Iso8601Timestamp;
   readonly numCvrsImported: number;
+  readonly pollingPlaceIds?: string[];
   readonly precinctIds: string[];
   readonly scannerIds: string[];
+  readonly scannerTypes?: ScannerType[];
   readonly sha256Hash: string;
   readonly createdAt: Iso8601Timestamp;
 }
@@ -156,7 +162,9 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     exportTimestamp: Iso8601TimestampSchema,
     numCvrsImported: z.number(),
     precinctIds: z.array(z.string()),
+    pollingPlaceIds: z.array(z.string()).optional(),
     scannerIds: z.array(z.string()),
+    scannerTypes: z.array(z.enum(['central', 'precinct'])).optional(),
     sha256Hash: z.string().nonempty(),
     createdAt: Iso8601TimestampSchema,
   });

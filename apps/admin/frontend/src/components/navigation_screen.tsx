@@ -273,3 +273,39 @@ export function NavigationScreen({
     </Screen>
   );
 }
+
+export interface NavScreenLiteProps {
+  children: React.ReactNode;
+}
+
+export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
+  const { usbDriveStatus, auth, machineMode } = useContext(AppContext);
+  const logOutMutation = sharedLogOut.useMutation();
+  const ejectUsbDriveMutation = sharedEjectUsbDrive.useMutation();
+  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
+
+  return (
+    <Screen flexDirection="row">
+      <Sidebar navItems={getNavItems(machineMode, auth)} />
+      <Main flexColumn>
+        {shouldShowToolbar(machineMode, auth) && (
+          <Toolbar>
+            {machineMode === 'host' && <HostNetworkStatusIndicator />}
+            {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
+              <BatteryStatus batteryInfo={batteryInfoQuery.data} />
+            )}
+            <DateTimeDisplay />
+            <UsbEjectButton
+              usbDriveStatus={usbDriveStatus}
+              onEject={() => ejectUsbDriveMutation.mutate()}
+              isEjecting={ejectUsbDriveMutation.isLoading}
+            />
+            <LockMachineButton onLock={() => logOutMutation.mutate()} />
+          </Toolbar>
+        )}
+        <SessionTimeLimitTimer authStatus={auth} />
+        {children}
+      </Main>
+    </Screen>
+  );
+}

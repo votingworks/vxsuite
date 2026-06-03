@@ -391,6 +391,9 @@ importers:
       identity-obj-proxy:
         specifier: 3.0.0
         version: 3.0.0
+      jotai:
+        specifier: 2.19.1
+        version: 2.19.1(@babel/core@7.22.9)(@babel/template@7.28.6)(@types/react@18.3.3)(react@18.3.1)
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
@@ -13037,6 +13040,24 @@ packages:
 
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
+
+  jotai@2.19.1:
+    resolution: {integrity: sha512-sqm9lVZiqBHZH8aSRk32DSiZDHY3yUIlulXYn9GQj7/LvoUdYXSMti7ZPJGo+6zjzKFt5a25k/I6iBCi43PJcw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@babel/core': '>=7.0.0'
+      '@babel/template': '>=7.0.0'
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@babel/template':
+        optional: true
+      '@types/react':
+        optional: true
+      react:
+        optional: true
 
   jpeg-exif@1.1.4:
     resolution: {integrity: sha512-a+bKEcCjtuW5WTdgeXFzswSrdqi0jk4XlEtZlx5A94wCoBpFjfFTbo/Tra5SpNCl/YFZPvcV1dJc+TAYeg6ROQ==}
@@ -25791,6 +25812,13 @@ snapshots:
       '@panva/asn1.js': 1.0.0
 
   jose@4.15.9: {}
+
+  jotai@2.19.1(@babel/core@7.22.9)(@babel/template@7.28.6)(@types/react@18.3.3)(react@18.3.1):
+    optionalDependencies:
+      '@babel/core': 7.22.9
+      '@babel/template': 7.28.6
+      '@types/react': 18.3.3
+      react: 18.3.1
 
   jpeg-exif@1.1.4: {}
 

@@ -5,6 +5,8 @@ interface Props {
 }
 
 export const Screen = styled.div<Props>`
+  --grid-gap: 0.5rem;
+
   display: flex;
   flex-direction: ${({ flexDirection = 'column' }) => flexDirection};
   height: 100%;

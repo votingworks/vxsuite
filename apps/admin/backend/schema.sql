@@ -56,7 +56,7 @@ create table ballot_styles_to_precincts(
     on delete cascade
 );
 
-create index idx_ballot_styles_to_precincts_precinct_id on 
+create index idx_ballot_styles_to_precincts_precinct_id on
   ballot_styles_to_precincts(election_id, precinct_id);
 
 create table ballot_styles_to_districts(
@@ -68,7 +68,7 @@ create table ballot_styles_to_districts(
     on delete cascade
 );
 
-create index idx_ballot_styles_to_districts_district_id on 
+create index idx_ballot_styles_to_districts_district_id on
   ballot_styles_to_districts(election_id, district_id);
 
 create table contests(
@@ -136,7 +136,7 @@ create table cvrs (
   election_id varchar(36) not null,
   ballot_id varchar(36) not null,
   ballot_style_group_id text not null,
-  ballot_type text not null 
+  ballot_type text not null
     check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
   batch_id text not null,
   precinct_id text not null,
@@ -165,6 +165,7 @@ create table scanner_batches (
   id text not null,
   label text not null,
   scanner_id text not null,
+  scanner_type text check (scanner_type is null or scanner_type = 'central' or scanner_type = 'precinct'),
   election_id varchar(36) not null,
   ballot_casting_mode text check (ballot_casting_mode is null or ballot_casting_mode = 'early_voting' or ballot_casting_mode = 'election_day'),
   started_at datetime not null,
@@ -181,6 +182,8 @@ create table cvr_files (
   export_timestamp timestamp not null,
   precinct_ids text not null,
   scanner_ids text not null,
+  scanner_types text not null,
+  polling_place_ids text not null,
   sha256_hash text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
@@ -248,7 +251,7 @@ create table diagnostics (
   outcome text not null check (outcome = 'pass' or outcome = 'fail'),
   message text,
   timestamp number not null
-);  
+);
 
 create table machines (
   machine_id text primary key,
@@ -284,7 +287,7 @@ create trigger cvr_file_added after insert on cvr_files
 begin
   insert into data_versions (election_id, cvrs_data_version)
     values (new.election_id, 1)
-  on conflict (election_id) do update set 
+  on conflict (election_id) do update set
     cvrs_data_version = data_versions.cvrs_data_version + 1;
 end;
 

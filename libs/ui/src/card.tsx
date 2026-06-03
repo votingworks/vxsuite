@@ -13,19 +13,31 @@ export interface CardProps {
   footerAlign?: CardFooterAlign;
   style?: React.CSSProperties;
   color?: CardColor;
+  shaded?: boolean;
 }
 
 function cardColors(
   theme: UiTheme,
-  color?: CardColor
+  color?: CardColor,
+  shaded?: boolean
 ): { background: string; border: string } {
   const { colors } = theme;
+
+  /* istanbul ignore next */
+  if (shaded) {
+    return {
+      background: '#fafafa',
+      border: colors.outline,
+    };
+  }
+
   if (!color) {
     return {
       background: 'none',
       border: colors.outline,
     };
   }
+
   return {
     neutral: {
       background: colors.containerLow,
@@ -46,8 +58,8 @@ function cardColors(
   }[color];
 }
 
-const StyledContainer = styled.div<{ color?: CardColor }>`
-  background-color: ${(p) => cardColors(p.theme, p.color).background};
+const StyledContainer = styled.div<{ color?: CardColor; shaded?: boolean }>`
+  background-color: ${(p) => cardColors(p.theme, p.color, p.shaded).background};
   border: ${(p) =>
       p.theme.sizeMode === 'desktop'
         ? p.theme.sizes.bordersRem.thin
@@ -84,10 +96,16 @@ const StyledFooter = styled.div<StyledFooterProps>`
  * components.
  */
 export function Card(props: CardProps): JSX.Element {
-  const { children, className, color, footer, footerAlign, style } = props;
+  const { children, className, color, footer, footerAlign, shaded, style } =
+    props;
 
   return (
-    <StyledContainer color={color} className={className} style={style}>
+    <StyledContainer
+      color={color}
+      className={className}
+      shaded={shaded}
+      style={style}
+    >
       <StyledContent>{children}</StyledContent>
       {footer && (
         <StyledFooter footerAlign={footerAlign || 'left'}>

@@ -1024,6 +1024,7 @@ const Container = styled.div`
     /* Move the handle down a bit to compensate for sliding up extra to hide the
      * shadow */
     #handle {
+      opacity: 0.2;
       top: 60px;
     }
   }
