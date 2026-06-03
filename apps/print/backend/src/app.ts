@@ -26,13 +26,18 @@ import {
 } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
+  generateTestDeckBallots,
+  generateTestDeckCastVoteRecords,
   getPrecinctSelectionName,
+  getTallyReportResults,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
-import { PrintProps, PrintSides } from '@votingworks/printing';
+import { PrintProps, PrintSides, renderToPdf } from '@votingworks/printing';
+import { AdminTallyReportByParty } from '@votingworks/ui';
+import { generateMarkOverlay } from '@votingworks/hmpb';
 import { AppContext } from './context';
 import { constructAuthMachineState } from './util/auth';
 import {
@@ -44,6 +49,7 @@ import { saveReadinessReport } from './reports/readiness';
 import { BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
+import { getCurrentTime } from './util/get_current_time';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: AppContext) {
@@ -514,6 +520,93 @@ export function buildApi(ctx: AppContext) {
 
     async saveReadinessReport(): Promise<ExportDataResult> {
       return saveReadinessReport({ workspace, printer, usbDrive, logger });
+    },
+
+    getTestDeckBallotCount(): number {
+      const electionRecord = store.getElectionRecord();
+      if (!electionRecord) return 0;
+      const { election } = electionRecord.electionDefinition;
+      if (election.state !== 'State of Mississippi' || !election.gridLayouts) {
+        return 0;
+      }
+      return election.precincts.flatMap((precinct) =>
+        generateTestDeckBallots({
+          election,
+          precinctId: precinct.id,
+          ballotFormat: 'bubble',
+        })
+      ).length;
+    },
+
+    async printTestDeck(): Promise<void> {
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
+      const { election } = electionDefinition;
+      const isTestMode = store.getTestMode();
+      const ballotMode = isTestMode ? 'test' : 'official';
+
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        message: `Attempting to print test deck`,
+        disposition: 'success',
+      });
+
+      for (const precinct of election.precincts) {
+        const specs = generateTestDeckBallots({
+          election,
+          precinctId: precinct.id,
+          ballotFormat: 'bubble',
+        });
+        for (const spec of specs) {
+          const ballot = store.getBallot({
+            ballotStyleId: spec.ballotStyleId,
+            precinctId: spec.precinctId,
+            ballotType: BallotType.Precinct,
+            ballotMode,
+          });
+          /* istanbul ignore next */
+          if (!ballot) continue;
+          const basePdf = Uint8Array.from(
+            Buffer.from(ballot.encodedBallot, 'base64')
+          );
+          const hasVotes = Object.keys(spec.votes).length > 0;
+          const markedPdf = hasVotes
+            ? await generateMarkOverlay(
+                election,
+                spec.ballotStyleId,
+                spec.votes,
+                { offsetMmX: 0, offsetMmY: 0 },
+                basePdf
+              )
+            : basePdf;
+          await printBallots(electionDefinition, {
+            data: Buffer.from(markedPdf),
+            copies: 1,
+          });
+        }
+      }
+
+      const cvrs = generateTestDeckCastVoteRecords(election, {
+        includeSummaryBallots: false,
+      });
+      const tallyReportResults = await getTallyReportResults(election, cvrs);
+      const tallyReportPdf = (
+        await renderToPdf({
+          document: AdminTallyReportByParty({
+            electionDefinition,
+            electionPackageHash: undefined,
+            title: undefined,
+            isOfficial: false,
+            isTest: true,
+            isForLogicAndAccuracyTesting: true,
+            testId: 'vxprint-test-deck-tally-report',
+            tallyReportResults,
+            generatedAtTime: new Date(getCurrentTime()),
+          }),
+        })
+      ).unsafeUnwrap();
+      await printBallots(electionDefinition, {
+        data: Buffer.from(tallyReportPdf),
+        copies: 1,
+      });
     },
   } as const;
 

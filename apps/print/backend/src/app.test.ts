@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { generateMarkOverlay } from '@votingworks/hmpb';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
@@ -22,6 +23,7 @@ import {
 import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
+  generateTestDeckBallots,
   getFeatureFlagMock,
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -47,6 +49,14 @@ import { Workspace } from './util/workspace';
 const mockFeatureFlagger = getFeatureFlagMock();
 
 let batteryInfo: BatteryInfo | null = null;
+
+vi.mock(
+  import('@votingworks/hmpb'),
+  async (importActual): Promise<typeof import('@votingworks/hmpb')> => ({
+    ...(await importActual()),
+    generateMarkOverlay: vi.fn().mockResolvedValue(new Uint8Array()),
+  })
+);
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
@@ -889,4 +899,196 @@ test('getDistinctBallotStylesCount returns correct counts in official and test m
   ).toEqual(
     famousNamesMultiLangElectionDefinition.election.ballotStyles.length
   );
+});
+
+// Build ballot entries for every (ballotStyleId, precinctId) combination in
+// the election. buildBallotsForElection only covers precincts[0] per style,
+// which misses multi-precinct ballot styles — important for the MS election.
+async function buildAllBallotsForElection(
+  electionDefinition: ElectionDefinition,
+  ballotModes: ReadonlyArray<'official' | 'test'>
+): Promise<EncodedBallotEntry[]> {
+  const { election } = electionDefinition;
+  const pdfBase64s = await (async () => {
+    // Reuse the same ballot PDFs as buildBallotsForElection
+    const { resolve, join } = await import('node:path');
+    const baseDir = resolve(
+      process.cwd(),
+      '../../../libs/hmpb/fixtures/vx-famous-names'
+    );
+    const pdfs = await Promise.all([
+      readFile(join(baseDir, 'blank-ballot.pdf')),
+      readFile(join(baseDir, 'marked-ballot.pdf')),
+      readFile(join(baseDir, 'blank-official-ballot.pdf')),
+      readFile(join(baseDir, 'marked-official-ballot.pdf')),
+    ]);
+    return pdfs.map((p) => p.toString('base64'));
+  })();
+
+  const entries: EncodedBallotEntry[] = [];
+  let index = 0;
+  for (const ballotStyle of election.ballotStyles) {
+    for (const precinctId of ballotStyle.precincts) {
+      const encodedBallot = pdfBase64s[index % pdfBase64s.length];
+      index += 1;
+      for (const ballotMode of ballotModes) {
+        entries.push(
+          {
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            ballotType: BallotType.Precinct,
+            ballotMode,
+            encodedBallot,
+          },
+          {
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            ballotType: BallotType.Absentee,
+            ballotMode,
+            encodedBallot,
+          }
+        );
+      }
+    }
+  }
+  return entries;
+}
+
+async function makeMississippiElectionDefinition(): Promise<ElectionDefinition> {
+  const { resolve, join } = await import('node:path');
+  const msDir = resolve(
+    process.cwd(),
+    '../../../libs/hmpb/fixtures/ms-general-election'
+  );
+  const electionJson = JSON.parse(
+    await readFile(join(msDir, 'election.json'), 'utf-8')
+  );
+  electionJson.state = 'State of Mississippi';
+  return safeParseElectionDefinition(
+    JSON.stringify(electionJson)
+  ).unsafeUnwrap();
+}
+
+test('getTestDeckBallotCount returns 0 when election is not a Mississippi HMPB election', async () => {
+  const {
+    famousNamesMultiLangElectionDefinition,
+    famousNamesMultiLangOfficialBallots,
+  } = sharedFixtures;
+  await configureMachine({
+    electionDefinition: famousNamesMultiLangElectionDefinition,
+    ballots: famousNamesMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  expect(await apiClient.getTestDeckBallotCount()).toEqual(0);
+});
+
+test('getTestDeckBallotCount returns total number of test deck specs (including blank and overvote)', async () => {
+  const msElectionDef = await makeMississippiElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+    'test',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  const { election } = msElectionDef;
+  const allSpecs = election.precincts.flatMap((precinct) =>
+    generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      ballotFormat: 'bubble',
+    })
+  );
+  const blankSpecs = allSpecs.filter(
+    (spec) => Object.keys(spec.votes).length === 0
+  );
+  const votedSpecs = allSpecs.filter(
+    (spec) => Object.keys(spec.votes).length > 0
+  );
+  expect(blankSpecs.length).toBeGreaterThan(0);
+  expect(votedSpecs.length).toBeGreaterThan(0);
+  expect(await apiClient.getTestDeckBallotCount()).toEqual(allSpecs.length);
+});
+
+test('printTestDeck sends one print job per spec and calls generateMarkOverlay only for non-blank ballots', async () => {
+  const msElectionDef = await makeMississippiElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+    'test',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setTestMode({ testMode: true });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  const { election } = msElectionDef;
+  const allSpecs = election.precincts.flatMap((precinct) =>
+    generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      ballotFormat: 'bubble',
+    })
+  );
+  const nonBlankSpecCount = allSpecs.filter(
+    (spec) => Object.keys(spec.votes).length > 0
+  ).length;
+
+  vi.mocked(generateMarkOverlay).mockClear();
+  const jobsBefore = mockPrinterHandler.getPrintJobHistory().length;
+  await apiClient.printTestDeck();
+  const jobsAfter = mockPrinterHandler.getPrintJobHistory().length;
+
+  // +1 for the tally report printed at the end
+  expect(jobsAfter - jobsBefore).toEqual(allSpecs.length + 1);
+  expect(vi.mocked(generateMarkOverlay)).toHaveBeenCalledTimes(
+    nonBlankSpecCount
+  );
+});
+
+test('getTestDeckBallotCount returns 0 when no election is configured', async () => {
+  expect(await apiClient.getTestDeckBallotCount()).toEqual(0);
+});
+
+test('printTestDeck uses official ballot mode when not in test mode', async () => {
+  const msElectionDef = await makeMississippiElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  const { election } = msElectionDef;
+  const allSpecs = election.precincts.flatMap((precinct) =>
+    generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      ballotFormat: 'bubble',
+    })
+  );
+
+  const jobsBefore = mockPrinterHandler.getPrintJobHistory().length;
+  await apiClient.printTestDeck();
+  const jobsAfter = mockPrinterHandler.getPrintJobHistory().length;
+
+  // +1 for the tally report
+  expect(jobsAfter - jobsBefore).toEqual(allSpecs.length + 1);
 });
