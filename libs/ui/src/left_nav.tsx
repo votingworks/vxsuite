@@ -53,7 +53,7 @@ export function NavLink({
   isActive,
   ...linkButtonProps
 }: {
-  isActive: boolean;
+  isActive?: boolean;
 } & LinkButtonProps): JSX.Element {
   return (
     <NavLinkButton

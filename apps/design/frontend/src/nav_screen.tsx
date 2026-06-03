@@ -3,7 +3,6 @@ import { ElectionId } from '@votingworks/types';
 import {
   AppLogo,
   LeftNav as LeftNavBase,
-  LinkButton,
   Main,
   NavDivider,
   NavListItem,
@@ -166,14 +165,9 @@ export function ElectionNavScreen({
           )}
           <NavDivider />
           <NavListItem>
-            <LinkButton
-              to="/"
-              fill="transparent"
-              color="inverseNeutral"
-              icon="ChevronLeft"
-            >
+            <NavLink to="/" icon="ChevronLeft">
               All Elections
-            </LinkButton>
+            </NavLink>
           </NavListItem>
         </NavList>
       }
