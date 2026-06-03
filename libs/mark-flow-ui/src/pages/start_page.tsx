@@ -11,6 +11,7 @@ import {
   H1,
   NumberString,
   P,
+  ReadOnIdle,
   Seal,
 } from '@votingworks/ui';
 
@@ -52,8 +53,17 @@ const StartVotingButton = styled(Button)`
   animation: ${wobbleKeyframes} 10s linear infinite;
 `;
 
+const REPEAT_INTRO_AUDIO_PROMPT_DELAY_MS = 15_000;
+
 export interface StartPageProps {
   introAudioText: React.ReactNode;
+  /**
+   * Optional audio-only prompt, read whenever screen reader audio has been
+   * idle for {@link REPEAT_INTRO_AUDIO_PROMPT_DELAY_MS}, reminding the voter
+   * how to replay the intro instructions or start voting. When provided, the
+   * left arrow button on the accessible controller replays the intro audio.
+   */
+  repeatIntroAudioPrompt?: React.ReactNode;
   ballotStyleId?: BallotStyleId;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
@@ -68,6 +78,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
     contests,
     electionDefinition,
     introAudioText,
+    repeatIntroAudioPrompt,
     precinctId,
     onStart,
     VoterHelpScreen,
@@ -145,10 +156,19 @@ export function StartPage(props: StartPageProps): JSX.Element {
   return (
     <VoterScreen padded VoterHelpScreen={VoterHelpScreen}>
       <div style={{ margin: 'auto', padding: '0.5rem' }}>
-        <ReadOnLoad>
+        <ReadOnLoad
+          id={
+            repeatIntroAudioPrompt ? PageNavigationButtonId.PREVIOUS : undefined
+          }
+        >
           {electionInfo}
           <AudioOnly>{introAudioText}</AudioOnly>
         </ReadOnLoad>
+        {repeatIntroAudioPrompt && (
+          <ReadOnIdle delayMs={REPEAT_INTRO_AUDIO_PROMPT_DELAY_MS}>
+            {repeatIntroAudioPrompt}
+          </ReadOnIdle>
+        )}
         {startVotingButton}
       </div>
     </VoterScreen>
