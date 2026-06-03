@@ -30,6 +30,7 @@ import {
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
+  CandidatePartyList,
   electionStrings,
   RichText,
 } from '@votingworks/ui';
@@ -138,6 +139,10 @@ const VoteFor = styled.div`
 
 const CandidateName = styled.div`
   font-weight: bold;
+  font-size: 9pt;
+`;
+
+const CandidateParty = styled.div`
   font-size: 9pt;
 `;
 
@@ -278,10 +283,12 @@ function BallotPageFrame({
 
 function CandidateContest({
   contest,
+  election,
   ballotStyle,
   numContestColumns,
 }: {
   contest: CandidateContestStruct;
+  election: Election;
   ballotStyle: BallotStyle;
   numContestColumns: number;
 }) {
@@ -347,6 +354,14 @@ function CandidateContest({
                   <CandidateName>
                     {electionStrings.candidateName(candidate)}
                   </CandidateName>
+                  {election.type === 'general' && (
+                    <CandidateParty>
+                      <CandidatePartyList
+                        candidate={candidate}
+                        electionParties={election.parties}
+                      />
+                    </CandidateParty>
+                  )}
                 </div>
               </div>
             </li>
@@ -476,6 +491,7 @@ function Contest({
       return (
         <CandidateContest
           contest={contest}
+          election={election}
           ballotStyle={ballotStyle}
           numContestColumns={numContestColumns}
         />
