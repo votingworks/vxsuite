@@ -227,7 +227,7 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
   // the disk path by stripping the partition suffix and synthesize a disk entry.
   const diskDevPaths = new Set(diskDevices.map((d) => d.devname));
   for (const partition of partitionDevices) {
-    const diskDevPath = partition.devname.replace(/(p\d+|\d+)$/, '');
+    const diskDevPath = partition.devname.replace(/(?<=\d)p\d+$|\d+$/, '');
     if (diskDevPaths.has(diskDevPath)) continue;
 
     const partitionInfo: BlockDeviceInfo = {

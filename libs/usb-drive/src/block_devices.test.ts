@@ -381,6 +381,45 @@ describe('getAllUsbDrives', () => {
     ]);
   });
 
+  test('derives parent disk path for orphan partition on a p-suffixed disk', async () => {
+    // /dev/nvme0p1 → /dev/nvme0 is right, but /dev/sdp1 → /dev/sd is not.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdp1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-ABCDE',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdp1', mountpoint: '/media/vx/usb-drive-sdp1' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        devPath: '/dev/sdp',
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [
+          {
+            devPath: '/dev/sdp1',
+            mountpoint: '/media/vx/usb-drive-sdp1',
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
   test('excludes orphan partition with no parent disk that fails isDataUsbDrive', async () => {
     // Some USB card readers expose only a partition entry (not a parent disk)
     // in the udev database. If the partition is mounted outside /media, it
