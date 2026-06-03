@@ -3,7 +3,7 @@ import { mockKiosk } from '@votingworks/test-utils';
 
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   getByText as domGetByText,
@@ -188,6 +188,55 @@ describe('when USB is properly mounted', () => {
 
     userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows duplicate modal when loading an already-loaded export', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
+    apiMock.expectGetCastVoteRecordFiles([]);
+    apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
+
+    renderInAppContext(<ImportCvrFilesModal onClose={vi.fn()} />, {
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+      apiMock,
+    });
+    await screen.findByText('Load CVRs');
+
+    const tableRows = screen.getAllByTestId('table-row');
+    apiMock.apiClient.addCastVoteRecordFile
+      .expectCallWith({
+        path: '/tmp/machine_0002__10_ballots__2020-12-09_15-59-32.jsonl',
+      })
+      .resolves(ok({ ...mockCastVoteRecordImportInfo, wasExistingFile: true }));
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
+    apiMock.expectGetCastVoteRecordFiles([]);
+
+    userEvent.click(domGetByText(tableRows[0], 'Load'));
+    await screen.findByText('Duplicate Export');
+  });
+
+  test('shows error modal when import fails', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
+    apiMock.expectGetCastVoteRecordFiles([]);
+    apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
+
+    renderInAppContext(<ImportCvrFilesModal onClose={vi.fn()} />, {
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+      apiMock,
+    });
+    await screen.findByText('Load CVRs');
+
+    const tableRows = screen.getAllByTestId('table-row');
+    apiMock.apiClient.addCastVoteRecordFile
+      .expectCallWith({
+        path: '/tmp/machine_0002__10_ballots__2020-12-09_15-59-32.jsonl',
+      })
+      .resolves(err({ type: 'metadata-file-parse-error' }));
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
+    apiMock.expectGetCastVoteRecordFiles([]);
+
+    userEvent.click(domGetByText(tableRows[0], 'Load'));
+    await screen.findByText('Error');
+    screen.getByText(/Unable to parse metadata file/);
   });
 
   test('locks to live mode when live files have been loaded', async () => {
