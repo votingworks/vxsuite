@@ -247,6 +247,68 @@ test('scanner batches', () => {
   expect(store.getScannerBatches(electionId)).toEqual([]);
 });
 
+test('delete empty scanner batches', () => {
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const election = fixtures.readElection();
+  const ballotStyleGroups = getGroupedBallotStyles(election.ballotStyles);
+  const ballotStyleGroup = assertDefined(ballotStyleGroups[0]);
+
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = store.addElection({
+    electionData: fixtures.electionJson.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  const batchWithCvrs: ScannerBatch = {
+    electionId,
+    batchId: '1',
+    label: 'Batch 1',
+    scannerId: 'scanner-1',
+    startedAt: expect.any(String),
+  };
+
+  const contest = find(
+    election.contests,
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+
+  addMockCvrFileToStore({
+    electionId,
+    store,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: ballotStyleGroup.id,
+        batchId: batchWithCvrs.batchId,
+        scannerId: batchWithCvrs.scannerId,
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { [contest.id]: [contest.candidates[0]!.id] },
+        card: { type: 'bmd' },
+      },
+    ],
+  });
+
+  const emptyBatch: ScannerBatch = {
+    electionId,
+    batchId: '2',
+    label: 'Batch 2',
+    scannerId: 'scanner-2',
+    startedAt: '2024-11-05T09:00:00.000Z',
+  };
+
+  store.addScannerBatch(emptyBatch);
+
+  expect(store.getScannerBatches(electionId)).toEqual([
+    batchWithCvrs,
+    emptyBatch,
+  ]);
+
+  store.deleteEmptyScannerBatches(electionId);
+  expect(store.getScannerBatches(electionId)).toEqual([batchWithCvrs]);
+});
+
 test('getWriteInCandidates returns no candidates for an empty contestIds filter', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({

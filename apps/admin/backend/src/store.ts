@@ -1296,8 +1296,10 @@ export class Store implements BaseStore {
         delete from scanner_batches
         where election_id = ?
           and not exists (
-          select 1 from cvrs where id = cvrs.batch_id
-        )
+            select 1 from cvrs
+            where cvrs.batch_id = scanner_batches.id
+              and cvrs.election_id = scanner_batches.election_id
+          )
       `,
       electionId
     );
