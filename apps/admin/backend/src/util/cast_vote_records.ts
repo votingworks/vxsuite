@@ -85,8 +85,8 @@ export function getCastVoteRecordAdjudicationFlags(
 
 /**
  * Determines whether a CVR needs adjudication based on its flags and the
- * election's adjudication reasons. Write-ins always need adjudication;
- * other flags are gated on system settings.
+ * election's adjudication reasons. Write-ins and crossover votes always need
+ * adjudication; other flags are gated on system settings.
  */
 export function doesCvrNeedAdjudication(
   adjudicationFlags: CastVoteRecordAdjudicationFlags,
@@ -94,6 +94,7 @@ export function doesCvrNeedAdjudication(
 ): boolean {
   return (
     adjudicationFlags.hasWriteIn ||
+    adjudicationFlags.hasCrossoverVote ||
     (adjudicationFlags.hasMarginalMark &&
       adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) ||
     (adjudicationFlags.hasOvervote &&

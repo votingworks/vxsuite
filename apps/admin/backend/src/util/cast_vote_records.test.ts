@@ -363,6 +363,12 @@ test('doesCvrNeedAdjudication - write-in always needs adjudication', () => {
   ).toEqual(true);
 });
 
+test('doesCvrNeedAdjudication - crossover vote always needs adjudication', () => {
+  expect(
+    doesCvrNeedAdjudication({ ...NO_FLAGS, hasCrossoverVote: true }, [])
+  ).toEqual(true);
+});
+
 test('doesCvrNeedAdjudication - marginal mark with reason enabled', () => {
   expect(
     doesCvrNeedAdjudication({ ...NO_FLAGS, hasMarginalMark: true }, [

@@ -10,7 +10,7 @@ import {
   Side,
   SystemSettings,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format, hasCrossoverVote } from '@votingworks/utils';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -45,6 +45,8 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
 import {
+  adjudicatedVotes,
+  isContestCrossoverVoted,
   isContestResolved,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
@@ -251,7 +253,7 @@ function HostBallotAdjudicationScreen({
           setBallotData({
             cvrId: nextCvrId,
             contests: [],
-            tag: { isBlankBallot: false },
+            tag: { isBlankBallot: false, hasCrossoverVote: false },
             isResolved: false,
             adjudicatedContests: [],
           });
@@ -534,6 +536,7 @@ export function BallotAdjudicationScreen({
     contestAdjudicationData,
     election
   );
+  const allContests = [...frontContests, ...backContests];
 
   function getDefaultSide(
     adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
@@ -579,10 +582,7 @@ export function BallotAdjudicationScreen({
       writeInCandidates.map((c) => c.contestId)
     );
 
-    for (const { adjudicationData: contest } of [
-      ...frontContests,
-      ...backContests,
-    ]) {
+    for (const { adjudicationData: contest } of allContests) {
       if (baseline.has(contest.contestId)) continue;
       const { tag } = contest;
       if (!tag) continue;
@@ -640,11 +640,16 @@ export function BallotAdjudicationScreen({
     AdjudicationReason.Undervote
   );
 
-  const allResolved =
+  const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
+    election,
+    adjudicatedVotes(allContests, adjudicatedContests)
+  );
+
+  const allContestAdjudicationsResolved =
     contestAdjudicationData.every((c) =>
       isContestResolved(c, adjudicatedContests)
     ) ||
-    (cvrTag?.isBlankBallot &&
+    (cvrTag.isBlankBallot &&
       contestAdjudicationData.every(
         (c) =>
           isContestResolved(c, adjudicatedContests) ||
@@ -659,7 +664,7 @@ export function BallotAdjudicationScreen({
   );
 
   function onAcceptAndNext(): void {
-    if (!allResolved) {
+    if (!allContestAdjudicationsResolved) {
       setShowConfirmModal(true);
       return;
     }
@@ -699,11 +704,24 @@ export function BallotAdjudicationScreen({
 
   const hoveredContestHasWarning = (() => {
     if (!hoveredContestId) return false;
-    const item = find(
-      [...frontContests, ...backContests],
-      (i) => i.contest.id === hoveredContestId
+    const item = find(allContests, (i) => i.contest.id === hoveredContestId);
+    if (!isContestResolved(item.adjudicationData, adjudicatedContests)) {
+      return true;
+    }
+    const contestHasScannedCrossoverVote = isContestCrossoverVoted(
+      cvrTag.hasCrossoverVote,
+      item
     );
-    return !isContestResolved(item.adjudicationData, adjudicatedContests);
+    const contestHasCrossoverVoteAfterAdjudication = isContestCrossoverVoted(
+      ballotHasCrossoverVoteAfterAdjudication,
+      item,
+      adjudicatedContests.get(item.contest.id)
+    );
+    const crossoverVoteIsPending =
+      contestHasScannedCrossoverVote &&
+      contestHasCrossoverVoteAfterAdjudication &&
+      !ballotAdjudicationData.isResolved;
+    return crossoverVoteIsPending;
   })();
 
   if (selectedContestId && !isClaimed) {
@@ -793,7 +811,7 @@ export function BallotAdjudicationScreen({
               cvrTag={cvrTag}
               election={election}
               frontContests={frontContests}
-              isResolved={ballotAdjudicationData.isResolved}
+              isBallotResolved={ballotAdjudicationData.isResolved}
               onHover={onContestHover}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onSelectSide={setSelectedSide}
@@ -832,7 +850,9 @@ export function BallotAdjudicationScreen({
                     icon="Done"
                     onPress={onAcceptAndNext}
                     disabled={hasUnresolvedWriteIns || isClaimInFlight}
-                    variant={allResolved ? 'primary' : 'neutral'}
+                    variant={
+                      allContestAdjudicationsResolved ? 'primary' : 'neutral'
+                    }
                   >
                     Accept
                   </PrimaryNavButton>

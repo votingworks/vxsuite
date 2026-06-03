@@ -8,6 +8,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import {
+  electionOpenPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
@@ -945,4 +946,62 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
 
   // The cvr is marked resolved.
   expect(store.isCvrAdjudicated({ cvrId })).toEqual(true);
+});
+
+test('open primary crossover vote', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const { electionData } = electionOpenPrimaryFixtures.readElectionDefinition();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const cvrMetadata = {
+    ballotStyleGroupId: 'ballot-style-1',
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    precinctId: 'precinct-1',
+    votingMethod: 'precinct',
+    card: { type: 'bmd' },
+  } as const;
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ...cvrMetadata,
+      // Crossover: votes in both Dem and Rep partisan contests.
+      votes: {
+        'governor-democratic': ['alice-jones'],
+        'governor-republican': ['dave-wilson'],
+      },
+      multiplier: 1,
+    },
+    {
+      ...cvrMetadata,
+      // Single-party Dem.
+      votes: { 'governor-democratic': ['alice-jones'] },
+      multiplier: 1,
+    },
+  ];
+  const [crossoverCvrId, singlePartyCvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(crossoverCvrId !== undefined);
+  assert(singlePartyCvrId !== undefined);
+
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).toContain(crossoverCvrId);
+  expect(queue).not.toContain(singlePartyCvrId);
+  const metadata = store.getBallotAdjudicationQueueMetadata({ electionId });
+  expect(metadata).toEqual({ totalTally: 1, pendingTally: 1 });
+  expect(
+    store.getBallotAdjudicationData({ electionId, cvrId: crossoverCvrId }).tag
+  ).toEqual({ isBlankBallot: false, hasCrossoverVote: true });
+  expect(
+    store.getBallotAdjudicationData({ electionId, cvrId: singlePartyCvrId }).tag
+  ).toEqual({ isBlankBallot: false, hasCrossoverVote: false });
 });

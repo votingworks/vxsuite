@@ -25,9 +25,14 @@ import {
   Icons,
   P,
 } from '@votingworks/ui';
+import { hasCrossoverVote } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import { EntityList } from './entity_list';
 import {
+  adjudicatedVotes,
+  contestPartyLabel,
+  getCurrentVote,
+  isContestCrossoverVoted,
   isContestResolved,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
@@ -43,7 +48,7 @@ const ViewSideButton = styled(Button)`
   padding: 0.2rem 0.5rem;
 `;
 
-const BlankBallotCalloutContainer = styled.div`
+const CalloutContainer = styled.div`
   padding: 0.5rem;
   border-bottom: var(--entity-list-border);
 `;
@@ -72,22 +77,29 @@ const CalloutTitle = styled(P)`
   margin-bottom: 0;
 `;
 
-const StatusCaption = styled(EntityList.Caption)`
+const StatusCaption = styled(EntityList.Caption)<{ color?: 'primary' }>`
   align-items: center;
   display: flex;
   gap: 0.25rem;
+  color: ${(p) =>
+    p.color === 'primary'
+      ? p.theme.colors.primary
+      : p.theme.colors.onBackground};
 `;
 
 function StatusLine({
   icon,
   children,
+  color,
+  weight = 'semiBold',
   ...fontProps
 }: FontProps &
   React.PropsWithChildren<{
     icon: JSX.Element;
+    color?: 'primary';
   }>) {
   return (
-    <StatusCaption {...fontProps}>
+    <StatusCaption color={color} weight={weight} {...fontProps}>
       {icon} {children}
     </StatusCaption>
   );
@@ -95,40 +107,34 @@ function StatusLine({
 
 const StatusLineNeedsAdjudication = styled(StatusLine).attrs({
   icon: <Icons.PenToSquare color="warning" />,
-  weight: 'semiBold',
 })`
-  color: ${(p) => p.theme.colors.onBackground};
+  /* stylelint-disable-next-line no-empty-source */
 `;
 
 const StatusLineWarning = styled(StatusLine).attrs({
   icon: <Icons.Warning color="warning" />,
-  weight: 'semiBold',
+  color: 'primary',
 })`
-  color: ${(p) => p.theme.colors.primary};
+  /* stylelint-disable-next-line no-empty-source */
 `;
 
 const StatusLineConfirmed = styled(StatusLine).attrs({
   icon: <Icons.Done />,
-  weight: 'semiBold',
+  color: 'primary',
 })`
-  color: ${(p) => p.theme.colors.primary};
+  /* stylelint-disable-next-line no-empty-source */
 `;
 
 const StatusLineAdjudicated = styled(StatusLine).attrs({
   icon: <Icons.PenToSquare />,
+  weight: 'regular',
+  color: 'primary',
 })`
-  color: ${(p) => p.theme.colors.primary};
+  /* stylelint-disable-next-line no-empty-source */
 `;
 
 function getVotesAllowed(contest: AnyContest): number {
   return contest.type === 'yesno' ? 1 : contest.seats;
-}
-
-function getCurrentVote(
-  option: ContestOptionAdjudicationData,
-  adjudicatedOption?: AdjudicatedContestOption
-): boolean {
-  return adjudicatedOption?.hasVote ?? option.scannedVote;
 }
 
 type VoteStatus = 'overvote' | 'undervote' | 'normal';
@@ -340,30 +346,76 @@ function ContestAdjudicationSummary({
   );
 }
 
+function CrossoverVoteStatus({
+  ballotHasScannedCrossoverVote,
+  contestHasScannedCrossoverVote,
+  contestHasCrossoverVoteAfterAdjudication,
+  isBallotResolved,
+}: {
+  ballotHasScannedCrossoverVote: boolean;
+  contestHasScannedCrossoverVote: boolean;
+  contestHasCrossoverVoteAfterAdjudication: boolean;
+  isBallotResolved: boolean;
+}) {
+  const warningIcon = <Icons.Crossover color="warning" />;
+  const primaryIcon = <Icons.Crossover color="primary" />;
+  if (ballotHasScannedCrossoverVote) {
+    if (contestHasCrossoverVoteAfterAdjudication) {
+      if (isBallotResolved) {
+        return (
+          <StatusLine icon={primaryIcon} color="primary">
+            Crossover vote confirmed
+          </StatusLine>
+        );
+      }
+      return (
+        <StatusLine icon={warningIcon}>Crossover vote detected</StatusLine>
+      );
+    }
+    if (contestHasScannedCrossoverVote) {
+      return <StatusLineConfirmed>Crossover vote resolved</StatusLineConfirmed>;
+    }
+  }
+  if (contestHasCrossoverVoteAfterAdjudication) {
+    return (
+      <StatusLine
+        icon={isBallotResolved ? primaryIcon : warningIcon}
+        color="primary"
+      >
+        Crossover vote created
+      </StatusLine>
+    );
+  }
+}
+
 function BallotSideContestList({
   adjudicatedContests,
   contests,
   election,
   firstUnresolvedContestId,
   isVisibleSide,
-  isBlankBallot,
   onHeaderClick,
   onHover,
   onSelect,
   showUndervoteStatus,
   title,
+  cvrTag,
+  ballotHasCrossoverVoteAfterAdjudication,
+  isBallotResolved,
 }: {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
   contests: ContestListItem[];
   election: Election;
   firstUnresolvedContestId?: ContestId;
   isVisibleSide: boolean;
-  isBlankBallot?: boolean;
   onHeaderClick: () => void;
   onHover: (contestId: ContestId | null) => void;
   onSelect: (contestId: ContestId) => void;
   showUndervoteStatus: boolean;
   title: string;
+  cvrTag: CvrTag;
+  ballotHasCrossoverVoteAfterAdjudication: boolean;
+  isBallotResolved: boolean;
 }): React.ReactNode {
   return (
     <React.Fragment>
@@ -391,6 +443,7 @@ function BallotSideContestList({
           const { contest, adjudicationData } = item;
           const { tag } = adjudicationData;
           const adjudicatedContest = adjudicatedContests.get(contest.id);
+
           const isResolved = isContestResolved(
             adjudicationData,
             adjudicatedContests
@@ -400,9 +453,26 @@ function BallotSideContestList({
           const isOnlyUndervote = tag && isContestTagOnlyUndervote(tag);
 
           const suppressContestAdjudicationInfo =
-            isBlankBallot &&
+            cvrTag.isBlankBallot &&
             isOnlyUndervote &&
             adjudicatedContest === undefined;
+
+          const contestHasScannedCrossoverVote = isContestCrossoverVoted(
+            cvrTag.hasCrossoverVote,
+            item
+          );
+          const contestHasCrossoverVoteAfterAdjudication =
+            isContestCrossoverVoted(
+              ballotHasCrossoverVoteAfterAdjudication,
+              item,
+              adjudicatedContests.get(contest.id)
+            );
+          const crossoverVoteIsPending =
+            contestHasScannedCrossoverVote &&
+            contestHasCrossoverVoteAfterAdjudication &&
+            !isBallotResolved;
+
+          const partyLabel = contestPartyLabel(election, contest);
 
           return (
             <EntityList.Item
@@ -411,11 +481,15 @@ function BallotSideContestList({
               onSelect={onSelect}
               onHover={onHover}
               autoScrollIntoView={isFirstUnresolved}
-              hasWarning={isPending && !suppressContestAdjudicationInfo}
+              hasWarning={
+                (isPending && !suppressContestAdjudicationInfo) ||
+                crossoverVoteIsPending
+              }
             >
               <Column>
                 <EntityList.Caption>
                   {getContestDistrictName(election, contest)}
+                  {partyLabel && ` — ${partyLabel}`}
                 </EntityList.Caption>
                 <EntityList.Label
                   weight="semiBold"
@@ -423,6 +497,16 @@ function BallotSideContestList({
                 >
                   {contest.title}
                 </EntityList.Label>
+                <CrossoverVoteStatus
+                  contestHasScannedCrossoverVote={
+                    contestHasScannedCrossoverVote
+                  }
+                  contestHasCrossoverVoteAfterAdjudication={
+                    contestHasCrossoverVoteAfterAdjudication
+                  }
+                  ballotHasScannedCrossoverVote={cvrTag.hasCrossoverVote}
+                  isBallotResolved={isBallotResolved}
+                />
                 {!suppressContestAdjudicationInfo && (
                   <ContestAdjudicationSummary
                     item={item}
@@ -442,10 +526,10 @@ function BallotSideContestList({
 export interface AdjudicationContestListProps {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
   backContests: ContestListItem[];
-  cvrTag?: CvrTag;
+  cvrTag: CvrTag;
   election: Election;
   frontContests: ContestListItem[];
-  isResolved: boolean;
+  isBallotResolved: boolean;
   onHover: (contestId: ContestId | null) => void;
   onSelect: (contestId: ContestId) => void;
   onSelectSide: (side: Side) => void;
@@ -459,7 +543,7 @@ export function AdjudicationContestList({
   cvrTag,
   election,
   frontContests,
-  isResolved,
+  isBallotResolved,
   onHover,
   onSelect,
   onSelectSide,
@@ -467,14 +551,16 @@ export function AdjudicationContestList({
   showUndervoteStatus,
 }: AdjudicationContestListProps): React.ReactNode {
   const allContests = [...frontContests, ...backContests];
-  const firstUnresolvedContestId = cvrTag?.isBlankBallot
-    ? undefined
-    : allContests.find(
-        (item) => !isContestResolved(item.adjudicationData, adjudicatedContests)
-      )?.contest.id;
+  const firstUnresolvedContestId =
+    cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
+      ? undefined
+      : allContests.find(
+          (item) =>
+            !isContestResolved(item.adjudicationData, adjudicatedContests)
+        )?.contest.id;
 
   const blankBallotHasAnyAdjudicatedVote =
-    cvrTag?.isBlankBallot &&
+    cvrTag.isBlankBallot &&
     allContests.some((item) =>
       item.adjudicationData.options.some((o) =>
         getCurrentVote(
@@ -486,29 +572,36 @@ export function AdjudicationContestList({
     );
 
   const blankBallotCalloutTitle = (() => {
-    if (!cvrTag?.isBlankBallot) return undefined;
+    if (!cvrTag.isBlankBallot) return undefined;
     if (blankBallotHasAnyAdjudicatedVote) {
       return 'Blank Ballot Resolved';
     }
-    return isResolved ? 'Blank Ballot Confirmed' : 'Blank Ballot Detected';
+    return isBallotResolved
+      ? 'Blank Ballot Confirmed'
+      : 'Blank Ballot Detected';
   })();
+
+  const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
+    election,
+    adjudicatedVotes(allContests, adjudicatedContests)
+  );
 
   return (
     <EntityList.Box>
-      {cvrTag?.isBlankBallot && (
-        <BlankBallotCalloutContainer>
+      {cvrTag.isBlankBallot && (
+        <CalloutContainer>
           <Callout
             color={
               blankBallotHasAnyAdjudicatedVote
                 ? 'neutral'
-                : !isResolved
+                : !isBallotResolved
                 ? 'warning'
                 : 'primary'
             }
           >
             <CalloutContent>
               <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
-                {isResolved || blankBallotHasAnyAdjudicatedVote ? (
+                {isBallotResolved || blankBallotHasAnyAdjudicatedVote ? (
                   <Icons.Done
                     color={
                       blankBallotHasAnyAdjudicatedVote ? 'neutral' : 'primary'
@@ -542,7 +635,15 @@ export function AdjudicationContestList({
               </CalloutBody>
             </CalloutContent>
           </Callout>
-        </BlankBallotCalloutContainer>
+        </CalloutContainer>
+      )}
+      {cvrTag.hasCrossoverVote && (
+        <CrossoverVotingCallout
+          ballotHasCrossoverVoteAfterAdjudication={
+            ballotHasCrossoverVoteAfterAdjudication
+          }
+          isBallotResolved={isBallotResolved}
+        />
       )}
       {frontContests.length > 0 && (
         <BallotSideContestList
@@ -550,13 +651,17 @@ export function AdjudicationContestList({
           contests={frontContests}
           election={election}
           firstUnresolvedContestId={firstUnresolvedContestId}
-          isBlankBallot={cvrTag?.isBlankBallot}
           isVisibleSide={selectedSide === 'front'}
           onHeaderClick={() => onSelectSide('front')}
           onHover={onHover}
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
           title="Front"
+          cvrTag={cvrTag}
+          ballotHasCrossoverVoteAfterAdjudication={
+            ballotHasCrossoverVoteAfterAdjudication
+          }
+          isBallotResolved={isBallotResolved}
         />
       )}
       {backContests.length > 0 && (
@@ -565,15 +670,72 @@ export function AdjudicationContestList({
           contests={backContests}
           election={election}
           firstUnresolvedContestId={firstUnresolvedContestId}
-          isBlankBallot={cvrTag?.isBlankBallot}
           isVisibleSide={selectedSide === 'back'}
           onHeaderClick={() => onSelectSide('back')}
           onHover={onHover}
           onSelect={onSelect}
           showUndervoteStatus={showUndervoteStatus}
           title="Back"
+          cvrTag={cvrTag}
+          ballotHasCrossoverVoteAfterAdjudication={
+            ballotHasCrossoverVoteAfterAdjudication
+          }
+          isBallotResolved={isBallotResolved}
         />
       )}
     </EntityList.Box>
+  );
+}
+
+function CrossoverVotingCallout({
+  ballotHasCrossoverVoteAfterAdjudication,
+  isBallotResolved,
+}: {
+  ballotHasCrossoverVoteAfterAdjudication: boolean;
+  isBallotResolved: boolean;
+}): JSX.Element | null {
+  const { title, description } = (() => {
+    if (!ballotHasCrossoverVoteAfterAdjudication) {
+      return {
+        title: 'Crossover Voting Resolved',
+        description: 'Ballot no longer has votes for multiple parties.',
+      };
+    }
+    if (isBallotResolved) {
+      return {
+        title: 'Crossover Voting Confirmed',
+        description: 'Votes in partisan contests will not be counted.',
+      };
+    }
+    return {
+      title: 'Crossover Voting Detected',
+      description:
+        'Votes detected for multiple parties. Votes in partisan contests will not be counted.',
+    };
+  })();
+  const isAdjudicated =
+    !ballotHasCrossoverVoteAfterAdjudication || isBallotResolved;
+  return (
+    <CalloutContainer>
+      <Callout color={isAdjudicated ? 'primary' : 'warning'}>
+        <CalloutContent>
+          <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
+            {isAdjudicated ? (
+              <Icons.Done color="primary" />
+            ) : (
+              <Icons.Crossover color="warning" />
+            )}
+          </P>
+          <CalloutBody>
+            <CalloutTitleContainer>
+              <CalloutTitle weight="bold">{title}</CalloutTitle>
+              <Caption weight="regular" style={{ lineHeight: 1 }}>
+                {description}
+              </Caption>
+            </CalloutTitleContainer>
+          </CalloutBody>
+        </CalloutContent>
+      </Callout>
+    </CalloutContainer>
   );
 }

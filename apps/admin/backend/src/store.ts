@@ -2181,8 +2181,11 @@ export class Store implements BaseStore {
    */
   private getAdjudicationQueueFilter(electionId: Id): string {
     const { adminAdjudicationReasons } = this.getSystemSettings(electionId);
-    // Write-ins always need adjudication
-    const conditions: string[] = ['c.has_write_in = 1'];
+    // Write-ins and crossover votes always need adjudication
+    const conditions: string[] = [
+      'c.has_write_in = 1',
+      'c.has_crossover_vote = 1',
+    ];
     if (adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) {
       conditions.push('c.has_overvote = 1');
     }
@@ -2258,12 +2261,24 @@ export class Store implements BaseStore {
     const { votes, markScores, ballotStyleGroupId } = cvrInfo;
 
     const cvrRow = this.client.one(
-      `select is_blank as isBlank, is_adjudicated as isResolved from cvrs where id = ?`,
+      `
+      select
+        is_blank as isBlank,
+        has_crossover_vote as hasCrossoverVote,
+        is_adjudicated as isResolved
+      from cvrs
+      where id = ?
+      `,
       cvrId
-    ) as { isBlank: SqliteBool; isResolved: SqliteBool };
+    ) as {
+      isBlank: SqliteBool;
+      hasCrossoverVote: SqliteBool;
+      isResolved: SqliteBool;
+    };
     const isResolved = fromSqliteBool(cvrRow.isResolved);
     const cvrTag: CvrTag = {
       isBlankBallot: fromSqliteBool(cvrRow.isBlank),
+      hasCrossoverVote: fromSqliteBool(cvrRow.hasCrossoverVote),
     };
 
     const adjudicatedVotes = this.getAdjudicatedVotes({ cvrId });

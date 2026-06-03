@@ -34,7 +34,7 @@ import {
 } from '../components/adjudication_ballot_image_viewer';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
 import { ContestOptionButton } from '../components/contest_option_button';
-import { getOptionCoordinates } from '../utils/adjudication';
+import { contestPartyLabel, getOptionCoordinates } from '../utils/adjudication';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
@@ -229,6 +229,7 @@ export function ContestAdjudicationScreen({
   const { options: contestOptions, contestId, tag } = contestAdjudicationData;
   const contest = find(election.contests, (c) => c.id === contestId);
   const isCandidateContest = contest.type === 'candidate';
+  const partyLabel = contestPartyLabel(election, contest);
 
   const officialOptions = useMemo(() => {
     const optionDefinitions = contestOptions.map((o) => o.definition);
@@ -400,7 +401,10 @@ export function ContestAdjudicationScreen({
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}
           <ContestHeader>
-            <CompactH2>{getContestDistrictName(election, contest)}</CompactH2>
+            <CompactH2>
+              {getContestDistrictName(election, contest)}
+              {partyLabel && ` — ${partyLabel}`}
+            </CompactH2>
             <CompactH1>{contest.title}</CompactH1>
           </ContestHeader>
           <BallotVoteCount>
