@@ -128,6 +128,7 @@ export type IconColor = (typeof ICON_COLORS)[number];
 export interface IconProps {
   className?: string;
   color?: IconColor;
+  fixedWidth?: boolean;
   style?: React.CSSProperties;
 }
 
@@ -164,7 +165,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
 }
 
 function FaIcon(props: InnerProps): JSX.Element {
-  const { className, pulse, spin, type, color, style = {} } = props;
+  const { className, pulse, spin, type, color, fixedWidth, style = {} } = props;
   const theme = useTheme();
 
   /**
@@ -221,6 +222,7 @@ function FaIcon(props: InnerProps): JSX.Element {
       icon={type}
       spin={spin}
       pulse={pulse}
+      fixedWidth={fixedWidth}
       style={{
         color: iconColor(theme, color),
         ...style,

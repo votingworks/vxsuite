@@ -97,28 +97,27 @@ function StatusLine({
 }
 
 const StatusLineNeedsAdjudication = styled(StatusLine).attrs({
-  icon: <Icons.PenToSquare color="warning" />,
+  icon: <Icons.PenToSquare color="warning" fixedWidth />,
 })`
   /* stylelint-disable-next-line no-empty-source */
 `;
 
 const StatusLineWarning = styled(StatusLine).attrs({
-  icon: <Icons.Warning color="warning" />,
+  icon: <Icons.Warning color="warning" fixedWidth />,
   color: 'primary',
 })`
   /* stylelint-disable-next-line no-empty-source */
 `;
 
 const StatusLineConfirmed = styled(StatusLine).attrs({
-  icon: <Icons.Done />,
+  icon: <Icons.Done fixedWidth />,
   color: 'primary',
 })`
   /* stylelint-disable-next-line no-empty-source */
 `;
 
 const StatusLineAdjudicated = styled(StatusLine).attrs({
-  icon: <Icons.PenToSquare />,
-  weight: 'regular',
+  icon: <Icons.PenToSquare fixedWidth />,
   color: 'primary',
 })`
   /* stylelint-disable-next-line no-empty-source */
@@ -340,8 +339,8 @@ function CrossoverVoteStatus({
   contestHasCrossoverVoteAfterAdjudication: boolean;
   isBallotResolved: boolean;
 }) {
-  const warningIcon = <Icons.Crossover color="warning" />;
-  const primaryIcon = <Icons.Crossover color="primary" />;
+  const warningIcon = <Icons.Crossover color="warning" fixedWidth />;
+  const primaryIcon = <Icons.Crossover color="primary" fixedWidth />;
   if (ballotHasScannedCrossoverVote) {
     if (contestHasCrossoverVoteAfterAdjudication) {
       if (isBallotResolved) {
