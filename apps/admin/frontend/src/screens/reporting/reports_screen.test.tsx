@@ -203,7 +203,7 @@ describe('voter turnout report link', () => {
 });
 
 describe('showing WIA report link', () => {
-  const BUTTON_TEXT = 'Unofficial Write-In Adjudication Report';
+  const BUTTON_TEXT = 'Write-In Adjudication Report';
 
   test('shown when election has write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
@@ -398,9 +398,7 @@ describe('polls close time enforcement', () => {
 
     await screen.findButton('Full Election Tally Report');
     expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
-    expect(
-      screen.getButton('Unofficial Write-In Adjudication Report')
-    ).toBeEnabled();
+    expect(screen.getButton('Write-In Adjudication Report')).toBeEnabled();
     expect(screen.getButton('Mark Election Results as Official')).toBeEnabled();
     screen.getByText(/Test cast vote records are currently loaded/);
     expect(

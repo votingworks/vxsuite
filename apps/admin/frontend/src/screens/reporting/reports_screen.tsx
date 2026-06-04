@@ -210,17 +210,13 @@ export function ReportsScreen(): JSX.Element {
       {!closedPollsActionsBlocked && electionHasWriteInContest && (
         <Section>
           <H2>{statusPrefix} Write-In Reports</H2>
-          {electionHasWriteInContest && (
-            <P>
-              <LinkButton
-                to={routerPaths.tallyWriteInReport}
-                disabled={closedPollsActionsBlocked}
-              >
-                {statusPrefix} Write-In Adjudication Report
-              </LinkButton>
-            </P>
-          )}
           <P>
+            <LinkButton
+              to={routerPaths.tallyWriteInReport}
+              disabled={closedPollsActionsBlocked}
+            >
+              Write-In Adjudication Report
+            </LinkButton>{' '}
             <LinkButton to={routerPaths.writeInImageReport}>
               Write-In Image Report
             </LinkButton>
@@ -230,7 +226,7 @@ export function ReportsScreen(): JSX.Element {
       {!closedPollsActionsBlocked &&
         (voterTurnoutReportEnabled || isLiveResultsReportingEnabled) && (
           <Section>
-            <H2>Live Reports</H2>
+            <H2>Other Reports</H2>
             {voterTurnoutReportEnabled && (
               <P>
                 <LinkButton to={routerPaths.voterTurnoutReport}>
