@@ -958,77 +958,67 @@ describe('report printing', () => {
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
-    const { resolve: resolveMammal } = apiMock.expectPrintReportSection(0);
+    // A primary prints one page per party (Mammal, Fish) plus nonpartisan
+    // contests. The backend reports the section count (3) with the first page.
+    const { resolve: resolvePage1 } = apiMock.expectPrintReportSection(
+      0,
+      undefined,
+      3
+    );
+    const { resolve: resolvePage2 } = apiMock.expectPrintReportSection(1);
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       electionDefinition: electionTwoPartyPrimaryDefinition,
     });
 
-    // close polls to trigger first section to print
     await screen.findByText('Do you want to open the polls?');
-    // This will be called again when polls are opened
-    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     userEvent.click(screen.getByText('Open Polls'));
+    // The first page prints during the transition (total pages unknown until it
+    // returns)
     await screen.findByText('Opening Polls…');
-    resolveMammal();
+    resolvePage1();
     await screen.findByText('Polls Opened');
-    screen.getByText(/Mammal Party Polls Opened Report/);
+    await screen.findByText(/Finished printing report 1 of 3/);
 
-    // try reprinting that report, landing on same page
-    const { resolve: resolveMammalReprint } =
-      apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint Previous Report'));
-    await screen.findByText('Printing Report…');
-    resolveMammalReprint();
-    await screen.findByText('Polls Opened');
-    screen.getByText(/Mammal Party Polls Opened Report/);
-
-    // continue printing second page
-    const { resolve: resolveFish } = apiMock.expectPrintReportSection(1);
+    // Remaining pages print one at a time so the poll worker can tear each off
     userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText('Printing Report…');
-    resolveFish();
-    await screen.findByText('Polls Opened');
-    screen.getByText(/Fish Party Polls Opened Report/);
+    await screen.findByText(/Printing report 2 of 3/);
+    resolvePage2();
+    await screen.findByText(/Finished printing report 2 of 3/);
 
-    // continue printing third page
-    const { resolve: resolveNonpartisan } = apiMock.expectPrintReportSection(2);
+    // A misprinted page can be reprinted before advancing to the next page
+    const { resolve: resolveReprintPage2 } =
+      apiMock.expectPrintReportSection(1);
+    userEvent.click(screen.getButton('Print Previous Report'));
+    await screen.findByText(/Printing report 2 of 3/);
+    resolveReprintPage2();
+    await screen.findByText(/Finished printing report 2 of 3/);
+
+    const { resolve: resolvePage3 } = apiMock.expectPrintReportSection(2);
     userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText('Printing Report…');
-    resolveNonpartisan();
-    await screen.findByText('Polls Opened');
-    screen.getByText(/Nonpartisan Contests Polls Opened Report/);
-    screen.getByText(/Remove the poll worker card/);
+    await screen.findByText(/Printing report 3 of 3/);
+    resolvePage3();
+    await screen.findByText(/Report printed/);
 
-    // you can reprint last page too
-    const { resolve: resolveFishReprint } = apiMock.expectPrintReportSection(2);
-    userEvent.click(screen.getButton('Reprint Previous Report'));
+    // Reprinting produces one additional complete copy (all party pages),
+    // one page at a time
+    const { resolve: resolveReprint1 } = apiMock.expectPrintReportSection(
+      0,
+      undefined,
+      3
+    );
+    userEvent.click(screen.getButton('Reprint Polls Opened Report'));
     await screen.findByText('Printing Report…');
-    resolveFishReprint();
-    await screen.findByText('Polls Opened');
-    screen.getByText(/Nonpartisan Contests Polls Opened Report/);
-
-    // try reprinting all the pages
-    const { resolve: resolveMammalReprint2 } =
-      apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint All Reports'));
-    await screen.findByText('Printing Report…');
-    resolveMammalReprint2();
-    await screen.findByText('Polls Opened');
-    screen.getByText(/Mammal Party Polls Opened Report/);
-
-    // Finish printing the next two pages
-    const { resolve: resolveFish2 } = apiMock.expectPrintReportSection(1);
+    resolveReprint1();
+    await screen.findByText(/Finished printing report 1 of 3/);
+    const { resolve: resolveReprint2 } = apiMock.expectPrintReportSection(1);
     userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText('Printing Report…');
-    resolveFish2();
-    await screen.findByText('Polls Opened');
-    const { resolve: resolveNonpartisan2 } =
-      apiMock.expectPrintReportSection(2);
+    resolveReprint2();
+    await screen.findByText(/Finished printing report 2 of 3/);
+    const { resolve: resolveReprint3 } = apiMock.expectPrintReportSection(2);
     userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText('Printing Report…');
-    resolveNonpartisan2();
-    await screen.findByText('Polls Opened');
+    resolveReprint3();
+    await screen.findByText(/Report printed/);
 
     // We should also get an option to report polls open at this point via VxQR
     userEvent.click(screen.getButton('Send Polls Opened Report'));
@@ -1079,11 +1069,14 @@ describe('report printing', () => {
       electionDefinition: electionTwoPartyPrimaryDefinition,
     });
 
-    // close polls but fail the print
+    // open polls but fail the first page. The backend still reports the section
+    // count (3) with the failed print.
     await screen.findByText('Do you want to open the polls?');
-    const { resolve } = apiMock.expectPrintReportSection(0, {
-      state: 'no-paper',
-    });
+    const { resolve } = apiMock.expectPrintReportSection(
+      0,
+      { state: 'no-paper' },
+      3
+    );
     apiMock.setPrinterStatus({ state: 'no-paper' });
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
@@ -1107,17 +1100,21 @@ describe('report printing', () => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
 
-    // reprint
-    await screen.findButton('Reprint Mammal Party Polls Opened Report');
-    const { resolve: resolveMammalReprint } =
-      apiMock.expectPrintReportSection(0);
-    userEvent.click(
-      await screen.findButton('Reprint Mammal Party Polls Opened Report')
-    );
-    await screen.findByText('Printing Report…');
-    resolveMammalReprint();
+    // reprinting resumes the report, one page at a time
+    const { resolve: resolveReprint1 } = apiMock.expectPrintReportSection(0);
+    userEvent.click(await screen.findButton('Reprint Polls Opened Report'));
+    await screen.findByText(/Printing report 1 of 3/);
+    resolveReprint1();
+    await screen.findByText(/Finished printing report 1 of 3/);
+    const { resolve: resolveReprint2 } = apiMock.expectPrintReportSection(1);
+    userEvent.click(screen.getButton('Print Next Report'));
+    resolveReprint2();
+    await screen.findByText(/Finished printing report 2 of 3/);
+    const { resolve: resolveReprint3 } = apiMock.expectPrintReportSection(2);
+    userEvent.click(screen.getButton('Print Next Report'));
+    resolveReprint3();
     await screen.findByText('Polls Opened');
-    screen.getByText(/Mammal Party Polls Opened Report/);
+    await screen.findByText(/Report printed/);
   });
 
   test('printer error while printing', async () => {
@@ -1178,6 +1175,156 @@ describe('report printing', () => {
     userEvent.click(await screen.findButton('Print Polls Opened Report'));
     resolve();
     await screen.findButton('Reprint Polls Opened Report');
+  });
+});
+
+describe('multiple report copies', () => {
+  beforeEach(() => {
+    apiMock.mockApiClient.getConfig.reset();
+    apiMock.expectGetConfig({
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanNumberOfReportCopies: 2,
+      },
+    });
+  });
+
+  test('prints the configured number of copies on a polls transition', async () => {
+    apiMock.setPrinterStatus();
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.expectClosePolls();
+    // A general election prints one page per copy (both from section 0)
+    const { resolve: resolvePage1 } = apiMock.expectPrintReportSection(0);
+    const { resolve: resolvePage2 } = apiMock.expectPrintReportSection(0);
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({
+      electionDefinition:
+        electionFamousNames2021Fixtures.readElectionDefinition(),
+    });
+
+    await screen.findByText('Do you want to close the polls?');
+    userEvent.click(screen.getByText('Close Polls'));
+
+    // First copy prints during the transition
+    await screen.findByText('Closing Polls…');
+    resolvePage1();
+    await screen.findByText('Polls Closed');
+    await screen.findByText(/Finished printing report 1 of 2/);
+
+    // The next copy is printed via the page button so it can be torn off
+    userEvent.click(screen.getButton('Print Next Report'));
+    await screen.findByText(/Printing report 2 of 2/);
+    resolvePage2();
+    await screen.findByText(/Report printed/);
+    screen.getButton('Reprint Polls Closed Report');
+  });
+
+  test('interleaves copies of every party page in a primary', async () => {
+    apiMock.setPrinterStatus();
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.expectClosePolls();
+    // Two copies of a three-section primary report (Mammal, Fish, Nonpartisan),
+    // interleaved so each full copy prints before the next: the print sections
+    // are requested in order 0, 1, 2, 0, 1, 2. mockFunction enforces this order.
+    // The backend reports the section count (3) with the first report.
+    const sectionOrder = [0, 1, 2, 0, 1, 2];
+    const resolvers = sectionOrder.map((section, i) =>
+      apiMock.expectPrintReportSection(section, undefined, i === 0 ? 3 : 1)
+    );
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({
+      electionDefinition: electionTwoPartyPrimaryDefinition,
+    });
+
+    await screen.findByText('Do you want to close the polls?');
+    userEvent.click(screen.getByText('Close Polls'));
+
+    // First page prints during the transition; each subsequent page via the button
+    await screen.findByText('Closing Polls…');
+    resolvers[0].resolve();
+    await screen.findByText(/Finished printing report 1 of 6/);
+    for (let page = 2; page <= 6; page += 1) {
+      userEvent.click(screen.getButton('Print Next Report'));
+      await screen.findByText(new RegExp(`Printing report ${page} of 6`));
+      resolvers[page - 1].resolve();
+      if (page < 6) {
+        await screen.findByText(
+          new RegExp(`Finished printing report ${page} of 6`)
+        );
+      }
+    }
+
+    await screen.findByText('Polls Closed');
+    await screen.findByText(/Report printed/);
+    screen.getButton('Reprint Polls Closed Report');
+  });
+
+  test('stops printing copies if a page fails', async () => {
+    apiMock.setPrinterStatus();
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.expectClosePolls();
+    // Only the first page is attempted; the failure halts the remaining copies
+    const { resolve } = apiMock.expectPrintReportSection(0, {
+      state: 'no-paper',
+    });
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({
+      electionDefinition:
+        electionFamousNames2021Fixtures.readElectionDefinition(),
+    });
+
+    await screen.findByText('Do you want to close the polls?');
+    userEvent.click(screen.getByText('Close Polls'));
+
+    await screen.findByText('Closing Polls…');
+    resolve();
+
+    await screen.findByText('Printing Stopped');
+    screen.getByText(/out of paper/);
+
+    // Once the error is resolved the poll worker can pick up where they left
+    // off: reprint the failed page...
+    const { resolve: resolveRetry } = apiMock.expectPrintReportSection(0);
+    userEvent.click(screen.getButton('Reprint Polls Closed Report'));
+    await screen.findByText(/Printing report 1 of 2/);
+    resolveRetry();
+    await screen.findByText(/Finished printing report 1 of 2/);
+
+    // ...and continue with the remaining copy
+    const { resolve: resolvePage2 } = apiMock.expectPrintReportSection(0);
+    userEvent.click(screen.getButton('Print Next Report'));
+    await screen.findByText(/Printing report 2 of 2/);
+    resolvePage2();
+    await screen.findByText(/Report printed/);
+    screen.getButton('Reprint Polls Closed Report');
+  });
+
+  test('pause and resume reports print the configured number of copies', async () => {
+    apiMock.setPrinterStatus();
+    apiMock.expectGetPollsInfo('polls_open');
+    renderScreen({
+      electionDefinition: electionTwoPartyPrimaryDefinition,
+    });
+
+    await screen.findByText('Do you want to close the polls?');
+    userEvent.click(screen.getByText('Menu'));
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.expectPauseVoting();
+    // A paused report is a single section even in a primary, but the copies
+    // setting still applies: 1 section × 2 copies = 2 reports
+    const { resolve: resolveCopy1 } = apiMock.expectPrintReportSection(0);
+    userEvent.click(screen.getButton('Pause Voting'));
+    await screen.findByText('Pausing Voting…');
+    resolveCopy1();
+    await screen.findByText('Voting Paused');
+    await screen.findByText(/Finished printing report 1 of 2/);
+
+    const { resolve: resolveCopy2 } = apiMock.expectPrintReportSection(0);
+    userEvent.click(screen.getButton('Print Next Report'));
+    await screen.findByText(/Printing report 2 of 2/);
+    resolveCopy2();
+    await screen.findByText(/Report printed/);
+    screen.getButton('Reprint Voting Paused Report');
   });
 });
 

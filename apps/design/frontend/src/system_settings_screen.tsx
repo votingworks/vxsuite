@@ -745,6 +745,27 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING && (
+              <InputGroup label="Number of Report Copies on VxScan">
+                <input
+                  type="number"
+                  // Empty when unset so the field can be cleared and retyped
+                  value={systemSettings.precinctScanNumberOfReportCopies ?? ''}
+                  onChange={(e) => {
+                    const value = e.target.valueAsNumber;
+                    setSystemSettings({
+                      ...systemSettings,
+                      precinctScanNumberOfReportCopies: Number.isNaN(value)
+                        ? undefined
+                        : value,
+                    });
+                  }}
+                  min={1}
+                  step={1}
+                  disabled={!isEditing}
+                />
+              </InputGroup>
+            )}
             {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
               <InputGroup label="VxMark Print Mode">
                 <SearchSelect<BmdPrintMode>

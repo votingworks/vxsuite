@@ -1,5 +1,34 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`disallows a number of report copies less than one or non-integer 1`] = `
+[ZodError: [
+  {
+    "origin": "number",
+    "code": "too_small",
+    "minimum": 1,
+    "inclusive": true,
+    "path": [
+      "precinctScanNumberOfReportCopies"
+    ],
+    "message": "Too small: expected number to be >=1"
+  }
+]]
+`;
+
+exports[`disallows a number of report copies less than one or non-integer 2`] = `
+[ZodError: [
+  {
+    "expected": "int",
+    "format": "safeint",
+    "code": "invalid_type",
+    "path": [
+      "precinctScanNumberOfReportCopies"
+    ],
+    "message": "Invalid input: expected int, received number"
+  }
+]]
+`;
+
 exports[`disallows enforcement flags without polls close time 1`] = `
 [ZodError: [
   {

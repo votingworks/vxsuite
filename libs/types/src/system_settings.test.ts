@@ -91,6 +91,42 @@ test('disallows enforcement flags without polls close time', () => {
   ).toMatchSnapshot();
 });
 
+test('parses a valid number of report copies', () => {
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanNumberOfReportCopies: 3,
+      })
+    )
+  ).toEqual(
+    ok({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      precinctScanNumberOfReportCopies: 3,
+    })
+  );
+});
+
+test('disallows a number of report copies less than one or non-integer', () => {
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanNumberOfReportCopies: 0,
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchSnapshot();
+
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanNumberOfReportCopies: 1.5,
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchSnapshot();
+});
+
 test('disallows retry streak threshold greater than or equal to normal threshold', () => {
   // Valid: retry threshold less than normal threshold
   expect(

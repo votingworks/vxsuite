@@ -238,6 +238,12 @@ export const SystemSettingsSchema = z
      * creation.
      */
     areWriteInCandidatesQualified: z.boolean().optional(),
+
+    /**
+     * The number of copies of each polls report that VxScan prints automatically.
+     * If omitted, a single copy is printed.
+     */
+    precinctScanNumberOfReportCopies: z.number().int().min(1).optional(),
   })
   .refine(
     (settings) =>
