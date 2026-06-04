@@ -6,7 +6,7 @@ import { MockPrintJob, PrintProps, Printer } from '../types';
 import { getMockConnectedPrinterStatus } from './fixtures';
 
 /**
- * A mock of the UsbDrive interface. See createMockUsbDrive for details.
+ * A mock of the Printer interface. See createMockPrinterHandler for details.
  */
 export interface MemoryPrinterHandler {
   printer: Printer;
