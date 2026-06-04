@@ -365,7 +365,8 @@ export const appStrings = {
       to decrease volume. Below the headphone jack are two buttons to adjust the
       rate of speech: select the left button with one dot to slow the rate of
       speech or the right button with three dots to increase the rate of speech.
-      Press the right arrow button now to advance to the first contest.
+      Press the right arrow button now to advance to the first contest. Press
+      the left arrow button to replay these instructions.
     </UiString>
   ),
 
@@ -483,6 +484,30 @@ export const appStrings = {
   instructionsBmdInsertPreviouslyPrintedBallot: () => (
     <UiString uiStringKey="instructionsBmdInsertPreviouslyPrintedBallot">
       Please remove the sheet and insert the previously printed ballot.
+    </UiString>
+  ),
+
+  instructionsBmdIntroRepeatPromptMark: () => (
+    <UiString uiStringKey="instructionsBmdIntroRepeatPromptMark">
+      Press the left arrow button to hear voting instructions. Press the right
+      arrow button to start voting. The arrow pad is at the top of the
+      controller.
+    </UiString>
+  ),
+
+  instructionsBmdIntroRepeatPromptMarkScan: () => (
+    <UiString uiStringKey="instructionsBmdIntroRepeatPromptMarkScan">
+      Press the left arrow button to hear voting instructions. Press the right
+      arrow button to start voting. Press the question mark button for help with
+      the controller.
+    </UiString>
+  ),
+
+  instructionsBmdIntroRepeatPromptMarkScanPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdIntroRepeatPromptMarkScanPatDevice">
+      To get started, use the move input to navigate to the control labelled
+      "start voting" and then use the select input to advance to the first
+      contest.
     </UiString>
   ),
 

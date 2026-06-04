@@ -8,6 +8,7 @@ import {
 import { createMemoryHistory } from 'history';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
+import { PageNavigationButtonId } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
@@ -49,6 +50,41 @@ test('renders as voter screen', () => {
   });
 
   screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
+});
+
+test('intro audio is replayable via the left arrow (previous) button', () => {
+  const electionDefinition = readElectionGeneralDefinition();
+
+  render(<Route path="/" component={StartScreen} />, {
+    ballotStyleId: '12',
+    electionDefinition,
+    precinctId: '23',
+    route: '/',
+  });
+
+  // The on-load intro audio content is the click target for the accessible
+  // controller's left arrow (previous) button:
+  const replayTarget = document.getElementById(PageNavigationButtonId.PREVIOUS);
+  expect(replayTarget).toHaveTextContent(
+    /Press the left arrow button to replay these instructions/
+  );
+});
+
+test('renders repeated audio-only intro prompt', () => {
+  const electionDefinition = readElectionGeneralDefinition();
+
+  render(<Route path="/" component={StartScreen} />, {
+    ballotStyleId: '12',
+    electionDefinition,
+    precinctId: '23',
+    route: '/',
+  });
+
+  screen.getByText(
+    'Press the left arrow button to hear voting instructions. ' +
+      'Press the right arrow button to start voting. ' +
+      'The arrow pad is at the top of the controller.'
+  );
 });
 
 test('Start navigates to first contest for non-open-primary elections', () => {

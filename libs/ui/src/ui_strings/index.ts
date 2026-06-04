@@ -9,6 +9,7 @@ export {
   BackendLanguageContextProvider,
 } from './language_context';
 export * from './number_string';
+export * from './read_on_idle';
 export * from './read_on_load';
 export * from './toggle_audio_button';
 export { useScreenReaderActive } from './ui_string_screen_reader';
