@@ -50,8 +50,6 @@ export function PostPrintScreen({
       setCurrentPageIndex(pageIndex);
       setTotalNumPages(runTotal);
       setPrintResult(undefined);
-      // Interleave copies: page index maps to a party section modulo the number
-      // of sections, so a full copy prints before the next begins.
       const { printResult: newPrintResult } =
         await printReportSectionMutateAsync({
           index: pageIndex % numberOfSections,
