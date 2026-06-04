@@ -11,6 +11,8 @@ import {
   allBaseBallotProps,
   AnyBallotProps,
   BallotTemplateId,
+  MiBallotProps,
+  MiGeneralBallotColumns,
   NhBallotProps,
   NhStateBallotProps,
 } from '@votingworks/hmpb';
@@ -112,8 +114,13 @@ export function formatElectionForExport(
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  compact: boolean
+  compact: boolean,
+  miGeneralBallotColumns: MiGeneralBallotColumns
 ): AnyBallotProps[] {
+  function buildMiBallotProps(props: BaseBallotProps): MiBallotProps {
+    return { ...props, generalBallotColumns: miGeneralBallotColumns };
+  }
+
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {
@@ -159,9 +166,11 @@ export function createBallotPropsForTemplate(
     case 'NhStateBallot':
       return baseBallotProps.flatMap(buildNhStateBallotProps);
 
+    case 'MiBallot':
+      return baseBallotProps.map(buildMiBallotProps);
+
     case 'MsBallot':
     case 'VxDefaultBallot':
-    case 'MiBallot':
       return baseBallotProps;
 
     default: {

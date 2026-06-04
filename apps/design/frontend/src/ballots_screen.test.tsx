@@ -256,6 +256,7 @@ describe('Ballot layout tab', () => {
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
+      miGeneralBallotColumns: 4,
     });
     apiMock.getBallotTemplate
       .expectCallWith({ electionId })
@@ -317,11 +318,13 @@ describe('Ballot layout tab', () => {
         electionId,
         paperSize: HmpbBallotPaperSize.Custom17,
         compact: true,
+        miGeneralBallotColumns: 4,
       })
       .resolves();
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: HmpbBallotPaperSize.Custom17,
       compact: true,
+      miGeneralBallotColumns: 4,
     });
     userEvent.click(screen.getByRole('button', { name: /Save/ }));
     await screen.findByRole('button', { name: /Edit/ });
@@ -337,6 +340,7 @@ describe('Ballot layout tab', () => {
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
+      miGeneralBallotColumns: 4,
     });
     apiMock.getBallotTemplate
       .expectCallWith({ electionId })
@@ -366,11 +370,12 @@ describe('Ballot layout tab', () => {
     ).toBeChecked();
   });
 
-  test('hides density for MI ballot template', async () => {
+  test('shows number of columns instead of density for MI ballot template', async () => {
     mockStateFeatures(apiMock, electionId, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
+      miGeneralBallotColumns: 4,
     });
     apiMock.getBallotTemplate
       .expectCallWith({ electionId })
@@ -384,6 +389,34 @@ describe('Ballot layout tab', () => {
     expect(
       screen.queryByRole('radiogroup', { name: 'Density' })
     ).not.toBeInTheDocument();
+
+    const columnsRadioGroup = await screen.findByRole('radiogroup', {
+      name: 'Number of Columns',
+    });
+    expect(within(columnsRadioGroup).getByLabelText('4')).toBeChecked();
+
+    // Edit and switch to 3 columns
+    userEvent.click(screen.getByRole('button', { name: /Edit/ }));
+    userEvent.click(within(columnsRadioGroup).getByLabelText('3'));
+    expect(within(columnsRadioGroup).getByLabelText('3')).toBeChecked();
+
+    // Save
+    apiMock.updateBallotLayoutSettings
+      .expectCallWith({
+        electionId,
+        paperSize: election.ballotLayout.paperSize,
+        compact: false,
+        miGeneralBallotColumns: 3,
+      })
+      .resolves();
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+      miGeneralBallotColumns: 3,
+    });
+    userEvent.click(screen.getByRole('button', { name: /Save/ }));
+    await screen.findByRole('button', { name: /Edit/ });
+    expect(within(columnsRadioGroup).getByLabelText('3')).toBeChecked();
   });
 
   test('hides density for NH state ballot template', async () => {
@@ -391,6 +424,7 @@ describe('Ballot layout tab', () => {
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
+      miGeneralBallotColumns: 4,
     });
     apiMock.getBallotTemplate
       .expectCallWith({ electionId })
@@ -412,6 +446,7 @@ describe('Ballot layout tab', () => {
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
+      miGeneralBallotColumns: 4,
     });
     apiMock.getBallotTemplate
       .expectCallWith({ electionId })

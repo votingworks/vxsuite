@@ -83,6 +83,7 @@ beforeEach(() => {
   apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
     paperSize: electionRecord.election.ballotLayout.paperSize,
     compact: false,
+    miGeneralBallotColumns: 4,
   });
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })

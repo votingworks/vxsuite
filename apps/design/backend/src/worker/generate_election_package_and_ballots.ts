@@ -251,7 +251,8 @@ export async function generateElectionPackageAndBallots(
   const { ballotLanguageConfigs, ballotTemplateId, jurisdictionId } =
     electionRecord;
   let { systemSettings } = electionRecord;
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const { compact, miGeneralBallotColumns } =
+    await store.getBallotLayoutSettings(electionId);
 
   const officialBallotsZip = createDeterministicZip();
   const sampleBallotsZip = createDeterministicZip();
@@ -292,7 +293,8 @@ export async function generateElectionPackageAndBallots(
   let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    compact
+    compact,
+    miGeneralBallotColumns
   );
   // eslint-disable-next-line array-callback-return
   allBallotProps = allBallotProps.filter((props) => {

@@ -65,6 +65,7 @@ import {
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
+  MiGeneralBallotColumns,
   NhStateBallotProps,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
@@ -708,7 +709,11 @@ export function buildApi(ctx: AppContext) {
 
     async getBallotLayoutSettings(input: {
       electionId: ElectionId;
-    }): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+    }): Promise<{
+      paperSize: HmpbBallotPaperSize;
+      compact: boolean;
+      miGeneralBallotColumns: MiGeneralBallotColumns;
+    }> {
       return store.getBallotLayoutSettings(input.electionId);
     },
 
@@ -716,12 +721,14 @@ export function buildApi(ctx: AppContext) {
       electionId: ElectionId;
       paperSize: HmpbBallotPaperSize;
       compact: boolean;
+      miGeneralBallotColumns: MiGeneralBallotColumns;
     }): Promise<void> {
       const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
       await store.updateBallotLayoutSettings(
         input.electionId,
         paperSize,
-        input.compact
+        input.compact,
+        input.miGeneralBallotColumns
       );
     },
 
@@ -869,7 +876,8 @@ export function buildApi(ctx: AppContext) {
       const election = stateFeatures.STRAIGHT_PARTY_VOTING
         ? injectStraightPartyContest(electionRecord.election)
         : electionRecord.election;
-      const { compact } = await store.getBallotLayoutSettings(input.electionId);
+      const { compact, miGeneralBallotColumns } =
+        await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -883,7 +891,8 @@ export function buildApi(ctx: AppContext) {
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
-        compact
+        compact,
+        miGeneralBallotColumns
       );
       const ballotProps = find(
         allBallotProps,

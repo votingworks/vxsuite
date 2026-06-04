@@ -19,6 +19,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/design-backend';
+import type { MiGeneralBallotColumns } from '@votingworks/hmpb';
 import {
   getBallotsFinalizedAt,
   getBallotLayoutSettings,
@@ -47,6 +48,7 @@ function BallotDesignForm({
   savedLayoutSettings: {
     paperSize: HmpbBallotPaperSize;
     compact: boolean;
+    miGeneralBallotColumns: MiGeneralBallotColumns;
   };
   ballotsFinalizedAt: Date | null;
   ballotTemplateId: BallotTemplateId;
@@ -133,6 +135,25 @@ function BallotDesignForm({
             />
           </div>
         )}
+      {ballotTemplateId === 'MiBallot' && (
+        <div style={{ maxWidth: '16.5rem' }}>
+          <RadioGroup
+            label="Number of Columns"
+            options={[
+              { label: '4', value: '4' },
+              { label: '3', value: '3' },
+            ]}
+            value={String(layoutSettings.miGeneralBallotColumns)}
+            onChange={(value) =>
+              setLayoutSettings({
+                ...layoutSettings,
+                miGeneralBallotColumns: value === '3' ? 3 : 4,
+              })
+            }
+            disabled={!isEditing}
+          />
+        </div>
+      )}
       {isEditing ? (
         <FormActionsRow>
           <Button type="reset">Cancel</Button>

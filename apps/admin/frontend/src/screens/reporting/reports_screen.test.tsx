@@ -203,7 +203,7 @@ describe('voter turnout report link', () => {
 });
 
 describe('showing WIA report link', () => {
-  const BUTTON_TEXT = 'Unofficial Write-In Adjudication Report';
+  const BUTTON_TEXT = 'Write-In Adjudication Report';
 
   test('shown when election has write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
@@ -218,6 +218,22 @@ describe('showing WIA report link', () => {
     });
 
     await screen.findButton(BUTTON_TEXT);
+  });
+
+  test('heading shows Official prefix when results are official', async () => {
+    apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetTotalBallotCount(3000);
+    apiMock.expectGetRegisteredVoterCounts(null);
+    apiMock.expectGetSystemSettings();
+
+    renderInAppContext(<ReportsScreen />, {
+      electionDefinition,
+      apiMock,
+      isOfficialResults: true,
+    });
+
+    await screen.findByRole('heading', { name: 'Official Write-In Reports' });
   });
 
   test('not shown when election does not have write-in contests', async () => {
@@ -382,9 +398,7 @@ describe('polls close time enforcement', () => {
 
     await screen.findButton('Full Election Tally Report');
     expect(screen.getButton('Full Election Tally Report')).toBeEnabled();
-    expect(
-      screen.getButton('Unofficial Write-In Adjudication Report')
-    ).toBeEnabled();
+    expect(screen.getButton('Write-In Adjudication Report')).toBeEnabled();
     expect(screen.getButton('Mark Election Results as Official')).toBeEnabled();
     screen.getByText(/Test cast vote records are currently loaded/);
     expect(

@@ -67,7 +67,11 @@ import {
 } from '@votingworks/utils';
 import { randomUUID as uuid } from 'node:crypto';
 import { BaseLogger } from '@votingworks/logging';
-import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
+import {
+  BallotTemplateId,
+  generateBallotStyles,
+  MiGeneralBallotColumns,
+} from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
@@ -2160,16 +2164,19 @@ export class Store {
     assert(rowCount === 1, 'Contest not found');
   }
 
-  async getBallotLayoutSettings(
-    electionId: ElectionId
-  ): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+  async getBallotLayoutSettings(electionId: ElectionId): Promise<{
+    paperSize: HmpbBallotPaperSize;
+    compact: boolean;
+    miGeneralBallotColumns: MiGeneralBallotColumns;
+  }> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
           `
             select
               ballot_paper_size as "paperSize",
-              ballot_compact as "compact"
+              ballot_compact as "compact",
+              mi_general_ballot_columns as "miGeneralBallotColumns"
             from elections
             where id = $1
           `,
@@ -2184,7 +2191,8 @@ export class Store {
   async updateBallotLayoutSettings(
     electionId: ElectionId,
     paperSize: HmpbBallotPaperSize,
-    compact: boolean
+    compact: boolean,
+    miGeneralBallotColumns: MiGeneralBallotColumns
   ): Promise<void> {
     const { rowCount } = await this.db.withClient((client) =>
       client.query(
@@ -2192,11 +2200,13 @@ export class Store {
           update elections
           set
             ballot_paper_size = $1,
-            ballot_compact = $2
-          where id = $3
+            ballot_compact = $2,
+            mi_general_ballot_columns = $3
+          where id = $4
         `,
         paperSize,
         compact,
+        miGeneralBallotColumns,
         electionId
       )
     );

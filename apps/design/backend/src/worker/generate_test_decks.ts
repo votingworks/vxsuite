@@ -63,7 +63,8 @@ export async function generateTestDecks(
     jurisdictionId,
     systemSettings,
   } = electionRecord;
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const { compact, miGeneralBallotColumns } =
+    await store.getBallotLayoutSettings(electionId);
 
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
@@ -90,7 +91,8 @@ export async function generateTestDecks(
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    compact
+    compact,
+    miGeneralBallotColumns
   );
   const testBallotProps = allBallotProps.filter(
     (props) =>
