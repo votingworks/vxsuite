@@ -536,7 +536,7 @@ test('results', async ({ page }) => {
   });
 
   await page.getByRole('button', { name: 'Reports' }).click();
-  await page.getByText('Unofficial Write-In Adjudication Report').click();
+  await page.getByText('Write-In Adjudication Report').click();
   await page
     .getByRole('heading', { name: 'Write-In Adjudication Report' })
     .waitFor();
