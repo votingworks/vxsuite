@@ -154,8 +154,6 @@ test('app config - polling usb from backend does not trigger with election manag
         singlePrecinctElectionTownStreetNames
       )
     );
-    // We don't actually expect the usb drive status to be called
-    mockUsbDrive.usbDrive.status.reset();
     vitest.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
     expect(await localApiClient.getElection()).toEqual(
       err('not-found-network')

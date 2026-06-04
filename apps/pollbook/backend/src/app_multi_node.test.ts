@@ -428,7 +428,6 @@ test('connection status between two pollbooks is managed properly - connected an
     });
 
     // Unconfigure one machine and they should update to wrong election.
-    pollbookContext1.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
     await pollbookContext1.localApiClient.unconfigure();
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);

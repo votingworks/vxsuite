@@ -45,7 +45,7 @@ import {
   safeParseElectionDefinition,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { AddressInfo } from 'node:net';
@@ -85,7 +85,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 let driver: MockPaperHandlerDriver;
@@ -270,9 +270,7 @@ test('configureElectionPackageFromUsb throws when no USB drive mounted', async (
     electionFamousNames2021Fixtures.readElectionDefinition();
   mockElectionManagerAuth(mockAuth, electionDefinition);
 
-  mockUsbDrive.usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'no_drive' });
+  mockUsbDrive.removeUsbDrive();
   await suppressingConsoleOutput(async () => {
     await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow(
       'No USB drive mounted'
@@ -328,21 +326,17 @@ test('configure with CDF election', async () => {
 });
 
 test('usbDrive', async () => {
-  const { usbDrive } = mockUsbDrive;
-
-  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  mockUsbDrive.removeUsbDrive();
   expect(await apiClient.getUsbDriveStatus()).toEqual({
     status: 'no_drive',
   });
 
-  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 
   mockElectionManagerAuth(
     mockAuth,
     electionFamousNames2021Fixtures.readElectionDefinition()
   );
-  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 });
 

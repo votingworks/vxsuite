@@ -15,7 +15,7 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 
 import {
   interpretedBmdBallot,
@@ -65,7 +65,7 @@ const batch1: BatchInfo = {
 
 let mockCentralScannerStore: MockCentralScannerStore;
 let mockPrecinctScannerStore: MockPrecinctScannerStore;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let tempDirectoryPath: string;
 
 beforeEach(() => {
@@ -73,13 +73,12 @@ beforeEach(() => {
   // behavior, always using "scan" is fine for the purposes of these tests.
   process.env['VX_MACHINE_TYPE'] = 'scan';
 
-  mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive = new MockUsbDriveManager();
   mockCentralScannerStore = new MockCentralScannerStore();
   mockPrecinctScannerStore = new MockPrecinctScannerStore();
   tempDirectoryPath = makeTemporaryDirectory();
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves();
   mockCentralScannerStore.setElectionDefinition(electionDefinition);
   mockCentralScannerStore.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   mockCentralScannerStore.setBatches([batch1]);
@@ -92,7 +91,6 @@ beforeEach(() => {
 afterEach(() => {
   fs.rmSync(tempDirectoryPath, { recursive: true });
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
-  mockUsbDrive.assertComplete();
 });
 
 const sheet1Id = uuid();

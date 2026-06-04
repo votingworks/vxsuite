@@ -12,7 +12,7 @@ import {
 } from '@votingworks/types';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   getDiskSpaceSummary,
   mockElectionPackageFileTree,
@@ -73,7 +73,7 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 let apiClient: grout.Client<Api>;
 let logger: Logger;
 let mockAuth: InsertedSmartCardAuthApi;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
 let mockBarcodeClient: MockBarcodeClient;
@@ -239,7 +239,6 @@ test('printTestPage prints and logs', async () => {
 
 test('saveReadinessReport - machine not configured', async () => {
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const result = await apiClient.saveReadinessReport();
   result.assertOk('Failed to save readiness report');
@@ -274,7 +273,6 @@ test('saveReadinessReport - machine configured', async () => {
   const systemSettings = DEFAULT_SYSTEM_SETTINGS;
   const electionPkg: ElectionPackage = { electionDefinition, systemSettings };
   mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(electionPkg));
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
 

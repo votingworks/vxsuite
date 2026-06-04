@@ -82,7 +82,6 @@ test('going through the whole process works - BMD', async () => {
 
       {
         mockUsbDrive.insertUsbDrive({});
-        mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 
         expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 

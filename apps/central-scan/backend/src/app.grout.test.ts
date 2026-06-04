@@ -282,14 +282,12 @@ test('getting / setting test mode', async () => {
 
 test('usbDrive', async () => {
   await withApp(async ({ apiClient, mockUsbDrive }) => {
-    const { usbDrive } = mockUsbDrive;
-
-    usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+    mockUsbDrive.removeUsbDrive();
     expect(await apiClient.getUsbDriveStatus()).toEqual({
       status: 'no_drive',
     });
 
-    usbDrive.eject.expectCallWith().resolves();
+    // No-op without a drive.
     await apiClient.ejectUsbDrive();
   });
 });

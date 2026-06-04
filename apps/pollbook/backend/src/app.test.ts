@@ -110,9 +110,7 @@ test('getDeviceStatuses()', async () => {
         mockStreetNames,
         mockVoters
       );
-      mockUsbDrive.usbDrive.status
-        .expectRepeatedCallsWith()
-        .resolves({ status: 'no_drive' });
+      mockUsbDrive.removeUsbDrive();
       const result = await localApiClient.getDeviceStatuses();
       expect(result).toMatchObject({
         usbDrive: { status: 'no_drive' },

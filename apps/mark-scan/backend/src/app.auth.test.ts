@@ -16,7 +16,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
@@ -45,7 +45,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 

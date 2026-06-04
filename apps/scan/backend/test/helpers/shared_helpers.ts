@@ -28,7 +28,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { pdfToImages, ImageData } from '@votingworks/image-utils';
 
@@ -77,7 +77,7 @@ export async function waitForStatus(
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsbDrive: MockUsbDrive,
+  mockUsbDrive: MockUsbDriveManager,
   {
     electionPackage = electionFamousNames2021Fixtures.electionJson.toElectionPackage(),
     pollingPlaceId,

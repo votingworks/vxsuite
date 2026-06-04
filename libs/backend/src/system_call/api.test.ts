@@ -1,7 +1,7 @@
 /* eslint-disable prefer-regex-literals */
 
 import { beforeEach, expect, test, vi, afterEach } from 'vitest';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
@@ -38,7 +38,7 @@ const systemAdministratorUser = {
   programmingMachineType: 'admin',
 } as const;
 
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let logger: MockLogger;
 let mockGetAuthStatus: ReturnType<typeof vi.fn<GetAuthStatus>>;
 let api: SystemCallApiMethods;
@@ -46,7 +46,7 @@ let api: SystemCallApiMethods;
 beforeEach(() => {
   vi.clearAllMocks();
   (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
-  mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive = new MockUsbDriveManager();
   logger = mockLogger({ fn: vi.fn });
   mockGetAuthStatus = vi.fn<GetAuthStatus>(() =>
     Promise.resolve({

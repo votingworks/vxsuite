@@ -142,7 +142,7 @@ test('diagnostic records', async () => {
 
 test('unconfiguring clears diagnostic records', async () => {
   vi.useFakeTimers();
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
@@ -160,7 +160,6 @@ test('unconfiguring clears diagnostic records', async () => {
     timestamp: 1000,
   });
 
-  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
   await apiClient.unconfigureMachine();
   expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
 
@@ -240,7 +239,6 @@ test('save readiness report (with precinct selection)', async () => {
   vi.useRealTimers();
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportFileResult = await apiClient.saveReadinessReport();
   exportFileResult.assertOk('error saving readiness report to USB');
   expect(logger.log).toHaveBeenLastCalledWith(

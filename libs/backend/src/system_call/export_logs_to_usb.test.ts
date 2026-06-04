@@ -1,5 +1,5 @@
 import { beforeEach, expect, MockInstance, test, vi } from 'vitest';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import {
   Stats,
@@ -55,7 +55,7 @@ beforeEach(async () => {
 });
 
 test('exportLogsToUsb without logs directory', async () => {
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   mockUsbDrive.insertUsbDrive({});
 
   expect(
@@ -98,7 +98,7 @@ test('exportLogsToUsb without logs directory', async () => {
 });
 
 test('exportLogsToUsb without USB', async () => {
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   mockUsbDrive.removeUsbDrive();
 
   const mockStats = new Stats();
@@ -119,7 +119,7 @@ test('exportLogsToUsb without USB', async () => {
 });
 
 test('exportLogsToUsb with unknown failure', async () => {
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
@@ -155,13 +155,8 @@ test('exportLogsToUsb with unknown failure', async () => {
 });
 
 test('exportLogsToUsb works for vxf format when all conditions are met', async () => {
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const mockUsbDrive = new MockUsbDriveManager();
+  mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -184,13 +179,15 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
     '-p',
-    '/media/usb-drive/logs/machine_TEST-MACHINE-ID',
+    `${mockUsbDrive.getMountPoint()}/logs/machine_TEST-MACHINE-ID`,
   ]);
 
   expect(execFileMock).toHaveBeenCalledWith('cp', [
     '-r',
     '/var/log/votingworks',
-    expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
+    expect.stringMatching(
+      `^${mockUsbDrive.getMountPoint()}/logs/machine_TEST-MACHINE-ID/`
+    ),
   ]);
 
   expect(logger.log).toHaveBeenCalledWith(
@@ -201,20 +198,14 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
       message: 'Successfully saved logs on the usb drive.',
     })
   );
-
-  mockUsbDrive.assertComplete();
 });
 
 type LogFormat = 'compressed' | 'plain';
 const testPlainAndCompressed = test.each<LogFormat>(['plain', 'compressed']);
 
 testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
+  const mockUsbDrive = new MockUsbDriveManager();
+  mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -244,12 +235,8 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
 });
 
 test('exportLogsToUsb returns error when error filtering fails', async () => {
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
+  const mockUsbDrive = new MockUsbDriveManager();
+  mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -291,13 +278,8 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
 });
 
 testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const mockUsbDrive = new MockUsbDriveManager();
+  mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -347,13 +329,15 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
     '-p',
-    '/media/usb-drive/logs/machine_TEST-MACHINE-ID',
+    `${mockUsbDrive.getMountPoint()}/logs/machine_TEST-MACHINE-ID`,
   ]);
 
   expect(execFileMock).toHaveBeenCalledWith('cp', [
     '-r',
     expect.stringContaining('/tmp/'),
-    expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
+    expect.stringMatching(
+      `^${mockUsbDrive.getMountPoint()}/logs/machine_TEST-MACHINE-ID/`
+    ),
   ]);
 
   expect(logger.log).toHaveBeenCalledWith(
@@ -373,20 +357,13 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
       message: 'Successfully saved logs on the usb drive.',
     })
   );
-
-  mockUsbDrive.assertComplete();
 });
 
 testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const mockUsbDrive = new MockUsbDriveManager();
+  mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
@@ -424,13 +401,15 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
     '-p',
-    '/media/usb-drive/logs/machine_TEST-MACHINE-ID',
+    `${mockUsbDrive.getMountPoint()}/logs/machine_TEST-MACHINE-ID`,
   ]);
 
   expect(execFileMock).toHaveBeenCalledWith('cp', [
     '-r',
     expect.stringContaining('/tmp/'),
-    expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
+    expect.stringMatching(
+      `^${mockUsbDrive.getMountPoint()}/logs/machine_TEST-MACHINE-ID/`
+    ),
   ]);
 
   expect(createWriteStream).toHaveBeenCalledWith(
@@ -445,6 +424,4 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
       message: 'Successfully saved logs on the usb drive.',
     })
   );
-
-  mockUsbDrive.assertComplete();
 });

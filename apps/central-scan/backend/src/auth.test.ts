@@ -19,7 +19,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
@@ -49,7 +49,7 @@ beforeEach(async () => {
   server = start({
     app: buildCentralScannerApp({
       auth,
-      usbDrive: createMockUsbDrive().usbDrive,
+      usbDrive: new MockUsbDriveManager().usbDrive,
       scanner,
       importer: new Importer({ workspace, scanner, logger }),
       workspace,

@@ -1,72 +1,66 @@
-import { getTemporaryRootDir } from '@votingworks/fixtures';
-import { Mocked, mockFunction } from '@votingworks/test-utils';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import assert from 'node:assert';
+import { rmSync } from 'node:fs';
+import { inspect } from 'node:util';
 import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDrive } from '../types';
+import { UsbDrive, UsbDriveStatus } from '../types';
 
-/**
- * A mock of the UsbDrive interface. See createMockUsbDrive for details.
- */
-export interface MockUsbDrive {
-  usbDrive: Mocked<UsbDrive>;
-  assertComplete(): void;
-  insertUsbDrive(contents: MockFileTree): void;
-  removeUsbDrive(): void;
-}
+export class MockUsbDriveManager {
+  private status: UsbDriveStatus = { status: 'no_drive' };
+  private readonly mockUsbDrive: UsbDrive;
 
-/**
- * Creates a mock of the UsbDrive interface. Each method is mocked with a
- * mockFunction (see @votingworks/test-utils).
- *
- * Also has a insert()/remove() interface to create a mock USB drive backed by a
- * filesystem directory. If using this interface, the mock functions will
- * automatically be updated to return the correct status.
- *
- * Warning: if you use both interfaces, they may get out of sync.
- *
- * Requires that `setupTemporaryRootDir()` from `@votingworks/fixtures` has been
- * called.
- */
-export function createMockUsbDrive(): MockUsbDrive {
-  let mockUsbTmpDir: tmp.DirResult | undefined;
+  constructor() {
+    this.mockUsbDrive = {
+      status: () => Promise.resolve(this.status),
+      eject: () => {
+        this.status = { status: 'ejected' };
+        return Promise.resolve();
+      },
+      format: () => {
+        assert(this.status.status === 'mounted');
+        this.removeUsbDrive();
+        this.insertUsbDrive({});
+        return Promise.resolve();
+      },
+      sync: () => Promise.resolve(),
+    };
+  }
 
-  const usbDrive: Mocked<UsbDrive> = {
-    status: mockFunction('status'),
-    eject: mockFunction('eject'),
-    format: mockFunction('format'),
-    sync: mockFunction('sync'),
-  };
+  get usbDrive(): UsbDrive {
+    return this.mockUsbDrive;
+  }
 
-  return {
-    usbDrive,
+  /**
+   * Get the mount point path of the drive. Panics if the mock drive is not
+   * mounted.
+   */
+  getMountPoint(): string {
+    assert(
+      this.status.status === 'mounted',
+      `Mock USB drive is not mounted: ${inspect(this.status)}`
+    );
+    return this.status.mountPoint;
+  }
 
-    assertComplete() {
-      for (const method of Object.values(usbDrive)) {
-        method.assertComplete();
-      }
-    },
+  /**
+   * Replaces the contents of the current USB drive and mounts the mock drive.
+   */
+  insertUsbDrive(contents: MockFileTree): void {
+    const mountPoint = makeTemporaryDirectory();
+    writeMockFileTree(mountPoint, contents);
+    this.status = {
+      status: 'mounted',
+      mountPoint,
+    };
+  }
 
-    insertUsbDrive(contents: MockFileTree) {
-      mockUsbTmpDir?.removeCallback();
-      mockUsbTmpDir = tmp.dirSync({
-        unsafeCleanup: true,
-        tmpdir: getTemporaryRootDir(),
-      });
-      writeMockFileTree(mockUsbTmpDir.name, contents);
-      usbDrive.status.reset();
-      usbDrive.status.expectRepeatedCallsWith().resolves({
-        status: 'mounted',
-        mountPoint: mockUsbTmpDir.name,
-      });
-    },
-
-    removeUsbDrive() {
-      mockUsbTmpDir?.removeCallback();
-      mockUsbTmpDir = undefined;
-      usbDrive.status.reset();
-      usbDrive.status
-        .expectRepeatedCallsWith()
-        .resolves({ status: 'no_drive' });
-    },
-  };
+  /**
+   * Unmounts & ejects the mock drive, deleting its content.
+   */
+  removeUsbDrive(): void {
+    if (this.status.status === 'mounted') {
+      rmSync(this.status.mountPoint, { recursive: true, force: true });
+    }
+    this.status = { status: 'no_drive' };
+  }
 }

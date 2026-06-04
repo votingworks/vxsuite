@@ -21,7 +21,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
@@ -63,7 +63,7 @@ runUiStringApiTests({
   api: () =>
     buildApi({
       auth: mockAuth,
-      usbDrive: createMockUsbDrive().usbDrive,
+      usbDrive: new MockUsbDriveManager().usbDrive,
       printer: createMockPrinterHandler().printer,
       logger: buildMockLogger(mockAuth, workspace),
       barcodeClient: new MockBarcodeClient(),
@@ -78,7 +78,7 @@ runUiStringApiTests({
 });
 
 describe('configureElectionPackageFromUsb', () => {
-  let mockUsbDrive: MockUsbDrive;
+  let mockUsbDrive: MockUsbDriveManager;
   let api: Api;
 
   beforeEach(() => {
@@ -87,7 +87,7 @@ describe('configureElectionPackageFromUsb', () => {
       BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
     );
 
-    mockUsbDrive = createMockUsbDrive();
+    mockUsbDrive = new MockUsbDriveManager();
     api = buildApi({
       auth: mockAuth,
       usbDrive: mockUsbDrive.usbDrive,
@@ -123,7 +123,7 @@ describe('unconfigureMachine', () => {
     runUnconfigureMachine: () =>
       buildApi({
         auth: mockAuth,
-        usbDrive: createMockUsbDrive().usbDrive,
+        usbDrive: new MockUsbDriveManager().usbDrive,
         printer: createMockPrinterHandler().printer,
         logger: buildMockLogger(mockAuth, workspace),
         barcodeClient: new MockBarcodeClient(),

@@ -16,7 +16,7 @@ import {
 } from '@votingworks/types';
 import { getDiskSpaceSummary, pdfToText } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred, ok } from '@votingworks/basics';
@@ -99,7 +99,7 @@ let auth: InsertedSmartCardAuthApi;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 let patConnectionStatusReader: PatConnectionStatusReader;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let logger: Logger;
 let clock: SimulatedClock;
 
@@ -237,7 +237,6 @@ test('saving the readiness report (with precinct selection)', async () => {
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportResult = await apiClient.saveReadinessReport();
   expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -286,7 +285,6 @@ test('saving the readiness report', async () => {
   const [pollingPlace] = assertDefined(election.pollingPlaces);
   await apiClient.setPollingPlaceId({ id: pollingPlace.id });
 
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportResult = await apiClient.saveReadinessReport();
   expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(

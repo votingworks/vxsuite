@@ -2,7 +2,7 @@ import { expect, Mocked, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { typedAs } from '@votingworks/basics';
 
 import { mockBaseLogger } from '@votingworks/logging';
@@ -33,7 +33,7 @@ function buildTestApi() {
 
   const api = buildApi(
     mockAuth,
-    createMockUsbDrive().usbDrive,
+    new MockUsbDriveManager().usbDrive,
     buildMockLogger(mockAuth, workspace),
     workspace,
     mockStateMachine

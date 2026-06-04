@@ -31,7 +31,7 @@ import {
   mockScannerStatus,
 } from '@votingworks/pdi-scanner';
 import { mapSheet, SheetOf } from '@votingworks/types';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { Application } from 'express';
 import { readFile } from 'node:fs/promises';
 import { Server } from 'node:http';
@@ -129,7 +129,7 @@ export interface AppContext {
   mockAuth: Mocked<InsertedSmartCardAuthApi>;
   mockScanner: MockPdiScannerClient;
   workspace: Workspace;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockUsbDriveManager;
   mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler;
   logger: Logger;
   server: Server;
@@ -145,8 +145,7 @@ export async function withApp(
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(mockAuth, workspace);
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
+  const mockUsbDrive = new MockUsbDriveManager();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
   const { printer } = mockFujitsuPrinterHandler;
 
@@ -203,7 +202,6 @@ export async function withApp(
       server,
       clock,
     });
-    mockUsbDrive.assertComplete();
   } finally {
     await waitForContinuousExportToUsbDrive(workspace.store);
     await new Promise<void>((resolve, reject) => {

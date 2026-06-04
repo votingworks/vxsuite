@@ -8,12 +8,12 @@ import {
   UiStringAudioIdsPackage,
   UiStringsPackage,
 } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { Result, assertDefined } from '@votingworks/basics';
 import { UiStringsStore } from './ui_strings_store';
 import { mockElectionPackageFileTree } from '../election_package/test_utils';
 
-type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
+type MockUsbDriveLike = Pick<MockUsbDriveManager, 'insertUsbDrive'>;
 
 /** Test context for {@link runUiStringMachineConfigurationTests}. */
 export interface UiStringConfigTestContext {

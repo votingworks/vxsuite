@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { AddressInfo } from 'node:net';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
@@ -115,7 +115,7 @@ export async function configureMachine({
   ballots,
 }: {
   apiClient: grout.Client<Api>;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockUsbDriveManager;
   auth: DippedSmartCardAuthApi;
   electionDefinition: ElectionDefinition;
   ballots: EncodedBallotEntry[];
@@ -182,7 +182,7 @@ export function buildTestEnvironment(): {
   auth: DippedSmartCardAuthApi;
   logger: MockLogger;
   mockPrinterHandler: MemoryPrinterHandler;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockUsbDriveManager;
   server: Server;
   workspace: Workspace;
 } {
@@ -192,7 +192,7 @@ export function buildTestEnvironment(): {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const mockPrinterHandler = createMockPrinterHandler();
 
   const app = buildApp({

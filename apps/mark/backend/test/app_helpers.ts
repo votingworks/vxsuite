@@ -26,7 +26,7 @@ import {
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
@@ -43,7 +43,7 @@ interface MockAppContents {
   app: Application;
   logger: Logger;
   mockAuth: InsertedSmartCardAuthApi;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockUsbDriveManager;
   mockPrinterHandler: MemoryPrinterHandler;
   mockAudioPlayer?: AudioPlayer;
   server: Server;
@@ -75,7 +75,7 @@ export function createApp(options?: {
   );
   const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(mockAuth, workspace);
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const mockPrinterHandler = createMockPrinterHandler();
   const mockBarcodeClient = createMockBarcodeClient();
 
@@ -112,7 +112,7 @@ export function createApp(options?: {
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsbDrive: MockUsbDrive,
+  mockUsbDrive: MockUsbDriveManager,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;

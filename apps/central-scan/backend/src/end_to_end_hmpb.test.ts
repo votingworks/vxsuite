@@ -107,7 +107,6 @@ test('going through the whole process works - HMPB', async () => {
 
       {
         mockUsbDrive.insertUsbDrive({});
-        mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 
         expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
@@ -226,7 +225,6 @@ test('ballots printed with invalid scale are rejected', async () => {
 
       {
         mockUsbDrive.insertUsbDrive({});
-        mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 
         expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 

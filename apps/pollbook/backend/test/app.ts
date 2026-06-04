@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
@@ -58,7 +58,7 @@ export interface TestContext {
   auth: DippedSmartCardAuthApi;
   workspace: LocalWorkspace;
   peerWorkspace: PeerWorkspace;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockUsbDriveManager;
   mockPrinterHandler: MemoryPrinterHandler;
   localApiClient: grout.Client<LocalApi>;
   peerApiClient: grout.Client<PeerApi>;
@@ -152,9 +152,7 @@ export async function withApp(
   const logger = buildMockLogger(auth, workspace);
   const barcodeScannerClient = new BarcodeScannerClient(logger);
 
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by paper backup export
-
+  const mockUsbDrive = new MockUsbDriveManager();
   const mockPrinterHandler = createMockPrinterHandler();
 
   const app = buildLocalApp({
@@ -193,7 +191,6 @@ export async function withApp(
       peerServer,
       peerWorkspace,
     });
-    mockUsbDrive.assertComplete();
   } finally {
     // wait for paper backup export to finish?
     await new Promise<void>((resolve, reject) => {
@@ -241,9 +238,7 @@ export async function withManyApps(
       const { port: peerPort } = peerServer.address() as AddressInfo;
       const peerBaseUrl = `http://localhost:${peerPort}/api`;
 
-      const mockUsbDrive = createMockUsbDrive();
-      mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves();
-
+      const mockUsbDrive = new MockUsbDriveManager();
       const mockPrinterHandler = createMockPrinterHandler();
 
       const workspace = createLocalWorkspace(
@@ -296,10 +291,6 @@ export async function withManyApps(
     }
 
     await fn(contexts);
-
-    for (const context of contexts) {
-      context.mockUsbDrive.assertComplete();
-    }
   } finally {
     for (const context of contexts) {
       const serviceName = `Pollbook-test-${contexts.indexOf(context)}`;

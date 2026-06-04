@@ -6,7 +6,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { TEST_JURISDICTION } from '@votingworks/types';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'node:http';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
@@ -24,7 +24,7 @@ test('logs device attach/un-attach events', () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { usbDrive } = new MockUsbDriveManager();
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, logger, scanner });
   const app = buildCentralScannerApp({
@@ -84,7 +84,7 @@ test('logs when sheet counts are present at startup', () => {
   expect(workspace.store.getBallotsCounted()).toEqual(1);
 
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { usbDrive } = new MockUsbDriveManager();
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, logger, scanner });
   const app = buildCentralScannerApp({
@@ -124,7 +124,7 @@ test('logs when sheet counts are not present at startup', () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
+  const { usbDrive } = new MockUsbDriveManager();
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, logger, scanner });
   const app = buildCentralScannerApp({

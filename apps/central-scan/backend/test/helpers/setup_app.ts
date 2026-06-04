@@ -15,7 +15,7 @@ import {
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
@@ -41,7 +41,7 @@ export async function withApp(
     auth: Mocked<DippedSmartCardAuthApi>;
     workspace: Workspace;
     scanner: MockScanner;
-    mockUsbDrive: MockUsbDrive;
+    mockUsbDrive: MockUsbDriveManager;
     importer: Importer;
     app: Application;
     logger: Logger;
@@ -59,7 +59,7 @@ export async function withApp(
   const logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner, logger });
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,

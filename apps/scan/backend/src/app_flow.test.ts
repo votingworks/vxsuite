@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -48,7 +48,7 @@ beforeEach(() => {
 test('setup_card_reader', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_out',
@@ -67,7 +67,7 @@ test('setup_card_reader', async () => {
 test('login_prompt', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   expect(
     await isReadyToScan({
@@ -81,7 +81,7 @@ test('login_prompt', async () => {
 test('card_error', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_out',
@@ -100,7 +100,7 @@ test('card_error', async () => {
 test('unlock_machine (system_administrator)', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'checking_pin',
@@ -119,7 +119,7 @@ test('unlock_machine (system_administrator)', async () => {
 test('logged_in:system_administrator', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
@@ -139,7 +139,7 @@ test('logged_in:system_administrator', async () => {
 test('unlock_machine (election_manager)', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   const electionManagerUser = mockElectionManagerUser({ electionKey });
 
@@ -166,7 +166,7 @@ test('unlock_machine (election_manager)', async () => {
 test('unlock_machine (poll_worker)', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
@@ -193,7 +193,7 @@ test('unlock_machine (poll_worker)', async () => {
 test('unconfigured:election (election_manager)', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   const electionManagerUser = mockElectionManagerUser({ electionKey });
 
@@ -215,7 +215,7 @@ test('unconfigured:election (election_manager)', async () => {
 test('unconfigured:election (poll_worker)', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
@@ -237,7 +237,7 @@ test('unconfigured:election (poll_worker)', async () => {
 test('logged_in:election_manager', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const electionManagerUser = mockElectionManagerUser({ electionKey });
 
   store.setElectionAndJurisdiction({
@@ -266,7 +266,7 @@ test('unconfigured:precinct', async () => {
 
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
   store.setElectionAndJurisdiction({
@@ -295,7 +295,7 @@ test('unconfigured:polling_place', async () => {
 
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
   store.setElectionAndJurisdiction({
@@ -322,7 +322,7 @@ test('unconfigured:polling_place', async () => {
 test('USB drive removed', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   mockUsbDrive.insertUsbDrive({});
   store.setElectionAndJurisdiction({
@@ -365,7 +365,7 @@ test('USB drive removed', async () => {
 test('logged_in:poll_worker', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
   store.setElectionAndJurisdiction({
@@ -395,7 +395,7 @@ test('logged_in:poll_worker', async () => {
 test('polls_not_open', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
@@ -418,7 +418,7 @@ test('polls_not_open', async () => {
 test('cast_vote_record_sync_required', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
@@ -446,7 +446,7 @@ test('ballot:waiting_to_scan (polling places disabled)', async () => {
 
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
@@ -474,7 +474,7 @@ test('ballot:waiting_to_scan', async () => {
 
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
 
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,

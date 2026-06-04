@@ -22,7 +22,7 @@ import {
   SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   ALL_PRECINCTS_SELECTION,
   getFeatureFlagMock,
@@ -538,7 +538,7 @@ test('resetElectionSession', async () => {
   const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
   configureElectionNh(store);
 
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   mockUsbDrive.insertUsbDrive({});
   const mockUsbDriveStatus = await mockUsbDrive.usbDrive.status();
 

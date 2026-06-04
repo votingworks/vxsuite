@@ -9,7 +9,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -77,7 +77,7 @@ test('scanner disconnected on startup', async () => {
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const logger = buildMockLogger(mockAuth, workspace);
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     auth: mockAuth,

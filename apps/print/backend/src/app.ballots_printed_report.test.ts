@@ -21,7 +21,7 @@ import {
 } from '@votingworks/printing';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { Server } from 'node:http';
 import {
   buildTestEnvironment,
@@ -42,7 +42,7 @@ let server: Server | undefined;
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
 let logger: MockLogger;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let mockPrinterHandler: MemoryPrinterHandler;
 let workspace: Workspace;
 
@@ -86,8 +86,6 @@ beforeEach(() => {
     server,
     workspace,
   } = buildTestEnvironment());
-
-  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 });
 
 afterEach(() => {

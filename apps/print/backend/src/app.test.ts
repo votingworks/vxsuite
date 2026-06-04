@@ -34,7 +34,7 @@ import {
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -80,7 +80,7 @@ let server: Server | undefined;
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
 let logger: MockLogger;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let mockPrinterHandler: MemoryPrinterHandler;
 let workspace: Workspace;
 
@@ -100,7 +100,6 @@ beforeEach(() => {
   } = buildTestEnvironment());
 
   batteryInfo = null;
-  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 });
 
 afterEach(() => {
@@ -183,9 +182,6 @@ test('getDeviceStatuses and ejectUsbDrive', async () => {
   mockUsbDrive.insertUsbDrive({});
   batteryInfo = { level: 0.52, discharging: true };
 
-  // Allow eject() and then simulate the drive being removed.
-  mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
-
   const statuses = await apiClient.getDeviceStatuses();
   expect(statuses.usbDrive).toEqual(
     expect.objectContaining({ status: 'mounted' })
@@ -203,8 +199,6 @@ test('getDeviceStatuses and ejectUsbDrive', async () => {
   batteryInfo = null;
   const statusesNoBattery = await apiClient.getDeviceStatuses();
   expect(statusesNoBattery.battery).toBeUndefined();
-
-  mockUsbDrive.usbDrive.eject.assertComplete();
 });
 
 test('configureElectionPackageFromUsb reads to and writes from store', async () => {

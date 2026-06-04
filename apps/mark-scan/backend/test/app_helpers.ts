@@ -30,7 +30,7 @@ import {
 } from '@votingworks/types';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
@@ -81,7 +81,7 @@ interface MockAppContents {
   app: Application;
   logger: Logger;
   mockAuth: InsertedSmartCardAuthApi;
-  mockUsbDrive: MockUsbDrive;
+  mockUsbDrive: MockUsbDriveManager;
   server: Server;
   stateMachine: PaperHandlerStateMachine;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
@@ -103,7 +103,7 @@ export async function createApp(
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(mockAuth, workspace);
-  const mockUsbDrive = createMockUsbDrive();
+  const mockUsbDrive = new MockUsbDriveManager();
   const patConnectionStatusReader =
     options?.patConnectionStatusReader ??
     new MockPatConnectionStatusReader(logger);
@@ -150,7 +150,7 @@ export async function createApp(
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsbDrive: MockUsbDrive,
+  mockUsbDrive: MockUsbDriveManager,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<{ election: Election }> {
   const jurisdiction = TEST_JURISDICTION;

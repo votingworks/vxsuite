@@ -15,7 +15,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -56,7 +56,7 @@ runUiStringApiTests({
   api: () =>
     buildApi(
       mockAuth,
-      createMockUsbDrive().usbDrive,
+      new MockUsbDriveManager().usbDrive,
       buildMockLogger(mockAuth, workspace),
       workspace
     ).methods(),
@@ -69,7 +69,7 @@ runUiStringApiTests({
 });
 
 describe('configureElectionPackageFromUsb', () => {
-  let mockUsbDrive: MockUsbDrive;
+  let mockUsbDrive: MockUsbDriveManager;
   let api: Api;
 
   beforeEach(() => {
@@ -78,7 +78,7 @@ describe('configureElectionPackageFromUsb', () => {
       BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
     );
 
-    mockUsbDrive = createMockUsbDrive();
+    mockUsbDrive = new MockUsbDriveManager();
     api = buildApi(
       mockAuth,
       mockUsbDrive.usbDrive,
@@ -104,7 +104,7 @@ describe('unconfigureMachine', () => {
     runUnconfigureMachine: () =>
       buildApi(
         mockAuth,
-        createMockUsbDrive().usbDrive,
+        new MockUsbDriveManager().usbDrive,
         buildMockLogger(mockAuth, workspace),
         workspace
       )

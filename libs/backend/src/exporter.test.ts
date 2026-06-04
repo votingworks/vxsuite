@@ -1,11 +1,11 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { readFile, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { Exporter, ExportDataResult } from './exporter';
 import { execFile } from './exec';
 
@@ -17,16 +17,12 @@ vi.mock(
   })
 );
 
-const mockUsbDrive = createMockUsbDrive();
+const mockUsbDrive = new MockUsbDriveManager();
 const { usbDrive } = mockUsbDrive;
 
 const exporter = new Exporter({
   allowedExportPatterns: ['/tmp/**'],
   usbDrive,
-});
-
-afterEach(() => {
-  mockUsbDrive.assertComplete();
 });
 
 test('exportData with string', async () => {
@@ -139,7 +135,7 @@ test('exportData with a symbolic link', async () => {
 });
 
 test('exportDataToUsbDrive with no drives', async () => {
-  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  mockUsbDrive.removeUsbDrive();
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -150,12 +146,8 @@ test('exportDataToUsbDrive with no drives', async () => {
 });
 
 test('exportDataToUsbDrive happy path', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  const path = join(tmpDir, 'bucket/test.txt');
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'mounted', mountPoint: tmpDir });
-  usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.insertUsbDrive({});
+  const path = join(mockUsbDrive.getMountPoint(), 'bucket/test.txt');
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -166,12 +158,8 @@ test('exportDataToUsbDrive happy path', async () => {
 });
 
 test('exportDataToUsbDrive with maximumFileSize', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  const path = join(tmpDir, 'bucket/test.txt');
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'mounted', mountPoint: tmpDir });
-  usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.insertUsbDrive({});
+  const path = join(mockUsbDrive.getMountPoint(), 'bucket/test.txt');
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -186,19 +174,14 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
 });
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'mounted', mountPoint: tmpDir });
-  usbDrive.sync.expectCallWith().resolves();
-
+  mockUsbDrive.insertUsbDrive({});
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
     Readable.from('1234'),
     { machineDirectoryToWriteToFirst: '/tmp/abcd' }
   );
-  const usbFilePath = join(tmpDir, 'bucket/test.txt');
+  const usbFilePath = join(mockUsbDrive.getMountPoint(), 'bucket/test.txt');
   const machineFilePath = '/tmp/abcd/test.txt';
   expect(result).toEqual(ok([usbFilePath]));
   expect(await readFile(usbFilePath, 'utf-8')).toEqual('1234');

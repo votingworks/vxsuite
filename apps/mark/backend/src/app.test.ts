@@ -42,7 +42,7 @@ import { Buffer } from 'node:buffer';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import {
   HP_LASER_PRINTER_CONFIG,
@@ -80,7 +80,7 @@ vi.mock('./audio/player');
 let apiClient: grout.Client<Api>;
 let logger: Logger;
 let mockAuth: InsertedSmartCardAuthApi;
-let mockUsbDrive: MockUsbDrive;
+let mockUsbDrive: MockUsbDriveManager;
 let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
 let workspace: Workspace;
@@ -282,9 +282,7 @@ test('configureElectionPackageFromUsb throws when no USB drive mounted', async (
     electionFamousNames2021Fixtures.readElectionDefinition();
   mockElectionManagerAuth(electionDefinition);
 
-  mockUsbDrive.usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'no_drive' });
+  mockUsbDrive.removeUsbDrive();
   await suppressingConsoleOutput(async () => {
     await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow(
       'No USB drive mounted'
@@ -352,20 +350,16 @@ test('configure with CDF election', async () => {
 });
 
 test('usbDrive', async () => {
-  const { usbDrive } = mockUsbDrive;
-
-  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  mockUsbDrive.removeUsbDrive();
   expect(await apiClient.getUsbDriveStatus()).toEqual({
     status: 'no_drive',
   });
 
-  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 
   mockElectionManagerAuth(
     electionFamousNames2021Fixtures.readElectionDefinition()
   );
-  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 });
 
@@ -374,7 +368,7 @@ async function expectElectionState(expected: Partial<ElectionState>) {
 }
 
 async function configureMachine(
-  usbDrive: MockUsbDrive,
+  usbDrive: MockUsbDriveManager,
   electionDefinition: ElectionDefinition,
   uiStrings?: UiStringsPackage
 ) {

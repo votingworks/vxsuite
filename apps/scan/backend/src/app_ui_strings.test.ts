@@ -7,7 +7,7 @@ import {
   runUiStringMachineDeconfigurationTests,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { MockUsbDriveManager } from '@votingworks/usb-drive';
 
 import {
   mockElectionManagerUser,
@@ -63,7 +63,7 @@ beforeEach(() => {
   );
 });
 
-const mockUsbDrive = createMockUsbDrive();
+const mockUsbDrive = new MockUsbDriveManager();
 const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const electionDefinition = safeParseElectionDefinition(
