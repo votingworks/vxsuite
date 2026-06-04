@@ -4,6 +4,7 @@ exports[`Default system settings for 'DEMO' - If a change is intentional, update
 {
   "adminAdjudicationReasons": [
     "Overvote",
+    "BlankBallot",
     "MarginalMark",
   ],
   "auth": {
@@ -46,6 +47,7 @@ exports[`Default system settings for 'MI' - If a change is intentional, update s
     "BlankBallot",
     "MarginalMark",
   ],
+  "areWriteInCandidatesQualified": true,
   "auth": {
     "arePollWorkerCardPinsEnabled": false,
     "inactiveSessionTimeLimitMinutes": 30,
@@ -71,6 +73,8 @@ exports[`Default system settings for 'MI' - If a change is intentional, update s
   "precinctScanDisableAlarms": true,
   "precinctScanDisableScreenReaderAudio": true,
   "precinctScanEnableBmdBallotScanning": true,
+  "precinctScanEnableWriteInImageReport": true,
+  "quickResultsReportingUrl": "http://localhost:3000/report",
   "retryStreakWidthThreshold": 1,
 }
 `;
