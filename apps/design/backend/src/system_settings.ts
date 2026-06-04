@@ -47,6 +47,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     centralScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
     adminAdjudicationReasons: [
       AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
       AdjudicationReason.MarginalMark,
     ],
 
@@ -72,7 +73,10 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
       AdjudicationReason.MarginalMark,
     ],
 
+    areWriteInCandidatesQualified: true,
     bmdPrintMode: 'bubble_ballot',
+    precinctScanEnableWriteInImageReport: true,
+    quickResultsReportingUrl: resultsReportingUrl(),
   },
 
   MS: {
