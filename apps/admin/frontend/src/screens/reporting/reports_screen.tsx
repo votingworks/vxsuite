@@ -209,30 +209,24 @@ export function ReportsScreen(): JSX.Element {
       </Section>
       {!closedPollsActionsBlocked && electionHasWriteInContest && (
         <Section>
-          <H2>Write-In Reports</H2>
+          <H2>{statusPrefix} Write-In Reports</H2>
           <P>
+            <LinkButton
+              to={routerPaths.tallyWriteInReport}
+              disabled={closedPollsActionsBlocked}
+            >
+              Write-In Adjudication Report
+            </LinkButton>{' '}
             <LinkButton to={routerPaths.writeInImageReport}>
-              Single Contest Write-In Image Report
+              Write-In Image Report
             </LinkButton>
           </P>
         </Section>
       )}
       {!closedPollsActionsBlocked &&
-        (electionHasWriteInContest ||
-          voterTurnoutReportEnabled ||
-          isLiveResultsReportingEnabled) && (
+        (voterTurnoutReportEnabled || isLiveResultsReportingEnabled) && (
           <Section>
             <H2>Other Reports</H2>
-            {electionHasWriteInContest && (
-              <P>
-                <LinkButton
-                  to={routerPaths.tallyWriteInReport}
-                  disabled={closedPollsActionsBlocked}
-                >
-                  {statusPrefix} Write-In Adjudication Report
-                </LinkButton>
-              </P>
-            )}
             {voterTurnoutReportEnabled && (
               <P>
                 <LinkButton to={routerPaths.voterTurnoutReport}>
