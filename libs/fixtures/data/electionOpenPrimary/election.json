@@ -765,6 +765,28 @@
       }
     }
   ],
+  "pollingPlaces": [
+    {
+      "id": "precinct-1-polling-place",
+      "name": "Precinct 1",
+      "precincts": {
+        "precinct-1": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    },
+    {
+      "id": "precinct-2-polling-place",
+      "name": "Precinct 2",
+      "precincts": {
+        "precinct-2": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ],
   "precincts": [
     {
       "id": "precinct-1",
@@ -950,6 +972,10 @@
         "democratic-party": "Democratic",
         "republican-party": "Republican",
         "libertarian-party": "Libertarian"
+      },
+      "pollingPlaceName": {
+        "precinct-1-polling-place": "Precinct 1",
+        "precinct-2-polling-place": "Precinct 2"
       },
       "precinctName": {
         "precinct-1": "Precinct 1",
