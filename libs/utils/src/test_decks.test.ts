@@ -22,7 +22,7 @@ import {
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
-} from './test_deck_ballots';
+} from './test_decks';
 
 import { buildContestResultsFixture } from './tabulation/tabulation';
 

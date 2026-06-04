@@ -28,5 +28,5 @@ export * from './structural_sharing';
 export * from './sqlite';
 export * from './system_limits';
 export * from './tabulation';
-export * from './test_deck_ballots';
+export * from './test_decks';
 export * from './votes';
