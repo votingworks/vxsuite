@@ -1032,7 +1032,9 @@ function LiveReportsResultsScreen({
   const contests = getContestsForPrecinctAndElection(
     aggregatedResults.election,
     precinctSelection
-  );
+    // Straight party voting results are not submitted for live reporting, so
+    // we exclude the contest here to avoid misleadingly displaying all zeros
+  ).filter((contest) => contest.type !== 'straight-party');
   const contestsByParty = groupContestsByParty(
     aggregatedResults.election,
     contests
