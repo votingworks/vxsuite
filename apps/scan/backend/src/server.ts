@@ -53,6 +53,8 @@ export async function start({
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
+  // TODO: We can likely consolidate on the file-based mock scanner in all
+  // cases — the branching here isn't known to be required.
   /* istanbul ignore next - @preserve */
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER

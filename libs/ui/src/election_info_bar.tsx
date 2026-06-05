@@ -88,6 +88,7 @@ export function ElectionInfo({
   );
 
   return (
+    // data-testid is used in screenshot-generating integration tests
     <ElectionInfoContainer data-testid="electionInfo">
       <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
       <Caption weight="regular">
