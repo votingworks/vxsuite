@@ -13,6 +13,7 @@ import {
   getBallotStyle,
   hasSplits,
   Id,
+  isOpenPrimary,
   LanguageCode,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
@@ -233,7 +234,8 @@ export function PrintScreen({
 
   const parties = getPartyOptions(election);
   const { printer } = getDeviceStatusesQuery.data;
-  const hidePartySelection = election.type !== 'primary';
+  const hidePartySelection =
+    election.type !== 'primary' || isOpenPrimary(election);
 
   // If VxPrint is configured for a single precinct, hide the precinct
   // selection for Poll Workers and default to the configured precinct
