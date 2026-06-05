@@ -41,7 +41,7 @@ test('Single Seat Contest', async () => {
   const [precinctId] = Object.keys(pollingPlace.precincts);
 
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',

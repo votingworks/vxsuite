@@ -35,7 +35,7 @@ test('Voter idle timeout', async () => {
   const pollingPlace = anyPollingPlace(electionDefinition.election);
 
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
