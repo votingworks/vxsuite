@@ -5,27 +5,33 @@ import {
 import {
   Election,
   ElectionDefinition,
-  UiStringsPackage,
+  LanguageCode,
+  UiStringTranslations,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 
 // Inject multi-language ballot strings so the voter language selector appears.
 // Each language needs its own name in its own script; other languages fall back
-// to English display names via the Intl API. Mirrors the scan integration tests.
-const multiLangBallotStrings: UiStringsPackage = {
+// to English display names via the Intl API. Mirrors the scan integration
+// tests. The Record types ensure every supported language has a display name in
+// every other language.
+const multiLangBallotStrings: Record<
+  LanguageCode,
+  { ballotLanguage: Record<LanguageCode, string> }
+> = {
   en: {
     ballotLanguage: {
       en: 'English',
-      es: 'Spanish',
+      'es-US': 'Spanish',
       'zh-Hans': 'Simplified Chinese',
       'zh-Hant': 'Traditional Chinese',
     },
   },
   // spell-checker: disable-next-line
-  es: {
+  'es-US': {
     ballotLanguage: {
       en: 'inglés',
-      es: 'español',
+      'es-US': 'español',
       'zh-Hans': 'chino simplificado',
       'zh-Hant': 'chino tradicional',
     },
@@ -33,7 +39,7 @@ const multiLangBallotStrings: UiStringsPackage = {
   'zh-Hans': {
     ballotLanguage: {
       en: '英语',
-      es: '西班牙语',
+      'es-US': '西班牙语',
       'zh-Hans': '简体中文',
       'zh-Hant': '繁体中文',
     },
@@ -41,7 +47,7 @@ const multiLangBallotStrings: UiStringsPackage = {
   'zh-Hant': {
     ballotLanguage: {
       en: '英文',
-      es: '西班牙文',
+      'es-US': '西班牙文',
       'zh-Hans': '簡體中文',
       'zh-Hant': '繁體中文',
     },
@@ -71,7 +77,12 @@ export function getMultiLanguageFamousNamesElectionDefinition(): ElectionDefinit
 
 // Languages to generate ballot-style variants for, matching electionGeneral's
 // translations. English is first so it is the default ballot style.
-const GENERAL_ELECTION_BALLOT_LANGUAGES = ['en', 'es-US', 'zh-Hans', 'zh-Hant'];
+const GENERAL_ELECTION_BALLOT_LANGUAGES: LanguageCode[] = [
+  LanguageCode.ENGLISH,
+  LanguageCode.SPANISH,
+  LanguageCode.CHINESE_SIMPLIFIED,
+  LanguageCode.CHINESE_TRADITIONAL,
+];
 
 /**
  * The general election, patched so each ballot style becomes a group of
@@ -101,9 +112,12 @@ export function getMultiLanguageGeneralElectionDefinition(): ElectionDefinition 
 }
 
 /** The set of language codes registered alongside the patched election. */
-export const MULTI_LANGUAGE_UI_STRINGS: UiStringsPackage = {
+export const MULTI_LANGUAGE_UI_STRINGS: Record<
+  LanguageCode,
+  UiStringTranslations
+> = {
   en: {},
-  es: {},
+  'es-US': {},
   'zh-Hans': {},
   'zh-Hant': {},
 };

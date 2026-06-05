@@ -17,8 +17,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   ElectionDefinition,
+  LanguageCode,
   SystemSettings,
-  UiStringsPackage,
   VotesDict,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -203,20 +203,23 @@ test('voting', async ({ page }) => {
   // Inject multi-language ballot strings so the language selector appears.
   // Each language needs its own name in its own script; other languages fall
   // back to English display names via the Intl API.
-  const multiLangBallotStrings: UiStringsPackage = {
+  const multiLangBallotStrings: Record<
+    LanguageCode,
+    { ballotLanguage: Record<LanguageCode, string> }
+  > = {
     en: {
       ballotLanguage: {
         en: 'English',
-        es: 'Spanish',
+        'es-US': 'Spanish',
         'zh-Hans': 'Simplified Chinese',
         'zh-Hant': 'Traditional Chinese',
       },
     },
     // spell-checker: disable-next-line
-    es: {
+    'es-US': {
       ballotLanguage: {
         en: 'inglés',
-        es: 'español',
+        'es-US': 'español',
         'zh-Hans': 'chino simplificado',
         'zh-Hant': 'chino tradicional',
       },
@@ -224,7 +227,7 @@ test('voting', async ({ page }) => {
     'zh-Hans': {
       ballotLanguage: {
         en: '英语',
-        es: '西班牙语',
+        'es-US': '西班牙语',
         'zh-Hans': '简体中文',
         'zh-Hant': '繁体中文',
       },
@@ -232,7 +235,7 @@ test('voting', async ({ page }) => {
     'zh-Hant': {
       ballotLanguage: {
         en: '英文',
-        es: '西班牙文',
+        'es-US': '西班牙文',
         'zh-Hans': '簡體中文',
         'zh-Hant': '繁體中文',
       },
@@ -329,7 +332,7 @@ test('voting', async ({ page }) => {
       systemSettings,
       // uiStrings registers the language codes; ballotLanguage strings come
       // from electionDefinition.election.ballotStrings (merged on load).
-      uiStrings: { en: {}, es: {}, 'zh-Hans': {}, 'zh-Hant': {} },
+      uiStrings: { en: {}, 'es-US': {}, 'zh-Hans': {}, 'zh-Hant': {} },
     })
   );
   await page.getByText('Election Manager Menu').waitFor();
