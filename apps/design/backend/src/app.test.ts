@@ -485,8 +485,9 @@ test('create/list/delete elections', async () => {
   const election2Parties = await apiClient.listParties({
     electionId: sliElectionId,
   });
+  // Parties retain their source order (creation order), not alphabetized.
   expect(election2Parties).toEqual(
-    sliElection.parties.toSorted(compareName).map((party) => ({
+    sliElection.parties.map((party) => ({
       ...party,
       id: expectNotEqualTo(party.id),
     }))
@@ -1880,6 +1881,57 @@ test('updateParties', async () => {
     { id: 'p4', abbrev: '4', fullName: 'party 4', name: 'p4' },
     { id: 'p5', abbrev: '5', fullName: 'party 5', name: 'p5' },
     { id: 'p6', abbrev: '6', fullName: 'party 6', name: 'p6' },
+  ]);
+});
+
+test('parties are ordered by creation, not alphabetically', async () => {
+  const { apiClient: api, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await api.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: 'election-order',
+    })
+  ).unsafeUnwrap();
+
+  // Add parties in reverse-alphabetical order; they should come back in the
+  // order they were created, not re-sorted by name.
+  (
+    await api.updateParties({
+      electionId,
+      newParties: [
+        { id: 'pc', abbrev: 'c', fullName: 'party c', name: 'c' },
+        { id: 'pa', abbrev: 'a', fullName: 'party a', name: 'a' },
+        { id: 'pb', abbrev: 'b', fullName: 'party b', name: 'b' },
+      ],
+    })
+  ).unsafeUnwrap();
+  expect((await api.listParties({ electionId })).map((p) => p.id)).toEqual([
+    'pc',
+    'pa',
+    'pb',
+  ]);
+
+  // A newly added party is appended to the end, not interleaved by name.
+  (
+    await api.updateParties({
+      electionId,
+      newParties: [
+        { id: 'pa2', abbrev: 'a2', fullName: 'party a2', name: 'a2' },
+      ],
+    })
+  ).unsafeUnwrap();
+  expect((await api.listParties({ electionId })).map((p) => p.id)).toEqual([
+    'pc',
+    'pa',
+    'pb',
+    'pa2',
   ]);
 });
 
