@@ -1475,6 +1475,71 @@ describe('open primaries', () => {
       expect(results.contestResults[contest.id]?.ballots).toEqual(0);
     }
   });
+
+  test("consolidated ballots omit other parties' contests rather than counting undervotes", async () => {
+    // Consolidated open primary ballots include every party's contests, so the
+    // interpreter records empty selections for the parties the voter didn't
+    // vote. Those empty other-party contests must be omitted entirely, not
+    // counted as undervotes.
+    const results = (
+      await tabulateCastVoteRecords({
+        election: openPrimaryElection,
+        cvrs: [
+          // Red (republican) ballot
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': [],
+              'governor-republican': ['dave-wilson'],
+              'governor-libertarian': [],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+          // Blue (democratic) ballot
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': ['alice-jones'],
+              'governor-republican': [],
+              'governor-libertarian': [],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+          // Crossover ballot
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': ['alice-jones'],
+              'governor-republican': ['dave-wilson'],
+              'governor-libertarian': [],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+        ],
+      })
+    )[GROUP_KEY];
+    assert(results);
+
+    // Each single-party contest counts exactly one ballot, with no undervotes
+    // leaking in from the other ballots' empty selections.
+    expect(results.contestResults['governor-democratic']).toMatchObject({
+      ballots: 1,
+      undervotes: 0,
+    });
+    expect(results.contestResults['governor-republican']).toMatchObject({
+      ballots: 1,
+      undervotes: 0,
+    });
+    expect(results.contestResults['governor-libertarian']).toMatchObject({
+      ballots: 0,
+      undervotes: 0,
+    });
+    // The nonpartisan contest counts all three ballots.
+    expect(results.contestResults['ballot-measure-1']).toMatchObject({
+      ballots: 3,
+      yesTally: 3,
+    });
+  });
 });
 
 test('getOfficialCandidateNameLookup', () => {
