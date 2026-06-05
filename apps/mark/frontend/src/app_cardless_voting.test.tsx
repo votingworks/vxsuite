@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { PollingPlace } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
@@ -245,12 +246,30 @@ test('poll worker card insertion during printing does not cause duplicate print'
   await screen.findByText('Insert Card');
 });
 
-test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
+test('in multi-precinct location, poll worker must select a precinct first', async () => {
+  const { election } = electionDefinition;
+
+  const multiPrecinctLocation: PollingPlace = {
+    id: 'multi-precinct-polling-place',
+    name: 'Springfield Community Center',
+    type: 'election_day',
+    precincts: {
+      [election.precincts[0].id]: { type: 'whole' },
+      [election.precincts[1].id]: { type: 'whole' },
+    },
+  };
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionRecord({
+    ...electionDefinition,
+    election: {
+      ...election,
+      pollingPlaces: [...(election.pollingPlaces ?? []), multiPrecinctLocation],
+    },
+  });
   apiMock.expectGetElectionState({
-    pollingPlaceId,
+    pollingPlaceId: multiPrecinctLocation.id,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -261,6 +280,10 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  await screen.findByText('Start a New Voting Session');
+  userEvent.click(screen.getByText('Select ballot style…'));
+
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
