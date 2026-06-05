@@ -1021,7 +1021,7 @@ export class Store {
               abbrev
             from parties
             where election_id = $1
-            order by name
+            order by ballot_order
           `,
           electionId
         )
