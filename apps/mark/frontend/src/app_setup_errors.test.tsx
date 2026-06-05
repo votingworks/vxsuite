@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { anyPollingPlace } from '@votingworks/types';
 import { act, render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -14,6 +14,7 @@ import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api';
 const NO_PRINTER_DETECTED_TEXT = 'No Printer Detected';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
+const pollingPlace = anyPollingPlace(electionGeneralDefinition.election);
 
 let apiMock: ApiMock;
 
@@ -36,7 +37,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
     });
 
@@ -72,7 +73,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
     });
 
@@ -108,7 +109,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
     });
 
@@ -132,7 +133,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
     });
 
@@ -170,7 +171,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_closed_final',
     });
     apiMock.setPrinterStatus({ connected: false });
@@ -187,7 +188,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
     });
 
@@ -224,7 +225,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
     });
 

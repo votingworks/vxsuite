@@ -1,13 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import {
-  asElectionDefinition,
-  electionTwoPartyPrimaryFixtures,
-} from '@votingworks/fixtures';
-import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName as Feature,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { asElectionDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
@@ -24,13 +16,6 @@ import {
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
-
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: Feature) => featureFlagMock.isEnabled(flag),
-}));
 
 vi.mock('@votingworks/mark-flow-ui', async (importActual) => ({
   ...(await importActual()),
@@ -55,7 +40,6 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
-  featureFlagMock.resetFeatureFlags();
 });
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
@@ -134,7 +118,6 @@ test('wires up location picker', async () => {
     election,
     pollsState,
     selectPollingPlace: expect.anything(),
-    selectPrecinct: expect.anything(),
     pollingPlaceId: place1.id,
   });
 
@@ -142,41 +125,6 @@ test('wires up location picker', async () => {
   client.setPollingPlaceId.expectCallWith({ id: place2.id }).resolves();
   await props.selectPollingPlace(place2.id);
   client.assertComplete();
-});
-
-test('can switch the precinct', async () => {
-  await useRealPrecinctPicker();
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetUsbPortStatus();
-  renderScreen();
-
-  apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  userEvent.click(screen.getByLabelText('Select a precinct…'));
-  userEvent.click(screen.getByText('All Precincts'));
-});
-
-test('precinct change disabled if polls closed', async () => {
-  await useRealPrecinctPicker();
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetUsbPortStatus();
-  renderScreen({ pollsState: 'polls_closed_final' });
-
-  const precinctSelect = screen.getByLabelText('Select a precinct…');
-  expect(precinctSelect).toBeDisabled();
-});
-
-test('precinct selection absent if single precinct election', async () => {
-  await useRealPrecinctPicker();
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetUsbPortStatus();
-  renderScreen({
-    electionDefinition:
-      electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
-  });
-
-  screen.getByText('Election Manager Menu');
-  await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('renders a save logs button with no usb', async () => {
@@ -298,7 +246,6 @@ test('navigates to diagnostics screen and back', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -362,20 +309,3 @@ test('does not show enable USB ports button when USB ports are enabled', async (
     screen.queryByRole('button', { name: 'Enable USB Ports' })
   ).not.toBeInTheDocument();
 });
-
-async function useRealPrecinctPicker() {
-  const markFlowUi = await vi.importActual<
-    typeof import('@votingworks/mark-flow-ui')
-  >('@votingworks/mark-flow-ui');
-
-  setPollingPlacesEnabled(false);
-  MockLocationPicker.mockImplementation(markFlowUi.LocationPicker);
-}
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

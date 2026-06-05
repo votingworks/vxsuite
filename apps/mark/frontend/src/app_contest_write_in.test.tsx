@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
-import { ContestId, OptionalVote, VotesDict } from '@votingworks/types';
+import {
+  anyPollingPlace,
+  ContestId,
+  OptionalVote,
+  VotesDict,
+} from '@votingworks/types';
 import { useHistory } from 'react-router-dom';
 import { act, fireEvent, render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -71,10 +75,14 @@ afterEach(() => {
 test('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
+  const electionDefinition = readElectionGeneralDefinition();
+  const pollingPlace = anyPollingPlace(electionDefinition.election);
+  const [precinctId] = Object.keys(pollingPlace.precincts);
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
     isTestMode: false,
   });
@@ -89,7 +97,7 @@ test('Single Seat Contest with Write In', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Go to First Contest

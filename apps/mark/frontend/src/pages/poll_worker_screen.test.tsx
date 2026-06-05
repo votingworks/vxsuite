@@ -10,7 +10,6 @@ import {
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
@@ -22,8 +21,6 @@ import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import { act, fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
-
-import { defaultPrecinctId } from '../../test/helpers/election';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
@@ -81,7 +78,6 @@ function renderScreen(
         pollWorkerAuth={pollWorkerAuth}
         activateCardlessVoterSession={vi.fn()}
         resetCardlessVoterSession={vi.fn()}
-        appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
         hasVotes={false}
@@ -155,17 +151,14 @@ test('Shows election info', () => {
 });
 
 test('renders session start section', () => {
-  const [precinct] = election.precincts;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
   const activateCardlessVoterSession = vi.fn();
-  const appPrecinct = singlePrecinctSelectionFor(precinct.id);
   const pollingPlaceId = pollingPlace.id;
 
   renderScreen({
     activateCardlessVoterSession,
     pollingPlaceId,
-    appPrecinct,
   });
 
   screen.getByTestId(MOCK_SECTION_SESSION_START_ID);
@@ -175,7 +168,6 @@ test('renders session start section', () => {
     election,
     onChooseBallotStyle: expect.any(Function),
     pollingPlaceId,
-    precinctSelection: appPrecinct,
   });
   expect(activateCardlessVoterSession).not.toHaveBeenCalled();
 

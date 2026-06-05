@@ -8,7 +8,6 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -138,21 +137,22 @@ test('uses ballot style management hook', async () => {
   );
 });
 
-const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
+const precinctId = '23';
+const pollingPlaceId = `${precinctId}-polling-place`;
 
 test('PAT device tutorial is shown when PAT key is pressed during voter session', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
 
   // Start as cardless voter
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -179,14 +179,14 @@ test('PAT device tutorial can be skipped', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
 
   // Start as cardless voter
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -214,7 +214,7 @@ test('PAT device tutorial is not triggered when not in voter session', async () 
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
 

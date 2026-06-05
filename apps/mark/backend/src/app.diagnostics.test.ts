@@ -259,8 +259,6 @@ test('saveReadinessReport - machine not configured', async () => {
 });
 
 test('saveReadinessReport - machine configured', async () => {
-  setPollingPlacesEnabled(true);
-
   const fixtures = electionFamousNames2021Fixtures;
   const electionDefinition = fixtures.readElectionDefinition();
 
@@ -350,11 +348,3 @@ test('clearLastBarcodeScan clears the scan data', async () => {
   // Verify it's cleared
   expect(await apiClient.getMostRecentBarcodeScan()).toBeNull();
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

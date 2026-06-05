@@ -2,10 +2,7 @@ import { afterEach, beforeEach, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus, Keybinding } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName as Feature,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { getFeatureFlagMock } from '@votingworks/utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -34,11 +31,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
     provideApi(
       apiMock,
       <MemoryRouter>
-        <DiagnosticsScreen
-          isFeatureEnabled={featureFlagMock.isEnabled}
-          onBackButtonPress={vi.fn()}
-          {...props}
-        />
+        <DiagnosticsScreen onBackButtonPress={vi.fn()} {...props} />
       </MemoryRouter>
     )
   );
@@ -70,7 +63,6 @@ test('renders diagnostics screen with all sections', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -105,7 +97,6 @@ test('navigating to and from system audio diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -142,7 +133,6 @@ test('navigating to and from system audio diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -179,7 +169,6 @@ test('navigating to and from system audio diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -205,7 +194,6 @@ test('navigating to and from headphone input diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -242,7 +230,6 @@ test('navigating to and from headphone input diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -279,7 +266,6 @@ test('navigating to and from headphone input diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -305,7 +291,6 @@ test('navigating to and from PAT input diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -355,7 +340,6 @@ test('navigating to and from PAT input diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -393,7 +377,6 @@ test('navigating to and from barcode reader diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -436,7 +419,6 @@ test('navigating to and from barcode reader diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -465,7 +447,6 @@ test('UPS diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -502,7 +483,6 @@ test('UPS diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
-    precinctSelection: undefined,
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -536,8 +516,6 @@ test('UPS diagnostic - fail', async () => {
 });
 
 test('election configuration info', async () => {
-  setPollingPlacesEnabled(true);
-
   const { election } = electionDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
@@ -553,11 +531,3 @@ test('election configuration info', async () => {
   screen.getByText(election.title, { exact: false });
   screen.getByText(pollingPlace.name, { exact: false });
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

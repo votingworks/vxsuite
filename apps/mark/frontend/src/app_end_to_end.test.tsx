@@ -49,8 +49,6 @@ vi.setConfig({
 
 // [TODO] Move to browser integration test.
 test('MarkAndPrint end-to-end flow', async () => {
-  setPollingPlacesEnabled(true);
-
   const logger = mockBaseLogger({ fn: vi.fn });
 
   const electionDefinition: ElectionDefinition = {
@@ -392,15 +390,4 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByText('Insert a USB drive containing an election package');
-
-  setPollingPlacesEnabled(false);
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  // The mock feature flagger doesn't seem to work when an external package
-  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
-  // directly.
-  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
-    ? 'TRUE'
-    : 'FALSE';
-}

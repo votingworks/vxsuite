@@ -16,7 +16,6 @@ import {
   InsertedSmartCardAuth,
   PollsState,
   PrecinctId,
-  PrecinctSelection,
   SystemSettings,
   PrinterStatus,
   PrinterConfig,
@@ -328,12 +327,6 @@ export function createApiMock() {
 
     expectSetTestMode(isTestMode: boolean) {
       mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
-    },
-
-    expectSetPrecinctSelection(precinctSelection: PrecinctSelection) {
-      mockApiClient.setPrecinctSelection
-        .expectCallWith({ precinctSelection })
-        .resolves();
     },
 
     expectPrintBallot(

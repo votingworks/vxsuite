@@ -1,15 +1,9 @@
 import { ThemeProvider } from 'styled-components';
 import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import {
   ConfigurationSection,
   ConfigurationSectionProps,
   PollingPlaceSection,
   PollingPlaceSectionProps,
-  PrecinctSelectionSection,
-  PrecinctSelectionSectionProps,
 } from './configuration_section';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
@@ -39,13 +33,11 @@ type AudioDeviceInputProps = Omit<
 
 interface ReportContentsProps
   extends ConfigurationSectionProps,
-    PrecinctSelectionSectionProps,
     PollingPlaceSectionProps,
     StorageSectionProps,
     PrinterSectionProps,
     UpsSectionProps {
   accessibleControllerProps: NonpresentationalSectionProps;
-  isFeatureEnabled?: (f: BooleanEnvironmentVariableName) => boolean;
   patInputProps: NonpresentationalSectionProps;
   barcodeReaderProps: NonpresentationalSectionProps;
   headphoneInputProps: AudioDeviceInputProps;
@@ -56,16 +48,13 @@ interface ReportContentsProps
 export function MarkReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
   const {
     accessibleControllerProps,
     electionDefinition,
-    isFeatureEnabled = isFeatureFlagEnabled,
     patInputProps,
     barcodeReaderProps,
     headphoneInputProps,
     pollingPlaceId,
-    precinctSelection,
     systemAudioProps,
   } = props;
   const election = electionDefinition?.election;
@@ -73,17 +62,10 @@ export function MarkReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props}>
-        {isFeatureEnabled(ENABLE_POLLING_PLACES) ? (
-          <PollingPlaceSection
-            election={election}
-            pollingPlaceId={pollingPlaceId}
-          />
-        ) : (
-          <PrecinctSelectionSection
-            election={election}
-            precinctSelection={precinctSelection}
-          />
-        )}
+        <PollingPlaceSection
+          election={election}
+          pollingPlaceId={pollingPlaceId}
+        />
       </ConfigurationSection>
       <StorageSection {...props} />
       <PrinterSection {...props} />

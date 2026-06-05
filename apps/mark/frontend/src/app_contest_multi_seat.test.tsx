@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { anyPollingPlace } from '@votingworks/types';
 import {
   fireEvent,
   render,
@@ -34,10 +34,15 @@ afterEach(() => {
 
 test('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
+
+  const electionDefinition = readElectionGeneralDefinition();
+  const pollingPlace = anyPollingPlace(electionDefinition.election);
+  const [precinctId] = Object.keys(pollingPlace.precincts);
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
   });
 
@@ -47,7 +52,7 @@ test('Single Seat Contest', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Go to First Contest

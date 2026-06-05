@@ -1,8 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -33,15 +29,16 @@ vi.setConfig({
   testTimeout: 30000,
 });
 
-const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
+const precinctId = '23';
+const pollingPlaceId = `${precinctId}-polling-place`;
+const electionDefinition = readElectionGeneralDefinition();
 
 test('poll worker selects ballot style, voter votes', async () => {
-  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -53,7 +50,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Remove Card to Begin Voting Session');
@@ -72,14 +69,14 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Voter Ballot Style is active
@@ -95,7 +92,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Voting Session Paused');
@@ -116,7 +113,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Remove Card to Begin Voting Session');
@@ -124,7 +121,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Voter Ballot Style is active
@@ -148,7 +145,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   // Advance to print ballot
   apiMock.expectPrintBallot({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
     votes: {
       [presidentContest.id]: [presidentContest.candidates[0]],
     },
@@ -180,12 +177,11 @@ test('poll worker selects ballot style, voter votes', async () => {
 });
 
 test('poll worker card insertion during printing does not cause duplicate print', async () => {
-  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -200,7 +196,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
   // Poll worker removes card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   userEvent.click(screen.getByText('Start Voting'));
@@ -218,7 +214,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
   // Voter clicks print — only one printBallot call should ever be made
   apiMock.expectPrintBallot({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
     votes: { [presidentContest.id]: [presidentContest.candidates[0]] },
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
@@ -234,7 +230,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
   // Poll worker removes card — voter session resumes at the print screen
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
   // The print screen is shown again but no second printBallot call is made
   await screen.findByText(/Printing Your Ballot/i);
@@ -250,12 +246,11 @@ test('poll worker card insertion during printing does not cause duplicate print'
 });
 
 test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
-  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -269,7 +264,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Remove Card to Begin Voting Session');
@@ -280,7 +275,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Voter Ballot Style is active

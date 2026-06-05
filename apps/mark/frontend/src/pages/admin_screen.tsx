@@ -18,22 +18,12 @@ import {
   Button,
   ToggleUsbPortsButton,
 } from '@votingworks/ui';
-import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
 import { LocationPicker } from '@votingworks/mark-flow-ui';
-import {
-  ejectUsbDrive,
-  logOut,
-  setPrecinctSelection,
-  setTestMode,
-  useApiClient,
-} from '../api';
+import { ejectUsbDrive, logOut, setTestMode, useApiClient } from '../api';
 import * as api from '../api';
 import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
 import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
@@ -59,7 +49,6 @@ const ButtonGrid = styled.div`
   margin-bottom: 0.5rem;
 `;
 export interface AdminScreenProps {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
@@ -72,7 +61,6 @@ export interface AdminScreenProps {
 }
 
 export function AdminScreen({
-  appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
   electionPackageHash,
@@ -88,7 +76,6 @@ export function AdminScreen({
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
-  const selectPrecinct = setPrecinctSelection.useMutation().mutateAsync;
   const selectPollingPlace = api.setPollingPlaceId.useMutation().mutateAsync;
   const setTestModeMutation = setTestMode.useMutation();
   const systemSettingsQuery = api.getSystemSettings.useQuery();
@@ -123,18 +110,14 @@ export function AdminScreen({
           {format.count(ballotsPrintedCount)}
         </P>
         <H3 as="h2">Configuration</H3>
-        {election.precincts.length > 1 && (
-          <P>
-            <LocationPicker
-              appPrecinct={appPrecinct}
-              election={election}
-              pollsState={pollsState}
-              pollingPlaceId={pollingPlaceId}
-              selectPollingPlace={(id) => selectPollingPlace({ id })}
-              selectPrecinct={(p) => selectPrecinct({ precinctSelection: p })}
-            />
-          </P>
-        )}
+        <P>
+          <LocationPicker
+            election={election}
+            pollsState={pollsState}
+            pollingPlaceId={pollingPlaceId}
+            selectPollingPlace={(id) => selectPollingPlace({ id })}
+          />
+        </P>
         <P>
           <SegmentedButton
             label="Ballot Mode"
@@ -191,7 +174,6 @@ export function AdminScreen({
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
         pollingPlaceId={pollingPlaceId}
-        precinctSelection={appPrecinct}
       />
       {isConfirmingModeSwitch && (
         <ConfirmSwitchModeModal

@@ -8,6 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
+import { BooleanEnvironmentVariableName as Feature } from '@votingworks/utils';
 import { cleanup, configure } from '../test/react_testing_library';
 import './polyfills';
 
@@ -15,6 +16,9 @@ expect.extend(matchers);
 configure({ asyncUtilTimeout: 5_000 });
 
 beforeEach(() => {
+  // [TODO] Remove after full migration of mark-flow-ui.
+  process.env[Feature.ENABLE_POLLING_PLACES] = 'TRUE';
+
   globalThis.print = vi.fn(() => {
     throw new Error('globalThis.print() should never be called');
   });

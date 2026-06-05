@@ -2,7 +2,6 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
-  PrecinctSelection,
   PollsState,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
@@ -27,7 +26,6 @@ export interface PollworkerScreenProps {
     ballotStyleId: BallotStyleId
   ) => void;
   resetCardlessVoterSession: () => void;
-  appPrecinct?: PrecinctSelection;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   hasVotes: boolean;
@@ -42,7 +40,6 @@ export function PollWorkerScreen({
   pollWorkerAuth,
   activateCardlessVoterSession,
   resetCardlessVoterSession,
-  appPrecinct,
   electionDefinition,
   electionPackageHash,
   isLiveMode,
@@ -118,7 +115,6 @@ export function PollWorkerScreen({
               election={election}
               onChooseBallotStyle={onChooseBallotStyle}
               pollingPlaceId={pollingPlaceId}
-              precinctSelection={appPrecinct}
             />
           )}
           <SectionPollsState
@@ -144,7 +140,6 @@ export function PollWorkerScreen({
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
         pollingPlaceId={pollingPlaceId}
-        precinctSelection={appPrecinct}
       />
     </Screen>
   );

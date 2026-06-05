@@ -13,6 +13,7 @@ import {
   PrecinctWithSplits,
 } from './election';
 import {
+  anyPollingPlace,
   pollingPlaceBallotStyles,
   pollingPlaceContests,
   pollingPlaceFromElection,
@@ -23,6 +24,19 @@ import {
   pollingPlacesGenerateFromPrecincts,
   pollingPlaceTypeName,
 } from './polling_places';
+
+test('anyPollingPlace', () => {
+  expect(() => anyPollingPlace(mockElection({}))).toThrow(/no polling places/i);
+  expect(() => anyPollingPlace(mockElection({ pollingPlaces: [] }))).toThrow(
+    /no polling places/i
+  );
+
+  const place1 = mockPollingPlace({ id: 'pp1' });
+  const place2 = mockPollingPlace({ id: 'pp2' });
+  const election = mockElection({ pollingPlaces: [place2, place1] });
+
+  expect(anyPollingPlace(election)).toEqual(place2);
+});
 
 test('pollingPlaceBallotStyles', () => {
   const precinct1 = mockPrecinctNoSplits({ id: 'p1' });

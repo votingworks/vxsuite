@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotStyle,
   Contests,
@@ -9,6 +9,13 @@ import {
   Precinct,
   PrecinctOrSplit,
 } from './election';
+
+export function anyPollingPlace(election: Election): PollingPlace {
+  const err = 'no polling places in election';
+  const places = assertDefined(election.pollingPlaces, err);
+
+  return assertDefined(places[0], err);
+}
 
 export function pollingPlaceBallotStyles(
   election: Election,
