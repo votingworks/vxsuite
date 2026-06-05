@@ -2176,21 +2176,33 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../../../libs/usb-drive
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
       concurrently:
         specifier: 7.6.0
         version: 7.6.0

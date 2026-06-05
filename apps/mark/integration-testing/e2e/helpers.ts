@@ -1,9 +1,9 @@
 import { ElementHandle, Page } from '@playwright/test';
 import {
-  INTEGRATION_TEST_DEFAULT_PIN,
   mockCardRemoval,
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
+import { enterPin } from './support/auth';
 
 /**
  * Find all the "More" buttons on the page.
@@ -22,16 +22,6 @@ export async function findMoreButtons(
   ).filter((button): button is ElementHandle<HTMLButtonElement> =>
     Boolean(button)
   );
-}
-
-/**
- * Enters the PIN into the PIN pad.
- */
-export async function enterPin(page: Page): Promise<void> {
-  await page.getByText('Enter Card PIN').waitFor();
-  for (const digit of INTEGRATION_TEST_DEFAULT_PIN) {
-    await page.getByRole('button', { name: digit }).click();
-  }
 }
 
 /**

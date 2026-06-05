@@ -2,6 +2,12 @@ APP := ..
 export PIPENV_VENV_IN_PROJECT=1
 export MARK_WORKSPACE=/tmp/mark-integration-testing
 
+# Load and export environment variables from this package's .env file so they
+# take precedence over any .env.local overrides in the frontend/backend
+# packages when running locally.
+include .env
+export
+
 build-frontend:
 	make -C $(APP)/frontend install; \
 	make -C $(APP)/frontend build; \
