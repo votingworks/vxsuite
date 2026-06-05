@@ -10,6 +10,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isIntegrationTest,
 } from '@votingworks/utils';
 import { rootDebug } from './debug';
 import {
@@ -185,7 +186,10 @@ export function getFujitsuThermalPrinter(
 ): FujitsuThermalPrinterInterface {
   // mock printer for development and integration tests
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
-    return new MockFileFujitsuPrinter(logger);
+    return new MockFileFujitsuPrinter(
+      logger,
+      isIntegrationTest() ? { interval: 50, timeout: 500 } : undefined
+    );
   }
 
   return new FujitsuThermalPrinter(logger);

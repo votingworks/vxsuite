@@ -48,6 +48,7 @@ beforeEach(() => {
 
 afterEach(() => {
   workspace.reset();
+  vi.unstubAllEnvs();
 });
 
 const audioCardName = 'alsa_output.pci';

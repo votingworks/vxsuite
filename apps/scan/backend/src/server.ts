@@ -5,12 +5,14 @@ import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
+  createMockFilePdiScanner,
   createMockPdiScanner,
   createPdiScannerClient,
 } from '@votingworks/pdi-scanner';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isIntegrationTest,
 } from '@votingworks/utils';
 import {
   FujitsuThermalPrinterInterface,
@@ -20,7 +22,10 @@ import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
 import * as scanner from './scanner';
-import { Player as AudioPlayer } from './audio/player';
+import {
+  Player as AudioPlayer,
+  PlayerInterface as AudioPlayerInterface,
+} from './audio/player';
 import { AudioCard } from './audio/card';
 
 export interface StartOptions {
@@ -30,6 +35,7 @@ export interface StartOptions {
   port?: number | string;
   usbDrive?: UsbDrive;
   printer?: FujitsuThermalPrinterInterface;
+  audioPlayer?: AudioPlayerInterface;
 }
 
 /**
@@ -41,16 +47,21 @@ export async function start({
   logger,
   usbDrive,
   printer,
+  audioPlayer,
 }: StartOptions): Promise<void> {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
+  // TODO: We can likely consolidate on the file-based mock scanner in all
+  // cases — the branching here isn't known to be required.
+  /* istanbul ignore next */
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
   )
-    ? /* istanbul ignore next */
-      createMockPdiScanner()
+    ? isIntegrationTest()
+      ? createMockFilePdiScanner()
+      : createMockPdiScanner()
     : undefined;
 
   const precinctScannerStateMachine = scanner.createPrecinctScannerStateMachine(
@@ -68,17 +79,23 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  const audioCard = await AudioCard.default(NODE_ENV, logger);
-  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
+  /* istanbul ignore next */
+  const resolvedAudioPlayer =
+    audioPlayer ??
+    new AudioPlayer(
+      NODE_ENV,
+      logger,
+      await AudioCard.default(NODE_ENV, logger)
+    );
 
   const systemSettings = workspace.store.getSystemSettings();
   const isScreenReaderEnabled = Boolean(
     systemSettings && !systemSettings.precinctScanDisableScreenReaderAudio
   );
-  await audioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
+  await resolvedAudioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
 
   const app = buildApp({
-    audioPlayer,
+    audioPlayer: resolvedAudioPlayer,
     auth,
     machine: precinctScannerStateMachine,
     workspace,

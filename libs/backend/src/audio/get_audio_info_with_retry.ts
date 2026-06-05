@@ -2,6 +2,7 @@ import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
 import * as audio from '../system_call/get_audio_info';
+import { MOCK_AUDIO_INFO } from '../system_call/get_audio_info';
 
 /**
  * Audio info with a guaranteed builtin audio device.
@@ -23,10 +24,6 @@ export interface GetAudioInfoWithRetryOptions {
   nodeEnv: 'production' | 'development' | 'test';
   maxAttempts: number;
 }
-
-const MOCK_AUDIO_INFO: AudioInfoWithBuiltin = {
-  builtin: { headphonesActive: false, name: 'mock.builtin.stereo' },
-};
 
 /**
  * Intended to be run at machine startup. Since the PulseAudio service may not

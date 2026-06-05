@@ -42,7 +42,7 @@ test('everything but voting', async ({ page }) => {
 
   const {
     screenshot,
-    screenshotWithFocusHighlight,
+    screenshotWithButtonHighlight,
     withContainerVerticallyExpanded,
     clickModalButton,
   } = buildIntegrationTestHelper(page, screenshotCounter);
@@ -56,11 +56,11 @@ test('everything but voting', async ({ page }) => {
 
   await logInAsSystemAdministrator(page);
   await screenshot('sa-menu');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Diagnostics',
     'sa-menu-diagnostics-button'
   );
-  await screenshotWithFocusHighlight('Save Logs', 'sa-menu-save-logs-button');
+  await screenshotWithButtonHighlight('Save Logs', 'sa-menu-save-logs-button');
 
   await page.getByText('Diagnostics').click();
 
@@ -122,16 +122,16 @@ test('everything but voting', async ({ page }) => {
   );
   await page.getByText('Election Manager Menu').waitFor();
   await screenshot('em-menu');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Diagnostics',
     'em-menu-diagnostics-button'
   );
-  await screenshotWithFocusHighlight('Save Logs', 'em-menu-save-logs-button');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight('Save Logs', 'em-menu-save-logs-button');
+  await screenshotWithButtonHighlight(
     'Unconfigure Machine',
     'em-menu-unconfigure-machine-button'
   );
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Official Ballot Mode',
     'em-menu-official-ballot-mode-button'
   );
@@ -147,7 +147,7 @@ test('everything but voting', async ({ page }) => {
   await logInAsElectionManager(page, election);
   await page.getByText('Election Manager Menu').waitFor();
   await page.getByText('Official Ballot Mode').click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Test Ballot Mode',
     'em-menu-test-ballot-mode-button'
   );
@@ -161,10 +161,13 @@ test('everything but voting', async ({ page }) => {
   await page.getByText('Poll Worker Menu').waitFor();
   await screenshot('pw-menu-closed-initial');
 
-  await screenshotWithFocusHighlight('Open Polls', 'pw-menu-open-polls-button');
+  await screenshotWithButtonHighlight(
+    'Open Polls',
+    'pw-menu-open-polls-button'
+  );
 
   await page.getByText('Open Polls').click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Open Polls',
     'pw-menu-open-polls-confirm-button'
   );
@@ -172,13 +175,13 @@ test('everything but voting', async ({ page }) => {
   await clickModalButton('Open Polls');
   await page.getByText('Close Polls').waitFor();
   await screenshot('pw-menu-opened-polls');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Pause Voting',
     'pw-menu-pause-voting-button'
   );
 
   await page.getByText('Pause Voting').click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Pause Voting',
     'pw-menu-pause-voting-confirm-button'
   );
@@ -186,20 +189,20 @@ test('everything but voting', async ({ page }) => {
   await clickModalButton('Pause Voting');
   await page.getByText('Resume Voting').waitFor();
   await screenshot('pw-menu-paused-voting');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Resume Voting',
     'pw-menu-resume-voting-button'
   );
 
   await page.getByText('Resume Voting').click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Resume Voting',
     'pw-menu-resume-voting-confirm-button'
   );
   await clickModalButton('Resume Voting');
 
   // poll worker starts voting session
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     /Start Voting Session/,
     'pw-ballot-style-selection'
   );
@@ -220,13 +223,13 @@ test('everything but voting', async ({ page }) => {
 
   // closing
   await page.getByText('Close Polls').waitFor();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Close Polls',
     'pw-menu-close-polls-button'
   );
 
   await page.getByText('Close Polls').click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Close Polls',
     'pw-menu-close-polls-confirm-button'
   );
@@ -242,7 +245,7 @@ test('voting session', async ({ page }) => {
   const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
 
-  const { screenshot, screenshotWithFocusHighlight, clickModalButton } =
+  const { screenshot, screenshotWithButtonHighlight, clickModalButton } =
     buildIntegrationTestHelper(page, screenshotCounter);
 
   // Helper: Get contest metadata from UI
@@ -321,13 +324,13 @@ test('voting session', async ({ page }) => {
   /**
    * Language Selection
    */
-  await screenshotWithFocusHighlight(/English/, 'voting-language-button');
+  await screenshotWithButtonHighlight(/English/, 'voting-language-button');
   await page.getByRole('button', { name: /English/ }).click();
   await screenshot('voting-languages');
 
   const spanishOption = page.getByText(/Español/i);
   assert((await spanishOption.count()) > 0);
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     /Español/i,
     'voting-language-spanish-option'
   );
@@ -350,7 +353,7 @@ test('voting session', async ({ page }) => {
    * Accessibility Settings
    */
   await page.getByRole('button', { name: /Settings/i }).waitFor();
-  await screenshotWithFocusHighlight(/Settings/i, 'voting-settings-button');
+  await screenshotWithButtonHighlight(/Settings/i, 'voting-settings-button');
   await page.getByRole('button', { name: /Settings/i }).click();
   await screenshot('voting-settings-color');
 
@@ -384,11 +387,11 @@ test('voting session', async ({ page }) => {
 
   await page.getByText('Audio').click();
   await screenshot('voting-settings-audio');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Mute Audio',
     'voting-settings-mute-audio-button'
   );
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Enable Audio-Only Mode',
     'voting-settings-mute-audio-button'
   );
@@ -417,7 +420,7 @@ test('voting session', async ({ page }) => {
     // Capture write-in flow on first contest that supports it
     const writeInButton = page.getByText('add write-in candidate');
     if (!capturedWriteIn && (await writeInButton.isVisible())) {
-      await screenshotWithFocusHighlight(
+      await screenshotWithButtonHighlight(
         'add write-in candidate',
         'voting-write-in-button'
       );
@@ -453,7 +456,7 @@ test('voting session', async ({ page }) => {
 
     // Capture Next button on first contest
     if (!capturedNextButton && contestNum < totalContests) {
-      await screenshotWithFocusHighlight(/Next/, 'voting-contest-next-button');
+      await screenshotWithButtonHighlight(/Next/, 'voting-contest-next-button');
       capturedNextButton = true;
     }
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { Page, PageScreenshotOptions } from '@playwright/test';
+import type { Locator, Page, PageScreenshotOptions } from '@playwright/test';
 
 export interface ScreenshotCounter {
   next: () => string;
@@ -94,12 +94,41 @@ export function buildIntegrationTestHelper(
     await page.waitForTimeout(50);
   }
 
-  async function screenshotWithFocusHighlight(
+  async function screenshotWithButtonHighlight(
     buttonText: string | RegExp,
     name: string,
     args: PageScreenshotOptions = {}
   ) {
     await addFocusHighlight(buttonText);
+    await screenshot(name, args);
+    await removeFocusHighlight();
+  }
+
+  async function screenshotWithLocatorHighlight(
+    locator: Locator,
+    name: string,
+    args: PageScreenshotOptions = {}
+  ) {
+    await locator.evaluate((el: Element) => {
+      const rect = el.getBoundingClientRect();
+      const overlay = document.createElement('div');
+      overlay.setAttribute('data-focus-highlight', 'true');
+      overlay.style.cssText = `
+        position: fixed;
+        top: ${rect.top}px;
+        left: ${rect.left}px;
+        width: ${rect.width}px;
+        height: ${rect.height}px;
+        outline: 10px solid #00E7E7;
+        outline-offset: 2px;
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 9999;
+      `;
+      document.body.appendChild(overlay);
+    });
+
+    await page.waitForTimeout(50);
     await screenshot(name, args);
     await removeFocusHighlight();
   }
@@ -152,7 +181,8 @@ export function buildIntegrationTestHelper(
 
   return {
     screenshot,
-    screenshotWithFocusHighlight,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
     clickModalButton,
     withContainerVerticallyExpanded,
   };

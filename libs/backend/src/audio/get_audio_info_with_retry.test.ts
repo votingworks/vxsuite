@@ -104,7 +104,7 @@ test('returns mock audio info during integration tests', async () => {
   });
 
   expect(audioInfo).toEqual({
-    builtin: { headphonesActive: false, name: 'mock.builtin.stereo' },
+    builtin: { headphonesActive: true, name: 'mock.builtin.stereo' },
   });
 
   // Should not call the real getAudioInfo during integration tests:

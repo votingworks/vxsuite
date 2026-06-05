@@ -38,7 +38,7 @@ test('screenshots', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const {
     screenshot,
-    screenshotWithFocusHighlight,
+    screenshotWithButtonHighlight,
     withContainerVerticallyExpanded,
   } = buildIntegrationTestHelper(page, screenshotCounter);
 
@@ -63,18 +63,18 @@ test('screenshots', async ({ page }) => {
   await page.getByText('Official Ballot Mode').click();
   await screenshot('em-settings');
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Unconfigure Machine',
     'em-settings-unconfigure-machine-button'
   );
   await page.getByRole('button', { name: 'Unconfigure Machine' }).click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Delete All Election Data',
     'em-settings-confirm-unconfigure-button'
   );
   await page.getByText('Cancel').click();
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Save Logs',
     'em-settings-save-logs-button'
   );
@@ -101,7 +101,7 @@ test('screenshots', async ({ page }) => {
   await page.getByText('Scan New Batch').click();
   await page.getByText('Total Sheets: 1').waitFor();
   await screenshot('em-scan-ballots-with-batch');
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Save CVRs',
     'em-scan-ballots-save-cvrs-button'
   );

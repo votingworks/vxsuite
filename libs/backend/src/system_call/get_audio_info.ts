@@ -1,4 +1,5 @@
 import { LogEventId, Logger } from '@votingworks/logging';
+import { isIntegrationTest } from '@votingworks/utils';
 import { z } from 'zod/v4';
 import { execFile } from '../exec';
 import { NODE_ENV } from '../scan_globals';
@@ -31,11 +32,20 @@ const PactlSinkListSchema = z.array(
   })
 );
 
+/** Mock audio info returned in integration test environments. */
+export const MOCK_AUDIO_INFO: AudioInfo & { builtin: BuiltinAudio } = {
+  builtin: { headphonesActive: true, name: 'mock.builtin.stereo' },
+};
+
 /** Get current system audio status. */
 export async function getAudioInfo(ctx: {
   logger: Logger;
   nodeEnv: typeof NODE_ENV;
 }): Promise<AudioInfo> {
+  if (isIntegrationTest()) {
+    return MOCK_AUDIO_INFO;
+  }
+
   const { logger, nodeEnv } = ctx;
   let errorOutput: string;
   let commandOutput: string;

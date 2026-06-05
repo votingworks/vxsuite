@@ -146,7 +146,22 @@ export interface MockScanner {
 /**
  * Creates a {@link MockScanner} that simulates the behavior of the PDI scanner.
  */
-export function createMockPdiScanner(): MockScanner {
+export interface MockPdiScannerDelays {
+  scanDelay: number;
+  ejectDelay: number;
+  commandDelay: number;
+}
+
+const DEFAULT_MOCK_PDI_SCANNER_DELAYS: MockPdiScannerDelays = {
+  scanDelay: 1000,
+  ejectDelay: 1000,
+  commandDelay: 100,
+};
+
+/** Creates an in-memory mock PDI scanner for unit and integration tests. */
+export function createMockPdiScanner(
+  delays: MockPdiScannerDelays = DEFAULT_MOCK_PDI_SCANNER_DELAYS
+): MockScanner {
   const listeners = new Set<Listener>();
   function emitScannerEvent(event: ScannerEvent) {
     /* istanbul ignore next */
@@ -214,7 +229,7 @@ export function createMockPdiScanner(): MockScanner {
 
       scanning: {
         after: {
-          1000: {
+          [delays.scanDelay]: {
             actions: [
               (context) =>
                 emitScannerEvent({
@@ -259,7 +274,7 @@ export function createMockPdiScanner(): MockScanner {
 
       ejectingToRear: {
         after: {
-          1000: {
+          [delays.ejectDelay]: {
             // pdictl disables scanning after ejecting
             target: 'idleScanningDisabled',
           },
@@ -268,7 +283,7 @@ export function createMockPdiScanner(): MockScanner {
 
       ejectingToFrontAndHold: {
         after: {
-          1000: {
+          [delays.ejectDelay]: {
             target: 'sheetInFront',
           },
         },
@@ -304,7 +319,7 @@ export function createMockPdiScanner(): MockScanner {
   }
 
   function simulateCommandDelay() {
-    return sleep(100);
+    return sleep(delays.commandDelay);
   }
 
   const client: ScannerClient = {

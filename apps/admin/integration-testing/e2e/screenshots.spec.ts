@@ -123,7 +123,7 @@ test('system administrator', async ({ page }) => {
   });
   const electionPackageFileName = 'election-package.zip';
 
-  const { screenshot, screenshotWithFocusHighlight } =
+  const { screenshot, screenshotWithButtonHighlight } =
     buildIntegrationTestHelper(page, screenshotCounter);
 
   /**
@@ -156,28 +156,28 @@ test('system administrator', async ({ page }) => {
   await page.getByRole('heading', { name: election.title }).waitFor();
   await screenshot('election-screen-configured');
 
-  await screenshotWithFocusHighlight('Lock Machine', 'lock-machine-button');
+  await screenshotWithButtonHighlight('Lock Machine', 'lock-machine-button');
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Unconfigure Machine',
     'unconfigure-button'
   );
 
   await page.getByText('Unconfigure Machine').click();
   await page.getByRole('heading', { name: 'Unconfigure Machine' }).waitFor();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Delete All Election Data',
     'confirm-unconfigure-button'
   );
 
   await page.getByText('Cancel').click();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Save Election Package',
     'sa-save-election-package-button'
   );
   await page.getByText('Save Election Package').click();
   await page.getByRole('heading', { name: 'Save Election Package' }).waitFor();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Save',
     'sa-confirm-save-election-package-button'
   );
@@ -281,10 +281,10 @@ test('system administrator', async ({ page }) => {
   await screenshot('settings-screen');
 
   await mkdir('/var/log/votingworks', { recursive: true }); // app must find a logs dir for saving logs to be successful
-  await screenshotWithFocusHighlight('Save Logs', 'sa-save-logs-button');
+  await screenshotWithButtonHighlight('Save Logs', 'sa-save-logs-button');
   await page.getByText('Save Logs').click();
   await page.getByRole('heading', { name: 'Save Logs' }).waitFor();
-  await screenshotWithFocusHighlight('Save', 'sa-confirm-save-logs-button');
+  await screenshotWithButtonHighlight('Save', 'sa-confirm-save-logs-button');
 
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('heading', { name: 'Logs Saved' }).waitFor();
@@ -297,13 +297,13 @@ test('system administrator', async ({ page }) => {
   await page.getByText('Cancel').click();
 
   // format USB drive flow
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Format USB Drive',
     'format-usb-drive-button'
   );
   await page.getByText('Format USB Drive').click();
   await page.getByRole('heading', { name: 'Format USB Drive' }).waitFor();
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Format USB Drive',
     'confirm-format-usb-drive-button'
   );
@@ -329,7 +329,7 @@ test('system administrator', async ({ page }) => {
   await page.getByRole('heading', { name: 'Diagnostics' }).waitFor();
   await screenshot('diagnostics-screen');
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Print Test Page',
     'print-test-page-button'
   );
@@ -339,14 +339,14 @@ test('system administrator', async ({ page }) => {
   await screenshot('test-page-printed');
   await page.getByText('Cancel').click();
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Save Readiness Report',
     'save-readiness-report-button'
   );
   await page.getByRole('button', { name: 'Save Readiness Report' }).click();
   await page.getByRole('heading', { name: 'Save Readiness Report' }).waitFor();
 
-  await screenshotWithFocusHighlight(
+  await screenshotWithButtonHighlight(
     'Save',
     'confirm-save-readiness-report-button'
   );
