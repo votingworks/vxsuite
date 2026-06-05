@@ -2200,6 +2200,9 @@ importers:
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../../../libs/usb-drive
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
       concurrently:
         specifier: 7.6.0
         version: 7.6.0

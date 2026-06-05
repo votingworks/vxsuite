@@ -453,6 +453,7 @@ test('voter settings', async ({ page }) => {
   // is dual-language (Chinese + English).
   const electionDefinition = getMultiLanguageGeneralElectionDefinition();
   const { election } = electionDefinition;
+  const pollingPlaceName = 'Center Springfield';
   const helper = buildIntegrationTestHelper(page, screenshotCounter);
   const { screenshot, screenshotWithLocatorHighlight } = helper;
   const electionPackage = await mockElectionPackageFileTree({
@@ -470,7 +471,7 @@ test('voter settings', async ({ page }) => {
   await configureMachine(page, {
     election,
     electionPackage,
-    pollingPlaceName: 'Center Springfield',
+    pollingPlaceName,
   });
 
   // Open polls and start a voting session.
@@ -599,7 +600,7 @@ test('voter settings', async ({ page }) => {
   // Vote a full ballot so the printed ballot has real selections, then print
   // and capture the dual-language (English + Chinese) ballot. Wait for a new
   // print to land (an English ballot may have been printed earlier).
-  await voteFullBallot(page);
+  await voteFullBallot(page, { election, pollingPlaceName });
   const previousPrintPath = getMockFilePrinterHandler().getLastPrintPath();
   await page.locator('#next_after_confirm').click(); // Print My Ballot
   await expect
