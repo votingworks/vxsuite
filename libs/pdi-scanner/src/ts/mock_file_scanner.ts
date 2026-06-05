@@ -47,7 +47,7 @@ function readCommand(): Command {
   try {
     return JSON.parse(readFileSync(COMMAND_FILE, 'utf-8')) as Command;
   } catch {
-    /* istanbul ignore next - @preserve */
+    /* istanbul ignore next */
     return { type: 'none' };
   }
 }
