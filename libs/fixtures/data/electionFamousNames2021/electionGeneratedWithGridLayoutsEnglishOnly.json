@@ -128,6 +128,15 @@
       "hmpbVoteFor8": "Vote for up to 8",
       "hmpbVoteFor9": "Vote for up to 9",
       "hmpbVoteForNotMoreThan1": "Vote for not more than 1",
+      "hmpbVoteForNotMoreThan10": "Vote for not more than 10",
+      "hmpbVoteForNotMoreThan2": "Vote for not more than 2",
+      "hmpbVoteForNotMoreThan3": "Vote for not more than 3",
+      "hmpbVoteForNotMoreThan4": "Vote for not more than 4",
+      "hmpbVoteForNotMoreThan5": "Vote for not more than 5",
+      "hmpbVoteForNotMoreThan6": "Vote for not more than 6",
+      "hmpbVoteForNotMoreThan7": "Vote for not more than 7",
+      "hmpbVoteForNotMoreThan8": "Vote for not more than 8",
+      "hmpbVoteForNotMoreThan9": "Vote for not more than 9",
       "hmpbVotingComplete": "You have completed voting.",
       "hmpbWriteIn": "Write-in"
     }

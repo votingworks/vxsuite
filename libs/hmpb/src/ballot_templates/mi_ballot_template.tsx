@@ -298,15 +298,15 @@ function CandidateContest({
   });
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
-    2: hmpbStrings.hmpbVoteFor2,
-    3: hmpbStrings.hmpbVoteFor3,
-    4: hmpbStrings.hmpbVoteFor4,
-    5: hmpbStrings.hmpbVoteFor5,
-    6: hmpbStrings.hmpbVoteFor6,
-    7: hmpbStrings.hmpbVoteFor7,
-    8: hmpbStrings.hmpbVoteFor8,
-    9: hmpbStrings.hmpbVoteFor9,
-    10: hmpbStrings.hmpbVoteFor10,
+    2: hmpbStrings.hmpbVoteForNotMoreThan2,
+    3: hmpbStrings.hmpbVoteForNotMoreThan3,
+    4: hmpbStrings.hmpbVoteForNotMoreThan4,
+    5: hmpbStrings.hmpbVoteForNotMoreThan5,
+    6: hmpbStrings.hmpbVoteForNotMoreThan6,
+    7: hmpbStrings.hmpbVoteForNotMoreThan7,
+    8: hmpbStrings.hmpbVoteForNotMoreThan8,
+    9: hmpbStrings.hmpbVoteForNotMoreThan9,
+    10: hmpbStrings.hmpbVoteForNotMoreThan10,
   }[contest.seats];
   if (!voteForText) {
     throw new Error(
