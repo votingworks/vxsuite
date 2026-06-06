@@ -78,6 +78,27 @@ describe('contest list', () => {
     screen.getByText('Mammal Party');
   });
 
+  test('renders <br/> line breaks in contest titles', () => {
+    const electionDefinition =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: electionDefinition.election.contests.map((c) =>
+        c.id === 'zoo-council-mammal'
+          ? { ...c, title: 'Zoo Council<br/>(Mammal Party)' }
+          : c
+      ),
+    };
+    expectGetQualifiedWriteInCandidates();
+    renderInAppContext(<WriteInCandidatesScreen />, {
+      electionDefinition: { ...electionDefinition, election },
+      apiMock,
+    });
+
+    const title = screen.getByText('Zoo Council(Mammal Party)');
+    expect(title.innerHTML).toContain('<br>');
+  });
+
   test('shows callout when no contests allow write-ins', () => {
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
