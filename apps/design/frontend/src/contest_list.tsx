@@ -8,6 +8,7 @@ import { Column, Row } from './layout';
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
 import { EntityList } from './entity_list';
+import { contestTitleToPlainText } from './utils';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
 
@@ -15,6 +16,11 @@ const Item = styled(EntityList.Item)`
   .${CLASS_REORDER_BUTTON} {
     padding: 0.55rem;
   }
+`;
+
+// Render <br/> line breaks in multi-line contest titles as newlines:
+const TitleLabel = styled(EntityList.Label)`
+  white-space: pre-line;
 `;
 
 const Items = styled(EntityList.Items)`
@@ -168,13 +174,13 @@ export function Sublist(props: {
                   </EntityList.Caption>
                 )}
 
-                <EntityList.Label>{c.title}</EntityList.Label>
+                <TitleLabel>{contestTitleToPlainText(c.title)}</TitleLabel>
               </Column>
 
               {reordering && (
                 <Row style={{ gap: '0.5rem', justifyContent: 'flex-end' }}>
                   <Button
-                    aria-label={`Move Up: ${c.title}`}
+                    aria-label={`Move Up: ${contestTitleToPlainText(c.title)}`}
                     icon="ChevronUp"
                     className={CLASS_REORDER_BUTTON}
                     disabled={index === 0}
@@ -183,7 +189,9 @@ export function Sublist(props: {
                     value={{ id: c.id, direction: -1 }}
                   />
                   <Button
-                    aria-label={`Move Down: ${c.title}`}
+                    aria-label={`Move Down: ${contestTitleToPlainText(
+                      c.title
+                    )}`}
                     icon="ChevronDown"
                     className={CLASS_REORDER_BUTTON}
                     disabled={index === contests.length - 1}

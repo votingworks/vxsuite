@@ -297,6 +297,36 @@ test('supports reordering', async () => {
   ]);
 });
 
+test('renders <br/> line breaks in contest titles as newlines', async () => {
+  mockApi = newMockApi({ districts: [district1] });
+  const multilineContest: AnyContest = {
+    ...candidateContest1,
+    title: 'County Commissioner<br>District 3<br />(Vote for Two)',
+  };
+
+  renderList(mockApi, newHistory(), {
+    straightPartyContests: [],
+    candidateContests: [multilineContest],
+    yesNoContests: [],
+    reorder: vi.fn(),
+    reordering: true,
+  });
+
+  await screen.findAllByText(district1.name);
+  mockApi.assertComplete();
+
+  const title = screen.getByText(
+    'County Commissioner District 3 (Vote for Two)'
+  );
+  expect(title.textContent).toEqual(
+    'County Commissioner\nDistrict 3\n(Vote for Two)'
+  );
+  expect(title).toHaveStyle({ whiteSpace: 'pre-line' });
+
+  // Reorder button labels use the plain-text title as well
+  screen.getButton('Move Up: County Commissioner\nDistrict 3\n(Vote for Two)');
+});
+
 function getHeading(name: string) {
   return screen.getByRole('heading', { name });
 }

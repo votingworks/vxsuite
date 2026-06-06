@@ -14,7 +14,8 @@ const InputWithAudioContainer = styled.div`
   display: flex;
   width: 100%;
 
-  > input {
+  > input,
+  > textarea {
     /*
      * Inputs have min widths set across the app at the moment. Disabling
      * for the audio-related UI updates to support responsive UI scaling, but
@@ -27,7 +28,12 @@ const InputWithAudioContainer = styled.div`
     width: 100%;
   }
 
-  > input:not(:last-child) {
+  > textarea {
+    resize: none;
+  }
+
+  > input:not(:last-child),
+  > textarea:not(:last-child) {
     border-bottom-right-radius: 0;
     border-right: 0;
     border-top-right-radius: 0;
@@ -60,6 +66,36 @@ export function InputWithAudio(props: InputWithAudioProps): React.ReactNode {
   return (
     <InputWithAudioContainer>
       <input {...rest} />
+
+      {audioEnabled && (
+        <AudioButton
+          aria-label="Preview or Edit Audio"
+          to={audioScreenUrl}
+          tooltip="Preview/Edit Audio"
+          tooltipPlacement={tooltipPlacement}
+        />
+      )}
+    </InputWithAudioContainer>
+  );
+}
+
+export type TextareaWithAudioProps = {
+  audioScreenUrl: string;
+  editing: boolean;
+  tooltipPlacement?: TooltipProps['attachTo'];
+  value: string;
+} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+export function TextareaWithAudio(
+  props: TextareaWithAudioProps
+): React.ReactNode {
+  const { editing, audioScreenUrl, tooltipPlacement, ...rest } = props;
+
+  const audioEnabled = !editing && !!rest.value;
+
+  return (
+    <InputWithAudioContainer>
+      <textarea rows={rest.value.split('\n').length} {...rest} />
 
       {audioEnabled && (
         <AudioButton

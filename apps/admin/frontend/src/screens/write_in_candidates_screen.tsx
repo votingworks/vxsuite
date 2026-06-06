@@ -7,7 +7,14 @@ import {
   Id,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { Button, Callout, Modal, P, useCurrentTheme } from '@votingworks/ui';
+import {
+  BallotText,
+  Button,
+  Callout,
+  Modal,
+  P,
+  useCurrentTheme,
+} from '@votingworks/ui';
 import type { QualifiedWriteInCandidateRecord } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { EntityList } from '../components/entity_list';
@@ -490,7 +497,9 @@ export function WriteInCandidatesScreen(): JSX.Element {
                       <EntityList.Caption>
                         {getContestDistrictName(election, contest)}
                       </EntityList.Caption>
-                      <EntityList.Label>{contest.title}</EntityList.Label>
+                      <EntityList.Label>
+                        <BallotText text={contest.title} />
+                      </EntityList.Label>
                     </div>
                   </EntityList.Item>
                 );

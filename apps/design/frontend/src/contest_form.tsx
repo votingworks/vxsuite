@@ -51,14 +51,23 @@ import {
 import { InputGroup, Row, FieldName, Column } from './layout';
 import { routes } from './routes';
 import { TooltipContainer, Tooltip } from './tooltip';
-import { generateId, replaceAtIndex } from './utils';
-import { InputWithAudio } from './ballot_audio/input_with_audio';
+import {
+  contestTitleToPlainText,
+  generateId,
+  plainTextToContestTitle,
+  replaceAtIndex,
+} from './utils';
+import {
+  InputWithAudio,
+  TextareaWithAudio,
+} from './ballot_audio/input_with_audio';
 import { AudioLinkButton } from './ballot_audio/audio_link_button';
 import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio';
 
 const Form = styled(FormFixed)`
   .search-select,
-  input[type='text'] {
+  input[type='text'],
+  textarea {
     max-width: 20rem;
     min-width: 5rem;
     width: 100%;
@@ -319,7 +328,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         <FormTitle>{title}</FormTitle>
 
         <InputGroup label="Title">
-          <InputWithAudio
+          <TextareaWithAudio
             audioScreenUrl={contestRoutes.audio({
               contestId: contest.id,
               stringKey: ElectionStringKey.CONTEST_TITLE,
@@ -327,11 +336,15 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             })}
             disabled={disabled}
             editing={editing}
-            type="text"
             value={contest.title}
             onChange={(e) => setContest({ ...contest, title: e.target.value })}
             onBlur={(e) =>
-              setContest({ ...contest, title: e.target.value.trim() })
+              setContest({
+                ...contest,
+                title: contestTitleToPlainText(
+                  plainTextToContestTitle(e.target.value)
+                ),
+              })
             }
             autoComplete="off"
             required
@@ -998,15 +1011,18 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
   };
 }
 
+// Multi-line contest titles are stored with <br/> line breaks, but edited in
+// the form as plain text with newlines.
 function draftContestFromContest(contest: AnyContest): DraftContest {
   switch (contest.type) {
     case 'candidate':
       return {
         ...contest,
+        title: contestTitleToPlainText(contest.title),
         candidates: contest.candidates.map(draftCandidateFromCandidate),
       };
     case 'yesno':
-      return { ...contest };
+      return { ...contest, title: contestTitleToPlainText(contest.title) };
     /* istanbul ignore next */
     case 'straight-party':
       throw new Error('Straight-party contests are not editable');
@@ -1023,6 +1039,7 @@ function tryContestFromDraftContest(
     case 'candidate':
       return safeParse(CandidateContestSchema, {
         ...draftContest,
+        title: plainTextToContestTitle(draftContest.title),
         candidates: draftContest.candidates.map((candidate) => ({
           ...candidate,
           name: joinCandidateName(candidate),
@@ -1030,7 +1047,10 @@ function tryContestFromDraftContest(
       });
 
     case 'yesno':
-      return safeParse(YesNoContestSchema, draftContest);
+      return safeParse(YesNoContestSchema, {
+        ...draftContest,
+        title: plainTextToContestTitle(draftContest.title),
+      });
 
     default: {
       /* istanbul ignore next */
