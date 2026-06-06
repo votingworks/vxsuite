@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import type { Locator, Page, PageScreenshotOptions } from '@playwright/test';
+import { SCREENSHOTS_DIR } from './constants';
 
 export interface ScreenshotCounter {
   next: () => string;
@@ -28,7 +29,7 @@ export function buildIntegrationTestHelper(
     await page.screenshot({
       animations: 'disabled',
       ...args,
-      path: `./test-results/screenshots/${numberedName(name)}.png`,
+      path: `${SCREENSHOTS_DIR}/${numberedName(name)}.png`,
     });
   }
 

@@ -8,18 +8,20 @@ import {
 } from '@votingworks/auth';
 import { methodUrl } from '@votingworks/grout';
 import type { Election } from '@votingworks/types';
+import { BASE_URL } from './constants';
 
-const DEFAULT_API_URL = 'http://localhost:3000/api';
+const API_URL = `${BASE_URL}/api`;
 
-async function postToApi(
-  page: Page,
-  method: string,
-  apiUrl: string
-): Promise<void> {
-  await page.request.post(methodUrl(method, apiUrl), {
+async function postToApi(page: Page, method: string): Promise<void> {
+  const response = await page.request.post(methodUrl(method, API_URL), {
     data: '{}',
     headers: { 'Content-Type': 'application/json' },
   });
+  if (!response.ok()) {
+    throw new Error(
+      `POST ${method} failed: ${response.status()} ${await response.text()}`
+    );
+  }
 }
 
 /**
@@ -41,7 +43,6 @@ export interface InsertedSmartCardAuthConfig {
    * note on the internal `endCardlessVoterSession`.
    */
   endsCardlessVoterSession?: boolean;
-  apiUrl?: string;
 }
 
 export interface InsertedSmartCardAuthHelpers {
@@ -63,7 +64,6 @@ export function buildInsertedSmartCardAuthHelpers(
     appName,
     pinDigitSelector = 'button',
     endsCardlessVoterSession: endsSession = false,
-    apiUrl = DEFAULT_API_URL,
   } = config;
 
   async function enterPin(page: Page): Promise<void> {
@@ -96,7 +96,7 @@ export function buildInsertedSmartCardAuthHelpers(
   }
 
   async function forceLogOut(page: Page): Promise<void> {
-    await postToApi(page, 'logOut', apiUrl);
+    await postToApi(page, 'logOut');
   }
 
   /**
@@ -107,7 +107,7 @@ export function buildInsertedSmartCardAuthHelpers(
    * https://github.com/votingworks/vxsuite/issues/8553 — remove once fixed.
    */
   async function endCardlessVoterSession(page: Page): Promise<void> {
-    await postToApi(page, 'endCardlessVoterSession', apiUrl);
+    await postToApi(page, 'endCardlessVoterSession');
   }
 
   async function forceLogOutAndResetElectionDefinition(
@@ -169,7 +169,6 @@ export interface DippedSmartCardAuthConfig {
    * screen first; VxCentralScan shows the button directly.
    */
   navigateToUnconfigure?: (page: Page) => Promise<void>;
-  apiUrl?: string;
 }
 
 export interface DippedSmartCardAuthHelpers {
@@ -187,7 +186,7 @@ export interface DippedSmartCardAuthHelpers {
 export function buildDippedSmartCardAuthHelpers(
   config: DippedSmartCardAuthConfig
 ): DippedSmartCardAuthHelpers {
-  const { appName, navigateToUnconfigure, apiUrl = DEFAULT_API_URL } = config;
+  const { appName, navigateToUnconfigure } = config;
 
   async function enterPin(page: Page): Promise<void> {
     await page.getByText('Enter Card PIN').waitFor();
@@ -221,7 +220,7 @@ export function buildDippedSmartCardAuthHelpers(
   }
 
   async function forceLogOut(page: Page): Promise<void> {
-    await postToApi(page, 'logOut', apiUrl);
+    await postToApi(page, 'logOut');
   }
 
   async function forceLogOutAndResetElectionDefinition(

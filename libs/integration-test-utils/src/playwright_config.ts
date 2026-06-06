@@ -4,9 +4,7 @@ import {
   type PlaywrightTestConfig,
 } from '@playwright/test';
 import { join } from 'node:path';
-
-const BASE_URL = 'http://127.0.0.1:3000';
-const OUTPUT_DIR = './test-results';
+import { BASE_URL, OUTPUT_DIR } from './constants';
 
 /** Options for {@link defineIntegrationTestPlaywrightConfig}. */
 export interface IntegrationTestPlaywrightConfigOptions {

@@ -1,4 +1,5 @@
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { SCREENSHOTS_DIR } from './constants';
 import type { ScreenshotCounter } from './screenshots';
 
 export interface CapturePdfScreenshotsOptions {
@@ -42,7 +43,7 @@ export async function capturePdfScreenshots(
     if (options.skipBlankPages && isBlankImage(page)) continue;
     const suffix = captured === 0 ? name : `${name}-page${captured + 1}`;
     await writeImageData(
-      `./test-results/screenshots/${counter.next()}-${suffix}.png`,
+      `${SCREENSHOTS_DIR}/${counter.next()}-${suffix}.png`,
       page
     );
     captured += 1;
