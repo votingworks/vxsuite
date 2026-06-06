@@ -123,6 +123,9 @@ export interface Candidate {
   readonly firstName?: string;
   readonly middleName?: string;
   readonly lastName?: string;
+  // Designation subtitle shown under the candidate name on the ballot in
+  // nonpartisan contests, e.g. "Justice of Supreme Court".
+  readonly designation?: string;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
@@ -140,6 +143,10 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
       .transform((s) => s.trim() || undefined)
       .optional(),
     lastName: z
+      .string()
+      .transform((s) => s.trim() || undefined)
+      .optional(),
+    designation: z
       .string()
       .transform((s) => s.trim() || undefined)
       .optional(),

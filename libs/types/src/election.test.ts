@@ -542,6 +542,33 @@ test('candidate schema', () => {
       name: 'Bob Loblaw',
     })
   );
+
+  expect(
+    safeParse(CandidateSchema, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      designation: '  Justice of Supreme Court  ',
+    })
+  ).toEqual(
+    ok({
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      designation: 'Justice of Supreme Court',
+    })
+  );
+
+  expect(
+    safeParse(CandidateSchema, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      designation: '   ',
+    })
+  ).toEqual(
+    ok({
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+    })
+  );
 });
 
 test('write-in ID schema', () => {

@@ -482,6 +482,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                       <TH>Middle Name</TH>
                       <TH>Last Name</TH>
                       <TH>Party</TH>
+                      <TH>Designation</TH>
                       <TH />
                     </tr>
                   </thead>
@@ -587,10 +588,55 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                                   {
                                     ...candidate,
                                     partyIds: value ? [value] : undefined,
+                                    // Designation and party are mutually
+                                    // exclusive on the ballot
+                                    designation: value
+                                      ? undefined
+                                      : candidate.designation,
                                   }
                                 ),
                               })
                             }
+                          />
+                        </TD>
+                        <TD>
+                          <input
+                            aria-label={`Candidate ${index + 1} Designation`}
+                            disabled={
+                              disabled ||
+                              hasExternalSource ||
+                              (candidate.partyIds?.length ?? 0) > 0
+                            }
+                            type="text"
+                            value={candidate.designation ?? ''}
+                            onChange={(e) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    designation: e.target.value,
+                                  }
+                                ),
+                              })
+                            }
+                            onBlur={(e) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    designation:
+                                      e.target.value.trim() || undefined,
+                                  }
+                                ),
+                              })
+                            }
+                            autoComplete="off"
                           />
                         </TD>
                         <TD>
@@ -897,6 +943,7 @@ interface DraftCandidate {
   middleName: string;
   lastName: string;
   partyIds?: PartyId[];
+  designation?: string;
 }
 
 interface DraftCandidateContest {
@@ -947,6 +994,7 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
     middleName,
     lastName,
     partyIds: candidate.partyIds?.slice(),
+    designation: candidate.designation,
   };
 }
 
