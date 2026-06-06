@@ -970,6 +970,77 @@ test('editing a ballot measure', async () => {
   expectContestListItems(updatedContestList);
 });
 
+test('multi-line titles are edited as plain text and saved with <br/> line breaks', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+  const savedContest: CandidateContest = {
+    ...find(
+      election.contests,
+      (contest): contest is CandidateContest => contest.type === 'candidate'
+    ),
+    title: 'County Commissioner<br>District 3<br />(Vote for Two)',
+  };
+  const contests = election.contests.map((contest) =>
+    contest.id === savedContest.id ? savedContest : contest
+  );
+
+  apiMock.listContests.expectCallWith({ electionId }).resolves(contests);
+  expectOtherElectionApiCalls(election);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+  const history = renderScreen(electionId);
+  await navigateToContestEdit(history, electionId, savedContest.id);
+
+  // Saved <br/> line breaks (in any form) are shown as newlines in the form
+  const titleInput = screen.getByLabelText('Title');
+  expect(titleInput).toHaveValue(
+    'County Commissioner\nDistrict 3\n(Vote for Two)'
+  );
+
+  // Blurring an empty title is a no-op
+  userEvent.clear(titleInput);
+  userEvent.tab();
+  expect(titleInput).toHaveValue('');
+
+  // Extra whitespace and blank leading/trailing lines are trimmed on blur
+  userEvent.type(
+    titleInput,
+    '{enter}  Mayor {enter}City of Springfield{enter}'
+  );
+  userEvent.tab();
+  expect(titleInput).toHaveValue('Mayor\nCity of Springfield');
+
+  const updatedContest: CandidateContest = {
+    ...savedContest,
+    title: 'Mayor<br/>City of Springfield',
+    // The form always includes a designation key for each candidate
+    candidates: savedContest.candidates.map((candidate) => ({
+      ...candidate,
+      designation: undefined,
+    })),
+  };
+  apiMock.updateContest
+    .expectCallWith({ electionId, updatedContest })
+    .resolves(ok());
+  const updatedContestList = contests.map((contest) =>
+    contest.id === savedContest.id ? updatedContest : contest
+  );
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(updatedContestList);
+  expectOtherElectionApiCalls(election);
+  userEvent.click(screen.getButton('Save'));
+
+  await screen.findByRole('heading', { name: 'Contest Info' });
+  expect(history.location.pathname).toEqual(
+    routes.election(electionId).contests.view(savedContest.id).path
+  );
+  expect(screen.getByLabelText('Title')).toHaveValue(
+    'Mayor\nCity of Springfield'
+  );
+});
+
 test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additional options', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;

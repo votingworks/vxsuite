@@ -13,6 +13,30 @@ export function generateId(): string {
 }
 
 /**
+ * Multi-line contest titles are stored with `<br/>` line breaks (which the
+ * ballot renderer supports). Converts a stored title to plain text with
+ * newlines for editing and display.
+ */
+export function contestTitleToPlainText(title: string): string {
+  return title.replace(/<br\s*\/?>/gi, '\n');
+}
+
+/**
+ * Converts plain text with newlines to a stored contest title with `<br/>`
+ * line breaks, trimming each line and dropping leading/trailing blank lines.
+ */
+export function plainTextToContestTitle(text: string): string {
+  const lines = text.split('\n').map((line) => line.trim());
+  while (lines.length > 0 && lines[0] === '') {
+    lines.shift();
+  }
+  while (lines.length > 0 && lines[lines.length - 1] === '') {
+    lines.pop();
+  }
+  return lines.join('<br/>');
+}
+
+/**
  * Returns a copy of the given array with the value at the specified index
  * replaced with the given value.
  */
