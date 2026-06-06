@@ -1269,7 +1269,11 @@ export const miClosedPrimaryElectionFixtures = (() => {
     seats: 1,
     allowWriteIns: true,
     candidates: [
-      { id: 'frank-the-flamingo', name: 'Frank the Flamingo' },
+      {
+        id: 'frank-the-flamingo',
+        name: 'Frank the Flamingo',
+        designation: 'Director of Flamingos',
+      },
       { id: 'pearl-the-penguin', name: 'Pearl the Penguin' },
     ],
   };

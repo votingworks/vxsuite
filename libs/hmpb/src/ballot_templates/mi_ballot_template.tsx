@@ -362,6 +362,9 @@ function CandidateContest({
                       />
                     </CandidateParty>
                   )}
+                  {candidate.designation && (
+                    <CandidateParty>{candidate.designation}</CandidateParty>
+                  )}
                 </div>
               </div>
             </li>
