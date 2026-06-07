@@ -134,9 +134,8 @@ export function AdminWriteInImageReport({
                 areAllAdjudicatedWriteInsInvalid ? (
                   <React.Fragment>
                     <P>
-                      <Icons.Info />
-                      No qualified write-in candidates have received votes in
-                      this contest.
+                      <Icons.Info /> No qualified write-in candidates have
+                      received votes in this contest.
                     </P>
                     {candidateGroups.map((group) => (
                       <div key={group.groupLabel}>
