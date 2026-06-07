@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { assertDefined, err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -42,7 +42,12 @@ import { Buffer } from 'node:buffer';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
-import { MockUsbDriveManager } from '@votingworks/usb-drive';
+import {
+  createUsbDriveAdapter,
+  MockUsbDriveManager,
+  SimulatedMultiUsbDrive,
+  UsbDrive,
+} from '@votingworks/usb-drive';
 import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import {
   HP_LASER_PRINTER_CONFIG,
@@ -119,7 +124,7 @@ function mockNoCard() {
   );
 }
 
-beforeEach(() => {
+function doBefore(options: { usbDrive?: UsbDrive } = {}) {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
@@ -133,8 +138,9 @@ beforeEach(() => {
     server,
     logger,
     workspace,
-  } = createApp());
-});
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } = createApp(options as any));
+}
 
 afterEach(() => {
   server?.close();
@@ -167,19 +173,27 @@ test('uses default machine config if not set', async () => {
 });
 
 test('configureElectionPackageFromUsb reads to and writes from store', async () => {
+  const usbDrive = new SimulatedMultiUsbDrive();
+  doBefore({
+    usbDrive: createUsbDriveAdapter(
+      usbDrive.multiUsbDrive,
+      (drives) => drives[0].devPath
+    ),
+  });
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   mockElectionManagerAuth(electionDefinition);
 
-  mockUsbDrive.insertUsbDrive(
+  usbDrive.addUsbDrive(
     await mockElectionPackageFileTree({
       electionDefinition,
       systemSettings: safeParseJson(
         systemSettings.asText(),
         SystemSettingsSchema
       ).unsafeUnwrap(),
-    })
+    }),
+    { devPath: '/dev/sdb', fstype: 'fat32' }
   );
 
   (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
@@ -202,6 +216,13 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
 });
 
 test('configureElectionPackageFromUsb stores ballots when present in election package', async () => {
+  const usbDrive = new SimulatedMultiUsbDrive();
+  doBefore({
+    usbDrive: createUsbDriveAdapter(
+      usbDrive.multiUsbDrive,
+      (drives) => drives[0].devPath
+    ),
+  });
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -220,7 +241,7 @@ test('configureElectionPackageFromUsb stores ballots when present in election pa
     },
   ];
 
-  mockUsbDrive.insertUsbDrive(
+  usbDrive.addUsbDrive(
     await mockElectionPackageFileTree({
       electionDefinition,
       systemSettings: safeParseJson(
@@ -228,7 +249,8 @@ test('configureElectionPackageFromUsb stores ballots when present in election pa
         SystemSettingsSchema
       ).unsafeUnwrap(),
       ballots,
-    })
+    }),
+    { devPath: '/dev/sdb', fstype: 'fat32' }
   );
 
   (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();

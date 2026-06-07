@@ -3,6 +3,7 @@ export * from './media_mount_dir';
 export * from './mocks/memory_usb_drive';
 export * from './mocks/mock_multi_usb_drive';
 export * from './mocks/file_usb_drive';
+export * from './mocks/simulated_multi_usb_drive';
 export * from './multi_usb_drive';
 export * from './types';
 export * from './usb_drive';

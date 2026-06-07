@@ -26,7 +26,7 @@ import {
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { MockUsbDriveManager } from '@votingworks/usb-drive';
+import { MockUsbDriveManager, UsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
@@ -68,7 +68,15 @@ function createMockBarcodeClient(): MockBarcodeClient {
 
 export function createApp(options?: {
   audioPlayer?: AudioPlayer;
-}): MockAppContents {
+}): MockAppContents;
+export function createApp(options: {
+  audioPlayer?: AudioPlayer;
+  usbDrive: UsbDrive;
+}): Exclude<MockAppContents, 'mockUsbDrive'>;
+export function createApp(options?: {
+  audioPlayer?: AudioPlayer;
+  usbDrive?: UsbDrive;
+}): MockAppContents & { mockUsbDrive?: MockUsbDriveManager } {
   const workspace = createWorkspace(
     tmp.dirSync().name,
     mockBaseLogger({ fn: vi.fn })
@@ -84,7 +92,7 @@ export function createApp(options?: {
     auth: mockAuth,
     logger,
     workspace,
-    usbDrive: mockUsbDrive.usbDrive,
+    usbDrive: options?.usbDrive ?? mockUsbDrive.usbDrive,
     printer: mockPrinterHandler.printer,
     barcodeClient: mockBarcodeClient,
   });
@@ -100,7 +108,8 @@ export function createApp(options?: {
     app,
     logger,
     mockAuth,
-    mockUsbDrive,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockUsbDrive: (options?.usbDrive ? undefined : mockUsbDrive) as any,
     mockPrinterHandler,
     mockAudioPlayer: options?.audioPlayer,
     server,

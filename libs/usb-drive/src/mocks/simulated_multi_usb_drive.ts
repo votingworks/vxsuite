@@ -1,6 +1,5 @@
 import { Mocked, mockFunction } from '@votingworks/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { rmSync } from 'node:fs';
 import {
   MultiUsbDrive,
   UsbDriveFilesystemType,
@@ -8,9 +7,12 @@ import {
 } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 
-const MOCK_SINGLETON_DISK_DEV_PATH = '/dev/sdb';
+function runSteps(steps: Iterable<void>): void {
+  // eslint-disable-next-line no-underscore-dangle
+  for (const _step of steps);
+}
 
-export class MockMultiUsbDrive {
+export class SimulatedMultiUsbDrive {
   private readonly mockMultiUsbDrive: Mocked<MultiUsbDrive>;
   private readonly mockUsbTmpDirs: string[] = [];
   private readonly drives: UsbDriveInfo[] = [];
@@ -28,17 +30,10 @@ export class MockMultiUsbDrive {
     this.mockMultiUsbDrive.getDrives
       .expectOptionalRepeatedCallsWith()
       .returns([]);
-    this.assertComplete = this.assertComplete.bind(this);
   }
 
   get multiUsbDrive(): Mocked<MultiUsbDrive> {
     return this.mockMultiUsbDrive;
-  }
-
-  assertComplete(): void {
-    for (const method of Object.values(this.mockMultiUsbDrive)) {
-      method.assertComplete();
-    }
   }
 
   /**
@@ -50,11 +45,20 @@ export class MockMultiUsbDrive {
     contents: MockFileTree,
     options: { devPath: string; fstype?: UsbDriveFilesystemType }
   ): void {
+    runSteps(this.stepwiseAddUsbDrive(contents, options));
+  }
+
+  /**
+   * Simulates adding a new mounted USB drive alongside whatever is already
+   * plugged in. Requires specifying the `devPath` so that it does not conflict
+   * with existing drives. Defaults to FAT32.
+   */
+  *stepwiseAddUsbDrive(
+    contents: MockFileTree,
+    options: { devPath: string; fstype?: UsbDriveFilesystemType }
+  ): Generator<void> {
     const fstype = options.fstype ?? 'fat32';
-    const mountPoint = makeTemporaryDirectory();
-    this.mockUsbTmpDirs.push(mountPoint);
-    writeMockFileTree(mountPoint, contents);
-    this.drives.push({
+    const driveInfo: UsbDriveInfo = {
       devPath: options.devPath,
       vendor: undefined,
       model: undefined,
@@ -65,57 +69,27 @@ export class MockMultiUsbDrive {
           label: 'VxUSB-ABCDE',
           fstype: fstype === 'ext4' ? 'ext4' : 'vfat',
           fsver: fstype === 'ext4' ? '1.0' : 'FAT32',
-          mount: { type: 'mounted', mountPoint },
+          mount: { type: 'unmounted' },
         },
       ],
-    });
+    };
+
+    this.drives.push(driveInfo);
     this.mockMultiUsbDrive.getDrives.reset();
     this.mockMultiUsbDrive.getDrives
       .expectRepeatedCallsWith()
       .returns(this.drives);
-  }
+    yield;
 
-  /**
-   * Simulates removing all existing USB drives and inserting a new mounted
-   * drive with the given file contents. Defaults to FAT32.
-   */
-  insertUsbDrive(
-    contents: MockFileTree,
-    options?: { fstype?: UsbDriveFilesystemType }
-  ): void {
-    this.removeAll();
-    this.addUsbDrive(contents, {
-      ...(options ?? {}),
-      devPath: MOCK_SINGLETON_DISK_DEV_PATH,
-    });
-  }
+    for (const partition of driveInfo.partitions) {
+      partition.mount = { type: 'mounting' };
+      yield;
 
-  /**
-   * Simulates removing all USB drives.
-   */
-  removeAll(): void {
-    this.drives.length = 0;
-    this.mockMultiUsbDrive.getDrives.reset();
-    this.mockMultiUsbDrive.getDrives
-      .expectRepeatedCallsWith()
-      .returns(this.drives);
-
-    const tmpdirs = [...this.mockUsbTmpDirs];
-    this.mockUsbTmpDirs.length = 0;
-    for (const tmpdir of tmpdirs) {
-      rmSync(tmpdir, { recursive: true });
+      const mountPoint = makeTemporaryDirectory();
+      this.mockUsbTmpDirs.push(mountPoint);
+      writeMockFileTree(mountPoint, contents);
+      partition.mount = { type: 'mounted', mountPoint };
+      yield;
     }
   }
-}
-
-/**
- * Creates a mock of the MultiUsbDrive interface. Each method is mocked with a
- * mockFunction (see @votingworks/test-utils).
- *
- * Also has methods to add or remove mock USB drives backed by a filesystem
- * directory. If using this interface, getDrives will automatically return the
- * correct state.
- */
-export function createMockMultiUsbDrive(): MockMultiUsbDrive {
-  return new MockMultiUsbDrive();
 }
