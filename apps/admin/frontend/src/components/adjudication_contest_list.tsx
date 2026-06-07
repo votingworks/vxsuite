@@ -596,13 +596,11 @@ export function AdjudicationContestList({
   showUndervoteStatus,
 }: AdjudicationContestListProps): React.ReactNode {
   const allContests = [...frontContests, ...backContests];
-  const firstUnresolvedContestId =
-    cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
-      ? undefined
-      : allContests.find(
-          (item) =>
-            !isContestResolved(item.adjudicationData, adjudicatedContests)
-        )?.contest.id;
+  const firstUnresolvedContestId = cvrTag.isBlankBallot
+    ? undefined
+    : allContests.find(
+        (item) => !isContestResolved(item.adjudicationData, adjudicatedContests)
+      )?.contest.id;
 
   const blankBallotHasAnyAdjudicatedVote =
     cvrTag.isBlankBallot &&
@@ -630,6 +628,23 @@ export function AdjudicationContestList({
     election,
     adjudicatedVotes(allContests, adjudicatedContests)
   );
+
+  // The crossover is addressed last. Once every contest needing attention is
+  // resolved, scroll the nav back to the top-level crossover callout (which
+  // always sits at the top) so it's clear the remaining step is the crossover
+  // decision.
+  const shouldScrollToCrossoverCallout =
+    !firstUnresolvedContestId &&
+    cvrTag.hasCrossoverVote &&
+    ballotHasCrossoverVoteAfterAdjudication &&
+    !isBallotResolved;
+  const navRef = React.useRef<HTMLUListElement>(null);
+  React.useLayoutEffect(() => {
+    if (shouldScrollToCrossoverCallout && navRef.current) {
+      navRef.current.scrollTop = 0;
+    }
+  }, [shouldScrollToCrossoverCallout]);
+
   const spContest = allContests.find(
     (c) => c.contest.type === 'straight-party'
   );
@@ -642,7 +657,7 @@ export function AdjudicationContestList({
     : undefined;
 
   return (
-    <EntityList.Box>
+    <EntityList.Box ref={navRef}>
       {cvrTag.isBlankBallot && (
         <CalloutContainer>
           <Callout

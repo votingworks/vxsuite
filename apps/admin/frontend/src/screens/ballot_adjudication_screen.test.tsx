@@ -2283,3 +2283,120 @@ test('crossover voting created indicator persists when the ballot is resolved', 
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
 });
+
+test('auto-resolved crossover still scrolls to a remaining down-ballot write-in', async () => {
+  // The crossover is caused by a write-in in a contest with no qualified
+  // candidates, so it auto-resolves to invalid and the ballot's crossover
+  // appears resolved. But a second contest has a write-in with qualified
+  // candidates that still needs attention — the nav must scroll to it rather
+  // than leave the ballot looking good-to-go with Accept mysteriously disabled.
+  const scrolledElements: HTMLElement[] = [];
+  function mockScrollIntoView(this: HTMLElement) {
+    scrolledElements.push(this);
+  }
+  window.HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    makeContestTag({ hasWriteIn: true }),
+    openPrimaryElection
+  );
+  addPendingWriteIns(demContest, 1, [0]);
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    makeContestTag({ hasWriteIn: true }),
+    openPrimaryElection
+  );
+  addPendingWriteIns(repContest, 1, [0]);
+  const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
+    tag: { isBlankBallot: false, hasCrossoverVote: true },
+  });
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, data);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates(
+    [
+      {
+        id: 'qual-1',
+        name: 'Qualified Person',
+        electionId: 'e',
+        contestId: 'governor-republican',
+      },
+    ],
+    data.contests.map((c) => c.contestId)
+  );
+  apiMock.expectGetSystemSettings(QUALIFIED_SYSTEM_SETTINGS);
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  // The auto-adjudicated democratic write-in resolves the ballot-level crossover.
+  await screen.findByText('Crossover Voting Resolved');
+  // But the republican write-in (with qualified candidates) still blocks Accept.
+  expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+  // And the nav scrolled to that contest rather than appearing good-to-go.
+  expect(
+    scrolledElements.some((el) => el.textContent?.includes('Republican Party'))
+  ).toEqual(true);
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('crossover ballot still auto-scrolls to non-crossover items needing attention', async () => {
+  // A genuine (unresolved) crossover no longer suppresses auto-scroll: the nav
+  // still scrolls to other items that need attention first — here, a
+  // nonpartisan write-in — leaving the crossover decision for last.
+  const scrolledElements: HTMLElement[] = [];
+  function mockScrollIntoView(this: HTMLElement) {
+    scrolledElements.push(this);
+  }
+  window.HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    openPrimaryElection
+  );
+  demContest.options[0].scannedVote = true; // alice-jones
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    openPrimaryElection
+  );
+  repContest.options[0].scannedVote = true; // dave-wilson
+  const judgeContest = makeContestAdjudicationData(
+    'circuit-court-judge',
+    makeContestTag({ hasWriteIn: true }),
+    openPrimaryElection
+  );
+  addPendingWriteIns(judgeContest, 1, [0]);
+  const data = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [demContest, repContest, judgeContest],
+    { tag: { isBlankBallot: false, hasCrossoverVote: true } }
+  );
+  setupBasicMocks({ adjudicationData: data });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: openPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Crossover Voting Detected');
+  expect(screen.getByRole('button', { name: /Accept/ })).toBeDisabled();
+  expect(
+    scrolledElements.some(
+      (el) => el.textContent?.includes('Circuit Court Judge')
+    )
+  ).toEqual(true);
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
