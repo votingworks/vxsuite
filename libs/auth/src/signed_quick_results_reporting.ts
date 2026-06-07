@@ -31,7 +31,9 @@ import {
 } from './cryptography';
 import {
   constructSignedQuickResultsReportingConfig,
-  getVxCertAuthorityCertPath,
+  DEV_VX_CERT_AUTHORITY_CERT_PATH,
+  // getVxCertAuthorityCertPath,
+  PROD_VX_CERT_AUTHORITY_CERT_PATH,
   SignedQuickResultsReportingConfig,
 } from './config';
 import { parseCert } from './certs';
@@ -421,13 +423,26 @@ export async function authenticateSignedQuickResultsReportingUrl(
     `${CERT_PEM_HEADER}\n${certificateBase64}\n${CERT_PEM_FOOTER}`
   );
 
-  const cacPath =
-    caCertPath ??
-    /* istanbul ignore next */ getVxCertAuthorityCertPath();
-
   try {
     const publicKey = await extractPublicKeyFromCert(Buffer.from(certificate));
-    await verifyFirstCertWasSignedBySecondCert(certificate, cacPath);
+
+    if (caCertPath) {
+      await verifyFirstCertWasSignedBySecondCert(certificate, caCertPath);
+    } else {
+      // For demos, accept data from both prod images and QA images
+      try {
+        await verifyFirstCertWasSignedBySecondCert(
+          certificate,
+          PROD_VX_CERT_AUTHORITY_CERT_PATH
+        );
+      } catch {
+        await verifyFirstCertWasSignedBySecondCert(
+          certificate,
+          DEV_VX_CERT_AUTHORITY_CERT_PATH
+        );
+      }
+    }
+
     await verifySignature({
       message: Buffer.from(payload),
       messageSignature: Buffer.from(signature, 'base64url'),
