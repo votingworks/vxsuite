@@ -1,8 +1,8 @@
 {
-  "name": "@votingworks/test-utils",
+  "name": "@votingworks/integration-test-utils",
   "version": "1.0.0",
   "private": true,
-  "description": "Test utilities for the monorepo.",
+  "description": "Shared helpers for Playwright integration testing across apps.",
   "license": "GPL-3.0-only",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -10,7 +10,6 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsgo --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -23,26 +22,19 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "type-check": "tsgo --build"
   },
   "dependencies": {
-    "@testing-library/react": "^15.0.7",
+    "@playwright/test": "^1.48.1",
+    "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "buffer": "^6.0.3",
-    "fast-check": "2.23.2",
-    "jest-diff": "^29.6.2",
-    "js-sha256": "^0.9.0",
-    "jszip": "^3.9.1",
-    "luxon": "^3.0.0",
-    "react": "18.3.1"
+    "@votingworks/grout": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
+    "@votingworks/types": "workspace:*"
   },
   "devDependencies": {
-    "@types/kiosk-browser": "workspace:*",
-    "@types/luxon": "^3.0.0",
     "@types/node": "20.17.31",
-    "@types/react": "18.3.3",
-    "@types/zip-stream": "workspace:*",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",

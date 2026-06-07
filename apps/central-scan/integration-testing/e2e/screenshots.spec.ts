@@ -12,7 +12,7 @@ import type { Api as DevDockApi } from '@votingworks/dev-dock-backend';
 import {
   buildIntegrationTestHelper,
   createScreenshotCounter,
-} from '@votingworks/test-utils';
+} from '@votingworks/integration-test-utils';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,

@@ -1135,6 +1135,30 @@ jobs:
       - store_test_results:
           path: libs/image-utils/reports/
 
+  # @votingworks/integration-test-utils
+  test-libs-integration-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/integration-test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/integration-test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/integration-test-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/integration-test-utils/reports/
+
   # @votingworks/logging
   test-libs-logging:
     executor: nodejs
@@ -1692,6 +1716,9 @@ workflows:
           context:
             - screenshots-publishing
       - test-libs-image-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-integration-test-utils:
           context:
             - screenshots-publishing
       - test-libs-logging:

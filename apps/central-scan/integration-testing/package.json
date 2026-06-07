@@ -5,7 +5,7 @@
   "license": "GPL-3.0-only",
   "author": "VotingWorks Engineering <eng@voting.works>",
   "scripts": {
-    "build": "pnpm install && make build",
+    "build": "pnpm install && pnpm --filter \"$npm_package_name^...\" build && make build",
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache --fix .",
@@ -19,7 +19,7 @@
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
-    "@votingworks/test-utils": "workspace:*",
+    "@votingworks/integration-test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "concurrently": "7.6.0",

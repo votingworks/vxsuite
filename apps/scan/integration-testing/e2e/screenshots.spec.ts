@@ -10,7 +10,7 @@ import { getMockFileFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-p
 import {
   buildIntegrationTestHelper,
   createScreenshotCounter,
-} from '@votingworks/test-utils';
+} from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
   CandidateContest,
