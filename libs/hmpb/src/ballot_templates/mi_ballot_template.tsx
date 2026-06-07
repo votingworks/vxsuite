@@ -16,6 +16,7 @@ import {
   BallotMode,
   BallotStyle,
   BallotStyleId,
+  BallotType,
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
   DistrictContest,
@@ -154,19 +155,33 @@ function Header({
   election,
   ballotStyleId,
   precinctId,
+  ballotType,
   ballotMode,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
+  ballotType: BallotType;
   ballotMode: BallotMode;
 }) {
-  const ballotTitles: Record<BallotMode, JSX.Element> = {
-    official: hmpbStrings.hmpbOfficialBallot,
-    sample: hmpbStrings.hmpbSampleBallot,
-    test: hmpbStrings.hmpbTestBallot,
+  const ballotTitles: Record<BallotMode, Record<BallotType, JSX.Element>> = {
+    official: {
+      [BallotType.Precinct]: hmpbStrings.hmpbOfficialBallot,
+      [BallotType.Absentee]: hmpbStrings.hmpbOfficialAbsenteeBallot,
+      [BallotType.Provisional]: hmpbStrings.hmpbOfficialProvisionalBallot,
+    },
+    sample: {
+      [BallotType.Precinct]: hmpbStrings.hmpbSampleBallot,
+      [BallotType.Absentee]: hmpbStrings.hmpbSampleAbsenteeBallot,
+      [BallotType.Provisional]: hmpbStrings.hmpbSampleProvisionalBallot,
+    },
+    test: {
+      [BallotType.Precinct]: hmpbStrings.hmpbTestBallot,
+      [BallotType.Absentee]: hmpbStrings.hmpbTestAbsenteeBallot,
+      [BallotType.Provisional]: hmpbStrings.hmpbTestProvisionalBallot,
+    },
   };
-  const ballotTitle = ballotTitles[ballotMode];
+  const ballotTitle = ballotTitles[ballotMode][ballotType];
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -208,6 +223,7 @@ function BallotPageFrame({
   election,
   ballotStyleId,
   precinctId,
+  ballotType,
   ballotMode,
   pageNumber,
   totalPages,
@@ -252,6 +268,7 @@ function BallotPageFrame({
                 election={election}
                 ballotStyleId={ballotStyleId}
                 precinctId={precinctId}
+                ballotType={ballotType}
                 ballotMode={ballotMode}
               />
             )}
