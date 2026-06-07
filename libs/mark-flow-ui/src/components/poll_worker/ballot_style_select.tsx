@@ -68,7 +68,9 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
           disabled={disabled}
         >
           Start Voting Session:{' '}
-          <TextOnly>{electionStrings.precinctName(precinct)}</TextOnly>
+          <span style={{ display: 'inline-block' }}>
+            <TextOnly>{electionStrings.precinctName(precinct)}</TextOnly>
+          </span>
         </Button>
       );
     }
