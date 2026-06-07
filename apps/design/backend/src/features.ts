@@ -213,7 +213,9 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
 
   MI: {
     AUDIO_ENABLED: true,
+    DELETE_LIVE_REPORTS: true, // Temp for demos
     EDIT_POLLING_PLACES: true,
+    EXPORT_SAMPLE_BALLOTS: true,
     EXPORT_TEST_BALLOTS: true,
     OPEN_PRIMARIES: true,
     STRAIGHT_PARTY_VOTING: true,
@@ -221,6 +223,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
 
   MS: {
     AUDIO_ENABLED: true,
+    EXPORT_SAMPLE_BALLOTS: true,
     EXPORT_TEST_BALLOTS: true,
   },
 
