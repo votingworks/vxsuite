@@ -49,6 +49,24 @@ const ViewSideButton = styled(Button)`
   padding: 0.2rem 0.5rem;
 `;
 
+// Wraps the pinned ballot-level callout(s) and the scrolling contest list so
+// the callout stays visible while the list scrolls beneath it.
+const ListContainer = styled.div`
+  --entity-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${DesktopPalette.Gray30};
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+`;
+
+const ScrollBox = styled(EntityList.Box)`
+  flex: 1;
+  height: auto;
+  min-height: 0;
+`;
+
 const CalloutContainer = styled.div`
   padding: 0.5rem;
   border-bottom: var(--entity-list-border);
@@ -629,22 +647,6 @@ export function AdjudicationContestList({
     adjudicatedVotes(allContests, adjudicatedContests)
   );
 
-  // The crossover is addressed last. Once every contest needing attention is
-  // resolved, scroll the nav back to the top-level crossover callout (which
-  // always sits at the top) so it's clear the remaining step is the crossover
-  // decision.
-  const shouldScrollToCrossoverCallout =
-    !firstUnresolvedContestId &&
-    cvrTag.hasCrossoverVote &&
-    ballotHasCrossoverVoteAfterAdjudication &&
-    !isBallotResolved;
-  const navRef = React.useRef<HTMLUListElement>(null);
-  React.useLayoutEffect(() => {
-    if (shouldScrollToCrossoverCallout && navRef.current) {
-      navRef.current.scrollTop = 0;
-    }
-  }, [shouldScrollToCrossoverCallout]);
-
   const spContest = allContests.find(
     (c) => c.contest.type === 'straight-party'
   );
@@ -657,7 +659,7 @@ export function AdjudicationContestList({
     : undefined;
 
   return (
-    <EntityList.Box ref={navRef}>
+    <ListContainer>
       {cvrTag.isBlankBallot && (
         <CalloutContainer>
           <Callout
@@ -715,47 +717,49 @@ export function AdjudicationContestList({
           isBallotResolved={isBallotResolved}
         />
       )}
-      {frontContests.length > 0 && (
-        <BallotSideContestList
-          adjudicatedContests={adjudicatedContests}
-          contests={frontContests}
-          election={election}
-          firstUnresolvedContestId={firstUnresolvedContestId}
-          isVisibleSide={selectedSide === 'front'}
-          onHeaderClick={() => onSelectSide('front')}
-          onHover={onHover}
-          onSelect={onSelect}
-          showUndervoteStatus={showUndervoteStatus}
-          straightPartyStatus={straightPartyStatus}
-          title="Front"
-          cvrTag={cvrTag}
-          ballotHasCrossoverVoteAfterAdjudication={
-            ballotHasCrossoverVoteAfterAdjudication
-          }
-          isBallotResolved={isBallotResolved}
-        />
-      )}
-      {backContests.length > 0 && (
-        <BallotSideContestList
-          adjudicatedContests={adjudicatedContests}
-          contests={backContests}
-          election={election}
-          firstUnresolvedContestId={firstUnresolvedContestId}
-          isVisibleSide={selectedSide === 'back'}
-          onHeaderClick={() => onSelectSide('back')}
-          onHover={onHover}
-          onSelect={onSelect}
-          showUndervoteStatus={showUndervoteStatus}
-          straightPartyStatus={straightPartyStatus}
-          title="Back"
-          cvrTag={cvrTag}
-          ballotHasCrossoverVoteAfterAdjudication={
-            ballotHasCrossoverVoteAfterAdjudication
-          }
-          isBallotResolved={isBallotResolved}
-        />
-      )}
-    </EntityList.Box>
+      <ScrollBox>
+        {frontContests.length > 0 && (
+          <BallotSideContestList
+            adjudicatedContests={adjudicatedContests}
+            contests={frontContests}
+            election={election}
+            firstUnresolvedContestId={firstUnresolvedContestId}
+            isVisibleSide={selectedSide === 'front'}
+            onHeaderClick={() => onSelectSide('front')}
+            onHover={onHover}
+            onSelect={onSelect}
+            showUndervoteStatus={showUndervoteStatus}
+            straightPartyStatus={straightPartyStatus}
+            title="Front"
+            cvrTag={cvrTag}
+            ballotHasCrossoverVoteAfterAdjudication={
+              ballotHasCrossoverVoteAfterAdjudication
+            }
+            isBallotResolved={isBallotResolved}
+          />
+        )}
+        {backContests.length > 0 && (
+          <BallotSideContestList
+            adjudicatedContests={adjudicatedContests}
+            contests={backContests}
+            election={election}
+            firstUnresolvedContestId={firstUnresolvedContestId}
+            isVisibleSide={selectedSide === 'back'}
+            onHeaderClick={() => onSelectSide('back')}
+            onHover={onHover}
+            onSelect={onSelect}
+            showUndervoteStatus={showUndervoteStatus}
+            straightPartyStatus={straightPartyStatus}
+            title="Back"
+            cvrTag={cvrTag}
+            ballotHasCrossoverVoteAfterAdjudication={
+              ballotHasCrossoverVoteAfterAdjudication
+            }
+            isBallotResolved={isBallotResolved}
+          />
+        )}
+      </ScrollBox>
+    </ListContainer>
   );
 }
 
