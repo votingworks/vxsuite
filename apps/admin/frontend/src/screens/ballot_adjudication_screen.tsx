@@ -611,9 +611,18 @@ export function BallotAdjudicationScreen({
     return baseline;
   }
 
-  const [adjudicatedContests, setAdjudicatedContests] = useState<
-    Map<ContestId, AdjudicatedCvrContest>
-  >(adjudicatedContestsBaseline);
+  // The user's edits made during this session, keyed by contest. The baseline
+  // is recomputed on every render and combined with these edits to produce the
+  // effective adjudication state.
+  const [edits, setEdits] = useState<Map<ContestId, AdjudicatedCvrContest>>(
+    () => new Map()
+  );
+
+  const baseline = adjudicatedContestsBaseline();
+  const adjudicatedContests = new Map<ContestId, AdjudicatedCvrContest>([
+    ...baseline,
+    ...edits,
+  ]);
 
   const [selectedSide, setSelectedSide] = useState<Side>(() =>
     getDefaultSide(adjudicatedContests)
@@ -638,7 +647,7 @@ export function BallotAdjudicationScreen({
 
   function onNavigation(action: () => void): () => void {
     return () => {
-      if (!deepEqual(adjudicatedContests, adjudicatedContestsBaseline())) {
+      if (!deepEqual(adjudicatedContests, baseline)) {
         setPendingDiscard({ action });
       } else {
         action();
@@ -768,12 +777,11 @@ export function BallotAdjudicationScreen({
           (c) => c.contestId === selectedContestId
         )}
         onConfirmContest={(input) => {
-          const updated = new Map(adjudicatedContests).set(
-            input.contestId,
-            input
+          const updatedEdits = new Map(edits).set(input.contestId, input);
+          setEdits(updatedEdits);
+          setSelectedSide(
+            getDefaultSide(new Map([...baseline, ...updatedEdits]))
           );
-          setAdjudicatedContests(updated);
-          setSelectedSide(getDefaultSide(updated));
         }}
       />
     );
