@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { BallotStyleId, CandidateContest } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -79,8 +79,9 @@ test('poll worker activates session, voter picks party and walks through ballot'
   userEvent.click(screen.getByText('Start Voting'));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
 
-  // Next disabled until a party is selected
-  expect(screen.getButton(/next/i)).toBeDisabled();
+  // Next is enabled even before a party is selected (proceeding without one is
+  // gated by a confirmation modal — see the dedicated test below).
+  expect(screen.getButton(/next/i)).toBeEnabled();
 
   // Select Democratic
   userEvent.click(screen.getButton('Democratic Party'));
@@ -121,6 +122,50 @@ test('poll worker activates session, voter picks party and walks through ballot'
   await screen.findByRole('heading', { name: 'Choose Your Party' });
   userEvent.click(screen.getButton(/review/i));
   await screen.findByRole('heading', { name: /review your votes/i });
+});
+
+test('voter may decline to select a party and vote only nonpartisan contests', async () => {
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('Insert Card');
+
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: BALLOT_STYLE_ID,
+    precinctId: PRECINCT_ID,
+  });
+  await screen.findByText('Start Voting');
+
+  // Start screen -> party selection
+  userEvent.click(screen.getByText('Start Voting'));
+  await screen.findByRole('heading', { name: 'Choose Your Party' });
+
+  // Proceed without choosing a party. A confirmation modal explains the
+  // consequence before continuing.
+  userEvent.click(screen.getButton(/next/i));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(/only be able to vote in nonpartisan contests/i);
+  userEvent.click(within(modal).getButton(/continue/i));
+
+  // Only nonpartisan contests appear — no partisan contests (e.g. Governor).
+  const nonpartisanContestTitles = [
+    'Circuit Court Judge',
+    'Probate Court Judge',
+    'Board of Education Member',
+    'County Road Millage Renewal',
+    'Public Safety Millage',
+    'Library Millage Renewal',
+  ];
+  for (const title of nonpartisanContestTitles) {
+    await screen.findByRole('heading', { name: title });
+    expect(screen.queryByRole('heading', { name: 'Governor' })).toBeNull();
+    userEvent.click(screen.getButton(/next/i));
+  }
+  await screen.findByRole('heading', { name: /review your votes/i });
+
+  // The review screen reflects that no party was selected, and still offers a
+  // way to change it.
+  await screen.findAllByText('No Party Selected');
+  userEvent.click(screen.getButton(/change party/i));
+  await screen.findByRole('heading', { name: 'Choose Your Party' });
 });
 
 test('switching party clears votes from the previous party', async () => {

@@ -3,6 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { ReviewPage } from '@votingworks/mark-flow-ui';
 import { assertDefined } from '@votingworks/basics';
+import { isOpenPrimary } from '@votingworks/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
@@ -22,7 +23,9 @@ export function ReviewScreen(): JSX.Element {
   const fromContest = searchParams.get('fromContest');
   const isFinalReview = !fromContest;
   const backUrl = !isFinalReview ? `/contests/${fromContest}` : undefined;
-  const partySelectionScreenUrl = selectedPartyId
+  const partySelectionScreenUrl = isOpenPrimary(
+    assertDefined(electionDefinition).election
+  )
     ? `/party-selection${isFinalReview ? '#review' : ''}`
     : undefined;
 

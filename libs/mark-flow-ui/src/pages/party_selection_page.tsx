@@ -53,6 +53,7 @@ export function PartySelectionPage({
   reviewPageUrl,
 }: PartySelectionPageProps): JSX.Element {
   const [partyIdToConfirm, setPartyIdToConfirm] = React.useState<PartyId>();
+  const [isConfirmingNoParty, setIsConfirmingNoParty] = React.useState(false);
   // Snapshot the initial review mode state so that we can flip it off if the
   // voter changes their party
   const [isReviewMode, setIsReviewMode] = React.useState(useIsReviewMode());
@@ -91,15 +92,27 @@ export function PartySelectionPage({
             >
               {appStrings.buttonBack()}
             </LinkButton>
-            <LinkButton
-              rightIcon="Next"
-              id={PageNavigationButtonId.NEXT}
-              variant={selectedPartyId ? 'primary' : 'neutral'}
-              to={selectedPartyId ? contestsPageUrl : undefined}
-              disabled={!selectedPartyId}
-            >
-              {appStrings.buttonNext()}
-            </LinkButton>
+            {selectedPartyId ? (
+              <LinkButton
+                rightIcon="Next"
+                id={PageNavigationButtonId.NEXT}
+                variant="primary"
+                to={contestsPageUrl}
+              >
+                {appStrings.buttonNext()}
+              </LinkButton>
+            ) : (
+              // Voters may proceed without choosing a party to vote only in
+              // nonpartisan contests, but must confirm since it's likely
+              // unintentional.
+              <Button
+                rightIcon="Next"
+                id={PageNavigationButtonId.NEXT}
+                onPress={() => setIsConfirmingNoParty(true)}
+              >
+                {appStrings.buttonNext()}
+              </Button>
+            )}
           </React.Fragment>
         )
       }
@@ -179,6 +192,39 @@ export function PartySelectionPage({
           onOverlayClick={
             /* istanbul ignore next */
             () => setPartyIdToConfirm(undefined)
+          }
+        />
+      )}
+      {isConfirmingNoParty && (
+        <Modal
+          title={appStrings.noteBmdNoPartySelected()}
+          content={<P>{appStrings.warningBmdNoPartySelected()}</P>}
+          actions={
+            <React.Fragment>
+              <LinkButton
+                id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+                variant="primary"
+                to={contestsPageUrl}
+              >
+                {appStrings.buttonContinue()}
+                <AudioOnly>
+                  <AssistiveTechInstructions
+                    controllerString={appStrings.instructionsBmdSelectToConfirm()}
+                    patDeviceString={appStrings.instructionsBmdSelectToConfirmPatDevice()}
+                  />
+                </AudioOnly>
+              </LinkButton>
+              <Button
+                id={PageNavigationButtonId.PREVIOUS}
+                onPress={() => setIsConfirmingNoParty(false)}
+              >
+                {appStrings.buttonCancel()}
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={
+            /* istanbul ignore next */
+            () => setIsConfirmingNoParty(false)
           }
         />
       )}

@@ -1,9 +1,10 @@
 import React from 'react';
 
 import { ContestPage, useIsReviewMode } from '@votingworks/mark-flow-ui';
-import { ContestId } from '@votingworks/types';
+import { ContestId, isOpenPrimary } from '@votingworks/types';
 
 import { AccessibilityMode } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
 import * as api from '../api';
 import { BallotContext } from '../contexts/ballot_context';
 import { useVoterHelpScreen } from './use_voter_help_screen';
@@ -31,7 +32,6 @@ export function ContestScreen(): JSX.Element {
     contests,
     electionDefinition,
     precinctId,
-    selectedPartyId,
     updateVote,
     votes,
   } = React.useContext(BallotContext);
@@ -44,11 +44,13 @@ export function ContestScreen(): JSX.Element {
     api.getIsPatDeviceConnected.useQuery().data
   );
 
-  // In open primaries, Back from the first contest returns to party selection so the
-  // voter can change their party. `selectedPartyId` being set implies the
-  // voter came from the party selection screen.
+  // In open primaries, Back from the first contest returns to party selection
+  // so the voter can choose or change their party — including when no party is
+  // currently selected.
   function getStartPageUrl() {
-    return selectedPartyId ? '/party-selection' : '/';
+    return isOpenPrimary(assertDefined(electionDefinition).election)
+      ? '/party-selection'
+      : '/';
   }
 
   return (

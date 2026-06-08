@@ -1148,6 +1148,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteBmdNoPartySelected: () => (
+    <UiString uiStringKey="noteBmdNoPartySelected">No Party Selected</UiString>
+  ),
+
   noteBmdPartySelectionCompleted: () => (
     <UiString uiStringKey="noteBmdPartySelectionCompleted">
       Press the right arrow button to advance to the first contest.
@@ -1772,6 +1776,13 @@ export const appStrings = {
   warningBmdInvalidBallotWrongPrecinct: () => (
     <UiString uiStringKey="warningBmdInvalidBallotWrongPrecinct">
       The inserted sheet is a ballot for a different precinct.
+    </UiString>
+  ),
+
+  warningBmdNoPartySelected: () => (
+    <UiString uiStringKey="warningBmdNoPartySelected">
+      You have not chosen a party. You will only be able to vote in nonpartisan
+      contests.
     </UiString>
   ),
 
