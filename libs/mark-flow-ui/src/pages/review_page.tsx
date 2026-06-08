@@ -10,7 +10,7 @@ import {
   WithScrollButtons,
   appStrings,
   AudioOnly,
-  ReadOnLoad,
+  FocusableAudio,
   PageNavigationButtonId,
   AssistiveTechInstructions,
   WithAltAudio,
@@ -30,7 +30,7 @@ import { Review, ReviewProps } from '../components/review';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 
-const ContentHeader = styled(ReadOnLoad)`
+const ContentHeader = styled(FocusableAudio)`
   padding: 0.5rem 0.75rem 0;
 `;
 
@@ -127,7 +127,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
       }
       VoterHelpScreen={VoterHelpScreen}
     >
-      <ContentHeader>
+      <ContentHeader readOnLoad replayOnClick showFocusIndicator>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
         <AudioOnly>
           <AssistiveTechInstructions

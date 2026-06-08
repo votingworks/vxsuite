@@ -4,6 +4,7 @@ import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
 import {
+  FocusableAudio,
   LanguageSettingsButton,
   LanguageSettingsScreen,
   Main,
@@ -148,7 +149,11 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
   }
 
   const optionalBreadcrumbs = breadcrumbs && (
-    <BreadcrumbsContainer>{breadcrumbs}</BreadcrumbsContainer>
+    <BreadcrumbsContainer>
+      <FocusableAudio replayOnClick showFocusIndicator>
+        {breadcrumbs}
+      </FocusableAudio>
+    </BreadcrumbsContainer>
   );
 
   const menuButtons = (
