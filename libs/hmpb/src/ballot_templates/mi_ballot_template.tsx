@@ -398,7 +398,9 @@ function CandidateContest({
                 left: -0.6,
                 bottom: 0.5,
                 right:
-                  numContestColumns === 2
+                  numContestColumns === 1
+                    ? 29.9
+                    : numContestColumns === 2
                     ? 14.6
                     : numContestColumns === 3
                     ? 9.5
@@ -905,14 +907,15 @@ async function ClosedPrimaryContestColumns({
   ballotStyle,
   dimensions,
   scratchpad,
+  numColumns,
 }: {
   contests: readonly AnyContest[];
   election: Election;
   ballotStyle: BallotStyle;
   dimensions: PixelDimensions;
   scratchpad: RenderScratchpad;
+  numColumns: number;
 }): Promise<ContestColumnsResult> {
-  const numColumns = 2;
   const sections = buildClosedPrimaryContestSections(
     contests,
     election,
@@ -1099,10 +1102,11 @@ async function OpenPrimaryContestColumns({
 }
 
 /**
- * The number of contest columns used for the Michigan general election ballot
- * layout. Defaults to 4 when not specified.
+ * The number of contest columns used for the Michigan general election and
+ * closed primary ballot layouts. Defaults to 4 when not specified. Not used for
+ * open primary ballots, which have a fixed layout.
  */
-export type MiGeneralBallotColumns = 3 | 4;
+export type MiGeneralBallotColumns = 1 | 2 | 3 | 4;
 
 export type MiBallotProps = BaseBallotProps & {
   generalBallotColumns?: MiGeneralBallotColumns;
@@ -1152,6 +1156,7 @@ async function BallotPageContent(
           ballotStyle,
           dimensions,
           scratchpad,
+          numColumns: props.generalBallotColumns ?? 4,
         });
 
   if (leftoverContests.length === contests.length) {
