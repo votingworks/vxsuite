@@ -94,7 +94,7 @@ function Header({
   const ballotTitle = ballotTitles[ballotMode][ballotType];
 
   const party =
-    election.type === 'primary'
+    election.type === 'closed-primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
 
@@ -272,7 +272,7 @@ function CandidateContest({
       <ul>
         {candidates.map((candidate, i) => {
           const partyText =
-            election.type === 'primary' ? undefined : (
+            election.type === 'closed-primary' ? undefined : (
               <CandidatePartyList
                 candidate={candidate}
                 electionParties={election.parties}
