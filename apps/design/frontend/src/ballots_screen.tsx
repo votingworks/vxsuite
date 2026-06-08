@@ -14,7 +14,12 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  ElectionId,
+  hasSplits,
+  safeParseNumber,
+} from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
@@ -59,12 +64,14 @@ function BallotDesignForm({
   const updateBallotLayoutSettingsMutation =
     updateBallotLayoutSettings.useMutation();
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
   /* istanbul ignore next */
-  if (!getStateFeaturesQuery.isSuccess) {
+  if (!(getStateFeaturesQuery.isSuccess && getElectionInfoQuery.isSuccess)) {
     return null;
   }
   const features = getStateFeaturesQuery.data;
+  const electionInfo = getElectionInfoQuery.data;
 
   function onSubmit() {
     updateBallotLayoutSettingsMutation.mutate(
@@ -135,25 +142,30 @@ function BallotDesignForm({
             />
           </div>
         )}
-      {ballotTemplateId === 'MiBallot' && (
-        <div style={{ maxWidth: '16.5rem' }}>
-          <RadioGroup
-            label="Number of Columns"
-            options={[
-              { label: '4', value: '4' },
-              { label: '3', value: '3' },
-            ]}
-            value={String(layoutSettings.miGeneralBallotColumns)}
-            onChange={(value) =>
-              setLayoutSettings({
-                ...layoutSettings,
-                miGeneralBallotColumns: value === '3' ? 3 : 4,
-              })
-            }
-            disabled={!isEditing}
-          />
-        </div>
-      )}
+      {ballotTemplateId === 'MiBallot' &&
+        electionInfo.type !== 'open-primary' && (
+          <div style={{ maxWidth: '16.5rem' }}>
+            <RadioGroup
+              label="Number of Columns"
+              options={[
+                { label: '1', value: '1' },
+                { label: '2', value: '2' },
+                { label: '3', value: '3' },
+                { label: '4', value: '4' },
+              ]}
+              value={String(layoutSettings.miGeneralBallotColumns)}
+              onChange={(value) =>
+                setLayoutSettings({
+                  ...layoutSettings,
+                  miGeneralBallotColumns: safeParseNumber(
+                    value
+                  ).unsafeUnwrap() as MiGeneralBallotColumns,
+                })
+              }
+              disabled={!isEditing}
+            />
+          </div>
+        )}
       {isEditing ? (
         <FormActionsRow>
           <Button type="reset">Cancel</Button>

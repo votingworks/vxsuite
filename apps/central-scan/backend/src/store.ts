@@ -579,11 +579,18 @@ export class Store {
     ballotAuditId?: string
   ): string {
     try {
+      const sheetInterpretation = combinePageInterpretationsForSheet(
+        [front.interpretation, back.interpretation],
+        election
+      );
+      // Crossover voting alone does not pause central scanning. Such ballots
+      // are tabulated as scanned; cross-party votes simply aren't counted.
       const requiresAdjudication =
-        combinePageInterpretationsForSheet(
-          [front.interpretation, back.interpretation],
-          election
-        ).type !== 'ValidSheet';
+        sheetInterpretation.type === 'NeedsReviewSheet'
+          ? sheetInterpretation.reasons.some(
+              (reason) => reason.type !== AdjudicationReason.CrossoverVoting
+            )
+          : sheetInterpretation.type !== 'ValidSheet';
 
       this.client.run(
         `insert into sheets (

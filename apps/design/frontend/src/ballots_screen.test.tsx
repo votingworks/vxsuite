@@ -470,3 +470,80 @@ describe('Ballot layout tab', () => {
     expect(screen.getByLabelText('Compact')).not.toBeChecked();
   });
 });
+
+describe('Ballot layout tab - number of columns by election type', () => {
+  test('shows number of columns for MI ballot template in closed primary', async () => {
+    const electionRecord = primaryElectionRecord(jurisdiction.id);
+    const { election } = electionRecord;
+    const electionId = election.id;
+    expectElectionApiCalls(electionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+      miGeneralBallotColumns: 4,
+    });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('MiBallot');
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+    const columnsRadioGroup = await screen.findByRole('radiogroup', {
+      name: 'Number of Columns',
+    });
+    for (const label of ['1', '2', '3', '4']) {
+      within(columnsRadioGroup).getByLabelText(label);
+    }
+    expect(within(columnsRadioGroup).getByLabelText('4')).toBeChecked();
+
+    // Edit and switch to 2 columns
+    userEvent.click(screen.getByRole('button', { name: /Edit/ }));
+    userEvent.click(within(columnsRadioGroup).getByLabelText('2'));
+    expect(within(columnsRadioGroup).getByLabelText('2')).toBeChecked();
+
+    apiMock.updateBallotLayoutSettings
+      .expectCallWith({
+        electionId,
+        paperSize: election.ballotLayout.paperSize,
+        compact: false,
+        miGeneralBallotColumns: 2,
+      })
+      .resolves();
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+      miGeneralBallotColumns: 2,
+    });
+    userEvent.click(screen.getByRole('button', { name: /Save/ }));
+    await screen.findByRole('button', { name: /Edit/ });
+    expect(within(columnsRadioGroup).getByLabelText('2')).toBeChecked();
+  });
+
+  test('hides number of columns for MI ballot template in open primary', async () => {
+    const electionRecord = openPrimaryElectionRecord(jurisdiction.id);
+    const { election } = electionRecord;
+    const electionId = election.id;
+    expectElectionApiCalls(electionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+      miGeneralBallotColumns: 4,
+    });
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('MiBallot');
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+    await screen.findByRole('radiogroup', { name: 'Paper Size' });
+    expect(
+      screen.queryByRole('radiogroup', { name: 'Number of Columns' })
+    ).not.toBeInTheDocument();
+  });
+});
