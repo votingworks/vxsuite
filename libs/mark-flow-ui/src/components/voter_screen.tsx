@@ -150,7 +150,9 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
 
   const optionalBreadcrumbs = breadcrumbs && (
     <BreadcrumbsContainer>
-      <FocusableAudio showFocusIndicator>{breadcrumbs}</FocusableAudio>
+      <FocusableAudio replayOnClick showFocusIndicator>
+        {breadcrumbs}
+      </FocusableAudio>
     </BreadcrumbsContainer>
   );
 

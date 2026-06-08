@@ -4,6 +4,7 @@ import {
   ComponentPropsWithoutRef,
   CSSProperties,
   ElementType,
+  MouseEvent,
   useState,
 } from 'react';
 import { ReadOnLoad } from './ui_strings/read_on_load';
@@ -22,6 +23,12 @@ export type FocusableAudioProps<T extends ElementType> = Omit<
    * focused. Defaults to `false`, which suppresses the outline.
    */
   showFocusIndicator?: boolean;
+
+  /**
+   * When `true`, clicking or tapping anywhere within the block replays the
+   * entire block's audio, matching the readout triggered when the block
+   * receives focus. */
+  replayOnClick?: boolean;
 };
 
 const DefaultContainer = styled.div`
@@ -47,6 +54,7 @@ export function FocusableAudio<T extends ElementType = 'div'>(
     children,
     className,
     readOnLoad,
+    replayOnClick,
     showFocusIndicator,
     style,
     ...rest
@@ -62,6 +70,17 @@ export function FocusableAudio<T extends ElementType = 'div'>(
 
   const Container = readOnLoad ? ReadOnLoad : DefaultContainer;
 
+  function handleClick(event: MouseEvent<HTMLElement>) {
+    if (!replayOnClick) {
+      return;
+    }
+
+    // Re-target the screen reader at the whole block, so clicking any
+    // descendant replays the entire block's audio rather than just the clicked
+    // element.
+    event.currentTarget.dispatchEvent(new Event('focus', { bubbles: true }));
+  }
+
   function handleBlur() {
     setOutlineEnabled(true);
   }
@@ -72,6 +91,7 @@ export function FocusableAudio<T extends ElementType = 'div'>(
       as={as}
       className={`${className || ''} ${FOCUSABLE_AUDIO_CLASS_NAME}`}
       onBlur={handleBlur}
+      onClick={handleClick}
       // Suppress the focus outline unless explicitly enabled.
       style={showOutline ? baseStyle : { ...baseStyle, outline: 'none' }}
       tabIndex={0}

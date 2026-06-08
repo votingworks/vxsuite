@@ -127,7 +127,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
       }
       VoterHelpScreen={VoterHelpScreen}
     >
-      <ContentHeader readOnLoad showFocusIndicator>
+      <ContentHeader readOnLoad replayOnClick showFocusIndicator>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
         <AudioOnly>
           <AssistiveTechInstructions

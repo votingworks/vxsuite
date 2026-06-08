@@ -66,7 +66,7 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
        * navigation order and voters can navigate back to it to replay the audio
        * without leaving and re-entering the contest.
        */}
-      <FocusableAudio readOnLoad showFocusIndicator>
+      <FocusableAudio readOnLoad replayOnClick showFocusIndicator>
         <div>
           <Caption weight="semiBold">
             {electionStrings.districtName(district)}
