@@ -643,12 +643,20 @@ function BallotView({
 } & BallotAdjudicationScreenProps): React.ReactNode {
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
-  const contestAdjudicationData = ballotAdjudicationData.contests;
+  const { tag: cvrTag, contests: contestAdjudicationData } =
+    ballotAdjudicationData;
   const contestItems = contestListItems(
     ballotImages,
     contestAdjudicationData,
     election
   );
+  const firstUnresolvedContest =
+    cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
+      ? undefined
+      : contestItems.find(
+          (item) =>
+            !isContestResolved(item.adjudicationData, adjudicatedContests)
+        );
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
@@ -657,13 +665,9 @@ function BallotView({
   const [hoveredContestId, setHoveredContestId] = useState<ContestId | null>(
     null
   );
-  const [selectedSide, setSelectedSide] = useState<Side>(() => {
-    const firstPending = contestItems.find(
-      (contest) =>
-        !isContestResolved(contest.adjudicationData, adjudicatedContests)
-    );
-    return firstPending?.side ?? 'front';
-  });
+  const [selectedSide, setSelectedSide] = useState<Side>(
+    firstUnresolvedContest?.side ?? 'front'
+  );
 
   function onNavigation(action: () => void): () => void {
     return () => {
@@ -687,7 +691,6 @@ function BallotView({
   const onBackGuarded = onBack && onNavigation(onBack);
   const onExitGuarded = onNavigation(onExit);
 
-  const cvrTag = ballotAdjudicationData.tag;
   const { front, back } = ballotImages;
   const visibleImage = selectedSide === 'front' ? front : back;
 
@@ -816,6 +819,7 @@ function BallotView({
             <AdjudicationContestList
               key={cvrId}
               adjudicatedContests={adjudicatedContests}
+              firstUnresolvedContestId={firstUnresolvedContest?.contest.id}
               contestItems={contestItems}
               cvrTag={cvrTag}
               election={election}

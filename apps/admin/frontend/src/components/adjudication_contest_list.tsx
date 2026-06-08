@@ -509,6 +509,7 @@ function BallotSideContestList({
 export interface AdjudicationContestListProps {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
   contestItems: ContestListItem[];
+  firstUnresolvedContestId?: ContestId;
   cvrTag: CvrTag;
   election: Election;
   isBallotResolved: boolean;
@@ -522,6 +523,7 @@ export interface AdjudicationContestListProps {
 export function AdjudicationContestList({
   adjudicatedContests,
   contestItems,
+  firstUnresolvedContestId,
   cvrTag,
   election,
   isBallotResolved,
@@ -531,14 +533,6 @@ export function AdjudicationContestList({
   selectedSide,
   showUndervoteStatus,
 }: AdjudicationContestListProps): React.ReactNode {
-  const firstUnresolvedContestId =
-    cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
-      ? undefined
-      : contestItems.find(
-          (item) =>
-            !isContestResolved(item.adjudicationData, adjudicatedContests)
-        )?.contest.id;
-
   const blankBallotHasAnyAdjudicatedVote =
     cvrTag.isBlankBallot &&
     contestItems.some((item) =>
