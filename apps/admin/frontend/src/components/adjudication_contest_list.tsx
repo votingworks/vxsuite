@@ -19,6 +19,7 @@ import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { EntityList } from './entity_list';
 import {
+  AdjudicatedContests,
   ContestListItem,
   contestPartyLabel,
   CrossoverVoteStatus,
@@ -496,28 +497,6 @@ export function AdjudicationContestList({
   showUndervoteStatus,
   crossoverVoteStatus,
 }: AdjudicationContestListProps): React.ReactNode {
-  const blankBallotHasAnyAdjudicatedVote =
-    cvrTag.isBlankBallot &&
-    contestItems.some((item) =>
-      item.adjudicationData.options.some((o) =>
-        getCurrentVote(
-          o,
-          adjudicatedContests.get(item.contest.id)
-            ?.adjudicatedContestOptionById[o.definition.id]
-        )
-      )
-    );
-
-  const blankBallotCalloutTitle = (() => {
-    if (!cvrTag.isBlankBallot) return undefined;
-    if (blankBallotHasAnyAdjudicatedVote) {
-      return 'Blank Ballot Resolved';
-    }
-    return isBallotResolved
-      ? 'Blank Ballot Confirmed'
-      : 'Blank Ballot Detected';
-  })();
-
   const [frontContests, backContests] = iter(contestItems).partition(
     (item) => item.side === 'front'
   );
@@ -525,53 +504,13 @@ export function AdjudicationContestList({
   return (
     <EntityList.Box>
       {cvrTag.isBlankBallot && (
-        <CalloutContainer>
-          <Callout
-            color={
-              blankBallotHasAnyAdjudicatedVote
-                ? 'neutral'
-                : !isBallotResolved
-                ? 'warning'
-                : 'primary'
-            }
-          >
-            <CalloutContent>
-              <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
-                {isBallotResolved || blankBallotHasAnyAdjudicatedVote ? (
-                  <Icons.Done
-                    color={
-                      blankBallotHasAnyAdjudicatedVote ? 'neutral' : 'primary'
-                    }
-                  />
-                ) : (
-                  <Icons.Warning color="warning" />
-                )}
-              </P>
-              <CalloutBody>
-                <CalloutTitleContainer>
-                  <CalloutTitle weight="bold">
-                    {blankBallotCalloutTitle}
-                  </CalloutTitle>
-                  {blankBallotHasAnyAdjudicatedVote && (
-                    <Caption weight="regular" style={{ lineHeight: 1 }}>
-                      At least one contest now has a valid vote
-                    </Caption>
-                  )}
-                </CalloutTitleContainer>
-                {!blankBallotHasAnyAdjudicatedVote && (
-                  <ViewSideButton
-                    onPress={() =>
-                      onSelectSide(selectedSide === 'front' ? 'back' : 'front')
-                    }
-                    icon="Search"
-                  >
-                    View {selectedSide === 'front' ? 'Back' : 'Front'}
-                  </ViewSideButton>
-                )}
-              </CalloutBody>
-            </CalloutContent>
-          </Callout>
-        </CalloutContainer>
+        <BlankBallotCallout
+          contestItems={contestItems}
+          adjudicatedContests={adjudicatedContests}
+          isBallotResolved={isBallotResolved}
+          selectedSide={selectedSide}
+          onSelectSide={onSelectSide}
+        />
       )}
       {cvrTag.hasCrossoverVote && (
         <CrossoverVotingCallout {...crossoverVoteStatus} />
@@ -609,6 +548,88 @@ export function AdjudicationContestList({
         />
       )}
     </EntityList.Box>
+  );
+}
+
+function BlankBallotCallout({
+  contestItems,
+  adjudicatedContests,
+  isBallotResolved,
+  selectedSide,
+  onSelectSide,
+}: {
+  contestItems: ContestListItem[];
+  adjudicatedContests: AdjudicatedContests;
+  isBallotResolved: boolean;
+  selectedSide: Side;
+  onSelectSide: (side: Side) => void;
+}): JSX.Element {
+  const ballotHasAnyAdjudicatedVote = contestItems.some((item) =>
+    item.adjudicationData.options.some((o) =>
+      getCurrentVote(
+        o,
+        adjudicatedContests.get(item.contest.id)?.adjudicatedContestOptionById[
+          o.definition.id
+        ]
+      )
+    )
+  );
+
+  const blankBallotCalloutTitle = (() => {
+    if (ballotHasAnyAdjudicatedVote) {
+      return 'Blank Ballot Resolved';
+    }
+    return isBallotResolved
+      ? 'Blank Ballot Confirmed'
+      : 'Blank Ballot Detected';
+  })();
+
+  return (
+    <CalloutContainer>
+      <Callout
+        color={
+          ballotHasAnyAdjudicatedVote
+            ? 'neutral'
+            : !isBallotResolved
+            ? 'warning'
+            : 'primary'
+        }
+      >
+        <CalloutContent>
+          <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
+            {isBallotResolved || ballotHasAnyAdjudicatedVote ? (
+              <Icons.Done
+                color={ballotHasAnyAdjudicatedVote ? 'neutral' : 'primary'}
+              />
+            ) : (
+              <Icons.Warning color="warning" />
+            )}
+          </P>
+          <CalloutBody>
+            <CalloutTitleContainer>
+              <CalloutTitle weight="bold">
+                {blankBallotCalloutTitle}
+              </CalloutTitle>
+              {ballotHasAnyAdjudicatedVote && (
+                <Caption weight="regular" style={{ lineHeight: 1 }}>
+                  At least one contest now has a valid vote
+                </Caption>
+              )}
+            </CalloutTitleContainer>
+            {!ballotHasAnyAdjudicatedVote && (
+              <ViewSideButton
+                onPress={() =>
+                  onSelectSide(selectedSide === 'front' ? 'back' : 'front')
+                }
+                icon="Search"
+              >
+                View {selectedSide === 'front' ? 'Back' : 'Front'}
+              </ViewSideButton>
+            )}
+          </CalloutBody>
+        </CalloutContent>
+      </Callout>
+    </CalloutContainer>
   );
 }
 
