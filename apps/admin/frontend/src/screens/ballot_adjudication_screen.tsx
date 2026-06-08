@@ -491,6 +491,57 @@ function HostBallotAdjudicationScreenDataLoader({
   );
 }
 
+// Derives the baseline adjudication state from persisted adjudications.
+// In qualified-write-in mode, auto-resolve contests whose only adjudication
+// reason is write-ins when the contest has no qualified candidates: every
+// write-in must be invalid, so the user has nothing to decide.
+function adjudicatedContestsBaseline(
+  ballotAdjudicationData: BallotAdjudicationData,
+  systemSettings: SystemSettings,
+  writeInCandidates: WriteInCandidateRecord[]
+): Map<ContestId, AdjudicatedCvrContest> {
+  const baseline = new Map<ContestId, AdjudicatedCvrContest>(
+    ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+  );
+  if (
+    !systemSettings.areWriteInCandidatesQualified ||
+    ballotAdjudicationData.isResolved
+  ) {
+    return baseline;
+  }
+  const contestIdsWithQualified = new Set(
+    writeInCandidates.map((c) => c.contestId)
+  );
+
+  for (const contest of ballotAdjudicationData.contests) {
+    if (baseline.has(contest.contestId)) continue;
+    const { tag } = contest;
+    if (!tag) continue;
+    const hasWriteInFlag = tag.hasWriteIn || tag.hasUnmarkedWriteIn;
+    const hasOtherFlag =
+      tag.hasOvervote || tag.hasUndervote || tag.hasMarginalMark;
+    if (!hasWriteInFlag || hasOtherFlag) continue;
+    if (contestIdsWithQualified.has(contest.contestId)) continue;
+
+    const adjudicatedContestOptionById: Record<
+      ContestOptionId,
+      AdjudicatedContestOption
+    > = {};
+    for (const option of contest.options) {
+      const isWriteIn =
+        option.definition.type === 'candidate' && option.definition.isWriteIn;
+      adjudicatedContestOptionById[option.definition.id] = isWriteIn
+        ? { type: 'write-in-option', hasVote: false }
+        : { type: 'official-option', hasVote: option.scannedVote };
+    }
+    baseline.set(contest.contestId, {
+      contestId: contest.contestId,
+      adjudicatedContestOptionById,
+    });
+  }
+  return baseline;
+}
+
 export interface BallotAdjudicationScreenProps {
   cvrId: Id;
   ballotAdjudicationData: BallotAdjudicationData;
@@ -511,7 +562,91 @@ export interface BallotAdjudicationScreenProps {
   onExit: () => void;
 }
 
-export function BallotAdjudicationScreen({
+export function BallotAdjudicationScreen(
+  props: BallotAdjudicationScreenProps
+): JSX.Element {
+  const {
+    cvrId,
+    ballotAdjudicationData,
+    ballotImages,
+    systemSettings,
+    writeInCandidates,
+    isClaimed,
+  } = props;
+  const { electionDefinition } = useContext(AppContext);
+  const { election } = assertDefined(electionDefinition);
+  const contestAdjudicationData = ballotAdjudicationData.contests;
+  const { frontContests, backContests } = groupContestsBySide(
+    ballotImages,
+    contestAdjudicationData,
+    election
+  );
+
+  const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
+    null
+  );
+  const [adjudicatedContests, setAdjudicatedContests] = useState<
+    Map<ContestId, AdjudicatedCvrContest>
+  >(
+    adjudicatedContestsBaseline(
+      ballotAdjudicationData,
+      systemSettings,
+      writeInCandidates
+    )
+  );
+
+  if (selectedContestId && !isClaimed) {
+    return (
+      <ContestAdjudicationScreen
+        areWriteInCandidatesQualified={
+          systemSettings.areWriteInCandidatesQualified ?? false
+        }
+        cvrId={cvrId}
+        side={
+          frontContests.some((item) => item.contest.id === selectedContestId)
+            ? 'front'
+            : 'back'
+        }
+        onClose={() => setSelectedContestId(null)}
+        contestAdjudicationData={find(
+          contestAdjudicationData,
+          (c) => c.contestId === selectedContestId
+        )}
+        adjudicatedOptions={
+          adjudicatedContests.get(selectedContestId)
+            ?.adjudicatedContestOptionById
+        }
+        ballotImages={ballotImages}
+        writeInCandidates={writeInCandidates.filter(
+          (c) => c.contestId === selectedContestId
+        )}
+        onConfirmContest={(input) => {
+          const updated = new Map(adjudicatedContests).set(
+            input.contestId,
+            input
+          );
+          setAdjudicatedContests(updated);
+        }}
+      />
+    );
+  }
+
+  return (
+    <BallotView
+      adjudicatedContests={adjudicatedContests}
+      frontContests={frontContests}
+      backContests={backContests}
+      setSelectedContestId={setSelectedContestId}
+      {...props}
+    />
+  );
+}
+
+function BallotView({
+  adjudicatedContests,
+  frontContests,
+  backContests,
+  setSelectedContestId,
   cvrId,
   ballotAdjudicationData,
   ballotImages,
@@ -526,21 +661,25 @@ export function BallotAdjudicationScreen({
   onSkip,
   onBack,
   onExit,
-}: BallotAdjudicationScreenProps): JSX.Element {
+}: {
+  adjudicatedContests: Map<ContestId, AdjudicatedCvrContest>;
+  frontContests: ContestListItem[];
+  backContests: ContestListItem[];
+  setSelectedContestId: (contestId: ContestId | null) => void;
+} & BallotAdjudicationScreenProps): React.ReactNode {
   const { electionDefinition } = useContext(AppContext);
-  const election = assertDefined(electionDefinition?.election);
-
-  const contestAdjudicationData = ballotAdjudicationData.contests;
-  const { frontContests, backContests } = groupContestsBySide(
-    ballotImages,
-    contestAdjudicationData,
-    election
-  );
+  const { election } = assertDefined(electionDefinition);
   const allContests = [...frontContests, ...backContests];
+  const contestAdjudicationData = ballotAdjudicationData.contests;
 
-  function getDefaultSide(
-    adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
-  ): Side {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingDiscard, setPendingDiscard] = useState<{
+    action: () => void;
+  } | null>(null);
+  const [hoveredContestId, setHoveredContestId] = useState<ContestId | null>(
+    null
+  );
+  const [selectedSide, setSelectedSide] = useState<Side>(() => {
     const backIds = new Set(backContests.map((item) => item.contest.id));
     const firstPending = contestAdjudicationData
       .filter((c) => c.tag !== null)
@@ -548,80 +687,20 @@ export function BallotAdjudicationScreen({
     return firstPending && backIds.has(firstPending.contestId)
       ? 'back'
       : 'front';
-  }
-
-  const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
-    null
-  );
-  const [hoveredContestId, setHoveredContestId] = useState<ContestId | null>(
-    null
-  );
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [pendingDiscard, setPendingDiscard] = useState<{
-    action: () => void;
-  } | null>(null);
-
-  // Derives the baseline adjudication state from persisted adjudications.
-  // In qualified-write-in mode, auto-resolve contests whose only adjudication
-  // reason is write-ins when the contest has no qualified candidates: every
-  // write-in must be invalid, so the user has nothing to decide.
-  function adjudicatedContestsBaseline(): Map<
-    ContestId,
-    AdjudicatedCvrContest
-  > {
-    const baseline = new Map<ContestId, AdjudicatedCvrContest>(
-      ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
-    );
-    if (
-      !systemSettings.areWriteInCandidatesQualified ||
-      ballotAdjudicationData.isResolved
-    ) {
-      return baseline;
-    }
-    const contestIdsWithQualified = new Set(
-      writeInCandidates.map((c) => c.contestId)
-    );
-
-    for (const { adjudicationData: contest } of allContests) {
-      if (baseline.has(contest.contestId)) continue;
-      const { tag } = contest;
-      if (!tag) continue;
-      const hasWriteInFlag = tag.hasWriteIn || tag.hasUnmarkedWriteIn;
-      const hasOtherFlag =
-        tag.hasOvervote || tag.hasUndervote || tag.hasMarginalMark;
-      if (!hasWriteInFlag || hasOtherFlag) continue;
-      if (contestIdsWithQualified.has(contest.contestId)) continue;
-
-      const adjudicatedContestOptionById: Record<
-        ContestOptionId,
-        AdjudicatedContestOption
-      > = {};
-      for (const option of contest.options) {
-        const isWriteIn =
-          option.definition.type === 'candidate' && option.definition.isWriteIn;
-        adjudicatedContestOptionById[option.definition.id] = isWriteIn
-          ? { type: 'write-in-option', hasVote: false }
-          : { type: 'official-option', hasVote: option.scannedVote };
-      }
-      baseline.set(contest.contestId, {
-        contestId: contest.contestId,
-        adjudicatedContestOptionById,
-      });
-    }
-    return baseline;
-  }
-
-  const [adjudicatedContests, setAdjudicatedContests] = useState<
-    Map<ContestId, AdjudicatedCvrContest>
-  >(adjudicatedContestsBaseline);
-
-  const [selectedSide, setSelectedSide] = useState<Side>(() =>
-    getDefaultSide(adjudicatedContests)
-  );
+  });
 
   function onNavigation(action: () => void): () => void {
     return () => {
-      if (!deepEqual(adjudicatedContests, adjudicatedContestsBaseline())) {
+      if (
+        !deepEqual(
+          adjudicatedContests,
+          adjudicatedContestsBaseline(
+            ballotAdjudicationData,
+            systemSettings,
+            writeInCandidates
+          )
+        )
+      ) {
         setPendingDiscard({ action });
       } else {
         action();
@@ -684,15 +763,6 @@ export function BallotAdjudicationScreen({
     }
   }
 
-  function onCloseContest(): void {
-    setSelectedContestId(null);
-    setHoveredContestId(null);
-  }
-
-  function onContestHover(contestId: ContestId | null): void {
-    setHoveredContestId(contestId);
-  }
-
   const hoveredContestBounds = (() => {
     if (hoveredContestId && visibleImage.type === 'hmpb') {
       return visibleImage.layout.contests.find(
@@ -723,43 +793,6 @@ export function BallotAdjudicationScreen({
       !ballotAdjudicationData.isResolved;
     return crossoverVoteIsPending;
   })();
-
-  if (selectedContestId && !isClaimed) {
-    return (
-      <ContestAdjudicationScreen
-        areWriteInCandidatesQualified={
-          systemSettings.areWriteInCandidatesQualified ?? false
-        }
-        cvrId={cvrId}
-        side={
-          frontContests.some((item) => item.contest.id === selectedContestId)
-            ? 'front'
-            : 'back'
-        }
-        onClose={onCloseContest}
-        contestAdjudicationData={find(
-          contestAdjudicationData,
-          (c) => c.contestId === selectedContestId
-        )}
-        adjudicatedOptions={
-          adjudicatedContests.get(selectedContestId)
-            ?.adjudicatedContestOptionById
-        }
-        ballotImages={ballotImages}
-        writeInCandidates={writeInCandidates.filter(
-          (c) => c.contestId === selectedContestId
-        )}
-        onConfirmContest={(input) => {
-          const updated = new Map(adjudicatedContests).set(
-            input.contestId,
-            input
-          );
-          setAdjudicatedContests(updated);
-          setSelectedSide(getDefaultSide(updated));
-        }}
-      />
-    );
-  }
 
   return (
     <Screen>
@@ -812,7 +845,7 @@ export function BallotAdjudicationScreen({
               election={election}
               frontContests={frontContests}
               isBallotResolved={ballotAdjudicationData.isResolved}
-              onHover={onContestHover}
+              onHover={(contestId) => setHoveredContestId(contestId)}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onSelectSide={setSelectedSide}
               selectedSide={selectedSide}
