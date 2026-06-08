@@ -6,6 +6,7 @@ import {
   Election,
   ElectionDefinition,
   LanguageCode,
+  LATEST_SOFTWARE_VERSION,
   TtsEditKey,
 } from '@votingworks/types';
 import * as types from '@votingworks/types';
@@ -37,7 +38,6 @@ import {
   users,
   vxJurisdiction,
 } from '../test/mocks';
-import { LATEST_SOFTWARE_VERSION } from './types';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);

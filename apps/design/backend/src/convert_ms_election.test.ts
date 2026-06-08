@@ -2,12 +2,12 @@ import { test, expect, vi, beforeAll, afterAll } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   Election,
-  electionTypeV4p0ToV4p1,
+  LATEST_SOFTWARE_VERSION,
   safeParseElection,
 } from '@votingworks/types';
 import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
-import { Jurisdiction, LATEST_SOFTWARE_VERSION } from './types';
+import { Jurisdiction } from './types';
 import { readFixture } from '../test/helpers';
 import { vxOrganization } from '../test/mocks';
 import { defaultSystemSettings } from './system_settings';
