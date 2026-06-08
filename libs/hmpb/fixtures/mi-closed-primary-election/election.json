@@ -314,7 +314,7 @@
       "ballotStyleId": "1M",
       "optionBoundsFromTargetMark": {
         "top": 0.6151768172888016,
-        "right": 14.800283635466766,
+        "right": 7.00641262794426,
         "bottom": 0.5758840864440079,
         "left": 0.7013195215192995
       },
@@ -414,7 +414,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 17.275663064833008,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -429,7 +429,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 18.466723968565816,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -444,7 +444,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 19.657784872298624,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -477,7 +477,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 26.545677799607073,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -485,8 +485,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 11.348231827111984,
+          "column": 9.407448513996794,
+          "row": 12.902750491159136,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-either-approved"
         },
@@ -494,8 +494,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 12.932220039292732,
+          "column": 9.407448513996794,
+          "row": 15.638506876227899,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-neither-approved"
         },
@@ -503,8 +503,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 18.177185658153242,
+          "column": 9.407448513996794,
+          "row": 23.589759332023576,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-safari"
         },
@@ -512,8 +512,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 19.23808939096267,
+          "column": 9.407448513996794,
+          "row": 24.650663064833008,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-traditional"
         },
@@ -521,8 +521,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 22.405451866404714,
+          "column": 9.407448513996794,
+          "row": 28.859282907662084,
           "contestId": "fishing",
           "optionId": "ban-fishing"
         },
@@ -530,8 +530,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 23.466355599214147,
+          "column": 9.407448513996794,
+          "row": 29.920186640471513,
           "contestId": "fishing",
           "optionId": "allow-fishing"
         }
@@ -541,7 +541,7 @@
       "ballotStyleId": "2F",
       "optionBoundsFromTargetMark": {
         "top": 0.6151768172888016,
-        "right": 14.800283635466766,
+        "right": 7.00641262794426,
         "bottom": 0.5758840864440079,
         "left": 0.7013195215192995
       },
@@ -629,7 +629,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 16.214759332023576,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -644,7 +644,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 17.405820235756387,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -677,7 +677,7 @@
           "writeInArea": {
             "x": 2.2563078061413244,
             "y": 24.293713163064833,
-            "width": 14,
+            "width": 6.300000000000001,
             "height": 1
           }
         },
@@ -685,8 +685,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 1.6563078061413246,
-          "row": 31.44953339882122,
+          "column": 9.407448513996794,
+          "row": 12.902750491159136,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-either-approved"
         },
@@ -694,8 +694,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 1.6563078061413246,
-          "row": 33.033521611001966,
+          "column": 9.407448513996794,
+          "row": 15.638506876227899,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-neither-approved"
         },
@@ -703,8 +703,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 10.413801571709234,
+          "column": 9.407448513996794,
+          "row": 23.589759332023576,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-safari"
         },
@@ -712,8 +712,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 11.474705304518665,
+          "column": 9.407448513996794,
+          "row": 24.650663064833008,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-traditional"
         },
@@ -721,8 +721,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 14.642067779960708,
+          "column": 9.407448513996794,
+          "row": 28.859282907662084,
           "contestId": "fishing",
           "optionId": "ban-fishing"
         },
@@ -730,8 +730,8 @@
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 17.201319521519302,
-          "row": 15.702971512770137,
+          "column": 9.407448513996794,
+          "row": 29.920186640471513,
           "contestId": "fishing",
           "optionId": "allow-fishing"
         }
