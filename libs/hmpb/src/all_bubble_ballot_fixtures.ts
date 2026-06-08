@@ -8,6 +8,7 @@ import {
   GridPositionOption,
   HmpbBallotPaperSize,
   VotesDict,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 
@@ -80,7 +81,7 @@ export function allBubbleBallotFixtures(
           rendererPool,
           allBubbleBallotTemplate(paperSize),
           [ballotProps],
-          'vxf'
+          { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
         );
 
       return await rendererPool.runTask(async (renderer) => {

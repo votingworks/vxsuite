@@ -23,6 +23,7 @@ import {
   getBallotStyle,
   getContests,
   LanguageCode,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
@@ -30,6 +31,7 @@ import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { createTestVotes, markBallotDocument } from './mark_ballot';
 import {
   allBaseBallotProps,
+  ElectionSerializationOptions,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';
@@ -51,6 +53,11 @@ import { NhStateBallotProps } from './ballot_templates/nh_state_ballot_component
 const debug = makeDebug('hmpb:ballot_fixtures');
 
 export const fixturesDir = join(__dirname, '../fixtures');
+
+const serializationOptions: ElectionSerializationOptions = {
+  format: 'vxf',
+  version: LATEST_SOFTWARE_VERSION,
+};
 
 export const vxFamousNamesFixtures = (() => {
   const dir = join(fixturesDir, 'vx-famous-names');
@@ -118,7 +125,7 @@ export const vxFamousNamesFixtures = (() => {
         rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
-        'vxf'
+        serializationOptions
       );
 
       assert(
@@ -343,7 +350,7 @@ export const vxGeneralElectionFixtures = (() => {
             rendererPool,
             vxDefaultBallotTemplate,
             spec.allBallotProps,
-            'vxf'
+            serializationOptions
           );
         const [blankBallotContents, ballotProps] = assertDefined(
           iter(ballotContents)
@@ -468,7 +475,7 @@ export const vxPrimaryElectionFixtures = (() => {
         rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
-        'vxf'
+        serializationOptions
       );
       assert(
         layouts.electionDefinition.ballotHash === electionDefinition.ballotHash,
@@ -694,7 +701,7 @@ export const nhGeneralElectionFixtures = (() => {
             rendererPool,
             nhBallotTemplate,
             spec.allBallotProps,
-            'vxf'
+            serializationOptions
           );
         const [blankBallotContents, ballotProps] = assertDefined(
           iter(ballotContents)
@@ -878,7 +885,7 @@ export const nhStateGeneralElectionFixtures = (() => {
         rendererPool,
         nhStateBallotTemplate,
         combinedBallotProps,
-        'vxf'
+        serializationOptions
       );
 
       async function renderBallotPdf(
@@ -1085,7 +1092,7 @@ export const nhStatePrimaryElectionFixtures = (() => {
         rendererPool,
         nhStateBallotTemplate,
         combinedBallotProps,
-        'vxf'
+        serializationOptions
       );
 
       async function renderBallotPdf(spec: {
@@ -1221,7 +1228,7 @@ export const msGeneralElectionFixtures = (() => {
           rendererPool,
           msBallotTemplate,
           allBallotProps,
-          'vxf'
+          serializationOptions
         );
 
       const blankBallotContents = ballotContents[0];
@@ -1327,7 +1334,7 @@ export const miClosedPrimaryElectionFixtures = (() => {
           rendererPool,
           miBallotTemplate,
           allBallotProps,
-          'vxf'
+          serializationOptions
         );
 
       async function generatePartyFixtures(
@@ -1426,7 +1433,7 @@ export const miOpenPrimaryElectionFixtures = (() => {
           rendererPool,
           miBallotTemplate,
           allBallotProps,
-          'vxf'
+          serializationOptions
         );
 
       const [blankBallotContents, ballotProps] = assertDefined(
