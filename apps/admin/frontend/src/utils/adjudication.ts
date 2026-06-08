@@ -14,9 +14,19 @@ import {
   Election,
   isOpenPrimary,
   Rect,
+  Side,
   Vote,
   VotesDict,
 } from '@votingworks/types';
+
+export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
+
+export interface ContestListItem {
+  side: Side;
+  contest: AnyContest;
+  adjudicationData: ContestAdjudicationData;
+  isResolved: boolean;
+}
 
 export function normalizeWriteInName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/, ' ');
@@ -47,14 +57,6 @@ export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
   );
 }
 
-export function isContestResolved(
-  contest: ContestAdjudicationData,
-  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
-): boolean {
-  if (!contest.tag) return true;
-  return adjudicatedContests.has(contest.contestId);
-}
-
 export function getCurrentVote(
   option: ContestOptionAdjudicationData,
   adjudicatedOption?: AdjudicatedContestOption
@@ -83,11 +85,8 @@ export function isContestCrossoverVoted(
 }
 
 export function adjudicatedVotes(
-  contests: ReadonlyArray<{
-    contest: AnyContest;
-    adjudicationData: ContestAdjudicationData;
-  }>,
-  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+  contests: ContestListItem[],
+  adjudicatedContests: AdjudicatedContests
 ): VotesDict {
   return Object.fromEntries(
     contests.map(({ contest, adjudicationData }): [string, Vote] => {

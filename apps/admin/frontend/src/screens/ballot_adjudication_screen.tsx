@@ -38,16 +38,14 @@ import {
   BallotStaticImageViewer,
   UnableToLoadImageCallout,
 } from '../components/adjudication_ballot_image_viewer';
-import {
-  AdjudicationContestList,
-  ContestListItem,
-} from '../components/adjudication_contest_list';
+import { AdjudicationContestList } from '../components/adjudication_contest_list';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
 import {
+  AdjudicatedContests,
   adjudicatedVotes,
+  ContestListItem,
   isContestCrossoverVoted,
-  isContestResolved,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
@@ -147,12 +145,14 @@ const ClaimedBallotOverlay = styled.div`
 function contestListItems(
   ballotImages: BallotImages,
   contestAdjudicationData: ContestAdjudicationData[],
+  adjudicatedContests: AdjudicatedContests,
   election: Election
 ): ContestListItem[] {
   const contestsById = new Map(election.contests.map((c) => [c.id, c]));
   const baseItems = contestAdjudicationData.map((data) => ({
     contest: assertDefined(contestsById.get(data.contestId)),
     adjudicationData: data,
+    isResolved: !data.tag || adjudicatedContests.has(data.contestId),
   }));
   const { front, back } = ballotImages;
   if (front.type === 'bmd') {
@@ -648,15 +648,13 @@ function BallotView({
   const contestItems = contestListItems(
     ballotImages,
     contestAdjudicationData,
+    adjudicatedContests,
     election
   );
   const firstUnresolvedContest =
     cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
       ? undefined
-      : contestItems.find(
-          (item) =>
-            !isContestResolved(item.adjudicationData, adjudicatedContests)
-        );
+      : contestItems.find((contest) => !contest.isResolved);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
@@ -704,22 +702,19 @@ function BallotView({
   );
 
   const allContestAdjudicationsResolved =
-    contestAdjudicationData.every((c) =>
-      isContestResolved(c, adjudicatedContests)
-    ) ||
+    contestItems.every((contest) => contest.isResolved) ||
     (cvrTag.isBlankBallot &&
-      contestAdjudicationData.every(
-        (c) =>
-          isContestResolved(c, adjudicatedContests) ||
-          (c.tag && isContestTagOnlyUndervote(c.tag))
+      contestItems.every(
+        (contest) =>
+          contest.isResolved ||
+          (contest.adjudicationData.tag &&
+            isContestTagOnlyUndervote(contest.adjudicationData.tag))
       ));
 
-  const hasUnresolvedWriteIns = contestAdjudicationData.some(
-    (c) =>
-      c.tag &&
-      !isContestResolved(c, adjudicatedContests) &&
-      (c.tag.hasWriteIn || c.tag.hasUnmarkedWriteIn)
-  );
+  const hasUnresolvedWriteIns = contestItems.some((contest) => {
+    const { tag } = contest.adjudicationData;
+    return !contest.isResolved && (tag?.hasWriteIn || tag?.hasUnmarkedWriteIn);
+  });
 
   function onAcceptAndNext(): void {
     if (!allContestAdjudicationsResolved) {
@@ -754,7 +749,7 @@ function BallotView({
   const hoveredContestHasWarning = (() => {
     if (!hoveredContestId) return false;
     const item = find(contestItems, (i) => i.contest.id === hoveredContestId);
-    if (!isContestResolved(item.adjudicationData, adjudicatedContests)) {
+    if (!item.isResolved) {
       return true;
     }
     const contestHasScannedCrossoverVote = isContestCrossoverVoted(

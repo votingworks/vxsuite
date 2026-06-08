@@ -11,7 +11,6 @@ import {
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
-  ContestAdjudicationData,
   ContestOptionAdjudicationData,
   CvrTag,
 } from '@votingworks/admin-backend';
@@ -22,10 +21,10 @@ import pluralize from 'pluralize';
 import { EntityList } from './entity_list';
 import {
   adjudicatedVotes,
+  ContestListItem,
   contestPartyLabel,
   getCurrentVote,
   isContestCrossoverVoted,
-  isContestResolved,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
 
@@ -133,12 +132,6 @@ function getVoteStatus(voteCount: number, votesAllowed: number): VoteStatus {
   if (voteCount > votesAllowed) return 'overvote';
   if (voteCount < votesAllowed) return 'undervote';
   return 'normal';
-}
-
-export interface ContestListItem {
-  side: Side;
-  contest: AnyContest;
-  adjudicationData: ContestAdjudicationData;
 }
 
 function getAdjudicatedContestStatusLine(
@@ -423,14 +416,10 @@ function BallotSideContestList({
       </EntityList.Header>
       <EntityList.Items>
         {contests.map((item) => {
-          const { contest, adjudicationData } = item;
+          const { contest, adjudicationData, isResolved } = item;
           const { tag } = adjudicationData;
           const adjudicatedContest = adjudicatedContests.get(contest.id);
 
-          const isResolved = isContestResolved(
-            adjudicationData,
-            adjudicatedContests
-          );
           const isPending = !isResolved;
           const isFirstUnresolved = contest.id === firstUnresolvedContestId;
           const isOnlyUndervote = tag && isContestTagOnlyUndervote(tag);
