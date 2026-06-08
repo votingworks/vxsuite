@@ -573,15 +573,6 @@ export function BallotAdjudicationScreen(
     writeInCandidates,
     isClaimed,
   } = props;
-  const { electionDefinition } = useContext(AppContext);
-  const { election } = assertDefined(electionDefinition);
-  const contestAdjudicationData = ballotAdjudicationData.contests;
-  const { frontContests, backContests } = groupContestsBySide(
-    ballotImages,
-    contestAdjudicationData,
-    election
-  );
-
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
@@ -602,14 +593,9 @@ export function BallotAdjudicationScreen(
           systemSettings.areWriteInCandidatesQualified ?? false
         }
         cvrId={cvrId}
-        side={
-          frontContests.some((item) => item.contest.id === selectedContestId)
-            ? 'front'
-            : 'back'
-        }
         onClose={() => setSelectedContestId(null)}
         contestAdjudicationData={find(
-          contestAdjudicationData,
+          ballotAdjudicationData.contests,
           (c) => c.contestId === selectedContestId
         )}
         adjudicatedOptions={
@@ -634,8 +620,6 @@ export function BallotAdjudicationScreen(
   return (
     <BallotView
       adjudicatedContests={adjudicatedContests}
-      frontContests={frontContests}
-      backContests={backContests}
       setSelectedContestId={setSelectedContestId}
       {...props}
     />
@@ -644,8 +628,6 @@ export function BallotAdjudicationScreen(
 
 function BallotView({
   adjudicatedContests,
-  frontContests,
-  backContests,
   setSelectedContestId,
   cvrId,
   ballotAdjudicationData,
@@ -663,14 +645,17 @@ function BallotView({
   onExit,
 }: {
   adjudicatedContests: Map<ContestId, AdjudicatedCvrContest>;
-  frontContests: ContestListItem[];
-  backContests: ContestListItem[];
   setSelectedContestId: (contestId: ContestId | null) => void;
 } & BallotAdjudicationScreenProps): React.ReactNode {
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
-  const allContests = [...frontContests, ...backContests];
   const contestAdjudicationData = ballotAdjudicationData.contests;
+  const { frontContests, backContests } = groupContestsBySide(
+    ballotImages,
+    contestAdjudicationData,
+    election
+  );
+  const allContests = [...frontContests, ...backContests];
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
