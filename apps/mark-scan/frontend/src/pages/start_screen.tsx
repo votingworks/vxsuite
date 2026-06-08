@@ -10,7 +10,7 @@ import { useVoterHelpScreen } from './use_voter_help_screen';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();
-  const { ballotStyleId, contests, electionDefinition, precinctId } =
+  const { ballotStyleId, electionDefinition, precinctId } =
     useContext(BallotContext);
   const VoterHelpScreen = useVoterHelpScreen('StartScreen');
 
@@ -24,7 +24,6 @@ export function StartScreen(): JSX.Element {
 
   return (
     <StartPage
-      contests={contests}
       onStart={onStart}
       ballotStyleId={ballotStyleId}
       electionDefinition={electionDefinition}
