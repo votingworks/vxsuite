@@ -371,7 +371,7 @@ export function convertMsElection(
   const type = contests.some(
     (contest) => contest.type === 'candidate' && contest.partyId
   )
-    ? 'primary'
+    ? 'closed-primary'
     : 'general';
 
   const election: Election = {

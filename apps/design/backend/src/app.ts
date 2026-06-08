@@ -41,10 +41,7 @@ import {
   PollingPlaceType,
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
-  ElectionTypeSchemaV4p1,
-  electionTypeV4p0ToV4p1,
-  ElectionTypeV4p1,
-  isOpenPrimary,
+  ElectionTypeSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -178,7 +175,7 @@ const TextInput = z
 
 const UpdateElectionInfoInputSchema = z.object({
   electionId: ElectionIdSchema,
-  type: ElectionTypeSchemaV4p1,
+  type: ElectionTypeSchema,
   date: DateWithoutTimeSchema,
   title: TextInput,
   state: TextInput,
@@ -359,20 +356,12 @@ export function buildApi(ctx: AppContext) {
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
-        const { election, electionType } = ((): {
-          election: Election;
-          electionType: ElectionTypeV4p1;
-        } => {
+        const election = ((): Election => {
           switch (input.upload.format) {
             case 'vxf': {
               const sourceElection = safeParseElection(
                 input.upload.electionFileContents
               ).unsafeUnwrap();
-
-              // eslint-disable-next-line @typescript-eslint/no-shadow
-              const electionType = isOpenPrimary(sourceElection)
-                ? 'open-primary'
-                : electionTypeV4p0ToV4p1(sourceElection.type);
 
               const { districts, precincts, parties, contests, pollingPlaces } =
                 regenerateElectionIds(sourceElection, stateFeatures);
@@ -401,8 +390,7 @@ export function buildApi(ctx: AppContext) {
                 }
               );
 
-              // eslint-disable-next-line @typescript-eslint/no-shadow
-              const election: Election = {
+              return {
                 ...sourceElection,
                 id: input.newId,
                 county: {
@@ -422,24 +410,14 @@ export function buildApi(ctx: AppContext) {
                 seal: sourceElection.seal ?? '',
                 signature: sourceElection.signature,
               };
-
-              return {
-                election,
-                electionType,
-              };
             }
 
             case 'ms-sems': {
-              // eslint-disable-next-line @typescript-eslint/no-shadow
-              const election = convertMsElection(
+              return convertMsElection(
                 input.newId,
                 input.upload.electionFileContents,
                 input.upload.candidateFileContents
               );
-              return {
-                election,
-                electionType: electionTypeV4p0ToV4p1(election.type),
-              };
             }
 
             default: {
@@ -452,7 +430,6 @@ export function buildApi(ctx: AppContext) {
         await store.createElection({
           jurisdiction,
           election,
-          electionType,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
@@ -474,7 +451,6 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdiction,
         election,
-        electionType: electionTypeV4p0ToV4p1(election.type),
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
         systemSettings: defaultSystemSettings(jurisdiction),
       });
@@ -489,11 +465,8 @@ export function buildApi(ctx: AppContext) {
       },
       context: ApiContext
     ): Promise<ElectionId> {
-      const {
-        election: sourceElection,
-        type: electionType,
-        ballotTemplateId,
-      } = await store.getElection(input.electionId);
+      const { election: sourceElection, ballotTemplateId } =
+        await store.getElection(input.electionId);
 
       const destJurisdiction = await store.getJurisdiction(
         input.destJurisdictionId
@@ -516,7 +489,6 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdiction: destJurisdiction,
         election,
-        electionType,
         ballotTemplateId,
         systemSettings: defaultSystemSettings(destJurisdiction),
       });
@@ -528,7 +500,6 @@ export function buildApi(ctx: AppContext) {
     }): Promise<ElectionInfo> {
       const {
         election,
-        type,
         ballotLanguageConfigs,
         jurisdictionId,
         externalSource,
@@ -538,7 +509,7 @@ export function buildApi(ctx: AppContext) {
         electionId: election.id,
         title: election.title,
         date: election.date,
-        type,
+        type: election.type,
         state: election.state,
         countyName: election.county.name,
         seal: election.seal,

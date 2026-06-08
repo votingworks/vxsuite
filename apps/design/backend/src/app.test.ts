@@ -422,7 +422,7 @@ test('create/list/delete elections', async () => {
     electionId: importedElectionNewId,
     title: sliElection.title,
     date: sliElection.date,
-    type: electionTypeV4p0ToV4p1(sliElection.type),
+    type: sliElection.type,
     countyName: sliElection.county.name,
     state: sliElection.state,
     status: 'inProgress',
@@ -489,7 +489,7 @@ test('create/list/delete elections', async () => {
     languageCodes: [LanguageCode.ENGLISH],
     state: sliElection.state,
     seal: sliElection.seal,
-    type: electionTypeV4p0ToV4p1(sliElection.type),
+    type: sliElection.type,
   });
   const election2Districts = await apiClient.listDistricts({
     electionId: sliElectionId,
@@ -567,7 +567,7 @@ test('create/list/delete elections', async () => {
     generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
-      electionType: electionTypeV4p0ToV4p1(sliElection.type),
+      electionType: sliElection.type,
       parties: election2Parties,
       precincts: [...election2Precincts],
       ballotTemplateId: 'VxDefaultBallot',
@@ -4183,7 +4183,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
       countyName: baseElectionDefinition.election.county.name,
       state: baseElectionDefinition.election.state,
       seal: baseElectionDefinition.election.seal,
-      type: electionTypeV4p0ToV4p1(baseElectionDefinition.election.type),
+      type: baseElectionDefinition.election.type,
       date: baseElectionDefinition.election.date,
       languageCodes: [LanguageCode.ENGLISH],
       signatureImage: 'test-signature-image',
