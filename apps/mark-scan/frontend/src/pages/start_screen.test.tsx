@@ -41,7 +41,7 @@ test('renders StartScreen', () => {
   screen.getByRole('heading', { name: /Example Primary Election/ });
   screen.getByText('September 8, 2021');
   screen.getByText(
-    hasTextAcrossElements('Number of contests on your ballot: 7')
+    hasTextAcrossElements('Number of contests on your ballot: 4')
   );
 });
 
@@ -61,7 +61,7 @@ test('renders StartScreen in Landscape Orientation', () => {
   });
   screen.getByText('September 8, 2021');
   screen.getByText(
-    hasTextAcrossElements('Number of contests on your ballot: 7')
+    hasTextAcrossElements('Number of contests on your ballot: 4')
   );
   expect(
     heading.parentElement!.parentElement!.getElementsByTagName('img')

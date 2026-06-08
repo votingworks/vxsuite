@@ -8,7 +8,7 @@ import { BallotContext } from '../contexts/ballot_context';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();
-  const { ballotStyleId, contests, electionDefinition, precinctId } =
+  const { ballotStyleId, electionDefinition, precinctId } =
     React.useContext(BallotContext);
 
   function onStart() {
@@ -21,7 +21,6 @@ export function StartScreen(): JSX.Element {
 
   return (
     <StartPage
-      contests={contests}
       onStart={onStart}
       ballotStyleId={ballotStyleId}
       electionDefinition={electionDefinition}
