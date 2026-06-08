@@ -22,7 +22,6 @@ export function InsertUsbScreen({
     <ScreenMainCenterChild
       disableSettingsButtons={enableAlarm}
       showTestModeBanner={false}
-      showEarlyVotingBanner={false}
       voterFacing={pollsState === 'polls_open'}
     >
       <CenteredText>

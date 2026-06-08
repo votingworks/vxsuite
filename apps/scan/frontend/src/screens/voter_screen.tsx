@@ -24,7 +24,6 @@ export interface VoterScreenProps {
   electionDefinition: ElectionDefinition;
   systemSettings: SystemSettings;
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
   isSoundMuted: boolean;
 }
 
@@ -32,7 +31,6 @@ export function VoterScreen({
   electionDefinition,
   systemSettings,
   isTestMode,
-  isEarlyVotingMode,
   isSoundMuted,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
@@ -130,7 +128,6 @@ export function VoterScreen({
 
   const sharedScreenProps = {
     isTestMode,
-    isEarlyVotingMode,
     scannedBallotCount: scannerStatus.ballotsCounted,
   } as const;
 

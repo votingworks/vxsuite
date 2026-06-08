@@ -3,11 +3,7 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function PrinterCoverOpenScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild
-      voterFacing
-      showTestModeBanner={false}
-      showEarlyVotingBanner={false}
-    >
+    <ScreenMainCenterChild voterFacing showTestModeBanner={false}>
       <CenteredText>
         <H1>{appStrings.titlePrinterCoverIsOpen()}</H1>
         <P>{appStrings.instructionsAskForHelp()}</P>
