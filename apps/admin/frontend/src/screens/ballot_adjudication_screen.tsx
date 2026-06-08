@@ -10,7 +10,7 @@ import {
   Side,
   SystemSettings,
 } from '@votingworks/types';
-import { format, hasCrossoverVote } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -43,9 +43,8 @@ import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
 import {
   AdjudicatedContests,
-  adjudicatedVotes,
   ContestListItem,
-  isContestCrossoverVoted,
+  deriveCrossoverVoteStatus,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
@@ -696,11 +695,6 @@ function BallotView({
     AdjudicationReason.Undervote
   );
 
-  const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
-    election,
-    adjudicatedVotes(contestItems, adjudicatedContests)
-  );
-
   const allContestAdjudicationsResolved =
     contestItems.every((contest) => contest.isResolved) ||
     (cvrTag.isBlankBallot &&
@@ -737,6 +731,14 @@ function BallotView({
     }
   }
 
+  const crossoverVoteStatus = deriveCrossoverVoteStatus(
+    election,
+    contestItems,
+    adjudicatedContests,
+    cvrTag.hasCrossoverVote,
+    ballotAdjudicationData.isResolved
+  );
+
   const hoveredContestBounds = (() => {
     if (hoveredContestId && visibleImage.type === 'hmpb') {
       return visibleImage.layout.contests.find(
@@ -749,23 +751,10 @@ function BallotView({
   const hoveredContestHasWarning = (() => {
     if (!hoveredContestId) return false;
     const item = find(contestItems, (i) => i.contest.id === hoveredContestId);
-    if (!item.isResolved) {
-      return true;
-    }
-    const contestHasScannedCrossoverVote = isContestCrossoverVoted(
-      cvrTag.hasCrossoverVote,
-      item
+    return (
+      !item.isResolved ||
+      crossoverVoteStatus.statusByContest[hoveredContestId].isUnresolved
     );
-    const contestHasCrossoverVoteAfterAdjudication = isContestCrossoverVoted(
-      ballotHasCrossoverVoteAfterAdjudication,
-      item,
-      adjudicatedContests.get(item.contest.id)
-    );
-    const crossoverVoteIsPending =
-      contestHasScannedCrossoverVote &&
-      contestHasCrossoverVoteAfterAdjudication &&
-      !ballotAdjudicationData.isResolved;
-    return crossoverVoteIsPending;
   })();
 
   return (
@@ -824,6 +813,7 @@ function BallotView({
               onSelectSide={setSelectedSide}
               selectedSide={selectedSide}
               showUndervoteStatus={showUndervoteStatus}
+              crossoverVoteStatus={crossoverVoteStatus}
             />
           )}
           <PanelFooter>
