@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 
-import { ComponentPropsWithoutRef, ElementType } from 'react';
+import {
+  ComponentPropsWithoutRef,
+  CSSProperties,
+  ElementType,
+  useState,
+} from 'react';
 import { ReadOnLoad } from './ui_strings/read_on_load';
 
 export const FOCUSABLE_AUDIO_CLASS_NAME = 'FocusableAudio';
@@ -11,6 +16,12 @@ export type FocusableAudioProps<T extends ElementType> = Omit<
 > & {
   as?: T;
   readOnLoad?: boolean;
+
+  /**
+   * When `true`, displays the standard focus outline while the block is
+   * focused. Defaults to `false`, which suppresses the outline.
+   */
+  showFocusIndicator?: boolean;
 };
 
 const DefaultContainer = styled.div`
@@ -27,27 +38,42 @@ const DefaultContainer = styled.div`
  * the {@link ReadOnLoad} component, in that it automatically takes focus when
  * it's first mounted, triggering a screen reader readout of its contents.
  *
- * NOTE: This is not yet fully ready for use with audio-only blocks, since they
- * are rendered off-screen and won't have a visible focus indicator. We need to
- * think through how to indicate to controller-and-video voters that the focus
- * is currently on an audio-only element.
  */
 export function FocusableAudio<T extends ElementType = 'div'>(
   props: FocusableAudioProps<T>
 ): JSX.Element {
-  const { as = 'div', children, className, readOnLoad, ...rest } = props;
+  const {
+    as = 'div',
+    children,
+    className,
+    readOnLoad,
+    showFocusIndicator,
+    style,
+    ...rest
+  } = props;
+
+  // `readOnLoad` blocks grab focus automatically on mount to trigger their
+  // audio readout. Suppress the focus outline for that initial programmatic
+  // focus, and only enable it once focus has left the block then returned
+  const [outlineEnabled, setOutlineEnabled] = useState(!readOnLoad);
+
+  const baseStyle: CSSProperties = style ?? {};
+  const showOutline = showFocusIndicator && outlineEnabled;
 
   const Container = readOnLoad ? ReadOnLoad : DefaultContainer;
+
+  function handleBlur() {
+    setOutlineEnabled(true);
+  }
 
   return (
     <Container
       {...rest}
       as={as}
       className={`${className || ''} ${FOCUSABLE_AUDIO_CLASS_NAME}`}
-      // [TODO] Make this configurable, if/when this component is extended for
-      // use in VxMark. As noted above, we'll need to come up with a focus
-      // indicator that works for both on and off-screen elements.
-      style={{ outline: 'none' }}
+      onBlur={handleBlur}
+      // Suppress the focus outline unless explicitly enabled.
+      style={showOutline ? baseStyle : { ...baseStyle, outline: 'none' }}
       tabIndex={0}
     >
       {children}
