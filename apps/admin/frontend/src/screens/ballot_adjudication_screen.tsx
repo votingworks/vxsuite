@@ -144,34 +144,28 @@ const ClaimedBallotOverlay = styled.div`
   opacity: 0.8;
 `;
 
-function groupContestsBySide(
+function contestListItems(
   ballotImages: BallotImages,
   contestAdjudicationData: ContestAdjudicationData[],
   election: Election
-): { frontContests: ContestListItem[]; backContests: ContestListItem[] } {
+): ContestListItem[] {
   const contestsById = new Map(election.contests.map((c) => [c.id, c]));
-  const items: ContestListItem[] = contestAdjudicationData.map((data) => ({
+  const baseItems = contestAdjudicationData.map((data) => ({
     contest: assertDefined(contestsById.get(data.contestId)),
     adjudicationData: data,
   }));
   const { front, back } = ballotImages;
   if (front.type === 'bmd') {
-    return { frontContests: items, backContests: [] };
+    return baseItems.map((item) => ({ ...item, side: 'front' }));
   }
   assert(back.type === 'hmpb');
   const frontContestIds = new Set(
     front.layout.contests.map((c) => c.contestId)
   );
-  const frontContests: ContestListItem[] = [];
-  const backContests: ContestListItem[] = [];
-  for (const item of items) {
-    if (frontContestIds.has(item.contest.id)) {
-      frontContests.push(item);
-    } else {
-      backContests.push(item);
-    }
-  }
-  return { frontContests, backContests };
+  return baseItems.map((item) => ({
+    ...item,
+    side: frontContestIds.has(item.contest.id) ? 'front' : 'back',
+  }));
 }
 
 export function BallotAdjudicationScreenWrapper(): JSX.Element {
@@ -650,12 +644,11 @@ function BallotView({
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
   const contestAdjudicationData = ballotAdjudicationData.contests;
-  const { frontContests, backContests } = groupContestsBySide(
+  const contestItems = contestListItems(
     ballotImages,
     contestAdjudicationData,
     election
   );
-  const allContests = [...frontContests, ...backContests];
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
@@ -665,13 +658,11 @@ function BallotView({
     null
   );
   const [selectedSide, setSelectedSide] = useState<Side>(() => {
-    const backIds = new Set(backContests.map((item) => item.contest.id));
-    const firstPending = contestAdjudicationData
-      .filter((c) => c.tag !== null)
-      .find((c) => !isContestResolved(c, adjudicatedContests));
-    return firstPending && backIds.has(firstPending.contestId)
-      ? 'back'
-      : 'front';
+    const firstPending = contestItems.find(
+      (contest) =>
+        !isContestResolved(contest.adjudicationData, adjudicatedContests)
+    );
+    return firstPending?.side ?? 'front';
   });
 
   function onNavigation(action: () => void): () => void {
@@ -706,7 +697,7 @@ function BallotView({
 
   const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
-    adjudicatedVotes(allContests, adjudicatedContests)
+    adjudicatedVotes(contestItems, adjudicatedContests)
   );
 
   const allContestAdjudicationsResolved =
@@ -759,7 +750,7 @@ function BallotView({
 
   const hoveredContestHasWarning = (() => {
     if (!hoveredContestId) return false;
-    const item = find(allContests, (i) => i.contest.id === hoveredContestId);
+    const item = find(contestItems, (i) => i.contest.id === hoveredContestId);
     if (!isContestResolved(item.adjudicationData, adjudicatedContests)) {
       return true;
     }
@@ -825,10 +816,9 @@ function BallotView({
             <AdjudicationContestList
               key={cvrId}
               adjudicatedContests={adjudicatedContests}
-              backContests={backContests}
+              contestItems={contestItems}
               cvrTag={cvrTag}
               election={election}
-              frontContests={frontContests}
               isBallotResolved={ballotAdjudicationData.isResolved}
               onHover={(contestId) => setHoveredContestId(contestId)}
               onSelect={(contestId) => setSelectedContestId(contestId)}

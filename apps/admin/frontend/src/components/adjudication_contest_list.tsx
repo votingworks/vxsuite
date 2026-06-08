@@ -15,7 +15,7 @@ import type {
   ContestOptionAdjudicationData,
   CvrTag,
 } from '@votingworks/admin-backend';
-import { find } from '@votingworks/basics';
+import { find, iter } from '@votingworks/basics';
 import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
 import { hasCrossoverVote } from '@votingworks/utils';
 import pluralize from 'pluralize';
@@ -136,6 +136,7 @@ function getVoteStatus(voteCount: number, votesAllowed: number): VoteStatus {
 }
 
 export interface ContestListItem {
+  side: Side;
   contest: AnyContest;
   adjudicationData: ContestAdjudicationData;
 }
@@ -507,10 +508,9 @@ function BallotSideContestList({
 
 export interface AdjudicationContestListProps {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
-  backContests: ContestListItem[];
+  contestItems: ContestListItem[];
   cvrTag: CvrTag;
   election: Election;
-  frontContests: ContestListItem[];
   isBallotResolved: boolean;
   onHover: (contestId: ContestId | null) => void;
   onSelect: (contestId: ContestId) => void;
@@ -521,10 +521,9 @@ export interface AdjudicationContestListProps {
 
 export function AdjudicationContestList({
   adjudicatedContests,
-  backContests,
+  contestItems,
   cvrTag,
   election,
-  frontContests,
   isBallotResolved,
   onHover,
   onSelect,
@@ -532,18 +531,17 @@ export function AdjudicationContestList({
   selectedSide,
   showUndervoteStatus,
 }: AdjudicationContestListProps): React.ReactNode {
-  const allContests = [...frontContests, ...backContests];
   const firstUnresolvedContestId =
     cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
       ? undefined
-      : allContests.find(
+      : contestItems.find(
           (item) =>
             !isContestResolved(item.adjudicationData, adjudicatedContests)
         )?.contest.id;
 
   const blankBallotHasAnyAdjudicatedVote =
     cvrTag.isBlankBallot &&
-    allContests.some((item) =>
+    contestItems.some((item) =>
       item.adjudicationData.options.some((o) =>
         getCurrentVote(
           o,
@@ -565,7 +563,11 @@ export function AdjudicationContestList({
 
   const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
-    adjudicatedVotes(allContests, adjudicatedContests)
+    adjudicatedVotes(contestItems, adjudicatedContests)
+  );
+
+  const [frontContests, backContests] = iter(contestItems).partition(
+    (item) => item.side === 'front'
   );
 
   return (
