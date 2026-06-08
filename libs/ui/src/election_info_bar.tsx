@@ -260,9 +260,8 @@ export function VerticalElectionInfoBar({
 
   return (
     <VerticalBar inverse={inverse}>
+      <Seal seal={seal} maxWidth="3rem" inverse={inverse} />
       <ElectionInfoContainer>
-        <Seal seal={seal} maxWidth="3rem" inverse={inverse} />
-
         <Caption weight="regular" align="left">
           <Font weight="bold" maxLines={4}>
             {electionStrings.electionTitle(election)}
