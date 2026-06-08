@@ -5,6 +5,7 @@ import {
   Organization,
   User,
   SupportUser,
+  LATEST_SOFTWARE_VERSION,
 } from '../src/types';
 import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
 
@@ -25,6 +26,7 @@ export const vxJurisdiction: Jurisdiction = {
   id: 'vx-jurisdiction-id',
   name: 'VotingWorks',
   stateCode: 'DEMO',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: vxOrganization,
 };
 export const vxUser: JurisdictionUser = {
@@ -39,12 +41,14 @@ export const nonVxJurisdiction: Jurisdiction = {
   id: 'other-jurisdiction-id',
   name: 'Other Jurisdiction',
   stateCode: 'DEMO',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: nonVxOrganization,
 };
 export const nhJurisdiction: Jurisdiction = {
   id: 'nh-jurisdiction-id',
   name: 'New Hampshire Jurisdiction',
   stateCode: 'NH',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: nonVxOrganization,
 };
 export const nonVxUser: JurisdictionUser = {
@@ -59,18 +63,21 @@ export const anotherNonVxJurisdiction: Jurisdiction = {
   id: 'another-jurisdiction-id',
   name: 'Another Jurisdiction',
   stateCode: 'DEMO',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: nonVxOrganization,
 };
 export const msJurisdiction: Jurisdiction = {
   id: 'ms-jurisdiction-id',
   name: 'Mississippi Jurisdiction',
   stateCode: 'MS',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: nonVxOrganization,
 };
 export const miJurisdiction: Jurisdiction = {
   id: 'mi-jurisdiction-id',
   name: 'Michigan Jurisdiction',
   stateCode: 'MI',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: nonVxOrganization,
 };
 export const anotherNonVxUser: JurisdictionUser = {
@@ -90,6 +97,7 @@ export const sliJurisdiction: Jurisdiction = {
   id: 'sli-jurisdiction-id',
   name: 'SLI',
   stateCode: 'DEMO',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: sliOrganization,
 };
 export const sliUser: JurisdictionUser = {

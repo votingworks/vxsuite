@@ -60,6 +60,7 @@ const msJurisdiction: Jurisdiction = {
   id: 'ms-jurisdiction-1',
   name: 'Mississippi Jurisdiction',
   stateCode: 'MS',
+  softwareVersion: 'v4.1',
   organization,
 };
 

@@ -89,6 +89,7 @@ export const jurisdiction: Jurisdiction = {
   id: 'jurisdiction1',
   name: 'Test Jurisdiction',
   stateCode: 'DEMO',
+  softwareVersion: 'v4.1',
   organization,
 };
 
@@ -96,6 +97,7 @@ export const jurisdiction2: Jurisdiction = {
   id: 'jurisdiction2',
   name: 'Another Jurisdiction',
   stateCode: 'NH',
+  softwareVersion: 'v4.1',
   organization,
 };
 

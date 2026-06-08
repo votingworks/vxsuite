@@ -37,6 +37,7 @@ import {
   users,
   vxJurisdiction,
 } from '../test/mocks';
+import { LATEST_SOFTWARE_VERSION } from './types';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -414,6 +415,7 @@ describe('tts_strings', () => {
         id,
         name: id,
         stateCode: 'DEMO',
+        softwareVersion: LATEST_SOFTWARE_VERSION,
         organization: nonVxOrganization,
       });
     }

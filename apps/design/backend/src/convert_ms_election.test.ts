@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
-import { Jurisdiction } from './types';
+import { Jurisdiction, LATEST_SOFTWARE_VERSION } from './types';
 import { readFixture } from '../test/helpers';
 import { vxOrganization } from '../test/mocks';
 import { defaultSystemSettings } from './system_settings';
@@ -19,6 +19,7 @@ const jurisdiction: Jurisdiction = {
   id: 'test-jurisdiction-id',
   name: 'Test Jurisdiction',
   stateCode: 'MS',
+  softwareVersion: LATEST_SOFTWARE_VERSION,
   organization: vxOrganization,
 };
 
