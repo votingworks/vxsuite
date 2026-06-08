@@ -34,7 +34,6 @@ export function InternalConnectionProblemScreen({
       ballotCountOverride={scannedBallotCount}
       voterFacing
       showTestModeBanner={false}
-      showEarlyVotingBanner={false}
     >
       <CenteredText>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>

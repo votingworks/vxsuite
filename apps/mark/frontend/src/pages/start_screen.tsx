@@ -26,6 +26,7 @@ export function StartScreen(): JSX.Element {
       ballotStyleId={ballotStyleId}
       electionDefinition={electionDefinition}
       introAudioText={appStrings.instructionsBmdBallotNavigationMark()}
+      repeatIntroAudioPrompt={appStrings.instructionsBmdIntroRepeatPromptMark()}
       precinctId={precinctId}
     />
   );

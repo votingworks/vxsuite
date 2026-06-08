@@ -162,7 +162,7 @@ export function CvrCard({
     const fileLabel = `${fileCount} ${pluralize(fileCount, 'file', 'files')}`;
     if (machineIds.size === 1) {
       const [machineId] = machineIds;
-      return `${fileLabel} from Scanner ${machineId}`;
+      return `${fileLabel} from scanner ${machineId}`;
     }
 
     return `${fileLabel} from ${machineIds.size} ${pluralize(

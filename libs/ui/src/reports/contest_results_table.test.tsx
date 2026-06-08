@@ -68,7 +68,7 @@ test('candidate contest with only scanned results', () => {
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
   within(bestAnimalFish).getByText('Best Animal');
-  within(bestAnimalFish).getByText(/Vote for 1/);
+  within(bestAnimalFish).getByText(/Vote for not more than 1/);
   within(bestAnimalFish).getByText(/For three years/);
   within(bestAnimalFish).getByText(/20 ballots cast/);
   within(bestAnimalFish).getByText(/1 overvote/);
@@ -91,7 +91,7 @@ test('candidate contest with manual results', () => {
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
   within(bestAnimalFish).getByText('Best Animal');
-  within(bestAnimalFish).getByText(/Vote for 1/);
+  within(bestAnimalFish).getByText(/Vote for not more than 1/);
   within(bestAnimalFish).getByText(/For three years/);
   within(bestAnimalFish).getByText(hasTextAcrossElements('Ballots Cast201535'));
   within(bestAnimalFish).getByText(hasTextAcrossElements('Overvotes134'));
@@ -176,7 +176,7 @@ test('candidates contests show number of seats and/or write-in candidate if rele
     />
   );
   const zooCouncil = screen.getByTestId('results-table-zoo-council-mammal');
-  within(zooCouncil).getByText('Vote for 3');
+  within(zooCouncil).getByText('Vote for not more than 3');
   within(zooCouncil).getByText(hasTextAcrossElements('Write-In0'));
 });
 
@@ -255,7 +255,7 @@ test('doesnt show term description if none given', () => {
     />
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
-  within(bestAnimalFish).getByText(/Vote for 1/);
+  within(bestAnimalFish).getByText(/Vote for not more than 1/);
   expect(
     within(bestAnimalFish).queryByText(/For three years/)
   ).not.toBeInTheDocument();

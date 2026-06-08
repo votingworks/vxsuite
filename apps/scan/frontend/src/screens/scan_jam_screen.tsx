@@ -13,14 +13,12 @@ interface Props {
   error?: PrecinctScannerErrorType;
   scannedBallotCount: number;
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 export function ScanJamScreen({
   error,
   scannedBallotCount,
   isTestMode,
-  isEarlyVotingMode,
 }: Props): JSX.Element {
   const isOutfeedBlocked = error === 'outfeed_blocked';
   return (
@@ -29,7 +27,6 @@ export function ScanJamScreen({
       ballotCountOverride={scannedBallotCount}
       voterFacing
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <FullScreenPromptLayout
         title={
@@ -54,13 +51,7 @@ export function ScanJamScreen({
 
 /* istanbul ignore next */
 export function InternalJamPreview(): JSX.Element {
-  return (
-    <ScanJamScreen
-      scannedBallotCount={42}
-      isTestMode={false}
-      isEarlyVotingMode={false}
-    />
-  );
+  return <ScanJamScreen scannedBallotCount={42} isTestMode={false} />;
 }
 
 /* istanbul ignore next */
@@ -70,7 +61,6 @@ export function OutfeedJamPreview(): JSX.Element {
       scannedBallotCount={42}
       error="outfeed_blocked"
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }

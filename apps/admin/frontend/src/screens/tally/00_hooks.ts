@@ -34,7 +34,11 @@ export function usePollingPlaces(): readonly PollingPlace[] {
   const { precincts } = election;
 
   return React.useMemo((): PollingPlace[] => {
-    const copy = [...realPlaces];
+    // Absentee polling places aren't yet supported in the tally screen, but
+    // can't be removed from the election definition (they back live reports),
+    // so filter them out here. The synthetic Central Scanning placeholder is
+    // added separately below and so is unaffected.
+    const copy = realPlaces.filter((p) => p.type !== 'absentee');
 
     copy.push({
       id: 'central-scanning',

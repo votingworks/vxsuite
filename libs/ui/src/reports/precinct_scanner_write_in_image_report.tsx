@@ -30,6 +30,7 @@ import {
   TestModeReportBanner,
 } from './report_header';
 import { precinctScannerLocationName } from './precinct_scanner_report_header';
+import { BallotText } from '../ballot_text';
 
 export interface WriteInEntry {
   type: 'image' | 'text';
@@ -119,8 +120,8 @@ export function PrecinctScannerWriteInImageReport({
               {partyContests.map((contest) => (
                 <ContestSection key={contest.contestId}>
                   <ContestHeading>
-                    {contest.contestName} &bull; {contest.writeIns.length} Total
-                    Write-In
+                    <BallotText text={contest.contestName} /> &bull;{' '}
+                    {contest.writeIns.length} Total Write-In
                     {contest.writeIns.length !== 1 && 's'}
                   </ContestHeading>
                   {contest.writeIns.length > 0 && (

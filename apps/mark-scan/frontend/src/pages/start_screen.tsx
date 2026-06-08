@@ -34,6 +34,12 @@ export function StartScreen(): JSX.Element {
           patDeviceString={appStrings.instructionsBmdBallotNavigationMarkScanPatDevice()}
         />
       }
+      repeatIntroAudioPrompt={
+        <AssistiveTechInstructions
+          controllerString={appStrings.instructionsBmdIntroRepeatPromptMarkScan()}
+          patDeviceString={appStrings.instructionsBmdIntroRepeatPromptMarkScanPatDevice()}
+        />
+      }
       precinctId={precinctId}
       VoterHelpScreen={VoterHelpScreen}
     />

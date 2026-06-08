@@ -1,7 +1,10 @@
 import { useContext, useState } from 'react';
 import { SearchSelect } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  flattenBallotLineBreaks,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import { CandidateContest } from '@votingworks/types';
 import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
@@ -60,6 +63,15 @@ export function WriteInImageReportScreen(): JSX.Element {
     previewQuery.data?.warning?.type === 'content-too-large';
   const actionsDisabled = !contestId || isPreviewLoading || disablePdfExport;
 
+  function contestLabel(contest: CandidateContest): string {
+    const party = contest.partyId
+      ? election.parties.find((p) => p.id === contest.partyId)
+      : undefined;
+    return party
+      ? `${flattenBallotLineBreaks(contest.title)} · ${party.fullName}`
+      : flattenBallotLineBreaks(contest.title);
+  }
+
   return (
     <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
       <ReportScreenContainer>
@@ -70,7 +82,7 @@ export function WriteInImageReportScreen(): JSX.Element {
             value={contestId}
             options={writeInContests.map((c) => ({
               value: c.id,
-              label: c.title,
+              label: contestLabel(c),
             }))}
             onChange={(value) => setContestId(value)}
             aria-label="Select Contest"

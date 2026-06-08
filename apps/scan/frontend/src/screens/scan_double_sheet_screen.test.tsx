@@ -25,11 +25,7 @@ test('renders double sheet screen as expected', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanDoubleSheetScreen
-        scannedBallotCount={42}
-        isTestMode={false}
-        isEarlyVotingMode={false}
-      />
+      <ScanDoubleSheetScreen scannedBallotCount={42} isTestMode={false} />
     )
   );
   await screen.findByText('Multiple Sheets Detected');

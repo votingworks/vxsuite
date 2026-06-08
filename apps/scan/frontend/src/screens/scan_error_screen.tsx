@@ -17,7 +17,6 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
   scannedBallotCount: number;
   restartRequired?: boolean;
 }
@@ -25,7 +24,6 @@ export interface Props {
 export function ScanErrorScreen({
   error,
   isTestMode,
-  isEarlyVotingMode,
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
@@ -137,7 +135,6 @@ export function ScanErrorScreen({
     <Screen
       centerContent
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
       ballotCountOverride={scannedBallotCount}
       voterFacing
     >
@@ -161,7 +158,6 @@ export function UnreadablePreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="unreadable"
       scannedBallotCount={42}
     />
@@ -173,7 +169,6 @@ export function InvalidBallotHashPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="invalid_ballot_hash"
       scannedBallotCount={42}
     />
@@ -185,7 +180,6 @@ export function InvalidBallotTestModePreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode
-      isEarlyVotingMode
       error="invalid_test_mode"
       scannedBallotCount={42}
     />
@@ -197,7 +191,6 @@ export function InvalidBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="invalid_test_mode"
       scannedBallotCount={42}
     />
@@ -209,7 +202,6 @@ export function InvalidPrecinctPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="invalid_precinct"
       scannedBallotCount={42}
     />
@@ -221,7 +213,6 @@ export function UnknownInterpretationErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="unknown"
       scannedBallotCount={42}
     />
@@ -233,7 +224,6 @@ export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="paper_in_front_after_reconnect"
       scannedBallotCount={42}
     />
@@ -245,7 +235,6 @@ export function AfterReconnectBallotInBackPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="paper_in_back_after_reconnect"
       scannedBallotCount={42}
     />
@@ -257,7 +246,6 @@ export function UnexpectedScannerErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="client_error"
       scannedBallotCount={42}
       restartRequired
@@ -270,7 +258,6 @@ export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="vertical_streaks_detected"
       scannedBallotCount={42}
     />
@@ -282,7 +269,6 @@ export function DoubleSheetErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       error="double_feed_detected"
       scannedBallotCount={42}
     />

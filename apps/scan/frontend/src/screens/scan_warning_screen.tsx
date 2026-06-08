@@ -33,7 +33,6 @@ interface MisvoteWarningScreenProps {
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 function MisvoteWarningScreen({
@@ -42,7 +41,6 @@ function MisvoteWarningScreen({
   overvotes,
   undervotes,
   isTestMode,
-  isEarlyVotingMode,
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
@@ -136,7 +134,6 @@ function MisvoteWarningScreen({
       }
       voterFacing
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <MisvoteWarnings
         blankContests={blankContests}
@@ -149,12 +146,10 @@ function MisvoteWarningScreen({
 
 interface BlankBallotWarningScreenProps {
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 function BlankBallotWarningScreen({
   isTestMode,
-  isEarlyVotingMode,
 }: BlankBallotWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
@@ -190,7 +185,6 @@ function BlankBallotWarningScreen({
       padded
       voterFacing
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerBallotWarningsScreen()}
@@ -209,12 +203,10 @@ function BlankBallotWarningScreen({
 
 interface CrossoverVotingWarningScreenProps {
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 function CrossoverVotingWarningScreen({
   isTestMode,
-  isEarlyVotingMode,
 }: CrossoverVotingWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
@@ -250,7 +242,6 @@ function CrossoverVotingWarningScreen({
       padded
       voterFacing
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerBallotWarningsScreen()}
@@ -269,12 +260,10 @@ function CrossoverVotingWarningScreen({
 
 interface OtherReasonWarningScreenProps {
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 function OtherReasonWarningScreen({
   isTestMode,
-  isEarlyVotingMode,
 }: OtherReasonWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
@@ -310,7 +299,6 @@ function OtherReasonWarningScreen({
       padded
       voterFacing
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <FullScreenPromptLayout
         title={appStrings.titleScanningFailed()}
@@ -332,7 +320,6 @@ export interface Props {
   adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
   systemSettings: SystemSettings;
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 export function ScanWarningScreen({
@@ -340,7 +327,6 @@ export function ScanWarningScreen({
   adjudicationReasonInfo,
   systemSettings,
   isTestMode,
-  isEarlyVotingMode,
 }: Props): JSX.Element {
   let isBlank = false;
   let isCrossover = false;
@@ -360,21 +346,11 @@ export function ScanWarningScreen({
   }
 
   if (isCrossover) {
-    return (
-      <CrossoverVotingWarningScreen
-        isTestMode={isTestMode}
-        isEarlyVotingMode={isEarlyVotingMode}
-      />
-    );
+    return <CrossoverVotingWarningScreen isTestMode={isTestMode} />;
   }
 
   if (isBlank) {
-    return (
-      <BlankBallotWarningScreen
-        isTestMode={isTestMode}
-        isEarlyVotingMode={isEarlyVotingMode}
-      />
-    );
+    return <BlankBallotWarningScreen isTestMode={isTestMode} />;
   }
 
   if (undervoteReasons.length > 0 || overvoteReasons.length > 0) {
@@ -385,17 +361,11 @@ export function ScanWarningScreen({
         undervotes={undervoteReasons}
         overvotes={overvoteReasons}
         isTestMode={isTestMode}
-        isEarlyVotingMode={isEarlyVotingMode}
       />
     );
   }
 
-  return (
-    <OtherReasonWarningScreen
-      isTestMode={isTestMode}
-      isEarlyVotingMode={isEarlyVotingMode}
-    />
-  );
+  return <OtherReasonWarningScreen isTestMode={isTestMode} />;
 }
 
 /* istanbul ignore next */
@@ -432,7 +402,6 @@ export function OvervotePreview(): JSX.Element {
       ]}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }
@@ -464,7 +433,6 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
         },
       ]}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }
@@ -494,7 +462,6 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
         expected: contest.seats,
       }))}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }
@@ -528,7 +495,6 @@ export function Undervote1ContestPreview(): JSX.Element {
         },
       ]}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }
@@ -574,7 +540,6 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
         })),
       ]}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }
@@ -594,7 +559,6 @@ export function CrossoverVotingPreview(): JSX.Element {
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[{ type: AdjudicationReason.CrossoverVoting }]}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }
@@ -614,7 +578,6 @@ export function BlankBallotPreview(): JSX.Element {
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
       isTestMode={false}
-      isEarlyVotingMode={false}
     />
   );
 }

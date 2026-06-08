@@ -26,6 +26,8 @@ const Header = styled.div`
 `;
 
 const OptionRadioGroup = styled(RadioGroup<PartyId>)`
+  padding-top: 0.5rem;
+
   button {
     font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   }

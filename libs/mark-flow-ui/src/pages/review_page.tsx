@@ -43,6 +43,12 @@ const PartyRow = styled.div`
   padding: 0.5rem 0.75rem;
 `;
 
+/* Pad the top so the first card's focus highlight isn't clipped by the
+ * scroll container's edge. */
+const ReviewContents = styled.div`
+  padding-top: 0.5rem;
+`;
+
 export interface ReviewPageProps {
   backUrl?: string;
   contests: ContestsWithMsEitherNeither;
@@ -175,14 +181,16 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
         </PartyRow>
       )}
       <WithScrollButtons>
-        <Review
-          election={election}
-          contests={contests}
-          precinctId={precinctId}
-          votes={votes}
-          returnToContest={returnToContest}
-          ballotStyle={ballotStyle}
-        />
+        <ReviewContents>
+          <Review
+            election={election}
+            contests={contests}
+            precinctId={precinctId}
+            votes={votes}
+            returnToContest={returnToContest}
+            ballotStyle={ballotStyle}
+          />
+        </ReviewContents>
       </WithScrollButtons>
     </VoterScreen>
   );
