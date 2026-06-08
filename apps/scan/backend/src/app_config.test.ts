@@ -203,7 +203,7 @@ test('setPrecinctSelection will reset polls to closed', async () => {
       pollsState: 'polls_closed_initial',
     });
     expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
+      LogEventId.PollingPlaceChanged,
       {
         disposition: 'success',
         message: 'User set the precinct for the machine to East Lincoln',
@@ -235,7 +235,7 @@ test('setPollingPlaceId will reset polls to closed', async () => {
       pollsState: 'polls_closed_initial',
     });
     expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
+      LogEventId.PollingPlaceChanged,
       {
         disposition: 'success',
         message: `User set the polling place for the machine to ${place.name}`,

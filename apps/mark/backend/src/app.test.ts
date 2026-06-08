@@ -504,7 +504,7 @@ test('setting precinct', async () => {
     precinctSelection: singlePrecinctSelection,
   });
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.PrecinctConfigurationChanged,
+    LogEventId.PollingPlaceChanged,
     {
       disposition: 'success',
       message: 'User set the precinct for the machine to North Lincoln',
@@ -526,7 +526,7 @@ test('set polling place', async () => {
   await expectElectionState({ pollingPlaceId: place.id });
 
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.PrecinctConfigurationChanged,
+    LogEventId.PollingPlaceChanged,
     {
       disposition: 'success',
       message: `User set the polling place for the machine to ${place.name}`,

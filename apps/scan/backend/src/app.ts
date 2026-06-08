@@ -295,7 +295,7 @@ export function buildApi({
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
-      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+      await logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
         message: `User set the precinct for the machine to ${getPrecinctSelectionName(
           electionDefinition.election.precincts,
@@ -324,7 +324,7 @@ export function buildApi({
       store.setPollingPlaceId(input.id);
       workspace.resetElectionSession();
 
-      void logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+      void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
         message: `User set the polling place for the machine to ${name}`,
       });
