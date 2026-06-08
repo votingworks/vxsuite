@@ -53,11 +53,13 @@ test('voting for both yes and no', () => {
 
   screen.getByRole('heading', { name: contest.title });
 
+  // The description is rendered once, inside the focusable header block; it
+  // serves as both the visual text and the audio source (no separate
+  // audio-only copy).
   const descriptions = within(
     screen.getByTestId(MOCK_WITH_SCROLL_BUTTONS_TEST_ID)
   ).getAllByText(contest.description);
-  // Expect once for AudioOnly component and once for visual component
-  expect(descriptions.length).toEqual(2);
+  expect(descriptions.length).toEqual(1);
 
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('YES').closest('button')!);

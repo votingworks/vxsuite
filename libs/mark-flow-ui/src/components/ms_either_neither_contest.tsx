@@ -4,7 +4,6 @@ import {
   ContestChoiceButton,
   Main,
   Caption,
-  WithScrollButtons,
   appStrings,
   AudioOnly,
   electionStrings,
@@ -21,7 +20,7 @@ import {
 
 import { UpdateVoteFunction } from '../config/types';
 import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests';
-import { BreadcrumbMetadata, ContestHeader } from './contest_header';
+import { ContestHeader } from './contest_header';
 
 const ChoicesGrid = styled.div`
   display: grid;
@@ -51,7 +50,6 @@ const Divider = styled.div`
 `;
 
 interface Props {
-  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: MsEitherNeitherContestInterface;
   eitherNeitherContestVote?: YesNoVote;
@@ -87,7 +85,6 @@ function getVoteStatusText(
 }
 
 export function MsEitherNeitherContest({
-  breadcrumbs,
   election,
   contest,
   eitherNeitherContestVote,
@@ -166,16 +163,14 @@ export function MsEitherNeitherContest({
 
   return (
     <Main flexColumn>
-      <ContestHeader
-        breadcrumbs={breadcrumbs}
-        contest={contest}
-        district={district}
-      >
+      <ContestHeader contest={contest} district={district}>
         <Caption>
           {getVoteStatusText(contest, { eitherNeitherVote, pickOneVote })}
         </Caption>
+        <RichText>
+          {electionStrings.contestDescription(contest.eitherNeitherContest)}
+        </RichText>
         <AudioOnly>
-          {electionStrings.contestDescription(contest.eitherNeitherContest)}{' '}
           <AssistiveTechInstructions
             controllerString={
               isReviewMode
@@ -190,11 +185,6 @@ export function MsEitherNeitherContest({
           />
         </AudioOnly>
       </ContestHeader>
-      <WithScrollButtons>
-        <RichText>
-          {electionStrings.contestDescription(contest.eitherNeitherContest)}
-        </RichText>
-      </WithScrollButtons>
       <ChoicesGrid data-testid="contest-choices">
         <GridLabel
           style={{

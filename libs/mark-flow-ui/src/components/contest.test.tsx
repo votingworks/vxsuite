@@ -156,19 +156,3 @@ test('renders ms-either-neither contests', () => {
   ]);
   // Tested further in ms_either_neither_contest.test.tsx
 });
-
-test('renders breadcrumbs', () => {
-  render(
-    <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0].id}
-      breadcrumbs={{ ballotContestCount: 15, contestNumber: 3 }}
-      contest={yesnoContest}
-      election={electionGeneral}
-      updateVote={vi.fn()}
-      votes={{}}
-    />
-  );
-
-  screen.getByText(hasTextAcrossElements(/contest number: 3/i));
-  screen.getByText(hasTextAcrossElements(/total contests: 15/i));
-});

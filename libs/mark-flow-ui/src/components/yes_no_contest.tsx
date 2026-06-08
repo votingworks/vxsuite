@@ -12,7 +12,6 @@ import {
   Main,
   Modal,
   P,
-  Caption,
   WithScrollButtons,
   AudioOnly,
   electionStrings,
@@ -27,11 +26,10 @@ import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
 
 import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
-import { BreadcrumbMetadata, ContestHeader } from './contest_header';
+import { ContestHeader } from './contest_header';
 import { UpdateVoteFunction } from '../config/types';
 
 interface Props {
-  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: YesNoContestInterface;
   vote?: YesNoVote;
@@ -40,7 +38,6 @@ interface Props {
 }
 
 export function YesNoContest({
-  breadcrumbs,
   election,
   contest,
   vote,
@@ -84,30 +81,26 @@ export function YesNoContest({
       <Main flexColumn>
         <WithScrollButtons focusable={isPatDeviceConnected}>
           <ContestHeader
-            breadcrumbs={breadcrumbs}
             contest={contest}
             district={district}
             className="no-horizontal-padding"
           >
-            <Caption>
-              <AudioOnly>
-                {electionStrings.contestDescription(contest)}
-                <AssistiveTechInstructions
-                  controllerString={
-                    isReviewMode
-                      ? appStrings.instructionsBmdContestNavigationReviewMode()
-                      : appStrings.instructionsBmdContestNavigation()
-                  }
-                  patDeviceString={
-                    isReviewMode
-                      ? appStrings.instructionsBmdContestNavigationReviewModePatDevice()
-                      : appStrings.instructionsBmdContestNavigationPatDevice()
-                  }
-                />
-              </AudioOnly>
-            </Caption>
+            <RichText>{electionStrings.contestDescription(contest)}</RichText>
+            <AudioOnly>
+              <AssistiveTechInstructions
+                controllerString={
+                  isReviewMode
+                    ? appStrings.instructionsBmdContestNavigationReviewMode()
+                    : appStrings.instructionsBmdContestNavigation()
+                }
+                patDeviceString={
+                  isReviewMode
+                    ? appStrings.instructionsBmdContestNavigationReviewModePatDevice()
+                    : appStrings.instructionsBmdContestNavigationPatDevice()
+                }
+              />
+            </AudioOnly>
           </ContestHeader>
-          <RichText>{electionStrings.contestDescription(contest)}</RichText>
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">

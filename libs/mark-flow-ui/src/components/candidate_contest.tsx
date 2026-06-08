@@ -45,7 +45,7 @@ import { UpdateVoteFunction } from '../config/types';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
-import { BreadcrumbMetadata, ContestHeader } from './contest_header';
+import { ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
 import { numVotesRemaining } from '../utils/vote';
 
@@ -55,7 +55,6 @@ export interface WriteInCharacterLimitAcrossContests {
 }
 
 interface Props {
-  breadcrumbs?: BreadcrumbMetadata;
   ballotStyleId: BallotStyleId;
   election: Election;
   contest: CandidateContestInterface;
@@ -110,7 +109,6 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
-  breadcrumbs,
   ballotStyleId,
   election,
   contest,
@@ -352,11 +350,7 @@ export function CandidateContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContestHeader
-          breadcrumbs={breadcrumbs}
-          contest={contest}
-          district={district}
-        >
+        <ContestHeader contest={contest} district={district}>
           {contest.termDescription && (
             <Font style={{ display: 'block' }} weight="bold">
               {electionStrings.contestTerm(contest)}

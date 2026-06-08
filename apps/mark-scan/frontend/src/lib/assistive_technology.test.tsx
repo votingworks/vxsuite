@@ -12,6 +12,7 @@ import {
   contest0,
   contest0candidate0,
   contest0candidate1,
+  contest1,
   contest1candidate0,
 } from '../../test/helpers/election';
 
@@ -62,7 +63,11 @@ test('accessible controller handling works', async () => {
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1);
 
-  // Test navigation by accessible controller keyboard event interface
+  // Test navigation by accessible controller keyboard event interface. The
+  // first focusable element is the contest metadata, which voters can navigate
+  // to in order to replay the contest information audio.
+  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  expect(getActiveElement()).toHaveTextContent(contest0.title);
   simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
   simulateKeyPress(Keybinding.FOCUS_NEXT);
@@ -82,14 +87,20 @@ test('accessible controller handling works', async () => {
 
   simulateKeyPress(Keybinding.PAGE_NEXT);
   await advanceTimersAndPromises();
-  // go up first without focus, then down once, should be same as down once.
+  // Go up first without focus, then down once, should be same as down once:
+  // both land on the contest metadata (the first focusable element).
   simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
+  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  expect(getActiveElement()).toHaveTextContent(contest1.title);
+  // Navigating down once more reaches the first contest option.
   simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest1candidate0.name);
   simulateKeyPress(Keybinding.PAGE_PREVIOUS);
   await advanceTimersAndPromises();
 
-  // Get focus again
+  // Get focus again, past the contest metadata, onto the first option.
+  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  expect(getActiveElement()).toHaveTextContent(contest0.title);
   simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
@@ -142,7 +153,10 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1);
 
-  // Test navigation by PAT input keyboard event interface
+  // Test navigation by PAT input keyboard event interface. The first focusable
+  // element is the contest metadata, followed by the contest options.
+  simulateKeyPress(Keybinding.PAT_MOVE);
+  expect(getActiveElement()).toHaveTextContent(contest0.title);
   simulateKeyPress(Keybinding.PAT_MOVE);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
   simulateKeyPress(Keybinding.PAT_MOVE);
