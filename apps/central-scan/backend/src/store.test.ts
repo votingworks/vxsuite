@@ -18,6 +18,7 @@ import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryFile,
+  readElectionOpenPrimary,
 } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -869,6 +870,56 @@ test('systemSettings can set/get/delete', () => {
   expect(systemSettingsInStore).toEqual(DEFAULT_SYSTEM_SETTINGS);
   store.deleteSystemSettings();
   expect(store.getSystemSettings()).toBeUndefined();
+});
+
+function buildOpenPrimaryHmpbSheet(
+  votes: SheetOf<InterpretedHmpbPage['votes']>,
+  enabledReasonInfos: InterpretedHmpbPage['adjudicationInfo']['enabledReasonInfos'] = []
+): SheetOf<PageInterpretationWithFiles> {
+  return mapSheet(sheetWithFiles, (page, _side, index) => ({
+    ...page,
+    interpretation: {
+      ...(page.interpretation as InterpretedHmpbPage),
+      votes: votes[index],
+      adjudicationInfo: {
+        requiresAdjudication: enabledReasonInfos.length > 0,
+        enabledReasons: [],
+        enabledReasonInfos,
+        ignoredReasonInfos: [],
+      },
+    },
+  }));
+}
+
+const openPrimary = readElectionOpenPrimary();
+const democraticContest = openPrimary.contests.find(
+  (c): c is CandidateContest =>
+    c.type === 'candidate' && c.partyId !== undefined
+)!;
+const republicanContest = openPrimary.contests.find(
+  (c): c is CandidateContest =>
+    c.type === 'candidate' &&
+    c.partyId !== undefined &&
+    c.partyId !== democraticContest.partyId
+)!;
+const crossoverVotes: SheetOf<InterpretedHmpbPage['votes']> = [
+  { [democraticContest.id]: [democraticContest.candidates[0]] },
+  { [republicanContest.id]: [republicanContest.candidates[0]] },
+];
+
+test('crossover voting alone does not require adjudication', () => {
+  const store = Store.memoryStore();
+  const batchId = store.addBatch();
+  store.addSheet(
+    openPrimary,
+    uuid(),
+    batchId,
+    buildOpenPrimaryHmpbSheet(crossoverVotes)
+  );
+
+  // Crossover voting was detected, but scanning is not paused for it.
+  expect(store.adjudicationsRemaining()).toEqual(0);
+  expect(store.getNextAdjudicationSheet()).toBeUndefined();
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
