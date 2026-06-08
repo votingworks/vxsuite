@@ -317,7 +317,7 @@ export function ContestResultsTable({
       </ContestTitle>
       {contest.type === 'candidate' && (
         <ContestMetadata>
-          Vote for {contest.seats}
+          Vote for not more than {contest.seats}
           {contest.type === 'candidate' && contest.termDescription && (
             <span> • {contest.termDescription}</span>
           )}

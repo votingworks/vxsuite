@@ -816,7 +816,7 @@ function ContestForm({
               <BallotText text={contest.title} />
             </H2>
             {contest.type === 'candidate' && (
-              <div>Vote for {contest.seats}</div>
+              <div>Vote for not more than {contest.seats}</div>
             )}
             {contest.type === 'straight-party' && (
               <div>Vote for not more than 1</div>
