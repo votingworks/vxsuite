@@ -8,11 +8,7 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 export function UnconfiguredPollingPlaceScreen(): JSX.Element {
   if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
     return (
-      <ScreenMainCenterChild
-        voterFacing={false}
-        showTestModeBanner={false}
-        showEarlyVotingBanner={false}
-      >
+      <ScreenMainCenterChild voterFacing={false} showTestModeBanner={false}>
         <CenteredText>
           <H1>No Precinct Selected</H1>
           <P>Insert an election manager card to select a precinct.</P>
@@ -22,11 +18,7 @@ export function UnconfiguredPollingPlaceScreen(): JSX.Element {
   }
 
   return (
-    <ScreenMainCenterChild
-      voterFacing={false}
-      showTestModeBanner={false}
-      showEarlyVotingBanner={false}
-    >
+    <ScreenMainCenterChild voterFacing={false} showTestModeBanner={false}>
       <CenteredText>
         <H1>No Polling Place Selected</H1>
         <P>Insert an election manager card to select a polling place.</P>

@@ -365,7 +365,6 @@ export function ElectionManagerScreen({
       title="Election Manager Menu"
       voterFacing={false}
       showTestModeBanner={false}
-      showEarlyVotingBanner={false}
     >
       <TabbedSection aria-label="Election Manager Menu" tabs={tabs} />
 
