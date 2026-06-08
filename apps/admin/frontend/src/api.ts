@@ -337,34 +337,6 @@ export const getNextCvrIdForBallotAdjudication = {
   },
 } as const;
 
-type GetBallotAdjudicationDataInput = QueryInput<'getBallotAdjudicationData'>;
-export const getBallotAdjudicationData = {
-  queryKey(input?: GetBallotAdjudicationDataInput): QueryKey {
-    return input
-      ? ['getBallotAdjudicationData', input.cvrId]
-      : ['getBallotAdjudicationData'];
-  },
-  useQuery(input?: GetBallotAdjudicationDataInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      input
-        ? () =>
-            apiClient.getBallotAdjudicationData({
-              cvrId: input.cvrId,
-            })
-        : /* istanbul ignore next */
-          () => fail('input is required'),
-      {
-        enabled: !!input,
-        keepPreviousData: true,
-        staleTime: 0,
-        refetchOnMount: 'always',
-      }
-    );
-  },
-} as const;
-
 type GetBallotImages = QueryInput<'getBallotImages'>;
 export const getBallotImages = {
   queryKey(input?: GetBallotImages): QueryKey {
@@ -442,7 +414,6 @@ export const updateQualifiedWriteInCandidates = {
         await queryClient.invalidateQueries(
           getBallotAdjudicationQueue.queryKey()
         );
-        queryClient.removeQueries(getBallotAdjudicationData.queryKey());
         await queryClient.invalidateQueries(
           getNextCvrIdForBallotAdjudication.queryKey()
         );
@@ -884,11 +855,8 @@ export const adjudicateCvr = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateCvr, {
-      async onSuccess(_data, variables) {
+      async onSuccess() {
         await Promise.all([
-          queryClient.invalidateQueries(
-            getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
-          ),
           invalidateWriteInQueries(queryClient),
           queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey()),
           queryClient.invalidateQueries(

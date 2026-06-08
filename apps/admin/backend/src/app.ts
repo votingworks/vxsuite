@@ -901,13 +901,6 @@ function buildApi({
       );
     },
 
-    getBallotAdjudicationData(input: { cvrId: Id }): BallotAdjudicationData {
-      return store.getBallotAdjudicationData({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        cvrId: input.cvrId,
-      });
-    },
-
     getBallotImages(input: { cvrId: Id }): Promise<BallotImages> {
       return getBallotImages({
         store: workspace.store,

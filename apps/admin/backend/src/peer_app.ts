@@ -173,14 +173,6 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
       });
     },
 
-    getBallotAdjudicationData(input: { cvrId: Id }): BallotAdjudicationData {
-      const electionId = assertDefined(store.getCurrentElectionId());
-      return store.getBallotAdjudicationData({
-        electionId,
-        cvrId: input.cvrId,
-      });
-    },
-
     getBallotImageMetadata(input: { cvrId: Id }): Promise<BallotImages> {
       return getBallotImageMetadata({
         store,

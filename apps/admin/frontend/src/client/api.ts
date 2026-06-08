@@ -244,20 +244,6 @@ export const releaseBallot = {
   },
 } as const;
 
-export const getBallotAdjudicationData = {
-  queryKey(cvrId: string): QueryKey {
-    return ['getBallotAdjudicationData', cvrId];
-  },
-  useQuery(cvrId: string) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(cvrId),
-      () => apiClient.getBallotAdjudicationData({ cvrId }),
-      { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
-    );
-  },
-} as const;
-
 export const getBallotImages = {
   queryKey(cvrId: string): QueryKey {
     return ['getBallotImages', cvrId];
@@ -294,11 +280,8 @@ export const adjudicateCvr = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateCvr, {
-      async onSuccess(_data, variables) {
+      async onSuccess() {
         await Promise.all([
-          queryClient.invalidateQueries(
-            getBallotAdjudicationData.queryKey(variables.cvrId)
-          ),
           queryClient.invalidateQueries(['getWriteInCandidates']),
         ]);
       },
