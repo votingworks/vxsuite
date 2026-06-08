@@ -623,8 +623,9 @@ test('getNextCvrIdForBallotAdjudication', async () => {
 
   async function adjudicateAtIndex(index: number) {
     const cvrId = adjudicationQueue[index] || '';
-    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const { data: adjData } = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+    );
     const contests = adjData.contests
       .filter((contest) => contest.tag)
       .map((contest) => ({
@@ -913,7 +914,9 @@ test('handling unmarked write-ins', async () => {
   let cvrId: string | undefined;
   let adjData: BallotAdjudicationData | undefined;
   for (const id of adjudicationQueue) {
-    const data = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const { data } = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId: id })).unsafeUnwrap()
+    );
     const contest = data.contests.find(
       (c) => c.contestId === WRITE_IN_CONTEST_ID
     );
@@ -1023,7 +1026,9 @@ test('handling unmarked write-ins', async () => {
     },
   });
 
-  const adjDataAfter = await apiClient.getBallotAdjudicationData({ cvrId });
+  const adjDataAfter = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const contestDataAfter = find(
     adjDataAfter.contests,
     (c) => c.contestId === WRITE_IN_CONTEST_ID
@@ -1058,7 +1063,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   // find a CVR that has a write-in record for the Governor contest
   let maybeCvrId: string | undefined;
   for (const id of cvrIds) {
-    const data = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const { data } = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId: id })).unsafeUnwrap()
+    );
     const contest = data.contests.find((c) => c.contestId === contestId);
     const option = contest?.options.find(
       (o) => o.definition.id === 'write-in-0'
@@ -1070,7 +1077,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   }
   const cvrId = assertDefined(maybeCvrId);
 
-  const initialAdjData = await apiClient.getBallotAdjudicationData({ cvrId });
+  const initialAdjData = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const initialContestData = find(
     initialAdjData.contests,
     (c) => c.contestId === contestId
@@ -1191,9 +1200,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     })
   ).toEqual(ok());
 
-  const adjDataAfterInvalid = await apiClient.getBallotAdjudicationData({
-    cvrId,
-  });
+  const adjDataAfterInvalid = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const contestDataAfterInvalid = find(
     adjDataAfterInvalid.contests,
     (c) => c.contestId === contestId
@@ -1267,9 +1276,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       ],
     })
   ).toEqual(ok());
-  const adjDataAfterOfficial = await apiClient.getBallotAdjudicationData({
-    cvrId,
-  });
+  const adjDataAfterOfficial = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const officialWriteInOption = find(
     find(adjDataAfterOfficial.contests, (c) => c.contestId === contestId)
       .options,
@@ -1336,9 +1345,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       ],
     })
   ).toEqual(ok());
-  const adjDataAfterWriteIn = await apiClient.getBallotAdjudicationData({
-    cvrId,
-  });
+  const adjDataAfterWriteIn = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const writeInCandidateOption = find(
     find(adjDataAfterWriteIn.contests, (c) => c.contestId === contestId)
       .options,
@@ -1403,9 +1412,9 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       ],
     })
   ).toEqual(ok());
-  const adjDataAfterCircleBack = await apiClient.getBallotAdjudicationData({
-    cvrId,
-  });
+  const adjDataAfterCircleBack = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const circleBackOption = find(
     find(adjDataAfterCircleBack.contests, (c) => c.contestId === contestId)
       .options,
@@ -1478,12 +1487,16 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   const metadataBefore = await apiClient.getBallotAdjudicationQueueMetadata();
   expect(metadataBefore.pendingTally).toEqual(metadataBefore.totalTally);
 
-  // Two clients claim different ballots
-  const cvrId1 = await claimBallot(peerApiClient, {
-    machineId: 'client-001',
-  });
-  assert(cvrId1 !== undefined);
+  // Two clients claim different ballots. Claiming returns the claimed ballot's
+  // adjudication data, mirroring the real client flow.
+  const client1Claim = assertDefined(
+    await peerApiClient.claimAndLoadBallot({ machineId: 'client-001' })
+  );
+  const cvrId1 = client1Claim.cvrId;
+  const ballotData = client1Claim.data;
   expect(cvrId1).toEqual(queue[0]);
+  expect(ballotData.cvrId).toEqual(cvrId1);
+  expect(ballotData.contests.length).toBeGreaterThan(0);
 
   const cvrId2 = await claimBallot(peerApiClient, {
     machineId: 'client-002',
@@ -1491,13 +1504,6 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   assert(cvrId2 !== undefined);
   expect(cvrId2).toEqual(queue[1]);
   expect(cvrId2).not.toEqual(cvrId1);
-
-  // Client 1 fetches ballot data via peer API
-  const ballotData = await peerApiClient.getBallotAdjudicationData({
-    cvrId: cvrId1,
-  });
-  expect(ballotData.cvrId).toEqual(cvrId1);
-  expect(ballotData.contests.length).toBeGreaterThan(0);
 
   // Client 1 fetches ballot image metadata via peer API
   const images = await peerApiClient.getBallotImageMetadata({ cvrId: cvrId1 });
@@ -1538,9 +1544,9 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   ).toEqual(ok());
 
   // Host can see the adjudication results: ballot data shows all contests resolved
-  const hostBallotData = await apiClient.getBallotAdjudicationData({
-    cvrId: cvrId1,
-  });
+  const hostBallotData = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId: cvrId1 })).unsafeUnwrap()
+  ).data;
   const adjudicatedContestIds = new Set(
     hostBallotData.adjudicatedContests.map((c) => c.contestId)
   );
@@ -1707,7 +1713,9 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   const cvrIds = await apiClient.getBallotAdjudicationQueue();
   let maybeCvrId: string | undefined;
   for (const id of cvrIds) {
-    const data = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const { data } = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId: id })).unsafeUnwrap()
+    );
     const contest = data.contests.find((c) => c.contestId === contestId);
     const option = contest?.options.find(
       (o) => o.definition.id === 'write-in-0'
@@ -1893,7 +1901,9 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   const cvrIds = await apiClient.getBallotAdjudicationQueue();
   let maybeCvrId: string | undefined;
   for (const id of cvrIds) {
-    const data = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const { data } = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId: id })).unsafeUnwrap()
+    );
     if (
       data.contests
         .find((c) => c.contestId === governorContestId)
@@ -1913,7 +1923,9 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   // Also adjudicate a different contest on the same CVR, flipping an option
   // so the change is observable. This puts a second entry into the CVR's
   // adjudicated_votes JSON alongside the Governor entry.
-  const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+  const adjData = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const otherContest = assertDefined(
     adjData.contests.find((c) => c.contestId !== governorContestId)
   );
@@ -1962,7 +1974,9 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   ).toEqual(1);
 
   // The unrelated contest's flipped vote should still be adjudicated.
-  const dataAfterDelete = await apiClient.getBallotAdjudicationData({ cvrId });
+  const dataAfterDelete = assertDefined(
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+  ).data;
   const adjudicatedOtherContest = assertDefined(
     dataAfterDelete.adjudicatedContests.find(
       (c) => c.contestId === otherContest.contestId
@@ -1996,19 +2010,21 @@ test('open primary crossover votes', async () => {
   expect(queue).toContain(resolvedCrossoverCvrId);
   expect(queue).toContain(unresolvedCrossoverCvrId);
   expect(
-    (
-      await apiClient.getBallotAdjudicationData({
-        cvrId: unresolvedCrossoverCvrId,
-      })
-    ).tag
+    assertDefined(
+      (
+        await apiClient.claimAndLoadBallot({
+          cvrId: unresolvedCrossoverCvrId,
+        })
+      ).unsafeUnwrap()
+    ).data.tag
   ).toEqual({ isBlankBallot: false, hasCrossoverVote: true });
   // Even after resolution, original adjudication flag is still preserved
   expect(
-    (
-      await apiClient.getBallotAdjudicationData({
-        cvrId: resolvedCrossoverCvrId,
-      })
-    ).tag
+    assertDefined(
+      (
+        await apiClient.claimAndLoadBallot({ cvrId: resolvedCrossoverCvrId })
+      ).unsafeUnwrap()
+    ).data.tag
   ).toEqual({ isBlankBallot: false, hasCrossoverVote: true });
 
   const images = await apiClient.getBallotImages({

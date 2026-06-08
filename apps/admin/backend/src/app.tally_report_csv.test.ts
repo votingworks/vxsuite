@@ -474,7 +474,9 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   });
   const queue = await apiClient.getBallotAdjudicationQueue();
   for (const cvrId of queue) {
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const adjData = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+    ).data;
     const contest = adjData.contests.find(
       (c) => c.contestId === candidateContestId
     );

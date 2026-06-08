@@ -2,7 +2,7 @@ import { expect, MockInstance, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { readFileSync } from 'node:fs';
-import { assert, ok } from '@votingworks/basics';
+import { assert, assertDefined, ok } from '@votingworks/basics';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
@@ -132,7 +132,9 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   let cvrId: string | undefined;
   let writeIn: { optionId: string } | undefined;
   for (const id of queue) {
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId: id });
+    const adjData = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId: id })).unsafeUnwrap()
+    ).data;
     const contestData = adjData.contests.find((c) => c.contestId === contestId);
     const option = contestData?.options.find(
       (o) => o.writeInRecord !== undefined

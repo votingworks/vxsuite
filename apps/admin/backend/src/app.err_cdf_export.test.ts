@@ -168,7 +168,9 @@ test('exports results and metadata accurately', async () => {
   const queue = await apiClient.getBallotAdjudicationQueue();
   for (const cvrId of queue) {
     if (writeInRecords.length >= 2) break;
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const adjData = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+    ).data;
     const contest = adjData.contests.find(
       (c) => c.contestId === candidateContestId
     );

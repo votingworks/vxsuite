@@ -10,7 +10,7 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { assert, find, ok } from '@votingworks/basics';
+import { assert, assertDefined, find, ok } from '@votingworks/basics';
 import {
   BallotStyleGroupId,
   DEV_MACHINE_ID,
@@ -125,7 +125,9 @@ test('general, full election, write in adjudication', async () => {
   }> = [];
   const queue = await apiClient.getBallotAdjudicationQueue();
   for (const cvrId of queue) {
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const adjData = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+    ).data;
     const contest = adjData.contests.find(
       (c) => c.contestId === writeInContestId
     );
@@ -948,7 +950,9 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   const queue = await apiClient.getBallotAdjudicationQueue();
   const writeIns: Array<{ cvrId: string; optionId: string }> = [];
   for (const cvrId of queue) {
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const adjData = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+    ).data;
     const contest = adjData.contests.find(
       (c) => c.contestId === writeInContestId
     );
