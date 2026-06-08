@@ -213,7 +213,7 @@ test('everything but voting', async ({ page }) => {
   mockCardRemoval();
 
   // voting session screenshots handled in separate test
-  await page.getByText('Start Voting').waitFor();
+  await page.getByRole('button', { name: 'Start Voting' }).waitFor();
   await screenshot('voting-start-screen');
   mockPollWorkerCardInsertion({ election });
   await page.getByText('Cancel Voting Session').click();
@@ -304,10 +304,10 @@ test('voting session', async ({ page }) => {
   /**
    * Initiate Voting Session
    */
-  await page.getByText('Start Voting').waitFor();
+  await page.getByRole('button', { name: 'Start Voting' }).waitFor();
   await screenshot('voting-start-screen');
 
-  await page.getByText('Start Voting').click();
+  await page.getByRole('button', { name: 'Start Voting' }).click();
 
   // Wait for contest metadata to appear
   await page
