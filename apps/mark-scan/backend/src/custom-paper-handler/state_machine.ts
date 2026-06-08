@@ -52,6 +52,7 @@ import {
   getPrecinctSelectionIds,
   isCardlessVoterAuth,
   isFeatureFlagEnabled,
+  isIntegrationTest,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -299,7 +300,7 @@ export interface Delays {
   DELAY_NOTIFICATION_DURATION_MS: number;
 }
 
-export const delays = {
+const PRODUCTION_DELAYS = {
   DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS: 200,
   DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS: 500,
   DELAY_AUTH_STATUS_POLLING_INTERVAL_MS: 200,
@@ -308,6 +309,20 @@ export const delays = {
   DELAY_BEFORE_DECLARING_REAR_JAM_MS: 7_000,
   DELAY_NOTIFICATION_DURATION_MS: 5_000,
 } satisfies Delays;
+
+// Integration tests step through every notification screen, so the production
+// notification dwell would dominate the suite runtime. Shorten just that delay
+// (kept long enough to reliably screenshot each notification state); all other
+// delays match production.
+const INTEGRATION_TEST_DELAYS = {
+  ...PRODUCTION_DELAYS,
+  DELAY_NOTIFICATION_DURATION_MS: 1_000,
+} satisfies Delays;
+
+/* istanbul ignore next - integration-test delays are covered by integration testing */
+export const delays = isIntegrationTest()
+  ? INTEGRATION_TEST_DELAYS
+  : PRODUCTION_DELAYS;
 
 function createPollingChildMachine(
   id: string,
