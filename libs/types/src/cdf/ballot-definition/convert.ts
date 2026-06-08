@@ -30,6 +30,23 @@ import {
 import { DEFAULT_LANGUAGE_CODE } from '../../languages';
 import { pollingPlaceMembers } from '../../polling_places';
 
+const cdfElectionTypeToVxfElectionType: Record<
+  Cdf.ElectionType,
+  Vxf.ElectionType
+> = {
+  [Cdf.ElectionType.General]: 'general',
+  [Cdf.ElectionType.PartisanPrimaryClosed]: 'closed-primary',
+  [Cdf.ElectionType.PartisanPrimaryOpen]: 'open-primary',
+};
+const vxfElectionTypeToCdfElectionType: Record<
+  Vxf.ElectionType,
+  Cdf.ElectionType
+> = {
+  general: Cdf.ElectionType.General,
+  'closed-primary': Cdf.ElectionType.PartisanPrimaryClosed,
+  'open-primary': Cdf.ElectionType.PartisanPrimaryOpen,
+};
+
 function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;
 }
@@ -725,7 +742,7 @@ export function convertVxfElectionToCdfBallotDefinition(
             Value: vxfElection.id,
           },
         ],
-        Type: vxfElection.type as Cdf.ElectionType,
+        Type: vxfElectionTypeToCdfElectionType[vxfElection.type],
         Name: text(vxfElection.title, ElectionStringKey.ELECTION_TITLE),
 
         Candidate: vxfElection.contests
@@ -1081,7 +1098,7 @@ export function convertCdfBallotDefinitionToVxfElection(
 
   return {
     id: assertDefined(election.ExternalIdentifier[0]).Value,
-    type: election.Type,
+    type: cdfElectionTypeToVxfElectionType[election.Type],
     title: englishText(election.Name),
     state: englishText(state.Name),
     county: {
