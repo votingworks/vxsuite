@@ -1,8 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId, CandidateContest } from '@votingworks/types';
+import {
+  anyPollingPlace,
+  BallotStyleId,
+  CandidateContest,
+  pollingPlaceMembers,
+} from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
@@ -12,12 +16,14 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 vi.setConfig({ testTimeout: 30_000 });
 
-const BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
-const PRECINCT_ID = 'precinct-1';
-const PRECINCT_NAME = 'Precinct 1';
-const PRECINCT_SELECTION = singlePrecinctSelectionFor(PRECINCT_ID);
 const electionDefinition = electionOpenPrimaryFixtures.readElectionDefinition();
 const { election } = electionDefinition;
+const pollingPlace = anyPollingPlace(election);
+const [precinctOrSplit] = pollingPlaceMembers(election, pollingPlace);
+
+const BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
+const PRECINCT_ID = precinctOrSplit.precinct.id;
+const PRECINCT_NAME = precinctOrSplit.precinct.name;
 
 let apiMock: ApiMock;
 
@@ -28,7 +34,7 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: PRECINCT_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
   });
 });

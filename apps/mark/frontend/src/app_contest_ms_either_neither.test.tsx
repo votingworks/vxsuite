@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { getContestDistrictName } from '@votingworks/types';
 
 import { readElectionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
@@ -47,6 +46,7 @@ assert(eitherNeitherContest.type === 'yesno');
 assert(pickOneContest.type === 'yesno');
 
 const precinctId = '6526';
+const pollingPlaceId = `${precinctId}-polling-place`;
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
@@ -56,7 +56,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   apiMock.expectGetElectionRecord(electionDefinition);
 
   apiMock.expectGetElectionState({
-    precinctSelection: singlePrecinctSelectionFor(precinctId),
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
 

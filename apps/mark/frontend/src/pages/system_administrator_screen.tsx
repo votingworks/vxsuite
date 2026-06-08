@@ -12,7 +12,7 @@ import {
 } from '@votingworks/ui';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { MachineConfig } from '@votingworks/mark-backend';
-import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import { logOut, useApiClient } from '../api';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
@@ -28,7 +28,6 @@ interface Props {
   electionPackageHash?: string;
   machineConfig: MachineConfig;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
 }
 
 /**
@@ -43,7 +42,6 @@ export function SystemAdministratorScreen({
   electionPackageHash,
   machineConfig,
   pollingPlaceId,
-  precinctSelection,
 }: Props): JSX.Element {
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
@@ -93,7 +91,6 @@ export function SystemAdministratorScreen({
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
         pollingPlaceId={pollingPlaceId}
-        precinctSelection={precinctSelection}
       />
     </Screen>
   );

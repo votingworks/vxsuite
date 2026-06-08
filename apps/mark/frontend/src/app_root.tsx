@@ -15,10 +15,8 @@ import {
 
 import { useHistory } from 'react-router-dom';
 import {
-  BooleanEnvironmentVariableName as Feature,
   isElectionManagerAuth,
   isCardlessVoterAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
@@ -93,7 +91,6 @@ export const stateStorageKey = 'state';
 export const blankBallotVotes: VotesDict = {};
 
 export const initialElectionState: Readonly<ElectionState> = {
-  precinctSelection: undefined,
   ballotsPrintedCount: 0,
   isTestMode: true,
   pollsState: 'polls_closed_initial',
@@ -234,15 +231,10 @@ export function AppRoot(): JSX.Element | null {
     getElectionRecordQuery.data ?? {};
 
   const electionStateQuery = getElectionState.useQuery();
-  const {
-    precinctSelection: appPrecinct,
-    pollingPlaceId,
-    ballotsPrintedCount,
-    isTestMode,
-    pollsState,
-  } = electionStateQuery.isSuccess
-    ? electionStateQuery.data
-    : initialElectionState;
+  const { pollingPlaceId, ballotsPrintedCount, isTestMode, pollsState } =
+    electionStateQuery.isSuccess
+      ? electionStateQuery.data
+      : initialElectionState;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -535,7 +527,6 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         usbDriveStatus={usbDriveStatus}
-        precinctSelection={appPrecinct}
         pollingPlaceId={pollingPlaceId}
       />
     );
@@ -563,7 +554,6 @@ export function AppRoot(): JSX.Element | null {
 
     return (
       <AdminScreen
-        appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
@@ -577,13 +567,8 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  const usePollingPlaces = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES);
-  const locationConfigured = usePollingPlaces
-    ? !!pollingPlaceId
-    : !!appPrecinct;
-
   if (electionDefinition) {
-    if (!locationConfigured) {
+    if (!pollingPlaceId) {
       return (
         <UnconfiguredPollingPlaceScreen
           electionDefinition={electionDefinition}
@@ -608,7 +593,6 @@ export function AppRoot(): JSX.Element | null {
           pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
-          appPrecinct={appPrecinct}
           pollingPlaceId={pollingPlaceId}
           electionDefinition={electionDefinition}
           electionPackageHash={assertDefined(electionPackageHash)}
@@ -672,7 +656,6 @@ export function AppRoot(): JSX.Element | null {
 
     return (
       <InsertCardScreen
-        appPrecinct={appPrecinct}
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
         isLiveMode={!isTestMode}

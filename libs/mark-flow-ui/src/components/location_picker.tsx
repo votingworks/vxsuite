@@ -1,3 +1,4 @@
+import { assertDefined } from '@votingworks/basics';
 import { PrecinctSelection, Election, PollsState } from '@votingworks/types';
 import {
   PollingPlacePickerMode,
@@ -18,7 +19,7 @@ export interface LocationPickerProps {
   pollingPlaceId?: string;
   pollsState: PollsState;
   selectPollingPlace: PollingPlacePickerProps['selectPlace'];
-  selectPrecinct: ChangePrecinctButtonProps['updatePrecinctSelection'];
+  selectPrecinct?: ChangePrecinctButtonProps['updatePrecinctSelection'];
 }
 
 export function LocationPicker(props: LocationPickerProps): React.ReactNode {
@@ -51,7 +52,7 @@ export function LocationPicker(props: LocationPickerProps): React.ReactNode {
         appPrecinctSelection={appPrecinct}
         election={election}
         mode={mode}
-        updatePrecinctSelection={selectPrecinct}
+        updatePrecinctSelection={assertDefined(selectPrecinct)}
       />
     );
   }

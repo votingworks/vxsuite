@@ -10,7 +10,6 @@ import {
   Screen,
   UpsDiagnosticModalButton,
 } from '@votingworks/ui';
-import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   getAccessibleControllerConnected,
   getBarcodeConnected,
@@ -32,12 +31,10 @@ import { PrintTestPageButton } from '../components/print_test_page_button';
 import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen';
 
 export interface DiagnosticsScreenProps {
-  isFeatureEnabled?: (f: BooleanEnvironmentVariableName) => boolean;
   onBackButtonPress: () => void;
 }
 
 export function DiagnosticsScreen({
-  isFeatureEnabled,
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
   const history = useHistory();
@@ -108,7 +105,7 @@ export function DiagnosticsScreen({
 
   const { electionDefinition, electionPackageHash } =
     electionRecordQuery.data ?? {};
-  const { precinctSelection, pollingPlaceId } = electionStateQuery.data;
+  const { pollingPlaceId } = electionStateQuery.data;
   const diskSpaceSummary = diskSpaceSummaryQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
   const printerStatus = printerStatusQuery.data;
@@ -151,8 +148,6 @@ export function DiagnosticsScreen({
             <MarkReadinessReportContents
               electionDefinition={electionDefinition}
               electionPackageHash={electionPackageHash}
-              isFeatureEnabled={isFeatureEnabled}
-              precinctSelection={precinctSelection}
               pollingPlaceId={pollingPlaceId}
               diskSpaceSummary={diskSpaceSummary}
               printerStatus={printerStatus}

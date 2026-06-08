@@ -46,7 +46,6 @@ test('SystemAdministratorScreen renders expected contents', () => {
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}
-        precinctSelection={undefined}
       />
     )
   );
@@ -79,7 +78,6 @@ test('Can set date and time', async () => {
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}
-        precinctSelection={undefined}
       />
     )
   );
@@ -118,7 +116,6 @@ test('navigates to Diagnostics screen', () => {
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}
-        precinctSelection={undefined}
       />
     )
   );
