@@ -746,10 +746,10 @@ eventType = "user-action"
 documentationMessage = "Poll worker confirmed that they emptied the ballot box."
 restrictInDocumentationToApps = ["vx-mark-scan"]
 
-[Events.PrecinctConfigurationChanged]
-eventId = "precinct-configuration-changed"
+[Events.PollingPlaceChanged]
+eventId = "polling-place-changed"
 eventType = "user-action"
-documentationMessage = "User has changed the precinct setting."
+documentationMessage = "User has changed the polling place setting."
 restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
 
 # VxScan specific logs

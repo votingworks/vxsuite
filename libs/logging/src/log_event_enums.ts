@@ -175,7 +175,7 @@ export enum LogEventId {
   PollsClosed = 'polls-closed',
   ResetPollsToPaused = 'reset-polls-to-paused',
   BallotBoxEmptied = 'ballot-box-emptied',
-  PrecinctConfigurationChanged = 'precinct-configuration-changed',
+  PollingPlaceChanged = 'polling-place-changed',
   ScannerBatchStarted = 'scanner-batch-started',
   ScannerBatchEnded = 'scanner-batch-ended',
   ScannerEvent = 'scanner-state-machine-event',
@@ -1046,10 +1046,10 @@ const BallotBoxEmptied: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxMarkScan],
 };
 
-const PrecinctConfigurationChanged: LogDetails = {
-  eventId: LogEventId.PrecinctConfigurationChanged,
+const PollingPlaceChanged: LogDetails = {
+  eventId: LogEventId.PollingPlaceChanged,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'User has changed the precinct setting.',
+  documentationMessage: 'User has changed the polling place setting.',
   restrictInDocumentationToApps: [
     AppName.VxMark,
     AppName.VxScan,
@@ -1741,8 +1741,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ResetPollsToPaused;
     case LogEventId.BallotBoxEmptied:
       return BallotBoxEmptied;
-    case LogEventId.PrecinctConfigurationChanged:
-      return PrecinctConfigurationChanged;
+    case LogEventId.PollingPlaceChanged:
+      return PollingPlaceChanged;
     case LogEventId.ScannerBatchStarted:
       return ScannerBatchStarted;
     case LogEventId.ScannerBatchEnded:

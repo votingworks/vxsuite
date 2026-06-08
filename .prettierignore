@@ -4,3 +4,4 @@ pnpm-lock.yaml
 .github/pull_request_template.md
 libs/logging-utils/index.d.ts
 libs/logging-utils/index.js
+libs/logging/VotingWorksLoggingDocumentation.md
