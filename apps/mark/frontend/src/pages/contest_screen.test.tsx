@@ -164,3 +164,24 @@ test('Back from first contest goes to party selection when a party is selected',
   userEvent.click(screen.getButton(/back/i));
   expect(history.location.pathname).toEqual('/party-selection');
 });
+
+test('Back from first contest goes to party selection when no party is selected', () => {
+  const electionDefinition =
+    electionOpenPrimaryFixtures.readElectionDefinition();
+  const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
+
+  renderWithBallotContext(
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
+    {
+      electionDefinition,
+      contests: electionDefinition.election.contests,
+      history,
+      route: '/contests/0',
+      precinctId: 'precinct-1',
+      ballotStyleId: 'ballot-style-1',
+    }
+  );
+
+  userEvent.click(screen.getButton(/back/i));
+  expect(history.location.pathname).toEqual('/party-selection');
+});

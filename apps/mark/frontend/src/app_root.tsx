@@ -266,9 +266,10 @@ export function AppRoot(): JSX.Element | null {
           })
         )
           // For open primaries, show only partisan contests for the party
-          // selected by the user + nonpartisan contests.
+          // selected by the user + nonpartisan contests. If the voter declined
+          // to select a party, only nonpartisan contests are shown.
           .filter((contest) => {
-            if (isOpenPrimary(electionDefinition.election) && selectedPartyId) {
+            if (isOpenPrimary(electionDefinition.election)) {
               return contest.type === 'candidate'
                 ? !contest.partyId || contest.partyId === selectedPartyId
                 : true;

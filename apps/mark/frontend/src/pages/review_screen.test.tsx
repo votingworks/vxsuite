@@ -134,3 +134,20 @@ test('open primary review screen shows party row and links to party selection', 
   userEvent.click(screen.getButton(/change party/i));
   expect(history.location.pathname).toEqual('/party-selection');
 });
+
+test('open primary review screen shows "No Party Selected" when no party chosen', () => {
+  const history = createMemoryHistory({ initialEntries: ['/review'] });
+  renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
+    history,
+    route: '/review',
+    electionDefinition: electionOpenPrimaryDefinition,
+    precinctId: 'precinct-1',
+    ballotStyleId: 'ballot-style-1',
+  });
+
+  // The party row still renders, indicating no party was selected, and the
+  // voter can return to party selection to choose one.
+  expect(screen.getAllByText('No Party Selected')).toHaveLength(2);
+  userEvent.click(screen.getButton(/change party/i));
+  expect(history.location.pathname).toEqual('/party-selection');
+});

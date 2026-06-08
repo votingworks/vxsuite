@@ -27,13 +27,32 @@ test('renders as voter screen with party options', () => {
   screen.getByRole('radio', { name: 'Libertarian Party' });
 });
 
-test('Next button disabled until a party is selected', () => {
+test('Next button with no party selected confirms before proceeding to nonpartisan contests', () => {
+  const history = createMemoryHistory({ initialEntries: ['/party-selection'] });
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
+    history,
     route: '/party-selection',
   });
 
-  expect(screen.getButton(/next/i)).toBeDisabled();
+  // With no party selected, Next is enabled but opens a confirmation modal
+  // rather than navigating directly.
+  expect(screen.getButton(/next/i)).toBeEnabled();
+  userEvent.click(screen.getButton(/next/i));
+  let modal = screen.getByRole('alertdialog');
+  within(modal).getByText(/only be able to vote in nonpartisan contests/i);
+  expect(history.location.pathname).toEqual('/party-selection');
+
+  // Cancel closes the modal and stays on party selection.
+  userEvent.click(within(modal).getButton(/cancel/i));
+  expect(screen.queryByRole('alertdialog')).toBeNull();
+  expect(history.location.pathname).toEqual('/party-selection');
+
+  // Reopening and confirming proceeds to the first contest.
+  userEvent.click(screen.getButton(/next/i));
+  modal = screen.getByRole('alertdialog');
+  userEvent.click(within(modal).getButton(/continue/i));
+  expect(history.location.pathname).toEqual('/contests/0');
 });
 
 test('Next button enabled once a party is selected', () => {

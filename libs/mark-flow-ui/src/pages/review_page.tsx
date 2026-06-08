@@ -25,6 +25,7 @@ import {
   PrecinctId,
   VotesDict,
   getBallotStyle,
+  isOpenPrimary,
 } from '@votingworks/types';
 import { Review, ReviewProps } from '../components/review';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
@@ -140,13 +141,15 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           />
         </AudioOnly>
       </ContentHeader>
-      {selectedParty && (
+      {isOpenPrimary(election) && (
         <PartyRow>
           <div>
             <Caption>{appStrings.labelParty()}</Caption>
             <div>
               <Font weight="bold">
-                {electionStrings.partyFullName(selectedParty)}
+                {selectedParty
+                  ? electionStrings.partyFullName(selectedParty)
+                  : appStrings.noteBmdNoPartySelected()}
               </Font>
             </div>
           </div>
@@ -155,7 +158,10 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
               audioText={
                 <React.Fragment>
                   {appStrings.labelParty()}:
-                  {electionStrings.partyFullName(selectedParty)}.
+                  {selectedParty
+                    ? electionStrings.partyFullName(selectedParty)
+                    : appStrings.noteBmdNoPartySelected()}
+                  .
                   <AssistiveTechInstructions
                     controllerString={appStrings.buttonBmdReviewPartyAction()}
                     patDeviceString={appStrings.buttonBmdReviewPartyActionPatDevice()}
