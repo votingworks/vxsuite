@@ -82,6 +82,9 @@ test('poll worker activates session, voter picks party and walks through ballot'
   await screen.findByText('Start Voting');
 
   // Start screen -> party selection
+  screen.getByText(
+    hasTextAcrossElements('Number of contests on your ballot: 13')
+  );
   userEvent.click(screen.getByText('Start Voting'));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
 
