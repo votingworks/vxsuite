@@ -4,13 +4,13 @@ import {
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from './types';
-import { MockFileUsbDrive } from './mocks/file_usb_drive';
+import { createMockFileUsbDrive } from './mocks/file_usb_drive';
 import { detectMultiUsbDrive, isFat32Partition } from './multi_usb_drive';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 
 export function detectUsbDrive(logger: Logger): UsbDrive {
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
-    return new MockFileUsbDrive();
+    return createMockFileUsbDrive();
   }
   const multiUsbDrive = detectMultiUsbDrive(logger);
   return createUsbDriveAdapter(

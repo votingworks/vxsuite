@@ -114,7 +114,7 @@ function readFromMockFileHelper(): Optional<MockStateFileContents> {
 }
 
 /**
- * Reads and parses the contents of the file underlying a MockFileUsbDrive
+ * Reads and parses the contents of the mock state file.
  */
 function readFromMockFile(): MockStateFileContents {
   let mockFileContents = readFromMockFileHelper();

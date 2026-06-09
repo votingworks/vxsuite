@@ -171,26 +171,6 @@ export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
   };
 }
 
-export class MockFileUsbDrive implements UsbDrive {
-  private readonly usbDrive = createMockFileUsbDrive();
-
-  status(): Promise<UsbDriveStatus> {
-    return this.usbDrive.status();
-  }
-
-  eject(): Promise<void> {
-    return this.usbDrive.eject();
-  }
-
-  format(fstype: UsbDriveFilesystemType): Promise<void> {
-    return this.usbDrive.format(fstype);
-  }
-
-  sync(): Promise<void> {
-    return this.usbDrive.sync();
-  }
-}
-
 export interface MockFileUsbDriveHandler {
   status: () => UsbDriveStatus;
   insert: (contents?: MockFileTree) => void;
