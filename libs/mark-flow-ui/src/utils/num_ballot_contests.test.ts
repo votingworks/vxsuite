@@ -57,3 +57,22 @@ test('counts all contests for an open primary with no partisan contests', () => 
     nonpartisanContests.length
   );
 });
+
+test('throws for an open primary where parties have unequal partisan contest counts', () => {
+  const election = electionOpenPrimaryFixtures.readElection();
+  const contests = contestsForBallotStyle(election, 'ballot-style-1');
+  const firstPartisanContest = assertDefined(
+    contests.find(
+      (contest) => contest.type === 'candidate' && contest.partyId !== undefined
+    )
+  );
+  // Drop one party's contest so the parties no longer have matching partisan
+  // contest counts.
+  const unbalancedContests = contests.filter(
+    (contest) => contest !== firstPartisanContest
+  );
+
+  expect(() => getNumBallotContests(election, unbalancedContests)).toThrow(
+    'Expected every party to have the same number of partisan contests in an open primary'
+  );
+});
