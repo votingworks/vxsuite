@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { advancePromises } from '@votingworks/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { anyPollingPlace, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 
 import React from 'react';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
@@ -41,7 +40,7 @@ test('setVotes action', async () => {
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.setPaperHandlerState('not_accepting_paper');
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     pollsState: 'polls_open',
   });
 
@@ -81,7 +80,7 @@ describe('renders PollWorkerAuthEndedUnexpectedlyPage for relevant states:', () 
     apiMock.expectGetMachineConfig();
     apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
       pollsState: 'polls_open',
     });
   });
@@ -114,7 +113,7 @@ test('scanner open alarm screen', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     pollsState: 'polls_open',
   });
 

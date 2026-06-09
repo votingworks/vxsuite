@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { Keybinding, simulateKeyPress } from '@votingworks/ui';
@@ -19,6 +18,8 @@ import {
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
+const precinctId = '23';
+const pollingPlaceId = `${precinctId}-polling-place`;
 
 let apiMock: ApiMock;
 
@@ -45,7 +46,7 @@ test('accessible controller handling works', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -53,7 +54,7 @@ test('accessible controller handling works', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
   await screen.findByText('Start Voting');
   screen.getByText(/Center Springfield/);
@@ -131,7 +132,7 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   vi.mocked(apiMock.mockApiClient.getIsPatDeviceConnected).mockResolvedValue(
@@ -143,7 +144,7 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   userEvent.click(await screen.findButton('Start Voting'));

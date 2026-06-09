@@ -5,15 +5,12 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
+  anyPollingPlace,
   ElectionDefinition,
   formatElectionHashes,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
-import {
-  getFeatureFlagMock,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import {
   advancePromises,
   hasTextAcrossElements,
@@ -49,12 +46,6 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;
-const mockFeatureFlagger = getFeatureFlagMock();
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
 
 vi.mock(import('./inserted_invalid_new_sheet_screen.js'));
 vi.mock(import('./inserted_preprinted_ballot_screen.js'));
@@ -77,8 +68,6 @@ beforeEach(() => {
     shouldAdvanceTime: true,
   });
   apiMock = createApiMock();
-
-  mockFeatureFlagger.resetFeatureFlags();
 
   MockSectionSessionStart.mockImplementation(() => (
     <div data-testid={MOCK_SECTION_SESSION_START_ID} />
@@ -108,9 +97,7 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        precinctSelection={singlePrecinctSelectionFor(
-          electionDefinition.election.precincts[0].id
-        )}
+        pollingPlaceId={anyPollingPlace(electionDefinition.election).id}
         setVotes={vi.fn()}
         {...props}
       />
@@ -195,17 +182,14 @@ test('returns null if status is unhandled', () => {
 });
 
 test('renders session start section', async () => {
-  const [precinct] = election.precincts;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
   const activateCardlessVoterSession = vi.fn();
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   const pollingPlaceId = pollingPlace.id;
 
   renderScreen({
     activateCardlessVoterSession,
     pollingPlaceId,
-    precinctSelection,
   });
 
   const props = expectSessionStartSection();
@@ -214,7 +198,6 @@ test('renders session start section', async () => {
     election,
     onChooseBallotStyle: expect.any(Function),
     pollingPlaceId,
-    precinctSelection,
   });
   expect(activateCardlessVoterSession).not.toHaveBeenCalled();
 
@@ -242,20 +225,20 @@ describe.each(blockingStates)(
     const { election } = electionDefinition;
 
     test('ballot style picker is disabled', async () => {
-      const precinct = election.precincts[0];
-      const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+      const pollingPlace = anyPollingPlace(election);
+
       apiMock.setPaperHandlerState(state);
       renderScreen({
         electionDefinition,
         activateCardlessVoterSession: vi.fn(),
-        precinctSelection,
+        pollingPlaceId: pollingPlace.id,
       });
 
       await waitFor(apiMock.mockApiClient.assertComplete);
 
       const props = expectSessionStartSection();
       expect(props.election).toEqual(election);
-      expect(props.precinctSelection).toEqual(precinctSelection);
+      expect(props.pollingPlaceId).toEqual(pollingPlace.id);
       expect(props.disabled).toEqual(true);
     });
 

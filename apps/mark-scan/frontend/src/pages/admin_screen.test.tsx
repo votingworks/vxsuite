@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
-  ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -118,7 +116,6 @@ test('wires up location picker', async () => {
     election,
     pollsState,
     selectPollingPlace: expect.anything(),
-    selectPrecinct: expect.anything(),
     pollingPlaceId: place1.id,
   });
 
@@ -126,37 +123,6 @@ test('wires up location picker', async () => {
   client.setPollingPlaceId.expectCallWith({ id: place2.id }).resolves();
   await props.selectPollingPlace(place2.id);
   client.assertComplete();
-});
-
-test('can switch the precinct', async () => {
-  await useRealPrecinctPicker();
-
-  renderScreen();
-
-  apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  userEvent.click(await screen.findByText('Select a precinct…'));
-  userEvent.click(await screen.findByText('All Precincts'));
-});
-
-test('precinct change disabled if polls closed', async () => {
-  await useRealPrecinctPicker();
-
-  renderScreen({ pollsState: 'polls_closed_final' });
-
-  const precinctSelect = await screen.findByLabelText('Select a precinct…');
-  expect(precinctSelect).toBeDisabled();
-});
-
-test('precinct selection absent if single precinct election', async () => {
-  await useRealPrecinctPicker();
-
-  renderScreen({
-    electionDefinition:
-      electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
-  });
-
-  await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('renders a save logs button with no usb', async () => {
@@ -258,20 +224,3 @@ test('switching to test ballot mode without ballots printed', () => {
   apiMock.expectSetTestMode(true);
   userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
 });
-
-async function useRealPrecinctPicker() {
-  const markFlowUi = await vi.importActual<
-    typeof import('@votingworks/mark-flow-ui')
-  >('@votingworks/mark-flow-ui');
-
-  setPollingPlacesEnabled(false);
-  MockLocationPicker.mockImplementation(markFlowUi.LocationPicker);
-}
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

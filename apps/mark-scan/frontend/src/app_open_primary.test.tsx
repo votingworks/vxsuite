@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId, CandidateContest } from '@votingworks/types';
@@ -15,7 +14,7 @@ vi.setConfig({ testTimeout: 30_000 });
 const BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
 const PRECINCT_ID = 'precinct-1';
 const PRECINCT_NAME = 'Precinct 1';
-const PRECINCT_SELECTION = singlePrecinctSelectionFor(PRECINCT_ID);
+const POLLING_PLACE_ID = `${PRECINCT_ID}-polling-place`;
 const electionDefinition = electionOpenPrimaryFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
@@ -28,7 +27,7 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: PRECINCT_SELECTION,
+    pollingPlaceId: POLLING_PLACE_ID,
     pollsState: 'polls_open',
   });
   apiMock.setPaperHandlerState('not_accepting_paper');

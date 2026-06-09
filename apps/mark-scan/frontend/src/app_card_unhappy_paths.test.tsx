@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { anyPollingPlace } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -22,12 +22,14 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
+const electionDefinition = readElectionGeneralDefinition();
+
 test('Shows card backwards screen when card connection error occurs', async () => {
   apiMock.expectGetMachineConfig();
 
-  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     pollsState: 'polls_open',
   });
 
@@ -47,9 +49,9 @@ test('Shows card backwards screen when card connection error occurs', async () =
 
 test('Shows wrong election screen when election on card does not match that of machine config', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     pollsState: 'polls_open',
   });
 
