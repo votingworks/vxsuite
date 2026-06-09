@@ -29,5 +29,5 @@ exports[`safeParseElection shows VXF parsing errors by default 1`] = `
 - seal: Invalid input: expected string, received undefined
 - state: Invalid input: expected string, received undefined
 - title: Invalid input: expected string, received undefined
-- type: Invalid option: expected one of "general"|"primary"]
+- type: Invalid option: expected one of "general"|"closed-primary"|"open-primary"]
 `;

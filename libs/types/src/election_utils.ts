@@ -408,10 +408,7 @@ export function getPartyIdsInBallotStyles(
  * polls rather than being assigned a party ballot.
  */
 export function isOpenPrimary(election: Election): boolean {
-  return (
-    election.type === 'primary' &&
-    election.ballotStyles.every((bs) => !bs.partyId)
-  );
+  return election.type === 'open-primary';
 }
 
 export function getContestDistrict(
