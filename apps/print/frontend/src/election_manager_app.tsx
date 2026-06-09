@@ -2,6 +2,7 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { PrintScreen } from './screens/print_screen';
+import { TestDeckScreen } from './screens/test_deck_screen';
 import { SettingsScreen } from './screens/settings_screen';
 import { ReportScreen } from './screens/report_screen';
 import { ElectionScreen } from './screens/election_screen';
@@ -25,6 +26,10 @@ export function ElectionManagerApp(): JSX.Element | null {
   return (
     <React.Fragment>
       <Switch>
+        <Route
+          path={electionManagerRoutes.testDecks.path}
+          render={() => <TestDeckScreen isElectionManagerAuth />}
+        />
         <Route
           path={electionManagerRoutes.print.path}
           render={() => <PrintScreen isElectionManagerAuth />}
