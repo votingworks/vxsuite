@@ -19,3 +19,11 @@ test('insert twice is fine', () => {
   mock.insertUsbDrive({ 'file.txt': Buffer.from('contents') });
   mock.insertUsbDrive({ 'file.txt': Buffer.from('contents') });
 });
+
+test('assertComplete', async () => {
+  const mock = createMockUsbDrive();
+  mock.removeUsbDrive();
+  mock.insertUsbDrive({});
+  await mock.usbDrive.status();
+  mock.assertComplete();
+});
