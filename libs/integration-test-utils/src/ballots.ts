@@ -14,6 +14,7 @@ import {
   VotesDict,
   getBallotStyle,
   getContests,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
   ImageData,
@@ -127,7 +128,7 @@ export async function renderMarkedBallots(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [sharedBallotProps],
-      'vxf'
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
     const sharedBallotContent = assertDefined(ballotContents[0]);
 
