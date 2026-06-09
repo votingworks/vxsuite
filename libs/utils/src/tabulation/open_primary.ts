@@ -10,7 +10,6 @@ import {
   PartyId,
   Tabulation,
   VotesDict,
-  isOpenPrimary,
 } from '@votingworks/types';
 
 type PartisanContest = CandidateContest & { partyId: PartyId };
@@ -48,7 +47,7 @@ export function hasCrossoverVote(
 ): boolean {
   // Short circuit to avoid doing extra work if it's not an open primary, even
   // though crossover votes aren't possible in general elections/closed primaries.
-  if (!isOpenPrimary(election)) {
+  if (election.type !== 'open-primary') {
     return false;
   }
   return votedPartyIds(election, votes).length > 1;
@@ -63,7 +62,7 @@ export function inferPartyFromVotes(
   election: Election,
   votes: Tabulation.Votes
 ): PartyId | Tabulation.NoPartyId {
-  assert(isOpenPrimary(election));
+  assert(election.type === 'open-primary');
   const parties = votedPartyIds(election, votes);
   return parties.length === 1
     ? assertDefined(parties[0])

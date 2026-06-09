@@ -1,16 +1,10 @@
-import {
-  Election,
-  Party,
-  PartyId,
-  District,
-  isOpenPrimary,
-} from '@votingworks/types';
+import { Election, Party, PartyId, District } from '@votingworks/types';
 import { find, unique } from '@votingworks/basics';
 
 export function getPartiesWithPrimaryElections(
   election: Election
 ): readonly Party[] {
-  if (isOpenPrimary(election)) {
+  if (election.type === 'open-primary') {
     return election.parties;
   }
   const partyIds = election.ballotStyles

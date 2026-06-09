@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'vitest';
-import { CandidateContest, PartyId, YesNoContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  PartyId,
+  YesNoContest,
+  Tabulation,
+} from '@votingworks/types';
 import {
   readElectionGeneral,
   readElectionOpenPrimary,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
 import {
   hasCrossoverVote,
   inferPartyFromVotes,

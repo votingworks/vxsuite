@@ -16,7 +16,6 @@ import {
   getPartyFullNameFromBallotStyle,
   getPartyIdsInBallotStyles,
   getPartyIdsWithContests,
-  isOpenPrimary,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
   getPrecinctIndexById,
@@ -263,14 +262,12 @@ test('getPartyIdsInBallotStyles', () => {
   );
 });
 
-test('isPrimary/isOpenPrimary', () => {
+test('isPrimary', () => {
   // general election
   expect(isPrimary(election)).toEqual(false);
-  expect(isOpenPrimary(election)).toEqual(false);
 
   // closed primary (ballot styles have partyId)
   expect(isPrimary(primaryElection)).toEqual(true);
-  expect(isOpenPrimary(primaryElection)).toEqual(false);
 
   // open primary (ballot styles have no partyId)
   const openPrimaryElection: Election = {
@@ -282,7 +279,6 @@ test('isPrimary/isOpenPrimary', () => {
     })),
   };
   expect(isPrimary(openPrimaryElection)).toEqual(true);
-  expect(isOpenPrimary(openPrimaryElection)).toEqual(true);
 });
 
 test('getGroupIdFromBallotStyleId', () => {

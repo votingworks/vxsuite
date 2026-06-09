@@ -8,7 +8,6 @@ import {
   PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
-  isOpenPrimary,
   isPrimary,
 } from '@votingworks/types';
 import {
@@ -106,9 +105,10 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       scannerId: VX_MACHINE_ID,
       precinctId: metadata.precinctId,
       ballotStyleGroupId,
-      partyId: isOpenPrimary(election)
-        ? inferPartyFromVotes(election, votes)
-        : ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+      partyId:
+        election.type === 'open-primary'
+          ? inferPartyFromVotes(election, votes)
+          : ballotStyleIdPartyIdLookup[ballotStyleGroupId],
       votingMethod: BALLOT_TYPE_TO_VOTING_METHOD[metadata.ballotType],
     };
   }

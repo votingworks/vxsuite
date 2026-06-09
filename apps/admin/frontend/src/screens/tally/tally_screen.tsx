@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { isOpenPrimary } from '@votingworks/types';
 import { Button, Icons, H3, RouterTabBar } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { AppContext } from '../../contexts/app_context';
@@ -23,7 +22,8 @@ export function TallyScreen(): JSX.Element | null {
     setIsConfirmRemoveAllResultsModalOpen,
   ] = useState(false);
 
-  const manualTalliesEnabled = !isOpenPrimary(electionDefinition.election);
+  const manualTalliesEnabled =
+    electionDefinition.election.type !== 'open-primary';
 
   return (
     <React.Fragment>
