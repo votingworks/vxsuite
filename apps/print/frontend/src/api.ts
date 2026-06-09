@@ -121,6 +121,18 @@ export const getPrecinctSelection = {
   },
 } as const;
 
+export const getTestDeckBallotCount = {
+  queryKey(input: { precinctId?: string } = {}): QueryKey {
+    return ['getTestDeckBallotCount', input];
+  },
+  useQuery(input: { precinctId?: string } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getTestDeckBallotCount(input)
+    );
+  },
+} as const;
+
 // [TODO] Remove after migration to polling places.
 export const setPrecinctSelection = {
   useMutation() {
@@ -251,6 +263,8 @@ export const setTestMode = {
       async onSuccess() {
         await queryClient.invalidateQueries(getTestMode.queryKey());
         await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
+        // The test deck ballot count depends on the ballot mode.
+        await queryClient.invalidateQueries(['getTestDeckBallotCount']);
       },
     });
   },
@@ -370,5 +384,12 @@ export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.saveReadinessReport);
+  },
+} as const;
+
+export const printTestDeck = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestDeck);
   },
 } as const;
