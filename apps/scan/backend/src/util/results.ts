@@ -9,6 +9,7 @@ import {
   Tabulation,
   getGroupIdFromBallotStyleId,
   isOpenPrimary,
+  isPrimary,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
@@ -196,7 +197,7 @@ export async function getScannerResults({
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
       election,
-      groupBy: election.type === 'primary' ? { groupByParty: true } : undefined,
+      groupBy: isPrimary(election) ? { groupByParty: true } : undefined,
       cvrs,
     })
   );

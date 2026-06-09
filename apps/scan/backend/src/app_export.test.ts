@@ -8,6 +8,7 @@ import {
   BaseBallotProps,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -407,7 +408,7 @@ test('audit ballot IDs', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
-      'vxf'
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
   const ballotPdf = ballotPdfs[0];
   await rendererPool.close();
