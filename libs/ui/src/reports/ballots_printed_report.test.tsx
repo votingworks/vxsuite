@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import {
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
@@ -19,6 +20,8 @@ const electionDefinitionPrimary =
   electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const electionDefinitionSimple =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+const electionDefinitionOpenPrimary =
+  electionOpenPrimaryFixtures.readElectionDefinition();
 
 test('renders report with test mode banner', () => {
   render(
@@ -207,6 +210,44 @@ test('renders report for General Election with no parties, precincts, single lan
       })
     )
   ).not.toBeInTheDocument();
+  expect(screen.queryByText('Party')).not.toBeInTheDocument();
+});
+
+test('renders report for Open Primary Election without a party column', () => {
+  const { election } = electionDefinitionOpenPrimary;
+
+  const precinct = election.precincts[0];
+  const ballotStyleId = election.ballotStyles[0].id;
+
+  // In an open primary, consolidated ballot styles have no party, so rows have
+  // no partyName, just like a general election.
+  const ballotPrintCounts: BallotPrintCount[] = [
+    {
+      precinctId: precinct.id,
+      precinctOrSplitName: precinct.name,
+      ballotStyleId,
+      languageCode: LanguageCode.ENGLISH,
+      absenteeCount: 0,
+      precinctCount: 25,
+      totalCount: 25,
+    },
+  ];
+
+  render(
+    <BallotsPrintedReport
+      electionDefinition={electionDefinitionOpenPrimary}
+      electionPackageHash="test-election-package-hash"
+      generatedAtTime={new Date()}
+      printCounts={ballotPrintCounts}
+      isTestMode
+    />
+  );
+
+  screen.getByText(precinct.name);
+  // 25 appears in Precinct Count, Total Count, and in sum totals for both columns
+  expect(screen.getAllByText('25').length).toEqual(4);
+  screen.getByText('Sum Totals');
+  // The party column is not rendered for an open primary
   expect(screen.queryByText('Party')).not.toBeInTheDocument();
 });
 

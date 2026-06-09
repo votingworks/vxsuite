@@ -16,6 +16,7 @@ import {
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
+  electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -670,6 +671,93 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
     languageCode: LanguageCode.ENGLISH,
     partyName: 'Fish',
   });
+});
+
+test('end-to-end printing flow handles open primary (consolidated ballots)', async () => {
+  // In an open primary, ballots are consolidated (all parties' contests on one
+  // ballot) and ballot styles have no partyId. VxPrint should print without a
+  // party selection, just like a general election.
+  const electionDefinition = getMockMultiLanguageElectionDefinition(
+    electionOpenPrimaryFixtures.readElectionDefinition(),
+    [LanguageCode.ENGLISH]
+  );
+
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setPrecinctSelection({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  const { ballotStyles } = electionDefinition.election;
+  const ballotStyle = ballotStyles[0];
+  const precinctId = ballotStyle.precincts[0];
+
+  // Print with no partyId, matching what the frontend sends for open primaries.
+  await apiClient.printBallot({
+    precinctId,
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copies: 2,
+  });
+
+  const counts = await apiClient.getBallotPrintCounts();
+  const row = counts.find(
+    (c) => c.ballotStyleId === ballotStyle.id && c.precinctId === precinctId
+  );
+  expect(row).toMatchObject({
+    ballotStyleId: ballotStyle.id,
+    precinctId,
+    precinctCount: 2,
+    absenteeCount: 0,
+    totalCount: 2,
+    languageCode: LanguageCode.ENGLISH,
+    partyName: undefined,
+  });
+});
+
+test('printAllBallotStyles works for open primary (consolidated ballots)', async () => {
+  const electionDefinition = getMockMultiLanguageElectionDefinition(
+    electionOpenPrimaryFixtures.readElectionDefinition(),
+    [LanguageCode.ENGLISH]
+  );
+
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  await apiClient.printAllBallotStyles({
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copiesPerStyle: 1,
+  });
+
+  const counts = await apiClient.getBallotPrintCounts();
+  expect(counts.length).toEqual(
+    electionDefinition.election.ballotStyles.length
+  );
+  for (const count of counts) {
+    expect(count.partyName).toBeUndefined();
+    expect(count.totalCount).toEqual(1);
+  }
 });
 
 test('end-to-end printing flow handles precinct splits correctly', async () => {
