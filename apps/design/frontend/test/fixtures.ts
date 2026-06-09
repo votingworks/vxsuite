@@ -6,12 +6,10 @@ import type {
 } from '@votingworks/design-backend';
 import { createBlankElection } from '@votingworks/design-backend';
 import {
-  electionTypeV4p0ToV4p1,
   BallotLanguageConfigs,
   Candidate,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
-  ElectionTypeV4p1,
   Id,
   LanguageCode,
 } from '@votingworks/types';
@@ -38,8 +36,7 @@ function splitCandidateName(candidate: Candidate): Candidate {
 
 export function makeElectionRecord(
   baseElection: Election,
-  jurisdictionId: Id,
-  electionType: ElectionTypeV4p1 = electionTypeV4p0ToV4p1(baseElection.type)
+  jurisdictionId: Id
 ): ElectionRecord {
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
@@ -55,7 +52,7 @@ export function makeElectionRecord(
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests,
-    electionType,
+    electionType: baseElection.type,
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',
@@ -68,7 +65,6 @@ export function makeElectionRecord(
   };
   return {
     election,
-    type: electionType,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
@@ -84,7 +80,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     electionId: election.id,
     title: election.title,
     date: election.date,
-    type: electionTypeV4p0ToV4p1(election.type),
+    type: election.type,
     state: election.state,
     countyName: election.county.name,
     seal: election.seal,
@@ -97,7 +93,6 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
 export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
   return {
     ...electionInfoFromElection(record.election),
-    type: record.type,
     jurisdictionId: record.jurisdictionId,
   };
 }
@@ -105,14 +100,14 @@ export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
 export function electionListing(
   electionRecord: ElectionRecord
 ): ElectionListing {
-  const { election, type, jurisdictionId } = electionRecord;
+  const { election, jurisdictionId } = electionRecord;
   return {
     jurisdictionId,
     jurisdictionName: `${jurisdictionId} Name`,
     electionId: election.id,
     title: election.title,
     date: election.date,
-    type,
+    type: election.type,
     state: election.state,
     countyName: election.county.name,
     status: 'inProgress',
@@ -142,8 +137,7 @@ export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
 export function openPrimaryElectionRecord(jurisdictionId: Id): ElectionRecord {
   return makeElectionRecord(
     electionOpenPrimaryFixtures.readElection(),
-    jurisdictionId,
-    'open-primary'
+    jurisdictionId
   );
 }
 export function generalElectionInfo(jurisdictionId: Id): ElectionInfo {

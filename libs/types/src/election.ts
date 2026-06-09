@@ -706,7 +706,7 @@ export type ElectionType = (typeof ELECTION_TYPES)[number];
 export const ElectionTypeSchema: z.ZodSchema<ElectionType> =
   z.enum(ELECTION_TYPES);
 
-export function isPrimary(election: Election): boolean {
+export function isPrimary(election: Pick<Election, 'type'>): boolean {
   return election.type === 'closed-primary' || election.type === 'open-primary';
 }
 

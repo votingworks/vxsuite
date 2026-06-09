@@ -5,7 +5,6 @@ import {
   ElectionId,
   ElectionStringKey,
   LanguageCode,
-  electionTypeV4p0ToV4p1,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
@@ -284,7 +283,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     electionId,
     title: election.title,
     date: election.date,
-    type: electionTypeV4p0ToV4p1(election.type),
+    type: election.type,
     state: election.state,
     countyName: election.county.name,
     seal: election.seal,
