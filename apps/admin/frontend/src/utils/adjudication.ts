@@ -138,7 +138,7 @@ export type CrossoverVoteStatusByContest = Record<
   ContestId,
   ContestCrossoverVoteStatus
 >;
-export interface CrossoverVoteStatus {
+export interface BallotCrossoverVoteStatus {
   ballotHasScannedCrossoverVote: boolean;
   ballotHasCrossoverVoteAfterAdjudication: boolean;
   statusByContest: Record<ContestId, ContestCrossoverVoteStatus>;
@@ -151,7 +151,7 @@ export function deriveCrossoverVoteStatus(
   adjudicatedContests: AdjudicatedContests,
   ballotHasScannedCrossoverVote: boolean,
   isBallotResolved: boolean
-): CrossoverVoteStatus {
+): BallotCrossoverVoteStatus {
   const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
     adjudicatedVotes(contestItems, adjudicatedContests)

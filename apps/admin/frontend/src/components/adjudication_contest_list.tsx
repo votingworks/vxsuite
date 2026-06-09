@@ -22,7 +22,7 @@ import {
   AdjudicatedContests,
   ContestListItem,
   contestPartyLabel,
-  CrossoverVoteStatus,
+  BallotCrossoverVoteStatus,
   getCurrentVote,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
@@ -326,7 +326,7 @@ function CrossoverVoteStatusLine({
   crossoverVoteStatus,
 }: {
   contestId: ContestId;
-  crossoverVoteStatus: CrossoverVoteStatus;
+  crossoverVoteStatus: BallotCrossoverVoteStatus;
 }) {
   const { isBallotResolved, ballotHasScannedCrossoverVote } =
     crossoverVoteStatus;
@@ -387,7 +387,7 @@ function BallotSideContestList({
   showUndervoteStatus: boolean;
   title: string;
   cvrTag: CvrTag;
-  crossoverVoteStatus: CrossoverVoteStatus;
+  crossoverVoteStatus: BallotCrossoverVoteStatus;
 }): React.ReactNode {
   return (
     <React.Fragment>
@@ -480,7 +480,7 @@ export interface AdjudicationContestListProps {
   onSelectSide: (side: Side) => void;
   selectedSide: Side;
   showUndervoteStatus: boolean;
-  crossoverVoteStatus: CrossoverVoteStatus;
+  crossoverVoteStatus: BallotCrossoverVoteStatus;
 }
 
 export function AdjudicationContestList({
@@ -636,7 +636,7 @@ function BlankBallotCallout({
 function CrossoverVotingCallout({
   ballotHasCrossoverVoteAfterAdjudication,
   isBallotResolved,
-}: CrossoverVoteStatus): JSX.Element | null {
+}: BallotCrossoverVoteStatus): JSX.Element | null {
   const { title, description } = (() => {
     if (!ballotHasCrossoverVoteAfterAdjudication) {
       return {
