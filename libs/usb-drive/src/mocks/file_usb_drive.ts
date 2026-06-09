@@ -261,6 +261,8 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
       return Promise.resolve();
     },
     stop: () => {},
+    addListener: () => {},
+    removeListener: () => {},
   };
 }
 

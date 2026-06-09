@@ -32,9 +32,8 @@ export async function main(args: string[]): Promise<number> {
   const logger = new Logger(LogSource.System, () => Promise.resolve('unknown'));
 
   if (command === 'watch') {
-    const multiUsbDrive = detectMultiUsbDrive(logger, {
-      onChange: () => printDrives(multiUsbDrive, stdout),
-    });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    multiUsbDrive.addListener(() => printDrives(multiUsbDrive, stdout));
     // Wait until process is terminated (e.g. Ctrl+C)
     await new Promise<never>(() => {});
   }

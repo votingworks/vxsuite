@@ -57,6 +57,8 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
     formatDrive: mockFunction('formatDrive'),
     sync: mockFunction('sync'),
     stop: mockFunction('stop'),
+    addListener: mockFunction('addListener'),
+    removeListener: mockFunction('removeListener'),
   };
 
   // Initialize with no drive connected

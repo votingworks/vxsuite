@@ -8,14 +8,11 @@ import { MockFileUsbDrive } from './mocks/file_usb_drive';
 import { detectMultiUsbDrive, isFat32Partition } from './multi_usb_drive';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 
-export function detectUsbDrive(
-  logger: Logger,
-  onRefresh?: () => void
-): UsbDrive {
+export function detectUsbDrive(logger: Logger): UsbDrive {
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
     return new MockFileUsbDrive();
   }
-  const multiUsbDrive = detectMultiUsbDrive(logger, { onChange: onRefresh });
+  const multiUsbDrive = detectMultiUsbDrive(logger);
   return createUsbDriveAdapter(
     multiUsbDrive,
     (drives) => drives.find((d) => isFat32Partition(d.partitions[0]))?.devPath
