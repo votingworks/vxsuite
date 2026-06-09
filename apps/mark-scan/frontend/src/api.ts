@@ -400,19 +400,6 @@ export const setTestMode = {
   },
 } as const;
 
-// [TODO] Remove after migration to polling places.
-export const setPrecinctSelection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setPrecinctSelection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-      },
-    });
-  },
-} as const;
-
 export const setPollingPlaceId = {
   useMutation() {
     const apiClient = useApiClient();

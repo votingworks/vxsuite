@@ -15,11 +15,7 @@ import {
   Button,
   H2,
 } from '@votingworks/ui';
-import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
@@ -29,7 +25,6 @@ import {
   ejectUsbDrive,
   logOut,
   setPollingPlaceId,
-  setPrecinctSelection,
   setTestMode,
   useApiClient,
 } from '../api';
@@ -51,7 +46,6 @@ const ButtonGrid = styled.div`
 `;
 
 export interface AdminScreenProps {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
@@ -64,7 +58,6 @@ export interface AdminScreenProps {
 }
 
 export function AdminScreen({
-  appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
   electionPackageHash,
@@ -79,7 +72,6 @@ export function AdminScreen({
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
-  const selectPrecinct = setPrecinctSelection.useMutation().mutateAsync;
   const selectPollingPlace = setPollingPlaceId.useMutation().mutateAsync;
   const setTestModeMutation = setTestMode.useMutation();
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] =
@@ -117,12 +109,10 @@ export function AdminScreen({
         {election.precincts.length > 1 && (
           <P>
             <LocationPicker
-              appPrecinct={appPrecinct}
               election={election}
               pollsState={pollsState}
               pollingPlaceId={pollingPlaceId}
               selectPollingPlace={(id) => selectPollingPlace({ id })}
-              selectPrecinct={(p) => selectPrecinct({ precinctSelection: p })}
             />
           </P>
         )}
@@ -169,7 +159,6 @@ export function AdminScreen({
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
         pollingPlaceId={pollingPlaceId}
-        precinctSelection={appPrecinct}
       />
       {isConfirmingModeSwitch && (
         <ConfirmSwitchModeModal

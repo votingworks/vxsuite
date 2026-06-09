@@ -6,7 +6,6 @@ import {
   PrecinctId,
   PollsState,
   InsertedSmartCardAuth,
-  PrecinctSelection,
   VotesDict,
 } from '@votingworks/types';
 import {
@@ -70,8 +69,7 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
-  precinctSelection?: PrecinctSelection;
-  pollingPlaceId?: string;
+  pollingPlaceId: string;
   setVotes: (votes: VotesDict) => void;
 }
 
@@ -85,7 +83,6 @@ export function PollWorkerScreen({
   ballotsPrintedCount,
   machineConfig,
   hasVotes,
-  precinctSelection,
   pollingPlaceId,
   setVotes,
 }: PollworkerScreenProps): JSX.Element | null {
@@ -227,7 +224,6 @@ export function PollWorkerScreen({
                 election={election}
                 onChooseBallotStyle={onChooseBallotStyle}
                 pollingPlaceId={pollingPlaceId}
-                precinctSelection={precinctSelection}
                 disabled={voterSessionActionsDisabled}
               />
               <VotingSession>
@@ -271,7 +267,6 @@ export function PollWorkerScreen({
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
         pollingPlaceId={pollingPlaceId}
-        precinctSelection={precinctSelection}
       />
     </Screen>
   );

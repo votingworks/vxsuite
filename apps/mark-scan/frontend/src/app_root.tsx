@@ -14,10 +14,8 @@ import {
 
 import { useHistory } from 'react-router-dom';
 import {
-  BooleanEnvironmentVariableName as Feature,
   isElectionManagerAuth,
   isCardlessVoterAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
@@ -109,7 +107,6 @@ interface VotingState {
 export const blankBallotVotes: VotesDict = {};
 
 export const initialElectionState: Readonly<ElectionState> = {
-  precinctSelection: undefined,
   ballotsPrintedCount: 0,
   isTestMode: true,
   pollsState: 'polls_closed_initial',
@@ -218,15 +215,10 @@ export function AppRoot(): JSX.Element | null {
     getElectionRecordQuery.data ?? {};
 
   const electionStateQuery = getElectionState.useQuery();
-  const {
-    precinctSelection,
-    pollingPlaceId,
-    ballotsPrintedCount,
-    isTestMode,
-    pollsState,
-  } = electionStateQuery.isSuccess
-    ? electionStateQuery.data
-    : initialElectionState;
+  const { pollingPlaceId, ballotsPrintedCount, isTestMode, pollsState } =
+    electionStateQuery.isSuccess
+      ? electionStateQuery.data
+      : initialElectionState;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -441,7 +433,6 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         usbDriveStatus={usbDriveStatus}
-        precinctSelection={precinctSelection}
         pollingPlaceId={pollingPlaceId}
       />
     );
@@ -466,7 +457,6 @@ export function AppRoot(): JSX.Element | null {
 
     return (
       <AdminScreen
-        appPrecinct={precinctSelection}
         pollingPlaceId={pollingPlaceId}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={electionDefinition}
@@ -506,13 +496,8 @@ export function AppRoot(): JSX.Element | null {
     return <PollWorkerAuthEndedUnexpectedlyPage />;
   }
 
-  const usePollingPlaces = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES);
-  const locationConfigured = usePollingPlaces
-    ? !!pollingPlaceId
-    : !!precinctSelection;
-
   if (electionDefinition) {
-    if (!locationConfigured) {
+    if (!pollingPlaceId) {
       return (
         <UnconfiguredPollingPlaceScreen
           electionDefinition={electionDefinition}
@@ -578,7 +563,6 @@ export function AppRoot(): JSX.Element | null {
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
           hasVotes={!!votes}
-          precinctSelection={precinctSelection}
           pollingPlaceId={pollingPlaceId}
           setVotes={setVotes}
         />
@@ -619,7 +603,6 @@ export function AppRoot(): JSX.Element | null {
 
     return (
       <InsertCardScreen
-        appPrecinct={precinctSelection}
         cardInsertionDirection="up"
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
