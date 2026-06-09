@@ -529,6 +529,50 @@ jobs:
       - store_test_results:
           path: apps/print/frontend/reports/
 
+  # @votingworks/print-integration-testing
+  test-apps-print-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/print/integration-testing exec playwright install-deps
+            pnpm --dir apps/print/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/print/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/print/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/print/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
   # @votingworks/scan-backend
   test-apps-scan-backend:
     executor: nodejs
@@ -1646,6 +1690,9 @@ workflows:
       - test-apps-print-frontend:
           context:
             - screenshots-publishing
+      - test-apps-print-integration-testing:
+          context:
+            - screenshots-publishing
       - test-apps-scan-backend:
           context:
             - screenshots-publishing
@@ -1777,6 +1824,7 @@ workflows:
             - test-apps-central-scan-integration-testing
             - test-apps-mark-scan-integration-testing
             - test-apps-mark-integration-testing
+            - test-apps-print-integration-testing
             - test-apps-scan-integration-testing
           filters:
             branches:
