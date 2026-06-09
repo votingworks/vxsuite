@@ -22,4 +22,4 @@ export * from './pages/print_page';
 export * from './pages/review_page';
 export * from './pages/start_page';
 export * from './utils/ms_either_neither_contests';
-export * from './utils/num_ballot_contests';
+export * from './utils/votable_contest_count';

@@ -21,13 +21,11 @@ import {
   BallotStyleId,
   ElectionDefinition,
   getBallotStyle,
-  getContests,
   getPartyForBallotStyle,
   PrecinctId,
 } from '@votingworks/types';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
-import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests';
-import { getNumBallotContests } from '../utils/num_ballot_contests';
+import { getVotableContestCount } from '../utils/votable_contest_count';
 import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 
 const wobbleKeyframes = keyframes`
@@ -112,13 +110,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
 
   const party = getPartyForBallotStyle({ ballotStyleId, election });
 
-  // Compute the contest count from the full ballot style rather than the
-  // contests currently being shown: in open primaries, the displayed contests
-  // depend on the voter's (not-yet-made) party selection.
-  const numBallotContests = getNumBallotContests(
-    election,
-    mergeMsEitherNeitherContests(getContests({ election, ballotStyle }))
-  );
+  const votableContestCount = getVotableContestCount({ election, ballotStyle });
 
   const electionInfo = (
     <ElectionInfo>
@@ -143,7 +135,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
           <br />
           <Caption>
             {appStrings.labelNumBallotContests()}{' '}
-            <NumberString value={numBallotContests} />
+            <NumberString value={votableContestCount} />
           </Caption>
         </P>
       </div>
