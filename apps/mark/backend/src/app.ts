@@ -340,7 +340,7 @@ export function buildApi(ctx: Context) {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       store.setPrecinctSelection(input.precinctSelection);
       store.setBallotsPrintedCount(0);
-      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+      await logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
         message: `User set the precinct for the machine to ${getPrecinctSelectionName(
           electionDefinition.election.precincts,
@@ -361,7 +361,7 @@ export function buildApi(ctx: Context) {
       store.setPollingPlaceId(input.id);
       store.setBallotsPrintedCount(0);
 
-      void logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+      void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
         message: `User set the polling place for the machine to ${name}`,
       });

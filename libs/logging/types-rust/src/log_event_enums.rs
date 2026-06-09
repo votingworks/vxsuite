@@ -333,8 +333,8 @@ pub enum EventId {
     ResetPollsToPaused,
     #[serde(rename = "ballot-box-emptied")]
     BallotBoxEmptied,
-    #[serde(rename = "precinct-configuration-changed")]
-    PrecinctConfigurationChanged,
+    #[serde(rename = "polling-place-changed")]
+    PollingPlaceChanged,
     #[serde(rename = "scanner-batch-started")]
     ScannerBatchStarted,
     #[serde(rename = "scanner-batch-ended")]

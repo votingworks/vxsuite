@@ -450,9 +450,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** Poll worker confirmed that they emptied the ballot box.
 **Machines:** vx-mark-scan
-### precinct-configuration-changed
+### polling-place-changed
 **Type:** [user-action](#user-action)
-**Description:** User has changed the precinct setting.
+**Description:** User has changed the polling place setting.
 **Machines:** vx-mark, vx-scan, vx-mark-scan
 ### scanner-batch-started
 **Type:** [system-action](#system-action)
