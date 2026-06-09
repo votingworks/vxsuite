@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './ballots';
 export * from './screenshots';
 export * from './pdf';
 export * from './playwright_config';

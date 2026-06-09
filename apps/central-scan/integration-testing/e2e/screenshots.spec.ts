@@ -1,5 +1,5 @@
-import { resolve } from 'node:path';
 import test from '@playwright/test';
+import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -11,19 +11,33 @@ import * as grout from '@votingworks/grout';
 import type { Api as DevDockApi } from '@votingworks/dev-dock-backend';
 import {
   buildIntegrationTestHelper,
+  createFullyVotedBallot,
   createScreenshotCounter,
+  renderMarkedBallots,
+  renderUnreadableSheet,
+  withOvervote,
+  withUndervote,
 } from '@votingworks/integration-test-utils';
+import {
+  AdjudicationReason,
+  CandidateContest,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+} from '@votingworks/types';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
 } from './support/auth';
+import { captureReadinessReport } from './support/readiness_report';
 
 const screenshotCounter = createScreenshotCounter();
 
-const MARKED_BALLOT_PATH = resolve(
-  __dirname,
-  '../../../../libs/hmpb/fixtures/vx-famous-names/marked-official-ballot.pdf'
-);
+const BALLOT_STYLE_ID = '1-1';
+const PRECINCT_ID = '20';
+
+const devDockClient = grout.createClient<DevDockApi>({
+  baseUrl: 'http://127.0.0.1:3001/dock',
+});
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -35,34 +49,98 @@ test.beforeEach(async ({ page }) => {
 
 test('screenshots', async ({ page }) => {
   const fixtureSet = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtureSet.readElectionDefinition();
+  const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
   const {
     screenshot,
     screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
     withContainerVerticallyExpanded,
   } = buildIntegrationTestHelper(page, screenshotCounter);
 
-  await page.getByText(/election manager card to configure/).waitFor();
-  await screenshot('em-insert-card-screen');
+  // Enable adjudication so scanned ballots with these conditions pause on the
+  // "Ballot Not Counted" eject screen instead of being silently counted.
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    centralScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.Undervote,
+      AdjudicationReason.BlankBallot,
+    ],
+  };
 
-  await logInAsElectionManager(page, fixtureSet.readElection());
+  // Pre-render every ballot variant in one Chromium instance. A single-seat
+  // candidate contest gives us a clean overvote (extra candidate) and undervote
+  // (blanked) without affecting other contests.
+  const singleSeatContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate' && c.seats === 1
+  );
+  /* istanbul ignore next */
+  if (!singleSeatContest) throw new Error('Expected a single-seat contest');
+
+  const fullVotes = createFullyVotedBallot(electionDefinition, BALLOT_STYLE_ID);
+  const ballotSpec = {
+    electionDefinition,
+    ballotStyleId: BALLOT_STYLE_ID,
+    precinctId: PRECINCT_ID,
+  } as const;
+  const [fullPdf, overvotePdf, blankPdf, undervotePdf] =
+    await renderMarkedBallots([
+      { ...ballotSpec, votes: fullVotes },
+      { ...ballotSpec, votes: withOvervote(fullVotes, singleSeatContest) },
+      { ...ballotSpec, votes: {} },
+      { ...ballotSpec, votes: withUndervote(fullVotes, singleSeatContest) },
+    ]);
+  const unreadablePath = await renderUnreadableSheet();
+
+  // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
+  let expectedSheets = 0;
+  async function scanCountedBatch(paths: string[]) {
+    await devDockClient.batchScannerClearBallots();
+    await devDockClient.batchScannerLoadBallots({ paths });
+    await page.getByRole('button', { name: 'Scan New Batch' }).click();
+    expectedSheets += paths.length;
+    await page
+      .getByText(`Total Sheets: ${expectedSheets}`)
+      .waitFor({ timeout: 60000 });
+  }
+
+  // 1. Unconfigured: insert election manager card.
+  await page.getByText(/election manager card to configure/).waitFor();
+  await screenshot('unconfigured-screen');
+
+  // 2. Insert USB drive containing the election package.
+  await logInAsElectionManager(page, election);
   await page.getByText(/a USB drive/).waitFor();
   await screenshot('em-insert-usb');
 
+  // 3. Configuring progress screen. The configuration request completes too
+  // quickly to screenshot reliably, so delay the response just long enough to
+  // capture the screen, then let it proceed.
+  await page.route(
+    '**/api/configureFromElectionPackageOnUsbDrive',
+    async (route) => {
+      await sleep(4000);
+      await route.continue();
+    }
+  );
   usbHandler.insert(
     await mockElectionPackageFileTree(
-      electionFamousNames2021Fixtures.electionJson.toElectionPackage()
+      fixtureSet.electionJson.toElectionPackage(systemSettings)
     )
   );
-  // [TODO] A screenshot of the "Configuring..." progress screen was previously
-  // generated here, but began failing as it relied on a long-enough delay in
-  // the configuration process, which was recently shortened. Need to figure out
-  // a way to capture the screenshot in a less brittle manner.
+  await page.getByText(/Configuring VxCentralScan/).waitFor();
+  await screenshot('configuring');
+  await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
+  await page.getByText('No ballots have been scanned').waitFor();
 
+  // 4. Settings screen: unconfigure flow and Save Logs. Switch to official
+  // ballot mode here (while there are no batches yet, so no confirmation is
+  // required) so the official ballots we scan below match the scanner mode.
   await page.getByRole('button', { name: 'Settings' }).click();
-  await page.getByText('Official Ballot Mode').click();
+  await page.getByRole('button', { name: 'Unconfigure Machine' }).waitFor();
   await screenshot('em-settings');
-
   await screenshotWithButtonHighlight(
     'Unconfigure Machine',
     'em-settings-unconfigure-machine-button'
@@ -72,39 +150,107 @@ test('screenshots', async ({ page }) => {
     'Delete All Election Data',
     'em-settings-confirm-unconfigure-button'
   );
-  await page.getByText('Cancel').click();
-
+  await page.getByRole('button', { name: 'Cancel' }).click();
   await screenshotWithButtonHighlight(
     'Save Logs',
     'em-settings-save-logs-button'
   );
 
-  await page.getByText('Diagnostics').click();
-  await screenshot('em-partial-diagnostics-screen');
-
-  await withContainerVerticallyExpanded('main', async () => {
-    await screenshot('em-full-diagnostics-screen');
+  const officialModeOption = page.getByRole('option', {
+    name: 'Official Ballot Mode',
   });
+  if ((await officialModeOption.getAttribute('aria-selected')) !== 'true') {
+    await officialModeOption.click();
+    await page
+      .getByRole('option', { name: 'Official Ballot Mode', selected: true })
+      .waitFor();
+  }
 
-  await page.getByText('Scan Ballots').click();
+  // 5. Empty Scan Ballots screen and its call-to-action highlights.
+  await page.getByRole('button', { name: 'Scan Ballots' }).click();
   await page.getByText('No ballots have been scanned').waitFor();
-  await screenshot('em-scan-ballots-empty');
+  await screenshot('scan-ballots-empty');
+  await screenshotWithLocatorHighlight(
+    page.getByText('No ballots have been scanned'),
+    'scan-ballots-empty-no-ballots-highlight'
+  );
+  await screenshotWithButtonHighlight(
+    'Scan New Batch',
+    'scan-ballots-empty-scan-new-batch-button'
+  );
 
-  // Load ballot images into the mock batch scanner via the dev dock API
-  const devDockClient = grout.createClient<DevDockApi>({
-    baseUrl: 'http://127.0.0.1:3001/dock',
-  });
+  // 6. Scan a few counted batches so the Scan Ballots screen has data.
+  await scanCountedBatch([fullPdf]);
+  await scanCountedBatch([fullPdf, fullPdf]);
+  await scanCountedBatch([fullPdf]);
+  await screenshot('scan-ballots-with-batches');
+
+  // 7. Adjudication: scan one batch of problem ballots and capture each eject
+  // state. Each "Confirm Ballot Removed" advances to the next review sheet.
+  // The order the scanner surfaces them in isn't guaranteed, so detect which
+  // state is showing rather than assuming a fixed sequence.
+  await devDockClient.batchScannerClearBallots();
   await devDockClient.batchScannerLoadBallots({
-    paths: [MARKED_BALLOT_PATH],
+    paths: [overvotePdf, blankPdf, undervotePdf, unreadablePath],
   });
+  await page.getByRole('button', { name: 'Scan New Batch' }).click();
 
-  await page.getByText('Scan New Batch').click();
-  await page.getByText('Total Sheets: 1').waitFor();
-  await screenshot('em-scan-ballots-with-batch');
+  const remainingEjectStates = new Map([
+    ['Overvote', 'adjudication-overvote'],
+    ['Blank Ballot', 'adjudication-blank-ballot'],
+    ['Undervote', 'adjudication-undervote'],
+    ['Unreadable', 'adjudication-unreadable'],
+  ]);
+  while (remainingEjectStates.size > 0) {
+    await page.getByText('Ballot Not Counted').waitFor({ timeout: 60000 });
+
+    let shownHeading: string | undefined;
+    for (const heading of remainingEjectStates.keys()) {
+      if (
+        await page
+          .getByRole('heading', { name: heading, exact: true })
+          .isVisible()
+      ) {
+        shownHeading = heading;
+        break;
+      }
+    }
+    /* istanbul ignore next */
+    if (!shownHeading) throw new Error('Unrecognized adjudication state');
+
+    await screenshot(remainingEjectStates.get(shownHeading) as string);
+    remainingEjectStates.delete(shownHeading);
+
+    await page.getByRole('button', { name: 'Confirm Ballot Removed' }).click();
+    // Wait for this state to clear before detecting the next one.
+    await page
+      .getByRole('heading', { name: shownHeading, exact: true })
+      .waitFor({ state: 'hidden', timeout: 60000 });
+  }
+
+  // 8. Back on Scan Ballots with batches present: highlight Save CVRs.
+  await page.getByText('No ballots have been scanned').waitFor({
+    state: 'hidden',
+  });
   await screenshotWithButtonHighlight(
     'Save CVRs',
-    'em-scan-ballots-save-cvrs-button'
+    'scan-ballots-save-cvrs-button'
   );
+
+  // 9. Diagnostics screen (expanded to full height if it overflows).
+  await page.getByRole('button', { name: 'Diagnostics' }).click();
+  await page.getByRole('button', { name: 'Save Readiness Report' }).waitFor();
+  await withContainerVerticallyExpanded('main', async () => {
+    await screenshot('diagnostics-screen');
+  });
+
+  // 10. Save the readiness report to USB and capture the report PDF itself.
+  await page.getByRole('button', { name: 'Save Readiness Report' }).click();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await page
+    .getByRole('heading', { name: 'Readiness Report Saved' })
+    .waitFor({ timeout: 60000 });
+  await captureReadinessReport('readiness-report', screenshotCounter);
 
   usbHandler.cleanup();
 });

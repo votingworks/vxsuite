@@ -19,7 +19,6 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/grout": "workspace:*",
-    "@votingworks/hmpb": "workspace:*",
     "@votingworks/integration-test-utils": "workspace:*",
     "@votingworks/pdi-scanner": "workspace:*",
     "@votingworks/types": "workspace:*",

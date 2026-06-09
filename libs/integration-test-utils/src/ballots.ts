@@ -15,6 +15,8 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
+import { createImageData, writeImageData } from '@votingworks/image-utils';
+import { assertDefined } from '@votingworks/basics';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -122,7 +124,7 @@ export async function renderMarkedBallots(
       [sharedBallotProps],
       'vxf'
     );
-    const [sharedBallotContent] = ballotContents;
+    const sharedBallotContent = assertDefined(ballotContents[0]);
 
     // Mark and render each ballot variant in a single runTasks batch.
     const pdfBytesList = await rendererPool.runTasks(
@@ -157,5 +159,25 @@ export async function renderMarkedBallot(
   spec: MarkedBallotSpec
 ): Promise<string> {
   const [path] = await renderMarkedBallots([spec]);
-  return path;
+  return assertDefined(path);
+}
+
+/**
+ * Writes a blank white PNG to a temp file and returns its path. The mock batch
+ * scanner pairs a single image into a one-sheet batch, and a sheet with no
+ * timing marks or QR code fails ballot interpretation, producing an
+ * `InvalidSheet` with reason `unreadable` — the "Unreadable" eject state.
+ */
+export async function renderUnreadableSheet(): Promise<string> {
+  // Roughly letter-size at the scanner's 200 DPI so the image reads as a
+  // plausible (but uninterpretable) scanned sheet.
+  const width = 1700;
+  const height = 2200;
+  const data = new Uint8ClampedArray(width * height * 4).fill(255);
+  const image = createImageData(data, width, height);
+
+  const tempDir = mkdtempSync(join(tmpdir(), 'unreadable-sheet-'));
+  const outPath = join(tempDir, 'unreadable.png');
+  await writeImageData(outPath, image);
+  return outPath;
 }
