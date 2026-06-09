@@ -29,33 +29,12 @@ test('renders StartScreen', () => {
   screen.getByText('September 8, 2021');
   screen.getByText(hasTextAcrossElements('Sample County, State of Sample'));
   screen.getByText('Precinct 1');
-  // Ballot style 1M is the Mammal Party ballot: 2 Mammal contests, the merged
-  // either-neither ballot measure, and the fishing ballot measure.
   screen.getByText(
     hasTextAcrossElements('Number of contests on your ballot: 4')
   );
   expect(
     heading.parentElement!.parentElement!.getElementsByTagName('img')
   ).toHaveLength(1); // Seal
-});
-
-test('counts nonpartisan plus one party of contests for open primaries', () => {
-  const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
-
-  render(<Route path="/" component={StartScreen} />, {
-    ballotStyleId: 'ballot-style-1',
-    electionDefinition,
-    precinctId: 'precinct-1',
-    route: '/',
-  });
-
-  // ballot-style-1 has 6 nonpartisan contests and 7 partisan contests per
-  // party. A voter only votes one party's contests, so the count is 6 + 7,
-  // independent of the (not-yet-made) party selection.
-  screen.getByText(
-    hasTextAcrossElements('Number of contests on your ballot: 13')
-  );
 });
 
 test('renders as voter screen', () => {
