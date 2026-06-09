@@ -384,6 +384,32 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     }
   }
 
+  /**
+   * Helper for operations that need to unmount all disk partitions first.
+   * Returns the freshly-read disk.
+   */
+  async function unmountAllPartitions(
+    driveDevPath: string
+  ): Promise<UsbDiskDeviceInfo> {
+    const disk = cachedDrives.find((d) => d.devPath === driveDevPath);
+    assert(disk, `Drive not found: ${driveDevPath}`);
+
+    await Promise.all(
+      disk.partitions.map((p) => partitionAction.join(p.devPath))
+    );
+
+    const freshDisk = cachedDrives.find((d) => d.devPath === driveDevPath);
+    assert(freshDisk, `Drive not found: ${driveDevPath}`);
+
+    await Promise.all(
+      iter(freshDisk.partitions)
+        .filterMap((p) => p.mountpoint)
+        .map((mountpoint) => unmountPartition(mountpoint))
+    );
+
+    return freshDisk;
+  }
+
   const watcher = createBlockDeviceChangeWatcher(() => {
     void doRefresh().catch((e) => debug(`background refresh failed: ${e}`));
   });
@@ -402,27 +428,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
       const result = driveAction.perform(driveDevPath, 'ejecting', async () => {
         await logger.logAsCurrentRole(LogEventId.UsbDriveEjectInit);
         try {
-          const disk = cachedDrives.find((d) => d.devPath === driveDevPath);
-          assert(disk, `Drive not found: ${driveDevPath}`);
-
-          // Wait for any in-progress partition mounts to finish. Without this,
-          // a mount that completes after the unmount loop would leave the
-          // partition mounted even though the eject appeared to succeed.
-          await Promise.all(
-            disk.partitions.map((p) => partitionAction.join(p.devPath))
-          );
-
-          // Re-read cachedDrives — mounts may have completed during the wait.
-          const freshDisk = cachedDrives.find(
-            (d) => d.devPath === driveDevPath
-          );
-          assert(freshDisk, `Drive not found: ${driveDevPath}`);
-
-          await Promise.all(
-            iter(freshDisk.partitions)
-              .filterMap((p) => p.mountpoint)
-              .map((mountpoint) => unmountPartition(mountpoint))
-          );
+          await unmountAllPartitions(driveDevPath);
 
           ejectedDrives.add(driveDevPath);
           await doRefresh();
@@ -462,28 +468,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
         async () => {
           await logger.logAsCurrentRole(LogEventId.UsbDriveFormatInit);
           try {
-            const disk = cachedDrives.find((d) => d.devPath === driveDevPath);
-            assert(disk, `Drive not found: ${driveDevPath}`);
-
-            // Wait for any in-progress partition mounts to finish. Without this,
-            // a mount that completes after the unmount loop would leave the
-            // partition mounted even though the format appeared to succeed.
-            await Promise.all(
-              disk.partitions.map((p) => partitionAction.join(p.devPath))
-            );
-
-            // Re-read cachedDrives — mounts may have completed during the wait.
-            const freshDisk = cachedDrives.find(
-              (d) => d.devPath === driveDevPath
-            );
-            assert(freshDisk, `Drive not found: ${driveDevPath}`);
-
-            // Unmount all mounted partitions first
-            await Promise.all(
-              iter(freshDisk.partitions)
-                .filterMap((p) => p.mountpoint)
-                .map((mountpoint) => unmountPartition(mountpoint))
-            );
+            const freshDisk = await unmountAllPartitions(driveDevPath);
 
             // Determine label — reuse existing label if it matches VxUSB pattern
             const label = generateVxUsbLabel(freshDisk.partitions[0]?.label);
