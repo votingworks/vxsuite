@@ -44,7 +44,6 @@ import {
   PrecinctSelection,
   TtsEditEntry,
   PollsTransitionType,
-  safeParseElectionDefinition,
   ElectionDefinition,
   BallotStyle,
   unsafeParse,
@@ -58,8 +57,8 @@ import {
   isPrecinctCount,
   isSplitCounts,
   PrecinctRegisteredVotersCountEntry,
-  electionTypeV4p1ToV4p0,
-  ElectionTypeV4p1,
+  safeParseElectionDefinitionForAnySoftwareVersion,
+  SoftwareVersion,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -84,7 +83,6 @@ import {
   User,
   UserType,
   ElectionStatus,
-  SoftwareVersion,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -1263,7 +1261,9 @@ export class Store {
     }
 
     // Parse the election data
-    const parseResult = safeParseElectionDefinition(row.electionData);
+    const parseResult = safeParseElectionDefinitionForAnySoftwareVersion(
+      row.electionData
+    );
     if (parseResult.isErr()) {
       return err('election-out-of-date');
     }

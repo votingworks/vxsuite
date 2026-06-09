@@ -5,7 +5,7 @@ import {
   ContestId,
   PrecinctId,
   PollsTransitionType,
-  ElectionTypeV4p1,
+  SoftwareVersion,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';

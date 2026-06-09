@@ -20,6 +20,7 @@ import {
   ballotTemplates,
   renderAllBallotPdfsAndCreateElectionDefinition,
   createPlaywrightRendererPool,
+  ElectionSerializationOptions,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import {
@@ -334,12 +335,16 @@ export async function generateElectionPackageAndBallots(
   }
 
   const rendererPool = await createPlaywrightRendererPool();
+  const serializationOptions: ElectionSerializationOptions = {
+    format: electionSerializationFormat,
+    version: jurisdiction.softwareVersion,
+  };
   const { electionDefinition, ballotPdfs } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
-      electionSerializationFormat,
+      serializationOptions,
       emitProgress
     );
   electionPackageZip.file(

@@ -836,8 +836,11 @@ test('getExportedElection returns election-out-of-date error when election data 
   const electionRecord = await store.getElection(electionId);
   assertDefined(electionRecord.lastExportedBallotHash);
 
-  // Mock safeParseElection to return an error, simulating an outdated election schema
-  const safeParseElectionSpy = vi.spyOn(types, 'safeParseElectionDefinition');
+  // Mock parsing to return an error, simulating an outdated election schema
+  const safeParseElectionSpy = vi.spyOn(
+    types,
+    'safeParseElectionDefinitionForAnySoftwareVersion'
+  );
   safeParseElectionSpy.mockReturnValue(err(new Error('Parse error')));
 
   // Try to get the exported election - should fail because parsing fails

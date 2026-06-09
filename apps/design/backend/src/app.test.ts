@@ -20,6 +20,7 @@ import {
   electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
+  electionTwoPartyPrimaryFixtures,
   makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -58,7 +59,8 @@ import {
   PrecinctWithoutSplits,
   PrecinctWithSplits,
   ElectionRegisteredVotersCounts,
-  electionTypeV4p0ToV4p1,
+  ElectionPackageFileName,
+  safeParseElectionDefinitionV4p0,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -67,6 +69,7 @@ import {
   getFeatureFlagMock,
   getFileByName,
   openZip,
+  readTextEntry,
 } from '@votingworks/utils';
 import {
   execFile,
@@ -114,6 +117,7 @@ import {
   ElectionListing,
   ElectionStatus,
   Jurisdiction,
+  JurisdictionUser,
 } from './types';
 import {
   MainExportTaskMetadata,
@@ -4650,6 +4654,84 @@ test('CDF exports', async () => {
   expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
     testDecksBallotHash
   );
+});
+
+test('v4.0 exports', async () => {
+  const v4p0Jurisdiction: Jurisdiction = {
+    ...nonVxJurisdiction,
+    softwareVersion: 'v4.0',
+  };
+  const v4p0User: JurisdictionUser = {
+    ...nonVxUser,
+    jurisdictions: [v4p0Jurisdiction],
+  };
+
+  const baseElectionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions: [v4p0Jurisdiction],
+    users: [v4p0User],
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: v4p0Jurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
+    })
+  ).unsafeUnwrap();
+
+  const exportMeta = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
+  });
+
+  const electionPackageContents = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: v4p0Jurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
+
+  const zipFile = await openZip(electionPackageContents);
+  const entries = getEntries(zipFile);
+  const electionEntry = getFileByName(
+    entries,
+    ElectionPackageFileName.ELECTION
+  );
+  const electionData = await readTextEntry(electionEntry);
+  const exportedElectionDefinition =
+    safeParseElectionDefinitionV4p0(electionData).unsafeUnwrap();
+
+  const testDecksFilePath = await exportTestDecks({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+  });
+
+  const testDecksBallotHash = testDecksFilePath.match(
+    'test-decks-(.*).zip'
+  )![1];
+  expect(formatBallotHash(exportedElectionDefinition.ballotHash)).toEqual(
+    testDecksBallotHash
+  );
+
+  // Live reports should be able to parse the saved exported election
+  // definition, even though it's a previous version
+  (await apiClient.getLiveReportsSummary({ electionId })).unsafeUnwrap();
 });
 
 test('export ballots with audit IDs', async () => {
