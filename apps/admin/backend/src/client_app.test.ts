@@ -286,7 +286,6 @@ test('getBatteryInfo returns battery info', async () => {
 interface MockPeerApi {
   claimAndLoadBallot: ReturnType<typeof vi.fn>;
   releaseBallot: ReturnType<typeof vi.fn>;
-  getBallotAdjudicationData: ReturnType<typeof vi.fn>;
   getBallotImageMetadata: ReturnType<typeof vi.fn>;
   getWriteInCandidates: ReturnType<typeof vi.fn>;
   adjudicateCvr: ReturnType<typeof vi.fn>;
@@ -296,7 +295,6 @@ function connectToMockHost(): { mockPeerApi: MockPeerApi } {
   const mockPeerApi: MockPeerApi = {
     claimAndLoadBallot: vi.fn(),
     releaseBallot: vi.fn(),
-    getBallotAdjudicationData: vi.fn(),
     getBallotImageMetadata: vi.fn(),
     getWriteInCandidates: vi.fn(),
     adjudicateCvr: vi.fn(),
@@ -348,9 +346,6 @@ test('proxy endpoints return host-disconnect error when not connected', async ()
   expect(await env.apiClient.releaseBallot({ cvrId: 'cvr-1' })).toEqual(
     err({ type: 'host-disconnect' })
   );
-  expect(
-    await env.apiClient.getBallotAdjudicationData({ cvrId: 'cvr-1' })
-  ).toEqual(err({ type: 'host-disconnect' }));
   expect(await env.apiClient.getBallotImages({ cvrId: 'cvr-1' })).toEqual(
     err({ type: 'host-disconnect' })
   );
@@ -408,17 +403,6 @@ test('releaseBallot proxies to host peer API', async () => {
   expect(mockPeerApi.releaseBallot).toHaveBeenCalledWith(
     expect.objectContaining({ cvrId: 'cvr-1' })
   );
-});
-
-test('getBallotAdjudicationData proxies to host peer API', async () => {
-  const { mockPeerApi } = connectToMockHost();
-  const mockData = { cvrId: 'cvr-1', contests: [] } as const;
-  mockPeerApi.getBallotAdjudicationData.mockResolvedValue(mockData);
-
-  const result = await env.apiClient.getBallotAdjudicationData({
-    cvrId: 'cvr-1',
-  });
-  expect(result).toEqual(ok(mockData));
 });
 
 test('getBallotImages fetches metadata via grout and binary images via fetch', async () => {

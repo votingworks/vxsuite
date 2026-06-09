@@ -10,7 +10,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
-import { assert, err, ok } from '@votingworks/basics';
+import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   buildTestEnvironment,
@@ -132,7 +132,9 @@ test('write-in adjudication report', async () => {
   }> = [];
   const queue = await apiClient.getBallotAdjudicationQueue();
   for (const cvrId of queue) {
-    const adjData = await apiClient.getBallotAdjudicationData({ cvrId });
+    const adjData = assertDefined(
+      (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap()
+    ).data;
     const contest = adjData.contests.find(
       (c) => c.contestId === writeInContestId
     );

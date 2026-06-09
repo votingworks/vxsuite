@@ -246,14 +246,6 @@ function buildClientApi({
       });
     },
 
-    async getBallotAdjudicationData(input: {
-      cvrId: Id;
-    }): Promise<Result<BallotAdjudicationData, AdjudicationError>> {
-      return proxy('fetch ballot data', async ({ apiClient: peerApi }) =>
-        peerApi.getBallotAdjudicationData({ cvrId: input.cvrId })
-      );
-    },
-
     async claimAndLoadBallot(input: {
       afterCvrId?: Id;
     }): Promise<
