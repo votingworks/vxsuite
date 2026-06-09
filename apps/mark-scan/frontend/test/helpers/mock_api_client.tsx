@@ -21,7 +21,6 @@ import {
   InterpretedBmdPage,
   PollsState,
   PrecinctId,
-  PrecinctSelection,
   SystemSettings,
   DiagnosticType,
   constructElectionKey,
@@ -347,10 +346,8 @@ export function createApiMock() {
       mockApiClient.stopPaperHandlerDiagnostic.expectCallWith().resolves();
     },
 
-    expectSetPrecinctSelection(precinctSelection: PrecinctSelection) {
-      mockApiClient.setPrecinctSelection
-        .expectCallWith({ precinctSelection })
-        .resolves();
+    expectSetPollingPlace(id: string) {
+      mockApiClient.setPollingPlaceId.expectCallWith({ id }).resolves();
     },
 
     expectGetIsAccessibleControllerInputDetected(detected: boolean = true) {

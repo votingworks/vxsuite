@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -14,7 +13,7 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import { getDiskSpaceSummary, pdfToText } from '@votingworks/backend';
+import { getDiskSpaceSummary } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -214,55 +213,6 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   ...(await importActual()),
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
-
-test('saving the readiness report (with precinct selection)', async () => {
-  setPollingPlacesEnabled(false);
-
-  vi.useFakeTimers({
-    shouldAdvanceTime: true,
-    now: reportPrintedTime.getTime(),
-  });
-  await apiClient.addDiagnosticRecord({
-    type: 'mark-scan-accessible-controller',
-    outcome: 'pass',
-  });
-  await apiClient.addDiagnosticRecord({
-    type: 'mark-scan-paper-handler',
-    outcome: 'pass',
-  });
-  vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
-  vi.useRealTimers();
-
-  await configureApp(apiClient, auth, mockUsbDrive);
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
-  const exportResult = await apiClient.saveReadinessReport();
-  expect(exportResult).toEqual(ok(expect.anything()));
-  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.ReadinessReportSaved,
-    {
-      disposition: 'success',
-      message: 'User saved the equipment readiness report to a USB drive.',
-    }
-  );
-
-  const exportPath = exportResult.ok()![0];
-  await expect(exportPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'readiness-report-precinct-selection',
-    failureThreshold: 0.0001,
-  });
-
-  const pdfContents = await pdfToText(exportPath);
-  expect(pdfContents).toContain('VxMarkScan Readiness Report');
-  expect(pdfContents).toContain('Lincoln Municipal General Election');
-  expect(pdfContents).toContain('All Precincts');
-  expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
-  expect(pdfContents).toContain('Connected');
-
-  mockUsbDrive.removeUsbDrive();
-});
 
 test('saving the readiness report', async () => {
   setPollingPlacesEnabled(true);

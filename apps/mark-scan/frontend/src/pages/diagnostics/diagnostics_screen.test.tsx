@@ -12,11 +12,6 @@ import {
 import { assertDefined, ok } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName as Feature,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
-import {
   fireEvent,
   render,
   screen,
@@ -34,8 +29,6 @@ import {
 } from '../../../test/helpers/mock_api_client';
 import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen';
 
-const featureFlagMock = getFeatureFlagMock();
-
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
@@ -46,19 +39,13 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
     provideApi(
       apiMock,
       <MemoryRouter>
-        <DiagnosticsScreen
-          isFeatureEnabled={featureFlagMock.isEnabled}
-          onBackButtonPress={vi.fn()}
-          {...props}
-        />
+        <DiagnosticsScreen onBackButtonPress={vi.fn()} {...props} />
       </MemoryRouter>
     )
   );
 }
 
 beforeEach(() => {
-  featureFlagMock.resetFeatureFlags();
-
   vi.useFakeTimers({
     shouldAdvanceTime: true,
     now: new Date('2022-03-23T11:23:00.000'),
@@ -230,25 +217,7 @@ test('accessible controller diagnostic - fail', async () => {
   );
 });
 
-test('election information (with precinct selection)', async () => {
-  setPollingPlacesEnabled(false);
-
-  apiMock.mockApiClient.getElectionRecord.reset();
-  apiMock.expectGetElectionRecord(electionTwoPartyPrimaryDefinition);
-  apiMock.mockApiClient.getElectionState.reset();
-  apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-
-  renderScreen();
-
-  await screen.findByText(/Example Primary Election/);
-  await screen.findByText(/All Precincts/);
-});
-
 test('election information', async () => {
-  setPollingPlacesEnabled(true);
-
   const { election } = electionTwoPartyPrimaryDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
@@ -412,11 +381,3 @@ test('UPS diagnostic - failing test', async () => {
   userEvent.click(screen.getByText('UPS Is Not Fully Charged'));
   await screen.findByText('Diagnostics');
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

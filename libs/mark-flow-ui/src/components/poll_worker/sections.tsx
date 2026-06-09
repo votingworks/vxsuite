@@ -11,21 +11,16 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import {
-  BooleanEnvironmentVariableName as Feature,
   format,
   getPollsStateName,
   getPollTransitionsFromState,
-  isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import {
   Election,
-  getAllPrecinctsAndSplits,
   pollingPlaceFromElection,
   pollingPlaceMembers,
   PollsState,
-  PrecinctSelection,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
 import { BallotStyleSelect, OnBallotStyleSelect } from './ballot_style_select';
 import { ButtonGrid, VotingSession } from './elements';
 import { UpdatePollsButton } from './update_polls_button';
@@ -83,41 +78,22 @@ export function SectionPollsState(props: SectionPollsStateProps): JSX.Element {
 export interface SectionSessionStartProps {
   election: Election;
   onChooseBallotStyle: OnBallotStyleSelect;
-  pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
+  pollingPlaceId: string;
   disabled?: boolean;
 }
 
 function getConfiguredPrecinctsAndSplits(p: {
   election: Election;
-  pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
+  pollingPlaceId: string;
 }) {
-  if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
-    const selection = assertDefined(p.precinctSelection);
-
-    const all = getAllPrecinctsAndSplits(p.election);
-    if (selection.kind === 'AllPrecincts') return all;
-
-    return all.filter(({ precinct }) => selection.precinctId === precinct.id);
-  }
-
-  assert(!!p.pollingPlaceId);
   const pollingPlace = pollingPlaceFromElection(p.election, p.pollingPlaceId);
-
   return pollingPlaceMembers(p.election, pollingPlace);
 }
 
 export function SectionSessionStart(
   props: SectionSessionStartProps
 ): JSX.Element {
-  const {
-    election,
-    onChooseBallotStyle,
-    pollingPlaceId,
-    precinctSelection,
-    disabled,
-  } = props;
+  const { election, onChooseBallotStyle, pollingPlaceId, disabled } = props;
 
   return (
     <VotingSession>
@@ -127,7 +103,6 @@ export function SectionSessionStart(
         configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
           election,
           pollingPlaceId,
-          precinctSelection,
         })}
         onSelect={onChooseBallotStyle}
         disabled={disabled}

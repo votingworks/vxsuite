@@ -33,7 +33,7 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
-  pollingPlaceId?: string;
+  pollingPlaceId: string;
 }
 
 export function PollWorkerScreen({

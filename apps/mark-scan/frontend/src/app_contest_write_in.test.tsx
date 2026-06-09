@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
@@ -69,10 +68,13 @@ afterEach(() => {
 test('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
+  const precinctId = '23';
+  const pollingPlaceId = `${precinctId}-polling-place`;
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
     isTestMode: false,
   });
@@ -86,7 +88,7 @@ test('Single Seat Contest with Write In', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Go to First Contest
@@ -130,7 +132,7 @@ test('Single Seat Contest with Write In', async () => {
   // Print Screen
   apiMock.expectPrintBallot({
     languageCode: 'en',
-    precinctId: '23',
+    precinctId,
     ballotStyleId: '12',
     votes: {
       [singleSeatContestWithWriteIn.id]: [

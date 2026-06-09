@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { anyPollingPlace } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -32,7 +32,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: anyPollingPlace(electionGeneralDefinition.election).id,
       pollsState: 'polls_open',
     });
 
@@ -55,7 +55,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: anyPollingPlace(electionGeneralDefinition.election).id,
       pollsState: 'polls_open',
     });
 

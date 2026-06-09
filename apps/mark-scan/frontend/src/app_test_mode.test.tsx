@@ -4,8 +4,8 @@ import {
   asElectionDefinition,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { DateWithoutTime } from '@votingworks/basics';
+import { anyPollingPlace } from '@votingworks/types';
 import { render, screen, waitFor } from '../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -35,7 +35,7 @@ test('Prompts to change from test mode to live mode on election day', async () =
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     isTestMode: true,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
   render(<App apiClient={apiMock.mockApiClient} />);
 

@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import React from 'react';
+import { anyPollingPlace } from '@votingworks/types';
 import { electionDefinition } from '../test/helpers/election';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -13,13 +12,13 @@ import { BallotContext } from './contexts/ballot_context';
 import { StartScreen } from './pages/start_screen';
 import { JAM_CLEARED_STATES } from './pages/replace_jammed_sheet_screen';
 
-const electionGeneralDefinition = readElectionGeneralDefinition();
-
 vi.mock(import('./pages/jam_cleared_page.js'));
 vi.mock(import('./pages/jammed_page.js'));
 vi.mock(import('./pages/start_screen.js'));
 
 let apiMock: ApiMock;
+
+const pollingPlace = anyPollingPlace(electionDefinition.election);
 
 beforeEach(() => {
   vi.useFakeTimers({
@@ -30,7 +29,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
   });
   apiMock.expectGetSystemSettings();
 });
@@ -44,12 +43,10 @@ vi.setConfig({
 });
 
 test('`jammed` state renders jam page', async () => {
-  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(
-    electionGeneralDefinition
-  );
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
   apiMock.mockApiClient.getElectionState.reset();
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
   });
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
@@ -80,9 +77,7 @@ test('`jammed` state renders jam page', async () => {
 });
 
 test('`jam_cleared` state renders jam cleared page', async () => {
-  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(
-    electionGeneralDefinition
-  );
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
   apiMock.setPaperHandlerState('jam_cleared');
 
   const authStatus = await apiMock.mockApiClient.getAuthStatus();
@@ -129,7 +124,7 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.mockApiClient.getElectionState.reset();
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
   });
 
@@ -146,7 +141,7 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.mockApiClient.getElectionState.reset();
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_open',
   });
 
@@ -227,7 +222,7 @@ test.each(ballotCastPageTestSpecs)(
   async ({ state }) => {
     apiMock.mockApiClient.getElectionState.reset();
     apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollingPlaceId: pollingPlace.id,
       pollsState: 'polls_open',
       isTestMode: false,
     });

@@ -1,14 +1,10 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
 import {
-  singlePrecinctSelectionFor,
-  ALL_PRECINCTS_SELECTION,
-} from '@votingworks/utils';
-import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId } from '@votingworks/types';
+import { BallotStyleId, PollingPlace } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 
@@ -42,15 +38,16 @@ function mockLoadPaper() {
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 }
 
-const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
-
 test('Cardless Voting Flow', async () => {
   const electionDefinition = readElectionGeneralDefinition();
+  const precinctId = '23';
+  const pollingPlaceId = `${precinctId}-polling-place`;
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -78,7 +75,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Load Ballot Sheet');
@@ -106,7 +103,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   mockLoadPaper();
@@ -114,7 +111,7 @@ test('Cardless Voting Flow', async () => {
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Voter Ballot Style is active
@@ -130,7 +127,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Voting Session Paused');
@@ -158,7 +155,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId,
     },
   });
   await screen.findByText('Remove Card to Begin Voting Session');
@@ -167,7 +164,7 @@ test('Cardless Voting Flow', async () => {
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId,
   });
 
   // Voter Ballot Style is active
@@ -191,7 +188,7 @@ test('Cardless Voting Flow', async () => {
   // Advance to print ballot
   apiMock.expectPrintBallot({
     languageCode: 'en',
-    precinctId: '23',
+    precinctId,
     ballotStyleId: '12',
     votes: {
       president: [presidentContest.candidates[0]],
@@ -220,13 +217,32 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Insert Card');
 });
 
-test('in "All Precincts" mode, poll worker must select a precinct', async () => {
+test('in multi-precinct location, poll worker must select a precinct', async () => {
   const electionDefinition = readElectionGeneralDefinition();
+  const { election } = electionDefinition;
+  const [precinct0, precinct1] = election.precincts;
+
+  const multiPrecinctLocation: PollingPlace = {
+    id: 'multi-precinct-polling-place',
+    name: 'Springfield Community Center',
+    type: 'election_day',
+    precincts: {
+      [precinct0.id]: { type: 'whole' },
+      [precinct1.id]: { type: 'whole' },
+    },
+  };
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionRecord({
+    ...electionDefinition,
+    election: {
+      ...election,
+      pollingPlaces: [...(election.pollingPlaces ?? []), multiPrecinctLocation],
+    },
+  });
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: multiPrecinctLocation.id,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -249,7 +265,7 @@ test('in "All Precincts" mode, poll worker must select a precinct', async () => 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId: precinct0.id,
     },
   });
   await screen.findByText('Load Ballot Sheet');
@@ -257,11 +273,14 @@ test('in "All Precincts" mode, poll worker must select a precinct', async () => 
 
 test('selecting a precinct split', async () => {
   const electionDefinition = readElectionGeneralDefinition();
+  const precinctId = '21';
+  const pollingPlaceId = `${precinctId}-polling-place`;
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -284,7 +303,7 @@ test('selecting a precinct split', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '5',
-      precinctId: '21',
+      precinctId,
     },
   });
 
@@ -293,7 +312,7 @@ test('selecting a precinct split', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '5',
-      precinctId: '21',
+      precinctId,
     },
   });
   await screen.findByText('Remove Card to Begin Voting Session');
@@ -304,7 +323,7 @@ test('selecting a precinct split', async () => {
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '5',
-    precinctId: '21',
+    precinctId,
   });
   // Voter Ballot Style is active
   screen.getByText('North Springfield - Split 1');
@@ -313,17 +332,20 @@ test('selecting a precinct split', async () => {
 test('primary election', async () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const precinctId = 'precinct-c2';
+  const pollingPlaceId = `${precinctId}-polling-place`;
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId,
     pollsState: 'polls_open',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
   const expectedCardlessVoterArgs = {
     ballotStyleId: '3-Ma_en' as BallotStyleId,
-    precinctId: 'precinct-c2',
+    precinctId,
   } as const;
 
   await screen.findByText('Insert Card');

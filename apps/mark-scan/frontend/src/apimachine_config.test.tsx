@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { anyPollingPlace } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -29,7 +29,7 @@ test('machineConfig is fetched from api client by default', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
   render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();

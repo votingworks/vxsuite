@@ -35,7 +35,6 @@ export async function saveReadinessReport({
   const generatedAtTime = new Date(getCurrentTime());
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
-  const precinctSelection = store.getPrecinctSelection();
   const pollingPlaceId = store.getPollingPlaceId();
   const isControllerDaemonRunning = await isAccessibleControllerDaemonRunning(
     workspace.path,
@@ -88,7 +87,6 @@ export async function saveReadinessReport({
     generatedAtTime,
     electionDefinition,
     electionPackageHash,
-    precinctSelection,
     pollingPlaceId,
   });
   // Readiness report PDF shouldn't be too long, so we don't expect a render error

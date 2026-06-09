@@ -2,12 +2,13 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { anyPollingPlace } from '@votingworks/types';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
+const pollingPlace = anyPollingPlace(electionGeneralDefinition.election);
 
 let apiMock: ApiMock;
 
@@ -35,7 +36,7 @@ test('full polls flow', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_closed_initial',
   });
   const { renderApp } = buildApp(apiMock);
@@ -110,7 +111,7 @@ test('can close from paused', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_paused',
   });
 
@@ -139,7 +140,7 @@ test('no buttons to change polls from closed final', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_closed_final',
   });
 
@@ -164,7 +165,7 @@ test('can reset polls to paused with system administrator card', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: pollingPlace.id,
     pollsState: 'polls_closed_final',
   });
 
