@@ -140,7 +140,7 @@ export class MockFilePrinter implements Printer {
     // and overwrite each other when they land in the same millisecond.
     const filename = join(
       getMockPrinterOutputPath(),
-      `print-job-${new Date().toISOString()}-${randomUUID().slice(0, 12)}.pdf`
+      `print-job-${new Date().toISOString()}-${randomUUID().split('-')[0]}.pdf`
     );
 
     if (sides === PrintSides.OneSided) {
