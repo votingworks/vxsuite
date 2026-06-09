@@ -66,12 +66,14 @@ test('mock file printer', async () => {
   const printFiles = readdirSync(filePrinterHandler.getDataPath());
   expect(printFiles).toEqual(
     expect.arrayContaining([
-      'print-job-2021-01-01T00:00:00.000Z.pdf',
-      'print-job-2021-01-01T00:00:01.000Z.pdf',
+      expect.stringMatching(/^print-job-2021-01-01T00:00:00\.000Z-.*\.pdf$/),
+      expect.stringMatching(/^print-job-2021-01-01T00:00:01\.000Z-.*\.pdf$/),
     ])
   );
-  expect(filePrinterHandler.getLastPrintPath()).toEqual(
-    `${MOCK_PRINTER_OUTPUT_DIR}/print-job-2021-01-01T00:00:01.000Z.pdf`
+  expect(filePrinterHandler.getLastPrintPath()).toMatch(
+    new RegExp(
+      `^${MOCK_PRINTER_OUTPUT_DIR}/print-job-2021-01-01T00:00:01\\.000Z-.*\\.pdf$`
+    )
   );
 
   expect(readFileSync(filePrinterHandler.getLastPrintPath()!, 'utf-8')).toEqual(
