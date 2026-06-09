@@ -1,14 +1,20 @@
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import {
+  generateMarkOverlay,
+  msGeneralElectionFixtures,
+} from '@votingworks/hmpb';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { BatteryInfo, mockElectionPackageFileTree } from '@votingworks/backend';
 import {
+  ballotPaperDimensions,
   BallotType,
   DEV_MACHINE_ID,
   EncodedBallotEntry,
   ElectionDefinition,
+  HmpbBallotPaperSize,
   LanguageCode,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
@@ -23,6 +29,7 @@ import {
 import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
+  generateTestDeckBallots,
   getFeatureFlagMock,
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -31,6 +38,7 @@ import {
 import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
+  renderToPdf,
 } from '@votingworks/printing';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
@@ -46,13 +54,30 @@ import { Api } from './app';
 import { Workspace } from './util/workspace';
 
 const mockFeatureFlagger = getFeatureFlagMock();
+const EXPECTED_TALLY_REPORT_PAGES = 1;
 
 let batteryInfo: BatteryInfo | null = null;
+
+vi.mock(
+  import('@votingworks/hmpb'),
+  async (importActual): Promise<typeof import('@votingworks/hmpb')> => ({
+    ...(await importActual()),
+    generateMarkOverlay: vi.fn().mockResolvedValue(new Uint8Array()),
+  })
+);
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
+
+vi.mock(
+  import('@votingworks/printing'),
+  async (importActual): Promise<typeof import('@votingworks/printing')> => ({
+    ...(await importActual()),
+    renderToPdf: vi.fn().mockResolvedValue(ok(new Uint8Array())),
+  })
+);
 
 vi.mock(
   import('@votingworks/backend'),
@@ -177,6 +202,10 @@ test('uses default machine config if not set', async () => {
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
   });
+});
+
+test('getSystemSettings returns defaults when no election is configured', async () => {
+  expect(await apiClient.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
 test('getDeviceStatuses and ejectUsbDrive', async () => {
@@ -978,3 +1007,299 @@ test('getDistinctBallotStylesCount returns correct counts in official and test m
     famousNamesMultiLangElectionDefinition.election.ballotStyles.length
   );
 });
+
+// Build ballot entries for every (ballotStyleId, precinctId) combination in
+// the election. buildBallotsForElection only covers precincts[0] per style,
+// which misses multi-precinct ballot styles.
+async function buildAllBallotsForElection(
+  electionDefinition: ElectionDefinition,
+  ballotModes: ReadonlyArray<'official' | 'test'>
+): Promise<EncodedBallotEntry[]> {
+  const { election } = electionDefinition;
+  const pdfBase64s = await (async () => {
+    // Reuse the same ballot PDFs as buildBallotsForElection
+    const { resolve, join } = await import('node:path');
+    const baseDir = resolve(
+      process.cwd(),
+      '../../../libs/hmpb/fixtures/vx-famous-names'
+    );
+    const pdfs = await Promise.all([
+      readFile(join(baseDir, 'blank-ballot.pdf')),
+      readFile(join(baseDir, 'marked-ballot.pdf')),
+      readFile(join(baseDir, 'blank-official-ballot.pdf')),
+      readFile(join(baseDir, 'marked-official-ballot.pdf')),
+    ]);
+    return pdfs.map((p) => p.toString('base64'));
+  })();
+
+  const entries: EncodedBallotEntry[] = [];
+  let index = 0;
+  for (const ballotStyle of election.ballotStyles) {
+    for (const precinctId of ballotStyle.precincts) {
+      const encodedBallot = pdfBase64s[index % pdfBase64s.length];
+      index += 1;
+      for (const ballotMode of ballotModes) {
+        entries.push(
+          {
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            ballotType: BallotType.Precinct,
+            ballotMode,
+            encodedBallot,
+          },
+          {
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            ballotType: BallotType.Absentee,
+            ballotMode,
+            encodedBallot,
+          }
+        );
+      }
+    }
+  }
+  return entries;
+}
+
+async function makeMsElectionDefinition(): Promise<ElectionDefinition> {
+  return safeParseElectionDefinition(
+    await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
+  ).unsafeUnwrap();
+}
+
+test('getTestDeckBallotCount returns 0 when election has no gridLayouts', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  expect(await apiClient.getTestDeckBallotCount({})).toEqual(0);
+});
+
+test('getTestDeckBallotCount returns total number of test deck specs across all precincts', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+    'test',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  const { election } = msElectionDef;
+  const allSpecs = election.precincts.flatMap((precinct) =>
+    generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      ballotFormat: 'bubble',
+    })
+  );
+  expect(await apiClient.getTestDeckBallotCount({})).toEqual(allSpecs.length);
+});
+
+test('getTestDeckBallotCount returns count for a single precinct when precinctId is provided', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+    'test',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  const { election } = msElectionDef;
+  const precinct = assertDefined(election.precincts[0]);
+
+  const precinctSpecs = generateTestDeckBallots({
+    election,
+    precinctId: precinct.id,
+    ballotFormat: 'bubble',
+  });
+  expect(
+    await apiClient.getTestDeckBallotCount({ precinctId: precinct.id })
+  ).toEqual(precinctSpecs.length);
+});
+
+test('printTestDeck sends one print job per spec and calls generateMarkOverlay only for non-blank ballots', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+    'test',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setTestMode({ testMode: true });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  const { election } = msElectionDef;
+  const allSpecs = election.precincts.flatMap((precinct) =>
+    generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      ballotFormat: 'bubble',
+    })
+  );
+  const nonBlankSpecCount = allSpecs.filter(
+    (spec) => Object.keys(spec.votes).length > 0
+  ).length;
+
+  vi.mocked(generateMarkOverlay).mockClear();
+  await apiClient.printTestDeck({});
+  const jobs = mockPrinterHandler.getPrintJobHistory();
+  expect(jobs.length).toEqual(allSpecs.length + EXPECTED_TALLY_REPORT_PAGES);
+  expect(vi.mocked(generateMarkOverlay)).toHaveBeenCalledTimes(
+    nonBlankSpecCount
+  );
+});
+
+test('printTestDeck prints only the given precinct and a precinct-specific tally report when precinctId is provided', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+    'test',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setTestMode({ testMode: true });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  const { election } = msElectionDef;
+  const precinct = assertDefined(election.precincts[0]);
+
+  const precinctSpecs = generateTestDeckBallots({
+    election,
+    precinctId: precinct.id,
+    ballotFormat: 'bubble',
+  });
+
+  await apiClient.printTestDeck({ precinctId: precinct.id });
+  const jobs = mockPrinterHandler.getPrintJobHistory();
+  expect(jobs.length).toEqual(
+    precinctSpecs.length + EXPECTED_TALLY_REPORT_PAGES
+  );
+});
+
+test('getTestDeckBallotCount returns 0 when no election is configured', async () => {
+  expect(await apiClient.getTestDeckBallotCount({})).toEqual(0);
+});
+
+test('count and print exclude specs with no matching stored ballot', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  // Store only official-mode ballots...
+  const officialOnlyBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: officialOnlyBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  // ...but put the machine in test mode, so no spec has a matching ballot.
+  await apiClient.setTestMode({ testMode: true });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  expect(await apiClient.getTestDeckBallotCount({})).toEqual(0);
+
+  await apiClient.printTestDeck({});
+  // Only the tally report prints; every ballot spec is filtered out.
+  expect(mockPrinterHandler.getPrintJobHistory().length).toEqual(
+    EXPECTED_TALLY_REPORT_PAGES
+  );
+});
+
+test('printTestDeck works in official ballot mode', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  const msBallots = await buildAllBallotsForElection(msElectionDef, [
+    'official',
+  ]);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  const { election } = msElectionDef;
+  const allSpecs = election.precincts.flatMap((precinct) =>
+    generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      ballotFormat: 'bubble',
+    })
+  );
+
+  await apiClient.printTestDeck({});
+  const jobsAfter = mockPrinterHandler.getPrintJobHistory().length;
+  expect(jobsAfter).toEqual(allSpecs.length + EXPECTED_TALLY_REPORT_PAGES);
+});
+
+test.each([
+  HmpbBallotPaperSize.Letter,
+  HmpbBallotPaperSize.Legal,
+  HmpbBallotPaperSize.Custom17,
+  HmpbBallotPaperSize.Custom18,
+  HmpbBallotPaperSize.Custom19,
+  HmpbBallotPaperSize.Custom20,
+  HmpbBallotPaperSize.Custom22,
+])(
+  'printTestDeck tally report uses correct paper dimensions for %s election',
+  async (paperSize) => {
+    const electionJson = JSON.parse(
+      await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
+    );
+    electionJson.ballotLayout.paperSize = paperSize;
+    const electionDef = safeParseElectionDefinition(
+      JSON.stringify(electionJson)
+    ).unsafeUnwrap();
+
+    const ballots = await buildAllBallotsForElection(electionDef, ['test']);
+    await configureMachine({
+      electionDefinition: electionDef,
+      ballots,
+      apiClient,
+      auth,
+      mockUsbDrive,
+    });
+    await apiClient.setTestMode({ testMode: true });
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+    vi.mocked(renderToPdf).mockClear();
+    await apiClient.printTestDeck({});
+
+    expect(vi.mocked(renderToPdf)).toHaveBeenCalledOnce();
+    expect(vi.mocked(renderToPdf).mock.calls[0][0]).toMatchObject({
+      paperDimensions: ballotPaperDimensions(paperSize),
+    });
+  }
+);
