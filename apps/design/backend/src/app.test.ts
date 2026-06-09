@@ -61,6 +61,7 @@ import {
   ElectionRegisteredVotersCounts,
   ElectionPackageFileName,
   safeParseElectionDefinitionV4p0,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -3280,13 +3281,15 @@ test('open primary elections', async () => {
   ).toEqual('open-primary');
 
   // Cloning an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
-  await expect(
-    apiClient.cloneElection({
-      electionId,
-      destElectionId: 'should-fail',
-      destJurisdictionId: nonVxJurisdiction.id,
-    })
-  ).rejects.toThrow('Open primary');
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.cloneElection({
+        electionId,
+        destElectionId: 'should-fail',
+        destJurisdictionId: nonVxJurisdiction.id,
+      })
+    ).rejects.toThrow('Open primary')
+  );
 });
 
 test('Election package management', async () => {
@@ -3962,7 +3965,7 @@ test('Election package and ballots export', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf',
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     expect.any(Function) // emitProgress callback
   );
 });
@@ -4148,7 +4151,7 @@ test('export omits optional ballots if not enabled', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf',
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     expect.any(Function) // emitProgress callback
   );
 });
@@ -4295,7 +4298,7 @@ test('Export test decks', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf',
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     expect.any(Function) // emitProgress callback
   );
 
@@ -4801,7 +4804,7 @@ test('export ballots with audit IDs', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf',
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     expect.any(Function) // emitProgress callback
   );
 });
@@ -4965,7 +4968,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     expect.any(Object), // Renderer
     ballotTemplates.NhBallot,
     expect.any(Array), // Ballot props
-    'vxf',
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     expect.any(Function) // emitProgress callback
   );
   expect(
