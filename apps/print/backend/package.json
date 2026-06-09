@@ -35,6 +35,7 @@
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",

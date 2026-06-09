@@ -4,6 +4,7 @@ import express, { Application } from 'express';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
+  ballotPaperDimensions,
   DiagnosticRecord,
   ElectionDefinition,
   ElectionPackageConfigurationError,
@@ -14,6 +15,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   pollingPlaceFromElection,
+  PrecinctId,
+  Election,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -22,9 +25,21 @@ import {
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
 } from '@votingworks/backend';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  generateTestDeckBallots,
+  generateTestDeckCastVoteRecords,
+  getTallyReportResults,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
-import { PrintProps, PrintSides } from '@votingworks/printing';
+import {
+  cleanupCachedBrowser,
+  PrintProps,
+  PrintSides,
+  renderToPdf,
+} from '@votingworks/printing';
+import { AdminTallyReportByParty } from '@votingworks/ui';
+import { generateMarkOverlay } from '@votingworks/hmpb';
 import { AppContext } from './context';
 import { constructAuthMachineState } from './util/auth';
 import {
@@ -36,6 +51,14 @@ import { saveReadinessReport } from './reports/readiness';
 import { BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
+import { getCurrentTime } from './util/get_current_time';
+
+type TestDeckBallotSpec = ReturnType<typeof generateTestDeckBallots>[number];
+
+interface TestDeckBallotToPrint {
+  spec: TestDeckBallotSpec;
+  ballot: BallotPrintEntry;
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: AppContext) {
@@ -51,6 +74,34 @@ export function buildApi(ctx: AppContext) {
       size: electionDefinition.election.ballotLayout.paperSize,
       sides: PrintSides.TwoSidedLongEdge,
     });
+  }
+
+  // Generates the test deck ballot specs for the given precincts and keeps only
+  // those that have a corresponding ballot in the store.
+  // Used both to count the ballots that will print and to print them, so the
+  // two always agree.
+  function getTestDeckBallotsToPrint(
+    election: Election,
+    precinctIds: PrecinctId[]
+  ): TestDeckBallotToPrint[] {
+    return precinctIds
+      .flatMap((precinctId) =>
+        generateTestDeckBallots({
+          election,
+          precinctId,
+          ballotFormat: 'bubble',
+        })
+      )
+      .map((spec) => ({
+        spec,
+        ballot: store.getBallot({
+          ballotStyleId: spec.ballotStyleId,
+          precinctId: spec.precinctId,
+          ballotType: BallotType.Precinct,
+          ballotMode: 'test',
+        }),
+      }))
+      .filter((entry): entry is TestDeckBallotToPrint => entry.ballot !== null);
   }
 
   const methods = {
@@ -475,6 +526,99 @@ export function buildApi(ctx: AppContext) {
 
     async saveReadinessReport(): Promise<ExportDataResult> {
       return saveReadinessReport({ workspace, printer, usbDrive, logger });
+    },
+
+    getTestDeckBallotCount(input: { precinctId?: PrecinctId }): number {
+      const electionRecord = store.getElectionRecord();
+      if (!electionRecord) {
+        return 0;
+      }
+      const { election } = electionRecord.electionDefinition;
+      if (!election.gridLayouts) {
+        return 0;
+      }
+
+      const precinctIds = input.precinctId
+        ? [input.precinctId]
+        : election.precincts.map((precinct) => precinct.id);
+
+      return getTestDeckBallotsToPrint(election, precinctIds).length;
+    },
+
+    async printTestDeck(input: { precinctId?: PrecinctId }): Promise<void> {
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
+      const { election } = electionDefinition;
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        message: 'Attempting to print test deck',
+        disposition: 'success',
+      });
+
+      const { precinctId } = input;
+      const precinctIds = precinctId
+        ? [precinctId]
+        : election.precincts.map((precinct) => precinct.id);
+
+      const ballotsToPrint = getTestDeckBallotsToPrint(election, precinctIds);
+      for (const { spec, ballot } of ballotsToPrint) {
+        const basePdf = Uint8Array.from(
+          Buffer.from(ballot.encodedBallot, 'base64')
+        );
+        const hasVotes = Object.keys(spec.votes).length > 0;
+        const markedPdf = hasVotes
+          ? await generateMarkOverlay(
+              election,
+              spec.ballotStyleId,
+              spec.votes,
+              { offsetMmX: 0, offsetMmY: 0 },
+              basePdf
+            )
+          : basePdf;
+        await printBallots(electionDefinition, {
+          data: Buffer.from(markedPdf),
+          copies: 1,
+        });
+      }
+
+      const allCvrs = generateTestDeckCastVoteRecords(election, {
+        includeSummaryBallots: false,
+      });
+      const cvrs = precinctId
+        ? allCvrs.filter((cvr) => cvr.precinctId === precinctId)
+        : allCvrs;
+      const tallyReportResults = await getTallyReportResults(
+        election,
+        cvrs,
+        precinctId
+      );
+      const precinctName = precinctId
+        ? election.precincts.find((p) => p.id === precinctId)?.name
+        : undefined;
+      try {
+        const tallyReportPdf = (
+          await renderToPdf({
+            document: AdminTallyReportByParty({
+              electionDefinition,
+              electionPackageHash: undefined,
+              title: precinctName,
+              isOfficial: false,
+              isTest: true,
+              isForLogicAndAccuracyTesting: true,
+              testId: 'vxprint-test-deck-tally-report',
+              tallyReportResults,
+              generatedAtTime: new Date(getCurrentTime()),
+            }),
+            paperDimensions: ballotPaperDimensions(
+              election.ballotLayout.paperSize
+            ),
+          })
+        ).unsafeUnwrap();
+        await printBallots(electionDefinition, {
+          data: Buffer.from(tallyReportPdf),
+          copies: 1,
+        });
+      } finally {
+        await cleanupCachedBrowser();
+      }
     },
   } as const;
 
