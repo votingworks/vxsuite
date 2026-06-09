@@ -395,17 +395,20 @@ export function arbitraryBallotStyle({
   groupId = arbitraryBallotStyleGroupId(),
   districtIds = fc.array(arbitraryDistrictId()),
   precinctIds = fc.array(arbitraryPrecinctId()),
+  partyId = fc.constant(undefined),
 }: {
   id?: fc.Arbitrary<BallotStyle['id']>;
   groupId?: fc.Arbitrary<BallotStyle['groupId']>;
   districtIds?: fc.Arbitrary<Array<District['id']>>;
   precinctIds?: fc.Arbitrary<Array<Precinct['id']>>;
+  partyId?: fc.Arbitrary<PartyId | undefined>;
 } = {}): fc.Arbitrary<BallotStyle> {
   return fc.record({
     id,
     groupId,
     districts: districtIds,
     precincts: precinctIds,
+    partyId,
   });
 }
 
@@ -449,6 +452,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
   return (
     fc
       .record({
+        type: fc.constantFrom(...ELECTION_TYPES),
         districts: fc
           .array(arbitraryDistrict(), { minLength: 1 })
           .filter(hasUniqueIds),
@@ -457,10 +461,11 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           .filter(hasUniqueIds),
         parties: fc.array(arbitraryParty()).filter(hasUniqueIds),
       })
-      .chain(({ districts, precincts, parties }) =>
+      .filter(({ type, parties }) => type === 'general' || parties.length > 0)
+      .chain(({ type, districts, precincts, parties }) =>
         fc.record<Election>({
           id: arbitraryElectionId(),
-          type: fc.constantFrom(...ELECTION_TYPES),
+          type: fc.constant(type),
           title: fc.string({ minLength: 1 }),
           county: arbitraryCounty(),
           state: fc.string({ minLength: 2, maxLength: 2 }),
@@ -489,6 +494,10 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
                 precinctIds: fc
                   .shuffledSubarray(precincts, { minLength: 1 })
                   .map((values) => values.map(({ id }) => id)),
+                partyId:
+                  type === 'closed-primary'
+                    ? fc.constantFrom(...parties.map(({ id }) => id))
+                    : fc.constant(undefined),
               }),
               { minLength: 1 }
             )
