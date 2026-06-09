@@ -2,17 +2,12 @@ import util from 'node:util';
 
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName as Feature,
-  isCardlessVoterAuth,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { isCardlessVoterAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
-  PrecinctSelection,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,
 } from '@votingworks/types';
@@ -76,15 +71,9 @@ export function setUpBarcodeActivation(ctx: Context): void {
 
     const electionRecord = ctx.workspace.store.getElectionRecord();
     const pollsState = ctx.workspace.store.getPollsState();
-    const precinctSelection = ctx.workspace.store.getPrecinctSelection();
     const pollingPlaceId = ctx.workspace.store.getPollingPlaceId();
 
-    const { ENABLE_POLLING_PLACES } = Feature;
-    const pollingPlacesEnabled = isFeatureFlagEnabled(ENABLE_POLLING_PLACES);
-
-    const locationConfigured = pollingPlacesEnabled
-      ? !!pollingPlaceId
-      : !!precinctSelection;
+    const locationConfigured = !!pollingPlaceId;
 
     if (!electionRecord || pollsState !== 'polls_open' || !locationConfigured) {
       return ctx.logger.logAsCurrentRole(LogEventId.Info, {
@@ -108,9 +97,10 @@ export function setUpBarcodeActivation(ctx: Context): void {
     }
 
     const { election } = electionRecord.electionDefinition;
-    const { ballotStyle, precinctId } = pollingPlacesEnabled
-      ? ballotStyleForPollingPlace(election, pollingPlaceId)
-      : ballotStyleForPrecinctSelection(election, precinctSelection);
+    const { ballotStyle, precinctId } = ballotStyleForPollingPlace(
+      election,
+      pollingPlaceId
+    );
 
     void ctx.logger.logAsCurrentRole(LogEventId.Info, {
       ballotStyleId: ballotStyle.id,
@@ -159,26 +149,6 @@ export function setUpBarcodeActivation(ctx: Context): void {
   ctx.logger.log(LogEventId.Info, 'system', {
     message: 'listening for barcode scans...',
   });
-}
-
-function ballotStyleForPrecinctSelection(
-  election: Election,
-  selection?: PrecinctSelection
-) {
-  assert(!!selection);
-  const ballotStyle = find(
-    election.ballotStyles,
-    (b) =>
-      selection.kind === 'AllPrecincts' ||
-      b.precincts.includes(selection.precinctId)
-  );
-
-  const precinctId =
-    selection.kind === 'AllPrecincts'
-      ? ballotStyle.precincts[0]
-      : selection.precinctId;
-
-  return { ballotStyle, precinctId };
 }
 
 function ballotStyleForPollingPlace(election: Election, placeId?: string) {
