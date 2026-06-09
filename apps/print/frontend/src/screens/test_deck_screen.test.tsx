@@ -51,7 +51,7 @@ function renderScreen() {
   return render(
     <ApiMockProvider apiMock={apiMock}>
       <MemoryRouter initialEntries={['/print']}>
-        <TestDeckScreen isElectionManagerAuth />
+        <TestDeckScreen />
       </MemoryRouter>
     </ApiMockProvider>
   );
@@ -65,20 +65,20 @@ test('renders the precinct selector and both test deck buttons', async () => {
   mockBaseQueries();
   renderScreen();
 
-  await screen.findByText('Print Test Deck');
-  expect(getButton('Print test deck for all precincts')).toBeInTheDocument();
-  expect(getButton('Print test deck for precinct')).toBeInTheDocument();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+  expect(getButton('Print All Test Decks')).toBeInTheDocument();
+  expect(getButton('Print Precinct Test Deck')).toBeInTheDocument();
 });
 
 test('prints a test deck for all precincts', async () => {
   mockBaseQueries();
   renderScreen();
-  await screen.findByText('Print Test Deck');
+  await screen.findByRole('heading', { name: 'Test Decks' });
 
   apiMock.getTestDeckBallotCount
     .expectRepeatedCallsWith({ precinctId: undefined })
     .resolves(20);
-  userEvent.click(getButton('Print test deck for all precincts'));
+  userEvent.click(getButton('Print All Test Decks'));
 
   await screen.findByText('Print 20 test deck ballots and tally report?');
 
@@ -91,15 +91,17 @@ test('prints a test deck for all precincts', async () => {
 test('prints a test deck for the selected precinct', async () => {
   mockBaseQueries();
   renderScreen();
-  await screen.findByText('Print Test Deck');
+  await screen.findByRole('heading', { name: 'Test Decks' });
 
-  // Defaults to the first precinct in the election.
-  const precinctId = election.precincts[0].id;
+  // Select the first precinct in the list.
+  const precinct = election.precincts[0];
+  userEvent.click(screen.getByText(precinct.name));
+  const precinctId = precinct.id;
 
   apiMock.getTestDeckBallotCount
     .expectRepeatedCallsWith({ precinctId })
     .resolves(5);
-  userEvent.click(getButton('Print test deck for precinct'));
+  userEvent.click(getButton('Print Precinct Test Deck'));
 
   await screen.findByText('Print 5 test deck ballots and tally report?');
 
@@ -112,12 +114,12 @@ test('prints a test deck for the selected precinct', async () => {
 test('Cancel closes the confirm modal without printing', async () => {
   mockBaseQueries();
   renderScreen();
-  await screen.findByText('Print Test Deck');
+  await screen.findByRole('heading', { name: 'Test Decks' });
 
   apiMock.getTestDeckBallotCount
     .expectRepeatedCallsWith({ precinctId: undefined })
     .resolves(20);
-  userEvent.click(getButton('Print test deck for all precincts'));
+  userEvent.click(getButton('Print All Test Decks'));
 
   await screen.findByText('Print 20 test deck ballots and tally report?');
   userEvent.click(getButton('Cancel'));
@@ -131,7 +133,7 @@ test('disables both buttons when the printer is not connected', async () => {
   mockBaseQueries({ printerConnected: false });
   renderScreen();
 
-  await screen.findByText('Print Test Deck');
-  expect(getButton('Print test deck for all precincts')).toBeDisabled();
-  expect(getButton('Print test deck for precinct')).toBeDisabled();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+  expect(getButton('Print All Test Decks')).toBeDisabled();
+  expect(getButton('Print Precinct Test Deck')).toBeDisabled();
 });
