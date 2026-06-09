@@ -11,6 +11,7 @@ process.env['NODE_ENV'] = 'production';
 export default defineIntegrationTestPlaywrightConfig({
   viewport: { width: 1920, height: 1080 },
   // Generous timeout: this suite renders several marked ballots in Chromium and
-  // scans multiple batches (including interpretation of adjudication sheets).
-  timeout: 180_000,
+  // scans large batches plus adjudication and diagnostic sheets, all of which
+  // run through ballot interpretation.
+  timeout: 240_000,
 });

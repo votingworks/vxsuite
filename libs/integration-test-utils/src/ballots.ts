@@ -15,9 +15,13 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
-import { createImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  ImageData,
+  pdfToImages,
+  writeImageData,
+} from '@votingworks/image-utils';
 import { assertDefined } from '@votingworks/basics';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -163,20 +167,42 @@ export async function renderMarkedBallot(
 }
 
 /**
- * Writes a blank white PNG to a temp file and returns its path. The mock batch
- * scanner pairs a single image into a one-sheet batch, and a sheet with no
- * timing marks or QR code fails ballot interpretation, producing an
- * `InvalidSheet` with reason `unreadable` — the "Unreadable" eject state.
+ * Rasterizes the first page of a ballot PDF and whites out the timing-mark
+ * border so the sheet still looks like a ballot but can't be interpreted,
+ * producing an `InvalidSheet` with reason `unreadable` — the "Unreadable" eject
+ * state. Returns the path to the corrupted PNG.
  */
-export async function renderUnreadableSheet(): Promise<string> {
-  // Roughly letter-size at the scanner's 200 DPI so the image reads as a
-  // plausible (but uninterpretable) scanned sheet.
-  const width = 1700;
-  const height = 2200;
-  const data = new Uint8ClampedArray(width * height * 4).fill(255);
-  const image = createImageData(data, width, height);
+export async function renderUnreadableBallotSheet(
+  ballotPdfPath: string
+): Promise<string> {
+  const pdfBytes = new Uint8Array(readFileSync(ballotPdfPath));
+  // Rasterize at roughly the scanner's 200 DPI; only the first page is needed.
+  const pages = pdfToImages(pdfBytes, { scale: 200 / 72 })[
+    Symbol.asyncIterator
+  ]();
+  const firstPage = await pages.next();
+  await pages.return?.(undefined);
+  const image: ImageData = assertDefined(firstPage.value).page;
+  const { width, height, data } = image;
 
-  const tempDir = mkdtempSync(join(tmpdir(), 'unreadable-sheet-'));
+  // The timing marks run along all four edges; painting the outer border white
+  // removes them (so interpretation fails) while leaving the ballot content.
+  const marginX = Math.round(width * 0.06);
+  const marginY = Math.round(height * 0.06);
+  for (let y = 0; y < height; y += 1) {
+    const inVerticalBorder = y < marginY || y >= height - marginY;
+    for (let x = 0; x < width; x += 1) {
+      if (inVerticalBorder || x < marginX || x >= width - marginX) {
+        const i = (y * width + x) * 4;
+        data[i] = 255;
+        data[i + 1] = 255;
+        data[i + 2] = 255;
+        data[i + 3] = 255;
+      }
+    }
+  }
+
+  const tempDir = mkdtempSync(join(tmpdir(), 'unreadable-ballot-'));
   const outPath = join(tempDir, 'unreadable.png');
   await writeImageData(outPath, image);
   return outPath;

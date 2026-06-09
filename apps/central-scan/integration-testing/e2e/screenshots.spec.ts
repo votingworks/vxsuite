@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import test from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
@@ -14,7 +15,7 @@ import {
   createFullyVotedBallot,
   createScreenshotCounter,
   renderMarkedBallots,
-  renderUnreadableSheet,
+  renderUnreadableBallotSheet,
   withOvervote,
   withUndervote,
 } from '@votingworks/integration-test-utils';
@@ -34,6 +35,22 @@ const screenshotCounter = createScreenshotCounter();
 
 const BALLOT_STYLE_ID = '1-1';
 const PRECINCT_ID = '20';
+
+// A real blank-sheet scan (front + back) that passes the scanner's blank-paper
+// diagnostic — a synthetic all-white image fails the interpreter's paper-edge
+// detection, so we feed an actual scanned blank sheet for both sides.
+const BLANK_SHEET_FIXTURE_DIR = resolve(
+  __dirname,
+  '../../../../libs/ballot-interpreter/test/fixtures/diagnostic/blank/20lb'
+);
+const BLANK_SHEET_FRONT = resolve(
+  BLANK_SHEET_FIXTURE_DIR,
+  'bc0367d0-444a-4f1b-a88e-78de0bda5cb5-front.jpg'
+);
+const BLANK_SHEET_BACK = resolve(
+  BLANK_SHEET_FIXTURE_DIR,
+  'bc0367d0-444a-4f1b-a88e-78de0bda5cb5-back.jpg'
+);
 
 const devDockClient = grout.createClient<DevDockApi>({
   baseUrl: 'http://127.0.0.1:3001/dock',
@@ -92,7 +109,8 @@ test('screenshots', async ({ page }) => {
       { ...ballotSpec, votes: {} },
       { ...ballotSpec, votes: withUndervote(fullVotes, singleSeatContest) },
     ]);
-  const unreadablePath = await renderUnreadableSheet();
+  // An "unreadable" sheet that still looks like a ballot (timing marks erased).
+  const unreadableBallotPath = await renderUnreadableBallotSheet(fullPdf);
 
   // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
   let expectedSheets = 0;
@@ -135,11 +153,27 @@ test('screenshots', async ({ page }) => {
   await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
   await page.getByText('No ballots have been scanned').waitFor();
 
-  // 4. Settings screen: unconfigure flow and Save Logs. Switch to official
-  // ballot mode here (while there are no batches yet, so no confirmation is
-  // required) so the official ballots we scan below match the scanner mode.
+  // 4. Settings screen. Capture the "Official Ballot Mode" toggle highlighted
+  // while still in test mode, then switch to official mode — this removes the
+  // test-mode banner from every subsequent screenshot and makes the official
+  // ballots we scan below match the scanner mode. Switching now is free of a
+  // confirmation prompt since no batches have been scanned yet.
   await page.getByRole('button', { name: 'Settings' }).click();
   await page.getByRole('button', { name: 'Unconfigure Machine' }).waitFor();
+  await screenshotWithButtonHighlight(
+    'Official Ballot Mode',
+    'em-settings-official-ballot-mode-button'
+  );
+  const officialModeOption = page.getByRole('option', {
+    name: 'Official Ballot Mode',
+  });
+  if ((await officialModeOption.getAttribute('aria-selected')) !== 'true') {
+    await officialModeOption.click();
+    await page
+      .getByRole('option', { name: 'Official Ballot Mode', selected: true })
+      .waitFor();
+  }
+
   await screenshot('em-settings');
   await screenshotWithButtonHighlight(
     'Unconfigure Machine',
@@ -156,16 +190,6 @@ test('screenshots', async ({ page }) => {
     'em-settings-save-logs-button'
   );
 
-  const officialModeOption = page.getByRole('option', {
-    name: 'Official Ballot Mode',
-  });
-  if ((await officialModeOption.getAttribute('aria-selected')) !== 'true') {
-    await officialModeOption.click();
-    await page
-      .getByRole('option', { name: 'Official Ballot Mode', selected: true })
-      .waitFor();
-  }
-
   // 5. Empty Scan Ballots screen and its call-to-action highlights.
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
   await page.getByText('No ballots have been scanned').waitFor();
@@ -179,10 +203,11 @@ test('screenshots', async ({ page }) => {
     'scan-ballots-empty-scan-new-batch-button'
   );
 
-  // 6. Scan a few counted batches so the Scan Ballots screen has data.
-  await scanCountedBatch([fullPdf]);
-  await scanCountedBatch([fullPdf, fullPdf]);
-  await scanCountedBatch([fullPdf]);
+  // 6. Scan several non-trivial batches so the Scan Ballots screen looks like
+  // real use.
+  await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
+  await scanCountedBatch(Array.from({ length: 36 }, () => fullPdf));
+  await scanCountedBatch(Array.from({ length: 12 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
 
   // 7. Adjudication: scan one batch of problem ballots and capture each eject
@@ -191,7 +216,7 @@ test('screenshots', async ({ page }) => {
   // state is showing rather than assuming a fixed sequence.
   await devDockClient.batchScannerClearBallots();
   await devDockClient.batchScannerLoadBallots({
-    paths: [overvotePdf, blankPdf, undervotePdf, unreadablePath],
+    paths: [overvotePdf, blankPdf, undervotePdf, unreadableBallotPath],
   });
   await page.getByRole('button', { name: 'Scan New Batch' }).click();
 
@@ -237,10 +262,33 @@ test('screenshots', async ({ page }) => {
     'scan-ballots-save-cvrs-button'
   );
 
-  // 9. Diagnostics screen (expanded to full height if it overflows).
+  // 9. Diagnostics screen. Run the UPS and scanner diagnostics first so the
+  // readiness report has real results, then capture the full-height screen.
+  // The content scrolls within MainContent (the last child of <main>), not the
+  // <main> element itself, so expand that container.
   await page.getByRole('button', { name: 'Diagnostics' }).click();
   await page.getByRole('button', { name: 'Save Readiness Report' }).waitFor();
-  await withContainerVerticallyExpanded('main', async () => {
+
+  // UPS diagnostic: confirm the power supply is connected.
+  await page
+    .getByRole('button', { name: 'Test Uninterruptible Power Supply' })
+    .click();
+  await page.getByRole('button', { name: 'Yes' }).click();
+
+  // Scanner diagnostic: feed a blank white sheet (both sides) and run the test
+  // scan.
+  await devDockClient.batchScannerClearBallots();
+  await devDockClient.batchScannerLoadBallots({
+    paths: [BLANK_SHEET_FRONT, BLANK_SHEET_BACK],
+  });
+  await page.getByRole('button', { name: 'Perform Test Scan' }).click();
+  await page.getByRole('button', { name: 'Scan', exact: true }).click();
+  await page
+    .getByRole('heading', { name: 'Test Scan Successful' })
+    .waitFor({ timeout: 60000 });
+  await page.getByRole('button', { name: 'Close' }).click();
+
+  await withContainerVerticallyExpanded('main > div:last-child', async () => {
     await screenshot('diagnostics-screen');
   });
 
