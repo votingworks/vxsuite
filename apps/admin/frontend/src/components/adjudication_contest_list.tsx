@@ -376,7 +376,7 @@ function BallotSideContestList({
   cvrTag,
   crossoverVoteStatus,
 }: {
-  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
+  adjudicatedContests: AdjudicatedContests;
   contests: ContestListItem[];
   election: Election;
   firstUnresolvedContestId?: ContestId;
@@ -469,7 +469,7 @@ function BallotSideContestList({
 }
 
 export interface AdjudicationContestListProps {
-  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
+  adjudicatedContests: AdjudicatedContests;
   contestItems: ContestListItem[];
   firstUnresolvedContestId?: ContestId;
   cvrTag: CvrTag;

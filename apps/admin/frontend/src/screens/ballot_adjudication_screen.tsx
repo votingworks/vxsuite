@@ -492,8 +492,8 @@ function adjudicatedContestsBaseline(
   ballotAdjudicationData: BallotAdjudicationData,
   systemSettings: SystemSettings,
   writeInCandidates: WriteInCandidateRecord[]
-): Map<ContestId, AdjudicatedCvrContest> {
-  const baseline = new Map<ContestId, AdjudicatedCvrContest>(
+): AdjudicatedContests {
+  const baseline: AdjudicatedContests = new Map(
     ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
   );
   if (
@@ -569,15 +569,14 @@ export function BallotAdjudicationScreen(
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
-  const [adjudicatedContests, setAdjudicatedContests] = useState<
-    Map<ContestId, AdjudicatedCvrContest>
-  >(
-    adjudicatedContestsBaseline(
-      ballotAdjudicationData,
-      systemSettings,
-      writeInCandidates
-    )
-  );
+  const [adjudicatedContests, setAdjudicatedContests] =
+    useState<AdjudicatedContests>(
+      adjudicatedContestsBaseline(
+        ballotAdjudicationData,
+        systemSettings,
+        writeInCandidates
+      )
+    );
 
   if (selectedContestId && !isClaimed) {
     return (
@@ -637,7 +636,7 @@ function BallotView({
   onBack,
   onExit,
 }: {
-  adjudicatedContests: Map<ContestId, AdjudicatedCvrContest>;
+  adjudicatedContests: AdjudicatedContests;
   setSelectedContestId: (contestId: ContestId | null) => void;
 } & BallotAdjudicationScreenProps): React.ReactNode {
   const { electionDefinition } = useContext(AppContext);

@@ -20,7 +20,7 @@ import {
 } from '@votingworks/types';
 import { hasCrossoverVote } from '@votingworks/utils';
 
-export type AdjudicatedContests = ReadonlyMap<ContestId, AdjudicatedCvrContest>;
+export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
 
 export interface ContestListItem {
   side: Side;
