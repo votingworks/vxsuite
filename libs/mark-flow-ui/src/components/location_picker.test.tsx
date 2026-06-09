@@ -3,23 +3,12 @@ import {
   PollingPlacePicker,
   PollingPlacePickerMode,
 } from '@votingworks/ui';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Election, PollsState } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName as Feature,
-  getFeatureFlagMock,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { LocationPicker } from './location_picker';
 import { render, screen } from '../../test/react_testing_library';
-
-const featureFlagMock = getFeatureFlagMock();
-vi.mock('@votingworks/utils', async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (f: Feature) => featureFlagMock.isEnabled(f),
-}));
 
 vi.mock('@votingworks/ui', async (importActual) => ({
   ...(await importActual()),
@@ -36,7 +25,6 @@ const [precinct1] = election.precincts;
 const [place1] = places;
 
 const mockSelectPollingPlace = vi.fn();
-const mockSelectPrecinct = vi.fn();
 
 beforeEach(() => {
   MockPollingPlacePicker.mockReturnValue(
@@ -45,10 +33,6 @@ beforeEach(() => {
   MockPrecinctPicker.mockImplementation(() => {
     throw new Error('unexpected render - precinct picker is tested via apps');
   });
-});
-
-afterEach(() => {
-  featureFlagMock.resetFeatureFlags();
 });
 
 describe('picker modes', () => {
@@ -61,16 +45,12 @@ describe('picker modes', () => {
 
   for (const [pollsState, mode] of Object.entries(expectedModes)) {
     test(`polls state ${pollsState}: picker shown in ${mode} mode`, () => {
-      setPollingPlacesEnabled(true);
-
       render(
         <LocationPicker
-          appPrecinct={singlePrecinctSelectionFor(precinct1.id)}
           election={election}
           pollingPlaceId={place1.id}
           pollsState={pollsState as PollsState}
           selectPollingPlace={mockSelectPollingPlace}
-          selectPrecinct={mockSelectPrecinct}
         />
       );
 
@@ -86,8 +66,6 @@ describe('picker modes', () => {
 });
 
 test('omits location picker if only one location is available', () => {
-  setPollingPlacesEnabled(true);
-
   const singleLocationElection = mockElection({
     precincts: [precinct1],
     pollingPlaces: [place1],
@@ -95,12 +73,10 @@ test('omits location picker if only one location is available', () => {
 
   const { container } = render(
     <LocationPicker
-      appPrecinct={singlePrecinctSelectionFor(precinct1.id)}
       election={singleLocationElection}
       pollingPlaceId={place1.id}
       pollsState="polls_closed_initial"
       selectPollingPlace={mockSelectPollingPlace}
-      selectPrecinct={mockSelectPrecinct}
     />
   );
 
@@ -108,8 +84,6 @@ test('omits location picker if only one location is available', () => {
 });
 
 test('omits location picker if empty (degrades gracefully for old elections)', () => {
-  setPollingPlacesEnabled(true);
-
   const noPollingPlaceElection = mockElection({
     precincts: election.precincts,
     pollingPlaces: undefined,
@@ -120,7 +94,6 @@ test('omits location picker if empty (degrades gracefully for old elections)', (
       election={noPollingPlaceElection}
       pollsState="polls_closed_initial"
       selectPollingPlace={mockSelectPollingPlace}
-      selectPrecinct={mockSelectPrecinct}
     />
   );
 
@@ -129,12 +102,4 @@ test('omits location picker if empty (degrades gracefully for old elections)', (
 
 function mockElection(partial: Partial<Election>) {
   return partial as Election;
-}
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
 }

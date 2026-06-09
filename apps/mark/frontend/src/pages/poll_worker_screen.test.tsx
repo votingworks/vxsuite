@@ -4,6 +4,7 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
+  anyPollingPlace,
   constructElectionKey,
   ElectionDefinition,
   formatElectionHashes,
@@ -85,6 +86,7 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
+        pollingPlaceId={anyPollingPlace(electionDefinition.election).id}
         {...props}
       />
     </ApiProvider>
