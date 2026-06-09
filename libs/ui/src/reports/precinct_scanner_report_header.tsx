@@ -2,6 +2,7 @@ import {
   Election,
   ElectionDefinition,
   formatElectionHashes,
+  isPrimary,
   PartyId,
   pollingPlaceFromElection,
   PollsTransitionType,
@@ -71,7 +72,7 @@ export function PrecinctScannerReportHeader({
     pollsTransition
   )} • ${locationName}`;
   const partyLabel =
-    showTallies && election.type === 'primary'
+    showTallies && isPrimary(election)
       ? partyId
         ? CachedElectionLookups.getPartyById(electionDefinition, partyId)
             .fullName
