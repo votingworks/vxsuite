@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { Buffer } from 'node:buffer';
+import { randomUUID } from 'node:crypto';
 import {
   existsSync,
   lstatSync,
@@ -134,9 +135,12 @@ export class MockFilePrinter implements Printer {
     }
 
     const { data, sides } = props;
+    // Include a random suffix in addition to the timestamp so that rapid
+    // successive prints (e.g. a test deck) can't collide on the same filename
+    // and overwrite each other when they land in the same millisecond.
     const filename = join(
       getMockPrinterOutputPath(),
-      `print-job-${new Date().toISOString()}.pdf`
+      `print-job-${new Date().toISOString()}-${randomUUID().split('-')[0]}.pdf`
     );
 
     if (sides === PrintSides.OneSided) {

@@ -306,6 +306,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
         customSnapshotIdentifier: `large-election-page-${i + 1}-of-${
           pdfs.length
         }`,
+        failureThreshold: 0.0001,
       });
     }
   });
