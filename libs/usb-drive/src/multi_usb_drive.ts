@@ -118,10 +118,6 @@ export interface UsbDriveInfo {
   partitions: UsbPartitionInfo[];
 }
 
-export interface MultiUsbDriveOptions {
-  onChange?: () => void;
-}
-
 export interface MultiUsbDrive {
   getDrives(): UsbDriveInfo[];
   refresh(): Promise<void>;
@@ -132,6 +128,8 @@ export interface MultiUsbDrive {
   ): Promise<void>;
   sync(partitionDevPath: string): Promise<void>;
   stop(): void;
+  addListener(listener: () => void): void;
+  removeListener(listener: () => void): void;
 }
 
 /**
@@ -204,15 +202,12 @@ class KeyedTaskRunner<Key, Task> {
   }
 }
 
-export function detectMultiUsbDrive(
-  logger: Logger,
-  options?: MultiUsbDriveOptions
-): MultiUsbDrive {
+export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
     return createMockFileMultiUsbDrive();
   }
 
-  const { onChange } = options ?? {};
+  const listeners = new Set<() => void>();
 
   let stopped = false;
   let isFirstRefresh = true;
@@ -226,6 +221,12 @@ export function detectMultiUsbDrive(
 
   // Per-partition action lock: 'mounting'.
   const partitionAction = new KeyedTaskRunner<string, 'mounting'>();
+
+  function onChange() {
+    for (const listener of listeners) {
+      listener();
+    }
+  }
 
   function computeMount(
     diskDevPath: string,
@@ -288,7 +289,7 @@ export function detectMultiUsbDrive(
         doMountPartitionWithRetry(diskDevPath, partitionDevPath)
       )
       ?.then(() => {
-        if (!stopped) onChange?.();
+        if (!stopped) onChange();
       });
   }
 
@@ -379,7 +380,7 @@ export function detectMultiUsbDrive(
     }
 
     if (stateChanged) {
-      onChange?.();
+      onChange();
     }
   }
 
@@ -548,6 +549,15 @@ export function detectMultiUsbDrive(
     stop(): void {
       stopped = true;
       watcher.stop();
+      listeners.clear();
+    },
+
+    addListener(listener: () => void): void {
+      listeners.add(listener);
+    },
+
+    removeListener(listener: () => void): void {
+      listeners.delete(listener);
     },
   };
 }

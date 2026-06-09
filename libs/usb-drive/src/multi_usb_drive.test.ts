@@ -186,10 +186,11 @@ describe('refresh', () => {
     multiUsbDrive.stop();
   });
 
-  test('calls onChange on first refresh and when state changes, but not on no-op refreshes', async () => {
+  test('calls change listeners on first refresh and when state changes, but not on no-op refreshes', async () => {
     const logger = mockLogger({ fn: vi.fn });
     const onChange = vi.fn();
-    const multiUsbDrive = detectMultiUsbDrive(logger, { onChange });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    multiUsbDrive.addListener(onChange);
 
     // Initial refresh fires onChange (first refresh always fires)
     await multiUsbDrive.refresh();
@@ -201,6 +202,12 @@ describe('refresh', () => {
 
     // Refresh with new state — should fire onChange
     mockDrives = [makeDisk()];
+    await multiUsbDrive.refresh();
+    expect(onChange).toHaveBeenCalledTimes(2);
+
+    // Removed listeners no longer fire
+    multiUsbDrive.removeListener(onChange);
+    mockDrives = [];
     await multiUsbDrive.refresh();
     expect(onChange).toHaveBeenCalledTimes(2);
 
@@ -352,9 +359,8 @@ describe('stop', () => {
 
     const onChangeCalls: number[] = [];
     const logger = mockLogger({ fn: vi.fn });
-    const multiUsbDrive = detectMultiUsbDrive(logger, {
-      onChange: () => onChangeCalls.push(Date.now()),
-    });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    multiUsbDrive.addListener(() => onChangeCalls.push(Date.now()));
 
     // Trigger auto-mount by refreshing.
     await multiUsbDrive.refresh();
@@ -1148,11 +1154,10 @@ describe('autoMount', () => {
     const mountStatesOnChange: string[] = [];
     const logger = mockLogger({ fn: vi.fn });
     mockDrives = [unmountedPartitionDisk];
-    const multiUsbDrive = detectMultiUsbDrive(logger, {
-      onChange: () => {
-        const mount = multiUsbDrive.getDrives()[0]?.partitions[0]?.mount;
-        if (mount) mountStatesOnChange.push(mount.type);
-      },
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    multiUsbDrive.addListener(() => {
+      const mount = multiUsbDrive.getDrives()[0]?.partitions[0]?.mount;
+      if (mount) mountStatesOnChange.push(mount.type);
     });
 
     // Wait until onChange is called with the drive in mounted state.
