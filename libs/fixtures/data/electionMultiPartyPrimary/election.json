@@ -1,6 +1,6 @@
 {
   "id": "election-multi-party-primary",
-  "type": "primary",
+  "type": "closed-primary",
   "title": "Primary Election",
   "state": "State of Sample",
   "county": {
