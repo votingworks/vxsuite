@@ -589,6 +589,26 @@
         }
       },
       "type": "election_day"
+    },
+
+    {
+      "id": "central-scanning",
+      "name": "Central Scanning",
+      "precincts": {
+        "20": {
+          "type": "whole"
+        },
+        "21": {
+          "type": "whole"
+        },
+        "22": {
+          "type": "whole"
+        },
+        "23": {
+          "type": "whole"
+        }
+      },
+      "type": "absentee"
     }
   ]
 }
