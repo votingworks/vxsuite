@@ -28,7 +28,7 @@ export function ElectionManagerApp(): JSX.Element | null {
       <Switch>
         <Route
           path={electionManagerRoutes.testDecks.path}
-          render={() => <TestDeckScreen isElectionManagerAuth />}
+          render={() => <TestDeckScreen />}
         />
         <Route
           path={electionManagerRoutes.print.path}

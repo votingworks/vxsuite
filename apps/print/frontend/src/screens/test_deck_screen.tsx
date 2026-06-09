@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import {
-  BooleanEnvironmentVariableName as Feature,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import {
-  Id,
-  pollingPlaceFromElection,
-  pollingPlacePrecinctIds,
-} from '@votingworks/types';
+import { Id } from '@votingworks/types';
 import { Button, Modal, Loading, P } from '@votingworks/ui';
-import { assertDefined, find } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import {
   getDeviceStatuses,
   getElectionRecord,
-  getPollingPlaceId,
   getPrecinctSelection,
   getTestDeckBallotCount,
   printTestDeck,
@@ -153,11 +144,7 @@ function PrintTestDeckModal({
   );
 }
 
-export function TestDeckScreen({
-  isElectionManagerAuth,
-}: {
-  isElectionManagerAuth?: boolean;
-}): JSX.Element | null {
+export function TestDeckScreen(): JSX.Element | null {
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
   const [printModal, setPrintModal] = useState<'none' | 'all' | 'precinct'>(
@@ -167,37 +154,6 @@ export function TestDeckScreen({
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
-  const configuredPrecinct = getConfiguredPrecinctQuery.data;
-  const pollingPlaceId = getPollingPlaceId.useQuery().data;
-
-  // The precinct selection defaults to the first precinct of the machine's
-  // configured polling place (or configured single precinct), but the screen
-  // always offers all precincts in the election.
-  const defaultPrecincts = React.useMemo(() => {
-    if (!getElectionRecordQuery.data) return [];
-
-    const { election } = getElectionRecordQuery.data.electionDefinition;
-
-    if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
-      if (configuredPrecinct?.kind === 'SinglePrecinct') {
-        const { precinctId } = configuredPrecinct;
-        return [find(election.precincts, (p) => p.id === precinctId)];
-      }
-
-      return election.precincts;
-    }
-
-    if (!pollingPlaceId) return election.precincts;
-
-    const place = pollingPlaceFromElection(election, pollingPlaceId);
-    const precinctIds = pollingPlacePrecinctIds(place);
-
-    return election.precincts.filter((p) => precinctIds.has(p.id));
-  }, [configuredPrecinct, getElectionRecordQuery.data, pollingPlaceId]);
-
-  if (!selectedPrecinctId && defaultPrecincts.length > 0) {
-    setSelectedPrecinctId(defaultPrecincts[0].id);
-  }
 
   if (
     !getElectionRecordQuery.isSuccess ||
@@ -217,23 +173,19 @@ export function TestDeckScreen({
     : undefined;
 
   return (
-    <ScreenWrapper
-      authType={isElectionManagerAuth ? 'election_manager' : 'poll_worker'}
-    >
+    <ScreenWrapper authType="election_manager">
       <Container>
         <TitleBar
-          title="Print Test Deck"
+          title="Test Decks"
           actions={
-            isElectionManagerAuth ? (
-              <TitleBarButton
-                disabled={!printer.connected}
-                color="neutral"
-                fill="outlined"
-                onPress={() => setPrintModal('all')}
-              >
-                Print test deck for all precincts
-              </TitleBarButton>
-            ) : undefined
+            <TitleBarButton
+              disabled={!printer.connected}
+              color="neutral"
+              fill="outlined"
+              onPress={() => setPrintModal('all')}
+            >
+              Print All Test Decks
+            </TitleBarButton>
           }
         />
         <Form>
@@ -263,7 +215,7 @@ export function TestDeckScreen({
             onPress={() => setPrintModal('precinct')}
             disabled={!selectedPrecinct || !printer.connected}
           >
-            Print test deck for precinct
+            Print Precinct Test Deck
           </PrintButton>
         </Footer>
         {printModal !== 'none' && (

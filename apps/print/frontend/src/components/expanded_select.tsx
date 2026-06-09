@@ -69,10 +69,10 @@ const StyledOption = styled.option`
   display: block;
   font-size: 1rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  flex-shrink: 0;
   margin: 0;
   min-height: max-content;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: hidden;
   padding: 0.75rem;
   text-align: left;
   text-decoration: none;
