@@ -3,4 +3,5 @@
 /src/**/*.js
 *.d.ts
 vitest.config.ts
+i18next-parser.config.js
 /config

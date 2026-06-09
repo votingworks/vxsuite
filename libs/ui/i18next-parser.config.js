@@ -1,11 +1,14 @@
-/* eslint-disable vx/gts-module-snake-case */
-
 /*
  * Initial settings copied from https://github.com/i18next/i18next-parser#options
+ *
+ * This config is plain CommonJS (not TypeScript) on purpose: i18next-parser
+ * transpiles a `.ts` config to a temporary `i18next-parser.config.ts.bundle.mjs`
+ * and then deletes it, which races (ENOENT on rmSync) when multiple packages
+ * build `@votingworks/ui` concurrently during a monorepo build. A `.js` config
+ * is loaded directly, with no temp file to collide on.
  */
 
-// eslint-disable-next-line vx/gts-no-default-exports
-export default {
+module.exports = {
   contextSeparator: '_',
   // Key separator used in your translation keys
 
