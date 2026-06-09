@@ -1,22 +1,11 @@
 import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
-import { basename } from 'node:path';
 import { assert, Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
 import { RESOLVED_MEDIA_MOUNT_DIR } from './media_mount_dir';
 
 const debug = makeDebug('usb-drive');
-
-export interface BlockDeviceInfo {
-  name: string;
-  path: string;
-  mountpoint?: string;
-  fstype?: string;
-  fsver?: string;
-  label?: string;
-  type: 'disk' | 'part';
-}
 
 // All block device info comes from two sources that don't require privileged
 // access:
@@ -43,6 +32,7 @@ function parseMountpoints(mountsContent: string): Map<string, string> {
 interface UsbBlockDevice {
   devname: string;
   devtype: 'disk' | 'partition';
+  mountpoint?: string;
   fstype?: string;
   fsver?: string;
   label?: string;
@@ -85,12 +75,11 @@ function parseExportDb(output: string): UsbBlockDevice[] {
   return devices;
 }
 
-function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
+function isDataUsbDrive(device: UsbBlockDevice): boolean {
   return (
-    (blockDeviceInfo.type === 'part' || blockDeviceInfo.type === 'disk') &&
-    !blockDeviceInfo.fstype?.includes('LVM') && // no partitions acting as LVMs
-    (!blockDeviceInfo.mountpoint ||
-      blockDeviceInfo.mountpoint.startsWith(`${RESOLVED_MEDIA_MOUNT_DIR}/`))
+    !device.fstype?.includes('LVM') && // no partitions acting as LVMs
+    (!device.mountpoint ||
+      device.mountpoint.startsWith(`${RESOLVED_MEDIA_MOUNT_DIR}/`))
   );
 }
 
@@ -145,13 +134,15 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
     fs.readFile('/proc/mounts', 'utf-8').catch(() => ''),
   ]);
 
-  const usbBlockDevices = parseExportDb(exportDbOutput);
+  const mountpoints = parseMountpoints(mountsContent);
+  const usbBlockDevices = parseExportDb(exportDbOutput).map((d) => ({
+    ...d,
+    mountpoint: mountpoints.get(d.devname),
+  }));
   if (usbBlockDevices.length === 0) {
     debug('No USB block devices found in udev database');
     return [];
   }
-
-  const mountpoints = parseMountpoints(mountsContent);
 
   const diskDevices = usbBlockDevices.filter((d) => d.devtype === 'disk');
   const partitionDevices = usbBlockDevices.filter(
@@ -161,16 +152,6 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
   const result: UsbDiskDeviceInfo[] = [];
 
   for (const disk of diskDevices) {
-    const diskInfo: BlockDeviceInfo = {
-      name: basename(disk.devname),
-      path: disk.devname,
-      type: 'disk',
-      mountpoint: mountpoints.get(disk.devname),
-      fstype: disk.fstype,
-      fsver: disk.fsver,
-      label: disk.label,
-    };
-
     const diskPartitions = partitionDevices.filter((p) =>
       isPartitionOfDisk(p.devname, disk.devname)
     );
@@ -178,20 +159,9 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
     if (diskPartitions.length > 0) {
       // Drive has partitions — only include valid data partitions
       const validPartitions: UsbPartitionDeviceInfo[] = diskPartitions
-        .map(
-          (p): BlockDeviceInfo => ({
-            name: basename(p.devname),
-            path: p.devname,
-            type: 'part',
-            mountpoint: mountpoints.get(p.devname),
-            fstype: p.fstype,
-            fsver: p.fsver,
-            label: p.label,
-          })
-        )
         .filter(isDataUsbDrive)
         .map((p) => ({
-          devPath: p.path,
+          devPath: p.devname,
           mountpoint: p.mountpoint,
           fstype: p.fstype,
           fsver: p.fsver,
@@ -209,7 +179,7 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
         serial: disk.serial,
         partitions: validPartitions,
       });
-    } else if (isDataUsbDrive(diskInfo)) {
+    } else if (isDataUsbDrive(disk)) {
       // Unformatted drive (no partitions) — include it with empty partitions
       result.push({
         devPath: disk.devname,
@@ -229,17 +199,7 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
   for (const partition of partitionDevices) {
     const diskDevPath = partition.devname.replace(/(?<=\d)p\d+$|\d+$/, '');
     if (diskDevPaths.has(diskDevPath)) continue;
-
-    const partitionInfo: BlockDeviceInfo = {
-      name: basename(partition.devname),
-      path: partition.devname,
-      type: 'part',
-      mountpoint: mountpoints.get(partition.devname),
-      fstype: partition.fstype,
-      fsver: partition.fsver,
-      label: partition.label,
-    };
-    if (!isDataUsbDrive(partitionInfo)) continue;
+    if (!isDataUsbDrive(partition)) continue;
 
     result.push({
       devPath: diskDevPath,
@@ -249,7 +209,7 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
       partitions: [
         {
           devPath: partition.devname,
-          mountpoint: partitionInfo.mountpoint,
+          mountpoint: partition.mountpoint,
           fstype: partition.fstype,
           fsver: partition.fsver,
           label: partition.label,
