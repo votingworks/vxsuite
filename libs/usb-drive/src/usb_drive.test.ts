@@ -38,7 +38,7 @@ beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('uses MockFileUsbDrive when feature flag is set', async () => {
+test('uses a mock file USB drive when feature flag is set', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
