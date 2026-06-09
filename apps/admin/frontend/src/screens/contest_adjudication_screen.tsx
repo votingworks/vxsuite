@@ -12,7 +12,6 @@ import {
   CandidateContestOption,
   getContestDistrictName,
   Id,
-  Side,
 } from '@votingworks/types';
 import { Button, Main, Screen, Icons, H2, H1, P } from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -205,7 +204,6 @@ interface ContestAdjudicationScreenProps {
   cvrId: Id;
   onClose: () => void;
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
-  side: Side;
   adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
 }
@@ -217,7 +215,6 @@ export function ContestAdjudicationScreen({
   cvrId,
   onClose,
   onConfirmContest,
-  side,
   adjudicatedOptions,
   writeInCandidates,
 }: ContestAdjudicationScreenProps): JSX.Element {
@@ -340,7 +337,12 @@ export function ContestAdjudicationScreen({
 
   const isHmpb = ballotImages.front.type === 'hmpb';
   const isBmd = ballotImages.front.type === 'bmd';
-  const ballotImage = ballotImages[side];
+  const ballotImage = isBmd
+    ? ballotImages.front
+    : find(
+        [ballotImages.front, ballotImages.back as HmpbBallotPageImage],
+        ({ layout }) => layout.contests.some((c) => c.contestId === contestId)
+      );
 
   const focusedCoordinates =
     focusedOptionId && isHmpb

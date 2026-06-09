@@ -14,9 +14,20 @@ import {
   Election,
   isOpenPrimary,
   Rect,
+  Side,
   Vote,
   VotesDict,
 } from '@votingworks/types';
+import { hasCrossoverVote } from '@votingworks/utils';
+
+export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
+
+export interface ContestListItem {
+  side: Side;
+  contest: AnyContest;
+  adjudicationData: ContestAdjudicationData;
+  isResolved: boolean;
+}
 
 export function normalizeWriteInName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/, ' ');
@@ -47,14 +58,6 @@ export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
   );
 }
 
-export function isContestResolved(
-  contest: ContestAdjudicationData,
-  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
-): boolean {
-  if (!contest.tag) return true;
-  return adjudicatedContests.has(contest.contestId);
-}
-
 export function getCurrentVote(
   option: ContestOptionAdjudicationData,
   adjudicatedOption?: AdjudicatedContestOption
@@ -83,11 +86,8 @@ export function isContestCrossoverVoted(
 }
 
 export function adjudicatedVotes(
-  contests: ReadonlyArray<{
-    contest: AnyContest;
-    adjudicationData: ContestAdjudicationData;
-  }>,
-  adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>
+  contests: ContestListItem[],
+  adjudicatedContests: AdjudicatedContests
 ): VotesDict {
   return Object.fromEntries(
     contests.map(({ contest, adjudicationData }): [string, Vote] => {
@@ -127,6 +127,64 @@ export function adjudicatedVotes(
       }
     })
   );
+}
+
+export interface ContestCrossoverVoteStatus {
+  hasScannedCrossoverVote: boolean;
+  hasCrossoverVoteAfterAdjudication: boolean;
+  isUnresolved: boolean;
+}
+export type CrossoverVoteStatusByContest = Record<
+  ContestId,
+  ContestCrossoverVoteStatus
+>;
+export interface BallotCrossoverVoteStatus {
+  ballotHasScannedCrossoverVote: boolean;
+  ballotHasCrossoverVoteAfterAdjudication: boolean;
+  statusByContest: Record<ContestId, ContestCrossoverVoteStatus>;
+  isBallotResolved: boolean;
+}
+
+export function deriveCrossoverVoteStatus(
+  election: Election,
+  contestItems: ContestListItem[],
+  adjudicatedContests: AdjudicatedContests,
+  ballotHasScannedCrossoverVote: boolean,
+  isBallotResolved: boolean
+): BallotCrossoverVoteStatus {
+  const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
+    election,
+    adjudicatedVotes(contestItems, adjudicatedContests)
+  );
+  return {
+    ballotHasScannedCrossoverVote,
+    ballotHasCrossoverVoteAfterAdjudication,
+    isBallotResolved,
+    statusByContest: Object.fromEntries(
+      contestItems.map((contestItem) => {
+        const hasScannedCrossoverVote = isContestCrossoverVoted(
+          ballotHasScannedCrossoverVote,
+          contestItem
+        );
+        const hasCrossoverVoteAfterAdjudication = isContestCrossoverVoted(
+          ballotHasCrossoverVoteAfterAdjudication,
+          contestItem,
+          adjudicatedContests.get(contestItem.contest.id)
+        );
+        return [
+          contestItem.contest.id,
+          {
+            hasScannedCrossoverVote,
+            hasCrossoverVoteAfterAdjudication,
+            isUnresolved:
+              hasScannedCrossoverVote &&
+              hasCrossoverVoteAfterAdjudication &&
+              !isBallotResolved,
+          },
+        ];
+      })
+    ),
+  };
 }
 
 export function contestPartyLabel(

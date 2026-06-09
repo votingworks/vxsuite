@@ -253,7 +253,6 @@ function renderScreen(
   {
     areWriteInCandidatesQualified = false,
     ballotImages,
-    side = 'front',
     electionDef = electionDefinition,
     onClose = vi.fn(),
     writeInCandidates = [] as WriteInCandidateRecord[],
@@ -283,7 +282,6 @@ function renderScreen(
         cvrId={cvrId}
         onClose={onClose}
         ballotImages={images}
-        side={side}
         writeInCandidates={writeInCandidates}
         onConfirmContest={onConfirmContest}
         adjudicatedOptions={adjudicatedOptions}
