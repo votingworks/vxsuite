@@ -79,6 +79,12 @@ export function createClient<Api extends AnyApi>(
   // that's the magic of the Proxy!
   return new Proxy({} as unknown as Client<Api>, {
     get(_target, methodName: string) {
+      if (methodName === 'then') {
+        // Don't look like a "thenable", otherwise anyone who awaits the client
+        // will trigger a bogus `then` RPC call.
+        return undefined;
+      }
+
       return async (input?: unknown) => {
         const inputJson = serialize(input);
 
