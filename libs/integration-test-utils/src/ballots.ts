@@ -17,6 +17,7 @@ import {
 } from '@votingworks/types';
 import {
   ImageData,
+  createImageData,
   pdfToImages,
   writeImageData,
 } from '@votingworks/image-utils';
@@ -166,44 +167,57 @@ export async function renderMarkedBallot(
   return assertDefined(path);
 }
 
-/**
- * Rasterizes the first page of a ballot PDF and whites out the timing-mark
- * border so the sheet still looks like a ballot but can't be interpreted,
- * producing an `InvalidSheet` with reason `unreadable` — the "Unreadable" eject
- * state. Returns the path to the corrupted PNG.
- */
-export async function renderUnreadableBallotSheet(
-  ballotPdfPath: string
-): Promise<string> {
-  const pdfBytes = new Uint8Array(readFileSync(ballotPdfPath));
-  // Rasterize at roughly the scanner's 200 DPI; only the first page is needed.
-  const pages = pdfToImages(pdfBytes, { scale: 200 / 72 })[
-    Symbol.asyncIterator
-  ]();
-  const firstPage = await pages.next();
-  await pages.return?.(undefined);
-  const image: ImageData = assertDefined(firstPage.value).page;
-  const { width, height, data } = image;
-
-  // The timing marks run along all four edges; painting the outer border white
-  // removes them (so interpretation fails) while leaving the ballot content.
-  const marginX = Math.round(width * 0.06);
-  const marginY = Math.round(height * 0.06);
-  for (let y = 0; y < height; y += 1) {
-    const inVerticalBorder = y < marginY || y >= height - marginY;
-    for (let x = 0; x < width; x += 1) {
-      if (inVerticalBorder || x < marginX || x >= width - marginX) {
-        const i = (y * width + x) * 4;
-        data[i] = 255;
-        data[i + 1] = 255;
-        data[i + 2] = 255;
-        data[i + 3] = 255;
-      }
+/** Paints a small black isosceles triangle into a top corner of `image`, like
+ * a folded-over ("dog-eared") corner that obscures the timing marks there.
+ * Equal-length legs give a natural 45° fold line. */
+function drawFoldedCorner(
+  image: ImageData,
+  corner: 'top-left' | 'top-right'
+): void {
+  const { width, data } = image;
+  const leg = Math.round(width * 0.1);
+  for (let y = 0; y < leg; y += 1) {
+    // `fromCorner` is the horizontal distance from the corner's vertical edge.
+    for (let fromCorner = 0; fromCorner + y < leg; fromCorner += 1) {
+      const x = corner === 'top-left' ? fromCorner : width - 1 - fromCorner;
+      const i = (y * width + x) * 4;
+      data[i] = 0;
+      data[i + 1] = 0;
+      data[i + 2] = 0;
+      data[i + 3] = 255;
     }
   }
+}
 
-  const tempDir = mkdtempSync(join(tmpdir(), 'unreadable-ballot-'));
-  const outPath = join(tempDir, 'unreadable.png');
-  await writeImageData(outPath, image);
-  return outPath;
+/**
+ * Rasterizes a ballot PDF into a sheet whose front has a folded ("dog-eared")
+ * corner — obscuring the corner timing marks so the sheet can't be interpreted
+ * and ejects as `unreadable` ("Unreadable") — while the back is the ballot's
+ * real back page (so it isn't a blank/black image). Returns both image paths.
+ */
+export async function renderFoldedCornerSheet(
+  ballotPdfPath: string
+): Promise<{ frontPath: string; backPath: string }> {
+  const pdfBytes = new Uint8Array(readFileSync(ballotPdfPath));
+  // Rasterize at roughly the scanner's 200 DPI. Only the front and back are
+  // needed, so stop after two pages.
+  const pageImages: ImageData[] = [];
+  for await (const { page } of pdfToImages(pdfBytes, { scale: 200 / 72 })) {
+    pageImages.push(page);
+    if (pageImages.length === 2) break;
+  }
+
+  const front = assertDefined(pageImages[0]);
+  const back = pageImages[1] ?? createImageData(front.width, front.height);
+  // A real folded corner shows on both sides: top-right on the front mirrors to
+  // top-left on the back.
+  drawFoldedCorner(front, 'top-right');
+  drawFoldedCorner(back, 'top-left');
+
+  const tempDir = mkdtempSync(join(tmpdir(), 'folded-corner-'));
+  const frontPath = join(tempDir, 'front.png');
+  const backPath = join(tempDir, 'back.png');
+  await writeImageData(frontPath, front);
+  await writeImageData(backPath, back);
+  return { frontPath, backPath };
 }

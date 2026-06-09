@@ -14,8 +14,8 @@ import {
   buildIntegrationTestHelper,
   createFullyVotedBallot,
   createScreenshotCounter,
+  renderFoldedCornerSheet,
   renderMarkedBallots,
-  renderUnreadableBallotSheet,
   withOvervote,
   withUndervote,
 } from '@votingworks/integration-test-utils';
@@ -109,8 +109,9 @@ test('screenshots', async ({ page }) => {
       { ...ballotSpec, votes: {} },
       { ...ballotSpec, votes: withUndervote(fullVotes, singleSeatContest) },
     ]);
-  // An "unreadable" sheet that still looks like a ballot (timing marks erased).
-  const unreadableBallotPath = await renderUnreadableBallotSheet(fullPdf);
+  // An "unreadable" sheet that still looks like a ballot: a folded corner
+  // obscures the timing marks, with the ballot's real back page behind it.
+  const foldedCornerSheet = await renderFoldedCornerSheet(fullPdf);
 
   // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
   let expectedSheets = 0;
@@ -213,10 +214,21 @@ test('screenshots', async ({ page }) => {
   // 7. Adjudication: scan one batch of problem ballots and capture each eject
   // state. Each "Confirm Ballot Removed" advances to the next review sheet.
   // The order the scanner surfaces them in isn't guaranteed, so detect which
-  // state is showing rather than assuming a fixed sequence.
+  // state is showing rather than assuming a fixed sequence. A good ballot leads
+  // the batch (and counts without pausing) so the batch isn't left at 0 sheets
+  // after every problem ballot is removed.
   await devDockClient.batchScannerClearBallots();
   await devDockClient.batchScannerLoadBallots({
-    paths: [overvotePdf, blankPdf, undervotePdf, unreadableBallotPath],
+    paths: [
+      fullPdf,
+      overvotePdf,
+      blankPdf,
+      undervotePdf,
+      // Front + back of the folded-corner sheet; the dev dock pairs trailing
+      // image paths into a single sheet (after the PDFs above).
+      foldedCornerSheet.frontPath,
+      foldedCornerSheet.backPath,
+    ],
   });
   await page.getByRole('button', { name: 'Scan New Batch' }).click();
 
