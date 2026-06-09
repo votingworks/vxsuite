@@ -10,8 +10,7 @@ process.env['NODE_ENV'] = 'production';
 /** See https://playwright.dev/docs/test-configuration. */
 export default defineIntegrationTestPlaywrightConfig({
   viewport: { width: 1920, height: 1080 },
-  // Generous timeout: this suite renders several marked ballots in Chromium and
-  // scans large batches plus adjudication and diagnostic sheets, all of which
-  // run through ballot interpretation.
-  timeout: 240_000,
+  // Headroom over the observed ~45s runtime (rendering ballots in Chromium and
+  // scanning/interpreting several batches), matching the scan suite.
+  timeout: 90_000,
 });

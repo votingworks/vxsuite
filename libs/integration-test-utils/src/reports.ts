@@ -1,10 +1,8 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
-import {
-  capturePdfScreenshots,
-  type ScreenshotCounter,
-} from '@votingworks/integration-test-utils';
+import { capturePdfScreenshots } from './pdf';
+import type { ScreenshotCounter } from './screenshots';
 
 /** Recursively collects all file paths under `dir`. */
 function listFilesRecursive(dir: string): string[] {
@@ -15,8 +13,8 @@ function listFilesRecursive(dir: string): string[] {
 }
 
 /**
- * Reads the readiness report PDF that VxCentralScan most recently saved to the
- * mock USB drive and captures each page as a PNG alongside the UI screenshots.
+ * Reads the readiness report PDF most recently saved to the mock USB drive and
+ * captures each page as a PNG alongside the UI screenshots.
  */
 export async function captureReadinessReport(
   name: string,

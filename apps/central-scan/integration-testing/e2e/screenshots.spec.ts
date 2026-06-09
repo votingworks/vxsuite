@@ -12,6 +12,7 @@ import * as grout from '@votingworks/grout';
 import type { Api as DevDockApi } from '@votingworks/dev-dock-backend';
 import {
   buildIntegrationTestHelper,
+  captureReadinessReport,
   createFullyVotedBallot,
   createScreenshotCounter,
   renderFoldedCornerSheet,
@@ -29,7 +30,6 @@ import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
 } from './support/auth';
-import { captureReadinessReport } from './support/readiness_report';
 
 const screenshotCounter = createScreenshotCounter();
 
@@ -125,16 +125,16 @@ test('screenshots', async ({ page }) => {
       .waitFor({ timeout: 60000 });
   }
 
-  // 1. Unconfigured: insert election manager card.
+  // Unconfigured: insert election manager card.
   await page.getByText(/election manager card to configure/).waitFor();
   await screenshot('unconfigured-screen');
 
-  // 2. Insert USB drive containing the election package.
+  // Insert USB drive containing the election package.
   await logInAsElectionManager(page, election);
   await page.getByText(/a USB drive/).waitFor();
   await screenshot('em-insert-usb');
 
-  // 3. Configuring progress screen. The configuration request completes too
+  // Configuring progress screen. The configuration request completes too
   // quickly to screenshot reliably, so delay the response just long enough to
   // capture the screen, then let it proceed.
   await page.route(
@@ -154,7 +154,7 @@ test('screenshots', async ({ page }) => {
   await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
   await page.getByText('No ballots have been scanned').waitFor();
 
-  // 4. Settings screen. Capture the "Official Ballot Mode" toggle highlighted
+  // Settings screen. Capture the "Official Ballot Mode" toggle highlighted
   // while still in test mode, then switch to official mode — this removes the
   // test-mode banner from every subsequent screenshot and makes the official
   // ballots we scan below match the scanner mode. Switching now is free of a
@@ -191,7 +191,7 @@ test('screenshots', async ({ page }) => {
     'em-settings-save-logs-button'
   );
 
-  // 5. Empty Scan Ballots screen and its call-to-action highlights.
+  // Empty Scan Ballots screen and its call-to-action highlights.
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
   await page.getByText('No ballots have been scanned').waitFor();
   await screenshot('scan-ballots-empty');
@@ -204,14 +204,14 @@ test('screenshots', async ({ page }) => {
     'scan-ballots-empty-scan-new-batch-button'
   );
 
-  // 6. Scan several non-trivial batches so the Scan Ballots screen looks like
+  // Scan several non-trivial batches so the Scan Ballots screen looks like
   // real use.
   await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
   await scanCountedBatch(Array.from({ length: 36 }, () => fullPdf));
   await scanCountedBatch(Array.from({ length: 12 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
 
-  // 7. Adjudication: scan one batch of problem ballots and capture each eject
+  // Adjudication: scan one batch of problem ballots and capture each eject
   // state. Each "Confirm Ballot Removed" advances to the next review sheet.
   // The order the scanner surfaces them in isn't guaranteed, so detect which
   // state is showing rather than assuming a fixed sequence. A good ballot leads
@@ -265,7 +265,7 @@ test('screenshots', async ({ page }) => {
       .waitFor({ state: 'hidden', timeout: 60000 });
   }
 
-  // 8. Back on Scan Ballots with batches present: highlight Save CVRs.
+  // Back on Scan Ballots with batches present: highlight Save CVRs.
   await page.getByText('No ballots have been scanned').waitFor({
     state: 'hidden',
   });
@@ -274,7 +274,7 @@ test('screenshots', async ({ page }) => {
     'scan-ballots-save-cvrs-button'
   );
 
-  // 9. Diagnostics screen. Run the UPS and scanner diagnostics first so the
+  // Diagnostics screen. Run the UPS and scanner diagnostics first so the
   // readiness report has real results, then capture the full-height screen.
   // The content scrolls within MainContent (the last child of <main>), not the
   // <main> element itself, so expand that container.
@@ -304,7 +304,7 @@ test('screenshots', async ({ page }) => {
     await screenshot('diagnostics-screen');
   });
 
-  // 10. Save the readiness report to USB and capture the report PDF itself.
+  // Save the readiness report to USB and capture the report PDF itself.
   await page.getByRole('button', { name: 'Save Readiness Report' }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page

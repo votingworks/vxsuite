@@ -8,6 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   buildIntegrationTestHelper,
+  captureReadinessReport,
   createScreenshotCounter,
 } from '@votingworks/integration-test-utils';
 import {
@@ -32,10 +33,7 @@ import {
   MULTI_LANGUAGE_UI_STRINGS,
 } from './support/election';
 import { configureMachine, openPolls, voteFullBallot } from './support/flows';
-import {
-  capturePrintedBallot,
-  captureReadinessReport,
-} from './support/reports';
+import { capturePrintedBallot } from './support/reports';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
 
