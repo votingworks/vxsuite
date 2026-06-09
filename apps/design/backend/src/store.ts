@@ -84,6 +84,7 @@ import {
   User,
   UserType,
   ElectionStatus,
+  SoftwareVersion,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -530,6 +531,7 @@ const selectJurisdictionsBaseQuery = `
     jurisdictions.id,
     jurisdictions.name,
     state_code as "stateCode",
+    software_version as "softwareVersion",
     organizations.id as "organizationId",
     organizations.name as "organizationName"
   from jurisdictions
@@ -540,6 +542,7 @@ interface JurisdictionRow {
   id: string;
   name: string;
   stateCode: StateCode;
+  softwareVersion: SoftwareVersion;
   organizationId: string;
   organizationName: string;
 }
@@ -549,6 +552,7 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
     id: row.id,
     name: row.name,
     stateCode: row.stateCode,
+    softwareVersion: row.softwareVersion,
     organization: {
       id: row.organizationId,
       name: row.organizationName,
@@ -635,12 +639,13 @@ export class Store {
     await this.db.withClient(async (client) => {
       await client.query(
         `
-        insert into jurisdictions (id, name, state_code, organization_id)
-        values ($1, $2, $3, $4)
+        insert into jurisdictions (id, name, state_code, software_version, organization_id)
+        values ($1, $2, $3, $4, $5)
         `,
         jurisdiction.id,
         jurisdiction.name,
         jurisdiction.stateCode,
+        jurisdiction.softwareVersion,
         jurisdiction.organization.id
       );
     });

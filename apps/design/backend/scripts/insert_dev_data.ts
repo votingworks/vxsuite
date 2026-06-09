@@ -5,7 +5,11 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 
 import { DEV_USER_ID } from '../src/auth0_client';
 import { NODE_ENV, votingWorksOrganizationId, WORKSPACE } from '../src/globals';
-import { Organization, StateCodes } from '../src/types';
+import {
+  LATEST_SOFTWARE_VERSION,
+  Organization,
+  StateCodes,
+} from '../src/types';
 import { createWorkspace } from '../src/workspace';
 
 /**
@@ -68,6 +72,7 @@ async function main(): Promise<void> {
         name: `Dev Jurisdiction - ${stateCode}`,
         stateCode,
         organization: votingWorksOrganization,
+        softwareVersion: LATEST_SOFTWARE_VERSION,
       };
       await workspace.store.createJurisdiction(jurisdictionWithStateCode);
       console.log(
