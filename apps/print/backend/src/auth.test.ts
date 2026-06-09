@@ -1,5 +1,4 @@
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { Server } from 'node:http';
+import { assertDefined } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   constructElectionKey,
@@ -12,12 +11,8 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assertDefined } from '@votingworks/basics';
-import {
-  buildTestEnvironment,
-  configureMachine,
-  buildBallotsForElection,
-} from '../test/app';
+import { beforeAll, beforeEach, expect, vi } from 'vitest';
+import { apptest, buildBallotsForElection } from '../test/app';
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'print';
@@ -48,123 +43,94 @@ beforeEach(() => {
   setPollingPlacesEnabled(false);
 });
 
-let server: Server | undefined;
+apptest(
+  'getAuthStatus',
+  async ({ apiClient, auth, configureMachine, workspace }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-afterEach(() => {
-  server?.close();
-  server = undefined;
-});
+    workspace.store.setPrecinctSelection(
+      singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+    );
 
-test('getAuthStatus', async () => {
-  const env = buildTestEnvironment();
-  server = env.server;
-  const { apiClient, auth, mockUsbDrive, workspace } = env;
-
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
-
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
-
-  vi.mocked(auth.getAuthStatus).mockClear(); // Clear mock calls from configureMachine
-
-  await apiClient.getAuthStatus();
-  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    ...DEFAULT_SYSTEM_SETTINGS.auth,
-    electionKey,
-    jurisdiction,
-    machineType,
-    isConfigured: true,
-  });
-});
-
-test('getAuthStatus - configured state is based on polling place selection', async () => {
-  setPollingPlacesEnabled(true);
-
-  const env = buildTestEnvironment();
-  server = env.server;
-  const { apiClient, auth, mockUsbDrive } = env;
-
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
-
-  await apiClient.getAuthStatus();
-  expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
-    ...DEFAULT_SYSTEM_SETTINGS.auth,
-    electionKey,
-    jurisdiction,
-    machineType,
-    isConfigured: false,
-  });
-
-  const { election } = electionDefinition;
-  const [pollingPlace] = assertDefined(election.pollingPlaces);
-  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
-
-  await apiClient.getAuthStatus();
-  expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
-    ...DEFAULT_SYSTEM_SETTINGS.auth,
-    electionKey,
-    jurisdiction,
-    machineType,
-    isConfigured: true,
-  });
-});
-
-test('checkPin', async () => {
-  const env = buildTestEnvironment();
-  server = env.server;
-  const { apiClient, auth, mockUsbDrive, workspace } = env;
-
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
-
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
-  await apiClient.checkPin({ pin: '123456' });
-  expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    {
+    await apiClient.getAuthStatus();
+    expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
       ...DEFAULT_SYSTEM_SETTINGS.auth,
       electionKey,
       jurisdiction,
       machineType,
       isConfigured: true,
-    },
-    { pin: '123456' }
-  );
-});
+    });
+  }
+);
 
-test('logOut', async () => {
-  const env = buildTestEnvironment();
-  server = env.server;
-  const { apiClient, auth, mockUsbDrive, workspace } = env;
+apptest(
+  'getAuthStatus - configured state is based on polling place selection',
+  async ({ apiClient, auth, configureMachine }) => {
+    setPollingPlacesEnabled(true);
 
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
+
+    await apiClient.getAuthStatus();
+    expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: false,
+    });
+
+    const { election } = electionDefinition;
+    const [pollingPlace] = assertDefined(election.pollingPlaces);
+    await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+
+    await apiClient.getAuthStatus();
+    expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    });
+  }
+);
+
+apptest(
+  'checkPin',
+  async ({ apiClient, auth, configureMachine, workspace }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
+
+    workspace.store.setPrecinctSelection(
+      singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+    );
+    await apiClient.checkPin({ pin: '123456' });
+    expect(auth.checkPin).toHaveBeenCalledTimes(1);
+    expect(auth.checkPin).toHaveBeenNthCalledWith(
+      1,
+      {
+        ...DEFAULT_SYSTEM_SETTINGS.auth,
+        electionKey,
+        jurisdiction,
+        machineType,
+        isConfigured: true,
+      },
+      { pin: '123456' }
+    );
+  }
+);
+
+apptest('logOut', async ({ apiClient, auth, configureMachine, workspace }) => {
   await configureMachine({
     electionDefinition,
     ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
   });
 
   workspace.store.setPrecinctSelection(
@@ -181,38 +147,34 @@ test('logOut', async () => {
   });
 });
 
-test('updateSessionExpiry', async () => {
-  const env = buildTestEnvironment();
-  server = env.server;
-  const { apiClient, auth, mockUsbDrive, workspace } = env;
+apptest(
+  'updateSessionExpiry',
+  async ({ apiClient, auth, configureMachine, workspace }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
-
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
-  await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date(Date.now() + 60_000),
-  });
-  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
-  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
-    1,
-    {
-      ...DEFAULT_SYSTEM_SETTINGS.auth,
-      electionKey,
-      jurisdiction,
-      machineType,
-      isConfigured: true,
-    },
-    { sessionExpiresAt: expect.any(Date) }
-  );
-});
+    workspace.store.setPrecinctSelection(
+      singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+    );
+    await apiClient.updateSessionExpiry({
+      sessionExpiresAt: new Date(Date.now() + 60_000),
+    });
+    expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+    expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
+      1,
+      {
+        ...DEFAULT_SYSTEM_SETTINGS.auth,
+        electionKey,
+        jurisdiction,
+        machineType,
+        isConfigured: true,
+      },
+      { sessionExpiresAt: expect.any(Date) }
+    );
+  }
+);
 
 function setPollingPlacesEnabled(enabled: boolean) {
   const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;

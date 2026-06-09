@@ -1,10 +1,16 @@
-import { vi } from 'vitest';
+import { test, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { AddressInfo } from 'node:net';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  detectUsbDrive,
+  MemoryUsbController,
+  MockFileTree,
+  MockUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
@@ -37,8 +43,7 @@ import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { getUserRole } from '../src/util/auth';
 import { createWorkspace, Workspace } from '../src/util/workspace';
-import { buildApp } from '../src/app';
-import { Api } from '../src';
+import { Api, buildApp } from '../src/app';
 
 async function getFamousNamesBallotPdfBase64s(): Promise<
   readonly [string, string, string, string]
@@ -222,3 +227,91 @@ export function buildTestEnvironment(): {
     workspace,
   };
 }
+
+/* eslint-disable no-empty-pattern */
+export const apptest = test
+  .extend('auth', ({}) => {
+    const auth = buildMockDippedSmartCardAuth(vi.fn);
+    mockAuthStatus(auth, { status: 'logged_out', reason: 'machine_locked' });
+    return auth;
+  })
+  .extend('workspace', ({}) =>
+    createWorkspace(makeTemporaryDirectory(), mockBaseLogger({ fn: vi.fn }))
+  )
+  .extend('mockPrinterHandler', ({}, { onCleanup }) => {
+    const mockPrinterHandler = createMockPrinterHandler();
+    onCleanup(() => mockPrinterHandler.cleanup());
+    return mockPrinterHandler;
+  })
+  .extend('logger', ({ auth, workspace }) => buildMockLogger(auth, workspace))
+  .extend(
+    'usbController',
+    () => new MemoryUsbController(makeTemporaryDirectory())
+  )
+  .extend('usbDrive', ({ logger, usbController }) =>
+    detectUsbDrive(logger, { platform: usbController.platform })
+  )
+  .extend(
+    'insertUsbDrive',
+    ({ usbController }) =>
+      (contents: MockFileTree) =>
+        usbController.insertDrive(contents, {
+          devPath: '/dev/sdb',
+          fstype: 'fat32',
+        })
+  )
+  .extend(
+    'removeUsbDrive',
+    ({ usbController }) =>
+      () =>
+        usbController.removeAllDrives()
+  )
+  .extend(
+    'server',
+    (
+      { auth, workspace, logger, mockPrinterHandler, usbDrive },
+      { onCleanup }
+    ) => {
+      const app = buildApp({
+        auth,
+        workspace,
+        logger,
+        usbDrive,
+        printer: mockPrinterHandler.printer,
+      });
+      const server = app.listen();
+      onCleanup(() => {
+        server.close();
+      });
+      return server;
+    }
+  )
+  .extend('apiClient', ({ server }) => {
+    const { port } = server.address() as AddressInfo;
+    const baseUrl = `http://localhost:${port}/api`;
+    return grout.createClient<Api>({ baseUrl });
+  })
+  .extend(
+    'configureMachine',
+    ({ apiClient, auth, insertUsbDrive, removeUsbDrive }) =>
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      async function configureMachine({
+        electionDefinition,
+        ballots,
+      }: {
+        electionDefinition: ElectionDefinition;
+        ballots: EncodedBallotEntry[];
+      }) {
+        mockElectionManagerAuth(auth, electionDefinition);
+        insertUsbDrive(
+          await mockElectionPackageFileTree({
+            electionDefinition,
+            ballots,
+            systemSettings: DEFAULT_SYSTEM_SETTINGS,
+          })
+        );
+        (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
+        removeUsbDrive();
+      }
+  );
+/* eslint-enable no-empty-pattern */

@@ -1,28 +1,28 @@
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { LogEventId } from '@votingworks/logging';
-import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   getBatteryInfo,
   getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
+import { assertDefined } from '@votingworks/basics';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { LogEventId } from '@votingworks/logging';
+import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   DiagnosticRecord,
   EncodedBallotEntry,
   LanguageCode,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName as Feature,
   DiskSpaceSummary,
+  BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { assertDefined } from '@votingworks/basics';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import {
+  apptest,
   buildBallotsForElection,
   buildTestEnvironment,
-  configureMachine,
   mockSystemAdministratorAuth,
 } from '../test/app';
 
@@ -86,9 +86,8 @@ beforeEach(() => {
   vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
 });
 
-test('diagnostic records', async () => {
+apptest('diagnostic records', async ({ apiClient, logger, auth }) => {
   vi.useFakeTimers();
-  const { apiClient, logger, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
@@ -140,32 +139,33 @@ test('diagnostic records', async () => {
   vi.useRealTimers();
 });
 
-test('unconfiguring clears diagnostic records', async () => {
-  vi.useFakeTimers();
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
-  mockSystemAdministratorAuth(auth);
+apptest(
+  'unconfiguring clears diagnostic records',
+  async ({ apiClient, auth }) => {
+    vi.useFakeTimers();
+    mockSystemAdministratorAuth(auth);
 
-  expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
+    expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
 
-  vi.setSystemTime(new Date(1000));
-  await apiClient.addDiagnosticRecord({
-    type: 'test-print',
-    outcome: 'pass',
-  });
-  expect(
-    await apiClient.getMostRecentPrinterDiagnostic()
-  ).toEqual<DiagnosticRecord>({
-    type: 'test-print',
-    outcome: 'pass',
-    timestamp: 1000,
-  });
+    vi.setSystemTime(new Date(1000));
+    await apiClient.addDiagnosticRecord({
+      type: 'test-print',
+      outcome: 'pass',
+    });
+    expect(
+      await apiClient.getMostRecentPrinterDiagnostic()
+    ).toEqual<DiagnosticRecord>({
+      type: 'test-print',
+      outcome: 'pass',
+      timestamp: 1000,
+    });
 
-  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
-  await apiClient.unconfigureMachine();
-  expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
+    await apiClient.unconfigureMachine();
+    expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
 
-  vi.useRealTimers();
-});
+    vi.useRealTimers();
+  }
+);
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
@@ -173,102 +173,109 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
-test('test-page print', async () => {
-  const { apiClient, logger, mockPrinterHandler, auth } =
-    buildTestEnvironment();
-  mockSystemAdministratorAuth(auth);
+apptest(
+  'test-page print',
+  async ({ apiClient, logger, mockPrinterHandler, auth }) => {
+    mockSystemAdministratorAuth(auth);
 
-  // can log failure if test page never makes it to the printer
-  await apiClient.printTestPage();
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.DiagnosticInit,
-    'system_administrator',
-    {
-      disposition: 'failure',
-      message:
-        'Error attempting to send test page to the printer: cannot print without printer connected',
-    }
-  );
+    // can log failure if test page never makes it to the printer
+    await apiClient.printTestPage();
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DiagnosticInit,
+      'system_administrator',
+      {
+        disposition: 'failure',
+        message:
+          'Error attempting to send test page to the printer: cannot print without printer connected',
+      }
+    );
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  await apiClient.printTestPage();
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.DiagnosticInit,
-    'system_administrator',
-    {
-      disposition: 'success',
-      message: 'User started a print diagnostic by printing a test page.',
-    }
-  );
+    await apiClient.printTestPage();
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DiagnosticInit,
+      'system_administrator',
+      {
+        disposition: 'success',
+        message: 'User started a print diagnostic by printing a test page.',
+      }
+    );
 
-  // it's not important to test the exact content of the test print, only that it
-  // prints the sort of text, lines, and shading that will appear on our actual reports
-  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'test-print',
-    failureThreshold: 0.0001,
-  });
-});
+    // it's not important to test the exact content of the test print, only that it
+    // prints the sort of text, lines, and shading that will appear on our actual reports
+    await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'test-print',
+      failureThreshold: 0.0001,
+    });
+  }
+);
 
-test('save readiness report (with precinct selection)', async () => {
-  setPollingPlacesEnabled(true);
-
-  const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive, server } =
-    buildTestEnvironment();
-  mockSystemAdministratorAuth(auth);
-
-  await configureMachine({
-    electionDefinition,
-    ballots,
+apptest(
+  'save readiness report (with precinct selection)',
+  async ({
     apiClient,
+    mockPrinterHandler,
     auth,
-    mockUsbDrive,
-  });
+    logger,
+    server,
+    configureMachine,
+    insertUsbDrive,
+  }) => {
+    setPollingPlacesEnabled(true);
+    mockSystemAdministratorAuth(auth);
 
-  const { election } = electionDefinition;
-  const [pollingPlace] = assertDefined(election.pollingPlaces);
-  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  await apiClient.printTestPage();
+    const { election } = electionDefinition;
+    const [pollingPlace] = assertDefined(election.pollingPlaces);
+    await apiClient.setPollingPlaceId({ id: pollingPlace.id });
 
-  vi.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
-  await apiClient.addDiagnosticRecord({
-    type: 'test-print',
-    outcome: 'pass',
-  });
-  vi.useRealTimers();
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    await apiClient.printTestPage();
 
-  mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
-  const exportFileResult = await apiClient.saveReadinessReport();
-  exportFileResult.assertOk('error saving readiness report to USB');
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.ReadinessReportSaved,
-    'election_manager',
-    {
-      disposition: 'success',
-      message: 'User saved the equipment readiness report to a USB drive.',
-    }
-  );
+    vi.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
+    await apiClient.addDiagnosticRecord({
+      type: 'test-print',
+      outcome: 'pass',
+    });
+    vi.useRealTimers();
 
-  const printPath = exportFileResult.unsafeUnwrap()[0];
-  await expect(printPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'readiness-report',
-    failureThreshold: 0.0001,
-  });
+    insertUsbDrive({});
+    const exportFileResult = await apiClient.saveReadinessReport();
+    exportFileResult.assertOk('error saving readiness report to USB');
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.ReadinessReportSaved,
+      'election_manager',
+      {
+        disposition: 'success',
+        message: 'User saved the equipment readiness report to a USB drive.',
+      }
+    );
 
-  const pdfContents = await pdfToText(printPath);
-  expect(pdfContents).toContain('VxPrint Readiness Report');
-  expect(pdfContents).toContain('Battery Level: 50%');
-  expect(pdfContents).toContain('Power Source: External Power Supply');
-  expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
-  expect(pdfContents).toContain('Ready to print');
-  expect(pdfContents).toContain('Toner Level: 100%');
-  expect(pdfContents).toContain('Test print successful, 1/1/2021, 12:00:00 AM');
+    const printPath = exportFileResult.unsafeUnwrap()[0];
+    await expect(printPath).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'readiness-report',
+      failureThreshold: 0.0001,
+    });
 
-  server.close();
-});
+    const pdfContents = await pdfToText(printPath);
+    expect(pdfContents).toContain('VxPrint Readiness Report');
+    expect(pdfContents).toContain('Battery Level: 50%');
+    expect(pdfContents).toContain('Power Source: External Power Supply');
+    expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
+    expect(pdfContents).toContain('Ready to print');
+    expect(pdfContents).toContain('Toner Level: 100%');
+    expect(pdfContents).toContain(
+      'Test print successful, 1/1/2021, 12:00:00 AM'
+    );
+
+    server.close();
+  }
+);
 
 test('save readiness report failure logging', async () => {
   const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();

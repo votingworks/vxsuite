@@ -1,50 +1,28 @@
-import { expect, test, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { err } from '@votingworks/basics';
-import { join } from 'node:path';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { LogEventId } from '@votingworks/logging';
+import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import {
   BallotType,
   EncodedBallotEntry,
   LanguageCode,
 } from '@votingworks/types';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
-  getMockMultiLanguageElectionDefinition,
-  generateFileTimeSuffix,
   BooleanEnvironmentVariableName,
+  generateFileTimeSuffix,
   getFeatureFlagMock,
+  getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
-import {
-  HP_LASER_PRINTER_CONFIG,
-  MemoryPrinterHandler,
-  renderToPdf,
-} from '@votingworks/printing';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { Server } from 'node:http';
-import {
-  buildTestEnvironment,
-  configureMachine,
-  buildBallotsForElection,
-} from '../test/app';
+import { join } from 'node:path';
+import { beforeAll, beforeEach, expect, vi } from 'vitest';
+import { apptest, buildBallotsForElection } from '../test/app';
 import {
   exportBallotsPrintedReportPdf,
   generateReportsDirectoryPath,
   printBallotsPrintedReport,
 } from './reports/ballots_printed_report';
-import { Api } from './app';
-import { Workspace } from './util/workspace';
 
 const mockFeatureFlagger = getFeatureFlagMock();
-
-let server: Server | undefined;
-let apiClient: grout.Client<Api>;
-let auth: DippedSmartCardAuthApi;
-let logger: MockLogger;
-let mockUsbDrive: MockUsbDrive;
-let mockPrinterHandler: MemoryPrinterHandler;
-let workspace: Workspace;
 
 const electionDefinition = getMockMultiLanguageElectionDefinition(
   electionFamousNames2021Fixtures.readElectionDefinition(),
@@ -77,274 +55,278 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
-  ({
-    apiClient,
-    auth,
+});
+
+apptest(
+  'ballots printed report (zero) can be printed and exported (pdf snapshots)',
+  async ({
     logger,
-    mockUsbDrive,
     mockPrinterHandler,
-    server,
     workspace,
-  } = buildTestEnvironment());
+    configureMachine,
+    insertUsbDrive,
+    usbDrive,
+  }) => {
+    const fixedNow = new Date('2025-12-18T12:00:00.000Z');
 
-  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
-});
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-afterEach(() => {
-  mockPrinterHandler?.cleanup();
-  server?.close();
-  server = undefined;
-});
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    await printBallotsPrintedReport({
+      printer: mockPrinterHandler.printer,
+      logger,
+      store: workspace.store,
+      generatedAtTime: fixedNow,
+    });
+    await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'ballots-printed-report-zero-print',
+      failureThreshold: 0.00001,
+    });
 
-test('ballots printed report (zero) can be printed and exported (pdf snapshots)', async () => {
-  const fixedNow = new Date('2025-12-18T12:00:00.000Z');
+    insertUsbDrive({});
+    await exportBallotsPrintedReportPdf({
+      usbDrive,
+      logger,
+      store: workspace.store,
+      generatedAtTime: fixedNow,
+    });
+    const usbStatus = await usbDrive.status();
+    expect(usbStatus.status).toEqual('mounted');
+    const { mountPoint } = usbStatus as {
+      status: 'mounted';
+      mountPoint: string;
+    };
 
-  await configureMachine({
-    electionDefinition,
-    ballots,
+    const reportsDir = join(
+      mountPoint,
+      generateReportsDirectoryPath(electionDefinition)
+    );
+    const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
+      fixedNow
+    )}.pdf`;
+    await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'ballots-printed-report-zero-export',
+      failureThreshold: 0.00001,
+    });
+  }
+);
+
+apptest(
+  'ballots printed report (non-zero) can be printed and exported (pdf snapshots)',
+  async ({
     apiClient,
-    auth,
-    mockUsbDrive,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  await printBallotsPrintedReport({
-    printer: mockPrinterHandler.printer,
+    configureMachine,
+    insertUsbDrive,
     logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-zero-print',
-    failureThreshold: 0.00001,
-  });
+    mockPrinterHandler,
+    usbDrive,
+    workspace,
+  }) => {
+    const fixedNow = new Date('2025-12-18T12:05:00.000Z');
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  mockUsbDrive.insertUsbDrive({});
-  await exportBallotsPrintedReportPdf({
-    usbDrive: mockUsbDrive.usbDrive,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  const usbStatus = await mockUsbDrive.usbDrive.status();
-  expect(usbStatus.status).toEqual('mounted');
-  const { mountPoint } = usbStatus as { status: 'mounted'; mountPoint: string };
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    const styleA = electionDefinition.election.ballotStyles[0];
+    const styleB = electionDefinition.election.ballotStyles[1];
+    const precinctA = styleA.precincts[0];
+    const precinctB = styleB.precincts[0];
+    await apiClient.printBallot({
+      precinctId: precinctA,
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copies: 2,
+    });
+    await apiClient.printBallot({
+      precinctId: precinctA,
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Absentee,
+      copies: 1,
+    });
+    await apiClient.printBallot({
+      precinctId: precinctB,
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copies: 3,
+    });
+    await apiClient.printBallot({
+      precinctId: precinctB,
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Absentee,
+      copies: 4,
+    });
 
-  const reportsDir = join(
-    mountPoint,
-    generateReportsDirectoryPath(electionDefinition)
-  );
-  const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
-    fixedNow
-  )}.pdf`;
-  await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-zero-export',
-    failureThreshold: 0.00001,
-  });
-});
+    await printBallotsPrintedReport({
+      printer: mockPrinterHandler.printer,
+      logger,
+      store: workspace.store,
+      generatedAtTime: fixedNow,
+    });
+    await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'ballots-printed-report-nonzero-print',
+      failureThreshold: 0.00001,
+    });
 
-test('ballots printed report (non-zero) can be printed and exported (pdf snapshots)', async () => {
-  const fixedNow = new Date('2025-12-18T12:05:00.000Z');
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
+    insertUsbDrive({});
+    await exportBallotsPrintedReportPdf({
+      usbDrive,
+      logger,
+      store: workspace.store,
+      generatedAtTime: fixedNow,
+    });
+    const usbStatus = await usbDrive.status();
+    expect(usbStatus.status).toEqual('mounted');
+    const { mountPoint } = usbStatus as {
+      status: 'mounted';
+      mountPoint: string;
+    };
+    const reportsDir = join(
+      mountPoint,
+      generateReportsDirectoryPath(electionDefinition)
+    );
+    const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
+      fixedNow
+    )}.pdf`;
+    await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'ballots-printed-report-nonzero-export',
+      failureThreshold: 0.00001,
+    });
+  }
+);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  const styleA = electionDefinition.election.ballotStyles[0];
-  const styleB = electionDefinition.election.ballotStyles[1];
-  const precinctA = styleA.precincts[0];
-  const precinctB = styleB.precincts[0];
-  await apiClient.printBallot({
-    precinctId: precinctA,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copies: 2,
-  });
-  await apiClient.printBallot({
-    precinctId: precinctA,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Absentee,
-    copies: 1,
-  });
-  await apiClient.printBallot({
-    precinctId: precinctB,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copies: 3,
-  });
-  await apiClient.printBallot({
-    precinctId: precinctB,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Absentee,
-    copies: 4,
-  });
+apptest(
+  'printBallotsPrintedReport logs error when renderToPdf fails',
+  async ({ apiClient, configureMachine, logger, mockPrinterHandler }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  await printBallotsPrintedReport({
-    printer: mockPrinterHandler.printer,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-nonzero-print',
-    failureThreshold: 0.00001,
-  });
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  mockUsbDrive.insertUsbDrive({});
-  await exportBallotsPrintedReportPdf({
-    usbDrive: mockUsbDrive.usbDrive,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  const usbStatus = await mockUsbDrive.usbDrive.status();
-  expect(usbStatus.status).toEqual('mounted');
-  const { mountPoint } = usbStatus as { status: 'mounted'; mountPoint: string };
-  const reportsDir = join(
-    mountPoint,
-    generateReportsDirectoryPath(electionDefinition)
-  );
-  const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
-    fixedNow
-  )}.pdf`;
-  await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-nonzero-export',
-    failureThreshold: 0.00001,
-  });
-});
+    const renderToPdfMock = vi.mocked(renderToPdf);
+    renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
 
-test('printBallotsPrintedReport logs error when renderToPdf fails', async () => {
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
+    await apiClient.printBallotsPrintedReport();
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.FileSaved,
+      expect.any(String),
+      expect.objectContaining({
+        disposition: 'failure',
+        message: expect.stringContaining(
+          'Failed to render Ballots Printed Report PDF file'
+        ),
+      })
+    );
+  }
+);
 
-  const renderToPdfMock = vi.mocked(renderToPdf);
-  renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
+apptest(
+  'printBallotsPrintedReport logs error when printer.print throws',
+  async ({ apiClient, configureMachine, logger, mockPrinterHandler }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  await apiClient.printBallotsPrintedReport();
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining(
-        'Failed to render Ballots Printed Report PDF file'
-      ),
-    })
-  );
-});
+    const printSpy = vi
+      .spyOn(mockPrinterHandler.printer, 'print')
+      .mockRejectedValueOnce(new Error('Printer jam'));
 
-test('printBallotsPrintedReport logs error when printer.print throws', async () => {
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
+    await apiClient.printBallotsPrintedReport();
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ElectionReportPrinted,
+      expect.any(String),
+      expect.objectContaining({
+        disposition: 'failure',
+        message: expect.stringContaining('Printer jam'),
+      })
+    );
 
-  const printSpy = vi
-    .spyOn(mockPrinterHandler.printer, 'print')
-    .mockRejectedValueOnce(new Error('Printer jam'));
+    printSpy.mockRestore();
+  }
+);
 
-  await apiClient.printBallotsPrintedReport();
+apptest(
+  'exportBallotsPrintedReportPdf logs error when renderToPdf fails',
+  async ({ apiClient, configureMachine, logger }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ElectionReportPrinted,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining('Printer jam'),
-    })
-  );
+    const renderToPdfMock = vi.mocked(renderToPdf);
+    renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
 
-  printSpy.mockRestore();
-});
+    await apiClient.exportBallotsPrintedReportPdf();
 
-test('exportBallotsPrintedReportPdf logs error when renderToPdf fails', async () => {
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.FileSaved,
+      expect.any(String),
+      expect.objectContaining({
+        disposition: 'failure',
+        message: expect.stringContaining(
+          'Failed to render Ballots Printed Report PDF file'
+        ),
+      })
+    );
+  }
+);
 
-  const renderToPdfMock = vi.mocked(renderToPdf);
-  renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
+apptest(
+  'exportBallotsPrintedReportPdf logs failure when USB export fails',
+  async ({ apiClient, configureMachine, logger, removeUsbDrive }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  await apiClient.exportBallotsPrintedReportPdf();
+    // Simulate USB drive not mounted
+    removeUsbDrive();
 
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining(
-        'Failed to render Ballots Printed Report PDF file'
-      ),
-    })
-  );
-});
+    await apiClient.exportBallotsPrintedReportPdf();
 
-test('exportBallotsPrintedReportPdf logs failure when USB export fails', async () => {
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.FileSaved,
+      expect.any(String),
+      expect.objectContaining({
+        disposition: 'failure',
+        message: expect.stringContaining('Failed to save'),
+      })
+    );
+  }
+);
 
-  // Simulate USB drive not mounted
-  mockUsbDrive.removeUsbDrive();
+apptest(
+  'printBallotsPrintedReport works in test mode',
+  async ({ apiClient, configureMachine, logger, mockPrinterHandler }) => {
+    await configureMachine({
+      electionDefinition,
+      ballots,
+    });
 
-  await apiClient.exportBallotsPrintedReportPdf();
+    // Enable test mode
+    await apiClient.setTestMode({ testMode: true });
 
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining('Failed to save'),
-    })
-  );
-});
+    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-test('printBallotsPrintedReport works in test mode', async () => {
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
+    await apiClient.printBallotsPrintedReport();
 
-  // Enable test mode
-  await apiClient.setTestMode({ testMode: true });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-
-  await apiClient.printBallotsPrintedReport();
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ElectionReportPrinted,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'success',
-    })
-  );
-});
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ElectionReportPrinted,
+      expect.any(String),
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
+  }
+);

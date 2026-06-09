@@ -82,7 +82,16 @@ test('exposes the first connected drive via the UsbDrive interface', async () =>
     },
   ];
 
-  const usbDrive = detectUsbDrive(mockLogger({ fn: vi.fn }));
+  const usbDrive = detectUsbDrive(mockLogger({ fn: vi.fn }), {
+    platform: {
+      getAllUsbDrives: () => Promise.resolve(mockDrives),
+      watchChanges: vi.fn(),
+      sync: vi.fn(),
+      mountPartition: vi.fn(),
+      unmountPartition: vi.fn(),
+      formatDrive: vi.fn(),
+    },
+  });
 
   // doRefresh() is fired asynchronously but only awaits Promise.resolve(mockDrives),
   // so one microtask tick is enough for it to complete and populate the drive cache.
