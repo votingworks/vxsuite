@@ -617,7 +617,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                       {voter.checkIn.identificationMethod.state})
                     </LabelledText>
                   )}
-                  {election.type === 'primary' && (
+                  {election.type === 'closed-primary' && (
                     <LabelledText label="Ballot Party">
                       {partyAbbreviationToString(voter.checkIn.ballotParty)}
                     </LabelledText>

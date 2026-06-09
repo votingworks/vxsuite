@@ -426,15 +426,15 @@ export interface SummaryStatistics {
   totalAbsenteeCheckIns: number;
 }
 
-export interface PrimarySummaryStatistics extends SummaryStatistics {
+export interface ClosedPrimarySummaryStatistics extends SummaryStatistics {
   totalUndeclaredDemCheckIns: number;
   totalUndeclaredRepCheckIns: number;
 }
 
-/* Gets the party choice for undeclared voters in a primary election as a number */
+/* Gets the party choice for undeclared voters in a closed primary election as a number */
 export function getUndeclaredPrimaryPartyChoiceRaw(
   partyAbbreviation: Exclude<PartyAbbreviation, 'UND'>,
-  undeclaredPrimaryStats: PrimarySummaryStatistics
+  undeclaredPrimaryStats: ClosedPrimarySummaryStatistics
 ): number {
   switch (partyAbbreviation) {
     case 'DEM':
@@ -447,10 +447,10 @@ export function getUndeclaredPrimaryPartyChoiceRaw(
   }
 }
 
-/* Gets the party choice for undeclared voters in a primary election as a string */
+/* Gets the party choice for undeclared voters in a closed primary election as a string */
 export function getUndeclaredPrimaryPartyChoice(
   partyAbbreviation: Exclude<PartyAbbreviation, 'UND'>,
-  undeclaredPrimaryStats: PrimarySummaryStatistics
+  undeclaredPrimaryStats: ClosedPrimarySummaryStatistics
 ): string {
   return getUndeclaredPrimaryPartyChoiceRaw(
     partyAbbreviation,

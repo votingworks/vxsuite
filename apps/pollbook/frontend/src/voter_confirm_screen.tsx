@@ -151,7 +151,7 @@ export function VoterConfirmScreen({
   }
 
   const partySelectionRequired =
-    election.type === 'primary' && voter.party === 'UND';
+    election.type === 'closed-primary' && voter.party === 'UND';
 
   return (
     <NoNavScreen>

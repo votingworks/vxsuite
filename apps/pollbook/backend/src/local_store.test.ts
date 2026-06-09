@@ -921,7 +921,7 @@ test('store can load data from database on restart', () => {
   expect(reloadedStore.getStreetInfo()).toHaveLength(1);
 });
 
-test('getGeneralSummaryStatistics returns complete statistics for in-precinct voters when configured precinct is set', () => {
+test('getSummaryStatistics returns complete statistics for in-precinct voters when configured precinct is set', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   // Create voters in precinct-1 and precinct-2
@@ -1000,32 +1000,32 @@ test('getGeneralSummaryStatistics returns complete statistics for in-precinct vo
   });
 
   // Test with precinct-1 configured (current state)
-  const precinct1AllStats = localStore.getGeneralSummaryStatistics('ALL');
+  const precinct1AllStats = localStore.getSummaryStatistics('ALL');
   expect(precinct1AllStats.totalVoters).toEqual(3); // Dylan, Ella, Alice in precinct-1
   expect(precinct1AllStats.totalCheckIns).toEqual(3); // All check-ins are from precinct-1 voters
   expect(precinct1AllStats.totalNewRegistrations).toEqual(1); // Alice is in precinct-1
   expect(precinct1AllStats.totalAbsenteeCheckIns).toEqual(1); // Ella's absentee check-in
 
-  const precinct1DemStats = localStore.getGeneralSummaryStatistics('DEM');
+  const precinct1DemStats = localStore.getSummaryStatistics('DEM');
   expect(precinct1DemStats.totalVoters).toEqual(2); // Dylan + Alice in precinct-1
   expect(precinct1DemStats.totalCheckIns).toEqual(3); // All check-ins count
   expect(precinct1DemStats.totalNewRegistrations).toEqual(1); // Alice
   expect(precinct1DemStats.totalAbsenteeCheckIns).toEqual(1); // Ella's absentee check-in
 
-  const precinct1RepStats = localStore.getGeneralSummaryStatistics('REP');
+  const precinct1RepStats = localStore.getSummaryStatistics('REP');
   expect(precinct1RepStats.totalVoters).toEqual(1); // Only Ella in precinct-1
   expect(precinct1RepStats.totalCheckIns).toEqual(3); // All check-ins count
   expect(precinct1RepStats.totalNewRegistrations).toEqual(0); // No REP new registrations
   expect(precinct1RepStats.totalAbsenteeCheckIns).toEqual(1); // Ella's absentee check-in
 
-  const precinct1UndStats = localStore.getGeneralSummaryStatistics('UND');
+  const precinct1UndStats = localStore.getSummaryStatistics('UND');
   expect(precinct1UndStats.totalVoters).toEqual(0); // Ariel is in precinct-2
   expect(precinct1UndStats.totalCheckIns).toEqual(3); // All check-ins count
   expect(precinct1UndStats.totalNewRegistrations).toEqual(0); // No UND new registrations
   expect(precinct1UndStats.totalAbsenteeCheckIns).toEqual(1); // Ella's absentee check-in
 });
 
-test('getGeneralSummaryStatistics returns complete statistics for all voterswhen no precinct is configured', () => {
+test('getSummaryStatistics returns complete statistics for all voters when no precinct is configured', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   // Create voters in precinct-1 and precinct-2
@@ -1061,35 +1061,35 @@ test('getGeneralSummaryStatistics returns complete statistics for all voterswhen
   // We can only test the base voter counts
 
   // Test ALL party filter with no precinct configured
-  const allStats = localStore.getGeneralSummaryStatistics('ALL');
+  const allStats = localStore.getSummaryStatistics('ALL');
   expect(allStats.totalVoters).toEqual(3); // 3 original voters
   expect(allStats.totalCheckIns).toEqual(0); // No check-ins
   expect(allStats.totalNewRegistrations).toEqual(0); // No new registrations
   expect(allStats.totalAbsenteeCheckIns).toEqual(0); // No absentee check-ins
 
   // Test DEM party filter with no precinct configured
-  const demStats = localStore.getGeneralSummaryStatistics('DEM');
+  const demStats = localStore.getSummaryStatistics('DEM');
   expect(demStats.totalVoters).toEqual(1); // Only Dylan
   expect(demStats.totalCheckIns).toEqual(0); // No check-ins
   expect(demStats.totalNewRegistrations).toEqual(0); // No new registrations
   expect(demStats.totalAbsenteeCheckIns).toEqual(0); // No absentee check-ins
 
   // Test REP party filter with no precinct configured
-  const repStats = localStore.getGeneralSummaryStatistics('REP');
+  const repStats = localStore.getSummaryStatistics('REP');
   expect(repStats.totalVoters).toEqual(1); // Only Ella
   expect(repStats.totalCheckIns).toEqual(0); // No check-ins
   expect(repStats.totalNewRegistrations).toEqual(0); // No new registrations
   expect(repStats.totalAbsenteeCheckIns).toEqual(0); // No absentee check-ins
 
   // Test UND party filter with no precinct configured
-  const undStats = localStore.getGeneralSummaryStatistics('UND');
+  const undStats = localStore.getSummaryStatistics('UND');
   expect(undStats.totalVoters).toEqual(1); // Only Ariel
   expect(undStats.totalCheckIns).toEqual(0); // No check-ins
   expect(undStats.totalNewRegistrations).toEqual(0); // No new registrations
   expect(undStats.totalAbsenteeCheckIns).toEqual(0); // No absentee check-ins
 });
 
-test('getGeneralSummaryStatistics throws error when called with primary election', () => {
+test('getSummaryStatistics throws error when called with closed primary election', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const primaryElectionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -1111,11 +1111,11 @@ test('getGeneralSummaryStatistics throws error when called with primary election
   );
 
   suppressingConsoleOutput(() => {
-    expect(() => localStore.getGeneralSummaryStatistics('ALL')).toThrow();
+    expect(() => localStore.getSummaryStatistics('ALL')).toThrow();
   });
 });
 
-test('getPrimarySummaryStatistics returns complete statistics for in-precinct voters when configured precinct is set', () => {
+test('getClosedPrimarySummaryStatistics returns complete statistics for in-precinct voters when configured precinct is set', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const primaryElectionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -1208,7 +1208,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   });
 
   // Test with precinct-1 configured (current state)
-  const precinct1AllStats = localStore.getPrimarySummaryStatistics('ALL');
+  const precinct1AllStats = localStore.getClosedPrimarySummaryStatistics('ALL');
   expect(precinct1AllStats.totalVoters).toEqual(4); // Dylan, Ella, Ariel, Alice in precinct-1
   expect(precinct1AllStats.totalCheckIns).toEqual(4); // All check-ins are from precinct-1 voters
   expect(precinct1AllStats.totalNewRegistrations).toEqual(1); // Alice is in precinct-1
@@ -1216,7 +1216,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(1); // Ariel checked in with DEM ballot
   expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 
-  const precinct1DemStats = localStore.getPrimarySummaryStatistics('DEM');
+  const precinct1DemStats = localStore.getClosedPrimarySummaryStatistics('DEM');
   expect(precinct1DemStats.totalVoters).toEqual(2); // Dylan + Alice in precinct-1
   expect(precinct1DemStats.totalCheckIns).toEqual(3); // Dylan, Ariel, Alice (DEM ballot check-ins)
   expect(precinct1DemStats.totalNewRegistrations).toEqual(1); // Alice
@@ -1224,7 +1224,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(1); // Ariel checked in with DEM ballot
   expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 
-  const precinct1RepStats = localStore.getPrimarySummaryStatistics('REP');
+  const precinct1RepStats = localStore.getClosedPrimarySummaryStatistics('REP');
   expect(precinct1RepStats.totalVoters).toEqual(1); // Only Ella in precinct-1
   expect(precinct1RepStats.totalCheckIns).toEqual(1); // Only Ella's REP ballot check-in
   expect(precinct1RepStats.totalNewRegistrations).toEqual(0); // No REP new registrations
@@ -1232,7 +1232,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(1); // Ariel checked in with DEM ballot
   expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 
-  const precinct1UndStats = localStore.getPrimarySummaryStatistics('UND');
+  const precinct1UndStats = localStore.getClosedPrimarySummaryStatistics('UND');
   expect(precinct1UndStats.totalVoters).toEqual(1); // Only Ariel in precinct-1
   expect(precinct1UndStats.totalCheckIns).toEqual(0); // UND filter counts ballot party, not voter party
   expect(precinct1UndStats.totalNewRegistrations).toEqual(0); // No UND new registrations
@@ -1241,7 +1241,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   expect(precinct1UndStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 });
 
-test('getPrimarySummaryStatistics returns complete statistics for all voters when no precinct is configured', () => {
+test('getClosedPrimarySummaryStatistics returns complete statistics for all voters when no precinct is configured', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const primaryElectionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -1278,7 +1278,7 @@ test('getPrimarySummaryStatistics returns complete statistics for all voters whe
   // We can only test the base voter counts
 
   // Test ALL party filter with no precinct configured
-  const allStats = localStore.getPrimarySummaryStatistics('ALL');
+  const allStats = localStore.getClosedPrimarySummaryStatistics('ALL');
   expect(allStats.totalVoters).toEqual(3); // 3 original voters
   expect(allStats.totalCheckIns).toEqual(0); // No check-ins
   expect(allStats.totalNewRegistrations).toEqual(0); // No new registrations
@@ -1287,7 +1287,7 @@ test('getPrimarySummaryStatistics returns complete statistics for all voters whe
   expect(allStats.totalUndeclaredRepCheckIns).toEqual(0); // Only applies to UND filter
 
   // Test DEM party filter with no precinct configured
-  const demStats = localStore.getPrimarySummaryStatistics('DEM');
+  const demStats = localStore.getClosedPrimarySummaryStatistics('DEM');
   expect(demStats.totalVoters).toEqual(1); // Only Dylan
   expect(demStats.totalCheckIns).toEqual(0); // No check-ins
   expect(demStats.totalNewRegistrations).toEqual(0); // No new registrations
@@ -1296,7 +1296,7 @@ test('getPrimarySummaryStatistics returns complete statistics for all voters whe
   expect(demStats.totalUndeclaredRepCheckIns).toEqual(0); // Only applies to UND filter
 
   // Test REP party filter with no precinct configured
-  const repStats = localStore.getPrimarySummaryStatistics('REP');
+  const repStats = localStore.getClosedPrimarySummaryStatistics('REP');
   expect(repStats.totalVoters).toEqual(1); // Only Ella
   expect(repStats.totalCheckIns).toEqual(0); // No check-ins
   expect(repStats.totalNewRegistrations).toEqual(0); // No new registrations
@@ -1305,7 +1305,7 @@ test('getPrimarySummaryStatistics returns complete statistics for all voters whe
   expect(repStats.totalUndeclaredRepCheckIns).toEqual(0); // Only applies to UND filter
 
   // Test UND party filter with no precinct configured
-  const undStats = localStore.getPrimarySummaryStatistics('UND');
+  const undStats = localStore.getClosedPrimarySummaryStatistics('UND');
   expect(undStats.totalVoters).toEqual(1); // Only Ariel
   expect(undStats.totalCheckIns).toEqual(0); // No check-ins
   expect(undStats.totalNewRegistrations).toEqual(0); // No new registrations
@@ -1314,7 +1314,7 @@ test('getPrimarySummaryStatistics returns complete statistics for all voters whe
   expect(undStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 });
 
-test('getPrimarySummaryStatistics throws error when called with general election', () => {
+test('getClosedPrimarySummaryStatistics throws error when called with general election', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
 
@@ -1335,11 +1335,11 @@ test('getPrimarySummaryStatistics throws error when called with general election
   );
 
   suppressingConsoleOutput(() => {
-    expect(() => localStore.getPrimarySummaryStatistics('ALL')).toThrow();
+    expect(() => localStore.getClosedPrimarySummaryStatistics('ALL')).toThrow();
   });
 });
 
-test('getGeneralSummaryStatistics excludes invalidated registrations from totalNewRegistrations', () => {
+test('getSummaryStatistics excludes invalidated registrations from totalNewRegistrations', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
@@ -1373,14 +1373,14 @@ test('getGeneralSummaryStatistics excludes invalidated registrations from totalN
   const { voter } = localStore.registerVoter(registration);
 
   // Verify registration is counted before invalidation
-  let stats = localStore.getGeneralSummaryStatistics('ALL');
+  let stats = localStore.getSummaryStatistics('ALL');
   expect(stats.totalNewRegistrations).toEqual(1);
 
   // Invalidate the registration
   localStore.invalidateRegistration(voter.voterId);
 
   // Verify registration is NOT counted after invalidation
-  stats = localStore.getGeneralSummaryStatistics('ALL');
+  stats = localStore.getSummaryStatistics('ALL');
   expect(stats.totalNewRegistrations).toEqual(0);
 });
 

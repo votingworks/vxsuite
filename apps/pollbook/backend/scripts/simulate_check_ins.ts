@@ -38,12 +38,12 @@ function getCheckInPartyForVoter(voter: Voter): CheckInBallotParty {
   return 'REP';
 }
 
-async function checkInVoter(voter: Voter, isPrimary: boolean) {
+async function checkInVoter(voter: Voter, isClosedPrimary: boolean) {
   try {
     await api.checkInVoter({
       voterId: voter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: isPrimary
+      ballotParty: isClosedPrimary
         ? getCheckInPartyForVoter(voter)
         : 'NOT_APPLICABLE',
     });
@@ -107,7 +107,7 @@ async function checkInAllVotersOnCurrentMachine(
     const election = (await api.getElection()).unsafeUnwrap();
     const { configuredPrecinctId } =
       await api.getPollbookConfigurationInformation();
-    const isPrimary = election.type === 'primary';
+    const isClosedPrimary = election.type === 'closed-primary';
     if (!configuredPrecinctId) {
       console.error('No configured precinct ID found.');
       return;
@@ -164,7 +164,7 @@ async function checkInAllVotersOnCurrentMachine(
       );
 
       const startCheckIn = performance.now();
-      await checkInVoter(voter, isPrimary);
+      await checkInVoter(voter, isClosedPrimary);
       const endCheckIn = performance.now();
       durations.checkIn.push(endCheckIn - startCheckIn);
 
