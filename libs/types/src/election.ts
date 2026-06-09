@@ -697,11 +697,6 @@ export const PollingPlacesSchema = z
     }
   });
 
-const ELECTION_TYPES_V4_0 = ['general', 'primary'] as const;
-type ElectionTypeV4p0 = (typeof ELECTION_TYPES_V4_0)[number];
-const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
-  z.enum(ELECTION_TYPES_V4_0);
-
 export const ELECTION_TYPES = [
   'general',
   'closed-primary',

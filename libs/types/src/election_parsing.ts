@@ -16,7 +16,7 @@ import { safeParse, safeParseJson } from './generic';
  * Parse the date field of an Election object from a string to a
  * DateWithoutTime.
  */
-function parseElectionDate(value: unknown): Result<unknown, z.ZodError> {
+export function parseElectionDate(value: unknown): Result<unknown, z.ZodError> {
   if (!value || typeof value !== 'object') {
     return ok(value);
   }
