@@ -2,6 +2,7 @@ export * from './api';
 export * from './auth';
 export * from './ballots';
 export * from './constants';
+export * from './fonts';
 export * from './screenshots';
 export * from './pdf';
 export * from './playwright_config';
