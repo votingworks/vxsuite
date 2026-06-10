@@ -48,10 +48,7 @@ import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  BooleanEnvironmentVariableName as Feature,
-  getPrecinctSelectionIds,
   isCardlessVoterAuth,
-  isFeatureFlagEnabled,
   isIntegrationTest,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
@@ -403,15 +400,6 @@ async function loadMetadataAndInterpretBallot(context: {
 }
 
 function getValidPrecinctIds(store: Store, election: Election) {
-  if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
-    const precinctSelection = assertDefined(
-      store.getPrecinctSelection(),
-      'Expected precinctSelection to be defined in store'
-    );
-
-    return getPrecinctSelectionIds(election.precincts, precinctSelection);
-  }
-
   const pollingPlaceId = assertDefined(
     store.getPollingPlaceId(),
     'scan attempted with no polling place configured'

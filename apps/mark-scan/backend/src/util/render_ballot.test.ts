@@ -5,9 +5,13 @@ import {
   readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
-import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  anyPollingPlace,
+  pollingPlaceBallotStyles,
+  safeParseSystemSettings,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { getPdfPageCount } from '@votingworks/image-utils';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import {
   getLayout,
@@ -33,8 +37,10 @@ vi.mock(import('@votingworks/ui'), async (importActual) => ({
   getLayout: vi.fn(),
 }));
 
-const precinctId = electionGeneralDefinition.election.precincts[1].id;
-const ballotStyleId = electionGeneral.ballotStyles[0].id;
+const pollingPlace = anyPollingPlace(electionGeneral);
+const [ballotStyle] = pollingPlaceBallotStyles(electionGeneral, pollingPlace);
+const ballotStyleId = ballotStyle.id;
+const [precinctId] = ballotStyle.precincts;
 
 let workspace: Workspace;
 
@@ -46,7 +52,7 @@ beforeEach(() => {
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
   });
-  workspace.store.setPrecinctSelection(singlePrecinctSelectionFor(precinctId));
+  workspace.store.setPollingPlaceId(pollingPlace.id);
   workspace.store.setSystemSettings(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );

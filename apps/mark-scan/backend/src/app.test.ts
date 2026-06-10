@@ -19,12 +19,10 @@ import {
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  ALL_PRECINCTS_SELECTION,
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   generateMockVotes,
-  singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
@@ -41,6 +39,7 @@ import {
   HmpbBallotPaperSize,
   UiStringsPackage,
   VotesDict,
+  anyPollingPlace,
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
   safeParseSystemSettings,
@@ -173,11 +172,11 @@ async function configureForTestElection(
   uiStrings?: UiStringsPackage
 ) {
   await setUpUsbAndConfigureElection(electionDefinition, uiStrings);
-  await apiClient.setPrecinctSelection({
-    precinctSelection: singlePrecinctSelectionFor(
-      electionDefinition.election.precincts[1].id
-    ),
-  });
+
+  const pollingPlace = anyPollingPlace(electionDefinition.election);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+
+  return { pollingPlace };
 }
 
 test('uses machine config from env', async () => {
@@ -350,11 +349,7 @@ async function expectElectionState(expected: Partial<ElectionState>) {
   expect(await apiClient.getElectionState()).toMatchObject(expected);
 }
 
-// [TODO] Update test name after migration to Polling Places.
-test('single precinct election automatically has precinct set on configure', async () => {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
-
+test('single-location election automatically has polling place set on configure', async () => {
   const fixtures = electionTwoPartyPrimaryFixtures;
   const def = fixtures.makeSinglePrecinctElectionDefinition();
   const defaultPollingPlace = assertDefined(def.election.pollingPlaces?.[0]);
@@ -362,15 +357,11 @@ test('single precinct election automatically has precinct set on configure', asy
   await setUpUsbAndConfigureElection(def);
 
   await expectElectionState({
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
     pollingPlaceId: defaultPollingPlace.id,
   });
 });
 
 test('no automatic polling place selection for multi-polling-place election', async () => {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
-
   const fixtures = electionTwoPartyPrimaryFixtures;
   const def = fixtures.readElectionDefinition();
 
@@ -448,41 +439,6 @@ test('"test" mode', async () => {
   await apiClient.setTestMode({ isTestMode: true });
   await expectElectionState({ isTestMode: true });
   expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(5);
-});
-
-test('setting precinct', async () => {
-  expect(
-    (await apiClient.getElectionState()).precinctSelection
-  ).toBeUndefined();
-
-  await setUpUsbAndConfigureElection(
-    electionFamousNames2021Fixtures.readElectionDefinition()
-  );
-  expect(
-    (await apiClient.getElectionState()).precinctSelection
-  ).toBeUndefined();
-
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-  await expectElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-
-  const singlePrecinctSelection = singlePrecinctSelectionFor('23');
-  await apiClient.setPrecinctSelection({
-    precinctSelection: singlePrecinctSelection,
-  });
-  await expectElectionState({
-    precinctSelection: singlePrecinctSelection,
-  });
-  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PollingPlaceChanged,
-    {
-      disposition: 'success',
-      message: 'User set the precinct for the machine to North Lincoln',
-    }
-  );
 });
 
 test('set polling place', async () => {
@@ -668,7 +624,7 @@ test.each([
     ).unsafeUnwrap();
 
     assert(!!idContestWithTermDescription);
-    await configureForTestElection(electionDefinition, {
+    const config = await configureForTestElection(electionDefinition, {
       ...electionGeneralFixtures.uiStrings,
       'zh-Hans': {
         ...electionGeneralFixtures.uiStrings['zh-Hans'],
@@ -701,8 +657,9 @@ test.each([
       },
     ];
 
+    const [precinctId] = Object.keys(config.pollingPlace.precincts);
     await apiClient.printBallot({
-      precinctId: '21',
+      precinctId,
       ballotStyleId: electionDefinition.election.ballotStyles.find(
         (bs) => bs.languages?.includes(languageCode)
       )!.id,
@@ -712,7 +669,7 @@ test.each([
 
     await expectElectionState({ ballotsPrintedCount: 1 });
     const pdfData = pdfDatas[0];
-    await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.034 });
+    await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.035 });
 
     await waitForStatus('presenting_ballot');
     const interpretation = await apiClient.getInterpretation();
