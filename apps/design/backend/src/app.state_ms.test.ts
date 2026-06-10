@@ -1,6 +1,6 @@
 import { vi, afterAll, expect, test } from 'vitest';
 import {
-  CENTRAL_SCANNING_POLLING_PLACE_ID,
+  centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   ElectionIdSchema,
   formatBallotHash,
@@ -281,7 +281,7 @@ test('a Central Scanning absentee polling place is added to the export for Missi
   );
   expect(absenteePlaces).toEqual([
     {
-      id: CENTRAL_SCANNING_POLLING_PLACE_ID,
+      id: centralScanningPollingPlaceId(exportedElection.id),
       name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
       type: 'absentee',
       precincts: Object.fromEntries(

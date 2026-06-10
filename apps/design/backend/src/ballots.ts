@@ -1,7 +1,7 @@
 import {
   BallotType,
   BaseBallotProps,
-  CENTRAL_SCANNING_POLLING_PLACE_ID,
+  centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   Election,
   hasSplits,
@@ -44,7 +44,7 @@ export function defaultBallotTemplate(
 
 function centralScanningPollingPlace(election: Election): PollingPlace {
   return {
-    id: CENTRAL_SCANNING_POLLING_PLACE_ID,
+    id: centralScanningPollingPlaceId(election.id),
     name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
     type: 'absentee',
     precincts: Object.fromEntries(

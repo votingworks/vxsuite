@@ -2,7 +2,7 @@ import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   BallotType,
   BaseBallotProps,
-  CENTRAL_SCANNING_POLLING_PLACE_ID,
+  centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   Election,
   ElectionStringKey,
@@ -166,7 +166,7 @@ test('addPollingPlacesForExport - non-editing state generates election_day place
   );
   expect(absenteePlaces).toEqual([
     {
-      id: CENTRAL_SCANNING_POLLING_PLACE_ID,
+      id: centralScanningPollingPlaceId(electionInput.id),
       name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
       type: 'absentee',
       precincts: Object.fromEntries(

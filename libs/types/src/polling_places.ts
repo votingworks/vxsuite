@@ -172,10 +172,14 @@ export function pollingPlacePrecinctIds(place: PollingPlace): Set<string> {
 }
 
 /**
- * The deterministic id and name of the default "Central Scanning" absentee
- * polling place.
+ * The id and name of the default "Central Scanning" absentee polling place.
+ * The id is derived deterministically from the election id (so the ballot hash
+ * stays stable across exports) while remaining globally unique across
+ * elections, matching the convention used for other election entity ids.
  */
-export const CENTRAL_SCANNING_POLLING_PLACE_ID = 'central-scanning';
+export function centralScanningPollingPlaceId(electionId: string): string {
+  return `${electionId}-central-scanning`;
+}
 export const CENTRAL_SCANNING_POLLING_PLACE_NAME = 'Central Scanning';
 
 /**
