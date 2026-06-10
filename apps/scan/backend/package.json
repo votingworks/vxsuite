@@ -60,7 +60,7 @@
     "pdfjs-dist": "3.11.174",
     "tmp": "^0.2.6",
     "xstate": "^4.33.0",
-    "zod": "3.25.42"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

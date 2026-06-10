@@ -38,7 +38,7 @@
     "pcsclite": "^1.0.1",
     "tmp": "^0.2.6",
     "yargs": "17.7.1",
-    "zod": "3.25.42"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/combined-stream": "^1.0.3",

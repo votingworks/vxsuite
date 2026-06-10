@@ -38,7 +38,7 @@
     "debug": "4.3.4",
     "stream": "^0.0.3",
     "yargs": "17.7.1",
-    "zod": "3.25.42"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

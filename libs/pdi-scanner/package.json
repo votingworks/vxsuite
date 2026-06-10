@@ -37,7 +37,7 @@
     "@votingworks/types": "workspace:*",
     "debug": "4.3.4",
     "xstate": "^4.33.0",
-    "zod": "3.25.42"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
