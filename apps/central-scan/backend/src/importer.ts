@@ -11,6 +11,8 @@ import {
   Id,
   PageInterpretation,
   PageInterpretationWithFiles,
+  pollingPlaceFromElection,
+  pollingPlacePrecinctIds,
   SheetOf,
 } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -39,7 +41,6 @@ import {
 import { ScanStatus } from './types';
 
 const debug = makeDebug('scan:importer');
-
 export interface Options {
   workspace: Workspace;
   scanner: BatchScanner;
@@ -228,12 +229,14 @@ export class Importer {
       maxCumulativeStreakWidth,
       retryStreakWidthThreshold,
     } = assertDefined(store.getSystemSettings());
-    const { precincts } = electionDefinition.election;
 
+    const pollingPlaceId = assertDefined(store.getPollingPlaceId());
     return await interpretSheetAndSaveImages(
       {
         electionDefinition,
-        validPrecinctIds: new Set(precincts.map((p) => p.id)),
+        validPrecinctIds: pollingPlacePrecinctIds(
+          pollingPlaceFromElection(electionDefinition.election, pollingPlaceId)
+        ),
         testMode: store.getTestMode(),
         disableVerticalStreakDetection,
         adjudicationReasons: store.getAdjudicationReasons(),
