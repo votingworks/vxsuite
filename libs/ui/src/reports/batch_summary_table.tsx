@@ -30,6 +30,10 @@ interface Props {
 }
 
 export function BatchSummaryTable({ batches }: Props): JSX.Element {
+  const sortedBatches = [...batches].sort((a, b) =>
+    a.startedAt.localeCompare(b.startedAt)
+  );
+
   return (
     <Container>
       <SectionTitle>Batch Summary</SectionTitle>
@@ -43,7 +47,7 @@ export function BatchSummaryTable({ batches }: Props): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {batches.map((batch) => (
+          {sortedBatches.map((batch) => (
             <tr key={batch.id}>
               <TD>{Tabulation.formatBatchId(batch.id)}</TD>
               <TD narrow>{batch.count}</TD>

@@ -56,8 +56,9 @@ test('renders a dash for a batch with no end time', () => {
   expect(cells[3]).toHaveTextContent('—');
 });
 
-test('renders multiple batches in order', () => {
-  render(<BatchSummaryTable batches={[batch1, batch2]} />);
+test('renders multiple batches sorted ascending by start time', () => {
+  // Pass batches in descending order to confirm the table re-sorts ascending.
+  render(<BatchSummaryTable batches={[batch2, batch1]} />);
 
   const rows = screen.getAllByRole('row');
   expect(rows).toHaveLength(3);
