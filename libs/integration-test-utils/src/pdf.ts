@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { assertDefined } from '@votingworks/basics';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { SCREENSHOTS_DIR } from './constants';
 import type { ScreenshotNamer } from './screenshots';
@@ -45,4 +47,21 @@ export async function capturePdfScreenshots(
     await writeImageData(`${SCREENSHOTS_DIR}/${namer.next(suffix)}.png`, page);
     captured += 1;
   }
+}
+
+/**
+ * Captures the PDF most recently printed to a mock printer as numbered PNGs.
+ * Callers resolve their own printer handler and pass its last print path (so
+ * this stays independent of any particular printer library).
+ */
+export async function capturePrintedPdf(
+  printPath: string | undefined,
+  name: string,
+  namer: ScreenshotNamer,
+  options: CapturePdfScreenshotsOptions = {}
+): Promise<void> {
+  const pdfBytes = new Uint8Array(
+    readFileSync(assertDefined(printPath, 'expected a printed PDF'))
+  );
+  await capturePdfScreenshots(pdfBytes, name, namer, options);
 }
