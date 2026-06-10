@@ -144,6 +144,27 @@ describe('dropdown contents', () => {
   }
 });
 
+test('orders types according to the order of includedTypes', () => {
+  render(
+    <PollingPlacePicker
+      mode="default"
+      includedTypes={['absentee', 'election_day', 'early_voting']}
+      places={ALL_PLACES}
+      selectPlace={vi.fn(() => Promise.resolve())}
+    />
+  );
+
+  userEvent.click(getDropdown());
+  expect(getAllOptions().map((opt) => opt.textContent)).toEqual([
+    `Absentee Voting${absentee1.name}`,
+    `Absentee Voting${absentee2.name}`,
+    `Election Day${electionDay1.name}`,
+    `Election Day${electionDay2.name}`,
+    `Early Voting${earlyVoting1.name}`,
+    `Early Voting${earlyVoting2.name}`,
+  ]);
+});
+
 test('default mode - changing selection triggers callback', () => {
   const mockSelectPlace = vi.fn().mockResolvedValueOnce(undefined);
   render(

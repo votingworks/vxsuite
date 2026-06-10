@@ -36,6 +36,10 @@ export type PollingPlacePickerMode =
   | 'disabled';
 
 export interface PollingPlacePickerProps {
+  /**
+   * The polling place types to show, listed in the order given. Defaults to
+   * early voting, then election day, then absentee.
+   */
   includedTypes?: PollingPlaceType[];
   mode: PollingPlacePickerMode;
   places: readonly PollingPlace[];
@@ -46,7 +50,7 @@ export interface PollingPlacePickerProps {
 }
 
 export function PollingPlacePicker({
-  includedTypes = ['absentee', 'early_voting', 'election_day'],
+  includedTypes = ['early_voting', 'election_day', 'absentee'],
   mode,
   places,
   selectedId,
@@ -89,16 +93,8 @@ export function PollingPlacePicker({
     const allGroups = pollingPlaceGroups(places);
     const grouped: PollingPlace[] = [];
 
-    const orderedTypes: PollingPlaceType[] = [
-      'early_voting',
-      'election_day',
-      'absentee',
-    ];
-
     let nVisibleGroups = 0;
-    for (const type of orderedTypes) {
-      if (!includedTypes.includes(type)) continue;
-
+    for (const type of includedTypes) {
       const group = allGroups[type];
       grouped.push(...group);
       if (group.length > 0) nVisibleGroups += 1;
