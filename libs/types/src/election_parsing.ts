@@ -1,10 +1,4 @@
-import {
-  Result,
-  err,
-  ok,
-  DateWithoutTime,
-  extractErrorMessage,
-} from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
@@ -13,49 +7,12 @@ import { Election, ElectionDefinition, ElectionSchema } from './election';
 import { safeParse, safeParseJson } from './generic';
 
 /**
- * Parse the date field of an Election object from a string to a
- * DateWithoutTime.
- */
-export function parseElectionDate(value: unknown): Result<unknown, z.ZodError> {
-  if (!value || typeof value !== 'object') {
-    return ok(value);
-  }
-
-  // We're casting it here to make it easier to use, but in this function you
-  // must assume the type is unknown.
-  let election = value as Election;
-
-  if (election.date && typeof election.date === 'string') {
-    try {
-      election = { ...election, date: new DateWithoutTime(election.date) };
-    } catch (error) {
-      return err(
-        new z.ZodError([
-          {
-            code: 'custom',
-            message: extractErrorMessage(error),
-            path: ['date'],
-            input: election.date,
-          },
-        ])
-      );
-    }
-  }
-
-  return ok(election);
-}
-
-/**
  * Parses `value` as a VXF `Election` object.
  */
 export function safeParseVxfElection(
   value: unknown
 ): Result<Election, z.ZodError> {
-  const valueWithParsedDate = parseElectionDate(value);
-  if (valueWithParsedDate.isErr()) {
-    return valueWithParsedDate;
-  }
-  return safeParse(ElectionSchema, valueWithParsedDate.ok());
+  return safeParse(ElectionSchema, value);
 }
 
 function prettyZodError(error: z.ZodError): string {

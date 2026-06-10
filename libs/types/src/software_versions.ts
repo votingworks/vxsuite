@@ -2,10 +2,7 @@ import { z } from 'zod/v4';
 import { assert, ok, Result } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { Election, ElectionDefinition, ElectionSchema } from './election';
-import {
-  parseElectionDate,
-  safeParseElectionDefinition,
-} from './election_parsing';
+import { safeParseElectionDefinition } from './election_parsing';
 import { safeParse, safeParseJson } from './generic';
 
 export const SoftwareVersions = ['v4.0', 'v4.1'] as const;
@@ -55,9 +52,7 @@ export function safeParseElectionDefinitionV4p0(
 ): Result<ElectionDefinitionV4p0, z.ZodError | SyntaxError> {
   const valueJson = safeParseJson(value);
   if (valueJson.isErr()) return valueJson;
-  const valueWithParsedDate = parseElectionDate(valueJson.ok());
-  if (valueWithParsedDate.isErr()) return valueWithParsedDate;
-  const election = safeParse(ElectionV4p0Schema, valueWithParsedDate.ok());
+  const election = safeParse(ElectionV4p0Schema, valueJson.ok());
   if (election.isErr()) return election;
   return ok({
     election: election.ok(),

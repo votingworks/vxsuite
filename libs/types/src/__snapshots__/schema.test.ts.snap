@@ -13,19 +13,32 @@ exports[`contest IDs cannot start with an underscore 1`] = `
 `;
 
 exports[`ensures election date is YYYY-MM-DD 1`] = `
-ZodError {
-  "message": "[
+[ZodError: [
   {
-    "code": "custom",
-    "message": "Date must be in the format YYYY-MM-DD",
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_type",
+          "expected": "DateWithoutTime",
+          "path": [],
+          "message": "Invalid input: expected DateWithoutTime, received string"
+        }
+      ],
+      [
+        {
+          "code": "custom",
+          "message": "Date must be in the format YYYY-MM-DD",
+          "path": []
+        }
+      ]
+    ],
     "path": [
       "date"
     ],
-    "input": "not ISO"
+    "message": "Invalid input"
   }
-]",
-  "name": "ZodError",
-}
+]]
 `;
 
 exports[`parsing gives specific errors for nested objects 1`] = `

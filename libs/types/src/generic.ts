@@ -7,6 +7,7 @@ import {
   Result,
   wrapException,
   DateWithoutTime,
+  extractErrorMessage,
 } from '@votingworks/basics';
 
 export interface Dictionary<T> {
@@ -117,4 +118,18 @@ export const Iso8601DateTimeSchema = z
 export type Iso8601Timestamp = string;
 export const Iso8601TimestampSchema = Iso8601DateTimeSchema;
 
-export const DateWithoutTimeSchema = z.instanceof(DateWithoutTime);
+/**
+ * Accepts either a {@link DateWithoutTime} instance or a serialized `YYYY-MM-DD` string,
+ * normalizing to a {@link DateWithoutTime} instance.
+ */
+export const DateWithoutTimeSchema = z.union([
+  z.instanceof(DateWithoutTime),
+  z.string().transform((value, ctx) => {
+    try {
+      return new DateWithoutTime(value);
+    } catch (error) {
+      ctx.addIssue({ code: 'custom', message: extractErrorMessage(error) });
+      return z.NEVER;
+    }
+  }),
+]);

@@ -40,11 +40,22 @@ test('safeParseJson', () => {
 });
 
 test('DateWithoutTime schema', () => {
+  // Accepts an existing DateWithoutTime instance unchanged.
   expect(
     safeParse(
       DateWithoutTimeSchema,
       new DateWithoutTime('2024-02-22')
     ).unsafeUnwrap()
   ).toEqual(new DateWithoutTime('2024-02-22'));
-  safeParse(DateWithoutTimeSchema, '2024-02-22').unsafeUnwrapErr();
+
+  // Accepts and parses a YYYY-MM-DD string into a DateWithoutTime.
+  expect(safeParse(DateWithoutTimeSchema, '2024-02-22').unsafeUnwrap()).toEqual(
+    new DateWithoutTime('2024-02-22')
+  );
+
+  // Rejects a malformed date string.
+  safeParse(DateWithoutTimeSchema, 'not a date').unsafeUnwrapErr();
+
+  // Rejects values that are neither a string nor a DateWithoutTime.
+  safeParse(DateWithoutTimeSchema, 12345).unsafeUnwrapErr();
 });
