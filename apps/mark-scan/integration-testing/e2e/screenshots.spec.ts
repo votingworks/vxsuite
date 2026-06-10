@@ -22,7 +22,7 @@ import {
   logInAsSystemAdministrator,
 } from './support/auth';
 import {
-  getMultiLanguageFamousNamesElectionDefinition,
+  getFamousNamesElectionDefinition,
   MULTI_LANGUAGE_UI_STRINGS,
 } from './support/election';
 import {
@@ -59,8 +59,8 @@ async function buildElectionPackage(electionDefinition: ElectionDefinition) {
       // Hide the voter help button to keep voter screens uncluttered.
       disableVoterHelpButtons: true,
     },
-    // Registers the language codes; the display names come from the election's
-    // ballotStrings (see getMultiLanguageFamousNamesElectionDefinition).
+    // Registers the supported languages and their native display names so the
+    // voter language selector renders (see MULTI_LANGUAGE_UI_STRINGS).
     uiStrings: MULTI_LANGUAGE_UI_STRINGS,
   });
 }
@@ -142,7 +142,7 @@ async function voteAndCaptureContests(
 }
 
 test('basic election flow', async ({ page }) => {
-  const electionDefinition = getMultiLanguageFamousNamesElectionDefinition();
+  const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
   const helper = buildIntegrationTestHelper(page, screenshotCounter);
@@ -310,7 +310,7 @@ test('basic election flow', async ({ page }) => {
 });
 
 test('additional options', async ({ page }) => {
-  const electionDefinition = getMultiLanguageFamousNamesElectionDefinition();
+  const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
   const helper = buildIntegrationTestHelper(page, screenshotCounter);
   const {
@@ -438,11 +438,11 @@ test('additional options', async ({ page }) => {
 });
 
 test('voter settings', async ({ page }) => {
-  // Use the same single-precinct famous-names election as the basic flow (its
-  // injected multi-language ballot strings still drive the language selector).
-  // We don't capture a printed multi-language ballot here, so the heavier
-  // electionGeneral isn't needed.
-  const electionDefinition = getMultiLanguageFamousNamesElectionDefinition();
+  // Use the same single-precinct famous-names election as the basic flow (the
+  // registered uiStrings drive the language selector). We don't capture a
+  // printed multi-language ballot here, so the heavier electionGeneral isn't
+  // needed.
+  const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
   const helper = buildIntegrationTestHelper(page, screenshotCounter);
   const { screenshot, screenshotWithLocatorHighlight } = helper;
