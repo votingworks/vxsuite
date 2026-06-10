@@ -81,7 +81,6 @@ export function DiagnosticsScreen({
   const usbDriveStatus = usbDriveStatusQuery.data;
   const {
     electionDefinition,
-    precinctSelection,
     pollingPlaceId,
     electionPackageHash,
     systemSettings,
@@ -120,7 +119,6 @@ export function DiagnosticsScreen({
       <ScanReadinessReportContents
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
-        precinctSelection={precinctSelection}
         pollingPlaceId={pollingPlaceId}
         diskSpaceSummary={diskSpaceQuery.data}
         scannerStatus={scannerStatus}

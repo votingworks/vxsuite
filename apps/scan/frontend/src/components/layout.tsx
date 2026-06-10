@@ -109,7 +109,6 @@ function ElectionInfoBar({
   mode,
   electionDefinition,
   electionPackageHash,
-  precinctSelection,
   pollingPlaceId,
   codeVersion,
   machineId,
@@ -120,7 +119,6 @@ function ElectionInfoBar({
       {electionDefinition && (
         <ElectionInfo
           electionDefinition={electionDefinition}
-          precinctSelection={precinctSelection}
           pollingPlaceId={pollingPlaceId}
         />
       )}
@@ -180,7 +178,6 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   const {
     electionDefinition,
     electionPackageHash,
-    precinctSelection,
     pollingPlaceId,
     systemSettings,
     ballotCastingMode,
@@ -274,7 +271,6 @@ export function Screen(props: ScreenProps): JSX.Element | null {
       {!hideInfoBar && (
         <ElectionInfoBar
           mode={infoBarMode}
-          precinctSelection={precinctSelection}
           pollingPlaceId={pollingPlaceId}
           electionDefinition={electionDefinition}
           electionPackageHash={electionPackageHash}
