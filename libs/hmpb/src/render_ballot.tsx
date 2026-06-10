@@ -34,6 +34,7 @@ import {
   SoftwareVersion,
   safeParseElectionDefinitionForAnySoftwareVersion,
   safeParse,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -564,8 +565,10 @@ function serializeElection(
             return throwIllegalValue(options.version);
         }
       case 'cdf':
-        // We always export in CDF matching the latest software version, since we
-        // don't currently have any customers that need older versions.
+        assert(
+          options.version === LATEST_SOFTWARE_VERSION,
+          `CDF export only supported for software version ${LATEST_SOFTWARE_VERSION}`
+        );
         return convertVxfElectionToCdfBallotDefinition(election);
       default:
         throwIllegalValue(options.format);
