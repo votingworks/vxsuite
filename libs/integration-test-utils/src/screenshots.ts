@@ -1,35 +1,50 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { Locator, Page, PageScreenshotOptions } from '@playwright/test';
+import type {
+  Locator,
+  Page,
+  PageScreenshotOptions,
+  TestInfo,
+} from '@playwright/test';
 import { SCREENSHOTS_DIR } from './constants';
 
-export interface ScreenshotCounter {
-  next: () => string;
+/**
+ * Builds ordered, collision-free filename stems for the screenshots captured
+ * within a single test. Filenames are namespaced by test identity, so they are
+ * deterministic and independent of Playwright's worker lifecycle: a CI retry
+ * regenerates identical filenames and cleanly overwrites the previous attempt,
+ * rather than colliding with another test's screenshots (a module-global
+ * counter would reset to zero whenever a failed test spawns a fresh worker).
+ */
+export interface ScreenshotNamer {
+  /** Returns the next filename stem (no extension) for the given screenshot. */
+  next: (name: string) => string;
 }
 
-export function createScreenshotCounter(): ScreenshotCounter {
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function createScreenshotNamer(testInfo: TestInfo): ScreenshotNamer {
+  const slug = slugify(testInfo.title);
   let index = 0;
   return {
-    next(): string {
+    next(name: string): string {
       const prefix = String(index).padStart(3, '0');
       index += 1;
-      return prefix;
+      return `${slug}-${prefix}-${name}`;
     },
   };
 }
 
-export function buildIntegrationTestHelper(
-  page: Page,
-  counter: ScreenshotCounter = createScreenshotCounter()
-) {
-  function numberedName(name: string): string {
-    return `${counter.next()}-${name}`;
-  }
-
+export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
   async function screenshot(name: string, args: PageScreenshotOptions = {}) {
     await page.screenshot({
       animations: 'disabled',
       ...args,
-      path: `${SCREENSHOTS_DIR}/${numberedName(name)}.png`,
+      path: `${SCREENSHOTS_DIR}/${namer.next(name)}.png`,
     });
   }
 

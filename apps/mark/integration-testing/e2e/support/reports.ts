@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
 import {
   capturePdfScreenshots,
-  type ScreenshotCounter,
+  type ScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 
@@ -12,14 +12,14 @@ import { getMockFilePrinterHandler } from '@votingworks/printing';
  */
 export async function capturePrintedBallot(
   name: string,
-  counter: ScreenshotCounter
+  namer: ScreenshotNamer
 ): Promise<void> {
   const printPath = assertDefined(
     getMockFilePrinterHandler().getLastPrintPath(),
     'expected a printed ballot PDF from the mock printer'
   );
   const pdfBytes = new Uint8Array(readFileSync(printPath));
-  await capturePdfScreenshots(pdfBytes, name, counter, {
+  await capturePdfScreenshots(pdfBytes, name, namer, {
     skipBlankPages: true,
   });
 }

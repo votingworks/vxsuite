@@ -10,7 +10,7 @@ import {
   MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
   captureReadinessReport,
-  createScreenshotCounter,
+  createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -36,8 +36,6 @@ import { configureMachine, openPolls, voteFullBallot } from './support/flows';
 import { capturePrintedBallot } from './support/reports';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
-
-const screenshotCounter = createScreenshotCounter();
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -144,11 +142,12 @@ async function voteAndCaptureContests(
   }
 }
 
-test('basic election flow', async ({ page }) => {
+test('basic election flow', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
-  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const helper = buildIntegrationTestHelper(page, namer);
   const {
     screenshot,
     screenshotWithButtonHighlight,
@@ -263,7 +262,7 @@ test('basic election flow', async ({ page }) => {
   await screenshot('voting-almost-done');
 
   // Capture the ballot that was printed to the mock printer.
-  await capturePrintedBallot('printed-ballot', screenshotCounter);
+  await capturePrintedBallot('printed-ballot', namer);
 
   await page.getByRole('button', { name: 'Done' }).click();
 
@@ -312,10 +311,11 @@ test('basic election flow', async ({ page }) => {
     .waitFor();
 });
 
-test('additional options', async ({ page }) => {
+test('additional options', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
-  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const helper = buildIntegrationTestHelper(page, namer);
   const {
     screenshot,
     screenshotWithButtonHighlight,
@@ -364,7 +364,7 @@ test('additional options', async ({ page }) => {
     .getByRole('button', { name: 'Save' })
     .click();
   await page.getByText('Readiness Report Saved').waitFor();
-  await captureReadinessReport('readiness-report', screenshotCounter);
+  await captureReadinessReport('readiness-report', namer);
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Close' })
@@ -445,14 +445,15 @@ test('additional options', async ({ page }) => {
   );
 });
 
-test('voter settings', async ({ page }) => {
+test('voter settings', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   // electionGeneral ships full translations (Chinese, etc.); the helper also
   // tags its ballot styles with a Chinese ballot language so the printed ballot
   // is dual-language (Chinese + English).
   const electionDefinition = getMultiLanguageGeneralElectionDefinition();
   const { election } = electionDefinition;
   const pollingPlaceName = 'Center Springfield';
-  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const helper = buildIntegrationTestHelper(page, namer);
   const { screenshot, screenshotWithLocatorHighlight } = helper;
   const electionPackage = await mockElectionPackageFileTree({
     electionDefinition,
@@ -606,5 +607,5 @@ test('voter settings', async ({ page }) => {
       timeout: 15000,
     })
     .not.toBe(previousPrintPath);
-  await capturePrintedBallot('printed-ballot-multilingual', screenshotCounter);
+  await capturePrintedBallot('printed-ballot-multilingual', namer);
 });

@@ -14,7 +14,7 @@ import {
   buildIntegrationTestHelper,
   captureReadinessReport,
   createFullyVotedBallot,
-  createScreenshotCounter,
+  createScreenshotNamer,
   renderFoldedCornerSheet,
   renderMarkedBallots,
   withOvervote,
@@ -30,8 +30,6 @@ import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
 } from './support/auth';
-
-const screenshotCounter = createScreenshotCounter();
 
 const BALLOT_STYLE_ID = '1-1';
 const PRECINCT_ID = '20';
@@ -64,7 +62,8 @@ test.beforeEach(async ({ page }) => {
   getMockFileUsbDriveHandler().cleanup();
 });
 
-test('screenshots', async ({ page }) => {
+test('screenshots', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
   const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
@@ -74,7 +73,7 @@ test('screenshots', async ({ page }) => {
     screenshotWithButtonHighlight,
     screenshotWithLocatorHighlight,
     withContainerVerticallyExpanded,
-  } = buildIntegrationTestHelper(page, screenshotCounter);
+  } = buildIntegrationTestHelper(page, namer);
 
   // Enable adjudication so scanned ballots with these conditions pause on the
   // "Ballot Not Counted" eject screen instead of being silently counted.
@@ -310,7 +309,7 @@ test('screenshots', async ({ page }) => {
   await page
     .getByRole('heading', { name: 'Readiness Report Saved' })
     .waitFor({ timeout: 60000 });
-  await captureReadinessReport('readiness-report', screenshotCounter);
+  await captureReadinessReport('readiness-report', namer);
 
   usbHandler.cleanup();
 });

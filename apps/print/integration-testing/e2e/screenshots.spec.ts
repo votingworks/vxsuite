@@ -10,7 +10,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   buildIntegrationTestHelper,
-  createScreenshotCounter,
+  createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -37,8 +37,6 @@ import {
 } from './support/election';
 import { buildBallotsForElection, configureMachine } from './support/flows';
 import { capturePrintedBallotsReport } from './support/reports';
-
-const screenshotCounter = createScreenshotCounter();
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -89,12 +87,15 @@ function pseudoRandomBase64(seed: string, byteLength: number): string {
   return Buffer.concat(chunks).subarray(0, byteLength).toString('base64');
 }
 
-test('election manager: configuration and settings', async ({ page }) => {
+test('election manager: configuration and settings', async ({
+  page,
+}, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getElectionDefinition();
   const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
   const { screenshot, screenshotWithButtonHighlight } =
-    buildIntegrationTestHelper(page, screenshotCounter);
+    buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
 
   // Locked, unconfigured: prompt to insert an election manager card.
@@ -258,14 +259,15 @@ test('election manager: configuration and settings', async ({ page }) => {
     .click();
 });
 
-test('election manager: print screen options', async ({ page }) => {
+test('election manager: print screen options', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getElectionDefinition();
   const { election } = electionDefinition;
   const {
     screenshot,
     screenshotWithButtonHighlight,
     screenshotWithLocatorHighlight,
-  } = buildIntegrationTestHelper(page, screenshotCounter);
+  } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
   const partyName = election.parties[0].name;
 
@@ -314,10 +316,11 @@ test('election manager: print screen options', async ({ page }) => {
     .click();
 });
 
-test('poll worker: split precinct and reports', async ({ page }) => {
+test('poll worker: split precinct and reports', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getElectionDefinition();
   const { election } = electionDefinition;
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
   const partyName = election.parties[0].name;
 
@@ -365,20 +368,18 @@ test('poll worker: split precinct and reports', async ({ page }) => {
     .getByRole('button', { name: 'Export' })
     .click();
   await page.getByText('Ballots Printed Report Exported').waitFor();
-  await capturePrintedBallotsReport(
-    'pw-ballots-printed-report',
-    screenshotCounter
-  );
+  await capturePrintedBallotsReport('pw-ballots-printed-report', namer);
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Close' })
     .click();
 });
 
-test('poll worker: precinct without splits', async ({ page }) => {
+test('poll worker: precinct without splits', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getElectionDefinition();
   const { election } = electionDefinition;
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
   const partyName = election.parties[0].name;
 
@@ -397,8 +398,9 @@ test('poll worker: precinct without splits', async ({ page }) => {
   await screenshot('pw-print-no-split-with-selections');
 });
 
-test('system administrator: settings', async ({ page }) => {
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+test('system administrator: settings', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
 
   await logInAsSystemAdministrator(page);
   await page.getByRole('button', { name: 'Unconfigure Machine' }).waitFor();

@@ -22,7 +22,7 @@ import { assertDefined, find, iter } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import {
   buildIntegrationTestHelper,
-  createScreenshotCounter,
+  createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
@@ -58,8 +58,6 @@ import {
   selectOpenDropdownOption,
   waitForReportToLoad,
 } from './support/navigation';
-
-const screenshotCounter = createScreenshotCounter();
 
 async function saveLastExportedReport({
   usbHandler,
@@ -112,7 +110,8 @@ test.beforeEach(async ({ page }) => {
   await page.clock.install();
 });
 
-test('system administrator', async ({ page }) => {
+test('system administrator', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const electionDefinition =
@@ -124,7 +123,7 @@ test('system administrator', async ({ page }) => {
   const electionPackageFileName = 'election-package.zip';
 
   const { screenshot, screenshotWithButtonHighlight } =
-    buildIntegrationTestHelper(page, screenshotCounter);
+    buildIntegrationTestHelper(page, namer);
 
   /**
    * configuration
@@ -426,7 +425,8 @@ async function insertUsbDriveWithCvrs({
   });
 }
 
-test('results', async ({ page }) => {
+test('results', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   test.setTimeout(120_000);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
@@ -437,7 +437,7 @@ test('results', async ({ page }) => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
@@ -565,7 +565,8 @@ test('results', async ({ page }) => {
   await screenshot('tally-screen-official');
 });
 
-test('adjudication', async ({ page }) => {
+test('adjudication', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
@@ -606,7 +607,7 @@ test('adjudication', async ({ page }) => {
     }
   );
 
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
@@ -662,7 +663,8 @@ test('adjudication', async ({ page }) => {
   await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
 });
 
-test('manual results', async ({ page }) => {
+test('manual results', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
@@ -672,7 +674,7 @@ test('manual results', async ({ page }) => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
