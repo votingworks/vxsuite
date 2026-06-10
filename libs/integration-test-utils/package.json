@@ -33,7 +33,8 @@
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/usb-drive": "workspace:*"
+    "@votingworks/usb-drive": "workspace:*",
+    "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "20.17.31",

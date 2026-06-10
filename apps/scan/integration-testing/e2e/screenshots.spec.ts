@@ -8,6 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import { getMockFileFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
 import {
+  MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
   createFullyVotedBallot,
   createScreenshotCounter,
@@ -19,12 +20,8 @@ import {
   AdjudicationReason,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  ElectionDefinition,
-  LanguageCode,
   SystemSettings,
   VotesDict,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -197,58 +194,7 @@ test('configuration', async ({ page }) => {
 
 test('voting', async ({ page }) => {
   const fixtureSet = electionFamousNames2021Fixtures;
-  const baseElectionDefinition = fixtureSet.readElectionDefinition();
-  // Inject multi-language ballot strings so the language selector appears.
-  // Each language needs its own name in its own script; other languages fall
-  // back to English display names via the Intl API.
-  const multiLangBallotStrings: Record<
-    LanguageCode,
-    { ballotLanguage: Record<LanguageCode, string> }
-  > = {
-    en: {
-      ballotLanguage: {
-        en: 'English',
-        'es-US': 'Spanish',
-        'zh-Hans': 'Simplified Chinese',
-        'zh-Hant': 'Traditional Chinese',
-      },
-    },
-    // spell-checker: disable-next-line
-    'es-US': {
-      ballotLanguage: {
-        en: 'inglés',
-        'es-US': 'español',
-        'zh-Hans': 'chino simplificado',
-        'zh-Hant': 'chino tradicional',
-      },
-    },
-    'zh-Hans': {
-      ballotLanguage: {
-        en: '英语',
-        'es-US': '西班牙语',
-        'zh-Hans': '简体中文',
-        'zh-Hant': '繁体中文',
-      },
-    },
-    'zh-Hant': {
-      ballotLanguage: {
-        en: '英文',
-        'es-US': '西班牙文',
-        'zh-Hans': '簡體中文',
-        'zh-Hant': '繁體中文',
-      },
-    },
-  };
-  const patchedElection: Election = {
-    ...baseElectionDefinition.election,
-    ballotStrings: {
-      ...baseElectionDefinition.election.ballotStrings,
-      ...multiLangBallotStrings,
-    },
-  };
-  const electionDefinition: ElectionDefinition = safeParseElectionDefinition(
-    JSON.stringify(patchedElection)
-  ).unsafeUnwrap();
+  const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
   const {
@@ -328,9 +274,9 @@ test('voting', async ({ page }) => {
     await mockElectionPackageFileTree({
       electionDefinition,
       systemSettings,
-      // uiStrings registers the language codes; ballotLanguage strings come
-      // from electionDefinition.election.ballotStrings (merged on load).
-      uiStrings: { en: {}, 'es-US': {}, 'zh-Hans': {}, 'zh-Hant': {} },
+      // Registers the supported languages and their native display names so the
+      // voter language selector renders (see MULTI_LANGUAGE_UI_STRINGS).
+      uiStrings: MULTI_LANGUAGE_UI_STRINGS,
     })
   );
   await page.getByText('Election Manager Menu').waitFor();

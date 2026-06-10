@@ -4880,6 +4880,9 @@ importers:
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../usb-drive
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       '@types/node':
         specifier: 20.17.31

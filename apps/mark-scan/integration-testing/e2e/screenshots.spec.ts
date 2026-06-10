@@ -1,27 +1,37 @@
-import { test } from '@playwright/test';
-import {
-  clearTemporaryRootDir,
-  electionFamousNames2021Fixtures,
-  electionPrimaryPrecinctSplitsFixtures,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
-import {
-  mockCardRemoval,
-  mockPollWorkerCardInsertion,
-} from '@votingworks/auth';
+import { Page, test } from '@playwright/test';
+import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+import {
+  MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
   createScreenshotCounter,
 } from '@votingworks/integration-test-utils';
-import { DEFAULT_SYSTEM_SETTINGS, safeParseInt } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  Election,
+  ElectionDefinition,
+} from '@votingworks/types';
+import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
+  logInAsPollWorker,
   logInAsSystemAdministrator,
-} from '../support/auth';
+} from './support/auth';
+import { getFamousNamesElectionDefinition } from './support/election';
+import {
+  configureMachine,
+  insertBlankBallotSheet,
+  openPolls,
+  startVotingSession,
+} from './support/flows';
+import { captureReadinessReport } from './support/reports';
+
+const POLLING_PLACE_NAME = 'North Lincoln';
 
 const screenshotCounter = createScreenshotCounter();
 
@@ -30,460 +40,484 @@ test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   getMockFileUsbDriveHandler().cleanup();
-  await page.clock.install();
   await forceLogOutAndResetElectionDefinition(page);
 });
 
-test('everything but voting', async ({ page }) => {
-  const usbHandler = getMockFileUsbDriveHandler();
-  const fixtureSet = electionFamousNames2021Fixtures;
-  const electionDefinition = fixtureSet.readElectionDefinition();
-  const { election } = electionDefinition;
-
-  const {
-    screenshot,
-    screenshotWithButtonHighlight,
-    withContainerVerticallyExpanded,
-    clickModalButton,
-  } = buildIntegrationTestHelper(page, screenshotCounter);
-
-  usbHandler.insert();
-
-  await page.goto('/');
-  await page
-    .getByText('Insert an election manager card to configure VxMarkScan')
-    .waitFor();
-
-  await logInAsSystemAdministrator(page);
-  await screenshot('sa-menu');
-  await screenshotWithButtonHighlight(
-    'Diagnostics',
-    'sa-menu-diagnostics-button'
-  );
-  await screenshotWithButtonHighlight('Save Logs', 'sa-menu-save-logs-button');
-
-  await page.getByText('Diagnostics').click();
-
-  // Screenshot the full scrollable main element
-  await page.locator('main').waitFor();
-  await withContainerVerticallyExpanded('main', async () => {
-    await screenshot('diagnostics-menu-full');
-  });
-
-  await page.getByText('Test Accessible Controller').click();
-  await page.getByText('Accessible Controller Test').waitFor();
-  await screenshot('accessible-controller-test');
-
-  await page.getByText('Cancel Test').click();
-  await page.getByText('Test Printer-Scanner').click();
-  await page.getByRole('heading', { name: 'Printer-Scanner Test' }).waitFor();
-  await screenshot('printer-scanner-test');
-
-  await page.getByText('Cancel Test').click();
-  await page.getByText('Test PAT Input').click();
-  await page.getByText('Connect PAT Device').waitFor();
-  await screenshot('pat-test');
-
-  await page.getByText('Cancel Test').click();
-  await page.getByText('Test Front Headphone Input').click();
-  await page.getByText('Front Headphone Input Test').waitFor();
-  await screenshot('front-headphone-test');
-
-  await page.getByText('Sound is Audible').click();
-  await page.getByText('Test Uninterruptible Power Supply').click();
-  await page.getByText('Uninterruptible Power Supply Test').waitFor();
-  await screenshot('ups-test');
-
-  await page.getByText('UPS Is Fully Charged').click();
-  await page.getByText('Save Readiness Report').click();
-  await screenshot('save-readiness-report-prompt');
-  await page.getByText('Save', { exact: true }).click();
-  await page.getByText('Readiness Report Saved').waitFor();
-  await screenshot('save-readiness-report-done');
-  await page.getByText('Close').click();
-  usbHandler.remove();
-
-  await page.getByText('Back').click();
-  mockCardRemoval();
-  await page.getByText(/election manager card/).waitFor();
-  await screenshot('em-insert-card');
-
-  await logInAsElectionManager(page, election);
-  await page.getByText(/a USB drive/).waitFor();
-  await screenshot('em-insert-usb');
-
-  usbHandler.insert(
-    await mockElectionPackageFileTree(
-      fixtureSet.toElectionPackage({
-        ...DEFAULT_SYSTEM_SETTINGS,
-        disableVoterHelpButtons: true,
-      })
-    )
-  );
-  await page.getByText('Election Manager Menu').waitFor();
-  await screenshot('em-menu');
-  await screenshotWithButtonHighlight(
-    'Diagnostics',
-    'em-menu-diagnostics-button'
-  );
-  await screenshotWithButtonHighlight('Save Logs', 'em-menu-save-logs-button');
-  await screenshotWithButtonHighlight(
-    'Unconfigure Machine',
-    'em-menu-unconfigure-machine-button'
-  );
-  await screenshotWithButtonHighlight(
-    'Official Ballot Mode',
-    'em-menu-official-ballot-mode-button'
-  );
-
-  // Select precinct and capture screenshot in test mode
-  await page.getByText(/select a polling place/i).click({ force: true });
-  await page.getByText('North Lincoln', { exact: true }).click();
-  mockCardRemoval();
-  await page.getByText(/poll worker card/).waitFor();
-  await screenshot('pw-insert-card-test-mode');
-
-  // Re-login as EM and toggle to official mode
-  await logInAsElectionManager(page, election);
-  await page.getByText('Election Manager Menu').waitFor();
-  await page.getByText('Official Ballot Mode').click();
-  await screenshotWithButtonHighlight(
-    'Test Ballot Mode',
-    'em-menu-test-ballot-mode-button'
-  );
-
-  mockCardRemoval();
-  await page.getByText(/poll worker card/).waitFor();
-  await screenshot('pw-insert-card-closed-initial');
-
-  // opening, pausing, and resuming
-  mockPollWorkerCardInsertion({ election });
-  await page.getByText('Poll Worker Menu').waitFor();
-  await screenshot('pw-menu-closed-initial');
-
-  await screenshotWithButtonHighlight(
-    'Open Polls',
-    'pw-menu-open-polls-button'
-  );
-
-  await page.getByText('Open Polls').click();
-  await screenshotWithButtonHighlight(
-    'Open Polls',
-    'pw-menu-open-polls-confirm-button'
-  );
-
-  await clickModalButton('Open Polls');
-  await page.getByText('Close Polls').waitFor();
-  await screenshot('pw-menu-opened-polls');
-  await screenshotWithButtonHighlight(
-    'Pause Voting',
-    'pw-menu-pause-voting-button'
-  );
-
-  await page.getByText('Pause Voting').click();
-  await screenshotWithButtonHighlight(
-    'Pause Voting',
-    'pw-menu-pause-voting-confirm-button'
-  );
-
-  await clickModalButton('Pause Voting');
-  await page.getByText('Resume Voting').waitFor();
-  await screenshot('pw-menu-paused-voting');
-  await screenshotWithButtonHighlight(
-    'Resume Voting',
-    'pw-menu-resume-voting-button'
-  );
-
-  await page.getByText('Resume Voting').click();
-  await screenshotWithButtonHighlight(
-    'Resume Voting',
-    'pw-menu-resume-voting-confirm-button'
-  );
-  await clickModalButton('Resume Voting');
-
-  // poll worker starts voting session
-  await screenshotWithButtonHighlight(
-    /Start Voting Session/,
-    'pw-ballot-style-selection'
-  );
-  await page.getByText(/Start Voting Session/).click();
-  await page.getByText('Load Ballot Sheet').waitFor();
-  await screenshot('pw-load-ballot-sheet');
-  await page.getByText('Loading Sheet').waitFor();
-  await screenshot('pw-loading-sheet');
-  await page.getByText(/Remove Card/).waitFor();
-  await screenshot('pw-remove-card-to-vote');
-  mockCardRemoval();
-
-  // voting session screenshots handled in separate test
-  await page.getByRole('button', { name: 'Start Voting' }).waitFor();
-  await screenshot('voting-start-screen');
-  mockPollWorkerCardInsertion({ election });
-  await page.getByText('Cancel Voting Session').click();
-
-  // closing
-  await page.getByText('Close Polls').waitFor();
-  await screenshotWithButtonHighlight(
-    'Close Polls',
-    'pw-menu-close-polls-button'
-  );
-
-  await page.getByText('Close Polls').click();
-  await screenshotWithButtonHighlight(
-    'Close Polls',
-    'pw-menu-close-polls-confirm-button'
-  );
-
-  await clickModalButton('Close Polls');
-  await page.getByText('Polls: Closed').waitFor();
-  mockCardRemoval();
+// Leave the machine unconfigured and logged out so the next test file inherits
+// a clean backend (these tests can end mid-voting-session with polls open).
+test.afterEach(async ({ page }) => {
+  await forceLogOutAndResetElectionDefinition(page);
 });
 
-test('voting session', async ({ page }) => {
-  const usbHandler = getMockFileUsbDriveHandler();
-  const fixtureSet = electionPrimaryPrecinctSplitsFixtures;
-  const electionDefinition = fixtureSet.readElectionDefinition();
-  const { election } = electionDefinition;
+async function buildElectionPackage(electionDefinition: ElectionDefinition) {
+  return mockElectionPackageFileTree({
+    electionDefinition,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      // Hide the voter help button to keep voter screens uncluttered.
+      disableVoterHelpButtons: true,
+    },
+    // Registers the supported languages and their native display names so the
+    // voter language selector renders (see MULTI_LANGUAGE_UI_STRINGS).
+    uiStrings: MULTI_LANGUAGE_UI_STRINGS,
+  });
+}
 
-  const { screenshot, screenshotWithButtonHighlight, clickModalButton } =
-    buildIntegrationTestHelper(page, screenshotCounter);
-
-  // Helper: Get contest metadata from UI
-  async function getContestInfo(): Promise<{ current: number; total: number }> {
-    const contestText = await page
-      .getByText(/Contest number: \d+ \| Total contests: \d+/)
-      .first()
-      .textContent();
-
-    // Extract "Contest number: X | Total contests: Y" format
-    const match = contestText?.match(
-      /Contest number: (\d+) \| Total contests: (\d+)/
-    );
-    const current = safeParseInt(match?.[1] ?? '0').unsafeUnwrap();
-    const total = safeParseInt(match?.[2] ?? '0').unsafeUnwrap();
-
-    return { current, total };
-  }
-
-  await page.goto('/');
-  await page
-    .getByText('Insert an election manager card to configure VxMarkScan')
-    .waitFor();
-
-  // Configure machine as Election Manager
-  await logInAsElectionManager(page, election);
-  await page.getByText(/a USB drive/).waitFor();
-
-  usbHandler.insert(
-    await mockElectionPackageFileTree(
-      fixtureSet.toElectionPackage({
-        ...DEFAULT_SYSTEM_SETTINGS,
-        disableVoterHelpButtons: true,
-      })
-    )
-  );
-  await page.getByText('Election Manager Menu').waitFor();
-
-  await page.getByText('Official Ballot Mode').click();
-  await page.getByText(/select a polling place/i).click({ force: true });
-  await page.getByText('Precinct 1', { exact: true }).click();
-
-  // Open polls as Poll Worker
-  mockCardRemoval();
-  await page.getByText(/poll worker card/).waitFor();
-
-  mockPollWorkerCardInsertion({ election });
-  await page.getByText('Poll Worker Menu').waitFor();
-
-  await page.getByText('Open Polls').click();
-  await clickModalButton('Open Polls');
-  await page.getByText('Close Polls').waitFor();
-
-  // Start voting session - select Fish party
-  await page.getByText('Fish').click();
-  await page.getByText(/Remove Card/).waitFor();
-  mockCardRemoval();
-
-  /**
-   * Initiate Voting Session
-   */
-  await page.getByRole('button', { name: 'Start Voting' }).waitFor();
-  await screenshot('voting-start-screen');
+/**
+ * Casts a full ballot via the voter flow, capturing the contest, write-in, and
+ * review screenshots. Selections are derived from the election definition
+ * rather than hardcoded candidate names. Assumes the voter is on the "Start
+ * Voting" screen.
+ */
+async function voteAndCaptureContests(
+  page: Page,
+  election: Election,
+  helper: ReturnType<typeof buildIntegrationTestHelper>
+): Promise<void> {
+  const { screenshot, screenshotWithButtonHighlight } = helper;
+  const { contests } = election;
 
   await page.getByRole('button', { name: 'Start Voting' }).click();
 
-  // Wait for contest metadata to appear
-  await page
-    .getByText(/Contest number: \d+ \| Total contests: \d+/)
-    .first()
-    .waitFor();
-
-  // Get total number of contests
-  const { total: totalContests } = await getContestInfo();
-
-  /**
-   * Language Selection
-   */
-  await screenshotWithButtonHighlight(/English/, 'voting-language-button');
-  await page.getByRole('button', { name: /English/ }).click();
-  await screenshot('voting-languages');
-
-  const spanishOption = page.getByText(/Español/i);
-  assert((await spanishOption.count()) > 0);
-  await screenshotWithButtonHighlight(
-    /Español/i,
-    'voting-language-spanish-option'
-  );
-  await spanishOption.click();
-  await page.getByText('Done', { exact: true }).click();
-  await screenshot('voting-in-spanish');
-
-  // Revert to English
-  await page.getByRole('button', { name: /Español/i }).click();
-  await page.getByText(/English/i).click();
-  await page.getByText('Done', { exact: true }).click();
-
-  // Wait for contest to be back in English
-  await page
-    .getByText(/Contest number: \d+ \| Total contests: \d+/)
-    .first()
-    .waitFor();
-
-  /**
-   * Accessibility Settings
-   */
-  await page.getByRole('button', { name: /Settings/i }).waitFor();
-  await screenshotWithButtonHighlight(/Settings/i, 'voting-settings-button');
-  await page.getByRole('button', { name: /Settings/i }).click();
-  await screenshot('voting-settings-color');
-
-  // Capture all color theme options
-  const colorThemeOptions = page.getByRole('button').getByText(/background/);
-  const colorThemeCount = await colorThemeOptions.count();
-
-  for (let i = 0; i < colorThemeCount; i += 1) {
-    await colorThemeOptions.nth(i).click();
-    await screenshot(`voting-settings-color-theme-${i + 1}`);
-  }
-
-  // Reset to defaults
-  await page.getByText('Reset', { exact: true }).click();
-
-  // Test text size
-  await page.getByText('Text Size', { exact: true }).click();
-  await screenshot('voting-settings-text-size');
-
-  // Capture all text size options
-  const textSizeOptions = page.getByText(/Aa/);
-  const textSizeCount = await textSizeOptions.count();
-
-  for (let i = 0; i < textSizeCount; i += 1) {
-    await textSizeOptions.nth(i).click();
-    await screenshot(`voting-settings-text-size-${i + 1}`);
-  }
-
-  // Reset to defaults and close
-  await page.getByText('Reset', { exact: true }).click();
-
-  await page.getByText('Audio').click();
-  await screenshot('voting-settings-audio');
-  await screenshotWithButtonHighlight(
-    'Mute Audio',
-    'voting-settings-mute-audio-button'
-  );
-  await screenshotWithButtonHighlight(
-    'Enable Audio-Only Mode',
-    'voting-settings-mute-audio-button'
-  );
-  await page.getByText('Enable Audio-Only Mode').click();
-  await screenshot('voting-settings-audio-only-mode');
-  await page.getByText('Exit Audio-Only Mode').click();
-
-  /**
-   * Navigate Contests
-   */
-
-  // Track whether we've captured the next screenshot
-  let capturedNextButton = false;
+  let capturedSingleSeat = false;
+  let capturedMultiSeat = false;
   let capturedWriteIn = false;
 
-  // Navigate through all contests
-  for (let contestNum = 1; contestNum <= totalContests; contestNum += 1) {
-    const { current } = await getContestInfo();
-    // Verify we're on the expected contest
-    if (current !== contestNum) {
-      throw new Error(
-        `Expected contest ${contestNum} but on contest ${current}`
-      );
-    }
+  for (let i = 0; i < contests.length; i += 1) {
+    const contest = contests[i];
+    await page.getByRole('heading', { name: contest.title }).first().waitFor();
 
-    // Capture write-in flow on first contest that supports it
-    const writeInButton = page.getByText('add write-in candidate');
-    if (!capturedWriteIn && (await writeInButton.isVisible())) {
-      await screenshotWithButtonHighlight(
-        'add write-in candidate',
-        'voting-write-in-button'
-      );
+    if (contest.type === 'candidate') {
+      const candidateContest = contest;
+      const isMultiSeat = candidateContest.seats > 1;
 
-      await writeInButton.click();
-      await page.getByRole('alertdialog').waitFor();
-      const dialog = page.getByRole('alertdialog');
-      for (const letter of 'NEMO') {
-        await dialog
-          // Button names are doubled for some reason, e.g., "A A"
-          .getByRole('button', { name: `${letter} ${letter}` })
-          .click();
+      // Capture the write-in flow on the first single-seat write-in contest,
+      // once a plain single-seat selection has already been captured.
+      if (
+        candidateContest.allowWriteIns &&
+        !capturedWriteIn &&
+        capturedSingleSeat &&
+        !isMultiSeat
+      ) {
+        await screenshotWithButtonHighlight(
+          'add write-in candidate',
+          'voting-write-in-button'
+        );
+        await page.getByText('add write-in candidate').click();
+        const dialog = page.getByRole('alertdialog');
+        await dialog.waitFor();
+        for (const letter of 'NEMO') {
+          // Virtual keyboard button names are doubled, e.g. "N N".
+          await dialog
+            .getByRole('button', { name: `${letter} ${letter}` })
+            .click();
+        }
+        await screenshot('voting-write-in-keyboard');
+        await dialog.getByRole('button', { name: 'Accept' }).click();
+        await dialog.waitFor({ state: 'hidden' });
+        await screenshot('voting-write-in-accepted');
+        capturedWriteIn = true;
+      } else {
+        const options = page.getByRole('option');
+        const numToSelect = isMultiSeat ? candidateContest.seats : 1;
+        for (let s = 0; s < numToSelect; s += 1) {
+          await options.nth(s).click();
+        }
+        if (!isMultiSeat && !capturedSingleSeat) {
+          await screenshot('voting-single-seat-selection');
+          capturedSingleSeat = true;
+        }
+        if (isMultiSeat && !capturedMultiSeat) {
+          await screenshot('voting-multi-seat-selections');
+          capturedMultiSeat = true;
+        }
       }
-      await screenshot('voting-write-in-entry');
-
-      await page.getByRole('button', { name: 'Accept' }).click();
-      await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
-      await screenshot('voting-write-in-selected');
-
-      capturedWriteIn = true;
-    } else {
-      const optionCount = await page.getByRole('option').count();
-      const options = page.getByRole('option');
-
-      // Make selection deterministically (use modulo for index)
-      const selectionIndex = contestNum % optionCount;
-      await options.nth(selectionIndex).click();
-      await page.waitForTimeout(100);
     }
 
-    // Screenshot the contest with selections
-    await screenshot(`voting-contest-${contestNum}`);
-
-    // Capture Next button on first contest
-    if (!capturedNextButton && contestNum < totalContests) {
-      await screenshotWithButtonHighlight(/Next/, 'voting-contest-next-button');
-      capturedNextButton = true;
-    }
-
-    await page.getByRole('button', { name: /Next/ }).click();
-    await page.waitForTimeout(100); // Brief wait for navigation
+    // The "Next" button navigates to the review screen after the last contest.
+    await page.getByRole('button', { name: 'Next' }).click();
   }
+}
 
-  // Pre-Print Review screen
-  await page.getByText('Print My Ballot').waitFor();
-  await screenshot('voting-pre-print-review');
+test('basic election flow', async ({ page }) => {
+  const electionDefinition = getFamousNamesElectionDefinition();
+  const { election } = electionDefinition;
+  const usbHandler = getMockFileUsbDriveHandler();
+  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
+    clickModalButton,
+  } = helper;
+  const electionPackage = await buildElectionPackage(electionDefinition);
 
-  // Print ballot
-  await page.getByText('Print My Ballot').click();
+  // Initial configuration screen.
+  await page
+    .getByText('Insert an election manager card to configure VxMarkScan')
+    .waitFor();
+  await screenshot('unconfigured-screen');
+
+  // Insert election manager card, then prompt for USB.
+  await logInAsElectionManager(page, election);
+  await page.getByText(/USB drive/).waitFor();
+  await screenshot('em-insert-usb');
+
+  // Insert USB containing the election package.
+  usbHandler.insert(electionPackage);
+  await page.getByText('Election Manager Menu').waitFor();
+  await screenshot('em-menu-no-polling-place');
+
+  // Select a polling place.
+  await page.getByText(/select a polling place/i).click({ force: true });
+  await page.getByText(POLLING_PLACE_NAME, { exact: true }).click();
+  await screenshot('em-menu-polling-place-selected');
+
+  // Ballot mode: official highlighted (not selected), select it, then test
+  // highlighted (not selected).
+  await screenshotWithButtonHighlight(
+    'Official Ballot Mode',
+    'em-menu-official-ballot-mode-highlighted'
+  );
+  await page.getByRole('option', { name: 'Official Ballot Mode' }).click();
+  await page
+    .getByRole('option', { name: 'Official Ballot Mode', selected: true })
+    .waitFor();
+  await screenshotWithButtonHighlight(
+    'Test Ballot Mode',
+    'em-menu-test-ballot-mode-highlighted'
+  );
+
+  // Remove card → unauthenticated pre-polls-opened screen.
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open.').waitFor();
+  await screenshot('unauthenticated-polls-closed');
+
+  // Poll worker opens polls.
+  logInAsPollWorker(election);
+  await page.getByText('Poll Worker Menu').waitFor();
+  await screenshot('pw-menu-polls-closed');
+  await screenshotWithButtonHighlight(
+    'Open Polls',
+    'pw-menu-open-polls-highlighted'
+  );
+  await screenshotWithButtonHighlight(
+    'Signed Hash Validation',
+    'pw-menu-signed-hash-validation-highlighted'
+  );
+  await page.getByText('Open Polls').click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshotWithButtonHighlight('Open Polls', 'pw-open-polls-modal');
+  await clickModalButton('Open Polls');
+  await page.getByText('Close Polls').waitFor();
+
+  // Remove card → unauthenticated polls-opened screen.
+  mockCardRemoval();
+  await page.getByText('Insert Card').waitFor();
+  await screenshot('unauthenticated-polls-opened');
+  await screenshotWithLocatorHighlight(
+    page.getByTestId('electionInfoBar'),
+    'unauthenticated-polls-opened-election-info'
+  );
+
+  // Poll worker starts a voting session. Unique to VxMarkScan: starting a
+  // session loads the voter's blank ballot sheet into the printer-scanner.
+  logInAsPollWorker(election);
+  await page.getByText('Poll Worker Menu').waitFor();
+  await screenshot('pw-menu-polls-open');
+  await screenshotWithButtonHighlight(
+    /Start Voting Session/,
+    'pw-start-voting-session-button'
+  );
+  await page.getByText(/Start Voting Session/).click();
+  await insertBlankBallotSheet(page);
+  await page.getByText(/Remove Card/).waitFor();
+  await screenshot('pw-remove-card-to-vote');
+
+  // Remove card → voter "Start Voting" screen.
+  mockCardRemoval();
+  await page.getByRole('button', { name: 'Start Voting' }).waitFor();
+  await screenshot('voting-start-screen');
+
+  // Vote and capture contest screenshots.
+  await voteAndCaptureContests(page, election, helper);
+
+  // Review screen.
+  await page.getByRole('heading', { name: 'Review Your Votes' }).waitFor();
+  await screenshot('voting-review');
+
+  // Print ballot.
+  await page.getByRole('button', { name: 'Print My Ballot' }).click();
   await page.getByText(/Printing/).waitFor();
   await screenshot('voting-printing');
 
-  // Post-Print Cast instructions
-  await page.getByText('Cast My Ballot').waitFor();
+  // Post-print review: the printed ballot is presented for the voter to cast.
+  await page.getByText('Cast My Ballot').waitFor({ timeout: 30000 });
   await screenshot('voting-post-print-review');
 
+  // Cast the ballot.
   await page.getByText('Cast My Ballot').click();
   await page.getByText(/Casting/).waitFor();
   await screenshot('voting-casting-ballot');
 
-  await page.getByText('Thank you for voting.').waitFor();
+  await page.getByText('Thank you for voting.').waitFor({ timeout: 30000 });
   await screenshot('voting-ballot-cast');
 
-  await page.clock.fastForward(5_000);
+  // The "thank you" screen auto-returns to the idle screen after a short delay.
   await page.getByText('Insert Card').waitFor();
+
+  // Poll worker closes polls.
+  logInAsPollWorker(election);
+  await page.getByText('Poll Worker Menu').waitFor();
+  await screenshotWithButtonHighlight(
+    'Close Polls',
+    'pw-menu-close-polls-highlighted'
+  );
+  await page.getByText('Close Polls').click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshotWithButtonHighlight('Close Polls', 'pw-close-polls-modal');
+  await clickModalButton('Close Polls');
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+  await screenshot('pw-menu-polls-closed-final');
+
+  // Remove card → unauthenticated polls-closed screen.
+  mockCardRemoval();
+  await page.getByText('Voting is complete.').waitFor();
+  await screenshot('unauthenticated-polls-closed-final');
+
+  // Election manager unconfigures the machine.
+  await logInAsElectionManager(page, election);
+  await page.getByText('Election Manager Menu').waitFor();
+  await screenshotWithButtonHighlight(
+    'Unconfigure Machine',
+    'em-menu-unconfigure-highlighted'
+  );
+  await page.getByRole('button', { name: 'Unconfigure Machine' }).click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshot('em-unconfigure-modal');
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Delete All Election Data' })
+    .click();
+
+  // Remove card → back to unconfigured.
+  mockCardRemoval();
+  await page
+    .getByText('Insert an election manager card to configure VxMarkScan')
+    .waitFor();
+});
+
+test('additional options', async ({ page }) => {
+  const electionDefinition = getFamousNamesElectionDefinition();
+  const { election } = electionDefinition;
+  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    clickModalButton,
+    withContainerVerticallyExpanded,
+  } = helper;
+  const electionPackage = await buildElectionPackage(electionDefinition);
+
+  await page
+    .getByText('Insert an election manager card to configure VxMarkScan')
+    .waitFor();
+  await configureMachine(page, {
+    election,
+    electionPackage,
+    pollingPlaceName: POLLING_PLACE_NAME,
+  });
+
+  // Election manager menu system buttons.
+  await screenshotWithButtonHighlight(
+    'Diagnostics',
+    'em-menu-diagnostics-highlighted'
+  );
+  await screenshotWithButtonHighlight(
+    'Save Logs',
+    'em-menu-save-logs-highlighted'
+  );
+  await screenshotWithButtonHighlight(
+    'Set Date and Time',
+    'em-menu-set-date-time-highlighted'
+  );
+  await screenshotWithButtonHighlight(
+    'Signed Hash Validation',
+    'em-menu-signed-hash-validation-highlighted'
+  );
+
+  // Diagnostics screen (full height).
+  await page.getByRole('button', { name: 'Diagnostics' }).click();
+  await page.getByRole('heading', { name: 'Diagnostics' }).waitFor();
+  await withContainerVerticallyExpanded('main', async () => {
+    await screenshot('em-diagnostics-full');
+  });
+
+  // Save the readiness report to the USB drive, then capture the saved PDF.
+  await page.getByRole('button', { name: 'Save Readiness Report' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save' })
+    .click();
+  await page.getByText('Readiness Report Saved').waitFor();
+  await captureReadinessReport('readiness-report', screenshotCounter);
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Close' })
+    .click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+
+  await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByText('Election Manager Menu').waitFor();
+
+  // Open polls.
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open.').waitFor();
+  await openPolls(page, election);
+
+  // Pause voting.
+  await screenshotWithButtonHighlight(
+    'Pause Voting',
+    'pw-menu-pause-voting-highlighted'
+  );
+  await page.getByText('Pause Voting').click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshotWithButtonHighlight('Pause Voting', 'pw-pause-voting-modal');
+  await clickModalButton('Pause Voting');
+  await page.getByText('Resume Voting').waitFor();
+
+  // Remove card → unauthenticated polls-paused screen.
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to resume voting.').waitFor();
+  await screenshot('unauthenticated-polls-paused');
+
+  // Poll worker menu while paused.
+  logInAsPollWorker(election);
+  await page.getByText('Poll Worker Menu').waitFor();
+  await screenshot('pw-menu-polls-paused');
+  await screenshotWithButtonHighlight(
+    'Resume Voting',
+    'pw-menu-resume-voting-highlighted'
+  );
+  await page.getByText('Resume Voting').click();
+  await page.getByRole('alertdialog').waitFor();
+  await screenshotWithButtonHighlight(
+    'Resume Voting',
+    'pw-resume-voting-modal'
+  );
+
+  // Back out of the resume modal and close polls instead.
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Cancel' })
+    .click();
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+  await page.getByText('Close Polls').click();
+  await page.getByRole('alertdialog').waitFor();
+  await clickModalButton('Close Polls');
+  await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
+
+  // Remove card → system administrator menu.
+  mockCardRemoval();
+  await page.getByText('Voting is complete.').waitFor();
+  await logInAsSystemAdministrator(page);
+  await screenshotWithButtonHighlight(
+    'Diagnostics',
+    'sa-menu-diagnostics-highlighted'
+  );
+  await screenshotWithButtonHighlight(
+    'Save Logs',
+    'sa-menu-save-logs-highlighted'
+  );
+  await screenshotWithButtonHighlight(
+    'Reset Polls to Paused',
+    'sa-menu-reset-polls-to-paused-highlighted'
+  );
+});
+
+test('voter settings', async ({ page }) => {
+  // Use the same single-precinct famous-names election as the basic flow (the
+  // registered uiStrings drive the language selector). We don't capture a
+  // printed multi-language ballot here, so the heavier electionGeneral isn't
+  // needed.
+  const electionDefinition = getFamousNamesElectionDefinition();
+  const { election } = electionDefinition;
+  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot, screenshotWithLocatorHighlight } = helper;
+  const electionPackage = await buildElectionPackage(electionDefinition);
+
+  await page
+    .getByText('Insert an election manager card to configure VxMarkScan')
+    .waitFor();
+  await configureMachine(page, {
+    election,
+    electionPackage,
+    pollingPlaceName: POLLING_PLACE_NAME,
+  });
+
+  // Open polls and start a voting session.
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open.').waitFor();
+  await openPolls(page, election);
+  await startVotingSession(page);
+  await page.getByRole('button', { name: 'Start Voting' }).click();
+
+  // Voter is on the first contest; the language and settings menu buttons are
+  // always present on voter screens.
+  await page.getByRole('button', { name: 'Settings' }).waitFor();
+
+  // Highlight the language + settings menu buttons together.
+  await screenshotWithLocatorHighlight(
+    page.getByRole('button', { name: 'Settings' }).locator('..'),
+    'voting-language-and-settings-highlighted'
+  );
+
+  // Language settings screen.
+  await page.getByRole('button', { name: /English/ }).click();
+  await page
+    .getByRole('heading', { name: 'Select Your Ballot Language' })
+    .waitFor();
+  await screenshot('voting-language-settings');
+  await page.getByRole('button', { name: 'Done' }).click();
+  await page.getByRole('button', { name: 'Settings' }).waitFor();
+
+  // Voter settings — color. Select each contrast option by its visible label.
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('tab', { name: 'Color' }).waitFor();
+  const colorSettingLabels = [
+    'White text, black background',
+    'Gray text, dark background',
+    'Dark text, light background',
+    'Black text, white background',
+  ];
+  for (const [i, label] of colorSettingLabels.entries()) {
+    await page.getByText(label, { exact: true }).click();
+    await screenshot(`voting-settings-color-${i + 1}`);
+  }
+  // Reset to the default color so later screenshots aren't affected.
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
+
+  // Voter settings — text size. Select each size option by its visible label.
+  await page.getByRole('tab', { name: 'Text Size' }).click();
+  await page.getByRole('tab', { name: 'Text Size', selected: true }).waitFor();
+  const textSizeLabels = ['Small', 'Medium', 'Large', 'Extra-Large'];
+  for (const [i, label] of textSizeLabels.entries()) {
+    await page.getByText(label, { exact: true }).click();
+    await screenshot(`voting-settings-text-size-${i + 1}`);
+  }
+  // Reset to the default text size so later screenshots aren't affected.
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
+
+  // Voter settings — audio.
+  await page.getByRole('tab', { name: 'Audio' }).click();
+  await page.getByRole('tab', { name: 'Audio', selected: true }).waitFor();
+  await screenshot('voting-settings-audio');
+
+  // Audio-only mode. Enabling it closes the settings and shows a full-screen
+  // overlay; exit it afterward. The overlay is aria-hidden, so locate the exit
+  // button by its text.
+  await page.getByRole('button', { name: 'Enable Audio-Only Mode' }).click();
+  await page.getByText('Exit Audio-Only Mode').waitFor();
+  await screenshot('voting-settings-audio-only-mode');
+  await page.getByText('Exit Audio-Only Mode').click();
 });

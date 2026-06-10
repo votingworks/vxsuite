@@ -218,6 +218,10 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
 
   async ejectBallotToRear(): Promise<boolean> {
     this.setMockStatus('noPaper');
+    // The ballot has left the machine into the ballot box, so any printed
+    // contents are gone. Clearing them ensures a subsequently loaded blank
+    // sheet scans as blank rather than re-reading the cast ballot.
+    this.mockPaperContents = undefined;
 
     return Promise.resolve(true);
   }
