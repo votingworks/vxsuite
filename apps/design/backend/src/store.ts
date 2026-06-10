@@ -72,7 +72,6 @@ import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   ExternalElectionSource,
-  ElectionInfo,
   ElectionListing,
   ExportQaRun,
   GetExportedElectionError,
@@ -84,6 +83,7 @@ import {
   User,
   UserType,
   ElectionStatus,
+  ElectionInfoUpdate,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -1463,7 +1463,7 @@ export class Store {
   }
 
   async updateElectionInfo(
-    electionInfo: ElectionInfo
+    electionInfoUpdate: ElectionInfoUpdate
   ): Promise<Result<void, DuplicateElectionError>> {
     try {
       const { rowCount } = await this.db.withClient((client) =>
@@ -1481,20 +1481,20 @@ export class Store {
             ballot_language_codes = $8
           where id = $9
         `,
-          electionInfo.type,
-          electionInfo.title,
-          electionInfo.date.toISOString(),
-          electionInfo.countyName,
-          electionInfo.state,
-          electionInfo.seal,
-          electionInfo.signatureImage
+          electionInfoUpdate.type,
+          electionInfoUpdate.title,
+          electionInfoUpdate.date.toISOString(),
+          electionInfoUpdate.countyName,
+          electionInfoUpdate.state,
+          electionInfoUpdate.seal,
+          electionInfoUpdate.signatureImage
             ? JSON.stringify({
-                image: electionInfo.signatureImage,
-                caption: electionInfo.signatureCaption,
+                image: electionInfoUpdate.signatureImage,
+                caption: electionInfoUpdate.signatureCaption,
               })
             : null,
-          electionInfo.languageCodes,
-          electionInfo.electionId
+          electionInfoUpdate.languageCodes,
+          electionInfoUpdate.electionId
         )
       );
       assert(rowCount === 1, 'Election not found');

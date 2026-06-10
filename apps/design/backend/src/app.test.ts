@@ -116,6 +116,7 @@ import {
 } from './test_decks';
 import {
   ElectionInfo,
+  ElectionInfoUpdate,
   ElectionListing,
   ElectionStatus,
   Jurisdiction,
@@ -710,8 +711,7 @@ test('update election info', async () => {
   );
 
   // Update election info
-  const electionInfoUpdate: ElectionInfo = {
-    jurisdictionId: nonVxJurisdiction.id,
+  const electionInfoUpdate: ElectionInfoUpdate = {
     electionId,
     // trim text values
     title: '   Updated Election  ',
@@ -758,8 +758,7 @@ test('update election info', async () => {
     }
   );
 
-  const electionInfoUpdateWithSignature: ElectionInfo = {
-    jurisdictionId: nonVxJurisdiction.id,
+  const electionInfoUpdateWithSignature: ElectionInfoUpdate = {
     electionId,
     title: '   Updated Election  ',
     countyName: '   New Hampshire   ',
@@ -853,7 +852,6 @@ test('update election info', async () => {
     // Empty string values are rejected
     await expect(
       apiClient.updateElectionInfo({
-        jurisdictionId: nonVxJurisdiction.id,
         electionId,
         type: 'closed-primary',
         title: '',
@@ -4181,7 +4179,6 @@ test('Election package export with VxDefaultBallot drops signature field', async
   // Set a signature in the election info
   (
     await apiClient.updateElectionInfo({
-      jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: baseElectionDefinition.election.title,
       countyName: baseElectionDefinition.election.county.name,

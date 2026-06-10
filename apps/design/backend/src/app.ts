@@ -12,10 +12,7 @@ import {
   ElectionSerializationFormat,
   ElectionId,
   BallotStyleId,
-  ElectionIdSchema,
-  DateWithoutTimeSchema,
   unsafeParse,
-  LanguageCodeSchema,
   getAllBallotLanguages,
   Precinct,
   PrecinctRegisteredVotersCountEntry,
@@ -40,7 +37,6 @@ import {
   PollingPlaceType,
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
-  ElectionTypeSchema,
   safeParseElectionDefinitionForAnySoftwareVersion,
 } from '@votingworks/types';
 import express, { Application } from 'express';
@@ -97,6 +93,8 @@ import {
   AggregatedReportedPollsStatus,
   AggregatedReportedResults,
   ElectionInfo,
+  ElectionInfoUpdate,
+  ElectionInfoUpdateSchema,
   ElectionListing,
   ElectionUpload,
   ExportQaRun,
@@ -167,24 +165,6 @@ export function createBlankElection(
     ballotStrings: {},
   };
 }
-
-const TextInput = z
-  .string()
-  .transform((s) => s.trim())
-  .refine((s) => s.length > 0);
-
-const UpdateElectionInfoInputSchema = z.object({
-  electionId: ElectionIdSchema,
-  type: ElectionTypeSchema,
-  date: DateWithoutTimeSchema,
-  title: TextInput,
-  state: TextInput,
-  countyName: TextInput,
-  seal: z.string(),
-  signatureImage: z.string().optional(),
-  signatureCaption: z.string().optional(),
-  languageCodes: z.array(LanguageCodeSchema),
-});
 
 export interface ApiContext {
   user: User;
@@ -524,10 +504,10 @@ export function buildApi(ctx: AppContext) {
     },
 
     async updateElectionInfo(
-      input: ElectionInfo
+      input: ElectionInfoUpdate
     ): Promise<Result<void, DuplicateElectionError>> {
-      const electionInfo = unsafeParse(UpdateElectionInfoInputSchema, input);
-      return store.updateElectionInfo(electionInfo);
+      const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
+      return store.updateElectionInfo(electionInfoUpdate);
     },
 
     async listDistricts(input: {
