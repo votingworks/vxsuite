@@ -1,5 +1,7 @@
 import { vi, afterAll, expect, test } from 'vitest';
 import {
+  centralScanningPollingPlaceId,
+  CENTRAL_SCANNING_POLLING_PLACE_NAME,
   ElectionIdSchema,
   formatBallotHash,
   HmpbBallotPaperSize,
@@ -8,7 +10,10 @@ import {
 import { err, ok } from '@votingworks/basics';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  electionGeneralFixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import {
   exportElectionPackage,
   generateAllPrecinctsTallyReport,
@@ -17,7 +22,9 @@ import {
   testSetupHelpers,
 } from '../test/helpers';
 import {
+  anotherNonVxUser,
   jurisdictions,
+  msJurisdiction,
   organizations,
   users,
   vxJurisdiction,
@@ -189,4 +196,100 @@ test('convert MS results', async () => {
       `"Invalid Record Length: columns length is 7, got 1 on line 987"`
     );
   });
+});
+
+test('finalizing a Mississippi election does not require absentee polling places', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  // Mississippi is a non-editing state, where a Central Scanning absentee place
+  // is auto-generated on export rather than validated at finalization, so
+  // finalizing requires no user-defined absentee polling places.
+  auth0.setLoggedInUser(anotherNonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: unsafeParse(ElectionIdSchema, 'election-finalize'),
+      jurisdictionId: msJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(
+          electionGeneralFixtures.readElection()
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+
+  await apiClient.finalizeBallots({ electionId });
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
+    null
+  );
+});
+
+test('a Central Scanning absentee polling place is added to the export for Mississippi', async () => {
+  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(anotherNonVxUser);
+
+  const electionId = (
+    await apiClient.loadElection({
+      newId: unsafeParse(ElectionIdSchema, 'election-export'),
+      jurisdictionId: msJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(
+          electionGeneralFixtures.readElection()
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+  await apiClient.updateBallotLayoutSettings({
+    electionId,
+    paperSize: HmpbBallotPaperSize.Legal,
+    compact: true,
+  });
+
+  const exportMeta = await exportElectionPackage({
+    apiClient,
+    workspace,
+    fileStorageClient,
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
+  });
+  const electionPackageContents = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: msJurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  // A single Central Scanning absentee place covering every precinct is added
+  // on export, since Mississippi has no user-defined absentee polling places.
+  const exportedElection = electionPackage.electionDefinition.election;
+  const absenteePlaces = (exportedElection.pollingPlaces ?? []).filter(
+    (place) => place.type === 'absentee'
+  );
+  expect(absenteePlaces).toEqual([
+    {
+      id: centralScanningPollingPlaceId(exportedElection.id),
+      name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
+      type: 'absentee',
+      precincts: Object.fromEntries(
+        exportedElection.precincts.map((precinct) => [
+          precinct.id,
+          { type: 'whole' },
+        ])
+      ),
+    },
+  ]);
 });

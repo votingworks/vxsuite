@@ -1,8 +1,11 @@
 import {
   BallotType,
   BaseBallotProps,
+  centralScanningPollingPlaceId,
+  CENTRAL_SCANNING_POLLING_PLACE_NAME,
   Election,
   hasSplits,
+  PollingPlace,
   pollingPlacesGenerateFromPrecincts,
   UiStringsPackage,
   YesNoContest,
@@ -39,21 +42,40 @@ export function defaultBallotTemplate(
   }
 }
 
+function centralScanningPollingPlace(election: Election): PollingPlace {
+  return {
+    id: centralScanningPollingPlaceId(election.id),
+    name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
+    type: 'absentee',
+    precincts: Object.fromEntries(
+      election.precincts.map((precinct) => [precinct.id, { type: 'whole' }])
+    ),
+  };
+}
+
 export function addPollingPlacesForExport(
   election: Election,
   jurisdiction: Jurisdiction
 ): Election {
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
   if (stateFeatures.EDIT_POLLING_PLACES) {
     return election;
   }
+
+  // Generate election day polling places from precincts and unless
+  // this state allows elections with no absentee polling places, add a single
+  // Central Scanning absentee place covering all precincts.
+  const pollingPlaces = pollingPlacesGenerateFromPrecincts(
+    election.precincts,
+    'election_day',
+    (p) => `${p.id}-polling-place`
+  );
   return {
     ...election,
-    pollingPlaces: pollingPlacesGenerateFromPrecincts(
-      election.precincts,
-      'election_day',
-      (p) => `${p.id}-polling-place`
-    ),
+    pollingPlaces: stateFeatures.OMIT_ABSENTEE_POLLING_PLACES
+      ? pollingPlaces
+      : [...pollingPlaces, centralScanningPollingPlace(election)],
   };
 }
 

@@ -14,7 +14,10 @@ import {
   Font,
 } from '@votingworks/ui';
 
-import { hasPartialRegisteredVoterCounts } from '@votingworks/types';
+import {
+  hasPartialRegisteredVoterCounts,
+  getPrecinctsWithoutAbsenteePollingPlace,
+} from '@votingworks/types';
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
 import { Row } from './layout';
@@ -30,6 +33,7 @@ export function BallotsStatus(): React.ReactNode {
   const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
   const getRegisteredVoterCountsQuery =
     api.getRegisteredVotersCounts.useQuery(electionId);
+  const listPollingPlacesQuery = api.listPollingPlaces.useQuery(electionId);
 
   const finalizeBallotsMutation = api.finalizeBallots.useMutation();
 
@@ -39,7 +43,8 @@ export function BallotsStatus(): React.ReactNode {
     !approvedAtQuery.isSuccess ||
     !getStateFeaturesQuery.isSuccess ||
     !listPrecinctsQuery.isSuccess ||
-    !getRegisteredVoterCountsQuery.isSuccess
+    !getRegisteredVoterCountsQuery.isSuccess ||
+    !listPollingPlacesQuery.isSuccess
   ) {
     return null;
   }
@@ -73,6 +78,27 @@ export function BallotsStatus(): React.ReactNode {
         Registered voter counts are set for some precincts but not all. Set
         counts for all precincts or remove them from all precincts before
         finalizing.
+      </Callout>
+    );
+  }
+
+  if (
+    features.EDIT_POLLING_PLACES &&
+    !features.OMIT_ABSENTEE_POLLING_PLACES &&
+    getPrecinctsWithoutAbsenteePollingPlace(
+      listPrecinctsQuery.data,
+      listPollingPlacesQuery.data
+    ).length > 0
+  ) {
+    return (
+      <Callout
+        color="neutral"
+        icon={<Icons.Info />}
+        title="Absentee polling places must cover every precinct."
+      >
+        Every precinct must be covered by an absentee polling place, so that
+        centrally-scanned ballots have a location to be tabulated under. Add or
+        edit absentee polling places to cover all precincts before finalizing.
       </Callout>
     );
   }

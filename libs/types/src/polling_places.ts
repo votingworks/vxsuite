@@ -171,6 +171,34 @@ export function pollingPlacePrecinctIds(place: PollingPlace): Set<string> {
   return new Set(Object.keys(place.precincts));
 }
 
+/**
+ * The id and name of the default "Central Scanning" absentee polling place.
+ * The id is derived deterministically from the election id (so the ballot hash
+ * stays stable across exports) while remaining globally unique across
+ * elections, matching the convention used for other election entity ids.
+ */
+export function centralScanningPollingPlaceId(electionId: string): string {
+  return `${electionId}-central-scanning`;
+}
+export const CENTRAL_SCANNING_POLLING_PLACE_NAME = 'Central Scanning';
+
+/**
+ * Returns the precincts not covered by any absentee polling place, i.e.
+ * precincts whose centrally-scanned ballots would have no location to be
+ * tabulated under.
+ */
+export function getPrecinctsWithoutAbsenteePollingPlace(
+  precincts: readonly Precinct[],
+  pollingPlaces: readonly PollingPlace[] = []
+): Precinct[] {
+  const coveredPrecinctIds = new Set(
+    pollingPlaces
+      .filter((place) => place.type === 'absentee')
+      .flatMap((place) => [...pollingPlacePrecinctIds(place)])
+  );
+  return precincts.filter((precinct) => !coveredPrecinctIds.has(precinct.id));
+}
+
 export function pollingPlaceTypeName(type: PollingPlaceType): string {
   switch (type) {
     case 'absentee':

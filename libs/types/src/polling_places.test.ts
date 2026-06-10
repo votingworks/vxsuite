@@ -23,6 +23,7 @@ import {
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
   pollingPlaceTypeName,
+  getPrecinctsWithoutAbsenteePollingPlace,
 } from './polling_places';
 
 test('anyPollingPlace', () => {
@@ -302,6 +303,57 @@ test('pollingPlaceTypeName', () => {
   expect(pollingPlaceTypeName('absentee')).toEqual('Absentee Voting');
   expect(pollingPlaceTypeName('early_voting')).toEqual('Early Voting');
   expect(pollingPlaceTypeName('election_day')).toEqual('Election Day');
+});
+
+test('precinctsWithoutAbsenteePollingPlace', () => {
+  const precincts = [
+    mockPrecinctNoSplits({ id: 'p1' }),
+    mockPrecinctNoSplits({ id: 'p2' }),
+    mockPrecinctNoSplits({ id: 'p3' }),
+  ];
+
+  // No polling places at all (omitted): all precincts are uncovered.
+  expect(
+    getPrecinctsWithoutAbsenteePollingPlace(precincts).map((p) => p.id)
+  ).toEqual(['p1', 'p2', 'p3']);
+
+  // No absentee places: all precincts are uncovered.
+  expect(
+    getPrecinctsWithoutAbsenteePollingPlace(precincts, [
+      mockPollingPlace({
+        type: 'election_day',
+        precincts: { p1: { type: 'whole' } },
+      }),
+    ]).map((p) => p.id)
+  ).toEqual(['p1', 'p2', 'p3']);
+
+  // Absentee places cover all precincts: none uncovered.
+  expect(
+    getPrecinctsWithoutAbsenteePollingPlace(precincts, [
+      mockPollingPlace({
+        type: 'absentee',
+        precincts: {
+          p1: { type: 'whole' },
+          p2: { type: 'whole' },
+          p3: { type: 'whole' },
+        },
+      }),
+    ])
+  ).toEqual([]);
+
+  // Absentee places cover some precincts: the rest are uncovered.
+  expect(
+    getPrecinctsWithoutAbsenteePollingPlace(precincts, [
+      mockPollingPlace({
+        type: 'absentee',
+        precincts: { p1: { type: 'whole' } },
+      }),
+      mockPollingPlace({
+        type: 'absentee',
+        precincts: { p2: { type: 'partial', splitIds: ['s2'] } },
+      }),
+    ]).map((p) => p.id)
+  ).toEqual(['p3']);
 });
 
 function mockBallotStyle(partial: Partial<BallotStyle>): BallotStyle {
