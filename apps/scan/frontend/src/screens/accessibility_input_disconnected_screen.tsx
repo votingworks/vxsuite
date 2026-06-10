@@ -16,7 +16,6 @@ export function AccessibilityInputDisconnectedScreen({
     <ScreenMainCenterChild
       disableSettingsButtons={enableAlarm}
       showTestModeBanner={false}
-      showEarlyVotingBanner={false}
       voterFacing
     >
       <CenteredText>

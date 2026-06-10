@@ -45,7 +45,6 @@ export interface ScreenProps {
   padded?: boolean;
   title?: React.ReactNode;
   showTestModeBanner: boolean;
-  showEarlyVotingBanner: boolean;
   voterFacing: boolean;
   disableSettingsButtons?: boolean;
   disableReadOnLoad?: boolean;
@@ -153,7 +152,6 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
     showTestModeBanner,
-    showEarlyVotingBanner,
     padded,
     title,
     voterFacing,
@@ -185,7 +183,9 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     precinctSelection,
     pollingPlaceId,
     systemSettings,
+    ballotCastingMode,
   } = configQuery.data;
+  const showEarlyVotingBanner = ballotCastingMode === 'early_voting';
 
   if (shouldShowLanguageSettings) {
     return (

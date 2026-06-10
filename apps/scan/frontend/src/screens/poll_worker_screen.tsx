@@ -970,7 +970,6 @@ function PollWorkerScreenContents({
       infoBarMode="admin"
       voterFacing={false}
       showTestModeBanner={false}
-      showEarlyVotingBanner={false}
     >
       {content}
     </PlainScreen>

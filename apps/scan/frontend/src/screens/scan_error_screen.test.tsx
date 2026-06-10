@@ -25,12 +25,7 @@ test('render correct unreadable ballot screen', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="unreadable"
-        isTestMode
-        isEarlyVotingMode
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
     )
   );
   await screen.findByText('Ballot Scan Failed');
@@ -47,7 +42,6 @@ test('render correct test ballot error screen when we are in test mode', async (
       <ScanErrorScreen
         error="invalid_test_mode"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )
@@ -66,7 +60,6 @@ test('render correct test ballot error screen when we are in live mode', async (
       <ScanErrorScreen
         error="invalid_test_mode"
         isTestMode={false}
-        isEarlyVotingMode={false}
         scannedBallotCount={42}
       />
     )
@@ -85,7 +78,6 @@ test('render correct invalid precinct screen', async () => {
       <ScanErrorScreen
         error="invalid_precinct"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )
@@ -104,7 +96,6 @@ test('render correct invalid ballot hash screen', async () => {
       <ScanErrorScreen
         error="invalid_ballot_hash"
         isTestMode={false}
-        isEarlyVotingMode={false}
         scannedBallotCount={42}
       />
     )
@@ -123,7 +114,6 @@ test('render correct BMD ballot scanning disabled screen', async () => {
       <ScanErrorScreen
         error="bmd_ballot_scanning_disabled"
         isTestMode={false}
-        isEarlyVotingMode={false}
         scannedBallotCount={42}
       />
     )
@@ -142,7 +132,6 @@ test('warning when scanner needs cleaning', async () => {
       <ScanErrorScreen
         error="vertical_streaks_detected"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )
@@ -161,7 +150,6 @@ test('warning when ballot was printed with the wrong scale', async () => {
       <ScanErrorScreen
         error="invalid_scale"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )
@@ -179,7 +167,6 @@ test('double feed error screen', async () => {
       <ScanErrorScreen
         error="double_feed_detected"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )
@@ -196,7 +183,6 @@ test('recoverable error screen', async () => {
       <ScanErrorScreen
         error="paper_in_back_after_reconnect"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )
@@ -216,7 +202,6 @@ test('restart required', async () => {
         restartRequired
         error="client_error"
         isTestMode
-        isEarlyVotingMode
         scannedBallotCount={42}
       />
     )

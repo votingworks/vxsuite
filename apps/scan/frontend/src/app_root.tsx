@@ -181,7 +181,6 @@ export function AppRoot(): JSX.Element | null {
     pollingPlaceId,
     isSoundMuted,
     isContinuousExportEnabled,
-    ballotCastingMode,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
@@ -375,7 +374,6 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollsNotOpenScreen
         isTestMode={isTestMode}
-        isEarlyVotingMode={ballotCastingMode === 'early_voting'}
         pollsState={pollsState}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
@@ -421,7 +419,6 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         systemSettings={systemSettings}
         isTestMode={isTestMode}
-        isEarlyVotingMode={ballotCastingMode === 'early_voting'}
         isSoundMuted={isSoundMuted}
       />
     </PatDeviceContextProvider>

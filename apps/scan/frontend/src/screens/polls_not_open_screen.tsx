@@ -5,14 +5,12 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 
 export interface PollsNotOpenScreenProps {
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
   pollsState: Omit<PollsState, 'polls_open'>;
   scannedBallotCount: number;
 }
 
 export function PollsNotOpenScreen({
   isTestMode,
-  isEarlyVotingMode,
   pollsState,
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
@@ -20,7 +18,6 @@ export function PollsNotOpenScreen({
     <Screen
       centerContent
       showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
       infoBarMode="pollworker"
       ballotCountOverride={scannedBallotCount}
       voterFacing={false}
@@ -54,7 +51,6 @@ export function DefaultPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -66,7 +62,6 @@ export function DefaultTestModePreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
       isTestMode
-      isEarlyVotingMode
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -78,7 +73,6 @@ export function NoPowerConnectedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -90,7 +84,6 @@ export function PollsPausedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       pollsState="polls_paused"
       scannedBallotCount={42}
     />
@@ -102,7 +95,6 @@ export function PollsClosedFinalPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
       isTestMode={false}
-      isEarlyVotingMode={false}
       pollsState="polls_closed_final"
       scannedBallotCount={42}
     />

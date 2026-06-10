@@ -3,19 +3,13 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export interface ScanProcessingScreenProps {
   isTestMode: boolean;
-  isEarlyVotingMode: boolean;
 }
 
 export function ScanProcessingScreen({
   isTestMode,
-  isEarlyVotingMode,
 }: ScanProcessingScreenProps): JSX.Element {
   return (
-    <ScreenMainCenterChild
-      voterFacing
-      showTestModeBanner={isTestMode}
-      showEarlyVotingBanner={isEarlyVotingMode}
-    >
+    <ScreenMainCenterChild voterFacing showTestModeBanner={isTestMode}>
       <LoadingAnimation />
       <CenteredText>
         <H1>{appStrings.titleScannerProcessingScreen()}</H1>
@@ -27,5 +21,5 @@ export function ScanProcessingScreen({
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <ScanProcessingScreen isTestMode={false} isEarlyVotingMode={false} />;
+  return <ScanProcessingScreen isTestMode={false} />;
 }
