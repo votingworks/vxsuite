@@ -1,0 +1,6 @@
+/build
+/coverage
+/tests-examples
+/prodserver
+/src/**/*.js
+*.d.ts
