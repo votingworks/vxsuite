@@ -170,6 +170,19 @@ test('omits test deck exports for states without test ballots enabled', async ()
   expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
 });
 
+test('omits test deck exports for open primary elections', async () => {
+  mockStateFeatures(apiMock, electionId, { EXPORT_TEST_BALLOTS: true });
+  apiMock.getElectionInfo.reset();
+  apiMock.getElectionInfo.expectCallWith({ electionId }).resolves({
+    ...electionInfoFromRecord(electionRecord),
+    type: 'open-primary',
+  });
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+  expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
+});
+
 test('export election package and ballots', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });

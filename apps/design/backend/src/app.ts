@@ -705,6 +705,7 @@ export function buildApi(ctx: AppContext) {
         input.electionId
       );
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
+      const { election } = await store.getElection(input.electionId);
 
       if (!stateFeatures.DISABLE_REGISTERED_VOTERS_COUNTS) {
         const registeredVoterCounts = await store.getRegisteredVotersCounts(
@@ -723,7 +724,6 @@ export function buildApi(ctx: AppContext) {
         !stateFeatures.OMIT_ABSENTEE_POLLING_PLACES &&
         stateFeatures.EDIT_POLLING_PLACES
       ) {
-        const { election } = await store.getElection(input.electionId);
         assert(
           getPrecinctsWithoutAbsenteePollingPlace(
             election.precincts,
@@ -741,7 +741,11 @@ export function buildApi(ctx: AppContext) {
         shouldExportTestBallots: !!stateFeatures.EXPORT_TEST_BALLOTS,
       });
 
-      if (stateFeatures.EXPORT_TEST_BALLOTS) {
+      // Test decks have not yet been updated to support open primaries
+      if (
+        stateFeatures.EXPORT_TEST_BALLOTS &&
+        election.type !== 'open-primary'
+      ) {
         await store.createTestDecksBackgroundTask(input.electionId, 'vxf');
       }
 
