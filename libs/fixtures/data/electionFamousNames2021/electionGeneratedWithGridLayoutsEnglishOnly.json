@@ -77,7 +77,8 @@
         "23-polling-place": "North Lincoln",
         "22-polling-place": "South Lincoln",
         "21-polling-place": "East Lincoln",
-        "20-polling-place": "West Lincoln"
+        "20-polling-place": "West Lincoln",
+        "central-scanning": "Central Scanning"
       },
       "precinctName": {
         "20": "West Lincoln",
@@ -3972,6 +3973,25 @@
         }
       },
       "type": "election_day"
+    },
+    {
+      "id": "central-scanning",
+      "name": "Central Scanning",
+      "precincts": {
+        "20": {
+          "type": "whole"
+        },
+        "21": {
+          "type": "whole"
+        },
+        "22": {
+          "type": "whole"
+        },
+        "23": {
+          "type": "whole"
+        }
+      },
+      "type": "absentee"
     }
   ],
   "precincts": [
