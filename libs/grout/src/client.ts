@@ -78,7 +78,35 @@ export function createClient<Api extends AnyApi>(
   // client.doSomething(), the variable methodName will be "doSomething" -
   // that's the magic of the Proxy!
   return new Proxy({} as unknown as Client<Api>, {
-    get(_target, methodName: string) {
+    get(_target, methodName) {
+      // Symbol-keyed properties are never RPC methods. They're accessed by
+      // JavaScript language internals (e.g. `Symbol.toPrimitive` during string
+      // or number coercion, `Symbol.iterator` during equality checks), so we
+      // return `undefined` to let those internals fall back to their defaults
+      // rather than triggering a bogus RPC call.
+      if (typeof methodName === 'symbol') {
+        return undefined;
+      }
+
+      // Various common JavaScript language features will access properties
+      // on a client, and without this will trigger bogus RPC calls:
+      switch (methodName) {
+        // await client
+        case 'then':
+          return undefined;
+        // JSON.stringify(client)
+        case 'toJSON':
+          return () => ({});
+        // `${client}`
+        case 'toString':
+          return () => '[object Client]';
+        // +client
+        case 'valueOf':
+          return () => 0;
+        default:
+          break;
+      }
+
       return async (input?: unknown) => {
         const inputJson = serialize(input);
 
