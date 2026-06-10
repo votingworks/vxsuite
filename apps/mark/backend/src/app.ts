@@ -20,20 +20,13 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   PollsState,
-  PrecinctSelection,
   PrinterStatus,
   DiagnosticRecord,
   DiagnosticType,
   DiagnosticOutcome,
   pollingPlaceFromElection,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getPrecinctSelectionName,
-  isElectionManagerAuth,
-  isFeatureFlagEnabled,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 
 import {
   createUiStringsApi,
@@ -239,22 +232,10 @@ export function buildApi(ctx: Context) {
           workspace.store.setBallots(ballots);
         }
 
-        // automatically set precinct for single precinct elections
-        if (electionDefinition.election.precincts.length === 1) {
-          workspace.store.setPrecinctSelection(
-            singlePrecinctSelectionFor(
-              electionDefinition.election.precincts[0].id
-            )
+        if (electionDefinition.election.pollingPlaces?.length === 1) {
+          workspace.store.setPollingPlaceId(
+            electionDefinition.election.pollingPlaces[0].id
           );
-        }
-
-        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
-          if (electionDefinition.election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
-              electionDefinition.election.pollingPlaces[0].id
-            );
-          }
         }
 
         configureUiStrings({
@@ -334,21 +315,6 @@ export function buildApi(ctx: Context) {
       store.setBallotsPrintedCount(0);
     },
 
-    async setPrecinctSelection(input: {
-      precinctSelection: PrecinctSelection;
-    }): Promise<void> {
-      const { electionDefinition } = assertDefined(store.getElectionRecord());
-      store.setPrecinctSelection(input.precinctSelection);
-      store.setBallotsPrintedCount(0);
-      await logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
-        disposition: 'success',
-        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
-          electionDefinition.election.precincts,
-          input.precinctSelection
-        )}`,
-      });
-    },
-
     setPollingPlaceId(input: { id: string }): void {
       const { electionDefinition } = assertDefined(
         store.getElectionRecord(),
@@ -369,7 +335,6 @@ export function buildApi(ctx: Context) {
 
     getElectionState(): ElectionState {
       return {
-        precinctSelection: store.getPrecinctSelection(),
         pollingPlaceId: store.getPollingPlaceId(),
         ballotsPrintedCount: store.getBallotsPrintedCount(),
         isTestMode: store.getTestMode(),

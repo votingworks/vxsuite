@@ -29,11 +29,9 @@ import {
   BallotType,
 } from '@votingworks/types';
 import {
-  ALL_PRECINCTS_SELECTION,
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
   generateMockVotes,
 } from '@votingworks/utils';
@@ -397,11 +395,7 @@ async function configureMachine(
   mockNoCard();
 }
 
-// [TODO] Update test name after migration to Polling Places.
-test('single precinct election automatically has precinct set on configure', async () => {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-
+test('configureMachine auto-selects polling place for single-location election', async () => {
   const fixtures = electionTwoPartyPrimaryFixtures;
   const def = fixtures.makeSinglePrecinctElectionDefinition();
   const defaultPollingPlace = assertDefined(def.election.pollingPlaces?.[0]);
@@ -409,7 +403,6 @@ test('single precinct election automatically has precinct set on configure', asy
   await configureMachine(mockUsbDrive, def);
 
   await expectElectionState({
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
     pollingPlaceId: defaultPollingPlace.id,
   });
 });
@@ -474,42 +467,6 @@ test('"test" mode', async () => {
 
   await apiClient.setTestMode({ isTestMode: true });
   await expectElectionState({ isTestMode: true });
-});
-
-test('setting precinct', async () => {
-  expect(
-    (await apiClient.getElectionState()).precinctSelection
-  ).toBeUndefined();
-
-  await configureMachine(
-    mockUsbDrive,
-    electionFamousNames2021Fixtures.readElectionDefinition()
-  );
-  expect(
-    (await apiClient.getElectionState()).precinctSelection
-  ).toBeUndefined();
-
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-  await expectElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-
-  const singlePrecinctSelection = singlePrecinctSelectionFor('23');
-  await apiClient.setPrecinctSelection({
-    precinctSelection: singlePrecinctSelection,
-  });
-  await expectElectionState({
-    precinctSelection: singlePrecinctSelection,
-  });
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.PollingPlaceChanged,
-    {
-      disposition: 'success',
-      message: 'User set the precinct for the machine to North Lincoln',
-    }
-  );
 });
 
 test('set polling place', async () => {
