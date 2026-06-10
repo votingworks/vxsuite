@@ -1647,7 +1647,7 @@ jobs:
               echo '<style>body{font-family:sans-serif;max-width:40rem;margin:3rem auto;padding:0 1rem}h1,a{color:#6638b6}li{margin:.4rem 0}</style>'
               echo '</head><body><h1>VxSuite Screenshot Galleries</h1><ul>'
               for v in main $(echo "$versions" | grep -vx main | sort -rV); do
-                echo "$versions" | grep -qx "$v" && echo "<li><a href=\"./$v/\">$v</a></li>"
+                echo "$versions" | grep -qx "$v" && echo "<li><a href=\"./$v/index.html\">$v</a></li>"
               done
               echo '</ul></body></html>'
             } > index.html
