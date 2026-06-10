@@ -13,5 +13,4 @@ process.env['NODE_ENV'] = 'production';
 /** See https://playwright.dev/docs/test-configuration. */
 export default defineIntegrationTestPlaywrightConfig({
   viewport: HP_ELITEBOOK_VIEWPORT,
-  timeout: 60_000,
 });

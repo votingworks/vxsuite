@@ -1,0 +1,36 @@
+{
+  "name": "@votingworks/print-integration-testing",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "author": "VotingWorks Engineering <eng@voting.works>",
+  "scripts": {
+    "build": "pnpm install && pnpm --filter \"$npm_package_name^...\" build && make build",
+    "format": "prettier --write .",
+    "lint": "eslint --cache .",
+    "lint:fix": "eslint --cache --fix .",
+    "test": "playwright test",
+    "test:watch": "playwright test --ui"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.48.1",
+    "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout": "workspace:*",
+    "@votingworks/integration-test-utils": "workspace:*",
+    "@votingworks/printing": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "concurrently": "7.6.0",
+    "dotenv": "16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.31",
+    "eslint-plugin-vx": "workspace:*",
+    "sort-package-json": "^1.50.0"
+  },
+  "packageManager": "pnpm@9.15.9"
+}
