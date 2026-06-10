@@ -6,6 +6,7 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import {
+  MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
   createScreenshotCounter,
 } from '@votingworks/integration-test-utils';
@@ -21,10 +22,7 @@ import {
   logInAsPollWorker,
   logInAsSystemAdministrator,
 } from './support/auth';
-import {
-  getFamousNamesElectionDefinition,
-  MULTI_LANGUAGE_UI_STRINGS,
-} from './support/election';
+import { getFamousNamesElectionDefinition } from './support/election';
 import {
   configureMachine,
   insertBlankBallotSheet,
