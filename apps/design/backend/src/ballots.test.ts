@@ -2,8 +2,12 @@ import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   BallotType,
   BaseBallotProps,
+  CENTRAL_SCANNING_POLLING_PLACE_ID,
+  CENTRAL_SCANNING_POLLING_PLACE_NAME,
+  Election,
   ElectionStringKey,
   hasSplits,
+  PollingPlace,
   Precinct,
   UiStringsPackage,
 } from '@votingworks/types';
@@ -18,9 +22,11 @@ import {
 } from '@votingworks/basics';
 import { NhBallotProps, NhStateBallotProps } from '@votingworks/hmpb';
 import {
+  addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from './ballots';
+import { miJurisdiction, msJurisdiction, nhJurisdiction } from '../test/mocks';
 
 const election = readElectionGeneral();
 
@@ -138,4 +144,89 @@ test('formatElectionForExport', () => {
   ).toEqual({
     [ballotMeasureContest.id]: ballotMeasureContest.description,
   });
+});
+
+test('addPollingPlacesForExport - non-editing state generates election_day places plus a Central Scanning absentee place', () => {
+  const electionInput: Election = {
+    ...election,
+    pollingPlaces: undefined,
+  };
+
+  const result = addPollingPlacesForExport(electionInput, msJurisdiction);
+  const pollingPlaces = result.pollingPlaces ?? [];
+
+  // One election_day place per precinct (existing behavior).
+  expect(
+    pollingPlaces.filter((place) => place.type === 'election_day')
+  ).toHaveLength(electionInput.precincts.length);
+
+  // Plus a single absentee place covering every precinct.
+  const absenteePlaces = pollingPlaces.filter(
+    (place) => place.type === 'absentee'
+  );
+  expect(absenteePlaces).toEqual([
+    {
+      id: CENTRAL_SCANNING_POLLING_PLACE_ID,
+      name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
+      type: 'absentee',
+      precincts: Object.fromEntries(
+        electionInput.precincts.map((precinct) => [
+          precinct.id,
+          { type: 'whole' },
+        ])
+      ),
+    },
+  ]);
+});
+
+test('addPollingPlacesForExport - state that allows empty absentee polling places gets no Central Scanning place', () => {
+  const electionInput: Election = {
+    ...election,
+    pollingPlaces: undefined,
+  };
+
+  const result = addPollingPlacesForExport(electionInput, nhJurisdiction);
+  const pollingPlaces = result.pollingPlaces ?? [];
+
+  expect(pollingPlaces).toHaveLength(electionInput.precincts.length);
+  expect(pollingPlaces.every((place) => place.type === 'election_day')).toEqual(
+    true
+  );
+});
+
+test('addPollingPlacesForExport - editing state keeps user-created absentee places untouched', () => {
+  const pollingPlaces: PollingPlace[] = [
+    {
+      id: 'user-absentee',
+      name: 'User Absentee Location',
+      type: 'absentee',
+      precincts: { [election.precincts[0].id]: { type: 'whole' } },
+    },
+  ];
+  const electionInput: Election = { ...election, pollingPlaces };
+
+  const result = addPollingPlacesForExport(electionInput, miJurisdiction);
+
+  // Nothing added; the election is returned unchanged.
+  expect(result).toEqual(electionInput);
+  expect(result.pollingPlaces).toEqual(pollingPlaces);
+});
+
+test('addPollingPlacesForExport - editing state does not generate a Central Scanning place when no absentee place exists', () => {
+  const pollingPlaces: PollingPlace[] = [
+    {
+      id: 'election-day-1',
+      name: 'Election Day Location',
+      type: 'election_day',
+      precincts: { [election.precincts[0].id]: { type: 'whole' } },
+    },
+  ];
+  const electionInput: Election = { ...election, pollingPlaces };
+
+  const result = addPollingPlacesForExport(electionInput, miJurisdiction);
+
+  // Editing states are validated at finalization instead of having a Central
+  // Scanning place auto-generated, so nothing is added here.
+  expect(result).toEqual(electionInput);
+  expect(result.pollingPlaces).toEqual(pollingPlaces);
 });

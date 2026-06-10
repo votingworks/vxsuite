@@ -172,6 +172,13 @@ export function pollingPlacePrecinctIds(place: PollingPlace): Set<string> {
 }
 
 /**
+ * The deterministic id and name of the default "Central Scanning" absentee
+ * polling place.
+ */
+export const CENTRAL_SCANNING_POLLING_PLACE_ID = 'central-scanning';
+export const CENTRAL_SCANNING_POLLING_PLACE_NAME = 'Central Scanning';
+
+/**
  * Returns the precincts not covered by any absentee polling place, i.e.
  * precincts whose centrally-scanned ballots would have no location to be
  * tabulated under.
