@@ -18,11 +18,14 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { assertDefined, find, iter } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import {
   buildIntegrationTestHelper,
+  capturePrintedPdf,
+  captureReadinessReport,
   createScreenshotNamer,
+  type ScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
@@ -40,8 +43,7 @@ import {
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
-import { copyFile, mkdir } from 'node:fs/promises';
-import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
+import { mkdir } from 'node:fs/promises';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
@@ -59,45 +61,23 @@ import {
   waitForReportToLoad,
 } from './support/navigation';
 
-async function saveLastExportedReport({
-  usbHandler,
-  filename,
-}: {
-  usbHandler: MockFileUsbDriveHandler;
-  filename: string;
-}) {
-  const usbDataPath = usbHandler.getDataPath();
-  if (!usbDataPath) return;
-
-  const files = iter(listDirectoryRecursive(usbDataPath));
-  const mostRecentFile = await files
-    .filterMap((file) => (file.isOk() ? file.ok() : null))
-    .filter((file) => file.type !== FileSystemEntryType.Directory)
-    .maxBy((file) => file.mtime.getTime());
-  if (!mostRecentFile) return;
-
-  await copyFile(mostRecentFile.path, `./test-results/screenshots/${filename}`);
-}
-
-async function printAndSaveReport({
+async function printAndCaptureReport({
   page,
   printerHandler,
-  filename,
+  namer,
+  name,
 }: {
   page: Page;
   printerHandler: MockFilePrinterHandler;
-  filename: string;
+  namer: ScreenshotNamer;
+  name: string;
 }) {
   await page.getByText('Print Report').click();
   await page.getByText('Printing').waitFor();
   await page.clock.fastForward(3000);
   await expect(page.getByText('Printing')).toHaveCount(0);
 
-  const lastPrintPath = printerHandler.getLastPrintPath();
-  await copyFile(
-    assertDefined(lastPrintPath),
-    `./test-results/screenshots/${filename}`
-  );
+  await capturePrintedPdf(printerHandler.getLastPrintPath(), name, namer);
 }
 
 test.beforeAll(setupTemporaryRootDir);
@@ -354,10 +334,7 @@ test('system administrator', async ({ page }, testInfo) => {
   await screenshot('readiness-report-saved');
   await page.getByRole('button', { name: 'Close' }).click();
 
-  await saveLastExportedReport({
-    usbHandler,
-    filename: 'readiness-report.pdf',
-  });
+  await captureReadinessReport('readiness-report', namer);
 });
 
 async function configureMachine({
@@ -493,10 +470,11 @@ test('results', async ({ page }, testInfo) => {
     .waitFor();
   await waitForReportToLoad(page);
   await screenshot('full-election-report-unofficial');
-  await printAndSaveReport({
+  await printAndCaptureReport({
     page,
     printerHandler,
-    filename: 'full-election-report.pdf',
+    namer,
+    name: 'full-election-report',
   });
 
   await page.getByRole('button', { name: 'Reports' }).click();
@@ -529,10 +507,11 @@ test('results', async ({ page }, testInfo) => {
     .waitFor();
   await waitForReportToLoad(page);
   await screenshot('ballot-count-report-voting-method');
-  await printAndSaveReport({
+  await printAndCaptureReport({
     page,
     printerHandler,
-    filename: 'ballot-count-report-voting-method.pdf',
+    namer,
+    name: 'ballot-count-report-voting-method',
   });
 
   await page.getByRole('button', { name: 'Reports' }).click();
@@ -542,10 +521,11 @@ test('results', async ({ page }, testInfo) => {
     .waitFor();
   await waitForReportToLoad(page);
   await screenshot('write-in-adjudication-report');
-  await printAndSaveReport({
+  await printAndCaptureReport({
     page,
     printerHandler,
-    filename: 'write-in-adjudication-report.pdf',
+    namer,
+    name: 'write-in-adjudication-report',
   });
 
   await page.getByRole('button', { name: 'Reports' }).click();
@@ -751,9 +731,10 @@ test('manual results', async ({ page }, testInfo) => {
     .click();
   await waitForReportToLoad(page);
 
-  await printAndSaveReport({
+  await printAndCaptureReport({
     page,
     printerHandler,
-    filename: 'manual-results-tally-report.pdf',
+    namer,
+    name: 'manual-results-tally-report',
   });
 });
