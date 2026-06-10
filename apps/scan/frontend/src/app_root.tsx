@@ -8,10 +8,8 @@ import {
   Keybinding,
 } from '@votingworks/ui';
 import {
-  BooleanEnvironmentVariableName as Feature,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isVendorAuth,
 } from '@votingworks/utils';
@@ -177,7 +175,6 @@ export function AppRoot(): JSX.Element | null {
     electionDefinition,
     systemSettings,
     isTestMode,
-    precinctSelection,
     pollingPlaceId,
     isSoundMuted,
     isContinuousExportEnabled,
@@ -333,11 +330,7 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  const locationConfigured = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
-    ? !!pollingPlaceId
-    : !!precinctSelection;
-
-  if (!locationConfigured) {
+  if (!pollingPlaceId) {
     return <UnconfiguredPollingPlaceScreen />;
   }
 

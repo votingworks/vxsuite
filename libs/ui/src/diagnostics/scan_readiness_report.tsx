@@ -1,18 +1,12 @@
 import { ThemeProvider } from 'styled-components';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
-  PrecinctSelectionSection,
   MarkThresholdsSection,
   MarkThresholdsSectionProps,
-  PrecinctSelectionSectionProps,
   PollingPlaceSection,
   PollingPlaceSectionProps,
 } from './configuration_section';
@@ -34,7 +28,6 @@ import {
 
 type ReportContentsProps = ConfigurationSectionProps &
   MarkThresholdsSectionProps &
-  PrecinctSelectionSectionProps &
   PollingPlaceSectionProps &
   StorageSectionProps &
   PrecinctScannerSectionProps &
@@ -45,29 +38,16 @@ type ReportContentsProps = ConfigurationSectionProps &
 export function ScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  const {
-    electionDefinition,
-    markThresholds,
-    pollingPlaceId,
-    precinctSelection,
-  } = props;
+  const { electionDefinition, markThresholds, pollingPlaceId } = props;
   const election = electionDefinition?.election;
 
   return (
     <ReportContents>
       <ConfigurationSection {...props}>
-        {isFeatureFlagEnabled(ENABLE_POLLING_PLACES) ? (
-          <PollingPlaceSection
-            election={election}
-            pollingPlaceId={pollingPlaceId}
-          />
-        ) : (
-          <PrecinctSelectionSection
-            election={election}
-            precinctSelection={precinctSelection}
-          />
-        )}
+        <PollingPlaceSection
+          election={election}
+          pollingPlaceId={pollingPlaceId}
+        />
         <MarkThresholdsSection markThresholds={markThresholds} />
       </ConfigurationSection>
       <StorageSection {...props} />

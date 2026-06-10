@@ -185,43 +185,6 @@ test('user logged "fail" after a test print completes', async () => {
   });
 });
 
-test('printing a readiness report (with precinct selection)', async () => {
-  setPollingPlacesEnabled(false);
-
-  await withApp(
-    async ({ apiClient, mockUsbDrive, mockAuth, logger, workspace }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        testMode: true,
-        openPolls: false,
-      });
-      mockUsbDrive.insertUsbDrive({});
-      await wrapWithFakeSystemTime(async () => {
-        await apiClient.logTestPrintOutcome({ outcome: 'pass' });
-        workspace.store.addDiagnosticRecord({
-          type: 'blank-sheet-scan',
-          outcome: 'pass',
-        });
-      });
-
-      const exportResult = await apiClient.saveReadinessReport();
-      exportResult.assertOk('Failed to save readiness report');
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.ReadinessReportSaved,
-        expect.anything(),
-        {
-          disposition: 'success',
-          message: 'User saved the equipment readiness report to a USB drive.',
-        }
-      );
-
-      const exportPath = exportResult.ok()![0];
-      await expect(exportPath).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'readiness-report-with-precinct-selection',
-      });
-    }
-  );
-});
-
 test('printing a readiness report', async () => {
   setPollingPlacesEnabled(true);
 

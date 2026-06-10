@@ -4,7 +4,6 @@ import {
   Modal,
   SegmentedButton,
   SetClockButton,
-  ChangePrecinctButton,
   P,
   TabbedSection,
   ExportLogsButton,
@@ -40,7 +39,6 @@ import {
   setIsContinuousExportEnabled,
   setIsSoundMuted,
   setIsDoubleFeedDetectionDisabled,
-  setPrecinctSelection,
   setTestMode,
   unconfigureElection,
   beginDoubleFeedCalibration,
@@ -438,13 +436,9 @@ function LocationPicker(props: {
 }) {
   const { config, election, pollsState, scannerStatus } = props;
 
-  const selectPrecinct = setPrecinctSelection.useMutation();
   const selectPollingPlace = setPollingPlaceId.useMutation();
 
-  const nLocations = pollingPlacesEnabled()
-    ? election.pollingPlaces?.length || 0
-    : election.precincts.length;
-
+  const nLocations = election.pollingPlaces?.length || 0;
   if (nLocations <= 1) return null;
 
   const mode = (() => {
@@ -453,19 +447,6 @@ function LocationPicker(props: {
     if (scannerStatus.ballotsCounted > 0) return 'disabled';
     return 'confirmation_required';
   })();
-
-  if (!pollingPlacesEnabled()) {
-    return (
-      <ChangePrecinctButton
-        appPrecinctSelection={config.precinctSelection}
-        election={election}
-        mode={mode}
-        updatePrecinctSelection={(precinctSelection) =>
-          selectPrecinct.mutateAsync({ precinctSelection })
-        }
-      />
-    );
-  }
 
   return (
     <PollingPlacePicker
@@ -480,9 +461,4 @@ function LocationPicker(props: {
       selectPlace={(id) => selectPollingPlace.mutateAsync({ id })}
     />
   );
-}
-
-function pollingPlacesEnabled() {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  return isFeatureFlagEnabled(ENABLE_POLLING_PLACES);
 }
