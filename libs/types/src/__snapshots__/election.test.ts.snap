@@ -2,7 +2,7 @@
 
 exports[`safeParseElection shows CDF parsing errors when input seems like it might be CDF 1`] = `
 [Error: Invalid CDF election:
-ZodError: [
+[
   {
     "expected": "string",
     "code": "invalid_type",
@@ -21,7 +21,7 @@ exports[`safeParseElection shows VXF parsing errors by default 1`] = `
 - ballotStyles: Invalid input: expected array, received undefined
 - contests: Invalid input: expected array, received undefined
 - county: Invalid input: expected object, received undefined
-- date: Input not instance of DateWithoutTime
+- date: Invalid input: expected DateWithoutTime, received undefined
 - districts: Invalid input: expected array, received undefined
 - id: Invalid input: expected string, received undefined
 - parties: Invalid input: expected array, received undefined
