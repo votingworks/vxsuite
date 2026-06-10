@@ -23,10 +23,10 @@ const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
   z.enum(ELECTION_TYPES_V4_0);
 
 type ElectionV4p0 = Omit<Election, 'type'> & { type: ElectionTypeV4p0 };
-export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> =
-  ElectionSchema.extend({
-    type: ElectionTypeSchemaV4p0,
-  });
+export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
+  ...ElectionSchema.shape,
+  type: ElectionTypeSchemaV4p0,
+});
 
 export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
   assert(

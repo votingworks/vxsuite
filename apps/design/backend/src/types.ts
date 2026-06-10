@@ -7,6 +7,10 @@ import {
   PollsTransitionType,
   SoftwareVersion,
   ElectionType,
+  ElectionIdSchema,
+  ElectionTypeSchema,
+  DateWithoutTimeSchema,
+  LanguageCodeSchema,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -92,6 +96,31 @@ export interface ElectionInfo {
   signatureCaption?: string;
   externalSource?: ExternalElectionSource;
 }
+
+export type ElectionInfoUpdate = Omit<
+  ElectionInfo,
+  'jurisdictionId' | 'externalSource'
+>;
+
+const TextInput = z
+  .string()
+  .transform((s) => s.trim())
+  .refine((s) => s.length > 0);
+
+export const ElectionInfoUpdateSchema: z.ZodType<ElectionInfoUpdate> = z.object(
+  {
+    electionId: ElectionIdSchema,
+    type: ElectionTypeSchema,
+    date: DateWithoutTimeSchema,
+    title: TextInput,
+    state: TextInput,
+    countyName: TextInput,
+    seal: z.string(),
+    signatureImage: z.string().optional(),
+    signatureCaption: z.string().optional(),
+    languageCodes: z.array(LanguageCodeSchema),
+  }
+);
 
 export type ElectionUpload =
   | {

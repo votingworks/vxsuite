@@ -33,7 +33,7 @@
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
     "micromatch": "^4.0.8",
-    "zod": "3.25.42"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

@@ -229,8 +229,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/compression':
         specifier: ^1.7.2
@@ -455,8 +455,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.17.0
@@ -718,8 +718,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -869,8 +869,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.17.0
@@ -1132,8 +1132,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -1337,8 +1337,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.17.0
@@ -1515,8 +1515,8 @@ importers:
         specifier: ^4.33.0
         version: 4.33.0
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -1899,8 +1899,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -2325,8 +2325,8 @@ importers:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.17.31)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.5(@types/node@20.17.31)(esbuild@0.21.2)(yaml@2.8.2))
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/react':
         specifier: ^15.0.7
@@ -2681,8 +2681,8 @@ importers:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.17.31)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.5(@types/node@20.17.31)(esbuild@0.21.2)(yaml@2.8.2))
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/react':
         specifier: ^15.0.7
@@ -3059,8 +3059,8 @@ importers:
         specifier: ^4.33.0
         version: 4.33.0
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -3216,8 +3216,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.17.0
@@ -3481,8 +3481,8 @@ importers:
         specifier: 17.7.1
         version: 17.7.1
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/combined-stream':
         specifier: ^1.0.3
@@ -3617,8 +3617,8 @@ importers:
         specifier: 2.15.0
         version: 2.15.0
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -3943,8 +3943,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/jsdom':
         specifier: 20.0.0
@@ -4372,8 +4372,8 @@ importers:
         specifier: 17.7.1
         version: 17.7.1
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -4470,8 +4470,8 @@ importers:
         specifier: ^4.0.8
         version: 4.0.8
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -4927,8 +4927,8 @@ importers:
         specifier: 17.7.1
         version: 17.7.1
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -5075,8 +5075,8 @@ importers:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@storybook/cli':
         specifier: ^7.2.2
@@ -5355,8 +5355,8 @@ importers:
         specifier: ^4.33.0
         version: 4.33.0
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -5434,8 +5434,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -5571,8 +5571,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/kiosk-browser':
         specifier: workspace:*
@@ -6006,8 +6006,8 @@ importers:
         specifier: 17.7.1
         version: 17.7.1
       zod:
-        specifier: 3.25.42
-        version: 3.25.42
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -16419,8 +16419,8 @@ packages:
     resolution: {integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==}
     engines: {node: '>= 10'}
 
-  zod@3.25.42:
-    resolution: {integrity: sha512-PcALTLskaucbeHc41tU/xfjfhcz8z0GdhhDcSgrCTmSazUuqnYqiXO63M0QUBVwpBlsLsNVn5qHSC5Dw3KZvaQ==}
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
 
@@ -29421,4 +29421,4 @@ snapshots:
       compress-commons: 4.1.1
       readable-stream: 3.6.0
 
-  zod@3.25.42: {}
+  zod@4.4.3: {}

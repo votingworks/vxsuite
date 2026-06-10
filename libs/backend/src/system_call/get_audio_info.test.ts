@@ -280,7 +280,7 @@ test('pactl output parse error', async () => {
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.AudioDeviceDetectionError,
     {
-      message: expect.stringContaining('ZodError'),
+      message: expect.stringContaining('unable to parse pactl output'),
       disposition: 'failure',
     }
   );
