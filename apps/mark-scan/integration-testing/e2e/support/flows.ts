@@ -55,7 +55,7 @@ export async function configureMachine(
   usbHandler.insert(electionPackage);
   await page.getByText('Election Manager Menu').waitFor();
 
-  await page.getByText(/select a polling place/i).click({ force: true });
+  await page.getByLabel(/select a polling place/i).click({ force: true });
   await page.getByText(pollingPlaceName, { exact: true }).click();
 
   await page.getByRole('option', { name: 'Official Ballot Mode' }).click();
