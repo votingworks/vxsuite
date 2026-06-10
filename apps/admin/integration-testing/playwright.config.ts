@@ -1,4 +1,7 @@
-import { defineIntegrationTestPlaywrightConfig } from '@votingworks/integration-test-utils';
+import {
+  defineIntegrationTestPlaywrightConfig,
+  HP_ELITEBOOK_VIEWPORT,
+} from '@votingworks/integration-test-utils';
 import dotenv from 'dotenv';
 import { resolve } from 'node:path';
 
@@ -9,6 +12,6 @@ process.env['NODE_ENV'] = 'production';
 
 /** See https://playwright.dev/docs/test-configuration. */
 export default defineIntegrationTestPlaywrightConfig({
-  viewport: { width: 1920, height: 1200 },
+  viewport: HP_ELITEBOOK_VIEWPORT,
   timeout: 60_000,
 });

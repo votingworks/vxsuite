@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { Page, test } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
+import * as grout from '@votingworks/grout';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
@@ -13,7 +14,9 @@ import {
 } from '@votingworks/integration-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  DEV_MACHINE_ID,
   ElectionDefinition,
+  SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -192,12 +195,10 @@ test('election manager: configuration and settings', async ({ page }) => {
 
   // Signed Hash Validation. Generating the QR code shells out to `sudo` to hash
   // system state, which can't run in this environment (and a failure navigates
-  // to a crash page), so mock the API response. The body uses Grout's
-  // serialization format (a tagged Date). The values mirror a real signed hash
-  // validation so the docs are representative: a base64 SHA-256 system hash, and
-  // a dense QR value built like the real one — a prefixed message, a base64
-  // signature, and a base64 machine certificate body (the bulk), joined by the
-  // real separators (`;` between parts, `#` within the message payload).
+  // to a crash page), so mock the API response. Only `qrCodeInputs` is rendered
+  // in the UI, so we give it representative values; the `qrCodeValue` itself
+  // isn't meant to be scanned here (and the dev cert wouldn't validate anyway),
+  // so it's just a random base64 blob of roughly representative length.
   await screenshotWithButtonHighlight(
     'Signed Hash Validation',
     'em-settings-signed-hash-validation-highlighted'
@@ -205,30 +206,24 @@ test('election manager: configuration and settings', async ({ page }) => {
   const systemHash = createHash('sha256')
     .update('vxprint-system-state')
     .digest('base64');
-  const combinedElectionHash = electionDefinition.ballotHash.slice(0, 14);
-  const message = `shv1.${systemHash}#dev#${combinedElectionHash}#2026-06-09T19:00:00.000Z`;
-  const signature = pseudoRandomBase64('signature', 72);
-  const machineCertBody = pseudoRandomBase64('machine-cert', 800);
-  const qrCodeValue = [message, signature, machineCertBody].join(';');
+  const signedHashValidation: SignedHashValidationQrCodeValue = {
+    qrCodeValue: pseudoRandomBase64('signed-hash-qr', 900),
+    qrCodeInputs: {
+      combinedElectionHash: electionDefinition.ballotHash.slice(0, 14),
+      date: new Date('2026-06-09T19:00:00.000Z'),
+      machineId: DEV_MACHINE_ID,
+      softwareVersion: 'dev',
+      systemHash,
+    },
+  };
   await page.route(
     '**/api/generateSignedHashValidationQrCodeValue',
     async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          qrCodeValue,
-          qrCodeInputs: {
-            combinedElectionHash,
-            date: {
-              __grout_type: 'Date',
-              __grout_value: '2026-06-09T19:00:00.000Z',
-            },
-            machineId: '0000',
-            softwareVersion: 'dev',
-            systemHash,
-          },
-        }),
+        // Serialize with Grout so the tagged Date matches the real response.
+        body: grout.serialize(signedHashValidation),
       });
     }
   );
