@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { ElementHandle, Page, expect, test } from '@playwright/test';
 import {
   clearTemporaryRootDir,
   electionGeneralFixtures,
@@ -11,26 +11,41 @@ import {
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import assert from 'node:assert';
+import { mockCardRemoval } from '@votingworks/auth';
 import {
-  mockCardRemoval,
-  mockElectionManagerCardInsertion,
-  mockPollWorkerCardInsertion,
-} from '@votingworks/auth';
-import { findMoreButtons, forceReset } from './helpers';
-import { enterPin } from './support/auth';
+  forceLogOutAndResetElectionDefinition,
+  logInAsElectionManager,
+} from './support/auth';
+import { openPolls } from './support/flows';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
 const usbHandler = getMockFileUsbDriveHandler();
 const printerHandler = getMockFilePrinterHandler();
 
+/** Finds all the "More" scroll buttons on the page. */
+async function findMoreButtons(
+  page: Page
+): Promise<Array<ElementHandle<HTMLButtonElement>>> {
+  const buttons = await page.$$('button');
+  return (
+    await Promise.all(
+      buttons.map(async (button) => {
+        const text = await button.textContent();
+        return text?.includes('More') ? button : undefined;
+      })
+    )
+  ).filter((button): button is ElementHandle<HTMLButtonElement> =>
+    Boolean(button)
+  );
+}
+
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   usbHandler.cleanup();
-  await forceReset(page);
+  await forceLogOutAndResetElectionDefinition(page);
 });
 
 // TODO(https://github.com/votingworks/vxsuite/issues/4900): Add a mock PAT
@@ -48,10 +63,9 @@ test('configure, open polls, and test contest scroll buttons', async ({
 
   // Election Manager: configure
   await page
-    .getByText('Insert an Election Manager card to configure VxMark')
+    .getByText('Insert an election manager card to configure VxMark')
     .waitFor();
-  mockElectionManagerCardInsertion({ election });
-  await enterPin(page);
+  await logInAsElectionManager(page, election);
   await page
     .getByText('Insert a USB drive containing an election package')
     .waitFor();
@@ -64,18 +78,14 @@ test('configure, open polls, and test contest scroll buttons', async ({
 
   // Election Manager: set precinct
   await page.getByText('Election Manager Menu', { exact: true }).waitFor();
-  await page.getByText('Select a polling place…').click({ force: true });
+  await page.getByLabel(/select a polling place/i).click({ force: true });
   await page.getByText('Center Springfield', { exact: true }).click();
 
   mockCardRemoval();
 
   // Poll Worker: open polls
   await page.getByText('Insert a poll worker card to open').waitFor();
-  mockPollWorkerCardInsertion({ election });
-  await page.getByText('Open Polls').click();
-  const confirmDialog = page.getByRole('alertdialog');
-  assert(confirmDialog);
-  await confirmDialog.getByRole('button', { name: 'Open Polls' }).click();
+  await openPolls(page, election);
 
   // Poll Worker: initiate voting session
   await page.getByText('Start Voting Session: Center Springfield').click();
