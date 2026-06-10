@@ -16,6 +16,7 @@ import {
 } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionGeneralFixtures,
   electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
@@ -93,6 +94,7 @@ import path, { join } from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
 import {
+  ApiClient,
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   exportTestDecks,
@@ -165,6 +167,28 @@ function expectNotEqualTo(str: string) {
 
 function compareName(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name);
+}
+
+// Editing states require absentee polling places to cover every precinct before
+// ballots can be finalized; this adds one covering all precincts.
+async function addAbsenteePollingPlaceCoveringAllPrecincts(
+  apiClient: ApiClient,
+  electionId: ElectionId
+) {
+  const precincts = await apiClient.listPrecincts({ electionId });
+  (
+    await apiClient.setPollingPlace({
+      electionId,
+      place: {
+        id: 'absentee-all',
+        name: 'Absentee Voting',
+        type: 'absentee',
+        precincts: Object.fromEntries(
+          precincts.map((precinct) => [precinct.id, { type: 'whole' }])
+        ),
+      },
+    })
+  ).unsafeUnwrap();
 }
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -563,6 +587,7 @@ test('create/list/delete elections', async () => {
   ).toEqual(null);
 
   // Finalize ballots and check status
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, sliElectionId);
   await apiClient.finalizeBallots({ electionId: sliElectionId });
   expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
     'ballotsFinalized'
@@ -2648,6 +2673,8 @@ test('Finalize ballots - DEMO state', async () => {
     })
   ).unsafeUnwrap();
 
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
+
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
   expect(await apiClient.getElectionPackage({ electionId })).toEqual({});
   expect(await apiClient.getTestDecks({ electionId })).toEqual({});
@@ -2748,6 +2775,90 @@ test('Finalize ballots - NH state', async () => {
   expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 });
 
+test('Finalize ballots - allows absentee polling places that cover all precincts', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(
+          electionGeneralFixtures.readElection()
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+
+  const precincts = await apiClient.listPrecincts({ electionId });
+  (
+    await apiClient.setPollingPlace({
+      electionId,
+      place: {
+        id: 'absentee-all',
+        name: 'Absentee Voting',
+        type: 'absentee',
+        precincts: Object.fromEntries(
+          precincts.map((precinct) => [precinct.id, { type: 'whole' }])
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+
+  await apiClient.finalizeBallots({ electionId });
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
+    null
+  );
+});
+
+test('Finalize ballots - rejects absentee polling places that do not cover all precincts', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(
+          electionGeneralFixtures.readElection()
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+
+  // Cover only the first precinct, leaving the others uncovered.
+  const precincts = await apiClient.listPrecincts({ electionId });
+  expect(precincts.length).toBeGreaterThan(1);
+  (
+    await apiClient.setPollingPlace({
+      electionId,
+      place: {
+        id: 'absentee-partial',
+        name: 'Absentee Voting',
+        type: 'absentee',
+        precincts: { [precincts[0].id]: { type: 'whole' } },
+      },
+    })
+  ).unsafeUnwrap();
+
+  await suppressingConsoleOutput(async () => {
+    await expect(apiClient.finalizeBallots({ electionId })).rejects.toThrow(
+      'Absentee polling places must cover every precinct for central scanning'
+    );
+  });
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+});
+
 test('Finalize ballots - rejects partial registered voter counts', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
@@ -2796,6 +2907,10 @@ test('Finalize ballots - rejects partial registered voter counts', async () => {
       ).unsafeUnwrap();
     }
   }
+
+  // This editing state also requires absentee polling place coverage.
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
+
   await apiClient.finalizeBallots({ electionId });
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
     null
@@ -2831,6 +2946,7 @@ test('approve ballots', async () => {
     );
   });
 
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
   await apiClient.finalizeBallots({ electionId });
 
   {
@@ -2898,6 +3014,7 @@ test('cloneElection', async () => {
     electionId: srcElectionId,
     ballotTemplateId: 'VxDefaultBallot',
   });
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, srcElectionId);
   await apiClient.finalizeBallots({ electionId: srcElectionId });
 
   // Support user can clone from any jurisdiction to another:
@@ -3576,6 +3693,8 @@ test('Election package and ballots export', async () => {
 
     // Include entities with IDs generated by VxDesign
     districts: await apiClient.listDistricts({ electionId }),
+    // This is an editing state, so polling places are exported as-is with no
+    // Central Scanning place auto-generated.
     pollingPlaces: await apiClient.listPollingPlaces({ electionId }),
     precincts,
     parties: await apiClient.listParties({ electionId }),

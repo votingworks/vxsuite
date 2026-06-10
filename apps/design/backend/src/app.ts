@@ -40,6 +40,7 @@ import {
   PollingPlace,
   PollingPlaceType,
   hasPartialRegisteredVoterCounts,
+  getPrecinctsWithoutAbsenteePollingPlace,
   ElectionTypeSchemaV4p1,
   electionTypeV4p0ToV4p1,
   ElectionTypeV4p1,
@@ -760,6 +761,23 @@ export function buildApi(ctx: AppContext) {
         assert(
           !hasPartialRegisteredVoterCounts(precincts, registeredVoterCounts),
           'Registered voter counts must be provided for all precincts and splits or none'
+        );
+      }
+
+      // When polling places are user-defined and this state does not allow
+      // elections with no absentee polling places, the user-defined absentee
+      // polling places must cover every precinct.
+      if (
+        !stateFeatures.OMIT_ABSENTEE_POLLING_PLACES &&
+        stateFeatures.EDIT_POLLING_PLACES
+      ) {
+        const { election } = await store.getElection(input.electionId);
+        assert(
+          getPrecinctsWithoutAbsenteePollingPlace(
+            election.precincts,
+            election.pollingPlaces
+          ).length === 0,
+          'Absentee polling places must cover every precinct for central scanning'
         );
       }
 

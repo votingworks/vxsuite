@@ -8,6 +8,7 @@ import { nhStateGeneralElectionFixtures } from '@votingworks/hmpb';
 import {
   Election,
   hasSplits,
+  HmpbBallotPaperSize,
   PrecinctWithSplits,
   LanguageCode,
   BallotType,
@@ -15,6 +16,7 @@ import {
   PrecinctWithoutSplits,
   YesNoContest,
 } from '@votingworks/types';
+import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { vi, test, expect, afterAll } from 'vitest';
@@ -25,7 +27,11 @@ import {
   nonVxUser,
   nhJurisdiction,
 } from '../test/mocks';
-import { testSetupHelpers } from '../test/helpers';
+import {
+  exportElectionPackage,
+  getExportedFile,
+  testSetupHelpers,
+} from '../test/helpers';
 
 const nhUser = nonVxUser;
 const signatureSvg = readFileSync('./test/mockSignature.svg').toString();
@@ -378,4 +384,76 @@ test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOffic
     })
   ).unsafeUnwrap();
   expect(fooResult.fileName).toMatch(/-foo\.pdf$/);
+});
+
+test('absentee polling places imported into an NH election are not exported', async () => {
+  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nhUser);
+
+  const baseElection = electionGeneralFixtures.readElection();
+  const election: Election = {
+    ...baseElection,
+    state: 'New Hampshire',
+    signature: { caption: 'Test Clerk', image: signatureSvg },
+    ballotLayout: {
+      ...baseElection.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Legal,
+    },
+    // An imported absentee polling place should be dropped on import and never
+    // appear in the export, since NH omits absentee polling places.
+    pollingPlaces: [
+      {
+        id: 'imported-absentee',
+        name: 'Imported Absentee Location',
+        type: 'absentee',
+        precincts: Object.fromEntries(
+          baseElection.precincts.map((precinct) => [
+            precinct.id,
+            { type: 'whole' },
+          ])
+        ),
+      },
+    ],
+  };
+
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nhJurisdiction.id,
+      upload: { format: 'vxf', electionFileContents: JSON.stringify(election) },
+    })
+  ).unsafeUnwrap();
+
+  const exportMeta = await exportElectionPackage({
+    apiClient,
+    workspace,
+    fileStorageClient,
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
+  });
+  const electionPackageContents = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: nhJurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  const exportedPollingPlaces =
+    electionPackage.electionDefinition.election.pollingPlaces ?? [];
+  // NH generates election day places on export and omits absentee places, so
+  // the imported absentee place does not survive.
+  expect(exportedPollingPlaces.length).toBeGreaterThan(0);
+  expect(
+    exportedPollingPlaces.every((place) => place.type === 'election_day')
+  ).toEqual(true);
 });
