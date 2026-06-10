@@ -3289,6 +3289,21 @@ test('open primary elections', async () => {
       })
     ).rejects.toThrow('Open primary')
   );
+
+  // Finalizing an open primary generates the election package but skips test
+  // decks, which don't yet support open primaries.
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
+  const originalMiConfig = stateFeatureConfigs.MI;
+  stateFeatureConfigs.MI = { ...originalMiConfig, EXPORT_TEST_BALLOTS: true };
+  try {
+    await apiClient.finalizeBallots({ electionId });
+  } finally {
+    stateFeatureConfigs.MI = originalMiConfig;
+  }
+  expect(
+    assertDefined(await apiClient.getElectionPackage({ electionId })).task
+  ).toBeDefined();
+  expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 });
 
 test('Election package management', async () => {

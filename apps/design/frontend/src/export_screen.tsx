@@ -19,6 +19,7 @@ import {
   exportElectionPackage,
   exportTestDecks,
   getBallotsFinalizedAt,
+  getElectionInfo,
   getElectionPackage,
   setBallotTemplate,
   getUserFeatures,
@@ -54,6 +55,7 @@ export function ExportScreen(): JSX.Element | null {
   useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const testDecksQuery = getTestDecks.useQuery(electionId);
@@ -110,11 +112,13 @@ export function ExportScreen(): JSX.Element | null {
       getBallotsFinalizedAtQuery.isSuccess &&
       getBallotTemplateQuery.isSuccess &&
       getStateFeaturesQuery.isSuccess &&
+      getElectionInfoQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
   ) {
     return null;
   }
+  const electionInfo = getElectionInfoQuery.data;
   const electionPackage = electionPackageQuery.data;
   const testDecks = testDecksQuery.data;
 
@@ -124,7 +128,10 @@ export function ExportScreen(): JSX.Element | null {
   const stateFeatures = getStateFeaturesQuery.data;
 
   const canExportTestDecks =
-    features.EXPORT_TEST_DECKS && stateFeatures.EXPORT_TEST_BALLOTS;
+    features.EXPORT_TEST_DECKS &&
+    stateFeatures.EXPORT_TEST_BALLOTS &&
+    // Test decks have not yet been updated to support open primaries
+    electionInfo.type !== 'open-primary';
 
   async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
