@@ -614,3 +614,27 @@ test('can access methods directly for testing', async () => {
   const api = createApi(methods);
   expect(api.methods()).toEqual(methods);
 });
+
+test('client can handle various JS language property gets without triggering RPC', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
+  const app = express();
+  app.post('/api/then', () => {
+    expect.fail('this should not be called');
+  });
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+  const client = createClient<typeof api>({ baseUrl });
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  expect(await client).toEqual(client);
+  expect(JSON.stringify(client)).toEqual('{}');
+  expect(`${client}`).toEqual('[object Client]');
+  // eslint-disable-next-line vx/gts-safe-number-parse
+  expect(+client).toEqual(0);
+  server.close();
+});
