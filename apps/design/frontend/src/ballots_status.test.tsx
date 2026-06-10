@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   BallotStyle,
   ElectionRegisteredVotersCounts,
+  PollingPlace,
   Precinct,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -27,6 +28,7 @@ test('ballots incomplete', async () => {
   mockStateFeatures(api, {});
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
+  mockPollingPlaces(api, []);
 
   renderUi(api);
 
@@ -45,6 +47,7 @@ test('ballots ready to finalize', async () => {
   mockStateFeatures(api, {});
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
+  mockPollingPlaces(api, []);
 
   renderUi(api);
 
@@ -73,6 +76,7 @@ test('start finalize and cancel', async () => {
   mockStateFeatures(api, {});
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
+  mockPollingPlaces(api, []);
 
   renderUi(api);
 
@@ -96,6 +100,7 @@ test('start finalize and confirm', async () => {
   mockStateFeatures(api, {});
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
+  mockPollingPlaces(api, []);
 
   renderUi(api);
 
@@ -127,6 +132,7 @@ test.each([false, true])(
     });
     mockPrecincts(api, []);
     mockRegisteredVoterCounts(api, {});
+    mockPollingPlaces(api, []);
 
     renderUi(api);
 
@@ -154,6 +160,7 @@ test('ballots finalized', async () => {
   mockStateFeatures(api, {});
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
+  mockPollingPlaces(api, []);
 
   renderUi(api);
 
@@ -172,6 +179,7 @@ test('ballots approved', async () => {
   mockStateFeatures(api, {});
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
+  mockPollingPlaces(api, []);
 
   const { history } = renderUi(api);
 
@@ -200,6 +208,7 @@ describe('registered voter counts', () => {
     ]);
     // Only p1 has a count, p2 does not - partial RVC
     mockRegisteredVoterCounts(api, { p1: 100 });
+    mockPollingPlaces(api, []);
 
     renderUi(api);
 
@@ -230,6 +239,7 @@ describe('registered voter counts', () => {
     ]);
     // Only split s1 has a count, s2 does not - partial RVC
     mockRegisteredVoterCounts(api, { p1: { splits: { s1: 100 } } });
+    mockPollingPlaces(api, []);
 
     renderUi(api);
 
@@ -240,6 +250,79 @@ describe('registered voter counts', () => {
       'Registered voter counts must be provided for all precincts and splits, or none'
     );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+});
+
+describe('absentee polling place coverage', () => {
+  const precincts: Precinct[] = [
+    { id: 'p1', name: 'Precinct 1', districtIds: [] },
+    { id: 'p2', name: 'Precinct 2', districtIds: [] },
+  ];
+
+  function mockCommon(api: MockApiClient, features: Record<string, boolean>) {
+    mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, features);
+    mockPrecincts(api, precincts);
+    mockRegisteredVoterCounts(api, {});
+  }
+
+  test('validation failed - a precinct is not covered by an absentee place', async () => {
+    const api = createMockApiClient();
+    mockCommon(api, { EDIT_POLLING_PLACES: true });
+    // Absentee place covers only p1, leaving p2 uncovered.
+    mockPollingPlaces(api, [
+      {
+        id: 'absentee-1',
+        name: 'Absentee Voting',
+        type: 'absentee',
+        precincts: { p1: { type: 'whole' } },
+      },
+    ]);
+
+    renderUi(api);
+
+    const soleHeading = await screen.findByRole('heading');
+    api.assertComplete();
+
+    expect(soleHeading).toHaveTextContent(
+      'Absentee polling places must cover every precinct'
+    );
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  test('validation passes when absentee places cover all precincts', async () => {
+    const api = createMockApiClient();
+    mockCommon(api, { EDIT_POLLING_PLACES: true });
+    mockPollingPlaces(api, [
+      {
+        id: 'absentee-1',
+        name: 'Absentee Voting',
+        type: 'absentee',
+        precincts: { p1: { type: 'whole' }, p2: { type: 'whole' } },
+      },
+    ]);
+
+    renderUi(api);
+
+    await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
+    api.assertComplete();
+  });
+
+  test('no validation when the state allows empty absentee polling places', async () => {
+    const api = createMockApiClient();
+    mockCommon(api, {
+      EDIT_POLLING_PLACES: true,
+      OMIT_ABSENTEE_POLLING_PLACES: true,
+    });
+    // No absentee places at all, but coverage is not required for this state.
+    mockPollingPlaces(api, []);
+
+    renderUi(api);
+
+    await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
+    api.assertComplete();
   });
 });
 
@@ -271,6 +354,10 @@ function mockRegisteredVoterCounts(
   counts: ElectionRegisteredVotersCounts
 ) {
   api.getRegisteredVotersCounts.expectCallWith({ electionId }).resolves(counts);
+}
+
+function mockPollingPlaces(api: MockApiClient, pollingPlaces: PollingPlace[]) {
+  api.listPollingPlaces.expectCallWith({ electionId }).resolves(pollingPlaces);
 }
 
 function renderUi(api: MockApiClient) {
