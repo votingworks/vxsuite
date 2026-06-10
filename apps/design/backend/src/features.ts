@@ -162,6 +162,17 @@ export interface StateFeaturesConfig {
    */
   DISABLE_REGISTERED_VOTERS_COUNTS?: boolean;
   /**
+   * Allows an election to have no absentee polling places. Enabled for states
+   * where central scanning is only ever an emergency fallback (NH).
+   *
+   * When this is unset (default), every election is expected to have absentee
+   * polling places covering all precincts: if the jurisdiction has created its
+   * own, they are validated to cover all precincts at finalization; otherwise a
+   * default "Central Scanning" place covering all precincts is created on
+   * export.
+   */
+  OMIT_ABSENTEE_POLLING_PLACES?: boolean;
+  /**
    * Allow creating open primary elections, where all parties' contests are on
    * the same ballot rather than having a separate ballot for each party.
    */
@@ -234,6 +245,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
     ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
     POST_FINALIZE_CHANGE_FEE_WARNING: true,
+    OMIT_ABSENTEE_POLLING_PLACES: true,
   },
 };
 
