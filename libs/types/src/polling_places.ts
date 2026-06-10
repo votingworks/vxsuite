@@ -171,6 +171,23 @@ export function pollingPlacePrecinctIds(place: PollingPlace): Set<string> {
   return new Set(Object.keys(place.precincts));
 }
 
+/**
+ * Returns the precincts not covered by any absentee polling place, i.e.
+ * precincts whose centrally-scanned ballots would have no location to be
+ * tabulated under.
+ */
+export function getPrecinctsWithoutAbsenteePollingPlace(
+  precincts: readonly Precinct[],
+  pollingPlaces: readonly PollingPlace[] = []
+): Precinct[] {
+  const coveredPrecinctIds = new Set(
+    pollingPlaces
+      .filter((place) => place.type === 'absentee')
+      .flatMap((place) => [...pollingPlacePrecinctIds(place)])
+  );
+  return precincts.filter((precinct) => !coveredPrecinctIds.has(precinct.id));
+}
+
 export function pollingPlaceTypeName(type: PollingPlaceType): string {
   switch (type) {
     case 'absentee':
