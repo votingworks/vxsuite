@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { BallotType, LanguageCode } from '@votingworks/types';
 import { Store } from './store';
 
@@ -34,8 +33,8 @@ test('reset clears the database', () => {
 test('unconfigured machine early returns or errors for relevant API calls', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction();
-  expect(() => store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)).toThrow(
-    'Cannot set precinct selection without an election.'
+  expect(() => store.setPollingPlaceId('foo')).toThrow(
+    'Cannot set polling place without an election.'
   );
   expect(
     store.getDistinctBallotStylesCount({

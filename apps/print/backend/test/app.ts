@@ -113,12 +113,14 @@ export async function configureMachine({
   auth,
   electionDefinition,
   ballots,
+  pollingPlaceId,
 }: {
   apiClient: grout.Client<Api>;
   mockUsbDrive: MockUsbDrive;
   auth: DippedSmartCardAuthApi;
   electionDefinition: ElectionDefinition;
   ballots: EncodedBallotEntry[];
+  pollingPlaceId?: string;
 }): Promise<void> {
   mockElectionManagerAuth(auth, electionDefinition);
   mockUsbDrive.insertUsbDrive(
@@ -130,6 +132,10 @@ export async function configureMachine({
   );
   (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
   mockUsbDrive.removeUsbDrive();
+
+  if (pollingPlaceId) {
+    await apiClient.setPollingPlaceId({ id: pollingPlaceId });
+  }
 }
 
 export function mockAuthStatus(

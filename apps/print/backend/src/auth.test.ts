@@ -2,6 +2,7 @@ import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { Server } from 'node:http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  anyPollingPlace,
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
   EncodedBallotEntry,
@@ -10,9 +11,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assertDefined } from '@votingworks/basics';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -25,6 +24,7 @@ const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 let ballots: EncodedBallotEntry[];
 const electionKey = constructElectionKey(electionDefinition.election);
+const pollingPlace = anyPollingPlace(electionDefinition.election);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -45,7 +45,6 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
-  setPollingPlacesEnabled(false);
 });
 
 let server: Server | undefined;
@@ -68,9 +67,7 @@ test('getAuthStatus', async () => {
     mockUsbDrive,
   });
 
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
+  workspace.store.setPollingPlaceId(pollingPlace.id);
 
   vi.mocked(auth.getAuthStatus).mockClear(); // Clear mock calls from configureMachine
 
@@ -86,8 +83,6 @@ test('getAuthStatus', async () => {
 });
 
 test('getAuthStatus - configured state is based on polling place selection', async () => {
-  setPollingPlacesEnabled(true);
-
   const env = buildTestEnvironment();
   server = env.server;
   const { apiClient, auth, mockUsbDrive } = env;
@@ -109,8 +104,6 @@ test('getAuthStatus - configured state is based on polling place selection', asy
     isConfigured: false,
   });
 
-  const { election } = electionDefinition;
-  const [pollingPlace] = assertDefined(election.pollingPlaces);
   await apiClient.setPollingPlaceId({ id: pollingPlace.id });
 
   await apiClient.getAuthStatus();
@@ -136,9 +129,7 @@ test('checkPin', async () => {
     mockUsbDrive,
   });
 
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
+  workspace.store.setPollingPlaceId(pollingPlace.id);
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
@@ -167,9 +158,7 @@ test('logOut', async () => {
     mockUsbDrive,
   });
 
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
+  workspace.store.setPollingPlaceId(pollingPlace.id);
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
@@ -194,9 +183,7 @@ test('updateSessionExpiry', async () => {
     mockUsbDrive,
   });
 
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
+  workspace.store.setPollingPlaceId(pollingPlace.id);
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: new Date(Date.now() + 60_000),
   });
@@ -213,12 +200,3 @@ test('updateSessionExpiry', async () => {
     { sessionExpiresAt: expect.any(Date) }
   );
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
-  }
-}

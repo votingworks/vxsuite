@@ -13,6 +13,7 @@ import {
   safeParseElectionDefinition,
   testCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
+  anyPollingPlace,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
@@ -24,8 +25,6 @@ import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
 import {
@@ -295,11 +294,7 @@ test('configureElectionPackageFromUsb returns no_ballots error when election pac
   );
 });
 
-// [TODO] Update test name after migration to Polling Places.
-test('configureElectionPackageFromUsb will automatically set precinct for single precinct election on configure', async () => {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-
+test('configureElectionPackageFromUsb auto-selects polling place for single-location election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
   const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
@@ -327,53 +322,7 @@ test('configureElectionPackageFromUsb will automatically set precinct for single
   const result = await apiClient.configureElectionPackageFromUsb();
   expect(result).toEqual(ok(expect.anything()));
 
-  expect(await apiClient.getPrecinctSelection()).toEqual(
-    singlePrecinctSelectionFor(precinctId)
-  );
   expect(await apiClient.getPollingPlaceId()).toEqual(defaultPollingPlace.id);
-});
-
-test('setting precinct', async () => {
-  const electionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
-  const ballots = await buildBallotsForElection({
-    electionDefinition,
-    ballotModes: ['official'],
-  });
-  expect(await apiClient.getPrecinctSelection()).toBeNull();
-
-  await configureMachine({
-    electionDefinition,
-    ballots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
-
-  expect(await apiClient.getPrecinctSelection()).toBeNull();
-
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-  expect(await apiClient.getPrecinctSelection()).toEqual(
-    ALL_PRECINCTS_SELECTION
-  );
-
-  const precinctId = electionDefinition.election.precincts[0].id;
-  const singlePrecinctSelection = singlePrecinctSelectionFor(precinctId);
-  await apiClient.setPrecinctSelection({
-    precinctSelection: singlePrecinctSelection,
-  });
-  expect(await apiClient.getPrecinctSelection()).toEqual(
-    singlePrecinctSelection
-  );
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.PollingPlaceChanged,
-    expect.objectContaining({
-      disposition: 'success',
-      message: expect.stringContaining('User set the precinct for the machine'),
-    })
-  );
 });
 
 test('set polling place', async () => {
@@ -396,7 +345,7 @@ test('set polling place', async () => {
 
   expect(await apiClient.getPollingPlaceId()).toBeNull();
 
-  const place = assertDefined(electionDefinition.election.pollingPlaces?.[0]);
+  const place = anyPollingPlace(electionDefinition.election);
   await apiClient.setPollingPlaceId({ id: place.id });
   expect(await apiClient.getPollingPlaceId()).toEqual(place.id);
 
@@ -458,22 +407,20 @@ test('unconfigureMachine clears election configuration', async () => {
     apiClient,
     auth,
     mockUsbDrive,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
 
   expect(await apiClient.getElectionRecord()).not.toBeNull();
 
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
   await apiClient.setTestMode({ testMode: true });
 
-  expect(await apiClient.getPrecinctSelection()).not.toBeNull();
+  expect(await apiClient.getPollingPlaceId()).not.toBeNull();
   expect(await apiClient.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
   await apiClient.unconfigureMachine();
 
   expect(await apiClient.getElectionRecord()).toBeNull();
-  expect(await apiClient.getPrecinctSelection()).toBeNull();
+  expect(await apiClient.getPollingPlaceId()).toBeNull();
   expect(await apiClient.getBallots({})).toEqual([]);
   expect(await apiClient.getTestMode()).toEqual(false);
   expect(workspace.store.getSystemSettings()).toBeUndefined();
@@ -486,29 +433,25 @@ test('unconfigureMachine clears election configuration', async () => {
 
 test('printBallot logs when ballot is not found', async () => {
   const {
-    famousNamesMultiLangElectionDefinition,
+    famousNamesMultiLangElectionDefinition: electionDefinition,
     famousNamesMultiLangOfficialBallots,
   } = sharedFixtures;
 
   // Only configure official ballots so that printing in test mode will result in ballot not found
   await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
+    electionDefinition,
     ballots: famousNamesMultiLangOfficialBallots,
     apiClient,
     auth,
     mockUsbDrive,
-  });
-
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
   await apiClient.setTestMode({ testMode: true });
 
-  const precinctId =
-    famousNamesMultiLangElectionDefinition.election.precincts[0].id;
+  const precinctId = electionDefinition.election.precincts[0].id;
 
   // Try to print a ballot - the precinct exists but no test mode ballot is stored
   await apiClient.printBallot({
@@ -529,23 +472,21 @@ test('printBallot logs when ballot is not found', async () => {
 
 test('end-to-end printing flow updates getBallotPrintCounts', async () => {
   const {
-    famousNamesMultiLangElectionDefinition,
+    famousNamesMultiLangElectionDefinition: electionDefinition,
     famousNamesMultiLangOfficialBallots,
   } = sharedFixtures;
 
   await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
+    electionDefinition,
     ballots: famousNamesMultiLangOfficialBallots,
     apiClient,
     auth,
     mockUsbDrive,
-  });
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  const { ballotStyles } = famousNamesMultiLangElectionDefinition.election;
+  const { ballotStyles } = electionDefinition.election;
   const styleA = ballotStyles[0];
   const styleB = ballotStyles[1];
   const precinctA = styleA.precincts[0];
@@ -612,9 +553,7 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
     apiClient,
     auth,
     mockUsbDrive,
-  });
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
@@ -692,9 +631,7 @@ test('end-to-end printing flow handles open primary (consolidated ballots)', asy
     apiClient,
     auth,
     mockUsbDrive,
-  });
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
@@ -763,23 +700,21 @@ test('printAllBallotStyles works for open primary (consolidated ballots)', async
 test('end-to-end printing flow handles precinct splits correctly', async () => {
   // Use election with precinct splits - Precinct 4 has two splits
   const {
-    primaryPrecinctSplitsMultiLangElectionDefinition,
+    primaryPrecinctSplitsMultiLangElectionDefinition: electionDefinition,
     primaryPrecinctSplitsMultiLangOfficialBallots,
   } = sharedFixtures;
 
   await configureMachine({
-    electionDefinition: primaryPrecinctSplitsMultiLangElectionDefinition,
+    electionDefinition,
     ballots: primaryPrecinctSplitsMultiLangOfficialBallots,
     apiClient,
     auth,
     mockUsbDrive,
-  });
-  await apiClient.setPrecinctSelection({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  const { parties } = primaryPrecinctSplitsMultiLangElectionDefinition.election;
+  const { parties } = electionDefinition.election;
   const mammalParty = parties.find((p) => p.name === 'Mammal')!;
 
   // Print a ballot for the precinct with splits (precinct-c2)
