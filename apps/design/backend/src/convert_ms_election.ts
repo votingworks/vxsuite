@@ -371,7 +371,7 @@ export function convertMsElection(
   const type = contests.some(
     (contest) => contest.type === 'candidate' && contest.partyId
   )
-    ? 'primary'
+    ? 'closed-primary'
     : 'general';
 
   const election: Election = {
@@ -394,7 +394,13 @@ export function convertMsElection(
     ballotStrings: {},
     // Will be generated after import, but need a dummy ballot style to pass validation
     ballotStyles: [
-      { id: 'dummy', groupId: 'dummy', precincts: [], districts: [] },
+      {
+        id: 'dummy',
+        groupId: 'dummy',
+        precincts: [],
+        districts: [],
+        partyId: type === 'closed-primary' ? parties[0].id : undefined,
+      },
     ],
   };
   const validElection = safeParseVxfElection(election).unsafeUnwrap();

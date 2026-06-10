@@ -2,7 +2,6 @@ import { StartPage } from '@votingworks/mark-flow-ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { appStrings } from '@votingworks/ui';
-import { isOpenPrimary } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { BallotContext } from '../contexts/ballot_context';
 
@@ -12,7 +11,7 @@ export function StartScreen(): JSX.Element {
     React.useContext(BallotContext);
 
   function onStart() {
-    if (isOpenPrimary(assertDefined(electionDefinition).election)) {
+    if (assertDefined(electionDefinition).election.type === 'open-primary') {
       history.push('/party-selection');
     } else {
       history.push('/contests/0');

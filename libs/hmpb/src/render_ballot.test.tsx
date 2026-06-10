@@ -6,11 +6,11 @@ import {
   BaseBallotProps,
   CandidateContest,
   Election,
-  electionTypeV4p0ToV4p1,
   getBallotStyle,
   getContests,
   LanguageCode,
   YesNoContest,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
   assert,
@@ -130,7 +130,7 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBallotProps,
-      'vxf'
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
 });
@@ -142,7 +142,7 @@ test('reorder candidates based on rotation from template', async () => {
     ballotStyles: generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       electionId: baseElection.id,
-      electionType: electionTypeV4p0ToV4p1(baseElection.type),
+      electionType: baseElection.type,
       parties: baseElection.parties,
       precincts: [...baseElection.precincts],
       ballotTemplateId: 'NhBallot',
@@ -158,7 +158,7 @@ test('reorder candidates based on rotation from template', async () => {
     rendererPool,
     ballotTemplates.NhBallot,
     allBallotProps,
-    'vxf'
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
   );
 
   const {

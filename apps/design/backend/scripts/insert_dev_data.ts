@@ -3,13 +3,10 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 
+import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import { DEV_USER_ID } from '../src/auth0_client';
 import { NODE_ENV, votingWorksOrganizationId, WORKSPACE } from '../src/globals';
-import {
-  LATEST_SOFTWARE_VERSION,
-  Organization,
-  StateCodes,
-} from '../src/types';
+import { Organization, StateCodes } from '../src/types';
 import { createWorkspace } from '../src/workspace';
 
 /**

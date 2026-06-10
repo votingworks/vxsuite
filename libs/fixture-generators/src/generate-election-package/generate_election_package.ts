@@ -15,6 +15,7 @@ import {
   getBallotLanguageConfigs,
   LanguageCode,
   LATEST_METADATA,
+  LATEST_SOFTWARE_VERSION,
   mergeUiStrings,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
@@ -77,7 +78,7 @@ export async function generateElectionPackage(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),
-      'vxf'
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
   await rendererPool.close();
 

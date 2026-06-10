@@ -9,6 +9,7 @@ import {
 } from 'vitest';
 import { readElection } from '@votingworks/fs';
 import {
+  ElectionSerializationOptions,
   RendererPool,
   allBaseBallotProps,
   ballotTemplates,
@@ -31,6 +32,7 @@ import {
   ElectionDefinition,
   hasSplits,
   LanguageCode,
+  LATEST_SOFTWARE_VERSION,
   VotesDict,
 } from '@votingworks/types';
 import {
@@ -86,6 +88,11 @@ vi.mock('@votingworks/hmpb', async (importActual) => {
   };
 });
 
+const serializationOptions: ElectionSerializationOptions = {
+  format: 'vxf',
+  version: LATEST_SOFTWARE_VERSION,
+};
+
 let rendererPool: RendererPool;
 beforeAll(async () => {
   rendererPool = await createPlaywrightRendererPool();
@@ -110,7 +117,7 @@ describe('createPrecinctTestDeck', () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       fixtures.allBallotProps,
-      'vxf'
+      serializationOptions
     );
     const ballots = iter(fixtures.allBallotProps)
       .zip(ballotContents)
@@ -164,7 +171,7 @@ describe('createPrecinctTestDeck', () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       ballotProps,
-      'vxf'
+      serializationOptions
     );
     const ballots = iter(ballotProps)
       .zip(layouts.ballotContents)

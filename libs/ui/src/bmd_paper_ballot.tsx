@@ -20,7 +20,6 @@ import {
   getCandidateVoteSortedForBallotStyleRotation,
   getContests,
   getPartyForBallotStyle,
-  isOpenPrimary,
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
@@ -756,8 +755,6 @@ export function BmdPaperBallot({
 
   const numColumns = Math.ceil(contests.length / ballotLayout.maxRows);
 
-  const isOpenPrimaryElection = isOpenPrimary(election);
-
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
       <Ballot sheetSize={sheetSize} aria-hidden>
@@ -870,7 +867,7 @@ export function BmdPaperBallot({
           <BallotSelections numColumns={numColumns}>
             {contests.map((contest) => {
               const contestParty =
-                isOpenPrimaryElection &&
+                election.type === 'open-primary' &&
                 contest.type === 'candidate' &&
                 contest.partyId
                   ? find(election.parties, (p) => p.id === contest.partyId)

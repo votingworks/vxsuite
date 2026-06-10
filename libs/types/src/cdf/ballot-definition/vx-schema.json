@@ -503,7 +503,7 @@
       "type": "object"
     },
     "BallotDefinition.ElectionType": {
-      "enum": ["general", "primary"],
+      "enum": ["general", "partisan-primary-closed", "partisan-primary-open"],
       "type": "string"
     },
     "BallotDefinition.ExternalIdentifier": {

@@ -372,8 +372,8 @@
     },
     "es-US": {
       "contestDescription": {
-        "water-1-fishing": "¿Debería prohibirse la pesca en todos los lagos y ríos propiedad de la ciudad?",
-        "water-2-fishing": "¿Debería prohibirse la pesca en todos los lagos y ríos propiedad de la ciudad?"
+        "water-1-fishing": "¿Debería prohibirse la pesca en todos los lagos y ríos de propiedad municipal?",
+        "water-2-fishing": "¿Debería prohibirse la pesca en todos los lagos y ríos de propiedad municipal?"
       },
       "contestOptionLabel": {
         "water-1-fishing-ban-fishing": "SÍ",
@@ -382,27 +382,27 @@
         "water-2-fishing-allow-fishing": "NO"
       },
       "contestTitle": {
-        "county-leader-mammal": "Líder del condado Mamífero",
+        "county-leader-mammal": "Mamífero líder del condado",
         "county-leader-fish": "Líder del condado Fish",
-        "congressional-1-mammal": "1 Representante del Congreso - Mamífero",
-        "congressional-1-fish": "1 Representante del Congreso - Pescado",
-        "congressional-2-mammal": "2 Representantes del Congreso - Mamífero",
-        "congressional-2-fish": "Representante del Congreso 2 - Pescado",
-        "water-1-fishing": "Distrito de Agua 1 Pesca",
-        "water-2-fishing": "Pesca en el Distrito Acuático 2"
+        "congressional-1-mammal": "Representante del Distrito 1 del Congreso - Mamífero",
+        "congressional-1-fish": "Representante del Distrito 1 del Congreso - Pesca",
+        "congressional-2-mammal": "Representante del segundo distrito congresional - Mamífero",
+        "congressional-2-fish": "Representante del segundo distrito congresional - Pesca",
+        "water-1-fishing": "Pesca del Distrito 1 del Agua",
+        "water-2-fishing": "Pesca del Distrito 2 del Agua"
       },
       "countyName": "Condado de muestra",
       "districtName": {
         "county": "Condado",
-        "congressional-1": "Distrito Congresional 1",
-        "congressional-2": "Distrito Congresional 2",
+        "congressional-1": "Distrito congresional 1",
+        "congressional-2": "Distrito congresional 2",
         "water-1": "Distrito de Agua 1",
         "water-2": "Distrito de Agua 2"
       },
-      "electionTitle": "Ejemplo de elección primaria",
+      "electionTitle": "Ejemplo de elecciones primarias",
       "partyFullName": {
-        "0": "Fiesta de los mamíferos",
-        "1": "Fiesta del pescado"
+        "0": "Partido de los mamíferos",
+        "1": "Fiesta de peces"
       },
       "partyName": {
         "0": "Mamífero",
@@ -411,18 +411,18 @@
       "pollingPlaceName": {
         "precinct-c1-w1-1-polling-place": "Distrito Electoral 1",
         "precinct-c1-w1-2-polling-place": "Distrito Electoral 2",
-        "precinct-c1-w2-polling-place": "Precinto 3",
-        "precinct-c2-polling-place": "Precinto 4"
+        "precinct-c1-w2-polling-place": "Distrito 3",
+        "precinct-c2-polling-place": "Distrito 4"
       },
       "precinctName": {
         "precinct-c1-w1-1": "Distrito Electoral 1",
         "precinct-c1-w1-2": "Distrito Electoral 2",
-        "precinct-c1-w2": "Precinto 3",
-        "precinct-c2": "Precinto 4"
+        "precinct-c1-w2": "Distrito 3",
+        "precinct-c2": "Distrito 4"
       },
       "precinctSplitName": {
-        "precinct-c2-split-1": "Precinto 4 - División 1",
-        "precinct-c2-split-2": "Precinto 4 - División 2"
+        "precinct-c2-split-1": "Distrito 4 - División 1",
+        "precinct-c2-split-2": "Distrito 4 - División 2"
       },
       "stateName": "Estado de la muestra",
       "ballotLanguage": {
@@ -432,13 +432,13 @@
         "es-US": "español (EE. UU.)"
       },
       "electionDate": "8 de septiembre de 2021",
-      "hmpb10WillBeElected": "Serán elegidos diez",
-      "hmpb2WillBeElected": "Serán dos los elegidos",
-      "hmpb3WillBeElected": "Serán elegidos tres",
-      "hmpb4WillBeElected": "Serán elegidos cuatro",
-      "hmpb5WillBeElected": "Serán elegidos cinco",
-      "hmpb6WillBeElected": "Serán elegidos seis",
-      "hmpb7WillBeElected": "Siete serán elegidos",
+      "hmpb10WillBeElected": "Se elegirán diez",
+      "hmpb2WillBeElected": "Se elegirán dos",
+      "hmpb3WillBeElected": "Se elegirán tres",
+      "hmpb4WillBeElected": "Cuatro serán elegidos",
+      "hmpb5WillBeElected": "Cinco serán elegidos",
+      "hmpb6WillBeElected": "Se elegirán seis",
+      "hmpb7WillBeElected": "Se elegirán siete",
       "hmpb8WillBeElected": "Ocho serán elegidos",
       "hmpb9WillBeElected": "Nueve serán elegidos",
       "hmpbContinueVotingOnBack": "Voltea la boleta y continúa votando",
@@ -469,7 +469,7 @@
       "hmpbVoteFor7": "Vota por hasta 7",
       "hmpbVoteFor8": "Vota por hasta 8",
       "hmpbVoteFor9": "Vota por hasta 9",
-      "hmpbVoteForNotMoreThan1": "Vota por no más de 1",
+      "hmpbVoteForNotMoreThan1": "Vote por no más de 1",
       "hmpbVotingComplete": "Has completado la votación.",
       "hmpbWriteIn": "Candidato por escrito"
     }
@@ -3544,7 +3544,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 10.941183693516699,
+          "row": 11.674852652259332,
           "contestId": "congressional-2-mammal",
           "optionId": "zebra-2"
         },
@@ -3553,7 +3553,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 11.896488212180747,
+          "row": 12.630157170923379,
           "contestId": "congressional-2-mammal",
           "optionId": "lion-2"
         },
@@ -3562,7 +3562,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 12.851792730844794,
+          "row": 13.585461689587426,
           "contestId": "congressional-2-mammal",
           "optionId": "kangaroo-2"
         },
@@ -3571,7 +3571,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 13.80709724950884,
+          "row": 14.540766208251474,
           "contestId": "congressional-2-mammal",
           "optionId": "elephant-2"
         },
@@ -3580,12 +3580,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 14.762401768172888,
+          "row": 15.496070726915521,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 12.918386977432483,
-            "y": 14.362401768172887,
+            "y": 15.09607072691552,
             "width": 7.2,
             "height": 0.8
           }
@@ -3595,7 +3595,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.38710075225059,
-          "row": 18.545555009823183,
+          "row": 19.279223968565816,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3604,7 +3604,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.38710075225059,
-          "row": 19.724336935166995,
+          "row": 20.45800589390963,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -4484,7 +4484,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 10.941183693516699,
+          "row": 11.674852652259332,
           "contestId": "congressional-2-mammal",
           "optionId": "zebra-2"
         },
@@ -4493,7 +4493,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 11.896488212180747,
+          "row": 12.630157170923379,
           "contestId": "congressional-2-mammal",
           "optionId": "lion-2"
         },
@@ -4502,7 +4502,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 12.851792730844794,
+          "row": 13.585461689587426,
           "contestId": "congressional-2-mammal",
           "optionId": "kangaroo-2"
         },
@@ -4511,7 +4511,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 13.80709724950884,
+          "row": 14.540766208251474,
           "contestId": "congressional-2-mammal",
           "optionId": "elephant-2"
         },
@@ -4520,12 +4520,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.618386977432483,
-          "row": 14.762401768172888,
+          "row": 15.496070726915521,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 12.918386977432483,
-            "y": 14.362401768172887,
+            "y": 15.09607072691552,
             "width": 7.2,
             "height": 0.8
           }
@@ -4535,7 +4535,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.38710075225059,
-          "row": 18.545555009823183,
+          "row": 19.279223968565816,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -4544,7 +4544,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.38710075225059,
-          "row": 19.724336935166995,
+          "row": 20.45800589390963,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -5147,5 +5147,5 @@
   },
   "state": "State of Sample",
   "title": "Example Primary Election",
-  "type": "primary"
+  "type": "closed-primary"
 }

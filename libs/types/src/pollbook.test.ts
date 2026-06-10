@@ -12,7 +12,7 @@ import {
   getImportedVotersCount,
   getImportedVotersCountRaw,
   getUndeclaredPrimaryPartyChoice,
-  PrimarySummaryStatistics,
+  ClosedPrimarySummaryStatistics,
   getUndeclaredPrimaryPartyChoiceRaw,
   getTotalPrecinctCheckInsRaw,
   getTotalPrecinctCheckIns,
@@ -396,7 +396,7 @@ describe('Statistics helper functions', () => {
     totalAbsenteeCheckIns: 100,
   };
 
-  const primaryStats: PrimarySummaryStatistics = {
+  const primaryStats: ClosedPrimarySummaryStatistics = {
     ...baseSummaryStats,
     totalUndeclaredDemCheckIns: 25,
     totalUndeclaredRepCheckIns: 30,
@@ -416,7 +416,7 @@ describe('Statistics helper functions', () => {
     });
 
     test('returns 0 when counts are 0', () => {
-      const zeroStats: PrimarySummaryStatistics = {
+      const zeroStats: ClosedPrimarySummaryStatistics = {
         ...baseSummaryStats,
         totalUndeclaredDemCheckIns: 0,
         totalUndeclaredRepCheckIns: 0,
@@ -440,7 +440,7 @@ describe('Statistics helper functions', () => {
     });
 
     test('formats large numbers with commas', () => {
-      const largeStats: PrimarySummaryStatistics = {
+      const largeStats: ClosedPrimarySummaryStatistics = {
         ...baseSummaryStats,
         totalUndeclaredDemCheckIns: 1234567,
         totalUndeclaredRepCheckIns: 9876543,

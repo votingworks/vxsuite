@@ -154,7 +154,7 @@ export function ReportScreen({
   }
 
   assert(election !== undefined);
-  const hasParties = election.type === 'primary';
+  const hasParties = election.type === 'closed-primary';
   const showLanguage = getLanguageOptions(election).length > 1;
   const ballotPrintCounts = getBallotPrintCountsQuery.data;
   const { printer } = getDeviceStatusesQuery.data;

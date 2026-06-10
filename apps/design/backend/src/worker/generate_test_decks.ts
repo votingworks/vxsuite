@@ -11,6 +11,7 @@ import { translateBallotStrings } from '@votingworks/backend';
 import {
   ballotTemplates,
   createPlaywrightRendererPool,
+  ElectionSerializationOptions,
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
@@ -84,12 +85,16 @@ export async function generateTestDecks(
       props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
   const rendererPool = await createPlaywrightRendererPool();
+  const serializationOptions: ElectionSerializationOptions = {
+    format: electionSerializationFormat,
+    version: jurisdiction.softwareVersion,
+  };
   const { electionDefinition, ballotContents } =
     await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       testBallotProps,
-      electionSerializationFormat,
+      serializationOptions,
       emitProgress
     );
   const ballots = iter(testBallotProps)

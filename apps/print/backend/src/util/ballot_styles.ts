@@ -13,7 +13,7 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { getAllPrecinctsAndSplits, isOpenPrimary } from '@votingworks/types';
+import { getAllPrecinctsAndSplits } from '@votingworks/types';
 import {
   getBallotStyleGroupsForPrecinctOrSplit,
   getPrecinctsAndSplitsForBallotStyle,
@@ -66,29 +66,20 @@ export function findBallotStyleId(
     precinctOrSplit,
   });
 
-  function findBallotStyleInSingleGroup(): BallotStyleId {
-    assert(
-      ballotStyleGroups.length === 1,
-      'Expected exactly one ballot style group per precinct or split'
-    );
-    const ballotStyle = ballotStyleGroups[0].ballotStyles.find((bs) =>
-      assertDefined(bs.languages).includes(languageCode)
-    );
-    assert(ballotStyle, `No ballot style found for language ${languageCode}`);
-    return ballotStyle.id;
-  }
-
   switch (election.type) {
-    case 'general': {
-      return findBallotStyleInSingleGroup();
+    case 'general':
+    case 'open-primary': {
+      assert(
+        ballotStyleGroups.length === 1,
+        'Expected exactly one ballot style group per precinct or split'
+      );
+      const ballotStyle = ballotStyleGroups[0].ballotStyles.find((bs) =>
+        assertDefined(bs.languages).includes(languageCode)
+      );
+      assert(ballotStyle, `No ballot style found for language ${languageCode}`);
+      return ballotStyle.id;
     }
-    case 'primary': {
-      // In an open primary, ballots are consolidated (all parties' contests on
-      // one ballot), so there is no party selection and a single ballot style
-      // group per precinct or split, just like a general election.
-      if (isOpenPrimary(election)) {
-        return findBallotStyleInSingleGroup();
-      }
+    case 'closed-primary': {
       assert(
         partyId !== undefined,
         'partyId is required for closed primary elections'
@@ -149,9 +140,7 @@ export function addBallotsPropsToPrintCountRow(
   const languageCode = assertDefined(ballotStyle.languages)[0] as LanguageCode;
 
   let partyName: string | undefined;
-  // In an open primary, consolidated ballot styles have no partyId, so there is
-  // no party name to display. Closed primaries are still expected to have one.
-  if (election.type === 'primary' && !isOpenPrimary(election)) {
+  if (election.type === 'closed-primary') {
     assert(ballotStyle.partyId !== undefined);
     const party = election.parties.find((p) => p.id === ballotStyle.partyId);
     assert(party, `No party found with id ${ballotStyle.partyId}`);

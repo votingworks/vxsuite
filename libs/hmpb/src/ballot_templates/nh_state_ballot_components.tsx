@@ -263,7 +263,7 @@ export function HandCountInsignia({
             fontWeight: 'bold',
           }}
         >
-          {election.type === 'primary' ? (
+          {election.type === 'closed-primary' ? (
             <>
               State Primary
               <br />

@@ -37,6 +37,7 @@ export * from './polling_places';
 export * from './polls';
 export * from './precinct_scanner';
 export * from './precinct_selection';
+export * from './software_versions';
 export * from './system_limits';
 export * from './system_settings';
 export * as Tabulation from './tabulation';

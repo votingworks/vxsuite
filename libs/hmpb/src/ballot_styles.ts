@@ -4,13 +4,13 @@ import {
   CandidateContest,
   Contests,
   DistrictId,
-  ElectionTypeV4p1,
   Parties,
   PrecinctOrSplitId,
   Precinct,
   hasSplits,
   BallotStyle,
   ElectionId,
+  ElectionType,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
@@ -42,7 +42,7 @@ import { getAllPossibleCandidateOrderings } from './ballot_rotation';
 export function generateBallotStyles(params: {
   contests: Contests;
   ballotLanguageConfigs: BallotLanguageConfigs;
-  electionType: ElectionTypeV4p1;
+  electionType: ElectionType;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;

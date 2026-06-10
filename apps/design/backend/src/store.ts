@@ -44,7 +44,6 @@ import {
   PrecinctSelection,
   TtsEditEntry,
   PollsTransitionType,
-  safeParseElectionDefinition,
   ElectionDefinition,
   BallotStyle,
   unsafeParse,
@@ -58,8 +57,9 @@ import {
   isPrecinctCount,
   isSplitCounts,
   PrecinctRegisteredVotersCountEntry,
-  electionTypeV4p1ToV4p0,
-  ElectionTypeV4p1,
+  safeParseElectionDefinitionForAnySoftwareVersion,
+  SoftwareVersion,
+  ElectionType,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -84,7 +84,6 @@ import {
   User,
   UserType,
   ElectionStatus,
-  SoftwareVersion,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -95,7 +94,6 @@ import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
 export interface ElectionRecord {
   jurisdictionId: string;
   election: Election;
-  type: ElectionTypeV4p1;
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
@@ -914,7 +912,7 @@ export class Store {
         )
       ).rows[0] as {
         jurisdictionId: string;
-        type: ElectionTypeV4p1;
+        type: ElectionType;
         title: string;
         date: Date;
         countyName: string;
@@ -1169,7 +1167,7 @@ export class Store {
       // (e.g. rendering ballots)
       const election: Election = {
         id: electionId,
-        type: electionTypeV4p1ToV4p0(electionRow.type),
+        type: electionRow.type,
         title: electionRow.title,
         date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
         county: {
@@ -1263,7 +1261,9 @@ export class Store {
     }
 
     // Parse the election data
-    const parseResult = safeParseElectionDefinition(row.electionData);
+    const parseResult = safeParseElectionDefinitionForAnySoftwareVersion(
+      row.electionData
+    );
     if (parseResult.isErr()) {
       return err('election-out-of-date');
     }
@@ -1327,19 +1327,17 @@ export class Store {
   async createElection({
     jurisdiction,
     election,
-    electionType,
     ballotTemplateId,
     systemSettings,
     externalSource,
   }: {
     jurisdiction: Jurisdiction;
     election: Election;
-    electionType: ElectionTypeV4p1;
     ballotTemplateId: BallotTemplateId;
     systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
   }): Promise<void> {
-    if (electionType === 'open-primary') {
+    if (election.type === 'open-primary') {
       const features = getStateFeaturesConfig(jurisdiction);
       if (!features.OPEN_PRIMARIES) {
         throw new Error(
@@ -1396,7 +1394,7 @@ export class Store {
         `,
           election.id,
           jurisdictionId,
-          electionType,
+          election.type,
           electionTitle,
           election.date.toISOString(),
           election.county.name,

@@ -7,6 +7,7 @@ import {
   Election,
   HmpbBallotPaperSize,
   PrecinctId,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -127,7 +128,7 @@ export async function main(): Promise<number> {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       ballotProps,
-      'vxf'
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
 
     const pdf = await rendererPool.runTask(async (renderer) => {

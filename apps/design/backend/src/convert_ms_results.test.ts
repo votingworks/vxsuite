@@ -43,7 +43,13 @@ const primaryElectionDefinition = safeParseElectionDefinition(
     ...primaryElection,
     // Add a dummy ballot style to satisfy validation
     ballotStyles: [
-      { id: 'dummy', groupId: 'dummy', precincts: [], districts: [] },
+      {
+        id: 'dummy',
+        groupId: 'dummy',
+        precincts: [],
+        districts: [],
+        partyId: primaryElection.parties[0].id,
+      },
     ],
   })
 ).unsafeUnwrap();

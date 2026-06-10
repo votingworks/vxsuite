@@ -1,6 +1,6 @@
 {
   "id": "election-open-primary",
-  "type": "primary",
+  "type": "open-primary",
   "title": "Example Open Primary Election",
   "state": "State of Sample",
   "county": {

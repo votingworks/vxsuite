@@ -1,4 +1,4 @@
-import { ok, throwIllegalValue } from '@votingworks/basics';
+import { assert, ok, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import {
   BallotPageTemplate,
@@ -10,10 +10,14 @@ import * as Primary from './nh_state_primary_ballot_template';
 import { BaseStyles, NhStateBallotProps } from './nh_state_ballot_components';
 
 const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
+  assert(
+    props.election.type !== 'open-primary',
+    'Open primaries are not supported'
+  );
   switch (props.election.type) {
     case 'general':
       return General.BallotPageFrame(props);
-    case 'primary':
+    case 'closed-primary':
       return Primary.BallotPageFrame(props);
     default:
       /* istanbul ignore next */
@@ -31,10 +35,14 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
       nextPageProps: undefined,
     });
   }
+  assert(
+    props.election.type !== 'open-primary',
+    'Open primaries are not supported'
+  );
   switch (props.election.type) {
     case 'general':
       return General.BallotPageContent(props, scratchpad);
-    case 'primary':
+    case 'closed-primary':
       return Primary.BallotPageContent(props, scratchpad);
     default:
       /* istanbul ignore next */

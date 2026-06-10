@@ -6,7 +6,7 @@ import {
   isElectionManagerAuth,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { Admin, Tabulation } from '@votingworks/types';
+import { Admin, isPrimary, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import {
@@ -67,7 +67,7 @@ export function BallotCountReportBuilder(): JSX.Element {
     'groupByScanner',
     'groupByVotingMethod',
   ];
-  if (electionDefinition.election.type === 'primary') {
+  if (isPrimary(electionDefinition.election)) {
     allowedFilters.push('party');
     allowedGroupBys.push('groupByParty');
   }

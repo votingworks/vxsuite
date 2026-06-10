@@ -28,6 +28,7 @@ import {
   ImageData,
   BaseBallotProps,
   ElectionDefinition,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { createCanvas } from 'canvas';
 import {
@@ -831,7 +832,7 @@ test('Ballot audit IDs', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
-      'vxf'
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
   const ballotPdf = ballotPdfs[0]!;
   await rendererPool.close();
@@ -873,7 +874,7 @@ describe('Contest option bounds', () => {
         rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
-        'vxf'
+        { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
       );
 
     const markedBallotPdf = await rendererPool.runTask(async (renderer) => {
@@ -932,7 +933,7 @@ describe('Contest option bounds', () => {
         rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
-        'vxf'
+        { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
       );
 
     const markedBallotPdf = await rendererPool.runTask(async (renderer) => {

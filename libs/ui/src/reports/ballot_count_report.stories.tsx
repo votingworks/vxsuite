@@ -127,7 +127,7 @@ const primaryPrecinctReportArgs: BallotCountReportProps = {
     ...electionWithMsEitherNeitherDefinition,
     election: {
       ...electionWithMsEitherNeitherDefinition.election,
-      type: 'primary',
+      type: 'closed-primary',
     },
   },
   electionPackageHash: '11111111111111111111',

@@ -5,7 +5,8 @@ import {
   ContestId,
   PrecinctId,
   PollsTransitionType,
-  ElectionTypeV4p1,
+  SoftwareVersion,
+  ElectionType,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -15,13 +16,6 @@ import { baseUrl } from './globals';
 export const StateCodes = ['DEMO', 'MI', 'MS', 'NH'] as const;
 export type StateCode = (typeof StateCodes)[number];
 export const StateCodeSchema: z.ZodType<StateCode> = z.enum(StateCodes);
-
-export const SoftwareVersions = ['v4.0', 'v4.1'] as const;
-export const LATEST_SOFTWARE_VERSION =
-  SoftwareVersions[SoftwareVersions.length - 1];
-export type SoftwareVersion = (typeof SoftwareVersions)[number];
-export const SoftwareVersionSchema: z.ZodType<SoftwareVersion> =
-  z.enum(SoftwareVersions);
 
 export interface Organization {
   id: string;
@@ -77,7 +71,7 @@ export interface ElectionListing {
   electionId: ElectionId;
   title: string;
   date: DateWithoutTime;
-  type: ElectionTypeV4p1;
+  type: ElectionType;
   countyName: string;
   state: string;
   status: ElectionStatus;
@@ -87,7 +81,7 @@ export interface ElectionListing {
 export interface ElectionInfo {
   jurisdictionId: string;
   electionId: ElectionId;
-  type: ElectionTypeV4p1;
+  type: ElectionType;
   date: DateWithoutTime;
   title: string;
   state: string;

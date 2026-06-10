@@ -1,4 +1,9 @@
-import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
+import {
+  Admin,
+  ElectionDefinition,
+  isPrimary,
+  Tabulation,
+} from '@votingworks/types';
 import {
   Optional,
   assert,
@@ -462,7 +467,7 @@ function BallotCountTable({
     columns.push({ type: 'attribute', id: 'ballot-style' });
   }
   if (
-    election.type === 'primary' &&
+    isPrimary(election) &&
     (groupBy.groupByParty || groupBy.groupByBallotStyle)
   ) {
     columns.push({ type: 'attribute', id: 'party' });

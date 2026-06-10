@@ -400,7 +400,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
 
         {contest.type === 'candidate' && (
           <React.Fragment>
-            {isPrimary(electionInfo.type) && (
+            {isPrimary(electionInfo) && (
               <InputGroup label="Party">
                 <SearchSelect
                   aria-label="Party"

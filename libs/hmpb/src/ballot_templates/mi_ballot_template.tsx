@@ -25,7 +25,7 @@ import {
   getBallotStyle,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
-  isOpenPrimary,
+  isPrimary,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -912,26 +912,27 @@ async function BallotPageContent(
     getBallotStyle({ election, ballotStyleId })
   );
   const contests = getContests({ election, ballotStyle });
-  assert(election.type === 'primary', 'MI template only supports primaries');
+  assert(isPrimary(election), 'MI template only supports primaries');
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
 
-  const { leftoverContests, sectionsElement } = isOpenPrimary(election)
-    ? await OpenPrimaryContestColumns({
-        contests,
-        election,
-        ballotStyle,
-        dimensions,
-        scratchpad,
-      })
-    : await ClosedPrimaryContestColumns({
-        contests,
-        election,
-        ballotStyle,
-        dimensions,
-        scratchpad,
-      });
+  const { leftoverContests, sectionsElement } =
+    election.type === 'open-primary'
+      ? await OpenPrimaryContestColumns({
+          contests,
+          election,
+          ballotStyle,
+          dimensions,
+          scratchpad,
+        })
+      : await ClosedPrimaryContestColumns({
+          contests,
+          election,
+          ballotStyle,
+          dimensions,
+          scratchpad,
+        });
 
   if (leftoverContests.length === contests.length) {
     return err({

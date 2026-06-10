@@ -1,4 +1,4 @@
-import { Admin, Election, Tabulation } from '@votingworks/types';
+import { Admin, Election, isPrimary, Tabulation } from '@votingworks/types';
 import { mapObject } from '@votingworks/basics';
 import {
   ContestResultsSummaries,
@@ -69,7 +69,7 @@ export function buildSimpleMockTallyReportResults({
       : undefined;
   const contestIds = specifiedContestIds ?? election.contests.map((c) => c.id);
 
-  if (election.type === 'primary') {
+  if (isPrimary(election)) {
     return {
       scannedResults,
       manualResults,

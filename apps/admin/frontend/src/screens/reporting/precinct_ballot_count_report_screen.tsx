@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
+import { isPrimary } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
@@ -23,7 +24,7 @@ export function PrecinctBallotCountReport(): JSX.Element {
           filter={{}}
           groupBy={{
             groupByPrecinct: true,
-            groupByParty: electionDefinition.election.type === 'primary',
+            groupByParty: isPrimary(electionDefinition.election),
           }}
           includeSheetCounts={false}
           disabled={false}

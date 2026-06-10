@@ -29,7 +29,12 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
   safeParseElection,
-  safeParseElectionDefinition,
+  convertLatestElectionToV4p0,
+  ElectionV4p0Schema,
+  SoftwareVersion,
+  safeParseElectionDefinitionForAnySoftwareVersion,
+  safeParse,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -531,6 +536,47 @@ export async function renderBallotPreviewToPdf<P extends object>(
   return ok(pdf);
 }
 
+export interface ElectionSerializationOptions {
+  format: ElectionSerializationFormat;
+  version: SoftwareVersion;
+}
+
+function serializeElection(
+  election: Election,
+  options: ElectionSerializationOptions
+): string {
+  const electionToSerialize = (() => {
+    switch (options.format) {
+      case 'vxf':
+        // Re-parse the election to ensure it is being saved in a consistent format.
+        // Zod parsing can change the order of fields when parsing the json object.
+        // This ensures that those changes occur before saving the file so that if
+        // that file is loaded back through this code path the resulting election is
+        // identical and hashes to the same value.
+        switch (options.version) {
+          case 'v4.0':
+            return safeParse(
+              ElectionV4p0Schema,
+              convertLatestElectionToV4p0(election)
+            ).unsafeUnwrap();
+          case 'v4.1':
+            return safeParseElection(election).unsafeUnwrap();
+          default:
+            return throwIllegalValue(options.version);
+        }
+      case 'cdf':
+        assert(
+          options.version === LATEST_SOFTWARE_VERSION,
+          `CDF export only supported for software version ${LATEST_SOFTWARE_VERSION}`
+        );
+        return convertVxfElectionToCdfBallotDefinition(election);
+      default:
+        throwIllegalValue(options.format);
+    }
+  })();
+  return JSON.stringify(electionToSerialize, null, 2);
+}
+
 /**
  * Given a {@link BallotPageTemplate} and a list of ballot props, lays out
  * each ballot for each set of props. Then, extracts the grid layout from the
@@ -545,7 +591,10 @@ export async function layOutBallotsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat,
+  electionSerializationOptions: {
+    format: ElectionSerializationFormat;
+    version: SoftwareVersion;
+  },
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotContents: string[];
@@ -673,29 +722,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
     contests,
     gridLayouts,
   };
-  const electionToHash = (() => {
-    switch (electionSerializationFormat) {
-      case 'vxf': {
-        // Re-parse the election to ensure it is being saved in a consistent format
-        // zod parsing can change the order of fields when parsing the json object, and
-        // maintainBackwardsCompatibility can alter some fields in the election. This ensures
-        // that those changes occur before saving the file so that if that file is loaded back
-        // through this code path the resulting election is identical and hashes to the same value.
-        return safeParseElection(
-          JSON.stringify(electionWithGridLayouts)
-        ).unsafeUnwrap();
-      }
-      case 'cdf':
-        return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
-      default: {
-        /* istanbul ignore next */
-        throwIllegalValue(electionSerializationFormat);
-      }
-    }
-  })();
-  const electionDefinition = safeParseElectionDefinition(
-    JSON.stringify(electionToHash, null, 2)
-  ).unsafeUnwrap();
+  const serializedElection = serializeElection(
+    electionWithGridLayouts,
+    electionSerializationOptions
+  );
+  const electionDefinition =
+    safeParseElectionDefinitionForAnySoftwareVersion(
+      serializedElection
+    ).unsafeUnwrap();
 
   return {
     ballotContents: ballotLayouts.map(({ ballotContent }) => ballotContent),
@@ -709,7 +743,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat,
+  electionSerializationOptions: ElectionSerializationOptions,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotPdfs: Uint8Array[];
@@ -720,7 +754,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       rendererPool,
       template,
       ballotProps,
-      electionSerializationFormat,
+      electionSerializationOptions,
       emitProgress
     );
 
@@ -778,7 +812,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   allBallotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat
+  electionSerializationOptions: ElectionSerializationOptions
 ): Promise<ElectionDefinition> {
   const minimalBallotProps = groupBy(
     allBallotProps,
@@ -788,7 +822,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     rendererPool,
     template,
     minimalBallotProps,
-    electionSerializationFormat
+    electionSerializationOptions
   );
   return electionDefinition;
 }

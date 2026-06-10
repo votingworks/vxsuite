@@ -14,6 +14,7 @@ import {
   mergeUiStrings,
   getBallotLanguageConfigs,
   LanguageCode,
+  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
   RendererPool,
@@ -101,7 +102,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
           rendererPool,
           ballotTemplates.VxDefaultBallot,
           allBaseBallotProps(electionWithBallotStrings),
-          'vxf'
+          { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
         );
       expect(electionDefinition.ballotHash).toEqual(
         electionPackage.electionDefinition.ballotHash

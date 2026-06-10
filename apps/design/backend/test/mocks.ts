@@ -1,3 +1,4 @@
+import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import {
   OrganizationUser,
   Jurisdiction,
@@ -5,7 +6,6 @@ import {
   Organization,
   User,
   SupportUser,
-  LATEST_SOFTWARE_VERSION,
 } from '../src/types';
 import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
 

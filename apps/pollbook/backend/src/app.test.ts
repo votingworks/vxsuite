@@ -258,7 +258,7 @@ test('checking in a voter does not allow ballot party during a general', async (
           ballotParty: 'REP',
         })
       ).rejects.toThrow(
-        'Check-in ballot party cannot be provided during a general election'
+        'Check-in ballot party is only provided during a closed primary election'
       )
     );
   });
@@ -853,7 +853,7 @@ test('register a voter, change name and address, and check in', async () => {
       expect(eventsResult.events).toHaveLength(6);
 
       const statisticsResult =
-        await localApiClient.printGeneralStatisticsSummaryReceipt();
+        await localApiClient.printStatisticsSummaryReceipt();
       expect(statisticsResult.ok()).toEqual(undefined);
       const statisticsReceipt = mockPrinterHandler.getLastPrintPath();
       expect(statisticsReceipt).toBeDefined();

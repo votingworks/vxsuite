@@ -3,15 +3,11 @@ import util from 'node:util';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined } from '@votingworks/basics';
-import { safeParse } from '@votingworks/types';
+import { safeParse, SoftwareVersionSchema } from '@votingworks/types';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 import { generateId } from '../src/utils';
-import {
-  Jurisdiction,
-  SoftwareVersionSchema,
-  StateCodeSchema,
-} from '../src/types';
+import { Jurisdiction, StateCodeSchema } from '../src/types';
 
 const USAGE = `Usage: pnpm create-jurisdiction --organizationId=<organizationId> --stateCode=<stateCode> --softwareVersion=<softwareVersion> "<name>"`;
 

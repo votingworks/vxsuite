@@ -1,7 +1,11 @@
-import { assert, assertDefined, find } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   getPartyForBallotStyle,
-  isOpenPrimary,
   type BallotStyleId,
   type Election,
   type PrecinctId,
@@ -52,79 +56,32 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
     return ballotStyleGroups[0].defaultLanguageBallotStyle;
   }
 
-  if (election.type === 'general' || isOpenPrimary(election)) {
-    if (configuredPrecinctsAndSplits.length === 1) {
-      const [precinctOrSplit] = configuredPrecinctsAndSplits;
-      const { precinct } = precinctOrSplit;
-      return (
-        <Button
-          onPress={() =>
-            onSelect(
-              precinct.id,
-              getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
-            )
-          }
-          rightIcon="Next"
-          disabled={disabled}
-        >
-          Start Voting Session:{' '}
-          <TextOnly>{electionStrings.precinctName(precinct)}</TextOnly>
-        </Button>
-      );
-    }
-    return (
-      <SearchSelect
-        aria-label="Select ballot precinct"
-        placeholder="Select ballot style…"
-        options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
-          precinctOrSplit.split
-            ? {
-                label: precinctOrSplit.split.name,
-                value: precinctOrSplit.split.id,
-              }
-            : {
-                label: precinctOrSplit.precinct.name,
-                value: precinctOrSplit.precinct.id,
-              }
-        )}
-        value=""
-        onChange={(value) => {
-          const precinctOrSplit = find(
-            configuredPrecinctsAndSplits,
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            (precinctOrSplit) =>
-              value ===
-              (precinctOrSplit.split?.id ?? precinctOrSplit.precinct.id)
-          );
-          onSelect(
-            precinctOrSplit.precinct.id,
-            getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
-          );
-        }}
-        style={{ width: '100%' }}
-        disabled={disabled}
-      />
-    );
-  }
-
-  assert(election.type === 'primary');
-
-  const selectedPrecinctOrSplit =
-    configuredPrecinctsAndSplits.length === 1
-      ? configuredPrecinctsAndSplits[0]
-      : selectedPrecinctOrSplitId &&
-        find(
-          configuredPrecinctsAndSplits,
-          (precinctOrSplit) =>
-            precinctOrSplit.split?.id === selectedPrecinctOrSplitId ||
-            precinctOrSplit.precinct.id === selectedPrecinctOrSplitId
+  switch (election.type) {
+    case 'general':
+    case 'open-primary': {
+      if (configuredPrecinctsAndSplits.length === 1) {
+        const [precinctOrSplit] = configuredPrecinctsAndSplits;
+        const { precinct } = precinctOrSplit;
+        return (
+          <Button
+            onPress={() =>
+              onSelect(
+                precinct.id,
+                getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
+              )
+            }
+            rightIcon="Next"
+            disabled={disabled}
+          >
+            Start Voting Session:{' '}
+            <TextOnly>{electionStrings.precinctName(precinct)}</TextOnly>
+          </Button>
         );
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      {configuredPrecinctsAndSplits.length > 1 && (
+      }
+      return (
         <SearchSelect
-          aria-label="Select voter's precinct"
-          placeholder="Select voter's precinct…"
+          aria-label="Select ballot precinct"
+          placeholder="Select ballot style…"
           options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
             precinctOrSplit.split
               ? {
@@ -136,42 +93,100 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
                   value: precinctOrSplit.precinct.id,
                 }
           )}
-          value={selectedPrecinctOrSplitId}
-          onChange={setSelectedPrecinctOrSplitId}
+          value=""
+          onChange={(value) => {
+            const precinctOrSplit = find(
+              configuredPrecinctsAndSplits,
+              // eslint-disable-next-line @typescript-eslint/no-shadow
+              (precinctOrSplit) =>
+                value ===
+                (precinctOrSplit.split?.id ?? precinctOrSplit.precinct.id)
+            );
+            onSelect(
+              precinctOrSplit.precinct.id,
+              getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
+            );
+          }}
           style={{ width: '100%' }}
           disabled={disabled}
         />
-      )}
+      );
+    }
 
-      {selectedPrecinctOrSplit && (
-        <P>
-          <Font weight="semiBold">Select ballot style:</Font>
-          <ButtonGrid>
-            {getBallotStyleGroupsForPrecinctOrSplit({
-              election,
-              precinctOrSplit: selectedPrecinctOrSplit,
-            }).map((ballotStyleGroup) => {
-              const ballotStyleId =
-                ballotStyleGroup.defaultLanguageBallotStyle.id;
-              return (
-                <Button
-                  key={ballotStyleId}
-                  onPress={() =>
-                    onSelect(selectedPrecinctOrSplit.precinct.id, ballotStyleId)
-                  }
-                  disabled={disabled}
-                >
-                  {
-                    assertDefined(
-                      getPartyForBallotStyle({ election, ballotStyleId })
-                    ).name
-                  }
-                </Button>
-              );
-            })}
-          </ButtonGrid>
-        </P>
-      )}
-    </div>
-  );
+    case 'closed-primary': {
+      const selectedPrecinctOrSplit =
+        configuredPrecinctsAndSplits.length === 1
+          ? configuredPrecinctsAndSplits[0]
+          : selectedPrecinctOrSplitId &&
+            find(
+              configuredPrecinctsAndSplits,
+              (precinctOrSplit) =>
+                precinctOrSplit.split?.id === selectedPrecinctOrSplitId ||
+                precinctOrSplit.precinct.id === selectedPrecinctOrSplitId
+            );
+      return (
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
+        >
+          {configuredPrecinctsAndSplits.length > 1 && (
+            <SearchSelect
+              aria-label="Select voter's precinct"
+              placeholder="Select voter's precinct…"
+              options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
+                precinctOrSplit.split
+                  ? {
+                      label: precinctOrSplit.split.name,
+                      value: precinctOrSplit.split.id,
+                    }
+                  : {
+                      label: precinctOrSplit.precinct.name,
+                      value: precinctOrSplit.precinct.id,
+                    }
+              )}
+              value={selectedPrecinctOrSplitId}
+              onChange={setSelectedPrecinctOrSplitId}
+              style={{ width: '100%' }}
+              disabled={disabled}
+            />
+          )}
+
+          {selectedPrecinctOrSplit && (
+            <P>
+              <Font weight="semiBold">Select ballot style:</Font>
+              <ButtonGrid>
+                {getBallotStyleGroupsForPrecinctOrSplit({
+                  election,
+                  precinctOrSplit: selectedPrecinctOrSplit,
+                }).map((ballotStyleGroup) => {
+                  const ballotStyleId =
+                    ballotStyleGroup.defaultLanguageBallotStyle.id;
+                  return (
+                    <Button
+                      key={ballotStyleId}
+                      onPress={() =>
+                        onSelect(
+                          selectedPrecinctOrSplit.precinct.id,
+                          ballotStyleId
+                        )
+                      }
+                      disabled={disabled}
+                    >
+                      {
+                        assertDefined(
+                          getPartyForBallotStyle({ election, ballotStyleId })
+                        ).name
+                      }
+                    </Button>
+                  );
+                })}
+              </ButtonGrid>
+            </P>
+          )}
+        </div>
+      );
+    }
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(election.type);
+  }
 }

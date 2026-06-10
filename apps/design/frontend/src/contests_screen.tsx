@@ -205,7 +205,7 @@ function Content(): JSX.Element | null {
               style={{ minWidth: '8rem' }}
               disabled={isReordering}
             />
-            {isPrimary(electionInfo.type) && (
+            {isPrimary(electionInfo) && (
               <SearchSelect
                 options={[
                   { value: FILTER_ALL, label: 'All Parties' },
@@ -270,7 +270,7 @@ function Content(): JSX.Element | null {
             <NoContests>
               <Callout color="neutral" icon="Info">
                 There are no contests for the district
-                {isPrimary(electionInfo.type) ? '/party' : ''} you selected.
+                {isPrimary(electionInfo) ? '/party' : ''} you selected.
               </Callout>
               <div>
                 <Button
