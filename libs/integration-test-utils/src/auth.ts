@@ -6,17 +6,11 @@ import {
   mockPollWorkerCardInsertion,
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
-import { methodUrl } from '@votingworks/grout';
 import type { Election } from '@votingworks/types';
-import { BASE_URL } from './constants';
+import { postToApi } from './api';
 
-const API_URL = `${BASE_URL}/api`;
-
-async function postToApi(page: Page, method: string): Promise<void> {
-  const response = await page.request.post(methodUrl(method, API_URL), {
-    data: '{}',
-    headers: { 'Content-Type': 'application/json' },
-  });
+async function postToApiOrThrow(page: Page, method: string): Promise<void> {
+  const response = await postToApi(page, method);
   if (!response.ok()) {
     throw new Error(
       `POST ${method} failed: ${response.status()} ${await response.text()}`
@@ -96,7 +90,7 @@ export function buildInsertedSmartCardAuthHelpers(
   }
 
   async function forceLogOut(page: Page): Promise<void> {
-    await postToApi(page, 'logOut');
+    await postToApiOrThrow(page, 'logOut');
   }
 
   /**
@@ -107,7 +101,7 @@ export function buildInsertedSmartCardAuthHelpers(
    * https://github.com/votingworks/vxsuite/issues/8553 — remove once fixed.
    */
   async function endCardlessVoterSession(page: Page): Promise<void> {
-    await postToApi(page, 'endCardlessVoterSession');
+    await postToApiOrThrow(page, 'endCardlessVoterSession');
   }
 
   async function forceLogOutAndResetElectionDefinition(
@@ -220,7 +214,7 @@ export function buildDippedSmartCardAuthHelpers(
   }
 
   async function forceLogOut(page: Page): Promise<void> {
-    await postToApi(page, 'logOut');
+    await postToApiOrThrow(page, 'logOut');
   }
 
   async function forceLogOutAndResetElectionDefinition(
