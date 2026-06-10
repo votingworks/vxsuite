@@ -1,6 +1,7 @@
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { err } from '@votingworks/basics';
 import {
+  electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
@@ -44,6 +45,11 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 const jurisdiction = TEST_JURISDICTION;
+
+// The famous names fixture defines polling places, including a single absentee
+// "Central Scanning" location (id 'central-scanning') covering all precincts.
+const famousNamesDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 let frontImagePath: string;
 let backImagePath: string;
@@ -125,6 +131,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('getElectionDefinition', async () => {
@@ -358,6 +365,48 @@ test('configure with CDF election', async () => {
     // Ensure loading auth election key from db works
     expect(await apiClient.getAuthStatus()).toMatchObject({
       status: 'logged_in',
+    });
+  });
+});
+test('get/set polling place id', async () => {
+  await withApp(async ({ apiClient, auth, importer, store, logger }) => {
+    mockElectionManagerAuth(auth, famousNamesDefinition);
+    importer.configure(
+      famousNamesDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+
+    // No polling place selected initially (importer.configure does not
+    // auto-select; only the configure-from-USB API does).
+    expect(await apiClient.getPollingPlaceId()).toEqual(null);
+
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+    expect(await apiClient.getPollingPlaceId()).toEqual('central-scanning');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollingPlaceChanged,
+      'election_manager',
+      {
+        disposition: 'success',
+        message: expect.stringContaining('Central Scanning'),
+      }
+    );
+
+    // Setting an unknown polling place id throws.
+    await suppressingConsoleOutput(async () => {
+      await expect(
+        apiClient.setPollingPlaceId({ id: 'nonexistent' })
+      ).rejects.toThrow();
+    });
+
+    // Cannot change the polling place once scanning has begun.
+    store.addBatch();
+    await suppressingConsoleOutput(async () => {
+      await expect(
+        apiClient.setPollingPlaceId({ id: 'central-scanning' })
+      ).rejects.toThrow(
+        'Attempt to change polling place after scanning has begun'
+      );
     });
   });
 });

@@ -56,6 +56,50 @@ test('get/set election', () => {
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
+test('get/set polling place id', () => {
+  const store = Store.memoryStore();
+
+  // Cannot set a polling place without an election
+  expect(() => store.setPollingPlaceId('pp-1')).toThrowError();
+
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  expect(store.getPollingPlaceId()).toBeUndefined();
+
+  store.setPollingPlaceId('pp-1');
+  expect(store.getPollingPlaceId()).toEqual('pp-1');
+
+  store.setPollingPlaceId(null);
+  expect(store.getPollingPlaceId()).toBeUndefined();
+});
+
+test('addBatch stamps the selected polling place id', () => {
+  const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+
+  // No polling place selected: batch is untagged
+  const untaggedBatchId = store.addBatch();
+
+  // Once a polling place is selected, subsequent batches are tagged with it
+  store.setPollingPlaceId('pp-1');
+  const taggedBatchId = store.addBatch();
+
+  const batches = store.getBatches();
+  expect(
+    batches.find((batch) => batch.id === untaggedBatchId)?.pollingPlaceId
+  ).toBeUndefined();
+  expect(
+    batches.find((batch) => batch.id === taggedBatchId)?.pollingPlaceId
+  ).toEqual('pp-1');
+});
+
 test('get/set test mode', () => {
   const store = Store.memoryStore();
 
