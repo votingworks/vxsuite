@@ -5,22 +5,15 @@ import {
   P,
   Seal,
   UnconfigureMachineButton,
-  ChangePrecinctButton,
   PollingPlacePicker,
 } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName,
-  format,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
   getElectionRecord,
   getPollingPlaceId,
   setPollingPlaceId,
-  setPrecinctSelection,
-  getPrecinctSelection,
   unconfigureMachine,
   ejectUsbDrive,
 } from '../api';
@@ -39,22 +32,13 @@ const Content = styled(MainContent)`
 `;
 
 export function ElectionScreen(): JSX.Element | null {
-  const usePollingPlaces = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_POLLING_PLACES
-  );
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
-  const selectedPrecinctQuery = getPrecinctSelection.useQuery();
-  const selectPrecinct = setPrecinctSelection.useMutation().mutateAsync;
   const selectPollingPlace = setPollingPlaceId.useMutation().mutateAsync;
   const unconfigureMutation = unconfigureMachine.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
-  if (
-    !getElectionRecordQuery.isSuccess ||
-    !selectedPrecinctQuery.isSuccess ||
-    !pollingPlaceIdQuery.isSuccess
-  ) {
+  if (!getElectionRecordQuery.isSuccess || !pollingPlaceIdQuery.isSuccess) {
     return null;
   }
 
@@ -72,30 +56,16 @@ export function ElectionScreen(): JSX.Element | null {
   }
 
   const pollingPlaces = election.pollingPlaces || [];
-  const locationPicker = usePollingPlaces
-    ? pollingPlaces.length > 1 && (
-        <PollingPlacePicker
-          mode="default"
-          places={pollingPlaces}
-          searchable
-          selectedId={pollingPlaceIdQuery.data || undefined}
-          selectPlace={(id) => selectPollingPlace({ id })}
-          style={{ width: '16rem' }}
-        />
-      )
-    : election.precincts.length > 1 && (
-        <ChangePrecinctButton
-          appPrecinctSelection={selectedPrecinctQuery.data || undefined}
-          election={election}
-          mode="default"
-          style={{ width: '16rem' }}
-          searchable
-          updatePrecinctSelection={(precinctSelection) =>
-            selectPrecinct({ precinctSelection })
-          }
-          useMenuPortal
-        />
-      );
+  const locationPicker = pollingPlaces.length > 1 && (
+    <PollingPlacePicker
+      mode="default"
+      places={pollingPlaces}
+      searchable
+      selectedId={pollingPlaceIdQuery.data || undefined}
+      selectPlace={(id) => selectPollingPlace({ id })}
+      style={{ width: '16rem' }}
+    />
+  );
 
   return (
     <ScreenWrapper authType="election_manager">
