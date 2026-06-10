@@ -23,13 +23,19 @@ test('generateConfig', () => {
   expect(pbConfig).toContain('test-apps-pollbook-backend');
 
   // Screenshot publishing: per-app upload step is emitted for each
-  // integration-testing job, and the singleton publish-screenshot-gallery
-  // job is wired into the workflow on `main` only.
+  // integration-testing job under a per-version prefix, and the
+  // publish-screenshot-gallery job is wired into the workflow on `main` and on
+  // release tags.
   expect(mainConfig).toContain('aws-cli: circleci/aws-cli@5');
   expect(mainConfig).toContain('publish-screenshot-gallery');
-  expect(mainConfig).toContain('"s3://$SCREENSHOT_BUCKET/screenshots/admin/"');
   expect(mainConfig).toContain(
-    '"s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/"'
+    '"s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/admin/"'
+  );
+  expect(mainConfig).toContain(
+    '"s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/mark-scan/"'
   );
   expect(mainConfig).toContain('only: main');
+  // Release tags trigger the integration jobs and the gallery job (and the
+  // require-chain demands the tag filter appear on the required jobs too).
+  expect(mainConfig).toContain('only: /^v[0-9]+\\.[0-9]+\\.[0-9]+$/');
 });

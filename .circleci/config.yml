@@ -111,15 +111,18 @@ jobs:
           path: apps/admin/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$', value: << pipeline.git.tag >> }
           steps:
             - aws-cli/setup
             - run:
                 name: Upload screenshots to S3
                 command: |
+                  VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
                   if [ -d "apps/admin/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/admin/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/admin/" \
                       --exclude "*" --include "*.png" --delete
                   fi
 
@@ -205,15 +208,18 @@ jobs:
           path: apps/central-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$', value: << pipeline.git.tag >> }
           steps:
             - aws-cli/setup
             - run:
                 name: Upload screenshots to S3
                 command: |
+                  VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
                   if [ -d "apps/central-scan/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/central-scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/central-scan/" \
                       --exclude "*" --include "*.png" --delete
                   fi
 
@@ -349,15 +355,18 @@ jobs:
           path: apps/mark-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$', value: << pipeline.git.tag >> }
           steps:
             - aws-cli/setup
             - run:
                 name: Upload screenshots to S3
                 command: |
+                  VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
                   if [ -d "apps/mark-scan/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/mark-scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/mark-scan/" \
                       --exclude "*" --include "*.png" --delete
                   fi
 
@@ -443,15 +452,18 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$', value: << pipeline.git.tag >> }
           steps:
             - aws-cli/setup
             - run:
                 name: Upload screenshots to S3
                 command: |
+                  VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
                   if [ -d "apps/mark/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/mark/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/mark/" \
                       --exclude "*" --include "*.png" --delete
                   fi
 
@@ -561,15 +573,18 @@ jobs:
           path: apps/print/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$', value: << pipeline.git.tag >> }
           steps:
             - aws-cli/setup
             - run:
                 name: Upload screenshots to S3
                 command: |
+                  VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
                   if [ -d "apps/print/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/print/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/print/" \
                       --exclude "*" --include "*.png" --delete
                   fi
 
@@ -655,15 +670,18 @@ jobs:
           path: apps/scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$', value: << pipeline.git.tag >> }
           steps:
             - aws-cli/setup
             - run:
                 name: Upload screenshots to S3
                 command: |
+                  VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
                   if [ -d "apps/scan/integration-testing/test-results/screenshots" ]; then
                     aws s3 sync apps/scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/scan/" \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/scan/" \
                       --exclude "*" --include "*.png" --delete
                   fi
 
@@ -1593,26 +1611,21 @@ jobs:
             apt-get update -qq
             apt-get install -y --no-install-recommends graphicsmagick exiftool
       - run:
-          name: Download screenshots from S3
+          name: Build and publish versioned gallery
           command: |
+            VERSION="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
             mkdir -p screenshots
-            aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/
-      - run:
-          name: Write gallery theme CSS
-          command: |
+            aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/" screenshots/
             printf '%s\n' \
               'body { border-top-color: #6638b6; }' \
               'h1, h3, footer { color: #6638b6; }' \
               'nav.breadcrumbs a { background-color: #6638b6; }' \
               'nav.breadcrumbs li.active { background-color: #a580d8; }' \
               > ./gallery-theme.css
-      - run:
-          name: Build gallery with thumbsup
-          command: |
             npx --yes thumbsup@2.18.0 \
               --input ./screenshots \
               --output ./gallery \
-              --title "VxSuite Automated Screenshots" \
+              --title "VxSuite Screenshots — $VERSION" \
               --albums-from "%path" \
               --sort-albums-by title \
               --sort-media-by filename \
@@ -1622,12 +1635,23 @@ jobs:
               --photo-preview copy \
               --photo-download copy \
               --include-videos false \
-              --home-album-name "VxSuite Screenshots"
+              --home-album-name "VxSuite Screenshots ($VERSION)"
+            aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/$VERSION/" --delete
       - run:
-          name: Upload gallery to S3
+          name: Regenerate landing index
           command: |
-            aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/" \
-              --delete --exclude "screenshots/*"
+            versions=$(aws s3 ls "s3://$SCREENSHOT_BUCKET/screenshots/" | awk '/ PRE / {print $2}' | sed 's#/$##')
+            {
+              echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
+              echo '<title>VxSuite Screenshot Galleries</title>'
+              echo '<style>body{font-family:sans-serif;max-width:40rem;margin:3rem auto;padding:0 1rem}h1,a{color:#6638b6}li{margin:.4rem 0}</style>'
+              echo '</head><body><h1>VxSuite Screenshot Galleries</h1><ul>'
+              for v in main $(echo "$versions" | grep -vx main | sort -rV); do
+                echo "$versions" | grep -qx "$v" && echo "<li><a href=\"./$v/\">$v</a></li>"
+              done
+              echo '</ul></body></html>'
+            } > index.html
+            aws s3 cp index.html "s3://$SCREENSHOT_BUCKET/index.html" --content-type text/html
 
 workflows:
   test:
@@ -1648,6 +1672,9 @@ workflows:
       - test-apps-admin-integration-testing:
           context:
             - screenshots-publishing
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - test-apps-central-scan-backend:
           context:
             - screenshots-publishing
@@ -1657,6 +1684,9 @@ workflows:
       - test-apps-central-scan-integration-testing:
           context:
             - screenshots-publishing
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - test-apps-design-backend:
           context:
             - screenshots-publishing
@@ -1672,6 +1702,9 @@ workflows:
       - test-apps-mark-scan-integration-testing:
           context:
             - screenshots-publishing
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - test-apps-mark-backend:
           context:
             - screenshots-publishing
@@ -1681,6 +1714,9 @@ workflows:
       - test-apps-mark-integration-testing:
           context:
             - screenshots-publishing
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - test-apps-pollbook-frontend:
           context:
             - screenshots-publishing
@@ -1693,6 +1729,9 @@ workflows:
       - test-apps-print-integration-testing:
           context:
             - screenshots-publishing
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - test-apps-scan-backend:
           context:
             - screenshots-publishing
@@ -1702,6 +1741,9 @@ workflows:
       - test-apps-scan-integration-testing:
           context:
             - screenshots-publishing
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - test-docs-exercises:
           context:
             - screenshots-publishing
@@ -1829,6 +1871,8 @@ workflows:
           filters:
             branches:
               only: main
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 
 commands:
   checkout-and-install:

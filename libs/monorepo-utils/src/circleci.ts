@@ -13,6 +13,14 @@ const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
 // The following packages are only tested when there is a change to its directory.
 const PACKAGES_ONLY_TEST_ON_CHANGES = ['apps/pollbook/backend'];
 
+// Screenshots are published into a per-version S3 prefix: `main` for the main
+// branch and the tag name (e.g. `v4.1.0`) for release tags. The `$` anchor
+// matches release tags only (vA.B.C), excluding -rc/-alpha/-beta and the
+// date-*-hwta / vxpollbook-* tag families. Single backslashes are intentional:
+// the same string is used verbatim as a CircleCI filter regex (`/.../`) and as
+// a single-quoted `matches` pattern in a `when` condition.
+const RELEASE_TAG_PATTERN = '^v[0-9]+\\.[0-9]+\\.[0-9]+$';
+
 function findImageSnapshotDirsRelativeToSrc(pkgPath: string): string[] {
   const srcPath = join(pkgPath, 'src');
   if (!existsSync(srcPath)) return [];
@@ -102,21 +110,32 @@ function generateTestJobForNodeJsPackage(
     if (hasPlaywrightTests) {
       lines.push(`${indent}- store_artifacts:`);
       lines.push(`${indent}    path: ${pkg.relativePath}/test-results/`);
-      // On `main` only, upload screenshots to S3 so the singleton
-      // publish-screenshot-gallery job can build a browseable gallery.
-      // AWS credentials and bucket name come from the
-      // `screenshots-publishing` CircleCI context.
+      // On `main` and on release tags, upload screenshots to S3 under a
+      // per-version prefix (`screenshots/main/...` or `screenshots/<tag>/...`)
+      // so the publish-screenshot-gallery job can build a versioned gallery.
+      // AWS credentials and bucket name come from the `screenshots-publishing`
+      // CircleCI context. VERSION resolves to the tag on a tag build, else the
+      // branch name (`main`).
       const appName = pkg.relativePath
         .replace(/^apps\//, '')
         .replace(/\/integration-testing$/, '');
       lines.push(`${indent}- when:`);
       lines.push(`${indent}    condition:`);
-      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >> ]`);
+      lines.push(`${indent}      or:`);
+      lines.push(
+        `${indent}        - equal: [ main, << pipeline.git.branch >> ]`
+      );
+      lines.push(
+        `${indent}        - matches: { pattern: '${RELEASE_TAG_PATTERN}', value: << pipeline.git.tag >> }`
+      );
       lines.push(`${indent}    steps:`);
       lines.push(`${indent}      - aws-cli/setup`);
       lines.push(`${indent}      - run:`);
       lines.push(`${indent}          name: Upload screenshots to S3`);
       lines.push(`${indent}          command: |`);
+      lines.push(
+        `${indent}            VERSION="\${CIRCLE_TAG:-$CIRCLE_BRANCH}"`
+      );
       lines.push(
         `${indent}            if [ -d "${pkg.relativePath}/test-results/screenshots" ]; then`
       );
@@ -124,7 +143,7 @@ function generateTestJobForNodeJsPackage(
         `${indent}              aws s3 sync ${pkg.relativePath}/test-results/screenshots/ \\`
       );
       lines.push(
-        `${indent}                "s3://$SCREENSHOT_BUCKET/screenshots/${appName}/" \\`
+        `${indent}                "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/${appName}/" \\`
       );
       lines.push(
         `${indent}                --exclude "*" --include "*.png" --delete`
@@ -152,26 +171,24 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `          apt-get update -qq`,
     `          apt-get install -y --no-install-recommends graphicsmagick exiftool`,
     `    - run:`,
-    `        name: Download screenshots from S3`,
+    // Each run rebuilds only its own version's gallery into the `$VERSION/`
+    // prefix; the landing index (regenerated below) is what ties the versions
+    // together, so historical galleries are never re-thumbsup'd.
+    `        name: Build and publish versioned gallery`,
     `        command: |`,
+    `          VERSION="\${CIRCLE_TAG:-$CIRCLE_BRANCH}"`,
     `          mkdir -p screenshots`,
-    `          aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/`,
-    `    - run:`,
-    `        name: Write gallery theme CSS`,
-    `        command: |`,
+    `          aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/$VERSION/" screenshots/`,
     `          printf '%s\\n' \\`,
     `            'body { border-top-color: #6638b6; }' \\`,
     `            'h1, h3, footer { color: #6638b6; }' \\`,
     `            'nav.breadcrumbs a { background-color: #6638b6; }' \\`,
     `            'nav.breadcrumbs li.active { background-color: #a580d8; }' \\`,
     `            > ./gallery-theme.css`,
-    `    - run:`,
-    `        name: Build gallery with thumbsup`,
-    `        command: |`,
     `          npx --yes thumbsup@${THUMBSUP_VERSION} \\`,
     `            --input ./screenshots \\`,
     `            --output ./gallery \\`,
-    `            --title "VxSuite Automated Screenshots" \\`,
+    `            --title "VxSuite Screenshots — $VERSION" \\`,
     `            --albums-from "%path" \\`,
     `            --sort-albums-by title \\`,
     `            --sort-media-by filename \\`,
@@ -181,12 +198,25 @@ function generatePublishScreenshotGalleryJob(): string[] {
     `            --photo-preview copy \\`,
     `            --photo-download copy \\`,
     `            --include-videos false \\`,
-    `            --home-album-name "VxSuite Screenshots"`,
+    `            --home-album-name "VxSuite Screenshots ($VERSION)"`,
+    // --delete is scoped to the `$VERSION/` prefix so it never touches other
+    // versions' galleries.
+    `          aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/$VERSION/" --delete`,
     `    - run:`,
-    `        name: Upload gallery to S3`,
+    `        name: Regenerate landing index`,
     `        command: |`,
-    `          aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/" \\`,
-    `            --delete --exclude "screenshots/*"`,
+    `          versions=$(aws s3 ls "s3://$SCREENSHOT_BUCKET/screenshots/" | awk '/ PRE / {print $2}' | sed 's#/$##')`,
+    `          {`,
+    `            echo '<!DOCTYPE html><html><head><meta charset="utf-8">'`,
+    `            echo '<title>VxSuite Screenshot Galleries</title>'`,
+    `            echo '<style>body{font-family:sans-serif;max-width:40rem;margin:3rem auto;padding:0 1rem}h1,a{color:#6638b6}li{margin:.4rem 0}</style>'`,
+    `            echo '</head><body><h1>VxSuite Screenshot Galleries</h1><ul>'`,
+    `            for v in main $(echo "$versions" | grep -vx main | sort -rV); do`,
+    `              echo "$versions" | grep -qx "$v" && echo "<li><a href=\\"./$v/\\">$v</a></li>"`,
+    `            done`,
+    `            echo '</ul></body></html>'`,
+    `          } > index.html`,
+    `          aws s3 cp index.html "s3://$SCREENSHOT_BUCKET/index.html" --content-type text/html`,
   ];
 }
 
@@ -419,6 +449,8 @@ export function generateAllConfigs(
     `          filters:`,
     `            branches:`,
     `              only: main`,
+    `            tags:`,
+    `              only: /${RELEASE_TAG_PATTERN}/`,
   ].join('\n');
 
   const baseConfig = `
@@ -500,10 +532,18 @@ ${[...pnpmJobsToFilter.values()]
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
 ${allJobIds
-  .map(
-    (jobId) =>
-      `      - ${jobId}:\n          context:\n            - screenshots-publishing`
-  )
+  .map((jobId) => {
+    const entry = `      - ${jobId}:\n          context:\n            - screenshots-publishing`;
+    // The integration-testing jobs are required by publish-screenshot-gallery,
+    // which runs on release tags. CircleCI drops a required job on a tag build
+    // unless it also carries a matching tag filter, so the gallery would never
+    // run. A tags filter leaves branch behavior unchanged (jobs still run on
+    // all branches) while making these eligible on release tags. Other jobs
+    // intentionally stay unfiltered so a tag doesn't run the whole suite.
+    return integrationTestingJobIds.includes(jobId)
+      ? `${entry}\n          filters:\n            tags:\n              only: /${RELEASE_TAG_PATTERN}/`
+      : entry;
+  })
   .join('\n')}
 ${publishGalleryWorkflowEntry}
 
