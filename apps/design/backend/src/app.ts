@@ -33,7 +33,6 @@ import {
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
   PrecinctSelection,
-  safeParseElection,
   BallotStyle,
   formatBallotHash,
   PollingPlaceSchema,
@@ -42,6 +41,7 @@ import {
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
   ElectionTypeSchema,
+  safeParseElectionDefinitionForAnySoftwareVersion,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -359,9 +359,10 @@ export function buildApi(ctx: AppContext) {
         const election = ((): Election => {
           switch (input.upload.format) {
             case 'vxf': {
-              const sourceElection = safeParseElection(
-                input.upload.electionFileContents
-              ).unsafeUnwrap();
+              const { election: sourceElection } =
+                safeParseElectionDefinitionForAnySoftwareVersion(
+                  input.upload.electionFileContents
+                ).unsafeUnwrap();
 
               const { districts, precincts, parties, contests, pollingPlaces } =
                 regenerateElectionIds(sourceElection, stateFeatures);

@@ -62,6 +62,7 @@ import {
   ElectionPackageFileName,
   safeParseElectionDefinitionV4p0,
   LATEST_SOFTWARE_VERSION,
+  convertLatestElectionToV4p0,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -4659,7 +4660,7 @@ test('CDF exports', async () => {
   );
 });
 
-test('v4.0 exports', async () => {
+test('v4.0 elections', async () => {
   const v4p0Jurisdiction: Jurisdiction = {
     ...nonVxJurisdiction,
     softwareVersion: 'v4.0',
@@ -4677,6 +4678,7 @@ test('v4.0 exports', async () => {
     users: [v4p0User],
   });
 
+  // Load election can import a v4.0 election
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
@@ -4684,7 +4686,9 @@ test('v4.0 exports', async () => {
       jurisdictionId: v4p0Jurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents: JSON.stringify(
+          convertLatestElectionToV4p0(baseElectionDefinition.election)
+        ),
       },
     })
   ).unsafeUnwrap();
