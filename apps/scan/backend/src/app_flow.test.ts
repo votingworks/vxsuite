@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
@@ -7,11 +7,6 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import {
-  BooleanEnvironmentVariableName as Feature,
-  getFeatureFlagMock,
-  ALL_PRECINCTS_SELECTION,
-} from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
@@ -31,19 +26,9 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
   doesUsbDriveRequireCastVoteRecordSync: vi.fn(),
 }));
 
-const mockFeatureFlagger = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (f: Feature) => mockFeatureFlagger.isEnabled(f),
-}));
-
 const doesUsbDriveRequireCastVoteRecordSyncMock = vi.mocked(
   doesUsbDriveRequireCastVoteRecordSync
 );
-
-beforeEach(() => {
-  mockFeatureFlagger.resetFeatureFlags();
-});
 
 test('setup_card_reader', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
@@ -261,38 +246,7 @@ test('logged_in:election_manager', async () => {
   ).toEqual(false);
 });
 
-test('unconfigured:precinct', async () => {
-  setPollingPlacesEnabled(false);
-
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = mockPollWorkerUser({ electionKey });
-
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash,
-  });
-
-  auth.getAuthStatus.mockResolvedValue({
-    status: 'logged_in',
-    user: pollWorkerUser,
-    sessionExpiresAt: mockSessionExpiresAt(),
-  });
-
-  expect(
-    await isReadyToScan({
-      auth,
-      store,
-      usbDrive: mockUsbDrive.usbDrive,
-    })
-  ).toEqual(false);
-});
-
 test('unconfigured:polling_place', async () => {
-  setPollingPlacesEnabled(true);
-
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
@@ -330,7 +284,7 @@ test('USB drive removed', async () => {
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
   });
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  store.setPollingPlaceId(pollingPlace1.id);
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 
   expect(
@@ -380,7 +334,7 @@ test('logged_in:poll_worker', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   });
 
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  store.setPollingPlaceId(pollingPlace1.id);
   mockUsbDrive.insertUsbDrive({});
 
   expect(
@@ -403,7 +357,7 @@ test('polls_not_open', async () => {
     electionPackageHash,
   });
 
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  store.setPollingPlaceId(pollingPlace1.id);
   mockUsbDrive.insertUsbDrive({});
 
   expect(
@@ -426,7 +380,7 @@ test('cast_vote_record_sync_required', async () => {
     electionPackageHash,
   });
 
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  store.setPollingPlaceId(pollingPlace1.id);
   mockUsbDrive.insertUsbDrive({});
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 
@@ -441,37 +395,7 @@ test('cast_vote_record_sync_required', async () => {
   ).toEqual(false);
 });
 
-test('ballot:waiting_to_scan (polling places disabled)', async () => {
-  setPollingPlacesEnabled(false);
-
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
-
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash,
-  });
-
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  mockUsbDrive.insertUsbDrive({});
-  store.transitionPolls({ type: 'open_polls', time: Date.now() });
-
-  doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
-
-  expect(
-    await isReadyToScan({
-      auth,
-      store,
-      usbDrive: mockUsbDrive.usbDrive,
-    })
-  ).toEqual(true);
-});
-
 test('ballot:waiting_to_scan', async () => {
-  setPollingPlacesEnabled(true);
-
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
@@ -492,11 +416,3 @@ test('ballot:waiting_to_scan', async () => {
     await isReadyToScan({ auth, store, usbDrive: mockUsbDrive.usbDrive })
   ).toEqual(true);
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

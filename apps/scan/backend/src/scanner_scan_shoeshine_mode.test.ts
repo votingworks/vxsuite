@@ -11,6 +11,7 @@ import {
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
+  POLLING_PLACE_ID_COMPLETE_HMPB,
   simulateScan,
   withApp,
 } from '../test/helpers/scanner_helpers';
@@ -46,6 +47,7 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
         electionPackage,
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -98,6 +100,7 @@ test('handles error on eject for rescan', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
         electionPackage,
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

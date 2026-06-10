@@ -2,7 +2,6 @@ import {
   BatchInfo,
   ElectionDefinition,
   PollsSuspensionTransitionType,
-  PrecinctSelection,
 } from '@votingworks/types';
 import styled, { ThemeProvider } from 'styled-components';
 import { BatchSummaryTable } from './batch_summary_table';
@@ -37,7 +36,6 @@ interface Props {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
   totalBallotsScanned: number;
   mostRecentBatchCount?: number;
   batches: BatchInfo[];
@@ -52,7 +50,6 @@ export function PrecinctScannerBallotCountReport({
   electionDefinition,
   electionPackageHash,
   pollingPlaceId,
-  precinctSelection,
   totalBallotsScanned,
   mostRecentBatchCount,
   batches,
@@ -69,7 +66,6 @@ export function PrecinctScannerBallotCountReport({
           electionDefinition={electionDefinition}
           electionPackageHash={electionPackageHash}
           pollingPlaceId={pollingPlaceId}
-          precinctSelection={precinctSelection}
           pollsTransition={pollsTransition}
           isLiveMode={isLiveMode}
           pollsTransitionedTime={pollsTransitionedTime}

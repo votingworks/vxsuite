@@ -14,6 +14,7 @@ import {
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
+  POLLING_PLACE_ID_COMPLETE_HMPB,
   simulateScan,
   withApp,
 } from '../test/helpers/scanner_helpers';
@@ -85,6 +86,7 @@ test('jam while accepting', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -145,6 +147,7 @@ test('timeout while accepting', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -239,6 +242,7 @@ test('jam while returning', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

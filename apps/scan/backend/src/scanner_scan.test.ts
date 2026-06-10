@@ -1,5 +1,4 @@
 import { err, ok, typedAs } from '@votingworks/basics';
-import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { mockScannerStatus } from '@votingworks/pdi-scanner';
@@ -16,6 +15,9 @@ import {
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
+  POLLING_PLACE_ID_COMPETE_BMD,
+  POLLING_PLACE_ID_COMPLETE_HMPB,
+  POLLING_PLACE_ID_OVERVOTE_HMPB,
   simulateScan,
   withApp,
 } from '../test/helpers/scanner_helpers';
@@ -57,6 +59,7 @@ test('configure and scan hmpb', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -135,7 +138,7 @@ test('configure and scan bmd ballot', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
-        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+        pollingPlaceId: POLLING_PLACE_ID_COMPETE_BMD,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -188,6 +191,7 @@ test('ballot needs review - return', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_OVERVOTE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -244,6 +248,7 @@ test('ballot needs review - accept', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_OVERVOTE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -333,44 +338,7 @@ test('ballot with wrong election rejected', async () => {
   );
 });
 
-test('ballot with wrong precinct rejected (polling places disabled)', async () => {
-  setPollingPlacesEnabled(false);
-
-  await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        precinctId: '22',
-        testMode: true,
-      });
-
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
-
-      await simulateScan(
-        apiClient,
-        mockScanner,
-        await ballotImages.completeBmd()
-      );
-
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: { type: 'invalid_precinct' },
-      };
-      await waitForStatus(apiClient, { state: 'rejecting', interpretation });
-      expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
-        'toFrontAndHold'
-      );
-      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
-      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-
-      await waitForStatus(apiClient, { state: 'rejected', interpretation });
-    }
-  );
-});
-
 test('ballot with wrong precinct rejected', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
@@ -761,12 +729,3 @@ test('disconnect scanner errors absorbed in unrecoverable_error state', async ()
     }
   );
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
-  }
-}

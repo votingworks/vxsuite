@@ -1,11 +1,8 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  BooleanEnvironmentVariableName as Feature,
   combineElectionResults,
-  getContestsForPrecinct,
   getEmptyElectionResults,
   groupContestsByParty,
-  isFeatureFlagEnabled,
   isPollsSuspensionTransition,
   PartyWithContests,
 } from '@votingworks/utils';
@@ -61,12 +58,10 @@ function getReportSections(store: Store): ReportSection[] {
     return [{ type: 'ballotCount', pollsTransitionType }];
   }
 
-  const fullReportContests = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
-    ? contestsForPollingPlace(election, store.getPollingPlaceId())
-    : getContestsForPrecinct(
-        electionDefinition,
-        assertDefined(store.getPrecinctSelection())
-      );
+  const fullReportContests = contestsForPollingPlace(
+    election,
+    store.getPollingPlaceId()
+  );
   return groupContestsByParty(election, fullReportContests).map(
     (partyWithContests) => ({
       type: 'tally',
@@ -83,7 +78,6 @@ async function getReportSection(
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
   );
-  const precinctSelection = store.getPrecinctSelection();
   const pollingPlaceId = store.getPollingPlaceId();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
@@ -114,7 +108,6 @@ async function getReportSection(
       electionDefinition,
       electionPackageHash,
       pollingPlaceId,
-      precinctSelection,
       totalBallotsScanned: pollsTransition.ballotCount,
       mostRecentBatchCount,
       batches: allBatches,
@@ -147,7 +140,6 @@ async function getReportSection(
     electionDefinition,
     electionPackageHash,
     pollingPlaceId,
-    precinctSelection,
     partyId,
     pollsTransition: reportSection.pollsTransitionType,
     pollsTransitionedTime: pollsTransition.time,

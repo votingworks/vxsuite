@@ -186,8 +186,6 @@ test('user logged "fail" after a test print completes', async () => {
 });
 
 test('printing a readiness report', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({ apiClient, mockUsbDrive, mockAuth, logger, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
@@ -272,12 +270,3 @@ test('user logged "fail" for UPS diagnostic', async () => {
     );
   });
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
-  }
-}

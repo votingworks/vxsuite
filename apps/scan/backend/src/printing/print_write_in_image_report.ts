@@ -20,7 +20,6 @@ export async function printWriteInImageReport({
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
   );
-  const precinctSelection = store.getPrecinctSelection();
   const pollingPlaceId = store.getPollingPlaceId();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
@@ -31,7 +30,6 @@ export async function printWriteInImageReport({
     electionDefinition,
     electionPackageHash,
     pollingPlaceId,
-    precinctSelection,
     isLiveMode,
     reportPrintedTime: getCurrentTime(),
     precinctScannerMachineId: machineId,

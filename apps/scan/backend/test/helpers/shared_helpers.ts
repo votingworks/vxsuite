@@ -1,6 +1,6 @@
 import { Mocked, expect, vi } from 'vitest';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { assertDefined, iter, ok } from '@votingworks/basics';
+import { iter, ok } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -13,7 +13,7 @@ import {
   BallotMetadata,
   ElectionPackage,
   PageInterpretationWithFiles,
-  PrecinctId,
+  anyPollingPlace,
   PrecinctScannerState,
   SheetOf,
   VotesDict,
@@ -21,12 +21,6 @@ import {
   constructElectionKey,
   pollingPlaceFromElection,
 } from '@votingworks/types';
-import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
@@ -81,13 +75,11 @@ export async function configureApp(
   {
     electionPackage = electionFamousNames2021Fixtures.electionJson.toElectionPackage(),
     pollingPlaceId,
-    precinctId,
     testMode = false,
     openPolls = true,
   }: {
     electionPackage?: ElectionPackage;
     pollingPlaceId?: string;
-    precinctId?: PrecinctId;
     testMode?: boolean;
     openPolls?: boolean;
   } = {}
@@ -113,19 +105,10 @@ export async function configureApp(
   );
 
   const { election } = electionPackage.electionDefinition;
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
-    const pollingPlace = pollingPlaceId
-      ? pollingPlaceFromElection(election, pollingPlaceId)
-      : assertDefined(election.pollingPlaces)[0];
-    await apiClient.setPollingPlaceId({ id: pollingPlace.id });
-  } else {
-    await apiClient.setPrecinctSelection({
-      precinctSelection: precinctId
-        ? singlePrecinctSelectionFor(precinctId)
-        : ALL_PRECINCTS_SELECTION,
-    });
-  }
+  const pollingPlace = pollingPlaceId
+    ? pollingPlaceFromElection(election, pollingPlaceId)
+    : anyPollingPlace(election);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
 
   await apiClient.setTestMode({ isTestMode: testMode });
   if (openPolls) {

@@ -4,7 +4,6 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -43,7 +42,6 @@ const DEFAULT_PROPS: Omit<
 > = {
   electionDefinition,
   electionPackageHash: 'test-package-hash',
-  precinctSelection: ALL_PRECINCTS_SELECTION,
   pollingPlaceId: pollingPlace.id,
   isLiveMode: true,
   reportPrintedTime: REPORT_PRINTED_TIME,
@@ -51,8 +49,6 @@ const DEFAULT_PROPS: Omit<
 };
 
 test('renders contest heading with inline write-in count', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -77,8 +73,6 @@ test('renders contest heading with inline write-in count', () => {
 });
 
 test('renders image write-ins as img elements', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -100,8 +94,6 @@ test('renders image write-ins as img elements', () => {
 });
 
 test('renders text write-ins with "Summary Ballot Write-In" label', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -119,8 +111,6 @@ test('renders text write-ins with "Summary Ballot Write-In" label', () => {
 });
 
 test('renders contests with 0 write-ins without a grid', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -148,8 +138,6 @@ test('renders contests with 0 write-ins without a grid', () => {
 });
 
 test('intermixes image and text entries in a single grid', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -172,8 +160,6 @@ test('intermixes image and text entries in a single grid', () => {
 });
 
 test('shows test mode banner when not in live mode', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [];
 
   render(
@@ -188,8 +174,6 @@ test('shows test mode banner when not in live mode', () => {
 });
 
 test('does not show test mode banner in live mode', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [];
 
   render(
@@ -204,8 +188,6 @@ test('does not show test mode banner in live mode', () => {
 });
 
 test('renders multiple contests in order', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -238,8 +220,6 @@ test('renders multiple contests in order', () => {
 });
 
 test('renders party headers for primary elections', () => {
-  setPollingPlacesEnabled(true);
-
   const primaryElectionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const [primaryPollingPlace] = assertDefined(
@@ -280,8 +260,6 @@ test('renders party headers for primary elections', () => {
 });
 
 test('does not render party headers for general elections', () => {
-  setPollingPlacesEnabled(true);
-
   const contestWriteIns: ContestWriteIns[] = [
     {
       contestId: 'mayor',
@@ -299,26 +277,3 @@ test('does not render party headers for general elections', () => {
   expect(screen.queryByText('Mammal Party')).toBeNull();
   expect(screen.queryByText('Fish Party')).toBeNull();
 });
-
-test('renders precinct selection name', () => {
-  setPollingPlacesEnabled(false);
-
-  render(
-    PrecinctScannerWriteInImageReport({
-      ...DEFAULT_PROPS,
-      pollingPlaceId: undefined,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      contestWriteIns: [],
-    })
-  );
-
-  screen.getByText('Write-In Image Report • All Precincts');
-});
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

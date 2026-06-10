@@ -6,7 +6,6 @@ import {
   PartyId,
   pollingPlaceFromElection,
   PollsTransitionType,
-  PrecinctSelection,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -14,9 +13,6 @@ import {
   CachedElectionLookups,
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
-  getPrecinctSelectionName,
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName as Feature,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
@@ -38,7 +34,6 @@ interface Props {
   electionPackageHash: string;
   partyId?: PartyId;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
   pollsTransition: PollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
@@ -52,7 +47,6 @@ export function PrecinctScannerReportHeader({
   electionPackageHash,
   partyId,
   pollingPlaceId,
-  precinctSelection,
   pollsTransition,
   isLiveMode,
   pollsTransitionedTime,
@@ -66,7 +60,6 @@ export function PrecinctScannerReportHeader({
   const locationName = precinctScannerLocationName({
     election,
     pollingPlaceId,
-    precinctSelection,
   });
   const reportTitle = `${getPollsReportTitle(
     pollsTransition
@@ -126,13 +119,7 @@ export function PrecinctScannerReportHeader({
 export function precinctScannerLocationName(p: {
   election: Election;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
 }): string {
-  if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
-    const selection = assertDefined(p.precinctSelection);
-    return getPrecinctSelectionName(p.election.precincts, selection);
-  }
-
   const pollingPlaceId = assertDefined(p.pollingPlaceId);
   const pollingPlace = pollingPlaceFromElection(p.election, pollingPlaceId);
 

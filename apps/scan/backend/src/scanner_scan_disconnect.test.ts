@@ -20,6 +20,8 @@ import waitForExpect from 'wait-for-expect';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   MockPdiScannerClient,
+  POLLING_PLACE_ID_COMPLETE_HMPB,
+  POLLING_PLACE_ID_OVERVOTE_HMPB,
   ballotImages,
   createMockPdiScannerClient,
   simulateScan,
@@ -159,6 +161,7 @@ test('scanner disconnected while accepting', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -199,6 +202,7 @@ test('scanner disconnected while accepting - ejectDocument fails', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -234,6 +238,7 @@ test('scanner disconnected after accepting', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -353,6 +358,7 @@ test('scanner disconnected while returning', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_OVERVOTE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

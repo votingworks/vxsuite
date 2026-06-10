@@ -8,7 +8,6 @@ import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
@@ -145,8 +144,7 @@ test('fails to configure election package if election definition on card does no
   });
 });
 
-// [TODO] Update test name after migration to Polling Places.
-test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
+test('in single-location election, auto-select polling place on configure', async () => {
   const fixtures = electionTwoPartyPrimaryFixtures;
   const electionDefinition = fixtures.makeSinglePrecinctElectionDefinition();
 
@@ -154,9 +152,6 @@ test("if there's only one precinct in the election, it's selected automatically 
   const defaultPollingPlace = assertDefined(election.pollingPlaces?.[0]);
 
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
-    const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({
@@ -173,42 +168,9 @@ test("if there's only one precinct in the election, it's selected automatically 
       })
     );
     const config = await apiClient.getConfig();
-    expect(config.precinctSelection).toMatchObject({
-      kind: 'SinglePrecinct',
-      precinctId: 'precinct-1',
-    });
     expect(config.pollingPlaceId).toEqual(defaultPollingPlace.id);
     expect(config.electionDefinition).toEqual(electionDefinition);
     expect(config.electionPackageHash).toEqual(expect.any(String));
-  });
-});
-
-test('setPrecinctSelection will reset polls to closed', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive);
-
-    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
-      pollsState: 'polls_open',
-      lastPollsTransition: {
-        type: 'open_polls',
-        time: expect.anything(),
-        ballotCount: 0,
-      },
-    });
-
-    await apiClient.setPrecinctSelection({
-      precinctSelection: singlePrecinctSelectionFor('21'),
-    });
-    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
-      pollsState: 'polls_closed_initial',
-    });
-    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-      LogEventId.PollingPlaceChanged,
-      {
-        disposition: 'success',
-        message: 'User set the precinct for the machine to East Lincoln',
-      }
-    );
   });
 });
 
@@ -263,9 +225,6 @@ test('cannot set polling place in polls_closed_final state', async () => {
 });
 
 test('switching ballot casting modes clears polling place selection', async () => {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-
   await withApp(async (ctx) => {
     const { apiClient, mockUsbDrive, mockAuth, logger, workspace } = ctx;
     await configureApp(apiClient, mockAuth, mockUsbDrive);

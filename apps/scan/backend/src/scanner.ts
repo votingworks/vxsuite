@@ -29,13 +29,7 @@ import {
   Election,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
-import {
-  getPrecinctSelectionIds,
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  time,
-  Timer,
-} from '@votingworks/utils';
+import { time, Timer } from '@votingworks/utils';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { randomUUID as uuid } from 'node:crypto';
@@ -255,13 +249,6 @@ async function interpretSheet(
 }
 
 function validPrecinctIds(store: Store, election: Election) {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-
-  if (!isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
-    const precinctSelection = assertDefined(store.getPrecinctSelection());
-    return getPrecinctSelectionIds(election.precincts, precinctSelection);
-  }
-
   const pollingPlaceId = assertDefined(store.getPollingPlaceId());
   const pollingPlace = pollingPlaceFromElection(election, pollingPlaceId);
 

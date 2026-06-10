@@ -1,26 +1,19 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { BatchInfo, formatElectionHashes } from '@votingworks/types';
 import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName as Feature,
-  buildElectionResultsFixture,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+  anyPollingPlace,
+  BatchInfo,
+  formatElectionHashes,
+} from '@votingworks/types';
+import { buildElectionResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
-
-const mockFeatureFlagger = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (f: Feature) => mockFeatureFlagger.isEnabled(f),
-}));
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -54,8 +47,6 @@ const generalElectionResults = buildElectionResultsFixture({
 });
 
 test('renders as expected for a single precinct in a general election', () => {
-  setPollingPlacesEnabled(true);
-
   const [pollingPlace] = assertDefined(generalElection.pollingPlaces);
 
   render(
@@ -134,8 +125,6 @@ const primaryElectionResults = buildElectionResultsFixture({
 });
 
 test('renders as expected for all precincts in a primary election', () => {
-  setPollingPlacesEnabled(true);
-
   const [pollingPlace] = assertDefined(electionTwoPartyPrimary.pollingPlaces);
 
   render(
@@ -194,8 +183,6 @@ test('renders as expected for all precincts in a primary election', () => {
 });
 
 test('displays only passed contests', () => {
-  setPollingPlacesEnabled(true);
-
   const [pollingPlace] = assertDefined(electionTwoPartyPrimary.pollingPlaces);
 
   render(
@@ -221,28 +208,6 @@ test('displays only passed contests', () => {
   expect(screen.getAllByTestId(/results-table-/)).toHaveLength(1);
 });
 
-test('renders precinct selection name', () => {
-  setPollingPlacesEnabled(false);
-
-  render(
-    <PrecinctScannerTallyReport
-      pollsTransitionedTime={pollsTransitionedTime}
-      reportPrintedTime={reportPrintedTime}
-      precinctScannerMachineId="SC-01-000"
-      electionDefinition={generalElectionDefinition}
-      electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
-      pollsTransition="open_polls"
-      isLiveMode={false}
-      scannedElectionResults={generalElectionResults}
-      contests={generalElection.contests}
-      batches={[]}
-    />
-  );
-
-  screen.getByText('Polls Opened Report • All Precincts');
-});
-
 const singleBatch: BatchInfo = {
   id: 'c1d2e3f4-a5b6-4789-abcd-ef1234567890',
   batchNumber: 1,
@@ -265,8 +230,6 @@ const multiBatch: BatchInfo[] = [
 ];
 
 test('shows batch ID in header metadata for single batch (close_polls)', () => {
-  setPollingPlacesEnabled(false);
-
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
@@ -274,7 +237,7 @@ test('shows batch ID in header metadata for single batch (close_polls)', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={anyPollingPlace(generalElectionDefinition.election).id}
       pollsTransition="close_polls"
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
@@ -291,8 +254,6 @@ test('shows batch ID in header metadata for single batch (close_polls)', () => {
 });
 
 test('shows batch table (not header batch ID) for multiple batches (close_polls)', () => {
-  setPollingPlacesEnabled(false);
-
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
@@ -300,7 +261,7 @@ test('shows batch table (not header batch ID) for multiple batches (close_polls)
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={anyPollingPlace(generalElectionDefinition.election).id}
       pollsTransition="close_polls"
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
@@ -316,8 +277,6 @@ test('shows batch table (not header batch ID) for multiple batches (close_polls)
 });
 
 test('shows no batch info when batches is empty (open_polls)', () => {
-  setPollingPlacesEnabled(false);
-
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
@@ -325,7 +284,7 @@ test('shows no batch info when batches is empty (open_polls)', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={anyPollingPlace(generalElectionDefinition.election).id}
       pollsTransition="open_polls"
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
@@ -337,11 +296,3 @@ test('shows no batch info when batches is empty (open_polls)', () => {
   expect(screen.queryByText('Batch ID:')).toBeNull();
   expect(screen.queryByText('Batch ID')).toBeNull();
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}
