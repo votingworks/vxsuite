@@ -1,63 +1,15 @@
-/* eslint-disable max-classes-per-file */
 import assert, { fail } from 'node:assert';
 import { basename, join } from 'node:path';
 import { mkdirSync, rmSync } from 'node:fs';
 import { UsbPlatform } from '../usb_platform';
-import {
-  BlockDeviceChangeWatcher,
-  UsbDiskDeviceInfo,
-  UsbPartitionDeviceInfo,
-} from '../block_devices';
+import { UsbDiskDeviceInfo, UsbPartitionDeviceInfo } from '../block_devices';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDriveFilesystemType } from '../multi_usb_drive';
+import { UsbController } from './usb_controller';
+import { SimulatedUsbPlatform } from './simulated_usb_platform';
 
-/**
- * A USB platform implementation that tracks USB drive and partition information
- * in memory and stores the contents of the drives in a designated.
- */
-export class MemoryUsbPlatform implements UsbPlatform {
-  constructor(private readonly controller: MemoryUsbController) {}
-
-  async getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
-    return Promise.resolve(this.controller.getAllUsbDrives());
-  }
-
-  watchChanges(onDeviceChange: () => void): BlockDeviceChangeWatcher {
-    this.controller.addListener(onDeviceChange);
-    return {
-      stop: () => {
-        this.controller.removeListener(onDeviceChange);
-      },
-    };
-  }
-
-  async mountPartition(devPath: string): Promise<void> {
-    this.controller.mountPartition(devPath);
-    return Promise.resolve();
-  }
-
-  async unmountPartition(mountPoint: string): Promise<void> {
-    this.controller.unmountPartition(mountPoint);
-    return Promise.resolve();
-  }
-
-  async formatDrive(
-    driveDevPath: string,
-    fstype: UsbDriveFilesystemType,
-    label: string
-  ): Promise<void> {
-    this.controller.formatDrive(driveDevPath, fstype, label);
-    return Promise.resolve();
-  }
-
-  async sync(mountPoint: string): Promise<void> {
-    this.controller.sync(mountPoint);
-    return Promise.resolve();
-  }
-}
-
-export class MemoryUsbController {
-  private cachedPlatform?: MemoryUsbPlatform;
+export class MemoryUsbController implements UsbController {
+  private cachedPlatform?: SimulatedUsbPlatform;
   private readonly drives = new Map<string, UsbDiskDeviceInfo>();
   private readonly partitions = new Map<
     string,
@@ -72,7 +24,7 @@ export class MemoryUsbController {
   constructor(private readonly dataRoot: string) {}
 
   get platform(): UsbPlatform {
-    this.cachedPlatform ??= new MemoryUsbPlatform(this);
+    this.cachedPlatform ??= new SimulatedUsbPlatform(this);
     return this.cachedPlatform;
   }
 

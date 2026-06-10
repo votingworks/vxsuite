@@ -1,6 +1,7 @@
 import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
+import { z } from 'zod/v4';
 import { assert, Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
 import { RESOLVED_MEDIA_MOUNT_DIR } from './media_mount_dir';
@@ -105,21 +106,26 @@ function isPartitionOfDisk(
   return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
 }
 
-export interface UsbPartitionDeviceInfo {
-  devPath: string;
-  mountpoint?: string;
-  fstype?: string;
-  fsver?: string;
-  label?: string;
-}
+export const UsbPartitionDeviceInfoSchema = z.object({
+  devPath: z.string(),
+  mountpoint: z.string().optional(),
+  fstype: z.string().optional(),
+  fsver: z.string().optional(),
+  label: z.string().optional(),
+});
 
-export interface UsbDiskDeviceInfo {
-  devPath: string;
-  vendor?: string;
-  model?: string;
-  serial?: string;
-  partitions: UsbPartitionDeviceInfo[];
-}
+export const UsbDiskDeviceInfoSchema = z.object({
+  devPath: z.string(),
+  vendor: z.string().optional(),
+  model: z.string().optional(),
+  serial: z.string().optional(),
+  partitions: z.array(UsbPartitionDeviceInfoSchema),
+});
+
+export type UsbPartitionDeviceInfo = z.output<
+  typeof UsbPartitionDeviceInfoSchema
+>;
+export type UsbDiskDeviceInfo = z.output<typeof UsbDiskDeviceInfoSchema>;
 
 /**
  * Returns all USB block devices as a structured disk → partitions hierarchy.

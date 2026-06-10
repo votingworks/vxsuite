@@ -5877,6 +5877,9 @@ importers:
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
+      zod:
+        specifier: 3.25.42
+        version: 3.25.42
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
