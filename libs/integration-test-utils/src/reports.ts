@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import { capturePdfScreenshots } from './pdf';
-import type { ScreenshotCounter } from './screenshots';
+import type { ScreenshotNamer } from './screenshots';
 
 /** Recursively collects all file paths under `dir`. */
 function listFilesRecursive(dir: string): string[] {
@@ -18,7 +18,7 @@ function listFilesRecursive(dir: string): string[] {
  */
 export async function captureReadinessReport(
   name: string,
-  counter: ScreenshotCounter
+  namer: ScreenshotNamer
 ): Promise<void> {
   const usbPath = getMockFileUsbDriveHandler().getDataPath();
   if (!usbPath) throw new Error('Mock USB drive is not mounted');
@@ -32,5 +32,5 @@ export async function captureReadinessReport(
   if (!reportPath) throw new Error('No readiness report found on USB drive');
 
   const pdfBytes = new Uint8Array(readFileSync(reportPath));
-  await capturePdfScreenshots(pdfBytes, name, counter);
+  await capturePdfScreenshots(pdfBytes, name, namer);
 }

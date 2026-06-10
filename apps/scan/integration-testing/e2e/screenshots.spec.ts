@@ -11,7 +11,7 @@ import {
   MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
   createFullyVotedBallot,
-  createScreenshotCounter,
+  createScreenshotNamer,
   renderMarkedBallots,
   withOvervote,
   withUndervote,
@@ -33,8 +33,6 @@ import {
 import { capturePrintedReport } from './support/print_to_png';
 import { mockPdiScannerHandler } from './support/scanner';
 
-const screenshotCounter = createScreenshotCounter();
-
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
 
@@ -43,14 +41,15 @@ test.beforeEach(async ({ page }) => {
   getMockFileUsbDriveHandler().cleanup();
 });
 
-test('configuration', async ({ page }) => {
+test('configuration', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
   const usbHandler = getMockFileUsbDriveHandler();
   const {
     screenshot,
     screenshotWithButtonHighlight,
     withContainerVerticallyExpanded,
-  } = buildIntegrationTestHelper(page, screenshotCounter);
+  } = buildIntegrationTestHelper(page, namer);
 
   await page
     .getByText('Insert an election manager card to configure VxScan')
@@ -119,7 +118,7 @@ test('configuration', async ({ page }) => {
   await page.getByRole('button', { name: 'Print Test Page' }).click();
   await page.getByText('Test Page Printed').waitFor();
   await screenshot('em-printer-test-page-printed');
-  await capturePrintedReport('em-printer-test-page', screenshotCounter);
+  await capturePrintedReport('em-printer-test-page', namer);
   await page.getByRole('button', { name: 'Pass' }).click();
 
   await page.getByRole('tab', { name: 'Scanner' }).click();
@@ -192,7 +191,8 @@ test('configuration', async ({ page }) => {
   );
 });
 
-test('voting', async ({ page }) => {
+test('voting', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
   const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
@@ -201,7 +201,7 @@ test('voting', async ({ page }) => {
     screenshot,
     screenshotWithButtonHighlight,
     screenshotWithLocatorHighlight,
-  } = buildIntegrationTestHelper(page, screenshotCounter);
+  } = buildIntegrationTestHelper(page, namer);
 
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -300,7 +300,7 @@ test('voting', async ({ page }) => {
     .getByRole('heading', { name: 'Polls Opened' })
     .waitFor({ timeout: 60000 });
   await screenshot('polls-opened');
-  await capturePrintedReport('polls-opened-report', screenshotCounter);
+  await capturePrintedReport('polls-opened-report', namer);
   await screenshotWithButtonHighlight(
     'Reprint Polls Opened Report',
     'reprint-polls-opened-report-button'
@@ -401,7 +401,7 @@ test('voting', async ({ page }) => {
     timeout: 60000,
   });
   await screenshot('polls-closed-report');
-  await capturePrintedReport('polls-closed-report', screenshotCounter);
+  await capturePrintedReport('polls-closed-report', namer);
   await screenshotWithButtonHighlight(
     'Reprint Polls Closed Report',
     'reprint-polls-closed-report-button'
@@ -456,7 +456,7 @@ test('voting', async ({ page }) => {
     timeout: 60000,
   });
   await screenshot('pw-voting-resumed');
-  await capturePrintedReport('voting-resumed-report', screenshotCounter);
+  await capturePrintedReport('voting-resumed-report', namer);
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
@@ -476,7 +476,7 @@ test('voting', async ({ page }) => {
     timeout: 60000,
   });
   await screenshot('pw-voting-paused');
-  await capturePrintedReport('voting-paused-report', screenshotCounter);
+  await capturePrintedReport('voting-paused-report', namer);
   mockCardRemoval();
   await page.getByText('Insert a poll worker card to resume voting.').waitFor();
 
@@ -501,19 +501,17 @@ test('voting', async ({ page }) => {
   await page.getByRole('heading', { name: 'Polls Closed' }).waitFor({
     timeout: 60000,
   });
-  await capturePrintedReport(
-    'polls-closed-report-multi-batch',
-    screenshotCounter
-  );
+  await capturePrintedReport('polls-closed-report-multi-batch', namer);
 
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
 });
 
-test('accessibility', async ({ page }) => {
+test('accessibility', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
   const usbHandler = getMockFileUsbDriveHandler();
-  const { screenshot } = buildIntegrationTestHelper(page, screenshotCounter);
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
 
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,

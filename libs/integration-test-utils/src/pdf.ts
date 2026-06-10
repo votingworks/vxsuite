@@ -1,6 +1,6 @@
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { SCREENSHOTS_DIR } from './constants';
-import type { ScreenshotCounter } from './screenshots';
+import type { ScreenshotNamer } from './screenshots';
 
 export interface CapturePdfScreenshotsOptions {
   /**
@@ -35,17 +35,14 @@ function isBlankImage(image: { data: Uint8ClampedArray }): boolean {
 export async function capturePdfScreenshots(
   pdfBytes: Uint8Array,
   name: string,
-  counter: ScreenshotCounter,
+  namer: ScreenshotNamer,
   options: CapturePdfScreenshotsOptions = {}
 ): Promise<void> {
   let captured = 0;
   for await (const { page } of pdfToImages(pdfBytes, { scale: 2 })) {
     if (options.skipBlankPages && isBlankImage(page)) continue;
     const suffix = captured === 0 ? name : `${name}-page${captured + 1}`;
-    await writeImageData(
-      `${SCREENSHOTS_DIR}/${counter.next()}-${suffix}.png`,
-      page
-    );
+    await writeImageData(`${SCREENSHOTS_DIR}/${namer.next(suffix)}.png`, page);
     captured += 1;
   }
 }

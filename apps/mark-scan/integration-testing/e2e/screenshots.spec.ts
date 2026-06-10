@@ -8,7 +8,7 @@ import {
 import {
   MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
-  createScreenshotCounter,
+  createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -32,8 +32,6 @@ import {
 import { captureReadinessReport } from './support/reports';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
-
-const screenshotCounter = createScreenshotCounter();
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -139,11 +137,12 @@ async function voteAndCaptureContests(
   }
 }
 
-test('basic election flow', async ({ page }) => {
+test('basic election flow', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
-  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const helper = buildIntegrationTestHelper(page, namer);
   const {
     screenshot,
     screenshotWithButtonHighlight,
@@ -307,10 +306,11 @@ test('basic election flow', async ({ page }) => {
     .waitFor();
 });
 
-test('additional options', async ({ page }) => {
+test('additional options', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
-  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const helper = buildIntegrationTestHelper(page, namer);
   const {
     screenshot,
     screenshotWithButtonHighlight,
@@ -360,7 +360,7 @@ test('additional options', async ({ page }) => {
     .getByRole('button', { name: 'Save' })
     .click();
   await page.getByText('Readiness Report Saved').waitFor();
-  await captureReadinessReport('readiness-report', screenshotCounter);
+  await captureReadinessReport('readiness-report', namer);
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Close' })
@@ -435,14 +435,15 @@ test('additional options', async ({ page }) => {
   );
 });
 
-test('voter settings', async ({ page }) => {
+test('voter settings', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
   // Use the same single-precinct famous-names election as the basic flow (the
   // registered uiStrings drive the language selector). We don't capture a
   // printed multi-language ballot here, so the heavier electionGeneral isn't
   // needed.
   const electionDefinition = getFamousNamesElectionDefinition();
   const { election } = electionDefinition;
-  const helper = buildIntegrationTestHelper(page, screenshotCounter);
+  const helper = buildIntegrationTestHelper(page, namer);
   const { screenshot, screenshotWithLocatorHighlight } = helper;
   const electionPackage = await buildElectionPackage(electionDefinition);
 
