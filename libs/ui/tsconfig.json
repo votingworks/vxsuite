@@ -11,13 +11,7 @@
     "noUncheckedIndexedAccess": false,
     "paths": { "@fixtures/*": ["../fixtures/data/*"] }
   },
-  "include": [
-    "scripts",
-    "src",
-    "test",
-    ".storybook/*",
-    "./i18next-parser.config.ts"
-  ],
+  "include": ["scripts", "src", "test", ".storybook/*"],
   "exclude": [],
   "references": [
     { "path": "../backend/tsconfig.build.json" },

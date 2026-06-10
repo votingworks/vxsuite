@@ -30,8 +30,10 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
-    "@votingworks/types": "workspace:*"
+    "@votingworks/types": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "20.17.31",

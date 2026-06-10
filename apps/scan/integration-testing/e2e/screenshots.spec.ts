@@ -9,7 +9,11 @@ import {
 import { getMockFileFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
 import {
   buildIntegrationTestHelper,
+  createFullyVotedBallot,
   createScreenshotCounter,
+  renderMarkedBallots,
+  withOvervote,
+  withUndervote,
 } from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
@@ -29,12 +33,6 @@ import {
   logInAsPollWorker,
   logInAsSystemAdministrator,
 } from './support/auth';
-import {
-  createFullyVotedBallot,
-  renderMarkedBallots,
-  withOvervote,
-  withUndervote,
-} from './support/render_marked_ballot';
 import { capturePrintedReport } from './support/print_to_png';
 import { mockPdiScannerHandler } from './support/scanner';
 
