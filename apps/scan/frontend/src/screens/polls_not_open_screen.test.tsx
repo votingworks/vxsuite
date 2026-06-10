@@ -1,5 +1,6 @@
 import { beforeEach, afterEach, describe, test, expect } from 'vitest';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { anyPollingPlace } from '@votingworks/types';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../../test/react_testing_library';
 import {
   PollsNotOpenScreen,
@@ -17,11 +18,15 @@ const TEST_BALLOT_COUNT = 50;
 
 let apiMock: ApiMock;
 
+const electionDefinition = readElectionGeneralDefinition();
+const pollingPlace = anyPollingPlace(electionDefinition.election);
+
 beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig({
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    electionDefinition,
+    pollingPlaceId: pollingPlace.id,
   });
   apiMock.expectGetScannerStatus(statusNoPaper);
 });
@@ -71,11 +76,11 @@ describe('PollsNotOpenScreen', () => {
     await screen.findByText(TEST_BALLOT_COUNT);
   });
 
-  test('shows jurisdiction, precinct, and machine id in election info bar', async () => {
+  test('shows election info in footer', async () => {
     renderScreen();
     await screen.findByText('Franklin County');
     await screen.findByText('State of Hamilton');
-    screen.getByText('Center Springfield');
+    screen.getByText(pollingPlace.name);
     screen.getByText(machineConfig.machineId);
   });
 });

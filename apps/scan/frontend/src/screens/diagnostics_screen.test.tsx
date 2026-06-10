@@ -27,7 +27,6 @@ beforeEach(() => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
   apiMock.expectGetUsbDriveStatus('mounted');
-  setPollingPlacesEnabled(true);
 });
 
 afterEach(() => {
@@ -219,12 +218,3 @@ test('can save readiness report', async () => {
   userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  // The mock feature flagger doesn't seem to work when an external package
-  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
-  // directly.
-  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
-    ? 'TRUE'
-    : 'FALSE';
-}

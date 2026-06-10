@@ -1,13 +1,11 @@
 import React from 'react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
   ElectionDefinition,
   InsertedSmartCardAuth,
   PollsState,
-  PrecinctSelection,
   DiagnosticRecord,
   DiagnosticOutcome,
 } from '@votingworks/types';
@@ -53,7 +51,6 @@ const defaultConfig: PrecinctScannerConfig = {
   isContinuousExportEnabled: true,
   electionDefinition: readElectionGeneralDefinition(),
   electionPackageHash: 'test-election-package-hash',
-  precinctSelection: ALL_PRECINCTS_SELECTION,
   systemSettings: DEFAULT_SYSTEM_SETTINGS,
   ballotCastingMode: 'election_day',
 };
@@ -188,10 +185,8 @@ export function createApiMock() {
         );
     },
 
-    expectSetPrecinct(precinctSelection: PrecinctSelection): void {
-      mockApiClient.setPrecinctSelection
-        .expectCallWith({ precinctSelection })
-        .resolves();
+    expectSetPollingPlace(id: string): void {
+      mockApiClient.setPollingPlaceId.expectCallWith({ id }).resolves();
     },
 
     expectSetTestMode(isTestMode: boolean): void {

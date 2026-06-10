@@ -55,9 +55,6 @@ beforeEach(() => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.EARLY_VOTING
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_POLLING_PLACES
-  );
 
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
@@ -120,7 +117,6 @@ test.each<{
     defaultConfigOverrides: {
       electionDefinition: undefined,
       pollingPlaceId: undefined,
-      precinctSelection: undefined,
     },
     expectedHeadingWhenNoCard:
       'Insert an election manager card to configure VxScan',

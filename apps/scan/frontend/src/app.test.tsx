@@ -96,7 +96,6 @@ beforeEach(() => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.EARLY_VOTING
   );
-  setPollingPlacesEnabled(true);
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
@@ -1724,20 +1723,3 @@ test('shows early voting label in election info bar', async () => {
   await screen.findByText(/Insert Your Ballot/i);
   screen.getByText('Early Voting');
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  // The mock feature flagger doesn't seem to work when an external package
-  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
-  // directly.
-  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
-    ? 'TRUE'
-    : 'FALSE';
-
-  // Set feature flag for in-package usage.
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(ENABLE_POLLING_PLACES);
-  }
-}

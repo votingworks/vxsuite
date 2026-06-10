@@ -8,7 +8,6 @@ import { mockKiosk } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
@@ -74,7 +73,6 @@ beforeEach(() => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.EARLY_VOTING
   );
-  setPollingPlacesEnabled(false);
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -141,39 +139,7 @@ test('renders date and time settings modal', async () => {
   });
 });
 
-test('option to set precinct if more than one', async () => {
-  apiMock.expectGetConfig();
-  const precinct = electionGeneralDefinition.election.precincts[0];
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-  renderScreen();
-
-  apiMock.expectSetPrecinct(precinctSelection);
-  apiMock.expectGetPollsInfo();
-  apiMock.expectGetConfig({ precinctSelection });
-  userEvent.click(await screen.findByLabelText('Select a precinct…'));
-  userEvent.click(screen.getByText(precinct.name));
-  await waitFor(() => {
-    // Once in the precinct select, once in the election info bar
-    expect(screen.getAllByText(precinct.name)).toHaveLength(2);
-  });
-});
-
-test('no option to change precinct if there is only one precinct', async () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-  });
-  renderScreen({ electionDefinition });
-
-  await screen.findByText('Election Manager Menu');
-  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
-});
-
 test('location picker shown if more than one location is available', async () => {
-  setPollingPlacesEnabled(true);
-
   apiMock.expectGetConfig({ ballotCastingMode: 'election_day' });
   const client = apiMock.mockApiClient;
   const electionDefinition = electionGeneralDefinition;
@@ -208,8 +174,6 @@ test('location picker shown if more than one location is available', async () =>
 });
 
 test('filters location picker to early_voting based on ballot casting mode', async () => {
-  setPollingPlacesEnabled(true);
-
   apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
   const electionDefinition = electionGeneralDefinition;
   const places = assertDefined(electionDefinition.election.pollingPlaces);
@@ -226,8 +190,6 @@ test('filters location picker to early_voting based on ballot casting mode', asy
 });
 
 test('location picker requires confirmation if polls are open', async () => {
-  setPollingPlacesEnabled(true);
-
   apiMock.mockApiClient.getPollsInfo.reset();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
@@ -239,8 +201,6 @@ test('location picker requires confirmation if polls are open', async () => {
 });
 
 test('disables location picker if polls are in final closed state', async () => {
-  setPollingPlacesEnabled(true);
-
   apiMock.mockApiClient.getPollsInfo.reset();
   apiMock.expectGetPollsInfo('polls_closed_final');
   apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
@@ -252,8 +212,6 @@ test('disables location picker if polls are in final closed state', async () => 
 });
 
 test('disables location picker if any ballots have been cast', async () => {
-  setPollingPlacesEnabled(true);
-
   apiMock.mockApiClient.getPollsInfo.reset();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
@@ -268,8 +226,6 @@ test('disables location picker if any ballots have been cast', async () => {
 });
 
 test('omits location picker if empty (degrades gracefully for old elections)', async () => {
-  setPollingPlacesEnabled(true);
-
   apiMock.mockApiClient.getPollsInfo.reset();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
@@ -286,8 +242,6 @@ test('omits location picker if empty (degrades gracefully for old elections)', a
 });
 
 test('omits location picker if only one location is available', async () => {
-  setPollingPlacesEnabled(true);
-
   const fixtures = electionTwoPartyPrimaryFixtures;
   const electionDefinition = fixtures.makeSinglePrecinctElectionDefinition();
   const places = assertDefined(electionDefinition.election.pollingPlaces);
@@ -914,13 +868,4 @@ function expectLocationPickerMode(mode: PollingPlacePickerMode) {
   screen.getByTestId(MOCK_POLLING_PLACE_PICKER_ID);
   const props = assertDefined(MockPollingPlacePicker.mock.lastCall)[0];
   expect(props.mode).toEqual(mode);
-}
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(ENABLE_POLLING_PLACES);
-  }
 }
