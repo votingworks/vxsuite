@@ -105,7 +105,7 @@ export async function getAudioInfo(ctx: {
     }
   } catch (error) {
     void logger.logAsCurrentRole(LogEventId.AudioDeviceDetectionError, {
-      message: `unable to parse pactl output: ${error}}`,
+      message: `unable to parse pactl output: ${error}`,
       disposition: 'failure',
     });
 
