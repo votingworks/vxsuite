@@ -1,4 +1,4 @@
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual, iter } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyleGroupId,
@@ -16,7 +16,7 @@ import {
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
-import { hasCrossoverVote, partisanContests } from './open_primary';
+import { inferPartyFromVotes, partisanContests } from './open_primary';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -146,13 +146,27 @@ function addCastVoteRecordToElectionResult(
       (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
   }
 
-  // In open primary elections, crossover voting is not allowed (i.e. a voter
-  // may not vote for partisan contests from multiple parties). If that happens,
-  // all of their partisan contest votes are void. Their nonpartisan contest
-  // votes still count.
-  const voidedContestIds = hasCrossoverVote(election, cvr.votes)
-    ? new Set(partisanContests(election).map((contest) => contest.id))
-    : undefined;
+  let voidedContestIds: Set<ContestId> | undefined;
+  if (election.type === 'open-primary') {
+    const inferredPartyId = inferPartyFromVotes(election, cvr.votes);
+
+    if (deepEqual(inferredPartyId, Tabulation.NO_PARTY_ID)) {
+      // If an open primary voter has either voted in no partisan contests or
+      // crossover voted, omit all partisan contests so that they don't count,
+      // even as undervotes.
+      voidedContestIds = new Set(
+        partisanContests(election).map((contest) => contest.id)
+      );
+    } else {
+      // If an open primary voter has voted validly, omit all partisan contests
+      // for the other party so that they don't count, even as undervotes.
+      voidedContestIds = new Set(
+        partisanContests(election)
+          .filter((contest) => contest.partyId !== inferredPartyId)
+          .map((contest) => contest.id)
+      );
+    }
+  }
 
   for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
     if (voidedContestIds?.has(contestId)) {

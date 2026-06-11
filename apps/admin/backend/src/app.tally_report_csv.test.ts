@@ -248,9 +248,13 @@ test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async
     );
   }
 
-  // 3 happy Dem (alice-jones) + 1 resolved crossover (bob-smith)
-  // + 1 flipped Dem (now nonpartisan, gov-dem undervoted)
-  // Unresolved crossover's gov-dem vote is voided.
+  // 3 happy Dem (alice-jones) +
+  // 1 crossover converted to Dem (bob-smith) +
+  // 1 crossover converted to nonpartisan only +
+  // 1 crossover
+  //
+  // Last two shouldn't count, even as undervotes
+  //
   expect(totalVotesBySelectionId('governor-democratic')).toEqual({
     'alice-jones': '3',
     'bob-smith': '1',
@@ -258,19 +262,26 @@ test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async
     'dan-rivera': '0',
     'emily-tran': '0',
     overvotes: '0',
-    undervotes: '1',
-    'ballots-cast': '5',
+    undervotes: '0',
+    'ballots-cast': '4',
   });
-  // 2 happy Rep + 1 resolved crossover (gov-rep now empty → undervote).
-  // Unresolved crossover's gov-rep vote is voided.
+
+  // 2 happy Rep (dave-wilson) +
+  // 1 crossover converted to Dem +
+  // 1 crossover converted to nonpartisan only +
+  // 1 crossover
+  //
+  // Last three shouldn't count, even as undervotes
+  //
   expect(totalVotesBySelectionId('governor-republican')).toEqual({
     'dave-wilson': '2',
     'ellen-brown': '0',
     'frank-lee': '0',
     overvotes: '0',
-    undervotes: '1',
-    'ballots-cast': '3',
+    undervotes: '0',
+    'ballots-cast': '2',
   });
+
   expect(totalVotesBySelectionId('governor-libertarian')).toEqual({
     'grace-kim': '1',
     'henry-park': '0',
@@ -278,6 +289,7 @@ test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async
     undervotes: '0',
     'ballots-cast': '1',
   });
+
   // Every one of the 10 ballots — single-party, nonpartisan-only,
   // crossover (resolved + unresolved), and flipped — votes nonpartisan.
   expect(totalVotesBySelectionId('circuit-court-judge')).toEqual({

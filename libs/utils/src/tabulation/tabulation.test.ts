@@ -1471,6 +1471,76 @@ describe('open primaries', () => {
       expect(results.contestResults[contest.id]?.ballots).toEqual(0);
     }
   });
+
+  test("open primary ballots omit other parties' contests rather than counting undervotes", async () => {
+    const results = (
+      await tabulateCastVoteRecords({
+        election: openPrimaryElection,
+        cvrs: [
+          // Dem ballot
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': ['alice-jones'],
+              'governor-republican': [],
+              'governor-libertarian': [],
+              'secretary-of-state-democratic': [],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+          // Rep ballot
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': [],
+              'governor-republican': ['dave-wilson'],
+              'governor-libertarian': [],
+              'secretary-of-state-democratic': [],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+          // Crossover ballot
+          {
+            ...baseCvrMetadata,
+            votes: {
+              'governor-democratic': ['alice-jones'],
+              'governor-republican': ['dave-wilson'],
+              'governor-libertarian': [],
+              'secretary-of-state-democratic': [],
+              'ballot-measure-1': ['ballot-measure-1-yes'],
+            },
+          },
+        ],
+      })
+    )[GROUP_KEY];
+    assert(results);
+
+    // Each single-party contest counts only the ballots for that party
+    expect(results.contestResults['governor-democratic']).toMatchObject({
+      ballots: 1,
+      undervotes: 0,
+    });
+    expect(results.contestResults['governor-republican']).toMatchObject({
+      ballots: 1,
+      undervotes: 0,
+    });
+    expect(results.contestResults['governor-libertarian']).toMatchObject({
+      ballots: 0,
+      undervotes: 0,
+    });
+    expect(
+      results.contestResults['secretary-of-state-democratic']
+    ).toMatchObject({
+      ballots: 1,
+      undervotes: 1,
+    });
+
+    // The nonpartisan contest counts all ballots
+    expect(results.contestResults['ballot-measure-1']).toMatchObject({
+      ballots: 3,
+      yesTally: 3,
+    });
+  });
 });
 
 test('getOfficialCandidateNameLookup', () => {
