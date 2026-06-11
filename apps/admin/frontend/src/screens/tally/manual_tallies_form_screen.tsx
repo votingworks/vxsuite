@@ -45,6 +45,7 @@ import {
   getBallotStyleGroup,
   areContestResultsValid,
   allContestOptions,
+  contestOptionName,
 } from '@votingworks/utils';
 
 import type {
@@ -829,7 +830,7 @@ function ContestForm({
                         }
                       />
                       <label htmlFor={`${candidate.id}`}>
-                        {candidate.name}
+                        {contestOptionName(contest, candidate)}
                       </label>
                     </ContestDataRow>
                   ))}
