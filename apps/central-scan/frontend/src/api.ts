@@ -190,6 +190,16 @@ export const getNextReviewSheet = {
   },
 } as const;
 
+export const getPollingPlaceId = {
+  queryKey(): QueryKey {
+    return ['getPollingPlaceId'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPollingPlaceId());
+  },
+} as const;
+
 // Mutations
 
 export const setTestMode = {
@@ -199,6 +209,19 @@ export const setTestMode = {
     return useMutation(apiClient.setTestMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getTestMode.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setPollingPlaceId = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollingPlaceId, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPollingPlaceId.queryKey());
+        await queryClient.invalidateQueries(getStatus.queryKey());
       },
     });
   },
@@ -284,6 +307,8 @@ export const configureFromElectionPackageOnUsbDrive = {
       async onSuccess() {
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getElectionRecord.queryKey());
+        // Configuring may auto-select a polling place.
+        await queryClient.invalidateQueries(getPollingPlaceId.queryKey());
       },
     });
   },

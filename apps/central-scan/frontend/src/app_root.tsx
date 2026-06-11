@@ -29,6 +29,7 @@ import {
   getAuthStatus,
   getElectionRecord,
   getMachineConfig,
+  getPollingPlaceId,
   getStatus,
   getTestMode,
   getUsbDriveStatus,
@@ -58,6 +59,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const isTestMode = getTestModeQuery.data ?? false;
 
   const electionRecordQuery = getElectionRecord.useQuery();
+  const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
 
   if (
     !machineConfigQuery.isSuccess ||
@@ -65,7 +67,8 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     !usbDriveStatusQuery.isSuccess ||
     !electionRecordQuery.isSuccess ||
     !getTestModeQuery.isSuccess ||
-    !statusQuery.isSuccess
+    !statusQuery.isSuccess ||
+    !pollingPlaceIdQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -186,6 +189,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     );
   }
 
+  // A polling place must be selected before scanning.
+  const isPollingPlaceUnconfigured = !pollingPlaceIdQuery.data;
+
   if (status.adjudicationsRemaining > 0) {
     return (
       <AppContext.Provider value={currentContext}>
@@ -202,10 +208,14 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
           <ScanBallotsScreen
             status={status}
             statusIsStale={statusQuery.isStale}
+            isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
           />
         </Route>
         <Route path="/settings">
-          <SettingsScreen canUnconfigure={status.canUnconfigure} />
+          <SettingsScreen
+            canUnconfigure={status.canUnconfigure}
+            hasScannedBatches={status.batches.length > 0}
+          />
         </Route>
         <Route path="/hardware-diagnostics">
           <DiagnosticsScreen />

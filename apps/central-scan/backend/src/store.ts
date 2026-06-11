@@ -280,6 +280,26 @@ export class Store {
   }
 
   /**
+   * Gets the polling place where ballots are being centrally scanned, if one
+   * has been selected.
+   */
+  getPollingPlaceId(): Optional<string> {
+    const row = this.client.one('select polling_place_id from election') as
+      | { polling_place_id: string | null }
+      | undefined;
+
+    return row?.polling_place_id || undefined;
+  }
+
+  /**
+   * Sets the polling place where ballots are being centrally scanned.
+   */
+  setPollingPlaceId(id: string | null): void {
+    assert(this.hasElection(), 'Cannot set polling place without an election.');
+    this.client.run('update election set polling_place_id = ?', id);
+  }
+
+  /**
    * Deletes system settings
    */
   deleteSystemSettings(): void {
@@ -422,7 +442,12 @@ export class Store {
    */
   addBatch(): string {
     const id = uuid();
-    this.client.run('insert into batches (id) values (?)', id);
+    const pollingPlaceId = this.getPollingPlaceId() || null;
+    this.client.run(
+      'insert into batches (id, polling_place_id) values (?, ?)',
+      id,
+      pollingPlaceId
+    );
     this.client.run(
       `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
       id
@@ -764,6 +789,7 @@ export class Store {
       id: string;
       batchNumber: number;
       label: string;
+      pollingPlaceId: string | null;
       startedAt: string;
       endedAt: string | null;
       error: string | null;
@@ -774,6 +800,7 @@ export class Store {
         batches.id as id,
         batches.batch_number as batchNumber,
         batches.label as label,
+        batches.polling_place_id as pollingPlaceId,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
@@ -798,6 +825,7 @@ export class Store {
       id: info.id,
       batchNumber: info.batchNumber,
       label: info.label,
+      pollingPlaceId: info.pollingPlaceId || undefined,
       // eslint-disable-next-line vx/gts-safe-number-parse
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:

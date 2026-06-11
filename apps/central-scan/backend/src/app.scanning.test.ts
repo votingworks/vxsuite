@@ -12,8 +12,12 @@ import {
   PageInterpretation,
   TEST_JURISDICTION,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
 import { withApp } from '../test/helpers/setup_app';
@@ -22,6 +26,17 @@ import { ScannedSheetInfo } from './fujitsu_scanner';
 const jurisdiction = TEST_JURISDICTION;
 
 vi.setConfig({ testTimeout: 20000 });
+
+const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
+beforeEach(() => {
+  featureFlagMock.resetFeatureFlags();
+});
 
 test('scanBatch with multiple sheets', async () => {
   const electionDefinition =
@@ -40,6 +55,9 @@ test('scanBatch with multiple sheets', async () => {
     );
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
+    // The scanned ballot is for precinct '23', which is covered by
+    // '23-polling-place', so all sheets are accepted.
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
     scanner
       .withNextScannerSession()
@@ -62,6 +80,7 @@ test('scanBatch with multiple sheets', async () => {
       count: 3,
       startedAt: expect.any(String),
       endedAt: expect.any(String),
+      pollingPlaceId: '23-polling-place',
     });
   });
 });
@@ -79,6 +98,7 @@ test('continueScanning after invalid ballot', async () => {
     );
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
     scanner
       .withNextScannerSession()
@@ -105,6 +125,7 @@ test('continueScanning after invalid ballot', async () => {
         count: 2,
         startedAt: expect.any(String),
         endedAt: undefined, // not ended
+        pollingPlaceId: 'central-scanning',
       });
     }
     await apiClient.continueScanning({ forceAccept: false });
@@ -121,6 +142,7 @@ test('continueScanning after invalid ballot', async () => {
         count: 2, // bad ballot removed
         startedAt: expect.any(String),
         endedAt: expect.any(String),
+        pollingPlaceId: 'central-scanning',
       });
     }
   });
@@ -174,6 +196,7 @@ test('scanBatch with streaked page', async () => {
       disableVerticalStreakDetection: false,
     });
     await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
@@ -205,6 +228,7 @@ test('scanBatch with streaked page', async () => {
       disableVerticalStreakDetection: true,
     });
     await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
@@ -213,5 +237,39 @@ test('scanBatch with streaked page', async () => {
 
     // no adjudication should be needed
     expect(workspace.store.getNextAdjudicationSheet()).toBeUndefined();
+  });
+});
+
+test('rejects ballots whose precinct is not in the selected polling place', async () => {
+  // The famous names fixture's ballot is for precinct '23'. Select the
+  // '20-polling-place' location (which covers only precinct '20') so the
+  // scanned ballot is rejected as being outside the selected polling place.
+  const bmdFixture = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath: bmdFixture.sheet[0],
+    backPath: bmdFixture.sheet[1],
+  };
+
+  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+    mockElectionManagerAuth(auth, bmdFixture.electionDefinition);
+    importer.configure(
+      bmdFixture.electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '20-polling-place' });
+
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+
+    await apiClient.scanBatch();
+    await importer.waitForEndOfBatchOrScanningPause();
+
+    const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
+    expect(nextAdjudicationSheet?.pages[0]).toMatchObject({
+      type: 'InvalidPrecinctPage',
+      metadata: expect.objectContaining({ precinctId: '23' }),
+    });
   });
 });

@@ -7,6 +7,7 @@ create table election (
   is_test_mode boolean not null default true,
   polls_state text not null default "polls_closed_initial",
   is_sound_muted boolean not null default false,
+  polling_place_id text,
   scanner_backed_up_at datetime,
   created_at timestamp not null default current_timestamp
 );
@@ -15,6 +16,7 @@ create table batches (
   batch_number integer primary key autoincrement,
   id varchar(36) unique,
   label text,
+  polling_place_id text,
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   deleted_at datetime,

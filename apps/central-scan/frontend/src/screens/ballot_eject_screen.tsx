@@ -191,6 +191,21 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           };
 
         case 'invalid_precinct':
+          return {
+            header: 'Wrong Precinct',
+            body: (
+              <React.Fragment>
+                <P>
+                  The last scanned ballot was not tabulated because the scanner
+                  is configured for a polling place that does not include the
+                  ballot&apos;s precinct.
+                </P>
+                <P>Remove the ballot before continuing.</P>
+              </React.Fragment>
+            ),
+            allowBallotDuplication: false,
+          };
+
         case 'bmd_ballot_scanning_disabled':
         case 'unreadable':
         case 'unknown':

@@ -456,3 +456,23 @@ test('ballot with invalid scale', async () => {
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
+
+test('ballot from a precinct not in the selected polling place', async () => {
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_precinct' },
+    })
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+
+  await screen.findByText('Wrong Precinct');
+  screen.getByText(
+    "The last scanned ballot was not tabulated because the scanner is configured for a polling place that does not include the ballot's precinct."
+  );
+  expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
+
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});

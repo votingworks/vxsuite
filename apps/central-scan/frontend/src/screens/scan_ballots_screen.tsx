@@ -74,11 +74,13 @@ const DeleteAllWrapper = styled.div`
 export interface ScanBallotsScreenProps {
   status: ScanStatus;
   statusIsStale: boolean;
+  isPollingPlaceUnconfigured: boolean;
 }
 
 export function ScanBallotsScreen({
   status,
   statusIsStale,
+  isPollingPlaceUnconfigured,
 }: ScanBallotsScreenProps): JSX.Element {
   const isScanning = !!status.ongoingBatchId;
   const { batches } = status;
@@ -117,6 +119,12 @@ export function ScanBallotsScreen({
   return (
     <NavigationScreen title="Scan Ballots">
       <Content>
+        {isPollingPlaceUnconfigured && (
+          <Callout color="warning" icon="Warning">
+            No polling place selected. Select a polling place on the Settings
+            screen before scanning ballots.
+          </Callout>
+        )}
         <TopBar>
           {batchCount ? (
             <TopBarStats color="neutral" style={{ gap: '3rem' }}>
@@ -148,7 +156,9 @@ export function ScanBallotsScreen({
             </Button>
             <ScanButton
               /* disable scan button while status query is refetching to avoid double clicks */
-              disabled={isScanning || statusIsStale}
+              disabled={
+                isScanning || statusIsStale || isPollingPlaceUnconfigured
+              }
               isScannerAttached={status.isScannerAttached}
             />
           </TopBarActions>

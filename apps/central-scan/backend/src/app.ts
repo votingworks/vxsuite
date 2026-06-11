@@ -19,6 +19,7 @@ import {
   DiagnosticOutcome,
   Rect,
   mapSheet,
+  pollingPlaceFromElection,
   SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
@@ -183,6 +184,13 @@ function buildApi({
       );
       store.setSystemSettings(systemSettings);
 
+      const absenteePollingPlaces = assertDefined(
+        electionDefinition.election.pollingPlaces
+      ).filter((pollingPlace) => pollingPlace.type === 'absentee');
+      if (absenteePollingPlaces.length === 1) {
+        store.setPollingPlaceId(absenteePollingPlaces[0].id);
+      }
+
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
         disposition: 'success',
@@ -198,6 +206,30 @@ function buildApi({
 
     getElectionRecord(): ElectionRecord | null {
       return store.getElectionRecord() || null;
+    },
+
+    getPollingPlaceId(): string | null {
+      return store.getPollingPlaceId() ?? null;
+    },
+
+    setPollingPlaceId(input: { id: string }): void {
+      const electionRecord = assertDefined(
+        store.getElectionRecord(),
+        'Cannot set polling place without an election.'
+      );
+      assert(
+        store.getBatches().length === 0,
+        'Attempt to change polling place after scanning has begun'
+      );
+      const { name } = pollingPlaceFromElection(
+        electionRecord.electionDefinition.election,
+        input.id
+      );
+      store.setPollingPlaceId(input.id);
+      void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
+        disposition: 'success',
+        message: `User set the polling place for the machine to ${name}`,
+      });
     },
 
     getStatus(): ScanStatus {

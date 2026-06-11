@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
 import { ApiMock, createApiMock } from '../../test/api';
+
+// The famous names fixture defines a 'central-scanning' absentee polling place.
+const electionWithPollingPlaces =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 let apiMock: ApiMock;
 
@@ -12,6 +17,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetTestMode(false);
   apiMock.setStatus();
+  apiMock.expectGetPollingPlaceId();
 });
 
 afterEach(() => {
@@ -23,7 +29,11 @@ function renderScreen(
   history = createMemoryHistory()
 ) {
   return renderInAppContext(
-    <SettingsScreen canUnconfigure={false} {...props} />,
+    <SettingsScreen
+      canUnconfigure={false}
+      hasScannedBatches={false}
+      {...props}
+    />,
     { apiMock, history }
   );
 }
@@ -89,4 +99,30 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
   });
 
   vi.useRealTimers();
+});
+
+test('shows a polling place picker when the election has polling places', async () => {
+  apiMock.expectSetPollingPlaceId({ id: 'central-scanning' });
+  renderInAppContext(
+    <SettingsScreen canUnconfigure={false} hasScannedBatches={false} />,
+    { apiMock, electionDefinition: electionWithPollingPlaces }
+  );
+
+  await screen.findByRole('heading', { name: 'Polling Place' });
+  userEvent.click(screen.getByLabelText('Select a polling place…'));
+  userEvent.click(screen.getByText('Central Scanning'));
+  await vi.waitFor(() => apiMock.assertComplete());
+});
+
+test('disables the polling place picker after scanning has begun', async () => {
+  renderInAppContext(
+    <SettingsScreen canUnconfigure={false} hasScannedBatches />,
+    { apiMock, electionDefinition: electionWithPollingPlaces }
+  );
+
+  await screen.findByRole('heading', { name: 'Polling Place' });
+  expect(screen.getByLabelText('Select a polling place…')).toBeDisabled();
+  screen.getByText(
+    'The polling place cannot be changed after scanning has begun.'
+  );
 });

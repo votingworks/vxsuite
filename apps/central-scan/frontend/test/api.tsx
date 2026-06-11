@@ -122,6 +122,16 @@ export function createApiMock(
       apiClient.getTestMode.expectRepeatedCallsWith().resolves(testMode);
     },
 
+    expectGetPollingPlaceId(pollingPlaceId: string | null = null) {
+      apiClient.getPollingPlaceId
+        .expectRepeatedCallsWith()
+        .resolves(pollingPlaceId);
+    },
+
+    expectSetPollingPlaceId(input: { id: string }) {
+      apiClient.setPollingPlaceId.expectCallWith(input).resolves();
+    },
+
     expectConfigure(electionDefinition: ElectionDefinition) {
       apiClient.configureFromElectionPackageOnUsbDrive
         .expectCallWith()

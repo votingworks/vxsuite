@@ -1,6 +1,7 @@
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { err } from '@votingworks/basics';
 import {
+  electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
@@ -44,6 +45,11 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 const jurisdiction = TEST_JURISDICTION;
+
+// The famous names fixture defines polling places, including a single absentee
+// "Central Scanning" location (id 'central-scanning') covering all precincts.
+const famousNamesDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 let frontImagePath: string;
 let backImagePath: string;
@@ -125,6 +131,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('getElectionDefinition', async () => {
@@ -362,7 +369,125 @@ test('configure with CDF election', async () => {
   });
 });
 
+test('get/set polling place id', async () => {
+  await withApp(async ({ apiClient, auth, importer, store, logger }) => {
+    mockElectionManagerAuth(auth, famousNamesDefinition);
+    importer.configure(
+      famousNamesDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+
+    // No polling place selected initially (importer.configure does not
+    // auto-select; only the configure-from-USB API does).
+    expect(await apiClient.getPollingPlaceId()).toEqual(null);
+
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+    expect(await apiClient.getPollingPlaceId()).toEqual('central-scanning');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollingPlaceChanged,
+      'election_manager',
+      {
+        disposition: 'success',
+        message: expect.stringContaining('Central Scanning'),
+      }
+    );
+
+    // Setting an unknown polling place id throws.
+    await suppressingConsoleOutput(async () => {
+      await expect(
+        apiClient.setPollingPlaceId({ id: 'nonexistent' })
+      ).rejects.toThrow();
+    });
+
+    // Cannot change the polling place once scanning has begun.
+    store.addBatch();
+    await suppressingConsoleOutput(async () => {
+      await expect(
+        apiClient.setPollingPlaceId({ id: 'central-scanning' })
+      ).rejects.toThrow(
+        'Attempt to change polling place after scanning has begun'
+      );
+    });
+  });
+});
+
+test('configure auto-selects the single absentee polling place', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    mockElectionManagerAuth(auth, famousNamesDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({
+        electionDefinition: famousNamesDefinition,
+      })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    expect(await apiClient.getPollingPlaceId()).toEqual('central-scanning');
+  });
+});
+
+test('configure does not auto-select when there are multiple absentee polling places', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  const electionDefinition = safeParseElectionDefinition(
+    JSON.stringify({
+      ...famousNamesDefinition.election,
+      pollingPlaces: [
+        ...(famousNamesDefinition.election.pollingPlaces ?? []),
+        {
+          id: 'central-scanning-2',
+          name: 'Central Scanning 2',
+          precincts: { '20': { type: 'whole' } },
+          type: 'absentee',
+        },
+      ],
+    })
+  ).unsafeUnwrap();
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({ electionDefinition })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    expect(await apiClient.getPollingPlaceId()).toEqual(null);
+  });
+});
+
+test('configure does not auto-select when there are no absentee polling places', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  // The two-party primary fixture has no absentee polling places.
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({ electionDefinition })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    expect(await apiClient.getPollingPlaceId()).toEqual(null);
+  });
+});
+
 test('configure with invalid file', async () => {
+  // Skip signature authentication so the election key mismatch is reached.
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
   await withApp(async ({ apiClient, auth, mockUsbDrive, logger }) => {
     mockElectionManagerAuth(auth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive(

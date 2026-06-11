@@ -26,11 +26,18 @@ function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
     <ScanBallotsScreen
       status={mockStatus()}
       statusIsStale={false}
+      isPollingPlaceUnconfigured={false}
       {...props}
     />,
     { apiMock }
   );
 }
+
+test('warns and disables scanning when a polling place needs to be selected', () => {
+  renderScreen({ isPollingPlaceUnconfigured: true });
+  screen.getByText(/No polling place selected/);
+  expect(screen.getButton('Scan New Batch')).toBeDisabled();
+});
 
 test('null state', () => {
   renderScreen();
