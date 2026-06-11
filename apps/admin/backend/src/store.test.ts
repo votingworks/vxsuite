@@ -960,6 +960,15 @@ describe('machine ballot adjudication assignments', () => {
       machineId: 'client-001',
     });
 
+    // A completed claim is no longer an active claim
+    expect(
+      store.hasBallotClaim({
+        electionId,
+        cvrId: assertDefined(first),
+        machineId: 'client-001',
+      })
+    ).toEqual(false);
+
     const second = claimNextForClient('client-002');
     expect([cvr1, cvr2]).toContain(second);
     expect(second).not.toEqual(first);
@@ -1050,6 +1059,47 @@ describe('machine ballot adjudication assignments', () => {
 
     vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
     expect(claimNextForClient('client-002')).toEqual(claimed);
+  });
+
+  test('cleanupStaleMachines leaves fresh machines claims intact', () => {
+    addCvrWithWriteIn();
+    addCvrWithWriteIn();
+
+    store.setNetworkedMachineStatus(
+      'client-001',
+      'client',
+      Admin.ClientMachineStatus.Active
+    );
+    store.setNetworkedMachineStatus(
+      'client-002',
+      'client',
+      Admin.ClientMachineStatus.Active
+    );
+    const staleClaim = claimNextForClient('client-001');
+    const freshClaim = assertDefined(claimNextForClient('client-002'));
+
+    vi.mocked(getCurrentTime).mockImplementation(
+      () => Date.now() + STALE_MACHINE_THRESHOLD_MS + 1
+    );
+    // client-002 heartbeats again, so only client-001 is stale
+    store.setNetworkedMachineStatus(
+      'client-002',
+      'client',
+      Admin.ClientMachineStatus.Active
+    );
+    store.cleanupStaleMachines();
+
+    vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
+    // Only the stale machine's ballot is claimable again
+    expect(claimNextForClient('client-003')).toEqual(staleClaim);
+    expect(claimNextForClient('client-004')).toBeUndefined();
+    expect(
+      store.hasBallotClaim({
+        electionId,
+        cvrId: freshClaim,
+        machineId: 'client-002',
+      })
+    ).toEqual(true);
   });
 
   test('disabling client adjudication releases all active claims', () => {

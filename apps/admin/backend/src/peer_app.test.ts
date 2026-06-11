@@ -10,7 +10,8 @@ import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { assertDefined, err } from '@votingworks/basics';
+import { assertDefined, err, range } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 import { getCurrentTime } from './get_current_time';
 import {
@@ -295,7 +296,64 @@ test('claimBallot claims an unresolved CVR', async () => {
   expect(result3).toBeUndefined();
 });
 
+test('parallel claims from more machines than ballots assign each ballot exactly once', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  const cvrIds = addTestCvrs(workspace.store, electionId, 3);
+
+  const results = await Promise.all(
+    range(1, 6).map((i) =>
+      claimBallot(peerApiClient, { machineId: `client-00${i}` })
+    )
+  );
+
+  const claimedIds = results.filter((cvrId) => cvrId !== undefined);
+  expect([...claimedIds].sort()).toEqual([...cvrIds].sort());
+  expect(results.filter((cvrId) => cvrId === undefined)).toHaveLength(2);
+});
+
 test('releaseBallot frees a claimed CVR', async () => {
+  const { peerApiClient, apiClient, auth, workspace, peerLogger } =
+    buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  addTestCvrs(workspace.store, electionId, 1);
+
+  const cvrId = assertDefined(
+    await claimBallot(peerApiClient, { machineId: 'client-001' })
+  );
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminBallotClaimed,
+    'system',
+    expect.objectContaining({
+      disposition: 'success',
+      clientMachineId: 'client-001',
+    })
+  );
+
+  await peerApiClient.releaseBallot({ machineId: 'client-001', cvrId });
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminBallotReleased,
+    'system',
+    expect.objectContaining({ clientMachineId: 'client-001' })
+  );
+
+  const result = await claimBallot(peerApiClient, { machineId: 'client-002' });
+  expect(result).toEqual(cvrId);
+});
+
+test("releaseBallot does not release another machine's claim", async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -309,14 +367,67 @@ test('releaseBallot frees a claimed CVR', async () => {
   const cvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
   );
-  await peerApiClient.releaseBallot({ machineId: 'client-001', cvrId });
 
-  const result = await claimBallot(peerApiClient, { machineId: 'client-002' });
-  expect(result).toEqual(cvrId);
+  // Another machine attempting to release the ballot is a no-op — the claim
+  // survives and the ballot stays unavailable
+  await peerApiClient.releaseBallot({ machineId: 'client-002', cvrId });
+  expect(
+    await claimBallot(peerApiClient, { machineId: 'client-002' })
+  ).toBeUndefined();
+
+  // The owning machine can release it
+  await peerApiClient.releaseBallot({ machineId: 'client-001', cvrId });
+  expect(await claimBallot(peerApiClient, { machineId: 'client-002' })).toEqual(
+    cvrId
+  );
+});
+
+test('claimAndLoadBallot advances past a just-completed ballot', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  addTestCvrs(workspace.store, electionId, 3);
+
+  // Arrange for client-001 to hold the SECOND ballot in queue order, with
+  // the first ballot released back to the pool. The accept-and-next cursor
+  // must then continue forward from the completed ballot's queue position,
+  // not restart from the front.
+  const first = assertDefined(
+    await claimBallot(peerApiClient, { machineId: 'client-002' })
+  );
+  const second = assertDefined(
+    await claimBallot(peerApiClient, { machineId: 'client-001' })
+  );
+  await peerApiClient.releaseBallot({ machineId: 'client-002', cvrId: first });
+
+  (
+    await peerApiClient.adjudicateCvr({
+      machineId: 'client-001',
+      cvrId: second,
+      contests: [],
+    })
+  ).unsafeUnwrap();
+
+  // The client's accept-and-next flow uses the ballot it just completed as
+  // the cursor — the anchor must still resolve even though that ballot is
+  // now adjudicated
+  const next = await claimBallot(peerApiClient, {
+    machineId: 'client-001',
+    afterCvrId: second,
+  });
+  expect(next).toBeDefined();
+  expect(next).not.toEqual(first);
+  expect(next).not.toEqual(second);
 });
 
 test('adjudicateCvr completes the ballot claim', async () => {
-  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const { peerApiClient, apiClient, auth, workspace, peerLogger } =
+    buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await configureMachine(
@@ -336,6 +447,21 @@ test('adjudicateCvr completes the ballot claim', async () => {
       contests: [],
     })
   ).unsafeUnwrap();
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminBallotAdjudicationComplete,
+    'system',
+    expect.objectContaining({ disposition: 'success' })
+  );
+
+  // The completed claim is no longer an active claim — re-adjudicating the
+  // same ballot without a fresh claim is rejected
+  expect(
+    await peerApiClient.adjudicateCvr({
+      machineId: 'client-001',
+      cvrId: claimedCvrId,
+      contests: [],
+    })
+  ).toEqual(err({ type: 'claim-failed' }));
 
   // Claimed CVR is completed, not re-claimable; other CVR is next
   const result = await claimBallot(peerApiClient, { machineId: 'client-002' });
