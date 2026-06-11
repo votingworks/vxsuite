@@ -17,7 +17,7 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { hasCrossoverVote } from '@votingworks/utils';
+import { contestOptionName, hasCrossoverVote } from '@votingworks/utils';
 
 export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
 
@@ -102,7 +102,12 @@ export function adjudicatedVotes(
                   option.definition.id
                 ]
               )
-                ? [option.definition]
+                ? [
+                    {
+                      ...option.definition,
+                      name: contestOptionName(contest, option.definition),
+                    },
+                  ]
                 : []
             ),
           ];

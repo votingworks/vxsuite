@@ -17,6 +17,7 @@ import type {
 import { find, iter } from '@votingworks/basics';
 import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
 import pluralize from 'pluralize';
+import { contestOptionName } from '@votingworks/utils';
 import { EntityList } from './entity_list';
 import {
   AdjudicatedContests,
@@ -239,7 +240,8 @@ function getAdjudicatedOptionStatusLine(
     const newValue = currentVote ? 'valid' : 'invalid';
     return (
       <StatusLineAdjudicated>
-        Marginal mark for {definition.name} adjudicated as {newValue}
+        Marginal mark for {contestOptionName(contest, definition)} adjudicated
+        as {newValue}
       </StatusLineAdjudicated>
     );
   }
@@ -249,7 +251,8 @@ function getAdjudicatedOptionStatusLine(
     const newValue = currentVote ? 'valid' : 'invalid';
     return (
       <StatusLineAdjudicated>
-        {preface} for {definition.name} adjudicated as {newValue}
+        {preface} for {contestOptionName(contest, definition)} adjudicated as{' '}
+        {newValue}
       </StatusLineAdjudicated>
     );
   }
