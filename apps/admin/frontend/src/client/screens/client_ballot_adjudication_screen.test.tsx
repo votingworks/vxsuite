@@ -10,26 +10,15 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { err, ok } from '@votingworks/basics';
-import { MemoryRouter, Route } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import {
-  mockUsbDriveStatus,
-  SystemCallContextProvider,
-  TestErrorBoundary,
-} from '@votingworks/ui';
-import { render, screen, waitFor } from '../../../test/react_testing_library';
+import { Route } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
+import { screen, waitFor } from '../../../test/react_testing_library';
 import {
   ClientApiMock,
   createClientApiMock,
 } from '../../../test/helpers/mock_client_api_client';
+import { renderInClientContext } from '../../../test/render_in_client_context';
 import { ClientBallotAdjudicationScreen } from './client_ballot_adjudication_screen';
-import {
-  ApiClient as ClientApiClient,
-  ApiClientContext as ClientApiClientContext,
-  createQueryClient,
-} from '../api';
-import { SharedApiClientContext, systemCallApi } from '../../shared_api';
-import { AppContext } from '../../contexts/app_context';
 import { routerPaths } from '../../router_paths';
 
 // Mock BallotAdjudicationScreen to capture and expose all callbacks.
@@ -81,44 +70,30 @@ const pollWorkerAuth: DippedSmartCardAuth.PollWorkerLoggedIn = {
   sessionExpiresAt: mockSessionExpiresAt(),
 };
 
-function renderScreen() {
-  expectAdjudicationEnabled();
-  const clientApiClient = apiMock.apiClient as unknown as ClientApiClient;
-  return render(
-    <TestErrorBoundary>
-      <SharedApiClientContext.Provider value={clientApiClient}>
-        <SystemCallContextProvider api={systemCallApi}>
-          <ClientApiClientContext.Provider value={clientApiClient}>
-            <QueryClientProvider client={createQueryClient()}>
-              <AppContext.Provider
-                value={{
-                  auth: pollWorkerAuth,
-                  machineConfig: { machineId: '0000', codeVersion: 'dev' },
-                  isOfficialResults: false,
-                  usbDriveStatus: mockUsbDriveStatus('no_drive'),
-                  machineMode: 'client',
-                  electionDefinition,
-                  electionPackageHash: 'test-hash',
-                }}
-              >
-                <MemoryRouter initialEntries={[routerPaths.ballotAdjudication]}>
-                  <Route exact path={routerPaths.ballotAdjudication}>
-                    <ClientBallotAdjudicationScreen />
-                  </Route>
-                </MemoryRouter>
-              </AppContext.Provider>
-            </QueryClientProvider>
-          </ClientApiClientContext.Provider>
-        </SystemCallContextProvider>
-      </SharedApiClientContext.Provider>
-    </TestErrorBoundary>
-  );
-}
-
-function expectAdjudicationEnabled(): void {
+// Renders the screen at the ballot adjudication route and returns the memory
+// history so tests can assert on navigation (e.g. the redirect to the
+// adjudication start screen when the host disables adjudication).
+function renderScreen({
+  adjudicationEnabled = true,
+}: { adjudicationEnabled?: boolean } = {}) {
   apiMock.apiClient.getAdjudicationSessionStatus
     .expectRepeatedCallsWith()
-    .resolves({ isClientAdjudicationEnabled: true });
+    .resolves({ isClientAdjudicationEnabled: adjudicationEnabled });
+  const history = createMemoryHistory({
+    initialEntries: [routerPaths.ballotAdjudication],
+  });
+  renderInClientContext(
+    <Route exact path={routerPaths.ballotAdjudication}>
+      <ClientBallotAdjudicationScreen />
+    </Route>,
+    {
+      history,
+      auth: pollWorkerAuth,
+      electionDefinition,
+      apiMock,
+    }
+  );
+  return { history };
 }
 
 function makeBallotData(cvrId: string) {
@@ -305,47 +280,11 @@ test('redirects when host disables adjudication', async () => {
   expectGlobalDataLoaderQueries();
   expectInitialClaimAndLoad('cvr-1');
 
-  // Override adjudication status to disabled
-  apiMock.apiClient.getAdjudicationSessionStatus.reset();
-  apiMock.apiClient.getAdjudicationSessionStatus
-    .expectRepeatedCallsWith()
-    .resolves({ isClientAdjudicationEnabled: false });
+  const { history } = renderScreen({ adjudicationEnabled: false });
 
-  const clientApiClient = apiMock.apiClient as unknown as ClientApiClient;
-  render(
-    <TestErrorBoundary>
-      <SharedApiClientContext.Provider value={clientApiClient}>
-        <SystemCallContextProvider api={systemCallApi}>
-          <ClientApiClientContext.Provider value={clientApiClient}>
-            <QueryClientProvider client={createQueryClient()}>
-              <AppContext.Provider
-                value={{
-                  auth: pollWorkerAuth,
-                  machineConfig: { machineId: '0000', codeVersion: 'dev' },
-                  isOfficialResults: false,
-                  usbDriveStatus: mockUsbDriveStatus('no_drive'),
-                  machineMode: 'client',
-                  electionDefinition,
-                  electionPackageHash: 'test-hash',
-                }}
-              >
-                <MemoryRouter initialEntries={[routerPaths.ballotAdjudication]}>
-                  <Route exact path={routerPaths.ballotAdjudication}>
-                    <ClientBallotAdjudicationScreen />
-                  </Route>
-                  <Route exact path={routerPaths.adjudication}>
-                    <div>adjudication start</div>
-                  </Route>
-                </MemoryRouter>
-              </AppContext.Provider>
-            </QueryClientProvider>
-          </ClientApiClientContext.Provider>
-        </SystemCallContextProvider>
-      </SharedApiClientContext.Provider>
-    </TestErrorBoundary>
+  await waitFor(() =>
+    expect(history.location.pathname).toEqual(routerPaths.adjudication)
   );
-
-  await screen.findByText('adjudication start');
 });
 
 test('onAccept calls API and accept advances', async () => {
