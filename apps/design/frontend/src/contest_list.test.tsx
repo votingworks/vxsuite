@@ -30,33 +30,33 @@ const party2: Party = {
   name: 'P2',
 };
 
-const candidateContest1 = typedAs<Contest>({
+const candidateContest1 = typedAs<Partial<Contest>>({
   id: 'candidateContest1',
   title: 'Candidate Contest 1',
   districtId: district1.id,
   type: 'candidate',
-}) as AnyContest;
+}) as Contest;
 
-const candidateContest2 = typedAs<Contest>({
+const candidateContest2 = typedAs<Partial<Contest>>({
   id: 'candidateContest2',
   title: 'Candidate Contest 2',
   districtId: district2.id,
   type: 'candidate',
-}) as AnyContest;
+}) as Contest;
 
-const yesNoContest1 = typedAs<Contest>({
+const yesNoContest1 = typedAs<Partial<Contest>>({
   id: 'yesNoContest1',
   title: 'YesNo Contest 1',
   districtId: district1.id,
   type: 'yesno',
-}) as AnyContest;
+}) as Contest;
 
-const yesNoContest2 = typedAs<Contest>({
+const yesNoContest2 = typedAs<Partial<Contest>>({
   id: 'yesNoContest2',
   title: 'YesNo Contest Contest 2',
   districtId: district2.id,
   type: 'yesno',
-}) as AnyContest;
+}) as Contest;
 
 const electionId = 'election1';
 const contestRoutes = routes.election(electionId).contests;
