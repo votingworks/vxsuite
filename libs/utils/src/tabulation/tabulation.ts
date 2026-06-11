@@ -13,7 +13,6 @@ import {
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
-import { isNoPartyId } from '@votingworks/types/src/tabulation';
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
@@ -151,7 +150,7 @@ function addCastVoteRecordToElectionResult(
   if (election.type === 'open-primary') {
     const inferredPartyId = inferPartyFromVotes(election, cvr.votes);
 
-    if (isNoPartyId(inferredPartyId)) {
+    if (Tabulation.isNoPartyId(inferredPartyId)) {
       // If an open primary voter has either voted in no partisan contests or
       // crossover voted, omit all partisan contests so that they don't count,
       // even as undervotes.
