@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { ElectionDefinition, PollsState } from '@votingworks/types';
 import {
   Main,
   Screen,
@@ -18,7 +14,6 @@ import {
 import { throwIllegalValue } from '@votingworks/basics';
 
 interface Props {
-  appPrecinct?: PrecinctSelection;
   cardInsertionDirection?: CardInsertionDirection;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
@@ -28,7 +23,6 @@ interface Props {
 }
 
 export function InsertCardScreen({
-  appPrecinct,
   cardInsertionDirection,
   electionDefinition,
   electionPackageHash,
@@ -81,7 +75,6 @@ export function InsertCardScreen({
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         pollingPlaceId={pollingPlaceId}
-        precinctSelection={appPrecinct}
       />
     </Screen>
   );

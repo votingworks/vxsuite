@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import { PollsState } from '@votingworks/types';
@@ -41,7 +40,6 @@ describe('polls states', () => {
     test(`with pollsState = ${spec.pollsState}`, () => {
       render(
         <InsertCardScreen
-          appPrecinct={ALL_PRECINCTS_SELECTION}
           pollingPlaceId="a-polling-place"
           electionDefinition={electionDefinition}
           electionPackageHash="package-hash"
@@ -59,7 +57,6 @@ describe('polls states', () => {
 test('renders election info bar', () => {
   render(
     <InsertCardScreen
-      appPrecinct={ALL_PRECINCTS_SELECTION}
       pollingPlaceId="a-polling-place"
       electionDefinition={electionDefinition}
       electionPackageHash="package-hash"
@@ -74,14 +71,12 @@ test('renders election info bar', () => {
     electionDefinition,
     electionPackageHash: 'package-hash',
     pollingPlaceId: 'a-polling-place',
-    precinctSelection: ALL_PRECINCTS_SELECTION,
   });
 });
 
 test('renders test mode banner in test mode', () => {
   render(
     <InsertCardScreen
-      appPrecinct={ALL_PRECINCTS_SELECTION}
       pollingPlaceId="a-polling-place"
       electionDefinition={electionDefinition}
       electionPackageHash="package-hash"
