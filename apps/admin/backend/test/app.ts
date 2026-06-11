@@ -1,4 +1,5 @@
 import { vi } from 'vitest';
+import { assertDefined } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -30,6 +31,7 @@ import {
 import {
   createMockMultiUsbDrive,
   MockMultiUsbDrive,
+  UsbDriveInfo,
 } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
@@ -153,30 +155,21 @@ export function buildMockLogger(
   });
 }
 
-export function getMountedUsbDriveDevPath(
+export function getMountedUsbDrive(
   mockMultiUsbDrive: MockMultiUsbDrive
-): string {
+): UsbDriveInfo {
   const drive = mockMultiUsbDrive.multiUsbDrive.getDrives()[0];
-  if (!drive) {
+  if (!drive?.partition?.mount.isMounted) {
     throw new Error('Expected a mounted USB drive in the test environment.');
   }
-  return drive.devPath;
-}
-
-export function getMountedUsbDrivePartitionDevPath(
-  mockMultiUsbDrive: MockMultiUsbDrive
-): string {
-  const mountedPartition =
-    mockMultiUsbDrive.multiUsbDrive.getDrives()[0]?.partitions[0];
-  if (!mountedPartition) {
-    throw new Error('Expected a mounted USB drive in the test environment.');
-  }
-  return mountedPartition.devPath;
+  return drive;
 }
 
 export function expectUsbDriveSync(mockMultiUsbDrive: MockMultiUsbDrive): void {
   mockMultiUsbDrive.multiUsbDrive.sync
-    .expectCallWith(getMountedUsbDrivePartitionDevPath(mockMultiUsbDrive))
+    .expectCallWith(
+      assertDefined(getMountedUsbDrive(mockMultiUsbDrive).partition).partPath
+    )
     .resolves();
 }
 

@@ -17,7 +17,6 @@ import { createSystemCallApi } from '@votingworks/backend';
 import { Logger, LogEventId } from '@votingworks/logging';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import {
-  isFat32Partition,
   MultiUsbDrive,
   UsbDriveStatus,
   createUsbDriveAdapter,
@@ -160,7 +159,7 @@ function buildClientApi({
   const usbDriveAdapter = createUsbDriveAdapter(
     multiUsbDrive,
     // return the first FAT32 drive
-    (drives) => drives.find((d) => isFat32Partition(d.partitions[0]))?.devPath
+    (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
   );
 
   return grout.createApi({

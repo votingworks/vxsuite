@@ -9,7 +9,8 @@ import {
 import { deferred, sleep } from '@votingworks/basics';
 import { detectMultiUsbDrive } from './multi_usb_drive';
 import { exec } from './exec';
-import { getAllUsbDrives, UsbDiskDeviceInfo } from './block_devices';
+import { getAllDiskDevices, UsbDiskDeviceInfo } from './block_devices';
+import { UsbPartitionInfo, UsbPartitionMount } from './types';
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
@@ -23,7 +24,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 const execMock = vi.mocked(exec);
-const getAllUsbDrivesMock = vi.mocked(getAllUsbDrives);
+const getAllUsbDrivesMock = vi.mocked(getAllDiskDevices);
 
 vi.mock(import('./exec.js'), async (importActual) => ({
   ...(await importActual()),
@@ -39,7 +40,7 @@ vi.mock(import('./block_devices.js'), async (importActual) => {
   const actual = await importActual();
   return {
     ...actual,
-    getAllUsbDrives: vi.fn(() => Promise.resolve(mockDrives)),
+    getAllDiskDevices: vi.fn(() => Promise.resolve(mockDrives)),
     createBlockDeviceChangeWatcher: vi.fn((onDeviceChange: () => void) => {
       capturedWatcherCallback = onDeviceChange;
       return { stop: mockWatcherStop };
@@ -102,21 +103,48 @@ describe('getDrives', () => {
     await multiUsbDrive.refresh();
 
     const [drive] = multiUsbDrive.getDrives();
-    expect(drive).toMatchObject({
-      devPath: '/dev/sdb',
-      vendor: 'SanDisk',
-      model: 'Ultra',
-      serial: 'SN123',
-    });
-    expect(drive?.partitions[0]).toMatchObject({
-      devPath: '/dev/sdb1',
-      mount: { type: 'mounted', mountPoint: '/media/vx/usb-drive-sdb1' },
+    expect(drive).toMatchObject({ diskPath: '/dev/sdb' });
+    expect(drive?.partition).toMatchObject<Partial<UsbPartitionInfo>>({
+      diskPath: '/dev/sdb',
+      partPath: '/dev/sdb1',
+      mount: UsbPartitionMount.mounted('/media/vx/usb-drive-sdb1'),
     });
 
     multiUsbDrive.stop();
   });
 
-  test('returns unmounted partition as unmounted', async () => {
+  test('reports a supported partition as unmounted once auto-mount fails', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+
+    // Fail the auto-mount so the partition settles back to unmounted rather
+    // than transitioning to mounted.
+    execMock.mockRejectedValue(new Error('mount failed'));
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await vi.waitFor(() => {
+      expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+        UsbPartitionMount.unmounted()
+      );
+    });
+
+    multiUsbDrive.stop();
+  });
+
+  test('omits the partition for unsupported filesystems', async () => {
     mockDrives = [
       makeDisk({
         partitions: [
@@ -135,9 +163,9 @@ describe('getDrives', () => {
 
     await multiUsbDrive.refresh();
 
-    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'unmounted',
-    });
+    const [drive] = multiUsbDrive.getDrives();
+    expect(drive?.diskPath).toEqual('/dev/sdb');
+    expect(drive?.partition).toBeUndefined();
 
     multiUsbDrive.stop();
   });
@@ -149,7 +177,7 @@ describe('getDrives', () => {
 
     await multiUsbDrive.refresh();
 
-    expect(multiUsbDrive.getDrives()[0]?.partitions).toEqual([]);
+    expect(multiUsbDrive.getDrives()[0]?.partition).toBeUndefined();
 
     multiUsbDrive.stop();
   });
@@ -428,10 +456,9 @@ describe('ejectDrive', () => {
 
     const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
 
-    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toMatchObject({
-      type: 'unmounting',
-      mountPoint: '/media/vx/usb-drive-sdb1',
-    });
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.unmounting('/media/vx/usb-drive-sdb1')
+    );
 
     unmountOperation.resolve({ stdout: '', stderr: '' });
     await ejectPromise;
@@ -524,9 +551,9 @@ describe('ejectDrive', () => {
     // before the first await, so getDrives() can observe the in-progress state.
     const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
 
-    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'ejected',
-    });
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.ejected()
+    );
 
     await ejectPromise;
 
@@ -619,9 +646,9 @@ describe('ejectDrive', () => {
 
     await multiUsbDrive.ejectDrive('/dev/sdb');
 
-    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'ejected',
-    });
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.ejected()
+    );
 
     multiUsbDrive.stop();
   });
@@ -702,9 +729,9 @@ describe('formatDrive', () => {
 
     const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
-    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'ejected',
-    });
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.ejected()
+    );
 
     formatOperation.resolve({ stdout: '', stderr: '' });
     await formatPromise;
@@ -970,7 +997,9 @@ describe('autoMount', () => {
       () => {
         const drives = multiUsbDrive.getDrives();
         expect(drives.length).toEqual(1);
-        expect(drives[0]?.partitions[0]?.mount.type).toEqual('mounted');
+        expect(drives[0]?.partition?.mount).toEqual(
+          UsbPartitionMount.mounted(expect.any(String))
+        );
       },
       { timeout: 2000 }
     );
@@ -1037,7 +1066,9 @@ describe('autoMount', () => {
       () => {
         const drives = multiUsbDrive.getDrives();
         expect(drives.length).toEqual(1);
-        expect(drives[0]?.partitions[0]?.mount.type).toEqual('mounted');
+        expect(drives[0]?.partition?.mount).toEqual(
+          UsbPartitionMount.mounted(expect.any(String))
+        );
       },
       { timeout: 2000 }
     );
@@ -1114,15 +1145,14 @@ describe('autoMount', () => {
     await multiUsbDrive.refresh();
 
     // partitionAction has 'mounting' for /dev/sdb1 while exec is pending
-    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'mounting',
-    });
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.mounting()
+    );
 
     mountOperation.resolve({ stdout: '', stderr: '' });
     mockDrives = [makeDisk()];
     await vi.waitFor(
-      () =>
-        multiUsbDrive.getDrives()[0]?.partitions[0]?.mount.type === 'mounted'
+      () => multiUsbDrive.getDrives()[0]?.partition?.mount.type === 'mounted'
     );
 
     multiUsbDrive.stop();
@@ -1156,7 +1186,7 @@ describe('autoMount', () => {
     mockDrives = [unmountedPartitionDisk];
     const multiUsbDrive = detectMultiUsbDrive(logger);
     multiUsbDrive.addListener(() => {
-      const mount = multiUsbDrive.getDrives()[0]?.partitions[0]?.mount;
+      const mount = multiUsbDrive.getDrives()[0]?.partition?.mount;
       if (mount) mountStatesOnChange.push(mount.type);
     });
 
@@ -1207,10 +1237,9 @@ describe('autoMount', () => {
       // trigger the sleep timer, then flush the final poll microtasks.
       await vi.advanceTimersByTimeAsync(100);
 
-      expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-        type: 'mounted',
-        mountPoint: '/media/vx/usb-drive-sdb1',
-      });
+      expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+        UsbPartitionMount.mounted('/media/vx/usb-drive-sdb1')
+      );
 
       multiUsbDrive.stop();
     } finally {

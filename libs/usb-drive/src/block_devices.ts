@@ -105,7 +105,7 @@ function isPartitionOfDisk(
   return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
 }
 
-export interface UsbPartitionDeviceInfo {
+interface UsbPartitionDeviceInfo {
   devPath: string;
   mountpoint?: string;
   fstype?: string;
@@ -123,10 +123,9 @@ export interface UsbDiskDeviceInfo {
 
 /**
  * Returns all USB block devices as a structured disk → partitions hierarchy.
- * Includes vendor/model/serial parsed from udev for each disk. Applies the
- * same `isDataUsbDrive` filter as `getUsbDriveDeviceInfo`.
+ * Includes vendor/model/serial parsed from udev for each disk.
  */
-export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
+export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
   const [exportDbOutput, mountsContent] = await Promise.all([
     exec('udevadm', ['info', '--export-db'])
       .then(({ stdout }) => stdout)

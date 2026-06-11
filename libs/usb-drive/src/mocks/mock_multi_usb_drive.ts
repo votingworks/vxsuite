@@ -1,12 +1,9 @@
 import { Mocked, mockFunction } from '@votingworks/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { rmSync } from 'node:fs';
-import {
-  MultiUsbDrive,
-  UsbDriveFilesystemType,
-  UsbDriveInfo,
-} from '../multi_usb_drive';
+import { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
+import { UsbDriveInfo, UsbPartitionMount } from '../types';
 
 const MOCK_SINGLETON_DISK_DEV_PATH = '/dev/sdb';
 
@@ -21,7 +18,7 @@ export interface MockMultiUsbDrive {
    */
   addUsbDrive(
     contents: MockFileTree,
-    options?: { devPath: string; fstype?: UsbDriveFilesystemType }
+    options?: { diskPath: string; fstype?: UsbDriveFilesystemType }
   ): void;
 
   /**
@@ -67,26 +64,21 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
 
   function addUsbDrive(
     contents: MockFileTree,
-    options: { devPath: string; fstype?: UsbDriveFilesystemType }
+    options: { diskPath: string; fstype?: UsbDriveFilesystemType }
   ) {
     const fstype = options.fstype ?? 'fat32';
     const mountPoint = makeTemporaryDirectory();
     mockUsbTmpDirs.push(mountPoint);
     writeMockFileTree(mountPoint, contents);
     drives.push({
-      devPath: options.devPath,
-      vendor: undefined,
-      model: undefined,
-      serial: undefined,
-      partitions: [
-        {
-          devPath: `${options.devPath}1`,
-          label: 'VxUSB-ABCDE',
-          fstype: fstype === 'ext4' ? 'ext4' : 'vfat',
-          fsver: fstype === 'ext4' ? '1.0' : 'FAT32',
-          mount: { type: 'mounted', mountPoint },
-        },
-      ],
+      diskPath: options.diskPath,
+      partition: {
+        diskPath: options.diskPath,
+        partPath: `${options.diskPath}1`,
+        label: 'VxUSB-ABCDE',
+        fstype,
+        mount: UsbPartitionMount.mounted(mountPoint),
+      },
     });
     multiUsbDrive.getDrives.reset();
     multiUsbDrive.getDrives.expectRepeatedCallsWith().returns(drives);
@@ -122,7 +114,7 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
       removeAll();
       addUsbDrive(contents, {
         ...(options ?? {}),
-        devPath: MOCK_SINGLETON_DISK_DEV_PATH,
+        diskPath: MOCK_SINGLETON_DISK_DEV_PATH,
       });
     },
 

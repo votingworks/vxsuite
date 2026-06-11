@@ -1,11 +1,7 @@
 import makeDebug from 'debug';
 import { assert } from '@votingworks/basics';
-import {
-  MultiUsbDrive,
-  UsbDriveInfo,
-  UsbDriveFilesystemType,
-} from './multi_usb_drive';
-import { UsbDrive, UsbDriveStatus } from './types';
+import { MultiUsbDrive, UsbDriveFilesystemType } from './multi_usb_drive';
+import { UsbDrive, UsbDriveInfo, UsbDriveStatus } from './types';
 
 const debug = makeDebug('usb-drive:adapter');
 
@@ -23,9 +19,7 @@ export function createUsbDriveAdapter(
 ): UsbDrive {
   return {
     status(): Promise<UsbDriveStatus> {
-      const drives = multiUsbDrive
-        .getDrives()
-        .filter((d) => d.partitions.length === 1);
+      const drives = multiUsbDrive.getDrives().filter((d) => d.partition);
 
       if (drives.length === 0) {
         debug('adapter: no drives with a single partition, returning no_drive');
@@ -38,17 +32,17 @@ export function createUsbDriveAdapter(
         return Promise.resolve({ status: 'no_drive' });
       }
 
-      const drive = drives.find((d) => d.devPath === driveDevPath);
+      const drive = drives.find((d) => d.diskPath === driveDevPath);
 
       if (!drive) {
         debug('adapter: drive not found in cache, returning no_drive');
         return Promise.resolve({ status: 'no_drive' });
       }
 
-      const [firstPartition] = drive.partitions;
-      assert(firstPartition, `No partitions found on disk '${driveDevPath}'`);
+      const { partition } = drive;
+      assert(partition, `No partitions found on disk '${driveDevPath}'`);
 
-      const { mount } = firstPartition;
+      const { mount } = partition;
 
       if (mount.type === 'mounting') {
         debug('adapter: partition is mounting, returning no_drive');
@@ -109,17 +103,17 @@ export function createUsbDriveAdapter(
         return;
       }
 
-      const drive = drives.find((d) => d.devPath === driveDevPath);
-      const mountedPartition = drive?.partitions.find(
-        (p) => p.mount.type === 'mounted'
-      );
+      const drive = drives.find((d) => d.diskPath === driveDevPath);
+      const mountedPartition = drive?.partition?.mount.isMounted
+        ? drive.partition
+        : undefined;
 
       if (!mountedPartition) {
         debug('adapter: no mounted partition to sync');
         return;
       }
 
-      await multiUsbDrive.sync(mountedPartition.devPath);
+      await multiUsbDrive.sync(mountedPartition.partPath);
     },
   };
 }
