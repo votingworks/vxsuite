@@ -13,7 +13,7 @@ import {
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { expect, expectTypeOf, test } from 'vitest';
-import { allContestOptions } from './all_contest_options';
+import { allContestOptions, contestOptionName } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {
   fc.assert(
@@ -28,7 +28,9 @@ test('candidate contest with no write-ins', () => {
           assert(option.type === 'candidate');
           expect(option.id).toEqual(contest.candidates[i]?.id);
           expect(option.contestId).toEqual(contest.id);
-          expect(option.name).toEqual(contest.candidates[i]?.name);
+          expect(contestOptionName(contest, option)).toEqual(
+            contest.candidates[i]?.name
+          );
           expect(option.isWriteIn).toEqual(false);
           expect(option.writeInIndex).toBeUndefined();
         }
@@ -52,7 +54,7 @@ test('candidate contest with write-ins', () => {
               `write-in-${i - contest.candidates.length}`
           );
           expect(option.contestId).toEqual(contest.id);
-          expect(option.name).toEqual(
+          expect(contestOptionName(contest, option)).toEqual(
             contest.candidates[i]?.name ?? 'Write-In'
           );
           expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
@@ -77,15 +79,19 @@ test('yesno contest', () => {
           type: 'yesno',
           id: contest.yesOption.id,
           contestId: contest.id,
-          name: contest.yesOption.label,
         },
         {
           type: 'yesno',
           id: contest.noOption.id,
           contestId: contest.id,
-          name: contest.noOption.label,
         },
       ]);
+      expect(contestOptionName(contest, options[0]!)).toEqual(
+        contest.yesOption.label
+      );
+      expect(contestOptionName(contest, options[1]!)).toEqual(
+        contest.noOption.label
+      );
     })
   );
 });
@@ -147,11 +153,11 @@ test('candidate contest with ballot style ordering', () => {
   // Verify the order matches the ballot style ordering
   expect(options).toHaveLength(3);
   expect(options[0]?.id).toEqual('candidate-c');
-  expect(options[0]?.name).toEqual('Charlie');
+  expect(contestOptionName(contest, options[0]!)).toEqual('Charlie');
   expect(options[1]?.id).toEqual('candidate-a');
-  expect(options[1]?.name).toEqual('Alice');
+  expect(contestOptionName(contest, options[1]!)).toEqual('Alice');
   expect(options[2]?.id).toEqual('candidate-b');
-  expect(options[2]?.name).toEqual('Bob');
+  expect(contestOptionName(contest, options[2]!)).toEqual('Bob');
 });
 
 test('candidate contest with multi-endorsed candidates are deduplicated', () => {
@@ -190,7 +196,7 @@ test('candidate contest with multi-endorsed candidates are deduplicated', () => 
   // Verify multi-endorsed candidate appears only once (deduplicated by id)
   expect(options).toHaveLength(2);
   expect(options[0]?.id).toEqual('candidate-a');
-  expect(options[0]?.name).toEqual('Alice');
+  expect(contestOptionName(contest, options[0]!)).toEqual('Alice');
   expect(options[1]?.id).toEqual('candidate-b');
-  expect(options[1]?.name).toEqual('Bob');
+  expect(contestOptionName(contest, options[1]!)).toEqual('Bob');
 });
