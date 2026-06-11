@@ -994,7 +994,6 @@ export interface CandidateContestOption {
   type: CandidateContest['type'];
   id: CandidateId;
   contestId: CandidateContest['id'];
-  name: Candidate['name'];
   isWriteIn: boolean;
   writeInIndex?: number;
 }
@@ -1003,7 +1002,6 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     type: z.literal('candidate'),
     id: CandidateIdSchema,
     contestId: ContestIdSchema,
-    name: z.string(),
     isWriteIn: z.boolean(),
     writeInIndex: z.number().nonnegative().optional(),
   });
@@ -1015,14 +1013,12 @@ export interface YesNoContestOption {
   type: YesNoContest['type'];
   id: YesNoContestOptionId;
   contestId: YesNoContest['id'];
-  name: string;
 }
 export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
   z.object({
     type: z.literal('yesno'),
     id: YesNoContestOptionIdSchema,
     contestId: ContestIdSchema,
-    name: z.string(),
   });
 
 export type ContestOption = CandidateContestOption | YesNoContestOption;
