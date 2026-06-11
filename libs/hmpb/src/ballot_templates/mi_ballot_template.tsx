@@ -12,7 +12,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest as ContestStruct,
   BallotMode,
   BallotStyle,
   BallotStyleId,
@@ -462,7 +462,7 @@ function Contest({
   ballotStyle,
   numContestColumns,
 }: {
-  contest: AnyContest;
+  contest: ContestStruct;
   ballotStyle: BallotStyle;
   numContestColumns: number;
 }) {
@@ -483,7 +483,7 @@ function Contest({
 }
 
 interface ContestElement {
-  contest: AnyContest;
+  contest: ContestStruct;
   element: JSX.Element;
 }
 
@@ -492,7 +492,7 @@ type ContestSection = Section<JSX.Element, ContestElement>;
 function buildSubsectionsByDistrict(
   election: Election,
   ballotStyle: BallotStyle,
-  sectionContests: AnyContest[],
+  sectionContests: ContestStruct[],
   numColumns: number
 ): ContestSection['subsections'] {
   return groupBy(sectionContests, (contest) => contest.districtId).map(
@@ -520,7 +520,7 @@ function buildSections(
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number,
-  sectionTemplates: Array<{ header: JSX.Element; contests: AnyContest[] }>
+  sectionTemplates: Array<{ header: JSX.Element; contests: ContestStruct[] }>
 ): ContestSection[] {
   return sectionTemplates
     .filter((section) => section.contests.length > 0)
@@ -536,7 +536,7 @@ function buildSections(
 }
 
 function buildClosedPrimaryContestSections(
-  contests: readonly AnyContest[],
+  contests: readonly ContestStruct[],
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number
@@ -562,7 +562,7 @@ function buildClosedPrimaryContestSections(
 }
 
 function buildOpenPrimaryContestSections(
-  contests: readonly AnyContest[],
+  contests: readonly ContestStruct[],
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number
@@ -695,7 +695,7 @@ async function measureSectionElements(
 
 interface ContestColumnsResult {
   sectionsElement: JSX.Element;
-  leftoverContests: AnyContest[];
+  leftoverContests: ContestStruct[];
 }
 
 async function ClosedPrimaryContestColumns({
@@ -705,7 +705,7 @@ async function ClosedPrimaryContestColumns({
   dimensions,
   scratchpad,
 }: {
-  contests: readonly AnyContest[];
+  contests: readonly ContestStruct[];
   election: Election;
   ballotStyle: BallotStyle;
   dimensions: PixelDimensions;
@@ -759,7 +759,7 @@ async function OpenPrimaryContestColumns({
   dimensions,
   scratchpad,
 }: {
-  contests: readonly AnyContest[];
+  contests: readonly ContestStruct[];
   election: Election;
   ballotStyle: BallotStyle;
   dimensions: PixelDimensions;

@@ -11,7 +11,7 @@ import {
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
-  AnyContest,
+  Contest as ContestStruct,
   BallotMode,
   BallotStyle,
   BallotStyleId,
@@ -770,7 +770,7 @@ function Contest({
   ballotStyle,
 }: {
   compact?: boolean;
-  contest: AnyContest;
+  contest: ContestStruct;
   election: Election;
   ballotStyle: BallotStyle;
   precinctId: PrecinctId;

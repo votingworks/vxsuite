@@ -6,7 +6,6 @@ import {
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
-  Contest,
   Contests,
   DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
