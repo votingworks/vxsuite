@@ -264,6 +264,9 @@ impl Contest {
                 Contest::Candidate(CandidateContest { party_id, .. }) => {
                     party_id == &ballot_style.party_id
                 }
+                Contest::StraightParty(_) => unimplemented!(
+                    "STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented"
+                ),
             }
     }
 }

@@ -387,6 +387,9 @@ fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
                 )
             );
         }
+        Contest::StraightParty(_) => {
+            unimplemented!("STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented")
+        }
     }
 }
 

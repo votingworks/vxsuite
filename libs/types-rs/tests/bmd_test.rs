@@ -41,7 +41,7 @@ fn test_cast_vote_record_round_trip_write_in_vote() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(candidate_contest) => Some(candidate_contest),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
     let ballot = CastVoteRecord {
@@ -96,7 +96,10 @@ proptest! {
                 )),
                 Contest::YesNo(yesno_contest) => (yesno_contest.id.clone(), ContestVote::YesNo(
                     yesno_contest.yes_option.id.clone()
-                ))
+                )),
+                Contest::StraightParty(_) => unimplemented!(
+                    "STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented"
+                ),
             }).collect(),
             is_test_mode,
             ballot_type,
@@ -116,7 +119,7 @@ fn test_yesno_contest_vote_round_trip() {
         .contests
         .iter()
         .find_map(|contest| match contest {
-            Contest::Candidate(_) => None,
+            Contest::Candidate(_) | Contest::StraightParty(_) => None,
             Contest::YesNo(yesno_contest) => Some((contest, yesno_contest)),
         })
         .unwrap();
@@ -135,7 +138,7 @@ fn test_candidate_contest_vote_round_trip() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(candidate_contest) => Some((contest, candidate_contest)),
-            Contest::YesNo(_) => None,
+            Contest::YesNo(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
     let contest_vote = ContestVote::Candidate(vec![CandidateVote::NamedCandidate {

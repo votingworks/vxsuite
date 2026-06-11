@@ -167,6 +167,11 @@ impl FromBitStreamWith<'_> for ContestVote {
                     yesno_contest.no_option.id.clone()
                 }))
             }
+            Contest::StraightParty(_) => {
+                unimplemented!(
+                    "STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented"
+                )
+            }
         }
     }
 }
