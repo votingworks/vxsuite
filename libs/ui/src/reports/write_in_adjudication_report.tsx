@@ -1,5 +1,5 @@
 import {
-  AnyContest,
+  Contest,
   CandidateContest,
   ElectionDefinition,
   isPrimary,
@@ -26,7 +26,7 @@ import {
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 
 function getEmptyContestWriteInSummary(
-  contest: AnyContest
+  contest: Contest
 ): Tabulation.ContestWriteInSummary {
   return {
     contestId: contest.id,

@@ -15,7 +15,7 @@ import {
   Tabulation,
   CandidateId,
   Admin as AdminTypes,
-  AnyContest,
+  Contest,
   getPrecinctById,
   BallotStyleGroupId,
   Contests,
@@ -299,7 +299,7 @@ interface FormWriteInCandidate {
 }
 
 function emptyFormContestResults(
-  contest: AnyContest,
+  contest: Contest,
   ballotCount?: number
 ): FormContestResults {
   switch (contest.type) {

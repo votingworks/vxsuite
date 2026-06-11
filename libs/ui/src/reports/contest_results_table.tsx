@@ -5,7 +5,7 @@ import {
   Election,
   getContestDistrictName,
   Tabulation,
-  AnyContest,
+  Contest,
 } from '@votingworks/types';
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
@@ -165,7 +165,7 @@ function ContestMetadataRow({
 
 interface Props {
   election: Election;
-  contest: AnyContest;
+  contest: Contest;
   scannedContestResults: Tabulation.ContestResults;
   manualContestResults?: Tabulation.ContestResults;
   aggregateInsignificantWriteIns?: boolean;

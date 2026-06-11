@@ -4,7 +4,7 @@ import {
   Election,
   ElectionDefinition,
   PrecinctId,
-  AnyContest,
+  Contest,
   Contests,
   PrecinctSelection,
   PartyId,
@@ -62,7 +62,7 @@ export const getContestIdsForPrecinct = createElectionMetadataLookupFunction(
 export function mapContestIdsToContests(
   electionDefinition: ElectionDefinition,
   contestIds: Set<ContestId>
-): AnyContest[] {
+): Contest[] {
   return electionDefinition.election.contests.filter((c) =>
     contestIds.has(c.id)
   );

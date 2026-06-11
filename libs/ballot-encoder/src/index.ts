@@ -1,5 +1,5 @@
 import {
-  AnyContest,
+  Contest,
   BallotIdSchema,
   BallotStyleId,
   BallotType,
@@ -810,7 +810,7 @@ export function decodeBmdMultiPageBallotFromReader(
 
   // Read contest bitmap: which contests are on this page
   const contestIds: ContestId[] = [];
-  const contestsOnThisPage: AnyContest[] = [];
+  const contestsOnThisPage: Contest[] = [];
   for (const contest of allContests) {
     if (bits.readBoolean()) {
       contestIds.push(contest.id);

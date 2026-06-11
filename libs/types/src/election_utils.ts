@@ -6,15 +6,13 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
   Candidate,
   CandidateContest,
-  Contest,
   ContestId,
-  ContestLike,
   Contests,
   District,
   DistrictId,
@@ -216,7 +214,7 @@ export function findContest({
 }: {
   contests: Contests;
   contestId: ContestId;
-}): AnyContest | undefined {
+}): Contest | undefined {
   return contests.find((c) => c.id === contestId);
 }
 

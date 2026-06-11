@@ -1,6 +1,6 @@
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotStyleGroupId,
   CandidateContest,
   CandidateId,
@@ -523,7 +523,7 @@ export function combineContestResults({
   contest,
   allContestResults,
 }: {
-  contest: AnyContest;
+  contest: Contest;
   allContestResults: Tabulation.ContestResults[];
 }): Tabulation.ContestResults {
   if (contest.type === 'yesno') {
@@ -733,7 +733,7 @@ export function buildContestResultsFixture({
   contestResultsSummary,
   includeGenericWriteIn,
 }: {
-  contest: AnyContest;
+  contest: Contest;
   contestResultsSummary: ContestResultsSummary;
   includeGenericWriteIn?: boolean;
 }): Tabulation.ContestResults {

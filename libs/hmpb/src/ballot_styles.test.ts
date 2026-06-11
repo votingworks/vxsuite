@@ -1,7 +1,7 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { typedAs } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   District,
   DistrictId,
   Party,
@@ -23,7 +23,7 @@ function makeContest(
   id: string,
   districtId: DistrictId,
   partyId?: PartyId
-): AnyContest {
+): Contest {
   return {
     id,
     districtId,

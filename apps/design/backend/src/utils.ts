@@ -1,6 +1,6 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   Candidate,
   District,
   Election,
@@ -57,7 +57,7 @@ export function regenerateElectionIds(
   districts: District[];
   precincts: Precinct[];
   parties: Party[];
-  contests: AnyContest[];
+  contests: Contest[];
   pollingPlaces?: PollingPlace[];
 } {
   const idMap = new Map<string, string>();

@@ -1,7 +1,7 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  AnyContest,
+  Contest,
   BallotStyle,
   CandidateVote,
   ContestOption,
@@ -34,7 +34,7 @@ function compareMarkStatusDescending(
   return rankMarkStatus(markStatusB) - rankMarkStatus(markStatusA);
 }
 
-function getExpectedVoteCount(contest: AnyContest): number {
+function getExpectedVoteCount(contest: Contest): number {
   switch (contest.type) {
     case 'candidate':
       return contest.seats;

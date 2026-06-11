@@ -10,7 +10,7 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotType,
   CastVoteRecordExportFileName,
   ContestId,
@@ -252,7 +252,7 @@ export function isCastVoteRecordWriteInValid(
   return Boolean(cvrWriteIn.side || cvrWriteIn.text);
 }
 
-function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
+function getValidContestOptions(contest: Contest): ContestOptionId[] {
   switch (contest.type) {
     case 'candidate':
       return [

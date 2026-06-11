@@ -1,8 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import {
-  AnyContest,
-  BallotStyle,
   Contest,
+  BallotStyle,
   Election,
   PollingPlace,
   Precinct,
@@ -95,10 +94,7 @@ test('pollingPlaceContests', () => {
     precincts: [precinct1, precinct2],
   });
 
-  function expectContests(
-    place: Partial<PollingPlace>,
-    expected: AnyContest[]
-  ) {
+  function expectContests(place: Partial<PollingPlace>, expected: Contest[]) {
     expect(pollingPlaceContests(election, mockPollingPlace(place))).toEqual(
       expected
     );
@@ -360,8 +356,8 @@ function mockBallotStyle(partial: Partial<BallotStyle>): BallotStyle {
   return partial as BallotStyle;
 }
 
-function mockContest(partial: Partial<Contest>): AnyContest {
-  return partial as AnyContest;
+function mockContest(partial: Partial<Contest>): Contest {
+  return partial as Contest;
 }
 
 function mockElection(partial: Partial<Election>): Election {

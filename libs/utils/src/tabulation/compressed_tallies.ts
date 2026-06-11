@@ -1,5 +1,5 @@
 import {
-  AnyContest,
+  Contest,
   CandidateContestCompressedTally,
   CandidateContestCompressedTallySchema,
   CompressedTally,
@@ -226,7 +226,7 @@ export function compressAndEncodePerPrecinctTally({
 }
 
 function getContestTalliesForCompressedContest(
-  contest: AnyContest,
+  contest: Contest,
   compressedContest: CompressedTallyEntry
 ): Tabulation.ContestResults {
   switch (contest.type) {
@@ -298,7 +298,7 @@ function getContestTalliesForCompressedContest(
 // The length of a yes/no contest compressed tally is always 5: undervotes, overvotes, ballots, yes, no
 const yesNoContestCompressedTallyLength: YesNoContestCompressedTally['length'] = 5;
 
-function getNumberOfEntriesInContest(contest: AnyContest): number {
+function getNumberOfEntriesInContest(contest: Contest): number {
   switch (contest.type) {
     case 'yesno':
       return yesNoContestCompressedTallyLength;
@@ -379,7 +379,7 @@ export function decodeV0CompressedTally(
  */
 function decodeContestEntriesFromUint16Array(
   uint16Array: Uint16Array,
-  contests: readonly AnyContest[],
+  contests: readonly Contest[],
   offset: number
 ): { contestResults: Record<ContestId, ContestResults>; nextOffset: number } {
   const contestResults: Record<ContestId, ContestResults> = {};

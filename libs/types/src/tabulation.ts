@@ -1,5 +1,5 @@
 import {
-  AnyContest,
+  Contest,
   BallotCastingMode,
   BallotStyleGroupId,
   BallotType,
@@ -20,7 +20,7 @@ export interface ContestResultsMetadata {
 
 type ContestResultsBase = ContestResultsMetadata & {
   readonly contestId: ContestId;
-  readonly contestType: AnyContest['type'];
+  readonly contestType: Contest['type'];
 };
 
 export type YesNoContestResults = ContestResultsBase & {

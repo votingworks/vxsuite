@@ -6,7 +6,7 @@ import {
   AdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
-  AnyContest,
+  Contest,
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
@@ -73,9 +73,9 @@ function MisvoteWarningScreen({
   }
 
   // Then, map IDs to contests in the election:
-  const blankContests: AnyContest[] = [];
-  const partiallyVotedContests: AnyContest[] = [];
-  const overvoteContests: AnyContest[] = [];
+  const blankContests: Contest[] = [];
+  const partiallyVotedContests: Contest[] = [];
+  const overvoteContests: Contest[] = [];
 
   for (const contest of contests) {
     if (blankContestIds.has(contest.id)) {

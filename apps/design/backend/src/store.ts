@@ -27,7 +27,7 @@ import {
   District,
   PrecinctId,
   Party,
-  AnyContest,
+  Contest,
   HmpbBallotPaperSize,
   NhPrecinctSplitOptions,
   Candidate,
@@ -379,7 +379,7 @@ async function insertParty(
 async function insertContest(
   client: Client,
   electionId: ElectionId,
-  contest: AnyContest,
+  contest: Contest,
   ballotOrder?: number
 ) {
   await assertWithinTransaction(client);
@@ -1047,7 +1047,7 @@ export class Store {
       ).rows as Array<{
         id: string;
         title: string;
-        type: AnyContest['type'];
+        type: Contest['type'];
         districtId: DistrictId;
         seats: number | null;
         allowWriteIns: boolean | null;
@@ -1087,7 +1087,7 @@ export class Store {
         lastName: string | null;
         partyIds: PartyId[];
       }>;
-      const contests: AnyContest[] = contestRows.map((row) => {
+      const contests: Contest[] = contestRows.map((row) => {
         switch (row.type) {
           case 'candidate': {
             const candidates: Candidate[] = candidateRows
@@ -2022,7 +2022,7 @@ export class Store {
     return assertDefined(res);
   }
 
-  async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
+  async listContests(electionId: ElectionId): Promise<readonly Contest[]> {
     const { election } = await this.getElection(electionId);
     return election.contests;
   }
@@ -2041,7 +2041,7 @@ export class Store {
 
   async createContest(
     electionId: ElectionId,
-    contest: AnyContest
+    contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
     if (
       contest.type === 'yesno' &&
@@ -2064,7 +2064,7 @@ export class Store {
 
   async updateContest(
     electionId: ElectionId,
-    contest: AnyContest
+    contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
     if (
       contest.type === 'yesno' &&

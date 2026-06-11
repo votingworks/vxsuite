@@ -1,5 +1,5 @@
 import {
-  AnyContest,
+  Contest,
   ContestId,
   OrderedCandidateOption,
   Precinct,
@@ -39,7 +39,7 @@ export interface PrintCalibration {
 }
 
 export interface RotationParams {
-  contests: readonly AnyContest[];
+  contests: readonly Contest[];
   precincts: readonly Precinct[];
   districtIds: readonly string[];
   precinctsOrSplitIds: readonly PrecinctOrSplitId[];

@@ -1,6 +1,5 @@
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
-  AnyContest,
   Contest,
   ContestId,
   Contests,
@@ -33,7 +32,7 @@ export interface MsEitherNeitherContest extends Omit<Contest, 'type'> {
  * A list of contests including merged MS either-neither contests.
  */
 export type ContestsWithMsEitherNeither = ReadonlyArray<
-  AnyContest | MsEitherNeitherContest
+  Contest | MsEitherNeitherContest
 >;
 
 function insertAtIndex<T>(array: T[], index: number, item: T): T[] {
@@ -108,7 +107,7 @@ export function mergeMsEitherNeitherContests(
  */
 export function getContestDistrictName(
   election: Election,
-  contest: AnyContest | MsEitherNeitherContest
+  contest: Contest | MsEitherNeitherContest
 ): string {
   if (contest.type === 'ms-either-neither') {
     const district = find(

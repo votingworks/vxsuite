@@ -1,6 +1,6 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotStyle,
   BallotStyleGroupId,
   BallotStyleId,
@@ -73,7 +73,7 @@ export const getPartyById = createElectionMetadataLookupFunction((election) => {
 export const getContestById = createElectionMetadataLookupFunction(
   (election) => {
     const { contests } = election;
-    const lookup: Record<string, AnyContest> = {};
+    const lookup: Record<string, Contest> = {};
     for (const contest of contests) {
       lookup[contest.id] = contest;
     }

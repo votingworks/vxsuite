@@ -12,7 +12,7 @@ import { fromGrayScale, isRgba } from '@votingworks/image-utils';
 import {
   AdjudicationInfo,
   AdjudicationReason,
-  AnyContest,
+  Contest,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotStyle,
@@ -383,7 +383,7 @@ function convertContestLayouts(
   }
 
   function convertContestOptionLayout(
-    contest: AnyContest,
+    contest: Contest,
     { bounds, optionId }: InterpretedContestOptionLayout
   ): BallotPageContestOptionLayout {
     const option = iter(allContestOptions(contest, ballotStyle)).find(

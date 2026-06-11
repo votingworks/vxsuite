@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import { Button } from '@votingworks/ui';
-import { AnyContest, Party } from '@votingworks/types';
+import { Contest, Party } from '@votingworks/types';
 import { useHistory, useParams } from 'react-router-dom';
 import { Column, Row } from './layout';
 import * as api from './api';
@@ -31,8 +31,8 @@ export interface ReorderParams {
 }
 
 export interface ContestListProps {
-  candidateContests: AnyContest[];
-  yesNoContests: AnyContest[];
+  candidateContests: Contest[];
+  yesNoContests: Contest[];
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
 }
@@ -97,7 +97,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 }
 
 export function Sublist(props: {
-  contests: AnyContest[];
+  contests: Contest[];
   districtIdToName: Map<string, string>;
   onSelect: (contestId: string) => void;
   parties: readonly Party[];
@@ -180,7 +180,7 @@ export function Sublist(props: {
   );
 }
 
-function partyName(contest: AnyContest, parties: readonly Party[]) {
+function partyName(contest: Contest, parties: readonly Party[]) {
   if (contest.type !== 'candidate' || !contest.partyId) return undefined;
 
   return parties.find((p) => p.id === contest.partyId)?.fullName;

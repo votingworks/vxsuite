@@ -7,7 +7,7 @@ import type {
 } from '@votingworks/admin-backend';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotPageContestOptionLayout,
   ContestId,
   ContestOptionId,
@@ -23,7 +23,7 @@ export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
 
 export interface ContestListItem {
   side: Side;
-  contest: AnyContest;
+  contest: Contest;
   adjudicationData: ContestAdjudicationData;
   isResolved: boolean;
 }
@@ -67,7 +67,7 @@ export function getCurrentVote(
 export function isContestCrossoverVoted(
   ballotHasCrossoverVote: boolean,
   contestItem: {
-    contest: AnyContest;
+    contest: Contest;
     adjudicationData: ContestAdjudicationData;
   },
   adjudicatedContest?: AdjudicatedCvrContest
@@ -188,7 +188,7 @@ export function deriveCrossoverVoteStatus(
 
 export function contestPartyLabel(
   election: Election,
-  contest: AnyContest
+  contest: Contest
 ): string | undefined {
   return election.type === 'open-primary' &&
     contest.type === 'candidate' &&

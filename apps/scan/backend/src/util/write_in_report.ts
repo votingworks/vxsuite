@@ -1,12 +1,12 @@
 import { assertDefined } from '@votingworks/basics';
 import { loadImageData, crop, toDataUrl } from '@votingworks/image-utils';
-import { AnyContest, InterpretedHmpbPage, VotesDict } from '@votingworks/types';
+import { Contest, InterpretedHmpbPage, VotesDict } from '@votingworks/types';
 import { WriteInEntry } from '@votingworks/ui';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('write-in-report');
 
-function isContestOvervoted(contest: AnyContest, votes: VotesDict): boolean {
+function isContestOvervoted(contest: Contest, votes: VotesDict): boolean {
   if (contest.type !== 'candidate') return false;
   const vote = votes[contest.id];
   if (!vote || !Array.isArray(vote)) return false;
@@ -15,7 +15,7 @@ function isContestOvervoted(contest: AnyContest, votes: VotesDict): boolean {
 
 export function getOvervotedContestIds(
   votes: VotesDict,
-  contests: readonly AnyContest[]
+  contests: readonly Contest[]
 ): Set<string> {
   const overvoted = new Set<string>();
   for (const contest of contests) {

@@ -6,7 +6,7 @@ import {
   uniqueBy,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   WriteInCandidate,
   CandidateContest,
   Candidate,
@@ -46,7 +46,7 @@ export interface TestDeckBallot {
   votes: VotesDict;
 }
 
-export function numBallotPositions(contest: AnyContest): number {
+export function numBallotPositions(contest: Contest): number {
   if (contest.type === 'candidate') {
     return (
       contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0)

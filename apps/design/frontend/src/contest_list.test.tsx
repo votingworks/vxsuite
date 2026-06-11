@@ -1,4 +1,4 @@
-import { AnyContest, Contest, District, Party } from '@votingworks/types';
+import { Contest, District, Party } from '@votingworks/types';
 import { afterEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
@@ -295,7 +295,7 @@ function getHeading(name: string) {
 }
 
 function getOption(
-  contest: AnyContest,
+  contest: Contest,
   district: District,
   opts: { party?: Party; selected?: boolean } = {}
 ) {
@@ -345,7 +345,7 @@ function renderList(
   );
 }
 
-function withParty(contest: AnyContest, party: Party) {
+function withParty(contest: Contest, party: Party) {
   assert(contest.type === 'candidate');
   return { ...contest, partyId: party.id };
 }

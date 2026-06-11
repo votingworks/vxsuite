@@ -4,7 +4,6 @@ import {
   Tabulation,
   ElectionDefinition,
   Id,
-  AnyContest,
   Election,
 } from '@votingworks/types';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
@@ -135,7 +134,7 @@ function* generateDataRows({
         filter: groupFilter,
       })
     );
-    const includedContests: AnyContest[] = [];
+    const includedContests: Contest[] = [];
     for (const contest of election.contests) {
       if (contestIds.has(contest.id)) {
         includedContests.push(contest);

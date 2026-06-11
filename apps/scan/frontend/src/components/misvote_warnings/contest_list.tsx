@@ -1,6 +1,6 @@
 import styled, { DefaultTheme } from 'styled-components';
 
-import { AnyContest, SizeMode } from '@votingworks/types';
+import { Contest, SizeMode } from '@votingworks/types';
 import {
   Caption,
   Font,
@@ -12,7 +12,7 @@ import {
 import React from 'react';
 
 export interface ContestListProps {
-  contests: readonly AnyContest[];
+  contests: readonly Contest[];
   helpNote: React.ReactNode;
   maxColumns: number;
   title: React.ReactNode;

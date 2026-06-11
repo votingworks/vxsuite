@@ -1,6 +1,6 @@
 import { integers } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BatchInfo,
   CandidateContest,
   CastVoteRecordBatchMetadata,
@@ -84,7 +84,7 @@ function buildBallotMeasureContest(
 }
 
 function buildContest(
-  contest: AnyContest
+  contest: Contest
 ): CVR.CandidateContest | CVR.BallotMeasureContest {
   return contest.type === 'candidate'
     ? buildCandidateContest(contest)

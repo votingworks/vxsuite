@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
-  AnyContest,
+  Contest,
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
@@ -1581,7 +1581,7 @@ describe('audio editing', () => {
   });
 
   interface AudioEnabledInputSpec {
-    contest: AnyContest;
+    contest: Contest;
     inputLabel: string;
     stringKey: ElectionStringKey;
     subkey: string;
