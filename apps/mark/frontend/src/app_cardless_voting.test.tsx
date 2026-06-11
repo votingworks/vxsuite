@@ -3,6 +3,7 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { PollingPlace } from '@votingworks/types';
+import { find } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
@@ -33,6 +34,8 @@ vi.setConfig({
 const precinctId = '23';
 const pollingPlaceId = `${precinctId}-polling-place`;
 const electionDefinition = readElectionGeneralDefinition();
+const { election } = electionDefinition;
+const precinct = find(election.precincts, (p) => p.id === precinctId);
 
 test('poll worker selects ballot style, voter votes', async () => {
   apiMock.expectGetMachineConfig();
@@ -60,13 +63,13 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(await screen.findByText('Deactivate Voting Session'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Start Voting Session:');
+  await screen.findByText('Start a New Voting Session');
 
   // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  userEvent.click(screen.getByText('Start Voting Session:'));
+  userEvent.click(await screen.findButton(precinct.name));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -104,13 +107,13 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on poll worker screen
-  await screen.findByText('Start Voting Session:');
+  await screen.findByText('Start a New Voting Session');
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  userEvent.click(screen.getByText('Start Voting Session:'));
+  userEvent.click(screen.getButton(precinct.name));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -247,8 +250,6 @@ test('poll worker card insertion during printing does not cause duplicate print'
 });
 
 test('in multi-precinct location, poll worker must select a precinct first', async () => {
-  const { election } = electionDefinition;
-
   const multiPrecinctLocation: PollingPlace = {
     id: 'multi-precinct-polling-place',
     name: 'Springfield Community Center',

@@ -32,6 +32,7 @@ import {
 } from './support/flows';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
+const PRECINCT_NAME = 'North Lincoln';
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -225,10 +226,10 @@ test('basic election flow', async ({ page }, testInfo) => {
   await page.getByText('Poll Worker Menu').waitFor();
   await screenshot('pw-menu-polls-open');
   await screenshotWithButtonHighlight(
-    /Start Voting Session/,
+    PRECINCT_NAME,
     'pw-start-voting-session-button'
   );
-  await page.getByText(/Start Voting Session/).click();
+  await page.getByRole('button', { name: PRECINCT_NAME }).click();
   await insertBlankBallotSheet(page);
   await page.getByText(/Remove Card/).waitFor();
   await screenshot('pw-remove-card-to-vote');
@@ -460,7 +461,7 @@ test('voter settings', async ({ page }, testInfo) => {
   mockCardRemoval();
   await page.getByText('Insert a poll worker card to open.').waitFor();
   await openPolls(page, election);
-  await startVotingSession(page);
+  await startVotingSession(page, { precinctName: PRECINCT_NAME });
   await page.getByRole('button', { name: 'Start Voting' }).click();
 
   // Voter is on the first contest; the language and settings menu buttons are

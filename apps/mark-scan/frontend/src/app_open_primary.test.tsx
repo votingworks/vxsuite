@@ -49,11 +49,7 @@ async function activateCardlessVoterSession() {
     })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(
-    screen.getByText(
-      hasTextAcrossElements(`Start Voting Session: ${PRECINCT_NAME}`)
-    )
-  );
+  userEvent.click(screen.getButton(PRECINCT_NAME));
 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {

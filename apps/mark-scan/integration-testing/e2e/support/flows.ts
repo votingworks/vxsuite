@@ -91,9 +91,14 @@ export async function openPolls(page: Page, election: Election): Promise<void> {
  * mechanical states automatically, so no paper status needs to be set. Removes
  * the poll worker card and leaves the voter on the "Start Voting" screen.
  */
-export async function startVotingSession(page: Page): Promise<void> {
+export async function startVotingSession(
+  page: Page,
+  params: {
+    precinctName: string;
+  }
+): Promise<void> {
   const startButton = page.getByRole('button', {
-    name: /Start Voting Session/,
+    name: params.precinctName,
   });
   await startButton.waitFor();
   await startButton.click();

@@ -88,7 +88,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   await openPolls(page, election);
 
   // Poll Worker: initiate voting session
-  await page.getByText('Start Voting Session: Center Springfield').click();
+  await page.getByRole('button', { name: 'Center Springfield' }).click();
   await page.getByText('Remove Card to Begin Voting Session').waitFor();
   mockCardRemoval();
 
