@@ -5,7 +5,6 @@ import {
   BallotStyle,
   CandidateVote,
   ContestOption,
-  Contests,
   MarkStatus,
   VotesDict,
   WriteInAreaStatus,
@@ -51,7 +50,7 @@ function getExpectedVoteCount(contest: Contest): number {
  * the context of a BMD.
  */
 export function getAllPossibleAdjudicationReasonsForBmdVotes(
-  contests: Contests,
+  contests: readonly Contest[],
   votes: VotesDict
 ): AdjudicationReasonInfo[] {
   const reasons: AdjudicationReasonInfo[] = [];
@@ -111,7 +110,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
  * the context of a HMPB.
  */
 export function getAllPossibleAdjudicationReasons(
-  contests: Contests,
+  contests: readonly Contest[],
   allScoredContestOptions: Array<{
     option: ContestOption;
     markStatus: MarkStatus;

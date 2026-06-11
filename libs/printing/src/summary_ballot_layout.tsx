@@ -5,7 +5,7 @@ import { assert } from '@votingworks/basics';
 import {
   BallotStyleId,
   ContestId,
-  Contests,
+  Contest,
   ElectionDefinition,
   getBallotStyle,
   getContests,
@@ -102,7 +102,7 @@ async function measureBallotHeight(
   electionDefinition: ElectionDefinition,
   ballotStyleId: BallotStyleId,
   precinctId: string,
-  contests: Contests,
+  contests: readonly Contest[],
   votes: VotesDict,
   machineType: MachineType,
   isMultiPage: boolean,
@@ -215,7 +215,7 @@ async function findMaxContestsThatFit(
   electionDefinition: ElectionDefinition,
   ballotStyleId: BallotStyleId,
   precinctId: string,
-  contests: Contests,
+  contests: readonly Contest[],
   votes: VotesDict,
   machineType: MachineType,
   isMultiPage: boolean,
@@ -251,7 +251,7 @@ async function findMaxContestsThatFit(
 
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
-    const testContests = contests.slice(0, mid) as Contests;
+    const testContests = contests.slice(0, mid);
 
     const height = await measureBallotHeight(
       page,
@@ -366,7 +366,7 @@ export class SummaryBallotLayoutRenderer {
 
     // Multi-page layout needed
     const pages: SummaryBallotPageLayout[] = [];
-    let remainingContests = [...contests] as Contests;
+    let remainingContests = [...contests];
     let pageNumber = 1;
     // Use total contest count for consistent layout across all pages
     const layout = selectLayout(totalContestCount, machineType);
@@ -385,7 +385,7 @@ export class SummaryBallotLayoutRenderer {
         languageContext
       );
 
-      const pageContests = remainingContests.slice(0, maxFit) as Contests;
+      const pageContests = remainingContests.slice(0, maxFit);
 
       pages.push({
         pageNumber,

@@ -9,7 +9,6 @@ import {
   CandidateVote,
   CompletedBallot,
   ContestId,
-  Contests,
   Election,
   ElectionDefinition,
   getBallotStyle,
@@ -258,7 +257,7 @@ function writeYesNoVote(
 }
 
 function encodeBallotVotesInto(
-  contests: Contests,
+  contests: readonly Contest[],
   votes: VotesDict,
   bits: BitWriter
 ): BitWriter {
@@ -393,7 +392,10 @@ function readPaddingToEnd(bits: BitReader): void {
   }
 }
 
-function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
+function decodeBallotVotes(
+  contests: readonly Contest[],
+  bits: BitReader
+): VotesDict {
   const votes: VotesDict = {};
 
   for (const contest of contests) {
@@ -608,7 +610,7 @@ export interface BmdMultiPageBallotPage {
   totalPages: number;
   ballotAuditId: string;
   /** The contests included on this page */
-  contests: Contests;
+  contests: readonly Contest[];
   /** Votes for the contests on this page */
   votes: VotesDict;
 }

@@ -12,7 +12,7 @@ import {
   BallotType,
   CandidateContest,
   CandidateVote,
-  Contests,
+  Contest,
   Election,
   ElectionDefinition,
   formatBallotHash,
@@ -235,14 +235,14 @@ export const MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE = 25;
  * Returns an array where each element is the contests for one page.
  */
 export function splitContestsForPages(
-  contests: Contests,
+  contests: readonly Contest[],
   maxContestsPerPage: number = MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE
-): Contests[] {
+): Array<readonly Contest[]> {
   if (contests.length === 0) {
     return [contests];
   }
 
-  const pages: Contests[] = [];
+  const pages: Array<readonly Contest[]> = [];
   for (let i = 0; i < contests.length; i += maxContestsPerPage) {
     pages.push(contests.slice(i, i + maxContestsPerPage));
   }
@@ -254,7 +254,7 @@ export function splitContestsForPages(
  * Determines if a ballot with the given contests needs multiple pages.
  */
 export function needsMultiplePages(
-  contests: Contests,
+  contests: readonly Contest[],
   maxContestsPerPage: number = MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE
 ): boolean {
   return contests.length > maxContestsPerPage;
@@ -265,7 +265,7 @@ export function needsMultiplePages(
  */
 export function filterVotesForContests(
   votes: VotesDict,
-  contests: Contests
+  contests: readonly Contest[]
 ): VotesDict {
   const contestIds = new Set(contests.map((c) => c.id));
   const filtered: VotesDict = {};
@@ -408,7 +408,7 @@ const BallotSelections = styled.div<{ numColumns: number }>`
   columns: ${(p) => p.numColumns};
   column-gap: 1em;
 `;
-const Contest = styled.div`
+const ContestContainer = styled.div`
   border-bottom: 0.01em solid #000;
   padding: 0.25em 0;
   break-inside: avoid;
@@ -645,7 +645,7 @@ export interface BmdPaperBallotProps {
    * For multi-page BMD ballots: the subset of contests to render on this page.
    * When provided, only these contests are rendered and encoded.
    */
-  contestsForPage?: Contests;
+  contestsForPage?: readonly Contest[];
 }
 
 /**
@@ -661,7 +661,7 @@ function withPrintTheme(ballot: JSX.Element): JSX.Element {
 }
 
 function qrCodeLevelOverride(
-  contests: Contests,
+  contests: readonly Contest[],
   votes: VotesDict
 ): QrCodeLevel | undefined {
   let writeInCharCount = 0;
@@ -873,7 +873,7 @@ export function BmdPaperBallot({
                   ? find(election.parties, (p) => p.id === contest.partyId)
                   : undefined;
               return (
-                <Contest key={contest.id}>
+                <ContestContainer key={contest.id}>
                   {contestParty && (
                     <ContestParty>
                       <DualLanguageText
@@ -918,7 +918,7 @@ export function BmdPaperBallot({
                       vote={votes[contest.id] as YesNoVote}
                     />
                   )}
-                </Contest>
+                </ContestContainer>
               );
             })}
           </BallotSelections>

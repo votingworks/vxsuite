@@ -2,7 +2,7 @@ import { groupBy, throwIllegalValue, unique } from '@votingworks/basics';
 import {
   BallotLanguageConfigs,
   CandidateContest,
-  Contests,
+  Contest,
   DistrictId,
   Parties,
   PrecinctOrSplitId,
@@ -40,7 +40,7 @@ import { getAllPossibleCandidateOrderings } from './ballot_rotation';
  * precinct/split and set of contests it will get its own ballot style.
  */
 export function generateBallotStyles(params: {
-  contests: Contests;
+  contests: readonly Contest[];
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
   parties: Parties;

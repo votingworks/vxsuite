@@ -5,7 +5,7 @@ import {
   CandidateContest,
   CandidateId,
   CandidateVote,
-  Contests,
+  Contest,
   MarkStatus,
   MarkThresholds,
   safeParse,
@@ -157,7 +157,7 @@ function deduplicateVotes(vote: Vote): Vote {
  * Convert {@link BallotTargetMark}s to {@link VotesDict}.
  */
 export function convertMarksToVotesDict(
-  contests: Contests,
+  contests: readonly Contest[],
   markThresholds: MarkThresholdsOptionalMarginal,
   marks: Iterable<BallotTargetMark>
 ): VotesDict {

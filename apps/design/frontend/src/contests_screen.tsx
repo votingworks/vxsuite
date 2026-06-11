@@ -4,7 +4,7 @@ import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import {
   CandidateContest,
   ContestId,
-  Contests,
+  Contest,
   YesNoContest,
   isPrimary,
 } from '@votingworks/types';
@@ -101,7 +101,8 @@ function Content(): JSX.Element | null {
 
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
-  const [reorderedContests, setReorderedContests] = useState<Contests>();
+  const [reorderedContests, setReorderedContests] =
+    useState<readonly Contest[]>();
 
   if (
     !(
@@ -163,7 +164,7 @@ function Content(): JSX.Element | null {
       ? contestRoutes.view(contestsToShow[0].id).path
       : null;
 
-  function onSaveReorderedContests(updatedContests: Contests) {
+  function onSaveReorderedContests(updatedContests: readonly Contest[]) {
     reorderContestsMutation.mutate(
       {
         electionId,

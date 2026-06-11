@@ -4,7 +4,6 @@ import {
   Contest,
   BallotType,
   BallotStyleId,
-  Contests,
   Election,
   VotesDict,
   getContests,
@@ -39,7 +38,7 @@ import type {
  * `includeWriteIns` is set). For yes/no contests, picks yes.
  */
 function generateVotesForContests(
-  contests: Contests,
+  contests: readonly Contest[],
   includeWriteIns: boolean
 ): VotesDict {
   const votes: VotesDict = {};
@@ -312,7 +311,7 @@ function ballotHashToBytes(ballotHash: string): number[] {
  */
 function tsVotesToRustVotes(
   votes: VotesDict,
-  contests: Contests
+  contests: readonly Contest[]
 ): Record<string, RustContestVote> {
   const rustVotes: Record<string, RustContestVote> = {};
   for (const contest of contests) {

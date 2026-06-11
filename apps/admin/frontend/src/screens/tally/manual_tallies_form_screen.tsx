@@ -18,7 +18,6 @@ import {
   Contest,
   getPrecinctById,
   BallotStyleGroupId,
-  Contests,
   Precinct,
   Election,
 } from '@votingworks/types';
@@ -371,7 +370,7 @@ function validateTallies(
 }
 
 function convertTabulationResultsToFormResults(
-  contests: Contests,
+  contests: readonly Contest[],
   savedResults?: Tabulation.ManualElectionResults
 ): FormManualResults {
   const contestResults = Object.fromEntries(

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { assert, assertDefined } from '@votingworks/basics';
-import { Contests, District } from '@votingworks/types';
+import { Contest, District } from '@votingworks/types';
 import { Button, Modal } from '@votingworks/ui';
 
 import {
@@ -14,7 +14,7 @@ import {
 import { Column, Row } from './layout';
 import { reorderElement } from './utils';
 
-function serializeContestIds(contests: Contests): string {
+function serializeContestIds(contests: readonly Contest[]): string {
   return contests
     .map((c) => c.id)
     .sort()
@@ -22,9 +22,9 @@ function serializeContestIds(contests: Contests): string {
 }
 
 export function reorderContestsByDistrict(
-  contests: Contests,
+  contests: readonly Contest[],
   districtOrder: District[]
-): Contests {
+): readonly Contest[] {
   const candidateContests = contests.filter((c) => c.type === 'candidate');
   const yesNoContests = contests.filter((c) => c.type === 'yesno');
   assert(candidateContests.length + yesNoContests.length === contests.length);
@@ -64,11 +64,11 @@ function ReorderContestsByDistrictModal({
   onClose,
   onSave,
 }: {
-  contests: Contests;
+  contests: readonly Contest[];
   districts: readonly District[];
   isSaving: boolean;
   onClose: () => void;
-  onSave: (reordered: Contests) => void;
+  onSave: (reordered: readonly Contest[]) => void;
 }): React.ReactNode {
   const [orderedDistricts, setOrderedDistricts] = useState<District[]>(() => {
     // Initialize district order based on the order of appearance in contests

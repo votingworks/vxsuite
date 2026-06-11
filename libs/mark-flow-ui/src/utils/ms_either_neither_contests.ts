@@ -2,7 +2,6 @@ import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   Contest,
   ContestId,
-  Contests,
   YesNoOption,
   getContestDistrictName as getContestDistrictNameBase,
   Election,
@@ -45,7 +44,7 @@ function insertAtIndex<T>(array: T[], index: number, item: T): T[] {
  * structure.
  */
 export function mergeMsEitherNeitherContests(
-  contests: Contests | ContestsWithMsEitherNeither
+  contests: readonly Contest[] | ContestsWithMsEitherNeither
 ): ContestsWithMsEitherNeither {
   const eitherNeitherContest = contests.find(
     (contest) =>

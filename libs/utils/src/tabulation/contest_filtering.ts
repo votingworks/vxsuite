@@ -5,7 +5,6 @@ import {
   ElectionDefinition,
   PrecinctId,
   Contest,
-  Contests,
   PrecinctSelection,
   PartyId,
   getPartyIdsWithContests,
@@ -71,7 +70,7 @@ export function mapContestIdsToContests(
 export function getContestsForPrecinct(
   electionDefinition: ElectionDefinition,
   precinctSelection: PrecinctSelection
-): Contests {
+): readonly Contest[] {
   const { election } = electionDefinition;
   if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
@@ -91,7 +90,7 @@ export function getContestsForPrecinct(
 export function getContestsForPrecinctAndElection(
   election: Election,
   precinctSelection: PrecinctSelection
-): Contests {
+): readonly Contest[] {
   if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
   }
@@ -105,12 +104,12 @@ export function getContestsForPrecinctAndElection(
 export interface PartyWithContests {
   partyId?: PartyId; // undefined for non-partisan contests
   partyName?: string;
-  contests: Contests;
+  contests: readonly Contest[];
 }
 
 export function groupContestsByParty(
   election: Election,
-  contests: Contests
+  contests: readonly Contest[]
 ): PartyWithContests[] {
   return getPartyIdsWithContests(election).map((partyId) => ({
     partyId,

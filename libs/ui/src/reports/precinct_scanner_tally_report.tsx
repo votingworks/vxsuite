@@ -1,6 +1,6 @@
 import {
   BatchInfo,
-  Contests,
+  Contest,
   ElectionDefinition,
   PartyId,
   PrecinctSelection,
@@ -25,7 +25,7 @@ interface Props {
   partyId?: PartyId;
   pollingPlaceId?: string;
   precinctSelection?: PrecinctSelection;
-  contests: Contests;
+  contests: readonly Contest[];
   scannedElectionResults: Tabulation.ElectionResults;
   pollsTransition: StandardPollsTransitionType;
   isLiveMode: boolean;

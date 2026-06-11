@@ -6,7 +6,6 @@ import {
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
-  Contests,
   DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
   Election,
@@ -1690,7 +1689,7 @@ describe('audio editing', () => {
   });
 });
 
-function expectContestListItems(contests: Contests) {
+function expectContestListItems(contests: readonly Contest[]) {
   expectContestListProps({
     candidateContests: contests.filter((c) => c.type === 'candidate'),
     yesNoContests: contests.filter((c) => c.type === 'yesno'),

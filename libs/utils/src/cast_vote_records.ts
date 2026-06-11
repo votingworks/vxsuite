@@ -15,7 +15,6 @@ import {
   CastVoteRecordExportFileName,
   ContestId,
   ContestOptionId,
-  Contests,
   CVR,
   CVRSnapshotOtherStatus,
   CVRSnapshotOtherStatusSchema,
@@ -279,7 +278,7 @@ export type ContestReferenceError =
  */
 export function castVoteRecordHasValidContestReferences(
   cvr: CVR.CVR,
-  electionContests: Contests
+  electionContests: readonly Contest[]
 ): Result<void, ContestReferenceError> {
   for (const cvrSnapshot of cvr.CVRSnapshot) {
     for (const cvrContest of cvrSnapshot.CVRContest) {
