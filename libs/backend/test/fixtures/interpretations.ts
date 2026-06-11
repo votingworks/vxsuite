@@ -98,7 +98,6 @@ export const interpretedHmpbPage1: InterpretedHmpbPage = {
               type: 'candidate',
               id: assertDefined(fishCouncilContest.candidates[0]).id,
               contestId: fishCouncilContest.id,
-              name: assertDefined(fishCouncilContest.candidates[0]).name,
               isWriteIn: false,
             },
           },
@@ -164,7 +163,6 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
             definition: {
               type: 'yesno',
               id: fishingContest.yesOption.id,
-              name: 'Yes',
               contestId: fishingContest.id,
             },
           },
