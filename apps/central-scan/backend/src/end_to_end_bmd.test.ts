@@ -96,9 +96,17 @@ test('going through the whole process works - BMD', async () => {
         )[0];
         expect(cvrReportDirectoryPath).toContain('TEST__machine_0000__');
 
-        const { castVoteRecordIterator } = (
+        const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
           await readCastVoteRecordExport(cvrReportDirectoryPath)
         ).unsafeUnwrap();
+
+        // The configured polling place is exported with the batch metadata.
+        // Famous names has a single absentee polling place, which is
+        // auto-selected on configuration.
+        expect(
+          castVoteRecordExportMetadata.batchManifest[0].pollingPlaceId
+        ).toEqual('central-scanning');
+
         const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
           (castVoteRecordResult) =>
             castVoteRecordResult.unsafeUnwrap().castVoteRecord
