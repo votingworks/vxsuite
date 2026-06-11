@@ -287,6 +287,29 @@ test('redirects when host disables adjudication', async () => {
   );
 });
 
+test('redirects when the host disables adjudication mid-session', async () => {
+  expectDataLoaderQueries('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  const { history } = renderScreen();
+
+  // The session is active and a ballot is loaded
+  await screen.findByText('Adjudicating cvr-1');
+
+  // The host disables client adjudication — the polled session status query
+  // picks up the change and the screen redirects within a refetch interval
+  apiMock.apiClient.getAdjudicationSessionStatus.reset();
+  apiMock.apiClient.getAdjudicationSessionStatus
+    .expectRepeatedCallsWith()
+    .resolves({ isClientAdjudicationEnabled: false });
+
+  await waitFor(
+    () => expect(history.location.pathname).toEqual(routerPaths.adjudication),
+    { timeout: 3000 }
+  );
+  expect(screen.queryByText('Adjudicating cvr-1')).toBeNull();
+});
+
 test('onAccept calls API and accept advances', async () => {
   expectDataLoaderQueries('cvr-1');
   expectGlobalDataLoaderQueries();
