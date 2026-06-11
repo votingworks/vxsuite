@@ -56,16 +56,6 @@ export function ElectionScreen(): JSX.Element | null {
   }
 
   const pollingPlaces = election.pollingPlaces || [];
-  const locationPicker = pollingPlaces.length > 1 && (
-    <PollingPlacePicker
-      mode="default"
-      places={pollingPlaces}
-      searchable
-      selectedId={pollingPlaceIdQuery.data || undefined}
-      selectPlace={(id) => selectPollingPlace({ id })}
-      style={{ width: '16rem' }}
-    />
-  );
 
   return (
     <ScreenWrapper authType="election_manager">
@@ -87,7 +77,16 @@ export function ElectionScreen(): JSX.Element | null {
           </Row>
         </Card>
         <Row style={{ alignItems: 'center', justifyContent: 'space-between' }}>
-          {locationPicker}
+          {pollingPlaces.length > 1 && (
+            <PollingPlacePicker
+              mode="default"
+              places={pollingPlaces}
+              searchable
+              selectedId={pollingPlaceIdQuery.data || undefined}
+              selectPlace={(id) => selectPollingPlace({ id })}
+              style={{ width: '16rem' }}
+            />
+          )}
           <UnconfigureMachineButton
             unconfigureMachine={unconfigure}
             isMachineConfigured
