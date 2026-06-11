@@ -402,7 +402,7 @@ export function getPartyIdsInBallotStyles(
 
 export function getContestDistrict(
   election: Election,
-  contest: ContestLike
+  contest: Pick<Contest, 'districtId'>
 ): District {
   const district = election.districts.find((d) => d.id === contest.districtId);
   /* istanbul ignore next */
