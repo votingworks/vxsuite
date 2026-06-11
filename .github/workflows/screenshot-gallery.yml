@@ -1,0 +1,80 @@
+name: Build screenshot gallery
+
+# Assembles the static gallery of automated screenshots. The screenshots
+# themselves are produced and uploaded to S3 by each app's integration-testing
+# job in CircleCI; CircleCI fires a `build-screenshot-gallery` repository
+# dispatch once all of those uploads have completed (see the `notify-gallery`
+# job in .circleci/config.yml). Keeping the image processing here, rather than
+# in CircleCI, takes it off the test pipeline's critical path.
+#
+# Required configuration (set up in repo/org settings — see PR description):
+#   - vars.AWS_GALLERY_ROLE_ARN: IAM role assumed via GitHub OIDC, scoped to
+#     read/write the screenshot bucket only.
+#   - vars.AWS_REGION:           region of the screenshot bucket.
+#   - vars.SCREENSHOT_BUCKET:    bucket name (no s3:// prefix).
+
+on:
+  repository_dispatch:
+    types: [build-screenshot-gallery]
+  workflow_dispatch: {}
+
+# Collapse overlapping rebuilds (repository_dispatch can fire more than once
+# per run). The build is idempotent, so cancelling an in-flight run is safe.
+concurrency:
+  group: screenshot-gallery
+  cancel-in-progress: true
+
+permissions:
+  id-token: write # required for AWS OIDC role assumption
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_GALLERY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Install thumbsup native dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends graphicsmagick exiftool
+
+      - name: Download screenshots from S3
+        run: |
+          mkdir -p screenshots
+          aws s3 sync "s3://${{ vars.SCREENSHOT_BUCKET }}/screenshots/" screenshots/
+
+      - name: Write gallery theme CSS
+        run: |
+          printf '%s\n' \
+            'body { border-top-color: #6638b6; }' \
+            'h1, h3, footer { color: #6638b6; }' \
+            'nav.breadcrumbs a { background-color: #6638b6; }' \
+            'nav.breadcrumbs li.active { background-color: #a580d8; }' \
+            > ./gallery-theme.css
+
+      - name: Build gallery with thumbsup
+        run: |
+          npx --yes thumbsup@2.18.0 \
+            --input ./screenshots \
+            --output ./gallery \
+            --title "VxSuite Automated Screenshots" \
+            --albums-from "%path" \
+            --sort-albums-by title \
+            --sort-media-by filename \
+            --theme classic \
+            --theme-style ./gallery-theme.css \
+            --thumb-size 200 \
+            --photo-preview copy \
+            --photo-download copy \
+            --include-videos false \
+            --home-album-name "VxSuite Screenshots"
+
+      - name: Upload gallery to S3
+        run: |
+          aws s3 sync ./gallery/ "s3://${{ vars.SCREENSHOT_BUCKET }}/" \
+            --delete --exclude "screenshots/*"

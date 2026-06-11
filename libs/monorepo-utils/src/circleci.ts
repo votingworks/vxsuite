@@ -102,10 +102,10 @@ function generateTestJobForNodeJsPackage(
     if (hasPlaywrightTests) {
       lines.push(`${indent}- store_artifacts:`);
       lines.push(`${indent}    path: ${pkg.relativePath}/test-results/`);
-      // On `main` only, upload screenshots to S3 so the singleton
-      // publish-screenshot-gallery job can build a browseable gallery.
-      // AWS credentials and bucket name come from the
-      // `screenshots-publishing` CircleCI context.
+      // On `main` only, upload screenshots to S3 so the GitHub Actions
+      // screenshot-gallery workflow can build a browseable gallery. AWS
+      // credentials and bucket name come from the `screenshots-publishing`
+      // CircleCI context.
       const appName = pkg.relativePath
         .replace(/^apps\//, '')
         .replace(/\/integration-testing$/, '');
@@ -136,57 +136,30 @@ function generateTestJobForNodeJsPackage(
   return lines;
 }
 
-const PUBLISH_SCREENSHOT_GALLERY_JOB_ID = 'publish-screenshot-gallery';
-const THUMBSUP_VERSION = '2.18.0';
+const NOTIFY_GALLERY_JOB_ID = 'notify-gallery';
 
-function generatePublishScreenshotGalleryJob(): string[] {
+// Screenshots are uploaded to S3 by each app's integration-testing job (see
+// the upload step in `generateTestJobForNodeJsPackage`). The gallery itself
+// is assembled by a GitHub Actions workflow
+// (.github/workflows/screenshot-gallery.yml) so that the image-processing work
+// stays off the CircleCI critical path. This job does nothing but signal
+// GitHub, via a repository dispatch, once all screenshots have been uploaded.
+// The GitHub token comes from the `screenshots-publishing` CircleCI context.
+function generateNotifyGalleryJob(): string[] {
   return [
-    `${PUBLISH_SCREENSHOT_GALLERY_JOB_ID}:`,
+    `${NOTIFY_GALLERY_JOB_ID}:`,
     `  executor: nodejs`,
     `  resource_class: small`,
     `  steps:`,
-    `    - aws-cli/setup`,
     `    - run:`,
-    `        name: Install thumbsup native dependencies`,
+    `        name: Trigger screenshot gallery build on GitHub Actions`,
     `        command: |`,
-    `          apt-get update -qq`,
-    `          apt-get install -y --no-install-recommends graphicsmagick exiftool`,
-    `    - run:`,
-    `        name: Download screenshots from S3`,
-    `        command: |`,
-    `          mkdir -p screenshots`,
-    `          aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/`,
-    `    - run:`,
-    `        name: Write gallery theme CSS`,
-    `        command: |`,
-    `          printf '%s\\n' \\`,
-    `            'body { border-top-color: #6638b6; }' \\`,
-    `            'h1, h3, footer { color: #6638b6; }' \\`,
-    `            'nav.breadcrumbs a { background-color: #6638b6; }' \\`,
-    `            'nav.breadcrumbs li.active { background-color: #a580d8; }' \\`,
-    `            > ./gallery-theme.css`,
-    `    - run:`,
-    `        name: Build gallery with thumbsup`,
-    `        command: |`,
-    `          npx --yes thumbsup@${THUMBSUP_VERSION} \\`,
-    `            --input ./screenshots \\`,
-    `            --output ./gallery \\`,
-    `            --title "VxSuite Automated Screenshots" \\`,
-    `            --albums-from "%path" \\`,
-    `            --sort-albums-by title \\`,
-    `            --sort-media-by filename \\`,
-    `            --theme classic \\`,
-    `            --theme-style ./gallery-theme.css \\`,
-    `            --thumb-size 200 \\`,
-    `            --photo-preview copy \\`,
-    `            --photo-download copy \\`,
-    `            --include-videos false \\`,
-    `            --home-album-name "VxSuite Screenshots"`,
-    `    - run:`,
-    `        name: Upload gallery to S3`,
-    `        command: |`,
-    `          aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/" \\`,
-    `            --delete --exclude "screenshots/*"`,
+    `          curl --fail --silent --show-error -X POST \\`,
+    `            -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \\`,
+    `            -H "Accept: application/vnd.github+json" \\`,
+    `            -H "X-GitHub-Api-Version: 2022-11-28" \\`,
+    `            "https://api.github.com/repos/votingworks/vxsuite/dispatches" \\`,
+    `            -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'`,
   ];
 }
 
@@ -410,8 +383,8 @@ export function generateAllConfigs(
     RUST_CRATES_JOB_ID,
   ];
 
-  const publishGalleryWorkflowEntry = [
-    `      - ${PUBLISH_SCREENSHOT_GALLERY_JOB_ID}:`,
+  const notifyGalleryWorkflowEntry = [
+    `      - ${NOTIFY_GALLERY_JOB_ID}:`,
     `          context:`,
     `            - screenshots-publishing`,
     `          requires:`,
@@ -488,7 +461,7 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           command: |
             ./script/validate-monorepo
 
-${generatePublishScreenshotGalleryJob()
+${generateNotifyGalleryJob()
   .map((line) => `  ${line}`)
   .join('\n')}
 
@@ -505,7 +478,7 @@ ${allJobIds
       `      - ${jobId}:\n          context:\n            - screenshots-publishing`
   )
   .join('\n')}
-${publishGalleryWorkflowEntry}
+${notifyGalleryWorkflowEntry}
 
 commands:
   checkout-and-install:

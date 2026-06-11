@@ -23,10 +23,12 @@ test('generateConfig', () => {
   expect(pbConfig).toContain('test-apps-pollbook-backend');
 
   // Screenshot publishing: per-app upload step is emitted for each
-  // integration-testing job, and the singleton publish-screenshot-gallery
-  // job is wired into the workflow on `main` only.
+  // integration-testing job, and the notify-gallery job (which triggers the
+  // GitHub Actions gallery build) is wired into the workflow on `main` only.
   expect(mainConfig).toContain('aws-cli: circleci/aws-cli@5');
-  expect(mainConfig).toContain('publish-screenshot-gallery');
+  expect(mainConfig).toContain('notify-gallery');
+  expect(mainConfig).toContain('build-screenshot-gallery');
+  expect(mainConfig).not.toContain('thumbsup');
   expect(mainConfig).toContain('"s3://$SCREENSHOT_BUCKET/screenshots/admin/"');
   expect(mainConfig).toContain(
     '"s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/"'
