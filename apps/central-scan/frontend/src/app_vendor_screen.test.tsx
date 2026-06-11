@@ -23,6 +23,7 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   apiMock.setStatus();
+  apiMock.expectGetPollingPlaceId();
   apiMock.setDiskSpaceSummary();
 });
 

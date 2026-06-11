@@ -40,6 +40,7 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   apiMock.setStatus();
+  apiMock.expectGetPollingPlaceId('23-polling-place');
 });
 
 afterEach(() => {
