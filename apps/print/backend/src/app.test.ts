@@ -943,12 +943,10 @@ test('getDistinctBallotStylesCount returns correct counts in official and test m
   );
 });
 
-// Build ballot entries for every (ballotStyleId, precinctId) combination in
-// the election. buildBallotsForElection only covers precincts[0] per style,
-// which misses multi-precinct ballot styles.
-async function buildAllBallotsForElection(
-  electionDefinition: ElectionDefinition,
-  ballotModes: ReadonlyArray<'official' | 'test'>
+// Build test ballot entries for every (ballotStyleId, precinctId) combination in
+// the election, necessary for test deck tests.
+async function buildTestBallotsForElection(
+  electionDefinition: ElectionDefinition
 ): Promise<EncodedBallotEntry[]> {
   const { election } = electionDefinition;
   const pdfBase64s = await (async () => {
@@ -973,24 +971,22 @@ async function buildAllBallotsForElection(
     for (const precinctId of ballotStyle.precincts) {
       const encodedBallot = pdfBase64s[index % pdfBase64s.length];
       index += 1;
-      for (const ballotMode of ballotModes) {
-        entries.push(
-          {
-            ballotStyleId: ballotStyle.id,
-            precinctId,
-            ballotType: BallotType.Precinct,
-            ballotMode,
-            encodedBallot,
-          },
-          {
-            ballotStyleId: ballotStyle.id,
-            precinctId,
-            ballotType: BallotType.Absentee,
-            ballotMode,
-            encodedBallot,
-          }
-        );
-      }
+      entries.push(
+        {
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType: BallotType.Precinct,
+          ballotMode: 'test',
+          encodedBallot,
+        },
+        {
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType: BallotType.Absentee,
+          ballotMode: 'test',
+          encodedBallot,
+        }
+      );
     }
   }
   return entries;
@@ -1022,10 +1018,7 @@ test('getTestDeckBallotCount returns 0 when election has no gridLayouts', async 
 
 test('getTestDeckBallotCount returns total number of test deck specs across all precincts', async () => {
   const msElectionDef = await makeMsElectionDefinition();
-  const msBallots = await buildAllBallotsForElection(msElectionDef, [
-    'official',
-    'test',
-  ]);
+  const msBallots = await buildTestBallotsForElection(msElectionDef);
   await configureMachine({
     electionDefinition: msElectionDef,
     ballots: msBallots,
@@ -1047,10 +1040,7 @@ test('getTestDeckBallotCount returns total number of test deck specs across all 
 
 test('getTestDeckBallotCount returns count for a single precinct when precinctId is provided', async () => {
   const msElectionDef = await makeMsElectionDefinition();
-  const msBallots = await buildAllBallotsForElection(msElectionDef, [
-    'official',
-    'test',
-  ]);
+  const msBallots = await buildTestBallotsForElection(msElectionDef);
   await configureMachine({
     electionDefinition: msElectionDef,
     ballots: msBallots,
@@ -1074,10 +1064,7 @@ test('getTestDeckBallotCount returns count for a single precinct when precinctId
 
 test('printTestDeck sends one print job per spec and calls generateMarkOverlay only for non-blank ballots', async () => {
   const msElectionDef = await makeMsElectionDefinition();
-  const msBallots = await buildAllBallotsForElection(msElectionDef, [
-    'official',
-    'test',
-  ]);
+  const msBallots = await buildTestBallotsForElection(msElectionDef);
   await configureMachine({
     electionDefinition: msElectionDef,
     ballots: msBallots,
@@ -1111,10 +1098,7 @@ test('printTestDeck sends one print job per spec and calls generateMarkOverlay o
 
 test('printTestDeck prints only the given precinct and a precinct-specific tally report when precinctId is provided', async () => {
   const msElectionDef = await makeMsElectionDefinition();
-  const msBallots = await buildAllBallotsForElection(msElectionDef, [
-    'official',
-    'test',
-  ]);
+  const msBallots = await buildTestBallotsForElection(msElectionDef);
   await configureMachine({
     electionDefinition: msElectionDef,
     ballots: msBallots,
@@ -1147,10 +1131,10 @@ test('getTestDeckBallotCount returns 0 when no election is configured', async ()
 
 test('count and print exclude specs with no matching stored ballot', async () => {
   const msElectionDef = await makeMsElectionDefinition();
-  // Store only official-mode ballots...
-  const officialOnlyBallots = await buildAllBallotsForElection(msElectionDef, [
-    'official',
-  ]);
+  const officialOnlyBallots = await buildBallotsForElection({
+    electionDefinition: msElectionDef,
+    ballotModes: ['official'],
+  });
   await configureMachine({
     electionDefinition: msElectionDef,
     ballots: officialOnlyBallots,
@@ -1158,10 +1142,10 @@ test('count and print exclude specs with no matching stored ballot', async () =>
     auth,
     mockUsbDrive,
   });
-  // ...but put the machine in test mode, so no spec has a matching ballot.
-  await apiClient.setTestMode({ testMode: true });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
+  // Expect no ballot counts because the only ballots on the machine are official,
+  // but test deck counts consider only test mode ballots.
   expect(await apiClient.getTestDeckBallotCount({})).toEqual(0);
 
   await apiClient.printTestDeck({});
@@ -1173,7 +1157,7 @@ test('count and print exclude specs with no matching stored ballot', async () =>
 
 test('printTestDeck prints test ballots when machine is in official ballot mode', async () => {
   const msElectionDef = await makeMsElectionDefinition();
-  const msBallots = await buildAllBallotsForElection(msElectionDef, ['test']);
+  const msBallots = await buildTestBallotsForElection(msElectionDef);
   await configureMachine({
     electionDefinition: msElectionDef,
     ballots: msBallots,
@@ -1216,7 +1200,7 @@ test.each([
       JSON.stringify(electionJson)
     ).unsafeUnwrap();
 
-    const ballots = await buildAllBallotsForElection(electionDef, ['test']);
+    const ballots = await buildTestBallotsForElection(electionDef);
     await configureMachine({
       electionDefinition: electionDef,
       ballots,

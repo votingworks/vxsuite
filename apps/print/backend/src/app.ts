@@ -78,8 +78,6 @@ export function buildApi(ctx: AppContext) {
 
   // Generates the test deck ballot specs for the given precincts and keeps only
   // those that have a corresponding ballot in the store.
-  // Used both to count the ballots that will print and to print them, so the
-  // two always agree.
   function getTestDeckBallotsToPrint(
     election: Election,
     precinctIds: PrecinctId[]
