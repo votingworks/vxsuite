@@ -1582,52 +1582,19 @@ jobs:
           command: |
             ./script/validate-monorepo
 
-  publish-screenshot-gallery:
+  notify-gallery:
     executor: nodejs
     resource_class: small
     steps:
-      - aws-cli/setup
       - run:
-          name: Install thumbsup native dependencies
+          name: Trigger screenshot gallery build on GitHub Actions
           command: |
-            apt-get update -qq
-            apt-get install -y --no-install-recommends graphicsmagick exiftool
-      - run:
-          name: Download screenshots from S3
-          command: |
-            mkdir -p screenshots
-            aws s3 sync "s3://$SCREENSHOT_BUCKET/screenshots/" screenshots/
-      - run:
-          name: Write gallery theme CSS
-          command: |
-            printf '%s\n' \
-              'body { border-top-color: #6638b6; }' \
-              'h1, h3, footer { color: #6638b6; }' \
-              'nav.breadcrumbs a { background-color: #6638b6; }' \
-              'nav.breadcrumbs li.active { background-color: #a580d8; }' \
-              > ./gallery-theme.css
-      - run:
-          name: Build gallery with thumbsup
-          command: |
-            npx --yes thumbsup@2.18.0 \
-              --input ./screenshots \
-              --output ./gallery \
-              --title "VxSuite Automated Screenshots" \
-              --albums-from "%path" \
-              --sort-albums-by title \
-              --sort-media-by filename \
-              --theme classic \
-              --theme-style ./gallery-theme.css \
-              --thumb-size 200 \
-              --photo-preview copy \
-              --photo-download copy \
-              --include-videos false \
-              --home-album-name "VxSuite Screenshots"
-      - run:
-          name: Upload gallery to S3
-          command: |
-            aws s3 sync ./gallery/ "s3://$SCREENSHOT_BUCKET/" \
-              --delete --exclude "screenshots/*"
+            curl --fail --silent --show-error -X POST \
+              -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/votingworks/vxsuite/dispatches" \
+              -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'
 
 workflows:
   test:
@@ -1816,7 +1783,7 @@ workflows:
       - test-rust-crates:
           context:
             - screenshots-publishing
-      - publish-screenshot-gallery:
+      - notify-gallery:
           context:
             - screenshots-publishing
           requires:
