@@ -30,6 +30,7 @@ import {
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
   isElectionManagerAuth,
+  TestDeckBallot,
 } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
@@ -53,10 +54,8 @@ import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
 import { getCurrentTime } from './util/get_current_time';
 
-type TestDeckBallotSpec = ReturnType<typeof generateTestDeckBallots>[number];
-
 interface TestDeckBallotToPrint {
-  spec: TestDeckBallotSpec;
+  spec: TestDeckBallot;
   ballot: BallotPrintEntry;
 }
 
