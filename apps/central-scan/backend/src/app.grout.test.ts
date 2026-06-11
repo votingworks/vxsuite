@@ -368,6 +368,7 @@ test('configure with CDF election', async () => {
     });
   });
 });
+
 test('get/set polling place id', async () => {
   await withApp(async ({ apiClient, auth, importer, store, logger }) => {
     mockElectionManagerAuth(auth, famousNamesDefinition);
@@ -411,7 +412,82 @@ test('get/set polling place id', async () => {
   });
 });
 
+test('configure auto-selects the single absentee polling place', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    mockElectionManagerAuth(auth, famousNamesDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({
+        electionDefinition: famousNamesDefinition,
+      })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    expect(await apiClient.getPollingPlaceId()).toEqual('central-scanning');
+  });
+});
+
+test('configure does not auto-select when there are multiple absentee polling places', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  const electionDefinition = safeParseElectionDefinition(
+    JSON.stringify({
+      ...famousNamesDefinition.election,
+      pollingPlaces: [
+        ...(famousNamesDefinition.election.pollingPlaces ?? []),
+        {
+          id: 'central-scanning-2',
+          name: 'Central Scanning 2',
+          precincts: { '20': { type: 'whole' } },
+          type: 'absentee',
+        },
+      ],
+    })
+  ).unsafeUnwrap();
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({ electionDefinition })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    expect(await apiClient.getPollingPlaceId()).toEqual(null);
+  });
+});
+
+test('configure does not auto-select when there are no absentee polling places', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  // The two-party primary fixture has no absentee polling places.
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({ electionDefinition })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    expect(await apiClient.getPollingPlaceId()).toEqual(null);
+  });
+});
+
 test('configure with invalid file', async () => {
+  // Skip signature authentication so the election key mismatch is reached.
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
   await withApp(async ({ apiClient, auth, mockUsbDrive, logger }) => {
     mockElectionManagerAuth(auth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive(

@@ -184,6 +184,13 @@ function buildApi({
       );
       store.setSystemSettings(systemSettings);
 
+      const absenteePollingPlaces = assertDefined(
+        electionDefinition.election.pollingPlaces
+      ).filter((pollingPlace) => pollingPlace.type === 'absentee');
+      if (absenteePollingPlaces.length === 1) {
+        store.setPollingPlaceId(absenteePollingPlaces[0].id);
+      }
+
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
         disposition: 'success',
