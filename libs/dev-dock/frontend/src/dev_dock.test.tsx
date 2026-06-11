@@ -84,7 +84,7 @@ beforeEach(() => {
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus
     .expectRepeatedCallsWith()
-    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
+    .resolves({ devPath: '/dev/sdb', status: 'removed' });
   mockApiClient.getAvailableElections.expectCallWith().resolves([
     {
       title: 'electionGeneral',
@@ -279,59 +279,28 @@ test('USB drive controls', async () => {
   });
   await waitFor(() => expect(usbDriveControl).toBeEnabled());
 
-  mockApiClient.insertUsbDrive
-    .expectCallWith({ devPath: '/dev/sdb' })
-    .resolves();
+  mockApiClient.insertUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith()
-    .resolves([{ devPath: '/dev/sdb', status: 'inserted' }]);
+    .resolves({ devPath: '/dev/sdb', status: 'inserted' });
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
-  mockApiClient.removeUsbDrive
-    .expectCallWith({ devPath: '/dev/sdb' })
-    .resolves();
+  mockApiClient.removeUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith()
-    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
+    .resolves({ devPath: '/dev/sdb', status: 'removed' });
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   const clearUsbDriveButton = screen.getByRole('button', {
     name: 'Clear',
   });
-  mockApiClient.clearUsbDrive
-    .expectCallWith({ devPath: '/dev/sdb' })
-    .resolves();
+  mockApiClient.clearUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith()
-    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
+    .resolves({ devPath: '/dev/sdb', status: 'removed' });
   userEvent.click(clearUsbDriveButton);
-  await waitFor(() => mockApiClient.assertComplete());
-});
-
-test('add and remove USB drive slots', async () => {
-  renderDock(mockApiClient);
-  await screen.findByRole('button', { name: 'USB Drive /dev/sdb' });
-
-  mockApiClient.addUsbDriveSlot
-    .expectCallWith()
-    .resolves({ devPath: '/dev/sdc' });
-  mockApiClient.getUsbDriveStatus.expectCallWith().resolves([
-    { devPath: '/dev/sdb', status: 'removed' },
-    { devPath: '/dev/sdc', status: 'removed' },
-  ]);
-  userEvent.click(screen.getByRole('button', { name: 'Add USB Drive Slot' }));
-  await screen.findByRole('button', { name: 'USB Drive /dev/sdc' });
-  await waitFor(() => mockApiClient.assertComplete());
-
-  mockApiClient.removeUsbDriveSlot
-    .expectCallWith({ devPath: '/dev/sdc' })
-    .resolves();
-  mockApiClient.getUsbDriveStatus
-    .expectCallWith()
-    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
-  userEvent.click(screen.getByRole('button', { name: 'Remove slot /dev/sdc' }));
   await waitFor(() => mockApiClient.assertComplete());
 });
 

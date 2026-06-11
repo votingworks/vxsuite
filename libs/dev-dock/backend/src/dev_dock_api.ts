@@ -41,7 +41,6 @@ import {
   addMockDrive,
   getMockFileUsbDriveHandler,
   listMockDrives,
-  removeMockDriveDir,
 } from '@votingworks/usb-drive';
 import {
   getMockFileFujitsuPrinterHandler,
@@ -90,6 +89,9 @@ export interface DevDockElectionInfo extends DevDockElectionOption {
    */
   arePollWorkerCardPinsEnabled: boolean;
 }
+
+export const MOCK_USB_DRIVE_DISK_NAME = 'sdb';
+export const MOCK_USB_DRIVE_DEV_PATH = `/dev/${MOCK_USB_DRIVE_DISK_NAME}`;
 
 export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
   './libs/fixtures/data/electionGeneral/election.json';
@@ -252,8 +254,8 @@ interface PdiScannerSheetQueueState {
 }
 
 function buildApi(devDockDir: string, mockSpec: MockSpec) {
-  if (listMockDrives().length === 0) {
-    addMockDrive();
+  if (!listMockDrives().includes(MOCK_USB_DRIVE_DISK_NAME)) {
+    addMockDrive(MOCK_USB_DRIVE_DISK_NAME);
   }
   const printerHandler = getMockFilePrinterHandler();
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
@@ -359,38 +361,23 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
     },
 
-    getUsbDriveStatus(): DevDockUsbDriveInfo[] {
-      return listMockDrives().map((diskName) => {
-        const handler = getMockFileUsbDriveHandler(diskName);
-        const status =
-          handler.status().status === 'mounted' ? 'inserted' : 'removed';
-        return { devPath: `/dev/${diskName}`, status };
-      });
+    getUsbDriveStatus(): DevDockUsbDriveInfo {
+      const handler = getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
+      const status =
+        handler.status().status === 'mounted' ? 'inserted' : 'removed';
+      return { devPath: MOCK_USB_DRIVE_DEV_PATH, status };
     },
 
-    insertUsbDrive(input: { devPath: string }): void {
-      const diskName = basename(input.devPath);
-      getMockFileUsbDriveHandler(diskName).insert();
+    insertUsbDrive(): void {
+      getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME).insert();
     },
 
-    removeUsbDrive(input: { devPath: string }): void {
-      const diskName = basename(input.devPath);
-      getMockFileUsbDriveHandler(diskName).remove();
+    removeUsbDrive(): void {
+      getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME).remove();
     },
 
-    clearUsbDrive(input: { devPath: string }): void {
-      const diskName = basename(input.devPath);
-      getMockFileUsbDriveHandler(diskName).clearData();
-    },
-
-    addUsbDriveSlot(): { devPath: string } {
-      const diskName = addMockDrive();
-      return { devPath: `/dev/${diskName}` };
-    },
-
-    removeUsbDriveSlot(input: { devPath: string }): void {
-      const diskName = basename(input.devPath);
-      removeMockDriveDir(diskName);
+    clearUsbDrive(): void {
+      getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME).clearData();
     },
 
     async saveScreenshotForApp({

@@ -108,16 +108,20 @@ export function listMockDrives(): string[] {
     .sort();
 }
 
-export function addMockDrive(): string {
+function chooseFreeDiskName(): string {
   const existing = new Set(listMockDrives());
   for (let i = 1; i <= 25; i += 1) {
     const name = `sd${String.fromCharCode('a'.charCodeAt(0) + i)}`;
     if (!existing.has(name)) {
-      writeMockDriveState(name, { state: 'removed' });
       return name;
     }
   }
   throw new Error('No available mock drive slot');
+}
+
+export function addMockDrive(name = chooseFreeDiskName()): string {
+  writeMockDriveState(name, { state: 'removed' });
+  return name;
 }
 
 export function removeMockDriveDir(diskName: string): void {
