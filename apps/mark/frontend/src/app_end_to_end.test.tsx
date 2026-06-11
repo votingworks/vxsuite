@@ -211,9 +211,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     .expectCallWith({ ballotStyleId, precinctId })
     .resolves();
 
-  userEvent.click(
-    await screen.findButton(`Start Voting Session: ${pollingPlace.name}`)
-  );
+  userEvent.click(await screen.findButton(precinct.name));
   await waitFor(apiMock.mockApiClient.assertComplete);
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {

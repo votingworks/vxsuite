@@ -49,7 +49,7 @@ test('poll worker activates session, voter picks party and walks through ballot'
 
   // Poll worker logs in to activate a cardless voter session.
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Start Voting Session:');
+  await screen.findByText('Start a New Voting Session');
 
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({
@@ -57,7 +57,7 @@ test('poll worker activates session, voter picks party and walks through ballot'
       precinctId: PRECINCT_ID,
     })
     .resolves();
-  userEvent.click(screen.getButton(`Start Voting Session: ${PRECINCT_NAME}`));
+  userEvent.click(screen.getButton(PRECINCT_NAME));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: BALLOT_STYLE_ID,

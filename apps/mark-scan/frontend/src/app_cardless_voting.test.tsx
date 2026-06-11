@@ -65,11 +65,7 @@ test('Cardless Voting Flow', async () => {
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(
-    screen.getByText(
-      hasTextAcrossElements('Start Voting Session: Center Springfield')
-    )
-  );
+  userEvent.click(screen.getButton('Center Springfield'));
 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -94,11 +90,7 @@ test('Cardless Voting Flow', async () => {
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(
-    screen.getByText(
-      hasTextAcrossElements('Start Voting Session: Center Springfield')
-    )
-  );
+  userEvent.click(screen.getButton('Center Springfield'));
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
@@ -145,11 +137,7 @@ test('Cardless Voting Flow', async () => {
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(
-    screen.getByText(
-      hasTextAcrossElements('Start Voting Session: Center Springfield')
-    )
-  );
+  userEvent.click(screen.getButton('Center Springfield'));
 
   mockLoadPaper();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {

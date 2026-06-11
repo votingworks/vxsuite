@@ -36,6 +36,7 @@ import { configureMachine, openPolls, voteFullBallot } from './support/flows';
 import { capturePrintedBallot } from './support/reports';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
+const PRECINCT_NAME = 'North Lincoln';
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -231,10 +232,10 @@ test('basic election flow', async ({ page }, testInfo) => {
   await page.getByText('Poll Worker Menu').waitFor();
   await screenshot('pw-menu-polls-open');
   await screenshotWithButtonHighlight(
-    /Start Voting Session/,
+    PRECINCT_NAME,
     'pw-start-voting-session-button'
   );
-  await page.getByRole('button', { name: /Start Voting Session/ }).click();
+  await page.getByRole('button', { name: PRECINCT_NAME }).click();
 
   // Poll worker prompted to remove card so the voter can begin.
   await page.getByText('Remove Card to Begin Voting Session').waitFor();
@@ -453,6 +454,7 @@ test('voter settings', async ({ page }, testInfo) => {
   const electionDefinition = getMultiLanguageGeneralElectionDefinition();
   const { election } = electionDefinition;
   const pollingPlaceName = 'Center Springfield';
+  const precinctName = 'Center Springfield';
   const helper = buildIntegrationTestHelper(page, namer);
   const { screenshot, screenshotWithLocatorHighlight } = helper;
   const electionPackage = await mockElectionPackageFileTree({
@@ -477,7 +479,7 @@ test('voter settings', async ({ page }, testInfo) => {
   mockCardRemoval();
   await page.getByText(/poll worker card/).waitFor();
   await openPolls(page, election);
-  await page.getByRole('button', { name: /Start Voting Session/ }).click();
+  await page.getByRole('button', { name: precinctName }).click();
   await page.getByText('Remove Card to Begin Voting Session').waitFor();
   mockCardRemoval();
   await page.getByRole('button', { name: 'Start Voting' }).click();
