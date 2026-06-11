@@ -329,52 +329,6 @@ const UsbDriveDevLabel = styled.div`
   color: ${Colors.TEXT};
 `;
 
-const UsbDriveRemoveSlotButton = styled.button`
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid ${Colors.BORDER};
-  background-color: white;
-  color: ${Colors.TEXT};
-  font-size: 10px;
-  line-height: 1;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:hover {
-    background-color: ${Colors.BORDER};
-  }
-  &:disabled {
-    color: ${Colors.DISABLED};
-    border-color: ${Colors.DISABLED};
-  }
-`;
-
-const AddDriveSlotButton = styled.button`
-  background-color: white;
-  width: 80px;
-  height: 120px;
-  border-radius: 8px;
-  border: 1px solid ${Colors.BORDER};
-  color: ${Colors.TEXT};
-  font-size: 1.5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:hover:not(:disabled) {
-    border-color: ${Colors.ACTIVE};
-    color: ${Colors.ACTIVE};
-  }
-  &:disabled {
-    color: ${Colors.DISABLED};
-    border-color: ${Colors.DISABLED};
-  }
-`;
-
 function UsbDriveMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -393,37 +347,19 @@ function UsbDriveMockControls() {
     onSuccess: async () =>
       await queryClient.invalidateQueries(['getUsbDriveStatus']),
   });
-  const addUsbDriveSlotMutation = useMutation(apiClient.addUsbDriveSlot, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
-  });
-  const removeUsbDriveSlotMutation = useMutation(apiClient.removeUsbDriveSlot, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
-  });
 
-  const [recentlyClearedDevPaths, setRecentlyClearedDevPaths] = useState(
-    new Map<string, boolean>()
-  );
+  const [isUsbDriveRecentlyCleared, setIsUsbDriveRecentlyCleared] =
+    useState(false);
 
-  function handleClearClick(devPath: string) {
-    clearUsbDriveMutation.mutate(
-      { devPath },
-      {
-        onSuccess: () => {
-          setRecentlyClearedDevPaths((prev) =>
-            new Map(prev).set(devPath, true)
-          );
-          setTimeout(() => {
-            setRecentlyClearedDevPaths((prev) => {
-              const next = new Map(prev);
-              next.delete(devPath);
-              return next;
-            });
-          }, 1500);
-        },
-      }
-    );
+  function handleClearClick() {
+    clearUsbDriveMutation.mutate(undefined, {
+      onSuccess: () => {
+        setIsUsbDriveRecentlyCleared(true);
+        setTimeout(() => {
+          setIsUsbDriveRecentlyCleared(false);
+        }, 1500);
+      },
+    });
   }
 
   const isFeatureEnabled = isFeatureFlagEnabled(
@@ -431,72 +367,43 @@ function UsbDriveMockControls() {
   );
   const controlsDisabled =
     !isFeatureEnabled || !getUsbDriveStatusQuery.isSuccess;
-  const drives = getUsbDriveStatusQuery.data ?? [];
+  const drive = getUsbDriveStatusQuery.data;
+
+  if (!drive) return null;
+
+  const isInserted = drive.status === 'inserted';
 
   return (
-    <Row>
-      {drives.map((drive) => {
-        const isInserted = drive.status === 'inserted';
-        return (
-          <Column key={drive.devPath}>
-            <div style={{ position: 'relative' }}>
-              <UsbDriveControl
-                onClick={() => {
-                  if (isInserted) {
-                    removeUsbDriveMutation.mutate({ devPath: drive.devPath });
-                  } else {
-                    insertUsbDriveMutation.mutate({ devPath: drive.devPath });
-                  }
-                }}
-                isInserted={isInserted}
-                disabled={controlsDisabled}
-                aria-label={`USB Drive ${drive.devPath}`}
-              >
-                <UsbDriveIcon
-                  isInserted={isInserted}
-                  disabled={controlsDisabled}
-                />
-                {!isFeatureEnabled && (
-                  <UsbMocksDisabledMessage>
-                    <p>USB mock disabled</p>
-                  </UsbMocksDisabledMessage>
-                )}
-              </UsbDriveControl>
-              {drive.status === 'removed' && (
-                <UsbDriveRemoveSlotButton
-                  onClick={() =>
-                    removeUsbDriveSlotMutation.mutate({
-                      devPath: drive.devPath,
-                    })
-                  }
-                  disabled={controlsDisabled}
-                  aria-label={`Remove slot ${drive.devPath}`}
-                >
-                  <FontAwesomeIcon icon={faXmark} />
-                </UsbDriveRemoveSlotButton>
-              )}
-            </div>
-            <UsbDriveDevLabel>{drive.devPath}</UsbDriveDevLabel>
-            <UsbDriveClearButton
-              onClick={() => handleClearClick(drive.devPath)}
-              disabled={controlsDisabled}
-            >
-              {recentlyClearedDevPaths.has(drive.devPath) ? '✓' : 'Clear'}
-            </UsbDriveClearButton>
-          </Column>
-        );
-      })}
-      <Column>
-        <AddDriveSlotButton
-          onClick={() => addUsbDriveSlotMutation.mutate()}
+    <React.Fragment>
+      <div style={{ position: 'relative' }}>
+        <UsbDriveControl
+          onClick={() => {
+            if (isInserted) {
+              removeUsbDriveMutation.mutate();
+            } else {
+              insertUsbDriveMutation.mutate();
+            }
+          }}
+          isInserted={isInserted}
           disabled={controlsDisabled}
-          aria-label="Add USB Drive Slot"
+          aria-label={`USB Drive ${drive.devPath}`}
         >
-          +
-        </AddDriveSlotButton>
-        <UsbDriveDevLabel>Add USB</UsbDriveDevLabel>
-      </Column>
-    </Row>
+          <UsbDriveIcon isInserted={isInserted} disabled={controlsDisabled} />
+          {!isFeatureEnabled && (
+            <UsbMocksDisabledMessage>
+              <p>USB mock disabled</p>
+            </UsbMocksDisabledMessage>
+          )}
+        </UsbDriveControl>
+      </div>
+      <UsbDriveDevLabel>{drive.devPath}</UsbDriveDevLabel>
+      <UsbDriveClearButton
+        onClick={() => handleClearClick()}
+        disabled={controlsDisabled}
+      >
+        {isUsbDriveRecentlyCleared ? '✓' : 'Clear'}
+      </UsbDriveClearButton>
+    </React.Fragment>
   );
 }
 
