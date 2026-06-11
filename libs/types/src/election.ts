@@ -271,7 +271,6 @@ export const ContestSchema: z.ZodSchema<Contest> = z.union([
   YesNoContestSchema,
 ]);
 
-export type Contests = readonly Contest[];
 export const ContestsSchema = z.array(ContestSchema).check((ctx) => {
   const contests = ctx.value;
   for (const [index, id] of findDuplicateIds(contests)) {
@@ -697,7 +696,7 @@ export interface Election {
   readonly ballotLayout: BallotLayout;
   readonly ballotStrings: UiStringsPackage;
   readonly ballotStyles: readonly BallotStyle[];
-  readonly contests: Contests;
+  readonly contests: readonly Contest[];
   readonly county: County;
   readonly date: DateWithoutTime;
   readonly districts: readonly District[];
