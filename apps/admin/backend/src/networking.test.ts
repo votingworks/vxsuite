@@ -15,7 +15,7 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { mockBaseLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   getHostServiceName,
   startHostNetworking,
@@ -183,6 +183,71 @@ describe('startHostNetworking', () => {
       machineMode: 'host',
       status: Admin.ClientMachineStatus.Active,
     });
+  });
+
+  test('disables client adjudication when another host is detected', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.setIsClientAdjudicationEnabled(true);
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-0001',
+        host: 'self.local',
+        resolvedIp: '192.168.1.1',
+        port: '3002',
+      },
+    ]);
+    const mockClient = {
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+    } as unknown as grout.Client<PeerApi>;
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+    const logger = mockBaseLogger({ fn: vi.fn });
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger,
+    });
+
+    // Alone on the network — adjudication stays enabled
+    await advancePollingInterval();
+    expect(store.getIsClientAdjudicationEnabled()).toEqual(true);
+
+    // A second host appears — adjudication is disabled
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-0001',
+        host: 'self.local',
+        resolvedIp: '192.168.1.1',
+        port: '3002',
+      },
+      {
+        name: 'VxAdmin-OTHER',
+        host: 'other.local',
+        resolvedIp: '192.168.1.2',
+        port: '3002',
+      },
+    ]);
+    await advancePollingInterval();
+    expect(store.getIsClientAdjudicationEnabled()).toEqual(false);
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.AdminClientAdjudicationToggled,
+      'system',
+      expect.objectContaining({ disposition: 'failure', enabled: false })
+    );
+
+    // It stays disabled even after the other host disappears — an election
+    // manager must explicitly re-enable it
+    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
+      {
+        name: 'VxAdmin-0001',
+        host: 'self.local',
+        resolvedIp: '192.168.1.1',
+        port: '3002',
+      },
+    ]);
+    await advancePollingInterval();
+    expect(store.getIsClientAdjudicationEnabled()).toEqual(false);
   });
 
   test('does not record other host when communication fails', async () => {

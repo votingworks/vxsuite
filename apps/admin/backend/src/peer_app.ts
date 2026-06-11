@@ -48,6 +48,17 @@ export interface PeerAppContext {
 function buildPeerApi({ workspace, logger }: PeerAppContext) {
   const { store } = workspace;
 
+  // Client adjudication operations are only served while the host has client
+  // adjudication enabled and is the sole host on the network. Enforced
+  // server-side so a client whose UI hasn't yet observed a state change (or
+  // any stale request) cannot claim or adjudicate ballots.
+  function isClientAdjudicationAllowed(): boolean {
+    return (
+      store.getIsClientAdjudicationEnabled() &&
+      !store.getMultipleHostsDetected(getMachineConfig().machineId)
+    );
+  }
+
   return grout.createApi({
     connectToHost(input: {
       machineId: string;
@@ -141,7 +152,18 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
     claimAndLoadBallot(input: {
       machineId: string;
       afterCvrId?: Id;
-    }): { cvrId: Id; data: BallotAdjudicationData } | undefined {
+    }): Result<
+      { cvrId: Id; data: BallotAdjudicationData } | undefined,
+      AdjudicationError
+    > {
+      if (!isClientAdjudicationAllowed()) {
+        logger.log(LogEventId.AdminBallotClaimed, 'system', {
+          message: `Rejected ballot claim from client ${input.machineId}: client adjudication is not allowed.`,
+          disposition: 'failure',
+          clientMachineId: input.machineId,
+        });
+        return err({ type: 'adjudication-disabled' });
+      }
       const electionId = assertDefined(store.getCurrentElectionId());
       const result = store.claimAndLoadBallotData({
         electionId,
@@ -156,10 +178,21 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
         disposition: value ? 'success' : 'failure',
         clientMachineId: input.machineId,
       });
-      return value;
+      return ok(value);
     },
 
     releaseBallot(input: { machineId: string; cvrId: Id }): void {
+      // When client adjudication is not allowed, claims are managed by the
+      // host (released on toggle / multi-host detection), so a stale release
+      // request is a no-op rather than an error.
+      if (!isClientAdjudicationAllowed()) {
+        debug(
+          'Ignoring release of ballot %s from client %s: client adjudication is not allowed',
+          input.cvrId,
+          input.machineId
+        );
+        return;
+      }
       const electionId = assertDefined(store.getCurrentElectionId());
       store.releaseBallotClaim({
         electionId,
@@ -191,6 +224,15 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
     adjudicateCvr(
       input: AdjudicatedCvr & { machineId: string }
     ): Result<void, AdjudicationError> {
+      if (!isClientAdjudicationAllowed()) {
+        logger.log(LogEventId.AdminBallotAdjudicationComplete, 'system', {
+          message: `Rejected adjudication of ballot ${input.cvrId} from client ${input.machineId}: client adjudication is not allowed.`,
+          disposition: 'failure',
+          cvrId: input.cvrId,
+          clientMachineId: input.machineId,
+        });
+        return err({ type: 'adjudication-disabled' });
+      }
       const electionId = assertDefined(store.getCurrentElectionId());
       if (
         !store.hasBallotClaim({

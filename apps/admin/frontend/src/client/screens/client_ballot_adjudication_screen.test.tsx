@@ -274,6 +274,19 @@ test('shows host-disconnect error with exit button', async () => {
   screen.getByText('Exit');
 });
 
+test('shows adjudication-disabled error with exit button', async () => {
+  apiMock.apiClient.claimAndLoadBallot
+    .expectRepeatedCallsWith({})
+    .resolves(err({ type: 'adjudication-disabled' }));
+
+  renderScreen();
+
+  await screen.findByText(
+    'Adjudication is not currently enabled on the host machine.'
+  );
+  screen.getByText('Exit');
+});
+
 test('redirects when host disables adjudication', async () => {
   // Data loader queries fire before the redirect.
   expectDataLoaderQueries('cvr-1');

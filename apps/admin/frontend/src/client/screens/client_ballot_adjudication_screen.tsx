@@ -26,6 +26,8 @@ function proxyErrorMessage(error: AdjudicationError): string {
       return 'This machine no longer has an active claim on this ballot. Please try again.';
     case 'host-disconnect':
       return 'Disconnected from host.';
+    case 'adjudication-disabled':
+      return 'Adjudication is not currently enabled on the host machine.';
     default:
       /* istanbul ignore next */
       throwIllegalValue(error, 'type');

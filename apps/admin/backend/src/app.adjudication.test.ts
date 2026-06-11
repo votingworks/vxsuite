@@ -5,6 +5,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
+import type { Result } from '@votingworks/basics';
 import { loadImageMetadata } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -57,12 +58,12 @@ async function claimBallot(
     claimAndLoadBallot: (input: {
       machineId: string;
       afterCvrId?: string;
-    }) => Promise<{ cvrId: string } | undefined>;
+    }) => Promise<Result<{ cvrId: string } | undefined, unknown>>;
   },
   input: { machineId: string; afterCvrId?: string }
 ): Promise<string | undefined> {
   const result = await peerApiClient.claimAndLoadBallot(input);
-  return result?.cvrId;
+  return result.unsafeUnwrap()?.cvrId;
 }
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
@@ -1547,7 +1548,9 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
   // Two clients claim different ballots. Claiming returns the claimed ballot's
   // adjudication data, mirroring the real client flow.
   const client1Claim = assertDefined(
-    await peerApiClient.claimAndLoadBallot({ machineId: 'client-001' })
+    (
+      await peerApiClient.claimAndLoadBallot({ machineId: 'client-001' })
+    ).unsafeUnwrap()
   );
   const cvrId1 = client1Claim.cvrId;
   const ballotData = client1Claim.data;

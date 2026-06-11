@@ -253,7 +253,7 @@ function buildClientApi({
         AdjudicationError
       >
     > {
-      const result = await proxy(
+      const proxied = await proxy(
         'claim and load ballot',
         async ({ apiClient: peerApi }) =>
           peerApi.claimAndLoadBallot({
@@ -261,16 +261,17 @@ function buildClientApi({
             afterCvrId: input.afterCvrId,
           })
       );
-      if (result.isOk()) {
-        const value = result.ok();
-        if (value) {
-          await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
-            message: `Claimed ballot ${value.cvrId}.`,
-            disposition: 'success',
-          });
-        }
+      if (proxied.isErr()) return proxied;
+      const result = proxied.ok();
+      if (result.isErr()) return result;
+      const value = result.ok();
+      if (value) {
+        await logger.logAsCurrentRole(LogEventId.AdminBallotClaimed, {
+          message: `Claimed ballot ${value.cvrId}.`,
+          disposition: 'success',
+        });
       }
-      return result;
+      return ok(value);
     },
 
     async getBallotImages(input: {
