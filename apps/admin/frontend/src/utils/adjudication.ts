@@ -14,6 +14,7 @@ import {
   Election,
   Rect,
   Side,
+  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
 } from '@votingworks/types';
@@ -91,6 +92,10 @@ export function adjudicatedVotes(
   return Object.fromEntries(
     contests.map(({ contest, adjudicationData }): [string, Vote] => {
       const adjudicatedContest = adjudicatedContests.get(contest.id);
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       switch (contest.type) {
         case 'candidate':
           return [

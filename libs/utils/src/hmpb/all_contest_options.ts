@@ -13,6 +13,7 @@ import {
   CandidateContestOption,
   ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
+  straightPartyNotYetImplemented,
   YesNoContest,
   YesNoContestOption,
 } from '@votingworks/types';
@@ -51,6 +52,10 @@ export function* allContestOptionsWithMultiEndorsements(
   contest: Contest,
   ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption> {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate': {
       // ballotStyle is guaranteed to be defined for CandidateContest by the function overload

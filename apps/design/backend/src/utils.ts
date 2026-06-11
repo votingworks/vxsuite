@@ -12,6 +12,7 @@ import {
   pollingPlacesGenerateFromPrecincts,
   Precinct,
   PrecinctId,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
@@ -102,6 +103,10 @@ export function regenerateElectionIds(
     id: replaceId(contest.id),
     districtId: replaceId(contest.districtId),
     ...(() => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       switch (contest.type) {
         case 'candidate':
           return {

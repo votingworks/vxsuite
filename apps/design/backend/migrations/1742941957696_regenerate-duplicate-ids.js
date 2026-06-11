@@ -1,5 +1,8 @@
 /* eslint-disable vx/gts-object-literal-types */
-const { hasSplits } = require('@votingworks/types');
+const {
+  hasSplits,
+  straightPartyNotYetImplemented,
+} = require('@votingworks/types');
 const { generateId } = require('../build/utils.js');
 
 /**
@@ -117,13 +120,22 @@ exports.up = async (pgm) => {
           : p.districtIds),
       ]),
       ...election.parties.map((p) => p.id),
-      ...election.contests.flatMap((c) => [
-        c.id,
-        ...(c.type === 'candidate' && c.partyId ? [c.partyId] : []),
-        ...(c.type === 'candidate'
-          ? c.candidates.flatMap((cand) => [cand.id, ...(cand.partyIds ?? [])])
-          : [c.yesOption.id, c.noOption.id]),
-      ]),
+      ...election.contests.flatMap((c) => {
+        /* istanbul ignore next */
+        if (c.type === 'straight-party') {
+          return straightPartyNotYetImplemented();
+        }
+        return [
+          c.id,
+          ...(c.type === 'candidate' && c.partyId ? [c.partyId] : []),
+          ...(c.type === 'candidate'
+            ? c.candidates.flatMap((cand) => [
+                cand.id,
+                ...(cand.partyIds ?? []),
+              ])
+            : [c.yesOption.id, c.noOption.id]),
+        ];
+      }),
     ];
   }
 

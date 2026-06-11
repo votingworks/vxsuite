@@ -22,6 +22,7 @@ import {
   getBallotStyle,
   getContests,
   Party,
+  straightPartyNotYetImplemented,
   YesNoContest,
 } from '@votingworks/types';
 import {
@@ -691,8 +692,12 @@ export async function BallotPageContent(
 
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const contestElements = section.map((contest, index) =>
-      contest.type === 'candidate' ? (
+    const contestElements = section.map((contest, index) => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
+      return contest.type === 'candidate' ? (
         <CandidateContest
           key={contest.id}
           contest={contest}
@@ -704,8 +709,8 @@ export async function BallotPageContent(
           contest={contest}
           contestNumber={index + 1}
         />
-      )
-    );
+      );
+    });
     const sectionHeader =
       section[0].type === 'candidate' ? (
         <CandidateContestSectionHeader />

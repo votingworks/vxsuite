@@ -24,6 +24,7 @@ import {
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
   getPartyForBallotStyle,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -439,6 +440,10 @@ function Contest({
   election: Election;
   ballotStyle: BallotStyle;
 }) {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate':
       return (

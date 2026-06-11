@@ -29,6 +29,7 @@ import {
   getContests,
   mapSheet,
   Size,
+  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
   YesNoVote,
@@ -250,6 +251,10 @@ export function* generateCvrs({
 
           const optionsForEachContest = new Map<string, readonly Vote[]>();
           for (const contest of contests) {
+            /* istanbul ignore next */
+            if (contest.type === 'straight-party') {
+              return straightPartyNotYetImplemented();
+            }
             switch (contest.type) {
               case 'candidate':
                 optionsForEachContest.set(
@@ -446,6 +451,10 @@ export function* generateCvrs({
                             election.contests,
                             (c) => c.id === contestId
                           );
+                          /* istanbul ignore next */
+                          if (contest.type === 'straight-party') {
+                            return straightPartyNotYetImplemented();
+                          }
                           const contestVotes = votes[contest.id] || [];
                           return {
                             '@type': 'CVR.CVRContest',

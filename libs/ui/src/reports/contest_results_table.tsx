@@ -6,6 +6,7 @@ import {
   getContestDistrictName,
   Tabulation,
   Contest,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
@@ -218,6 +219,11 @@ export function ContestResultsTable({
     : [];
 
   const hasManualResults = Boolean(manualContestResults);
+
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
 
   switch (contest.type) {
     case 'candidate': {

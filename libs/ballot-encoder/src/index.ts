@@ -17,6 +17,7 @@ import {
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
+  straightPartyNotYetImplemented,
   unsafeParse,
   validateVotes,
   VotesDict,
@@ -271,6 +272,10 @@ function encodeBallotVotesInto(
     const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       if (contest.type === 'yesno') {
         const ynVote = contestVote as YesNoVote;
 
@@ -413,6 +418,10 @@ function decodeBallotVotes(
 
   // read vote data
   for (const contest of contestsWithAnswers) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     if (contest.type === 'yesno') {
       // yesno votes get a single bit
       votes[contest.id] = bits.readBoolean()

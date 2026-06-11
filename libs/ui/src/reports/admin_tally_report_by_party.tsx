@@ -1,4 +1,8 @@
-import { Admin, ElectionDefinition } from '@votingworks/types';
+import {
+  Admin,
+  ElectionDefinition,
+  straightPartyNotYetImplemented,
+} from '@votingworks/types';
 import React from 'react';
 
 import { unique } from '@votingworks/basics';
@@ -131,7 +135,13 @@ export function AdminTallyReportByParty({
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         partyLabel="Nonpartisan Contests"
-        contests={contests.filter((c) => c.type === 'yesno' || !c.partyId)}
+        contests={contests.filter((c) => {
+          /* istanbul ignore next */
+          if (c.type === 'straight-party') {
+            straightPartyNotYetImplemented();
+          }
+          return c.type === 'yesno' || !c.partyId;
+        })}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
         title={title ?? 'Tally Report'}

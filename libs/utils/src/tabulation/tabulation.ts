@@ -10,6 +10,7 @@ import {
   Id,
   PartyId,
   PrecinctSelection,
+  straightPartyNotYetImplemented,
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
@@ -88,6 +89,10 @@ export function getEmptyElectionResults(
 ): Tabulation.ElectionResults {
   const contestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const contest of election.contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     contestResults[contest.id] =
       contest.type === 'yesno'
         ? getEmptyYesNoContestResults(contest)
@@ -114,6 +119,10 @@ export function getEmptyManualElectionResults(
 ): Tabulation.ManualElectionResults {
   const contestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const contest of election.contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     contestResults[contest.id] =
       contest.type === 'yesno'
         ? getEmptyYesNoContestResults(contest)
@@ -540,6 +549,10 @@ export function combineContestResults({
   contest: Contest;
   allContestResults: Tabulation.ContestResults[];
 }): Tabulation.ContestResults {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    straightPartyNotYetImplemented();
+  }
   if (contest.type === 'yesno') {
     return combineYesNoContestResults({
       contest,
@@ -751,6 +764,10 @@ export function buildContestResultsFixture({
   contestResultsSummary: ContestResultsSummary;
   includeGenericWriteIn?: boolean;
 }): Tabulation.ContestResults {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    straightPartyNotYetImplemented();
+  }
   const contestResults =
     contest.type === 'yesno'
       ? getEmptyYesNoContestResults(contest)
@@ -807,6 +824,10 @@ function buildElectionContestResultsFixture({
   const electionContestResults: Tabulation.ElectionResults['contestResults'] =
     {};
   for (const contest of election.contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     const contestResultsSummary = contestResultsSummaries[contest.id];
     electionContestResults[contest.id] = contestResultsSummary
       ? buildContestResultsFixture({

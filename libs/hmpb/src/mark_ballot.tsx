@@ -6,6 +6,7 @@ import {
   Vote,
   VotesDict,
   WriteInCandidate,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
@@ -160,6 +161,10 @@ export function createTestVotes(contests: readonly Contest[]): {
 } {
   const votes: VotesDict = Object.fromEntries(
     contests.map((contest, i) => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       if (contest.type === 'candidate') {
         const candidates = iter(contest.candidates)
           .cycle()

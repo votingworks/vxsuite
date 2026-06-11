@@ -17,6 +17,7 @@ import {
   safeParse,
   YesNoContestSchema,
   ElectionStringKey,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   Callout,
@@ -951,6 +952,10 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
 }
 
 function draftContestFromContest(contest: Contest): DraftContest {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate':
       return {

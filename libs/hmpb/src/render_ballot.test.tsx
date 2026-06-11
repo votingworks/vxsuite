@@ -11,6 +11,7 @@ import {
   LanguageCode,
   YesNoContest,
   LATEST_SOFTWARE_VERSION,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   assert,
@@ -344,6 +345,10 @@ test.each(templateSpecificTestCases)(
     ).toEqual(new Set(contests.map((c) => c.id)));
 
     for (const contest of contests) {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        straightPartyNotYetImplemented();
+      }
       switch (contest.type) {
         case 'candidate': {
           const renderedOptions =

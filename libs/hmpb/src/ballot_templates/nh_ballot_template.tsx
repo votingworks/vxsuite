@@ -34,6 +34,7 @@ import {
   hasSplits,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -216,6 +217,10 @@ export function getCandidateOrderingSetsForNhBallot({
         OrderedCandidateOption[]
       > = {};
       for (const contest of contests) {
+        /* istanbul ignore next */
+        if (contest.type === 'straight-party') {
+          straightPartyNotYetImplemented();
+        }
         switch (contest.type) {
           case 'candidate':
             orderedCandidatesByContest[contest.id] = rotateCandidates(
@@ -775,6 +780,10 @@ function Contest({
   ballotStyle: BallotStyle;
   precinctId: PrecinctId;
 }) {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate':
       return (

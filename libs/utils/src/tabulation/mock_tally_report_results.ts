@@ -1,4 +1,10 @@
-import { Admin, Election, isPrimary, Tabulation } from '@votingworks/types';
+import {
+  Admin,
+  Election,
+  isPrimary,
+  straightPartyNotYetImplemented,
+  Tabulation,
+} from '@votingworks/types';
 import { mapObject } from '@votingworks/basics';
 import {
   ContestResultsSummaries,
@@ -11,6 +17,10 @@ function buildSimpleMockElectionResults(
 ): Tabulation.ElectionResults {
   const contestResultsSummaries: ContestResultsSummaries = {};
   for (const contest of election.contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     contestResultsSummaries[contest.id] = {
       type: contest.type === 'candidate' ? 'candidate' : 'yesno',
       ballots: ballotCount,

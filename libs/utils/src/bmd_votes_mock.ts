@@ -2,6 +2,7 @@ import { iter } from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
+  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
   YesNoContest,
@@ -25,11 +26,17 @@ function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {
 
 export function generateMockVotes(election: Election): VotesDict {
   return Object.fromEntries(
-    election.contests.map((c, index) => [
-      c.id,
-      c.type === 'yesno'
-        ? generateMockYesNoVote(c, index)
-        : generateMockCandidateVote(c, index),
-    ])
+    election.contests.map((c, index) => {
+      /* istanbul ignore next */
+      if (c.type === 'straight-party') {
+        straightPartyNotYetImplemented();
+      }
+      return [
+        c.id,
+        c.type === 'yesno'
+          ? generateMockYesNoVote(c, index)
+          : generateMockCandidateVote(c, index),
+      ];
+    })
   );
 }

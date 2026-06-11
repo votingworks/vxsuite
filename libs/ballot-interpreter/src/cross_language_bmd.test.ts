@@ -9,6 +9,7 @@ import {
   getContests,
   getBallotStyle,
   Candidate,
+  straightPartyNotYetImplemented,
   YesNoVote,
 } from '@votingworks/types';
 import {
@@ -43,6 +44,10 @@ function generateVotesForContests(
 ): VotesDict {
   const votes: VotesDict = {};
   for (const contest of contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     if (contest.type === 'candidate') {
       const namedCandidates = contest.candidates.filter((c) => !c.isWriteIn);
       const selected = namedCandidates.slice(0, contest.seats);

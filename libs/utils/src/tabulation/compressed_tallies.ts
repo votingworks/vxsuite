@@ -8,6 +8,7 @@ import {
   Election,
   PrecinctId,
   PrecinctSelection,
+  straightPartyNotYetImplemented,
   Tabulation,
   unsafeParse,
   YesNoContestCompressedTally,
@@ -83,6 +84,10 @@ export function compressTally(
   );
   // eslint-disable-next-line array-callback-return
   return contests.map((contest) => {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     switch (contest.type) {
       case 'yesno': {
         const contestResults = results.contestResults[contest.id];
@@ -229,6 +234,10 @@ function getContestTalliesForCompressedContest(
   contest: Contest,
   compressedContest: CompressedTallyEntry
 ): Tabulation.ContestResults {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'yesno': {
       const [undervotes, overvotes, ballots, yesTally, noTally] = unsafeParse(
@@ -299,6 +308,10 @@ function getContestTalliesForCompressedContest(
 const yesNoContestCompressedTallyLength: YesNoContestCompressedTally['length'] = 5;
 
 function getNumberOfEntriesInContest(contest: Contest): number {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'yesno':
       return yesNoContestCompressedTallyLength;
@@ -351,6 +364,10 @@ export function decodeV0CompressedTally(
   );
   for (const contest of contests) {
     const tallyLength = getNumberOfEntriesInContest(contest);
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     if (contest.type === 'yesno') {
       compressedTally.push(
         Array.from(
@@ -390,6 +407,10 @@ function decodeContestEntriesFromUint16Array(
       uint16Array.slice(currentOffset, currentOffset + tallyLength)
     );
     let compressedEntry: CompressedTallyEntry;
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     if (contest.type === 'yesno') {
       compressedEntry = entryArray as YesNoContestCompressedTally;
     } else {

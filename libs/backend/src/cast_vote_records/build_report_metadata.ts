@@ -6,6 +6,7 @@ import {
   CastVoteRecordBatchMetadata,
   CVR,
   Election,
+  straightPartyNotYetImplemented,
   YesNoContest,
 } from '@votingworks/types';
 
@@ -86,6 +87,10 @@ function buildBallotMeasureContest(
 function buildContest(
   contest: Contest
 ): CVR.CandidateContest | CVR.BallotMeasureContest {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   return contest.type === 'candidate'
     ? buildCandidateContest(contest)
     : buildBallotMeasureContest(contest);

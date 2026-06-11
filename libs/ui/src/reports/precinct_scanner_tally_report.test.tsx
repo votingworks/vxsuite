@@ -4,6 +4,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
+  straightPartyNotYetImplemented,
   anyPollingPlace,
   BatchInfo,
   formatElectionHashes,
@@ -138,9 +139,13 @@ test('renders as expected for all precincts in a primary election', () => {
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}
-      contests={electionTwoPartyPrimary.contests.filter(
-        (c) => c.type === 'yesno' || c.partyId === '0'
-      )}
+      contests={electionTwoPartyPrimary.contests.filter((c) => {
+        /* istanbul ignore next */
+        if (c.type === 'straight-party') {
+          straightPartyNotYetImplemented();
+        }
+        return c.type === 'yesno' || c.partyId === '0';
+      })}
       partyId="0"
       batches={[]}
     />

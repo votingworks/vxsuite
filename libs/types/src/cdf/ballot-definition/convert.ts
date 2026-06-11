@@ -520,6 +520,10 @@ export function convertVxfElectionToCdfBallotDefinition(
       contest: Vxf.Contest,
       gridPosition: Vxf.GridPosition
     ): string {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return Vxf.straightPartyNotYetImplemented();
+      }
       switch (gridPosition.type) {
         case 'option': {
           switch (contest.type) {
@@ -546,6 +550,10 @@ export function convertVxfElectionToCdfBallotDefinition(
     function getOrderedPhysicalContestOptions(
       contest: Vxf.Contest
     ): Cdf.PhysicalContestOption[] {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return Vxf.straightPartyNotYetImplemented();
+      }
       // For candidate contests, use the ordered candidates from the ballot style
       if (contest.type === 'candidate') {
         const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
@@ -764,6 +772,10 @@ export function convertVxfElectionToCdfBallotDefinition(
 
         // eslint-disable-next-line array-callback-return
         Contest: vxfElection.contests.map((contest) => {
+          /* istanbul ignore next */
+          if (contest.type === 'straight-party') {
+            return Vxf.straightPartyNotYetImplemented();
+          }
           switch (contest.type) {
             case 'candidate':
               return {

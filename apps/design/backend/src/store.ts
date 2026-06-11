@@ -60,6 +60,7 @@ import {
   safeParseElectionDefinitionForAnySoftwareVersion,
   SoftwareVersion,
   ElectionType,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -383,6 +384,10 @@ async function insertContest(
   ballotOrder?: number
 ) {
   await assertWithinTransaction(client);
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate': {
       await client.query(
@@ -1088,6 +1093,10 @@ export class Store {
         partyIds: PartyId[];
       }>;
       const contests: Contest[] = contestRows.map((row) => {
+        /* istanbul ignore next */
+        if (row.type === 'straight-party') {
+          return straightPartyNotYetImplemented();
+        }
         switch (row.type) {
           case 'candidate': {
             const candidates: Candidate[] = candidateRows

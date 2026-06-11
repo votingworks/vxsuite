@@ -6,6 +6,7 @@ import {
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
+import { straightPartyNotYetImplemented } from '@votingworks/types';
 import {
   getContestIdsForBallotStyle,
   getContestIdsForPrecinct,
@@ -157,7 +158,13 @@ describe('groupContestsByParty', () => {
       'fishing',
     ]);
     expect(
-      nonPartisanGroup.contests.every((c) => c.type === 'yesno' || !c.partyId)
+      nonPartisanGroup.contests.every((c) => {
+        /* istanbul ignore next */
+        if (c.type === 'straight-party') {
+          straightPartyNotYetImplemented();
+        }
+        return c.type === 'yesno' || !c.partyId;
+      })
     ).toEqual(true);
   });
 
@@ -173,7 +180,13 @@ describe('groupContestsByParty', () => {
     expect(nonPartisanGroup!.partyId).toBeUndefined();
     expect(nonPartisanGroup!.contests).toEqual(election.contests);
     expect(
-      nonPartisanGroup!.contests.every((c) => c.type === 'yesno' || !c.partyId)
+      nonPartisanGroup!.contests.every((c) => {
+        /* istanbul ignore next */
+        if (c.type === 'straight-party') {
+          straightPartyNotYetImplemented();
+        }
+        return c.type === 'yesno' || !c.partyId;
+      })
     ).toEqual(true);
   });
 

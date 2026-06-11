@@ -2,6 +2,7 @@ import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionDefinition,
   ElectionStringKey,
+  straightPartyNotYetImplemented,
   SYSTEM_LIMITS,
   SystemLimits,
   SystemLimitViolation,
@@ -58,6 +59,10 @@ export function validateElectionDefinitionAgainstSystemLimits(
 
   let totalCandidates = 0;
   for (const contest of election.contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     switch (contest.type) {
       case 'candidate': {
         if (contest.candidates.length > systemLimits.contest.candidates) {
@@ -166,6 +171,10 @@ export function validateElectionDefinitionAgainstSystemLimits(
       let seatsSummedAcrossContests = 0;
       let candidatesSummedAcrossContests = 0;
       for (const contest of ballotStyleContests) {
+        /* istanbul ignore next */
+        if (contest.type === 'straight-party') {
+          return straightPartyNotYetImplemented();
+        }
         switch (contest.type) {
           case 'candidate': {
             seatsSummedAcrossContests += contest.seats;

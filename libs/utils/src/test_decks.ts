@@ -19,6 +19,7 @@ import {
   GridLayout,
   Tabulation,
   getGroupIdFromBallotStyleId,
+  straightPartyNotYetImplemented,
   Admin,
 } from '@votingworks/types';
 import {
@@ -47,6 +48,10 @@ export interface TestDeckBallot {
 }
 
 export function numBallotPositions(contest: Contest): number {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   if (contest.type === 'candidate') {
     return (
       contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0)
@@ -145,12 +150,21 @@ export function generateTestDeckBallots({
           // first contest where an overvote is possible. Does not overvote
           // candidate contests where you must select a write-in to overvote. See
           // discussion: https://github.com/votingworks/vxsuite/issues/1711.
-          const overvoteContest = contests.find(
-            (contest) =>
+          const overvoteContest = contests.find((contest) => {
+            /* istanbul ignore next */
+            if (contest.type === 'straight-party') {
+              straightPartyNotYetImplemented();
+            }
+            return (
               contest.type === 'yesno' ||
               contest.candidates.length > contest.seats
-          );
+            );
+          });
           if (overvoteContest) {
+            /* istanbul ignore next */
+            if (overvoteContest.type === 'straight-party') {
+              straightPartyNotYetImplemented();
+            }
             ballots.push({
               ballotStyleId: ballotStyle.id,
               precinctId: currentPrecinctId,

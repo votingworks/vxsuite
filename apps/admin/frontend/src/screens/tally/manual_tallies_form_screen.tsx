@@ -20,6 +20,7 @@ import {
   BallotStyleGroupId,
   Precinct,
   Election,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   Button,
@@ -302,6 +303,10 @@ function emptyFormContestResults(
   contest: Contest,
   ballotCount?: number
 ): FormContestResults {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'yesno':
       return {
