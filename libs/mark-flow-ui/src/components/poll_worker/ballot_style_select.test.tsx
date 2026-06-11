@@ -30,7 +30,7 @@ describe('general election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
     });
 
-    userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
+    userEvent.click(screen.getButton(precinct.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(precinct.id, ballotStyle.id);
   });
@@ -197,7 +197,7 @@ describe('open primary election', () => {
 
     // No party picker — pressing the precinct button immediately selects the
     // precinct's single (partyless) ballot style.
-    userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
+    userEvent.click(screen.getButton(precinct.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(precinct.id, 'ballot-style-1');
   });
