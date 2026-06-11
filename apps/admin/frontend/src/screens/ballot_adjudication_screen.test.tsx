@@ -88,7 +88,6 @@ function makeContestAdjudicationData(
         definition: {
           id: candidate.id,
           contestId,
-          name: candidate.name,
           type: 'candidate' as const,
           isWriteIn: false,
         },
@@ -100,11 +99,10 @@ function makeContestAdjudicationData(
   }
   return {
     contestId,
-    options: ['yes', 'no'].map((id) => ({
+    options: [contest.yesOption, contest.noOption].map((option) => ({
       definition: {
-        id,
+        id: option.id,
         contestId,
-        name: id,
         type: 'yesno' as const,
       },
       scannedVote: false,
@@ -1300,7 +1298,6 @@ test('contest list shows correct option resolution bullets', async () => {
       definition: {
         id: 'write-in-0',
         contestId: 'zoo-council-mammal',
-        name: 'Write-In #1',
         type: 'candidate' as const,
         isWriteIn: true,
       },
@@ -1319,7 +1316,6 @@ test('contest list shows correct option resolution bullets', async () => {
       definition: {
         id: 'write-in-1',
         contestId: 'zoo-council-mammal',
-        name: 'Write-In #2',
         type: 'candidate' as const,
         isWriteIn: true,
       },
@@ -1338,7 +1334,6 @@ test('contest list shows correct option resolution bullets', async () => {
       definition: {
         id: 'write-in-2',
         contestId: 'zoo-council-mammal',
-        name: 'Write-In #3',
         type: 'candidate' as const,
         isWriteIn: true,
       },
@@ -1356,7 +1351,6 @@ test('contest list shows correct option resolution bullets', async () => {
       definition: {
         id: 'write-in-3',
         contestId: 'zoo-council-mammal',
-        name: 'Write-In #4',
         type: 'candidate' as const,
         isWriteIn: true,
       },
@@ -1518,7 +1512,6 @@ test('contest list shows pending status lines before adjudication', async () => 
     definition: {
       id: 'write-in-0',
       contestId: 'zoo-council-mammal',
-      name: 'Write-In #1',
       type: 'candidate' as const,
       isWriteIn: true,
     },
@@ -1589,7 +1582,6 @@ test('contest list only shows overvote/undervote/marginal status lines present i
     definition: {
       id: 'write-in-0',
       contestId: 'best-animal-mammal',
-      name: 'Write-In #1',
       type: 'candidate' as const,
       isWriteIn: true,
     },
@@ -1773,7 +1765,6 @@ function addPendingWriteIns(
       definition: {
         id: `write-in-${i}`,
         contestId: contest.contestId,
-        name: `Write-In #${i + 1}`,
         type: 'candidate' as const,
         isWriteIn: true,
       },
