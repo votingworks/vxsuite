@@ -29,6 +29,7 @@
     "@playwright/test": "^1.48.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

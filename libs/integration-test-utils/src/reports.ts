@@ -13,24 +13,41 @@ function listFilesRecursive(dir: string): string[] {
 }
 
 /**
- * Reads the readiness report PDF most recently saved to the mock USB drive and
- * captures each page as a PNG alongside the UI screenshots.
+ * Finds the most recently named report PDF on the mock USB drive whose filename
+ * contains `filenameIncludes`, and captures each page as a PNG alongside the UI
+ * screenshots. Report filenames are timestamped, so the latest by name is the
+ * latest by time.
  */
-export async function captureReadinessReport(
+export async function captureUsbReport(
   name: string,
-  namer: ScreenshotNamer
+  namer: ScreenshotNamer,
+  options: { filenameIncludes: string }
 ): Promise<void> {
   const usbPath = getMockFileUsbDriveHandler().getDataPath();
   if (!usbPath) throw new Error('Mock USB drive is not mounted');
 
   const reportPath = listFilesRecursive(usbPath)
     .filter(
-      (path) => path.includes('readiness-report__') && path.endsWith('.pdf')
+      (path) => path.includes(options.filenameIncludes) && path.endsWith('.pdf')
     )
     .sort()
     .at(-1);
-  if (!reportPath) throw new Error('No readiness report found on USB drive');
+  if (!reportPath) {
+    throw new Error(
+      `No report matching "${options.filenameIncludes}" found on USB drive`
+    );
+  }
 
   const pdfBytes = new Uint8Array(readFileSync(reportPath));
   await capturePdfScreenshots(pdfBytes, name, namer);
+}
+
+/** Captures the readiness report PDF saved to the mock USB drive. */
+export function captureReadinessReport(
+  name: string,
+  namer: ScreenshotNamer
+): Promise<void> {
+  return captureUsbReport(name, namer, {
+    filenameIncludes: 'readiness-report__',
+  });
 }

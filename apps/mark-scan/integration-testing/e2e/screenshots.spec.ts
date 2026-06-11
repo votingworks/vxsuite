@@ -8,6 +8,7 @@ import {
 import {
   MULTI_LANGUAGE_UI_STRINGS,
   buildIntegrationTestHelper,
+  captureReadinessReport,
   createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
@@ -29,7 +30,6 @@ import {
   openPolls,
   startVotingSession,
 } from './support/flows';
-import { captureReadinessReport } from './support/reports';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
 

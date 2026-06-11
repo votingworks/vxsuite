@@ -3,14 +3,8 @@ import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Election } from '@votingworks/types';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { postToApi } from '@votingworks/integration-test-utils';
 import { logInAsElectionManager, logInAsPollWorker } from './auth';
-
-async function postToApi(page: Page, method: string, input: object = {}) {
-  return page.request.post(`/api/${method}`, {
-    data: JSON.stringify(input),
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
 
 /**
  * Simulates a voter inserting a blank ballot sheet to start a voting session.
@@ -61,7 +55,7 @@ export async function configureMachine(
   usbHandler.insert(electionPackage);
   await page.getByText('Election Manager Menu').waitFor();
 
-  await page.getByText(/select a polling place/i).click({ force: true });
+  await page.getByLabel(/select a polling place/i).click({ force: true });
   await page.getByText(pollingPlaceName, { exact: true }).click();
 
   await page.getByRole('option', { name: 'Official Ballot Mode' }).click();
