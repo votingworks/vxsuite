@@ -155,7 +155,7 @@ export async function runPrintAndScanTask({
         const usbDriveStatus = await usbDrive.status();
         if (usbDriveStatus.status === 'mounted') {
           const usbDriveExportDirectory = join(
-            usbDriveStatus.mountPoint,
+            usbDriveStatus.mountpoint,
             'ballot-images'
           );
           await mkdir(usbDriveExportDirectory, { recursive: true });

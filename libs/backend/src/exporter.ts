@@ -183,7 +183,7 @@ export class Exporter {
     }
 
     const result = await this.exportData(
-      join(usbDriveStatus.mountPoint, bucket, name),
+      join(usbDriveStatus.mountpoint, bucket, name),
       dataToWrite,
       { maximumFileSize }
     );

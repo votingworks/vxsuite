@@ -90,6 +90,6 @@ test('exposes the first connected drive via the UsbDrive interface', async () =>
 
   expect(await usbDrive.status()).toEqual({
     status: 'mounted',
-    mountPoint: '/media/vx/usb-drive-sdb1',
+    mountpoint: '/media/vx/usb-drive-sdb1',
   });
 });

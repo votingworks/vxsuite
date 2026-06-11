@@ -145,7 +145,7 @@ async function exportLogsToUsbHelper({
     return err({ code: 'no-usb-drive' });
   }
 
-  const machineNamePath = join(status.mountPoint, `/logs/machine_${machineId}`);
+  const machineNamePath = join(status.mountpoint, `/logs/machine_${machineId}`);
 
   const destinationDirectory = join(machineNamePath, generateFileTimeSuffix());
   const tempDirectory = dirSync().name;

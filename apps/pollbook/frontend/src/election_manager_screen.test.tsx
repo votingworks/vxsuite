@@ -177,7 +177,7 @@ describe('Settings tab', () => {
   beforeEach(() => {
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
-      mountPoint: '/dev/null',
+      mountpoint: '/dev/null',
     });
   });
 

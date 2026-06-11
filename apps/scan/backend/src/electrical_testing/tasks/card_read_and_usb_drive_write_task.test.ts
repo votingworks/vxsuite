@@ -14,7 +14,7 @@ async function hasWrittenFileToUsbDrive(usbDrive: UsbDrive) {
   const status = await usbDrive.status();
   return (
     status.status === 'mounted' &&
-    exists(join(status.mountPoint, USB_DRIVE_FILE_NAME))
+    exists(join(status.mountpoint, USB_DRIVE_FILE_NAME))
   );
 }
 

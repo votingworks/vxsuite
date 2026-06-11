@@ -219,9 +219,9 @@ export async function exportBackupVoterChecklist(
     const inProgressName = `part_${
       i + 1
     }_backup_voter_checklist.in_progress.pdf`;
-    const inProgressPath = join(usbDriveStatus.mountPoint, inProgressName);
+    const inProgressPath = join(usbDriveStatus.mountpoint, inProgressName);
     const finalPath = join(
-      usbDriveStatus.mountPoint,
+      usbDriveStatus.mountpoint,
       `part_${i + 1}_backup_voter_checklist.pdf`
     );
     (
