@@ -8,16 +8,7 @@ import {
   Main,
   Screen,
 } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName as Feature,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import {
-  getElectionRecord,
-  getMachineConfig,
-  getPollingPlaceId,
-  getPrecinctSelection,
-} from '../api';
+import { getElectionRecord, getMachineConfig, getPollingPlaceId } from '../api';
 
 const LockedImage = styled.img`
   margin-right: auto;
@@ -27,16 +18,13 @@ const LockedImage = styled.img`
 `;
 
 export function MachineLockedScreen(): JSX.Element | null {
-  const usePollingPlaces = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES);
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
-  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
   const getPollingPlaceIdQuery = getPollingPlaceId.useQuery();
 
   if (
     !getElectionRecordQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
-    !getPrecinctSelectionQuery.isSuccess ||
     !getPollingPlaceIdQuery.isSuccess
   ) {
     return null;
@@ -47,13 +35,9 @@ export function MachineLockedScreen(): JSX.Element | null {
   const machineConfig = getMachineConfigQuery.data;
   const pollingPlaceId = getPollingPlaceIdQuery.data;
   const requiresElectionConfiguration = !electionDefinition;
-  const requiresLocationSelection = usePollingPlaces
-    ? !pollingPlaceId
-    : !getPrecinctSelectionQuery.data;
+  const requiresLocationSelection = !pollingPlaceId;
   const isConfigured =
     !requiresElectionConfiguration && !requiresLocationSelection;
-
-  const locationType = usePollingPlaces ? 'polling place' : 'precinct';
 
   return (
     <Screen>
@@ -70,7 +54,7 @@ export function MachineLockedScreen(): JSX.Element | null {
             <H1 style={{ maxWidth: '27rem', marginTop: '0' }}>
               {requiresElectionConfiguration
                 ? 'Insert an election manager card to configure VxPrint.'
-                : `Insert an election manager card to select a ${locationType}.`}
+                : `Insert an election manager card to select a polling place.`}
             </H1>
           </Font>
         )}

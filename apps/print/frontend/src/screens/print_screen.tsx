@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import {
-  BooleanEnvironmentVariableName as Feature,
-  format,
-  getLanguageOptions,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { format, getLanguageOptions } from '@votingworks/utils';
 import {
   BallotType,
   hasSplits,
@@ -23,7 +18,7 @@ import {
   Modal,
   Loading,
 } from '@votingworks/ui';
-import { assertDefined, find } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';
@@ -31,7 +26,6 @@ import {
   getDeviceStatuses,
   getElectionRecord,
   getPollingPlaceId,
-  getPrecinctSelection,
   printBallot,
 } from '../api';
 import { getPartyOptions } from '../utils';
@@ -135,10 +129,9 @@ export function PrintScreen({
   const printBallotMutation = printBallot.useMutation();
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
-  const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
-  const configuredPrecinct = getConfiguredPrecinctQuery.data;
-  const pollingPlaceId = getPollingPlaceId.useQuery().data;
+  const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
+  const pollingPlaceId = pollingPlaceIdQuery.data;
 
   const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
 
@@ -147,22 +140,13 @@ export function PrintScreen({
 
     const { election } = getElectionRecordQuery.data.electionDefinition;
 
-    if (!isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)) {
-      if (configuredPrecinct?.kind === 'SinglePrecinct') {
-        const { precinctId } = configuredPrecinct;
-        return [find(election.precincts, (p) => p.id === precinctId)];
-      }
-
-      return election.precincts;
-    }
-
     if (!pollingPlaceId) return election.precincts;
 
     const place = pollingPlaceFromElection(election, pollingPlaceId);
     const precinctIds = pollingPlacePrecinctIds(place);
 
     return election.precincts.filter((p) => precinctIds.has(p.id));
-  }, [configuredPrecinct, getElectionRecordQuery.data, pollingPlaceId]);
+  }, [getElectionRecordQuery.data, pollingPlaceId]);
 
   if (!selectedPrecinctId && precincts.length > 0) {
     const defaultSelection = precincts[0].id;
@@ -171,7 +155,7 @@ export function PrintScreen({
 
   if (
     !getElectionRecordQuery.isSuccess ||
-    !getConfiguredPrecinctQuery.isSuccess ||
+    !pollingPlaceIdQuery.isSuccess ||
     !getDeviceStatusesQuery.isSuccess
   ) {
     return null;
@@ -190,7 +174,7 @@ export function PrintScreen({
   // If VxPrint is configured for a single precinct, hide the precinct
   // selection for Poll Workers and default to the configured precinct
   const hidePrecinctSelection =
-    configuredPrecinct?.kind === 'SinglePrecinct' && !isElectionManagerAuth;
+    precincts.length === 1 && !isElectionManagerAuth;
   const selectedPrecinct = selectedPrecinctId
     ? precincts.find((p) => p.id === selectedPrecinctId)
     : undefined;
