@@ -545,12 +545,14 @@ export function buildApi(ctx: AppContext) {
     async printTestDeck(input: { precinctId?: PrecinctId }): Promise<void> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const { election } = electionDefinition;
+      const { precinctId } = input;
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
         message: 'Attempting to print test deck',
-        disposition: 'success',
+        testDeckProps: JSON.stringify({
+          precinctId: precinctId || 'all',
+        }),
       });
 
-      const { precinctId } = input;
       const precinctIds = precinctId
         ? [precinctId]
         : election.precincts.map((precinct) => precinct.id);
@@ -612,6 +614,18 @@ export function buildApi(ctx: AppContext) {
         await printBallots(electionDefinition, {
           data: Buffer.from(tallyReportPdf),
           copies: 1,
+        });
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'Printed test deck',
+          disposition: 'success',
+          ballotCount: ballotsToPrint.length,
+        });
+      } catch (error) {
+        /* istanbul ignore next */
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'Error printing test deck',
+          disposition: 'failure',
+          errorDetails: error instanceof Error ? error.message : String(error),
         });
       } finally {
         await cleanupCachedBrowser();
