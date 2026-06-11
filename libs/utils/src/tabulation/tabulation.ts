@@ -1,4 +1,4 @@
-import { assert, assertDefined, deepEqual, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyleGroupId,
@@ -150,7 +150,8 @@ function addCastVoteRecordToElectionResult(
   if (election.type === 'open-primary') {
     const inferredPartyId = inferPartyFromVotes(election, cvr.votes);
 
-    if (deepEqual(inferredPartyId, Tabulation.NO_PARTY_ID)) {
+    if (typeof inferredPartyId !== 'string') {
+      assert(inferredPartyId.noParty);
       // If an open primary voter has either voted in no partisan contests or
       // crossover voted, omit all partisan contests so that they don't count,
       // even as undervotes.
