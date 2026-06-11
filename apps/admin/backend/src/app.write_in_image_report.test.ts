@@ -325,7 +325,6 @@ function makeLayoutForContest(
               type: 'candidate',
               id: optionId,
               contestId,
-              name: 'Write-In',
               isWriteIn: true,
               writeInIndex: 0,
             },

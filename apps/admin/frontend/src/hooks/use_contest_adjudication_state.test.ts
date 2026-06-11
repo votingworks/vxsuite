@@ -5,12 +5,40 @@ import {
   ContestOptionAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import { ContestOption } from '@votingworks/types';
+import {
+  CandidateContest,
+  Contest,
+  ContestOption,
+  YesNoContest,
+} from '@votingworks/types';
 import { act, renderHook } from '@testing-library/react';
 import {
   isWriteInPending,
   useContestAdjudicationState,
 } from './use_contest_adjudication_state';
+
+const candidateContest: CandidateContest = {
+  id: 'contest',
+  districtId: 'district',
+  title: 'Contest',
+  type: 'candidate',
+  seats: 2,
+  allowWriteIns: true,
+  candidates: [
+    { id: 'alice', name: 'Alice' },
+    { id: 'bob', name: 'Bob' },
+  ],
+};
+
+const yesNoContest: YesNoContest = {
+  id: 'contest',
+  districtId: 'district',
+  title: 'Contest',
+  type: 'yesno',
+  description: 'Question',
+  yesOption: { id: 'yes', label: 'Yes' },
+  noOption: { id: 'no', label: 'No' },
+};
 
 function makeOption(
   definition: ContestOption,
@@ -26,7 +54,7 @@ function makeOption(
 }
 
 function renderAdjudicationState(
-  isCandidateContest: boolean,
+  contest: Contest,
   contestAdjudicationData: ContestAdjudicationData,
   writeInCandidates: WriteInCandidateRecord[],
   adjudicatedContest?: AdjudicatedCvrContest
@@ -35,7 +63,7 @@ function renderAdjudicationState(
     useContestAdjudicationState({
       contestAdjudicationData,
       writeInCandidates,
-      isCandidateContest,
+      contest,
       adjudicatedOptions: adjudicatedContest?.adjudicatedContestOptionById,
     })
   );
@@ -60,7 +88,6 @@ test('useContestAdjudicationState can manage adjudications', () => {
           type: 'candidate',
           id: 'alice',
           contestId,
-          name: 'Alice',
           isWriteIn: false,
         },
         { scannedVote: true }
@@ -70,7 +97,6 @@ test('useContestAdjudicationState can manage adjudications', () => {
           type: 'candidate',
           id: 'bob',
           contestId,
-          name: 'Bob',
           isWriteIn: false,
         },
         { hasMarginalMark: true }
@@ -80,7 +106,6 @@ test('useContestAdjudicationState can manage adjudications', () => {
           type: 'candidate',
           id: 'write-in-0',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 0,
         },
@@ -101,7 +126,6 @@ test('useContestAdjudicationState can manage adjudications', () => {
           type: 'candidate',
           id: 'write-in-1',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 1,
         },
@@ -111,7 +135,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
   };
 
   const { result } = renderAdjudicationState(
-    true,
+    candidateContest,
     contestAdjudicationData,
     writeInCandidates
   );
@@ -277,7 +301,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'alice',
           contestId,
-          name: 'Alice',
           isWriteIn: false,
         },
         { scannedVote: true }
@@ -287,7 +310,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'bob',
           contestId,
-          name: 'Bob',
           isWriteIn: false,
         },
         { hasMarginalMark: true }
@@ -297,7 +319,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'write-in-0',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 0,
         },
@@ -318,7 +339,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'write-in-1',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 1,
         },
@@ -328,7 +348,6 @@ test('initializes derived state correctly for candidate contest', () => {
         type: 'candidate',
         id: 'write-in-2',
         contestId,
-        name: 'Write-In',
         isWriteIn: true,
         writeInIndex: 2,
       }),
@@ -336,7 +355,7 @@ test('initializes derived state correctly for candidate contest', () => {
   };
 
   const { result } = renderAdjudicationState(
-    true,
+    candidateContest,
     contestAdjudicationData,
     writeInCandidates
   );
@@ -379,7 +398,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'alice',
           contestId,
-          name: 'Alice',
           isWriteIn: false,
         },
         { scannedVote: true }
@@ -389,7 +407,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'bob',
           contestId,
-          name: 'Bob',
           isWriteIn: false,
         },
         { hasMarginalMark: true }
@@ -399,7 +416,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'write-in-0',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 0,
         },
@@ -422,7 +438,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'write-in-1',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 1,
         },
@@ -443,7 +458,6 @@ test('initializes derived state correctly for candidate contest', () => {
         type: 'candidate',
         id: 'write-in-2',
         contestId,
-        name: 'Write-In',
         isWriteIn: true,
         writeInIndex: 2,
       }),
@@ -466,7 +480,7 @@ test('initializes derived state correctly for candidate contest', () => {
   };
 
   const { result: adjResult } = renderAdjudicationState(
-    true,
+    candidateContest,
     adjudicatedContestAdjudicationData,
     writeInCandidates,
     adjudicatedContest
@@ -511,7 +525,6 @@ test('initializes derived state correctly for candidate contest', () => {
           type: 'candidate',
           id: 'write-in-0',
           contestId,
-          name: 'Write-In',
           isWriteIn: true,
           writeInIndex: 0,
         },
@@ -546,7 +559,7 @@ test('initializes derived state correctly for candidate contest', () => {
     },
   };
   const { result: writeInResult } = renderAdjudicationState(
-    true,
+    candidateContest,
     writeInCandidateData,
     writeInCandidates,
     writeInCandidateAdjudicatedContest
@@ -568,18 +581,18 @@ test('initializes derived state correctly for yes/no contest', () => {
     tag: {},
     options: [
       makeOption(
-        { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
+        { type: 'yesno', id: 'yes', contestId },
         { hasMarginalMark: true }
       ),
       makeOption(
-        { type: 'yesno', id: 'no', contestId, name: 'No' },
+        { type: 'yesno', id: 'no', contestId },
         { hasMarginalMark: true }
       ),
     ],
   };
 
   const { result } = renderAdjudicationState(
-    false,
+    yesNoContest,
     contestAdjudicationData,
     []
   );
@@ -596,11 +609,11 @@ test('initializes derived state correctly for yes/no contest', () => {
     tag: {},
     options: [
       makeOption(
-        { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
+        { type: 'yesno', id: 'yes', contestId },
         { hasMarginalMark: true }
       ),
       makeOption(
-        { type: 'yesno', id: 'no', contestId, name: 'No' },
+        { type: 'yesno', id: 'no', contestId },
         { hasMarginalMark: true }
       ),
     ],
@@ -613,7 +626,7 @@ test('initializes derived state correctly for yes/no contest', () => {
     },
   };
   const { result: adjResult } = renderAdjudicationState(
-    false,
+    yesNoContest,
     adjudicatedContestAdjudicationData,
     [],
     adjudicatedContest
@@ -638,15 +651,15 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
     tag: {},
     options: [
       makeOption(
-        { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
+        { type: 'yesno', id: 'yes', contestId },
         { hasMarginalMark: true }
       ),
-      makeOption({ type: 'yesno', id: 'no', contestId, name: 'No' }),
+      makeOption({ type: 'yesno', id: 'no', contestId }),
     ],
   };
 
   const { result } = renderAdjudicationState(
-    false,
+    yesNoContest,
     contestAdjudicationData,
     []
   );
@@ -680,7 +693,6 @@ test('applies adjudicatedContest overlay across all option types', () => {
           type: 'candidate',
           id: 'alice',
           contestId,
-          name: 'Alice',
           isWriteIn: false,
         },
         { scannedVote: false }
@@ -689,14 +701,12 @@ test('applies adjudicatedContest overlay across all option types', () => {
         type: 'candidate',
         id: 'bob',
         contestId,
-        name: 'Bob',
         isWriteIn: false,
       }),
       makeOption({
         type: 'candidate',
         id: 'write-in-0',
         contestId,
-        name: 'Write-In',
         isWriteIn: true,
         writeInIndex: 0,
       }),
@@ -704,7 +714,6 @@ test('applies adjudicatedContest overlay across all option types', () => {
         type: 'candidate',
         id: 'write-in-1',
         contestId,
-        name: 'Write-In',
         isWriteIn: true,
         writeInIndex: 1,
       }),
@@ -712,7 +721,6 @@ test('applies adjudicatedContest overlay across all option types', () => {
         type: 'candidate',
         id: 'write-in-2',
         contestId,
-        name: 'Write-In',
         isWriteIn: true,
         writeInIndex: 2,
       }),
@@ -720,7 +728,6 @@ test('applies adjudicatedContest overlay across all option types', () => {
         type: 'candidate',
         id: 'write-in-3',
         contestId,
-        name: 'Write-In',
         isWriteIn: true,
         writeInIndex: 3,
       }),
@@ -759,7 +766,7 @@ test('applies adjudicatedContest overlay across all option types', () => {
   };
 
   const { result } = renderAdjudicationState(
-    true,
+    candidateContest,
     contestAdjudicationData,
     writeInCandidates,
     adjudicatedContest

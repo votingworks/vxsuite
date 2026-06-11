@@ -5,9 +5,10 @@ import type {
   ContestAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import type { ContestOptionId, Candidate } from '@votingworks/types';
-import { assert, assertDefined, deepEqual } from '@votingworks/basics';
+import type { ContestOptionId, Contest } from '@votingworks/types';
+import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 
+import { contestOptionName } from '@votingworks/utils';
 import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
 import { normalizeWriteInName } from '../utils/adjudication';
 
@@ -86,7 +87,7 @@ export function isMarginalMarkPending(
 export function useContestAdjudicationState(initialValues: {
   contestAdjudicationData: ContestAdjudicationData;
   writeInCandidates: WriteInCandidateRecord[];
-  isCandidateContest: boolean;
+  contest: Contest;
   adjudicatedOptions?: AdjudicatedContestOptions;
 }): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
@@ -118,7 +119,7 @@ export function useContestAdjudicationState(initialValues: {
 } {
   const {
     contestAdjudicationData,
-    isCandidateContest,
+    contest,
     adjudicatedOptions = {},
     writeInCandidates,
   } = initialValues;
@@ -127,7 +128,10 @@ export function useContestAdjudicationState(initialValues: {
 
   const officialOptions = contestAdjudicationData.options
     .filter((o) => o.definition.type !== 'candidate' || !o.definition.isWriteIn)
-    .map((o) => o.definition);
+    .map((o) => ({
+      ...o.definition,
+      name: contestOptionName(contest, o.definition),
+    }));
 
   function getOptionState(
     optionId: ContestOptionId
@@ -174,9 +178,10 @@ export function useContestAdjudicationState(initialValues: {
       if (option.type === 'official-option') return undefined;
       if (!option.hasVote) return { type: 'invalid' };
       if (option.candidateType === 'official-candidate') {
-        const candidate = assertDefined(
-          officialOptions.find((o) => o.id === option.candidateId)
-        ) as Candidate;
+        const candidate = find(
+          officialOptions,
+          (o) => o.id === option.candidateId
+        );
         return {
           type: 'existing-official',
           id: candidate.id,
@@ -294,7 +299,7 @@ export function useContestAdjudicationState(initialValues: {
   )?.id;
 
   const selectedCandidateNames: string[] = (() => {
-    if (!isCandidateContest) return [];
+    if (contest.type !== 'candidate') return [];
     const names: string[] = [];
     for (const option of optionsList) {
       if (!getOptionHasVote(option.id)) continue;
@@ -303,9 +308,7 @@ export function useContestAdjudicationState(initialValues: {
         if (!isValidCandidate(writeInStatus)) continue;
         names.push(writeInStatus.name);
       } else {
-        const candidate = assertDefined(
-          officialOptions.find((c) => c.id === option.id)
-        ) as Candidate;
+        const candidate = find(officialOptions, (c) => c.id === option.id);
         names.push(candidate.name);
       }
     }
@@ -319,10 +322,10 @@ export function useContestAdjudicationState(initialValues: {
     writeInName: string;
     optionId: ContestOptionId;
   }): DoubleVoteAlert | undefined {
-    if (!isCandidateContest) return undefined;
+    if (contest.type !== 'candidate') return undefined;
 
     const normalizedName = normalizeWriteInName(writeInName);
-    const officialCandidateMatch = (officialOptions as Candidate[]).find(
+    const officialCandidateMatch = officialOptions.find(
       (c) => normalizeWriteInName(c.name) === normalizedName
     );
     if (officialCandidateMatch && getOptionHasVote(officialCandidateMatch.id)) {

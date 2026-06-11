@@ -7,12 +7,7 @@ import {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import {
-  Candidate,
-  CandidateContestOption,
-  getContestDistrictName,
-  Id,
-} from '@votingworks/types';
+import { getContestDistrictName, Id } from '@votingworks/types';
 import { Button, Main, Screen, Icons, H2, H1, P } from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
@@ -24,7 +19,7 @@ import type {
   WriteInCandidateRecord,
   WriteInRecord,
 } from '@votingworks/admin-backend';
-import { format } from '@votingworks/utils';
+import { contestOptionName, format } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import {
   BallotStaticImageViewer,
@@ -227,25 +222,26 @@ export function ContestAdjudicationScreen({
   const isCandidateContest = contest.type === 'candidate';
   const partyLabel = contestPartyLabel(election, contest);
 
-  const officialOptions = useMemo(() => {
-    const optionDefinitions = contestOptions.map((o) => o.definition);
-    if (!isCandidateContest) {
-      return optionDefinitions;
-    }
-    return optionDefinitions.filter(
-      (o) => !(o as CandidateContestOption).isWriteIn
-    );
-  }, [isCandidateContest, contestOptions]);
+  const officialOptions = useMemo(
+    () =>
+      contestOptions
+        .map((option) => option.definition)
+        .filter((option) => option.type !== 'candidate' || !option.isWriteIn)
+        .map((option) => ({
+          ...option,
+          name: contestOptionName(contest, option),
+        })),
+    [contestOptions, contest]
+  );
 
-  const writeInOptionIds = useMemo(() => {
-    if (!isCandidateContest) {
-      return [];
-    }
-    // When contest is a CandidateContest, contestOptions are CandidateContestOptions
-    return contestOptions
-      .filter((o) => (o.definition as CandidateContestOption).isWriteIn)
-      .map((o) => o.definition.id);
-  }, [contestOptions, isCandidateContest]);
+  const writeInOptionIds = useMemo(
+    () =>
+      contestOptions
+        .map((option) => option.definition)
+        .filter((option) => option.type === 'candidate' && option.isWriteIn)
+        .map((option) => option.id),
+    [contestOptions]
+  );
 
   // In qualified-write-in mode, when this contest has no qualified candidates,
   // every pending write-in must be invalid: pre-mark them so the user only has
@@ -287,7 +283,7 @@ export function ContestAdjudicationScreen({
   } = useContestAdjudicationState({
     contestAdjudicationData,
     writeInCandidates,
-    isCandidateContest,
+    contest,
     adjudicatedOptions: preMarkInvalidQualifiedWriteIns(),
   });
 
@@ -425,14 +421,11 @@ export function ContestAdjudicationScreen({
           </BallotVoteCount>
           <ContestOptionButtonList role="listbox">
             {officialOptions.map((officialOption) => {
-              const { id: optionId } = officialOption;
+              const { id: optionId, name: optionLabel } = officialOption;
               const { scannedVote } = assertDefined(
                 contestOptions.find((o) => o.definition.id === optionId)
               );
               const currentVote = getOptionHasVote(optionId);
-              const optionLabel = isCandidateContest
-                ? (officialOption as Candidate).name
-                : officialOption.name;
               const marginalMarkStatus = getOptionMarginalMarkStatus(optionId);
               return (
                 <ContestOptionButton
@@ -520,11 +513,11 @@ export function ContestAdjudicationScreen({
                   officialCandidates={
                     areWriteInCandidatesQualified
                       ? []
-                      : (officialOptions as Candidate[]).filter(
-                          (c) =>
-                            !selectedCandidateNames.includes(c.name) ||
+                      : officialOptions.filter(
+                          (option) =>
+                            !selectedCandidateNames.includes(option.name) ||
                             (isValidCandidate(writeInStatus) &&
-                              writeInStatus.name === c.name)
+                              writeInStatus.name === option.name)
                         )
                   }
                   writeInCandidates={writeInCandidates.filter(

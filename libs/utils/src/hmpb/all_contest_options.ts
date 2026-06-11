@@ -1,5 +1,7 @@
 import {
+  assert,
   assertDefined,
+  find,
   throwIllegalValue,
   uniqueBy,
 } from '@votingworks/basics';
@@ -62,7 +64,6 @@ export function* allContestOptionsWithMultiEndorsements(
           type: 'candidate',
           id: candidate.id,
           contestId: contest.id,
-          name: candidate.name,
           isWriteIn: false,
         };
       }
@@ -73,7 +74,6 @@ export function* allContestOptionsWithMultiEndorsements(
             type: 'candidate',
             id: `write-in-${i}`,
             contestId: contest.id,
-            name: 'Write-In',
             isWriteIn: true,
             writeInIndex: i,
           };
@@ -87,13 +87,11 @@ export function* allContestOptionsWithMultiEndorsements(
         type: 'yesno',
         id: contest.yesOption.id,
         contestId: contest.id,
-        name: contest.yesOption.label,
       };
       yield {
         type: 'yesno',
         id: contest.noOption.id,
         contestId: contest.id,
-        name: contest.noOption.label,
       };
       break;
     }
@@ -148,4 +146,31 @@ export function* allContestOptions(
     ),
     (option) => option.id
   );
+}
+
+/**
+ * Given a {@link ContestOption}, returns the display name for that option based on the contest definition.
+ */
+export function contestOptionName(
+  contest: Contest,
+  option: ContestOption
+): string {
+  switch (option.type) {
+    case 'candidate': {
+      assert(contest.type === 'candidate');
+      return option.isWriteIn
+        ? 'Write-In'
+        : find(contest.candidates, (c) => c.id === option.id).name;
+    }
+    case 'yesno': {
+      assert(contest.type === 'yesno');
+      return find(
+        [contest.yesOption, contest.noOption],
+        (o) => o.id === option.id
+      ).label;
+    }
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(option);
+  }
 }
