@@ -215,8 +215,6 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
 }));
 
 test('saving the readiness report', async () => {
-  setPollingPlacesEnabled(true);
-
   vi.useFakeTimers({
     shouldAdvanceTime: true,
     now: reportPrintedTime.getTime(),
@@ -471,11 +469,3 @@ describe('paper handler diagnostic', () => {
     }
   );
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    featureFlagMock.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    featureFlagMock.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

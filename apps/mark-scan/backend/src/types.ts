@@ -1,9 +1,4 @@
-import {
-  BallotStyleId,
-  PollsState,
-  PrecinctSelection,
-  VotesDict,
-} from '@votingworks/types';
+import { BallotStyleId, PollsState, VotesDict } from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;
@@ -12,7 +7,6 @@ export interface MachineConfig {
 }
 
 export interface ElectionState {
-  precinctSelection?: PrecinctSelection;
   pollingPlaceId?: string;
   ballotsPrintedCount: number;
   isTestMode: boolean;
