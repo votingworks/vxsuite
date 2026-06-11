@@ -2,12 +2,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
-  AnyContest,
+  Contest,
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
-  Contest,
-  Contests,
   DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
   Election,
@@ -1581,7 +1579,7 @@ describe('audio editing', () => {
   });
 
   interface AudioEnabledInputSpec {
-    contest: AnyContest;
+    contest: Contest;
     inputLabel: string;
     stringKey: ElectionStringKey;
     subkey: string;
@@ -1691,7 +1689,7 @@ describe('audio editing', () => {
   });
 });
 
-function expectContestListItems(contests: Contests) {
+function expectContestListItems(contests: readonly Contest[]) {
   expectContestListProps({
     candidateContests: contests.filter((c) => c.type === 'candidate'),
     yesNoContests: contests.filter((c) => c.type === 'yesno'),

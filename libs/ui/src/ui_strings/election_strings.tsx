@@ -4,7 +4,7 @@ import {
   BallotStyle,
   Candidate,
   CandidateContest,
-  ContestLike,
+  Contest,
   County,
   DEFAULT_LANGUAGE_CODE,
   District,
@@ -22,7 +22,7 @@ import { UiRichTextString, UiString } from './ui_string';
 import { DateString } from './date_string';
 import { InEnglish } from './language_override';
 
-type ContestWithDescription = ContestLike & {
+type ContestWithDescription = Contest & {
   description: string;
 };
 
@@ -80,7 +80,7 @@ export const electionStrings = {
     </UiString>
   ),
 
-  [Key.CONTEST_TITLE]: (contest: ContestLike) => (
+  [Key.CONTEST_TITLE]: (contest: Pick<Contest, 'id' | 'title'>) => (
     <UiString uiStringKey={Key.CONTEST_TITLE} uiStringSubKey={contest.id}>
       {contest.title}
     </UiString>

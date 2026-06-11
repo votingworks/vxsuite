@@ -7,7 +7,7 @@ import {
   uniqueDeep,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   Candidate,
   County,
   District,
@@ -263,7 +263,7 @@ export function convertMsElection(
     groupBy(candidateEntries, ({ contestId }) => contestId)
   );
 
-  const contests: AnyContest[] = sectionRows(7).map((row) => {
+  const contests: Contest[] = sectionRows(7).map((row) => {
     const [
       ,
       contestId,

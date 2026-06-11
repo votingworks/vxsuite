@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { AnyContest } from '@votingworks/types';
+import { Contest } from '@votingworks/types';
 
-const CONTEST_TEMPLATE: AnyContest = readElectionGeneral().contests[0];
+const CONTEST_TEMPLATE: Contest = readElectionGeneral().contests[0];
 
-export function generateContests(count: number): AnyContest[] {
-  const contests: AnyContest[] = [];
+export function generateContests(count: number): Contest[] {
+  const contests: Contest[] = [];
 
   for (let i = 0; i < count; i += 1) {
     contests.push({

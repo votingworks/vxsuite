@@ -9,7 +9,7 @@ import {
   ElectionIdSchema,
   BallotStyleIdSchema,
   PrecinctIdSchema,
-  AnyContest,
+  Contest,
 } from '@votingworks/types';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -224,7 +224,7 @@ export const paperSizeLabels: Record<HmpbBallotPaperSize, string> = {
 };
 
 function formContestTooLongErrorMessage(
-  contest: AnyContest,
+  contest: Contest,
   ballotTemplateId: BallotTemplateId
 ): string {
   const issue = `Contest "${contest.title}" was too long to fit on the page.`;

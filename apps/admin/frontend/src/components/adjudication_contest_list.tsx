@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-  AnyContest,
+  Contest,
   CandidateContest,
   ContestId,
   Election,
@@ -121,7 +121,7 @@ const StatusLineAdjudicated = styled(StatusLine).attrs({
   /* stylelint-disable-next-line no-empty-source */
 `;
 
-function getVotesAllowed(contest: AnyContest): number {
+function getVotesAllowed(contest: Contest): number {
   return contest.type === 'yesno' ? 1 : contest.seats;
 }
 
@@ -191,7 +191,7 @@ function getAdjudicatedContestStatusLine(
 
 function getAdjudicatedOptionStatusLine(
   option: ContestOptionAdjudicationData,
-  contest: AnyContest,
+  contest: Contest,
   adjudicatedOption?: AdjudicatedContestOption
 ): React.ReactNode {
   const { definition, scannedVote, hasMarginalMark, writeInRecord } = option;

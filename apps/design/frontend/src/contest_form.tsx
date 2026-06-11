@@ -7,7 +7,7 @@ import { Result, throwIllegalValue } from '@votingworks/basics';
 import {
   isPrimary,
   ElectionId,
-  AnyContest,
+  Contest,
   DistrictId,
   PartyId,
   Candidate,
@@ -117,7 +117,7 @@ const CandidateInputTable = styled(Table)`
 export interface ContestFormProps {
   editing: boolean;
   electionId: ElectionId;
-  savedContest?: AnyContest;
+  savedContest?: Contest;
   title: React.ReactNode;
 }
 
@@ -950,7 +950,7 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
   };
 }
 
-function draftContestFromContest(contest: AnyContest): DraftContest {
+function draftContestFromContest(contest: Contest): DraftContest {
   switch (contest.type) {
     case 'candidate':
       return {
@@ -968,7 +968,7 @@ function draftContestFromContest(contest: AnyContest): DraftContest {
 
 function tryContestFromDraftContest(
   draftContest: DraftContest
-): Result<AnyContest, z.ZodError> {
+): Result<Contest, z.ZodError> {
   switch (draftContest.type) {
     case 'candidate':
       return safeParse(CandidateContestSchema, {

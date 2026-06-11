@@ -6,7 +6,7 @@ import {
   Election,
   BallotMode,
   BallotType,
-  AnyContest,
+  Contest,
   BaseBallotProps,
   Party,
 } from '@votingworks/types';
@@ -380,7 +380,7 @@ export function Footer({
   );
 }
 
-export function isFederalOfficeContest(contest: AnyContest): boolean {
+export function isFederalOfficeContest(contest: Contest): boolean {
   return [
     'President and Vice-President of the United States',
     'United States Senator',

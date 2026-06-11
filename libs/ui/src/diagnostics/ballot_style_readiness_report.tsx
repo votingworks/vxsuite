@@ -1,9 +1,5 @@
 import styled from 'styled-components';
-import {
-  AnyContest,
-  ElectionDefinition,
-  getContests,
-} from '@votingworks/types';
+import { Contest, ElectionDefinition, getContests } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { Font, H2, H3 } from '../typography';
@@ -74,7 +70,7 @@ function BallotStyleDetail(props: BallotStyleDetailProps) {
   );
 }
 
-function getContestLabel(contest: AnyContest) {
+function getContestLabel(contest: Contest) {
   const prefix =
     contest.type === 'candidate' ? `[Vote for ${contest.seats}] ` : '';
   return `${prefix}${contest.title}`;

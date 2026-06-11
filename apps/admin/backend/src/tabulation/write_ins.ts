@@ -1,5 +1,5 @@
 import {
-  AnyContest,
+  Contest,
   ContestId,
   Election,
   ElectionDefinition,
@@ -402,7 +402,7 @@ export function modifyElectionResultsWithWriteInSummary(
 function combineContestWriteInSummaries(
   summaryA: Tabulation.ContestWriteInSummary,
   summaryB: Tabulation.ContestWriteInSummary,
-  contest: AnyContest
+  contest: Contest
 ): Tabulation.ContestWriteInSummary {
   const combinedCandidateTallies: Tabulation.ContestWriteInSummary['candidateTallies'] =
     {};

@@ -4,7 +4,7 @@ import {
   uniqueBy,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotStyle,
   BallotStyleGroup,
   CandidateContest,
@@ -37,7 +37,7 @@ export function allContestOptionsWithMultiEndorsements(
  * For candidate contests, respects ballot style-specific candidate rotation.
  */
 export function allContestOptionsWithMultiEndorsements(
-  contest: AnyContest,
+  contest: Contest,
   ballotStyle: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption>;
 /**
@@ -46,7 +46,7 @@ export function allContestOptionsWithMultiEndorsements(
  * For candidate contests, respects ballot style-specific candidate rotation.
  */
 export function* allContestOptionsWithMultiEndorsements(
-  contest: AnyContest,
+  contest: Contest,
   ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption> {
   switch (contest.type) {
@@ -125,7 +125,7 @@ export function allContestOptions(
  * For candidate contests, respects ballot style-specific candidate rotation.
  */
 export function allContestOptions(
-  contest: AnyContest,
+  contest: Contest,
   ballotStyle: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption>;
 /**
@@ -134,7 +134,7 @@ export function allContestOptions(
  * candidates to the first appearance.
  */
 export function* allContestOptions(
-  contest: AnyContest,
+  contest: Contest,
   ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption> {
   // Get all options including multi-endorsed duplicates, then de-duplicate by id

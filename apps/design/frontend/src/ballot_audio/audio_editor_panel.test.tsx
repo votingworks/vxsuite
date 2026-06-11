@@ -1,11 +1,7 @@
 import { expect, test, vi } from 'vitest';
 
 import { TtsStringDefault } from '@votingworks/design-backend';
-import {
-  AnyContest,
-  ElectionStringKey,
-  YesNoContest,
-} from '@votingworks/types';
+import { Contest, ElectionStringKey, YesNoContest } from '@votingworks/types';
 
 import { AudioEditor, AudioEditorProps } from './audio_editor';
 import {
@@ -59,7 +55,7 @@ test('renders contest descriptions using original, unstripped HTML', async () =>
   const mockApi = createMockApiClient();
   mockApi.listContests
     .expectCallWith({ electionId })
-    .resolves([mockContest as AnyContest]);
+    .resolves([mockContest as Contest]);
 
   const ttsDefault: TtsStringDefault = {
     key: ElectionStringKey.CONTEST_DESCRIPTION,

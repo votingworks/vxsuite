@@ -6,16 +6,13 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
   Candidate,
   CandidateContest,
-  Contest,
   ContestId,
-  ContestLike,
-  Contests,
   District,
   DistrictId,
   Election,
@@ -46,7 +43,7 @@ export function getContests({
 }: {
   ballotStyle: BallotStyle | BallotStyleGroup;
   election: Election;
-}): Contests {
+}): readonly Contest[] {
   return election.contests.filter(
     (contest) =>
       ballotStyle.districts.includes(contest.districtId) &&
@@ -214,9 +211,9 @@ export function findContest({
   contests,
   contestId,
 }: {
-  contests: Contests;
+  contests: readonly Contest[];
   contestId: ContestId;
-}): AnyContest | undefined {
+}): Contest | undefined {
   return contests.find((c) => c.id === contestId);
 }
 
@@ -226,7 +223,7 @@ export function findContest({
 export function getContestsFromIds(
   election: Election,
   contestIds: readonly ContestId[]
-): Contests {
+): readonly Contest[] {
   return Array.from(new Set(contestIds)).map((id) => {
     const contest = election.contests.find((c) => c.id === id);
     if (!contest) {
@@ -404,7 +401,7 @@ export function getPartyIdsInBallotStyles(
 
 export function getContestDistrict(
   election: Election,
-  contest: ContestLike
+  contest: Pick<Contest, 'districtId'>
 ): District {
   const district = election.districts.find((d) => d.id === contest.districtId);
   /* istanbul ignore next */
@@ -452,7 +449,7 @@ export function getContestDistrictName(
  * })
  */
 export function vote(
-  contests: Contests,
+  contests: readonly Contest[],
   shorthand: {
     [key: string]: Vote | string | readonly string[] | Candidate;
   }

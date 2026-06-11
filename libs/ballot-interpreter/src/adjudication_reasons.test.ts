@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  AnyContest,
+  Contest,
   CandidateContest,
   ContestOptionId,
   MarkStatus,
@@ -58,7 +58,7 @@ type GetAllPossibleAdjudicationReasonsOptionStatus = Parameters<
 >[1][0];
 
 function generateMockContestOptionScores(
-  contest: AnyContest,
+  contest: Contest,
   overrides: Record<
     ContestOptionId,
     { markStatus?: MarkStatus; writeInAreaStatus?: WriteInAreaStatus }

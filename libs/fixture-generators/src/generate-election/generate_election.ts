@@ -6,7 +6,7 @@ import {
   unique,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   HmpbBallotPaperSize,
   BallotStyle,
   District,
@@ -114,7 +114,7 @@ export function generateElection(
   }
   const parties = range(0, config.numParties).map(generateParty);
 
-  function generateContest(index: number): AnyContest {
+  function generateContest(index: number): Contest {
     const baseContest = {
       id: `contest-${index}`,
       districtId: chooseRandom(districts).id,

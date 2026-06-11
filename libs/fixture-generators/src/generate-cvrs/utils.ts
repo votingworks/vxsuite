@@ -2,7 +2,7 @@ import { IteratorPlus, assert, iter } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
   BallotPageLayout,
-  Contests,
+  Contest,
   CVR,
   Election,
   getBallotStyle,
@@ -69,7 +69,7 @@ export function splitContestsByPage({
   allVotes: VotesDict;
   ballotPageLayouts: readonly BallotPageLayout[];
   election: Election;
-}): Contests[] {
+}): Array<readonly Contest[]> {
   const metadata = ballotPageLayouts[0]?.metadata;
   assert(metadata);
   const ballotStyle = getBallotStyle({
@@ -82,7 +82,7 @@ export function splitContestsByPage({
     ballotStyle,
   });
 
-  const contestsByPage: Contests[] = [];
+  const contestsByPage: Array<readonly Contest[]> = [];
   let contestOffset = 0;
   for (const layout of ballotPageLayouts) {
     contestsByPage.push(
@@ -100,11 +100,11 @@ export function splitContestsByPage({
  * as from [[...A], [...B], [...C], [...D]] to [[[...A], [...B]], [[...C],[...D]]]
  */
 export function arrangeContestsBySheet(
-  contestsByPage: Iterable<Contests>
-): IteratorPlus<SheetOf<Contests>> {
+  contestsByPage: Iterable<readonly Contest[]>
+): IteratorPlus<SheetOf<readonly Contest[]>> {
   return iter(contestsByPage)
     .chunks(2)
-    .map<SheetOf<Contests>>(([front, back = []]) => [front, back]);
+    .map<SheetOf<readonly Contest[]>>(([front, back = []]) => [front, back]);
 }
 
 /**
@@ -113,7 +113,7 @@ export function arrangeContestsBySheet(
  */
 export function filterVotesByContests(
   votes: VotesDict,
-  contests: Contests
+  contests: readonly Contest[]
 ): VotesDict {
   const filteredVotes: VotesDict = {};
   for (const contest of contests) {

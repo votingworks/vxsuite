@@ -1,11 +1,10 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  AnyContest,
+  Contest,
   BallotStyle,
   CandidateVote,
   ContestOption,
-  Contests,
   MarkStatus,
   VotesDict,
   WriteInAreaStatus,
@@ -34,7 +33,7 @@ function compareMarkStatusDescending(
   return rankMarkStatus(markStatusB) - rankMarkStatus(markStatusA);
 }
 
-function getExpectedVoteCount(contest: AnyContest): number {
+function getExpectedVoteCount(contest: Contest): number {
   switch (contest.type) {
     case 'candidate':
       return contest.seats;
@@ -51,7 +50,7 @@ function getExpectedVoteCount(contest: AnyContest): number {
  * the context of a BMD.
  */
 export function getAllPossibleAdjudicationReasonsForBmdVotes(
-  contests: Contests,
+  contests: readonly Contest[],
   votes: VotesDict
 ): AdjudicationReasonInfo[] {
   const reasons: AdjudicationReasonInfo[] = [];
@@ -111,7 +110,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
  * the context of a HMPB.
  */
 export function getAllPossibleAdjudicationReasons(
-  contests: Contests,
+  contests: readonly Contest[],
   allScoredContestOptions: Array<{
     option: ContestOption;
     markStatus: MarkStatus;

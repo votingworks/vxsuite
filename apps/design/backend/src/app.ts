@@ -21,8 +21,8 @@ import {
   District,
   PrecinctId,
   Party,
-  AnyContest,
-  AnyContestSchema,
+  Contest,
+  ContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
   PrecinctSchema,
@@ -615,23 +615,23 @@ export function buildApi(ctx: AppContext) {
 
     async listContests(input: {
       electionId: ElectionId;
-    }): Promise<readonly AnyContest[]> {
+    }): Promise<readonly Contest[]> {
       return store.listContests(input.electionId);
     },
 
     async createContest(input: {
       electionId: ElectionId;
-      newContest: AnyContest;
+      newContest: Contest;
     }): Promise<Result<void, DuplicateContestError>> {
-      const contest = unsafeParse(AnyContestSchema, input.newContest);
+      const contest = unsafeParse(ContestSchema, input.newContest);
       return store.createContest(input.electionId, contest);
     },
 
     async updateContest(input: {
       electionId: ElectionId;
-      updatedContest: AnyContest;
+      updatedContest: Contest;
     }): Promise<Result<void, DuplicateContestError>> {
-      const contest = unsafeParse(AnyContestSchema, input.updatedContest);
+      const contest = unsafeParse(ContestSchema, input.updatedContest);
       return store.updateContest(input.electionId, contest);
     },
 

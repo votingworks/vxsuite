@@ -164,34 +164,21 @@ export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
   CandidateSchema.optional();
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno';
-export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
-  z.literal('candidate'),
-  z.literal('yesno'),
-]);
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
-export interface Contest {
+
+interface ContestBase {
   readonly id: ContestId;
   readonly districtId: DistrictId;
   readonly title: string;
-  readonly type: ContestTypes;
 }
 
-/**
- * Generic type-agnostic contest type, enabling common operations on canonical
- * {@link Contest}s and BMD-specific ms-either-neither contests.
- */
-export type ContestLike = Pick<Contest, 'id' | 'districtId' | 'title'>;
-
-const ContestInternalSchema = z.object({
+const ContestBaseSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   title: z.string().nonempty(),
-  type: ContestTypesSchema,
 });
-export const ContestSchema: z.ZodSchema<Contest> = ContestInternalSchema;
-export interface CandidateContest extends Contest {
+export interface CandidateContest extends ContestBase {
   readonly type: 'candidate';
   readonly seats: number;
   readonly candidates: readonly Candidate[];
@@ -200,16 +187,14 @@ export interface CandidateContest extends Contest {
   readonly termDescription?: string;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
-  ContestInternalSchema.merge(
-    z.object({
-      type: z.literal('candidate'),
-      seats: z.number().int().positive(),
-      candidates: z.array(CandidateSchema),
-      allowWriteIns: z.boolean(),
-      partyId: PartyIdSchema.optional(),
-      termDescription: z.string().nonempty().optional(),
-    })
-  ).check((ctx) => {
+  ContestBaseSchema.extend({
+    type: z.literal('candidate'),
+    seats: z.number().int().positive(),
+    candidates: z.array(CandidateSchema),
+    allowWriteIns: z.boolean(),
+    partyId: PartyIdSchema.optional(),
+    termDescription: z.string().nonempty().optional(),
+  }).check((ctx) => {
     const contest = ctx.value;
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
       ctx.issues.push({
@@ -264,7 +249,7 @@ export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
   label: z.string().nonempty(),
 });
 
-export interface YesNoContest extends Contest {
+export interface YesNoContest extends ContestBase {
   readonly type: 'yesno';
   readonly description: string;
   readonly yesOption: YesNoOption;
@@ -272,24 +257,21 @@ export interface YesNoContest extends Contest {
   readonly additionalOptions?: readonly YesNoOption[];
 }
 export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
-  ContestInternalSchema.merge(
-    z.object({
-      type: z.literal('yesno'),
-      description: z.string().nonempty(),
-      yesOption: YesNoOptionSchema,
-      noOption: YesNoOptionSchema,
-      additionalOptions: z.array(YesNoOptionSchema).optional(),
-    })
-  );
+  ContestBaseSchema.extend({
+    type: z.literal('yesno'),
+    description: z.string().nonempty(),
+    yesOption: YesNoOptionSchema,
+    noOption: YesNoOptionSchema,
+    additionalOptions: z.array(YesNoOptionSchema).optional(),
+  });
 
-export type AnyContest = CandidateContest | YesNoContest;
-export const AnyContestSchema: z.ZodSchema<AnyContest> = z.union([
+export type Contest = CandidateContest | YesNoContest;
+export const ContestSchema: z.ZodSchema<Contest> = z.union([
   CandidateContestSchema,
   YesNoContestSchema,
 ]);
 
-export type Contests = readonly AnyContest[];
-export const ContestsSchema = z.array(AnyContestSchema).check((ctx) => {
+export const ContestsSchema = z.array(ContestSchema).check((ctx) => {
   const contests = ctx.value;
   for (const [index, id] of findDuplicateIds(contests)) {
     ctx.issues.push({
@@ -714,7 +696,7 @@ export interface Election {
   readonly ballotLayout: BallotLayout;
   readonly ballotStrings: UiStringsPackage;
   readonly ballotStyles: readonly BallotStyle[];
-  readonly contests: Contests;
+  readonly contests: readonly Contest[];
   readonly county: County;
   readonly date: DateWithoutTime;
   readonly districts: readonly District[];

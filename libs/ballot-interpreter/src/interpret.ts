@@ -12,7 +12,7 @@ import { fromGrayScale, isRgba } from '@votingworks/image-utils';
 import {
   AdjudicationInfo,
   AdjudicationReason,
-  AnyContest,
+  Contest,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotStyle,
@@ -21,7 +21,6 @@ import {
   BallotType,
   ContestId,
   ContestOption,
-  Contests,
   Corners,
   ElectionDefinition,
   getBallotStyle,
@@ -93,7 +92,7 @@ interface ScoredContestOption {
 }
 
 function getContestOptionForGridPosition(
-  contests: Contests,
+  contests: readonly Contest[],
   gridPosition: GridPosition,
   ballotStyle: BallotStyle
 ): ContestOption {
@@ -155,7 +154,7 @@ function aggregateContestOptionScores({
 }: {
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
-  contests: Contests;
+  contests: readonly Contest[];
   options: InterpreterOptions;
   ballotStyle: BallotStyle;
 }): ScoredContestOption[] {
@@ -356,7 +355,7 @@ export function determineAdjudicationInfoFromScoredContestOptions(
 }
 
 function convertContestLayouts(
-  contests: Contests,
+  contests: readonly Contest[],
   contestLayouts: InterpretedContestLayout[],
   ballotStyle: BallotStyle
 ): BallotPageContestLayout[] {
@@ -383,7 +382,7 @@ function convertContestLayouts(
   }
 
   function convertContestOptionLayout(
-    contest: AnyContest,
+    contest: Contest,
     { bounds, optionId }: InterpretedContestOptionLayout
   ): BallotPageContestOptionLayout {
     const option = iter(allContestOptions(contest, ballotStyle)).find(

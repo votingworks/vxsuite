@@ -1,7 +1,7 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotStyle,
-  Contests,
+  Contest,
   Election,
   hasSplits,
   PollingPlace,
@@ -31,7 +31,7 @@ export function pollingPlaceBallotStyles(
 export function pollingPlaceContests(
   election: Election,
   place: PollingPlace
-): Contests {
+): readonly Contest[] {
   const districts = pollingPlaceDistrictIds(election, place);
   return election.contests.filter((c) => districts.has(c.districtId));
 }

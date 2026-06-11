@@ -18,7 +18,7 @@ import {
 import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
   AdjudicationReason,
-  AnyContest,
+  Contest,
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
@@ -699,7 +699,7 @@ export class Store implements BaseStore {
     sortIndex,
   }: {
     electionId: Id;
-    contest: AnyContest;
+    contest: Contest;
     sortIndex: number;
   }): void {
     this.client.run(

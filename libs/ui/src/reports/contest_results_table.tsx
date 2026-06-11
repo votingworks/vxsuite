@@ -5,7 +5,7 @@ import {
   Election,
   getContestDistrictName,
   Tabulation,
-  AnyContest,
+  Contest,
 } from '@votingworks/types';
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
@@ -36,7 +36,7 @@ const MetadataLabel = styled.p`
   font-size: 0.8em;
 `;
 
-const Contest = styled.div`
+const ContestContainer = styled.div`
   margin: 2.5em 0;
   page-break-inside: avoid;
 `;
@@ -165,7 +165,7 @@ function ContestMetadataRow({
 
 interface Props {
   election: Election;
-  contest: AnyContest;
+  contest: Contest;
   scannedContestResults: Tabulation.ContestResults;
   manualContestResults?: Tabulation.ContestResults;
   aggregateInsignificantWriteIns?: boolean;
@@ -280,7 +280,7 @@ export function ContestResultsTable({
   }
 
   return (
-    <Contest data-testid={`results-table-${contest.id}`}>
+    <ContestContainer data-testid={`results-table-${contest.id}`}>
       <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
       <ContestTitle>{contest.title}</ContestTitle>
       {contest.type === 'candidate' && (
@@ -320,6 +320,6 @@ export function ContestResultsTable({
       <ContestTable>
         <tbody>{contestTableRows}</tbody>
       </ContestTable>
-    </Contest>
+    </ContestContainer>
   );
 }

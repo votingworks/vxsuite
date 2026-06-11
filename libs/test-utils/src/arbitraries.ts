@@ -14,7 +14,6 @@ import {
   CandidateContest,
   CandidateId,
   ContestId,
-  Contests,
   County,
   CountyId,
   District,
@@ -33,6 +32,7 @@ import {
   ElectionId,
   BallotStyleGroupId,
   PrecinctSplit,
+  Contest,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
@@ -318,7 +318,7 @@ export function arbitraryContests({
   partyIds,
 }: {
   partyIds?: fc.Arbitrary<Array<Party['id']>>;
-} = {}): fc.Arbitrary<Contests> {
+} = {}): fc.Arbitrary<readonly Contest[]> {
   return fc
     .tuple(
       fc.array(

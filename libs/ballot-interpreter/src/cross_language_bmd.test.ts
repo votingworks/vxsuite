@@ -1,10 +1,9 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import {
-  AnyContest,
+  Contest,
   BallotType,
   BallotStyleId,
-  Contests,
   Election,
   VotesDict,
   getContests,
@@ -39,7 +38,7 @@ import type {
  * `includeWriteIns` is set). For yes/no contests, picks yes.
  */
 function generateVotesForContests(
-  contests: Contests,
+  contests: readonly Contest[],
   includeWriteIns: boolean
 ): VotesDict {
   const votes: VotesDict = {};
@@ -239,7 +238,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
         if (allContests.length === 0) return;
 
         // Distribute contests across pages round-robin
-        const pages: Array<AnyContest[]> = Array.from(
+        const pages: Array<Contest[]> = Array.from(
           { length: totalPages },
           () => []
         );
@@ -312,7 +311,7 @@ function ballotHashToBytes(ballotHash: string): number[] {
  */
 function tsVotesToRustVotes(
   votes: VotesDict,
-  contests: Contests
+  contests: readonly Contest[]
 ): Record<string, RustContestVote> {
   const rustVotes: Record<string, RustContestVote> = {};
   for (const contest of contests) {
@@ -435,7 +434,7 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
         const allContests = getContests({ ballotStyle, election });
         if (allContests.length === 0) return;
 
-        const pages: Array<AnyContest[]> = Array.from(
+        const pages: Array<Contest[]> = Array.from(
           { length: totalPages },
           () => []
         );

@@ -10,12 +10,11 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotType,
   CastVoteRecordExportFileName,
   ContestId,
   ContestOptionId,
-  Contests,
   CVR,
   CVRSnapshotOtherStatus,
   CVRSnapshotOtherStatusSchema,
@@ -252,7 +251,7 @@ export function isCastVoteRecordWriteInValid(
   return Boolean(cvrWriteIn.side || cvrWriteIn.text);
 }
 
-function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
+function getValidContestOptions(contest: Contest): ContestOptionId[] {
   switch (contest.type) {
     case 'candidate':
       return [
@@ -279,7 +278,7 @@ export type ContestReferenceError =
  */
 export function castVoteRecordHasValidContestReferences(
   cvr: CVR.CVR,
-  electionContests: Contests
+  electionContests: readonly Contest[]
 ): Result<void, ContestReferenceError> {
   for (const cvrSnapshot of cvr.CVRSnapshot) {
     for (const cvrContest of cvrSnapshot.CVRContest) {

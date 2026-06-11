@@ -5,7 +5,7 @@ import { DateWithoutTime } from '@votingworks/basics';
 import { ElectionInfo } from '@votingworks/design-backend';
 import {
   CandidateContest,
-  Contests,
+  Contest,
   District,
   DistrictIdSchema,
   HmpbBallotPaperSize,
@@ -75,7 +75,7 @@ const testDistrictC: District = {
 
 const testDistricts = [testDistrictA, testDistrictB, testDistrictC];
 
-const testContests: Contests = [
+const testContests: readonly Contest[] = [
   candidateContest(testDistrictA.id, 1),
   candidateContest(testDistrictB.id, 1),
   candidateContest(testDistrictC.id, 1),
@@ -84,7 +84,7 @@ const testContests: Contests = [
   yesNoContest(testDistrictC.id, 1),
 ];
 
-const testContestsInBcaOrder: Contests = [
+const testContestsInBcaOrder: readonly Contest[] = [
   candidateContest(testDistrictB.id, 1),
   candidateContest(testDistrictC.id, 1),
   candidateContest(testDistrictA.id, 1),
@@ -139,7 +139,7 @@ test.each<{
   description: string;
   ballotsFinalizedAt: Date | null;
   electionInfo: ElectionInfo;
-  contests: Contests;
+  contests: readonly Contest[];
   shouldButtonBeEnabled: boolean;
 }>([
   {
@@ -321,9 +321,9 @@ test('initial district order is based on the order of appearance in contests', a
 });
 
 test.each<{
-  contests: Contests;
+  contests: readonly Contest[];
   districtOrder: District[];
-  reorderedContests: Contests;
+  reorderedContests: readonly Contest[];
 }>([
   {
     contests: [

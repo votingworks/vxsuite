@@ -12,7 +12,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BALLOT_MODES,
   BallotStyleId,
   BallotType,
@@ -75,7 +75,7 @@ export interface PaginatedContent<P> {
 
 interface ContestTooLongError {
   error: 'contestTooLong';
-  contest: AnyContest;
+  contest: Contest;
 }
 
 interface MissingSignatureError {
@@ -704,7 +704,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
     // Temporary workaround to transform ballot measures with additional options
     // into candidate contests, since VxSuite doesn't support the
     // contest.additionalOptions field.
-    .map((contest): AnyContest => {
+    .map((contest): Contest => {
       if (
         contest.type !== 'yesno' ||
         !contest.additionalOptions ||

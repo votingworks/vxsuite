@@ -1,6 +1,6 @@
 import {
   Admin,
-  Contests,
+  Contest,
   ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
@@ -35,7 +35,7 @@ export interface AdminTallyReportProps {
   electionDefinition: ElectionDefinition;
   electionPackageHash?: string;
   partyLabel?: string;
-  contests: Contests;
+  contests: readonly Contest[];
   scannedElectionResults: Tabulation.ElectionResults;
   manualElectionResults?: Tabulation.ManualElectionResults;
   cardCountsOverride?: Tabulation.CardCounts;

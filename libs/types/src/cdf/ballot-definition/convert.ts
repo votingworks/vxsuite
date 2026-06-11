@@ -517,7 +517,7 @@ export function convertVxfElectionToCdfBallotDefinition(
     );
 
     function optionIdForPosition(
-      contest: Vxf.AnyContest,
+      contest: Vxf.Contest,
       gridPosition: Vxf.GridPosition
     ): string {
       switch (gridPosition.type) {
@@ -544,7 +544,7 @@ export function convertVxfElectionToCdfBallotDefinition(
     }
 
     function getOrderedPhysicalContestOptions(
-      contest: Vxf.AnyContest
+      contest: Vxf.Contest
     ): Cdf.PhysicalContestOption[] {
       // For candidate contests, use the ordered candidates from the ballot style
       if (contest.type === 'candidate') {
@@ -1120,7 +1120,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       abbrev: englishText(party.Abbreviation),
     })),
 
-    contests: election.Contest.map((contest): Vxf.AnyContest => {
+    contests: election.Contest.map((contest): Vxf.Contest => {
       const contestBase = {
         id: contest['@id'],
         title: englishText(contest.BallotTitle),

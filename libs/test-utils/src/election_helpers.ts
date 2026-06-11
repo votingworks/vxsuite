@@ -1,6 +1,6 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  AnyContest,
+  Contest,
   BallotStyle,
   CandidateContest,
   District,
@@ -61,7 +61,7 @@ export function createTestElection(
     abbrev: 'TP',
   };
 
-  const contests: AnyContest[] = [];
+  const contests: Contest[] = [];
 
   // Generate candidate contests
   for (let i = 0; i < numCandidateContests; i += 1) {
@@ -170,7 +170,7 @@ export function createElectionDefinition(
  * @param contestIds - Optional filter to only create votes for specific contest IDs
  */
 export function createMockVotes(
-  contests: AnyContest[],
+  contests: Contest[],
   contestIds?: string[]
 ): VotesDict {
   const filteredContests = contestIds

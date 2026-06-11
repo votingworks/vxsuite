@@ -1,7 +1,7 @@
 import {
   Candidate,
   ContestId,
-  Contests,
+  Contest,
   Id,
   Vote,
   VotesDict,
@@ -154,7 +154,7 @@ export async function markBallotDocument(
   return ballotDocument;
 }
 
-export function createTestVotes(contests: Contests): {
+export function createTestVotes(contests: readonly Contest[]): {
   votes: VotesDict;
   unmarkedWriteIns: UnmarkedWriteInVote[];
 } {

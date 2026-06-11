@@ -1,6 +1,6 @@
 import {
   AdjudicationReason,
-  AnyContest,
+  Contest,
   ContestOptionId,
   ElectionDefinition,
   MarkThresholds,
@@ -16,7 +16,7 @@ import {
 /**
  * Returns the number of allowed votes for the contest
  */
-export function getNumberVotesAllowed(contest: AnyContest): number {
+export function getNumberVotesAllowed(contest: Contest): number {
   if (contest.type === 'yesno') {
     return 1;
   }
@@ -118,7 +118,7 @@ export function deriveCvrContestTag({
   markThresholds,
   adminAdjudicationReasons,
 }: {
-  contest: AnyContest;
+  contest: Contest;
   votes: ContestOptionId[];
   writeInRecords: WriteInRecord[];
   markScores?: Record<ContestOptionId, number>;

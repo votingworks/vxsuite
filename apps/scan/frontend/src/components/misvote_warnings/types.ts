@@ -1,9 +1,9 @@
-import { AnyContest } from '@votingworks/types';
+import { Contest } from '@votingworks/types';
 
 export interface MisvoteWarningsProps {
-  blankContests: readonly AnyContest[];
-  overvoteContests: readonly AnyContest[];
-  partiallyVotedContests: readonly AnyContest[];
+  blankContests: readonly Contest[];
+  overvoteContests: readonly Contest[];
+  partiallyVotedContests: readonly Contest[];
 }
 
 export interface MisvoteWarningsConfig {

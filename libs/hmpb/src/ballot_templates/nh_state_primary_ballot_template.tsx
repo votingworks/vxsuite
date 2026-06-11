@@ -9,7 +9,7 @@ import {
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
-  AnyContest,
+  Contest as ContestStruct,
   BallotMode,
   BallotType,
   CandidateContest as CandidateContestStruct,
@@ -574,7 +574,7 @@ function Contest({
   contest,
   colorTint,
 }: {
-  contest: AnyContest;
+  contest: ContestStruct;
   election: Election;
   colorTint: ColorTint;
 }) {

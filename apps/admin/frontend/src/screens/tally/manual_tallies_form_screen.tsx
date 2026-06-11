@@ -15,10 +15,9 @@ import {
   Tabulation,
   CandidateId,
   Admin as AdminTypes,
-  AnyContest,
+  Contest,
   getPrecinctById,
   BallotStyleGroupId,
-  Contests,
   Precinct,
   Election,
 } from '@votingworks/types';
@@ -299,7 +298,7 @@ interface FormWriteInCandidate {
 }
 
 function emptyFormContestResults(
-  contest: AnyContest,
+  contest: Contest,
   ballotCount?: number
 ): FormContestResults {
   switch (contest.type) {
@@ -371,7 +370,7 @@ function validateTallies(
 }
 
 function convertTabulationResultsToFormResults(
-  contests: Contests,
+  contests: readonly Contest[],
   savedResults?: Tabulation.ManualElectionResults
 ): FormManualResults {
   const contestResults = Object.fromEntries(

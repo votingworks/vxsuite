@@ -4,7 +4,7 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import {
   BallotStyleId,
-  Contests,
+  Contest,
   ElectionDefinition,
   PartyId,
   PrecinctId,
@@ -43,7 +43,7 @@ export function render(
     route?: string;
     ballotStyleId?: BallotStyleId;
     electionDefinition?: ElectionDefinition;
-    contests?: Contests;
+    contests?: readonly Contest[];
     endVoterSession?: () => Promise<void>;
     history?: History;
     isCardlessVoter?: boolean;

@@ -4,8 +4,7 @@ import {
   Election,
   ElectionDefinition,
   PrecinctId,
-  AnyContest,
-  Contests,
+  Contest,
   PrecinctSelection,
   PartyId,
   getPartyIdsWithContests,
@@ -62,7 +61,7 @@ export const getContestIdsForPrecinct = createElectionMetadataLookupFunction(
 export function mapContestIdsToContests(
   electionDefinition: ElectionDefinition,
   contestIds: Set<ContestId>
-): AnyContest[] {
+): Contest[] {
   return electionDefinition.election.contests.filter((c) =>
     contestIds.has(c.id)
   );
@@ -71,7 +70,7 @@ export function mapContestIdsToContests(
 export function getContestsForPrecinct(
   electionDefinition: ElectionDefinition,
   precinctSelection: PrecinctSelection
-): Contests {
+): readonly Contest[] {
   const { election } = electionDefinition;
   if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
@@ -91,7 +90,7 @@ export function getContestsForPrecinct(
 export function getContestsForPrecinctAndElection(
   election: Election,
   precinctSelection: PrecinctSelection
-): Contests {
+): readonly Contest[] {
   if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
   }
@@ -105,12 +104,12 @@ export function getContestsForPrecinctAndElection(
 export interface PartyWithContests {
   partyId?: PartyId; // undefined for non-partisan contests
   partyName?: string;
-  contests: Contests;
+  contests: readonly Contest[];
 }
 
 export function groupContestsByParty(
   election: Election,
-  contests: Contests
+  contests: readonly Contest[]
 ): PartyWithContests[] {
   return getPartyIdsWithContests(election).map((partyId) => ({
     partyId,
