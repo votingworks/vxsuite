@@ -32,12 +32,8 @@ const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 const MOUNT_TIMEOUT_MS = 5_000;
 const MOUNT_RETRY_INTERVAL_MS = 100;
 
-async function mountPartition(partitionPath: string): Promise<void> {
-  await exec('sudo', [
-    '-n',
-    join(MOUNT_SCRIPT_PATH, 'mount.sh'),
-    partitionPath,
-  ]);
+async function mountPartition(partPath: string): Promise<void> {
+  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'mount.sh'), partPath]);
 }
 
 async function unmountPartition(mountPoint: string): Promise<void> {
@@ -125,7 +121,7 @@ export interface MultiUsbDrive {
   refresh(): Promise<void>;
   ejectDrive(diskPath: string): Promise<void>;
   formatDrive(diskPath: string, fstype: UsbDriveFilesystemType): Promise<void>;
-  sync(partitionPath: string): Promise<void>;
+  sync(partPath: string): Promise<void>;
   stop(): void;
   addListener(listener: () => void): void;
   removeListener(listener: () => void): void;
@@ -509,13 +505,13 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
       await result;
     },
 
-    async sync(partitionPath: string): Promise<void> {
+    async sync(partPath: string): Promise<void> {
       const partition = cachedDrives
         .flatMap((d) => (d.partition ? [d.partition] : []))
-        .find((p) => p.partPath === partitionPath);
+        .find((p) => p.partPath === partPath);
 
       if (!partition?.mountpoint) {
-        debug(`partition ${partitionPath} is not mounted, skipping sync`);
+        debug(`partition ${partPath} is not mounted, skipping sync`);
         return;
       }
 

@@ -239,8 +239,8 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
       return Promise.resolve();
     },
 
-    sync: (partitionPath: string) => {
-      void partitionPath;
+    sync: (partPath: string) => {
+      void partPath;
       return Promise.resolve();
     },
     stop: () => {},
