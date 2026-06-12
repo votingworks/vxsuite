@@ -5,32 +5,16 @@ import {
   Election,
   ElectionDefinition,
   MarkThresholds,
-  PrecinctSelection,
   formatElectionHashes,
-  getPrecinctById,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,
   pollingPlaceTypeName,
 } from '@votingworks/types';
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { format, getGroupedBallotStyles } from '@votingworks/utils';
 import { Caption, H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 import { Table } from '../table';
-
-function getPrecinctSelectionName(
-  precinctSelection: PrecinctSelection,
-  election: Election
-): string {
-  if (precinctSelection.kind === 'AllPrecincts') {
-    return 'All Precincts';
-  }
-
-  const { precinctId } = precinctSelection;
-  const precinct = getPrecinctById({ election, precinctId });
-  assert(precinct);
-  return precinct.name;
-}
 
 function truncate(num: number, decimals: number): number {
   return Math.trunc(num * 10 ** decimals) / 10 ** decimals;
@@ -141,44 +125,6 @@ export function ConfigurationSection({
       </P>
       {children}
     </section>
-  );
-}
-
-export interface PrecinctSelectionSectionProps {
-  election?: Election;
-  precinctSelection?: PrecinctSelection;
-}
-
-export function PrecinctSelectionSection({
-  election,
-  precinctSelection,
-}: PrecinctSelectionSectionProps): React.ReactNode {
-  /* istanbul ignore next - component will be deprecated soon anyway */
-  if (!election) return null;
-
-  if (!precinctSelection) {
-    return (
-      <P>
-        <WarningIcon /> No precinct selected.
-      </P>
-    );
-  }
-
-  const ballotStyles =
-    precinctSelection?.kind === 'SinglePrecinct'
-      ? election.ballotStyles.filter((bs) =>
-          bs.precincts.includes(precinctSelection.precinctId)
-        )
-      : election.ballotStyles;
-
-  return (
-    <React.Fragment>
-      <P>
-        <SuccessIcon /> Precinct:{' '}
-        {getPrecinctSelectionName(precinctSelection, election)}
-      </P>
-      <BallotStylesSection ballotStyles={ballotStyles} />
-    </React.Fragment>
   );
 }
 

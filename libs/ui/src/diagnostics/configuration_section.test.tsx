@@ -17,7 +17,6 @@ import {
   ConfigurationSection,
   MarkThresholdsSection,
   PollingPlaceSection,
-  PrecinctSelectionSection,
 } from './configuration_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 
@@ -85,94 +84,6 @@ test('single language election, no precinct expected', () => {
   screen.getByText('Ballot Styles: 12, 5');
 });
 
-test('election, precinct expected but not selected', async () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  render(
-    <ConfigurationSection
-      electionDefinition={electionDefinition}
-      electionPackageHash="test-election-package-hash"
-    >
-      <PrecinctSelectionSection election={electionDefinition.election} />
-    </ConfigurationSection>
-  );
-
-  screen.getByRole('heading', { name: 'Configuration' });
-  screen.getByText(
-    `Election: Example Primary Election, ${formatElectionHashes(
-      electionDefinition.ballotHash,
-      'test-election-package-hash'
-    )}`
-  );
-  await expectTextWithIcon('No precinct selected.', 'triangle-exclamation');
-});
-
-test('election, all precincts selected', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  render(
-    <ConfigurationSection
-      electionDefinition={electionDefinition}
-      electionPackageHash="test-election-package-hash"
-    >
-      <PrecinctSelectionSection
-        election={electionDefinition.election}
-        precinctSelection={{ kind: 'AllPrecincts' }}
-      />
-    </ConfigurationSection>
-  );
-
-  screen.getByRole('heading', { name: 'Configuration' });
-  screen.getByText(
-    `Election: Example Primary Election, ${formatElectionHashes(
-      electionDefinition.ballotHash,
-      'test-election-package-hash'
-    )}`
-  );
-  screen.getByText(`Precinct: All Precincts`);
-  screen.getByText(`Ballot Styles:`);
-  expect(
-    screen.getAllByText(
-      `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
-    )
-  ).toHaveLength(8);
-  for (const ballotStyle of getGroupedBallotStyles(
-    electionDefinition.election.ballotStyles
-  )) {
-    screen.getByText(ballotStyle.id);
-  }
-});
-
-test('election, single precinct selected', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  render(
-    <ConfigurationSection
-      electionDefinition={electionDefinition}
-      electionPackageHash="test-election-package-hash"
-    >
-      <PrecinctSelectionSection
-        election={electionDefinition.election}
-        precinctSelection={{
-          kind: 'SinglePrecinct',
-          precinctId: 'precinct-c1-w1-1',
-        }}
-      />
-    </ConfigurationSection>
-  );
-
-  screen.getByText(`Precinct: Precinct 1`);
-  screen.getByText(`Ballot Styles:`);
-  expect(
-    screen.getAllByText(
-      `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
-    )
-  ).toHaveLength(2);
-  screen.getByText('1-Ma');
-  screen.getByText('1-F');
-  expect(screen.queryByText('2-F')).not.toBeInTheDocument();
-});
-
 test('election, mark threshold provided', () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
@@ -181,13 +92,6 @@ test('election, mark threshold provided', () => {
       electionDefinition={electionDefinition}
       electionPackageHash="test-election-package-hash"
     >
-      <PrecinctSelectionSection
-        election={electionDefinition.election}
-        precinctSelection={{
-          kind: 'SinglePrecinct',
-          precinctId: 'precinct-c1-w1-1',
-        }}
-      />
       <MarkThresholdsSection
         markThresholds={{
           definite: 0.07,
@@ -198,7 +102,6 @@ test('election, mark threshold provided', () => {
     </ConfigurationSection>
   );
 
-  screen.getByText(`Precinct: Precinct 1`);
   screen.getByText(`Mark Threshold: 0.07`);
   screen.getByText(`Write-in Threshold: 0.05`);
 });
@@ -211,13 +114,6 @@ test('election, mark threshold properly truncated', () => {
       electionDefinition={electionDefinition}
       electionPackageHash="test-election-package-hash"
     >
-      <PrecinctSelectionSection
-        election={electionDefinition.election}
-        precinctSelection={{
-          kind: 'SinglePrecinct',
-          precinctId: 'precinct-c1-w1-1',
-        }}
-      />
       <MarkThresholdsSection
         markThresholds={{
           definite: 0.12345678,
@@ -228,7 +124,6 @@ test('election, mark threshold properly truncated', () => {
     </ConfigurationSection>
   );
 
-  screen.getByText(`Precinct: Precinct 1`);
   screen.getByText(`Mark Threshold: 0.1234`);
   screen.getByText(`Write-in Threshold: 0.8765`);
 });

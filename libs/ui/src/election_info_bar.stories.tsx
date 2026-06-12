@@ -17,9 +17,6 @@ const initialArgs: ElectionInfoBarProps = {
   electionPackageHash: '11111111111111111111',
   machineId: '00123456',
   mode: 'admin',
-  precinctSelection: {
-    kind: 'AllPrecincts',
-  },
 };
 
 const meta: Meta<typeof ElectionInfoBar> = {

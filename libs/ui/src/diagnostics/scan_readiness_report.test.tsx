@@ -2,10 +2,7 @@ import { test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import {
-  getFeatureFlagMock,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+import { getFeatureFlagMock } from '@votingworks/utils';
 import { ScanReadinessReport } from '.';
 import { render, screen } from '../../test/react_testing_library';
 
@@ -14,9 +11,6 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
-
-const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
 
 const electionDef = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDef;

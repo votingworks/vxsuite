@@ -5,17 +5,8 @@ import {
   ElectionStringKey,
   Parties,
   PollingPlace,
-  Precinct,
 } from '@votingworks/types';
-import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
-import {
-  CandidatePartyList,
-  PollingPlaceName,
-  PrecinctSelectionName,
-} from './utils';
+import { CandidatePartyList, PollingPlaceName } from './utils';
 import { newTestContext } from '../../test/test_context';
 import { H1 } from '..';
 import { screen } from '../../test/react_testing_library';
@@ -95,86 +86,6 @@ test('CandidatePartyList - multi-party association', async () => {
     // browser, so using a slightly more lenient regex here.
     name: /Parties: Federalista\s?, Libertad/,
   });
-});
-
-test('PrecinctSelectionName - all-precinct selection', async () => {
-  const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([]);
-  mockApiClient.getUiStrings.mockResolvedValue(null);
-
-  render(
-    <H1>
-      Precincts:{' '}
-      <PrecinctSelectionName
-        electionPrecincts={[]}
-        precinctSelection={ALL_PRECINCTS_SELECTION}
-      />
-    </H1>
-  );
-
-  await screen.findByRole('heading', { name: 'Precincts: All Precincts' });
-});
-
-test('PrecinctSelectionName - single-precinct selection', async () => {
-  const selectedPrecinct: Precinct = {
-    id: 'precinctIdOldTown',
-    name: 'Old Town',
-    districtIds: ['districtId'],
-  };
-  const precincts: readonly Precinct[] = [
-    {
-      id: 'precinctIdNewTown',
-      name: 'New Town',
-      districtIds: ['districtId'],
-    },
-    selectedPrecinct,
-  ];
-
-  const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
-  mockApiClient.getUiStrings.mockResolvedValue({
-    precinctName: {
-      precinctIdOldTown: 'Ciutat Vella',
-    },
-  });
-
-  render(
-    <H1>
-      Precincts:{' '}
-      <PrecinctSelectionName
-        electionPrecincts={precincts}
-        precinctSelection={singlePrecinctSelectionFor('precinctIdOldTown')}
-      />
-    </H1>
-  );
-
-  await screen.findByRole('heading', { name: 'Precincts: Ciutat Vella' });
-});
-
-test('PrecinctSelectionName - no selection', async () => {
-  const precincts: readonly Precinct[] = [
-    {
-      id: 'precinctA',
-      name: 'New Town',
-      districtIds: ['districtId'],
-    },
-  ];
-
-  const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
-  mockApiClient.getUiStrings.mockResolvedValue({
-    precinctName: {
-      precinctB: 'Ciutat Vella',
-    },
-  });
-
-  render(
-    <H1>
-      Precincts: <PrecinctSelectionName electionPrecincts={precincts} />
-    </H1>
-  );
-
-  await screen.findByRole('heading', { name: 'Precincts:' });
 });
 
 test('PollingPlaceName - with selection', async () => {
