@@ -55,6 +55,14 @@ vi.mock(
   }
 );
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn().mockReturnValue('1111111-0000000'),
+  };
+});
+
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,
   used: 1 * 1_000_000,

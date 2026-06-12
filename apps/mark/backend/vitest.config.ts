@@ -36,6 +36,10 @@ export default defineConfig({
         replacement: join(__dirname, '../../../libs/backend/src/index.ts'),
       },
       {
+        find: '@votingworks/types',
+        replacement: join(__dirname, '../../../libs/types/src/index.ts'),
+      },
+      {
         find: '@votingworks/ui',
         replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
       },
