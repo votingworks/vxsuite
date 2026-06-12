@@ -19,7 +19,7 @@ import type {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 import {
   adjudicateCvr,
   claimAndLoadBallot,
@@ -517,14 +517,11 @@ export function BallotAdjudicationScreen(
     null
   );
 
-  const [edits, setEdits] = useState<AdjudicatedContests>(new Map());
-  const baseline = new Map(
+  const adjudicatedContestsBaseline = new Map(
     ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
   );
-  const adjudicatedContests: AdjudicatedContests = new Map([
-    ...baseline,
-    ...edits,
-  ]);
+  const [adjudicatedContests, setAdjudicatedContests] =
+    useState<AdjudicatedContests>(adjudicatedContestsBaseline);
 
   if (selectedContestId && !isClaimed) {
     return (
@@ -547,7 +544,9 @@ export function BallotAdjudicationScreen(
           (c) => c.contestId === selectedContestId
         )}
         onConfirmContest={(input) => {
-          setEdits((prev) => new Map(prev).set(input.contestId, input));
+          setAdjudicatedContests((prev) =>
+            new Map(prev).set(input.contestId, input)
+          );
         }}
       />
     );
@@ -556,7 +555,9 @@ export function BallotAdjudicationScreen(
   return (
     <BallotView
       adjudicatedContests={adjudicatedContests}
-      haveEditsBeenMade={edits.size > 0}
+      haveEditsBeenMade={
+        !deepEqual(adjudicatedContests, adjudicatedContestsBaseline)
+      }
       setSelectedContestId={setSelectedContestId}
       {...props}
     />
