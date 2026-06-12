@@ -4,45 +4,24 @@ import styled from 'styled-components';
 import { Id } from '@votingworks/types';
 import { Button, Modal, Loading, P } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
-import { ExpandedSelect } from '../components/expanded_select';
-import { TitleBar } from '../components/title_bar';
+import {
+  Column,
+  Container,
+  ExpandedSelect,
+  Footer,
+  Form,
+  PrintButton,
+  ScreenWrapper,
+  TitleBar,
+} from '../components';
 import {
   getDeviceStatuses,
   getElectionRecord,
   getTestDeckBallotCount,
   printTestDeck,
 } from '../api';
-import { ScreenWrapper } from '../components/screen_wrapper';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
-
-const Container = styled.div`
-  /* Adjusted for Toolbar height */
-  height: calc(100vh - 2.2rem);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-y: hidden;
-  padding-bottom: 0;
-`;
-
-const Form = styled.div`
-  /* Adjusted for Toolbar, TitleBar, and Footer heights */
-  height: calc(100% - 4rem - 2rem - 4rem);
-  flex: 1;
-  overflow-y: hidden;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  padding: 1rem 0.75rem 1rem 1rem;
-`;
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: hidden;
-`;
 
 const FormSection = styled.div`
   display: flex;
@@ -56,29 +35,8 @@ const FormSection = styled.div`
   }
 `;
 
-const Footer = styled.div`
-  position: sticky;
-  bottom: 0;
-  height: 4rem;
-  padding: 0.5rem 1rem;
-  flex-shrink: 0;
-  background-color: ${(p) => p.theme.colors.container};
-  border-top: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
-    ${(p) => p.theme.colors.outline};
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  gap: 1rem;
-`;
-
 const TitleBarButton = styled(Button)`
   width: 16rem;
-`;
-
-const PrintButton = styled(Button)`
-  width: 16rem;
-  height: 3rem;
-  font-size: 1.1rem;
 `;
 
 function PrintTestDeckModal({
