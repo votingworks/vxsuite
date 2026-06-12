@@ -1,192 +1,52 @@
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
 import { Optional } from '@votingworks/basics';
-import { getMockStateRootDir } from '@votingworks/utils';
-import { basename, join } from 'node:path';
-import type { MultiUsbDrive } from '../multi_usb_drive';
-import { MockFileTree, writeMockFileTree } from './helpers';
 import {
-  UsbDiskDevPath,
-  UsbDiskDevPathSchema,
-  UsbDrive,
-  UsbDriveFilesystemType,
-  UsbDriveInfo,
-  UsbDriveStatus,
-  UsbPartitionDevPath,
-  UsbPartitionDevPathSchema,
-  UsbPartitionMount,
-  UsbPartitionMountpoint,
-  UsbPartitionMountpointSchema,
-} from '../types';
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import { MockFileTree, writeMockFileTree } from './helpers';
+import { getMockUsbDirPath } from './mock_usb_dir';
+import {
+  SimulatedUsbDrive,
+  SimulatedUsbPlatform,
+} from './simulated_usb_platform';
+import { UsbDiskDevPath, UsbDiskDevPathSchema, UsbDriveStatus } from '../types';
 
-export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
-export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';
-// libs/usb-drive/src/mocks/ is 4 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../../..');
-const MOCK_USB_DRIVE_DIR = join(getMockStateRootDir(REPO_ROOT), 'usb-drive');
-export const DEV_MOCK_USB_DRIVE_GLOB_PATTERN = join(MOCK_USB_DRIVE_DIR, '**/*');
-
-let mockUsbDriveDirOverride: string | undefined;
+export {
+  DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
+  getMockUsbDirPath,
+  resetMockUsbDriveDir,
+  setMockUsbDriveDir,
+} from './mock_usb_dir';
 
 /**
- * Overrides the mock USB drive directory. Use in test setup to isolate
- * tests from each other when they run in parallel.
+ * Returns the {@link SimulatedUsbPlatform} backing mock USB drives in dev and
+ * test, over the shared on-disk state directory. Use this to manipulate
+ * simulated drives (e.g. from the dev dock or test helpers); use
+ * {@link getSimulatedUsbPlatform} to decide whether an app should run against
+ * simulated or real hardware.
  */
-export function setMockUsbDriveDir(dir: string): void {
-  mockUsbDriveDirOverride = dir;
+export function getMockUsbPlatform(): SimulatedUsbPlatform {
+  return new SimulatedUsbPlatform(getMockUsbDirPath());
 }
 
 /**
- * Clears the mock USB drive directory override, reverting to the default.
+ * Returns the simulated USB platform when the `USE_MOCK_USB_DRIVE` feature
+ * flag is enabled, or `undefined` to use real hardware. Pass the result to
+ * `detectUsbDrive`/`detectMultiUsbDrive`:
+ *
+ * ```ts
+ * const usbDrive = detectUsbDrive(logger, {
+ *   platform: getSimulatedUsbPlatform(),
+ * });
+ * ```
  */
-export function resetMockUsbDriveDir(): void {
-  mockUsbDriveDirOverride = undefined;
-}
-
-export function getMockUsbDirPath(): string {
-  return mockUsbDriveDirOverride ?? MOCK_USB_DRIVE_DIR;
-}
-
-function getMockDriveDirPath(diskName: string): string {
-  return join(getMockUsbDirPath(), diskName);
-}
-
-function getMockDriveDataDirPath(diskName: string): UsbPartitionMountpoint {
-  return UsbPartitionMountpointSchema.decode(
-    join(getMockDriveDirPath(diskName), MOCK_USB_DRIVE_DATA_DIRNAME)
-  );
-}
-
-type MockDriveState =
-  | { state: 'removed' }
-  | { state: 'inserted'; fstype: UsbDriveFilesystemType }
-  | { state: 'ejected'; fstype: UsbDriveFilesystemType };
-
-function readMockDriveState(diskName: string): MockDriveState {
-  const stateFilePath = join(
-    getMockDriveDirPath(diskName),
-    MOCK_USB_DRIVE_STATE_FILENAME
-  );
-  if (!existsSync(stateFilePath)) {
-    return { state: 'removed' };
+export function getSimulatedUsbPlatform(): Optional<SimulatedUsbPlatform> {
+  if (
+    !isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
+  ) {
+    return undefined;
   }
-  try {
-    const raw = JSON.parse(readFileSync(stateFilePath, 'utf-8')) as {
-      state: string;
-      fstype?: UsbDriveFilesystemType;
-    };
-    if (raw.state === 'inserted' || raw.state === 'ejected') {
-      return { state: raw.state, fstype: raw.fstype ?? 'fat32' };
-    }
-    return { state: 'removed' };
-  } catch {
-    return { state: 'removed' };
-  }
-}
-
-function writeMockDriveState(diskName: string, state: MockDriveState): void {
-  const driveDir = getMockDriveDirPath(diskName);
-  mkdirSync(driveDir, { recursive: true });
-  mkdirSync(getMockDriveDataDirPath(diskName), { recursive: true });
-  writeFileSync(
-    join(driveDir, MOCK_USB_DRIVE_STATE_FILENAME),
-    JSON.stringify(state)
-  );
-}
-
-function ensureMockDriveState(diskName: string): void {
-  const stateFilePath = join(
-    getMockDriveDirPath(diskName),
-    MOCK_USB_DRIVE_STATE_FILENAME
-  );
-  if (!existsSync(stateFilePath)) {
-    writeMockDriveState(diskName, { state: 'removed' });
-  }
-}
-
-export function listMockDrives(): string[] {
-  const usbRoot = getMockUsbDirPath();
-  if (!existsSync(usbRoot)) {
-    return [];
-  }
-  return readdirSync(usbRoot)
-    .filter((name) =>
-      existsSync(join(usbRoot, name, MOCK_USB_DRIVE_STATE_FILENAME))
-    )
-    .sort();
-}
-
-function chooseFreeDiskName(): string {
-  const existing = new Set(listMockDrives());
-  for (let i = 1; i <= 25; i += 1) {
-    const name = `sd${String.fromCharCode('a'.charCodeAt(0) + i)}`;
-    if (!existing.has(name)) {
-      return name;
-    }
-  }
-  throw new Error('No available mock drive slot');
-}
-
-export function addMockDrive(name = chooseFreeDiskName()): string {
-  writeMockDriveState(name, { state: 'removed' });
-  return name;
-}
-
-export function removeMockDriveDir(diskName: string): void {
-  rmSync(getMockDriveDirPath(diskName), { recursive: true, force: true });
-}
-
-export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
-  return {
-    status(): Promise<UsbDriveStatus> {
-      ensureMockDriveState(diskName);
-      const { state } = readMockDriveState(diskName);
-      if (state === 'removed') {
-        return Promise.resolve({ status: 'no_drive' });
-      }
-      if (state === 'ejected') {
-        return Promise.resolve({ status: 'ejected' });
-      }
-      return Promise.resolve({
-        status: 'mounted',
-        mountpoint: getMockDriveDataDirPath(diskName),
-      });
-    },
-
-    eject(): Promise<void> {
-      ensureMockDriveState(diskName);
-      const driveState = readMockDriveState(diskName);
-      if (driveState.state === 'inserted') {
-        writeMockDriveState(diskName, {
-          state: 'ejected',
-          fstype: driveState.fstype,
-        });
-      }
-      return Promise.resolve();
-    },
-
-    format(fstype): Promise<void> {
-      ensureMockDriveState(diskName);
-      const driveState = readMockDriveState(diskName);
-      if (driveState.state === 'inserted') {
-        writeMockDriveState(diskName, {
-          state: 'ejected',
-          fstype,
-        });
-      }
-      return Promise.resolve();
-    },
-
-    sync(): Promise<void> {
-      return Promise.resolve();
-    },
-  };
+  return getMockUsbPlatform();
 }
 
 export interface MockFileUsbDriveHandler {
@@ -198,101 +58,71 @@ export interface MockFileUsbDriveHandler {
   cleanup: () => void;
 }
 
-export function createMockFileMultiUsbDrive(): MultiUsbDrive {
-  return {
-    getDrives() {
-      return listMockDrives().flatMap((diskName): UsbDriveInfo[] => {
-        const driveState = readMockDriveState(diskName);
-        if (driveState.state === 'removed') return [];
-        const mount =
-          driveState.state === 'inserted'
-            ? UsbPartitionMount.mounted(getMockDriveDataDirPath(diskName))
-            : UsbPartitionMount.ejected();
-        const diskPath = UsbDiskDevPathSchema.decode(`/dev/${diskName}`);
-        return [
-          {
-            diskPath,
-            partition: {
-              diskPath,
-              partPath: UsbPartitionDevPathSchema.decode(`/dev/${diskName}1`),
-              fstype: driveState.fstype,
-              mount,
-            },
-          },
-        ];
-      });
-    },
-
-    refresh: () => Promise.resolve(),
-
-    ejectDrive(diskPath: UsbDiskDevPath): Promise<void> {
-      const diskName = basename(diskPath);
-      const driveState = readMockDriveState(diskName);
-      if (driveState.state === 'inserted') {
-        writeMockDriveState(diskName, {
-          state: 'ejected',
-          fstype: driveState.fstype,
-        });
-      }
-      return Promise.resolve();
-    },
-
-    formatDrive(
-      diskPath: UsbDiskDevPath,
-      fstype: UsbDriveFilesystemType
-    ): Promise<void> {
-      const diskName = basename(diskPath);
-      const driveState = readMockDriveState(diskName);
-      if (driveState.state !== 'removed') {
-        writeMockDriveState(diskName, { state: 'ejected', fstype });
-      }
-      return Promise.resolve();
-    },
-
-    sync: (partPath: UsbPartitionDevPath) => {
-      void partPath;
-      return Promise.resolve();
-    },
-    stop: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-  };
-}
-
+/**
+ * A convenience handler for manipulating a single simulated USB drive from
+ * dev tooling and integration tests. Backed by {@link SimulatedUsbPlatform},
+ * so apps running with `USE_MOCK_USB_DRIVE` observe the same drives.
+ *
+ * Note that, unlike the historical file-based mock, an inserted drive is
+ * mounted by the consuming app's drive detection (as with real hardware), not
+ * by insertion itself.
+ */
 export function getMockFileUsbDriveHandler(
   diskName = 'sdb'
 ): MockFileUsbDriveHandler {
-  function getDataPath(): UsbPartitionMountpoint {
-    return getMockDriveDataDirPath(diskName);
+  const platform = getMockUsbPlatform();
+  const diskPath: UsbDiskDevPath = UsbDiskDevPathSchema.decode(
+    `/dev/${diskName}`
+  );
+
+  function findDrive(): Optional<SimulatedUsbDrive> {
+    return platform
+      .getSimulatedDrives()
+      .find((drive) => drive.diskPath === diskPath);
   }
 
   return {
     status: (): UsbDriveStatus => {
-      const { state } = readMockDriveState(diskName);
-      if (state === 'removed') return { status: 'no_drive' };
-      if (state === 'ejected') return { status: 'ejected' };
-      return { status: 'mounted', mountpoint: getDataPath() };
-    },
-    insert: (contents?: MockFileTree) => {
-      if (contents) {
-        writeMockFileTree(getDataPath(), contents);
+      const drive = findDrive();
+      if (!drive?.present) {
+        return { status: 'no_drive' };
       }
-      const currentState = readMockDriveState(diskName);
-      writeMockDriveState(diskName, {
-        state: 'inserted',
-        fstype:
-          currentState.state !== 'removed' ? currentState.fstype : 'fat32',
-      });
+      const mountpoint = drive.partition?.mountpoint;
+      return mountpoint
+        ? { status: 'mounted', mountpoint }
+        : { status: 'ejected' };
     },
+
+    insert: (contents?: MockFileTree) => {
+      if (!findDrive()) {
+        platform.createDrive({ diskPath, fstype: 'fat32' });
+      }
+      if (contents) {
+        writeMockFileTree(platform.storagePath(diskPath), contents);
+      }
+      if (!findDrive()?.present) {
+        platform.insertDrive(diskPath);
+      }
+    },
+
     remove: () => {
-      writeMockDriveState(diskName, { state: 'removed' });
+      if (findDrive()?.present) {
+        platform.removeDrive(diskPath);
+      }
     },
+
     clearData: () => {
-      rmSync(getDataPath(), { recursive: true, force: true });
+      if (findDrive()) {
+        platform.clearDriveStorage(diskPath);
+      }
     },
-    getDataPath: () => getDataPath(),
+
+    getDataPath: () => platform.storagePath(diskPath),
+
     cleanup: () => {
-      rmSync(getMockDriveDirPath(diskName), { recursive: true, force: true });
+      if (findDrive()) {
+        platform.deleteDrive(diskPath);
+      }
     },
   };
 }

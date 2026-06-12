@@ -46,8 +46,7 @@ import {
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import {
   getMockFileUsbDriveHandler,
-  listMockDrives,
-  removeMockDriveDir,
+  getMockUsbPlatform,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
@@ -108,9 +107,7 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
 
-  for (const diskName of listMockDrives()) {
-    removeMockDriveDir(diskName);
-  }
+  getMockUsbPlatform().deleteAllDrives();
   getMockFilePrinterHandler().cleanup();
 });
 
@@ -252,7 +249,7 @@ test('detects election packages on mock USB drive', async () => {
 test('skips unmounted USB drives and drives without election packages', async () => {
   const { apiClient } = setup();
 
-  // Insert and then remove a drive — should be skipped (not mounted)
+  // Insert and then remove a drive — should be skipped (not attached)
   const usbDrive = getMockFileUsbDriveHandler();
   usbDrive.insert();
   usbDrive.remove();
@@ -434,6 +431,22 @@ test('usb drive mock endpoints', async () => {
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
     diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
     status: 'removed',
+  });
+
+  // Removing an already-removed drive is a no-op
+  await apiClient.removeUsbDrive();
+  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    status: 'removed',
+  });
+
+  // A new dev dock instance reuses the existing simulated drive
+  await apiClient.insertUsbDrive();
+  server.close();
+  const { apiClient: secondApiClient } = setup();
+  await expect(secondApiClient.getUsbDriveStatus()).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    status: 'inserted',
   });
 });
 
