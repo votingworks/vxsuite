@@ -90,6 +90,59 @@ test('cannot create a drive that already exists', () => {
   ).toThrow();
 });
 
+test('cannot create an unformatted drive with contents', () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  expect(() =>
+    platform.createDrive({
+      diskPath: devsdb,
+      contents: { README: Buffer.from('orphaned') },
+    })
+  ).toThrow('Cannot create an unformatted drive with contents');
+});
+
+test('unformatted drive lifecycle: create, insert, format', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  platform.createDrive({ diskPath: devsdb });
+  platform.insertDrive(devsdb);
+
+  // Visible to the platform, but with no usable partition — mirroring how
+  // RealUsbPlatform reports unformatted drives.
+  await expect(platform.getDrives()).resolves.toEqual([{ diskPath: devsdb }]);
+
+  // Without a partition there is nothing to mount or unmount.
+  await expect(platform.mountPartition(devsdb1)).rejects.toThrow();
+  await expect(
+    platform.unmountPartition(platform.storagePath(devsdb))
+  ).rejects.toThrow();
+
+  // Unplugging and re-attaching keeps it unformatted.
+  platform.removeDrive(devsdb);
+  platform.insertDrive(devsdb);
+
+  // Formatting installs a mounted partition.
+  await platform.formatDrive(devsdb, 'fat32', 'VxUSB-ABCDE');
+  await expect(platform.getDrives()).resolves.toEqual([
+    {
+      diskPath: devsdb,
+      partition: {
+        partPath: devsdb1,
+        fstype: 'fat32',
+        label: 'VxUSB-ABCDE',
+        mountpoint: platform.storagePath(devsdb),
+      },
+    },
+  ]);
+});
+
+test('deleting a present unformatted drive works without an unmount', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  platform.createDrive({ diskPath: devsdb });
+  platform.insertDrive(devsdb);
+  platform.deleteAllDrives();
+  expect(platform.getSimulatedDrives()).toEqual([]);
+  await expect(platform.getDrives()).resolves.toEqual([]);
+});
+
 test('created drives are not present until inserted', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
 
