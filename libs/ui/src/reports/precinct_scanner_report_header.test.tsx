@@ -1,24 +1,13 @@
-import { expect, test, vi } from 'vitest';
-import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName as Feature,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { formatElectionHashes } from '@votingworks/types';
+import { anyPollingPlace, formatElectionHashes } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
-
-const mockFeatureFlagger = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (f: Feature) => mockFeatureFlagger.isEnabled(f),
-}));
 
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000').getTime();
 const reportPrintedTime = new Date('2022-10-31T16:24:00.000').getTime();
@@ -28,9 +17,7 @@ const electionTwoPartyPrimaryDefinition =
 const generalElectionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 
-test('general election, all precincts, polls open, test mode', () => {
-  setPollingPlacesEnabled(true);
-
+test('general election, polls open, test mode', () => {
   const { election } = generalElectionDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
@@ -73,8 +60,6 @@ test('general election, all precincts, polls open, test mode', () => {
 });
 
 test('primary election, single precinct, polls closed, live mode', () => {
-  setPollingPlacesEnabled(true);
-
   const { election } = electionTwoPartyPrimaryDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
@@ -119,8 +104,6 @@ test('primary election, single precinct, polls closed, live mode', () => {
 });
 
 test('primary election nonpartisan contests', () => {
-  setPollingPlacesEnabled(true);
-
   const { election } = electionTwoPartyPrimaryDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
@@ -143,8 +126,6 @@ test('primary election nonpartisan contests', () => {
 });
 
 test('primary election, polls paused', () => {
-  setPollingPlacesEnabled(true);
-
   const { election } = electionTwoPartyPrimaryDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
@@ -168,33 +149,15 @@ test('primary election, polls paused', () => {
   );
 });
 
-test('renders precinct selection name', () => {
-  setPollingPlacesEnabled(false);
-
-  render(
-    <PrecinctScannerReportHeader
-      electionDefinition={electionTwoPartyPrimaryDefinition}
-      electionPackageHash="test-election-package-hash"
-      partyId="0"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
-      pollsTransition="pause_voting"
-      pollsTransitionedTime={pollsTransitionedTime}
-      isLiveMode={false}
-      reportPrintedTime={reportPrintedTime}
-      precinctScannerMachineId="SC-01-000"
-    />
-  );
-  screen.getByText('Voting Paused Report • All Precincts');
-});
-
 test('renders batch ID in metadata when provided', () => {
-  setPollingPlacesEnabled(false);
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const pollingPlace = anyPollingPlace(election);
 
   render(
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={pollingPlace.id}
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={pollsTransitionedTime}
@@ -211,13 +174,14 @@ test('renders batch ID in metadata when provided', () => {
 });
 
 test('does not render batch ID when not provided', () => {
-  setPollingPlacesEnabled(false);
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const pollingPlace = anyPollingPlace(election);
 
   render(
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={pollingPlace.id}
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={pollsTransitionedTime}
@@ -228,11 +192,3 @@ test('does not render batch ID when not provided', () => {
 
   expect(screen.queryByText('Batch ID:')).toBeNull();
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}

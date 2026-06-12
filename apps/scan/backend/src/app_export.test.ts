@@ -432,6 +432,7 @@ test('audit ballot IDs', async () => {
             precinctScanEnableBallotAuditIds: true,
           },
         },
+        pollingPlaceId: `${ballotPropsWithAuditId.precinctId}-polling-place`,
       });
 
       await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {

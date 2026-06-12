@@ -19,6 +19,8 @@ import {
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
+  POLLING_PLACE_ID_COMPLETE_HMPB,
+  POLLING_PLACE_ID_OVERVOTE_HMPB,
   simulateScan,
   withApp,
 } from '../test/helpers/scanner_helpers';
@@ -52,6 +54,7 @@ test('insert second ballot after scan', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -104,6 +107,7 @@ test('insert second ballot before accept', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -146,6 +150,7 @@ test('insert second ballot during accept', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -195,6 +200,7 @@ test('insert second ballot before accept after review', async () => {
             precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
           },
         },
+        pollingPlaceId: POLLING_PLACE_ID_OVERVOTE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -245,6 +251,7 @@ test('insert second ballot after accept, should be scanned', async () => {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
         },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

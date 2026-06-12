@@ -23,11 +23,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
-import {
-  ALL_PRECINCTS_SELECTION,
-  getFeatureFlagMock,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { getFeatureFlagMock } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { randomUUID as uuid } from 'node:crypto';
@@ -252,34 +248,6 @@ test('get/set isContinuousExportEnabled', () => {
   // Make sure that resetting election session resumes continuous export if paused
   store.resetElectionSession();
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
-});
-
-test('get/set precinct selection', () => {
-  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-
-  // Before setting an election
-  expect(store.getPrecinctSelection()).toEqual(undefined);
-  expect(() =>
-    store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
-  ).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  expect(store.getPrecinctSelection()).toEqual(undefined);
-
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  expect(store.getPrecinctSelection()).toEqual(ALL_PRECINCTS_SELECTION);
-
-  const precinctSelection = singlePrecinctSelectionFor('precinct-1');
-  store.setPrecinctSelection(precinctSelection);
-  expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
 });
 
 test('get/set polling place', () => {

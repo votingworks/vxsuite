@@ -3,21 +3,13 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ElectionPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
-  PrecinctSelection,
-  SinglePrecinctSelection,
   DiagnosticRecord,
   DiagnosticOutcome,
   doesPollsStateSupportLiveReporting,
   BallotCastingMode,
   pollingPlaceFromElection,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getPrecinctSelectionName,
-  isElectionManagerAuth,
-  isFeatureFlagEnabled,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import {
   createUiStringsApi,
@@ -190,12 +182,6 @@ export function buildApi({
         electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
-      let precinctSelection: SinglePrecinctSelection | undefined;
-      if (electionDefinition.election.precincts.length === 1) {
-        precinctSelection = singlePrecinctSelectionFor(
-          electionDefinition.election.precincts[0].id
-        );
-      }
 
       await store.withTransaction(async () => {
         store.setElectionAndJurisdiction({
@@ -203,17 +189,11 @@ export function buildApi({
           jurisdiction: authStatus.user.jurisdiction,
           electionPackageHash,
         });
-        if (precinctSelection) {
-          store.setPrecinctSelection(precinctSelection);
-        }
 
-        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
-          if (electionDefinition.election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
-              electionDefinition.election.pollingPlaces[0].id
-            );
-          }
+        if (electionDefinition.election.pollingPlaces?.length === 1) {
+          workspace.store.setPollingPlaceId(
+            electionDefinition.election.pollingPlaces[0].id
+          );
         }
 
         store.setSystemSettings(systemSettings);
@@ -247,7 +227,6 @@ export function buildApi({
         electionDefinition: electionRecord?.electionDefinition,
         electionPackageHash: electionRecord?.electionPackageHash,
         systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
-        precinctSelection: store.getPrecinctSelection(),
         pollingPlaceId: store.getPollingPlaceId(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
@@ -278,29 +257,6 @@ export function buildApi({
         disposition: 'success',
         message:
           'User successfully unconfigured the machine to remove the current election and all current ballot data.',
-      });
-    },
-
-    async setPrecinctSelection(input: {
-      precinctSelection: PrecinctSelection;
-    }): Promise<void> {
-      const { electionDefinition } = assertDefined(store.getElectionRecord());
-      assert(
-        store.getPollsState() !== 'polls_closed_final',
-        'Attempt to change precinct selection after polls closed'
-      );
-      assert(
-        store.getBallotsCounted() === 0,
-        'Attempt to change precinct selection after ballots have been cast'
-      );
-      store.setPrecinctSelection(input.precinctSelection);
-      workspace.resetElectionSession();
-      await logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
-        disposition: 'success',
-        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
-          electionDefinition.election.precincts,
-          input.precinctSelection
-        )}`,
       });
     },
 
@@ -404,11 +360,8 @@ export function buildApi({
 
       // Any previous polling place selection will no longer be valid after
       // switching casting modes.
-      const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-      if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
-        store.setPollingPlaceId(null);
-        workspace.resetElectionSession();
-      }
+      store.setPollingPlaceId(null);
+      workspace.resetElectionSession();
 
       await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
         message: `Successfully set ballot casting mode to ${input.ballotCastingMode}.`,

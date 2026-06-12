@@ -5,6 +5,7 @@ import {
 import { Result, deferred, ok } from '@votingworks/basics';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_POLLING_PLACE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
   renderBmdBallotFixture,
@@ -214,6 +215,11 @@ export async function withApp(
   }
 }
 
+export const POLLING_PLACE_ID_COMPLETE_HMPB = '20-polling-place';
+export const POLLING_PLACE_ID_OVERVOTE_HMPB = POLLING_PLACE_ID_COMPLETE_HMPB;
+export const POLLING_PLACE_ID_COMPETE_BMD =
+  DEFAULT_FAMOUS_NAMES_POLLING_PLACE_ID;
+
 export const ballotImages = {
   completeHmpb: async () =>
     pdfToImageSheet(
@@ -285,18 +291,22 @@ export async function scanBallot(
     state: 'waiting_for_ballot',
     ballotsCounted: initialBallotsCounted,
   });
+
   await simulateScan(
     apiClient,
     mockScanner,
     options.ballotImages ?? (await ballotImages.completeBmd()),
     initialBallotsCounted
   );
+
   await waitForStatus(apiClient, {
     state: 'accepting',
     ballotsCounted: initialBallotsCounted,
     interpretation: { type: 'ValidSheet' },
   });
+
   expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
+
   mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
   clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
   await waitForStatus(apiClient, {
@@ -304,7 +314,9 @@ export async function scanBallot(
     interpretation: { type: 'ValidSheet' },
     ballotsCounted: initialBallotsCounted + 1,
   });
+
   await apiClient.readyForNextBallot();
+
   await waitForStatus(apiClient, {
     state: 'waiting_for_ballot',
     ballotsCounted: initialBallotsCounted + 1,

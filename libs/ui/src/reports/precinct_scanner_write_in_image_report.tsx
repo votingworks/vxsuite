@@ -1,8 +1,4 @@
-import {
-  ElectionDefinition,
-  PrecinctSelection,
-  formatElectionHashes,
-} from '@votingworks/types';
+import { ElectionDefinition, formatElectionHashes } from '@votingworks/types';
 import { unique } from '@votingworks/basics';
 import {
   CachedElectionLookups,
@@ -48,7 +44,6 @@ interface PrecinctScannerWriteInImageReportProps {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
   isLiveMode: boolean;
   reportPrintedTime: number;
   precinctScannerMachineId: string;
@@ -63,7 +58,6 @@ export function PrecinctScannerWriteInImageReport({
   electionDefinition,
   electionPackageHash,
   pollingPlaceId,
-  precinctSelection,
   isLiveMode,
   reportPrintedTime,
   precinctScannerMachineId,
@@ -73,7 +67,6 @@ export function PrecinctScannerWriteInImageReport({
   const locationName = precinctScannerLocationName({
     election,
     pollingPlaceId,
-    precinctSelection,
   });
 
   const relevantPartyIds = unique(contestWriteIns.map((c) => c.partyId));

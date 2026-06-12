@@ -4,7 +4,6 @@ create table election (
   election_data text not null,
   election_package_hash text not null,
   jurisdiction text not null,
-  precinct_selection text, -- [TODO] Remove after migration to polling places
   polling_place_id text,
   is_test_mode boolean not null default true,
   ballot_casting_mode text not null default 'election_day',

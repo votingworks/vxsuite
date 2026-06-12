@@ -29,7 +29,11 @@ import {
   pdfToImageSheet,
 } from '../test/helpers/shared_helpers';
 import type { Store } from './store';
-import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
+import {
+  POLLING_PLACE_ID_COMPETE_BMD,
+  scanBallot,
+  withApp,
+} from '../test/helpers/scanner_helpers';
 import { getScannerResults } from './util/results';
 
 // UUIDs and timestamps are displayed on the polls reports.
@@ -84,8 +88,6 @@ beforeEach(() => {
 });
 
 test('printReportSection can print each part of a primary report separately', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -170,8 +172,6 @@ test('printReportSection can print each part of a primary report separately', as
 });
 
 test('printing report before polls opened should fail', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, {
       testMode: true,
@@ -188,8 +188,6 @@ test('printing report before polls opened should fail', async () => {
 });
 
 test('re-printing report after scanning a ballot should fail', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -215,36 +213,7 @@ test('re-printing report after scanning a ballot should fail', async () => {
   );
 });
 
-test('can print report with precinct selection', async () => {
-  setPollingPlacesEnabled(false);
-
-  await withApp(
-    async ({
-      apiClient,
-      mockUsbDrive,
-      mockAuth,
-      mockFujitsuPrinterHandler,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-
-        numberOfSections: 1,
-      });
-
-      const printPath = mockFujitsuPrinterHandler.getLastPrintPath();
-      await expect(printPath).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'voting-opened-report-precinct-selection',
-        failureThreshold: 0.0001,
-      });
-    }
-  );
-});
-
 test('can print voting paused and voting resumed reports', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -291,8 +260,6 @@ test('can print voting paused and voting resumed reports', async () => {
 });
 
 test('can tabulate results and print polls closed report', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -304,6 +271,8 @@ test('can tabulate results and print polls closed report', async () => {
       clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        // `scanBallot` defaults to the precinct for this location.
+        pollingPlaceId: POLLING_PLACE_ID_COMPETE_BMD,
         testMode: true,
       });
 
@@ -328,8 +297,6 @@ test('can tabulate results and print polls closed report', async () => {
 });
 
 test('polls closed report shows correct sheet counts for multi-page BMD ballots', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -428,8 +395,6 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
 });
 
 test('can print write-in image report after polls closed', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -453,35 +418,6 @@ test('can print write-in image report after polls closed', async () => {
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'write-in-image-report-integration',
-      });
-
-      mockFujitsuPrinterHandler.cleanup();
-    }
-  );
-});
-
-test('can print write-in image report with precinct selection', async () => {
-  setPollingPlacesEnabled(false);
-
-  await withApp(
-    async ({
-      apiClient,
-      mockScanner,
-      mockUsbDrive,
-      mockFujitsuPrinterHandler,
-      mockAuth,
-      workspace,
-      clock,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
-      await apiClient.closePolls();
-
-      (await apiClient.printWriteInImageReport()).unsafeUnwrap();
-
-      const printPath = mockFujitsuPrinterHandler.getLastPrintPath();
-      await expect(printPath).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'write-in-image-report-precinct-selection',
       });
 
       mockFujitsuPrinterHandler.cleanup();
@@ -520,8 +456,6 @@ function recordHmpbBallotInStore({
 }
 
 test('can tabulate results and print polls closed report for closed primary', async () => {
-  setPollingPlacesEnabled(true);
-
   await withApp(
     async ({
       apiClient,
@@ -613,10 +547,6 @@ test('can tabulate results and print polls closed report for closed primary', as
 });
 
 test('can tabulate results and print polls closed report for open primary', async () => {
-  // The open primary fixture doesn't define pollingPlaces, so use precinct
-  // selection instead.
-  setPollingPlacesEnabled(false);
-
   const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
   await withApp(
     async ({
@@ -631,7 +561,6 @@ test('can tabulate results and print polls closed report for open primary', asyn
         electionPackage: {
           electionDefinition: electionOpenPrimaryDefinition,
         },
-        precinctId: 'precinct-1',
       });
 
       function record(votes: VotesDict): void {
@@ -731,12 +660,3 @@ test('can tabulate results and print polls closed report for open primary', asyn
     }
   );
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(ENABLE_POLLING_PLACES);
-  }
-}

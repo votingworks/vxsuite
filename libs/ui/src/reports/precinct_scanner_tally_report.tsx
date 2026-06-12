@@ -3,7 +3,6 @@ import {
   Contest,
   ElectionDefinition,
   PartyId,
-  PrecinctSelection,
   StandardPollsTransitionType,
   Tabulation,
 } from '@votingworks/types';
@@ -24,7 +23,6 @@ interface Props {
   electionPackageHash: string;
   partyId?: PartyId;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
   contests: readonly Contest[];
   scannedElectionResults: Tabulation.ElectionResults;
   pollsTransition: StandardPollsTransitionType;
@@ -44,7 +42,6 @@ export function PrecinctScannerTallyReport({
   electionPackageHash,
   partyId,
   pollingPlaceId,
-  precinctSelection,
   contests,
   scannedElectionResults,
   pollsTransition,
@@ -66,7 +63,6 @@ export function PrecinctScannerTallyReport({
           electionPackageHash={electionPackageHash}
           partyId={partyId}
           pollingPlaceId={pollingPlaceId}
-          precinctSelection={precinctSelection}
           pollsTransition={pollsTransition}
           isLiveMode={isLiveMode}
           pollsTransitionedTime={pollsTransitionedTime}

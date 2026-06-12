@@ -4,7 +4,6 @@ import {
   PageInterpretation,
   PollsState,
   PollsTransitionType,
-  PrecinctSelection,
   SheetInterpretationWithPages,
   SystemSettings,
   PrecinctScannerMachineStatus,
@@ -36,7 +35,6 @@ export interface PrecinctScannerConfig {
   electionDefinition?: ElectionDefinition;
   electionPackageHash?: string;
   systemSettings: SystemSettings;
-  precinctSelection?: PrecinctSelection;
   pollingPlaceId?: string;
   isSoundMuted: boolean;
   isDoubleFeedDetectionDisabled: boolean;

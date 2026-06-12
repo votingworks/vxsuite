@@ -1,9 +1,5 @@
 import { expect, test, vi } from 'vitest';
 import {
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
-import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -11,6 +7,7 @@ import {
   ContestWriteIns,
   PrecinctScannerWriteInImageReport,
 } from '@votingworks/ui';
+import { anyPollingPlace } from '@votingworks/types';
 import { PAPER_DIMENSIONS, renderToPdf } from './render';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
@@ -33,7 +30,7 @@ const DEFAULT_PROPS: Omit<
 > = {
   electionDefinition,
   electionPackageHash: 'test-package-hash',
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   isLiveMode: true,
   reportPrintedTime: REPORT_PRINTED_TIME,
   precinctScannerMachineId: 'SC-00-000',
@@ -177,9 +174,7 @@ test('primary election with party headers', async () => {
   const report = PrecinctScannerWriteInImageReport({
     electionDefinition: primaryElectionDefinition,
     electionPackageHash: 'test-package-hash',
-    precinctSelection: singlePrecinctSelectionFor(
-      primaryElectionDefinition.election.precincts[0].id
-    ),
+    pollingPlaceId: anyPollingPlace(primaryElectionDefinition.election).id,
     isLiveMode: true,
     reportPrintedTime: REPORT_PRINTED_TIME,
     precinctScannerMachineId: 'SC-00-000',

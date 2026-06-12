@@ -1,13 +1,15 @@
 import { expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { BatchInfo, formatElectionHashes } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import {
+  anyPollingPlace,
+  BatchInfo,
+  formatElectionHashes,
+} from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
 
@@ -21,6 +23,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const reportPrintedTime = new Date(2021, 8, 19, 11, 6).getTime();
 
+const { election } = electionGeneralDefinition;
+const pollingPlace = anyPollingPlace(election);
+
 const testBatches: BatchInfo[] = [
   {
     id: 'a3c38c4b-0012-4ab1-b4ef-0d95671595ca',
@@ -33,11 +38,6 @@ const testBatches: BatchInfo[] = [
 ];
 
 test('renders info properly', () => {
-  setPollingPlacesEnabled(true);
-
-  const { election } = electionGeneralDefinition;
-  const [pollingPlace] = assertDefined(election.pollingPlaces);
-
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionGeneralDefinition}
@@ -89,36 +89,12 @@ test('renders info properly', () => {
   expect(screen.queryByText('Time Voting Paused')).toBeNull();
 });
 
-test('renders precinct selection', () => {
-  setPollingPlacesEnabled(false);
-
-  render(
-    <PrecinctScannerBallotCountReport
-      electionDefinition={electionGeneralDefinition}
-      electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
-      totalBallotsScanned={23}
-      mostRecentBatchCount={23}
-      batches={testBatches}
-      pollsTransition="pause_voting"
-      pollsTransitionedTime={pollsTransitionedTime}
-      reportPrintedTime={reportPrintedTime}
-      isLiveMode={false}
-      precinctScannerMachineId="SC-01-000"
-    />
-  );
-
-  screen.getByText('Voting Paused Report • All Precincts');
-});
-
 test('omits most recent batch count on resume_voting', () => {
-  setPollingPlacesEnabled(false);
-
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionGeneralDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={pollingPlace.id}
       totalBallotsScanned={23}
       batches={testBatches}
       pollsTransition="resume_voting"
@@ -133,13 +109,11 @@ test('omits most recent batch count on resume_voting', () => {
 });
 
 test('renders batch summary table', () => {
-  setPollingPlacesEnabled(false);
-
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionGeneralDefinition}
       electionPackageHash="test-election-package-hash"
-      precinctSelection={ALL_PRECINCTS_SELECTION}
+      pollingPlaceId={pollingPlace.id}
       totalBallotsScanned={23}
       mostRecentBatchCount={23}
       batches={testBatches}
@@ -156,11 +130,3 @@ test('renders batch summary table', () => {
   screen.getByText('Polls Opened / Resumed');
   screen.getByText('a3c38c4b-0d95671595ca');
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  if (enabled) {
-    mockFeatureFlagger.enableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  } else {
-    mockFeatureFlagger.disableFeatureFlag(Feature.ENABLE_POLLING_PLACES);
-  }
-}
