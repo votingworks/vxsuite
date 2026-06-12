@@ -68,7 +68,7 @@
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
-    "esbuild": "0.21.2",
+    "esbuild": "0.28.1",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
