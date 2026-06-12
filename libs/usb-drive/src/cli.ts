@@ -56,7 +56,7 @@ export async function main(args: string[]): Promise<number> {
           stderr.write('Usage: usb-drive eject <devPath>\n');
           return 1;
         }
-        await multiUsbDrive.ejectDrive(UsbDiskDevPathSchema.parse(devPath));
+        await multiUsbDrive.ejectDrive(UsbDiskDevPathSchema.decode(devPath));
         stdout.write(`Ejected ${devPath}\n`);
         await multiUsbDrive.refresh();
         printDrives(multiUsbDrive, stdout);
@@ -78,7 +78,7 @@ export async function main(args: string[]): Promise<number> {
         }
         stdout.write(`Formatting ${devPath} as ${fstypeArg}...\n`);
         await multiUsbDrive.formatDrive(
-          UsbDiskDevPathSchema.parse(devPath),
+          UsbDiskDevPathSchema.decode(devPath),
           fstypeArg
         );
         stdout.write('Formatted.\n');

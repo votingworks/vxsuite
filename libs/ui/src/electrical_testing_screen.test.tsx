@@ -142,7 +142,7 @@ test('save logs', async () => {
       powerDown={vi.fn()}
       usbDriveStatus={{
         status: 'mounted',
-        mountpoint: UsbPartitionMountpointSchema.parse('/media/vx/usb-drive'),
+        mountpoint: UsbPartitionMountpointSchema.decode('/media/vx/usb-drive'),
       }}
       apiClient={mockApiClient}
     />

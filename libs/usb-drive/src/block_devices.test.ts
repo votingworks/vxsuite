@@ -243,7 +243,7 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
+        diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
@@ -369,14 +369,14 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
+        diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
         partitions: [
           {
-            partPath: UsbPartitionDevPathSchema.parse('/dev/sdb1'),
-            mountpoint: UsbPartitionMountpointSchema.parse(
+            partPath: UsbPartitionDevPathSchema.decode('/dev/sdb1'),
+            mountpoint: UsbPartitionMountpointSchema.decode(
               '/media/vx/usb-drive-sdb1'
             ),
             fstype: 'vfat',
@@ -407,13 +407,13 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
+        diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
         partitions: [
           {
-            partPath: UsbPartitionDevPathSchema.parse('/dev/sdb1'),
+            partPath: UsbPartitionDevPathSchema.decode('/dev/sdb1'),
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -446,14 +446,14 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        diskPath: UsbDiskDevPathSchema.parse('/dev/sdp'),
+        diskPath: UsbDiskDevPathSchema.decode('/dev/sdp'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
         partitions: [
           {
-            partPath: UsbPartitionDevPathSchema.parse('/dev/sdp1'),
-            mountpoint: UsbPartitionMountpointSchema.parse(
+            partPath: UsbPartitionDevPathSchema.decode('/dev/sdp1'),
+            mountpoint: UsbPartitionMountpointSchema.decode(
               '/media/vx/usb-drive-sdp1'
             ),
             fstype: 'vfat',

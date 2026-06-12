@@ -44,8 +44,8 @@ import { ManualResultsIdentifier, ManualResultsRecord } from './types';
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 
-const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
-const devsdb1 = UsbPartitionDevPathSchema.parse('/dev/sdb1');
+const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -595,9 +595,7 @@ test('usbDrive', async () => {
 
   mockMultiUsbDrive.insertUsbDrive({});
 
-  mockMultiUsbDrive.multiUsbDrive.ejectDrive
-    .expectCallWith(UsbDiskDevPathSchema.parse('/dev/sdb'))
-    .resolves();
+  mockMultiUsbDrive.multiUsbDrive.ejectDrive.expectCallWith(devsdb).resolves();
   await apiClient.ejectUsbDrive();
 
   mockMultiUsbDrive.multiUsbDrive.formatDrive

@@ -71,17 +71,17 @@ test('returns no_drive when no drives are connected', async () => {
 test('exposes the first connected drive via the UsbDrive interface', async () => {
   mockDevices = [
     {
-      diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
+      diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
       vendor: undefined,
       model: undefined,
       serial: undefined,
       partitions: [
         {
-          partPath: UsbPartitionDevPathSchema.parse('/dev/sdb1'),
+          partPath: UsbPartitionDevPathSchema.decode('/dev/sdb1'),
           label: 'VxUSB-00000',
           fstype: 'vfat',
           fsver: 'FAT32',
-          mountpoint: UsbPartitionMountpointSchema.parse(
+          mountpoint: UsbPartitionMountpointSchema.decode(
             '/media/vx/usb-drive-sdb1'
           ),
         },

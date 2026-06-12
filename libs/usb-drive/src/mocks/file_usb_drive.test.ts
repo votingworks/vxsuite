@@ -18,8 +18,8 @@ import {
   UsbPartitionMountpointSchema,
 } from '../types';
 
-const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
-const devsdb1 = UsbPartitionDevPathSchema.parse('/dev/sdb1');
+const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
 
 test('createMockFileMultiUsbDrive mock flow', async () => {
   const handler = getMockFileUsbDriveHandler('sdb');
@@ -41,7 +41,7 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
         partPath: devsdb1,
         fstype: 'fat32',
         mount: UsbPartitionMount.mounted(
-          UsbPartitionMountpointSchema.parse(mountpoint!)
+          UsbPartitionMountpointSchema.decode(mountpoint!)
         ),
       },
     },
@@ -82,8 +82,8 @@ test('createMockFileMultiUsbDrive multi-drive flow', async () => {
 
   const diskA = addMockDrive();
   const diskB = addMockDrive();
-  const devdiskA = UsbDiskDevPathSchema.parse(`/dev/${diskA}`);
-  const devdiskB = UsbDiskDevPathSchema.parse(`/dev/${diskB}`);
+  const devdiskA = UsbDiskDevPathSchema.decode(`/dev/${diskA}`);
+  const devdiskB = UsbDiskDevPathSchema.decode(`/dev/${diskB}`);
   const handlerA = getMockFileUsbDriveHandler(diskA);
   const handlerB = getMockFileUsbDriveHandler(diskB);
 

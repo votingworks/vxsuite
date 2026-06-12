@@ -93,7 +93,7 @@ export interface DevDockElectionInfo extends DevDockElectionOption {
 }
 
 export const MOCK_USB_DRIVE_DISK_NAME = 'sdb';
-export const MOCK_USB_DRIVE_DEV_PATH = UsbDiskDevPathSchema.parse(
+export const MOCK_USB_DRIVE_DEV_PATH = UsbDiskDevPathSchema.decode(
   `/dev/${MOCK_USB_DRIVE_DISK_NAME}`
 );
 

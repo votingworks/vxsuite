@@ -10,9 +10,9 @@ import {
   UsbPartitionMountpointSchema,
 } from './types';
 
-const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
-const devsdb1 = UsbPartitionDevPathSchema.parse('/dev/sdb1');
-const mountpointSdb1 = UsbPartitionMountpointSchema.parse(
+const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
+const mountpointSdb1 = UsbPartitionMountpointSchema.decode(
   '/media/vx/usb-drive-sdb1'
 );
 
@@ -44,7 +44,7 @@ describe('createUsbDriveAdapter', () => {
     test('returns no_drive when drive not found in getDrives()', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
       const adapter = createUsbDriveAdapter(multiUsbDrive, () =>
-        UsbDiskDevPathSchema.parse('/dev/sdz')
+        UsbDiskDevPathSchema.decode('/dev/sdz')
       );
       multiUsbDrive.getDrives.reset();
 
@@ -221,7 +221,7 @@ describe('createUsbDriveAdapter', () => {
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
       multiUsbDrive.ejectDrive
-        .expectCallWith(UsbDiskDevPathSchema.parse('/dev/sdb'))
+        .expectCallWith(UsbDiskDevPathSchema.decode('/dev/sdb'))
         .resolves();
       await adapter.eject();
 

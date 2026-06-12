@@ -12,7 +12,7 @@ import {
   UsbPartitionMountpointSchema,
 } from '../types';
 
-const MOCK_SINGLETON_DISK_DEV_PATH = UsbDiskDevPathSchema.parse('/dev/sdb');
+const MOCK_SINGLETON_DISK_DEV_PATH = UsbDiskDevPathSchema.decode('/dev/sdb');
 
 export interface MockMultiUsbDrive {
   multiUsbDrive: Mocked<MultiUsbDrive>;
@@ -77,16 +77,16 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
     const mountpoint = makeTemporaryDirectory();
     mockUsbTmpDirs.push(mountpoint);
     writeMockFileTree(mountpoint, contents);
-    const diskPath = UsbDiskDevPathSchema.parse(options.diskPath);
+    const diskPath = UsbDiskDevPathSchema.decode(options.diskPath);
     drives.push({
       diskPath,
       partition: {
         diskPath,
-        partPath: UsbPartitionDevPathSchema.parse(`${options.diskPath}1`),
+        partPath: UsbPartitionDevPathSchema.decode(`${options.diskPath}1`),
         label: 'VxUSB-ABCDE',
         fstype,
         mount: UsbPartitionMount.mounted(
-          UsbPartitionMountpointSchema.parse(mountpoint)
+          UsbPartitionMountpointSchema.decode(mountpoint)
         ),
       },
     });

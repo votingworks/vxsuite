@@ -220,7 +220,7 @@ describe('Settings tab', () => {
     apiMock.expectHaveElectionEventsOccurred(false);
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
-      mountpoint: UsbPartitionMountpointSchema.parse('/dev/null'),
+      mountpoint: UsbPartitionMountpointSchema.decode('/dev/null'),
     });
   });
 

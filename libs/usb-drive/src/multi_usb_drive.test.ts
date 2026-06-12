@@ -22,9 +22,9 @@ const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 const featureFlagMock = getFeatureFlagMock();
 
-const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
-const devsdb1 = UsbPartitionDevPathSchema.parse('/dev/sdb1');
-const devsdc = UsbDiskDevPathSchema.parse('/dev/sdc');
+const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
+const devsdc = UsbDiskDevPathSchema.decode('/dev/sdc');
 
 type ExecResult = Awaited<ReturnType<typeof exec>>;
 
@@ -78,7 +78,7 @@ function makeDisk(
     partitions: [
       {
         partPath: devsdb1,
-        mountpoint: UsbPartitionMountpointSchema.parse(
+        mountpoint: UsbPartitionMountpointSchema.decode(
           '/media/vx/usb-drive-sdb1'
         ),
         fstype: 'vfat',
@@ -122,7 +122,7 @@ describe('getDrives', () => {
       diskPath: devsdb,
       partPath: devsdb1,
       mount: UsbPartitionMount.mounted(
-        UsbPartitionMountpointSchema.parse('/media/vx/usb-drive-sdb1')
+        UsbPartitionMountpointSchema.decode('/media/vx/usb-drive-sdb1')
       ),
     });
 
@@ -477,7 +477,7 @@ describe('ejectDrive', () => {
 
     expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
       UsbPartitionMount.unmounting(
-        UsbPartitionMountpointSchema.parse('/media/vx/usb-drive-sdb1')
+        UsbPartitionMountpointSchema.decode('/media/vx/usb-drive-sdb1')
       )
     );
 
@@ -1074,7 +1074,7 @@ describe('autoMount', () => {
       partitions: [
         {
           partPath: devsdb1,
-          mountpoint: UsbPartitionMountpointSchema.parse(
+          mountpoint: UsbPartitionMountpointSchema.decode(
             '/media/vx/usb-drive-sdb1'
           ),
           fstype: 'ext4',
@@ -1276,7 +1276,7 @@ describe('autoMount', () => {
 
       expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
         UsbPartitionMount.mounted(
-          UsbPartitionMountpointSchema.parse('/media/vx/usb-drive-sdb1')
+          UsbPartitionMountpointSchema.decode('/media/vx/usb-drive-sdb1')
         )
       );
 

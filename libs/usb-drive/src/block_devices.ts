@@ -168,10 +168,10 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
       const validPartitions: UsbPartitionDeviceInfo[] = diskPartitions
         .filter(isDataUsbDrive)
         .map((p) => ({
-          partPath: UsbPartitionDevPathSchema.parse(p.devname),
+          partPath: UsbPartitionDevPathSchema.decode(p.devname),
           mountpoint:
             typeof p.mountpoint === 'string'
-              ? UsbPartitionMountpointSchema.parse(p.mountpoint)
+              ? UsbPartitionMountpointSchema.decode(p.mountpoint)
               : undefined,
           fstype: p.fstype,
           fsver: p.fsver,
@@ -183,7 +183,7 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
       if (validPartitions.length === 0) continue;
 
       result.push({
-        diskPath: UsbDiskDevPathSchema.parse(disk.devname),
+        diskPath: UsbDiskDevPathSchema.decode(disk.devname),
         vendor: disk.vendor,
         model: disk.model,
         serial: disk.serial,
@@ -192,7 +192,7 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
     } else if (isDataUsbDrive(disk)) {
       // Unformatted drive (no partitions) — include it with empty partitions
       result.push({
-        diskPath: UsbDiskDevPathSchema.parse(disk.devname),
+        diskPath: UsbDiskDevPathSchema.decode(disk.devname),
         vendor: disk.vendor,
         model: disk.model,
         serial: disk.serial,
@@ -212,15 +212,15 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
     if (!isDataUsbDrive(partition)) continue;
 
     result.push({
-      diskPath: UsbDiskDevPathSchema.parse(diskDevPath),
+      diskPath: UsbDiskDevPathSchema.decode(diskDevPath),
       vendor: undefined,
       model: undefined,
       serial: undefined,
       partitions: [
         {
-          partPath: UsbPartitionDevPathSchema.parse(partition.devname),
+          partPath: UsbPartitionDevPathSchema.decode(partition.devname),
           mountpoint: partition.mountpoint
-            ? UsbPartitionMountpointSchema.parse(partition.mountpoint)
+            ? UsbPartitionMountpointSchema.decode(partition.mountpoint)
             : undefined,
           fstype: partition.fstype,
           fsver: partition.fsver,

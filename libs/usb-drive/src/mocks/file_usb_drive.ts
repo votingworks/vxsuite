@@ -57,7 +57,7 @@ function getMockDriveDirPath(diskName: string): string {
 }
 
 function getMockDriveDataDirPath(diskName: string): UsbPartitionMountpoint {
-  return UsbPartitionMountpointSchema.parse(
+  return UsbPartitionMountpointSchema.decode(
     join(getMockDriveDirPath(diskName), MOCK_USB_DRIVE_DATA_DIRNAME)
   );
 }
@@ -207,13 +207,13 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
           driveState.state === 'inserted'
             ? UsbPartitionMount.mounted(getMockDriveDataDirPath(diskName))
             : UsbPartitionMount.ejected();
-        const diskPath = UsbDiskDevPathSchema.parse(`/dev/${diskName}`);
+        const diskPath = UsbDiskDevPathSchema.decode(`/dev/${diskName}`);
         return [
           {
             diskPath,
             partition: {
               diskPath,
-              partPath: UsbPartitionDevPathSchema.parse(`/dev/${diskName}1`),
+              partPath: UsbPartitionDevPathSchema.decode(`/dev/${diskName}1`),
               fstype: driveState.fstype,
               mount,
             },
