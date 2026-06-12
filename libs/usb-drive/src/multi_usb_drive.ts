@@ -394,7 +394,8 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     // unmount it rather than racing the mount.
     await partitionAction.join(disk.partition.partPath);
 
-    const freshDisk = cachedDrives.find((d) => d.diskPath === diskPath) ?? disk;
+    const freshDisk = cachedDrives.find((d) => d.diskPath === diskPath);
+    assert(freshDisk, `Drive not found: ${diskPath}`);
     if (freshDisk.partition?.mountpoint) {
       await unmountPartition(freshDisk.partition.mountpoint);
     }
