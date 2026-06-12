@@ -1,4 +1,4 @@
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, typedAs } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { backendWaitFor } from '@votingworks/test-utils';
 import { Buffer } from 'node:buffer';
@@ -13,7 +13,10 @@ import {
   UsbPartitionMountpointSchema,
 } from '../types';
 import { UsbPlatformDrive, UsbPlatformPartition } from '../usb_platform';
-import { SimulatedUsbPlatform } from './simulated_usb_platform';
+import {
+  SimulatedUsbDrive,
+  SimulatedUsbPlatform,
+} from './simulated_usb_platform';
 
 function getSimulatedMountpoint(
   platform: SimulatedUsbPlatform
@@ -107,7 +110,9 @@ test('unformatted drive lifecycle: create, insert, format', async () => {
 
   // Visible to the platform, but with no usable partition — mirroring how
   // RealUsbPlatform reports unformatted drives.
-  await expect(platform.getDrives()).resolves.toEqual([{ diskPath: devsdb }]);
+  await expect(platform.getDrives()).resolves.toEqual(
+    typedAs<UsbPlatformDrive[]>([{ diskPath: devsdb }])
+  );
 
   // Without a partition there is nothing to mount or unmount.
   await expect(platform.mountPartition(devsdb1)).rejects.toThrow();
@@ -121,17 +126,19 @@ test('unformatted drive lifecycle: create, insert, format', async () => {
 
   // Formatting installs a mounted partition.
   await platform.formatDrive(devsdb, 'fat32', 'VxUSB-ABCDE');
-  await expect(platform.getDrives()).resolves.toEqual([
-    {
-      diskPath: devsdb,
-      partition: {
-        partPath: devsdb1,
-        fstype: 'fat32',
-        label: 'VxUSB-ABCDE',
-        mountpoint: platform.storagePath(devsdb),
+  await expect(platform.getDrives()).resolves.toEqual(
+    typedAs<UsbPlatformDrive[]>([
+      {
+        diskPath: devsdb,
+        partition: {
+          partPath: devsdb1,
+          fstype: 'fat32',
+          label: 'VxUSB-ABCDE',
+          mountpoint: platform.storagePath(devsdb),
+        },
       },
-    },
-  ]);
+    ])
+  );
 });
 
 test('deleting a present unformatted drive works without an unmount', async () => {
@@ -460,7 +467,10 @@ test('deleteDrive removes only the target drive, leaving others intact', async (
 
   // sdc survives with its state (present, mounted, ext4) fully intact.
   expect(platform.getSimulatedDrives()).toEqual([
-    expect.objectContaining({ diskPath: devsdc, present: true }),
+    expect.objectContaining<SimulatedUsbDrive>({
+      diskPath: devsdc,
+      present: true,
+    }),
   ]);
   await expect(platform.getDrives()).resolves.toEqual([
     expect.objectContaining<Partial<UsbPlatformDrive>>({
