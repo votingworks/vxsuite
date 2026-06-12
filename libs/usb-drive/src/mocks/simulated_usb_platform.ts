@@ -49,7 +49,12 @@ export type SimulatedUsbDrive = z.output<typeof SimulatedUsbDriveSchema>;
 
 interface CreateDriveOptions {
   diskPath: UsbDiskDevPath;
-  fstype: UsbDriveFilesystemType;
+  /**
+   * Filesystem type for the drive's single partition. Omit to create an
+   * unformatted drive with no usable partition, mirroring how
+   * {@link RealUsbPlatform} reports unformatted or unsupported drives.
+   */
+  fstype?: UsbDriveFilesystemType;
   label?: string;
   contents?: MockFileTree;
 }
@@ -143,18 +148,17 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     await Promise.resolve();
     return this.getSimulatedDrives()
       .filter((drive) => drive.present)
-      .map(({ partition, diskPath }): UsbPlatformDrive => {
-        assert(partition);
-        return {
+      .map(
+        ({ partition, diskPath }): UsbPlatformDrive => ({
           diskPath,
-          partition: {
+          partition: partition && {
             partPath: partition.partPath,
             fstype: partition.fstype,
             label: partition.label,
             mountpoint: partition.mountpoint,
           },
-        };
-      });
+        })
+      );
   }
 
   /**
@@ -219,15 +223,21 @@ export class SimulatedUsbPlatform implements UsbPlatform {
       !this.getSimulatedDrives().some((d) => d.diskPath === options.diskPath),
       `USB drive already exists: ${options.diskPath}`
     );
+    assert(
+      !options.contents || options.fstype !== undefined,
+      'Cannot create an unformatted drive with contents'
+    );
 
     const newDrive: SimulatedUsbDrive = {
       diskPath: options.diskPath,
       present: false,
-      partition: {
-        partPath: this.partPathFromDiskPath(options.diskPath),
-        fstype: options.fstype,
-        label: options.label,
-      },
+      partition: options.fstype
+        ? {
+            partPath: this.partPathFromDiskPath(options.diskPath),
+            fstype: options.fstype,
+            label: options.label,
+          }
+        : undefined,
     };
 
     try {
@@ -266,8 +276,9 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     debug('Remove drive: %s', diskPath);
     this.mutateState((drives) => {
       const drive = findPresentDrive(drives, diskPath);
-      assert(drive.partition);
-      this.unmountPartitionInternal(drive.partition);
+      if (drive.partition) {
+        this.unmountPartitionInternal(drive.partition);
+      }
       drive.present = false;
     });
   }
@@ -324,8 +335,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   private destroyDrives(drives: SimulatedUsbDrive[]): void {
     for (const drive of drives) {
-      if (drive.present) {
-        assert(drive.partition);
+      if (drive.present && drive.partition) {
         this.unmountPartitionInternal(drive.partition);
       }
       debug('Deleting drive storage: %s', drive.diskPath);
@@ -390,8 +400,9 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     debug('Format drive: %s', diskPath);
     this.mutateState((drives) => {
       const drive = findPresentDrive(drives, diskPath);
-      assert(drive.partition);
-      this.unmountPartitionInternal(drive.partition);
+      if (drive.partition) {
+        this.unmountPartitionInternal(drive.partition);
+      }
 
       drive.partition = {
         partPath: this.partPathFromDiskPath(drive.diskPath),

@@ -44,6 +44,38 @@ test('detects and auto-mounts a drive attached before detection starts', async (
   }
 });
 
+test('detects an unformatted drive and formats it', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const logger = mockLogger({ fn: vi.fn });
+  const multiUsbDrive = detectMultiUsbDrive(logger, { platform });
+
+  try {
+    platform.createDrive({ diskPath: devsdb });
+    platform.insertDrive(devsdb);
+    await multiUsbDrive.refresh();
+
+    // Reported with no usable partition; nothing to auto-mount.
+    expect(multiUsbDrive.getDrives()).toEqual([{ diskPath: devsdb }]);
+
+    await multiUsbDrive.formatDrive(devsdb, 'fat32');
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveFormatted,
+      expect.any(String),
+      expect.objectContaining({ disposition: 'success' })
+    );
+    const partition = platform.getSimulatedDrives()[0]?.partition;
+    expect(partition?.fstype).toEqual('fat32');
+    expect(partition?.label).toMatch(/^VxUSB-[A-Z0-9]{5}$/);
+    // Formatted drives are held ejected until physically re-inserted.
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.ejected()
+    );
+  } finally {
+    multiUsbDrive.stop();
+  }
+});
+
 test('full lifecycle: insert → auto-mount → write → sync → eject → format → remove → re-insert', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const logger = mockLogger({ fn: vi.fn });
