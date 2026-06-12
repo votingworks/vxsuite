@@ -1,8 +1,4 @@
-import {
-  ChangePrecinctButton,
-  PollingPlacePicker,
-  PollingPlacePickerMode,
-} from '@votingworks/ui';
+import { PollingPlacePicker, PollingPlacePickerMode } from '@votingworks/ui';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Election, PollsState } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
@@ -17,7 +13,6 @@ vi.mock('@votingworks/ui', async (importActual) => ({
 }));
 const MOCK_POLLING_PLACE_PICKER_ID = 'MockPollingPlacePicker';
 const MockPollingPlacePicker = vi.mocked(PollingPlacePicker);
-const MockPrecinctPicker = vi.mocked(ChangePrecinctButton);
 
 const election = electionGeneralFixtures.readElection();
 const places = assertDefined(election.pollingPlaces);
@@ -30,9 +25,6 @@ beforeEach(() => {
   MockPollingPlacePicker.mockReturnValue(
     <div data-testid={MOCK_POLLING_PLACE_PICKER_ID} />
   );
-  MockPrecinctPicker.mockImplementation(() => {
-    throw new Error('unexpected render - precinct picker is tested via apps');
-  });
 });
 
 describe('picker modes', () => {

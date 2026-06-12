@@ -4,14 +4,10 @@ import {
   Candidate,
   Election,
   Parties,
-  Precinct,
-  PrecinctSelection,
   getCandidateParties,
   pollingPlaceFromElection,
 } from '@votingworks/types';
-import { getPrecinctSelection } from '@votingworks/utils';
 
-import { appStrings } from './app_strings';
 import { electionStrings } from './election_strings';
 
 /**
@@ -40,25 +36,6 @@ export function CandidatePartyList(props: {
       ))}
     </React.Fragment>
   );
-}
-
-export function PrecinctSelectionName(props: {
-  electionPrecincts: readonly Precinct[];
-  precinctSelection?: PrecinctSelection;
-}): React.ReactNode {
-  const { electionPrecincts, precinctSelection } = props;
-
-  if (!precinctSelection) {
-    return null;
-  }
-
-  if (precinctSelection.kind === 'AllPrecincts') {
-    return appStrings.labelAllPrecinctsSelection();
-  }
-
-  const precinct = getPrecinctSelection(electionPrecincts, precinctSelection);
-
-  return electionStrings.precinctName(precinct);
 }
 
 export function PollingPlaceName(props: {

@@ -1,22 +1,11 @@
-import {
-  ElectionDefinition,
-  formatElectionHashes,
-  PrecinctSelection,
-} from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import React from 'react';
+import { ElectionDefinition, formatElectionHashes } from '@votingworks/types';
 import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
 import { Seal } from './seal';
 import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';
-import {
-  electionStrings,
-  PollingPlaceName,
-  PrecinctSelectionName,
-} from './ui_strings';
+import { electionStrings, PollingPlaceName } from './ui_strings';
 
 export const InfoBar = styled.div`
   align-content: flex-end;
@@ -50,37 +39,28 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 interface ElectionInfoProps {
   electionDefinition: ElectionDefinition;
   pollingPlaceId?: string;
-  precinctSelection?: PrecinctSelection;
   inverse?: boolean;
 }
 
 export function ElectionInfo({
   electionDefinition,
   pollingPlaceId,
-  precinctSelection,
   inverse,
 }: ElectionInfoProps): JSX.Element {
   const {
     election,
-    election: { precincts, county, seal },
+    election: { county, seal },
   } = electionDefinition;
-
-  const usePollingPlaces = pollingPlacesEnabled();
-  const locationName = usePollingPlaces ? (
-    <PollingPlaceName election={election} id={pollingPlaceId} />
-  ) : (
-    <PrecinctSelectionName
-      electionPrecincts={precincts}
-      precinctSelection={precinctSelection}
-    />
-  );
-  const hasLocation = usePollingPlaces ? !!pollingPlaceId : !!precinctSelection;
 
   const separator = ', ';
   const electionInfoLabel = (
     <Font maxLines={2}>
-      {hasLocation && locationName}
-      {hasLocation && separator}
+      {pollingPlaceId && (
+        <React.Fragment>
+          <PollingPlaceName election={election} id={pollingPlaceId} />
+          {pollingPlaceId && separator}
+        </React.Fragment>
+      )}
       {electionStrings.countyName(county)}
       {separator}
       {electionStrings.stateName(election)}
@@ -162,7 +142,6 @@ export interface ElectionInfoBarProps {
   electionPackageHash?: string;
   codeVersion?: string;
   machineId?: string;
-  precinctSelection?: PrecinctSelection;
   pollingPlaceId?: string;
 }
 
@@ -172,7 +151,6 @@ export function ElectionInfoBar({
   electionPackageHash,
   codeVersion,
   machineId,
-  precinctSelection,
   pollingPlaceId,
 }: ElectionInfoBarProps): JSX.Element {
   return (
@@ -180,7 +158,6 @@ export function ElectionInfoBar({
       {electionDefinition && (
         <ElectionInfo
           electionDefinition={electionDefinition}
-          precinctSelection={precinctSelection}
           pollingPlaceId={pollingPlaceId}
         />
       )}
@@ -209,7 +186,6 @@ export function VerticalElectionInfoBar({
   electionPackageHash,
   codeVersion,
   machineId,
-  precinctSelection,
   pollingPlaceId,
   inverse,
 }: ElectionInfoBarProps & { inverse?: boolean }): JSX.Element {
@@ -234,29 +210,8 @@ export function VerticalElectionInfoBar({
   }
   const {
     election,
-    election: { precincts, county, seal },
+    election: { county, seal },
   } = electionDefinition;
-
-  const usePollingPlaces = pollingPlacesEnabled();
-  const hasLocation = usePollingPlaces ? !!pollingPlaceId : !!precinctSelection;
-  const locationName = usePollingPlaces ? (
-    <div>
-      Polling Place:{' '}
-      <Font weight="semiBold">
-        <PollingPlaceName election={election} id={pollingPlaceId} />
-      </Font>
-    </div>
-  ) : (
-    <div>
-      Precinct:{' '}
-      <Font weight="semiBold">
-        <PrecinctSelectionName
-          electionPrecincts={precincts}
-          precinctSelection={precinctSelection}
-        />
-      </Font>
-    </div>
-  );
 
   return (
     <VerticalBar inverse={inverse}>
@@ -301,13 +256,15 @@ export function VerticalElectionInfoBar({
           </Font>
         </div>
 
-        {hasLocation && locationName}
+        {pollingPlaceId && (
+          <div>
+            Polling Place:{' '}
+            <Font weight="semiBold">
+              <PollingPlaceName election={election} id={pollingPlaceId} />
+            </Font>
+          </div>
+        )}
       </Caption>
     </VerticalBar>
   );
-}
-
-function pollingPlacesEnabled() {
-  const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-  return isFeatureFlagEnabled(ENABLE_POLLING_PLACES);
 }
