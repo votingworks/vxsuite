@@ -50,23 +50,23 @@ function PrintTestDeckModal({
   const getTestDeckBallotCountQuery = getTestDeckBallotCount.useQuery({
     precinctId,
   });
-  const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
+  const [isShowingPrintMessage, setIsShowingPrintMessage] = useState(false);
 
-  if (getTestDeckBallotCountQuery.data === undefined) {
+  if (!getTestDeckBallotCountQuery.isSuccess) {
     return null;
   }
 
   const ballotCount = getTestDeckBallotCountQuery.data;
 
   function handlePrint() {
-    setIsShowingPrintingModal(true);
+    setIsShowingPrintMessage(true);
     setTimeout(() => {
       onClose();
     }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
     printTestDeckMutation.mutate({ precinctId });
   }
 
-  if (isShowingPrintingModal) {
+  if (isShowingPrintMessage) {
     return (
       <Modal
         centerContent
@@ -104,9 +104,9 @@ function PrintTestDeckModal({
 export function TestDeckScreen(): JSX.Element | null {
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
-  const [printModal, setPrintModal] = useState<'none' | 'all' | 'precinct'>(
-    'none'
-  );
+  const [printTestDeckTarget, setPrintTestDeckTarget] = useState<{
+    precinctId?: Id;
+  }>();
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
@@ -120,10 +120,6 @@ export function TestDeckScreen(): JSX.Element | null {
   } = assertDefined(getElectionRecordQuery.data);
   const { printer } = getDeviceStatusesQuery.data;
 
-  const selectedPrecinct = selectedPrecinctId
-    ? election.precincts.find((p) => p.id === selectedPrecinctId)
-    : undefined;
-
   return (
     <ScreenWrapper authType="election_manager">
       <Container>
@@ -134,7 +130,9 @@ export function TestDeckScreen(): JSX.Element | null {
               disabled={!printer.connected}
               color="neutral"
               fill="outlined"
-              onPress={() => setPrintModal('all')}
+              onPress={() => {
+                setPrintTestDeckTarget({ precinctId: undefined });
+              }}
             >
               Print All Test Decks
             </TitleBarButton>
@@ -164,20 +162,18 @@ export function TestDeckScreen(): JSX.Element | null {
             icon="Print"
             color="primary"
             fill="filled"
-            onPress={() => setPrintModal('precinct')}
-            disabled={!selectedPrecinct || !printer.connected}
+            onPress={() =>
+              setPrintTestDeckTarget({ precinctId: selectedPrecinctId })
+            }
+            disabled={!selectedPrecinctId || !printer.connected}
           >
             Print Precinct Test Deck
           </PrintButton>
         </Footer>
-        {printModal !== 'none' && (
+        {printTestDeckTarget && (
           <PrintTestDeckModal
-            precinctId={
-              printModal === 'precinct'
-                ? assertDefined(selectedPrecinct).id
-                : undefined
-            }
-            onClose={() => setPrintModal('none')}
+            precinctId={printTestDeckTarget.precinctId}
+            onClose={() => setPrintTestDeckTarget(undefined)}
           />
         )}
       </Container>

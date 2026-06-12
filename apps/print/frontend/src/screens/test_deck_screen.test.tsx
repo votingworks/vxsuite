@@ -92,7 +92,6 @@ test('prints a test deck for the selected precinct', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Test Decks' });
 
-  // Select the first precinct in the list.
   const precinct = election.precincts[0];
   userEvent.click(screen.getByText(precinct.name));
   const precinctId = precinct.id;
@@ -106,6 +105,27 @@ test('prints a test deck for the selected precinct', async () => {
 
   apiMock.printTestDeck.expectCallWith({ precinctId }).resolves();
   userEvent.click(getButton('Print 5 Ballots'));
+
+  await screen.findByText('Printing');
+});
+
+test('Print All Test Decks prints all precincts even when one is selected', async () => {
+  mockBaseQueries();
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+
+  // Selecting a precinct must not affect the "Print All Test Decks" action.
+  userEvent.click(screen.getByText(election.precincts[0].name));
+
+  apiMock.getTestDeckBallotCount
+    .expectRepeatedCallsWith({ precinctId: undefined })
+    .resolves(20);
+  userEvent.click(getButton('Print All Test Decks'));
+
+  await screen.findByText('Print 20 test deck ballots and tally report?');
+
+  apiMock.printTestDeck.expectCallWith({ precinctId: undefined }).resolves();
+  userEvent.click(getButton('Print 20 Ballots'));
 
   await screen.findByText('Printing');
 });
