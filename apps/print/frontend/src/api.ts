@@ -237,8 +237,6 @@ export const setTestMode = {
       async onSuccess() {
         await queryClient.invalidateQueries(getTestMode.queryKey());
         await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
-        // The test deck ballot count depends on the ballot mode.
-        await queryClient.invalidateQueries(['getTestDeckBallotCount']);
       },
     });
   },
