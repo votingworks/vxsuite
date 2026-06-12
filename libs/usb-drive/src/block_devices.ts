@@ -219,7 +219,9 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
       partitions: [
         {
           partPath: UsbPartitionDevPathSchema.parse(partition.devname),
-          mountpoint: UsbPartitionMountpointSchema.parse(partition.mountpoint),
+          mountpoint: partition.mountpoint
+            ? UsbPartitionMountpointSchema.parse(partition.mountpoint)
+            : undefined,
           fstype: partition.fstype,
           fsver: partition.fsver,
           label: partition.label,

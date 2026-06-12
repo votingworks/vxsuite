@@ -388,6 +388,42 @@ describe('getAllUsbDrives', () => {
     ]);
   });
 
+  test('includes unmounted partition with no parent disk entry in udev', async () => {
+    // An orphan partition is unmounted when first detected — before
+    // auto-mounting has run — so a missing mountpoint must not crash the scan.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-ABCDE',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(procMountsContent([]));
+
+    const result = await getAllDiskDevices();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [
+          {
+            partPath: UsbPartitionDevPathSchema.parse('/dev/sdb1'),
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
   test('derives parent disk path for orphan partition on a p-suffixed disk', async () => {
     // /dev/nvme0p1 → /dev/nvme0 is right, but /dev/sdp1 → /dev/sd is not.
     execMock.mockResolvedValueOnce({
