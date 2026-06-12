@@ -4,7 +4,6 @@ import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
 import {
   AdjudicationReason,
   ContestId,
-  ContestOptionId,
   Election,
   Id,
   Side,
@@ -12,7 +11,6 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import type {
-  AdjudicatedContestOption,
   AdjudicatedCvrContest,
   AdjudicationError,
   BallotAdjudicationData,
@@ -484,57 +482,6 @@ function HostBallotAdjudicationScreenDataLoader({
   );
 }
 
-// Derives the baseline adjudication state from persisted adjudications.
-// In qualified-write-in mode, auto-resolve contests whose only adjudication
-// reason is write-ins when the contest has no qualified candidates: every
-// write-in must be invalid, so the user has nothing to decide.
-function adjudicatedContestsBaseline(
-  ballotAdjudicationData: BallotAdjudicationData,
-  systemSettings: SystemSettings,
-  writeInCandidates: WriteInCandidateRecord[]
-): AdjudicatedContests {
-  const baseline: AdjudicatedContests = new Map(
-    ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
-  );
-  if (
-    !systemSettings.areWriteInCandidatesQualified ||
-    ballotAdjudicationData.isResolved
-  ) {
-    return baseline;
-  }
-  const contestIdsWithQualified = new Set(
-    writeInCandidates.map((c) => c.contestId)
-  );
-
-  for (const contest of ballotAdjudicationData.contests) {
-    if (baseline.has(contest.contestId)) continue;
-    const { tag } = contest;
-    if (!tag) continue;
-    const hasWriteInFlag = tag.hasWriteIn || tag.hasUnmarkedWriteIn;
-    const hasOtherFlag =
-      tag.hasOvervote || tag.hasUndervote || tag.hasMarginalMark;
-    if (!hasWriteInFlag || hasOtherFlag) continue;
-    if (contestIdsWithQualified.has(contest.contestId)) continue;
-
-    const adjudicatedContestOptionById: Record<
-      ContestOptionId,
-      AdjudicatedContestOption
-    > = {};
-    for (const option of contest.options) {
-      const isWriteIn =
-        option.definition.type === 'candidate' && option.definition.isWriteIn;
-      adjudicatedContestOptionById[option.definition.id] = isWriteIn
-        ? { type: 'write-in-option', hasVote: false }
-        : { type: 'official-option', hasVote: option.scannedVote };
-    }
-    baseline.set(contest.contestId, {
-      contestId: contest.contestId,
-      adjudicatedContestOptionById,
-    });
-  }
-  return baseline;
-}
-
 export interface BallotAdjudicationScreenProps {
   cvrId: Id;
   ballotAdjudicationData: BallotAdjudicationData;
@@ -569,14 +516,12 @@ export function BallotAdjudicationScreen(
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
+
+  const adjudicatedContestsBaseline = new Map(
+    ballotAdjudicationData.adjudicatedContests.map((c) => [c.contestId, c])
+  );
   const [adjudicatedContests, setAdjudicatedContests] =
-    useState<AdjudicatedContests>(
-      adjudicatedContestsBaseline(
-        ballotAdjudicationData,
-        systemSettings,
-        writeInCandidates
-      )
-    );
+    useState<AdjudicatedContests>(adjudicatedContestsBaseline);
 
   if (selectedContestId && !isClaimed) {
     return (
@@ -599,11 +544,9 @@ export function BallotAdjudicationScreen(
           (c) => c.contestId === selectedContestId
         )}
         onConfirmContest={(input) => {
-          const updated = new Map(adjudicatedContests).set(
-            input.contestId,
-            input
+          setAdjudicatedContests((prev) =>
+            new Map(prev).set(input.contestId, input)
           );
-          setAdjudicatedContests(updated);
         }}
       />
     );
@@ -612,6 +555,9 @@ export function BallotAdjudicationScreen(
   return (
     <BallotView
       adjudicatedContests={adjudicatedContests}
+      haveEditsBeenMade={
+        !deepEqual(adjudicatedContests, adjudicatedContestsBaseline)
+      }
       setSelectedContestId={setSelectedContestId}
       {...props}
     />
@@ -620,11 +566,11 @@ export function BallotAdjudicationScreen(
 
 function BallotView({
   adjudicatedContests,
+  haveEditsBeenMade,
   setSelectedContestId,
   cvrId,
   ballotAdjudicationData,
   ballotImages,
-  writeInCandidates,
   systemSettings,
   statusText,
   isClaimed,
@@ -637,8 +583,9 @@ function BallotView({
   onExit,
 }: {
   adjudicatedContests: AdjudicatedContests;
+  haveEditsBeenMade: boolean;
   setSelectedContestId: (contestId: ContestId | null) => void;
-} & BallotAdjudicationScreenProps): React.ReactNode {
+} & Omit<BallotAdjudicationScreenProps, 'writeInCandidates'>): React.ReactNode {
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
   const { tag: cvrTag, contests: contestAdjudicationData } =
@@ -667,16 +614,7 @@ function BallotView({
 
   function onNavigation(action: () => void): () => void {
     return () => {
-      if (
-        !deepEqual(
-          adjudicatedContests,
-          adjudicatedContestsBaseline(
-            ballotAdjudicationData,
-            systemSettings,
-            writeInCandidates
-          )
-        )
-      ) {
+      if (haveEditsBeenMade) {
         setPendingDiscard({ action });
       } else {
         action();
