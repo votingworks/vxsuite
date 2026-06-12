@@ -104,9 +104,12 @@ export function createUsbDriveAdapter(
       }
 
       const drive = drives.find((d) => d.diskPath === driveDevPath);
-      const mountedPartition = drive?.partition?.mount.isMounted
-        ? drive.partition
-        : undefined;
+      // Only sync a fully-mounted partition — skip while an eject is
+      // unmounting it, since syncing would race the unmount.
+      const mountedPartition =
+        drive?.partition?.mount.type === 'mounted'
+          ? drive.partition
+          : undefined;
 
       if (!mountedPartition) {
         debug('adapter: no mounted partition to sync');

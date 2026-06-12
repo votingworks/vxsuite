@@ -36,24 +36,22 @@ export interface UsbPartitionInfo {
 }
 
 export const UsbPartitionMount = {
-  unmounted: (): UsbPartitionMount => ({ type: 'unmounted', isMounted: false }),
-  ejected: (): UsbPartitionMount => ({ type: 'ejected', isMounted: false }),
-  mounting: (): UsbPartitionMount => ({ type: 'mounting', isMounted: false }),
+  unmounted: (): UsbPartitionMount => ({ type: 'unmounted' }),
+  ejected: (): UsbPartitionMount => ({ type: 'ejected' }),
+  mounting: (): UsbPartitionMount => ({ type: 'mounting' }),
   mounted: (mountPoint: string): UsbPartitionMount => ({
     type: 'mounted',
-    isMounted: true,
     mountPoint,
   }),
   unmounting: (mountPoint: string): UsbPartitionMount => ({
     type: 'unmounting',
-    isMounted: true,
     mountPoint,
   }),
 } as const;
 
 export type UsbPartitionMount =
-  | { type: 'unmounted'; isMounted: false }
-  | { type: 'ejected'; isMounted: false }
-  | { type: 'mounting'; isMounted: false }
-  | { type: 'mounted'; isMounted: true; mountPoint: string }
-  | { type: 'unmounting'; isMounted: true; mountPoint: string };
+  | { type: 'unmounted' }
+  | { type: 'ejected' }
+  | { type: 'mounting' }
+  | { type: 'mounted'; mountPoint: string }
+  | { type: 'unmounting'; mountPoint: string };

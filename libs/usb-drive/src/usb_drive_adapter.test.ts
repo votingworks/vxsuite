@@ -245,6 +245,26 @@ describe('createUsbDriveAdapter', () => {
       assertComplete();
     });
 
+    test('does nothing while partition is unmounting', async () => {
+      const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      multiUsbDrive.getDrives.reset();
+
+      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
+        makeDriveInfo({
+          partition: {
+            diskPath: '/dev/sdb',
+            partPath: '/dev/sdb1',
+            fstype: 'fat32',
+            mount: UsbPartitionMount.unmounting('/media/vx/usb-drive-sdb1'),
+          },
+        }),
+      ]);
+      await adapter.sync();
+
+      assertComplete();
+    });
+
     test('does nothing when no mounted partition', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
       const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');

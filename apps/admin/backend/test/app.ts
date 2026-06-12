@@ -159,7 +159,7 @@ export function getMountedUsbDrive(
   mockMultiUsbDrive: MockMultiUsbDrive
 ): UsbDriveInfo {
   const drive = mockMultiUsbDrive.multiUsbDrive.getDrives()[0];
-  if (!drive?.partition?.mount.isMounted) {
+  if (drive?.partition?.mount.type !== 'mounted') {
     throw new Error('Expected a mounted USB drive in the test environment.');
   }
   return drive;
