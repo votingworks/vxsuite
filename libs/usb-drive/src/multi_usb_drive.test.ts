@@ -714,7 +714,7 @@ describe('formatDrive', () => {
     multiUsbDrive.stop();
   });
 
-  test('shows partitions as ejected during format', async () => {
+  test('shows partitions as formatting during format', async () => {
     mockDrives = [makeDisk()];
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive(logger);
@@ -730,7 +730,7 @@ describe('formatDrive', () => {
     const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
 
     expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
-      UsbPartitionMount.ejected()
+      UsbPartitionMount.formatting()
     );
 
     formatOperation.resolve({ stdout: '', stderr: '' });

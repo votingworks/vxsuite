@@ -1,5 +1,5 @@
 import makeDebug from 'debug';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { MultiUsbDrive, UsbDriveFilesystemType } from './multi_usb_drive';
 import { UsbDrive, UsbDriveInfo, UsbDriveStatus } from './types';
 
@@ -44,35 +44,37 @@ export function createUsbDriveAdapter(
 
       const { mount } = partition;
 
-      if (mount.type === 'mounting') {
-        debug('adapter: partition is mounting, returning no_drive');
-        return Promise.resolve({ status: 'no_drive' });
+      switch (mount.type) {
+        case 'mounting':
+          debug('adapter: partition is mounting, returning no_drive');
+          return Promise.resolve({ status: 'no_drive' });
+        case 'mounted':
+          debug(`adapter: partition is mounted at ${mount.mountPoint}`);
+          return Promise.resolve({
+            status: 'mounted',
+            mountPoint: mount.mountPoint,
+          });
+        case 'unmounting':
+          debug('adapter: partition is unmounting, returning mounted');
+          return Promise.resolve({
+            status: 'mounted',
+            mountPoint: mount.mountPoint,
+          });
+        case 'formatting':
+          // Formatting unmounts the drive first; present it as ejected, which
+          // is what legacy single-drive consumers expect mid-format.
+          debug('adapter: partition is formatting, returning ejected');
+          return Promise.resolve({ status: 'ejected' });
+        case 'ejected':
+          debug('adapter: partition is ejected, returning ejected');
+          return Promise.resolve({ status: 'ejected' });
+        case 'unmounted':
+          debug('adapter: partition is unmounted, returning no_drive');
+          return Promise.resolve({ status: 'no_drive' });
+        default:
+          /* istanbul ignore next */
+          return throwIllegalValue(mount);
       }
-
-      if (mount.type === 'mounted') {
-        debug(`adapter: partition is mounted at ${mount.mountPoint}`);
-        return Promise.resolve({
-          status: 'mounted',
-          mountPoint: mount.mountPoint,
-        });
-      }
-
-      if (mount.type === 'unmounting') {
-        debug('adapter: partition is unmounting, returning mounted');
-        return Promise.resolve({
-          status: 'mounted',
-          mountPoint: mount.mountPoint,
-        });
-      }
-
-      // mount.type === 'ejected' or 'unmounted'
-      if (mount.type === 'ejected') {
-        debug('adapter: partition is ejected, returning ejected');
-        return Promise.resolve({ status: 'ejected' });
-      }
-
-      debug('adapter: partition is unmounted, returning no_drive');
-      return Promise.resolve({ status: 'no_drive' });
     },
 
     async eject(): Promise<void> {

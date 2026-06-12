@@ -237,11 +237,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     }
 
     if (dAction === 'formatting') {
-      // Report as ejected during formatting for backward compatibility — the
-      // old single-drive UsbDrive reported 'ejected' while formatting, and
-      // the adapter maps 'unmounted' to 'no_drive' which would confuse
-      // consumers expecting 'ejected'.
-      return UsbPartitionMount.ejected();
+      return UsbPartitionMount.formatting();
     }
 
     if (partitionAction.getTask(partition.partPath) === 'mounting') {

@@ -39,6 +39,7 @@ export const UsbPartitionMount = {
   unmounted: (): UsbPartitionMount => ({ type: 'unmounted' }),
   ejected: (): UsbPartitionMount => ({ type: 'ejected' }),
   mounting: (): UsbPartitionMount => ({ type: 'mounting' }),
+  formatting: (): UsbPartitionMount => ({ type: 'formatting' }),
   mounted: (mountPoint: string): UsbPartitionMount => ({
     type: 'mounted',
     mountPoint,
@@ -53,5 +54,6 @@ export type UsbPartitionMount =
   | { type: 'unmounted' }
   | { type: 'ejected' }
   | { type: 'mounting' }
+  | { type: 'formatting' }
   | { type: 'mounted'; mountPoint: string }
   | { type: 'unmounting'; mountPoint: string };

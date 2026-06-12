@@ -158,6 +158,24 @@ describe('createUsbDriveAdapter', () => {
       assertComplete();
     });
 
+    test('returns ejected when partition is formatting', async () => {
+      const { multiUsbDrive } = createMockMultiUsbDrive();
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      multiUsbDrive.getDrives.reset();
+
+      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
+        makeDriveInfo({
+          partition: {
+            diskPath: '/dev/sdb',
+            partPath: '/dev/sdb1',
+            fstype: 'fat32',
+            mount: UsbPartitionMount.formatting(),
+          },
+        }),
+      ]);
+      expect(await adapter.status()).toEqual({ status: 'ejected' });
+    });
+
     test('returns mounted when partition is unmounting', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
       const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
