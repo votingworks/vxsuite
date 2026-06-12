@@ -234,12 +234,15 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   MI: {
     AUDIO_ENABLED: true,
     EDIT_POLLING_PLACES: true,
+    EXPORT_SAMPLE_BALLOTS: true,
+    EXPORT_TEST_BALLOTS: true,
     OPEN_PRIMARIES: true,
     STRAIGHT_PARTY_VOTING: true,
   },
 
   MS: {
     AUDIO_ENABLED: true,
+    EXPORT_SAMPLE_BALLOTS: true,
     EXPORT_TEST_BALLOTS: true,
   },
 
