@@ -5,7 +5,10 @@ import {
   Logger,
   LogSource,
 } from '@votingworks/logging';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  getSimulatedUsbPlatform,
+  detectUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   InsertedSmartCardAuth,
   JavaCard,
@@ -72,7 +75,9 @@ async function main(): Promise<number> {
   });
   const workspace = resolveWorkspace();
   const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
-  const usbDrive = detectUsbDrive(logger);
+  const usbDrive = detectUsbDrive(logger, {
+    platform: getSimulatedUsbPlatform(),
+  });
   const printer = getFujitsuThermalPrinter(logger);
 
   if (

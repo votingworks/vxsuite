@@ -12,7 +12,10 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  getSimulatedUsbPlatform,
+  detectUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   detectDevices,
   initializeSystemAudio,
@@ -110,7 +113,9 @@ export async function start({
     });
   }
 
-  const usbDrive = detectUsbDrive(logger);
+  const usbDrive = detectUsbDrive(logger, {
+    platform: getSimulatedUsbPlatform(),
+  });
 
   await initializeSystemAudio();
 

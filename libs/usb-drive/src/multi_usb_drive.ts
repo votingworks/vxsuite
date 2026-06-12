@@ -10,12 +10,7 @@ import {
   sleep,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import makeDebug from 'debug';
-import { getMockUsbPlatform } from './mocks/file_usb_drive';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
@@ -138,13 +133,7 @@ export function detectMultiUsbDrive(
   logger: Logger,
   options?: { platform?: UsbPlatform }
 ): MultiUsbDrive {
-  // An explicitly injected platform takes precedence over the ambient
-  // USE_MOCK_USB_DRIVE flag.
-  const platform =
-    options?.platform ??
-    (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
-      ? getMockUsbPlatform()
-      : new RealUsbPlatform());
+  const platform = options?.platform ?? new RealUsbPlatform();
   const listeners = new Set<() => void>();
 
   let stopped = false;

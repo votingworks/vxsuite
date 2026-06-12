@@ -13,7 +13,11 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  getSimulatedUsbPlatform,
+  UsbDrive,
+  detectUsbDrive,
+} from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import {
   DEFAULT_DEV_DOCK_DIR,
@@ -127,7 +131,9 @@ export function start({
         logger,
       });
 
-    const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+    const resolvedUsbDrive =
+      usbDrive ??
+      detectUsbDrive(logger, { platform: getSimulatedUsbPlatform() });
 
     resolvedApp = buildCentralScannerApp({
       auth,

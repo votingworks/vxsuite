@@ -10,7 +10,10 @@ import {
   Logger,
   LogSource,
 } from '@votingworks/logging';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  getSimulatedUsbPlatform,
+  detectUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -57,7 +60,9 @@ async function main(): Promise<number> {
   ) {
     const { auth, card } = getDefaultAuth(baseLogger);
     const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
-    const usbDrive = detectUsbDrive(logger);
+    const usbDrive = detectUsbDrive(logger, {
+      platform: getSimulatedUsbPlatform(),
+    });
     startElectricalTestingServer({
       card,
       cardReaderErrorTracker: new CardReaderErrorTracker(),

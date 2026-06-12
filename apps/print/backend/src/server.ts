@@ -1,7 +1,10 @@
 import express from 'express';
 import { BaseLogger, Logger, LogEventId } from '@votingworks/logging';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  getSimulatedUsbPlatform,
+  detectUsbDrive,
+} from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { startCpuMetricsLogging } from '@votingworks/backend';
@@ -25,10 +28,11 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(
     baseLogger,
-    /* istanbul ignore next */ () =>
-      getUserRole(resolvedAuth, workspace)
+    /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
   );
-  const usbDrive = detectUsbDrive(logger);
+  const usbDrive = detectUsbDrive(logger, {
+    platform: getSimulatedUsbPlatform(),
+  });
   const printer = detectPrinter(logger);
 
   const context: AppContext = {

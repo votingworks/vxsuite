@@ -7,7 +7,10 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assertDefined, deferred, sleep } from '@votingworks/basics';
-import { getMockFileUsbDriveHandler } from './mocks/file_usb_drive';
+import {
+  getMockFileUsbDriveHandler,
+  getSimulatedUsbPlatform,
+} from './mocks/file_usb_drive';
 import { detectMultiUsbDrive } from './multi_usb_drive';
 import { UsbPlatform } from './usb_platform';
 import { exec } from './exec';
@@ -99,7 +102,10 @@ test('runs against the simulated platform when USE_MOCK_USB_DRIVE is enabled', a
   const handler = getMockFileUsbDriveHandler();
   handler.insert();
 
-  const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }));
+  // Mirrors how app backends wire up drive detection
+  const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }), {
+    platform: getSimulatedUsbPlatform(),
+  });
   try {
     // The production state machine auto-mounts the simulated drive.
     await vi.waitFor(
