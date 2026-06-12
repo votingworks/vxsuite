@@ -2,10 +2,6 @@
  * End-to-end snapshot tests for printTestDeck. This file deliberately does NOT
  * mock @votingworks/hmpb so that generateMarkOverlay runs for real, producing
  * meaningful ballot PDFs with filled bubbles that can be snapshot-verified.
- *
- * The ms-general-election fixture supplies an election whose gridLayouts and
- * blank-ballot.pdf are consistent with each other, so marks land at the correct
- * bubble positions.
  */
 import { join, resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
@@ -160,10 +156,16 @@ test('printTestDeck produces correctly marked letter-size ballots and a tally re
   // ballot PDFs + 1 tally report
   expect(jobs.length).toEqual(allSpecs.length + 1);
 
-  const lastBallotJob = jobs[jobs.length - 2];
+  const markedBallotJob = jobs[0];
+  expect(Object.keys(allSpecs[0].votes).length).toBeGreaterThan(0);
+  const blankBallotJob = jobs[jobs.length - 2];
   const tallyReportJob = jobs[jobs.length - 1];
 
-  await expect(lastBallotJob.filename).toMatchPdfSnapshot({
+  await expect(markedBallotJob.filename).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'test-deck-letter-marked-ballot',
+    failureThreshold: 0.0001,
+  });
+  await expect(blankBallotJob.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-letter-ballot',
     failureThreshold: 0.0001,
   });
@@ -205,6 +207,11 @@ test('printTestDeck produces legal-size ballot PDFs for a legal-paper election',
   );
   expect(jobs.length).toEqual(allSpecs.length + 1);
 
+  expect(Object.keys(allSpecs[0].votes).length).toBeGreaterThan(0);
+  await expect(jobs[0].filename).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'test-deck-legal-marked-ballot',
+    failureThreshold: 0.0001,
+  });
   await expect(jobs[jobs.length - 2].filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-legal-ballot',
     failureThreshold: 0.0001,

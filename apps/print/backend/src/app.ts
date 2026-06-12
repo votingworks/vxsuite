@@ -597,7 +597,6 @@ export function buildApi(ctx: AppContext) {
           await renderToPdf({
             document: AdminTallyReportByParty({
               electionDefinition,
-              electionPackageHash: undefined,
               title: precinctName,
               isOfficial: false,
               isTest: true,
