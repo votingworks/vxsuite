@@ -485,7 +485,7 @@ function buildApi({
 
       const potentialElectionPackages: FileSystemEntry[] = [];
 
-      for await (const result of listDirectory(usbDriveStatus.mountPoint, {
+      for await (const result of listDirectory(usbDriveStatus.mountpoint, {
         depth: 3,
         excludeHidden: true,
       })) {
@@ -668,7 +668,7 @@ function buildApi({
         usbDriveStatus.status === 'mounted'
           ? await listCastVoteRecordExportsInDirectory(
               join(
-                usbDriveStatus.mountPoint,
+                usbDriveStatus.mountpoint,
                 getCastVoteRecordsPath(electionDefinition)
               )
             )

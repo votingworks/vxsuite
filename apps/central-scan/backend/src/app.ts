@@ -160,7 +160,7 @@ function buildApi({
       const electionPackageResult =
         await readSignedElectionPackageFromDirectory(
           authStatus,
-          usbDriveStatus.mountPoint,
+          usbDriveStatus.mountpoint,
           logger
         );
       if (electionPackageResult.isErr()) {

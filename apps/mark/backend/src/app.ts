@@ -201,7 +201,7 @@ export function buildApi(ctx: Context) {
       const electionPackageResult =
         await readSignedElectionPackageFromDirectory(
           authStatus,
-          usbDriveStatus.mountPoint,
+          usbDriveStatus.mountpoint,
           logger,
           { checkMarkSystemLimits: true }
         );

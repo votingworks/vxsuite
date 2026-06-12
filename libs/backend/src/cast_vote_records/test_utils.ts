@@ -142,7 +142,7 @@ export async function getCastVoteRecordExportDirectoryPaths(
 ): Promise<string[]> {
   const usbDriveStatus = await usbDrive.status();
   const usbMountPoint =
-    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
+    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountpoint : undefined;
   assert(usbMountPoint !== undefined);
 
   const electionDirectoryNames = fs.readdirSync(usbMountPoint);

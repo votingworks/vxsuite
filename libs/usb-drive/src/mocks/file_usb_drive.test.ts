@@ -23,7 +23,7 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
   multiUsbDrive.stop();
 
   handler.insert();
-  const mountPoint = handler.getDataPath();
+  const mountpoint = handler.getDataPath();
   expect(multiUsbDrive.getDrives()).toEqual<UsbDriveInfo[]>([
     {
       diskPath: '/dev/sdb',
@@ -31,7 +31,7 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
         diskPath: '/dev/sdb',
         partPath: '/dev/sdb1',
         fstype: 'fat32',
-        mount: UsbPartitionMount.mounted(mountPoint!),
+        mount: UsbPartitionMount.mounted(mountpoint!),
       },
     },
   ]);
@@ -117,7 +117,7 @@ test('mock flow', async () => {
   });
   const expectedMountPoint = handler.getDataPath();
   expect(await usbDrive.status()).toMatchObject({
-    mountPoint: expectedMountPoint,
+    mountpoint: expectedMountPoint,
     status: 'mounted',
   });
 

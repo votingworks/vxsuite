@@ -165,7 +165,7 @@ export function buildApi(
       const electionPackageResult =
         await readSignedElectionPackageFromDirectory(
           authStatus,
-          usbDriveStatus.mountPoint,
+          usbDriveStatus.mountpoint,
           logger,
           { checkMarkScanSystemLimits: true }
         );

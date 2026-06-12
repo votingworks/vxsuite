@@ -139,7 +139,7 @@ test('save logs', async () => {
     <ElectricalTestingScreen
       tasks={[]}
       powerDown={vi.fn()}
-      usbDriveStatus={{ status: 'mounted', mountPoint: '/media/vx/usb-drive' }}
+      usbDriveStatus={{ status: 'mounted', mountpoint: '/media/vx/usb-drive' }}
       apiClient={mockApiClient}
     />
   );

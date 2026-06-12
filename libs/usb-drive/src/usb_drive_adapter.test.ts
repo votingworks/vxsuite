@@ -84,7 +84,7 @@ describe('createUsbDriveAdapter', () => {
       ]);
       expect(await adapter.status()).toEqual<UsbDriveStatus>({
         status: 'mounted',
-        mountPoint: '/media/vx/usb-drive-sdb1',
+        mountpoint: '/media/vx/usb-drive-sdb1',
       });
     });
 
@@ -116,7 +116,7 @@ describe('createUsbDriveAdapter', () => {
         .returns([makeDriveInfo()]);
       expect(await adapter.status()).toEqual({
         status: 'mounted',
-        mountPoint: '/media/vx/usb-drive-sdb1',
+        mountpoint: '/media/vx/usb-drive-sdb1',
       });
     });
 
@@ -193,7 +193,7 @@ describe('createUsbDriveAdapter', () => {
       ]);
       expect(await adapter.status()).toEqual({
         status: 'mounted',
-        mountPoint: '/media/vx/usb-drive-sdb1',
+        mountpoint: '/media/vx/usb-drive-sdb1',
       });
     });
   });

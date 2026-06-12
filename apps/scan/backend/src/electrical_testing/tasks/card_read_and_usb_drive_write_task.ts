@@ -58,7 +58,7 @@ export async function runCardReadAndUsbDriveWriteTask({
         const usbDriveStatus = await usbDrive.status();
         assert(usbDriveStatus.status === 'mounted', 'USB drive not mounted');
         await fs.appendFile(
-          path.join(usbDriveStatus.mountPoint, USB_DRIVE_FILE_NAME),
+          path.join(usbDriveStatus.mountpoint, USB_DRIVE_FILE_NAME),
           `${new Date().toISOString()}\n`
         );
       } catch (error) {

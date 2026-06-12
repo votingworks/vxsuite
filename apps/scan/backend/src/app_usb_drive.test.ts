@@ -30,7 +30,7 @@ test('getUsbDriveStatus', async () => {
     mockUsbDrive.insertUsbDrive({});
     await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
       status: 'mounted',
-      mountPoint: expect.any(String),
+      mountpoint: expect.any(String),
     });
   });
 });
@@ -55,7 +55,7 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       const mountedUsbDriveStatus = {
         status: 'mounted',
-        mountPoint: expect.any(String),
+        mountpoint: expect.any(String),
       } as const;
 
       await expect(apiClient.getUsbDriveStatus()).resolves.toEqual(

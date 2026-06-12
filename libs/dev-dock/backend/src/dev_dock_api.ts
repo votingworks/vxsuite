@@ -320,7 +320,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
           const usbDriveStatus = handler.status();
           if (usbDriveStatus.status !== 'mounted') return undefined;
           const result = await getMostRecentElectionPackageFilepath(
-            usbDriveStatus.mountPoint
+            usbDriveStatus.mountpoint
           );
           if (result.isErr()) return undefined;
           const zipPath = result.ok();

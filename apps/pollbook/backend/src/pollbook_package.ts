@@ -331,17 +331,17 @@ export function pollUsbDriveForPollbookPackage({
         if (hadConfigurationError) {
           return;
         }
-        usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
+        usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountpoint);
 
         workspace.store.setConfigurationStatus('loading');
-        const files = await readdir(usbDriveStatus.mountPoint);
+        const files = await readdir(usbDriveStatus.mountpoint);
         const pollbookFiles = files
           .filter(
             (file) =>
               file.startsWith(POLLBOOK_PACKAGE_FILENAME_PREFIX) &&
               file.endsWith('.zip')
           )
-          .map((file) => join(usbDriveStatus.mountPoint, file));
+          .map((file) => join(usbDriveStatus.mountpoint, file));
         if (pollbookFiles.length === 0) {
           workspace.store.setConfigurationStatus('not-found-usb');
           hadConfigurationError = true;

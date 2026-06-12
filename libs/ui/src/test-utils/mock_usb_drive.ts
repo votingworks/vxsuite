@@ -10,7 +10,7 @@ export function mockUsbDriveStatus(
     case 'mounted':
       return {
         status,
-        mountPoint: 'test-mount-point',
+        mountpoint: 'test-mount-point',
       };
     case 'no_drive':
     case 'ejected':

@@ -49,16 +49,16 @@ export function createUsbDriveAdapter(
           debug('adapter: partition is mounting, returning no_drive');
           return Promise.resolve({ status: 'no_drive' });
         case 'mounted':
-          debug(`adapter: partition is mounted at ${mount.mountPoint}`);
+          debug(`adapter: partition is mounted at ${mount.mountpoint}`);
           return Promise.resolve({
             status: 'mounted',
-            mountPoint: mount.mountPoint,
+            mountpoint: mount.mountpoint,
           });
         case 'unmounting':
           debug('adapter: partition is unmounting, returning mounted');
           return Promise.resolve({
             status: 'mounted',
-            mountPoint: mount.mountPoint,
+            mountpoint: mount.mountpoint,
           });
         case 'formatting':
           // Formatting unmounts the drive first; present it as ejected, which

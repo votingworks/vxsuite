@@ -56,7 +56,7 @@ export function createMockUsbDrive(): MockUsbDrive {
       usbDrive.status.reset();
       usbDrive.status.expectRepeatedCallsWith().resolves({
         status: 'mounted',
-        mountPoint: mockUsbTmpDir.name,
+        mountpoint: mockUsbTmpDir.name,
       });
     },
 

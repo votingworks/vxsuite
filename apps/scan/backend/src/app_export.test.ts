@@ -458,7 +458,7 @@ test('audit ballot IDs', async () => {
       const usbDriveStatus = await mockUsbDrive.usbDrive.status();
       assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
       const secretKeyPath = path.join(
-        usbDriveStatus.mountPoint,
+        usbDriveStatus.mountpoint,
         BALLOT_AUDIT_ID_FILE_NAME
       );
       const secretKey = await readFile(secretKeyPath, 'utf-8');

@@ -67,9 +67,9 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
     options: { diskPath: string; fstype?: UsbDriveFilesystemType }
   ) {
     const fstype = options.fstype ?? 'fat32';
-    const mountPoint = makeTemporaryDirectory();
-    mockUsbTmpDirs.push(mountPoint);
-    writeMockFileTree(mountPoint, contents);
+    const mountpoint = makeTemporaryDirectory();
+    mockUsbTmpDirs.push(mountpoint);
+    writeMockFileTree(mountpoint, contents);
     drives.push({
       diskPath: options.diskPath,
       partition: {
@@ -77,7 +77,7 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
         partPath: `${options.diskPath}1`,
         label: 'VxUSB-ABCDE',
         fstype,
-        mount: UsbPartitionMount.mounted(mountPoint),
+        mount: UsbPartitionMount.mounted(mountpoint),
       },
     });
     multiUsbDrive.getDrives.reset();

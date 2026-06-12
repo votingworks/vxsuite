@@ -146,7 +146,7 @@ export function createMockFileUsbDrive(diskName = 'sdb'): UsbDrive {
       }
       return Promise.resolve({
         status: 'mounted',
-        mountPoint: getMockDriveDataDirPath(diskName),
+        mountpoint: getMockDriveDataDirPath(diskName),
       });
     },
 
@@ -261,7 +261,7 @@ export function getMockFileUsbDriveHandler(
       const { state } = readMockDriveState(diskName);
       if (state === 'removed') return { status: 'no_drive' };
       if (state === 'ejected') return { status: 'ejected' };
-      return { status: 'mounted', mountPoint: getDataPath() };
+      return { status: 'mounted', mountpoint: getDataPath() };
     },
     insert: (contents?: MockFileTree) => {
       if (contents) {

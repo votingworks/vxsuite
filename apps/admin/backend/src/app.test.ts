@@ -566,7 +566,7 @@ test('usbDrive', async () => {
   mockMultiUsbDrive.insertUsbDrive({});
   expect(await apiClient.getUsbDriveStatus()).toMatchObject({
     status: 'mounted',
-    mountPoint: expect.any(String),
+    mountpoint: expect.any(String),
   });
 
   // ext4 drives are filtered out by the adapter — they appear as no_drive

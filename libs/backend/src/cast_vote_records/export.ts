@@ -668,7 +668,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   assert(scannerStore.scannerType === exportOptions.scannerType);
   const usbDriveStatus = await usbDrive.status();
   const usbMountPoint =
-    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
+    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountpoint : undefined;
   if (usbMountPoint === undefined) {
     return err({ type: 'missing-usb-drive' });
   }
@@ -900,7 +900,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     if (usbDriveStatus.status !== 'mounted') {
       return false;
     }
-    const usbMountPoint = usbDriveStatus.mountPoint;
+    const usbMountPoint = usbDriveStatus.mountpoint;
 
     const electionRecord = scannerStore.getElectionRecord();
     if (!electionRecord) {

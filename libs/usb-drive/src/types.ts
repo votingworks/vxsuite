@@ -4,7 +4,7 @@ export type UsbDriveStatus =
   | { status: 'no_drive' }
   | {
       status: 'mounted';
-      mountPoint: string;
+      mountpoint: string;
     }
   | { status: 'ejected' }
   | { status: 'error'; reason: 'bad_format' };
@@ -40,13 +40,13 @@ export const UsbPartitionMount = {
   ejected: (): UsbPartitionMount => ({ type: 'ejected' }),
   mounting: (): UsbPartitionMount => ({ type: 'mounting' }),
   formatting: (): UsbPartitionMount => ({ type: 'formatting' }),
-  mounted: (mountPoint: string): UsbPartitionMount => ({
+  mounted: (mountpoint: string): UsbPartitionMount => ({
     type: 'mounted',
-    mountPoint,
+    mountpoint,
   }),
-  unmounting: (mountPoint: string): UsbPartitionMount => ({
+  unmounting: (mountpoint: string): UsbPartitionMount => ({
     type: 'unmounting',
-    mountPoint,
+    mountpoint,
   }),
 } as const;
 
@@ -55,5 +55,5 @@ export type UsbPartitionMount =
   | { type: 'ejected' }
   | { type: 'mounting' }
   | { type: 'formatting' }
-  | { type: 'mounted'; mountPoint: string }
-  | { type: 'unmounting'; mountPoint: string };
+  | { type: 'mounted'; mountpoint: string }
+  | { type: 'unmounting'; mountpoint: string };

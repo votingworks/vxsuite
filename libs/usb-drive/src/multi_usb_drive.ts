@@ -36,8 +36,8 @@ async function mountPartition(partPath: string): Promise<void> {
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'mount.sh'), partPath]);
 }
 
-async function unmountPartition(mountPoint: string): Promise<void> {
-  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountPoint]);
+async function unmountPartition(mountpoint: string): Promise<void> {
+  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountpoint]);
 }
 
 export type UsbDriveFilesystemType = 'fat32' | 'ext4';

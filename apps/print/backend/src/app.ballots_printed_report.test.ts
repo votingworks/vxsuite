@@ -128,10 +128,10 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
   });
   const usbStatus = await mockUsbDrive.usbDrive.status();
   expect(usbStatus.status).toEqual('mounted');
-  const { mountPoint } = usbStatus as { status: 'mounted'; mountPoint: string };
+  const { mountpoint } = usbStatus as { status: 'mounted'; mountpoint: string };
 
   const reportsDir = join(
-    mountPoint,
+    mountpoint,
     generateReportsDirectoryPath(electionDefinition)
   );
   const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
@@ -203,9 +203,9 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
   });
   const usbStatus = await mockUsbDrive.usbDrive.status();
   expect(usbStatus.status).toEqual('mounted');
-  const { mountPoint } = usbStatus as { status: 'mounted'; mountPoint: string };
+  const { mountpoint } = usbStatus as { status: 'mounted'; mountpoint: string };
   const reportsDir = join(
-    mountPoint,
+    mountpoint,
     generateReportsDirectoryPath(electionDefinition)
   );
   const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(

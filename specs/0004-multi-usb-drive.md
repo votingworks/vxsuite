@@ -49,8 +49,8 @@ export type UsbPartitionMount =
   | { type: 'unmounted' }
   | { type: 'ejected' }
   | { type: 'mounting' }
-  | { type: 'mounted'; mountPoint: string }
-  | { type: 'unmounting'; mountPoint: string };
+  | { type: 'mounted'; mountpoint: string }
+  | { type: 'unmounting'; mountpoint: string };
 
 export interface UsbPartitionInfo {
   devPath: string; // e.g. '/dev/sdb1'
