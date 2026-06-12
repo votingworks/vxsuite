@@ -15,7 +15,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { createMockFileMultiUsbDrive } from './mocks/file_usb_drive';
+import { getMockUsbPlatform } from './mocks/file_usb_drive';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
@@ -140,14 +140,11 @@ export function detectMultiUsbDrive(
 ): MultiUsbDrive {
   // An explicitly injected platform takes precedence over the ambient
   // USE_MOCK_USB_DRIVE flag.
-  if (
-    !options?.platform &&
-    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
-  ) {
-    return createMockFileMultiUsbDrive();
-  }
-
-  const platform = options?.platform ?? new RealUsbPlatform();
+  const platform =
+    options?.platform ??
+    (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
+      ? getMockUsbPlatform()
+      : new RealUsbPlatform());
   const listeners = new Set<() => void>();
 
   let stopped = false;

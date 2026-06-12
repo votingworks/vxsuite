@@ -6,7 +6,8 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { deferred, sleep } from '@votingworks/basics';
+import { assertDefined, deferred, sleep } from '@votingworks/basics';
+import { getMockFileUsbDriveHandler } from './mocks/file_usb_drive';
 import { detectMultiUsbDrive } from './multi_usb_drive';
 import { UsbPlatform } from './usb_platform';
 import { exec } from './exec';
@@ -23,16 +24,16 @@ const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 const featureFlagMock = getFeatureFlagMock();
 
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
+}));
+
 const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
 const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
 const devsdc = UsbDiskDevPathSchema.decode('/dev/sdc');
 
 type ExecResult = Awaited<ReturnType<typeof exec>>;
-
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
-}));
 
 const execMock = vi.mocked(exec);
 const getAllUsbDrivesMock = vi.mocked(getAllDiskDevices);
@@ -91,10 +92,34 @@ function makeDisk(
   };
 }
 
-test('an explicitly injected platform takes precedence over USE_MOCK_USB_DRIVE', async () => {
+test('runs against the simulated platform when USE_MOCK_USB_DRIVE is enabled', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
+  const handler = getMockFileUsbDriveHandler();
+  handler.insert();
+
+  const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }));
+  try {
+    // The production state machine auto-mounts the simulated drive.
+    await vi.waitFor(
+      () => {
+        expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+          UsbPartitionMount.mounted(
+            UsbPartitionMountpointSchema.decode(
+              assertDefined(handler.getDataPath())
+            )
+          )
+        );
+      },
+      { timeout: 2000 }
+    );
+  } finally {
+    multiUsbDrive.stop();
+  }
+});
+
+test('uses an injected platform', async () => {
   const platform: UsbPlatform = {
     getDrives: () => Promise.resolve([{ diskPath: devsdb }]),
     watchChanges: () => ({ stop: () => {} }),
@@ -110,15 +135,6 @@ test('an explicitly injected platform takes precedence over USE_MOCK_USB_DRIVE',
   await multiUsbDrive.refresh();
 
   expect(multiUsbDrive.getDrives()).toEqual([{ diskPath: devsdb }]);
-  multiUsbDrive.stop();
-});
-
-test('works even when USE_MOCK_USB_DRIVE feature flag is enabled', () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
-  );
-  const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }));
-  expect(multiUsbDrive.getDrives()).toEqual([]);
   multiUsbDrive.stop();
 });
 

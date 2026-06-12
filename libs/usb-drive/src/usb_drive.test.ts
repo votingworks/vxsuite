@@ -1,32 +1,13 @@
 import { mockLogger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
-import { existsSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { UsbDiskDeviceInfo } from './block_devices';
-import {
-  getMockUsbDirPath,
-  MOCK_USB_DRIVE_STATE_FILENAME,
-} from './mocks/file_usb_drive';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
   UsbPartitionMountpointSchema,
 } from './types';
 import { detectUsbDrive } from './usb_drive';
-
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock(
-  import('@votingworks/utils'),
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual()),
-    isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
-  })
-);
+import { UsbPlatform } from './usb_platform';
 
 let mockDevices: UsbDiskDeviceInfo[] = [];
 
@@ -40,27 +21,6 @@ beforeEach(() => {
   mockDevices = [];
   vi.clearAllMocks();
   vi.unstubAllEnvs();
-  featureFlagMock.resetFeatureFlags();
-});
-
-test('uses a mock file USB drive when feature flag is set', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
-  );
-  const stateFilePath = join(
-    getMockUsbDirPath(),
-    'sdb',
-    MOCK_USB_DRIVE_STATE_FILENAME
-  );
-
-  if (existsSync(stateFilePath)) {
-    rmSync(stateFilePath);
-  }
-  expect(existsSync(stateFilePath)).toEqual(false);
-
-  const usbDrive = detectUsbDrive(mockLogger({ fn: vi.fn }));
-  expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
-  expect(existsSync(stateFilePath)).toEqual(true);
 });
 
 test('returns no_drive when no drives are connected', async () => {
@@ -95,6 +55,36 @@ test('exposes the first connected drive via the UsbDrive interface', async () =>
     expect(await usbDrive.status()).toEqual({
       status: 'mounted',
       mountpoint: '/media/vx/usb-drive-sdb1',
+    });
+  });
+});
+
+test('uses an injected platform', async () => {
+  const platform: UsbPlatform = {
+    getDrives: () =>
+      Promise.resolve([
+        {
+          diskPath: UsbDiskDevPathSchema.decode('/dev/sdz'),
+          partition: {
+            partPath: UsbPartitionDevPathSchema.decode('/dev/sdz1'),
+            fstype: 'fat32',
+            mountpoint: UsbPartitionMountpointSchema.decode('/mnt/sdz1'),
+          },
+        },
+      ]),
+    watchChanges: () => ({ stop: () => {} }),
+    mountPartition: () => Promise.resolve(),
+    unmountPartition: () => Promise.resolve(),
+    formatDrive: () => Promise.resolve(),
+    sync: () => Promise.resolve(),
+  };
+
+  const usbDrive = detectUsbDrive(mockLogger({ fn: vi.fn }), { platform });
+
+  await vi.waitFor(async () => {
+    expect(await usbDrive.status()).toEqual({
+      status: 'mounted',
+      mountpoint: '/mnt/sdz1',
     });
   });
 });
