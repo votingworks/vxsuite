@@ -48,6 +48,7 @@ import {
   getMockFileUsbDriveHandler,
   listMockDrives,
   removeMockDriveDir,
+  UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
   Api,
@@ -403,31 +404,31 @@ test('poll worker card has a PIN when the election package enables them', async 
 test('usb drive mock endpoints', async () => {
   const { apiClient } = setup();
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
-    devPath: '/dev/sdb',
+    diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
     status: 'removed',
   });
 
   await apiClient.insertUsbDrive();
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
-    devPath: '/dev/sdb',
+    diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
     status: 'inserted',
   });
 
   await apiClient.clearUsbDrive();
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
-    devPath: '/dev/sdb',
+    diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
     status: 'inserted',
   });
 
   await apiClient.removeUsbDrive();
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
-    devPath: '/dev/sdb',
+    diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
     status: 'removed',
   });
 
   await apiClient.clearUsbDrive();
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
-    devPath: '/dev/sdb',
+    diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
     status: 'removed',
   });
 });

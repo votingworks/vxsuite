@@ -23,6 +23,11 @@ import {
 } from './block_devices';
 import { createMockFileMultiUsbDrive } from './mocks/file_usb_drive';
 import { UsbDriveInfo, UsbPartitionMount } from './types';
+import type {
+  UsbDiskDevPath,
+  UsbPartitionDevPath,
+  UsbPartitionMountpoint,
+} from './types';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 
@@ -43,7 +48,7 @@ async function unmountPartition(mountpoint: string): Promise<void> {
 export type UsbDriveFilesystemType = 'fat32' | 'ext4';
 
 async function formatDriveAsFat32(
-  diskPath: string,
+  diskPath: UsbDiskDevPath,
   label: string
 ): Promise<void> {
   await exec('sudo', [
@@ -55,7 +60,7 @@ async function formatDriveAsFat32(
 }
 
 async function formatDriveAsExt4(
-  diskPath: string,
+  diskPath: UsbDiskDevPath,
   label: string
 ): Promise<void> {
   await exec('sudo', [
@@ -104,24 +109,27 @@ function isSupportedPartition(partition?: {
  * baked in at refresh time.
  */
 interface CachedPartition {
-  partPath: string;
+  partPath: UsbPartitionDevPath;
   fstype: UsbDriveFilesystemType;
   label?: string;
-  mountpoint?: string;
+  mountpoint?: UsbPartitionMountpoint;
 }
 
 /** Internal cached representation of a detected USB disk. */
 interface CachedDrive {
-  diskPath: string;
+  diskPath: UsbDiskDevPath;
   partition?: CachedPartition;
 }
 
 export interface MultiUsbDrive {
   getDrives(): UsbDriveInfo[];
   refresh(): Promise<void>;
-  ejectDrive(diskPath: string): Promise<void>;
-  formatDrive(diskPath: string, fstype: UsbDriveFilesystemType): Promise<void>;
-  sync(partPath: string): Promise<void>;
+  ejectDrive(diskPath: UsbDiskDevPath): Promise<void>;
+  formatDrive(
+    diskPath: UsbDiskDevPath,
+    fstype: UsbDriveFilesystemType
+  ): Promise<void>;
+  sync(partPath: UsbPartitionDevPath): Promise<void>;
   stop(): void;
   addListener(listener: () => void): void;
   removeListener(listener: () => void): void;
@@ -224,7 +232,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
   }
 
   function computeMount(
-    diskPath: string,
+    diskPath: UsbDiskDevPath,
     partition: CachedPartition
   ): UsbPartitionMount {
     const dAction = driveAction.getTask(diskPath);
@@ -271,7 +279,10 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     };
   }
 
-  function mountPartitionWithRetry(diskPath: string, partPath: string): void {
+  function mountPartitionWithRetry(
+    diskPath: UsbDiskDevPath,
+    partPath: UsbPartitionDevPath
+  ): void {
     void partitionAction
       .perform(partPath, 'mounting', () =>
         doMountPartitionWithRetry(diskPath, partPath)
@@ -282,8 +293,8 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
   }
 
   async function doMountPartitionWithRetry(
-    diskPath: string,
-    partPath: string
+    diskPath: UsbDiskDevPath,
+    partPath: UsbPartitionDevPath
   ): Promise<void> {
     try {
       await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
@@ -342,12 +353,12 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     const newDrives: CachedDrive[] = (await getAllDiskDevices()).map((d) => {
       const partition = d.partitions.length === 1 ? d.partitions[0] : undefined;
       if (!partition || !isSupportedPartition(partition)) {
-        return { diskPath: d.devPath };
+        return { diskPath: d.diskPath };
       }
       return {
-        diskPath: d.devPath,
+        diskPath: d.diskPath,
         partition: {
-          partPath: partition.devPath,
+          partPath: partition.partPath,
           fstype: isFat32Partition(partition) ? 'fat32' : 'ext4',
           label: partition.label,
           mountpoint: partition.mountpoint,
@@ -381,7 +392,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
    * Helper for operations that need to unmount all disk partitions first.
    * Returns the freshly-read disk.
    */
-  async function unmountDrive(diskPath: string): Promise<CachedDrive> {
+  async function unmountDrive(diskPath: UsbDiskDevPath): Promise<CachedDrive> {
     const disk = cachedDrives.find((d) => d.diskPath === diskPath);
     assert(disk, `Drive not found: ${diskPath}`);
     if (!disk.partition) return disk;
@@ -412,7 +423,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
       await doRefresh();
     },
 
-    async ejectDrive(diskPath: string): Promise<void> {
+    async ejectDrive(diskPath: UsbDiskDevPath): Promise<void> {
       const result = driveAction.perform(diskPath, 'ejecting', async () => {
         await logger.logAsCurrentRole(LogEventId.UsbDriveEjectInit);
         try {
@@ -447,7 +458,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     },
 
     async formatDrive(
-      diskPath: string,
+      diskPath: UsbDiskDevPath,
       fstype: UsbDriveFilesystemType
     ): Promise<void> {
       const result = driveAction.perform(diskPath, 'formatting', async () => {

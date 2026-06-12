@@ -18,7 +18,7 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type { Api } from '@votingworks/dev-dock-backend';
+import type { Api, DevDockUsbDriveInfo } from '@votingworks/dev-dock-backend';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -35,6 +35,8 @@ import { makeRender } from '@votingworks/ui';
 import { DevDock } from './dev_dock';
 
 export const render = makeRender(onTestFinished);
+
+const mockDiskPath = '/dev/sdb' as DevDockUsbDriveInfo['diskPath'];
 
 const noCardStatus: CardStatus = {
   status: 'no_card',
@@ -84,7 +86,7 @@ beforeEach(() => {
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus
     .expectRepeatedCallsWith()
-    .resolves({ devPath: '/dev/sdb', status: 'removed' });
+    .resolves({ diskPath: mockDiskPath, status: 'removed' });
   mockApiClient.getAvailableElections.expectCallWith().resolves([
     {
       title: 'electionGeneral',
@@ -282,14 +284,14 @@ test('USB drive controls', async () => {
   mockApiClient.insertUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith()
-    .resolves({ devPath: '/dev/sdb', status: 'inserted' });
+    .resolves({ diskPath: mockDiskPath, status: 'inserted' });
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   mockApiClient.removeUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith()
-    .resolves({ devPath: '/dev/sdb', status: 'removed' });
+    .resolves({ diskPath: mockDiskPath, status: 'removed' });
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
@@ -299,7 +301,7 @@ test('USB drive controls', async () => {
   mockApiClient.clearUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith()
-    .resolves({ devPath: '/dev/sdb', status: 'removed' });
+    .resolves({ diskPath: mockDiskPath, status: 'removed' });
   userEvent.click(clearUsbDriveButton);
   await waitFor(() => mockApiClient.assertComplete());
 });

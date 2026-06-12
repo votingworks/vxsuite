@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
 import { assertDefined, ok } from '@votingworks/basics';
+import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library';
 import { ElectricalTestingScreen } from './electrical_testing_screen';
 import { Icons } from './icons';
@@ -139,7 +140,10 @@ test('save logs', async () => {
     <ElectricalTestingScreen
       tasks={[]}
       powerDown={vi.fn()}
-      usbDriveStatus={{ status: 'mounted', mountpoint: '/media/vx/usb-drive' }}
+      usbDriveStatus={{
+        status: 'mounted',
+        mountpoint: UsbPartitionMountpointSchema.parse('/media/vx/usb-drive'),
+      }}
       apiClient={mockApiClient}
     />
   );

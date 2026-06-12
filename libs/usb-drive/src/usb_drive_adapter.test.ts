@@ -1,17 +1,30 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 import { createMockMultiUsbDrive } from './mocks/mock_multi_usb_drive';
-import { UsbDriveInfo, UsbDriveStatus, UsbPartitionMount } from './types';
+import {
+  UsbDiskDevPathSchema,
+  UsbDriveInfo,
+  UsbDriveStatus,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMount,
+  UsbPartitionMountpointSchema,
+} from './types';
+
+const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.parse('/dev/sdb1');
+const mountpointSdb1 = UsbPartitionMountpointSchema.parse(
+  '/media/vx/usb-drive-sdb1'
+);
 
 function makeDriveInfo(overrides: Partial<UsbDriveInfo> = {}): UsbDriveInfo {
   return {
-    diskPath: '/dev/sdb',
+    diskPath: devsdb,
     partition: {
-      diskPath: '/dev/sdb',
-      partPath: '/dev/sdb1',
+      diskPath: devsdb,
+      partPath: devsdb1,
       label: 'VxUSB-ABCDE',
       fstype: 'fat32',
-      mount: UsbPartitionMount.mounted('/media/vx/usb-drive-sdb1'),
+      mount: UsbPartitionMount.mounted(mountpointSdb1),
     },
     ...overrides,
   };
@@ -30,7 +43,9 @@ describe('createUsbDriveAdapter', () => {
 
     test('returns no_drive when drive not found in getDrives()', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdz');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () =>
+        UsbDiskDevPathSchema.parse('/dev/sdz')
+      );
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives
@@ -75,29 +90,29 @@ describe('createUsbDriveAdapter', () => {
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'ext4',
-            mount: UsbPartitionMount.mounted('/media/vx/usb-drive-sdb1'),
+            mount: UsbPartitionMount.mounted(mountpointSdb1),
           },
         }),
       ]);
       expect(await adapter.status()).toEqual<UsbDriveStatus>({
         status: 'mounted',
-        mountpoint: '/media/vx/usb-drive-sdb1',
+        mountpoint: mountpointSdb1,
       });
     });
 
     test('returns no_drive when partition is mounting', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
             mount: UsbPartitionMount.mounting(),
           },
@@ -108,7 +123,7 @@ describe('createUsbDriveAdapter', () => {
 
     test('returns mounted when partition is mounted', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives
@@ -116,20 +131,20 @@ describe('createUsbDriveAdapter', () => {
         .returns([makeDriveInfo()]);
       expect(await adapter.status()).toEqual({
         status: 'mounted',
-        mountpoint: '/media/vx/usb-drive-sdb1',
+        mountpoint: mountpointSdb1,
       });
     });
 
     test('returns no_drive for unmounted partition', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
             mount: UsbPartitionMount.unmounted(),
           },
@@ -140,14 +155,14 @@ describe('createUsbDriveAdapter', () => {
 
     test('returns ejected when partition mount type is ejected', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
             mount: UsbPartitionMount.ejected(),
           },
@@ -160,14 +175,14 @@ describe('createUsbDriveAdapter', () => {
 
     test('returns ejected when partition is formatting', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
             mount: UsbPartitionMount.formatting(),
           },
@@ -178,22 +193,22 @@ describe('createUsbDriveAdapter', () => {
 
     test('returns mounted when partition is unmounting', async () => {
       const { multiUsbDrive } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
-            mount: UsbPartitionMount.unmounting('/media/vx/usb-drive-sdb1'),
+            mount: UsbPartitionMount.unmounting(mountpointSdb1),
           },
         }),
       ]);
       expect(await adapter.status()).toEqual({
         status: 'mounted',
-        mountpoint: '/media/vx/usb-drive-sdb1',
+        mountpoint: mountpointSdb1,
       });
     });
   });
@@ -201,11 +216,13 @@ describe('createUsbDriveAdapter', () => {
   describe('eject', () => {
     test('calls ejectDrive on the multiUsbDrive', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-      multiUsbDrive.ejectDrive.expectCallWith('/dev/sdb').resolves();
+      multiUsbDrive.ejectDrive
+        .expectCallWith(UsbDiskDevPathSchema.parse('/dev/sdb'))
+        .resolves();
       await adapter.eject();
 
       assertComplete();
@@ -226,11 +243,11 @@ describe('createUsbDriveAdapter', () => {
   describe('format', () => {
     test('calls formatDrive on the multiUsbDrive', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-      multiUsbDrive.formatDrive.expectCallWith('/dev/sdb', 'fat32').resolves();
+      multiUsbDrive.formatDrive.expectCallWith(devsdb, 'fat32').resolves();
       await adapter.format('fat32');
 
       assertComplete();
@@ -251,13 +268,13 @@ describe('createUsbDriveAdapter', () => {
   describe('sync', () => {
     test('calls sync on the mounted partition', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives
         .expectRepeatedCallsWith()
         .returns([makeDriveInfo()]);
-      multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
+      multiUsbDrive.sync.expectCallWith(devsdb1).resolves();
       await adapter.sync();
 
       assertComplete();
@@ -265,16 +282,16 @@ describe('createUsbDriveAdapter', () => {
 
     test('does nothing while partition is unmounting', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
-            mount: UsbPartitionMount.unmounting('/media/vx/usb-drive-sdb1'),
+            mount: UsbPartitionMount.unmounting(mountpointSdb1),
           },
         }),
       ]);
@@ -285,14 +302,14 @@ describe('createUsbDriveAdapter', () => {
 
     test('does nothing when no mounted partition', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partition: {
-            diskPath: '/dev/sdb',
-            partPath: '/dev/sdb1',
+            diskPath: devsdb,
+            partPath: devsdb1,
             fstype: 'fat32',
             mount: UsbPartitionMount.unmounted(),
           },
@@ -316,7 +333,7 @@ describe('createUsbDriveAdapter', () => {
 
     test('does nothing when drive not found', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
+      const adapter = createUsbDriveAdapter(multiUsbDrive, () => devsdb);
       multiUsbDrive.getDrives.reset();
 
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);

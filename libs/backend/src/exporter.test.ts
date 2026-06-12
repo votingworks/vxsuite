@@ -5,7 +5,10 @@ import { readFile, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  UsbPartitionMountpointSchema,
+} from '@votingworks/usb-drive';
 import { Exporter, ExportDataResult } from './exporter';
 import { execFile } from './exec';
 
@@ -152,9 +155,10 @@ test('exportDataToUsbDrive with no drives', async () => {
 test('exportDataToUsbDrive happy path', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'bucket/test.txt');
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'mounted', mountpoint: tmpDir });
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    mountpoint: UsbPartitionMountpointSchema.parse(tmpDir),
+  });
   usbDrive.sync.expectCallWith().resolves();
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
@@ -168,9 +172,10 @@ test('exportDataToUsbDrive happy path', async () => {
 test('exportDataToUsbDrive with maximumFileSize', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'bucket/test.txt');
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'mounted', mountpoint: tmpDir });
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    mountpoint: UsbPartitionMountpointSchema.parse(tmpDir),
+  });
   usbDrive.sync.expectCallWith().resolves();
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
@@ -187,9 +192,10 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   const tmpDir = makeTemporaryDirectory();
-  usbDrive.status
-    .expectCallWith()
-    .resolves({ status: 'mounted', mountpoint: tmpDir });
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    mountpoint: UsbPartitionMountpointSchema.parse(tmpDir),
+  });
   usbDrive.sync.expectCallWith().resolves();
 
   const result = await exporter.exportDataToUsbDrive(

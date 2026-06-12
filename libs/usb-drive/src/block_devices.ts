@@ -4,6 +4,14 @@ import { promises as fs } from 'node:fs';
 import { assert, Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
 import { RESOLVED_MEDIA_MOUNT_DIR } from './media_mount_dir';
+import {
+  UsbDiskDevPath,
+  UsbDiskDevPathSchema,
+  UsbPartitionDevPath,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMountpoint,
+  UsbPartitionMountpointSchema,
+} from './types';
 
 const debug = makeDebug('usb-drive');
 
@@ -106,15 +114,15 @@ function isPartitionOfDisk(
 }
 
 interface UsbPartitionDeviceInfo {
-  devPath: string;
-  mountpoint?: string;
+  partPath: UsbPartitionDevPath;
+  mountpoint?: UsbPartitionMountpoint;
   fstype?: string;
   fsver?: string;
   label?: string;
 }
 
 export interface UsbDiskDeviceInfo {
-  devPath: string;
+  diskPath: UsbDiskDevPath;
   vendor?: string;
   model?: string;
   serial?: string;
@@ -160,8 +168,11 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
       const validPartitions: UsbPartitionDeviceInfo[] = diskPartitions
         .filter(isDataUsbDrive)
         .map((p) => ({
-          devPath: p.devname,
-          mountpoint: p.mountpoint,
+          partPath: UsbPartitionDevPathSchema.parse(p.devname),
+          mountpoint:
+            typeof p.mountpoint === 'string'
+              ? UsbPartitionMountpointSchema.parse(p.mountpoint)
+              : undefined,
           fstype: p.fstype,
           fsver: p.fsver,
           label: p.label,
@@ -172,7 +183,7 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
       if (validPartitions.length === 0) continue;
 
       result.push({
-        devPath: disk.devname,
+        diskPath: UsbDiskDevPathSchema.parse(disk.devname),
         vendor: disk.vendor,
         model: disk.model,
         serial: disk.serial,
@@ -181,7 +192,7 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
     } else if (isDataUsbDrive(disk)) {
       // Unformatted drive (no partitions) — include it with empty partitions
       result.push({
-        devPath: disk.devname,
+        diskPath: UsbDiskDevPathSchema.parse(disk.devname),
         vendor: disk.vendor,
         model: disk.model,
         serial: disk.serial,
@@ -201,14 +212,14 @@ export async function getAllDiskDevices(): Promise<UsbDiskDeviceInfo[]> {
     if (!isDataUsbDrive(partition)) continue;
 
     result.push({
-      devPath: diskDevPath,
+      diskPath: UsbDiskDevPathSchema.parse(diskDevPath),
       vendor: undefined,
       model: undefined,
       serial: undefined,
       partitions: [
         {
-          devPath: partition.devname,
-          mountpoint: partition.mountpoint,
+          partPath: UsbPartitionDevPathSchema.parse(partition.devname),
+          mountpoint: UsbPartitionMountpointSchema.parse(partition.mountpoint),
           fstype: partition.fstype,
           fsver: partition.fsver,
           label: partition.label,

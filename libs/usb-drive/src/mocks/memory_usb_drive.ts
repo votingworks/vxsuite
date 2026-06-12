@@ -2,7 +2,7 @@ import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { Mocked, mockFunction } from '@votingworks/test-utils';
 import tmp from 'tmp';
 import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDrive } from '../types';
+import { UsbDrive, UsbPartitionMountpointSchema } from '../types';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
@@ -56,7 +56,7 @@ export function createMockUsbDrive(): MockUsbDrive {
       usbDrive.status.reset();
       usbDrive.status.expectRepeatedCallsWith().resolves({
         status: 'mounted',
-        mountpoint: mockUsbTmpDir.name,
+        mountpoint: UsbPartitionMountpointSchema.parse(mockUsbTmpDir.name),
       });
     },
 

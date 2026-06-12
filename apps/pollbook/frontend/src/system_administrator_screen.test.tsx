@@ -6,6 +6,7 @@ import {
   PollbookServiceInfo,
 } from '@votingworks/pollbook-backend';
 import { within } from '@testing-library/react';
+import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { SystemAdministratorScreen } from './system_administrator_screen';
@@ -219,7 +220,7 @@ describe('Settings tab', () => {
     apiMock.expectHaveElectionEventsOccurred(false);
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
-      mountpoint: '/dev/null',
+      mountpoint: UsbPartitionMountpointSchema.parse('/dev/null'),
     });
   });
 

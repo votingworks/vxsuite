@@ -7,6 +7,11 @@ import {
   UsbDiskDeviceInfo,
 } from './block_devices';
 import { exec, spawn } from './exec';
+import {
+  UsbDiskDevPathSchema,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMountpointSchema,
+} from './types';
 
 const readFileMock = vi.mocked(fs.readFile);
 const execMock = vi.mocked(exec);
@@ -153,7 +158,7 @@ describe('getAllUsbDrives', () => {
     // Disk has no real partitions (the partition with the same devname is not
     // recognized as a child), so it appears as an unformatted drive.
     expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({ devPath: '/dev/sdb', partitions: [] });
+    expect(result[0]).toMatchObject({ diskPath: '/dev/sdb', partitions: [] });
   });
 
   test('recognizes nvme-style p-suffix partitions', async () => {
@@ -176,8 +181,8 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
-      devPath: '/dev/nvme0n1',
-      partitions: [{ devPath: '/dev/nvme0n1p1' }],
+      diskPath: '/dev/nvme0n1',
+      partitions: [{ partPath: '/dev/nvme0n1p1' }],
     });
   });
 
@@ -211,13 +216,13 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual([
       {
-        devPath: '/dev/sdb',
+        diskPath: '/dev/sdb',
         vendor: 'SanDisk',
         model: 'Ultra',
         serial: 'ABC123',
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: '/dev/sdb1',
             mountpoint: '/media/vx/usb-drive-sdb1',
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -238,7 +243,7 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        devPath: '/dev/sdb',
+        diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
@@ -274,8 +279,8 @@ describe('getAllUsbDrives', () => {
     const result = await getAllDiskDevices();
 
     expect(result).toHaveLength(2);
-    expect(result[0]).toMatchObject({ devPath: '/dev/sdb' });
-    expect(result[1]).toMatchObject({ devPath: '/dev/sdc' });
+    expect(result[0]).toMatchObject({ diskPath: '/dev/sdb' });
+    expect(result[1]).toMatchObject({ diskPath: '/dev/sdc' });
   });
 
   test('excludes disk whose only partition is LVM', async () => {
@@ -364,14 +369,16 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        devPath: '/dev/sdb',
+        diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
         partitions: [
           {
-            devPath: '/dev/sdb1',
-            mountpoint: '/media/vx/usb-drive-sdb1',
+            partPath: UsbPartitionDevPathSchema.parse('/dev/sdb1'),
+            mountpoint: UsbPartitionMountpointSchema.parse(
+              '/media/vx/usb-drive-sdb1'
+            ),
             fstype: 'vfat',
             fsver: 'FAT32',
             label: 'VxUSB-ABCDE',
@@ -403,14 +410,16 @@ describe('getAllUsbDrives', () => {
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
-        devPath: '/dev/sdp',
+        diskPath: UsbDiskDevPathSchema.parse('/dev/sdp'),
         vendor: undefined,
         model: undefined,
         serial: undefined,
         partitions: [
           {
-            devPath: '/dev/sdp1',
-            mountpoint: '/media/vx/usb-drive-sdp1',
+            partPath: UsbPartitionDevPathSchema.parse('/dev/sdp1'),
+            mountpoint: UsbPartitionMountpointSchema.parse(
+              '/media/vx/usb-drive-sdp1'
+            ),
             fstype: 'vfat',
             fsver: 'FAT32',
             label: 'VxUSB-ABCDE',

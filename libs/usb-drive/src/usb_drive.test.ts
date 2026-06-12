@@ -12,6 +12,11 @@ import {
   getMockUsbDirPath,
   MOCK_USB_DRIVE_STATE_FILENAME,
 } from './mocks/file_usb_drive';
+import {
+  UsbDiskDevPathSchema,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMountpointSchema,
+} from './types';
 
 const featureFlagMock = getFeatureFlagMock();
 
@@ -66,17 +71,19 @@ test('returns no_drive when no drives are connected', async () => {
 test('exposes the first connected drive via the UsbDrive interface', async () => {
   mockDevices = [
     {
-      devPath: '/dev/sdb',
+      diskPath: UsbDiskDevPathSchema.parse('/dev/sdb'),
       vendor: undefined,
       model: undefined,
       serial: undefined,
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: UsbPartitionDevPathSchema.parse('/dev/sdb1'),
           label: 'VxUSB-00000',
           fstype: 'vfat',
           fsver: 'FAT32',
-          mountpoint: '/media/vx/usb-drive-sdb1',
+          mountpoint: UsbPartitionMountpointSchema.parse(
+            '/media/vx/usb-drive-sdb1'
+          ),
         },
       ],
     },

@@ -1,7 +1,10 @@
 /* istanbul ignore file */
 import { throwIllegalValue } from '@votingworks/basics';
 
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import {
+  type UsbDriveStatus,
+  UsbPartitionMountpointSchema,
+} from '@votingworks/usb-drive';
 
 export function mockUsbDriveStatus(
   status: UsbDriveStatus['status']
@@ -10,7 +13,7 @@ export function mockUsbDriveStatus(
     case 'mounted':
       return {
         status,
-        mountpoint: 'test-mount-point',
+        mountpoint: UsbPartitionMountpointSchema.parse('/test-mount-point'),
       };
     case 'no_drive':
     case 'ejected':
