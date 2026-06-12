@@ -434,7 +434,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
           await logger.logAsCurrentRole(LogEventId.UsbDriveEjected, {
             disposition: 'failure',
             message: 'USB drive failed to eject.',
-            error: (error as Error).message,
+            error: extractErrorMessage(error),
             result: 'USB drive not ejected.',
           });
           debug(`Drive ${diskPath} ejection failed: ${error}`);
@@ -490,7 +490,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
           await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
             disposition: 'failure',
             message: 'Failed to format USB drive.',
-            error: (error as Error).message,
+            error: extractErrorMessage(error),
             result: 'USB drive not formatted, error shown to user.',
           });
           debug(`Drive ${diskPath} format failed: ${error}`);
