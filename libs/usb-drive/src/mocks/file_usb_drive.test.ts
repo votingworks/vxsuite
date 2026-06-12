@@ -10,6 +10,7 @@ import {
   listMockDrives,
   removeMockDriveDir,
 } from './file_usb_drive';
+import { UsbDriveInfo, UsbPartitionMount } from '../types';
 
 test('createMockFileMultiUsbDrive mock flow', async () => {
   const handler = getMockFileUsbDriveHandler('sdb');
@@ -23,45 +24,41 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
 
   handler.insert();
   const mountPoint = handler.getDataPath();
-  expect(multiUsbDrive.getDrives()).toEqual([
+  expect(multiUsbDrive.getDrives()).toEqual<UsbDriveInfo[]>([
     {
-      devPath: '/dev/sdb',
-      partitions: [
-        {
-          devPath: '/dev/sdb1',
-          fstype: 'vfat',
-          fsver: 'FAT32',
-          mount: { type: 'mounted', mountPoint },
-        },
-      ],
+      diskPath: '/dev/sdb',
+      partition: {
+        diskPath: '/dev/sdb',
+        partPath: '/dev/sdb1',
+        fstype: 'fat32',
+        mount: UsbPartitionMount.mounted(mountPoint!),
+      },
     },
   ]);
 
   await multiUsbDrive.ejectDrive('/dev/sdb');
-  expect(multiUsbDrive.getDrives()).toEqual([
+  expect(multiUsbDrive.getDrives()).toEqual<UsbDriveInfo[]>([
     {
-      devPath: '/dev/sdb',
-      partitions: [
-        {
-          devPath: '/dev/sdb1',
-          fstype: 'vfat',
-          fsver: 'FAT32',
-          mount: { type: 'ejected' },
-        },
-      ],
+      diskPath: '/dev/sdb',
+      partition: {
+        diskPath: '/dev/sdb',
+        partPath: '/dev/sdb1',
+        fstype: 'fat32',
+        mount: UsbPartitionMount.ejected(),
+      },
     },
   ]);
 
   await multiUsbDrive.ejectDrive('/dev/sdb');
-  expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-    type: 'ejected',
-  });
+  expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+    UsbPartitionMount.ejected()
+  );
 
   handler.insert();
   await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
-  expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-    type: 'ejected',
-  });
+  expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+    UsbPartitionMount.ejected()
+  );
 
   handler.remove();
   expect(multiUsbDrive.getDrives()).toEqual([]);
@@ -81,7 +78,7 @@ test('createMockFileMultiUsbDrive multi-drive flow', async () => {
 
   handlerA.insert();
   expect(multiUsbDrive.getDrives()).toHaveLength(1);
-  expect(multiUsbDrive.getDrives()[0]?.devPath).toEqual(`/dev/${diskA}`);
+  expect(multiUsbDrive.getDrives()[0]?.diskPath).toEqual(`/dev/${diskA}`);
 
   handlerB.insert();
   expect(multiUsbDrive.getDrives()).toHaveLength(2);
@@ -90,11 +87,11 @@ test('createMockFileMultiUsbDrive multi-drive flow', async () => {
   const drives = multiUsbDrive.getDrives();
   expect(drives).toHaveLength(2);
   expect(
-    drives.find((d) => d.devPath === `/dev/${diskA}`)?.partitions[0]?.mount
-  ).toEqual({ type: 'ejected' });
+    drives.find((d) => d.diskPath === `/dev/${diskA}`)?.partition?.mount
+  ).toEqual(UsbPartitionMount.ejected());
   expect(
-    drives.find((d) => d.devPath === `/dev/${diskB}`)?.partitions[0]?.mount.type
-  ).toEqual('mounted');
+    drives.find((d) => d.diskPath === `/dev/${diskB}`)?.partition?.mount
+  ).toEqual(UsbPartitionMount.mounted(expect.any(String)));
 
   handlerB.remove();
   removeMockDriveDir(diskB);

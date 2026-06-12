@@ -25,10 +25,11 @@ import {
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
 import { CandidateContestResults } from '@votingworks/types/src/tabulation';
+import { UsbPartitionMount } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
-  getMountedUsbDrivePartitionDevPath,
+  getMountedUsbDrive,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   saveTmpFile,
@@ -528,7 +529,9 @@ test('saveElectionPackageToUsb', async () => {
 
   mockUsbDrive.insertUsbDrive({});
   mockUsbDrive.multiUsbDrive.sync
-    .expectRepeatedCallsWith(getMountedUsbDrivePartitionDevPath(mockUsbDrive))
+    .expectRepeatedCallsWith(
+      assertDefined(getMountedUsbDrive(mockUsbDrive).partition).partPath
+    )
     .resolves();
   const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(ok());
@@ -570,15 +573,13 @@ test('usbDrive', async () => {
   mockMultiUsbDrive.multiUsbDrive.getDrives.reset();
   mockMultiUsbDrive.multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
     {
-      devPath: '/dev/sdb',
-      partitions: [
-        {
-          devPath: '/dev/sdb1',
-          fstype: 'ext4',
-          fsver: '1.0',
-          mount: { type: 'unmounted' },
-        },
-      ],
+      diskPath: '/dev/sdb',
+      partition: {
+        diskPath: '/dev/sdb',
+        partPath: '/dev/sdb1',
+        fstype: 'ext4',
+        mount: UsbPartitionMount.unmounted(),
+      },
     },
   ]);
   expect(await apiClient.getUsbDriveStatus()).toEqual({

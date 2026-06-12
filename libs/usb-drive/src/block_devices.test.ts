@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { mockChildProcess } from '@votingworks/test-utils';
 import {
   createBlockDeviceChangeWatcher,
-  getAllUsbDrives,
+  getAllDiskDevices,
   UsbDiskDeviceInfo,
 } from './block_devices';
 import { exec, spawn } from './exec';
@@ -103,14 +103,14 @@ describe('getAllUsbDrives', () => {
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
     readFileMock.mockResolvedValueOnce('');
 
-    expect(await getAllUsbDrives()).toEqual([]);
+    expect(await getAllDiskDevices()).toEqual([]);
   });
 
   test('returns empty array when udevadm fails', async () => {
     execMock.mockRejectedValueOnce(new Error('udevadm failed'));
     readFileMock.mockResolvedValueOnce('');
 
-    expect(await getAllUsbDrives()).toEqual([]);
+    expect(await getAllDiskDevices()).toEqual([]);
   });
 
   test('ignores non-USB, non-block, unexpected DEVTYPE, and missing DEVNAME entries', async () => {
@@ -129,7 +129,7 @@ describe('getAllUsbDrives', () => {
     });
     readFileMock.mockResolvedValueOnce('');
 
-    expect(await getAllUsbDrives()).toEqual([]);
+    expect(await getAllDiskDevices()).toEqual([]);
   });
 
   test('does not treat a disk as its own partition when devnames match', async () => {
@@ -148,7 +148,7 @@ describe('getAllUsbDrives', () => {
     });
     readFileMock.mockResolvedValueOnce(procMountsContent());
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     // Disk has no real partitions (the partition with the same devname is not
     // recognized as a child), so it appears as an unformatted drive.
@@ -172,7 +172,7 @@ describe('getAllUsbDrives', () => {
     });
     readFileMock.mockResolvedValueOnce(procMountsContent());
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -207,7 +207,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toEqual([
       {
@@ -234,7 +234,7 @@ describe('getAllUsbDrives', () => {
     );
     readFileMock.mockResolvedValueOnce(procMountsContent());
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
@@ -271,7 +271,7 @@ describe('getAllUsbDrives', () => {
     });
     readFileMock.mockResolvedValueOnce(procMountsContent());
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toHaveLength(2);
     expect(result[0]).toMatchObject({ devPath: '/dev/sdb' });
@@ -292,7 +292,7 @@ describe('getAllUsbDrives', () => {
     });
     readFileMock.mockResolvedValueOnce(procMountsContent());
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     // Disk has partitions but none are valid data partitions — skip entirely
     // rather than returning an empty-partition disk that looks unformatted.
@@ -309,7 +309,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     // Disk mounted outside /media is not a valid data drive
     expect(result).toEqual([]);
@@ -334,7 +334,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     // Partition mounted outside /media — skip the disk entirely rather than
     // returning an empty-partition disk that looks like an unformatted drive.
@@ -360,7 +360,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
@@ -399,7 +399,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toEqual<UsbDiskDeviceInfo[]>([
       {
@@ -439,7 +439,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     // Partition mounted outside /media is not a valid data drive
     expect(result).toEqual([]);
@@ -461,7 +461,7 @@ describe('getAllUsbDrives', () => {
     });
     readFileMock.mockRejectedValueOnce(new Error('/proc/mounts unreadable'));
 
-    const result = await getAllUsbDrives();
+    const result = await getAllDiskDevices();
 
     expect(result).toHaveLength(1);
     expect(result[0]?.partitions[0]).toMatchObject({ mountpoint: undefined });
@@ -488,7 +488,7 @@ describe('getAllUsbDrives', () => {
       ])
     );
 
-    expect(await getAllUsbDrives()).toEqual([]);
+    expect(await getAllDiskDevices()).toEqual([]);
   });
 });
 

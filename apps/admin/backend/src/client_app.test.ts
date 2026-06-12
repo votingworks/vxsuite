@@ -19,10 +19,10 @@ import { createClientWorkspace } from './util/workspace';
 import { ClientConnectionStatus, ElectionRecord } from './types';
 
 import {
-  getMountedUsbDriveDevPath,
   mockMachineLocked,
   mockSystemAdministratorAuth,
   buildMockLogger,
+  getMountedUsbDrive,
 } from '../test/app';
 
 vi.mock('./multi_station_config', () => ({
@@ -237,7 +237,7 @@ test('getUsbDriveStatus returns usb drive status', async () => {
 
 test('ejectUsbDrive ejects the usb drive', async () => {
   env.mockUsbDrive.insertUsbDrive({});
-  const devPath = getMountedUsbDriveDevPath(env.mockUsbDrive);
+  const devPath = getMountedUsbDrive(env.mockUsbDrive).diskPath;
   env.mockUsbDrive.multiUsbDrive.ejectDrive.expectCallWith(devPath).resolves();
   await env.apiClient.ejectUsbDrive();
 });
@@ -251,7 +251,7 @@ test('formatUsbDrive returns error when not system administrator', async () => {
 test('formatUsbDrive formats drive when system administrator', async () => {
   mockSystemAdministratorAuth(env.auth);
   env.mockUsbDrive.insertUsbDrive({});
-  const devPath = getMountedUsbDriveDevPath(env.mockUsbDrive);
+  const devPath = getMountedUsbDrive(env.mockUsbDrive).diskPath;
   env.mockUsbDrive.multiUsbDrive.formatDrive
     .expectCallWith(devPath, 'fat32')
     .resolves();
@@ -261,7 +261,7 @@ test('formatUsbDrive formats drive when system administrator', async () => {
 test('formatUsbDrive returns error when format fails', async () => {
   mockSystemAdministratorAuth(env.auth);
   env.mockUsbDrive.insertUsbDrive({});
-  const devPath = getMountedUsbDriveDevPath(env.mockUsbDrive);
+  const devPath = getMountedUsbDrive(env.mockUsbDrive).diskPath;
   env.mockUsbDrive.multiUsbDrive.formatDrive
     .expectCallWith(devPath, 'fat32')
     .throws(new Error('format failed'));

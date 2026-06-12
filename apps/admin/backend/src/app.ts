@@ -65,7 +65,6 @@ import {
   readElection,
 } from '@votingworks/fs';
 import {
-  isFat32Partition,
   MultiUsbDrive,
   REAL_USB_DRIVE_GLOB_PATTERN,
   UsbDriveStatus,
@@ -205,7 +204,7 @@ function buildApi({
   const usbDriveAdapter = createUsbDriveAdapter(
     multiUsbDrive,
     // return the first FAT32 drive
-    (drives) => drives.find((d) => isFat32Partition(d.partitions[0]))?.devPath
+    (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
   );
 
   function convertFrontendFilter(

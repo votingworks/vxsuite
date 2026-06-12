@@ -23,16 +23,16 @@ vi.mock(
   })
 );
 
-let mockDrives: UsbDiskDeviceInfo[] = [];
+let mockDevices: UsbDiskDeviceInfo[] = [];
 
 vi.mock('./block_devices', async (importActual) => ({
   ...(await importActual()),
-  getAllUsbDrives: vi.fn(() => Promise.resolve(mockDrives)),
+  getAllDiskDevices: vi.fn(() => Promise.resolve(mockDevices)),
   createBlockDeviceChangeWatcher: vi.fn(() => ({ stop: vi.fn() })),
 }));
 
 beforeEach(() => {
-  mockDrives = [];
+  mockDevices = [];
   vi.clearAllMocks();
   vi.unstubAllEnvs();
   featureFlagMock.resetFeatureFlags();
@@ -64,7 +64,7 @@ test('returns no_drive when no drives are connected', async () => {
 });
 
 test('exposes the first connected drive via the UsbDrive interface', async () => {
-  mockDrives = [
+  mockDevices = [
     {
       devPath: '/dev/sdb',
       vendor: undefined,
