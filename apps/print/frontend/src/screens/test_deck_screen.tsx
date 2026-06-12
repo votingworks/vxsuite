@@ -9,7 +9,6 @@ import { TitleBar } from '../components/title_bar';
 import {
   getDeviceStatuses,
   getElectionRecord,
-  getPrecinctSelection,
   getTestDeckBallotCount,
   printTestDeck,
 } from '../api';
@@ -152,14 +151,9 @@ export function TestDeckScreen(): JSX.Element | null {
   );
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
-  const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
 
-  if (
-    !getElectionRecordQuery.isSuccess ||
-    !getConfiguredPrecinctQuery.isSuccess ||
-    !getDeviceStatusesQuery.isSuccess
-  ) {
+  if (!getElectionRecordQuery.isSuccess || !getDeviceStatusesQuery.isSuccess) {
     return null;
   }
 

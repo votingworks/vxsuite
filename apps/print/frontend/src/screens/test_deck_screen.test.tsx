@@ -36,7 +36,6 @@ function mockBaseQueries({ printerConnected = true } = {}) {
     machineId: 'test-machine',
     codeVersion: 'test-version',
   });
-  apiMock.getPrecinctSelection.expectOptionalRepeatedCallsWith().resolves(null);
   apiMock.getPollingPlaceId.expectOptionalRepeatedCallsWith().resolves(null);
   apiMock.getDeviceStatuses.expectOptionalRepeatedCallsWith().resolves({
     usbDrive: { status: 'no_drive' },
