@@ -220,9 +220,7 @@ describe('createUsbDriveAdapter', () => {
       multiUsbDrive.getDrives.reset();
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-      multiUsbDrive.ejectDrive
-        .expectCallWith(UsbDiskDevPathSchema.decode('/dev/sdb'))
-        .resolves();
+      multiUsbDrive.ejectDrive.expectCallWith(devsdb).resolves();
       await adapter.eject();
 
       assertComplete();
