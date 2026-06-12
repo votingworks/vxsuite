@@ -1,0 +1,491 @@
+/* eslint-disable no-param-reassign */
+import { isNonExistentFileOrDirectoryError, iter } from '@votingworks/basics';
+import makeDebug from 'debug';
+import assert from 'node:assert';
+import {
+  closeSync,
+  constants,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  rmSync,
+  watch,
+  writeFileSync,
+} from 'node:fs';
+import { basename, join } from 'node:path';
+import { z } from 'zod/v4';
+import {
+  UsbDiskDevPath,
+  UsbDriveFilesystemType,
+  UsbPartitionDevPath,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMountpoint,
+  UsbPartitionMountpointSchema,
+} from '../types';
+import {
+  DriveWatcher,
+  UsbPlatform,
+  UsbPlatformDrive,
+  UsbPlatformDriveSchema,
+  UsbPlatformPartition,
+} from '../usb_platform';
+import { MockFileTree, writeMockFileTree } from './helpers';
+
+const debug = makeDebug('SimulatedUsbPlatform');
+
+export const SimulatedUsbDriveSchema = UsbPlatformDriveSchema.extend({
+  present: z.boolean(),
+});
+
+/**
+ * A USB drive tracked by the simulator. Its backing storage exists for as long
+ * as the drive has been created and not deleted, independent of whether it is
+ * currently attached. The `present` flag models whether the drive is "plugged
+ * in": only present drives are visible through the {@link UsbPlatform}
+ * interface (`getAllUsbDrives`), mirroring real hardware which is only visible
+ * when attached.
+ */
+export type SimulatedUsbDrive = z.output<typeof SimulatedUsbDriveSchema>;
+
+interface CreateDriveOptions {
+  diskPath: UsbDiskDevPath;
+  fstype: UsbDriveFilesystemType;
+  label?: string;
+  contents?: MockFileTree;
+}
+
+function findDrive(
+  drives: SimulatedUsbDrive[],
+  diskPath: UsbDiskDevPath
+): SimulatedUsbDrive {
+  const drive = drives.find((d) => d.diskPath === diskPath);
+  assert(drive, `Drive not found: ${diskPath}`);
+  return drive;
+}
+
+function findPresentDrive(
+  drives: SimulatedUsbDrive[],
+  diskPath: UsbDiskDevPath
+): SimulatedUsbDrive {
+  const drive = drives.find((d) => d.diskPath === diskPath);
+  assert(drive, `Drive not found: ${diskPath}`);
+  assert(drive.present, `Drive not attached: ${diskPath}`);
+  return drive;
+}
+
+/**
+ * Finds the partition with the given path on a currently-attached drive. A
+ * partition can only be mounted or unmounted while its drive is present, just
+ * as real hardware is only accessible while plugged in.
+ */
+function findPresentPartition(
+  drives: SimulatedUsbDrive[],
+  partPath: UsbPartitionDevPath
+): { drive: SimulatedUsbDrive; partition: UsbPlatformPartition } {
+  const drive = drives.find(
+    (d) => d.present && d.partition?.partPath === partPath
+  );
+  assert(drive, `Partition not found on an attached drive: ${partPath}`);
+  assert(drive.partition);
+  return { drive, partition: drive.partition };
+}
+
+/**
+ * Finds the partition with the given mountpoint on a currently-attached drive.
+ * A partition can only be mounted or unmounted while its drive is present, just
+ * as real hardware is only accessible while plugged in.
+ */
+function findPresentPartitionByMountpoint(
+  drives: SimulatedUsbDrive[],
+  mountpoint: UsbPartitionMountpoint
+): { drive: SimulatedUsbDrive; partition: UsbPlatformPartition } {
+  const drive = drives.find(
+    (d) => d.present && d.partition?.mountpoint === mountpoint
+  );
+  assert(drive, `Partition not found on an attached drive: ${mountpoint}`);
+  assert(drive.partition);
+  return { drive, partition: drive.partition };
+}
+
+export class SimulatedUsbPlatform implements UsbPlatform {
+  private watchController?: AbortController;
+
+  /**
+   * The working set of drives during an in-progress {@link mutateState}
+   * transaction. When set, it is the single source of truth that all reads and
+   * mutations operate on and that gets persisted; when unset, state is read
+   * fresh from {@link stateFilePath} each time.
+   */
+  private cachedDrives?: SimulatedUsbDrive[];
+  private readonly listeners = new Set<() => void>();
+
+  constructor(private readonly root: string) {
+    mkdirSync(this.root, { recursive: true });
+    try {
+      const fd = openSync(
+        this.stateFilePath,
+        // eslint-disable-next-line no-bitwise
+        constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY
+      );
+      writeFileSync(fd, JSON.stringify([]));
+      closeSync(fd);
+      debug('Created new devices file');
+    } catch (e) {
+      /* istanbul ignore next: unexpected errors should propagate */
+      if ((e as { code?: string }).code !== 'EEXIST') {
+        throw e;
+      }
+      debug('Using existing devices file');
+    }
+  }
+
+  async getDrives(): Promise<UsbPlatformDrive[]> {
+    await Promise.resolve();
+    return this.getSimulatedDrives()
+      .filter((drive) => drive.present)
+      .map(({ partition, diskPath }): UsbPlatformDrive => {
+        assert(partition);
+        return {
+          diskPath,
+          partition: {
+            partPath: partition.partPath,
+            fstype: partition.fstype,
+            label: partition.label,
+            mountpoint: partition.mountpoint,
+          },
+        };
+      });
+  }
+
+  /**
+   * Returns every drive the simulator is tracking, including ones that have
+   * been created but are not currently attached (`present: false`). Use this
+   * to inspect or toggle a drive's presence; use {@link getDrives} for
+   * the platform's view of attached hardware.
+   */
+  getSimulatedDrives(): SimulatedUsbDrive[] {
+    try {
+      if (this.cachedDrives) return this.cachedDrives;
+      return z
+        .array(SimulatedUsbDriveSchema)
+        .parse(JSON.parse(readFileSync(this.stateFilePath, 'utf-8')));
+    } catch (e) {
+      if (isNonExistentFileOrDirectoryError(e)) return [];
+      throw e;
+    }
+  }
+
+  /**
+   * Registers a listener to call when the platform's USB device state changes.
+   * @param onChange The listener function to call when the state changes.
+   * @returns A watcher object that can be used to stop listening.
+   */
+  watchChanges(onChange: () => void): DriveWatcher {
+    this.listeners.add(onChange);
+
+    if (!this.watchController) {
+      this.watchController = new AbortController();
+      watch(
+        this.stateFilePath,
+        { signal: this.watchController.signal },
+        (event, file) => {
+          debug('Watch event: %s %s', event, file);
+          for (const fn of this.listeners) {
+            fn();
+          }
+        }
+      );
+    }
+
+    return {
+      stop: () => {
+        this.listeners.delete(onChange);
+        if (this.listeners.size === 0) {
+          this.watchController?.abort();
+          this.watchController = undefined;
+        }
+      },
+    };
+  }
+
+  /**
+   * Creates a drive's backing storage (partition, filesystem, and contents)
+   * without attaching it. The drive starts out not present; call
+   * {@link insertDrive} to make it visible to the platform.
+   */
+  createDrive(options: CreateDriveOptions): void {
+    debug('Create drive: %s', options.diskPath);
+    assert(
+      !this.getSimulatedDrives().some((d) => d.diskPath === options.diskPath),
+      `USB drive already exists: ${options.diskPath}`
+    );
+
+    const newDrive: SimulatedUsbDrive = {
+      diskPath: options.diskPath,
+      present: false,
+      partition: {
+        partPath: this.partPathFromDiskPath(options.diskPath),
+        fstype: options.fstype,
+        label: options.label,
+      },
+    };
+
+    try {
+      this.mutateState((drives) => {
+        drives.push(newDrive);
+        const storagePath = this.reinitStorage(newDrive.diskPath);
+        if (options.contents) {
+          writeMockFileTree(storagePath, options.contents);
+        }
+      });
+    } catch (e) {
+      rmSync(this.storagePath(newDrive.diskPath), {
+        recursive: true,
+        force: true,
+      });
+      throw e;
+    }
+  }
+
+  /**
+   * Attaches a previously {@link createDrive}d drive, making it present.
+   */
+  insertDrive(diskPath: UsbDiskDevPath): void {
+    debug('Insert drive: %s', diskPath);
+    this.mutateState((drives) => {
+      findDrive(drives, diskPath).present = true;
+    });
+  }
+
+  /**
+   * Detaches a drive and marks it not present. The drive's storage is preserved
+   * and can be reattached with {@link insertDrive}. Use {@link deleteDrive} to
+   * destroy its storage.
+   */
+  removeDrive(diskPath: UsbDiskDevPath): void {
+    debug('Remove drive: %s', diskPath);
+    this.mutateState((drives) => {
+      const drive = findPresentDrive(drives, diskPath);
+      assert(drive.partition);
+      this.unmountPartitionInternal(drive.partition);
+      drive.present = false;
+    });
+  }
+
+  /**
+   * Clears a drive's data without changing its presence or format.
+   */
+  clearDriveStorage(diskPath: UsbDiskDevPath): void {
+    this.replaceDriveData(diskPath, {});
+  }
+
+  /**
+   * Replaces the data in a drive with the given contents. Does not change the
+   * state of the drive (presence or format).
+   */
+  replaceDriveData(diskPath: UsbDiskDevPath, contents: MockFileTree): void {
+    debug('Replace drive data: %s', diskPath);
+    assert(
+      this.getSimulatedDrives().some((d) => d.diskPath === diskPath),
+      `Drive not found: ${diskPath}`
+    );
+    const storagePath = this.reinitStorage(diskPath);
+    writeMockFileTree(storagePath, contents);
+  }
+
+  /**
+   * Detaches a drive and destroys its backing storage entirely.
+   */
+  deleteDrive(diskPath: UsbDiskDevPath): void {
+    debug('Delete drive: %s', diskPath);
+    this.mutateState((drives) => {
+      const [toDelete, toKeep] = iter(drives).partition(
+        (d) => d.diskPath === diskPath
+      );
+      assert(toDelete.length === 1, `USB drive not found: ${diskPath}`);
+      this.destroyDrives(toDelete);
+      return toKeep;
+    });
+  }
+
+  /** Deletes every tracked drive and destroys all backing storage. */
+  deleteAllDrives(): void {
+    debug('Delete all drives');
+    if (this.getSimulatedDrives().length === 0) return;
+    this.mutateState((drives) => {
+      this.destroyDrives(drives);
+      return [];
+    });
+  }
+
+  /**
+   * Unmounts (if present) and destroys the backing storage of each given drive.
+   * Caller is responsible for removing them from the persisted working set.
+   */
+  private destroyDrives(drives: SimulatedUsbDrive[]): void {
+    for (const drive of drives) {
+      if (drive.present) {
+        assert(drive.partition);
+        this.unmountPartitionInternal(drive.partition);
+      }
+      debug('Deleting drive storage: %s', drive.diskPath);
+      this.reinitStorage(drive.diskPath);
+    }
+  }
+
+  /**
+   * Mounts a partition by device path.
+   * @throws {Error} If the partition is not present.
+   */
+  async mountPartition(partPath: UsbPartitionDevPath): Promise<void> {
+    await Promise.resolve();
+    this.mutateState((drives) => {
+      const { drive, partition } = findPresentPartition(drives, partPath);
+      partition.mountpoint = this.storagePath(drive.diskPath);
+      mkdirSync(partition.mountpoint, { recursive: true });
+    });
+  }
+
+  /**
+   * Unmounts a drive by its mountpoint.
+   * @throws {Error} If the drive is not present.
+   */
+  async unmountPartition(mountpoint: UsbPartitionMountpoint): Promise<void> {
+    await Promise.resolve();
+    this.mutateState((drives) => {
+      const { partition } = findPresentPartitionByMountpoint(
+        drives,
+        mountpoint
+      );
+      this.unmountPartitionInternal(partition);
+    });
+  }
+
+  /**
+   * Clears a partition's mountpoint. Mutates the given partition in place, so
+   * it must be called within a {@link mutateState} transaction on a partition
+   * belonging to the working set.
+   */
+  private unmountPartitionInternal(partition: UsbPlatformPartition): void {
+    assert(this.cachedDrives, 'must be called within mutateState');
+    if (!partition.mountpoint) {
+      debug('Partition already unmounted: %s', partition.partPath);
+      return;
+    }
+    debug('Unmounting partition: %s', partition.partPath);
+    partition.mountpoint = undefined;
+  }
+
+  /**
+   * Formats a drive with the given options. This will delete any existing
+   * partitions and create a new one.
+   * @throws {Error} If the drive is not present.
+   */
+  async formatDrive(
+    diskPath: UsbDiskDevPath,
+    fstype: UsbDriveFilesystemType,
+    label: string
+  ): Promise<void> {
+    await Promise.resolve();
+    debug('Format drive: %s', diskPath);
+    this.mutateState((drives) => {
+      const drive = findPresentDrive(drives, diskPath);
+      assert(drive.partition);
+      this.unmountPartitionInternal(drive.partition);
+
+      drive.partition = {
+        partPath: this.partPathFromDiskPath(drive.diskPath),
+        fstype,
+        label,
+        mountpoint: this.storagePath(drive.diskPath),
+      };
+
+      this.replaceDriveData(drive.diskPath, {});
+    });
+  }
+
+  /**
+   * Synchronizes the contents of a drive with its storage. This operation is a
+   * no-op for a simulated drive.
+   * @throws {Error} If the drive is not present or not mounted.
+   */
+  async sync(mountpoint: UsbPartitionMountpoint): Promise<void> {
+    await Promise.resolve();
+    debug('Sync: %s', mountpoint);
+
+    const drive = this.getSimulatedDrives().find(
+      (d) => d.present && d.partition?.mountpoint === mountpoint
+    );
+    assert(!!drive, `Drive not mounted: ${mountpoint}`);
+  }
+
+  /**
+   * The path to the file used to store drive state.
+   */
+  private get stateFilePath(): string {
+    return join(this.root, 'drives.json');
+  }
+
+  /**
+   * The root directory for partition storage. Partitions each have their own
+   * subdirectory named after their devPath.
+   */
+  private get storageRoot(): string {
+    return join(this.root, 'storage');
+  }
+
+  private reinitStorage(diskPath: UsbDiskDevPath): string {
+    const storagePath = this.storagePath(diskPath);
+    rmSync(storagePath, { recursive: true, force: true });
+    mkdirSync(storagePath, { recursive: true });
+    return storagePath;
+  }
+
+  /**
+   * Returns the path to the storage directory for the given drive, which
+   * will be in a directory named after the drive's devPath. It is not
+   * guaranteed to exist on disk since it does not check that the drive
+   * actually exists.
+   */
+  storagePath(diskPath: UsbDiskDevPath): UsbPartitionMountpoint {
+    return UsbPartitionMountpointSchema.decode(
+      join(this.storageRoot, basename(diskPath))
+    );
+  }
+
+  private partPathFromDiskPath(diskPath: UsbDiskDevPath): UsbPartitionDevPath {
+    return UsbPartitionDevPathSchema.decode(`${diskPath}1`);
+  }
+
+  /**
+   * Runs a state mutation as a read-modify-write transaction. `mutate` receives
+   * the working set of drives — the only thing it may mutate — and may either
+   * mutate it in place or return a replacement array. Whatever the working set
+   * is at the end is persisted. Not re-entrant.
+   */
+  private mutateState(
+    mutate: (drives: SimulatedUsbDrive[]) => SimulatedUsbDrive[] | void
+  ): void {
+    assert(!this.cachedDrives, 'mutateState is not re-entrant');
+    this.cachedDrives = this.getSimulatedDrives();
+    try {
+      this.cachedDrives = mutate(this.cachedDrives) ?? this.cachedDrives;
+      this.writeStateFile(this.cachedDrives);
+    } finally {
+      this.cachedDrives = undefined;
+    }
+  }
+
+  private writeStateFile(devices: readonly SimulatedUsbDrive[]): void {
+    debug('Write state file: %d device(s)', devices.length);
+    for (const device of devices) {
+      debug(
+        'Write state file:   %s (%s, %s)',
+        device.diskPath,
+        device.present ? 'present' : 'absent',
+        device.partition?.mountpoint ?? 'unmounted'
+      );
+    }
+    writeFileSync(this.stateFilePath, JSON.stringify(devices, null, 2));
+  }
+}
