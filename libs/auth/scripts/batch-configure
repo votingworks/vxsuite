@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+read -sp "Enter pass phrase: " PASS_PHRASE
+echo
+
+pcsc_scan | while read -r line; do
+    if echo "${line}" | grep -q "Card inserted"; then
+        echo
+        echo "Card detected!"
+        echo -en "\a"
+        echo
+        NODE_ENV=production \
+            VX_PRIVATE_KEY_PATH=/media/psf/Shared/keys/v4-vx-private-key.pem \
+            VX_PRIVATE_KEY_PASS_PHRASE="${PASS_PHRASE}" \
+            ./scripts/configure-java-card
+        echo -en "\a"
+    fi
+done
