@@ -949,6 +949,20 @@ describe('sync', () => {
     multiUsbDrive.stop();
   });
 
+  test('does nothing for a drive with no usable partition', async () => {
+    mockDrives = [makeDisk({ partitions: [] })];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    await multiUsbDrive.sync('/dev/sdb1');
+
+    expect(execMock).not.toHaveBeenCalled();
+
+    multiUsbDrive.stop();
+  });
+
   test('does nothing if drive not found', async () => {
     mockDrives = [];
     const logger = mockLogger({ fn: vi.fn });

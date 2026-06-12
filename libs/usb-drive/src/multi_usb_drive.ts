@@ -468,9 +468,10 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
             case 'ext4':
               await formatDriveAsExt4(diskPath, label);
               break;
+            /* istanbul ignore start */
             default:
-              /* istanbul ignore next */
               throwIllegalValue(fstype);
+            /* istanbul ignore stop */
           }
           ejectedDrives.add(diskPath); // prevent auto-remount
           await doRefresh();
