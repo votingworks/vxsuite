@@ -514,7 +514,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
       await result;
     },
 
-    async sync(partPath: string): Promise<void> {
+    async sync(partPath: UsbPartitionDevPath): Promise<void> {
       const partition = cachedDrives
         .flatMap((d) => (d.partition ? [d.partition] : []))
         .find((p) => p.partPath === partPath);
