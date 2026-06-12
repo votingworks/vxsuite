@@ -284,6 +284,46 @@ describe('refresh', () => {
     multiUsbDrive.stop();
   });
 
+  test('notifies listeners when ejecting an already-unmounted drive', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            partPath: devsdb1,
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+
+    // Fail the auto-mount so the partition settles at unmounted.
+    execMock.mockRejectedValue(new Error('mount failed'));
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    await vi.waitFor(() => {
+      expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+        UsbPartitionMount.unmounted()
+      );
+    });
+
+    // Ejecting changes only derived state (the platform snapshot is
+    // unchanged), but listeners must still hear about it.
+    const onChange = vi.fn();
+    multiUsbDrive.addListener(onChange);
+    await multiUsbDrive.ejectDrive(devsdb);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.ejected()
+    );
+
+    multiUsbDrive.stop();
+  });
+
   test('watcher callback triggers a refresh', async () => {
     mockDrives = [];
     const logger = mockLogger({ fn: vi.fn });

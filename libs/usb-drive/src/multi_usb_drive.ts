@@ -151,7 +151,7 @@ export function detectMultiUsbDrive(
   const listeners = new Set<() => void>();
 
   let stopped = false;
-  let isFirstRefresh = true;
+  let lastReportedState: Optional<string>;
   let cachedDrives: UsbPlatformDrive[] = [];
 
   // Per-drive eject state: cleared when the drive is no longer detected.
@@ -167,6 +167,19 @@ export function detectMultiUsbDrive(
     for (const listener of listeners) {
       listener();
     }
+  }
+
+  /**
+   * Notifies listeners if the drive state visible through {@link getDrives}
+   * has changed since the last notification. Compares the built drive infos —
+   * not the raw platform snapshot — so transitions that only change derived
+   * state (e.g. ejecting an already-unmounted drive) are still reported.
+   */
+  function notifyIfChanged() {
+    const newState = JSON.stringify(cachedDrives.map(buildDriveInfo));
+    if (newState === lastReportedState) return;
+    lastReportedState = newState;
+    onChange();
   }
 
   function computeMount(
@@ -226,7 +239,7 @@ export function detectMultiUsbDrive(
         doMountPartitionWithRetry(diskPath, partPath)
       )
       ?.then(() => {
-        if (!stopped) onChange();
+        if (!stopped) notifyIfChanged();
       });
   }
 
@@ -297,19 +310,13 @@ export function detectMultiUsbDrive(
       }
     }
 
-    const stateChanged =
-      isFirstRefresh ||
-      JSON.stringify(newDrives) !== JSON.stringify(cachedDrives);
-    isFirstRefresh = false;
     cachedDrives = newDrives;
 
     for (const disk of newDrives) {
       doAutoMount(disk);
     }
 
-    if (stateChanged) {
-      onChange();
-    }
+    notifyIfChanged();
   }
 
   /**
