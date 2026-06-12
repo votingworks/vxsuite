@@ -9,7 +9,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
-import { encodeBallot } from '.';
+import { encodeSinglePageSummaryBallot } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
 const electionId = unsafeParse(ElectionIdSchema, 'election-1');
@@ -55,7 +55,7 @@ const { ballotHash } = asElectionDefinition(election);
 
 test('smallest possible encoded ballot', () => {
   expect(
-    encodeBallot(election, {
+    encodeSinglePageSummaryBallot(election, {
       ballotHash,
       ballotStyleId: election.ballotStyles[0]!.id,
       precinctId: election.precincts[0]!.id,

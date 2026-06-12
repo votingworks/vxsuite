@@ -12,11 +12,11 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import {
-  decodeBallot,
-  decodeBmdMultiPageBallot,
-  encodeBallot,
-  encodeBmdMultiPageBallot,
-  BmdMultiPageBallotPage,
+  decodeSinglePageSummaryBallot,
+  decodeMultiPageSummaryBallotPage,
+  encodeSinglePageSummaryBallot,
+  encodeMultiPageSummaryBallotPage,
+  MultiPageSummaryBallotPage,
   sliceBallotHashForEncoding,
 } from '@votingworks/ballot-encoder';
 import {
@@ -165,7 +165,7 @@ test('single-page BMD ballot: TS encode matches Rust decode', async () => {
 
         const votes = generateVotesForContests(contests, includeWriteIns);
 
-        const encoded = encodeBallot(election, {
+        const encoded = encodeSinglePageSummaryBallot(election, {
           ballotHash,
           ballotStyleId: ballotStyle.id,
           precinctId: precinct.id,
@@ -250,7 +250,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
           const pageNumber = pageIdx + 1;
           const votes = generateVotesForContests(pageContests, includeWriteIns);
 
-          const page: BmdMultiPageBallotPage = {
+          const page: MultiPageSummaryBallotPage = {
             ballotHash,
             ballotStyleId: ballotStyle.id,
             precinctId: precinct.id,
@@ -263,7 +263,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
             votes,
           };
 
-          const encoded = encodeBmdMultiPageBallot(election, page);
+          const encoded = encodeMultiPageSummaryBallotPage(election, page);
 
           const result = await napi.decodeBmdBallotData(
             election,
@@ -384,7 +384,7 @@ test('single-page BMD ballot: Rust encode matches TS decode', async () => {
 
         const encoded = await napi.encodeBmdBallotData(election, rustRecord);
 
-        const decoded = decodeBallot(
+        const decoded = decodeSinglePageSummaryBallot(
           electionDefinition,
           new Uint8Array(encoded)
         );
@@ -464,7 +464,7 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
 
           const encoded = await napi.encodeBmdBallotData(election, rustRecord);
 
-          const decoded = decodeBmdMultiPageBallot(
+          const decoded = decodeMultiPageSummaryBallotPage(
             electionDefinition,
             new Uint8Array(encoded)
           );

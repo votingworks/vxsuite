@@ -3,8 +3,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
-  encodeBallot,
-  encodeBmdMultiPageBallot,
+  encodeSinglePageSummaryBallot,
+  encodeMultiPageSummaryBallotPage,
 } from '@votingworks/ballot-encoder';
 import {
   BallotStyle,
@@ -728,7 +728,7 @@ export function BmdPaperBallot({
 
   // Encode ballot using appropriate format
   const encodedBallot = isMultiPage
-    ? encodeBmdMultiPageBallot(election, {
+    ? encodeMultiPageSummaryBallotPage(election, {
         ballotHash,
         precinctId,
         ballotStyleId,
@@ -740,7 +740,7 @@ export function BmdPaperBallot({
         ballotAuditId,
         contests,
       })
-    : encodeBallot(election, {
+    : encodeSinglePageSummaryBallot(election, {
         ballotHash,
         precinctId,
         ballotStyleId,

@@ -5,8 +5,8 @@ import {
   AdjudicationReasonInfo,
   BallotMetadata,
   BallotMetadataSchema,
-  BmdMultiPageBallotPageMetadata,
-  BmdMultiPageBallotPageMetadataSchema,
+  MultiPageSummaryBallotPageMetadata,
+  MultiPageSummaryBallotPageMetadataSchema,
   ContestId,
   ContestIdSchema,
   HmpbBallotPageMetadata,
@@ -46,7 +46,7 @@ export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
  */
 export interface InterpretedBmdMultiPagePage {
   type: 'InterpretedBmdMultiPagePage';
-  metadata: BmdMultiPageBallotPageMetadata;
+  metadata: MultiPageSummaryBallotPageMetadata;
   /** Votes for only the contests on this page */
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
@@ -54,7 +54,7 @@ export interface InterpretedBmdMultiPagePage {
 export const InterpretedBmdMultiPagePageSchema: z.ZodSchema<InterpretedBmdMultiPagePage> =
   z.object({
     type: z.literal('InterpretedBmdMultiPagePage'),
-    metadata: BmdMultiPageBallotPageMetadataSchema,
+    metadata: MultiPageSummaryBallotPageMetadataSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
   });
