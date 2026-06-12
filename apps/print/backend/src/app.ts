@@ -7,8 +7,6 @@ import {
   DiagnosticRecord,
   ElectionDefinition,
   ElectionPackageConfigurationError,
-  PrecinctSelection,
-  SinglePrecinctSelection,
   LanguageCode,
   Id,
   BallotType,
@@ -24,13 +22,7 @@ import {
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
 } from '@votingworks/backend';
-import {
-  BooleanEnvironmentVariableName,
-  getPrecinctSelectionName,
-  isElectionManagerAuth,
-  isFeatureFlagEnabled,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { PrintProps, PrintSides } from '@votingworks/printing';
 import { AppContext } from './context';
@@ -120,13 +112,6 @@ export function buildApi(ctx: AppContext) {
       }
       assert(systemSettings);
 
-      let precinctSelection: SinglePrecinctSelection | undefined;
-      if (electionDefinition.election.precincts.length === 1) {
-        precinctSelection = singlePrecinctSelectionFor(
-          electionDefinition.election.precincts[0].id
-        );
-      }
-
       store.withTransaction(() => {
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
@@ -135,17 +120,11 @@ export function buildApi(ctx: AppContext) {
         });
         store.setSystemSettings(systemSettings);
         store.setBallots(ballots);
-        if (precinctSelection) {
-          store.setPrecinctSelection(precinctSelection);
-        }
 
-        const { ENABLE_POLLING_PLACES } = BooleanEnvironmentVariableName;
-        if (isFeatureFlagEnabled(ENABLE_POLLING_PLACES)) {
-          if (electionDefinition.election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
-              electionDefinition.election.pollingPlaces[0].id
-            );
-          }
+        if (electionDefinition.election.pollingPlaces?.length === 1) {
+          workspace.store.setPollingPlaceId(
+            electionDefinition.election.pollingPlaces[0].id
+          );
         }
       });
 
@@ -164,24 +143,6 @@ export function buildApi(ctx: AppContext) {
 
     getSystemSettings(): SystemSettings {
       return store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-    },
-
-    getPrecinctSelection(): PrecinctSelection | null {
-      return store.getPrecinctSelection() || null;
-    },
-
-    async setPrecinctSelection(input: {
-      precinctSelection: PrecinctSelection;
-    }): Promise<void> {
-      const { electionDefinition } = assertDefined(store.getElectionRecord());
-      store.setPrecinctSelection(input.precinctSelection);
-      await logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
-        disposition: 'success',
-        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
-          electionDefinition.election.precincts,
-          input.precinctSelection
-        )}`,
-      });
     },
 
     getPollingPlaceId(): string | null {

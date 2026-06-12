@@ -42,10 +42,7 @@ export function constructAuthMachineState(
   const machineType = 'print';
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   const jurisdiction = store.getJurisdiction();
-
-  const locationConfigured = isFeatureFlagEnabled(Feature.ENABLE_POLLING_PLACES)
-    ? !!store.getPollingPlaceId()
-    : !!store.getPrecinctSelection();
+  const locationConfigured = !!store.getPollingPlaceId();
 
   return {
     ...systemSettings.auth,

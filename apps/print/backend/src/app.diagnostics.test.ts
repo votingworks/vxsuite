@@ -210,9 +210,7 @@ test('test-page print', async () => {
   });
 });
 
-test('save readiness report (with precinct selection)', async () => {
-  setPollingPlacesEnabled(true);
-
+test('save readiness report', async () => {
   const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive, server } =
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
@@ -295,12 +293,3 @@ test('getDiskSpaceSummary', async () => {
     MOCK_DISK_SPACE_SUMMARY
   );
 });
-
-function setPollingPlacesEnabled(enabled: boolean) {
-  // The mock feature flagger doesn't seem to work when an external package
-  // (e.g. libs/ui) is checking for the flag. Need to modify the env var
-  // directly.
-  process.env['REACT_APP_VX_ENABLE_POLLING_PLACES'] = enabled
-    ? 'TRUE'
-    : 'FALSE';
-}
