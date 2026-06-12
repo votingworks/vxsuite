@@ -1,9 +1,10 @@
-import makeDebug from 'debug';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { MultiUsbDrive, UsbDriveFilesystemType } from './multi_usb_drive';
+import makeDebug from 'debug';
+import { MultiUsbDrive } from './multi_usb_drive';
 import {
   UsbDiskDevPath,
   UsbDrive,
+  UsbDriveFilesystemType,
   UsbDriveInfo,
   UsbDriveStatus,
 } from './types';

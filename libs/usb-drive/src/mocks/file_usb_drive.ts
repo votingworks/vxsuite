@@ -9,12 +9,13 @@ import {
 import { Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { basename, join } from 'node:path';
-import type { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
+import type { MultiUsbDrive } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
   UsbDrive,
+  UsbDriveFilesystemType,
   UsbDriveInfo,
   UsbDriveStatus,
   UsbPartitionDevPath,

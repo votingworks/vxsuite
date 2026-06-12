@@ -1,16 +1,17 @@
-import { Mocked, mockFunction } from '@votingworks/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { Mocked, mockFunction } from '@votingworks/test-utils';
 import { rmSync } from 'node:fs';
-import { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
-import { MockFileTree, writeMockFileTree } from './helpers';
+import { MultiUsbDrive } from '../multi_usb_drive';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
+  UsbDriveFilesystemType,
   UsbDriveInfo,
   UsbPartitionDevPathSchema,
   UsbPartitionMount,
   UsbPartitionMountpointSchema,
 } from '../types';
+import { MockFileTree, writeMockFileTree } from './helpers';
 
 const MOCK_SINGLETON_DISK_DEV_PATH = UsbDiskDevPathSchema.decode('/dev/sdb');
 

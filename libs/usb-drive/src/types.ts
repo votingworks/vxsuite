@@ -1,5 +1,4 @@
 import { z } from 'zod/v4';
-import { type UsbDriveFilesystemType } from './multi_usb_drive';
 
 export type UsbDriveStatus =
   | { status: 'no_drive' }
@@ -101,3 +100,8 @@ export type UsbPartitionMount =
   | { type: 'formatting' }
   | { type: 'mounted'; mountpoint: UsbPartitionMountpoint }
   | { type: 'unmounting'; mountpoint: UsbPartitionMountpoint };
+
+export const UsbDriveFilesystemTypeSchema = z.enum(['fat32', 'ext4']);
+export type UsbDriveFilesystemType = z.output<
+  typeof UsbDriveFilesystemTypeSchema
+>;
