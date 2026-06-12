@@ -70,5 +70,5 @@ test('shows most recent diagnostic', async () => {
   screen.getByText('Test scan successful, 1/1/2021, 12:00:00 AM');
   screen.getByText('UPS test successful, 1/1/2021, 1:00:00 AM');
   screen.getByText('Mark Threshold: 0.07');
-  screen.getByText('Write-in Threshold: 0.05');
+  screen.getByText('Write-in Threshold: 0.025');
 });

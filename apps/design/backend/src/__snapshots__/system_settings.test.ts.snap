@@ -24,7 +24,7 @@ exports[`Default system settings for 'DEMO' - If a change is intentional, update
   "markThresholds": {
     "definite": 0.1,
     "marginal": 0.05,
-    "writeInTextArea": 0.05,
+    "writeInTextArea": 0.025,
   },
   "maxCumulativeStreakWidth": 5,
   "precinctScanAdjudicationReasons": [
@@ -63,7 +63,7 @@ exports[`Default system settings for 'MI' - If a change is intentional, update s
   "markThresholds": {
     "definite": 0.1,
     "marginal": 0.05,
-    "writeInTextArea": 0.05,
+    "writeInTextArea": 0.025,
   },
   "maxCumulativeStreakWidth": 5,
   "precinctScanAdjudicationReasons": [
@@ -100,7 +100,7 @@ exports[`Default system settings for 'MS' - If a change is intentional, update s
   "markThresholds": {
     "definite": 0.07,
     "marginal": 0.05,
-    "writeInTextArea": 0.05,
+    "writeInTextArea": 0.025,
   },
   "maxCumulativeStreakWidth": 5,
   "precinctScanAdjudicationReasons": [
@@ -139,7 +139,7 @@ exports[`Default system settings for 'NH' - If a change is intentional, update s
   "markThresholds": {
     "definite": 0.07,
     "marginal": 0.05,
-    "writeInTextArea": 0.05,
+    "writeInTextArea": 0.025,
   },
   "maxCumulativeStreakWidth": 5,
   "precinctScanAdjudicationReasons": [
@@ -169,7 +169,7 @@ exports[`Default system settings for 'SLI' - If a change is intentional, update 
   "markThresholds": {
     "definite": 0.07,
     "marginal": 0.05,
-    "writeInTextArea": 0.05,
+    "writeInTextArea": 0.025,
   },
   "maxCumulativeStreakWidth": 5,
   "precinctScanAdjudicationReasons": [],
