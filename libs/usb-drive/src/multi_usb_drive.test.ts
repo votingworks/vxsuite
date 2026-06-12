@@ -8,6 +8,7 @@ import {
 } from '@votingworks/utils';
 import { deferred, sleep } from '@votingworks/basics';
 import { detectMultiUsbDrive } from './multi_usb_drive';
+import { UsbPlatform } from './usb_platform';
 import { exec } from './exec';
 import { getAllDiskDevices, UsbDiskDeviceInfo } from './block_devices';
 import {
@@ -89,6 +90,28 @@ function makeDisk(
     ...overrides,
   };
 }
+
+test('an explicitly injected platform takes precedence over USE_MOCK_USB_DRIVE', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
+  );
+  const platform: UsbPlatform = {
+    getDrives: () => Promise.resolve([{ diskPath: devsdb }]),
+    watchChanges: () => ({ stop: () => {} }),
+    mountPartition: () => Promise.resolve(),
+    unmountPartition: () => Promise.resolve(),
+    formatDrive: () => Promise.resolve(),
+    sync: () => Promise.resolve(),
+  };
+  const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }), {
+    platform,
+  });
+
+  await multiUsbDrive.refresh();
+
+  expect(multiUsbDrive.getDrives()).toEqual([{ diskPath: devsdb }]);
+  multiUsbDrive.stop();
+});
 
 test('works even when USE_MOCK_USB_DRIVE feature flag is enabled', () => {
   featureFlagMock.enableFeatureFlag(
@@ -257,6 +280,46 @@ describe('refresh', () => {
     mockDrives = [];
     await multiUsbDrive.refresh();
     expect(onChange).toHaveBeenCalledTimes(2);
+
+    multiUsbDrive.stop();
+  });
+
+  test('notifies listeners when ejecting an already-unmounted drive', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            partPath: devsdb1,
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+
+    // Fail the auto-mount so the partition settles at unmounted.
+    execMock.mockRejectedValue(new Error('mount failed'));
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    await vi.waitFor(() => {
+      expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+        UsbPartitionMount.unmounted()
+      );
+    });
+
+    // Ejecting changes only derived state (the platform snapshot is
+    // unchanged), but listeners must still hear about it.
+    const onChange = vi.fn();
+    multiUsbDrive.addListener(onChange);
+    await multiUsbDrive.ejectDrive(devsdb);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+      UsbPartitionMount.ejected()
+    );
 
     multiUsbDrive.stop();
   });

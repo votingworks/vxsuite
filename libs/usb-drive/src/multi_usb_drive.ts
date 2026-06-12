@@ -1,75 +1,41 @@
-import { join } from 'node:path';
-import makeDebug from 'debug';
 import {
   assert,
   assertDefined,
   Deferred,
   deferred,
   extractErrorMessage,
+  iter,
   MaybePromise,
   Optional,
   sleep,
-  throwIllegalValue,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { exec } from './exec';
-import {
-  createBlockDeviceChangeWatcher,
-  getAllDiskDevices,
-} from './block_devices';
+import makeDebug from 'debug';
 import { createMockFileMultiUsbDrive } from './mocks/file_usb_drive';
-import { UsbDriveInfo, UsbPartitionMount } from './types';
-import type {
+import {
   UsbDiskDevPath,
+  UsbDriveFilesystemType,
+  UsbDriveInfo,
   UsbPartitionDevPath,
-  UsbPartitionMountpoint,
+  UsbPartitionMount,
 } from './types';
+import {
+  RealUsbPlatform,
+  UsbPlatform,
+  UsbPlatformDrive,
+  UsbPlatformPartition,
+} from './usb_platform';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 
 const debug = makeDebug('usb-drive:multi');
 
-const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 const MOUNT_TIMEOUT_MS = 5_000;
 const MOUNT_RETRY_INTERVAL_MS = 100;
-
-async function mountPartition(partPath: string): Promise<void> {
-  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'mount.sh'), partPath]);
-}
-
-async function unmountPartition(mountpoint: string): Promise<void> {
-  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountpoint]);
-}
-
-export type UsbDriveFilesystemType = 'fat32' | 'ext4';
-
-async function formatDriveAsFat32(
-  diskPath: UsbDiskDevPath,
-  label: string
-): Promise<void> {
-  await exec('sudo', [
-    '-n',
-    join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
-    diskPath,
-    label,
-  ]);
-}
-
-async function formatDriveAsExt4(
-  diskPath: UsbDiskDevPath,
-  label: string
-): Promise<void> {
-  await exec('sudo', [
-    '-n',
-    join(MOUNT_SCRIPT_PATH, 'format_ext4.sh'),
-    diskPath,
-    label,
-  ]);
-}
 
 function generateVxUsbLabel(previousLabel?: string): string {
   if (previousLabel && VX_USB_LABEL_REGEXP.test(previousLabel)) {
@@ -82,43 +48,6 @@ function generateVxUsbLabel(previousLabel?: string): string {
     label += assertDefined(CHARS[Math.floor(Math.random() * CHARS.length)]);
   }
   return label;
-}
-
-export function isFat32Partition(partition?: {
-  fstype?: string;
-  fsver?: string;
-}): boolean {
-  return partition?.fstype === 'vfat' && partition.fsver === 'FAT32';
-}
-
-export function isExt4Partition(partition?: { fstype?: string }): boolean {
-  return partition?.fstype === 'ext4';
-}
-
-function isSupportedPartition(partition?: {
-  fstype?: string;
-  fsver?: string;
-}): boolean {
-  return isFat32Partition(partition) || isExt4Partition(partition);
-}
-
-/**
- * Internal cached representation of a detected partition. Holds the raw
- * mountpoint so the displayed {@link UsbPartitionMount} can be recomputed on
- * each read (reflecting in-progress eject/format/mount actions) rather than
- * baked in at refresh time.
- */
-interface CachedPartition {
-  partPath: UsbPartitionDevPath;
-  fstype: UsbDriveFilesystemType;
-  label?: string;
-  mountpoint?: UsbPartitionMountpoint;
-}
-
-/** Internal cached representation of a detected USB disk. */
-interface CachedDrive {
-  diskPath: UsbDiskDevPath;
-  partition?: CachedPartition;
 }
 
 export interface MultiUsbDrive {
@@ -205,16 +134,25 @@ class KeyedTaskRunner<Key, Task> {
   }
 }
 
-export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
-  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
+export function detectMultiUsbDrive(
+  logger: Logger,
+  options?: { platform?: UsbPlatform }
+): MultiUsbDrive {
+  // An explicitly injected platform takes precedence over the ambient
+  // USE_MOCK_USB_DRIVE flag.
+  if (
+    !options?.platform &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
+  ) {
     return createMockFileMultiUsbDrive();
   }
 
+  const platform = options?.platform ?? new RealUsbPlatform();
   const listeners = new Set<() => void>();
 
   let stopped = false;
-  let isFirstRefresh = true;
-  let cachedDrives: CachedDrive[] = [];
+  let lastReportedState: Optional<string>;
+  let cachedDrives: UsbPlatformDrive[] = [];
 
   // Per-drive eject state: cleared when the drive is no longer detected.
   const ejectedDrives = new Set<string>();
@@ -231,9 +169,22 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     }
   }
 
+  /**
+   * Notifies listeners if the drive state visible through {@link getDrives}
+   * has changed since the last notification. Compares the built drive infos —
+   * not the raw platform snapshot — so transitions that only change derived
+   * state (e.g. ejecting an already-unmounted drive) are still reported.
+   */
+  function notifyIfChanged() {
+    const newState = JSON.stringify(cachedDrives.map(buildDriveInfo));
+    if (newState === lastReportedState) return;
+    lastReportedState = newState;
+    onChange();
+  }
+
   function computeMount(
     diskPath: UsbDiskDevPath,
-    partition: CachedPartition
+    partition: UsbPlatformPartition
   ): UsbPartitionMount {
     const dAction = driveAction.getTask(diskPath);
 
@@ -263,7 +214,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     return UsbPartitionMount.unmounted();
   }
 
-  function buildDriveInfo(drive: CachedDrive): UsbDriveInfo {
+  function buildDriveInfo(drive: UsbPlatformDrive): UsbDriveInfo {
     if (!drive.partition) {
       return { diskPath: drive.diskPath };
     }
@@ -288,7 +239,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
         doMountPartitionWithRetry(diskPath, partPath)
       )
       ?.then(() => {
-        if (!stopped) onChange();
+        if (!stopped) notifyIfChanged();
       });
   }
 
@@ -298,7 +249,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
   ): Promise<void> {
     try {
       await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
-      await mountPartition(partPath);
+      await platform.mountPartition(partPath);
 
       let mountpoint: Optional<string>;
       const deadline = Date.now() + MOUNT_TIMEOUT_MS;
@@ -334,7 +285,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     }
   }
 
-  function doAutoMount(drive: CachedDrive): void {
+  function doAutoMount(drive: UsbPlatformDrive): void {
     if (stopped) return;
     if (ejectedDrives.has(drive.diskPath)) return;
     if (driveAction.isBusy(drive.diskPath)) return;
@@ -350,21 +301,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     // Every detected USB disk is included. `partition` is set only when the
     // disk has exactly one supported (FAT32/ext4) partition; otherwise the disk
     // appears with no partition (e.g. unformatted or unsupported drives).
-    const newDrives: CachedDrive[] = (await getAllDiskDevices()).map((d) => {
-      const partition = d.partitions.length === 1 ? d.partitions[0] : undefined;
-      if (!partition || !isSupportedPartition(partition)) {
-        return { diskPath: d.diskPath };
-      }
-      return {
-        diskPath: d.diskPath,
-        partition: {
-          partPath: partition.partPath,
-          fstype: isFat32Partition(partition) ? 'fat32' : 'ext4',
-          label: partition.label,
-          mountpoint: partition.mountpoint,
-        },
-      };
-    });
+    const newDrives = await platform.getDrives();
 
     // Clear eject state for drives that have been physically removed
     for (const devPath of ejectedDrives) {
@@ -373,26 +310,22 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
       }
     }
 
-    const stateChanged =
-      isFirstRefresh ||
-      JSON.stringify(newDrives) !== JSON.stringify(cachedDrives);
-    isFirstRefresh = false;
     cachedDrives = newDrives;
 
     for (const disk of newDrives) {
       doAutoMount(disk);
     }
 
-    if (stateChanged) {
-      onChange();
-    }
+    notifyIfChanged();
   }
 
   /**
    * Helper for operations that need to unmount all disk partitions first.
    * Returns the freshly-read disk.
    */
-  async function unmountDrive(diskPath: UsbDiskDevPath): Promise<CachedDrive> {
+  async function unmountDrive(
+    diskPath: UsbDiskDevPath
+  ): Promise<UsbPlatformDrive> {
     const disk = cachedDrives.find((d) => d.diskPath === diskPath);
     assert(disk, `Drive not found: ${diskPath}`);
     if (!disk.partition) return disk;
@@ -404,12 +337,12 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     const freshDisk = cachedDrives.find((d) => d.diskPath === diskPath);
     assert(freshDisk, `Drive not found: ${diskPath}`);
     if (freshDisk.partition?.mountpoint) {
-      await unmountPartition(freshDisk.partition.mountpoint);
+      await platform.unmountPartition(freshDisk.partition.mountpoint);
     }
     return freshDisk;
   }
 
-  const watcher = createBlockDeviceChangeWatcher(() => {
+  const watcher = platform.watchChanges(() => {
     void doRefresh().catch((e) => debug(`background refresh failed: ${e}`));
   });
   void doRefresh().catch((e) => debug(`initial refresh failed: ${e}`));
@@ -472,18 +405,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
           debug(
             `formatting drive ${diskPath} as ${fstype} with label ${label}`
           );
-          switch (fstype) {
-            case 'fat32':
-              await formatDriveAsFat32(diskPath, label);
-              break;
-            case 'ext4':
-              await formatDriveAsExt4(diskPath, label);
-              break;
-            /* istanbul ignore start */
-            default:
-              throwIllegalValue(fstype);
-            /* istanbul ignore stop */
-          }
+          await platform.formatDrive(diskPath, fstype, label);
           ejectedDrives.add(diskPath); // prevent auto-remount
           await doRefresh();
 
@@ -515,8 +437,8 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
     },
 
     async sync(partPath: UsbPartitionDevPath): Promise<void> {
-      const partition = cachedDrives
-        .flatMap((d) => (d.partition ? [d.partition] : []))
+      const partition = iter(cachedDrives)
+        .filterMap((d) => d.partition)
         .find((p) => p.partPath === partPath);
 
       if (!partition?.mountpoint) {
@@ -524,7 +446,7 @@ export function detectMultiUsbDrive(logger: Logger): MultiUsbDrive {
         return;
       }
 
-      await exec('sync', ['-f', partition.mountpoint]);
+      await platform.sync(partition.mountpoint);
     },
 
     stop(): void {

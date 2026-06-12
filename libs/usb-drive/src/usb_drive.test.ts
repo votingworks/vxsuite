@@ -1,12 +1,11 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import { existsSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
 import { mockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { detectUsbDrive } from './usb_drive';
+import { existsSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { UsbDiskDeviceInfo } from './block_devices';
 import {
   getMockUsbDirPath,
@@ -17,6 +16,7 @@ import {
   UsbPartitionDevPathSchema,
   UsbPartitionMountpointSchema,
 } from './types';
+import { detectUsbDrive } from './usb_drive';
 
 const featureFlagMock = getFeatureFlagMock();
 
@@ -91,12 +91,10 @@ test('exposes the first connected drive via the UsbDrive interface', async () =>
 
   const usbDrive = detectUsbDrive(mockLogger({ fn: vi.fn }));
 
-  // doRefresh() is fired asynchronously but only awaits Promise.resolve(mockDrives),
-  // so one microtask tick is enough for it to complete and populate the drive cache.
-  await Promise.resolve();
-
-  expect(await usbDrive.status()).toEqual({
-    status: 'mounted',
-    mountpoint: '/media/vx/usb-drive-sdb1',
+  await vi.waitFor(async () => {
+    expect(await usbDrive.status()).toEqual({
+      status: 'mounted',
+      mountpoint: '/media/vx/usb-drive-sdb1',
+    });
   });
 });
