@@ -1,7 +1,12 @@
 import makeDebug from 'debug';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { MultiUsbDrive, UsbDriveFilesystemType } from './multi_usb_drive';
-import { UsbDrive, UsbDriveInfo, UsbDriveStatus } from './types';
+import {
+  UsbDiskDevPath,
+  UsbDrive,
+  UsbDriveInfo,
+  UsbDriveStatus,
+} from './types';
 
 const debug = makeDebug('usb-drive:adapter');
 
@@ -15,7 +20,9 @@ const debug = makeDebug('usb-drive:adapter');
  */
 export function createUsbDriveAdapter(
   multiUsbDrive: MultiUsbDrive,
-  getDriveDevPath: (usbDrives: readonly UsbDriveInfo[]) => string | undefined
+  getDriveDevPath: (
+    usbDrives: readonly UsbDriveInfo[]
+  ) => UsbDiskDevPath | undefined
 ): UsbDrive {
   return {
     status(): Promise<UsbDriveStatus> {

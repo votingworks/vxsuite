@@ -1,13 +1,57 @@
+import { z } from 'zod/v4';
 import { type UsbDriveFilesystemType } from './multi_usb_drive';
 
 export type UsbDriveStatus =
   | { status: 'no_drive' }
   | {
       status: 'mounted';
-      mountpoint: string;
+      mountpoint: UsbPartitionMountpoint;
     }
   | { status: 'ejected' }
   | { status: 'error'; reason: 'bad_format' };
+
+/**
+ * A branded string type for USB disk device paths, e.g. `/dev/sdb`.
+ */
+export const UsbDiskDevPathSchema = z
+  .string()
+  .regex(/^\/dev\/[a-z0-9]+$/)
+  .brand('UsbDiskDevPath');
+
+/**
+ * A branded string type for USB partition device paths, e.g. `/dev/sdb1`.
+ */
+export const UsbPartitionDevPathSchema = z
+  .string()
+  .regex(/^\/dev\/[a-z0-9]+[0-9]$/)
+  .brand('UsbPartitionDevPath');
+
+/**
+ * A branded string type for USB partition mountpoints, e.g.
+ * `/media/vx/usb-drive-sdb1`.
+ */
+export const UsbPartitionMountpointSchema = z
+  .string()
+  .regex(/^\//)
+  .brand('UsbPartitionMountpoint');
+
+/**
+ * A branded string type for USB disk device paths, e.g. `/dev/sdb`.
+ */
+export type UsbDiskDevPath = z.output<typeof UsbDiskDevPathSchema>;
+
+/**
+ * A branded string type for USB partition device paths, e.g. `/dev/sdb1`.
+ */
+export type UsbPartitionDevPath = z.output<typeof UsbPartitionDevPathSchema>;
+
+/**
+ * A branded string type for USB partition mountpoints, e.g.
+ * `/media/vx/usb-drive-sdb1`.
+ */
+export type UsbPartitionMountpoint = z.output<
+  typeof UsbPartitionMountpointSchema
+>;
 
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
@@ -20,7 +64,7 @@ export interface UsbDrive {
  * A USB drive with `partition` set if it has a single supported partition.
  */
 export interface UsbDriveInfo {
-  diskPath: string;
+  diskPath: UsbDiskDevPath;
   partition?: UsbPartitionInfo;
 }
 
@@ -28,8 +72,8 @@ export interface UsbDriveInfo {
  * A USB partition with one of the supported file systems.
  */
 export interface UsbPartitionInfo {
-  diskPath: string;
-  partPath: string;
+  diskPath: UsbDiskDevPath;
+  partPath: UsbPartitionDevPath;
   fstype: UsbDriveFilesystemType;
   mount: UsbPartitionMount;
   label?: string;
@@ -40,11 +84,11 @@ export const UsbPartitionMount = {
   ejected: (): UsbPartitionMount => ({ type: 'ejected' }),
   mounting: (): UsbPartitionMount => ({ type: 'mounting' }),
   formatting: (): UsbPartitionMount => ({ type: 'formatting' }),
-  mounted: (mountpoint: string): UsbPartitionMount => ({
+  mounted: (mountpoint: UsbPartitionMountpoint): UsbPartitionMount => ({
     type: 'mounted',
     mountpoint,
   }),
-  unmounting: (mountpoint: string): UsbPartitionMount => ({
+  unmounting: (mountpoint: UsbPartitionMountpoint): UsbPartitionMount => ({
     type: 'unmounting',
     mountpoint,
   }),
@@ -55,5 +99,5 @@ export type UsbPartitionMount =
   | { type: 'ejected' }
   | { type: 'mounting' }
   | { type: 'formatting' }
-  | { type: 'mounted'; mountpoint: string }
-  | { type: 'unmounting'; mountpoint: string };
+  | { type: 'mounted'; mountpoint: UsbPartitionMountpoint }
+  | { type: 'unmounting'; mountpoint: UsbPartitionMountpoint };

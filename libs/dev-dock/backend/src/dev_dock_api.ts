@@ -41,6 +41,8 @@ import {
   addMockDrive,
   getMockFileUsbDriveHandler,
   listMockDrives,
+  UsbDiskDevPath,
+  UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
   getMockFileFujitsuPrinterHandler,
@@ -69,7 +71,7 @@ export interface MockBatchScannerApi {
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
 export type DevDockUsbDriveStatus = 'inserted' | 'removed';
 export interface DevDockUsbDriveInfo {
-  devPath: string;
+  diskPath: UsbDiskDevPath;
   status: DevDockUsbDriveStatus;
 }
 export interface DevDockElectionOption {
@@ -91,7 +93,9 @@ export interface DevDockElectionInfo extends DevDockElectionOption {
 }
 
 export const MOCK_USB_DRIVE_DISK_NAME = 'sdb';
-export const MOCK_USB_DRIVE_DEV_PATH = `/dev/${MOCK_USB_DRIVE_DISK_NAME}`;
+export const MOCK_USB_DRIVE_DEV_PATH = UsbDiskDevPathSchema.decode(
+  `/dev/${MOCK_USB_DRIVE_DISK_NAME}`
+);
 
 export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
   './libs/fixtures/data/electionGeneral/election.json';
@@ -365,7 +369,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       const handler = getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
       const status =
         handler.status().status === 'mounted' ? 'inserted' : 'removed';
-      return { devPath: MOCK_USB_DRIVE_DEV_PATH, status };
+      return { diskPath: MOCK_USB_DRIVE_DEV_PATH, status };
     },
 
     insertUsbDrive(): void {

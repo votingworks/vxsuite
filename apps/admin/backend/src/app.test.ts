@@ -25,7 +25,11 @@ import {
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
 import { CandidateContestResults } from '@votingworks/types/src/tabulation';
-import { UsbPartitionMount } from '@votingworks/usb-drive';
+import {
+  UsbDiskDevPathSchema,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMount,
+} from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -39,6 +43,9 @@ import { ManualResultsIdentifier, ManualResultsRecord } from './types';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
+
+const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -573,10 +580,10 @@ test('usbDrive', async () => {
   mockMultiUsbDrive.multiUsbDrive.getDrives.reset();
   mockMultiUsbDrive.multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
     {
-      diskPath: '/dev/sdb',
+      diskPath: devsdb,
       partition: {
-        diskPath: '/dev/sdb',
-        partPath: '/dev/sdb1',
+        diskPath: devsdb,
+        partPath: devsdb1,
         fstype: 'ext4',
         mount: UsbPartitionMount.unmounted(),
       },
@@ -588,19 +595,17 @@ test('usbDrive', async () => {
 
   mockMultiUsbDrive.insertUsbDrive({});
 
-  mockMultiUsbDrive.multiUsbDrive.ejectDrive
-    .expectCallWith('/dev/sdb')
-    .resolves();
+  mockMultiUsbDrive.multiUsbDrive.ejectDrive.expectCallWith(devsdb).resolves();
   await apiClient.ejectUsbDrive();
 
   mockMultiUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith('/dev/sdb', 'fat32')
+    .expectCallWith(devsdb, 'fat32')
     .resolves();
   (await apiClient.formatUsbDrive()).assertOk('format failed');
 
   const error = new Error('format failed');
   mockMultiUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith('/dev/sdb', 'fat32')
+    .expectCallWith(devsdb, 'fat32')
     .throws(error);
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });

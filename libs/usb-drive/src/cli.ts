@@ -2,6 +2,7 @@
 import { LogSource, Logger } from '@votingworks/logging';
 import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive';
 import type { UsbDriveFilesystemType } from './multi_usb_drive';
+import { UsbDiskDevPathSchema } from './types';
 
 function printDrives(multiUsbDrive: MultiUsbDrive, stdout: NodeJS.WriteStream) {
   stdout.write(`${JSON.stringify(multiUsbDrive.getDrives(), null, 2)}\n`);
@@ -55,7 +56,7 @@ export async function main(args: string[]): Promise<number> {
           stderr.write('Usage: usb-drive eject <devPath>\n');
           return 1;
         }
-        await multiUsbDrive.ejectDrive(devPath);
+        await multiUsbDrive.ejectDrive(UsbDiskDevPathSchema.decode(devPath));
         stdout.write(`Ejected ${devPath}\n`);
         await multiUsbDrive.refresh();
         printDrives(multiUsbDrive, stdout);
@@ -76,7 +77,10 @@ export async function main(args: string[]): Promise<number> {
           return 1;
         }
         stdout.write(`Formatting ${devPath} as ${fstypeArg}...\n`);
-        await multiUsbDrive.formatDrive(devPath, fstypeArg);
+        await multiUsbDrive.formatDrive(
+          UsbDiskDevPathSchema.decode(devPath),
+          fstypeArg
+        );
         stdout.write('Formatted.\n');
         await multiUsbDrive.refresh();
         printDrives(multiUsbDrive, stdout);

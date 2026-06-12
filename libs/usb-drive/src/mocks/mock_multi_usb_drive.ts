@@ -3,9 +3,16 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { rmSync } from 'node:fs';
 import { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDriveInfo, UsbPartitionMount } from '../types';
+import {
+  UsbDiskDevPath,
+  UsbDiskDevPathSchema,
+  UsbDriveInfo,
+  UsbPartitionDevPathSchema,
+  UsbPartitionMount,
+  UsbPartitionMountpointSchema,
+} from '../types';
 
-const MOCK_SINGLETON_DISK_DEV_PATH = '/dev/sdb';
+const MOCK_SINGLETON_DISK_DEV_PATH = UsbDiskDevPathSchema.decode('/dev/sdb');
 
 export interface MockMultiUsbDrive {
   multiUsbDrive: Mocked<MultiUsbDrive>;
@@ -18,7 +25,7 @@ export interface MockMultiUsbDrive {
    */
   addUsbDrive(
     contents: MockFileTree,
-    options?: { diskPath: string; fstype?: UsbDriveFilesystemType }
+    options?: { diskPath: UsbDiskDevPath; fstype?: UsbDriveFilesystemType }
   ): void;
 
   /**
@@ -64,20 +71,23 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
 
   function addUsbDrive(
     contents: MockFileTree,
-    options: { diskPath: string; fstype?: UsbDriveFilesystemType }
+    options: { diskPath: UsbDiskDevPath; fstype?: UsbDriveFilesystemType }
   ) {
     const fstype = options.fstype ?? 'fat32';
     const mountpoint = makeTemporaryDirectory();
     mockUsbTmpDirs.push(mountpoint);
     writeMockFileTree(mountpoint, contents);
+    const diskPath = UsbDiskDevPathSchema.decode(options.diskPath);
     drives.push({
-      diskPath: options.diskPath,
+      diskPath,
       partition: {
-        diskPath: options.diskPath,
-        partPath: `${options.diskPath}1`,
+        diskPath,
+        partPath: UsbPartitionDevPathSchema.decode(`${options.diskPath}1`),
         label: 'VxUSB-ABCDE',
         fstype,
-        mount: UsbPartitionMount.mounted(mountpoint),
+        mount: UsbPartitionMount.mounted(
+          UsbPartitionMountpointSchema.decode(mountpoint)
+        ),
       },
     });
     multiUsbDrive.getDrives.reset();

@@ -12,10 +12,16 @@ import { basename, join } from 'node:path';
 import type { MultiUsbDrive, UsbDriveFilesystemType } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import {
+  UsbDiskDevPath,
+  UsbDiskDevPathSchema,
   UsbDrive,
   UsbDriveInfo,
   UsbDriveStatus,
+  UsbPartitionDevPath,
+  UsbPartitionDevPathSchema,
   UsbPartitionMount,
+  UsbPartitionMountpoint,
+  UsbPartitionMountpointSchema,
 } from '../types';
 
 export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
@@ -50,8 +56,10 @@ function getMockDriveDirPath(diskName: string): string {
   return join(getMockUsbDirPath(), diskName);
 }
 
-function getMockDriveDataDirPath(diskName: string): string {
-  return join(getMockDriveDirPath(diskName), MOCK_USB_DRIVE_DATA_DIRNAME);
+function getMockDriveDataDirPath(diskName: string): UsbPartitionMountpoint {
+  return UsbPartitionMountpointSchema.decode(
+    join(getMockDriveDirPath(diskName), MOCK_USB_DRIVE_DATA_DIRNAME)
+  );
 }
 
 type MockDriveState =
@@ -199,12 +207,13 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
           driveState.state === 'inserted'
             ? UsbPartitionMount.mounted(getMockDriveDataDirPath(diskName))
             : UsbPartitionMount.ejected();
+        const diskPath = UsbDiskDevPathSchema.decode(`/dev/${diskName}`);
         return [
           {
-            diskPath: `/dev/${diskName}`,
+            diskPath,
             partition: {
-              diskPath: `/dev/${diskName}`,
-              partPath: `/dev/${diskName}1`,
+              diskPath,
+              partPath: UsbPartitionDevPathSchema.decode(`/dev/${diskName}1`),
               fstype: driveState.fstype,
               mount,
             },
@@ -215,7 +224,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
 
     refresh: () => Promise.resolve(),
 
-    ejectDrive(diskPath: string): Promise<void> {
+    ejectDrive(diskPath: UsbDiskDevPath): Promise<void> {
       const diskName = basename(diskPath);
       const driveState = readMockDriveState(diskName);
       if (driveState.state === 'inserted') {
@@ -228,7 +237,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
     },
 
     formatDrive(
-      diskPath: string,
+      diskPath: UsbDiskDevPath,
       fstype: UsbDriveFilesystemType
     ): Promise<void> {
       const diskName = basename(diskPath);
@@ -239,7 +248,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
       return Promise.resolve();
     },
 
-    sync: (partPath: string) => {
+    sync: (partPath: UsbPartitionDevPath) => {
       void partPath;
       return Promise.resolve();
     },
@@ -252,7 +261,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
 export function getMockFileUsbDriveHandler(
   diskName = 'sdb'
 ): MockFileUsbDriveHandler {
-  function getDataPath(): string {
+  function getDataPath(): UsbPartitionMountpoint {
     return getMockDriveDataDirPath(diskName);
   }
 

@@ -10,11 +10,21 @@ import { deferred, sleep } from '@votingworks/basics';
 import { detectMultiUsbDrive } from './multi_usb_drive';
 import { exec } from './exec';
 import { getAllDiskDevices, UsbDiskDeviceInfo } from './block_devices';
-import { UsbPartitionInfo, UsbPartitionMount } from './types';
+import {
+  UsbDiskDevPathSchema,
+  UsbPartitionDevPathSchema,
+  UsbPartitionInfo,
+  UsbPartitionMount,
+  UsbPartitionMountpointSchema,
+} from './types';
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 const featureFlagMock = getFeatureFlagMock();
+
+const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
+const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');
+const devsdc = UsbDiskDevPathSchema.decode('/dev/sdc');
 
 type ExecResult = Awaited<ReturnType<typeof exec>>;
 
@@ -61,14 +71,16 @@ function makeDisk(
   overrides: Partial<UsbDiskDeviceInfo> = {}
 ): UsbDiskDeviceInfo {
   return {
-    devPath: '/dev/sdb',
+    diskPath: devsdb,
     vendor: 'SanDisk',
     model: 'Ultra',
     serial: 'SN123',
     partitions: [
       {
-        devPath: '/dev/sdb1',
-        mountpoint: '/media/vx/usb-drive-sdb1',
+        partPath: devsdb1,
+        mountpoint: UsbPartitionMountpointSchema.decode(
+          '/media/vx/usb-drive-sdb1'
+        ),
         fstype: 'vfat',
         fsver: 'FAT32',
         label: 'VxUSB-ABCDE',
@@ -103,11 +115,15 @@ describe('getDrives', () => {
     await multiUsbDrive.refresh();
 
     const [drive] = multiUsbDrive.getDrives();
-    expect(drive).toMatchObject({ diskPath: '/dev/sdb' });
+    expect(drive).toMatchObject({
+      diskPath: devsdb,
+    });
     expect(drive?.partition).toMatchObject<Partial<UsbPartitionInfo>>({
-      diskPath: '/dev/sdb',
-      partPath: '/dev/sdb1',
-      mount: UsbPartitionMount.mounted('/media/vx/usb-drive-sdb1'),
+      diskPath: devsdb,
+      partPath: devsdb1,
+      mount: UsbPartitionMount.mounted(
+        UsbPartitionMountpointSchema.decode('/media/vx/usb-drive-sdb1')
+      ),
     });
 
     multiUsbDrive.stop();
@@ -118,7 +134,7 @@ describe('getDrives', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -149,7 +165,7 @@ describe('getDrives', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'exfat',
             fsver: '1.0',
@@ -184,8 +200,11 @@ describe('getDrives', () => {
 
   test('returns multiple drives', async () => {
     mockDrives = [
-      makeDisk({ devPath: '/dev/sdb' }),
-      makeDisk({ devPath: '/dev/sdc', partitions: [] }),
+      makeDisk({ diskPath: devsdb }),
+      makeDisk({
+        diskPath: devsdc,
+        partitions: [],
+      }),
     ];
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive(logger);
@@ -267,7 +286,7 @@ describe('refresh', () => {
     await multiUsbDrive.refresh();
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
-    await multiUsbDrive.ejectDrive('/dev/sdb');
+    await multiUsbDrive.ejectDrive(devsdb);
 
     // Drive is physically removed
     mockDrives = [];
@@ -281,7 +300,7 @@ describe('refresh', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -324,7 +343,7 @@ describe('stop', () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'vfat',
           fsver: 'FAT32',
@@ -368,7 +387,7 @@ describe('stop', () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'vfat',
           fsver: 'FAT32',
@@ -421,7 +440,7 @@ describe('ejectDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
 
-    await multiUsbDrive.ejectDrive('/dev/sdb');
+    await multiUsbDrive.ejectDrive(devsdb);
 
     expect(execMock).toHaveBeenCalledWith('sudo', [
       '-n',
@@ -454,10 +473,12 @@ describe('ejectDrive', () => {
       unmountOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+    const ejectPromise = multiUsbDrive.ejectDrive(devsdb);
 
     expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
-      UsbPartitionMount.unmounting('/media/vx/usb-drive-sdb1')
+      UsbPartitionMount.unmounting(
+        UsbPartitionMountpointSchema.decode('/media/vx/usb-drive-sdb1')
+      )
     );
 
     unmountOperation.resolve({ stdout: '', stderr: '' });
@@ -473,7 +494,7 @@ describe('ejectDrive', () => {
       const unmountedPartitionDisk = makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -505,7 +526,7 @@ describe('ejectDrive', () => {
       await vi.advanceTimersByTimeAsync(0);
 
       // Start eject — the while loop sleeps because partitionAction has 'mounting'
-      const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+      const ejectPromise = multiUsbDrive.ejectDrive(devsdb);
 
       // Resolve mount exec so mountPartitionWithRetry completes during the sleep
       mountOperation.resolve({ stdout: '', stderr: '' });
@@ -533,7 +554,7 @@ describe('ejectDrive', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -549,7 +570,7 @@ describe('ejectDrive', () => {
 
     // Start eject without awaiting — driveAction is set to 'ejecting' synchronously
     // before the first await, so getDrives() can observe the in-progress state.
-    const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+    const ejectPromise = multiUsbDrive.ejectDrive(devsdb);
 
     expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
       UsbPartitionMount.ejected()
@@ -565,7 +586,7 @@ describe('ejectDrive', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -579,7 +600,7 @@ describe('ejectDrive', () => {
 
     await multiUsbDrive.refresh();
 
-    await multiUsbDrive.ejectDrive('/dev/sdb');
+    await multiUsbDrive.ejectDrive(devsdb);
 
     expect(execMock).not.toHaveBeenCalledWith(
       'sudo',
@@ -598,7 +619,7 @@ describe('ejectDrive', () => {
 
     execMock.mockRejectedValueOnce(new Error('unmount failed'));
 
-    await expect(multiUsbDrive.ejectDrive('/dev/sdb')).rejects.toThrow(
+    await expect(multiUsbDrive.ejectDrive(devsdb)).rejects.toThrow(
       'unmount failed'
     );
 
@@ -623,8 +644,8 @@ describe('ejectDrive', () => {
       firstEjectOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const firstEject = multiUsbDrive.ejectDrive('/dev/sdb');
-    await multiUsbDrive.ejectDrive('/dev/sdb'); // no-op
+    const firstEject = multiUsbDrive.ejectDrive(devsdb);
+    await multiUsbDrive.ejectDrive(devsdb); // no-op
 
     firstEjectOperation.resolve({ stdout: '', stderr: '' });
     await firstEject;
@@ -644,7 +665,7 @@ describe('ejectDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
 
-    await multiUsbDrive.ejectDrive('/dev/sdb');
+    await multiUsbDrive.ejectDrive(devsdb);
 
     expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
       UsbPartitionMount.ejected()
@@ -665,7 +686,7 @@ describe('formatDrive', () => {
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'fat32');
 
     expect(execMock).toHaveBeenCalledWith('sudo', [
       '-n',
@@ -702,7 +723,7 @@ describe('formatDrive', () => {
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb', 'ext4');
+    await multiUsbDrive.formatDrive(devsdb, 'ext4');
 
     expect(execMock).toHaveBeenCalledWith('sudo', [
       '-n',
@@ -727,7 +748,7 @@ describe('formatDrive', () => {
       formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+    const formatPromise = multiUsbDrive.formatDrive(devsdb, 'fat32');
 
     expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
       UsbPartitionMount.formatting()
@@ -746,7 +767,7 @@ describe('formatDrive', () => {
       const unmountedPartitionDisk = makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -779,7 +800,7 @@ describe('formatDrive', () => {
       await vi.advanceTimersByTimeAsync(0);
 
       // Start format — the while loop sleeps because partitionAction has 'mounting'
-      const formatPromise = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+      const formatPromise = multiUsbDrive.formatDrive(devsdb, 'fat32');
 
       // Resolve mount exec so mountPartitionWithRetry completes during the sleep
       mountOperation.resolve({ stdout: '', stderr: '' });
@@ -807,7 +828,7 @@ describe('formatDrive', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'exfat',
             fsver: '1.0',
@@ -823,7 +844,7 @@ describe('formatDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format (no unmount needed)
 
-    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'fat32');
 
     const formatArgs = execMock.mock.calls.find((c) =>
       (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
@@ -843,7 +864,7 @@ describe('formatDrive', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
 
-    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'fat32');
 
     const formatArgs = execMock.mock.calls.find((c) =>
       (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
@@ -863,9 +884,9 @@ describe('formatDrive', () => {
 
     execMock.mockRejectedValueOnce(new Error('format failed'));
 
-    await expect(
-      multiUsbDrive.formatDrive('/dev/sdb', 'fat32')
-    ).rejects.toThrow('format failed');
+    await expect(multiUsbDrive.formatDrive(devsdb, 'fat32')).rejects.toThrow(
+      'format failed'
+    );
 
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.UsbDriveFormatted,
@@ -888,8 +909,8 @@ describe('formatDrive', () => {
       formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const firstFormat = multiUsbDrive.formatDrive('/dev/sdb', 'fat32');
-    await multiUsbDrive.formatDrive('/dev/sdb', 'fat32'); // no-op
+    const firstFormat = multiUsbDrive.formatDrive(devsdb, 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'fat32'); // no-op
 
     formatOperation.resolve({ stdout: '', stderr: '' });
     await firstFormat;
@@ -910,7 +931,7 @@ describe('sync', () => {
 
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
 
-    await multiUsbDrive.sync('/dev/sdb1');
+    await multiUsbDrive.sync(devsdb1);
 
     expect(execMock).toHaveBeenCalledWith('sync', [
       '-f',
@@ -925,7 +946,7 @@ describe('sync', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -939,7 +960,7 @@ describe('sync', () => {
 
     await multiUsbDrive.refresh();
 
-    await multiUsbDrive.sync('/dev/sdb1');
+    await multiUsbDrive.sync(devsdb1);
 
     const { calls } = execMock.mock;
     for (const args of calls) {
@@ -956,7 +977,7 @@ describe('sync', () => {
 
     await multiUsbDrive.refresh();
 
-    await multiUsbDrive.sync('/dev/sdb1');
+    await multiUsbDrive.sync(devsdb1);
 
     expect(execMock).not.toHaveBeenCalled();
 
@@ -968,7 +989,7 @@ describe('sync', () => {
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive(logger);
 
-    await multiUsbDrive.sync('/dev/sdb1');
+    await multiUsbDrive.sync(devsdb1);
 
     expect(execMock).not.toHaveBeenCalled();
 
@@ -981,7 +1002,7 @@ describe('autoMount', () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'vfat',
           fsver: 'FAT32',
@@ -1041,7 +1062,7 @@ describe('autoMount', () => {
     const unmountedExt4Disk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'ext4',
           fsver: '1.0',
@@ -1052,8 +1073,10 @@ describe('autoMount', () => {
     const mountedExt4Disk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
-          mountpoint: '/media/vx/usb-drive-sdb1',
+          partPath: devsdb1,
+          mountpoint: UsbPartitionMountpointSchema.decode(
+            '/media/vx/usb-drive-sdb1'
+          ),
           fstype: 'ext4',
           fsver: '1.0',
           label: 'VxUSB-ABCDE',
@@ -1100,7 +1123,7 @@ describe('autoMount', () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'vfat',
           fsver: 'FAT32',
@@ -1138,7 +1161,7 @@ describe('autoMount', () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'vfat',
           fsver: 'FAT32',
@@ -1176,7 +1199,7 @@ describe('autoMount', () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
-          devPath: '/dev/sdb1',
+          partPath: devsdb1,
           mountpoint: undefined,
           fstype: 'vfat',
           fsver: 'FAT32',
@@ -1225,7 +1248,7 @@ describe('autoMount', () => {
       const unmountedPartitionDisk = makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -1252,7 +1275,9 @@ describe('autoMount', () => {
       await vi.advanceTimersByTimeAsync(100);
 
       expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
-        UsbPartitionMount.mounted('/media/vx/usb-drive-sdb1')
+        UsbPartitionMount.mounted(
+          UsbPartitionMountpointSchema.decode('/media/vx/usb-drive-sdb1')
+        )
       );
 
       multiUsbDrive.stop();
@@ -1268,7 +1293,7 @@ describe('autoMount', () => {
       const unmountedPartitionDisk = makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -1317,7 +1342,7 @@ describe('autoMount', () => {
       unmountOperation.promise as PromiseWithChild<ExecResult>
     );
 
-    const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+    const ejectPromise = multiUsbDrive.ejectDrive(devsdb);
 
     // Watcher fires while driveAction === 'ejecting' but ejectState is not set.
     // doAutoMount must return early at the driveAction check (line 190).
@@ -1344,14 +1369,14 @@ describe('autoMount', () => {
     await multiUsbDrive.refresh();
 
     // Eject the drive
-    await multiUsbDrive.ejectDrive('/dev/sdb');
+    await multiUsbDrive.ejectDrive(devsdb);
 
     // Now the drive reappears unmounted
     mockDrives = [
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'vfat',
             fsver: 'FAT32',
@@ -1380,7 +1405,7 @@ describe('autoMount', () => {
       makeDisk({
         partitions: [
           {
-            devPath: '/dev/sdb1',
+            partPath: devsdb1,
             mountpoint: undefined,
             fstype: 'exfat',
             fsver: undefined,

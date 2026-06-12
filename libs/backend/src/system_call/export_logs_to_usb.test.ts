@@ -1,5 +1,8 @@
 import { beforeEach, expect, MockInstance, test, vi } from 'vitest';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  UsbPartitionMountpointSchema,
+} from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import {
   Stats,
@@ -159,7 +162,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    mountpoint: '/media/usb-drive',
+    mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
@@ -213,7 +216,7 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    mountpoint: '/media/usb-drive',
+    mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
 
   const mockStats = new Stats();
@@ -248,7 +251,7 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    mountpoint: '/media/usb-drive',
+    mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
 
   const mockStats = new Stats();
@@ -295,7 +298,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    mountpoint: '/media/usb-drive',
+    mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
@@ -384,7 +387,7 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    mountpoint: '/media/usb-drive',
+    mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 

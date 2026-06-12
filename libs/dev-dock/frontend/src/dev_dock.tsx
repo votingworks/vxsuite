@@ -386,7 +386,7 @@ function UsbDriveMockControls() {
           }}
           isInserted={isInserted}
           disabled={controlsDisabled}
-          aria-label={`USB Drive ${drive.devPath}`}
+          aria-label={`USB Drive ${drive.diskPath}`}
         >
           <UsbDriveIcon isInserted={isInserted} disabled={controlsDisabled} />
           {!isFeatureEnabled && (
@@ -396,7 +396,7 @@ function UsbDriveMockControls() {
           )}
         </UsbDriveControl>
       </div>
-      <UsbDriveDevLabel>{drive.devPath}</UsbDriveDevLabel>
+      <UsbDriveDevLabel>{drive.diskPath}</UsbDriveDevLabel>
       <UsbDriveClearButton
         onClick={() => handleClearClick()}
         disabled={controlsDisabled}

@@ -4,6 +4,7 @@ import {
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -177,7 +178,7 @@ describe('Settings tab', () => {
   beforeEach(() => {
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
-      mountpoint: '/dev/null',
+      mountpoint: UsbPartitionMountpointSchema.decode('/dev/null'),
     });
   });
 
