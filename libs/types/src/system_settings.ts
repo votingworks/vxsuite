@@ -359,7 +359,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
 
-  precinctScanEnableBmdBallotScanning: true,
   maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+  precinctScanEnableBmdBallotScanning: true,
 };
