@@ -24,6 +24,7 @@ import {
   ExpandedSelect,
   Footer,
   Form,
+  PrecinctSelect,
   PrintAllButton,
   PrintButton,
   ScreenWrapper,
@@ -180,16 +181,10 @@ export function PrintScreen({
                 marginBottom: hidePrecinctSelection ? '2.75rem' : undefined,
               }}
             >
-              <strong>Precinct</strong>
-              <ExpandedSelect
-                selectedValue={selectedPrecinctId}
-                options={precincts
-                  .filter(
-                    (p) =>
-                      !searchValue ||
-                      p.name.toLowerCase().includes(searchValue.toLowerCase())
-                  )
-                  .map((p) => ({ value: p.id, label: p.name }))}
+              <PrecinctSelect
+                searchValue={searchValue}
+                selectedPrecinctId={selectedPrecinctId}
+                precincts={precincts}
                 onSearch={setSearchValue}
                 onSelect={(value) => {
                   if (value !== selectedPrecinctId) {

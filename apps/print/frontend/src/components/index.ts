@@ -5,6 +5,7 @@ export * from './export_report_button';
 export * from './filter';
 export * from './footer';
 export * from './form';
+export * from './precinct_select';
 export * from './print_all_button';
 export * from './print_button';
 export * from './printer_alert_wrapper';

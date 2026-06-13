@@ -7,9 +7,9 @@ import { assertDefined } from '@votingworks/basics';
 import {
   Column,
   Container,
-  ExpandedSelect,
   Footer,
   Form,
+  PrecinctSelect,
   PrintButton,
   ScreenWrapper,
   TitleBar,
@@ -23,6 +23,10 @@ import {
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
+const TitleBarButton = styled(Button)`
+  width: 16rem;
+`;
+
 const FormSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -33,10 +37,6 @@ const FormSection = styled.div`
   > strong {
     padding-left: 0.25rem;
   }
-`;
-
-const TitleBarButton = styled(Button)`
-  width: 16rem;
 `;
 
 function PrintTestDeckModal({
@@ -141,16 +141,10 @@ export function TestDeckScreen(): JSX.Element | null {
         <Form>
           <Column>
             <FormSection>
-              <strong>Precinct</strong>
-              <ExpandedSelect
-                selectedValue={selectedPrecinctId}
-                options={election.precincts
-                  .filter(
-                    (p) =>
-                      !searchValue ||
-                      p.name.toLowerCase().includes(searchValue.toLowerCase())
-                  )
-                  .map((p) => ({ value: p.id, label: p.name }))}
+              <PrecinctSelect
+                searchValue={searchValue}
+                selectedPrecinctId={selectedPrecinctId}
+                precincts={election.precincts}
                 onSearch={setSearchValue}
                 onSelect={setSelectedPrecinctId}
               />
