@@ -19,8 +19,11 @@ import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
-import { generateTestDeckBallots, TestDeckBallot } from '@votingworks/utils';
-import { createPrecinctSummaryBallotTestDeck } from '@votingworks/test-decks';
+import {
+  generateTestDeckBallots,
+  TestDeckBallot,
+  createPrecinctSummaryBallotTestDeck,
+} from '@votingworks/test-decks';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   addPollingPlacesForExport,
