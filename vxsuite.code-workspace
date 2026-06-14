@@ -213,6 +213,10 @@
       "path": "libs/printing"
     },
     {
+      "name": "libs/test-decks",
+      "path": "libs/test-decks"
+    },
+    {
       "name": "libs/test-utils",
       "path": "libs/test-utils"
     },
