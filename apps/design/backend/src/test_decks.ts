@@ -4,7 +4,7 @@ import {
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
   TestDeckBallot as TestDeckBallotSpec,
-} from '@votingworks/utils';
+} from '@votingworks/test-decks';
 import { renderToPdf } from '@votingworks/printing';
 
 import { AdminTallyReportByParty } from '@votingworks/ui';

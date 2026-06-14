@@ -28,9 +28,9 @@ import {
   getBallotStyleIdPartyIdLookup,
   getContestsForPrecinctAndElection,
   groupMapToGroupList,
+  singlePrecinctSelectionFor,
   tabulateCastVoteRecords,
-} from './tabulation';
-import { singlePrecinctSelectionFor } from './precinct_selection';
+} from '@votingworks/utils';
 
 /**
  * The type of ballot in a test deck:

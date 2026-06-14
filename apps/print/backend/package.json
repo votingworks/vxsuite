@@ -38,6 +38,7 @@
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/printing": "workspace:*",
+    "@votingworks/test-decks": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",

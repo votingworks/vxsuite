@@ -1,6 +1,5 @@
 import { BallotStyleId, ElectionDefinition } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { TestDeckBallot } from '@votingworks/utils';
 import {
   renderToPdf,
   SummaryBallotLayoutRenderer,
@@ -10,6 +9,7 @@ import React from 'react';
 import { BmdPaperBallot, filterVotesForContests } from '@votingworks/ui';
 import { randomUUID as uuid } from 'node:crypto';
 import { concatenatePdfs } from '@votingworks/hmpb';
+import { TestDeckBallot } from './test_decks';
 
 /**
  * Creates a test deck of summary BMD ballots for a precinct and the given ballot specs.
