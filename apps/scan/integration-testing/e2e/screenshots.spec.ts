@@ -15,6 +15,7 @@ import {
   renderMarkedBallots,
   withOvervote,
   withUndervote,
+  withWriteIns,
 } from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
@@ -594,4 +595,110 @@ test('accessibility', async ({ page }, testInfo) => {
   await screenshot('a11y-settings-audio');
   await page.getByRole('button', { name: 'Done' }).click();
   await page.getByText('Insert Your Ballot').waitFor();
+});
+
+test('write-in-report', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const fixtureSet = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtureSet.readElectionDefinition();
+  const { election } = electionDefinition;
+  const usbHandler = getMockFileUsbDriveHandler();
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+
+  // Enables the "Print Write-In Image Report" button on the poll worker screen
+  // after polls close.
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    precinctScanEnableWriteInImageReport: true,
+  };
+
+  const candidateContests = election.contests.filter(
+    (c): c is CandidateContest => c.type === 'candidate' && !!c.allowWriteIns
+  );
+  const singleSeatContest = candidateContests.find((c) => c.seats === 1);
+  const multiSeatContest = candidateContests.find((c) => c.seats > 1);
+  /* istanbul ignore next */
+  if (!singleSeatContest || !multiSeatContest) {
+    throw new Error('Expected single- and multi-seat write-in contests');
+  }
+
+  // Two ballots producing a non-uniform write-in report: one single-seat
+  // contest with a single write-in, and one multi-seat contest with two
+  // distinct write-ins.
+  const fullVotes = createFullyVotedBallot(electionDefinition, '1-1');
+  const ballotSpec = {
+    electionDefinition,
+    ballotStyleId: '1-1',
+    precinctId: '20',
+  } as const;
+  const [writeInPdfA, writeInPdfB] = await renderMarkedBallots([
+    {
+      ...ballotSpec,
+      votes: withWriteIns(fullVotes, singleSeatContest, ['BOB']),
+    },
+    {
+      ...ballotSpec,
+      votes: withWriteIns(fullVotes, multiSeatContest, ['ALICE', 'CARLOS']),
+    },
+  ]);
+
+  await page.goto('/');
+  await logInAsElectionManager(page, election);
+  usbHandler.insert(
+    await mockElectionPackageFileTree({ electionDefinition, systemSettings })
+  );
+  await page.getByText('Election Manager Menu').waitFor();
+  await page.getByLabel(/select a polling place/i).click({ force: true });
+  await page.getByText('West Lincoln', { exact: true }).click();
+  await page.locator('.search-select').getByText('West Lincoln').waitFor();
+  await page.getByText('Official Ballot Mode').click();
+  await page.getByText('Test Ballot Mode').waitFor();
+
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open polls.').waitFor();
+
+  logInAsPollWorker(election);
+  await page.getByRole('button', { name: 'Open Polls' }).click();
+  await page
+    .getByRole('heading', { name: 'Polls Opened' })
+    .waitFor({ timeout: 60000 });
+
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
+
+  for (const writeInPdf of [writeInPdfA, writeInPdfB]) {
+    mockPdiScannerHandler.insertSheet(writeInPdf);
+    await page
+      .getByText('Your ballot was counted!')
+      .waitFor({ timeout: 15000 });
+    await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
+  }
+
+  // Close polls.
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to close the polls?').waitFor();
+  await page.getByRole('button', { name: 'Close Polls' }).click();
+  await page.getByRole('heading', { name: 'Polls Closed' }).waitFor({
+    timeout: 60000,
+  });
+
+  mockCardRemoval();
+  await page.getByText('Voting is complete.').waitFor();
+
+  // Poll worker menu after polls are closed — print the write-in image report.
+  logInAsPollWorker(election);
+  await page
+    .getByText('Voting is complete and the polls cannot be reopened.')
+    .waitFor();
+  await screenshotWithButtonHighlight(
+    'Print Write-In Image Report',
+    'pw-print-write-in-image-report-button'
+  );
+  await page
+    .getByRole('button', { name: 'Print Write-In Image Report' })
+    .click();
+  await page.getByText('Write-In Image Report Printed').waitFor();
+  await screenshot('pw-write-in-image-report-printed');
+  await capturePrintedReport('write-in-image-report', namer);
 });

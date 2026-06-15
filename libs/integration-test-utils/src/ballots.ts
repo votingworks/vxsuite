@@ -98,6 +98,34 @@ export function withOvervote(
 }
 
 /**
+ * Returns a copy of `votes` with the given candidate contest's trailing pick(s)
+ * replaced by write-in candidate(s) — one per name, at successive
+ * `writeInIndex`es starting from 0. The contest must `allowWriteIns` and have at
+ * least `names.length` seats.
+ */
+export function withWriteIns(
+  votes: VotesDict,
+  contest: CandidateContest,
+  names: string[]
+): VotesDict {
+  const current = (votes[contest.id] ?? []) as CandidateContest['candidates'];
+  // Keep enough existing picks that the total stays within `seats`.
+  const kept = current.slice(0, contest.seats - names.length);
+  return {
+    ...votes,
+    [contest.id]: [
+      ...kept,
+      ...names.map((name, writeInIndex) => ({
+        id: `write-in-${writeInIndex}`,
+        name,
+        isWriteIn: true,
+        writeInIndex,
+      })),
+    ],
+  };
+}
+
+/**
  * Renders one or more marked HMPB ballot PDFs to temp files and returns their
  * paths. Reuses a single Chromium instance across all renders so the startup
  * cost is paid once regardless of how many ballots are requested.
