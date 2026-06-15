@@ -208,9 +208,10 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     baseUrl,
   });
 
+  const peerLogger = mockBaseLogger({ fn: vi.fn });
   const peerApp = buildPeerApp({
     workspace,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: peerLogger,
   });
   const peerServer = peerApp.listen();
   const { port: peerPort } = peerServer.address() as AddressInfo;
@@ -227,6 +228,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     app,
     apiClient,
     peerApiClient,
+    peerLogger,
     peerServer,
     mockUsbDrive: mockMultiUsbDrive,
     mockMultiUsbDrive,
