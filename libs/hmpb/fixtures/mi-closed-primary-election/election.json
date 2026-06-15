@@ -312,9 +312,9 @@
     {
       "ballotStyleId": "1M",
       "optionBoundsFromTargetMark": {
-        "top": 0.6151768172888016,
+        "top": 0.5832514734774067,
         "right": 14.800283635466766,
-        "bottom": 0.5758840864440079,
+        "bottom": 0.5445726915520629,
         "left": 0.7013195215192995
       },
       "gridPositions": [
@@ -323,7 +323,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 8.985756385068763,
+          "row": 8.953831041257368,
           "contestId": "best-animal-mammal",
           "optionId": "horse",
           "partyIds": [
@@ -335,7 +335,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 10.046660117878194,
+          "row": 9.951498035363459,
           "contestId": "best-animal-mammal",
           "optionId": "otter",
           "partyIds": [
@@ -347,7 +347,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 11.107563850687622,
+          "row": 10.94916502946955,
           "contestId": "best-animal-mammal",
           "optionId": "fox",
           "partyIds": [
@@ -359,7 +359,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 13.466969548133596,
+          "row": 13.245333988212181,
           "contestId": "zoo-council-mammal",
           "optionId": "zebra",
           "partyIds": [
@@ -371,7 +371,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 14.527873280943027,
+          "row": 14.243000982318271,
           "contestId": "zoo-council-mammal",
           "optionId": "lion",
           "partyIds": [
@@ -383,7 +383,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 15.588777013752456,
+          "row": 15.240667976424362,
           "contestId": "zoo-council-mammal",
           "optionId": "kangaroo",
           "partyIds": [
@@ -395,7 +395,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 16.649680746561888,
+          "row": 16.238334970530452,
           "contestId": "zoo-council-mammal",
           "optionId": "elephant",
           "partyIds": [
@@ -407,12 +407,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 17.775663064833008,
+          "row": 17.30108055009823,
           "contestId": "zoo-council-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 17.275663064833008,
+            "y": 16.80108055009823,
             "width": 14,
             "height": 1
           }
@@ -422,12 +422,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 18.966723968565816,
+          "row": 18.4289047151277,
           "contestId": "zoo-council-mammal",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 18.466723968565816,
+            "y": 17.9289047151277,
             "width": 14,
             "height": 1
           }
@@ -437,12 +437,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 20.157784872298624,
+          "row": 19.55672888015717,
           "contestId": "zoo-council-mammal",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 19.657784872298624,
+            "y": 19.05672888015717,
             "width": 14,
             "height": 1
           }
@@ -452,7 +452,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 24.451129666011788,
+          "row": 23.786836935166995,
           "contestId": "zoo-director",
           "optionId": "frank-the-flamingo"
         },
@@ -461,7 +461,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 25.51203339882122,
+          "row": 24.784503929273086,
           "contestId": "zoo-director",
           "optionId": "pearl-the-penguin"
         },
@@ -470,12 +470,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 26.63801571709234,
+          "row": 25.847249508840864,
           "contestId": "zoo-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 26.13801571709234,
+            "y": 25.347249508840864,
             "width": 14,
             "height": 1
           }
@@ -485,7 +485,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 33.293835952848724,
+          "row": 32.43983300589391,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-either-approved"
         },
@@ -494,7 +494,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 34.87782416502947,
+          "row": 33.90839882121808,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-neither-approved"
         },
@@ -503,7 +503,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 10.413801571709234,
+          "row": 10.38187622789784,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-safari"
         },
@@ -512,7 +512,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 11.474705304518665,
+          "row": 11.37954322200393,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-traditional"
         },
@@ -521,7 +521,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 14.642067779960708,
+          "row": 14.483668958742633,
           "contestId": "fishing",
           "optionId": "ban-fishing"
         },
@@ -530,7 +530,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 15.702971512770137,
+          "row": 15.481335952848724,
           "contestId": "fishing",
           "optionId": "allow-fishing"
         }
@@ -539,9 +539,9 @@
     {
       "ballotStyleId": "2F",
       "optionBoundsFromTargetMark": {
-        "top": 0.6151768172888016,
+        "top": 0.5832514734774067,
         "right": 14.800283635466766,
-        "bottom": 0.5758840864440079,
+        "bottom": 0.5445726915520629,
         "left": 0.7013195215192995
       },
       "gridPositions": [
@@ -550,7 +550,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 8.985756385068763,
+          "row": 8.953831041257368,
           "contestId": "best-animal-fish",
           "optionId": "seahorse",
           "partyIds": [
@@ -562,7 +562,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 10.046660117878194,
+          "row": 9.951498035363459,
           "contestId": "best-animal-fish",
           "optionId": "salmon",
           "partyIds": [
@@ -574,7 +574,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 12.406065815324165,
+          "row": 12.24766699410609,
           "contestId": "aquarium-council-fish",
           "optionId": "manta-ray",
           "partyIds": [
@@ -586,7 +586,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 13.466969548133596,
+          "row": 13.245333988212181,
           "contestId": "aquarium-council-fish",
           "optionId": "pufferfish",
           "partyIds": [
@@ -598,7 +598,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 14.527873280943027,
+          "row": 14.243000982318271,
           "contestId": "aquarium-council-fish",
           "optionId": "rockfish",
           "partyIds": [
@@ -610,7 +610,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 15.588777013752456,
+          "row": 15.240667976424362,
           "contestId": "aquarium-council-fish",
           "optionId": "triggerfish",
           "partyIds": [
@@ -622,12 +622,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 16.714759332023576,
+          "row": 16.30341355599214,
           "contestId": "aquarium-council-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 16.214759332023576,
+            "y": 15.80341355599214,
             "width": 14,
             "height": 1
           }
@@ -637,12 +637,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 17.905820235756387,
+          "row": 17.43123772102161,
           "contestId": "aquarium-council-fish",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 17.405820235756387,
+            "y": 16.93123772102161,
             "width": 14,
             "height": 1
           }
@@ -652,7 +652,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 22.199165029469548,
+          "row": 21.661345776031435,
           "contestId": "zoo-director",
           "optionId": "frank-the-flamingo"
         },
@@ -661,7 +661,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 23.26006876227898,
+          "row": 22.659012770137526,
           "contestId": "zoo-director",
           "optionId": "pearl-the-penguin"
         },
@@ -670,12 +670,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 24.3860510805501,
+          "row": 23.721758349705304,
           "contestId": "zoo-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 23.8860510805501,
+            "y": 23.221758349705304,
             "width": 14,
             "height": 1
           }
@@ -685,7 +685,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 31.041871316306484,
+          "row": 30.31434184675835,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-either-approved"
         },
@@ -694,7 +694,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 32.62585952848723,
+          "row": 31.782907662082515,
           "contestId": "new-zoo-either",
           "optionId": "new-zoo-neither-approved"
         },
@@ -703,7 +703,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 10.413801571709234,
+          "row": 10.38187622789784,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-safari"
         },
@@ -712,7 +712,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 11.474705304518665,
+          "row": 11.37954322200393,
           "contestId": "new-zoo-pick",
           "optionId": "new-zoo-traditional"
         },
@@ -721,7 +721,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 14.642067779960708,
+          "row": 14.483668958742633,
           "contestId": "fishing",
           "optionId": "ban-fishing"
         },
@@ -730,7 +730,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.201319521519302,
-          "row": 15.702971512770137,
+          "row": 15.481335952848724,
           "contestId": "fishing",
           "optionId": "allow-fishing"
         }

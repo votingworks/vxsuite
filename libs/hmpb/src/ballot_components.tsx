@@ -295,7 +295,7 @@ export function AlignedBubble({
         alignItems: 'center',
         // Match line-height of text to align bubble to center of first line of
         // option label
-        height: `${baseLineHeight(compact)}rem`,
+        height: `${baseLineHeight(compact)}em`,
       }}
     >
       <Bubble optionInfo={optionInfo} />

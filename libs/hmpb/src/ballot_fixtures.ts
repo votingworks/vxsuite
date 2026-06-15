@@ -12,9 +12,11 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
   readElectionGeneral,
+  readElectionStraightParty,
 } from '@votingworks/fixtures';
 import {
   BaseBallotProps,
+  Candidate,
   CandidateContest,
   HmpbBallotPaperSize,
   BallotStyle,
@@ -24,6 +26,7 @@ import {
   getContests,
   LanguageCode,
   LATEST_SOFTWARE_VERSION,
+  VotesDict,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
@@ -1413,6 +1416,120 @@ export const miOpenPrimaryElectionFixtures = (() => {
 
   const contests = getContests({ election, ballotStyle });
   const { votes } = createTestVotes(contests);
+
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  const markedBallotPath = join(dir, 'marked-ballot.pdf');
+
+  return {
+    dir,
+    electionPath,
+    allBallotProps,
+    blankBallotPath,
+    markedBallotPath,
+    ballotStyleId: ballotStyle.id,
+    precinctId,
+    votes,
+
+    async generate(rendererPool: RendererPool) {
+      const { ballotContents, electionDefinition } =
+        await layOutBallotsAndCreateElectionDefinition(
+          rendererPool,
+          miBallotTemplate,
+          allBallotProps,
+          serializationOptions
+        );
+
+      const [blankBallotContents, ballotProps] = assertDefined(
+        iter(ballotContents)
+          .zip(allBallotProps)
+          .find(
+            ([, props]) =>
+              props.ballotStyleId === ballotStyle.id &&
+              props.precinctId === precinctId
+          )
+      );
+
+      return rendererPool.runTask(async (renderer) => {
+        const ballotDocument =
+          await renderer.loadDocumentFromContent(blankBallotContents);
+
+        debug(`Generating: ${blankBallotPath}`);
+        const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          ballotProps,
+          ballotDocument,
+          electionDefinition
+        );
+
+        debug(`Generating: ${markedBallotPath}`);
+        await markBallotDocument(ballotDocument, votes);
+        const markedBallotPdf = await ballotDocument.renderToPdf();
+
+        return {
+          electionDefinition,
+          blankBallotPdf,
+          markedBallotPdf,
+        };
+      });
+    },
+  };
+})();
+
+export const miGeneralElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'mi-general-election');
+  const electionPath = join(dir, 'election.json');
+
+  const election = readElectionStraightParty();
+  const ballotStyle = assertDefined(election.ballotStyles[0]);
+  const precinctId = assertDefined(ballotStyle.precincts[0]);
+  const allBallotProps = election.ballotStyles.flatMap((bs) =>
+    bs.precincts.map(
+      (pid): BaseBallotProps => ({
+        election,
+        ballotStyleId: bs.id,
+        precinctId: pid,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })
+    )
+  );
+
+  function candidate(contestId: string, candidateId: string): Candidate {
+    const contest = find(election.contests, (c) => c.id === contestId);
+    assert(contest.type === 'candidate');
+    return find(contest.candidates, (c) => c.id === candidateId);
+  }
+
+  const votes: VotesDict = {
+    // Votes Federalist on straight party ticket
+    'straight-party-ticket': ['0'],
+    // Explicitly vote for the same party (to no effect)
+    president: [candidate('president', 'barchi-hallaren')],
+    // Vote for a different party (overriding straight party selection)
+    governor: [candidate('governor', 'bargmann')],
+    // Multi-seat contest (4 seats) with a partial vote and a write-in
+    'county-commissioners': [
+      candidate('county-commissioners', 'argent'),
+      candidate('county-commissioners', 'bainbridge'),
+      {
+        id: 'write-in-0',
+        name: 'Hannah Wong',
+        isWriteIn: true,
+        writeInIndex: 0,
+      },
+    ],
+    // Votes for some nonpartisan contests
+    'county-registrar-of-wills': [
+      candidate('county-registrar-of-wills', 'ramachandrani'),
+    ],
+    'city-mayor': [candidate('city-mayor', 'white')],
+    'city-council': [
+      candidate('city-council', 'eagle'),
+      candidate('city-council', 'rupp'),
+    ],
+    'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
+    'question-a': ['question-a-option-no'],
+    'proposition-1': ['proposition-1-option-yes'],
+  };
 
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');

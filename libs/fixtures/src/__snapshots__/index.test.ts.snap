@@ -10,6 +10,7 @@ exports[`has various election definitions 1`] = `
   "electionOpenPrimaryFixtures",
   "electionPrimaryPrecinctSplitsFixtures",
   "electionSimpleSinglePrecinctFixtures",
+  "electionStraightPartyFixtures",
   "electionTwoPartyPrimaryFixtures",
   "electionWithMsEitherNeitherFixtures",
   "sampleBallotImages",

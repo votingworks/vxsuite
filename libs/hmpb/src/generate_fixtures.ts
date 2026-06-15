@@ -10,6 +10,7 @@ import {
 import {
   calibrationSheetFixtures,
   miClosedPrimaryElectionFixtures,
+  miGeneralElectionFixtures,
   miOpenPrimaryElectionFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
@@ -227,6 +228,18 @@ async function generateMiOpenPrimaryElectionFixtures(
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
+async function generateMiGeneralElectionFixtures(rendererPool: RendererPool) {
+  const fixtures = miGeneralElectionFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+}
+
 async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = msGeneralElectionFixtures;
   const generated = await fixtures.generate(rendererPool);
@@ -283,6 +296,7 @@ type Fixture =
   | 'nh-state-general-election'
   | 'nh-state-primary-election'
   | 'mi-closed-primary-election'
+  | 'mi-general-election'
   | 'mi-open-primary-election'
   | 'ms-general-election'
   | 'calibration-sheet';
@@ -343,6 +357,11 @@ export async function main(): Promise<number> {
 
       case '--mi-closed-primary-election': {
         fixtures.add('mi-closed-primary-election');
+        break;
+      }
+
+      case '--mi-general-election': {
+        fixtures.add('mi-general-election');
         break;
       }
 
@@ -427,6 +446,14 @@ export async function main(): Promise<number> {
       force: true,
     });
     await generateMiClosedPrimaryElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('mi-general-election')) {
+    await rm(miGeneralElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateMiGeneralElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('mi-open-primary-election')) {
