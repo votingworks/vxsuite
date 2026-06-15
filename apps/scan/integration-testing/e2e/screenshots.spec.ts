@@ -2,6 +2,7 @@ import test, { expect } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
+  asElectionDefinition,
   clearTemporaryRootDir,
   electionFamousNames2021Fixtures,
   setupTemporaryRootDir,
@@ -21,6 +22,7 @@ import {
   AdjudicationReason,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
+  PollingPlace,
   SystemSettings,
   VotesDict,
 } from '@votingworks/types';
@@ -189,6 +191,91 @@ test('configuration', async ({ page }, testInfo) => {
   await screenshotWithButtonHighlight(
     'Signed Hash Validation',
     'sa-signed-hash-validation'
+  );
+});
+
+test('early voting', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const fixtureSet = electionFamousNames2021Fixtures;
+  const usbHandler = getMockFileUsbDriveHandler();
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+
+  // The famous-names election only defines election-day polling places, so the
+  // early-voting polling place picker would otherwise have no options. Add a
+  // synthetic early-voting location (covering the same precinct as North
+  // Lincoln) so the early-voting flow can be configured.
+  const baseElection = fixtureSet.readElection();
+  const earlyVotingPollingPlace: PollingPlace = {
+    id: 'north-lincoln-early-voting',
+    name: 'North Lincoln Early Voting Center',
+    precincts: { '23': { type: 'whole' } },
+    type: 'early_voting',
+  };
+  const election: typeof baseElection = {
+    ...baseElection,
+    pollingPlaces: [
+      ...(baseElection.pollingPlaces ?? []),
+      earlyVotingPollingPlace,
+    ],
+  };
+  const electionDefinition = asElectionDefinition(election);
+
+  // Configure the machine. The "Ballot Casting Mode" toggle (gated behind the
+  // EARLY_VOTING feature flag) defaults to Election Day.
+  await logInAsElectionManager(page, election);
+  usbHandler.insert(await mockElectionPackageFileTree({ electionDefinition }));
+  await page.getByText('Election Manager Menu').waitFor();
+
+  // Switch to early voting (the default is Election Day). This is gated behind
+  // the EARLY_VOTING feature flag. Capture the toggle highlighted first.
+  await screenshotWithButtonHighlight('Early Voting', 'em-early-voting-button');
+  await page.getByText('Early Voting').click();
+  await page
+    .getByRole('option', { name: 'Early Voting', selected: true })
+    .waitFor();
+
+  // Selecting a casting mode resets the polling place, so choose it afterward.
+  await page.getByLabel(/select a polling place/i).click({ force: true });
+  await page
+    .getByText('North Lincoln Early Voting Center', { exact: true })
+    .click();
+  await page
+    .locator('.search-select')
+    .getByText('North Lincoln Early Voting Center')
+    .waitFor();
+
+  // Switch to official ballot mode so the early voting banner shows cleanly
+  // (test mode adds its own banner that would otherwise sit alongside it).
+  await page.getByText('Official Ballot Mode').click();
+  await page.getByText('Test Ballot Mode').waitFor();
+
+  // Unauthenticated polls-closed screen shows the early voting banner.
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open polls.').waitFor();
+  await screenshot('unauthenticated-early-voting');
+
+  // Open polls.
+  logInAsPollWorker(election);
+  await page.getByRole('button', { name: 'Open Polls' }).click();
+  await page
+    .getByRole('heading', { name: 'Polls Opened' })
+    .waitFor({ timeout: 60000 });
+  mockCardRemoval();
+
+  // Voter "Insert Your Ballot" screen also shows the early voting banner.
+  await page.getByText('Insert Your Ballot').waitFor();
+  await screenshot('insert-ballot-early-voting');
+
+  // Inserting a poll worker card while polls are open in early voting mode
+  // shows a guided prompt toward pausing voting (rather than closing polls, as
+  // on election day).
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to pause voting?').waitFor();
+  await screenshot('pw-pause-voting-prompt');
+  await screenshotWithButtonHighlight(
+    'Pause Voting',
+    'pw-pause-voting-prompt-button'
   );
 });
 
