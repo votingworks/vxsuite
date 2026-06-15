@@ -212,6 +212,10 @@ test('election fixture references', async () => {
       title: 'electionSimpleSinglePrecinct',
     },
     {
+      path: 'fixtures/data/electionStraightParty/election.json',
+      title: 'electionStraightParty',
+    },
+    {
       path: 'fixtures/data/electionTwoPartyPrimary/election.json',
       title: 'electionTwoPartyPrimary',
     },
