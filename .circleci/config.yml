@@ -111,7 +111,7 @@ jobs:
           path: apps/admin/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [ drew/scan-write-in-report-screenshot, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -205,7 +205,7 @@ jobs:
           path: apps/central-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [ drew/scan-write-in-report-screenshot, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -349,7 +349,7 @@ jobs:
           path: apps/mark-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [ drew/scan-write-in-report-screenshot, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -443,7 +443,7 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [ drew/scan-write-in-report-screenshot, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -561,7 +561,7 @@ jobs:
           path: apps/print/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [ drew/scan-write-in-report-screenshot, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -655,7 +655,7 @@ jobs:
           path: apps/scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [ drew/scan-write-in-report-screenshot, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -1795,7 +1795,7 @@ workflows:
             - test-apps-scan-integration-testing
           filters:
             branches:
-              only: main
+              only: drew/scan-write-in-report-screenshot
 
 commands:
   checkout-and-install:
