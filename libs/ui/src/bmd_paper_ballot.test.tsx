@@ -19,7 +19,7 @@ import {
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 
-import { encodeBallot } from '@votingworks/ballot-encoder';
+import { encodeSinglePageSummaryBallot } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
@@ -54,10 +54,10 @@ const electionFamousNamesDefinition =
 vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
   ...(await importActual()),
   // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-  encodeBallot: vi.fn(),
+  encodeSinglePageSummaryBallot: vi.fn(),
 }));
 
-const encodeBallotMock = vi.mocked(encodeBallot);
+const encodeBallotMock = vi.mocked(encodeSinglePageSummaryBallot);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 
 beforeEach(() => {
@@ -339,7 +339,7 @@ test('BmdPaperBallot renders seal', () => {
   screen.getByTestId('seal');
 });
 
-test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', () => {
+test('BmdPaperBallot passes expected data to encodeSinglePageSummaryBallot for use in QR code', () => {
   const QrCodeSpy = vi.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
@@ -354,7 +354,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
     },
   });
 
-  expect(encodeBallot).toBeCalledWith(
+  expect(encodeSinglePageSummaryBallot).toBeCalledWith(
     electionGeneralDefinition.election,
     expect.objectContaining({
       ballotStyleId: '5' as BallotStyleId,

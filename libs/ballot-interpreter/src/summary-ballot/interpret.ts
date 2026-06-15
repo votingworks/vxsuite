@@ -1,7 +1,7 @@
 import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import {
-  BmdMultiPageBallotPageMetadata,
+  MultiPageSummaryBallotPageMetadata,
   CompletedBallot,
   ElectionDefinition,
   SheetOf,
@@ -10,10 +10,10 @@ import {
 } from '@votingworks/types';
 import {
   BALLOT_HASH_ENCODING_LENGTH,
-  decodeBallot,
+  decodeSinglePageSummaryBallot,
   decodeBallotHash,
-  decodeBmdMultiPageBallot,
-  isBmdMultiPageBallot,
+  decodeMultiPageSummaryBallotPage,
+  isMultiPageSummaryBallot,
 } from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
@@ -37,7 +37,7 @@ export interface SinglePageInterpretation {
  */
 export interface MultiPageInterpretation {
   type: 'multi-page';
-  metadata: BmdMultiPageBallotPageMetadata;
+  metadata: MultiPageSummaryBallotPageMetadata;
   votes: VotesDict;
   summaryBallotImage: ImageData;
   blankPageImage: ImageData;
@@ -139,9 +139,9 @@ export async function interpret(
 
   const blankPageImage = frontResult.isOk() ? croppedCard[1] : croppedCard[0];
 
-  // Check if this is a multi-page BMD ballot
-  if (isBmdMultiPageBallot(foundQrCode.data)) {
-    const decoded = decodeBmdMultiPageBallot(
+  // Check if this is a multi-page summary ballot
+  if (isMultiPageSummaryBallot(foundQrCode.data)) {
+    const decoded = decodeMultiPageSummaryBallotPage(
       electionDefinition,
       foundQrCode.data
     );
@@ -157,7 +157,7 @@ export async function interpret(
   // Single-page BMD ballot
   return ok({
     type: 'single-page',
-    ballot: decodeBallot(electionDefinition, foundQrCode.data),
+    ballot: decodeSinglePageSummaryBallot(electionDefinition, foundQrCode.data),
     summaryBallotImage,
     blankPageImage,
   });
