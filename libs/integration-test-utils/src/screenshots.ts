@@ -149,50 +149,57 @@ export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
     await removeFocusHighlight();
   }
 
+  async function measureOverflow(selector: string): Promise<number | null> {
+    return page.evaluate((sel) => {
+      const element = document.querySelector(sel);
+      if (!element) return null;
+      return element.scrollHeight - element.clientHeight;
+    }, selector);
+  }
+
+  /**
+   * Temporarily grows the window so the given scrollable container (e.g.
+   * `main`, which has `overflow: auto`) renders all of its content within the
+   * viewport, runs the callback (typically a screenshot), then restores the
+   * viewport.
+   *
+   * The container's content height can change after the initial measurement —
+   * async queries (disk space, device status, etc.) may not have resolved yet,
+   * and growing the viewport can itself reflow content. So rather than
+   * measuring once and bailing when there's no overflow, this re-measures after
+   * each resize and keeps expanding until the container no longer overflows (or
+   * a safety cap is hit). This makes the full-page capture deterministic
+   * instead of silently falling back to a clipped viewport screenshot.
+   */
   async function withContainerVerticallyExpanded(
     selector: string,
     callback: () => Promise<void>
   ) {
-    // Get the overflow amount
-    const overflowData = await page.evaluate((sel) => {
-      const element = document.querySelector(sel);
-      if (!element) return null;
+    const width = page.viewportSize()?.width ?? 1280;
+    const originalHeight = page.viewportSize()?.height ?? 720;
 
-      const { scrollHeight, clientHeight } = element;
-      const overflowAmount = scrollHeight - clientHeight;
-
-      return {
-        overflowAmount,
-        originalViewportHeight: window.innerHeight,
-      };
-    }, selector);
-
-    if (!overflowData || overflowData.overflowAmount <= 0) {
-      // No overflow, just run the callback
-      await callback();
-      return;
+    let height = originalHeight;
+    // Cap the number of grow-and-remeasure passes so a container that never
+    // stops overflowing (unexpected) can't loop forever.
+    const MAX_PASSES = 5;
+    for (let pass = 0; pass < MAX_PASSES; pass += 1) {
+      // Let pending layout/queries settle before measuring, so late-loading
+      // content is included in the overflow amount.
+      await page.waitForTimeout(150);
+      const overflow = await measureOverflow(selector);
+      if (overflow === null || overflow <= 0) {
+        break;
+      }
+      height += overflow;
+      await page.setViewportSize({ width, height });
     }
 
-    // Temporarily expand the viewport
-    const newHeight =
-      overflowData.originalViewportHeight + overflowData.overflowAmount;
-    await page.setViewportSize({
-      width: page.viewportSize()?.width ?? 1280,
-      height: newHeight,
-    });
-
-    await page.waitForTimeout(100);
-
-    // Run the callback (e.g., take screenshot)
     await callback();
 
-    // Reset viewport
-    await page.setViewportSize({
-      width: page.viewportSize()?.width ?? 1280,
-      height: overflowData.originalViewportHeight,
-    });
-
-    await page.waitForTimeout(100);
+    if (height !== originalHeight) {
+      await page.setViewportSize({ width, height: originalHeight });
+      await page.waitForTimeout(100);
+    }
   }
 
   return {
