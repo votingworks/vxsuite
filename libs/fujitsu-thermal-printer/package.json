@@ -38,7 +38,7 @@
     "@types/node": "20.17.31",
     "@types/w3c-web-usb": "1.0.8",
     "@vitest/coverage-istanbul": "^4.1.6",
-    "esbuild": "0.21.2",
+    "esbuild": "0.28.1",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
