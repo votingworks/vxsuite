@@ -61,6 +61,7 @@ import {
   SoftwareVersion,
   ElectionType,
   straightPartyNotYetImplemented,
+  StraightPartyContest,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -909,9 +910,11 @@ export class Store {
               created_at as "createdAt",
               ballot_language_codes as "ballotLanguageCodes",
               last_exported_ballot_hash as "lastExportedBallotHash",
-              external_source as "externalSource"
+              external_source as "externalSource",
+              state_code as "jurisdictionStateCode"
             from elections
-            where id = $1
+            join jurisdictions on elections.jurisdiction_id = jurisdictions.id
+            where elections.id = $1
           `,
           electionId
         )
@@ -933,6 +936,7 @@ export class Store {
         ballotLanguageCodes: LanguageCode[];
         lastExportedBallotHash: string | null;
         externalSource: ExternalElectionSource | null;
+        jurisdictionStateCode: StateCode;
       };
       assert(electionRow, 'Election not found');
 
@@ -1093,10 +1097,10 @@ export class Store {
         partyIds: PartyId[];
       }>;
       const contests: Contest[] = contestRows.map((row) => {
-        /* istanbul ignore next */
-        if (row.type === 'straight-party') {
-          return straightPartyNotYetImplemented();
-        }
+        assert(
+          row.type !== 'straight-party',
+          'Straight party contests are generated on read'
+        );
         switch (row.type) {
           case 'candidate': {
             const candidates: Candidate[] = candidateRows
@@ -1170,6 +1174,33 @@ export class Store {
       });
 
       const pollingPlaces = await this.listPollingPlaces(electionId);
+
+      const stateFeaturesConfig = getStateFeaturesConfig({
+        stateCode: electionRow.jurisdictionStateCode,
+      });
+      if (
+        stateFeaturesConfig.STRAIGHT_PARTY_VOTING &&
+        electionRow.type === 'general'
+      ) {
+        // The straight party contest's district must be on every ballot style
+        // so the contest appears on every ballot.
+        const district = assertDefined(
+          districts.find((d) =>
+            ballotStyles.every((ballotStyle) =>
+              ballotStyle.districts.includes(d.id)
+            )
+          ),
+          'Straight party contest requires a district shared by all ballot styles'
+        );
+        const straightPartyContest: StraightPartyContest = {
+          id: `${electionId}-straight-party-contest`,
+          type: 'straight-party',
+          title: 'Straight Party Ticket',
+          districtId: district.id,
+          optionIds: parties.map((party) => party.id),
+        };
+        contests.unshift(straightPartyContest);
+      }
 
       const election: Election = {
         id: electionId,

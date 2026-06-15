@@ -267,7 +267,7 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
 }
 
 export function getStateFeaturesConfig(
-  jurisdiction: Jurisdiction
+  jurisdiction: Pick<Jurisdiction, 'stateCode'>
 ): StateFeaturesConfig {
   return stateFeatureConfigs[jurisdiction.stateCode];
 }
