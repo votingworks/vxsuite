@@ -356,11 +356,7 @@ test('voting', async ({ page }, testInfo) => {
   await screenshot('blank-ballot-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
-  // Undervote warning. Each subsequent warning scan is inserted right after the
-  // previous "Cast Ballot" click, without waiting for "Insert Your Ballot" in
-  // between — the backend re-enables scanning as soon as a ballot is accepted.
-  // The review screen ("Review Your Ballot") is distinct from the prior
-  // accepted screen, so waiting for it is unambiguous.
+  // Undervote warning.
   mockPdiScannerHandler.insertSheet(undervotePdf);
   await page
     .getByRole('heading', { name: 'Review Your Ballot' })
@@ -669,12 +665,10 @@ test('write-in-report', async ({ page }, testInfo) => {
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
-  // Scan each ballot. Between scans we wait only for the scanned-ballot count to
-  // advance, not for the "Insert Your Ballot" screen to return — the backend
-  // re-enables scanning as soon as a ballot is accepted, so we can insert the
-  // next sheet without waiting out the (3s) accepted-screen display hold. We
-  // assert on the count (rather than the "counted" text, which is identical
-  // between consecutive successful scans) so each scan is confirmed distinctly.
+  // Scan each ballot, inserting the next as soon as the count advances rather
+  // than waiting for the "Insert Your Ballot" screen (see the voting test). We
+  // assert on the count rather than the "counted" text, which is identical
+  // between consecutive successful scans.
   const writeInPdfs = [writeInPdfA, writeInPdfB];
   for (const [index, writeInPdf] of writeInPdfs.entries()) {
     mockPdiScannerHandler.insertSheet(writeInPdf);
